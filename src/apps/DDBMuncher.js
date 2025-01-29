@@ -267,7 +267,7 @@ export default class DDBMuncher extends Application {
     try {
       logger.info("Munching spells!");
       await DDBReferenceLinker.importCacheLoad();
-      await parseSpells();
+      await parseSpells({ notifier: DDBMuncher.munchNote });
       DDBMuncher.munchNote(`Finished importing spells!`, true);
       DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();

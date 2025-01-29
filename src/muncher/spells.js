@@ -10,14 +10,14 @@ import {
   Iconizer,
   DDBItemImporter,
   DDBMacros,
+  DDBCompendiumFolders,
 } from "../lib/_module.mjs";
-import DDBMuncher from "../apps/DDBMuncher.js";
 import { SETTINGS } from "../config/_module.mjs";
 import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
 
-function getSpellData(className, sourceFilter, rulesVersion = null) {
+function getSpellData({ className, sourceFilter, rulesVersion = null, notifier } = {}) {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
@@ -79,20 +79,21 @@ function getSpellData(className, sourceFilter, rulesVersion = null) {
   });
 }
 
-export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
+export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null } = {}) {
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
 
+  const resolvedNotifier = notifier ?? utils.munchNote;
   // to speed up file checking we pregenerate existing files now.
   await FileHelper.generateCurrentFiles(uploadDirectory);
-  await DDBMuncher.generateCompendiumFolders("spells");
+  await DDBCompendiumFolders.generateCompendiumFolders("spells", resolvedNotifier);
 
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
     // eslint-disable-next-line require-atomic-updates
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-  utils.munchNote("Downloading spell data..");
+  resolvedNotifier("Downloading spell data..");
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
@@ -100,12 +101,16 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   const spellListFactory = new SpellListFactory();
 
   for (const className of SpellListFactory.CLASS_NAMES) {
-    const spellData = await getSpellData(className, sourceFilter);
+    const spellData = await getSpellData({
+      className,
+      sourceFilter,
+      notifier: resolvedNotifier,
+    });
     spellListFactory.extractSpellListData(className, spellData);
     results.push(...spellData);
   }
 
-  utils.munchNote("Parsing spell data.");
+  resolvedNotifier("Parsing spell data.");
 
   const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
 
@@ -126,7 +131,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   //   })
   // });
 
-  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, utils.munchNote);
+  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, resolvedNotifier);
 
   const spells = rawSpells
     .filter((spell) => spell?.name)
@@ -144,7 +149,7 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   const itemHandler = new DDBItemImporter("spells", uniqueSpells, {
     deleteBeforeUpdate,
     matchFlags: ["is2014", "is2024"],
-    notifier: utils.munchNote,
+    notifier: resolvedNotifier,
   });
   await itemHandler.init();
   await itemHandler.srdFiddling();
@@ -155,17 +160,19 @@ export async function parseSpells(ids = null, deleteBeforeUpdate = null) {
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredSpells, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
-  utils.munchNote(`Importing ${finalCount} spells...`, true);
+  resolvedNotifier(`Importing ${finalCount} spells...`, true);
   logger.time("Spell Import Time");
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
   logger.debug({ finalSpells: itemHandler.documents, updateResults, updatePromiseResults });
-  utils.munchNote("");
+  resolvedNotifier("");
   logger.timeEnd("Spell Import Time");
 
+  await DDBCompendiumFolders.cleanupCompendiumFolders("spells", resolvedNotifier);
+
   logger.debug("Starting Spell List Generation");
-  utils.munchNote(`Generating Spell List Journals...`, true);
+  resolvedNotifier(`Generating Spell List Journals...`, true);
   await spellListFactory.buildSpellLists();
   await spellListFactory.registerSpellLists();
   logger.debug("Spell List Generation Complete");

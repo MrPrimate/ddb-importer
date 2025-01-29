@@ -110,7 +110,7 @@ export default class AdventureMunchHelpers {
             logger.debug(`Importing missing ${type}s from DDB`);
             AdventureMunch._progressNote(`Missing spells detected, importing from DDB`);
             // we actually want all spells, because monsters don't just use spells from a single source
-            resolve(parseSpells(null, false));
+            resolve(parseSpells({ ids: null, deleteBeforeUpdate: false }));
             break;
           // no default
         }
