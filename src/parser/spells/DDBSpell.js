@@ -797,7 +797,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     if (activityData.type !== "summon") return activity;
     if (this.isCompanionSpell)
       await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData);
-    else if (DICTIONARY.companions.CR_SUMMONING_SPELLS.includes(this.originalName))
+    else if (this.is2014 && DICTIONARY.companions.CR_SUMMONING_SPELLS_2014.includes(this.originalName))
       await this.ddbCompanionFactory.addCRSummoning(activityData);
     return activity;
   }
