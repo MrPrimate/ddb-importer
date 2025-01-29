@@ -33,7 +33,7 @@ const COMPANION_OPTIONS = {
   ],
 };
 
-const CR_SUMMONING_SPELLS = [
+const CR_SUMMONING_SPELLS_2014 = [
   "Conjure Animals",
   "Conjure Celestial",
   "Conjure Elemental",
@@ -55,6 +55,6 @@ export const COMPANIONS = {
   COMPANION_FEATURES,
   COMPANION_SPELLS,
   COMPANION_OPTIONS,
-  CR_SUMMONING_SPELLS,
+  CR_SUMMONING_SPELLS_2014: CR_SUMMONING_SPELLS_2014,
   CR_SUMMONING_FEATURES,
 };
