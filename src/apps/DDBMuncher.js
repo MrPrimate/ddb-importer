@@ -187,12 +187,12 @@ export default class DDBMuncher extends Application {
     });
     html.find("#compendium-folder-style-spell").on("change", async () => {
       const style = html.find("#compendium-folder-style-spell");
-      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SCHOOL";
+      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SOURCE_CATEGORY_LEVEL";
       game.settings.set("ddb-importer", "munching-selection-compendium-folders-spell", importStyle);
     });
     html.find("#compendium-folder-style-item").on("change", async () => {
       const style = html.find("#compendium-folder-style-item");
-      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "TYPE";
+      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SOURCE_CATEGORY_TYPE";
       game.settings.set("ddb-importer", "munching-selection-compendium-folders-item", importStyle);
     });
 
@@ -387,10 +387,7 @@ export default class DDBMuncher extends Application {
 
   static async migrateCompendiumFolders(type) {
     logger.info(`Migrating ${type} compendium`);
-    const compendiumFolders = new DDBCompendiumFolders(type);
-    await compendiumFolders.loadCompendium(type);
-    await compendiumFolders.migrateExistingCompendium();
-    await compendiumFolders.removeUnusedFolders();
+    await DDBCompendiumFolders.migrateExistingCompendium(type);
     DDBMuncher.munchNote(`Migrating complete.`, true);
     DDBMuncher.enableButtons();
   }

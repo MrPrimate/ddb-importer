@@ -670,7 +670,11 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         healingPart.chatFlavor = `Restriction: ${restrictionText}`;
       }
 
-      const healValue = (heal.die.diceString) ? heal.die.diceString : heal.die.fixedValue;
+      const healValue = heal.die.diceString
+        ? heal.die.diceString
+        : heal.die.fixedValue
+          ? heal.die.fixedValue
+          : "";
       const diceString = heal.usePrimaryStat
         ? `${healValue} + @mod${this.healingBonus}`
         : `${healValue}${this.healingBonus}`;

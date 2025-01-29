@@ -75,7 +75,7 @@ export class DDBCompendiumFolders {
     return folder;
   }
 
-  async createCreatureTypeCompendiumFolders() {
+  async createCreatureTypeFolders() {
     for (const monsterType of CONFIG.DDB.monsterTypes) {
       const folder = this.getFolder(monsterType.name)
         ?? (await this.createCompendiumFolder({ name: monsterType.name, color: "#6f0006" }));
@@ -83,7 +83,7 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createAlphabeticalCompendiumFolders() {
+  async createAlphabeticalFolders() {
     for (let i = 9; ++i < 36;) {
       const folderName = i.toString(36).toUpperCase();
       const folder = this.getFolder(folderName)
@@ -92,7 +92,7 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createChallengeRatingCompendiumFolders() {
+  async createChallengeRatingFolders() {
     for (const cr of CONFIG.DDB.challengeRatings) {
       const paddedCR = String(cr.value).padStart(2, "0");
       const folder = this.getFolder(`CR ${paddedCR}`)
@@ -102,17 +102,56 @@ export class DDBCompendiumFolders {
   }
 
   // spell level
-  async createSpellLevelCompendiumFolders() {
+  async createSpellLevelFolders({ categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
     for (const levelName of DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL) {
       logger.debug(`Checking for folder '${levelName}'`);
-      const folder = this.getFolder(levelName)
-        ?? (await this.createCompendiumFolder({ name: levelName }));
+      const flagTag = categoryFolderId
+        ? DDBCompendiumFolders.getSourceCategoryFolderName({
+          categoryId: categoryFolderKey,
+          type: "spell",
+        }).flagTag
+        : "";
+      const folder = this.getFolder(levelName, flagTag)
+        ?? (await this.createCompendiumFolder({
+          name: levelName,
+          flagTag,
+          parentId: categoryFolderId,
+        }));
       this.validFolderIds.push(folder._id);
     }
   }
 
+  static getSpellFolderNameForTypeSourceCategory(document) {
+    const name = DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL[document.system?.level];
+
+    const result = DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
+      type: "spell",
+      document,
+      // flagSuffix: document.system?.level,
+      nameSuffix: name,
+    });
+    return {
+      result,
+      name: result.name,
+      flagTag: result.flagTag,
+    };
+  }
+
+  async createSpellLevelFoldersWithSourceCategories() {
+    const sourceFoldersData = DDBCompendiumFolders.getAllSourceCategoryFolders("spell");
+
+    for (const data of sourceFoldersData) {
+      const sourceFolder = await this._createSourceFolder(data.name, data.flagTag, data.color);
+
+      await this.createSpellLevelFolders({
+        categoryFolderKey: data.categoryId,
+        categoryFolderId: sourceFolder._id,
+      });
+    }
+  }
+
   // spell school
-  async createSpellSchoolCompendiumFolders() {
+  async createSpellSchoolFolders() {
     for (const school of DICTIONARY.spell.schools) {
       const schoolName = utils.capitalize(school.name);
       logger.debug(`Checking for folder '${schoolName}'`);
@@ -123,7 +162,7 @@ export class DDBCompendiumFolders {
   }
 
   // item rarity folder
-  async createItemRarityCompendiumFolders() {
+  async createItemRarityFolders() {
     for (const rarityName of DICTIONARY.COMPENDIUM_FOLDERS.RARITY) {
       logger.debug(`Checking for folder '${rarityName}'`);
       const folder = this.getFolder(rarityName, rarityName)
@@ -529,15 +568,15 @@ export class DDBCompendiumFolders {
       case "monster": {
         switch (this.compendiumFolderTypeMonster) {
           case "TYPE": {
-            await this.createCreatureTypeCompendiumFolders();
+            await this.createCreatureTypeFolders();
             break;
           }
           case "ALPHA": {
-            await this.createAlphabeticalCompendiumFolders();
+            await this.createAlphabeticalFolders();
             break;
           }
           case "CR": {
-            await this.createChallengeRatingCompendiumFolders();
+            await this.createChallengeRatingFolders();
             break;
           }
           // no default
@@ -548,10 +587,13 @@ export class DDBCompendiumFolders {
       case "spells": {
         switch (this.compendiumFolderTypeSpell) {
           case "SCHOOL":
-            await this.createSpellSchoolCompendiumFolders();
+            await this.createSpellSchoolFolders();
             break;
           case "LEVEL":
-            await this.createSpellLevelCompendiumFolders();
+            await this.createSpellLevelFolders();
+            break;
+          case "SOURCE_CATEGORY_LEVEL":
+            await this.createSpellLevelFoldersWithSourceCategories();
             break;
           // no default
         }
@@ -565,7 +607,7 @@ export class DDBCompendiumFolders {
             await this.createItemTypeCompendiumFolders();
             break;
           case "RARITY":
-            await this.createItemRarityCompendiumFolders();
+            await this.createItemRarityFolders();
             break;
           case "SOURCE_TYPE":
             await this.createItemTypeFoldersWithSources();
@@ -1175,9 +1217,14 @@ export class DDBCompendiumFolders {
           }
           case "LEVEL": {
             const levelFolder = DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL[document.system?.level];
-            if (levelFolder) {
-              data = levelFolder;
-            }
+            data = {
+              name: levelFolder,
+              flagTag: null,
+            };
+            break;
+          }
+          case "SOURCE_CATEGORY_LEVEL": {
+            data = DDBCompendiumFolders.getSpellFolderNameForTypeSourceCategory(document);
             break;
           }
           // no default
@@ -1348,7 +1395,7 @@ export class DDBCompendiumFolders {
   }
 
   // eslint-disable-next-line complexity
-  async migrateExistingCompendium(deleteExisting = false) {
+  async _migrateExistingCompendium({ deleteExisting = true, cleanup = true } = {}) {
     if (!this.compendium) {
       this.loadCompendium(this.type, true);
     }
@@ -1367,6 +1414,8 @@ export class DDBCompendiumFolders {
     logger.debug("Remaining Compendium Folders", this.compendium.folders);
 
     const index = await this.compendium.getIndex({ fields: this.#getIndexFields() });
+
+    await this.createCompendiumFolders();
 
     const results = [];
     for (const i of index) {
@@ -1406,9 +1455,18 @@ export class DDBCompendiumFolders {
       }
     }
 
-    await this.removeUnusedFolders();
+    if (cleanup) await this.removeUnusedFolders();
 
     return this.compendium.folders;
+  }
+
+  static async migrateExistingCompendium(type, { folderStructure = null, cleanup = true, deleteExisting = true } = {}) {
+    if (folderStructure) {
+      await game.settings.set("ddb-importer", `munching-selection-compendium-folders-${type.replace(/s+$/, "")}`);
+    }
+    const compendiumFolders = new DDBCompendiumFolders(type);
+    await compendiumFolders.loadCompendium(type, true);
+    await compendiumFolders._migrateExistingCompendium({ deleteExisting, cleanup });
   }
 
   async removeUnusedFolders() {

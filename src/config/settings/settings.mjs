@@ -831,9 +831,10 @@ const SETTINGS = {
             type: String,
             choices: {
               SCHOOL: "School of Magic",
+              SOURCE_CATEGORY_LEVEL: "Source Category -> Level",
               LEVEL: "Level",
             },
-            default: "LEVEL",
+            default: "SOURCE_CATEGORY_LEVEL",
           },
           "munching-selection-compendium-folders-item": {
             name: "ddb-importer.settings.munching-selection-compendium-folders-item.name",
@@ -886,7 +887,7 @@ const SETTINGS = {
           },
           "munching-policy-legacy-postfix": {
             type: Boolean,
-            default: true,
+            default: false,
           },
           "munching-policy-use-srd-icons": {
             type: Boolean,
