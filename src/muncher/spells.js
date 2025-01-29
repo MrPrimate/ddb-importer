@@ -50,7 +50,7 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
           FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");
         }
         if (!data.success) {
-          utils.munchNote(`Failure: ${data.message}`);
+          notifier(`Failure: ${data.message}`);
           reject(data.message);
         }
         return data;
