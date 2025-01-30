@@ -217,7 +217,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.prepare();
 
     // copy source details from parent
-    if (this.ddbMonster) this.data.system.source = this.ddbMonster.npc.system.details.source;
+    if (this.ddbMonster?.npc?.system.details?.source) this.data.system.source = this.ddbMonster.npc.system.details.source;
 
     this.actionInfo = {};
     this.resetActionInfo();

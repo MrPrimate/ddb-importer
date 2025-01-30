@@ -159,6 +159,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     Generic: this.GENERIC_ENRICHERS,
     "Flying Snake": { "Bite": MonsterEnrichers.FlyingSnake.Bite },
     "Purple Worm": { "Bite": MonsterEnrichers.PurpleWorm.Bite },
+    "Conjured Animals": { "Pack Damage": MonsterEnrichers.ConjuredAnimals.PackDamage },
     // "Dragon": {
     //   "Frightful Presence": MonsterEnrichers.Dragon.FrightfulPresence,
     // },

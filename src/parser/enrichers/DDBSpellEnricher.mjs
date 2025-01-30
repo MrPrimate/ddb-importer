@@ -182,6 +182,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Confusion": SpellEnrichers.Confusion,
     "Contagion": SpellEnrichers.Contagion,
     "Unseen Servant": SpellEnrichers.UnseenServant,
+    "Conjure Animals": SpellEnrichers.ConjureAnimals,
   };
 
 }

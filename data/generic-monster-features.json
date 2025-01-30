@@ -9458,5 +9458,9 @@
   {
     "name": "Mummy Dust",
     "path": "icons/magic/acid/projectile-bolts-salvo-green.webp"
+  },
+  {
+    "name": "Pack Damage",
+    "path": "icons/creatures/claws/claw-talons-yellow-red.webp"
   }
 ]

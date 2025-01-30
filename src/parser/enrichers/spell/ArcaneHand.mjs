@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class ArcaneHand extends DDBEnricherData {
@@ -13,7 +12,7 @@ export default class ArcaneHand extends DDBEnricherData {
       type: "summon",
       noTemplate: true,
       generateSummons: !this.is2014,
-      summonsFunction: DDBSummonsManager.get2024ArcaneHands,
+      summonsFunction: DDBImporter.lib.DDBSummonsInterface.get2024ArcaneHands,
       profileKeys: this.is2014
         ? [
           "ArcaneHandRed",

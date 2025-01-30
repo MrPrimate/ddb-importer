@@ -20,6 +20,7 @@ import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
 import * as ParserLib from "./parser/lib/_module.mjs";
+import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface.mjs";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -117,6 +118,7 @@ export function registerApi() {
       DDBMonsterFactory,
       DDBProxy: lib.DDBProxy,
       DDBSummonsManager,
+      DDBSummonsInterface,
       DialogHelper: lib.DialogHelper,
       DirectoryPicker: lib.DirectoryPicker,
       FileHelper: lib.FileHelper,
