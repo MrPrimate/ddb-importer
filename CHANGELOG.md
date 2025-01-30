@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.68
 
 - Fix for racial traits with level requirements imported on low level characters
 - Experimental compendium import broke for some characters.
