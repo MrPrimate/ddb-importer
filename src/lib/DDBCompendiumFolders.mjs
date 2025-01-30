@@ -73,7 +73,9 @@ export class DDBCompendiumFolders {
 
   async createCompendiumFolder({ name, parentId, color, folderId, flagTag } = {}) {
     const data = this._createCompendiumFolderData({ name, parentId, color, folderId, flagTag });
+    console.warn("Creating folder", data);
     const folder = await CompendiumHelper.createFolder(data);
+    console.warn("Created folder", folder);
     return folder;
   }
 
@@ -521,7 +523,7 @@ export class DDBCompendiumFolders {
           color: "#222222",
           flagTag: subClassFlag,
         }));
-    this.subClassFeaturesFolder.push(subClassFolder);
+    this.subClassFeaturesFolder[parentClassName] = subClassFolder._id;
     this.validFolderIds.push(subClassFolder._id);
     return subClassFolder;
   }

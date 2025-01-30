@@ -1,3 +1,9 @@
+# Next Up
+
+- Fix for racial traits with level requirements imported on low level characters
+- Experimental compendium import broke for some characters.
+- Summon summons configs were not configured on spells (e.g. Mage Hand)
+
 # 6.0.67
 
 - Fix some scaling issues with midi generated effects

@@ -500,7 +500,7 @@ export default class CharacterFeatureFactory {
         (trait) => CharacterFeatureFactory.includedFeatureNameCheck(trait.definition.name)
           && !trait.definition.hideInSheet
           && !this.excludedOriginFeatures.includes(trait.definition.id)
-          && (this.ddbCharacter.totalLevels >= (trait.requiredLevel ?? 1)),
+          && (this.ddbCharacter.totalLevels >= (trait.definition.requiredLevel ?? 1)),
       );
 
     for (const trait of traits) {
