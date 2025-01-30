@@ -464,7 +464,7 @@ export default class DDBEnricherFactoryMixin {
       activity.restrictions.allowMagical = true;
     }
 
-    if (overrideData.type === "summon" && this.manager) {
+    if (overrideData.profileKeys && (this.type === "summon" || overrideData.type === "summon") && this.manager) {
       this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
     }
 
