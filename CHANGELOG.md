@@ -1,7 +1,8 @@
 # Next Up
 
 - Unseen Servant Summons configuration.
-
+- Fixes to Spirit Guardians Spell.
+- Conjure Animals 2024 summons configuration and AA automation.
 
 # 6.0.68
 

@@ -8,6 +8,7 @@ export default class PackDamage extends DDBEnricherData {
 
   get activity() {
     return {
+      id: "ddbPackDamageSav",
       targetType: "creature",
       activationType: "special",
       activationCondition:
@@ -27,4 +28,64 @@ export default class PackDamage extends DDBEnricherData {
       },
     };
   }
+
+  get effects() {
+    return [
+      {
+        activeAurasOnly: true,
+        options: {
+          transfer: true,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
+        ],
+        macroChanges: [
+          {
+            macroValues: "@spellLevel",
+            functionCall: "DDBImporter.effects.AuraAutomations.ActorDamageOnEntry",
+          },
+        ],
+        data: {
+          flags: {
+            dae: {
+              macroRepeat: "startEndEveryTurn",
+              selfTarget: true,
+              selfTargetAlways: true,
+            },
+            ActiveAuras: {
+              isAura: true,
+              aura: "Enemy",
+              radius: 10,
+              alignment: "",
+              type: "",
+              ignoreSelf: true,
+              height: false,
+              hidden: false,
+              hostile: false,
+              onlyOnce: false,
+              displayTemp: true,
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  get override() {
+    return {
+      data: {
+        flags: {
+          ddbimporter: {
+            effect: {
+              saveOnEntry: true,
+              // sequencerFile: "jb2a.fumes.fire.orange",
+              activityIds: ["ddbPackDamageSav"],
+            },
+          },
+        },
+      },
+    };
+  }
+
+
 }

@@ -23,18 +23,20 @@ async function setCombatFlag(actor) {
   });
 }
 
-async function addOvertimeEffect(name = "Spirit Guardians", actorUuid, damageType = "radiant") {
+async function addOvertimeEffect({ name, actorUuid, damageType, damageRoll, flagName, ability } = {}) {
 
   const overtimeOptions = [
     `label=${name} (End of Turn)`,
     `turn=end`,
-    "damageRoll=(@spellLevel)d8",
+    `damageRoll=${damageRoll}`,
     `damageType=${damageType}`,
     "saveRemove=false",
     "saveDC=@attributes.spelldc",
-    "saveAbility=wis",
+    `saveAbility=${ability}`,
     "saveDamage=halfdamage",
     "killAnim=true",
+    `applyCondition=!flags.ddbihelpers.${flagName}`,
+    `macroToCall=function.DDBImporter.lib.DDBMacros.macroFunction.spell("spiritGuardians2024.js")`,
   ];
 
   await DDBImporter.socket.executeAsGM("updateEffects", {
@@ -83,7 +85,14 @@ if (args[0] === "on") {
     damageTypes.push("radiant");
   }
 
-  await addOvertimeEffect(scope.macroActivity.item.name,actor.uuid, damageTypes.length > 0 ? damageTypes[0] : "radiant");
+  await addOvertimeEffect({
+    name: scope.macroActivity.item.name,
+    actorUuid: actor.uuid,
+    damageType: damageTypes.length > 0 ? damageTypes[0] : "radiant",
+    damageRoll: `${scope.effect.flags["midi-qol"].castData.castLevel}d8`,
+    ability: "wis",
+    flagName: "SpiritGuardiansCalled",
+  });
 
   // const originDocument = await fromUuid(lastArg.origin);
   const workflowItemData = DDBImporter.EffectHelper.documentWithFilteredActivities({

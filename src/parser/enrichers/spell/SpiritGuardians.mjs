@@ -108,23 +108,23 @@ export default class SpiritGuardians extends DDBEnricherData {
   }
 
   get effects() {
-    const overtimeOptions = [
-      `label=Spirit Guardians (${this.is2014 ? 'Start' : 'End'} of Turn)`,
-      `turn=${this.is2014 ? 'start' : 'end'}`,
-      "damageRoll=(@spellLevel)d8",
-      "damageType=radiant",
-      "saveRemove=false",
-      "saveDC=@attributes.spelldc",
-      "saveAbility=wis",
-      "saveDamage=halfdamage",
-      "killAnim=true",
-    ];
-    if (this.is2024) {
-      overtimeOptions.push(
-        "applyCondition=!flags.ddbihelpers.SpiritGuardiansCalled",
-        "macroToCall=function",
-      );
-    }
+    // const overtimeOptions = [
+    //   `label=Spirit Guardians (${this.is2014 ? 'Start' : 'End'} of Turn)`,
+    //   `turn=${this.is2014 ? 'start' : 'end'}`,
+    //   "damageRoll=(@spellLevel)d8",
+    //   "damageType=radiant",
+    //   "saveRemove=false",
+    //   "saveDC=@attributes.spelldc",
+    //   "saveAbility=wis",
+    //   "saveDamage=halfdamage",
+    //   "killAnim=true",
+    // ];
+    // if (this.is2024) {
+    //   overtimeOptions.push(
+    //     "applyCondition=!flags.ddbihelpers.SpiritGuardiansCalled",
+    //     "macroToCall=function",
+    //   );
+    // }
     return [
       {
         name: "Spirit Guardians",
@@ -136,13 +136,13 @@ export default class SpiritGuardians extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
         ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange(
-            overtimeOptions.join(","),
-            20,
-            "flags.midi-qol.OverTime",
-          ),
-        ],
+        // midiChanges: [
+        //   DDBEnricherData.ChangeHelper.overrideChange(
+        //     overtimeOptions.join(","),
+        //     20,
+        //     "flags.midi-qol.OverTime",
+        //   ),
+        // ],
         macroChanges: [
           {
             // @token
