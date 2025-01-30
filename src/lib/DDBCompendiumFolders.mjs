@@ -73,9 +73,7 @@ export class DDBCompendiumFolders {
 
   async createCompendiumFolder({ name, parentId, color, folderId, flagTag } = {}) {
     const data = this._createCompendiumFolderData({ name, parentId, color, folderId, flagTag });
-    console.warn("Creating folder", data);
     const folder = await CompendiumHelper.createFolder(data);
-    console.warn("Created folder", folder);
     return folder;
   }
 
