@@ -33,7 +33,7 @@ async function addOvertimeEffect({ name, actorUuid, damageType, damageRoll, flag
         _id: effect._id,
         changes: effect.changes.concat([
           {
-            key: "flags.midi-qol.overtime",
+            key: "flags.midi-qol.OverTime",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
             priority: 20,
             value: overtimeOptions.join(","),
@@ -147,11 +147,11 @@ export default async function damageOnEntry({
   }
 
   // runs at end of turn after overTime effect. add flags to mark turn damage taken
-  if (args[0] === "each" && lastArg.turn === "endTurn") {
-    // console.warn("Each endTurn", { args, lastArg, scope, item });
-    await setCombatFlag(actor);
-    await DDBImporter.EffectHelper.setFlag(actor, flagNameCalled, true);
-  }
+  // if (args[0] === "each" && lastArg.turn === "endTurn") {
+  //   // console.warn("Each endTurn", { args, lastArg, scope, item });
+  //   await setCombatFlag(actor);
+  //   await DDBImporter.EffectHelper.setFlag(actor, flagNameCalled, true);
+  // }
 
 
 }

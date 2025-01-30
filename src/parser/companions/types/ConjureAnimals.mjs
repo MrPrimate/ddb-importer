@@ -24,24 +24,29 @@ export async function getConjureAnimals({
       width: 2,
       height: 2,
       texture: {
-        src: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
+        // src: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
         scaleX: 1,
         scaleY: 1,
       },
     },
     "system.traits.size": "lg",
-    img: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
+    // img: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
   });
-  stub = await DDBCompanionMixin.addEnrichedImageData(stub);
   const packDamage = `<p><em><strong>Pack Damage.</em></strong> Dexterity Saving Throw: against your spell save DC. A creature with 10 feet. Failure: 15 (3d10) Bludgeoning damage.</p>`;
-  const manager = new DDBCompanionMixin(packDamage, {});
+  const manager = new DDBCompanionMixin(packDamage, {}, { addMonsterEffects: true });
   manager.npc = stub;
-
   // console.warn("Getting feature", manager);
   const features = await manager.getFeature(packDamage, "action");
   // console.warn(features);
   stub.items = features;
+  stub = await DDBCompanionMixin.addEnrichedImageData(stub);
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
+
+  console.warn("Conjure Animals", {
+    stub: deepClone(stub),
+    enriched,
+  });
+
   const result = {
     ConjureAnimals: {
       name: "Conjure Animals",

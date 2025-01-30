@@ -8,7 +8,10 @@ import { DDBMonsterFeatureEnricher } from "../enrichers/_module.mjs";
 
 export default class DDBCompanionMixin {
 
-  constructor(block, options = {}) {
+  constructor(block, options = {}, {
+    addMonsterEffects = false, removeSplitCreatureActions = true, removeCreatureOnlyNames = true,
+    addChrisPremades = true, useItemAC = false, legacyName = false,
+  } = {}) {
     // console.warn("DDBCompanion", { block });
     this.options = options;
     this.block = block;
@@ -17,12 +20,12 @@ export default class DDBCompanionMixin {
     this.parsed = false;
     this.type = this.options.type;
 
-    this.useItemAC = false; // game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
-    this.legacyName = false; // game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    this.addMonsterEffects = false; // game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
-    this.removeSplitCreatureActions = true;
-    this.removeCreatureOnlyNames = true;
-    this.addChrisPremades = true;
+    this.useItemAC = useItemAC; // game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
+    this.legacyName = legacyName; // game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    this.addMonsterEffects = addMonsterEffects; // game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
+    this.removeSplitCreatureActions = removeSplitCreatureActions;
+    this.removeCreatureOnlyNames = removeCreatureOnlyNames;
+    this.addChrisPremades = addChrisPremades;
 
     this.summons = {
       match: {

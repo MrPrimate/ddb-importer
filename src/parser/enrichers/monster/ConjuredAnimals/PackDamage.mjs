@@ -30,15 +30,13 @@ export default class PackDamage extends DDBEnricherData {
   }
 
   get effects() {
+    // TODO: this should be attacjed to a template/aura action
     return [
       {
         activeAurasOnly: true,
         options: {
           transfer: true,
         },
-        changes: [
-          DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
-        ],
         macroChanges: [
           {
             macroValues: "@spellLevel",
