@@ -1,13 +1,13 @@
 const lastArg = args[args.length - 1];
 
-// console.warn({
-//   args,
-//   scope,
-//   item,
-//   lastArg,
-//   token,
-//   actor,
-// });
+console.warn({
+  args,
+  scope,
+  item,
+  lastArg,
+  token,
+  actor,
+});
 
 // macro will run on the caster, we want to ignore this
 if (scope.macroActivity.item.actor.uuid === actor.uuid) {
@@ -45,7 +45,7 @@ async function addOvertimeEffect({ name, actorUuid, damageType, damageRoll, flag
       { _id: scope.effect._id,
         changes: scope.effect.changes.concat([
           {
-            key: "flags.midi-qol.overtime",
+            key: "flags.midi-qol.OverTime",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
             priority: 20,
             value: overtimeOptions.join(","),
@@ -122,8 +122,8 @@ if (args[0] === "each" && lastArg.turn === "startTurn") {
 }
 
 // runs at end of turn after overTime effect. add flags to mark turn damage taken
-if (args[0] === "each" && lastArg.turn === "endTurn") {
-  // console.warn("Each endTurn", { args, lastArg, scope, item });
-  await setCombatFlag(actor);
-  await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
-}
+// if (args[0] === "each" && lastArg.turn === "endTurn") {
+//   console.warn("Each endTurn", { args, lastArg, scope, item });
+//   await setCombatFlag(actor);
+//   await DDBImporter.EffectHelper.setFlag(actor, "SpiritGuardiansCalled", true);
+// }
