@@ -453,7 +453,9 @@ export default class DDBEnricherFactoryMixin {
       activity.damage.parts = activity.damage.parts.concat(overrideData.damageParts);
     }
 
-    if (this.type === "summon" || overrideData.type === "summon") {
+    const isSummon = activity.type === "summon" || overrideData.type === "summon" || overrideData.data.type === "summon";
+
+    if (isSummon) {
       foundry.utils.setProperty(activity, "midiProperties", {
         autoTargetAction: "none",
         confirmTargets: "never",
@@ -471,7 +473,7 @@ export default class DDBEnricherFactoryMixin {
       activity.restrictions.allowMagical = true;
     }
 
-    if (overrideData.profileKeys && (this.type === "summon" || overrideData.type === "summon") && this.manager) {
+    if (overrideData.profileKeys && isSummon && this.manager) {
       this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
     }
 
