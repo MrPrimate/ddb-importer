@@ -1,3 +1,8 @@
+# Next Up
+
+- Unseen Servant Summons configuration.
+
+
 # 6.0.68
 
 - Fix for racial traits with level requirements imported on low level characters

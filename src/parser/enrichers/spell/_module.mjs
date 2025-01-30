@@ -138,6 +138,7 @@ export { default as ThunderousSmite } from "./ThunderousSmite.mjs";
 export { default as TidalWave } from "./TidalWave.mjs";
 export { default as TollTheDead } from "./TollTheDead.mjs";
 export { default as TrueStrike } from "./TrueStrike.mjs";
+export { default as UnseenServant } from "./UnseenServant.mjs";
 export { default as ViciousMockery } from "./ViciousMockery.mjs";
 export { default as VitriolicSphere } from "./VitriolicSphere.mjs";
 export { default as WallOfFire } from "./WallOfFire.mjs";

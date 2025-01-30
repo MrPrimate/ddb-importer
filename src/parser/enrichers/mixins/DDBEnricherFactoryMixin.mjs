@@ -453,6 +453,13 @@ export default class DDBEnricherFactoryMixin {
       activity.damage.parts = activity.damage.parts.concat(overrideData.damageParts);
     }
 
+    if (this.type === "summon" || overrideData.type === "summon") {
+      foundry.utils.setProperty(activity, "midiProperties", {
+        autoTargetAction: "none",
+        confirmTargets: "never",
+      });
+    }
+
     if (overrideData.data) {
       const data = utils.isFunction(overrideData.data)
         ? overrideData.data()

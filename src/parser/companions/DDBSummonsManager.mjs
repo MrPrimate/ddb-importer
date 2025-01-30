@@ -238,6 +238,36 @@ function getArcaneHands(arcaneHand, name = "Arcane Hand", postfix = "") {
   return results;
 }
 
+const UNSEEN_SERVANT_INSTANCES = [
+  { name: "SRD", token: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp", actor: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp" },
+];
+
+function getUnseenServant(unseenServant, name = "Unseen Servant", postfix = "") {
+  const results = {};
+  const idString = utils.idString(name);
+
+  UNSEEN_SERVANT_INSTANCES.forEach((data) => {
+    const actorData = foundry.utils.mergeObject(foundry.utils.deepClone(unseenServant), {
+      "name": `${name}`,
+      "prototypeToken.texture.src": data.token,
+      "img": data.actor,
+    });
+
+    results[`${idString}${data.name}${postfix}`] = {
+      name: `${name}`,
+      version: "1",
+      required: null,
+      isJB2A: true,
+      needsJB2A: data.needsJB2A ?? false,
+      needsJB2APatreon: data.needsJB2APatreon ?? false,
+      folderName: name,
+      data: actorData,
+    };
+  });
+
+  return results;
+}
+
 async function get2024ArcaneHands({ text }) {
   // eslint-disable-next-line no-use-before-define
   const arcaneHand = await DDBSummonsManager.getSRDCompendiumDocument({ name: "Arcane Hand" });
@@ -442,6 +472,12 @@ async function getSRDActors() {
   const arcaneSword = await DDBSummonsManager.getSRDCompendiumDocument({ pack, name: "Arcane Sword" });
   if (arcaneHand) {
     foundry.utils.mergeObject(results, getArcaneSwords(arcaneSword));
+  }
+
+  // eslint-disable-next-line no-use-before-define
+  const unseenServant = await DDBSummonsManager.getSRDCompendiumDocument({ pack, name: "Unseen Servant" });
+  if (unseenServant) {
+    foundry.utils.mergeObject(results, getUnseenServant(unseenServant.toObject()));
   }
 
   // eslint-disable-next-line no-use-before-define
@@ -893,6 +929,7 @@ export default class DDBSummonsManager {
     "Arcane Hand": "iHj5Tkm6HRgXuaWP",
     "Arcane Sword": "Tac7eq0AXJco0nml",
     "Dire Wolf": "EYiQZ3rFL25fEJY5",
+    "Unseen Servant": "BTQz2q4JJVQn8W5W",
   };
 
   static get2024ArcaneHands = get2024ArcaneHands;

@@ -181,6 +181,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Crown of Stars": SpellEnrichers.CrownOfStars,
     "Confusion": SpellEnrichers.Confusion,
     "Contagion": SpellEnrichers.Contagion,
+    "Unseen Servant": SpellEnrichers.UnseenServant,
   };
 
 }
