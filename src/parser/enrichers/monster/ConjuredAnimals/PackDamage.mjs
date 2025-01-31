@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import { utils } from "../../../../lib/_module.mjs";
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class PackDamage extends DDBEnricherData {
@@ -29,10 +30,53 @@ export default class PackDamage extends DDBEnricherData {
     };
   }
 
-  get effects() {
-    // TODO: this should be attacjed to a template/aura action
+  get additionalActivities() {
+    if (!this.useMidiAutomations) return [];
     return [
       {
+        constructor: {
+          name: "Pack Damage (Aura Automation)",
+          type: "utility",
+        },
+        build: {
+          generateTarget: true,
+          generateRange: true,
+          generateActivation: true,
+        },
+        overrides: {
+          activationType: "none",
+          data: {
+            range: {
+              value: 10,
+              units: "ft",
+            },
+            midiProperties: {
+              automationOnly: true,
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  get effects() {
+    const flagName = `${utils.nameString(this.data.name)}Called`;
+    const overtimeOptions = [
+      `label=${this.data.name} (End of Turn)`,
+      `turn=end`,
+      "damageRoll=(@spellLevel)d10",
+      "damageType=slashing",
+      "saveRemove=false",
+      "saveDC=@attributes.spelldc",
+      "saveAbility=dex",
+      "saveDamage=halfdamage",
+      "killAnim=true",
+      `applyCondition=!flags.ddbihelpers.${flagName}`,
+      "macroToCall=function",
+    ];
+    return [
+      {
+        activityMatch: "Pack Damage (Aura Automation)",
         activeAurasOnly: true,
         options: {
           transfer: true,
@@ -42,6 +86,13 @@ export default class PackDamage extends DDBEnricherData {
             macroValues: "@spellLevel",
             functionCall: "DDBImporter.effects.AuraAutomations.ActorDamageOnEntry",
           },
+        ],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.overrideChange(
+            overtimeOptions.join(","),
+            20,
+            "flags.midi-qol.OverTime",
+          ),
         ],
         data: {
           flags: {

@@ -1,13 +1,13 @@
 const lastArg = args[args.length - 1];
 
-console.warn({
-  args,
-  scope,
-  item,
-  lastArg,
-  token,
-  actor,
-});
+// console.warn({
+//   args,
+//   scope,
+//   item,
+//   lastArg,
+//   token,
+//   actor,
+// });
 
 // macro will run on the caster, we want to ignore this
 if (scope.macroActivity.item.actor.uuid === actor.uuid) {

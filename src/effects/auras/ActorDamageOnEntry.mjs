@@ -1,15 +1,17 @@
 import { logger, utils } from "../../lib/_module.mjs";
+import DDBEffectHelper from "../DDBEffectHelper.mjs";
 // import DDBEffectHelper from "../DDBEffectHelper.mjs";
 
 
 async function setCombatFlag(actor, flagName) {
-  await DDBImporter.EffectHelper.setFlag(actor, flagName, {
+  await DDBEffectHelper.setFlag(actor, flagName, {
     id: game.combat?.id ?? null,
     round: game.combat?.round ?? null,
     turn: game.combat?.turn ?? null,
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 async function addOvertimeEffect({ name, actorUuid, damageType, damageRoll, flagName, ability, effect } = {}) {
 
   const overtimeOptions = [
@@ -45,6 +47,8 @@ async function addOvertimeEffect({ name, actorUuid, damageType, damageRoll, flag
 }
 
 
+// Pack Damage (Aura Automation) from Conjure Animals
+
 export default async function damageOnEntry({
   // eslint-disable-next-line no-unused-vars
   speaker, actor, token, character, item, rolledItem, macroItem,
@@ -55,7 +59,17 @@ export default async function damageOnEntry({
 
   const lastArg = args[args.length - 1];
 
-  const itemName = scope.macroActivity.item.name;
+  console.warn({
+    args,
+    scope,
+    item,
+    lastArg,
+    token,
+    actor,
+  })
+
+  const doc = scope.macroActivity?.item ?? scope.macroItem ?? item;
+  const itemName = doc.name;
   const baseName = utils.nameString(itemName);
   const flagNameTurn = `${baseName}Turn`;
   const flagNameCalled = `${baseName}Called`;
@@ -74,14 +88,14 @@ export default async function damageOnEntry({
   });
 
   // macro will run on the caster, we want to ignore this
-  if (scope.macroActivity.item.actor.uuid === actor.uuid) {
+  if (doc.actor.uuid === actor.uuid) {
     logger.debug(`Ignoring ${itemName} macro call for ${actor.name} as they are the caster`);
     return;
   }
 
   if (args[0] === "on") {
     // console.warn("on", { args, lastArg, scope, item });
-    const turnFlag = DDBImporter.EffectHelper.getFlag(actor, flagNameTurn) ?? {};
+    const turnFlag = DDBEffectHelper.getFlag(actor, flagNameTurn) ?? {};
 
     if (turnFlag
       && turnFlag.id === game.combat?.id
@@ -95,62 +109,67 @@ export default async function damageOnEntry({
     // set flag for turn check
     await setCombatFlag(actor);
     // set flag to prevent end of turn roll
-    await DDBImporter.EffectHelper.setFlag(actor, flagNameCalled, true);
+    await DDBEffectHelper.setFlag(actor, flagNameCalled, true);
 
     // const originDocument = await fromUuid(lastArg.origin);
-    const workflowItemData = DDBImporter.EffectHelper.documentWithFilteredActivities({
-      document: scope.macroActivity.item,
+    const workflowItemData = DDBEffectHelper.documentWithFilteredActivities({
+      document: doc,
       activityTypes: ["save"],
-      parent: scope.macroActivity.item.actor,
+      parent: doc.actor,
       clearEffectFlags: true,
       renameDocument: `${itemName}: Save vs Damage`,
       killAnimations: true,
     });
 
-    const saveActivity = workflowItemData.system.activities.first();
-    const damageTypes = saveActivity.damage.parts.types;
+    // const saveActivity = workflowItemData.system.activities.first();
+    // const damageTypes = saveActivity.damage.parts.types;
 
-    const damageArray = [];
+    // const damageArray = [];
 
-    for (const damagePart of saveActivity.damage.parts) {
-      if (damagePart.custom.enabled) {
-        damageArray.push(damagePart.custom.formula);
-      } else {
-        damageArray.push(`${damagePart.number}d${damagePart.denomination}`);
-        if (damagePart.bonus && damagePart.bonus !== "") {
-          damageArray.push(damagePart.bonus);
-        }
-      }
-    }
+    // for (const damagePart of saveActivity.damage.parts) {
+    //   if (damagePart.custom.enabled) {
+    //     damageArray.push(damagePart.custom.formula);
+    //   } else {
+    //     damageArray.push(`${damagePart.number}d${damagePart.denomination}`);
+    //     if (damagePart.bonus && damagePart.bonus !== "") {
+    //       damageArray.push(damagePart.bonus);
+    //     }
+    //   }
+    // }
 
-    await addOvertimeEffect({
-      effect: scope.effect,
-      name: itemName,
-      actorUuid: actor.uuid,
-      damageType: damageTypes.length > 0 ? damageTypes[0] : null,
-      damageRoll: damageArray.join("+").removeAll(" "),
-      flagName: flagNameCalled,
-      ability: saveActivity.save.ability.first(),
-    });
+    // await addOvertimeEffect({
+    //   effect: scope.effect,
+    //   name: itemName,
+    //   actorUuid: actor.uuid,
+    //   damageType: damageTypes.length > 0 ? damageTypes[0] : null,
+    //   damageRoll: damageArray.join("+").removeAll(" "),
+    //   flagName: flagNameCalled,
+    //   ability: saveActivity.save.ability.first(),
+    // });
 
-    await DDBImporter.EffectHelper.rollMidiItemUse(workflowItemData, {
+    const slotLevel = scope.effect.flags["midi-qol"].castData?.castLevel ?? undefined;
+    const scaling = slotLevel
+      ? slotLevel - scope.effect.flags["midi-qol"].castData?.baseLevel
+      : undefined;
+
+    await DDBEffectHelper.rollMidiItemUse(workflowItemData, {
       targets: [token.document.uuid],
-      slotLevel: scope.effect.flags["midi-qol"].castData.castLevel,
-      scaling: scope.effect.flags["midi-qol"].castData.castLevel - scope.effect.flags["midi-qol"].castData.baseLevel,
+      slotLevel,
+      scaling,
     });
   }
 
   // at start of each turn, reset flags
   if (args[0] === "each" && lastArg.turn === "startTurn") {
     // console.warn("Each startTurn", { args, lastArg, scope, item });
-    await DDBImporter.EffectHelper.setFlag(actor, flagNameCalled, false);
+    await DDBEffectHelper.setFlag(actor, flagNameCalled, false);
   }
 
   // runs at end of turn after overTime effect. add flags to mark turn damage taken
   // if (args[0] === "each" && lastArg.turn === "endTurn") {
   //   // console.warn("Each endTurn", { args, lastArg, scope, item });
   //   await setCombatFlag(actor);
-  //   await DDBImporter.EffectHelper.setFlag(actor, flagNameCalled, true);
+  //   await DDBEffectHelper.setFlag(actor, flagNameCalled, true);
   // }
 
 

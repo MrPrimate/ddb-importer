@@ -35,7 +35,9 @@ async function addOvertimeEffect({ name , actorUuid, damageType, damageRoll, abi
     `saveAbility=${ability}`,
     "saveDamage=halfdamage",
     "killAnim=true",
+    `macroToCall=function.DDBImporter.lib.DDBMacros.macroFunction.spell("spiritGuardians2014.js")`,
   ];
+
 
   await DDBImporter.socket.executeAsGM("updateEffects", {
     actorUuid,

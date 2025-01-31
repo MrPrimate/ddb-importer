@@ -23,6 +23,7 @@ export async function getConjureAnimals({
       name: "Conjured Animals",
       width: 2,
       height: 2,
+      disposition: 1,
       texture: {
         // src: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
         scaleX: 1,
@@ -30,6 +31,13 @@ export async function getConjureAnimals({
       },
     },
     "system.traits.size": "lg",
+    system: {
+      "traits.size": "lg",
+      "details.type": {
+        value: null,
+        custom: "Summon",
+      },
+    },
     // img: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",
   });
   const packDamage = `<p><em><strong>Pack Damage.</em></strong> Dexterity Saving Throw: against your spell save DC. A creature with 10 feet. Failure: 15 (3d10) Bludgeoning damage.</p>`;
