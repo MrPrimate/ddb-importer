@@ -1,7 +1,7 @@
 # Next Up
 
 - Unseen Servant Summons configuration.
-- Fixes to Spirit Guardians Spell Midi Automation.
+- Fixes to Spirit Guardians Spell, and new Conjure Woodland Beings 2024 Midi Automation.
 - Conjure Animals 2024 summons configuration and ActiveAura Midi automation.
 - Spell Parser improvements to 2024 Conjure spells in general.
 

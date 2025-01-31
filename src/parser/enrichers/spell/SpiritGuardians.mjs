@@ -67,7 +67,7 @@ export default class SpiritGuardians extends DDBEnricherData {
           noeffect: true,
           activationOverride: {
             type: "",
-            condition: "Enters or ends turn in emanation (1 turn only)",
+            condition: "Enters or ends turn in emanation (1/turn only)",
           },
           durationOverride: {
             units: "inst",

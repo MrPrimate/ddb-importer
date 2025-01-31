@@ -1,15 +1,7 @@
 import { logger, utils } from "../../lib/_module.mjs";
 import DDBEffectHelper from "../DDBEffectHelper.mjs";
-// import DDBEffectHelper from "../DDBEffectHelper.mjs";
+import { setBasicCombatFlag } from "./shared.mjs";
 
-
-async function setCombatFlag(actor, flagName) {
-  await DDBEffectHelper.setFlag(actor, flagName, {
-    id: game.combat?.id ?? null,
-    round: game.combat?.round ?? null,
-    turn: game.combat?.turn ?? null,
-  });
-}
 
 // Pack Damage (Aura Automation) from Conjure Animals
 
@@ -72,16 +64,16 @@ export default async function damageOnEntry({
     }
 
     // set flag for turn check
-    await setCombatFlag(actor, flagNameTurn);
+    await setBasicCombatFlag(actor, flagNameTurn);
     // set flag to prevent end of turn roll
     await DDBEffectHelper.setFlag(actor, flagNameCalled, true);
 
-    const slotLevel = scope.effect.flags["midi-qol"].castData?.castLevel ?? undefined;
+    const slotLevel = scope.effect?.flags["midi-qol"].castData?.castLevel ?? undefined;
     const scaling = slotLevel
-      ? slotLevel - scope.effect.flags["midi-qol"].castData?.baseLevel
+      ? slotLevel - scope.effect?.flags["midi-qol"].castData?.baseLevel
       : undefined;
 
-    const activityIds = foundry.utils.getProperty(scope, "macroItem.flags.ddbimporter.effect.activityIds") ?? [];
+    const activityIds = foundry.utils.getProperty(doc, "flags.ddbimporter.effect.activityIds") ?? [];
 
     for (const activityId of activityIds) {
       const activity = doc.system.activities.get(activityId);

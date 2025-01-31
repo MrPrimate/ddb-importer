@@ -6,6 +6,15 @@ function getSafeName(name) {
   return name.replace(/\s|'|\.|’/g, "_");
 }
 
+export async function setBasicCombatFlag(actor, flagName, origin) {
+  await DDBEffectHelper.setFlag(actor, flagName, {
+    id: game.combat?.id ?? null,
+    round: game.combat?.round ?? null,
+    turn: game.combat?.turn ?? null,
+    origin,
+  });
+}
+
 // flags.ddbimporter.effect used to determine how the aura behaves
 // const effectData = {
 //   activityIds: [], // activity ids to retain on duplicated item
@@ -63,8 +72,8 @@ async function generateDataTracker({
 
   const safeName = getSafeName(originDocument.name);
 
-  await DAE.unsetFlag(actor, `${safeName}Tracker`);
-  await DAE.setFlag(actor, `${safeName}Tracker`, dataTracker);
+  await DDBEffectHelper.unsetFlag(actor, `${safeName}Tracker`);
+  await DDBEffectHelper.setFlag(actor, `${safeName}Tracker`, dataTracker);
 
   return dataTracker;
 }
@@ -144,11 +153,11 @@ export async function checkAuraAndUseActivity({
   nameSuffix = "",
 } = {}) {
   const safeName = getSafeName(originDocument.name);
-  const targetItemTracker = DAE.getFlag(originDocument.parent, `${safeName}Tracker`);
+  const targetItemTracker = DDBEffectHelper.getFlag(originDocument.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(tokenUuid);
   const tokenId = tokenUuid.split(".").pop();
   const target = canvas.tokens.get(tokenId);
-  const targetTokenTrackerFlag = DAE.getFlag(target.actor, `${safeName}Tracker`);
+  const targetTokenTrackerFlag = DDBEffectHelper.getFlag(target.actor, `${safeName}Tracker`);
   const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
     ? targetTokenTrackerFlag
@@ -182,7 +191,7 @@ export async function checkAuraAndUseActivity({
       nameSuffix,
     });
   }
-  await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
 }
 
 export async function checkAuraAndApplyCondition({
@@ -203,12 +212,12 @@ export async function checkAuraAndApplyCondition({
   const safeName = getSafeName(originDocument.name);
   // sometimes the round info has not updated, so we pause a bit
   if (wait) await DDBEffectHelper.wait(500);
-  const targetItemTracker = DAE.getFlag(originDocument.parent, `${safeName}Tracker`);
+  const targetItemTracker = DDBEffectHelper.getFlag(originDocument.parent, `${safeName}Tracker`);
   const originalTarget = targetItemTracker.targetUuids.includes(tokenUuid);
   // const target = canvas.tokens.get(lastArg.tokenId);
   const tokenId = tokenUuid.split(".").pop();
   const target = canvas.tokens.get(tokenId);
-  const targetTokenTrackerFlag = DAE.getFlag(target.actor, `${safeName}Tracker`);
+  const targetTokenTrackerFlag = DDBEffectHelper.getFlag(target.actor, `${safeName}Tracker`);
   const targetedThisCombat = targetTokenTrackerFlag
     && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
@@ -247,7 +256,7 @@ export async function checkAuraAndApplyCondition({
       nameSuffix,
     });
   }
-  await DAE.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
   const effectApplied = DDBEffectHelper.isConditionEffectAppliedAndActive(targetTokenTracker.condition, target.actor);
   const currentTokenCombatTurn = game.combat.current.tokenId === tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {
@@ -275,7 +284,7 @@ export async function removeAuraFromToken({
     effectOrigin,
     originDocument,
   });
-  const targetTokenTracker = await DAE.getFlag(targetToken.actor, `${safeName}Tracker`);
+  const targetTokenTracker = await DDBEffectHelper.getFlag(targetToken.actor, `${safeName}Tracker`);
   logger.debug("targetTokenTracker", { targetTokenTracker });
 
   if (!targetTokenTracker) {
@@ -297,7 +306,7 @@ export async function removeAuraFromToken({
   targetTokenTracker.hasLeft = true;
   targetTokenTracker.turn = game.combat?.turn ?? 0;
   targetTokenTracker.round = game.combat?.round ?? 0;
-  await DAE.setFlag(targetToken.actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(targetToken.actor, `${safeName}Tracker`, targetTokenTracker);
 }
 
 
