@@ -1195,6 +1195,7 @@ export default class DDBEffectHelper {
     overrideTarget = true, overrideDuration = true, durationUnits = "inst", durationValue = null,
     level = null, clearUses = true, addProperties = [], noSpellslot = true, clearTargets = true,
     clearActiveAuraEffects = true, killAnimations = false, filterActivityDamageTypes = [], returnDataOnly = false,
+    retainEnchantments = false,
   } = {}) {
     if (!uuid && !document) throw new Error("Must specify either uuid or document !");
     const base = document ?? fromUuidSync(uuid);
@@ -1213,7 +1214,12 @@ export default class DDBEffectHelper {
       );
     }
 
-    if (clearEffects) {
+    if (retainEnchantments) {
+      const enchantmentEffects = newDocumentData.effects?.filter((e) => e.type === "enchantment") ?? [];
+      // newDocumentData.effects = newDocumentData.effects?.filter((e) => e.type === "enchantment") ?? [];
+      foundry.utils.setProperty(newDocumentData, "flags.ddbimporter.effect.enchantmentEffects", enchantmentEffects);
+      foundry.utils.setProperty(newDocumentData, "effects", []);
+    } else if (clearEffects) {
       foundry.utils.setProperty(newDocumentData, "effects", []);
     }
 
@@ -1258,8 +1264,6 @@ export default class DDBEffectHelper {
           return part;
         });
       }
-
-      if (clearEffects) foundry.utils.setProperty(a, "effects", []);
 
       a.effects = a.effects.filter((e) => newDocumentData.effects.some((f) => f._id === e._id));
 
@@ -1344,6 +1348,38 @@ export default class DDBEffectHelper {
 
   }
 
+  static async rollMidiActivityUse(activity, workflowBuilderOptions = {}, {
+    targetIds = [], applyFailureConditions = [],
+  } = {}) {
+    const saveTargets = game.user?.targets
+      ? [...game.user.targets].map((t) => t.id)
+      : [];
+    if (targetIds.length > 0) game.user.updateTokenTargets(targetIds);
+
+    const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
+
+    logger.debug("Rolling activity use", { activity, config, options });
+
+    // config/dialogue/message
+    const result = await MidiQOL.completeActivityUse(activity, config, options);
+
+    if (targetIds.length > 0) game.user.updateTokenTargets(saveTargets);
+
+    const conditionResults = [];
+    if (applyFailureConditions.length > 0) {
+      for (const failedSave of result.failedSaves) {
+        for (const condition of applyFailureConditions) {
+          conditionResults.push(DDBEffectHelper.adjustCondition({
+            add: true,
+            conditionName: condition,
+            actor: failedSave.document,
+          }));
+        }
+      }
+    }
+    await Promise.all(conditionResults);
+
+  }
 
   // eslint-disable-next-line complexity
   static async _conditionRemovalMidiRoll(targetToken, condition, {

@@ -427,7 +427,11 @@ export default class DDBCompanionFactory {
   static async addToWorld(companion, update) {
     const results = [];
     if (!game.user.can("ITEM_CREATE")) return results;
-    const npc = await buildNPC(companion, "monster", false, update, true);
+    const npc = await buildNPC(companion, "monster", {
+      temporary: false,
+      update,
+      handleBuild: true,
+    });
     results.push(npc);
     return results;
   }

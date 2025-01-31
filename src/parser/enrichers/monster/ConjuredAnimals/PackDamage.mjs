@@ -60,11 +60,11 @@ export default class PackDamage extends DDBEnricherData {
   }
 
   get effects() {
-    const flagName = `${utils.nameString(this.data.name)}Called`;
+    const flagName = `${utils.idString(this.data.name)}Called`;
     const overtimeOptions = [
       `label=${this.data.name} (End of Turn)`,
       `turn=end`,
-      "damageRoll=(@spellLevel)d10",
+      "damageRoll=(@flags.dnd5e.summon.level)d10",
       "damageType=slashing",
       "saveRemove=false",
       "saveDC=@attributes.spelldc",
@@ -83,7 +83,7 @@ export default class PackDamage extends DDBEnricherData {
         },
         macroChanges: [
           {
-            macroValues: "@spellLevel",
+            macroValues: "@flags.dnd5e.summon.level",
             functionCall: "DDBImporter.effects.AuraAutomations.ActorDamageOnEntry",
           },
         ],
@@ -127,7 +127,7 @@ export default class PackDamage extends DDBEnricherData {
           ddbimporter: {
             effect: {
               saveOnEntry: true,
-              // sequencerFile: "jb2a.fumes.fire.orange",
+              sequencerFile: "jb2a.swirling_feathers.outburst.01.textured.2",
               activityIds: ["ddbPackDamageSav"],
             },
           },

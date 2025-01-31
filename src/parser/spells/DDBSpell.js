@@ -690,7 +690,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     });
   }
 
-  async #generateSummons() {
+  async _generateSummons() {
     if (this.enricher.activity?.generateSummons) {
       const summons = await this.enricher.activity.summonsFunction({
         ddbParser: this,
@@ -701,7 +701,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
       await DDBSummonsManager.addGeneratedSummons(summons);
     }
+  }
 
+  async _generateCompanions() {
     if (!this.isSummons) return;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "spell",
@@ -710,8 +712,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       notifier: this.notifier,
     });
     await this.ddbCompanionFactory.parse();
+
     // always update compendium imports, but respect player import disable
-    if (this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) {
+    const addCompendium = this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions");
+    if (addCompendium) {
       await this.ddbCompanionFactory.updateOrCreateCompanions();
     }
 
@@ -916,7 +920,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this._generateUses();
     this.#generateHealingParts(); // used in activity
 
-    await this.#generateSummons();
+    await this._generateSummons();
+    await this._generateCompanions();
 
     if (!this.enricher.stopDefaultActivity)
       await this._generateActivity();

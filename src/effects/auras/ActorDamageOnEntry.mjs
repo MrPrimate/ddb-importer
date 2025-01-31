@@ -11,42 +11,6 @@ async function setCombatFlag(actor, flagName) {
   });
 }
 
-// eslint-disable-next-line no-unused-vars
-async function addOvertimeEffect({ name, actorUuid, damageType, damageRoll, flagName, ability, effect } = {}) {
-
-  const overtimeOptions = [
-    `label=${name} (End of Turn)`,
-    `turn=end`,
-    `damageRoll=${damageRoll}`,
-    `damageType=${damageType}`,
-    "saveRemove=false",
-    "saveDC=@attributes.spelldc",
-    `saveAbility=${ability}`,
-    "saveDamage=halfdamage",
-    "killAnim=true",
-    `applyCondition=!flags.ddbihelpers.${flagName}`,
-    `macroToCall=function.DDBImporter.effects.AuraAutomations.ActorDamageOnEntry`,
-  ];
-
-  await DDBImporter.socket.executeAsGM("updateEffects", {
-    actorUuid,
-    updates: [
-      {
-        _id: effect._id,
-        changes: effect.changes.concat([
-          {
-            key: "flags.midi-qol.OverTime",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            priority: 20,
-            value: overtimeOptions.join(","),
-          },
-        ]),
-      },
-    ],
-  });
-}
-
-
 // Pack Damage (Aura Automation) from Conjure Animals
 
 export default async function damageOnEntry({
@@ -56,36 +20,28 @@ export default async function damageOnEntry({
   args, scope, workflow,
 } = {}) {
 
-
   const lastArg = args[args.length - 1];
-
-  console.warn({
-    args,
-    scope,
-    item,
-    lastArg,
-    token,
-    actor,
-  })
 
   const doc = scope.macroActivity?.item ?? scope.macroItem ?? item;
   const itemName = doc.name;
-  const baseName = utils.nameString(itemName);
+  const baseName = utils.idString(itemName);
   const flagNameTurn = `${baseName}Turn`;
   const flagNameCalled = `${baseName}Called`;
 
-  console.warn({
-    args,
-    scope,
-    item,
-    lastArg,
-    token,
-    actor,
-    baseName,
-    itemName,
-    flagNameTurn,
-    flagNameCalled,
-  });
+  // console.warn({
+  //   args,
+  //   scope,
+  //   item,
+  //   lastArg,
+  //   token,
+  //   actor,
+  //   baseName,
+  //   itemName,
+  //   flagNameTurn,
+  //   flagNameCalled,
+  //   doc,
+  //   docObj: doc.toObject(),
+  // });
 
   // macro will run on the caster, we want to ignore this
   if (doc.actor.uuid === actor.uuid) {
@@ -107,56 +63,27 @@ export default async function damageOnEntry({
     }
 
     // set flag for turn check
-    await setCombatFlag(actor);
+    await setCombatFlag(actor, flagNameTurn);
     // set flag to prevent end of turn roll
     await DDBEffectHelper.setFlag(actor, flagNameCalled, true);
-
-    // const originDocument = await fromUuid(lastArg.origin);
-    const workflowItemData = DDBEffectHelper.documentWithFilteredActivities({
-      document: doc,
-      activityTypes: ["save"],
-      parent: doc.actor,
-      clearEffectFlags: true,
-      renameDocument: `${itemName}: Save vs Damage`,
-      killAnimations: true,
-    });
-
-    // const saveActivity = workflowItemData.system.activities.first();
-    // const damageTypes = saveActivity.damage.parts.types;
-
-    // const damageArray = [];
-
-    // for (const damagePart of saveActivity.damage.parts) {
-    //   if (damagePart.custom.enabled) {
-    //     damageArray.push(damagePart.custom.formula);
-    //   } else {
-    //     damageArray.push(`${damagePart.number}d${damagePart.denomination}`);
-    //     if (damagePart.bonus && damagePart.bonus !== "") {
-    //       damageArray.push(damagePart.bonus);
-    //     }
-    //   }
-    // }
-
-    // await addOvertimeEffect({
-    //   effect: scope.effect,
-    //   name: itemName,
-    //   actorUuid: actor.uuid,
-    //   damageType: damageTypes.length > 0 ? damageTypes[0] : null,
-    //   damageRoll: damageArray.join("+").removeAll(" "),
-    //   flagName: flagNameCalled,
-    //   ability: saveActivity.save.ability.first(),
-    // });
 
     const slotLevel = scope.effect.flags["midi-qol"].castData?.castLevel ?? undefined;
     const scaling = slotLevel
       ? slotLevel - scope.effect.flags["midi-qol"].castData?.baseLevel
       : undefined;
 
-    await DDBEffectHelper.rollMidiItemUse(workflowItemData, {
-      targets: [token.document.uuid],
-      slotLevel,
-      scaling,
-    });
+    const activityIds = foundry.utils.getProperty(scope, "macroItem.flags.ddbimporter.effect.activityIds") ?? [];
+
+    for (const activityId of activityIds) {
+      const activity = doc.system.activities.get(activityId);
+      logger.verbose(`${doc.name} Aura for ${activity.name ?? activity.type}`, activity);
+      await DDBEffectHelper.rollMidiActivityUse(activity, {
+        targets: [token.document.uuid],
+        slotLevel,
+        scaling,
+      });
+    }
+
   }
 
   // at start of each turn, reset flags
@@ -164,13 +91,5 @@ export default async function damageOnEntry({
     // console.warn("Each startTurn", { args, lastArg, scope, item });
     await DDBEffectHelper.setFlag(actor, flagNameCalled, false);
   }
-
-  // runs at end of turn after overTime effect. add flags to mark turn damage taken
-  // if (args[0] === "each" && lastArg.turn === "endTurn") {
-  //   // console.warn("Each endTurn", { args, lastArg, scope, item });
-  //   await setCombatFlag(actor);
-  //   await DDBEffectHelper.setFlag(actor, flagNameCalled, true);
-  // }
-
 
 }

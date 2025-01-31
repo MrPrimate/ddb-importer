@@ -1,6 +1,5 @@
 import { logger } from "../../../lib/_module.mjs";
 
-
 export default class DDBActivityFactoryMixin {
 
   activities = [];

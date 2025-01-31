@@ -151,9 +151,14 @@ async function addNPCToCompendium(npc, type = "monster") {
 
 
 // eslint-disable-next-line complexity, no-unused-vars
-export async function getNPCImage(npcData, { type = "monster", forceUpdate = false, forceUseFullToken = false,
-  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false } = {},
+export async function getNPCImage(npcData, {
+  type = "monster", forceUpdate = false, forceUseFullToken = false,
+  forceUseTokenAvatar = false, disableAutoTokenizeOverride = false,
+} = {},
 ) {
+  logger.verbose("getNPCImage", {
+    name: npcData.name,
+  });
   // check to see if we have munched flags to work on
   if (!foundry.utils.hasProperty(npcData, "flags.monsterMunch.img")) {
     return npcData;
@@ -328,10 +333,13 @@ async function swapItems(data) {
 //   return actor;
 // }
 
-// async function buildNPC(data, srdIconLibrary, iconMap) {
-export async function buildNPC(data, type = "monster", temporary = true, update = false, handleBuild = false) {
+
+export async function buildNPC(data, type = "monster", {
+  temporary = true, update = false, handleBuild = false,
+  forceImageUpdate = undefined,
+} = {}) {
   logger.debug("Importing Images");
-  await getNPCImage(data, { type });
+  await getNPCImage(data, { type, forceUpdate: forceImageUpdate });
   logger.debug("Checking Items");
   await swapItems(data);
 
@@ -371,16 +379,16 @@ export async function buildNPC(data, type = "monster", temporary = true, update 
 
 }
 
-async function parseNPC(data, type) {
-  const buildNpc = await buildNPC(data, type);
+async function parseNPC(data, type, buildOptions = {}) {
+  const buildNpc = await buildNPC(data, type, buildOptions);
   logger.info(`Processing ${type} ${buildNpc.name} for the compendium`);
   const compendiumNPC = await addNPCToCompendium(buildNpc, type);
   return compendiumNPC;
 }
 
-export function addNPC(data, type) {
+export function addNPC(data, type, buildOptions = {}) {
   return new Promise((resolve, reject) => {
-    parseNPC(data, type)
+    parseNPC(data, type, buildOptions)
       .then((npc) => {
         resolve(npc);
       })

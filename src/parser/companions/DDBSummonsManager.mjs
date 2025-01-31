@@ -104,7 +104,9 @@ export default class DDBSummonsManager {
     const folderName = this.compendiumFolders.getSummonFolderName(compendiumCompanion);
     const folder = await this.compendiumFolders.createSummonsFolder(folderName.name);
     compendiumCompanion.folder = folder._id;
-    const npc = await addNPC(compendiumCompanion, "summons");
+    const npc = await addNPC(compendiumCompanion, "summons", {
+      forceImageUpdate: true,
+    });
     results.push(npc);
     return results;
   }
