@@ -46,12 +46,28 @@ export default class DDBEnhancers {
       });
   }
 
+  static _summonHooks() {
+    // if (game.settings.get(SETTINGS.MODULE_ID, "allow-summon-enhancer")) {
+    Hooks.on("dnd5e.summonToken", (activity, _profile, tokenData, _options) => {
+      const dispositionFlag = foundry.utils.getProperty(activity, "item.flags.ddbimporter.disposition");
+      if (!dispositionFlag) return true;
+      if (dispositionFlag.match) {
+        const token = activity.actor.token ?? activity.actor.prototypeToken;
+        if (!token) return true;
+        tokenData.disposition = token.disposition;
+      }
+      return true;
+    });
+    // }
+  }
+
   // Loads enhancer functions into appropriate system hooks.
   static loadEnhancers() {
     DDBEnhancers._loadTransformHooks();
     DDBEnhancers._loadPreRollDamageV2Hooks();
     DDBEnhancers._preUpdateActorHooks();
     DDBEnhancers._activityConsumptionHooks();
+    DDBEnhancers._summonHooks();
   }
 
 }

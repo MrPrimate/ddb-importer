@@ -22,6 +22,15 @@ export default async function damageOnEntry({
 
   const lastArg = args[args.length - 1];
 
+  // console.warn({
+  //   args,
+  //   scope,
+  //   item,
+  //   lastArg,
+  //   token,
+  //   actor,
+  // });
+
   const doc = scope.macroActivity?.item ?? scope.macroItem ?? item;
   const itemName = doc.name;
   const baseName = utils.idString(itemName);

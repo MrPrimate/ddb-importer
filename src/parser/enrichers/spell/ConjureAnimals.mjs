@@ -34,4 +34,18 @@ export default class ConjureAnimals extends DDBEnricherData {
       },
     };
   }
+
+  get override() {
+    return {
+      data: {
+        flags: {
+          ddbimporter: {
+            disposition: {
+              match: true,
+            },
+          },
+        },
+      },
+    };
+  }
 }

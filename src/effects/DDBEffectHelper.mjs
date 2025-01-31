@@ -1096,6 +1096,9 @@ export default class DDBEffectHelper {
           resource: consumeResource,
           spellSlot: consumeSpellSlot,
         },
+        midiOptions: {
+          targetUuids: targets,
+        },
         spell: {
           slot: slotLevel,
         },
