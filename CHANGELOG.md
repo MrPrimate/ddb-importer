@@ -1,8 +1,9 @@
 # Next Up
 
 - Unseen Servant Summons configuration.
-- Fixes to Spirit Guardians Spell.
-- Conjure Animals 2024 summons configuration and AA automation.
+- Fixes to Spirit Guardians Spell Midi Automation.
+- Conjure Animals 2024 summons configuration and ActiveAura Midi automation.
+- Spell Parser improvements to 2024 Conjure spells in general.
 
 # 6.0.68
 
