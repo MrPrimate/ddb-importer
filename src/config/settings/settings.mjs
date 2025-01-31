@@ -379,13 +379,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "append-chris-premade-effect-description": {
-          name: "ddb-importer.settings.append-chris-premade-effect-description.name",
-          hint: "ddb-importer.settings.append-chris-premade-effect-description.hint",
-          config: true,
-          type: Boolean,
-          default: false,
-        },
         "spells-on-items-as-activities": {
           name: "ddb-importer.settings.spells-on-items-as-activities.name",
           hint: "ddb-importer.settings.spells-on-items-as-activities.hint",

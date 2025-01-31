@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable require-atomic-updates */
 
-import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
 import {
   logger,
 } from "../../lib/_module.mjs";
@@ -131,7 +131,6 @@ export default class ChrisPremadesHelper {
     this.ddbName = ChrisPremadesHelper.getOriginalName(document);
     this.chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[this.ddbName] ?? this.ddbName;
     this.chrisDoc = null;
-    this.appendChrisDescription = game.settings.get(SETTINGS.MODULE_ID, "append-chris-premade-effect-description");
     this.rules = rules ?? document.system.source.rules ?? "2014";
     this.featType = featType ?? document.system.type?.value;
     this.documentType = documentType ?? this.document.type;
@@ -183,34 +182,6 @@ export default class ChrisPremadesHelper {
 
   }
 
-  static appendDescription(source, target) {
-    const description = foundry.utils.getProperty(source, "system.description");
-    if (!description || description.value.trim() === "") return target;
-
-    const text = description.value;
-    if (text && text.trim() !== "") {
-      target.system.description.value += `
-<br>
-<section class="secret">
-<hr>
-<h5>Automation notes - Chris's Premades (CPR):</h5>
-${text}
-</section>`;
-    }
-    const chat = description.chat;
-    if (chat && chat.trim() !== "") {
-      target.system.description.chat += `
-<br>
-<section class="secret">
-<hr>
-<h5>Automation notes - Chris's Premades (CPR):</h5>
-${chat}
-</section>`;
-    }
-
-    return target;
-  }
-
   static copyDescription(source, target, { appendSourceDescription = false, prependSourceDescription = false } = {}) {
     const sourceDescription = foundry.utils.getProperty(source, "system.description");
     if (!sourceDescription || sourceDescription.value.trim() === "") return target;
@@ -254,10 +225,6 @@ ${chat}
       }
       foundry.utils.setProperty(this.document, field, values);
     });
-
-    if (this.appendChrisDescription) {
-      ChrisPremadesHelper.appendDescription(this.chrisDoc, this.document);
-    }
 
     foundry.utils.setProperty(this.document, "flags.ddbimporter.effectsApplied", true);
     foundry.utils.setProperty(this.document, "flags.ddbimporter.chrisEffectsApplied", true);
