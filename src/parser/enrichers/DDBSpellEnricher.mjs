@@ -185,6 +185,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Conjure Animals": SpellEnrichers.ConjureAnimals,
     "Conjure Minor Elementals": SpellEnrichers.ConjureMinorElementals,
     "Conjure Woodland Beings": SpellEnrichers.ConjureWoodlandBeings,
+    "Conjure Elemental": SpellEnrichers.ConjureElemental,
   };
 
 }

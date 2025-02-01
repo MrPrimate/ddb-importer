@@ -160,6 +160,10 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Flying Snake": { "Bite": MonsterEnrichers.FlyingSnake.Bite },
     "Purple Worm": { "Bite": MonsterEnrichers.PurpleWorm.Bite },
     "Conjured Animals": { "Pack Damage": MonsterEnrichers.ConjuredAnimals.PackDamage },
+    "Conjured Air Elemental": { "Air Element": MonsterEnrichers.ConjuredElemental.AirElement },
+    "Conjured Earth Elemental": { "Earth Element": MonsterEnrichers.ConjuredElemental.EarthElement },
+    "Conjured Fire Elemental": { "Fire Element": MonsterEnrichers.ConjuredElemental.FireElement },
+    "Conjured Water Elemental": { "Water Element": MonsterEnrichers.ConjuredElemental.WaterElement },
     // "Dragon": {
     //   "Frightful Presence": MonsterEnrichers.Dragon.FrightfulPresence,
     // },
