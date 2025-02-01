@@ -48,6 +48,11 @@ export default class ConjureCelestial extends DDBEnricherData {
           generateTarget: true,
           generateRange: true,
         },
+        overrides: {
+          data: {
+            sort: "1",
+          },
+        },
       },
     ];
   }
