@@ -453,7 +453,7 @@ const SETTINGS = {
           "allow-great-weapon-master-enhancer": {
             type: Boolean,
             scope: "world",
-            default: true,
+            default: false,
             config: false,
             requiresReload: true,
           },
