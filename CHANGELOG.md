@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.69
 
 - Unseen Servant Summons configuration.
 - Fixes to Spirit Guardians Spell, and new Conjure Woodland Beings 2024 Midi Automation.
