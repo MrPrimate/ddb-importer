@@ -218,6 +218,14 @@ export default class DDBEnricherFactoryMixin {
     return `<hr><div class="ddb-macros-container"><p>[[/ddbifunc functionName="${data.name}" functionType="${data.type}"${parameters}]]${label}</div></p></div>`;
   }
 
+  get combineGrantedDamageModifiers() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.combineGrantedDamageModifiers;
+    } else {
+      return false;
+    }
+  }
+
   constructor({
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,

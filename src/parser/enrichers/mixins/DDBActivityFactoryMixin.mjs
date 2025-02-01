@@ -1,4 +1,5 @@
 import { logger } from "../../../lib/_module.mjs";
+import SystemHelpers from "../../lib/SystemHelpers.mjs";
 
 export default class DDBActivityFactoryMixin {
 
@@ -427,6 +428,65 @@ export default class DDBActivityFactoryMixin {
       activity: Array.from(riders.activity),
       effect: Array.from(riders.effect),
     });
+
+  }
+
+
+  static getDamageParts(modifiers, typeOverride = null) {
+    return modifiers
+      .filter((mod) => Number.isInteger(mod.value)
+        || (mod.dice ? mod.dice : mod.die ? mod.die : undefined) !== undefined,
+      )
+      .map((mod) => {
+        const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
+        if (die) {
+          const damage = SystemHelpers.buildDamagePart({
+            damageString: die.diceString,
+            type: typeOverride ?? mod.subType,
+          });
+          return damage;
+        } else if (mod.value) {
+          const damage = SystemHelpers.buildDamagePart({
+            damageString: mod.value,
+            type: typeOverride ?? mod.subType,
+          });
+          return damage;
+        } else if (mod.fixedValue) {
+          const damage = SystemHelpers.buildDamagePart({
+            damageString: mod.fixedValue,
+            type: typeOverride ?? mod.subType,
+          });
+          return damage;
+        } else {
+          return null;
+        }
+      }).filter((part) => part !== null);
+  }
+
+  static filterCombinedDamageParts(damageParts) {
+    const tracker = {};
+
+    for (const part of damageParts) {
+      const partKey = `${part.number ?? ""}${part.denomination ?? ""}${part.bonus ?? ""}${part.custom}${part.formula}`;
+      if (tracker[partKey]) {
+        tracker[partKey].types.push(...part.types);
+      } else {
+        tracker[partKey] = part;
+      }
+    }
+
+    return Object.values(tracker);
+  }
+
+  static getCombinedDamageModifiers(modifiers) {
+    const damageModifiers = modifiers.filter((m) => m.type === "damage");
+
+    const additionalDamageParts = DDBActivityFactoryMixin.getDamageParts(
+      damageModifiers
+        .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === "")),
+    );
+
+    return DDBActivityFactoryMixin.filterCombinedDamageParts(additionalDamageParts);
 
   }
 }

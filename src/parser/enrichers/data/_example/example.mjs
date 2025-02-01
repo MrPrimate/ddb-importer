@@ -211,4 +211,8 @@ export default class Example extends DDBEnricherData {
     return true;
   }
 
+  get combineGrantedDamageModifiers() {
+    return true;
+  }
+
 }

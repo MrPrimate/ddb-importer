@@ -329,6 +329,10 @@ export default class DDBEnricherData {
     return null;
   }
 
+  get combineGrantedDamageModifiers() {
+    return false;
+  }
+
   // eslint-disable-next-line no-unused-vars, no-empty-function
   customFunction(options = {}) {
 

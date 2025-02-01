@@ -23,6 +23,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Absorbing Tattoo": "Absorbing Tattoo",
     "Flame Tongue": "Flame Tongue",
     "Moon Sickle": "Moon Sickle",
+    "Dragon Wing": "Dragon Wing",
   };
 
   ENRICHERS = {
@@ -86,6 +87,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wand of Orcus": ItemEnrichers.WandOfOrcus,
     "Spell-Refueling Ring (Reaction)": ItemEnrichers.SpellRefuelingRingReaction,
     "Potion of Invulnerability": ItemEnrichers.PotionOfInvulnerability,
+    "Dragon Wing": ItemEnrichers.DragonWing,
   };
 
 }

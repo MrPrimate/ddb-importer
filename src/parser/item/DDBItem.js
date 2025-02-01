@@ -415,36 +415,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.#fixedAttackCheck();
   }
 
-  static #getDamageParts(modifiers, typeOverride = null) {
-    return modifiers
-      .filter((mod) => Number.isInteger(mod.value)
-        || (mod.dice ? mod.dice : mod.die ? mod.die : undefined) !== undefined,
-      )
-      .map((mod) => {
-        const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
-        if (die) {
-          const damage = SystemHelpers.buildDamagePart({
-            damageString: die.diceString,
-            type: typeOverride ?? mod.subType,
-          });
-          return damage;
-        } else if (mod.value) {
-          const damage = SystemHelpers.buildDamagePart({
-            damageString: mod.value,
-            type: typeOverride ?? mod.subType,
-          });
-          return damage;
-        } else if (mod.fixedValue) {
-          const damage = SystemHelpers.buildDamagePart({
-            damageString: mod.fixedValue,
-            type: typeOverride ?? mod.subType,
-          });
-          return damage;
-        } else {
-          return null;
-        }
-      }).filter((part) => part !== null);
-  }
 
   #generateAmmunitionDamage(magicalDamageBonus) {
     // first damage part
@@ -460,18 +430,22 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
 
     // additional damage parts
-    const additionalDamageParts = DDBItem.#getDamageParts(
-      this.ddbDefinition.grantedModifiers
-        .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === "")),
-    );
-    this.damageParts.push(...additionalDamageParts);
+    if (this.enricher.combineGrantedDamageModifiers) {
+      this.damageParts.push(...DDBItem.getCombinedDamageModifiers(this.ddbDefinition.grantedModifiers));
+    } else {
+      const additionalDamageParts = DDBItem.getDamageParts(
+        this.ddbDefinition.grantedModifiers
+          .filter((mod) => mod.type === "damage" && (!mod.restriction || mod.restriction === "")),
+      );
+      this.damageParts.push(...additionalDamageParts);
+    }
 
     // Add saving throw additional
     // e.g. arrow of slaying is "DC 17 Constitution for Half Damage",
     this.ddbDefinition.grantedModifiers
       .filter((mod) => mod.type === "damage" && mod.restriction && mod.restriction !== "")
       .forEach((mod) => {
-        const damageParts = DDBItem.#getDamageParts([mod]);
+        const damageParts = DDBItem.getDamageParts([mod]);
 
         if (damageParts.length === 0) {
           const saveSearch = /DC (\d+) (\w+) /i;
@@ -501,15 +475,19 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       (mod) => mod.type === "bonus" && mod.subType === "hit-points",
     );
     if (healingModifiers) {
-      const healingDamageParts = DDBItem.#getDamageParts(healingModifiers, "healing");
+      const healingDamageParts = DDBItem.getDamageParts(healingModifiers, "healing");
       this.healingParts.push(...healingDamageParts);
     }
 
-    const additionalDamageParts = DDBItem.#getDamageParts(
-      this.ddbDefinition.grantedModifiers
-        .filter((mod) => mod.type === "damage" && CONFIG.DND5E.damageTypes[mod.subType]),
-    );
-    this.damageParts.push(...additionalDamageParts);
+    if (this.enricher.combineGrantedDamageModifiers) {
+      this.damageParts.push(...DDBItem.getCombinedDamageModifiers(this.ddbDefinition.grantedModifiers));
+    } else {
+      const additionalDamageParts = DDBItem.getDamageParts(
+        this.ddbDefinition.grantedModifiers
+          .filter((mod) => mod.type === "damage" && CONFIG.DND5E.damageTypes[mod.subType]),
+      );
+      this.damageParts.push(...additionalDamageParts);
+    }
 
   }
 
@@ -610,6 +588,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // })
 
     // additional damage parts with no restrictions
+    const unfilteredParts = [];
     unfilteredDamageMods
       .filter((mod) => !mod.restriction || mod.restriction === "")
       .forEach((mod) => {
@@ -621,9 +600,17 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
             stripMod: true,
             type: mod.subType ? mod.subType : "",
           });
-          this.damageParts.push(damage);
+          unfilteredParts.push(damage);
         }
       });
+
+
+    if (this.enricher.combineGrantedDamageModifiers) {
+      this.damageParts.push(...DDBItem.filterCombinedDamageParts(unfilteredParts));
+    } else {
+      this.damageParts.push(...unfilteredParts);
+    }
+
 
     let restrictions = [];
     // loop over restricted damage types

@@ -16,6 +16,7 @@ export { default as CloakOfDisplacement } from "./CloakOfDisplacement.mjs";
 export { default as ConcussionGrenade } from "./ConcussionGrenade.mjs";
 export { default as DemonArmor } from "./DemonArmor.mjs";
 export { default as DonjonsSunderingSphere } from "./DonjonsSunderingSphere.mjs";
+export { default as DragonWing } from "./DragonWing.mjs";
 export { default as DustOfSneezingAndChoking } from "./DustOfSneezingAndChoking.mjs";
 export { default as FarRealmShard } from "./FarRealmShard.mjs";
 export { default as FlameTongue } from "./FlameTongue.mjs";
