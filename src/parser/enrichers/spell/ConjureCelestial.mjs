@@ -7,6 +7,10 @@ export default class ConjureCelestial extends DDBEnricherData {
     return true;
   }
 
+  get addToDefaultAdditionalActivities() {
+    return true;
+  }
+
   get activity() {
     if (this.is2014) return null;
     if (!["save", "heal"].includes(this.ddbEnricher?._originalActivity?.type)) return null;
@@ -14,6 +18,7 @@ export default class ConjureCelestial extends DDBEnricherData {
       name: this.ddbEnricher?._originalActivity?.type === "save" ? "Searing Light" : "Healing Light",
       noSpellslot: true,
       noTemplate: true,
+      overrideTemplate: true,
       data: {
         sort: 10000,
         healing: {
