@@ -58,6 +58,17 @@ export default class ElementDamage extends DDBEnricherData {
     };
   }
 
+  get effects() {
+    return [
+      {
+        noCreate: true,
+        data: {
+          img: "systems/dnd5e/icons/svg/statuses/restrained.svg",
+        },
+      },
+    ];
+  }
+
   // get clearAutoEffects() {
   //   return true;
   // }

@@ -17,7 +17,7 @@ export async function getConjureAnimals({
     text,
   });
 
-  let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+  let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     "name": "Conjured Animals",
     "prototypeToken": {
       name: "Conjured Animals",

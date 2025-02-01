@@ -47,7 +47,7 @@ export async function getConjureElemental({
   const result = {};
   for (const elemental of elementals) {
 
-    let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+    let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
       "name": `Conjured ${elemental.name} Elemental`,
       "prototypeToken": {
         name: `Conjured ${elemental.name} Elemental`,
@@ -82,19 +82,19 @@ export async function getConjureElemental({
     const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
 
-    console.warn(`Conjure Elemental ${elemental.name}`, {
-      stub: foundry.utils.deepClone(stub),
-      enriched,
-    });
+    // console.warn(`Conjure Elemental ${elemental.name}`, {
+    //   stub: foundry.utils.deepClone(stub),
+    //   enriched,
+    // });
 
     result[`ConjureElemental${elemental.name}`] = {
-      name: `Conjure ${elemental.name} Animals`,
+      name: `Conjure ${elemental.name} Elemental`,
       version: enriched ? "2" : "1",
       required: null,
       isJB2A: false,
       needsJB2A: false,
       needsJB2APatreon: false,
-      folderName: `Conjure ${elemental.name} Animals`,
+      folderName: `Conjure Elementals`,
       data: stub,
     };
 

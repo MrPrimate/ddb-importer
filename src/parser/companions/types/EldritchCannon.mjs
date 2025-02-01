@@ -30,7 +30,7 @@ const ELRITCH_CANNON_ABILITY_STUB = {
 };
 
 export function getEldritchCannonStub(size) {
-  const cannon = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+  const cannon = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     name: "Eldritch Cannon",
     img: "icons/weapons/guns/gun-blunderbuss-gold.webp",
     system: {
@@ -75,6 +75,12 @@ export function getEldritchCannonStub(size) {
       },
       "traits": {
         "size": size,
+      },
+      ci: {
+        value: [],
+      },
+      di: {
+        value: [],
       },
     },
     "prototypeToken": {

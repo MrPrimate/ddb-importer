@@ -243,8 +243,10 @@ export default class AutoEffects {
       DDBDescriptions.addSpecialDurationFlagsToEffect(effect, parsedStatus.match);
       if (nameHint) effect.name = `${nameHint}: ${parsedStatus.group4Condition}`;
       else effect.name = `Status: ${parsedStatus.group4Condition}`;
+      effect.img = CONFIG.DND5E.conditionTypes[parsedStatus.group4Condition]?.icon ?? null;
     } else if (parsedStatus.condition === "dead") {
       ChangeHelper.addStatusEffectChange({ effect, statusName: "Dead" });
+      effect.img = "systems/dnd5e/icons/svg/statuses/dead.svg";
     } else {
       logger.debug(`Odd condition ${status.condition} found`, {
         text,
@@ -283,6 +285,7 @@ export default class AutoEffects {
     if (!effect.name || effect.name === "") {
       const condition = utils.capitalize(conditionResult.condition);
       effect.name = `Status: ${condition}`;
+      effect.img = CONFIG.DND5E.conditionTypes[condition]?.icon;
     }
     return effect;
   }

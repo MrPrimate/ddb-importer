@@ -9,7 +9,7 @@ export function getMageHands(jb2aMod) {
       isJB2A: true,
       needsJB2A: false,
       folderName: "Mage Hand",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Mage Hand (Red)",
         "prototypeToken.name": "Mage Hand",
         "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_400x400.webm",
@@ -30,7 +30,7 @@ export function getMageHands(jb2aMod) {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Mage Hand",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Mage Hand (Purple)",
         "prototypeToken.name": "Mage Hand",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`,
@@ -51,7 +51,7 @@ export function getMageHands(jb2aMod) {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Mage Hand",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Mage Hand (Green)",
         "prototypeToken.name": "Mage Hand",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`,
@@ -72,7 +72,7 @@ export function getMageHands(jb2aMod) {
       isJB2A: true,
       needsJB2A: true,
       folderName: "Mage Hand",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Mage Hand (Blue)",
         "prototypeToken.name": "Mage Hand",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`,
@@ -94,7 +94,7 @@ export function getMageHands(jb2aMod) {
       needsJB2A: true,
       needsJB2APatreon: true,
       folderName: "Mage Hand",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Mage Hand (Rock)",
         "prototypeToken.name": "Mage Hand",
         "prototypeToken.texture.src": `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`,
@@ -116,7 +116,7 @@ export function getMageHands(jb2aMod) {
       needsJB2A: true,
       needsJB2APatreon: true,
       folderName: "Mage Hand",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Mage Hand (Rainbow)",
         prototypeToken: {
           name: "Mage Hand",

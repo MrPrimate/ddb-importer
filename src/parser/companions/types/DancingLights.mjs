@@ -47,7 +47,7 @@ const DANCING_LIGHTS_BASE = {
 
 
 export function getDancingLights(jb2aMod) {
-  const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
+  const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
   const results = {
     DancingLightsYellow: {
       name: "Dancing Lights (Yellow)",

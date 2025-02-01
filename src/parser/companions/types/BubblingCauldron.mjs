@@ -9,7 +9,7 @@ export function getBubblingCauldrons() {
       needsJB2A: false,
       needsJB2APatreon: false,
       folderName: "Tasha's Bubbling Cauldron",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Bubbling Cauldron",
         "prototypeToken": {
           name: "Bubbling Cauldron",

@@ -10,7 +10,7 @@ export async function getArcaneEyes() {
       isJB2A: true,
       needsJB2A: false,
       folderName: "Arcane Eye",
-      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB), {
+      data: foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
         "name": "Arcane Eye",
         "prototypeToken.name": "Arcane Eye",
         "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/Marker_01_Regular_BlueYellow_400x400.webm",
