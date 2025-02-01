@@ -45,6 +45,7 @@ export { default as CrownOfStars } from "./CrownOfStars.mjs";
 export { default as DancingLights } from "./DancingLights.mjs";
 export { default as Darkness } from "./Darkness.mjs";
 export { default as Darkvision } from "./Darkvision.mjs";
+export { default as DisguiseSelf } from "./DisguiseSelf.mjs";
 export { default as DivineFavor } from "./DivineFavor.mjs";
 export { default as DivineSmite } from "./DivineSmite.mjs";
 export { default as DragonsBreath } from "./DragonsBreath.mjs";
