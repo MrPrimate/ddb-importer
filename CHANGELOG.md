@@ -3,8 +3,9 @@
 - Unseen Servant Summons configuration.
 - Fixes to Spirit Guardians Spell, and new Conjure Woodland Beings 2024 Midi Automation.
 - Conjure Animals 2024 summons configuration and ActiveAura Midi automation.
-- Conjure Elemental 2024 summons configuration
+- Conjure Elemental and Conjure Fey 2024 summons configuration
 - Spell Parser improvements to 2024 Conjure spells in general.
+- Dragon Wing weapons now import damage correctly. @sigmaparadox
 
 # 6.0.68
 

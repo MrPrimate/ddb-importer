@@ -164,6 +164,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Conjured Earth Elemental": { "Earth Element": MonsterEnrichers.ConjuredElemental.EarthElement },
     "Conjured Fire Elemental": { "Fire Element": MonsterEnrichers.ConjuredElemental.FireElement },
     "Conjured Water Elemental": { "Water Element": MonsterEnrichers.ConjuredElemental.WaterElement },
+    "Conjured Fey": { "Psychic Attack": MonsterEnrichers.ConjuredFey.PsychicAttack },
     // "Dragon": {
     //   "Frightful Presence": MonsterEnrichers.Dragon.FrightfulPresence,
     // },

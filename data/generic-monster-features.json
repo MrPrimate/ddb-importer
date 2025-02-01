@@ -9462,5 +9462,9 @@
   {
     "name": "Pack Damage",
     "path": "icons/creatures/claws/claw-talons-yellow-red.webp"
+  },
+  {
+    "name": "Psychic Attack",
+    "path": "icons/magic/control/fear-fright-monster-green.webp"
   }
 ]

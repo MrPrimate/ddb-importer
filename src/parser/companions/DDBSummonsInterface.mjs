@@ -10,6 +10,7 @@ import { getHoundOfIllOmen } from "./types/HoundOfIllOmen.mjs";
 import { getMageHands } from "./types/MageHand.mjs";
 import { getUnseenServant } from "./types/UnseenServant.mjs";
 import { getConjureElemental } from "./types/ConjureElemental.mjs";
+import { getConjureFey } from "./types/ConjureFey.mjs";
 
 export default class DDBSummonsInterface {
 
@@ -36,5 +37,7 @@ export default class DDBSummonsInterface {
   static getUnseenServant = getUnseenServant;
 
   static getConjureElementals2024 = getConjureElemental;
+
+  static getConjureFey2024 = getConjureFey;
 
 }

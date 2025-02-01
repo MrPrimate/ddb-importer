@@ -34,6 +34,7 @@ export { default as ComprehendLanguages } from "./ComprehendLanguages.mjs";
 export { default as Confusion } from "./Confusion.mjs";
 export { default as ConjureAnimals } from "./ConjureAnimals.mjs";
 export { default as ConjureElemental } from "./ConjureElemental.mjs";
+export { default as ConjureFey } from "./ConjureFey.mjs";
 export { default as ConjureMinorElementals } from "./ConjureMinorElementals.mjs";
 export { default as ConjureWoodlandBeings } from "./ConjureWoodlandBeings.mjs";
 export { default as Contagion } from "./Contagion.mjs";
