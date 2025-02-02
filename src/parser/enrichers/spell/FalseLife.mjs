@@ -6,10 +6,12 @@ export default class FalseLife extends DDBEnricherData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "1d4 + 4",
+          number: this.is2014 ? 1 : 2,
+          denomination: 4,
+          bonus: "4",
           types: ["temphp"],
           scalingMode: "whole",
-          scalingNumber: 5,
+          scalingNumber: "5",
         }),
       },
     };
