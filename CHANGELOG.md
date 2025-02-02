@@ -1,3 +1,7 @@
+# 6.0.70
+
+- Arcane Hand would break spell processing.
+
 # 6.0.69
 
 - Unseen Servant Summons configuration.
