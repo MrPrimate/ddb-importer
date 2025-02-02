@@ -16,27 +16,29 @@ export default class EnhanceAbility extends DDBEnricherData {
       { ability: "int", name2014: "Fox's Cunning" },
       { ability: "wis", name2014: "Owl's Wisdom" },
       { ability: "cha", name2014: "Eagle's Splendor" },
-    ].map((data) => {
-      return {
-        constructor: {
-          name: this.is2014 ? data.name2014 : `Enhance ${CONFIG.DND5E.abilities[data.ability].label}`,
-          type: this.is2014
-            ? data.type ?? "utility"
-            : "utility",
-        },
-        build: {
-          generateConsumption: true,
-          generateHealing: data.type === "heal",
-          healingPart: DDBEnricherData.basicDamagePart({
-            number: 2,
-            denomination: 6,
-            scalingMode: "none",
-            type: "temphp",
-            scalingNumber: "",
-          }),
-        },
-      };
-    });
+    ]
+      .filter((data) => this.is2014 || (!this.is2014 && data.ability !== "con"))
+      .map((data) => {
+        return {
+          constructor: {
+            name: this.is2014 ? data.name2014 : `Enhance ${CONFIG.DND5E.abilities[data.ability].label}`,
+            type: this.is2014
+              ? data.type ?? "utility"
+              : "utility",
+          },
+          build: {
+            generateConsumption: true,
+            generateHealing: data.type === "heal",
+            healingPart: DDBEnricherData.basicDamagePart({
+              number: 2,
+              denomination: 6,
+              scalingMode: "none",
+              type: "temphp",
+              scalingNumber: "",
+            }),
+          },
+        };
+      });
   }
 
   get _effects2014() {
@@ -89,7 +91,7 @@ export default class EnhanceAbility extends DDBEnricherData {
   get _effects2024() {
     return [
       { ability: "str" },
-      { ability: "con" },
+      // { ability: "con" },
       { ability: "dex" },
       { ability: "int" },
       { ability: "wis" },
