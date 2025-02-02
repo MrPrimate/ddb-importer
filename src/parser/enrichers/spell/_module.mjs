@@ -58,6 +58,8 @@ export { default as EnhanceAbility } from "./EnhanceAbility.mjs";
 export { default as EnlargeReduce } from "./EnlargeReduce.mjs";
 export { default as EnsnaringStrike } from "./EnsnaringStrike.mjs";
 export { default as Entangle } from "./Entangle.mjs";
+export { default as Enthrall } from "./Enthrall.mjs";
+export { default as Eyebite } from "./Eyebite.mjs";
 export { default as FaerieFire } from "./FaerieFire.mjs";
 export { default as FalseLife } from "./FalseLife.mjs";
 export { default as FeatherFall } from "./FeatherFall.mjs";

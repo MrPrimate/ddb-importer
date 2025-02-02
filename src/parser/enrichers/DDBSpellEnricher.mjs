@@ -190,6 +190,8 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Conjure Fey": SpellEnrichers.ConjureFey,
     "Conjure Celestial": SpellEnrichers.ConjureCelestial,
     "Earthquake": SpellEnrichers.Earthquake,
+    "Enthrall": SpellEnrichers.Enthrall,
+    "Eyebite": SpellEnrichers.Eyebite,
   };
 
 }

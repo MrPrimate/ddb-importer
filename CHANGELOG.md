@@ -1,6 +1,7 @@
 # Next Up
 
 - True Strike improvements
+- Huge number of spell tweaks and fixes.
 
 # 6.0.70
 
