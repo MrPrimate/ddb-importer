@@ -72,7 +72,7 @@ export async function getConjureElemental({
     });
 
     const text = raw.split("the duration.</p>\n").pop();
-    const action = `<p><em><strong>${elemental.name} Element.</em></strong> ${text}</p>`;
+    const action = `<p><em><strong>${elemental.name} Element.</strong></em> ${text}</p>`;
 
     const manager = new DDBCompanionMixin(action, {}, { addMonsterEffects: true });
     manager.npc = stub;

@@ -168,6 +168,10 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     // "Dragon": {
     //   "Frightful Presence": MonsterEnrichers.Dragon.FrightfulPresence,
     // },
+    "Flaming Sphere": {
+      "Move and Attack": MonsterEnrichers.FlamingSphere.MoveAndAttack,
+      "Flame Damage": MonsterEnrichers.FlamingSphere.FlameDamage,
+    },
   };
 
 }

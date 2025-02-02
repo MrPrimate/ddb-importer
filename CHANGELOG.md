@@ -1,7 +1,8 @@
 # Next Up
 
 - True Strike improvements
-- Huge number of spell tweaks and fixes.
+- A HUGE number of spell improvements, tweaks and fixes.
+- Flaming Sphere Summon.
 
 # 6.0.70
 

@@ -9466,5 +9466,9 @@
   {
     "name": "Psychic Attack",
     "path": "icons/magic/control/fear-fright-monster-green.webp"
+  },
+  {
+    "name": "Flame Damage",
+    "path": "icons/magic/fire/flame-burning-earth-yellow.webp"
   }
 ]

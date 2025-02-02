@@ -11,6 +11,7 @@ import { getMageHands } from "./types/MageHand.mjs";
 import { getUnseenServant } from "./types/UnseenServant.mjs";
 import { getConjureElemental } from "./types/ConjureElemental.mjs";
 import { getConjureFey } from "./types/ConjureFey.mjs";
+import { getFlamingSphere } from "./types/FlamingSphere.mjs";
 
 export default class DDBSummonsInterface {
 
@@ -39,5 +40,7 @@ export default class DDBSummonsInterface {
   static getConjureElementals2024 = getConjureElemental;
 
   static getConjureFey2024 = getConjureFey;
+
+  static getFlamingSphere = getFlamingSphere;
 
 }

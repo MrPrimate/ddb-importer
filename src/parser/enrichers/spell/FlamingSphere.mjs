@@ -4,14 +4,36 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class FlamingSphere extends DDBEnricherData {
 
   get type() {
-    return "utility";
+    return "summon";
   }
 
   get activity() {
     return {
-      name: "Cast/Place Template",
+      name: "Summon Sphere",
+      type: "summon",
+      noTemplate: true,
+      generateSummons: !this.is2014,
+      summonsFunction: DDBImporter.lib.DDBSummonsInterface.getFlamingSphere,
+      profileKeys: [
+        "FlamingSphere",
+      ],
+      summons: {
+        "match": {
+          "proficiency": false,
+          "attacks": false,
+          "saves": true,
+        },
+        "bonuses": {
+          "ac": "",
+          "hp": "",
+          "attackDamage": "",
+          "saveDamage": "(@item.level)d6",
+          "healing": "",
+        },
+      },
     };
   }
+
 
   get additionalActivities() {
     return [{
@@ -32,8 +54,12 @@ export default class FlamingSphere extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "system.target.template": {
-          size: "2.5",
+        flags: {
+          ddbimporter: {
+            disposition: {
+              match: true,
+            },
+          },
         },
       },
     };
