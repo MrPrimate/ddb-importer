@@ -51,6 +51,7 @@ export { default as DisguiseSelf } from "./DisguiseSelf.mjs";
 export { default as DivineFavor } from "./DivineFavor.mjs";
 export { default as DivineSmite } from "./DivineSmite.mjs";
 export { default as DragonsBreath } from "./DragonsBreath.mjs";
+export { default as Earthquake } from "./Earthquake.mjs";
 export { default as EldritchBlast } from "./EldritchBlast.mjs";
 export { default as ElementalWeapon } from "./ElementalWeapon.mjs";
 export { default as EnhanceAbility } from "./EnhanceAbility.mjs";
