@@ -2,7 +2,7 @@
 
 - True Strike improvements
 - A HUGE number of spell improvements, tweaks and fixes.
-- Flaming Sphere Summon.
+- Flaming Sphere Summon and midi automation.
 
 # 6.0.70
 

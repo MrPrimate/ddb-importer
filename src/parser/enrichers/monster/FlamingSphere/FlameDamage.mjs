@@ -35,4 +35,40 @@ export default class FlameDamage extends DDBEnricherData {
     };
   }
 
+  get effects() {
+    return [
+      {
+        name: "Flaming Sphere: Heat",
+        activeAurasOnly: true,
+        midiOnly: true,
+        options: {
+          transfer: true,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.customChange(
+            `label=${this.data.name} (Turn End),turn=end, saveAbility=dex, saveDC=(@flags.dnd5e.summon.level+10+@prof), saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@flags.dnd5e.summon.level)d6, damageType=fire, killAnim=true`,
+            20,
+            "flags.midi-qol.OverTime",
+          ),
+        ],
+        data: {
+          flags: {
+            ActiveAuras: {
+              isAura: true,
+              aura: "All",
+              radius: 5,
+              alignment: "",
+              type: "",
+              ignoreSelf: false,
+              height: false,
+              hidden: false,
+              onlyOnce: false,
+              displayTemp: true,
+            },
+          },
+        },
+      },
+    ];
+  }
+
 }

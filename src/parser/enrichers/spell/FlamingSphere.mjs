@@ -19,7 +19,7 @@ export default class FlamingSphere extends DDBEnricherData {
       ],
       summons: {
         "match": {
-          "proficiency": false,
+          "proficiency": true,
           "attacks": false,
           "saves": true,
         },
