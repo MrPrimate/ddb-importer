@@ -1,7 +1,7 @@
 import { utils } from "../../../lib/_module.mjs";
 import { SRDExtractor } from "../SRDExtractor.mjs";
 
-export async function get2024ArcaneHands({ text }) {
+export async function getArcaneHands2024({ text }) {
   // eslint-disable-next-line no-use-before-define
   const arcaneHand = await SRDExtractor.getCompendiumDocument({ name: "Arcane Hand" });
   const arcaneHand2024 = arcaneHand.toObject();
@@ -10,7 +10,7 @@ export async function get2024ArcaneHands({ text }) {
   arcaneHand2024.system.details.cr = null;
   // console.warn("2024 Arcane Hands", { arcaneHand, arcaneHand2024});
 
-  const hands2024 = SRDExtractor.getArcaneHands(arcaneHand2024, "Bigby's Hand", "2024");
+  const hands2024 = DDBImporter.lib.DDBSummonsInterface.getArcaneHands(arcaneHand2024, "Bigby's Hand", "2024");
 
   const dom = utils.htmlToDocumentFragment(text);
 
