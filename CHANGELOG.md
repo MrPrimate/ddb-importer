@@ -1,3 +1,7 @@
+# Next Up
+
+- True Strike improvements
+
 # 6.0.70
 
 - Arcane Hand would break spell processing.

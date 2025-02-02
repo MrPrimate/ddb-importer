@@ -42,10 +42,10 @@ export default class TrueStrike extends DDBEnricherData {
             description: `This weapon is infused with True Strike`,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("{} (True Strike)", 20, "name"),
+            DDBEnricherData.ChangeHelper.overrideChange("{} (True Strike)", 20, "name"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.damage.base.types"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("(floor((@details.level + 1) / 6))d6[radiant]", 20, "system.damage.base.bonus"),
-            DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "system.ability"),
+            DDBEnricherData.ChangeHelper.overrideChange("spellcasting", 20, "activities[attack].attack.ability"),
           ],
           data: {
             img: data.img,
