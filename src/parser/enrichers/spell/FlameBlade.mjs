@@ -62,7 +62,7 @@ export default class FlameBlade extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 3,
                   denomination: 6,
-                  bonus: "@mod",
+                  bonus: this.is2014 ? "" : "@mod",
                   scalingMode: "whole",
                   scalingNumber: 1,
                 }),
