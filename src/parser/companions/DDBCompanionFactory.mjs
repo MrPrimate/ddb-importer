@@ -11,7 +11,7 @@ import { isEqual } from "../../../vendor/lowdash/_module.mjs";
 import DDBSummonsManager from "./DDBSummonsManager.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 
-async function getFindFamiliarActivityData() {
+async function getFindFamiliarActivityData(is2014) {
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
   await ddbCompendium?.getIndex();
 
@@ -21,68 +21,77 @@ async function getFindFamiliarActivityData() {
       "fey",
       "fiend",
     ],
-    "profiles": [
-      {
-        "name": "Bat",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Bat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.qav2dvMIUiMQCCsy",
-      },
-      {
-        "name": "Cat",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Cat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.hIf83RD3ZVW4Egfi",
-      },
-      {
-        "name": "Crab",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Crab")?.uuid ?? "Compendium.dnd5e.monsters.Actor.8RgUhb31VvjUNZU1",
-      },
-      {
-        "name": "Fish",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Quipper")?.uuid ?? "Compendium.dnd5e.monsters.Actor.nkyCGJ9wXeAZkyyz",
-      },
-      {
-        "name": "Frog",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Frog")?.uuid ?? "Compendium.dnd5e.monsters.Actor.EZgiprHXA2D7Uyb3",
-      },
-      {
-        "name": "Hawk",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Hawk")?.uuid ?? "Compendium.dnd5e.monsters.Actor.fnkPNfIpS62LqOu4",
-      },
-      {
-        "name": "Lizard",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Lizard")?.uuid ?? "Compendium.dnd5e.monsters.Actor.I2x01hzOjVN4NUjf",
-      },
-      {
-        "name": "Octopus",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Octopus")?.uuid ?? "Compendium.dnd5e.monsters.Actor.3UUNbGiG2Yf1ZPxM",
-      },
-      {
-        "name": "Owl",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Owl")?.uuid ?? "Compendium.dnd5e.monsters.Actor.d0prpsGSAorDadec",
-      },
-      {
-        "name": "Poisonous Snake",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Poisonous Snake")?.uuid ?? "Compendium.dnd5e.monsters.Actor.D5rwVIxmfFrdyyxT",
-      },
-      {
-        "name": "Rat",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Rat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.pozQUPTnLZW8epox",
-      },
-      {
-        "name": "Raven",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Raven")?.uuid ?? "Compendium.dnd5e.monsters.Actor.LPdX5YLlwci0NDZx",
-      },
-      {
-        "name": "Sea Horse",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Sea Horse")?.uuid ?? "Compendium.dnd5e.monsters.Actor.FWSDiq9SZsdiBAa8",
-      },
-      {
-        "name": "Spider",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Spider")?.uuid ?? "Compendium.dnd5e.monsters.Actor.28gU50HtG8Kp7uIz",
-      },
-      {
-        "name": "Weasel",
-        "uuid": ddbCompendium?.index.find((i) => i.name === "Weasel")?.uuid ?? "Compendium.dnd5e.monsters.Actor.WOdeacKCYVhgLDuN",
-      },
-    ],
+    "profiles": is2014
+      ? [
+        {
+          "name": "Bat",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Bat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.qav2dvMIUiMQCCsy",
+        },
+        {
+          "name": "Cat",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Cat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.hIf83RD3ZVW4Egfi",
+        },
+        {
+          "name": "Crab",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Crab")?.uuid ?? "Compendium.dnd5e.monsters.Actor.8RgUhb31VvjUNZU1",
+        },
+        {
+          "name": "Fish",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Quipper")?.uuid ?? "Compendium.dnd5e.monsters.Actor.nkyCGJ9wXeAZkyyz",
+        },
+        {
+          "name": "Frog",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Frog")?.uuid ?? "Compendium.dnd5e.monsters.Actor.EZgiprHXA2D7Uyb3",
+        },
+        {
+          "name": "Hawk",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Hawk")?.uuid ?? "Compendium.dnd5e.monsters.Actor.fnkPNfIpS62LqOu4",
+        },
+        {
+          "name": "Lizard",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Lizard")?.uuid ?? "Compendium.dnd5e.monsters.Actor.I2x01hzOjVN4NUjf",
+        },
+        {
+          "name": "Octopus",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Octopus")?.uuid ?? "Compendium.dnd5e.monsters.Actor.3UUNbGiG2Yf1ZPxM",
+        },
+        {
+          "name": "Owl",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Owl")?.uuid ?? "Compendium.dnd5e.monsters.Actor.d0prpsGSAorDadec",
+        },
+        {
+          "name": "Poisonous Snake",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Poisonous Snake")?.uuid ?? "Compendium.dnd5e.monsters.Actor.D5rwVIxmfFrdyyxT",
+        },
+        {
+          "name": "Rat",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Rat")?.uuid ?? "Compendium.dnd5e.monsters.Actor.pozQUPTnLZW8epox",
+        },
+        {
+          "name": "Raven",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Raven")?.uuid ?? "Compendium.dnd5e.monsters.Actor.LPdX5YLlwci0NDZx",
+        },
+        {
+          "name": "Sea Horse",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Sea Horse")?.uuid ?? "Compendium.dnd5e.monsters.Actor.FWSDiq9SZsdiBAa8",
+        },
+        {
+          "name": "Spider",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Spider")?.uuid ?? "Compendium.dnd5e.monsters.Actor.28gU50HtG8Kp7uIz",
+        },
+        {
+          "name": "Weasel",
+          "uuid": ddbCompendium?.index.find((i) => i.name === "Weasel")?.uuid ?? "Compendium.dnd5e.monsters.Actor.WOdeacKCYVhgLDuN",
+        },
+      ]
+      : [
+        {
+          "count": "1",
+          "cr": "0",
+          "name": "CR 0 Beast",
+          "types": ["beast"],
+        },
+      ],
     "creatureSizes": [],
     "match": {
       "attacks": false,
@@ -91,7 +100,7 @@ async function getFindFamiliarActivityData() {
     },
     summon: {
       identifier: "",
-      mode: "",
+      mode: is2014 ? "" : "cr",
       prompt: true,
     },
     "bonuses": {
@@ -591,7 +600,7 @@ export default class DDBCompanionFactory {
         creatureTypes: CR_DATA[this.originName].creatureTypes,
       }
       : this.originName === "Find Familiar"
-        ? await getFindFamiliarActivityData()
+        ? await getFindFamiliarActivityData(this.is2014)
         : null;
 
     if (!summonsData) return;
