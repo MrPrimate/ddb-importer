@@ -59,7 +59,6 @@ export async function getFlamingSphere({
         },
       },
     },
-    "system.traits.size": "med",
     system: {
       "traits.size": "med",
       "details.type": {

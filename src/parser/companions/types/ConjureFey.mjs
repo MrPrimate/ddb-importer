@@ -30,7 +30,6 @@ export async function getConjureFey({
         scaleY: 1,
       },
     },
-    "system.traits.size": "med",
     system: {
       "traits.size": "med",
       "details.type": {

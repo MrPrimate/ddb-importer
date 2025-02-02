@@ -60,7 +60,6 @@ export async function getConjureElemental({
           scaleY: 1,
         },
       },
-      "system.traits.size": "lg",
       system: {
         "traits.size": "lg",
         "details.type": {
