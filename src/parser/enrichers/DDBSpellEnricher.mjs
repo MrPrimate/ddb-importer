@@ -192,6 +192,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Earthquake": SpellEnrichers.Earthquake,
     "Enthrall": SpellEnrichers.Enthrall,
     "Eyebite": SpellEnrichers.Eyebite,
+    "Grasping Vine": SpellEnrichers.GraspingVine,
   };
 
 }

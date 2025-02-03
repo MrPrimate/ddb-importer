@@ -6,3 +6,4 @@ export * as ConjuredAnimals from "./ConjuredAnimals/_module.mjs";
 export * as ConjuredElemental from "./ConjuredElemental/_module.mjs";
 export * as ConjuredFey from "./ConjuredFey/_module.mjs";
 export * as FlamingSphere from "./FlamingSphere/_module.mjs";
+export * as GraspingVine from "./GraspingVine/_module.mjs";

@@ -72,6 +72,7 @@ export { default as Fly } from "./Fly.mjs";
 export { default as FountOfMoonlight } from "./FountOfMoonlight.mjs";
 export { default as Frostbite } from "./Frostbite.mjs";
 export { default as GlyphOfWarding } from "./GlyphOfWarding.mjs";
+export { default as GraspingVine } from "./GraspingVine.mjs";
 export { default as Grease } from "./Grease.mjs";
 export { default as GreenFlameBlade } from "./GreenFlameBlade.mjs";
 export { default as Guidance } from "./Guidance.mjs";

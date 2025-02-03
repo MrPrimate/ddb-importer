@@ -172,6 +172,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
       "Move and Attack": MonsterEnrichers.FlamingSphere.MoveAndAttack,
       "Flame Damage": MonsterEnrichers.FlamingSphere.FlameDamage,
     },
+    "Grasping Vine": {
+      "Vine Attack": MonsterEnrichers.GraspingVine.VineAttack,
+    },
   };
 
 }

@@ -9470,5 +9470,9 @@
   {
     "name": "Flame Damage",
     "path": "icons/magic/fire/flame-burning-earth-yellow.webp"
+  },
+  {
+    "name": "Vine Attack",
+    "path": "icons/magic/nature/root-vine-beanstalk-moon.webp"
   }
 ]
