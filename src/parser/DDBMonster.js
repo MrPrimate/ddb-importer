@@ -60,6 +60,9 @@ export default class DDBMonster {
 
     this.featureFactory = new DDBMonsterFeatureFactory({ ddbMonster: this });
 
+    this.is2014 = false;
+    this.is2024 = true;
+
   }
 
   static STOCK_TYPE_IMAGES = [

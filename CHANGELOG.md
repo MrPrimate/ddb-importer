@@ -3,6 +3,7 @@
 - True Strike improvements
 - A HUGE number of spell improvements, tweaks and fixes.
 - Flaming Sphere Summon and midi automation.
+- Grasping Vine, Animate Dead summons configuration.
 
 # 6.0.70
 

@@ -3,6 +3,7 @@ export { default as AcidArrow } from "./AcidArrow.mjs";
 export { default as Aid } from "./Aid.mjs";
 export { default as AlterSelf } from "./AlterSelf.mjs";
 export { default as AnimalFriendship } from "./AnimalFriendship.mjs";
+export { default as AnimateDead } from "./AnimateDead.mjs";
 export { default as AnimateObjects } from "./AnimateObjects.mjs";
 export { default as ArcaneEye } from "./ArcaneEye.mjs";
 export { default as ArcaneHand } from "./ArcaneHand.mjs";
