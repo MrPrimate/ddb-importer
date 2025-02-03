@@ -1,7 +1,5 @@
 import logger from "../../../lib/Logger.mjs";
 import DDBMonsterFactory from "../../DDBMonsterFactory.js";
-import DDBCompanionMixin from "../DDBCompanionMixin.mjs";
-import { SUMMONS_ACTOR_STUB } from "./_data.mjs";
 
 
 export async function getAnimateDead({
@@ -48,7 +46,7 @@ export async function getAnimateDead({
   await monsterFactory.fetchDDBMonsterSourceData({ ids: animated.map((m) => m.ddbId) });
   const monsterResults = await monsterFactory.parse();
 
-  console.warn(monsterResults);
+  // console.warn(monsterResults);
 
   for (const data of animated) {
 
