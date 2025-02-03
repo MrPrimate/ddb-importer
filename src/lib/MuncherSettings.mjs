@@ -14,8 +14,6 @@ const MuncherSettings = {
   disableCharacterActiveEffectSettings: (html) => {
     $(html).find("#character-import-policy-add-midi-effects").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects", false);
-    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", false);
@@ -23,17 +21,12 @@ const MuncherSettings = {
   },
 
   setRecommendedCharacterActiveEffectSettings: (html) => {
-    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", !SystemHelpers.effectModules().hasCore);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", !SystemHelpers.effectModules().hasCore);
     $(html).find("#character-import-policy-add-midi-effects").prop("checked", SystemHelpers.effectModules().hasCore);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects", SystemHelpers.effectModules().hasCore);
-    $(html).find("#character-import-policy-dae-effect-copy").prop("checked", false);
-    game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-dae-effect-copy", false);
     $(html).find("#character-import-policy-active-effect-copy").prop("checked", false);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy", false);
     $(html).find("#character-update-policy-use-chris-premades").prop("checked", !SystemHelpers.effectModules().chrisInstalled);
     game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades", !SystemHelpers.effectModules().chrisInstalled);
-
   },
 
   getInstalledIcon: (name) => {
