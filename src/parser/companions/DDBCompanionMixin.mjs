@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { logger, DDBProxy, PatreonHelper } from "../../lib/_module.mjs";
+import { logger, DDBProxy, PatreonHelper, utils } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 import DDBMonsterFactory from "../DDBMonsterFactory.js";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory.js";
@@ -19,6 +19,7 @@ export default class DDBCompanionMixin {
     this.data = {};
     this.parsed = false;
     this.type = this.options.type;
+    this.rules = this.options.rules;
 
     this.useItemAC = useItemAC; // game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
     this.legacyName = legacyName; // game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
@@ -189,11 +190,11 @@ export default class DDBCompanionMixin {
     });
     await featureFactory.generateActions(text, type);
     logger.debug("Generating companion feature", { text, type, featureFactory });
-    const toHitRegex = /(your spell attack modifier to hit)/i;
+    const toHitRegex = /(your spell attack modifier to hit|equals your spell attack modifier)/i;
     if (toHitRegex.test(text)) {
       this.summons.match.attacks = true;
     }
-    const spellSaveRegex = /(against your spell save DC)/i;
+    const spellSaveRegex = /((against|equals) your spell save DC)/i;
     if (spellSaveRegex.test(text)) {
       this.summons.match.saves = true;
     }
@@ -202,6 +203,28 @@ export default class DDBCompanionMixin {
 
 
   async _processFeatureElement(element, featType) {
+    const features = await this.getFeature(element.outerHTML, featType);
+    features.forEach((feature) => {
+      if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
+        && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
+      ) {
+        if (this.removeCreatureOnlyNames) feature.name = feature.name.split("only")[0].split("(")[0].trim();
+        this.npc.items.push(feature);
+      } else if (!this.removeSplitCreatureActions || !feature.name.toLowerCase().includes("only")) {
+        this.npc.items.push(feature);
+      }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.levelBonus")) {
+        this.summons.bonuses.attackDamage = "@item.level";
+        this.summons.bonuses.saveDamage = "@item.level";
+      }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.spellSave")) {
+        this.summons.match.saves = true;
+      }
+    });
+    return { element, featType };
+  }
+
+  async _processFeatureElements(element, featType) {
     let next = element.nextElementSibling;
 
     if (!next) return { next, featType };
@@ -223,22 +246,9 @@ export default class DDBCompanionMixin {
       // no default
     }
 
-    const features = await this.getFeature(next.outerHTML, featType);
-    features.forEach((feature) => {
-      if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
-        && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
-      ) {
-        if (this.removeCreatureOnlyNames) feature.name = feature.name.split("only")[0].split("(")[0].trim();
-        this.npc.items.push(feature);
-      } else if (!this.removeSplitCreatureActions || !feature.name.toLowerCase().includes("only")) {
-        this.npc.items.push(feature);
-      }
-      if (foundry.utils.getProperty(feature, "flags.ddbimporter.levelBonus")) {
-        this.summons.bonuses.attackDamage = "@item.level";
-        this.summons.bonuses.saveDamage = "@item.level";
-      }
-    });
-    return { next, featType };
+    const result = await this._processFeatureElement(next, featType);
+
+    return result;
   }
 
   // #extraFeatures() {
@@ -305,9 +315,10 @@ export default class DDBCompanionMixin {
 
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.changes", []);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.name", `${name}`);
-    foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", `companion-${actorName}`);
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", `companion-${utils.normalizeString(actorName)}-${this.rules}`);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
 
+    foundry.utils.setProperty(this.npc, "system.source.rules", this.rules);
     await this._generate();
 
     // make friendly
@@ -319,6 +330,273 @@ export default class DDBCompanionMixin {
     this.parsed = true;
 
     logger.debug(`Finished companion parse for ${name}`, { name, block: this.block, data: this.data, npc: this.npc });
+  }
+
+  _handleAc(acString) {
+    const ac = Number.parseInt(acString.split(",")[0]);
+
+    if (Number.isInteger(ac)) {
+      this.npc.system.attributes.ac = {
+        flat: ac,
+        calc: "natural",
+        formula: "",
+      };
+
+      if (acString.includes("plus PB") || acString.includes("+ PB")) {
+        this.summons.bonuses.ac = "@prof";
+      } else if (acString.includes("+ the level of the spell") || acString.includes("the spell's level")) {
+        this.summons.bonuses.ac = "@item.level";
+      }
+    }
+  }
+
+  _getBaseHitPoints(hpString) {
+    const baseString = this.options.subType && hpString.includes(" or ")
+      ? hpString.split("or").find((s) => s.toLowerCase().includes(this.options.subType.toLowerCase()))
+      : hpString.trim();
+
+    const hpFind = baseString.trim().match(/(\d*)/);
+    const hpInt = Number.parseInt(hpFind);
+    return Number.isInteger(hpInt) ? hpInt : 0;
+  }
+
+  _handleHitPoints(hpString) {
+    const hpInt = this._getBaseHitPoints(hpString);
+    this.npc.system.attributes.hp.max = hpInt;
+    this.npc.system.attributes.hp.value = hpInt;
+
+    // conditions
+    // 5 + five times your druid level
+    // 5 + five times your ranger level (the beast has a number of Hit Dice [d8s] equal to your ranger level)
+    // 1 + your Intelligence modifier + your artificer level (the homunculus has a number of Hit Dice [d4s] equal to your artificer level)
+    // 40 + 15 for each spell level above 4th
+    // 20 (Air only) or 30 (Land and Water only) + 5 for each spell level above 2nd
+    // 50 (Demon only) or 40 (Devil only) or 60 (Yugoloth only) + 15 for each spell level above 6th
+    // 30 (Ghostly and Putrid only) or 20 (Skeletal only) + 10 for each spell level above 3rd
+
+    // additional summon points
+    const hpAdjustments = [];
+    const modMatch = hpString.match(/\+ your (\w+) modifier/);
+
+    if (modMatch) hpAdjustments.push(`@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`);
+
+    // class level
+    const klassMultiMatch = hpString.match(/\+ (\w+)?( times? )?your (\w+) level/);
+    if (klassMultiMatch) {
+      const klass = klassMultiMatch[3].trim().toLowerCase();
+      const multiplier = klassMultiMatch[1]
+        ? DICTIONARY.numbers.find((d) => d.natural === klassMultiMatch[1].trim().toLowerCase()).num
+        : null;
+      const multiplierString = multiplier ? ` * ${multiplier}` : "";
+      hpAdjustments.push(`(@classes.${klass}.levels${multiplierString})`);
+    }
+
+    // spell level
+    const spellLevelMatch = hpString.match(/\+ (\d+) for each spell level above (\d)/);
+    if (spellLevelMatch) {
+      hpAdjustments.push(`(${spellLevelMatch[1]} * (@item.level - ${spellLevelMatch[2]}))`);
+    }
+
+    if (hpAdjustments.length > 0) {
+      this.summons.bonuses.hp = hpAdjustments.join(" + ");
+    }
+  }
+
+  _handleHitDice(hpString) {
+    // (the beast has a number of Hit Dice [d8s] equal to your ranger level)
+    // (the homunculus has a number of Hit Dice [d4s] equal to your artificer level)
+    if (!hpString || !hpString.includes("number of Hit Dice")) return;
+
+    const hitDice = hpString.match(/Hit Dice \[d(\d)s\] equal to your (\w+) level/);
+    if (hitDice) {
+      const hitDiceAdjustment = {
+        "key": "system.attributes.hp.formula",
+        "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`,
+      };
+      this.npc.flags.ddbimporter.summons.changes.push(hitDiceAdjustment);
+    }
+  }
+
+  _handleSize(sizeString) {
+    const size = sizeString.split(" ")[0];
+    const sizeData = DICTIONARY.sizes.find((s) => size.toLowerCase() == s.name.toLowerCase())
+      ?? { name: "Medium", value: "med", size: 1 };
+
+    this.npc.system.traits.size = sizeData.value;
+    this.npc.prototypeToken.width = sizeData.size >= 1 ? sizeData.size : 1;
+    this.npc.prototypeToken.height = sizeData.size >= 1 ? sizeData.size : 1;
+    this.npc.prototypeToken.scale = sizeData.size >= 1 ? 1 : sizeData.size;
+  }
+
+  _handleType(typeString) {
+    if (CONFIG.DND5E.creatureTypes[typeString]) {
+      this.npc.system.details.type.value = typeString;
+    } else {
+      this.npc.system.details.type.value = "Unknown";
+    }
+  }
+
+  _handleAlignment(alignment) {
+    if (alignment && alignment !== "") this.npc.system.details.alignment = alignment;
+  }
+
+  _handleSpeed(speedString) {
+    // 30 ft.; fly 40 ft. (hover) (Ghostly only)
+    // 40 ft.; climb 40 ft. (Demon only); fly 60 ft. (Devil only)
+    // 30 ft., fly 40 ft.
+
+    const onlyFiltered = speedString.split(/[;,]/).filter((speed) => {
+      if (speed.includes("only")) {
+        if (speed.toLowerCase().includes(this.options.subType.toLowerCase())) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return true;
+      }
+    });
+
+    const speeds = [];
+    onlyFiltered.forEach((state) => {
+      const results = state
+        .split("and")
+        .map((s) => {
+          return s.trim().toLowerCase();
+        });
+      speeds.push(...results);
+    });
+
+    speeds.forEach((speed) => {
+      const match = speed.match(/(\w+ )*(\d+)/i);
+      if (match) {
+        const type = match[1]?.trim() ?? "walk";
+        this.npc.system.attributes.movement[type] = parseInt(match[2]);
+        if (speed.includes("hover")) this.npc.system.attributes.movement["hover"] = true;
+      }
+    });
+  }
+
+  _handleLanguages(languagesString) {
+    // loop back to add small chance they have non-custom language support
+    this.npc.system.traits.languages.custom = languagesString;
+  }
+
+  _handleSenses(sensesString) {
+    // darkvision 60 ft., passive Perception 10 + (PB &times; 2)
+    // darkvision 60 ft., passive Perception 10 + (PB × 2)
+
+    sensesString.split(",").forEach((sense) => {
+      const match = sense.match(/(darkvision|blindsight|tremorsense|truesight)\s+(\d+)/i);
+
+      if (match) {
+        const value = parseInt(match[2]);
+        this.npc.system.attributes.senses["units"] = "ft";
+        this.npc.system.attributes.senses[match[1].toLowerCase()] = value;
+
+        const senseType = DICTIONARY.senseMap()[match[1].toLowerCase()];
+
+        if (value > 0 && value > this.npc.prototypeToken.sight.range && foundry.utils.hasProperty(CONFIG.Canvas.visionModes, senseType)) {
+          foundry.utils.setProperty(this.npc.prototypeToken.sight, "visionMode", senseType);
+          foundry.utils.setProperty(this.npc.prototypeToken.sight, "range", value);
+          this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
+        }
+        if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, match[1].toLowerCase())) {
+          const detectionMode = {
+            id: DICTIONARY.detectionMap[match[1].toLowerCase()],
+            range: value,
+            enabled: true,
+          };
+
+          // only add duplicate modes if they don't exist
+          if (!this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
+            this.npc.prototypeToken.detectionModes.push(detectionMode);
+          }
+        }
+      }
+    });
+  }
+
+  _handleConditions(conditionsString) {
+    let values = [];
+    let custom = [];
+
+    conditionsString.split(",").forEach((adj) => {
+      const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adj.trim().toLowerCase());
+      if (valueAdjustment) {
+        values.push(valueAdjustment.foundry);
+      } else {
+        custom.push(adj);
+      }
+    });
+
+    // Condition Immunities charmed, exhaustion, frightened, incapacitated, paralyzed, petrified, poisoned
+    this.npc.system.traits.ci = {
+      value: values,
+      custom: custom.join("; "),
+    };
+  }
+
+  _handleDamageImmunities(damageImmunitiesString) {
+    const filtered = this.filterDamageConditions(damageImmunitiesString);
+    this.npc.system.traits.di = DDBCompanionMixin.getDamageAdjustments(filtered);
+  }
+
+  _handleDamageResistances(damageResistancesString) {
+    const filtered = this.filterDamageConditions(damageResistancesString);
+    this.npc.system.traits.dr = DDBCompanionMixin.getDamageAdjustments(filtered);
+  }
+
+  _handleDamageVulnerabilities(damageVulnerabilitiesString) {
+    const filtered = this.filterDamageConditions(damageVulnerabilitiesString);
+    this.npc.system.traits.dv = DDBCompanionMixin.getDamageAdjustments(filtered);
+  }
+
+  _handleSkills(skillsString) {
+
+    //  "History + 12, Perception +0 plus PB &times; 2"
+    const skillsMaps = skillsString.split(",").filter((str) => str != '').map((str) => {
+      const skillMatch = str.trim().match(/(\w+ *\w* *\w*)(?: *)([+-])(?: *)(\d+) *(plus PB)? *(&times;|x|times)? *(\d*)?/);
+      let result = {};
+      if (skillMatch) {
+        result = {
+          name: skillMatch[1].trim(),
+          value: skillMatch[2] + skillMatch[3],
+          proficient: skillMatch[4] !== undefined,
+          expertise: Number.isInteger(skillMatch[5]?.trim()),
+          pbMultiplier: skillMatch[5],
+        };
+        logger.debug(`Found skill for companion ${this.npc.name}`, result);
+      } else {
+        logger.error(`Skill Parsing failed for ${this.npc.name}`);
+        logger.debug(skillsString);
+        logger.debug(str);
+        logger.debug(skillMatch);
+      }
+      return result;
+    });
+
+    const keys = Object.keys(this.npc.system.skills);
+    const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
+    keys
+      .filter((key) => validSkills.includes(key))
+      .forEach((key) => {
+        let skill = this.npc.system.skills[key];
+        const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
+        const skillData = skillsMaps.find((skl) => skl.name == lookupSkill.label);
+
+        if (skillData) {
+          skill.value = skillData.expertise ? 2 : skillData.proficient ? 1 : 0;
+          const ability = this.npc.system.abilities[skill.ability];
+          if (parseInt(ability.mod) !== parseInt(skillData.value.trim())) {
+            skill.bonuses.check = parseInt(skillData.value.trim()) - parseInt(ability.mod);
+            skill.bonuses.passive = parseInt(skillData.value.trim()) - parseInt(ability.mod);
+          }
+
+          this.npc.system.skills[key] = skill;
+        }
+
+      });
   }
 
 }

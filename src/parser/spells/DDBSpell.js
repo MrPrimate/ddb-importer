@@ -169,10 +169,11 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
     this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity, notifier: this.notifier });
-    this.isCompanionSpell = DICTIONARY.companions.COMPANION_SPELLS.includes(this.originalName);
+    this.isCompanionSpell2014 = this.is2014 && DICTIONARY.companions.COMPANION_SPELLS_2014.includes(this.originalName);
+    this.isCompanionSpell2024 = !this.is2014 && DICTIONARY.companions.COMPANION_SPELLS_2024.includes(this.originalName);
     this.isCRSummonSpell2014 = this.is2014 && DICTIONARY.companions.CR_SUMMONING_SPELLS_2014.includes(this.originalName);
     this.isCRSummonSpell2024 = !this.is2014 && DICTIONARY.companions.CR_SUMMONING_SPELLS_2024.includes(this.originalName);
-    this.isSummons = this.isCompanionSpell || this.isCRSummonSpell2014 || this.isCRSummonSpell2024;
+    this.isSummons = this.isCompanionSpell2014 || this.isCompanionSpell2024 || this.isCRSummonSpell2014 || this.isCRSummonSpell2024;
     this.generateSummons = this.isGeneric
       || (generateSummons ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"));
     this.DDBCompanionFactory = null; // lazy init
@@ -800,7 +801,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
 
     if (activityData.type !== "summon") return activity;
-    if (this.isCompanionSpell)
+    if (this.isCompanionSpell2014 || this.isCompanionSpell2024)
       await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData);
     else if (this.isCRSummonSpell2024 || this.isCRSummonSpell2014)
       await this.ddbCompanionFactory.addCRSummoning(activityData);

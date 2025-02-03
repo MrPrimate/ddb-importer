@@ -344,7 +344,6 @@ export default class DDBDescriptions {
       /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i,
     );
 
-
     const save = {
       ability: "",
       dc: {
@@ -356,13 +355,15 @@ export default class DDBDescriptions {
 
     const spellSaveSearch = /(?<ability>\w+) saving throw against your spell save DC/i;
     const spellSave = text.match(spellSaveSearch);
+    const summonSave = /Saving Throw: DC equals your spell save DC/i;
+    const summonSaveMatch = text.match(summonSave);
 
     const saveSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)/i;
     const saveSearchMatch = text.match(saveSearch);
     const saveSearchNew = /(?<ability>\w+) (?<type>saving throw|check): DC (?<dc>\d+)/i;
     const saveSearchNewMatch = text.match(saveSearchNew);
-    const savingThrow = saveSearchMatch ?? saveSearchNewMatch;
 
+    const savingThrow = saveSearchMatch ?? saveSearchNewMatch;
     const halfSaveSearch = /or half as much damage on a successful one|Success: Half damage/i;
     const halfMatch = halfSaveSearch.test(text);
 
@@ -370,9 +371,11 @@ export default class DDBDescriptions {
       save.dc.formula = parseInt(savingThrow.groups.dc);
       save.dc.calculation = "";
       save.ability = savingThrow.groups.ability.toLowerCase().substr(0, 3);
-    } else if (spellSave) {
+    } else if (spellSave || summonSaveMatch) {
       // save.dc = 10;
-      save.ability = [spellSave.groups.ability.toLowerCase().substr(0, 3)];
+      save.ability = spellSave
+        ? [spellSave.groups.ability.toLowerCase().substr(0, 3)]
+        : [];
       save.dc.calculation = "spellcasting";
     }
 
@@ -398,7 +401,8 @@ export default class DDBDescriptions {
         isAttack,
         spellSave,
         savingThrow,
-        isSave: Boolean(spellSave || savingThrow),
+        summonSaveMatch,
+        isSave: Boolean(spellSave || savingThrow || summonSaveMatch),
         halfDamage: halfMatch,
         pbToAttack: attackMatches ? attackMatches.groups.pb !== undefined : false,
         weaponAttack: attackMatches

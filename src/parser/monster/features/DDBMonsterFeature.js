@@ -34,6 +34,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       flags: {
         ddbimporter: {
           levelBonus: false,
+          spellSave: false,
           dndbeyond: {
           },
         },
@@ -62,6 +63,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.isAttack = descriptionParse.properties.isAttack;
     this.spellSave = descriptionParse.properties.spellSave;
     this.savingThrow = descriptionParse.properties.savingThrow;
+    this.isSummonSaveMatch = descriptionParse.properties.summonSaveMatch;
     this.isSave = descriptionParse.properties.isSave;
     this.halfDamage = descriptionParse.properties.halfDamage;
     this.pbToAttack = descriptionParse.properties.pbToAttack;
@@ -95,6 +97,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
+    if (this.isSummonSaveMatch) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.spellSave", true);
+    }
   }
 
   async loadEnricher() {
@@ -274,9 +279,14 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       const hasProfBonus = dmg[3]?.includes(" + PB") || dmg[3]?.includes(" plus PB");
       const profBonus = hasProfBonus && !this.isCompanion ? "@prof" : "";
       const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]); // ? "@item.level" : "";
+      // console.warn("levelbonus", {
+      //   dmg,
+      //   three: dmg[3],
+      //   test: dmg[3] && (/the spell[’']s level/i).test(dmg[3]),
+      // });
       if (levelBonus) {
         this.levelBonus = true;
-        foundry.utils.setProperty(this, "flags.ddbimporter.levelBonus", true);
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);
       }
       const damage = hasProfBonus || levelBonus
         ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`

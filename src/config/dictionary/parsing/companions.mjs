@@ -1,5 +1,5 @@
 
-const COMPANION_SPELLS = [
+const COMPANION_SPELLS_2014 = [
   "Summon Aberration",
   "Summon Beast",
   "Summon Celestial",
@@ -11,6 +11,22 @@ const COMPANION_SPELLS = [
   "Summon Undead",
   "Summon Draconic Spirit",
   // "Spirit of Death",
+];
+
+const COMPANION_SPELLS_2024 = [
+  "Summon Aberration",
+  "Summon Beast",
+  "Summon Celestial",
+  "Summon Construct",
+  "Summon Elemental",
+  "Summon Fey",
+  "Summon Fiend",
+  "Summon Shadowspawn",
+  "Summon Undead",
+  "Summon Draconic Spirit",
+  // "Spirit of Death",
+  "Animate Objects",
+  "Find Steed",
 ];
 
 const COMPANION_FEATURES = [
@@ -60,7 +76,8 @@ const CR_SUMMONING_FEATURES = [
 
 export const COMPANIONS = {
   COMPANION_FEATURES,
-  COMPANION_SPELLS,
+  COMPANION_SPELLS_2014,
+  COMPANION_SPELLS_2024,
   COMPANION_OPTIONS,
   CR_SUMMONING_SPELLS_2014,
   CR_SUMMONING_SPELLS_2024,

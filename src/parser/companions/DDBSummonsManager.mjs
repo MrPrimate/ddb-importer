@@ -101,8 +101,7 @@ export default class DDBSummonsManager {
     if (!game.user.isGM) return results;
     const compendiumCompanion = foundry.utils.deepClone(companion);
     delete compendiumCompanion.folder;
-    const folderName = this.compendiumFolders.getSummonFolderName(compendiumCompanion);
-    const folder = await this.compendiumFolders.createSummonsFolder(folderName.name);
+    const folder = await this.compendiumFolders.createSummonsFolder(compendiumCompanion);
     compendiumCompanion.folder = folder._id;
     const npc = await addNPC(compendiumCompanion, "summons", {
       forceImageUpdate: true,

@@ -4,6 +4,8 @@
 - A HUGE number of spell improvements, tweaks and fixes.
 - Flaming Sphere Summon and midi automation.
 - Grasping Vine, Animate Dead summons configuration.
+- Summon Spells 2024 first pass. You are almost certainly going to want to delete your existing
+DDB Summons Compendium.
 
 # 6.0.70
 

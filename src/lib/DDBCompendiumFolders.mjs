@@ -593,15 +593,15 @@ export class DDBCompendiumFolders {
     this.validFolderIds.push(folder._id);
   }
 
-  async createSummonsFolder(type) {
-    const flagTag = `summons/${type}`;
-    logger.debug(`Checking for Summons folder '${type}'`);
-    const existingFolder = this.getFolder(type, flagTag);
+  async createSummonsFolder(document) {
+    const data = this.getSummonFolderName(document);
+    logger.debug(`Checking for Summons folder '${data.name}'`);
+    const existingFolder = this.getFolder(data.name, data.flagTag);
     if (existingFolder) return existingFolder;
-    logger.debug(`Not found, creating summons folder '${type}'`);
+    logger.debug(`Not found, creating summons folder '${data.name}'`);
     const newFolder = await this.createCompendiumFolder({
-      name: type,
-      flagTag,
+      name: data.name,
+      flagTag: data.flagTag,
     });
     this.validFolderIds.push(newFolder._id);
     return newFolder;
@@ -623,21 +623,21 @@ export class DDBCompendiumFolders {
     return newFolder;
   }
 
-  async createSummonsSubFolder(type, subFolderName) {
-    const flagTag = `summons/${type}/${subFolderName}`;
-    logger.debug(`Checking for Summons folder '${subFolderName}' with Base Folder '${subFolderName}'`);
+  // async createSummonsSubFolder(type, subFolderName) {
+  //   const flagTag = `summons/${type}/${subFolderName}`;
+  //   logger.debug(`Checking for Summons folder '${subFolderName}' with Base Folder '${subFolderName}'`);
 
-    const parentFolder = await this.createSummonsFolder(type);
+  //   const parentFolder = await this.createSummonsFolder(type);
 
-    const folder = this.getFolder(subFolderName, flagTag)
-      ?? (await this.createCompendiumFolder({
-        name: subFolderName,
-        parentId: parentFolder._id,
-        color: "#222222",
-        flagTag,
-      }));
-    this.validFolderIds.push(folder._id);
-  }
+  //   const folder = this.getFolder(subFolderName, flagTag)
+  //     ?? (await this.createCompendiumFolder({
+  //       name: subFolderName,
+  //       parentId: parentFolder._id,
+  //       color: "#222222",
+  //       flagTag,
+  //     }));
+  //   this.validFolderIds.push(folder._id);
+  // }
 
   // eslint-disable-next-line complexity
   async createCompendiumFolders() {
@@ -1049,8 +1049,11 @@ export class DDBCompendiumFolders {
 
     const folderHint = foundry.utils.getProperty(document, "flags.ddbimporter.summons.folder");
     const summonHint = foundry.utils.getProperty(document, "flags.ddbimporter.summons.name");
-    result.name = folderHint ?? summonHint ?? document.name;
-    result.flagTag = `summon/${result.name}`;
+    const rules = foundry.utils.getProperty(document, "system.source.rules");
+    const prefix = folderHint ?? summonHint ?? document.name;
+    const suffix = rules ? ` (${rules})` : "";
+    result.name = `${prefix}${suffix}`;
+    result.flagTag = `summon/${rules ?? "unknown"}/${result.name}`;
 
     return result;
   }
@@ -1433,6 +1436,7 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.summons.name",
           "flags.ddbimporter.summons.folder",
           "system.source.book",
+          "system.source.rules",
           "flags.ddbimporter.legacy",
         ];
       }
