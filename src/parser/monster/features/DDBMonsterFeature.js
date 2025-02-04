@@ -246,68 +246,65 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   // eslint-disable-next-line complexity
-  generateDamageInfo() {
-    const hitIndex = this.strippedHtml.indexOf("Hit:");
-    let hit = (hitIndex > 0) ? this.strippedHtml.slice(hitIndex) : `${this.strippedHtml}`;
-    hit = hit.split("At the end of each")[0].split("At the start of each")[0];
-    hit = hit.replace(/[–-–−]/g, "-");
+  _generateDamageInfo2014(hit) {
     // console.warn(hit);
     // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/((?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*([\w ]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(\s?two hands|\s?at the start of|\son a failed save)?/gi);
+    const damageExpression = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
+
+    // Adjustments
+    // removed space in damage detection this might be a problem, for 2024 Summon Construct
 
     const matches = [...hit.matchAll(damageExpression)];
-    const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
-    const regainMatch = hit.match(regainExpression);
 
-    logger.debug(`${this.name} Damage matches`, { hit, matches, regainMatch });
+    logger.debug(`${this.name} Damage matches`, { hit, matches });
     let versatile = false;
     for (const dmg of matches) {
       let other = false;
       let save = false;
       let thisVersatile = false;
       let thisOther = false;
-      if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
+      if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
         continue; // eslint-disable-line no-continue
       }
       // check for versatile
-      if (dmg[1] == "or " || dmg[5] == "two hands") {
+      if (dmg.groups.prefix == "or " || dmg.groups.suffix == "two hands") {
         versatile = true;
       }
       // check for other
-      if (dmg[5] && dmg[5].trim() == "at the start of") other = true;
-      const hasProfBonus = dmg[3]?.includes(" + PB") || dmg[3]?.includes(" plus PB");
+      if (dmg.groups.suffix && dmg.groups.suffix.trim() == "at the start of") other = true;
+      const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
       const profBonus = hasProfBonus && !this.isCompanion ? "@prof" : "";
-      const levelBonus = dmg[3] && (/the spell[’']s level/i).test(dmg[3]); // ? "@item.level" : "";
+      const levelBonus = dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice); // ? "@item.level" : "";
       // console.warn("levelbonus", {
       //   dmg,
-      //   three: dmg[3],
-      //   test: dmg[3] && (/the spell[’']s level/i).test(dmg[3]),
+      //   three: dmg.groups.dice,
+      //   test: dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice),
       // });
       if (levelBonus) {
         this.levelBonus = true;
         foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);
       }
       const damage = hasProfBonus || levelBonus
-        ? `${dmg[2]}${dmg[3].replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
-        : dmg[3] ?? dmg[2];
+        ? `${dmg.groups.diceminor}${dmg.groups.dice.replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
+        : dmg.groups.dice ?? dmg.groups.diceminor;
 
       // Make sure we did match a damage
       if (damage) {
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
         const includesDice = includesDiceRegExp.test(damage);
         const parsedDiceDamage = (this.actionInfo && includesDice)
-          ? this.damageModReplace(damage.replace("plus", "+"), dmg[4])
+          ? this.damageModReplace(damage.replace("plus", "+"), dmg.groups.type)
           : damage.replace("plus", "+");
 
         const finalDamage = [parsedDiceDamage, profBonus].filter((t) => t !== "").join(" + ");
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
         // versatile for damage
-        // ignore if dmg[1] is and as it likely indicates the whole thing is a save
-        const savePart1 = dmg[1] && dmg[1].includes("saving throw");
-        const savePart5 = (dmg[5] ?? "").trim() == "on a failed save";
-        if (((savePart5 && (dmg[1] ?? "").trim() !== "and")
+        // ignore if dmg.groups.prefix is and as it likely indicates the whole thing is a save
+        const savePart1 = dmg.groups.prefix && dmg.groups.prefix.includes("saving throw");
+        const savePart5 = (dmg.groups.suffix ?? "").trim() == "on a failed save";
+        if (((savePart5 && (dmg.groups.prefix ?? "").trim() !== "and")
             || savePart1)
           && this.actionInfo.damageParts.length >= 1
         ) {
@@ -317,9 +314,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
-          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: this.templateType === "weapon" });
 
-          if (!thisOther && dmg[1].trim() == "plus") {
+          if (!thisOther && dmg.groups.prefix.trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
             this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
           } else {
@@ -339,17 +336,35 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
           // } else {
           //   result.damage.versatile += ` + ${finalDamage}`;
           // }
-          if (!thisVersatile && dmg[1].trim() == "plus") {
+          if (!thisVersatile && dmg.groups.prefix.trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+            const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: this.templateType === "weapon" });
             this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
           }
         } else {
-          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg[4], stripMod: this.templateType === "weapon" });
+          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: this.templateType === "weapon" });
           this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
         }
       }
     }
+
+    return { versatile };
+  }
+
+  // eslint-disable-next-line complexity
+  generateDamageInfo() {
+    const hitIndex = this.strippedHtml.indexOf("Hit:");
+    let hit = (hitIndex > 0) ? this.strippedHtml.slice(hitIndex) : `${this.strippedHtml}`;
+    hit = hit.split("At the end of each")[0].split("At the start of each")[0];
+    hit = hit.replace(/[–-–−]/g, "-");
+
+    const data = this._generateDamageInfo2014(hit);
+    let versatile = data.versatile;
+
+    const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
+    const regainMatch = hit.match(regainExpression);
+
+    logger.debug(`${this.name} Regain matches`, { hit, regainMatch });
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
