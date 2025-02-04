@@ -34,9 +34,11 @@ export async function getConjureAnimals({
       traits: {
         size: "lg",
       },
-      type: {
-        value: null,
-        custom: "Summon",
+      details: {
+        type: {
+          value: null,
+          custom: "Summon",
+        },
       },
     },
     img: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",

@@ -34,9 +34,11 @@ export async function getConjureFey({
       traits: {
         size: "med",
       },
-      type: {
-        value: null,
-        custom: "Summon",
+      details: {
+        type: {
+          value: null,
+          custom: "Summon",
+        },
       },
     },
     img: "systems/dnd5e/tokens/beast/GiantWolfSpider.webp",

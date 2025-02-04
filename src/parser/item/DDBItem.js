@@ -1587,7 +1587,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   _generateConsumableUses() {
     this.actionInfo.consumptionValue = 1;
     if (this.ddbItem.limitedUse) {
-      this._generateUses(true, 1);
+      this._generateUses(true, "1");
     } else {
       // default
       this.data.system.uses = {

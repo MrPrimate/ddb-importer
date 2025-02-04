@@ -29,15 +29,17 @@ export async function getGraspingVines({
       },
     },
     system: {
-      type: {
-        value: null,
-        custom: "Summon",
+      details: {
+        type: {
+          value: null,
+          custom: "Summon",
+        },
       },
     },
     img: "icons/magic/nature/root-vine-beanstalk-moon.webp",
   });
 
-  const description = `<p><em><strong>Vine Attack.</strong></em> ${raw.split("\r\n")[1].replace("<p>", "")}</p>`;
+  const description = `<p><em><strong>Vine Attack.</strong></em> ${(ddbParser.is2014 ? raw : raw.split("\r\n")[1]).replace("<p>", "")}</p>`;
 
   const manager = new DDBCompanionMixin(description, {}, { addMonsterEffects: true });
   manager.npc = stub;
