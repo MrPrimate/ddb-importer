@@ -4,13 +4,14 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 export default class Slam extends DDBEnricherData {
 
   get damage() {
-    if (this.data.name.includes("Large")) {
+    const name = this.ddbParser.ddbMonster?.npc?.name;
+    if (name.includes("Large")) {
       return {
         customFormula: "(@flags.dnd5e.summon.level - 3)d6 + @mod + @flags.dnd5e.summon.mod",
       };
-    } else if (this.data.name.includes("Huge")) {
+    } else if (name.includes("Huge")) {
       return {
-        customFormula: "(@flags.dnd5e.summon.level - 3)d6 + @mod + @flags.dnd5e.summon.mod",
+        customFormula: "(@flags.dnd5e.summon.level - 3)d12 + @mod + @flags.dnd5e.summon.mod",
       };
     } else {
       return {

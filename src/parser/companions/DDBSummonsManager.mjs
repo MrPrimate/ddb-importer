@@ -134,10 +134,6 @@ export default class DDBSummonsManager {
     baseData.profiles = profiles;
     activity = foundry.utils.mergeObject(activity, baseData);
 
-    console.warn("profiles", {
-      profiles: deepClone(profiles),
-    })
-
   }
 
   static async addGeneratedSummons(generatedSummonedActors, { notifier = null } = {}) {
