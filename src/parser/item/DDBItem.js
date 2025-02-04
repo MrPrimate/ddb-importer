@@ -1535,7 +1535,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     return resetType;
   }
 
-  _getCompendiumUses() {
+  _getCompendiumUses(defaultMax = null) {
     if (!this.isCompendiumItem) return { spent: 0, max: null, recovery: [], prompt };
     const maxUses = /has (\d*) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
@@ -1567,16 +1567,16 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         prompt,
       };
     } else {
-      return { spent: null, max: null, recovery: [], prompt };
+      return { spent: null, max: defaultMax, recovery: [], prompt };
     }
   }
 
   // { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
   // { value: "loseAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.LoseAll") },
   // { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
-  _generateUses(prompt = false) {
+  _generateUses(prompt = false, defaultMax = null) {
     this.data.system.uses = this.isCompendiumItem
-      ? this._getCompendiumUses()
+      ? this._getCompendiumUses(defaultMax)
       : this._getUses(prompt);
 
     if (!this.data.system.uses.max || this.data.system.uses.max === "") {
@@ -1587,7 +1587,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   _generateConsumableUses() {
     this.actionInfo.consumptionValue = 1;
     if (this.ddbItem.limitedUse) {
-      this._generateUses(true);
+      this._generateUses(true, 1);
     } else {
       // default
       this.data.system.uses = {

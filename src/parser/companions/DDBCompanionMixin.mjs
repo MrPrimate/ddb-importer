@@ -342,9 +342,10 @@ export default class DDBCompanionMixin {
         formula: "",
       };
 
-      if (acString.includes("plus PB") || acString.includes("+ PB")) {
+      const testString = utils.nameString(acString);
+      if (testString.includes("plus PB") || acString.includes("+ PB")) {
         this.summons.bonuses.ac = "@prof";
-      } else if (acString.includes("+ the level of the spell") || acString.includes("the spell's level")) {
+      } else if (testString.includes("+ the level of the spell") || testString.includes("the spell's level")) {
         this.summons.bonuses.ac = "@item.level";
       }
     }
@@ -388,13 +389,13 @@ export default class DDBCompanionMixin {
         ? DICTIONARY.numbers.find((d) => d.natural === klassMultiMatch[1].trim().toLowerCase()).num
         : null;
       const multiplierString = multiplier ? ` * ${multiplier}` : "";
-      hpAdjustments.push(`(@classes.${klass}.levels${multiplierString})`);
+      hpAdjustments.push(`@classes.${klass}.levels${multiplierString}`);
     }
 
     // spell level
     const spellLevelMatch = hpString.match(/\+ (\d+) for each spell level above (\d)/);
     if (spellLevelMatch) {
-      hpAdjustments.push(`(${spellLevelMatch[1]} * (@item.level - ${spellLevelMatch[2]}))`);
+      hpAdjustments.push(`${spellLevelMatch[1]} * (@item.level - ${spellLevelMatch[2]})`);
     }
 
     if (hpAdjustments.length > 0) {

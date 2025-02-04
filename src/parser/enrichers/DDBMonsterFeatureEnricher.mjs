@@ -175,6 +175,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Grasping Vine": {
       "Vine Attack": MonsterEnrichers.GraspingVine.VineAttack,
     },
+    "Construct Spirit (Stone)": {
+      "Stony Lethargy (Stone Only)": MonsterEnrichers.SummonConstruct.StonyLethargy,
+    },
   };
 
 }

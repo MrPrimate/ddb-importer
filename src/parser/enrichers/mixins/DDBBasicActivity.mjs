@@ -35,6 +35,11 @@ export default class DDBBasicActivity {
       automationOnly: false,
       identifier: "",
     };
+
+    if (["summon", "enchant"].includes(this.type)) {
+      this.data.midiProperties.confirmTargets = "never";
+      this.data.midiProperties.forceDialog = true;
+    }
     this.data.otherActivityId = "none"; // auto is clear
   }
 

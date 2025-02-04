@@ -61,9 +61,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     // set calc flags
     this.isAttack = descriptionParse.properties.isAttack;
+    this.isSummonAttack = descriptionParse.properties.isSummonAttack;
     this.spellSave = descriptionParse.properties.spellSave;
     this.savingThrow = descriptionParse.properties.savingThrow;
-    this.isSummonSaveMatch = descriptionParse.properties.summonSaveMatch;
+    this.summonSave = descriptionParse.properties.summonSave;
     this.isSave = descriptionParse.properties.isSave;
     this.halfDamage = descriptionParse.properties.halfDamage;
     this.pbToAttack = descriptionParse.properties.pbToAttack;
@@ -97,8 +98,11 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
-    if (this.isSummonSaveMatch) {
+    if (this.summonSave) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.spellSave", true);
+    }
+    if (this.isSummonAttack) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.spellAttack", true);
     }
   }
 
@@ -276,18 +280,21 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
       const profBonus = hasProfBonus && !this.isCompanion ? "@prof" : "";
       const levelBonus = dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice); // ? "@item.level" : "";
-      // console.warn("levelbonus", {
-      //   dmg,
-      //   three: dmg.groups.dice,
-      //   test: dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice),
-      // });
+
       if (levelBonus) {
         this.levelBonus = true;
         foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);
       }
-      const damage = hasProfBonus || levelBonus
-        ? `${dmg.groups.diceminor}${dmg.groups.dice.replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`
-        : dmg.groups.dice ?? dmg.groups.diceminor;
+      let damage;
+
+      if (hasProfBonus || levelBonus) {
+        damage = `${dmg.groups.diceminor}${dmg.groups.dice.replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`;
+      } else if (dmg.groups.dice && dmg.groups.dice.startsWith("d") && dmg.groups.diceminor) {
+        // tweaked for Aberrant Spirit (Mind Flayer)
+        damage = `${dmg.groups.diceminor}${dmg.groups.dice}`;
+      } else {
+        damage = dmg.groups.dice ?? dmg.groups.diceminor;
+      }
 
       // Make sure we did match a damage
       if (damage) {
@@ -354,8 +361,14 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   // eslint-disable-next-line complexity
   generateDamageInfo() {
     const hitIndex = this.strippedHtml.indexOf("Hit:");
-    let hit = (hitIndex > 0) ? this.strippedHtml.slice(hitIndex) : `${this.strippedHtml}`;
-    hit = hit.split("At the end of each")[0].split("At the start of each")[0];
+    let hit = (hitIndex > 0)
+      ? `${this.strippedHtml.slice(hitIndex)}`.trim()
+      : `${this.strippedHtml}`.replace(this.fullName, "").trim();
+    // adjusted for 2024 monsters which have some changes to structure,
+    // in addition the 2024 summons need this, see Aberrant Spirit (Mind Flayer)
+    hit = hit.startsWith("At the end of each") || hit.startsWith("At the start of each")
+      ? hit
+      : hit.split("At the end of each")[0].split("At the start of each")[0];
     hit = hit.replace(/[–-–−]/g, "-");
 
     const data = this._generateDamageInfo2014(hit);

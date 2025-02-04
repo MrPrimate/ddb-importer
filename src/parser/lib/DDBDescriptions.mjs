@@ -338,11 +338,14 @@ export default class DDBDescriptions {
   }
 
 
+  // eslint-disable-next-line complexity
   static featureBasics({ text } = {}) {
 
     const attackMatches = text.match(
       /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i,
     );
+
+    const summonAttackMatches = text.match(/(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*Bonus equals your spell attack modifier/);
 
     const save = {
       ability: "",
@@ -355,8 +358,8 @@ export default class DDBDescriptions {
 
     const spellSaveSearch = /(?<ability>\w+) saving throw against your spell save DC/i;
     const spellSave = text.match(spellSaveSearch);
-    const summonSave = /Saving Throw: DC equals your spell save DC/i;
-    const summonSaveMatch = text.match(summonSave);
+    const summonSaveSearc = /(?<ability>\w+) Saving Throw: DC equals your spell save DC/i;
+    const summonSave = text.match(summonSaveSearc);
 
     const saveSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)/i;
     const saveSearchMatch = text.match(saveSearch);
@@ -371,15 +374,23 @@ export default class DDBDescriptions {
       save.dc.formula = parseInt(savingThrow.groups.dc);
       save.dc.calculation = "";
       save.ability = savingThrow.groups.ability.toLowerCase().substr(0, 3);
-    } else if (spellSave || summonSaveMatch) {
+    } else if (spellSave || summonSave) {
       // save.dc = 10;
       save.ability = spellSave
         ? [spellSave.groups.ability.toLowerCase().substr(0, 3)]
-        : [];
+        : [summonSave.groups.ability.toLowerCase().substr(0, 3)];
       save.dc.calculation = "spellcasting";
     }
 
-    const isAttack = attackMatches ? attackMatches.groups.range !== undefined : false;
+    const isSummonAttack = summonAttackMatches
+      ? summonAttackMatches.groups.range !== undefined
+      : false;
+
+    const isAttack = isSummonAttack
+      ? true
+      : attackMatches
+        ? attackMatches.groups.range !== undefined
+        : false;
 
     const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
     const healingMatch = healingRegex.test(text);
@@ -387,6 +398,7 @@ export default class DDBDescriptions {
     const result = {
       matches: {
         attackMatches,
+        summonAttackMatches,
         healingMatch,
         spellSave,
         saveSearchMatch,
@@ -399,10 +411,11 @@ export default class DDBDescriptions {
         : { saveDamage: "halfdam" },
       properties: {
         isAttack,
+        isSummonAttack,
         spellSave,
         savingThrow,
-        summonSaveMatch,
-        isSave: Boolean(spellSave || savingThrow || summonSaveMatch),
+        summonSave,
+        isSave: Boolean(spellSave || savingThrow || summonSave),
         halfDamage: halfMatch,
         pbToAttack: attackMatches ? attackMatches.groups.pb !== undefined : false,
         weaponAttack: attackMatches

@@ -9474,5 +9474,9 @@
   {
     "name": "Vine Attack",
     "path": "icons/magic/nature/root-vine-beanstalk-moon.webp"
+  },
+  {
+    "name": "Psychic Slam",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
   }
 ]
