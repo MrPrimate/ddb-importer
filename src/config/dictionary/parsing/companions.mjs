@@ -13,6 +13,21 @@ const COMPANION_SPELLS_2014 = [
   // "Spirit of Death",
 ];
 
+const MULTI_COMPANIONS_2014 = {
+  "Aberrant Spirit": ["Slaad", "Beholderkin", "Star Spawn"],
+  "Bestial Spirit": ["Air", "Land", "Water"],
+  "Celestial Spirit": ["Avenger", "Defender"],
+  "Construct Spirit": ["Clay", "Metal", "Stone"],
+  "Elemental Spirit": ["Air", "Earth", "Fire", "Water"],
+  "Fey Spirit": ["Fuming", "Mirthful", "Tricksy"],
+  "Fiendish Spirit": ["Demon", "Devil", "Yugoloth"],
+  "Shadow Spirit": ["Fury", "Despair", "Fear"],
+  "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
+  "Drake Companion": ["Acid", "Cold", "Fire", "Lightning", "Poison"],
+  "Draconic Spirit": ["Chromatic", "Gem", "Metallic"],
+  // "Primal Companion": ["Beast of the Land", "Beast of the Sea", "Beast of the Sky"],
+};
+
 const COMPANION_SPELLS_2024 = [
   "Summon Aberration",
   "Summon Beast",
@@ -26,8 +41,22 @@ const COMPANION_SPELLS_2024 = [
   "Summon Draconic Spirit",
   // "Spirit of Death",
   "Animate Objects",
+  "Giant Insect",
   "Find Steed",
 ];
+
+const MULTI_COMPANIONS_2024 = {
+  "Aberrant Spirit": ["Slaad", "Beholderkin", "Mind Flayer"],
+  "Bestial Spirit": ["Air", "Land", "Water"],
+  "Celestial Spirit": ["Avenger", "Defender"],
+  "Construct Spirit": ["Clay", "Metal", "Stone"],
+  "Elemental Spirit": ["Air", "Earth", "Fire", "Water"],
+  "Fey Spirit": ["Fuming", "Mirthful", "Tricksy"],
+  "Fiendish Spirit": ["Demon", "Devil", "Yugoloth"],
+  "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
+  "Primal Companion": ["Beast of the Land", "Beast of the Sea", "Beast of the Sky"],
+  "Animated Object": ["Tiny", "Small", "Medium", "Large", "Huge"],
+};
 
 const COMPANION_FEATURES = [
   "Steel Defender",
@@ -82,4 +111,6 @@ export const COMPANIONS = {
   CR_SUMMONING_SPELLS_2014,
   CR_SUMMONING_SPELLS_2024,
   CR_SUMMONING_FEATURES,
+  MULTI_COMPANIONS_2014,
+  MULTI_COMPANIONS_2024,
 };

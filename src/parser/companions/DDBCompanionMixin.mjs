@@ -19,6 +19,7 @@ export default class DDBCompanionMixin {
     this.data = {};
     this.parsed = false;
     this.type = this.options.type;
+    this.subType = this.options.subType;
     this.rules = this.options.rules;
 
     this.useItemAC = useItemAC; // game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
@@ -352,9 +353,11 @@ export default class DDBCompanionMixin {
   }
 
   _getBaseHitPoints(hpString) {
-    const baseString = this.options.subType && hpString.includes(" or ")
-      ? hpString.split("or").find((s) => s.toLowerCase().includes(this.options.subType.toLowerCase()))
-      : hpString.trim();
+    const hpPrepared = hpString.toLowerCase().replaceAll(", ", " or ");
+    const subType = this.subType?.toLowerCase();
+    const baseString = subType && hpString.includes(" or ") && hpPrepared.includes(subType)
+      ? hpPrepared.split("or").find((s) => s.includes(subType))
+      : hpPrepared.trim();
 
     const hpFind = baseString.trim().match(/(\d*)/);
     const hpInt = Number.parseInt(hpFind);
@@ -420,13 +423,18 @@ export default class DDBCompanionMixin {
 
   _handleSize(sizeString) {
     const size = sizeString.split(" ")[0];
+    const nameSize = this.subType
+      ? DICTIONARY.sizes.find((s) => this.subType.toLowerCase() == s.name.toLowerCase())
+      : null;
     const sizeData = DICTIONARY.sizes.find((s) => size.toLowerCase() == s.name.toLowerCase())
       ?? { name: "Medium", value: "med", size: 1 };
 
-    this.npc.system.traits.size = sizeData.value;
-    this.npc.prototypeToken.width = sizeData.size >= 1 ? sizeData.size : 1;
-    this.npc.prototypeToken.height = sizeData.size >= 1 ? sizeData.size : 1;
-    this.npc.prototypeToken.scale = sizeData.size >= 1 ? 1 : sizeData.size;
+    const finalSize = nameSize ?? sizeData;
+
+    this.npc.system.traits.size = finalSize.value;
+    this.npc.prototypeToken.width = finalSize.size >= 1 ? finalSize.size : 1;
+    this.npc.prototypeToken.height = finalSize.size >= 1 ? finalSize.size : 1;
+    this.npc.prototypeToken.scale = finalSize.size >= 1 ? 1 : finalSize.size;
   }
 
   _handleType(typeString) {

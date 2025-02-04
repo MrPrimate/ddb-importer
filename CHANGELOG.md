@@ -1,5 +1,6 @@
 # Next Up
 
+- Monster Manual 2024 Support - please note that there will likely be a number of formatting tweaks and changes required over the next couple of weeks. Please submit any parsing improvements/suggestions in #support
 - True Strike improvements
 - A HUGE number of spell improvements, tweaks and fixes.
 - Flaming Sphere Summon and midi automation.

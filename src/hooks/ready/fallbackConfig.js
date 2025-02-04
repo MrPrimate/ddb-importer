@@ -4372,6 +4372,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/dnd/dmg-2024",
     },
     {
+      id: 147,
+      name: "MM-2024",
+      description: "Monster Manual (2024)",
+      sourceCategoryId: 24,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/41956/55/638520960905139721.jpeg",
+      sourceURL: "sources/dnd/mm-2024",
+    },
+    {
       id: 148,
       name: "free-rules",
       description: "D&D Free Rules (2024)",

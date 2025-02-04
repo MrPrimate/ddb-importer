@@ -11,6 +11,7 @@ import DDBSummonsManager from "./DDBSummonsManager.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 import DDBCompanion2024 from "./DDBCompanion2024.mjs";
 import { CR_DATA, getFindFamiliarActivityData } from "./types/CRSRD.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
 
 
 export default class DDBCompanionFactory {
@@ -59,33 +60,9 @@ export default class DDBCompanionFactory {
     return this.options.data ?? this.companions.map((c) => c.data);
   }
 
-  static MULTI_2014 = {
-    "Aberrant Spirit": ["Slaad", "Beholderkin", "Star Spawn"],
-    "Bestial Spirit": ["Air", "Land", "Water"],
-    "Celestial Spirit": ["Avenger", "Defender"],
-    "Construct Spirit": ["Clay", "Metal", "Stone"],
-    "Elemental Spirit": ["Air", "Earth", "Fire", "Water"],
-    "Fey Spirit": ["Fuming", "Mirthful", "Tricksy"],
-    "Fiendish Spirit": ["Demon", "Devil", "Yugoloth"],
-    "Shadow Spirit": ["Fury", "Despair", "Fear"],
-    "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
-    "Drake Companion": ["Acid", "Cold", "Fire", "Lightning", "Poison"],
-    "Draconic Spirit": ["Chromatic", "Gem", "Metallic"],
-    // "Primal Companion": ["Beast of the Land", "Beast of the Sea", "Beast of the Sky"],
-  };
+  static MULTI_2014 = DICTIONARY.companions.MULTI_COMPANIONS_2014;
 
-  static MULTI_2024 = {
-    "Aberrant Spirit": ["Slaad", "Beholderkin", "Mind Flayer"],
-    "Bestial Spirit": ["Air", "Land", "Water"],
-    "Celestial Spirit": ["Avenger", "Defender"],
-    "Construct Spirit": ["Clay", "Metal", "Stone"],
-    "Elemental Spirit": ["Air", "Earth", "Fire", "Water"],
-    "Fey Spirit": ["Fuming", "Mirthful", "Tricksy"],
-    "Fiendish Spirit": ["Demon", "Devil", "Yugoloth"],
-    "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
-    "Primal Companion": ["Beast of the Land", "Beast of the Sea", "Beast of the Sky"],
-    "Animate Objects": ["Tiny", "Small", "Medium", "Large", "Huge"],
-  };
+  static MULTI_2024 = DICTIONARY.companions.MULTI_COMPANIONS_2024;
 
   async #buildCompanion(block, options = {}) {
     logger.debug("Beginning companion parse", { block });
@@ -173,7 +150,6 @@ export default class DDBCompanionFactory {
         .map((w) => utils.capitalize(w.trim()))
         .join(" ");
 
-      // console.warn("Processing Companion", { name, block });
       if (name && name in DDBCompanionFactory.MULTI_2024) {
         for (const subType of DDBCompanionFactory.MULTI_2024[name]) {
           await this.#buildCompanion(block, { name, subType });

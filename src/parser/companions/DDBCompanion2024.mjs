@@ -120,7 +120,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
 
   #generateSize() {
     if (this.infoTag) {
-      this._handleSize(this.infoTag.textContent.split(",")[0].trim());
+      const sizeString = this.infoTag.textContent.split(",")[0].trim();
+      this._handleSize(sizeString);
     }
   }
 

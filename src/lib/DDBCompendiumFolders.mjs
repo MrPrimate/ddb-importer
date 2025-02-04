@@ -1196,9 +1196,14 @@ export class DDBCompendiumFolders {
     return results;
   }
 
+
+  static NO_FOLDER_IDS = [
+    3, 8, 9, 11, 13, 28,
+  ];
+
   static getAllSourceCategoryFolders(type) {
     const results = [];
-    for (const data of CONFIG.DDB.sourceCategories) {
+    for (const data of CONFIG.DDB.sourceCategories.filter((c) => !DDBCompendiumFolders.NO_FOLDER_IDS.includes(c.id))) {
       results.push(DDBCompendiumFolders.getSourceCategoryFolderName({
         type,
         categoryId: data.id,
