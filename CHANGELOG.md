@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.71
 
 - Monster Manual 2024 Support - please note that there will likely be a number of formatting tweaks and changes required over the next couple of weeks. Please submit any parsing improvements/suggestions in #support
 - True Strike improvements
