@@ -10,7 +10,7 @@ export default class ArcaneEye extends DDBEnricherData {
   get activity() {
     return {
       noTemplate: true,
-      profileKeys: ["ArcaneEye"],
+      profileKeys: [{ count: 1, name: "ArcaneEye" }],
     };
   }
 

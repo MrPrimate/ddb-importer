@@ -11,13 +11,13 @@ export default class DancingLights extends DDBEnricherData {
     return {
       noTemplate: true,
       profileKeys: [
-        "DancingLightsYellow",
-        "DancingLightsBlueTeal",
-        "DancingLightsGreen",
-        "DancingLightsBlueYellow",
-        "DancingLightsPink",
-        "DancingLightsPurpleGreen",
-        "DancingLightsRed",
+        { count: 4, name: "DancingLightsYellow" },
+        { count: 4, name: "DancingLightsBlueTeal" },
+        { count: 4, name: "DancingLightsGreen" },
+        { count: 4, name: "DancingLightsBlueYellow" },
+        { count: 4, name: "DancingLightsPink" },
+        { count: 4, name: "DancingLightsPurpleGreen" },
+        { count: 4, name: "DancingLightsRed" },
       ],
       summons: {
       },

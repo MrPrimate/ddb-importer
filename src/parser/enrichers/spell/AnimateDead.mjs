@@ -15,12 +15,12 @@ export default class AnimateDead extends DDBEnricherData {
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getAnimateDead,
       profileKeys: this.is2014
         ? [
-          "AnimatedSkeleton2014",
-          "AnimatedZombie2014",
+          { count: 1, name: "AnimatedSkeleton2014" },
+          { count: 1, name: "AnimatedZombie2014" },
         ]
         : [
-          "AnimatedSkeleton2024",
-          "AnimatedZombie2024",
+          { count: 1, name: "AnimatedSkeleton2024" },
+          { count: 1, name: "AnimatedZombie2024" },
         ],
       summons: {
         "match": {

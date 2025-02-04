@@ -44,7 +44,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
 
         // If the row has at least two cells, extract the ability score
         if (cells.length >= 2) {
-          const ability = cells[0].textContent.trim();
+          const ability = cells[0].textContent.trim().toLowerCase();
           const score = cells[1].textContent.trim();
           const mod = cells[2].textContent.trim().replace("&minus;", "-");
           const save = cells[2].textContent.trim().replace("&minus;", "-");

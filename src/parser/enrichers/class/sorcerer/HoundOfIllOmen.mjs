@@ -10,7 +10,7 @@ export default class HoundOfIllOmen extends DDBEnricherData {
   get activity() {
     return {
       noTemplate: true,
-      profileKeys: ["HoundOfIllOmen"],
+      profileKeys: [{ count: 1, name: "HoundOfIllOmen" }],
       summons: {
         "creatureSizes": ["med"],
         "creatureTypes": ["monstrosity"],

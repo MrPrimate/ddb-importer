@@ -11,12 +11,12 @@ export default class MageHand extends DDBEnricherData {
     return {
       noTemplate: true,
       profileKeys: [
-        "MageHandRed",
-        "MageHandPurple",
-        "MageHandGreen",
-        "MageHandBlue",
-        "MageHandRock",
-        "MageHandRainbow",
+        { count: 1, name: "MageHandRed" },
+        { count: 1, name: "MageHandPurple" },
+        { count: 1, name: "MageHandGreen" },
+        { count: 1, name: "MageHandBlue" },
+        { count: 1, name: "MageHandRock" },
+        { count: 1, name: "MageHandRainbow" },
       ],
       summons: {
       },

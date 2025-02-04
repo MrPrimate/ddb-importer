@@ -114,6 +114,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
   // name includes for monsters only match against the name
   MONSTER_NAME_HINT_INCLUDES = {
     // "Dragon": "Dragon",
+    "Animated Object (": "Summon Animated Object",
   };
 
   NAME_HINTS_2014 = {};
@@ -177,6 +178,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     "Construct Spirit (Stone)": {
       "Stony Lethargy (Stone Only)": MonsterEnrichers.SummonConstruct.StonyLethargy,
+    },
+    "Summon Animated Object": {
+      "Slam": MonsterEnrichers.SummonAnimatedObject.Slam,
     },
   };
 

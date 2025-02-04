@@ -351,12 +351,17 @@ export default class DDBCompanionFactory {
     logger.debug("Companion Data Load", {
       originDocument: updateDocument,
       profiles,
+      activityProfiles: activity?.profiles,
       worldActors: summonActors,
       factory: this,
       summons: this.summons,
     });
     const summonsData = foundry.utils.deepClone(this.summons);
-    summonsData.profiles = profiles;
+    if (!activity || activity.profiles.length === 0) {
+      summonsData.profiles = profiles;
+    } else {
+      summonsData.profiles = activity.profiles;
+    }
 
     const activityData = activity
       ? foundry.utils.mergeObject(activity, summonsData)

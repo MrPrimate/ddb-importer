@@ -112,16 +112,19 @@ export default class DDBSummonsManager {
 
   addProfilesToActivity(activity, summonsKeys = [], data = {}) {
 
+    const keys = summonsKeys.map((s) => s.name);
+
     const summonActors = this.itemHandler.compendium.index.filter((i) =>
-      summonsKeys.includes(i.flags?.ddbimporter?.summons?.summonsKey),
+      keys.includes(i.flags?.ddbimporter?.summons?.summonsKey),
     );
     const profiles = summonActors
       .map((actor) => {
+        const flag = actor.flags.ddbimporter.summons.summonsKey;
         return {
           _id: actor._id,
           name: actor.name,
           uuid: actor.uuid,
-          count: 1,
+          count: summonsKeys.find((s) => flag === s.name)?.count ?? "",
         };
       });
 
@@ -130,6 +133,10 @@ export default class DDBSummonsManager {
 
     baseData.profiles = profiles;
     activity = foundry.utils.mergeObject(activity, baseData);
+
+    console.warn("profiles", {
+      profiles: deepClone(profiles),
+    })
 
   }
 

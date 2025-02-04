@@ -16,10 +16,10 @@ export default class ConjureElemental extends DDBEnricherData {
       generateSummons: !this.is2014,
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getConjureElementals2024,
       profileKeys: [
-        "ConjureElementalAir",
-        "ConjureElementalEarth",
-        "ConjureElementalFire",
-        "ConjureElementalWater",
+        { count: 1, name: "ConjureElementalAir" },
+        { count: 1, name: "ConjureElementalEarth" },
+        { count: 1, name: "ConjureElementalFire" },
+        { count: 1, name: "ConjureElementalWater" },
       ],
       summons: {
         "match": {

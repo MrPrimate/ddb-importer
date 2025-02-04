@@ -15,20 +15,20 @@ export default class ArcaneHand extends DDBEnricherData {
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getArcaneHands2024,
       profileKeys: this.is2014
         ? [
-          "ArcaneHandRed",
-          "ArcaneHandPurple",
-          "ArcaneHandGreen",
-          "ArcaneHandBlue",
-          "ArcaneHandRock",
-          "ArcaneHandRainbow",
+          { count: 1, name: "ArcaneHandRed" },
+          { count: 1, name: "ArcaneHandPurple" },
+          { count: 1, name: "ArcaneHandGreen" },
+          { count: 1, name: "ArcaneHandBlue" },
+          { count: 1, name: "ArcaneHandRock" },
+          { count: 1, name: "ArcaneHandRainbow" },
         ]
         : [
-          "BigbysHandRed2024",
-          "BigbysHandPurple2024",
-          "BigbysHandGreen2024",
-          "BigbysHandBlue2024",
-          "BigbysHandRock2024",
-          "BigbysHandRainbow2024",
+          { count: 1, name: "BigbysHandRed2024" },
+          { count: 1, name: "BigbysHandPurple2024" },
+          { count: 1, name: "BigbysHandGreen2024" },
+          { count: 1, name: "BigbysHandBlue2024" },
+          { count: 1, name: "BigbysHandRock2024" },
+          { count: 1, name: "BigbysHandRainbow2024" },
         ],
       summons: {
         "match": {

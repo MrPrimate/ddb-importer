@@ -16,7 +16,7 @@ export default class ConjureFey extends DDBEnricherData {
       generateSummons: !this.is2014,
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getConjureFey2024,
       profileKeys: [
-        "ConjureFey",
+        { count: 1, name: "ConjureFey" },
       ],
       summons: {
         "match": {

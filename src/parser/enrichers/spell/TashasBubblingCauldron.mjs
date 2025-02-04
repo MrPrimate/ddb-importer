@@ -12,7 +12,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
       name: "Create Cauldron",
       noTemplate: true,
       profileKeys: [
-        "TashasBubblingCauldron",
+        { count: 1, name: "TashasBubblingCauldron" },
       ],
       addItemConsume: true,
       itemConsumeValue: "-@attributes.spelldc",

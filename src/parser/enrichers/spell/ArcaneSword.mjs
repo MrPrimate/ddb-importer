@@ -11,8 +11,8 @@ export default class ArcaneSword extends DDBEnricherData {
     return {
       noTemplate: true,
       profileKeys: [
-        "ArcaneSwordSpectralGreen",
-        "ArcaneSwordAstralBlue",
+        { count: 1, name: "ArcaneSwordSpectralGreen" },
+        { count: 1, name: "ArcaneSwordAstralBlue" },
       ],
       summons: {
         "match": {

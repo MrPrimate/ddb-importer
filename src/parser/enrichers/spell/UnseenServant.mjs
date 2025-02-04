@@ -11,7 +11,7 @@ export default class UnseenServant extends DDBEnricherData {
     return {
       noTemplate: true,
       profileKeys: [
-        "UnseenServantSRD",
+        { count: 1, name: "UnseenServantSRD" },
       ],
       summons: {
       },

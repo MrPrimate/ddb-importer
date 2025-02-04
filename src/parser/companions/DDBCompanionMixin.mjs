@@ -314,10 +314,12 @@ export default class DDBCompanionMixin {
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.companion.modifiers", {});
     this.npc.prototypeToken.name = actorName;
 
+    const summonsKey = `companion-${utils.normalizeString(actorName)}-${this.rules}`;
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.changes", []);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.name", `${name}`);
-    foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", `companion-${utils.normalizeString(actorName)}-${this.rules}`);
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", summonsKey);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
+    foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.summonsKey", summonsKey);
 
     foundry.utils.setProperty(this.npc, "system.source.rules", this.rules);
     await this._generate();
@@ -432,9 +434,9 @@ export default class DDBCompanionMixin {
     const finalSize = nameSize ?? sizeData;
 
     this.npc.system.traits.size = finalSize.value;
-    this.npc.prototypeToken.width = finalSize.size >= 1 ? finalSize.size : 1;
-    this.npc.prototypeToken.height = finalSize.size >= 1 ? finalSize.size : 1;
-    this.npc.prototypeToken.scale = finalSize.size >= 1 ? 1 : finalSize.size;
+    this.npc.prototypeToken.width = finalSize.size;
+    this.npc.prototypeToken.height = finalSize.size;
+    this.npc.prototypeToken.scale = 1;
   }
 
   _handleType(typeString) {

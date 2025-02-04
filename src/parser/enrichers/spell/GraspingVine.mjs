@@ -14,7 +14,7 @@ export default class GraspingVine extends DDBEnricherData {
       generateSummons: true,
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getGraspingVines2024,
       profileKeys: [
-        "GraspingVine",
+        { count: 1, name: "GraspingVine" },
       ],
       summons: {
         "match": {

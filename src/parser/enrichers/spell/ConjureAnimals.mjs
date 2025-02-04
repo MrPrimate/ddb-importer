@@ -16,7 +16,7 @@ export default class ConjureAnimals extends DDBEnricherData {
       generateSummons: !this.is2014,
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getConjureAnimals2024,
       profileKeys: [
-        "ConjureAnimals",
+        { count: 1, name: "ConjureAnimals" },
       ],
       summons: {
         "match": {
