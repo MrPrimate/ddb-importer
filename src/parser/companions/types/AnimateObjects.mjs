@@ -46,7 +46,7 @@ export async function getAnimateObjects2014({
       hp: 40,
     },
 
-    //icons/creatures/magical/construct-gargoyle-stone-gray.webp
+    // icons/creatures/magical/construct-gargoyle-stone-gray.webp
   ];
 
   const result = {};
@@ -103,6 +103,7 @@ export async function getAnimateObjects2014({
     stub = await DDBCompanionMixin.addEnrichedImageData(stub);
     const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
+    // eslint-disable-next-line no-console
     console.warn(`Animate Objects ${data.name}`, {
       stub: foundry.utils.deepClone(stub),
       enriched,
