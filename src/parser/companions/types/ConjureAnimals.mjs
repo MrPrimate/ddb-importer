@@ -31,8 +31,10 @@ export async function getConjureAnimals({
       },
     },
     system: {
-      "traits.size": "lg",
-      "details.type": {
+      traits: {
+        size: "lg",
+      },
+      type: {
         value: null,
         custom: "Summon",
       },

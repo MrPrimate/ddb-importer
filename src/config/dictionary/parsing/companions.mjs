@@ -56,6 +56,7 @@ const MULTI_COMPANIONS_2024 = {
   "Undead Spirit": ["Ghostly", "Putrid", "Skeletal"],
   "Primal Companion": ["Beast of the Land", "Beast of the Sea", "Beast of the Sky"],
   "Animated Object": ["Tiny", "Small", "Medium", "Large", "Huge"],
+  "Giant Insect": ["Giant Centipede", "Spider", "Wasp"],
 };
 
 const COMPANION_FEATURES = [

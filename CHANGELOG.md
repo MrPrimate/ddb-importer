@@ -7,6 +7,7 @@
 - Grasping Vine, Animate Dead summons configuration.
 - Summon Spells 2024 first pass. You are almost certainly going to want to delete your existing
 DDB Summons Compendium.
+- Some 2024 Potions parsed into the compendium would not have an item use correctly set.
 
 # 6.0.70
 

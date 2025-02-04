@@ -31,8 +31,10 @@ export async function getConjureFey({
       },
     },
     system: {
-      "traits.size": "med",
-      "details.type": {
+      traits: {
+        size: "med",
+      },
+      type: {
         value: null,
         custom: "Summon",
       },

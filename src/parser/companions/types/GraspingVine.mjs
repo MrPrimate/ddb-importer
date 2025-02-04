@@ -29,7 +29,7 @@ export async function getGraspingVines({
       },
     },
     system: {
-      "details.type": {
+      type: {
         value: null,
         custom: "Summon",
       },

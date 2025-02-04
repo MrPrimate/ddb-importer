@@ -457,7 +457,7 @@ export default class DDBCompanionMixin {
     // 30 ft., fly 40 ft.
 
     const onlyFiltered = speedString.split(/[;,]/).filter((speed) => {
-      if (speed.includes("only")) {
+      if (speed.toLowerCase().includes("only")) {
         if (speed.toLowerCase().includes(this.options.subType.toLowerCase())) {
           return true;
         } else {

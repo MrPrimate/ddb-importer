@@ -73,9 +73,11 @@ export async function getAnimateObjects2014({
           ci: ["poisoned", "charmed", "exhaustion", "frightened", "paralyzed"],
           di: ["poison", "psychic"],
         },
-        "details.type": {
-          value: null,
-          custom: "Summon",
+        details: {
+          type: {
+            value: null,
+            custom: "Summon",
+          },
         },
         abilities: {
           "str.value": 16,

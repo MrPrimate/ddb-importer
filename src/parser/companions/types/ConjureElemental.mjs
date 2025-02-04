@@ -61,10 +61,14 @@ export async function getConjureElemental({
         },
       },
       system: {
-        "traits.size": "lg",
-        "details.type": {
-          value: null,
-          custom: "Summon",
+        traits: {
+          size: "lg",
+        },
+        details: {
+          type: {
+            value: null,
+            custom: "Summon",
+          },
         },
       },
       img: elemental.avatar,
