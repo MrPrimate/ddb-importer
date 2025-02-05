@@ -6,7 +6,7 @@ import {
   PatreonHelper,
 } from "./_module.mjs";
 import DDBSources from "../apps/DDBSources.js";
-import { SETTINGS } from "../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { SystemHelpers } from "../parser/lib/_module.mjs";
 
 const MuncherSettings = {
@@ -684,15 +684,18 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       //   enabled: true,
       // },
       {
-        name: "exclude-legacy",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy"),
-        description: "Exclude legacy things from import? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
-        enabled: true,
-      },
-      {
         name: "legacy-postfix",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix"),
         description: "Append (Legacy) to Legacy names? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
+        enabled: true,
+      },
+    ];
+
+    const sourceConfig = [
+      {
+        name: "exclude-legacy",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy"),
+        description: "Exclude legacy things from import? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
       {
@@ -718,9 +721,23 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
+    const exlcudedIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories");
+    const availableCats = CONFIG.DDB.sourceCategories
+      .filter((cat) => !DICTIONARY.sourceCategories.excluded.includes(cat.id));
+
+    const excludedSources = availableCats.map((cat) => {
+      return {
+        id: cat.id,
+        selected: exlcudedIds.includes(cat.id) ? "selected" : "",
+        label: cat.name,
+      };
+    });
+
     const resultData = {
       cobalt,
       genericConfig,
+      sourceConfig,
+      excludedSources,
       monsterConfig,
       spellConfig,
       itemConfig,
@@ -738,7 +755,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       isCampaign,
     };
 
-    // console.warn(resultData);
+    console.warn(resultData);
 
     return resultData;
   },

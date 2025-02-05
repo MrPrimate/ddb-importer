@@ -162,6 +162,8 @@ export default class DDBMuncher extends Application {
       .find(
         [
           '.munching-generic-config input[type="checkbox"]',
+          '.munching-source-config input[type="checkbox"]',
+          '.munching-excluded-config multi-select',
           '.munching-spell-config input[type="checkbox"]',
           '.munching-item-config input[type="checkbox"]',
           '.munching-monster-config input[type="checkbox"]',

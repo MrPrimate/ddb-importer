@@ -23,6 +23,7 @@
   <!-- Muncher Configuration Tabs -->
   <nav class="sheet-tabs tabs">
     <a class="item active" data-tab="settings"><i class="fas fa-cogs"></i> Settings</a>
+    <a class="item" data-tab="sources"><i class="fas fa-book"></i> Sources</a>
     <a class="item" data-tab="spells"><i class="fas fa-magic"></i> Spells</a>
     <a class="item" data-tab="items"><i class="fas fa-shield-alt"></i> Items</a>
     <a class="item" data-tab="monsters"><i class="fas fa-pastafarianism"></i> Monsters</a>
@@ -44,8 +45,32 @@
                   data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
           </div>
           {{/each}}
+      </div>
+  </section>
+
+
+      <!-- Settings Tab -->
+  <section class="tab" data-tab="sources">
+      <div>
+          <h3>Choose Ingredients</h3>
+          {{#each sourceConfig}}
+          <div class="munching-source-config">
+            <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+                  id="munching-generic-policy-{{this.name}}"
+                  name="munching-policy-{{this.name}}"
+                  data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+          </div>
+          {{/each}}
           <div id="munch-source-div" {{#if enableSources}}{{else}}class="ddbimporter-hidden"{{/if}}>
               <button type="button" id="munch-source-select" class="munch-button" enabled>Select books to use (for monsters, spells, items)</button>
+          </div>
+          <h3>Excluded Flavour Profiles</h3>
+          <div class="form-fields" id="munch-excluded-div">
+            <multi-select id="muncher-excluded-source-categories" name="muncher-excluded-source-categories">
+                {{#each excludedSources}}
+                <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+                {{/each}}
+            </multi-select>
           </div>
       </div>
   </section>

@@ -1269,18 +1269,9 @@ export class DDBCompendiumFolders {
     return results;
   }
 
-  static validSourceCategories() {
-    // const excludedSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories");
-    const excludedSources = [];
-    return CONFIG.DDB.sourceCategories.filter((c) =>
-      !DICTIONARY.sourceCategories.excluded.includes(c.id)
-      && !excludedSources.includes(c.id),
-    );
-  }
-
   static getAllSourceCategoryFolders(type) {
     const results = [];
-    for (const data of DDBCompendiumFolders.validSourceCategories()) {
+    for (const data of DDBSources.validSourceCategories()) {
       results.push(DDBCompendiumFolders.getSourceCategoryFolderName({
         type,
         categoryId: data.id,

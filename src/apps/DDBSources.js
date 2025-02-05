@@ -1,3 +1,4 @@
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import DDBMuncher from "./DDBMuncher.js";
 
 export default class DDBSources extends FormApplication {
@@ -70,5 +71,14 @@ export default class DDBSources extends FormApplication {
     await game.settings.set("ddb-importer", "munching-policy-muncher-sources", sources);
     // eslint-disable-next-line no-use-before-define
     new DDBMuncher().render(true);
+  }
+
+
+  static validSourceCategories() {
+    const excludedSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories");
+    return CONFIG.DDB.sourceCategories.filter((c) =>
+      !DICTIONARY.sourceCategories.excluded.includes(c.id)
+      && !excludedSources.includes(c.id),
+    );
   }
 }
