@@ -1,4 +1,4 @@
-import { logger, DDBItemImporter } from "../../lib/_module.mjs";
+import { logger, DDBItemImporter, utils } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = [
@@ -18,6 +18,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
 
   const stat = this.source.stats.find((stat) => stat.statId === 2).value || 10;
   const dexBonus = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
+  const baseAc = 10 + parseInt(dexBonus);
 
   let acItems = [];
 
@@ -25,7 +26,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
     ? this.source.armorClassDescription.toLowerCase()
     : "";
   const descriptionItems = this.source.armorClassDescription
-    ? lowerDescription.replace("(", "").replace(")", "")
+    ? this.source.armorClassDescription.replace("(", "").replace(")", "")
       .split(";")[0]
       .split(",").map((item) => item.trim())
     : [];
@@ -40,10 +41,12 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   // Eternal flame guardian 17 (breastplate, shield; 15 while using a crossbow)
 
   let itemsToCheck = [];
-  descriptionItems.push(...additionalItems.map((item) => item.toLowerCase()));
+  descriptionItems.push(...additionalItems.map((item) => item));
+
   if (descriptionItems.length > 0) {
     descriptionItems.forEach((item) => {
-      if (item == "natural" || item == "natural armor") {
+      let lowerItem = item.toLowerCase();
+      if (lowerItem == "natural" || lowerItem == "natural armor") {
         ac.calc = "natural";
         flatAC = false;
 
@@ -53,19 +56,19 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
         if (lowerDescription.includes("+1") || lowerDescription.includes("+ 1")) ac.flat = parseInt(ac.flat) - 1;
         if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = parseInt(ac.flat) - 2;
         if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = parseInt(ac.flat) - 3;
-      } else if (!item.includes("with mage armor")) {
-        item = item.replace("leather armor", "leather").replace("hide armor", "hide").replace("plate mail", "plate");
-        if (item.startsWith("+")) {
+      } else if (!lowerItem.includes("with mage armor")) {
+        lowerItem = lowerItem.replace("leather armor", "leather").replace("hide armor", "hide").replace("plate mail", "plate");
+        if (lowerItem.startsWith("+")) {
           const bonusRegex = /(\+\d+)(?:\s+)(.*)/;
-          const matches = item.match(bonusRegex);
+          const matches = lowerItem.match(bonusRegex);
           if (matches) {
-            item = `${matches[2]}, ${matches[1]}`;
+            lowerItem = `${matches[2]}, ${matches[1]}`;
           }
         }
         // const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
         const itemsToIgnore = this.addMonsterEffects ? ["suave defense"] : [];
-        if (!itemsToIgnore.includes(item)) {
-          itemsToCheck.push({ name: item, type: "equipment", flags: {}, system: { equipped: true } });
+        if (!itemsToIgnore.includes(lowerItem)) {
+          itemsToCheck.push({ name: utils.capitalize(lowerItem), type: "equipment", flags: {}, system: { equipped: true } });
         }
       };
     });
@@ -83,7 +86,10 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   const allItemsMatched = attunedItems.length > 0 && attunedItems.length == itemsToCheck.length;
   const badACMonster = this.BAD_AC_MONSTERS.includes(this.source.name.toLowerCase());
 
-  if (this.useItemAC && ac.calc !== "natural" && !badACMonster) {
+  if (attunedItems.length === 0 && ac.calc !== "natural" && baseAc !== ac.flat) {
+    ac.calc = "natural";
+    flatAC = false;
+  } else if (this.useItemAC && ac.calc !== "natural" && !badACMonster) {
     ac.flat = null;
     ac.calc = "default";
     ac.formula = "";

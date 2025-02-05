@@ -237,7 +237,8 @@ export default class DDBMonster {
 
     await this._generateFeatures();
 
-    await this._generateAC(this.featureFactory.gear);
+    const extraGear = this.source.extraGear ?? [];
+    await this._generateAC(extraGear.concat(this.featureFactory.gear));
 
     // Spellcasting
     this._generateSpells();

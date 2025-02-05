@@ -11,7 +11,7 @@ export default class AnimateDead extends DDBEnricherData {
     return {
       type: "summon",
       noTemplate: true,
-      generateSummons: !this.is2014,
+      generateSummons: true,
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getAnimateDead,
       profileKeys: this.is2014
         ? [

@@ -12,7 +12,7 @@ export default class FlamingSphere extends DDBEnricherData {
       name: "Summon Sphere",
       type: "summon",
       noTemplate: true,
-      generateSummons: !this.is2014,
+      generateSummons: true,
       summonsFunction: DDBImporter.lib.DDBSummonsInterface.getFlamingSphere,
       profileKeys: [
         { count: 1, name: "FlamingSphere" },
