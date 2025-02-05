@@ -121,7 +121,8 @@ export default class DDBItemImporter {
     for (let newItem of newItems) {
       let item = foundry.utils.duplicate(newItem);
       const compendiumIdMatch = oldItems.find((oldItem) =>
-        foundry.utils.getProperty(oldItem, "flags.ddbimporter.compendiumId") == item._id,
+        item._id
+        && foundry.utils.getProperty(oldItem, "flags.ddbimporter.compendiumId") == item._id,
       );
 
       const matched = compendiumIdMatch ?? (overrideId
@@ -412,6 +413,7 @@ ${item.system.description.chat}
 
     const firstPassItems = await this.compendiumIndex.filter((i) =>
       items.some((orig) => {
+        if (!this.#flagMatch(i, orig)) return false;
         const extraNames = foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
         if (looseMatch) {
           const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
