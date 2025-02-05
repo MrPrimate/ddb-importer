@@ -240,9 +240,11 @@ export default class DDBMonster {
     await this._generateFeatures();
 
     const extraGear = this.featureFactory.gear.length === 0
-      ? (this.source.extraGear ?? [])
+      ? (this.source.extraGear ?? "").replace(";", ",").split(",").map((g) => g.trim())
       : this.featureFactory.gear;
-    await this._generateAC(extraGear.concat(this.featureFactory.gear));
+
+    await this._generateAC(extraGear);
+    await this._generateTreasure();
 
     // Spellcasting
     this._generateSpells();

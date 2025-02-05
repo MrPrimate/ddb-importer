@@ -5,6 +5,7 @@ DDBMonster.prototype.BAD_AC_MONSTERS = [
   "arkhan the cruel",
 ];
 
+// eslint-disable-next-line complexity
 DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = []) {
 
   const ac = {
@@ -68,7 +69,24 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
         // const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
         const itemsToIgnore = this.addMonsterEffects ? ["suave defense"] : [];
         if (!itemsToIgnore.includes(lowerItem)) {
-          itemsToCheck.push({ name: utils.capitalize(lowerItem), type: "equipment", flags: {}, system: { equipped: true } });
+          const quantityRegex = /(.*)s \((\d+)\)/;
+          const match = lowerItem.match(quantityRegex);
+          let name = match ? match[1] : lowerItem;
+          let quantity = match ? parseInt(match[2]) : 1;
+          itemsToCheck.push({
+            name: name.split(" ").map((word) => utils.capitalize(word)).join(" "),
+            type: "equipment",
+            flags: {
+              ddbimporter: {
+                is2014: this.is2014,
+                is2024: this.is2024,
+              },
+            },
+            system: {
+              quantity,
+              equipped: true,
+            },
+          });
         }
       };
     });
@@ -79,8 +97,21 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   const unAttunedItems = rawItems.filter((i) => i.type !== "weapon"); // filter out weapons for now
   const attunedItems = unAttunedItems.map((item) => {
     if (item.system.attunement === 1) item.system.attunement = 2;
+    if (foundry.utils.hasProperty(item.system.equipped)) item.system.equipped = true;
+    const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
+    if (check) {
+      item.system.quantity = check.system.quantity;
+    }
     return item;
   });
+
+  for (const item of this.items) {
+    if ((item.type !== "weapon")) continue;
+    const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
+    if (check) {
+      item.system.quantity = check.system.quantity;
+    }
+  }
 
   logger.debug("Found items", { unAttunedItems, attunedItems, rawItems });
   const allItemsMatched = attunedItems.length > 0 && attunedItems.length == itemsToCheck.length;
@@ -109,6 +140,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
     attunedItems,
     allItemsMatched,
     badACMonster,
+    rawItems,
   };
 
   logger.debug(`${this.source.name} ac calcs`, this.ac);
