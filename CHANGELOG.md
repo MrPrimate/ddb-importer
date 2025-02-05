@@ -1,3 +1,7 @@
+# 6.0.72
+
+- Fixes to Monster AC calculations for 2024.
+
 # 6.0.71
 
 - Monster Manual 2024 Support - please note that there will likely be a number of formatting tweaks and changes required over the next couple of weeks. Please submit any parsing improvements/suggestions in #support
