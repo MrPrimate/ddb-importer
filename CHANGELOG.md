@@ -2,6 +2,9 @@
 
 - Monsters will now generate unique token images with the rules version in the name to prevent collisions.
 - Improved Compendium Folder Generation on Monster import.
+- Fix some limited use parsing in monster generation.
+- Fix some spell generation issues in monster parsing.
+- Add a workaround for legendary creatures initative bonus.
 
 # 6.0.72
 

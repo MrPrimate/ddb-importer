@@ -490,7 +490,6 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         : this.name
       : this.strippedHtml;
     const usesMatch = matchString.match(usesSearch);
-    // console.log(usesMatch);
     if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
       uses.spent = 0;
       uses.max = usesMatch[1];
@@ -517,6 +516,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       uses.spent = 0;
       this.actionInfo.consumptionValue = "1";
     }
+
+    // if (!name && uses.max === null && uses.recovery.length === 0) {
+    //   return this.getUses(true);
+    // }
 
     return uses;
   }
@@ -906,7 +909,7 @@ ${this.data.system.description.value}
       if (value) this.data.system.properties.push(key);
     }
 
-    if (this.name.includes("/Day")) {
+    if (this.name.includes("/Day") || this.name.includes("Recharges")) {
       this.data.system.uses = this.getUses(true);
     }
 
