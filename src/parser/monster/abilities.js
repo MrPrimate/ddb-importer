@@ -49,4 +49,10 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
   });
 
   this.abilities = this.npc.system.abilities;
+
+  // hack until leg init is added to DDB
+  if (this.source.isLegendary && this.is2024) {
+    this.npc.system.attributes.init.bonus = "10";
+  }
+
 };
