@@ -1,10 +1,12 @@
-# Next Up
+# 6.0.73
 
+- Some Summon spells would not work depending on the content available, options selected and what existed already in the Summons compendium. It is recommended you remove the existing summons compendium and remunch spells and items.
 - Monsters will now generate unique token images with the rules version in the name to prevent collisions.
 - Improved Compendium Folder Generation on Monster import.
 - Fix some limited use parsing in monster generation.
 - Fix some spell generation issues in monster parsing.
 - Add a workaround for legendary creatures initative bonus.
+- Temporary workaround for 2024 monsters will now add gear and treasure entries (patreon proxy only).
 - Improve Monster Features 2024 cone/line etc template generation.
 
 # 6.0.72
