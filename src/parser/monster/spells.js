@@ -23,7 +23,7 @@ DDBMonster.prototype._generateSpellcasting = function(text) {
 
 DDBMonster.prototype._generateSpellLevel = function(text) {
   let spellLevel = 0;
-  const levelSearch = /is (?:a|an) (\d+)(?:th|nd|rd|st)(?:-| )level spellcaster/;
+  const levelSearch = /is (?:a|an) (\d+)(?:th|nd|rd|st)(?:-| )level spellcaster/i;
   const match = text.match(levelSearch);
   if (match) {
     spellLevel = parseInt(match[1]);
@@ -65,7 +65,7 @@ DDBMonster.prototype.parseOutInnateSpells = function(text) {
   // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
-  const innateSearch = /^(\d+)\/(\w+)(?:\s+each)?:\s+(.*$)/;
+  const innateSearch = /^(\d+)\/(\w+)(?:\s+each)?:\s+(.*$)/i;
   const innateMatch = text.match(innateSearch);
   // console.log(innateMatch);
   if (innateMatch) {
@@ -76,7 +76,7 @@ DDBMonster.prototype.parseOutInnateSpells = function(text) {
   }
 
   // At will: dancing lights
-  const atWillSearch = /^At (?:Will|will):\s+(.*$)/;
+  const atWillSearch = /^At (?:will):\s+(.*$)/i;
   const atWillMatch = text.match(atWillSearch);
   if (atWillMatch) {
     const spellArray = atWillMatch[1].split(",").map((spell) => spell.trim());
@@ -92,7 +92,7 @@ DDBMonster.prototype.parseOutInnateSpells = function(text) {
 
   // last ditch attempt, mephits have some weird formating
   if (!innateMatch && !atWillMatch) {
-    const mephitMatch = text.match(/(\d+)\/(\w+)(?:.*)?cast (.*),/);
+    const mephitMatch = text.match(/(\d+)\/(\w+)(?:.*)?cast (.*),/i);
     if (mephitMatch) {
       const spell = mephitMatch[3].trim();
       this.spellList.innate.push({ name: spell, type: mephitMatch[2], value: mephitMatch[1], innate: this.spellList.innateMatch });
@@ -103,7 +103,7 @@ DDBMonster.prototype.parseOutInnateSpells = function(text) {
 
 // e.g. The archmage can cast disguise self and invisibility at will and has the following wizard spells prepared:
 DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
-  const atWillSearch = /can cast (.*?) at will/;
+  const atWillSearch = /can cast (.*?) at will/i;
   const atWillMatch = text.match(atWillSearch);
   let atWillSpells = [];
   if (atWillMatch) {
