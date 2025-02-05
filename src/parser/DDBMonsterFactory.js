@@ -313,7 +313,7 @@ export default class DDBMonsterFactory {
     this.notifier("");
 
     this.notifier(`Checking compendium folders..`, true);
-    await this.compendiumFolders.loadCompendium("monsters");
+    await this.compendiumFolders.loadCompendium("monsters", true);
     this.notifier("", true);
 
     this.totalDocuments = this.source.length;
@@ -323,6 +323,8 @@ export default class DDBMonsterFactory {
       logger.debug(`Processing documents for ${i + 1} to ${i + 100}`, { sourceDocuments, this: this });
       const documents = await this.#createMonsterDocuments({ monsters: this.source.slice(i, i + 100), i });
       const monsterCount = this.currentDocument + documents.length;
+      this.notifier(`Setting the table for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, true);
+      await this.compendiumFolders.createMonsterFoldersForDocuments({ documents });
       this.notifier(`Preparing dinner for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, true);
       await this.#loadIntoCompendiums(documents);
     }

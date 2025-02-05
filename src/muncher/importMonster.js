@@ -199,6 +199,9 @@ export async function getNPCImage(npcData, {
   const subType = foundry.utils.getProperty(npcData, "system.details.type.value") ?? "other";
   const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
+  // const rules = npcData.system.source?.rules ?? "2024";
+  // const book = npcData.system.source?.book ?? "";
+
   if (ddbAvatarUrl && foundry.utils.getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {
     if (hasAvatarProcessedAlready) {
       npcData.img = CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.get(ddbAvatarUrl);
@@ -207,6 +210,7 @@ export async function getNPCImage(npcData, {
       const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext) || isStock;
       const name = genericNpc ? genericNPCName : npcName;
       const nameType = genericNpc ? "npc-generic" : "npc";
+      // const imageNamePrefix = useDeepPaths ? `${book}${rules}` : `${book}${rules}-${nameType}`;;
       const imageNamePrefix = useDeepPaths ? "" : nameType;
       const pathPostfix = useDeepPaths ? `/monster/avatar/${subType}` : "";
       const downloadOptions = { type: nameType, name, targetDirectory, pathPostfix, imageNamePrefix, force: forceUpdate || updateImages };
@@ -214,6 +218,7 @@ export async function getNPCImage(npcData, {
       npcData.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
     }
   }
+
 
   if (ddbTokenUrl && foundry.utils.getProperty(npcData, "flags.monsterMunch.tokenImgSet") !== true) {
     if (hasTokenProcessedAlready) {
@@ -223,6 +228,7 @@ export async function getNPCImage(npcData, {
       const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
       const name = genericNpc ? genericNPCName : npcName;
       const nameType = genericNpc ? "npc-generic-token" : "npc-token";
+      // const imageNamePrefix = useDeepPaths ? `${book}${rules}` : `${book}${rules}-${nameType}`;
       const imageNamePrefix = useDeepPaths ? "" : nameType;
       const pathPostfix = useDeepPaths ? `/monster/token/${subType}` : "";
       // Token images always have to be downloaded.

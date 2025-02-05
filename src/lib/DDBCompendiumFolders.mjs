@@ -1,4 +1,4 @@
-import { DICTIONARY } from "../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { logger, utils, CompendiumHelper, DDBSources } from "./_module.mjs";
 
 export class DDBCompendiumFolders {
@@ -77,30 +77,38 @@ export class DDBCompendiumFolders {
     return folder;
   }
 
+  async createCreatureTypeFolder({ categoryFolderKey = undefined, categoryFolderId = undefined, monsterType } = {}) {
+    const flagTag = categoryFolderId
+      ? DDBCompendiumFolders.getSourceCategoryFolderName({
+        categoryId: categoryFolderKey,
+        type: "monster",
+      }).flagTag
+      : "";
+    const folder = this.getFolder(monsterType.name, flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: monsterType.name,
+        color: categoryFolderId ? "" : DDBCompendiumFolders.DDB_COLOR,
+        flagTag,
+        parentId: categoryFolderId,
+      }));
+    this.validFolderIds.push(folder._id);
+  }
+
   async createCreatureTypeFolders({ categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
     for (const monsterType of CONFIG.DDB.monsterTypes) {
-      const flagTag = categoryFolderId
-        ? DDBCompendiumFolders.getSourceCategoryFolderName({
-          categoryId: categoryFolderKey,
-          type: "monster",
-        }).flagTag
-        : "";
-      const folder = this.getFolder(monsterType.name, flagTag)
-        ?? (await this.createCompendiumFolder({
-          name: monsterType.name,
-          color: categoryFolderId ? "" : DDBCompendiumFolders.DDB_COLOR,
-          flagTag,
-          parentId: categoryFolderId,
-        }));
-      this.validFolderIds.push(folder._id);
+      await this.createCreatureTypeFolder({ categoryFolderKey, categoryFolderId, monsterType });
     }
   }
 
-  static getCreatureTypeFolderNameForTypeSourceCategory(document) {
-    const creatureType = document.system?.details?.type?.value
-      ? document.system?.details?.type?.value
-      : "Unknown";
+  static getCreatureDDBType(document) {
+    const creatureType = document.system?.details?.type?.value ?? "Unknown";
     const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
+
+    return ddbType;
+  }
+
+  static getCreatureTypeFolderNameForTypeSourceCategory(document) {
+    const ddbType = DDBCompendiumFolders.getCreatureDDBType(document);
 
     const result = DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
       type: "monster",
@@ -136,23 +144,27 @@ export class DDBCompendiumFolders {
     }
   }
 
+  async createChallengeRatingFolder({ categoryFolderKey = undefined, categoryFolderId = undefined, cr } = {}) {
+    const paddedCR = String(cr.value).padStart(2, "0");
+    const flagTag = categoryFolderId
+      ? DDBCompendiumFolders.getSourceCategoryFolderName({
+        categoryId: categoryFolderKey,
+        type: "monster",
+      }).flagTag
+      : "";
+    const folder = this.getFolder(`CR ${paddedCR}`, flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: `CR ${paddedCR}`,
+        color: categoryFolderId ? "" : DDBCompendiumFolders.DDB_COLOR,
+        flagTag,
+        parentId: categoryFolderId,
+      }));
+    this.validFolderIds.push(folder._id);
+  }
+
   async createChallengeRatingFolders({ categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
     for (const cr of CONFIG.DDB.challengeRatings) {
-      const paddedCR = String(cr.value).padStart(2, "0");
-      const flagTag = categoryFolderId
-        ? DDBCompendiumFolders.getSourceCategoryFolderName({
-          categoryId: categoryFolderKey,
-          type: "monster",
-        }).flagTag
-        : "";
-      const folder = this.getFolder(`CR ${paddedCR}`, flagTag)
-        ?? (await this.createCompendiumFolder({
-          name: `CR ${paddedCR}`,
-          color: categoryFolderId ? "" : DDBCompendiumFolders.DDB_COLOR,
-          flagTag,
-          parentId: categoryFolderId,
-        }));
-      this.validFolderIds.push(folder._id);
+      await this.createChallengeRatingFolder({ categoryFolderKey, categoryFolderId, cr });
     }
   }
 
@@ -182,6 +194,67 @@ export class DDBCompendiumFolders {
         categoryFolderId: sourceFolder._id,
       });
     }
+  }
+
+  async createCreatureTypeFoldersWithSourceCategoriesForDocuments(documents) {
+    for (const doc of documents) {
+      const categoryId = foundry.utils.getProperty(doc, "flags.ddbimporter.sourceCategory") ?? 9999999;
+      const source = DDBCompendiumFolders.getSourceCategoryFolderName({
+        type: "monster",
+        categoryId: parseInt(categoryId),
+      });
+      const sourceFolder = await this._createSourceFolder(source.name, source.flagTag, source.color);
+
+      const monsterType = DDBCompendiumFolders.getCreatureDDBType(doc);
+      await this.createCreatureTypeFolder({
+        categoryFolderKey: source.categoryId,
+        categoryFolderId: sourceFolder._id,
+        monsterType,
+      });
+    }
+  }
+
+  async createChallengeRatingFoldersWithSourceCategoriesForDocuments(documents) {
+    for (const doc of documents) {
+      const categoryId = foundry.utils.getProperty(doc, "flags.ddbimporter.sourceCategory") ?? 9999999;
+      const source = DDBCompendiumFolders.getSourceCategoryFolderName({
+        type: "monster",
+        categoryId: parseInt(categoryId),
+      });
+      const sourceFolder = await this._createSourceFolder(source.name, source.flagTag, source.color);
+
+      await this.createChallengeRatingFolder({
+        categoryFolderKey: source.categoryId,
+        categoryFolderId: sourceFolder._id,
+        cr: document.system.details.cr ?? "0",
+      });
+    }
+  }
+
+  async createMonsterFoldersForDocuments({ documents = [] }) {
+    switch (this.compendiumFolderTypeMonster) {
+      case "TYPE": {
+        await this.createCreatureTypeFolders();
+        return;
+      }
+      case "ALPHA": {
+        await this.createAlphabeticalFolders();
+        break;
+      }
+      case "CR": {
+        await this.createChallengeRatingFolders();
+        return;
+      }
+      case "SOURCE_CATEGORY_TYPE":
+        await this.createCreatureTypeFoldersWithSourceCategoriesForDocuments(documents);
+        break;
+      case "SOURCE_CATEGORY_CR":
+        await this.createChallengeRatingFoldersWithSourceCategoriesForDocuments(documents);
+        break;
+      // no default
+    }
+
+
   }
 
   // spell level
@@ -1126,7 +1199,7 @@ export class DDBCompendiumFolders {
   static getSourceCategoryFolderNameFromDocument({
     document, type, noSourceNameOverride = null, nameSuffix = "", flagSuffix = "",
   } = {}) {
-    const source = foundry.utils.getProperty(document, "system.source.book");
+    const source = foundry.utils.getProperty(document, "system.source.book") ?? "Unknown";
     const legacy = foundry.utils.getProperty(document, "flags.ddbimporter.legacy");
 
     return DDBCompendiumFolders.getSourceCategoryFolderName({
@@ -1196,14 +1269,18 @@ export class DDBCompendiumFolders {
     return results;
   }
 
-
-  static NO_FOLDER_IDS = [
-    3, 8, 9, 11, 13, 28,
-  ];
+  static validSourceCategories() {
+    // const excludedSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories");
+    const excludedSources = [];
+    return CONFIG.DDB.sourceCategories.filter((c) =>
+      !DICTIONARY.sourceCategories.excluded.includes(c.id)
+      && !excludedSources.includes(c.id),
+    );
+  }
 
   static getAllSourceCategoryFolders(type) {
     const results = [];
-    for (const data of CONFIG.DDB.sourceCategories.filter((c) => !DDBCompendiumFolders.NO_FOLDER_IDS.includes(c.id))) {
+    for (const data of DDBCompendiumFolders.validSourceCategories()) {
       results.push(DDBCompendiumFolders.getSourceCategoryFolderName({
         type,
         categoryId: data.id,

@@ -1,3 +1,8 @@
+# Next Up
+
+- Monsters will now generate unique token images with the rules version in the name to prevent collisions.
+- Improved Compendium Folder Generation on Monster import.
+
 # 6.0.72
 
 - Fixes to Monster AC calculations for 2024.

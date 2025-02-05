@@ -113,6 +113,8 @@ export default class DDBMonster {
       automatedEvcoationAnimation: this.source.automatedEvcoationAnimation ? this.source.automatedEvcoationAnimation : undefined,
       version: CONFIG.DDBI.version,
       isLegacy: this.source.isLegacy,
+      sources: this.source.sources,
+      compendiumId: this.npc._id,
     };
   }
 
@@ -237,7 +239,9 @@ export default class DDBMonster {
 
     await this._generateFeatures();
 
-    const extraGear = this.source.extraGear ?? [];
+    const extraGear = this.featureFactory.gear.length === 0
+      ? (this.source.extraGear ?? [])
+      : this.featureFactory.gear;
     await this._generateAC(extraGear.concat(this.featureFactory.gear));
 
     // Spellcasting

@@ -120,10 +120,13 @@ export default class DDBItemImporter {
 
     for (let newItem of newItems) {
       let item = foundry.utils.duplicate(newItem);
+      const compendiumIdMatch = oldItems.find((oldItem) =>
+        foundry.utils.getProperty(oldItem, "flags.ddbimporter.compendiumId") == item._id,
+      );
 
-      const matched = overrideId
+      const matched = compendiumIdMatch ?? (overrideId
         ? oldItems.find((oldItem) => foundry.utils.getProperty(oldItem, "flags.ddbimporter.overrideId") == item._id)
-        : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster);
+        : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster));
 
       if (matched) {
         const match = foundry.utils.duplicate(matched);
@@ -402,7 +405,7 @@ ${item.system.description.chat}
   async loadPassedItemsFromCompendium(items,
     { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
       indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
-      keepDDBId = false, linkItemFlags = false } = {},
+      keepDDBId = false, linkItemFlags = false, overrideId = false } = {},
   ) {
 
     await this.buildIndex(indexFilter);
@@ -452,6 +455,7 @@ ${item.system.description.chat}
       keepId,
       keepDDBId,
       linkItemFlags,
+      overrideId,
     };
 
     const results = await DDBItemImporter.updateMatchingItems(items, loadedItems, matchingOptions);
