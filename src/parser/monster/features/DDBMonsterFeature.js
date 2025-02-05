@@ -759,6 +759,16 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     }
   }
 
+  _targetsCreature() {
+    const matchText = this.strippedHtml.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
+    const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
+    const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
+    const targets = /attack against the target|at a target in range/gi;
+    return matchText.match(creature)
+      || matchText.match(creaturesRange)
+      || matchText.match(targets);
+  }
+
   getTarget() {
     let target = {
       template: {
@@ -784,10 +794,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     // in a 90-foot cone
     const matchText = this.strippedHtml.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
     // console.warn(matchText);
-    const lineSearch = /(\d+)-foot line|line that is (\d+) feet/;
-    const coneSearch = /(\d+)-foot cone/;
-    const cubeSearch = /(\d+)-foot cube/;
-    const sphereSearch = /(\d+)-foot-radius sphere/;
+    const lineSearch = /(\d+)-foot line|line that is (\d+) feet/i;
+    const coneSearch = /(\d+)-foot cone/i;
+    const cubeSearch = /(\d+)-foot cube/i;
+    const sphereSearch = /(\d+)-foot-radius sphere/i;
 
     const coneMatch = matchText.match(coneSearch);
     const lineMatch = matchText.match(lineSearch);
@@ -815,6 +825,15 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (target.template.type === "" && this.healingAction) {
       target.template.type = "self";
     }
+
+    const targetsCreature = this._targetsCreature();
+    const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(matchText);
+
+    if (targetsCreature || creatureTargetCount) {
+      target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
+      target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
+    }
+
 
     return target;
   }

@@ -5,6 +5,7 @@
 - Fix some limited use parsing in monster generation.
 - Fix some spell generation issues in monster parsing.
 - Add a workaround for legendary creatures initative bonus.
+- Improve Monster Features 2024 cone/line etc template generation.
 
 # 6.0.72
 
