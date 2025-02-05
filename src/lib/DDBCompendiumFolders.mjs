@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
+import { DICTIONARY } from "../config/_module.mjs";
 import { logger, utils, CompendiumHelper, DDBSources } from "./_module.mjs";
 
 export class DDBCompendiumFolders {
