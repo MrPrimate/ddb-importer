@@ -1,3 +1,10 @@
+# 6.0.74
+
+- Force more unique names when auto-tokenising
+- Fix Compendium Folders using Source Categories -> CR.
+- Spiritual Weapon mod damage did not parse out.
+- Cantrips granted by class features did not get potent spellcasting applied.
+
 # 6.0.73
 
 - Some Summon spells would not work depending on the content available, options selected and what existed already in the Summons compendium. It is recommended you remove the existing summons compendium and remunch spells and items.

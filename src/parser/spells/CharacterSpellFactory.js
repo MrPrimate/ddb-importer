@@ -66,7 +66,7 @@ export default class CharacterSpellFactory {
           ability: spellCastingAbility,
           mod: abilityModifier,
           dc: 8 + this.proficiencyModifier + abilityModifier,
-          cantripBoost: cantripBoost,
+          cantripBoost,
           overrideDC: false,
           id: spell.id,
           entityTypeId: spell.entityTypeId,
@@ -249,11 +249,20 @@ export default class CharacterSpellFactory {
 
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
+      const klassName = klass?.definition?.name;
+      const cantripBoost
+        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
+          (mod) =>
+            mod.type === "bonus"
+            && mod.subType === `${klassName.toLowerCase()}-cantrip-damage`
+            && (mod.restriction === null || mod.restriction === ""),
+        ).length > 0;
+
       // add some data for the parsing of the spells into the data structure
       spell.flags = {
         ddbimporter: {
           dndbeyond: {
-            class: (klass) ? klass.definition.name : undefined,
+            class: klassName,
             lookup: "classFeature",
             lookupName: classInfo.name,
             lookupId: classInfo.id,
@@ -265,6 +274,7 @@ export default class CharacterSpellFactory {
             id: spell.id,
             entityTypeId: spell.entityTypeId,
             healingBoost: this.healingBoost,
+            cantripBoost,
             usesSpellSlot: spell.usesSpellSlot,
             forceMaterial: klass?.definition?.name === "Artificer",
             homebrew: spell.definition.isHomebrew,
