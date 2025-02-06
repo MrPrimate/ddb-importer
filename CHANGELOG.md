@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.74
 
 - New Sources and Source Category based filtering model for spells, items and monsters.
 - Force more unique names when auto-tokenising
