@@ -19,18 +19,19 @@ DDBMonster.prototype._generateSource = function _generateSource() {
     custom: "",
     license: "",
     id: ddbSource ? ddbSource.id : 9999999,
+    sourceCategoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
   };
 
   DDBSources.tweakSourceData(source);
 
   this.npc.system.source = source;
-  foundry.utils.setProperty(this.npc, "flags.ddbimporter.sourceId", ddbSource.id);
-  foundry.utils.setProperty(this.npc, "flags.ddbimporter.sourceCategory", ddbSource.sourceCategoryId);
+  foundry.utils.setProperty(this.npc, "flags.ddbimporter.sourceId", source.id);
+  foundry.utils.setProperty(this.npc, "flags.ddbimporter.sourceCategory", source.sourceCategoryId);
 
-  this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
-    DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
+  this.legacy = CONFIG.DDB.sources.some((ds) =>
+    DICTIONARY.sourceCategories.legacy.includes(ds.sourceCategoryId),
   );
-  this.is2014 = Number.isInteger(ddbSource.id) && ddbSource.id < 145;
+  this.is2014 = Number.isInteger(source.id) && source.id < 145;
   this.is2024 = !this.is2014;
 
   this.npc.system.source.rules = this.is2014 ? "2014" : "2024";
