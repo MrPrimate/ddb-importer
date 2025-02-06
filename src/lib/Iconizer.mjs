@@ -498,7 +498,7 @@ export default class Iconizer {
         }
       }
 
-      utils.munchNote("");
+      utils.munchNote("", true);
       return itemImage;
     });
 
@@ -535,7 +535,7 @@ export default class Iconizer {
       if (img) item.img = img;
     }
 
-    this.notifier("");
+    this.notifier("", true);
 
   }
 
@@ -556,7 +556,7 @@ export default class Iconizer {
       return itemIcons;
     });
 
-    utils.munchNote("");
+    utils.munchNote("", true);
     return Promise.all(itemMap);
   }
 
@@ -578,7 +578,7 @@ export default class Iconizer {
       return itemIcons;
     });
 
-    utils.munchNote("");
+    utils.munchNote("", true);
     return Promise.all(itemMap);
   }
 
@@ -626,7 +626,7 @@ export default class Iconizer {
       return schoolIcons;
     });
 
-    utils.munchNote("");
+    utils.munchNote("", true);
     return Promise.all(schoolMap);
   }
 
