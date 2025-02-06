@@ -144,8 +144,8 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createChallengeRatingFolder({ categoryFolderKey = undefined, categoryFolderId = undefined, cr } = {}) {
-    const paddedCR = String(cr.value).padStart(2, "0");
+  async createChallengeRatingFolder({ categoryFolderKey = undefined, categoryFolderId = undefined, cr = "0" } = {}) {
+    const paddedCR = String(cr).padStart(2, "0");
     const flagTag = categoryFolderId
       ? DDBCompendiumFolders.getSourceCategoryFolderName({
         categoryId: categoryFolderKey,
@@ -164,7 +164,7 @@ export class DDBCompendiumFolders {
 
   async createChallengeRatingFolders({ categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
     for (const cr of CONFIG.DDB.challengeRatings) {
-      await this.createChallengeRatingFolder({ categoryFolderKey, categoryFolderId, cr });
+      await this.createChallengeRatingFolder({ categoryFolderKey, categoryFolderId, cr: cr.value });
     }
   }
 
@@ -226,7 +226,7 @@ export class DDBCompendiumFolders {
       await this.createChallengeRatingFolder({
         categoryFolderKey: source.categoryId,
         categoryFolderId: sourceFolder._id,
-        cr: document.system.details.cr ?? "0",
+        cr: doc.system.details?.cr ?? "0",
       });
     }
   }
