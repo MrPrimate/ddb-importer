@@ -8,7 +8,6 @@ export default class Bite extends DDBEnricherData {
   }
 
   get activity() {
-    console.warn(this);
     return {
       name: this.is2014
         ? this.ddbEnricher?._originalActivity?.type === "damage"
