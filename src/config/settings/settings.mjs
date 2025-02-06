@@ -1010,7 +1010,7 @@ const SETTINGS = {
           },
           "munching-policy-muncher-excluded-source-categories": {
             type: Array,
-            default: [7, 10, 15],
+            default: [10, 15, 25],
           },
           "munching-policy-monster-use-item-ac": {
             type: Boolean,

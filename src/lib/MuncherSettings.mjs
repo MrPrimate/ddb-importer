@@ -764,7 +764,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
   getSourcesLookups: (overrideSelected = null) => {
     const selected = (overrideSelected ?? DDBSources.getSelectedSourceIds()).map((id) => parseInt(id));
-    const selections = DDBSources.getAvailableSources()
+    const selections = DDBSources.getDisplaySources()
       .map((source) => {
         const details = {
           id: source.id,

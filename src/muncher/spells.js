@@ -11,6 +11,7 @@ import {
   DDBItemImporter,
   DDBMacros,
   DDBCompendiumFolders,
+  DDBSources,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import { ExternalAutomations } from "../effects/_module.mjs";
@@ -33,7 +34,7 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
   const sources = enableSources
-    ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
+    ? DDBSources.getSelectedSourceIds()
     : [];
 
   return new Promise((resolve, reject) => {
@@ -56,8 +57,24 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
         return data;
       })
       .then((data) => {
-        if (sources.length == 0 || !sourceFilter) return data.data;
-        return data.data.filter((spell) =>
+        if (!sourceFilter) return data.data;
+        const categorySpells = data.data
+          .map((spell) => {
+            spell.definition.sources = spell.definition.sources.filter((source) =>
+              DDBSources.isSourceInAllowedCategory(source),
+              // && source.sourceType === 1,
+            );
+            return spell;
+          })
+          .filter((spell) => {
+            if (spell.definition.isHomebrew) return true;
+            return spell.definition.sources.length > 0;
+          });
+        return categorySpells;
+      })
+      .then((data) => {
+        if (sources.length == 0 || !sourceFilter) return data;
+        return data.filter((spell) =>
           spell.definition.sources.some((source) => sources.includes(source.sourceId)),
         );
       })

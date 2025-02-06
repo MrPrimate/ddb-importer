@@ -38,6 +38,8 @@ export default class DDBItemImporter {
         logger.info(note, { nameField, monsterNote });
       };
     }
+    this.totalDocuments = this.documents?.length ?? 0;
+    this.currentDocumentCount = 0;
   }
 
   async buildIndex(indexFilter = {}) {
@@ -280,8 +282,9 @@ export default class DDBItemImporter {
     if (!newItem) {
       logger.error(`Item ${item.name} failed creation`, { item, newItem });
     }
-    this.notifier(`Creating ${item.name}`);
-    logger.debug(`Pushing ${item.name} to compendium`);
+    this.currentDocumentCount++;
+    this.notifier(`Creating ${item.name} (${this.currentDocumentCount}/${this.totalDocuments})`);
+    logger.debug(`Pushing ${item.name} to compendium (${this.currentDocumentCount}/${this.totalDocuments})`);
     return this.compendium.importDocument(newItem);
   }
 
@@ -290,8 +293,9 @@ export default class DDBItemImporter {
     if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
     if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
-    this.notifier(`Updating ${updateItem.name} compendium entry`);
-    logger.debug(`Updating ${updateItem.name} compendium entry`, {
+    this.currentDocumentCount++;
+    this.notifier(`Updating ${updateItem.name} (${this.currentDocumentCount}/${this.totalDocuments})`);
+    logger.debug(`Updating ${updateItem.name} compendium entry (${this.currentDocumentCount}/${this.totalDocuments})`, {
       updateItem,
       existingItem,
       packId: this.compendium.metadata.id,

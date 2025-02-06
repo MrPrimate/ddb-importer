@@ -8,6 +8,7 @@ import {
   DDBCompendiumFolders,
   Iconizer,
   utils,
+  DDBSources,
 } from "../lib/_module.mjs";
 import DDBMonster from "./DDBMonster.js";
 import { SETTINGS } from "../config/_module.mjs";
@@ -31,7 +32,7 @@ export default class DDBMonsterFactory {
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
     const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
     const sources = enableSources
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
+      ? DDBSources.getSelectedSourceIds()
       : [];
     const homebrew = sources.length > 0
       ? false
@@ -115,6 +116,7 @@ export default class DDBMonsterFactory {
       body.searchTerm = encodeURIComponent(searchTerm);
       body.exactMatch = exactMatch;
       body.excludeLegacy = excludeLegacy;
+      body.excludedCategories = DDBSources.getAllExcludedCategoryIds();
     }
 
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
@@ -133,22 +135,44 @@ export default class DDBMonsterFactory {
         body: JSON.stringify(body), // body data type must match "Content-Type" header
       })
         .then((response) => response.json())
-        .then((data) => {
-          if (!data.success) {
-            this.notifier(`API Failure: ${data.message}`);
-            logger.error(`API Failure:`, data.message);
-            reject(data.message);
+        .then((result) => {
+          if (!result.success) {
+            this.notifier(`API Failure: ${result.message}`);
+            logger.error(`API Failure:`, result.message);
+            reject(result.message);
           }
           if (debugJson) {
-            FileHelper.download(JSON.stringify(data), `monsters-raw.json`, "application/json");
+            FileHelper.download(JSON.stringify(result), `monsters-raw.json`, "application/json");
           }
-          return data;
+          return result;
+        })
+        .then((result) => {
+          this.notifier(`Retrieved ${result.data.length + 1} monsters from DDB`, true, false);
+          logger.info(`Retrieved ${result.data.length + 1} monsters from DDB`);
+          return result.data;
         })
         .then((data) => {
-          this.notifier(`Retrieved ${data.data.length + 1} monsters from DDB`, true, false);
-          logger.info(`Retrieved ${data.data.length + 1} monsters from DDB`);
-          this.source = data.data;
-          resolve(this.source);
+          // handle category filtering
+          if (ids && ids.length > 0) {
+            this.source = data;
+            resolve(this.source);
+          } else {
+            logger.debug("Processing categories");
+            const categoryMonsters = data
+              .map((monster) => {
+                monster.sources = monster.sources.filter((source) =>
+                  source.sourceType === 1
+                  && DDBSources.isSourceInAllowedCategory(source),
+                );
+                return monster;
+              })
+              .filter((monster) => {
+                if (monster.isHomebrew) return true;
+                return monster.sources.length > 0;
+              });
+            this.source = categoryMonsters;
+            resolve(this.source);
+          }
         })
         .catch((error) => reject(error));
     });

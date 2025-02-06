@@ -179,29 +179,62 @@ export default class DDBSources {
   // eslint-disable-next-line class-methods-use-this
   static AlwaysHiddenCategoryIds = DICTIONARY.sourceCategories.hidden;
 
-  static getBlockedCategories() {
-    const cats = CONFIG.DDB.sourceCategories
-      .filter((cat) => DDBSources.AlwaysExcludedCategoryIds.includes(cat.id));
-    return cats;
+
+  static getAllExcludedCategoryIds() {
+    return Array.from(new Set([
+      ...DDBSources.AlwaysHiddenCategoryIds,
+      ...DDBSources.AlwaysExcludedCategoryIds,
+      ...DDBSources.getExcludedCategoryIds(),
+    ]));
+  }
+
+  static getCategoriesWithBooks() {
+    const sourceCategories = new Set(CONFIG.DDB.sources.map((s) => s.sourceCategoryId));
+    return CONFIG.DDB.sourceCategories
+      .filter((cat) => sourceCategories.has(cat.id));
   }
 
   static getAvailableCategories() {
-    const availableCats = CONFIG.DDB.sourceCategories
+    const cats = DDBSources.getCategoriesWithBooks()
       .filter((cat) => !DDBSources.AlwaysExcludedCategoryIds.includes(cat.id));
-    return availableCats;
+    return cats;
+  }
+
+  static getAvailableCategoryIds() {
+    return DDBSources.getAvailableCategories()
+      .map((source) => source.id);
   }
 
   static getDisplaySourceCategories() {
-    const excludedSources = [...DDBSources.AlwaysExcludedCategoryIds, ...DDBSources.AlwaysHiddenCategoryIds];
     return DDBSources.getAvailableCategories()
-      .filter((c) => !excludedSources.includes(c.id));
+      .filter((c) => !DDBSources.AlwaysHiddenCategoryIds.includes(c.id));
   }
 
-  static getAvailableSources() {
-    const excludedIds = DDBSources.getExcludedCategoryIds();
+  static getAllowedSources() {
+    const excludedIds = DDBSources.getAllExcludedCategoryIds();
+    const availableSources = CONFIG.DDB.sources
+      .filter((source) => source.isReleased
+        && !excludedIds.includes(source.sourceCategoryId),
+      );
+    return availableSources;
+  }
+
+  static getAllowedSourceIds() {
+    return DDBSources.getAllowedSources()
+      .map((source) => source.id);
+  }
+
+  // sources to use in ui
+  static getDisplaySources() {
+    const excludedIds = [...DDBSources.AlwaysExcludedCategoryIds, ...DDBSources.AlwaysHiddenCategoryIds];
     const availableSources = CONFIG.DDB.sources
       .filter((source) => source.isReleased && !excludedIds.includes(source.sourceCategoryId));
     return availableSources;
+  }
+
+  static isSourceInAllowedCategory(source) {
+    const sourceCategory = CONFIG.DDB.sources.find((s) => s.id == source.sourceId);
+    return !DDBSources.getAllExcludedCategoryIds().includes(sourceCategory.sourceCategoryId);
   }
 
   static async updateSelectedSources(ids) {

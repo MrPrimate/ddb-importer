@@ -1,9 +1,11 @@
 # Next Up
 
+- New Sources and Source Category based filtering model for spells, items and monsters.
 - Force more unique names when auto-tokenising
 - Fix Compendium Folders using Source Categories -> CR.
 - Spiritual Weapon mod damage did not parse out.
 - Cantrips granted by class features did not get potent spellcasting applied.
+- Purple Worm 2024 Parsing Fixes
 
 # 6.0.73
 

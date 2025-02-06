@@ -8,6 +8,7 @@ import {
   PatreonHelper,
   DDBCompendiumFolders,
   utils,
+  DDBSources,
 } from "../lib/_module.mjs";
 import {
   addNPC,
@@ -38,7 +39,7 @@ export function getVehicleData(ids) {
     const searchTerm = searchFilter?.value || "";
     const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
     const sources = enableSources
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
+      ? DDBSources.getSelectedSourceIds()
       : [];
     body.sources = sources;
     body.search = searchTerm;

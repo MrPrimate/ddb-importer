@@ -10,6 +10,7 @@ import {
   DDBItemImporter,
   DDBMacros,
   DDBCompendiumFolders,
+  DDBSources,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
@@ -121,7 +122,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
   const useGenerics = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-generic-items");
   const sources = enableSources
-    ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
+    ? DDBSources.getSelectedSourceIds()
     : [];
 
   const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
@@ -162,20 +163,40 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
             extra: [],
           };
         } else {
-          return data;
+          return {
+            items: data.items,
+            spells: data.spells.map((s) => s.data),
+            extra: data.extra,
+          };
         }
       })
       .then((data) => {
+        // handle category filtering
+        if (ids.length > 0) return data;
+        const categoryItems = data.items
+          .map((item) => {
+            item.sources = item.sources.filter((source) =>
+              DDBSources.isSourceInAllowedCategory(source),
+              // && source.sourceType === 1,
+            );
+            return item;
+          })
+          .filter((item) => {
+            if (item.isHomebrew) return true;
+            return item.sources.length > 0;
+          });
         return {
-          items: data.items,
-          spells: data.spells.map((s) => s.data),
+          items: categoryItems,
+          spells: data.spells,
           extra: data.extra,
         };
       })
       .then((data) => {
+        // handle generic item filtering
         const genericNames = data.items.filter((item) => !item.canBeAddedToInventory).map((i) => utils.nameString(i.name));
         CONFIG.DDBI.GENERIC_EQUIPMENT = new Set([...CONFIG.DDBI.GENERIC_EQUIPMENT, ...genericNames]);
 
+        // handle source filtering
         const filteredItems = useGenerics ? data.items : data.items.filter((item) => item.canBeAddedToInventory);
         return {
           items: (sources.length === 0 || !useSourceFilter)
@@ -188,6 +209,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         };
       })
       .then((data) => {
+        // handle homebrew filtering
         if (sources.length > 0) return data;
         if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only")) {
           return {
