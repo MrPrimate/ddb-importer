@@ -266,7 +266,7 @@ export async function getNPCImage(npcData, {
     const tokenizerName = isStock
       ? npcType
       : npcData.name;
-    const autoOptions = { name: tokenizerName, nameSuffix: `-${compendiumLabel}`, updateActor: false };
+    const autoOptions = { name: tokenizerName, nameSuffix: `-${book}${rules}${compendiumLabel}`, updateActor: false };
     // eslint-disable-next-line require-atomic-updates
     npcData.prototypeToken.texture.src = await window.Tokenizer.autoToken(npcData, autoOptions);
     logger.debug(`Generated tokenizer image at ${npcData.prototypeToken.texture.src}`);
