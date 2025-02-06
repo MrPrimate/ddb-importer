@@ -38,6 +38,7 @@ export default class SpiritualWeapon extends DDBEnricherData {
             DDBEnricherData.basicDamagePart({
               number: 1,
               denomination: 8,
+              bonus: "@mod",
               type: "force",
               scalingMode: "half",
               scalingNumber: 1,
