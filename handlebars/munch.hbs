@@ -53,6 +53,7 @@
   <section class="tab" data-tab="sources">
       <div>
           <h3>Choose Ingredients</h3>
+          <p>If any books are selected here DDB Importer will filter content that is _only_ in that book. Please note that sometimes DDB marks a book as from it's first source only, e.g. the SRD/Basic rules for some monsters.</p>
           {{#each sourceConfig}}
           <div class="munching-source-config">
             <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
@@ -65,7 +66,8 @@
               <button type="button" id="munch-source-select" class="munch-button" enabled>Select books to use (for monsters, spells, items)</button>
           </div>
           <h3>Excluded Flavour Profiles</h3>
-          <div class="form-fields" id="munch-excluded-div">
+          <p>DDB Importer will exclude any content that belongs in any of the following source categories. Please adjust to taste.</p>
+          <div class="form-fields" id="munch-excluded-config">
             <multi-select id="muncher-excluded-source-categories" name="muncher-excluded-source-categories">
                 {{#each excludedSources}}
                 <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
