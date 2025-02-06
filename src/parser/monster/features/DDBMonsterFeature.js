@@ -212,6 +212,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     this.name = name.trim();
     this.ddbMonster = ddbMonster;
+    this.is2014 = ddbMonster.is2014;
+    this.is2024 = !this.is2014;
     this.type = type;
     this.html = html ?? "";
     this.titleHTML = titleHTML ?? undefined;

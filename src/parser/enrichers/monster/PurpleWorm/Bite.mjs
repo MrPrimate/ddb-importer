@@ -8,30 +8,45 @@ export default class Bite extends DDBEnricherData {
   }
 
   get activity() {
+    console.warn(this);
     return {
-      name: "Bite",
-      activationType: "action",
+      name: this.is2014
+        ? this.ddbEnricher?._originalActivity?.type === "damage"
+          ? "Swallowed Damage"
+          : "Bite"
+        : this.ddbEnricher?._originalActivity?.type === "check"
+          ? "Escape Check"
+          : "Bite",
+      activationType: this.is2014
+        ? this.ddbEnricher?._originalActivity?.type === "damage"
+          ? "special"
+          : "action"
+        : this.ddbEnricher?._originalActivity?.type === "check"
+          ? "special"
+          : "action",
     };
   }
 
   get effects() {
-    return [
-      {
-        name: "Purple Worm: Swallowed",
-        activityMatch: "Bite",
-        statuses: ["Blinded", "Restrained"],
-      },
-    ];
+    return this.is2014
+      ? [
+        {
+          name: "Purple Worm: Swallowed",
+          activityMatch: "Bite",
+          statuses: ["Blinded", "Restrained"],
+        },
+      ]
+      : [];
   }
 
-  rename({ enricher } = {}) {
-    enricher.data.system.activities.damageDamageIIII.name = "Swallowed Damage";
-  }
+  // rename({ enricher } = {}) {
+  //   if (this.is2014) enricher.data.system.activities.damageDamageIIII.name = "Swallowed Damage";
+  // }
 
-  get override() {
-    return {
-      func: this.rename,
-    };
-  }
+  // get override() {
+  //   return {
+  //     func: this.rename,
+  //   };
+  // }
 
 }
