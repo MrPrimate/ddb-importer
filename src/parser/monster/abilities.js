@@ -29,10 +29,11 @@ import DDBMonster from "../DDBMonster.js";
  */
 DDBMonster.prototype._generateAbilities = function _generateAbilities() {
   // go through every ability
+  const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+  const proficiencyBonus = cr.proficiencyBonus;
   DICTIONARY.actor.abilities.forEach((ability) => {
     const value = this.source.stats.find((stat) => stat.statId === ability.id).value || 0;
     const proficient = this.source.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
-    const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
     this.npc.system.abilities[ability.value]['value'] = value;
@@ -50,9 +51,15 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
 
   this.abilities = this.npc.system.abilities;
 
-  // hack until leg init is added to DDB
-  if (this.source.isLegendary && this.is2024) {
-    this.npc.system.attributes.init.bonus = "10";
+  if (foundry.utils.hasProperty(this.source, 'extraInitiative') && Number.isInteger(parseInt(this.source.extraInitiative))) {
+    const bonus = parseInt(this.source.extraInitiative) - this.npc.system.abilities.dex.mod;
+    if ((bonus / 2) === parseInt(proficiencyBonus)) {
+      this.npc.system.attributes.init.bonus = "2 * @prof";
+    } else if (bonus === parseInt(proficiencyBonus)) {
+      this.npc.system.attributes.init.bonus = "@prof";
+    } else {
+      this.npc.system.attributes.init.bonus = `${bonus}`;
+    }
   }
 
 };
