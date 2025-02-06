@@ -6,6 +6,7 @@
 - Spiritual Weapon mod damage did not parse out.
 - Cantrips granted by class features did not get potent spellcasting applied.
 - Purple Worm 2024 Parsing Fixes
+- Further improvements to detect correct proficiency bonus on higher CR monsters
 
 # 6.0.73
 
