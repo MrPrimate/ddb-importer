@@ -7,6 +7,7 @@ import {
   base64Check,
   DDBCompendiumFolders,
   utils,
+  DDBSources,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
@@ -20,7 +21,6 @@ import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
 import { parseBackgrounds } from "../muncher/backgrounds.js";
 import { parseTransports } from "../muncher/vehicles.js";
-import DDBSources from "./DDBSources.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
@@ -71,10 +71,6 @@ export default class DDBMuncher extends Application {
     html.find("#munch-vehicles-start").click(async () => {
       DDBMuncher.munchVehicles();
     });
-    html.find("#munch-source-select").click(async () => {
-      new DDBSources().render(true);
-    });
-
     html.find("#munch-spells-start").click(async () => {
       DDBMuncher.munchNote(`Downloading spells...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
@@ -163,17 +159,27 @@ export default class DDBMuncher extends Application {
         [
           '.munching-generic-config input[type="checkbox"]',
           '.munching-source-config input[type="checkbox"]',
-          '.munching-excluded-config multi-select',
           '.munching-spell-config input[type="checkbox"]',
           '.munching-item-config input[type="checkbox"]',
           '.munching-monster-config input[type="checkbox"]',
           '.munching-monster-world-update-config input[type="checkbox"]',
         ].join(","),
       )
-      .on("change", (event) => {
-        MuncherSettings.updateMuncherSettings(html, event, this);
+      .on("change", async (event) => {
+        await MuncherSettings.updateMuncherSettings(html, event, this);
       });
 
+    $(html)
+      .find('#muncher-excluded-source-categories')
+      .on("change", async (event) => {
+        await DDBSources.updateExcludedCategories(Array.from(event.target._value));
+      });
+
+    $(html)
+      .find('#muncher-source-select')
+      .on("change", async (event) => {
+        await DDBSources.updateSelectedSources(Array.from(event.target._value));
+      });
 
     html.find("#monster-munch-filter").on("keyup", (event) => {
       event.preventDefault();

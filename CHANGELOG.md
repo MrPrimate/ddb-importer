@@ -1,4 +1,4 @@
-# 6.0.74
+# Next Up
 
 - Force more unique names when auto-tokenising
 - Fix Compendium Folders using Source Categories -> CR.

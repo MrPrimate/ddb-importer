@@ -1271,7 +1271,7 @@ export class DDBCompendiumFolders {
 
   static getAllSourceCategoryFolders(type) {
     const results = [];
-    for (const data of DDBSources.validSourceCategories()) {
+    for (const data of DDBSources.getDisplaySourceCategories()) {
       results.push(DDBCompendiumFolders.getSourceCategoryFolderName({
         type,
         categoryId: data.id,

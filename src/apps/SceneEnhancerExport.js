@@ -1,5 +1,4 @@
-import DDBSources from "./DDBSources.js";
-import { logger, FileHelper } from "../lib/_module.mjs";
+import { logger, FileHelper, MuncherSettings } from "../lib/_module.mjs";
 
 
 /**
@@ -297,7 +296,7 @@ export class SceneEnhancerExport extends Application {
     const selectedBooks = this.bookCode
       ? CONFIG.DDB.sources.filter((s) => s.name.toLowerCase() === this.bookCode).map((s) => s.id)
       : [];
-    this.books = DDBSources.getSourcesLookups(selectedBooks).map((b) => {
+    this.books = MuncherSettings.getSourcesLookups(selectedBooks).map((b) => {
       if (b.selected) {
         this.compendiumBookSet = true;
         this.downloadBookSet = true;

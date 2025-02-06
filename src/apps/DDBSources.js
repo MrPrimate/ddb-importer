@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
+import MuncherSettings from "../lib/MuncherSettings.mjs";
 import DDBMuncher from "./DDBMuncher.js";
 
 export default class DDBSources extends FormApplication {
@@ -8,22 +8,6 @@ export default class DDBSources extends FormApplication {
     options.template = "modules/ddb-importer/handlebars/sources.hbs";
     options.width = 500;
     return options;
-  }
-
-  static getSourcesLookups(selected) {
-    const selections = CONFIG.DDB.sources
-      .filter((source) => source.isReleased && source.sourceCategoryId !== 9 && source.sourceCategoryId !== 3)
-      .map((source) => {
-        const details = {
-          id: source.id,
-          acronym: source.name,
-          label: source.description,
-          selected: selected.includes(source.id),
-        };
-        return details;
-      });
-
-    return selections;
   }
 
   get title() { // eslint-disable-line class-methods-use-this
@@ -50,13 +34,9 @@ export default class DDBSources extends FormApplication {
 
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
-    const existingSelection = game.settings.get("ddb-importer", "munching-policy-muncher-sources").flat();
-    const sources = DDBSources.getSourcesLookups(existingSelection);
 
     return {
-      sources: sources.sort((a, b) => {
-        return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
-      }),
+      sources: MuncherSettings.getSourcesLookups(),
     };
   }
 
@@ -73,12 +53,4 @@ export default class DDBSources extends FormApplication {
     new DDBMuncher().render(true);
   }
 
-
-  static validSourceCategories() {
-    const excludedSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories");
-    return CONFIG.DDB.sourceCategories.filter((c) =>
-      !DICTIONARY.sourceCategories.excluded.includes(c.id)
-      && !excludedSources.includes(c.id),
-    );
-  }
 }

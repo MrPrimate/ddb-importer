@@ -4,9 +4,9 @@ import {
   Secrets,
   FileHelper,
   PatreonHelper,
+  DDBSources,
 } from "./_module.mjs";
-import DDBSources from "../apps/DDBSources.js";
-import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 import { SystemHelpers } from "../parser/lib/_module.mjs";
 
 const MuncherSettings = {
@@ -462,10 +462,10 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
     const sourceArray = enableSources
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").flat()
+      ? DDBSources.getSelectedSourceIds()
       : [];
     const sourcesSelected = enableSources && sourceArray.length > 0;
-    const sourceNames = DDBSources.getSourcesLookups(sourceArray).filter((source) => source.selected).map((source) => source.label);
+    const sourceNames = MuncherSettings.getSourcesLookups().filter((source) => source.selected).map((source) => source.label);
     const homebrewDescription = sourcesSelected
       ? "Include homebrew? SOURCES SELECTED! You can't import homebrew with a source filter selected"
       : "Include homebrew?";
@@ -721,23 +721,26 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
-    const exlcudedIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories");
-    const availableCats = CONFIG.DDB.sourceCategories
-      .filter((cat) => !DICTIONARY.sourceCategories.excluded.includes(cat.id));
+    const excludedCategories = MuncherSettings.getExcludedCategoriesLookup();
+    const bookSources = MuncherSettings.getSourcesLookups();
 
-    const excludedSources = availableCats.map((cat) => {
-      return {
-        id: cat.id,
-        selected: exlcudedIds.includes(cat.id) ? "selected" : "",
-        label: cat.name,
-      };
+    const selectedSources = MuncherSettings.getSourcesLookups().map((source) => {
+      const data = foundry.utils.deepClone(source);
+      if (source.selected) {
+        data.selected = "selected";
+      } else {
+        data.selected = "";
+      }
+      return data;
     });
 
     const resultData = {
+      bookSources,
       cobalt,
       genericConfig,
       sourceConfig,
-      excludedSources,
+      selectedSources,
+      excludedCategories,
       monsterConfig,
       spellConfig,
       itemConfig,
@@ -755,16 +758,47 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       isCampaign,
     };
 
-    console.warn(resultData);
-
     return resultData;
   },
 
-  // eslint-disable-next-line complexity
-  updateMuncherSettings: (html, event, dialog) => {
+
+  getSourcesLookups: (overrideSelected = null) => {
+    const selected = (overrideSelected ?? DDBSources.getSelectedSourceIds()).map((id) => parseInt(id));
+    const selections = DDBSources.getAvailableSources()
+      .map((source) => {
+        const details = {
+          id: source.id,
+          acronym: source.name,
+          label: source.description,
+          selected: selected.includes(source.id),
+        };
+        return details;
+      });
+
+    return selections.sort((a, b) => {
+      return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+    });
+  },
+
+  getExcludedCategoriesLookup: () => {
+    const excludedCatIds = DDBSources.getExcludedCategoryIds();
+    const availableCats = DDBSources.getDisplaySourceCategories();
+
+    const excludedCategories = availableCats.map((cat) => {
+      return {
+        id: cat.id,
+        selected: excludedCatIds.includes(cat.id) ? "selected" : "",
+        label: cat.name,
+      };
+    });
+    return excludedCategories.sort((a, b) => {
+      return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+    });
+  },
+
+  updateMuncherSettings: async (_html, event, _dialog) => {
     const selection = event.currentTarget.dataset.section;
     const checked = event.currentTarget.checked;
-
     logger.debug(`Updating munching-policy-${selection} to ${checked}`);
 
     game.settings.set(SETTINGS.MODULE_ID, "munching-policy-" + selection, checked);
@@ -827,9 +861,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         break;
       }
       case "use-source-filter": {
-        $("#munch-source-select").prop("disabled", !checked);
         $("#munch-source-div").toggleClass("ddbimporter-hidden");
-        dialog.render(true);
         break;
       }
       // no default

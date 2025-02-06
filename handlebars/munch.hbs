@@ -49,7 +49,7 @@
   </section>
 
 
-      <!-- Settings Tab -->
+  <!-- Sources Tab -->
   <section class="tab" data-tab="sources">
       <div>
           <h3>Choose Ingredients</h3>
@@ -63,21 +63,26 @@
           </div>
           {{/each}}
           <div id="munch-source-div" {{#if enableSources}}{{else}}class="ddbimporter-hidden"{{/if}}>
-              <button type="button" id="munch-source-select" class="munch-button" enabled>Select books to use (for monsters, spells, items)</button>
+            <multi-select id="muncher-source-select" name="muncher-source-select">
+              {{#each selectedSources}}
+              <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+              {{/each}}
+            </multi-select>
           </div>
           <h3>Excluded Flavour Profiles</h3>
           <p>DDB Importer will exclude any content that belongs in any of the following source categories. Please adjust to taste.</p>
           <div class="form-fields" id="munch-excluded-config">
             <multi-select id="muncher-excluded-source-categories" name="muncher-excluded-source-categories">
-                {{#each excludedSources}}
-                <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
-                {{/each}}
+              {{#each excludedCategories}}
+              <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+              {{/each}}
             </multi-select>
           </div>
       </div>
   </section>
 
 
+ <!-- Spells Tab -->
   <section class="tab" data-tab="spells">
       <div class="form-section">
           <div class="form-description">

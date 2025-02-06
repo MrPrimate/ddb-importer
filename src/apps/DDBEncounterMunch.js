@@ -589,8 +589,8 @@ export default class DDBEncounterMunch extends Application {
       .find(
         ['.munching-generic-config input[type="checkbox"]', '.munching-monster-config input[type="checkbox"]'].join(","),
       )
-      .on("change", (event) => {
-        MuncherSettings.updateMuncherSettings(html, event);
+      .on("change", async (event) => {
+        await MuncherSettings.updateMuncherSettings(html, event);
       });
 
     $(html)

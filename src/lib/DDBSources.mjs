@@ -1,4 +1,4 @@
-import { SETTINGS } from "../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 
 export default class DDBSources {
 
@@ -161,6 +161,55 @@ export default class DDBSources {
       name: "Homebrew",
       description: "Homebrew",
     });
+  }
+
+  static getSelectedSourceIds() {
+    return game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources")
+      .map((id) => parseInt(id));
+  }
+
+  static getExcludedCategoryIds() {
+    return game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories")
+      .map((id) => parseInt(id));
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  static AlwaysExcludedCategoryIds = DICTIONARY.sourceCategories.excluded;
+
+  // eslint-disable-next-line class-methods-use-this
+  static AlwaysHiddenCategoryIds = DICTIONARY.sourceCategories.hidden;
+
+  static getBlockedCategories() {
+    const cats = CONFIG.DDB.sourceCategories
+      .filter((cat) => DDBSources.AlwaysExcludedCategoryIds.includes(cat.id));
+    return cats;
+  }
+
+  static getAvailableCategories() {
+    const availableCats = CONFIG.DDB.sourceCategories
+      .filter((cat) => !DDBSources.AlwaysExcludedCategoryIds.includes(cat.id));
+    return availableCats;
+  }
+
+  static getDisplaySourceCategories() {
+    const excludedSources = [...DDBSources.AlwaysExcludedCategoryIds, ...DDBSources.AlwaysHiddenCategoryIds];
+    return DDBSources.getAvailableCategories()
+      .filter((c) => !excludedSources.includes(c.id));
+  }
+
+  static getAvailableSources() {
+    const excludedIds = DDBSources.getExcludedCategoryIds();
+    const availableSources = CONFIG.DDB.sources
+      .filter((source) => source.isReleased && !excludedIds.includes(source.sourceCategoryId));
+    return availableSources;
+  }
+
+  static async updateSelectedSources(ids) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-sources", ids.map((id) => parseInt(id)));
+  }
+
+  static async updateExcludedCategories(ids) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories", ids.map((id) => parseInt(id)));
   }
 
 }
