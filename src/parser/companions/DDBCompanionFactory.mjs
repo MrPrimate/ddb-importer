@@ -144,7 +144,7 @@ export default class DDBCompanionFactory {
     // console.warn("statblkc divs", { statBlockDivs, athis: this });
     for (const block of statBlockDivs) {
       const name = block
-        .querySelector("h4.compendium-hr")
+        .querySelector("h4.compendium-hr, h5.compendium-hr")
         .textContent
         .trim()
         .toLowerCase()

@@ -1,3 +1,10 @@
+# Next Up
+
+- More under the hood summon processing and monster parsing improvements.
+- Pact of the Chain summons
+- 2014 Primal Companion Summons
+
+
 # 6.0.75
 
 - Homebrew monster importing was broken with certain configurations.

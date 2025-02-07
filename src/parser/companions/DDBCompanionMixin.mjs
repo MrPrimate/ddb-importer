@@ -202,55 +202,32 @@ export default class DDBCompanionMixin {
     return featureFactory.getFeatures(type);
   }
 
+  // async _processFeatureElements(element, featType) {
+  //   let next = element.nextElementSibling;
 
-  async _processFeatureElement(element, featType) {
-    const features = await this.getFeature(element.outerHTML, featType);
-    features.forEach((feature) => {
-      if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
-        && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
-      ) {
-        if (this.removeCreatureOnlyNames) feature.name = feature.name.split("only")[0].split("(")[0].trim();
-        this.npc.items.push(feature);
-      } else if (!this.removeSplitCreatureActions || !feature.name.toLowerCase().includes("only")) {
-        this.npc.items.push(feature);
-      }
-      if (foundry.utils.getProperty(feature, "flags.ddbimporter.levelBonus")) {
-        this.summons.bonuses.attackDamage = "@item.level";
-        this.summons.bonuses.saveDamage = "@item.level";
-      }
-      if (foundry.utils.getProperty(feature, "flags.ddbimporter.spellSave")) {
-        this.summons.match.saves = true;
-      }
-    });
-    return { element, featType };
-  }
+  //   if (!next) return { next, featType };
 
-  async _processFeatureElements(element, featType) {
-    let next = element.nextElementSibling;
+  //   switch (next.innerText.trim().toLowerCase()) {
+  //     case "action":
+  //     case "actions":
+  //       logger.debug("Companion parsing switching to actions");
+  //       return { next, featType: "action" };
+  //     case "reaction":
+  //     case "reactions":
+  //       logger.debug("Companion parsing switching to reactions");
+  //       return { next, featType: "reaction" };
+  //     case "bonus actions":
+  //     case "bonus":
+  //     case "bonus action":
+  //       logger.debug("Companion parsing switching to bonus actions");
+  //       return { next, featType: "bonus" };
+  //     // no default
+  //   }
 
-    if (!next) return { next, featType };
+  //   const result = await this._processFeatureElement(next, featType);
 
-    switch (next.innerText.trim().toLowerCase()) {
-      case "action":
-      case "actions":
-        logger.debug("Companion parsing switching to actions");
-        return { next, featType: "action" };
-      case "reaction":
-      case "reactions":
-        logger.debug("Companion parsing switching to reactions");
-        return { next, featType: "reaction" };
-      case "bonus actions":
-      case "bonus":
-      case "bonus action":
-        logger.debug("Companion parsing switching to bonus actions");
-        return { next, featType: "bonus" };
-      // no default
-    }
-
-    const result = await this._processFeatureElement(next, featType);
-
-    return result;
-  }
+  //   return result;
+  // }
 
   // #extraFeatures() {
   // if (this.name === "Drake Companion") {

@@ -306,18 +306,19 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
     const baseAbilityMod = actor ? actor.system.abilities[baseAbility].mod : diceParse.bonus;
     const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
     const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
-    const finalMods = mods.length > 0
+    const finalMods = extraMods.length > 0
       ? `${useMod} + ${mods}`
       : useMod;
 
-    // console.warn("RESULTS", {
+    // console.warn("RESULTS1", {
     //   text,
     //   diceParse,
     //   baseAbility,
     //   baseAbilityMod,
     //   bonusMod,
     //   useMod,
-    //   finalMods
+    //   finalMods,
+    //   mods,
     // });
 
     const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, finalMods, "");
@@ -328,10 +329,14 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
     //   diceParse,
     //   baseAbility,
     //   document,
+    //   mods
     // });
     // const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, undefined, mods, "");
     // result = `[[/damage ${reParse.diceString}${damageHint} average=true]]`;
-    result = `[[/damage ${diceParse.diceString}${damageHint} average=true]]`;
+    const finalMods = extraMods.length > 0
+      ? ` + ${mods}`
+      : "";
+    result = `[[/damage ${diceParse.diceString}${finalMods}${damageHint} average=true]]`;
   }
 
   return result;
@@ -376,13 +381,14 @@ export function parseDamageRolls({ text, document, actor } = {}) {
         : dmg[3] ?? dmg[2];
 
     if (damage && includesDiceRegExp.test(damage)) {
-      const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document, bonusMods });
+      const parsedDiceDamage = damageRollGenerator({ text: damage, damageType: dmg[4], actor, document, extraMods: bonusMods });
       const replaceValue = `${dmg[1]} ${parsedDiceDamage} damage`;
       // console.warn("DAMAGE PARSE", {
       //   damage,
       //   dmg,
       //   parsedDiceDamage,
       //   replaceValue,
+      //   bonusMods,
       // });
 
       text = text.replace(dmg[0], replaceValue);

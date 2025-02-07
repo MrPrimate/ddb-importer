@@ -5,12 +5,12 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   constructor(block, options = {}) {
     super(block, options);
 
-    this.h4Tag = this.block.querySelector('h4');
+    this.headerTag = this.block.querySelector('h4, h5');
     this.infoTag = null;
 
     // If the h4 tag is found, get the next sibling element
-    if (this.h4Tag) {
-      const nextSibling = this.h4Tag.nextElementSibling;
+    if (this.headerTag) {
+      const nextSibling = this.headerTag.nextElementSibling;
 
       // If the next sibling is a p tag, return its text content
       if (nextSibling.tagName === 'P') {
@@ -216,6 +216,28 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
       // no default
     }
     return "special";
+  }
+
+  async _processFeatureElement(element, featType) {
+    const features = await this.getFeature(element.outerHTML, featType);
+    features.forEach((feature) => {
+      if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
+        && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
+      ) {
+        if (this.removeCreatureOnlyNames) feature.name = feature.name.split("only")[0].split("(")[0].trim();
+        this.npc.items.push(feature);
+      } else if (!this.removeSplitCreatureActions || !feature.name.toLowerCase().includes("only")) {
+        this.npc.items.push(feature);
+      }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.levelBonus")) {
+        this.summons.bonuses.attackDamage = "@item.level";
+        this.summons.bonuses.saveDamage = "@item.level";
+      }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.spellSave")) {
+        this.summons.match.saves = true;
+      }
+    });
+    return { element, featType };
   }
 
   async #generateFeatures() {

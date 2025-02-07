@@ -280,7 +280,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       // check for other
       if (dmg.groups.suffix && dmg.groups.suffix.trim() == "at the start of") other = true;
       const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
-      const profBonus = hasProfBonus && !this.isCompanion ? "@prof" : "";
+      const profBonus = hasProfBonus ? "@prof" : "";
       const levelBonus = dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice); // ? "@item.level" : "";
 
       if (levelBonus) {
