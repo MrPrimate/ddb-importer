@@ -104,6 +104,13 @@ const CR_SUMMONING_FEATURES = [
   "Wild Companion",
 ];
 
+const FIND_FAMILIAR_MATCHES = [
+  "Eldritch Invocations: Pact of the Chain",
+  "Pact of the Chain",
+  "Invocation: Pact of the Chain",
+  "Find Familiar",
+];
+
 
 export const COMPANIONS = {
   COMPANION_FEATURES,
@@ -115,4 +122,5 @@ export const COMPANIONS = {
   CR_SUMMONING_FEATURES,
   MULTI_COMPANIONS_2014,
   MULTI_COMPANIONS_2024,
+  FIND_FAMILIAR_MATCHES,
 };

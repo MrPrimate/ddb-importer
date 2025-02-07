@@ -10,8 +10,9 @@ import { isEqual } from "../../../vendor/lowdash/_module.mjs";
 import DDBSummonsManager from "./DDBSummonsManager.mjs";
 import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 import DDBCompanion2024 from "./DDBCompanion2024.mjs";
-import { CR_DATA, getFindFamiliarActivityData } from "./types/CRSRD.mjs";
+import { CR_DATA } from "./types/CRSRD.mjs";
 import { DICTIONARY } from "../../config/_module.mjs";
+import { getFindFamiliarActivityData } from "./types/FindFamiliar.mjs";
 
 
 export default class DDBCompanionFactory {
@@ -381,8 +382,8 @@ export default class DDBCompanionFactory {
         profiles: CR_DATA[this.originName].profiles,
         creatureTypes: CR_DATA[this.originName].creatureTypes,
       }
-      : this.originName === "Find Familiar"
-        ? await getFindFamiliarActivityData(this.is2014)
+      : DICTIONARY.companions.FIND_FAMILIAR_MATCHES.includes(this.originName)
+        ? await getFindFamiliarActivityData(activity, this.options)
         : null;
 
     if (!summonsData) return;
