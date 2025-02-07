@@ -1,6 +1,8 @@
-import { DICTIONARY } from "../../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, DDBSources, DDBSimpleMacro } from "../../lib/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
+import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
+import DDBSummonsManager from "../companions/DDBSummonsManager.mjs";
 import { DDBGenericEnricher, mixins, Effects, DDBFeatEnricher, DDBSpeciesTraitEnricher, DDBClassFeatureEnricher, DDBBackgroundEnricher } from "../enrichers/_module.mjs";
 import { DDBDataUtils, DDBDescriptions, DDBModifiers, DDBTable, DDBTemplateStrings, SystemHelpers } from "../lib/_module.mjs";
 
@@ -268,6 +270,17 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     this.isCompanionFeature = this._isCompanionFeature();
     this.isCompanionFeatureOption = this._isCompanionFeatureOption();
+
+    const isCompanionFeature = (this.isCompanionFeature || this.isCompanionFeatureOption);
+    this.isCompanionFeature2014 = this.is2014 && isCompanionFeature;
+    this.isCompanionFeature2024 = !this.is2014 && isCompanionFeature;
+    this.isCRSummonFeature2014 = this.is2014 && isCompanionFeature;
+    this.isCRSummonFeature2024 = !this.is2014 && isCompanionFeature;
+
+    this.isSummons = this.isCompanionFeature2014
+      || this.isCompanionFeature2024
+      || this.isCRSummonFeature2014
+      || this.isCRSummonFeature2024;
 
     const localSource = this.source && utils.isObject(this.source)
       ? this.source
@@ -892,7 +905,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return false;
   }
 
-  _getSummonsDescription() {
+  _getFullSummonsDescription() {
     if (this.isCompanionFeatureOption) {
       const ddbOption = this.ddbData.character.options.class.find((o) => o.definition.name == this.companionFeatureOption.childName);
       if (!ddbOption) return null;
@@ -923,7 +936,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   /** @override */
   _getActivitiesType() {
-    if (this.isCompanionFeature || this._isCompanionFeatureOption()) return "summon";
+    if (this.isSummons) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (typeof this.ddbDefinition.saveStatId === "number" || this._descriptionSave) return "save";
     if (this.ddbDefinition.actionType === 1) return "attack";
@@ -939,7 +952,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
-  _generateActivity({ hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null,
+  async _generateActivity({ hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null,
     typeOverride = null } = {}, optionsOverride = {},
   ) {
 
@@ -952,13 +965,22 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     if (hintsOnly && !this.enricher.activity) return undefined;
 
-    return super._generateActivity({
+    const activity = super._generateActivity({
       hintsOnly,
       name,
       nameIdPostfix,
       typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type ?? this.activityType,
     }, optionsOverride);
 
+
+    if (!activity) return undefined;
+    const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
+    if (activityData.type !== "summon") return activity;
+    if (this.isCompanionFeature2014 || this.isCompanionFeature2024)
+      await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData);
+    else if (this.isCRSummonFeature2024 || this.isCRSummonFeature2014)
+      await this.ddbCompanionFactory.addCRSummoning(activityData);
+    return activity;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -977,6 +999,47 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     });
     // eslint-disable-next-line require-atomic-updates
     feature.system.description.value = tableDescription;
+  }
+
+  async _generateSummons() {
+    if (this.enricher.activity?.generateSummons) {
+      const summons = await this.enricher.activity.summonsFunction({
+        ddbParser: this,
+        document: this.data,
+        raw: this.ddbDefinition.description,
+        text: this.data.system.description,
+      });
+
+      await DDBSummonsManager.addGeneratedSummons(summons);
+    }
+  }
+
+  async _generateCompanions() {
+    if (!this.isSummons) return;
+    // console.warn(`Parsing Companion for ${this.data.name}`, {
+    //   this: this,
+    //   dataCLone: deepClone(this.data),
+    //   ddbDef: `${this.ddbDefinition.description}`,
+    // });
+    this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
+      type: "feature",
+      originDocument: this.data,
+      is2014: this.is2014,
+      notifier: this.notifier,
+      folderHint: foundry.utils.getProperty(this.data, "flags.ddbimporter.summons.folder"),
+    });
+    await this.ddbCompanionFactory.parse();
+
+    // always update compendium imports, but respect player import disable
+    const addCompendium = this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions");
+    if (addCompendium) {
+      await this.ddbCompanionFactory.updateOrCreateCompanions();
+    }
+
+    logger.debug(`parsed companions for ${this.data.name}`, {
+      factory: this.ddbCompanionFactory,
+      parsed: this.ddbCompanionFactory.companions,
+    });
   }
 
 }

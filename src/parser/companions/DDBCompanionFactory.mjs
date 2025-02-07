@@ -70,6 +70,7 @@ export default class DDBCompanionFactory {
     const finalOverrides = {
       rules: this.is2014 ? "2014" : "2024",
       type: this.options.type,
+      folderHint: this.options.folderHint,
     };
     const finalOptions = foundry.utils.mergeObject(options, finalOverrides);
 

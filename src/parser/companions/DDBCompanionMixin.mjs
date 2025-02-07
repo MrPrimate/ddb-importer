@@ -320,6 +320,7 @@ export default class DDBCompanionMixin {
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.id", summonsKey);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.entityTypeId", `companion-${this.type}`);
     foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.summonsKey", summonsKey);
+    if (this.options.folderHint) foundry.utils.setProperty(this.npc, "flags.ddbimporter.summons.folder", this.options.folderHint);
 
     foundry.utils.setProperty(this.npc, "system.source.rules", this.rules);
     await this._generate();

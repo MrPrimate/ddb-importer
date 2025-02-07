@@ -97,8 +97,10 @@ export default class DDBChoiceFeature extends DDBFeature {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
+      await this._generateSummons();
+      await this._generateCompanions();
       if (!this.enricher.stopDefaultActivity)
-        this._generateActivity();
+        await this._generateActivity();
       await this.enricher.addAdditionalActivities(this);
 
       this._generateLimitedUse();
@@ -163,7 +165,8 @@ export default class DDBChoiceFeature extends DDBFeature {
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const features = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
-    const choices = (allFeatures ? ddbFeature._parentOnlyChoices : ddbFeature._parentOnlyChosen)
+    const parseAllFeatures = ddbFeature.enricher.parseAllChoiceFeatures || allFeatures;
+    const choices = (parseAllFeatures ? ddbFeature._parentOnlyChoices : ddbFeature._parentOnlyChosen)
       .filter((c) => !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)); ;
     logger.debug(`Processing Choice Features ${choices.map((c) => c.label).join(",")}`, {
       _choices: ddbFeature._choices,
@@ -175,7 +178,13 @@ export default class DDBChoiceFeature extends DDBFeature {
       allFeatures,
     });
 
-    const extraFlags = {};
+    const extraFlags = {
+      ddbimporter: {
+        summons: {
+          folder: ddbFeature.originalName,
+        },
+      },
+    };
 
     for (const flag of DDBChoiceFeature._copyFlags) {
       const realFlag = foundry.utils.getProperty(ddbFeature.data.flags, `ddbimporter.${flag}`);
@@ -217,6 +226,19 @@ export default class DDBChoiceFeature extends DDBFeature {
         }
         if (["", null, undefined].includes(ddbFeature.data.system.uses?.max)) {
           ddbFeature.data.system.uses = choiceFeature.data.system.uses;
+        }
+      } else if (ddbFeature.isCompanionFeatureOption) {
+        // eslint-disable-next-line no-unused-vars
+        for (const [key, activity] of Object.entries(ddbFeature.data.system.activities)) {
+          if (activity.type !== "summon") continue;
+          // eslint-disable-next-line no-unused-vars
+          for (const [cKey, cActivity] of Object.entries(choiceFeature.data.system.activities)) {
+            // eslint-disable-next-line max-depth
+            if (cActivity.type !== "summon") continue;
+            activity.bonuses = cActivity.bonuses;
+            activity.match = cActivity.match;
+            activity.profiles.push(...cActivity.profiles);
+          }
         }
       } else {
         features.push(choiceFeature.data);

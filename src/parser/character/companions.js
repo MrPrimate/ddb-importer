@@ -51,6 +51,8 @@ DDBCharacter.prototype._getCompanionOption = async function(parentFeature, child
 };
 
 DDBCharacter.prototype.generateCompanions = async function() {
+  console.warn("OLD COMPANION PROCESSING DISABLED");
+  return;
   for (const name of DICTIONARY.companions.COMPANION_FEATURES) {
     await this._getCompanionFeature(name);
   }

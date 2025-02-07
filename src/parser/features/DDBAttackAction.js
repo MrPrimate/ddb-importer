@@ -38,8 +38,10 @@ export default class DDBAttackAction extends DDBAction {
       if (this.documentType === "weapon") {
         this._generateDamage();
       }
+      await this._generateSummons();
+      await this._generateCompanions();
       if (!this.enricher.stopDefaultActivity)
-        this._generateActivity();
+        await this._generateActivity();
       await this.enricher.addAdditionalActivities(this);
 
       this._generateResourceFlags();

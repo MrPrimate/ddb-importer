@@ -110,7 +110,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Hunter's Prey",
     "Mantle of Majesty",
     "Pact Boon",
-    "Primal Companion",
+    // "Primal Companion",
     "The Third Eye",
     "Unbreakable Majesty",
   ],
@@ -119,6 +119,7 @@ export const PARSING_CHOICE_FEATURES = {
   ],
   NO_FEATURE_PREFIX_NAME: [
     "Rune Carver",
+    "Primal Companion",
   ],
   NO_CHOICE_BUILD: [
     "Aspect of the Wilds",
@@ -180,6 +181,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Armor Model",
   ],
   USE_ALL_CHOICES: [
+    // "Primal Companion",
   ],
   USE_CHOSEN_ONLY: [
     "Elven Lineage",

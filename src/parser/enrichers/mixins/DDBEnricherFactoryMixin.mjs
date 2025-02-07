@@ -190,6 +190,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get parseAllChoiceFeatures() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.parseAllChoiceFeatures;
+    } else {
+      return false;
+    }
+  }
+
   get ddbMacroDescriptionData() {
     if (this.loadedEnricher) {
       return this.loadedEnricher.ddbMacroDescriptionData;

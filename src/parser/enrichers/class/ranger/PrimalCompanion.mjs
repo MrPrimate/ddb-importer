@@ -12,14 +12,30 @@ export default class PrimalCompanion extends DDBEnricherData {
   }
 
   get additionalActivities() {
-    return [
-      {
-        action: { name: "Primal Companion: Summon", type: "class" },
-      },
-      {
-        action: { name: "Primal Companion: Restore Beast", type: "class" },
-      },
-    ];
+    return this.is2014
+      ? [{
+        constructor: {
+          name: "Summon",
+          type: "summon",
+        },
+        build: {
+          generateRange: true,
+          generateSummon: true,
+          generateConsumption: true,
+        },
+      }]
+      : [
+        {
+          action: { name: "Primal Companion: Summon", type: "class" },
+        },
+        {
+          action: { name: "Primal Companion: Restore Beast", type: "class" },
+        },
+      ];
+  }
+
+  get parseAllChoiceFeatures() {
+    return true;
   }
 
 }

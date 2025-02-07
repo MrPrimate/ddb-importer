@@ -320,6 +320,10 @@ export default class DDBEnricherData {
     return false;
   }
 
+  get parseAllChoiceFeatures() {
+    return false;
+  }
+
   // Add item macro using DDBMacros.setItemMacroFlag
   get itemMacro() {
     return null;

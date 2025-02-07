@@ -183,7 +183,9 @@ export default class DDBFeature extends DDBFeatureMixin {
     this._generateSystemSubType();
     this._generateLimitedUse();
 
-    this._generateActivity({ hintsOnly: true });
+    await this._generateSummons();
+    await this._generateCompanions();
+    await this._generateActivity({ hintsOnly: true });
     await this.enricher.addAdditionalActivities(this);
 
     this._generateDescription({ forceFull: true });
@@ -447,7 +449,9 @@ export default class DDBFeature extends DDBFeatureMixin {
     this._generateSystemType();
     this._generateSystemSubType();
 
-    this._generateActivity({ hintsOnly: true });
+    // await this._generateSummons();
+    // await this._generateCompanions();
+    await this._generateActivity({ hintsOnly: true });
     await this.enricher.addAdditionalActivities(this);
 
     // this._generateLimitedUse();
