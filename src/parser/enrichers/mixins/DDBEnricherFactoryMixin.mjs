@@ -858,9 +858,6 @@ export default class DDBEnricherFactoryMixin {
   }
 
   async _addActivityHintAdditionalActivities(ddbParent) {
-    console.warn("data before additionalactiviies", {
-      data: deepClone(this.data),
-    })
     const additionalActivityHints = this.additionalActivities;
 
     if (!additionalActivityHints) return;

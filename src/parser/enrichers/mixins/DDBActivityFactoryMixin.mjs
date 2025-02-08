@@ -106,6 +106,20 @@ export default class DDBActivityFactoryMixin {
     return activity;
   }
 
+  _getForwardActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const activity = new this.activityGenerator({
+      name,
+      type: "forward",
+      ddbParent: this,
+      nameIdPrefix: "forward",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    activity.build(foundry.utils.mergeObject(options));
+
+    return activity;
+  }
+
   _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const activity = new this.activityGenerator({
       name,
@@ -276,13 +290,14 @@ export default class DDBActivityFactoryMixin {
         return this._getSummonActivity(data, options);
       case "check":
         return this._getCheckActivity(data, options);
-      case "ddbmacro": {
+      case "ddbmacro":
         return this._getDDBMacroActivity(data, options);
-      }
+      case "forward":
+        return this._getForwardActivity(data, options);
       case "cast":
+        return this._getCastActivity(data, options);
       case "teleport":
       case "transform":
-      case "forward":
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
         return undefined;

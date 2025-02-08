@@ -26,10 +26,19 @@ export default class PrimalCompanion extends DDBEnricherData {
       }]
       : [
         {
-          action: { name: "Primal Companion: Summon", type: "class" },
+          action: {
+            name: "Primal Companion: Summon",
+            type: "class",
+          },
+          overrides: {
+            id: "summonPriCSclNe1",
+          },
         },
         {
-          action: { name: "Primal Companion: Restore Beast", type: "class" },
+          action: {
+            name: "Primal Companion: Restore Beast",
+            type: "class",
+          },
         },
       ];
   }
