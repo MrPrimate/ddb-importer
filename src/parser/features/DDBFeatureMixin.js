@@ -1019,13 +1019,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  async _generateCompanions() {
-    if (!this.isSummons) return;
-    // console.warn(`Parsing Companion for ${this.data.name}`, {
-    //   this: this,
-    //   dataCLone: deepClone(this.data),
-    //   ddbDef: `${this.ddbDefinition.description}`,
-    // });
+  createCompanionFactory() {
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "feature",
       originDocument: this.data,
@@ -1033,6 +1027,16 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       notifier: this.notifier,
       folderHint: foundry.utils.getProperty(this.data, "flags.ddbimporter.summons.folder"),
     });
+  }
+
+  async _generateCompanions() {
+    if (!this.isSummons) return;
+    // console.warn(`Parsing Companion for ${this.data.name}`, {
+    //   this: this,
+    //   dataCLone: deepClone(this.data),
+    //   ddbDef: `${this.ddbDefinition.description}`,
+    // });
+    if (!this.ddbCompanionFactory) this.createCompanionFactory();
     await this.ddbCompanionFactory.parse();
 
     // always update compendium imports, but respect player import disable

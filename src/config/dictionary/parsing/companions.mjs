@@ -66,7 +66,7 @@ const COMPANION_FEATURES = [
   "Summon Wildfire Spirit",
   // "Primal Companion",
   "Drake Companion",
-  "Drake Companion: Summon",
+  // "Drake Companion: Summon",
 ];
 
 const COMPANION_OPTIONS = {

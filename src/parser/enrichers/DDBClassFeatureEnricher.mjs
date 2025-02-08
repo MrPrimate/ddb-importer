@@ -427,6 +427,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Wrath of the Storm": ClassEnrichers.Cleric.WrathOfTheStorm,
     "Spell-Refueling Ring (Reaction)": ItemEnrichers.SpellRefuelingRingReaction,
     "Planar Warrior": ClassEnrichers.Ranger.PlanarWarrior,
+    "Bond of Fang and Scale": ClassEnrichers.Ranger.BondOfFangAndScale,
+    "Drake's Breath": ClassEnrichers.Ranger.DrakesBreath,
   };
 
   FALLBACK_ENRICHERS = {

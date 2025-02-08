@@ -1,7 +1,9 @@
 export { default as BeguilingTwist } from "./BeguilingTwist.mjs";
 export { default as BestialFury } from "./BestialFury.mjs";
+export { default as BondOfFangAndScale } from "./BondOfFangAndScale.mjs";
 export { default as DefensiveTactics } from "./DefensiveTactics.mjs";
 export { default as DrakeCompanion } from "./DrakeCompanion.mjs";
+export { default as DrakesBreath } from "./DrakesBreath.mjs";
 export { default as DreadAmbusher } from "./DreadAmbusher.mjs";
 export { default as DreadfulStrike } from "./DreadfulStrike.mjs";
 export { default as DreadfulStrikeMassFear } from "./DreadfulStrikeMassFear.mjs";

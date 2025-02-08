@@ -227,7 +227,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         if (["", null, undefined].includes(ddbFeature.data.system.uses?.max)) {
           ddbFeature.data.system.uses = choiceFeature.data.system.uses;
         }
-      } else if (ddbFeature.isCompanionFeatureOption) {
+      } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {
         // eslint-disable-next-line no-unused-vars
         for (const [key, activity] of Object.entries(ddbFeature.data.system.activities)) {
           if (activity.type !== "summon") continue;

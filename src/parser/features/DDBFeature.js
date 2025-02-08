@@ -449,8 +449,8 @@ export default class DDBFeature extends DDBFeatureMixin {
     this._generateSystemType();
     this._generateSystemSubType();
 
-    // await this._generateSummons();
-    // await this._generateCompanions();
+    await this._generateSummons();
+    await this._generateCompanions();
     await this._generateActivity({ hintsOnly: true });
     await this.enricher.addAdditionalActivities(this);
 

@@ -282,6 +282,15 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(number);
+    } else if (this.data.name.startsWith("Drake Warden")) {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Drake Companion") continue;
+        advancement.configuration.type = "dice";
+        advancement.configuration.scale = {
+          7: { number: 1, faces: 6 },
+          15: { number: 2, faces: 6 },
+        };
+      };
     }
 
   }

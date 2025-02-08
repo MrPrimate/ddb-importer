@@ -161,6 +161,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Forked Tongue",
     "Cosmic Omen",
     "Armor Model",
+    "Drake Companion",
+    "Bond of Fang and Scale",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -233,6 +235,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Celestial Revelation",
     "Raging Storm",
     "Storm Soul",
+    "Drake Companion",
+    "Bond of Fang and Scale",
     // "Maneuver Options",
   ],
 };
