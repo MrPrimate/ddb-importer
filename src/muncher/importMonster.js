@@ -478,7 +478,9 @@ export async function generateIconMap(monsters) {
 
 export function copyExistingMonsterImages(monsters, existingMonsters) {
   const updated = monsters.map((monster) => {
-    const existing = existingMonsters.find((m) => monster.name === m.name);
+    const existing = existingMonsters.find((m) => monster.name === m.name
+      && monster.system.source.rules === m.system.source.rules,
+    );
     if (existing) {
       monster.img = existing.img;
       for (const key of Object.keys(monster.prototypeToken)) {
