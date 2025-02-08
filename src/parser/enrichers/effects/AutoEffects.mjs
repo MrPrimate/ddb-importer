@@ -239,10 +239,10 @@ export default class AutoEffects {
     };
 
     if (parsedStatus.group4) {
-      ChangeHelper.addStatusEffectChange({ effect, statusName: parsedStatus.group4Condition });
+      ChangeHelper.addStatusEffectChange({ effect, statusName: parsedStatus.condition });
       DDBDescriptions.addSpecialDurationFlagsToEffect(effect, parsedStatus.match);
-      if (nameHint) effect.name = `${nameHint}: ${parsedStatus.group4Condition}`;
-      else effect.name = `Status: ${parsedStatus.group4Condition}`;
+      if (nameHint) effect.name = `${nameHint}: ${parsedStatus.conditionName}`;
+      else effect.name = `Status: ${parsedStatus.conditionName}`;
       effect.img = CONFIG.DND5E.conditionTypes[parsedStatus.condition]?.icon ?? null;
     } else if (parsedStatus.condition === "dead") {
       ChangeHelper.addStatusEffectChange({ effect, statusName: "Dead" });
@@ -254,6 +254,10 @@ export default class AutoEffects {
         status,
       });
       return null;
+    }
+
+    if (parsedStatus.riderStatuses) {
+      effect.statuses.push(...parsedStatus.riderStatuses);
     }
 
     return effect;

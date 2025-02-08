@@ -124,6 +124,16 @@ export default class DDBDescriptions {
     return effect;
   }
 
+  static getRiderStatusEffects({ text, condition } = {}) {
+    const checkReg = new RegExp(`While ${condition}, the target has the (.*) condition`, "i");
+    const match = checkReg.exec(text);
+    if (match) {
+      const processedCondition = DDBDescriptions.getConditionInfo(match[1]);
+      return [processedCondition.condition];
+    }
+    return [];
+  }
+
   // A selection of example conditions
   // DC 18 Strength saving throw or be knocked prone
   // DC 14 Constitution saving throw or become poisoned for 1 minute.
@@ -155,6 +165,7 @@ export default class DDBDescriptions {
   // DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
 
 
+  // eslint-disable-next-line complexity
   static dcParser({ text } = {}) {
     const results = {
       save: {
@@ -174,6 +185,7 @@ export default class DDBDescriptions {
         type: null,
         value: null,
       },
+      riderStatuses: [],
     };
 
     let parserText = utils.nameString(text)
@@ -253,6 +265,13 @@ export default class DDBDescriptions {
       };
     }
 
+    if (match && match.groups["condition"]) {
+      results.riderStatuses = DDBDescriptions.getRiderStatusEffects({
+        text,
+        condition: match.groups["condition"],
+      });
+    }
+
     results.match = match;
 
     if (match?.groups.durationUnits) {
@@ -263,6 +282,39 @@ export default class DDBDescriptions {
     }
 
     return results;
+  }
+
+  static getConditionInfo(condition, hint) {
+    const result = {
+      success: true,
+      condition: null,
+      group4: null,
+      group4Condition: null,
+      conditionName: utils.capitalize(condition),
+    };
+    result.condition = condition.toLowerCase();
+    // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
+    const group4Condition = condition
+      ? DICTIONARY.actor.damageAdjustments
+        .filter((type) => type.type === 4)
+        .find(
+          (type) => type.name.toLowerCase() === condition.toLowerCase()
+            || type.foundryValue === condition.toLowerCase(),
+        )
+      : undefined;
+    if (group4Condition) {
+      result.condition = group4Condition.foundryValue;
+      result.group4 = true;
+      result.group4Condition = group4Condition;
+      result.conditionName = group4Condition.name;
+    } else if (hint === "die") {
+      result.condition = "dead";
+      result.conditionName = "Dead";
+    } else {
+      result.success = false;
+      logger.debug(`Odd condition ${condition} found`);
+    }
+    return result;
   }
 
   static parseStatusCondition({ text } = {}) {
@@ -279,6 +331,7 @@ export default class DDBDescriptions {
       condition: null,
       group4: null,
       group4Condition: null,
+      conditionName: null,
       duration: {
         seconds: null,
         rounds: null,
@@ -288,6 +341,7 @@ export default class DDBDescriptions {
       },
       specialDurations: [],
       match: null,
+      riderStatuses: [],
     };
 
     let parserText = utils.nameString(text);
@@ -301,27 +355,22 @@ export default class DDBDescriptions {
       result.condition = match.groups["condition"];
 
       result.save = matchResults.save;
-      // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
-      const group4Condition = match.groups.condition
-        ? DICTIONARY.actor.damageAdjustments
-          .filter((type) => type.type === 4)
-          .find(
-            (type) => type.name.toLowerCase() === match.groups.condition.toLowerCase()
-              || type.foundryValue === match.groups.condition.toLowerCase(),
-          )
-        : undefined;
-      if (group4Condition) {
-        result.condition = group4Condition.value;
-        result.group4 = true;
-        result.group4Condition = group4Condition.name;
-      } else if (match.groups.hint && match.groups.hint === "die") {
-        result.condition = "dead";
+
+      const parsedCondition = DDBDescriptions.getConditionInfo(match.groups["condition"], match.groups.hint);
+      // console.warn({parsedCondition, matchResults});
+      if (parsedCondition.success) {
+        result.condition = parsedCondition.condition;
+        result.conditionName = parsedCondition.conditionName;
+        result.group4 = parsedCondition.group4;
+        // group 4 condition - .e.g. "DC 18 Strength saving throw or be knocked prone"
+        result.group4Condition = parsedCondition.group4Condition;
       } else {
         logger.debug(`Odd condition ${result.condition} found`, {
           text,
         });
         return result;
       }
+
       result.success = true;
       const duration = DDBDescriptions.getDuration(parserText);
 
@@ -333,6 +382,8 @@ export default class DDBDescriptions {
       }
       result.specialDurations = duration.dae ?? [];
     }
+
+    result.riderStatuses = matchResults.riderStatuses;
 
     return result;
   }
