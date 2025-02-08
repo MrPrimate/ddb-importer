@@ -190,7 +190,7 @@ export default class DDBMonsterFactory {
 
     const monsterSource = monsters.length > 0 ? monsters : this.source;
 
-    const totalMonsters = this.source.length + 1;
+    const totalMonsters = this.source.length;
     let i = this.currentDocument;
     logger.time("Monster Parsing");
     for (const monster of monsterSource) {
@@ -346,7 +346,7 @@ export default class DDBMonsterFactory {
       const sourceDocuments = this.source.slice(i, i + 100);
       logger.debug(`Processing documents for ${i + 1} to ${i + 100}`, { sourceDocuments, this: this });
       const documents = await this.#createMonsterDocuments({ monsters: this.source.slice(i, i + 100), i });
-      const monsterCount = this.currentDocument + documents.length;
+      const monsterCount = this.currentDocument + documents.length - 1;
       this.notifier(`Setting the table for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, true);
       await this.compendiumFolders.createMonsterFoldersForDocuments({ documents });
       this.notifier(`Preparing dinner for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, true);

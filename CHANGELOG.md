@@ -3,7 +3,7 @@
 - More under the hood summon processing and monster parsing improvements.
 - Pact of the Chain summons
 - 2014 Primal Companion Summons
-
+- Some generated effect icons would not get images set.
 
 # 6.0.75
 
