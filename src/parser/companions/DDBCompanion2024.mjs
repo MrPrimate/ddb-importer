@@ -218,8 +218,8 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     return "special";
   }
 
-  async _processFeatureElement(element, featType) {
-    const features = await this.getFeature(element.outerHTML, featType);
+  async _processFeatureElement(html, featType) {
+    const features = await this.getFeature(html, featType);
     features.forEach((feature) => {
       if (this.removeSplitCreatureActions && feature.name.toLowerCase().includes("only")
         && feature.name.toLowerCase().includes(this.options.subType.toLowerCase())
@@ -237,21 +237,23 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
         this.summons.match.saves = true;
       }
     });
-    return { element, featType };
   }
 
   async #generateFeatures() {
     for (const header of this.block.querySelectorAll('.monster-header')) {
       let now = header.nextElementSibling;
-      let featType = DDBCompanion2024._getActionType(header.innerText);
+      const featType = DDBCompanion2024._getActionType(header.innerText);
+      let block = now.outerHTML;
       while (now !== null) {
-        await this._processFeatureElement(now, featType);
         if (now.nextElementSibling === null || now.nextElementSibling.classList.contains('monster-header')) {
           now = null;
         } else {
           now = now.nextElementSibling;
+          block += `\r\n`;
+          block += now.outerHTML;
         }
       }
+      await this._processFeatureElement(block, featType);
     };
   }
 

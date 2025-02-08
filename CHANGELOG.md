@@ -4,6 +4,8 @@
 - Pact of the Chain summons
 - 2014 Primal Companion Summons
 - Some generated effect icons would not get images set.
+- More fixes for monsters getting the wrong images if 2014/2024 monsters in same compendium on update.
+- Monsters like the Carrion Crawler 2024 will now parse any rider conditions such as Paralyzed whist Poisoned.
 
 # 6.0.75
 
