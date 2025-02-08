@@ -93,6 +93,7 @@ export default class DDBClassFeatures {
   }
 
   async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} } = {}) {
+    logger.debug(`DDBClassFeatures._getFeatures started for ${type} of ${source} for ${featureDefinition.definition?.name ?? featureDefinition.name}`);
     const enricher = new DDBClassFeatureEnricher({
       activityGenerator: DDBFeatureActivity,
       fallbackEnricher: "Generic",

@@ -858,12 +858,15 @@ export default class DDBEnricherFactoryMixin {
   }
 
   async _addActivityHintAdditionalActivities(ddbParent) {
+    console.warn("data before additionalactiviies", {
+      data: deepClone(this.data),
+    })
     const additionalActivityHints = this.additionalActivities;
 
     if (!additionalActivityHints) return;
     if (!this.activityGenerator) return;
 
-    let i = this.data.system.activities.length ?? 0 + 1;
+    let i = Object.keys(this.data.system.activities).length ?? 0 + 1;
     for (const activityHint of additionalActivityHints) {
       const actionActivity = foundry.utils.getProperty(activityHint, "action");
       const duplicate = foundry.utils.getProperty(activityHint, "duplicate");

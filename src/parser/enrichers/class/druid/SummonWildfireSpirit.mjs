@@ -2,6 +2,19 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class SummonWildfireSpirit extends DDBEnricherData {
+
+  get type() {
+    return "summon";
+  }
+
+  get activity() {
+    return {
+      name: "Summon Wildfire Spirit",
+      addItemConsume: true,
+      itemConsumeTargetName: "Wild Shape",
+    };
+  }
+
   get additionalActivities() {
     return [
       {
@@ -53,6 +66,21 @@ export default class SummonWildfireSpirit extends DDBEnricherData {
               type: "fire",
             }),
           ],
+        },
+      },
+      {
+        constructor: {
+          name: "Command Spirit",
+          type: "utility",
+        },
+        build: {
+          noeffect: true,
+          generateConsumption: false,
+          generateTarget: true,
+        },
+        overrides: {
+          targetType: "creature",
+          activationType: "bonus",
         },
       },
     ];

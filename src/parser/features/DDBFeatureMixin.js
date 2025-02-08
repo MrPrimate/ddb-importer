@@ -980,6 +980,11 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData);
     else if (this.isCRSummonFeature2024 || this.isCRSummonFeature2014)
       await this.ddbCompanionFactory.addCRSummoning(activityData);
+
+    logger.verbose("Generated Activity", {
+      activity: foundry.utils.deepClone(activity),
+      this: this,
+    });
     return activity;
   }
 

@@ -352,9 +352,16 @@ export default class DDBDescriptions {
       const match = matchResults.match;
       result.match = match;
       if (match.groups.type === "check") result.check = true;
+      result.save = matchResults.save;
+
       result.condition = match.groups["condition"];
 
-      result.save = matchResults.save;
+      if (!result.condition) {
+        logger.debug(`Not condition found`, {
+          text,
+        });
+        return result;
+      }
 
       const parsedCondition = DDBDescriptions.getConditionInfo(match.groups["condition"], match.groups.hint);
       // console.warn({parsedCondition, matchResults});

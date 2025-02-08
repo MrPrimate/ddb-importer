@@ -107,7 +107,7 @@ export const PARSING_ACTIONS = {
     "Step of the Wind: Fleet Step",
     "Step of the Wind",
     "Stonecunning (Tremorsense)",
-    "Summon Wildfire Spirit: Command",
+    // "Summon Wildfire Spirit: Command",
     "Superiority Dice",
     "Telekinetic Master: Weapon Attack",
     "Unerring Strike",
