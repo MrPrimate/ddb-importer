@@ -9478,5 +9478,9 @@
   {
     "name": "Psychic Slam",
     "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Paralyzing Tentacles",
+    "path":"icons/commodities/biological/tentacle-purple-white.webp"
   }
 ]
