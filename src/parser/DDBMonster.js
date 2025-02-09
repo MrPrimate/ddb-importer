@@ -19,7 +19,7 @@ export default class DDBMonster {
   }
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false } = {}, overrides = {},
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null } = {}, overrides = {},
   ) {
     this.source = ddbObject;
 
@@ -60,8 +60,10 @@ export default class DDBMonster {
 
     this.featureFactory = new DDBMonsterFeatureFactory({ ddbMonster: this });
 
-    this.is2014 = false;
-    this.is2024 = true;
+    // set during source generation
+    this.is2014 = null;
+    this.is2024 = null;
+    this.use2024Spells = use2024Spells;
 
   }
 

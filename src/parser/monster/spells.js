@@ -347,8 +347,10 @@ DDBMonster.prototype._generateSpells = function() {
  */
 DDBMonster.prototype.retrieveCompendiumSpells = async function(spells) {
   const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
-  const compendiumItems = await CompendiumHelper.retrieveMatchingCompendiumItems(spells, compendiumName);
-  const itemData = compendiumItems.map((i) => {
+  const compendiumSpells = await CompendiumHelper.retrieveMatchingCompendiumItems(spells, compendiumName, {
+    "system.source.rules": this.use2024Spells ? "2024" : "2014",
+  });
+  const itemData = compendiumSpells.map((i) => {
     let spell = i.toObject();
     delete spell._id;
     return spell;

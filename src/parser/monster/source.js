@@ -35,4 +35,6 @@ DDBMonster.prototype._generateSource = function _generateSource() {
   this.is2024 = !this.is2014;
 
   this.npc.system.source.rules = this.is2014 ? "2014" : "2024";
+
+  this.use2024Spells = this.use2024Spells ?? this.is2024;
 };

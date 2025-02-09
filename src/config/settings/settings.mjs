@@ -869,7 +869,7 @@ const SETTINGS = {
           },
           "munching-policy-delete-during-update": {
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-use-srd": {
             scope: "player",

@@ -2,11 +2,12 @@
 
 - More under the hood summon processing and monster parsing improvements.
 - Pact of the Chain summons for Find Familiar
+- Drakewarden Parsing Improvements.
 - 2014 Primal Companion Summons, Drakewarden Summons, and Wildfire Spirit Summons fixes
 - Some generated effect icons would not get images set.
 - More fixes for monsters getting the wrong images if 2014/2024 monsters in same compendium on update.
 - Monsters like the Carrion Crawler 2024 will now parse any rider conditions such as Paralyzed whist Poisoned.
--Drakewarden Parsing Improvements.
+- Monsters will now parse the spells relating to the version of the rules they use. (Options to use a different version will be forthcoming).
 
 # 6.0.75
 
