@@ -429,7 +429,7 @@ const SETTINGS = {
           name: "ddb-importer.settings.use-deep-file-paths.name",
           hint: "ddb-importer.settings.use-deep-file-paths.hint",
           type: Boolean,
-          default: false,
+          default: true,
           // requiresReload: true,
         },
       },

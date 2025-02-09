@@ -471,6 +471,9 @@ export default class Iconizer {
         large: null,
       };
 
+      const rules = item.system.source?.rules ?? "2024";
+      const book = utils.normalizeString(item.system.source?.book ?? "");
+
       const pathPostfix = useDeepPaths ? `/item/${item.type}` : "";
 
       if (foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond")) {
@@ -478,8 +481,16 @@ export default class Iconizer {
           const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
           if (avatarUrl && avatarUrl != "") {
             utils.munchNote(`Downloading ${item.name} image`, true);
-            const imageNamePrefix = useDeepPaths ? "" : "item";
-            const downloadOptions = { type: "item", name: item.name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
+            const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-item`;
+            const downloadOptions = {
+              type: "item",
+              name: item.name,
+              download: downloadImages,
+              remoteImages,
+              targetDirectory,
+              pathPostfix,
+              imageNamePrefix,
+            };
             const smallImage = await FileHelper.getImagePath(avatarUrl, downloadOptions);
             // logger.debug(`Final image ${smallImage}`);
             itemImage.img = smallImage;
@@ -488,9 +499,17 @@ export default class Iconizer {
         if (item.flags.ddbimporter.dndbeyond.largeAvatarUrl) {
           const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
           if (largeAvatarUrl && largeAvatarUrl != "") {
-            const imageNamePrefix = useDeepPaths ? "" : "item";
+            const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-item`;
             const name = useDeepPaths ? `${item.name}-large` : item.name;
-            const downloadOptions = { type: "item-large", name, download: downloadImages, remoteImages, targetDirectory, pathPostfix, imageNamePrefix };
+            const downloadOptions = {
+              type: "item-large",
+              name,
+              download: downloadImages,
+              remoteImages,
+              targetDirectory,
+              pathPostfix,
+              imageNamePrefix,
+            };
             const largeImage = await FileHelper.getImagePath(largeAvatarUrl, downloadOptions);
             itemImage.large = largeImage;
             if (!itemImage.img) itemImage.img = largeImage;
@@ -512,8 +531,6 @@ export default class Iconizer {
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
-    const imageNamePrefix = useDeepPaths ? "" : type;
-
     for (const item of this.documents) {
       // eslint-disable-next-line no-continue
       if (item.type !== type || item.img) continue;
@@ -521,6 +538,9 @@ export default class Iconizer {
       // eslint-disable-next-line no-continue
       if (!ddbImg || ddbImg === "") continue;
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
+      const rules = item.system.source?.rules ?? "2024";
+      const book = utils.normalizeString(item.system.source?.book ?? "");
+      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-${type}`;
       const name = useDeepPaths ? `${item.name}` : item.name;
       const downloadOptions = {
         type,
@@ -547,7 +567,14 @@ export default class Iconizer {
     const pathPostfix = useDeepPaths ? "/ddb/item" : "";
 
     const itemMap = DICTIONARY.items.map(async (item) => {
-      const downloadOptions = { type: "item", name: item.filterType, download: true, targetDirectory, pathPostfix, imageNamePrefix };
+      const downloadOptions = {
+        type: "item",
+        name: item.filterType,
+        download: true,
+        targetDirectory,
+        pathPostfix,
+        imageNamePrefix,
+      };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
       let itemIcons = {
         filterType: item.filterType,
@@ -569,7 +596,14 @@ export default class Iconizer {
     const pathPostfix = useDeepPaths ? "/ddb/loot" : "";
 
     const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
-      const downloadOptions = { type: "equipment", name: item.name, download: true, targetDirectory, pathPostfix, imageNamePrefix };
+      const downloadOptions = {
+        type: "equipment",
+        name: item.name,
+        download: true,
+        targetDirectory,
+        pathPostfix,
+        imageNamePrefix,
+      };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
       let itemIcons = {
         name: item.name,
