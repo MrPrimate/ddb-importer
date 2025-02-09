@@ -17,6 +17,8 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static NO_CHOICE_ACTIVITY = DICTIONARY.parsing.choiceFeatures.NO_CHOICE_ACTIVITY;
 
+  static OVERRIDE_CHOICE_FEATURE = DICTIONARY.parsing.choiceFeatures.OVERRIDE_CHOICE_FEATURE;
+
   _prepare() {
     this._levelScale = null;
     this._levelScales = null;
@@ -85,7 +87,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         this.data.name = nameMatch[1];
         this.resourceCharges = Number.parseInt(nameMatch[2]);
       }
-      this.originalName = this.data.name;
+      this.originalName = `${this.data.name}`;
       foundry.utils.setProperty(this.data, "flags.ddbimporter.originalName", this.originalName);
       await this.loadEnricher();
       this._generateSystemSubType();
@@ -97,6 +99,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
 
+      this._checkSummons();
       await this._generateSummons();
       await this._generateCompanions();
       if (!this.enricher.stopDefaultActivity)
@@ -122,7 +125,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       this.data._id = foundry.utils.randomID();
 
       this.cleanup();
-      this.enricher.addDocumentOverride();
+      await this.enricher.addDocumentOverride();
       await this._addEffects(choice, this.type);
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 
@@ -162,6 +165,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "subClassId",
   ];
 
+  // eslint-disable-next-line complexity
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const features = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
@@ -216,15 +220,20 @@ export default class DDBChoiceFeature extends DDBFeature {
         && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
       ) {
         ddbFeature.data.name = choiceFeature.data.name;
-        if (Object.keys(ddbFeature.data.system.activities).length === 0
-          && !DDBChoiceFeature.NO_CHOICE_ACTIVITY.some((a) => ddbFeature.originalName.startsWith(a))
+        if ((Object.keys(ddbFeature.data.system.activities).length === 0
+          && !DDBChoiceFeature.NO_CHOICE_ACTIVITY.some((a) => ddbFeature.originalName.startsWith(a)))
+          || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
         ) {
           ddbFeature.data.system.activities = choiceFeature.data.system.activities;
         }
-        if (ddbFeature.data.effects.length === 0) {
+        if (ddbFeature.data.effects.length === 0
+          || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
+        ) {
           ddbFeature.data.effects = choiceFeature.data.effects;
         }
-        if (["", null, undefined].includes(ddbFeature.data.system.uses?.max)) {
+        if (["", null, undefined].includes(ddbFeature.data.system.uses?.max)
+          || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
+        ) {
           ddbFeature.data.system.uses = choiceFeature.data.system.uses;
         }
       } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {

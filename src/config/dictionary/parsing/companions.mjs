@@ -100,15 +100,24 @@ const CR_SUMMONING_SPELLS_2024 = [
   "Find Familiar",
 ];
 
-const CR_SUMMONING_FEATURES = [
+const CR_SUMMONING_FEATURES_2014 = [
   "Wild Companion",
+  "Pact Boon: Pact of the Chain",
+  "Pact of the Chain",
+];
+
+const CR_SUMMONING_FEATURES_2024 = [
+  "Wild Companion",
+  "Eldritch Invocations: Pact of the Chain",
+  "Pact of the Chain",
 ];
 
 const FIND_FAMILIAR_MATCHES = [
-  "Eldritch Invocations: Pact of the Chain",
-  "Pact of the Chain",
-  "Invocation: Pact of the Chain",
   "Find Familiar",
+  "Pact of the Chain",
+  "Pact Boon: Pact of the Chain",
+  "Invocation: Pact of the Chain",
+  "Eldritch Invocations: Pact of the Chain",
 ];
 
 
@@ -119,7 +128,8 @@ export const COMPANIONS = {
   COMPANION_OPTIONS,
   CR_SUMMONING_SPELLS_2014,
   CR_SUMMONING_SPELLS_2024,
-  CR_SUMMONING_FEATURES,
+  CR_SUMMONING_FEATURES_2014,
+  CR_SUMMONING_FEATURES_2024,
   MULTI_COMPANIONS_2014,
   MULTI_COMPANIONS_2024,
   FIND_FAMILIAR_MATCHES,

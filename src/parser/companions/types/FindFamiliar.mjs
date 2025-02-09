@@ -174,44 +174,59 @@ const animals2024 = [
 export async function getFindFamiliarActivityData(activity, options) {
   const is2014 = options.is2014;
   const rules = is2014 ? "2014" : "2024";
-  console.warn(options);
 
   const monsterFactory = new DDBMonsterFactory();
   const baseMap = is2014 ? animals2014 : animals2024;
   const packMap = is2014 ? pactFamiliars2014 : pactFamiliars2024;
 
   const isPactActivity = activity.name === "Find Familiar (Expanded Options)";
-  const isPactSpell = options.originDocument?.flags?.ddbimporter?.dndbeyond?.lookupName === "Pact of the Chain";
-  const isPactFeature = options.originDocument?.ddbimporter?.originalName === "Pact of the Chain";
+  const isPactSpell = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.dndbeyond.lookupName") === "Pact of the Chain";
+  const isPactFeature = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.originalName").includes("Pact of the Chain");
 
-  if (isPactActivity && (isPactSpell || isPactFeature)) {
-    await monsterFactory.processIntoCompendium(packMap.map((i) => i.id));
-  } else {
-    await monsterFactory.processIntoCompendium(baseMap.map((i) => i.id));
-  }
+  const mapInUse = isPactActivity && (isPactSpell || isPactFeature) ? packMap : baseMap;
+
+  await monsterFactory.processIntoCompendium(mapInUse.map((i) => i.id));
 
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
   await ddbCompendium?.getIndex({ fields: ["name", "system.source.rules"] });
 
   const profiles = [];
 
-  for (const familiar of baseMap) {
+  for (const familiar of mapInUse) {
     const i = ddbCompendium?.index.find((i) => i.name === familiar.name && i.system.source.rules === rules);
-    if (i) profiles.push(i.uuid);
+    if (i) profiles.push({
+      name: familiar.name,
+      uuid: i.uuid,
+    });
   }
+
+  const profilesChoice = is2014 || isPactActivity
+    ? profiles
+    : [
+      {
+        count: "1",
+        cr: "0",
+        name: "CR 0 Beast",
+        types: ["beast"],
+      },
+    ];
+
+  // console.warn("data", {
+  //   baseMap,
+  //   packMap,
+  //   isPactSpell,
+  //   isPactFeature,
+  //   isPactActivity,
+  //   profiles,
+  //   profilesChoice,
+  //   mapInUse,
+  //   options,
+  //   activity,
+  // });
 
   const activityData = {
     creatureTypes: ["celestial", "fey", "fiend"],
-    profiles: is2014 || isPactActivity
-      ? profiles
-      : [
-        {
-          count: "1",
-          cr: "0",
-          name: "CR 0 Beast",
-          types: ["beast"],
-        },
-      ],
+    profiles: profilesChoice,
     creatureSizes: [],
     match: {
       attacks: false,
@@ -220,7 +235,7 @@ export async function getFindFamiliarActivityData(activity, options) {
     },
     summon: {
       identifier: "",
-      mode: is2014 ? "" : "cr",
+      mode: is2014 || isPactActivity ? "" : "cr",
       prompt: true,
     },
     bonuses: {
@@ -231,5 +246,8 @@ export async function getFindFamiliarActivityData(activity, options) {
       healing: "",
     },
   };
+
+  logger.verbose("Final find familiar Activity Data", activityData);
+
   return activityData;
 }

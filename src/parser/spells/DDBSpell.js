@@ -789,7 +789,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     optionsOverride = {},
   ) {
 
-    const activity = super._generateActivity({
+    const activity = await super._generateActivity({
       hintsOnly,
       name,
       nameIdPostfix,
@@ -954,7 +954,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }
 
     this.cleanup();
-    this.enricher.addDocumentOverride();
+    await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 

@@ -192,7 +192,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     await this._addEffects(undefined, this.type);
 
     this.cleanup();
-    this.enricher.addDocumentOverride();
+    await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 
@@ -432,7 +432,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";
       this.data.name = this.data.name.split("Background: ").pop();
 
-      this.enricher.addDocumentOverride();
+      await this.enricher.addDocumentOverride();
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
     } catch (err) {
       logger.warn(
@@ -502,7 +502,7 @@ ${description}`;
     // this._generateResourceFlags();
     // this._addCustomValues();
 
-    this.enricher.addDocumentOverride();
+    await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
   }
 

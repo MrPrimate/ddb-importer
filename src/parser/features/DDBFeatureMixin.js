@@ -185,6 +185,24 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       return null;
   }
 
+  _checkSummons() {
+    this.isCompanionFeature = this._isCompanionFeature();
+    this.isCompanionFeatureOption = this._isCompanionFeatureOption();
+
+    const isCompanionFeature = (this.isCompanionFeature || this.isCompanionFeatureOption);
+    this.isCompanionFeature2014 = this.is2014 && isCompanionFeature;
+    this.isCompanionFeature2024 = !this.is2014 && isCompanionFeature;
+    this.isCRSummonFeature2014 = this.is2014
+      && DICTIONARY.companions.CR_SUMMONING_FEATURES_2014.includes(this.originalName);
+    this.isCRSummonFeature2024 = !this.is2014
+      && DICTIONARY.companions.CR_SUMMONING_FEATURES_2024.includes(this.originalName);
+
+    this.isSummons = this.isCompanionFeature2014
+      || this.isCompanionFeature2024
+      || this.isCRSummonFeature2014
+      || this.isCRSummonFeature2024;
+  }
+
   constructor({
     ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, isGeneric = false, activityType = null,
     extraFlags = {}, enricher = null, ddbCharacter = null, fallbackEnricher = null, usesOnActivity = false,
@@ -268,19 +286,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     this.naturalWeapon = DDBFeatureMixin.NATURAL_WEAPONS.includes(this.originalName);
 
-    this.isCompanionFeature = this._isCompanionFeature();
-    this.isCompanionFeatureOption = this._isCompanionFeatureOption();
-
-    const isCompanionFeature = (this.isCompanionFeature || this.isCompanionFeatureOption);
-    this.isCompanionFeature2014 = this.is2014 && isCompanionFeature;
-    this.isCompanionFeature2024 = !this.is2014 && isCompanionFeature;
-    this.isCRSummonFeature2014 = this.is2014 && isCompanionFeature;
-    this.isCRSummonFeature2024 = !this.is2014 && isCompanionFeature;
-
-    this.isSummons = this.isCompanionFeature2014
-      || this.isCompanionFeature2024
-      || this.isCRSummonFeature2014
-      || this.isCRSummonFeature2024;
+    this._checkSummons();
 
     const localSource = this.source && utils.isObject(this.source)
       ? this.source
@@ -965,7 +971,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     if (hintsOnly && !this.enricher.activity) return undefined;
 
-    const activity = super._generateActivity({
+    const activity = await super._generateActivity({
       hintsOnly,
       name,
       nameIdPostfix,

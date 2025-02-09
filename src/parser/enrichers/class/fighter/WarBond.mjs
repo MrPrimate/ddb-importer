@@ -41,7 +41,7 @@ export default class WarBond extends DDBEnricherData {
           generateConsumption: true,
           activationOverride: {
             value: "1",
-            units: "hour",
+            type: "hour",
           },
           rangeOverride: {
             units: "self",
@@ -75,7 +75,7 @@ export default class WarBond extends DDBEnricherData {
           generateConsumption: true,
           activationOverride: {
             value: "1",
-            units: "hour",
+            type: "hour",
           },
           rangeOverride: {
             units: "self",

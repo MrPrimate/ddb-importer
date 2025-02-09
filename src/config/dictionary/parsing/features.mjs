@@ -109,7 +109,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Druidic Warrior",
     "Hunter's Prey",
     "Mantle of Majesty",
-    "Pact Boon",
     // "Primal Companion",
     "The Third Eye",
     "Unbreakable Majesty",
@@ -181,12 +180,14 @@ export const PARSING_CHOICE_FEATURES = {
     "Defensive Tactics",
     "Elven Lineage",
     "Armor Model",
+    "Pact Boon",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
   ],
   USE_CHOSEN_ONLY: [
     "Elven Lineage",
+    "Pact Boon",
   ],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",
@@ -238,5 +239,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Drake Companion",
     "Bond of Fang and Scale",
     // "Maneuver Options",
+  ],
+  OVERRIDE_CHOICE_FEATURE: [
+    "Eldritch Invocations",
   ],
 };

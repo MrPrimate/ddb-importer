@@ -374,6 +374,11 @@ export default class DDBCompanionFactory {
   }
 
   async addCRSummoning(activity) {
+    // console.warn("Adding CR Summoning", {
+    //   this: this,
+    //   originName: this.originName,
+    //   activity,
+    // });
     const summonsData = CR_DATA[this.originName]
       ? {
         summon: {
@@ -389,6 +394,7 @@ export default class DDBCompanionFactory {
 
     if (!summonsData) return;
     const activityData = foundry.utils.mergeObject(activity, summonsData);
+    // console.warn("Final summons Activity Data", foundry.utils.deepClone(activityData));
     delete this.originDocument.system.activities[activity._id];
     this.originDocument.system.activities[activity._id] = activityData;
   }

@@ -2731,10 +2731,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       if (this.documentType !== "container") {
         // containers can't have activities.
         if (!this.enricher.stopDefaultActivity)
-          this._generateActivity({}, this.activityOptions);
+          await this._generateActivity({}, this.activityOptions);
         this.#addHealAdditionalActivities();
         if (this.enricher.addAutoAdditionalActivities)
-          this._generateAdditionalActivities();
+          await this._generateAdditionalActivities();
         await this.enricher.addAdditionalActivities(this);
       }
 
@@ -2749,7 +2749,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       await this._addEffects();
 
       this.cleanup();
-      this.enricher.addDocumentOverride();
+      await this.enricher.addDocumentOverride();
 
       this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
 

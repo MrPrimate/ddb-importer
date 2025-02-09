@@ -1246,10 +1246,10 @@ ${this.data.system.description.value}
     }
 
     if (!this.actionCopy) {
-      this._generateActivity();
+      await this._generateActivity();
       this.#addHealAdditionalActivities();
       if (this.enricher.addAutoAdditionalActivities)
-        this._generateAdditionalActivities();
+        await this._generateAdditionalActivities();
       await this.enricher.addAdditionalActivities(this);
       this._generateEffects();
     }
@@ -1263,7 +1263,7 @@ ${this.data.system.description.value}
 
     await this.#generateDescription();
 
-    this.enricher.addDocumentOverride();
+    await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(this.data.name.toLowerCase());
 
     logger.debug(`Parsed Feature ${this.name} for ${this.ddbMonster.name}`, { feature: this });

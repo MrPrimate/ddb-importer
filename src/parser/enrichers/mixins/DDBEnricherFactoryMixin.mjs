@@ -299,7 +299,7 @@ export default class DDBEnricherFactoryMixin {
   }
 
   // eslint-disable-next-line complexity
-  _applyActivityDataOverride(activity, overrideData) {
+  async _applyActivityDataOverride(activity, overrideData) {
     if (overrideData.name) activity.name = overrideData.name;
     if (overrideData.id) activity._id = overrideData.id;
 
@@ -500,17 +500,21 @@ export default class DDBEnricherFactoryMixin {
       foundry.utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
     }
 
-    if (overrideData.func) overrideData.func(activity);
+    if (overrideData.func) {
+      await overrideData.func({ activity });
+    }
 
     return activity;
   }
 
-  applyActivityOverride(activityData) {
+  async applyActivityOverride(activityData) {
     this.originalActivity = activityData;
     const activity = this.activity;
     if (!activity) return activityData;
 
-    return this._applyActivityDataOverride(activityData, activity);
+    const result = await this._applyActivityDataOverride(activityData, activity);
+
+    return result;
   }
 
   createDefaultEffects() {
@@ -722,7 +726,7 @@ export default class DDBEnricherFactoryMixin {
       }
 
       if (effectHint?.func) {
-        effectHint.func(effect);
+        await effectHint.func({ effect });
       }
 
       if (effectHint.descriptionHint && effectHint.type === "enchant") {
@@ -741,7 +745,7 @@ export default class DDBEnricherFactoryMixin {
     return effects;
   }
 
-  addDocumentOverride() {
+  async addDocumentOverride() {
     const override = this.override;
 
     if (!override) return this.data;
@@ -793,7 +797,7 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (override?.func) {
-      override.func({
+      await override.func({
         enricher: this,
       });
     }
@@ -892,7 +896,7 @@ export default class DDBEnricherFactoryMixin {
       for (let activity of Object.values(activityData.activities)) {
         if (activityHint.overrides) {
           this.originalActivity = activity;
-          activity = this._applyActivityDataOverride(activity, activityHint.overrides);
+          activity = await this._applyActivityDataOverride(activity, activityHint.overrides);
         }
 
         this.data.system.activities[activity._id] = activity;

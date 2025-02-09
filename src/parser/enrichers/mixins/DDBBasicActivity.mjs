@@ -510,12 +510,12 @@ export default class DDBBasicActivity {
     });
 
     activity.build(options);
-    enricher?.applyActivityOverride(activity.data);
+    await enricher?.applyActivityOverride(activity.data);
 
     const effects = await enricher?.createEffects() ?? [];
     document.effects.push(...effects);
     enricher?.createDefaultEffects();
-    enricher?.addDocumentOverride();
+    await enricher?.addDocumentOverride();
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
     await enricher?.addAdditionalActivities(enricher?.ddbParent);
 

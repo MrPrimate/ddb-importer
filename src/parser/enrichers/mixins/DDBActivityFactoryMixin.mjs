@@ -304,7 +304,7 @@ export default class DDBActivityFactoryMixin {
     }
   }
 
-  _generateActivity({
+  async _generateActivity({
     hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null, typeFallback = null,
   } = {}, optionsOverride = {},
   ) {
@@ -340,7 +340,7 @@ export default class DDBActivityFactoryMixin {
 
     if (!this.activityType) this.activityType = activity.data.type;
 
-    this.enricher.applyActivityOverride(activity.data);
+    await this.enricher.applyActivityOverride(activity.data);
     this.activities.push(activity);
 
     if (this.enricher.activity?.addSingleFreeUse) {
@@ -373,11 +373,12 @@ export default class DDBActivityFactoryMixin {
     return activity.data._id;
   }
 
-  _generateAdditionalActivities() {
+  async _generateAdditionalActivities() {
     if (!this.enricher.addAutoAdditionalActivities) return;
     if (this.additionalActivities.length === 0) return;
-    this.additionalActivities.forEach((activityData, i) => {
-      const id = this._generateActivity({
+    let i = 0;
+    for (const activityData of this.additionalActivities) {
+      const id = await this._generateActivity({
         hintsOnly: false,
         name: activityData.name,
         nameIdPostfix: i,
@@ -388,7 +389,8 @@ export default class DDBActivityFactoryMixin {
         activityData,
         id,
       });
-    });
+      i++;
+    }
   }
 
 
