@@ -1,7 +1,7 @@
 # Next Up
 
 - More under the hood summon processing and monster parsing improvements.
-- Pact of the Chain summons
+- Pact of the Chain summons for Find Familiar
 - 2014 Primal Companion Summons, Drakewarden Summons, and Wildfire Spirit Summons fixes
 - Some generated effect icons would not get images set.
 - More fixes for monsters getting the wrong images if 2014/2024 monsters in same compendium on update.
