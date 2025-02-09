@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.76
 
 - More under the hood summon processing and monster parsing improvements.
 - Pact of the Chain summons for Find Familiar
@@ -7,7 +7,7 @@
 - Some generated effect icons would not get images set.
 - More fixes for monsters getting the wrong images if 2014/2024 monsters in same compendium on update.
 - Monsters like the Carrion Crawler 2024 will now parse any rider conditions such as Paralyzed whist Poisoned.
-- Monsters will now parse the spells relating to the version of the rules they use. (Options to use a different version will be forthcoming).
+- Monsters will now parse the spells relating to the version of the rules they use. (Options to use a different version will be forthcoming). Major changes to monster spell parsing will be coming shortly to support using the Cast activity, improved levelling and 2024 casting via features.
 
 # 6.0.75
 
