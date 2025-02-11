@@ -1,12 +1,14 @@
 import { logger, DDBItemImporter, utils, CompendiumHelper } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
+import ACBonusEffects from "../enrichers/effects/ACBonusEffects.mjs";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 
 // eslint-disable-next-line complexity
 DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = []) {
+  const originalAc = this.source.armorClass;
   const ac = {
-    flat: this.source.armorClass,
+    flat: originalAc,
     calc: "",
     formula: "",
     label: this.source.armorClassDescription ? this.source.armorClassDescription.replace("(", "").replace(")", "") : "",
@@ -17,8 +19,6 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   const stat = this.source.stats.find((stat) => stat.statId === 2).value || 10;
   const dexBonus = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
   const baseAc = 10 + parseInt(dexBonus);
-
-  let acItems = [];
 
   const lowerDescription = this.source.armorClassDescription ? this.source.armorClassDescription.toLowerCase() : "";
   const descriptionItems = this.source.armorClassDescription
@@ -97,18 +97,28 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const rawItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "inventory", { monsterMatch: true });
-  const unAttunedItems = rawItems.filter((i) => i.type !== "weapon"); // filter out weapons for now
-  const attunedItems = unAttunedItems.map((item) => {
-    if (item.system.attunement === 1) item.system.attunement = 2;
-    if (foundry.utils.hasProperty(item.system.equipped)) item.system.equipped = true;
-    const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
-    if (check) {
-      item.system.quantity = check.system.quantity;
+  const rawItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "equipment", { monsterMatch: true });
+  const adjustedItems = rawItems
+    .filter((item) => item.type !== "weapon")
+    .map((item) => {
+      if (item.system.attunement === 1) item.system.attunement = 2;
+      if (foundry.utils.hasProperty(item.system.equipped)) item.system.equipped = true;
+      const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
+      if (check) {
+        item.system.quantity = check.system.quantity;
+      }
+      return item;
+    });
+
+  const acItems = adjustedItems.filter((i) => {
+    if (["light", "medium", "heavy", "shield"].includes(i.system.type?.value)) return true;
+    if (i.system.type.value === "trinket") {
+      if ((i.effects ?? []).some((e) => e.key.includes("ac"))) return true;
     }
-    return item;
+    return false;
   });
 
+  // update weapons imported as features with quantity
   for (const item of this.items) {
     if (item.type !== "weapon") continue;
     const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
@@ -117,48 +127,20 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
     }
   }
 
-  logger.debug("Found items", { unAttunedItems, attunedItems, rawItems });
-  const allItemsMatched = attunedItems.length > 0 && attunedItems.length == itemsToCheck.length;
+  logger.debug("Found items", { adjustedItems, rawItems });
+  const allItemsMatched = adjustedItems.length > 0 && adjustedItems.length == itemsToCheck.length;
   const badACMonster = this.BAD_AC_MONSTERS.includes(this.source.name.toLowerCase());
 
-  if (attunedItems.length === 0 && ac.calc !== "natural" && baseAc !== ac.flat) {
-    ac.calc = "natural";
-    flatAC = false;
-  } else if (this.useItemAC && ac.calc !== "natural" && !badACMonster) {
-    ac.flat = null;
-    ac.calc = "default";
-    ac.formula = "";
-    flatAC = false;
-  } else if ((!this.useItemAC && ac.calc !== "natural") || attunedItems.length === 0) {
-    // default monsters with no ac equipment to natural
-    ac.calc = "natural";
-    flatAC = false;
-  }
-
-  this.ac = {
-    ac,
-    flatAC,
-    acItems,
-    dexBonus,
-    ddbItems: this.useItemAC ? attunedItems : [], // only add items if we are told too
-    attunedItems,
-    allItemsMatched,
-    badACMonster,
-    rawItems,
-  };
-
-  logger.debug(`${this.source.name} ac calcs`, this.ac);
-  this.npc.system.attributes.ac = ac;
-  this.npc.flags.ddbimporter.flatAC = flatAC;
-  if (this.useItemAC) this.items.push(...attunedItems);
 
   const spellCastingAC = this.items.find(
     (i) => i.name.includes("Spellcasting") && i.system.description.value.includes("Mage Armor (included in AC)"),
   );
 
+  const effects = [];
+
   if (spellCastingAC) {
     const compendium = CompendiumHelper.getCompendiumLabel("monster");
-    this.npc.effects.push({
+    effects.push({
       img: "icons/magic/defensive/shield-barrier-glowing-triangle-blue.webp",
       name: "Mage Armor",
       statuses: [],
@@ -166,7 +148,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
         {
           key: "system.attributes.ac.calc",
           value: "mage",
-          mode: 5,
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           priority: 5,
         },
       ],
@@ -196,5 +178,54 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
       system: {},
       origin: `Compendium.${compendium}.Actor.${this.npc._id}.Item.${spellCastingAC._id}`,
     });
+    const maAC = 13 + parseInt(dexBonus);
+    if (acItems.length === 0 && ac.flat > maAC) {
+      const effect = ACBonusEffects.ACEffect("AC Bonus");
+      effect.disabled = false;
+      effect.transfer = true;
+      effect.changes.push({
+        key: "system.attributes.ac.bonus",
+        value: `${ac.flat - maAC}`,
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        priority: 30,
+      });
+      effects.push(effect);
+    }
   }
+
+  if (acItems.length === 0 && ac.calc !== "natural" && baseAc !== ac.flat) {
+    // some kind o bonus in play, set to natural
+    ac.calc = "natural";
+    flatAC = false;
+  } else if (this.useItemAC && ac.calc !== "natural" && !badACMonster) {
+    ac.flat = null;
+    ac.calc = "default";
+    ac.formula = "";
+    flatAC = false;
+  } else if ((!this.useItemAC && ac.calc !== "natural") || adjustedItems.length === 0) {
+    // default monsters with no ac equipment to natural
+    ac.calc = "natural";
+    flatAC = false;
+  }
+
+  this.npc.effects.push(...effects);
+
+  this.ac = {
+    ac,
+    flatAC,
+    acItems,
+    dexBonus,
+    ddbItems: this.useItemAC ? adjustedItems : [], // only add items if we are told too
+    adjustedItems,
+    allItemsMatched,
+    badACMonster,
+    rawItems,
+    effects,
+  };
+
+  logger.debug(`${this.source.name} ac calcs`, this.ac);
+  this.npc.system.attributes.ac = ac;
+  this.npc.flags.ddbimporter.flatAC = flatAC;
+  if (this.useItemAC) this.items.push(...adjustedItems);
+
 };
