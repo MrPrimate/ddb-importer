@@ -775,6 +775,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       || matchText.match(targets);
   }
 
+  // eslint-disable-next-line complexity
   getTarget() {
     let target = {
       template: {
@@ -826,6 +827,25 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       target.template.size = sphereMatch[1];
       target.template.units = "ft";
       target.template.type = "sphere";
+    } else {
+      const aoeSizeRegex = /(?<!one creature you can see |an object you can see )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+
+      // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
+      const aoeSizeMatch = aoeSizeRegex.exec(matchText);
+
+      console.warn(`Target generation for ${this.name}`, {
+        aoeSizeMatch,
+      });
+
+      if (aoeSizeMatch) {
+        const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
+        target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+        target.template.size = aoeSizeMatch[1] ?? "";
+        target.template.units = "ft";
+        if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
+          this.actionInfo.range.units = "self";
+        }
+      }
     }
 
     if (target.template.type === "" && this.healingAction) {
@@ -840,6 +860,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
 
+    console.warn(`Target generation for ${this.name}`, {
+      target,
+      this: this,
+    })
 
     return target;
   }
@@ -1382,6 +1406,7 @@ ${this.data.system.description.value}
 
   #getSpellcastingSpells() {
     const html = this.html
+      .replace("Illusionbr/&gt; ", "Illusion</p><p> ") // faerie dragon parsing issue
       .replaceAll(/<br>/g, "</p><p>")
       .replaceAll(/<br \/>/g, "</p><p>");
 
@@ -1449,10 +1474,10 @@ ${this.data.system.description.value}
   }
 
   async #buildOtherSpellActivities() {
-    const basicRegex = /The (?:.*) casts (.*?)( in response to (?:the|that) spell’s trigger)?, using the same spellcasting ability as Spellcasting/i;
+    const basicRegex = /The (?:.*) casts(?: the)? (.*?)(?: spell| on that creature)?(?: in response to (?:the|that) spell’s trigger)?, using the same spellcasting ability as Spellcasting/i;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
-    const useRegex = /The (?:.*) uses Spellcasting to cast (.*?)\./i;
+    const useRegex = /The (?:.*) uses Spellcasting to cast (.*?)( on itself)?(?:, and it can|\.)/i;
     const useMatch = this.strippedHtml.match(useRegex);
     const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (.*?)\./i;
     const canCastMatch = this.strippedHtml.match(canCastRegex);
@@ -1483,6 +1508,10 @@ ${this.data.system.description.value}
           // quantity: "2",
           // consumeType: "itemUses",
         };
+
+        if (matches[2]) {
+          spell.extra = matches[2].trim();
+        }
 
         if (perUseMatch) {
           spell.period = perUseMatch[1].trim();

@@ -540,12 +540,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         description: "Hide monster action description from players?",
         enabled: true,
       },
-      {
-        name: "monster-items",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-items"),
-        description: "[Experimental] Load attack/weapon items from DDB compendium instead of parsing action/attack? (Poor success rate).",
-        enabled: true,
-      },
+      // temporarily disabled
+      // {
+      //   name: "monster-items",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-items"),
+      //   description: "[Experimental] Load attack/weapon items from DDB compendium instead of parsing action/attack? (Poor success rate).",
+      //   enabled: true,
+      // },
       {
         name: "monster-use-item-ac",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-use-item-ac"),

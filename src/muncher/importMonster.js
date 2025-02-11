@@ -293,6 +293,9 @@ export async function getNPCImage(npcData, {
 }
 
 async function swapItems(data) {
+  // temporarily disabled
+  return;
+  // eslint-disable-next-line no-unreachable
   const swap = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-items");
 
   if (swap) {
@@ -306,6 +309,7 @@ async function swapItems(data) {
       logger.debug(`${item.name} to ${item.flags.ddbimporter.originalItemName}`);
       return { name: item.flags.ddbimporter.originalItemName, type: item.type };
     });
+    // eslint-disable-next-line no-unreachable
     logger.debug("Swapping items", itemsToRemove);
     // console.warn(itemsToRemove);
     const lessUpdatedItems = data.items.filter((item) =>
