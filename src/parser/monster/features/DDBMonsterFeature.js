@@ -231,7 +231,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.prepare();
 
     // copy source details from parent
-    if (this.ddbMonster?.npc?.system.details?.source) this.data.system.source = this.ddbMonster.npc.system.details.source;
+    if (this.ddbMonster?.npc?.system.details?.source)
+      this.data.system.source = this.ddbMonster.npc.system.details.source;
 
     this.actionInfo = {};
     this.resetActionInfo();
@@ -1235,7 +1236,7 @@ ${this.data.system.description.value}
       result.ability = ability.toLowerCase().substr(0, 3);
     }
 
-    const dcSearch = "spell\\s+save\\s+DC\\s*(\\d+)(?:,|\\)|\\s)";
+    const dcSearch = /spell\s+save\s+DC\s*(\d+)(?:,|\)|\s)/i;
     const dcMatch = this.strippedHtml.match(dcSearch);
     if (dcMatch) {
       result.dc = parseInt(dcMatch[1]);
@@ -1293,29 +1294,42 @@ ${this.data.system.description.value}
     };
 
     let generateActivityUses = false;
+    let generateConsumption = false;
 
     if (!this.spellCastingData.concentration) spellOverride.properties.push("concentration");
     if (!this.spellCastingData.material) spellOverride.properties.push("material");
     if (spellData.level) spellOverride.level = spellData.level;
 
-    if (spellData.period || spellData.quantity) {
+    if (spellData.consumeType || spellData.period) {
+      generateConsumption = true;
+      consumptionOverride.targets.push({
+        type: spellData.consumeType ?? "activityUses",
+        value: "1",
+        scaling: {},
+      });
+    }
+
+    if (this.type === "legendary") {
+      generateConsumption = true;
+      consumptionOverride.targets.push({
+        type: "attribute",
+        value: "1",
+        target: "resources.legact.value",
+        scaling: {},
+      });
+    }
+
+    if (spellData.period) {
       generateActivityUses = true;
       usesOverride.spent = "0";
       usesOverride.max = spellData.quantity ?? "1";
-      if (spellData.period) {
-        consumptionOverride.targets.push({
-          type: "activityUses",
-          value: "1",
-          scaling: {},
-        });
-        const resetType = DICTIONARY.resets.find((reset) =>
-          reset.id == spellData.period,
-        )?.value ?? "lr";
-        usesOverride.recovery.push({
-          period: resetType,
-          type: "recoverAll",
-        });
-      }
+      const resetType = DICTIONARY.resets.find((reset) =>
+        reset.id == spellData.period,
+      )?.value ?? "lr";
+      usesOverride.recovery.push({
+        period: resetType,
+        type: "recoverAll",
+      });
     }
 
     if (this.spellCastingData.ability
@@ -1333,12 +1347,15 @@ ${this.data.system.description.value}
 
     const options = {
       spellOverride,
-      generateConsumption: generateActivityUses,
+      generateConsumption: generateConsumption,
       generateUses: generateActivityUses,
       usesOverride,
       consumptionOverride,
     };
 
+    // console.warn(`options for ${this.name}`, {
+    //   options,
+    // })
     const activity = this._getCastActivity({
       name: spellData.extra ? `${spellData.name} (${spellData.extra})` : spellData.name,
     }, options);
@@ -1404,13 +1421,21 @@ ${this.data.system.description.value}
     return cleanResults;
   }
 
-  async #buildSpellcastingActivities() {
 
-    const spells = this.#getSpellcastingSpells();
+  // spell = {
+  //   name: "Fireball", //required
+  //   level: "5", // optional
+  //   extra: null, // extra to append to name string
+  //   period: "Day", // reset timeframe
+  //   quantity: "2"  // quantity available per period
+  //   consumeType: "itemUses",// defaults to activity uses
+  // }
+  async #buildSpellcastingActivities(spells) {
+
     const compendiumSpellsIndex = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
 
     for (const spell of spells) {
-      const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase())
+      const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase());
       if (!entry) {
         logger.error(`Unable to find spell ${spell.name} for ${this.ddbMonster.name} ${this.originalName}, have you munched spells?`, {
           spell,
@@ -1424,15 +1449,53 @@ ${this.data.system.description.value}
   }
 
   async #buildOtherSpellActivities() {
-    const activityMatch = /the (?:.*) casts (.*) using the same spellcasting ability as Spellcasting/i;
-    const match = this.strippedHtml.match(activityMatch);
-    if (match) {
+    const basicRegex = /The (?:.*) casts (.*?)( in response to (?:the|that) spell’s trigger)?, using the same spellcasting ability as Spellcasting/i;
+    const basicMatch = this.strippedHtml.match(basicRegex);
+
+    const useRegex = /The (?:.*) uses Spellcasting to cast (.*?)\./i;
+    const useMatch = this.strippedHtml.match(useRegex);
+    const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (.*?)\./i;
+    const canCastMatch = this.strippedHtml.match(canCastRegex);
+
+    const matches = basicMatch ?? useMatch ?? canCastMatch;
+    const spells = [];
+    if (matches) {
       console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
-        match,
+        matches,
         strippedHtml: this.strippedHtml,
         originalName: this.originalName,
-      })
-      let spell = match[1];
+        this: this,
+      });
+
+      const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
+      const perUseMatch = this.strippedHtml.match(perUseRegex);
+
+      const names = DDBDescriptions.splitStringByComma(matches[1].replace(", or ", ", ").replace(" or ", ", "));
+      for (const name of names) {
+        const spell = {
+          name: name, // required
+          // level: "5", // optional
+          // extra: null, // extra to append to name string
+          // period: "Day", // reset timeframe
+          // quantity: "2",
+          // consumeType: "itemUses",
+        };
+
+        if (perUseMatch) {
+          spell.period = perUseMatch[1].trim();
+          spell.quantity = "1";
+          spell.consumeType = "activityUses";
+        } else if (this.data.system.uses.max) {
+          spell.consumeType = "itemUses";
+          spell.quantity = "1";
+        }
+        spells.push(spell);
+      }
+
+      console.warn(spells);
+    }
+    if (spells.length > 0) {
+      await this.#buildSpellcastingActivities(spells);
     }
   }
 
@@ -1444,18 +1507,21 @@ ${this.data.system.description.value}
       || this.originalName.startsWith("Innate Spellcasting");
 
     if (spellcastingMatch) {
-      await this.#buildSpellcastingActivities();
+      const spells = this.#getSpellcastingSpells();
+      await this.#buildSpellcastingActivities(spells);
     } else {
       await this.#buildOtherSpellActivities();
     }
 
     if (Object.keys(this.data.system.activities).length > 0) {
       this.ignoreActivityGeneration = true;
-      this.data.system.uses = {
-        spent: null,
-        recovery: [],
-        max: "",
-      };
+      if (spellcastingMatch) {
+        this.data.system.uses = {
+          spent: null,
+          recovery: [],
+          max: "",
+        };
+      }
     }
 
   }

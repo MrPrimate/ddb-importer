@@ -112,7 +112,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
 
   const acItems = adjustedItems.filter((i) => {
     if (["light", "medium", "heavy", "shield"].includes(i.system.type?.value)) return true;
-    if (i.system.type.value === "trinket") {
+    if (i.system.type?.value === "trinket") {
       if ((i.effects ?? []).some((e) => e.key.includes("ac"))) return true;
     }
     return false;

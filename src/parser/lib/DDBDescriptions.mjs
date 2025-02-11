@@ -225,7 +225,7 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
-      const monsterAndCondition = /(the target has the|subject that creature to the) (?<condition>\w+) condition/ig;
+      const monsterAndCondition = /(the target has the|subject that creature to the|it has the) (?<condition>\w+) condition/ig;
       match = monsterAndCondition.exec(parserText);
     }
 
@@ -497,6 +497,13 @@ export default class DDBDescriptions {
     return result;
   }
 
+  static splitStringByComma(str) {
+    // Regular expression to match commas not inside brackets
+    const regex = /,(?![^(]*\))/g;
+    const result = str.split(regex);
+    return result.map((item) => item.trim());
+  }
+
   static parseOutMonsterSpells(text) {
     const results = [];
 
@@ -519,7 +526,7 @@ export default class DDBDescriptions {
 
     // console.warn(innateMatch);
     if (innateMatch) {
-      innateMatch[3].split(",").forEach((spell) => {
+      DDBDescriptions.splitStringByComma(innateMatch[3]).forEach((spell) => {
         const data = processSpell(spell);
         results.push(foundry.utils.mergeObject(data, {
           period: innateMatch[2],
@@ -533,7 +540,7 @@ export default class DDBDescriptions {
     const atWillMatch = text.match(atWillSearch);
     // console.warn(atWillMatch);
     if (atWillMatch) {
-      atWillMatch[1].split(",").forEach((spell) => {
+      DDBDescriptions.splitStringByComma(atWillMatch[1]).forEach((spell) => {
         results.push(processSpell(spell));
       });
     }
