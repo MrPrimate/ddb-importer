@@ -63,6 +63,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 // it wont appear in the compendium but will upon import
 async function generateCastSpells(actor) {
   for (const item of actor.items) {
+    if (!item.system.activities) continue;
     const spells = (
       await Promise.all(
         item.system.activities.getByType("cast").map((a) => a.getCachedSpellData()),

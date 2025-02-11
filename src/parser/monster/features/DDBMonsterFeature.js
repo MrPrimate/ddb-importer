@@ -1457,15 +1457,18 @@ ${this.data.system.description.value}
     const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (.*?)\./i;
     const canCastMatch = this.strippedHtml.match(canCastRegex);
 
-    const matches = basicMatch ?? useMatch ?? canCastMatch;
+    const lairRegex = /While in its lair, the (?:.*) can cast (.*?), (requiring no spell components and )?using the same spellcasting ability as its Spellcasting action./i;
+    const lairMatch = this.strippedHtml.match(lairRegex);
+
+    const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
     const spells = [];
     if (matches) {
-      console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
-        matches,
-        strippedHtml: this.strippedHtml,
-        originalName: this.originalName,
-        this: this,
-      });
+      // console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
+      //   matches,
+      //   strippedHtml: this.strippedHtml,
+      //   originalName: this.originalName,
+      //   this: this,
+      // });
 
       const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
       const perUseMatch = this.strippedHtml.match(perUseRegex);
@@ -1492,7 +1495,7 @@ ${this.data.system.description.value}
         spells.push(spell);
       }
 
-      console.warn(spells);
+      logger.verbose(spells);
     }
     if (spells.length > 0) {
       await this.#buildSpellcastingActivities(spells);
@@ -1558,10 +1561,6 @@ ${this.data.system.description.value}
 
     if (!this.actionCopy) {
       await this.#handleSpellCasting();
-      console.warn("data", {
-        originalName: this.originalName,
-        data: deepClone(this.data),
-      })
       await this._generateActivity();
       this.#addHealAdditionalActivities();
       if (this.enricher.addAutoAdditionalActivities)
