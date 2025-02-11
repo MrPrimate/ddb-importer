@@ -147,8 +147,8 @@ export default class DDBMonsterFactory {
           return result;
         })
         .then((result) => {
-          this.notifier(`Retrieved ${result.data.length + 1} monsters from DDB`, true, false);
-          logger.info(`Retrieved ${result.data.length + 1} monsters from DDB`);
+          this.notifier(`Retrieved ${result.data.length} monsters from DDB`, true, false);
+          logger.info(`Retrieved ${result.data.length} monsters from DDB`);
           return result.data;
         })
         .then((data) => {

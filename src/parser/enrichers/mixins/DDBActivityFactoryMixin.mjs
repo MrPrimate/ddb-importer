@@ -23,6 +23,8 @@ export default class DDBActivityFactoryMixin {
 
   usesOnActivity = false;
 
+  ignoreActivityGeneration = false;
+
   data = null;
 
   constructor({
@@ -308,6 +310,7 @@ export default class DDBActivityFactoryMixin {
     hintsOnly = false, name = null, nameIdPostfix = null, typeOverride = null, typeFallback = null,
   } = {}, optionsOverride = {},
   ) {
+    if (this.ignoreActivityGeneration) return undefined;
     if (hintsOnly && !this.enricher.activity) return undefined;
     if (this.enricher.type === "none" || this.enricher.activity?.type === "none") return undefined;
 

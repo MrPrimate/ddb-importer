@@ -59,6 +59,19 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
   return returnItems;
 }
 
+// this generates any missing spell data for actors
+// it wont appear in the compendium but will upon import
+async function generateCastSpells(actor) {
+  for (const item of actor.items) {
+    const spells = (
+      await Promise.all(
+        item.system.activities.getByType("cast").map((a) => a.getCachedSpellData()),
+      )).filter((spell) => !actor.items.find((i) =>
+      i.type === "spell" && i.flags.dnd5e.cachedFor === spell.flags.dnd5e.cachedFor,
+    ));
+    if (spells.length) actor.createEmbeddedDocuments("Item", spells);
+  }
+}
 
 async function addNPCToCompendium(npc, type = "monster") {
   const itemImporter = new DDBItemImporter(type, [], {
@@ -90,12 +103,11 @@ async function addNPCToCompendium(npc, type = "monster") {
         });
         const existingItems = existingNPC.getEmbeddedCollection("Item");
         npcBasic.items = await existingItemRetentionCheck(existingItems, monsterTaggedItems, false);
-
         logger.debug("NPC Update Data", foundry.utils.duplicate(npcBasic));
         await existingNPC.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         await existingNPC.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-        // compendiumNPC = await existingNPC.update(npcBasic, { pack: compendium.collection, recursive: false, render: false, keepId: true });
         compendiumNPC = await existingNPC.update(npcBasic, { pack: itemImporter.compendium.collection, render: false, keepId: true });
+        await generateCastSpells(existingNPC);
         if (!compendiumNPC) {
           logger.debug("No changes made to base character", npcBasic);
           compendiumNPC = existingNPC;
@@ -111,6 +123,7 @@ async function addNPCToCompendium(npc, type = "monster") {
       };
       logger.debug("NPC New Data", foundry.utils.duplicate(npcBasic));
       compendiumNPC = await Actor.create(npcBasic, options);
+      await generateCastSpells(compendiumNPC);
     }
 
   } else {

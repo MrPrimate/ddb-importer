@@ -1,4 +1,4 @@
-import { utils, logger } from "../../../lib/_module.mjs";
+import { utils, logger, CompendiumHelper } from "../../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../../config/_module.mjs";
 import { DDBMonsterFeatureActivity } from "../../activities/_module.mjs";
 import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module.mjs";
@@ -214,6 +214,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.ddbMonster = ddbMonster;
     this.is2014 = ddbMonster.is2014;
     this.is2024 = !this.is2014;
+    this.useCastActivity = this.is2024;
+    this.use2024Spells = this.is2024;
+
     this.type = type;
     this.html = html ?? "";
     this.titleHTML = titleHTML ?? undefined;
@@ -1215,6 +1218,248 @@ ${this.data.system.description.value}
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 
+  #getSpellcastingData() {
+    const result = {
+      dc: null,
+      ability: null, // ability associated
+      material: true,
+      innateMatch: false,
+      concentration: true,
+      innate: false,
+    };
+
+    const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting ability))/;
+    const abilityMatch = this.strippedHtml.match(abilitySearch);
+    if (abilityMatch) {
+      const ability = abilityMatch[2] ?? abilityMatch[3];
+      result.ability = ability.toLowerCase().substr(0, 3);
+    }
+
+    const dcSearch = "spell\\s+save\\s+DC\\s*(\\d+)(?:,|\\)|\\s)";
+    const dcMatch = this.strippedHtml.match(dcSearch);
+    if (dcMatch) {
+      result.dc = parseInt(dcMatch[1]);
+    }
+
+    const noMaterialSearch = new RegExp(/no material component|no component|no spell components/);
+    const noMaterialMatch = noMaterialSearch.test(this.strippedHtml);
+    if (noMaterialMatch) {
+      result.material = false;
+    }
+
+    const noConcentrationSearch = new RegExp(/no concentration|no material components or concentration|no spell components or concentration/);
+    const noConcentrationMatch = noConcentrationSearch.test(this.strippedHtml);
+    if (noConcentrationMatch) {
+      result.concentration = false;
+    }
+
+    if (this.originalName.startsWith("Innate Spellcasting")) {
+      result.innate = true;
+    }
+
+    return result;
+  }
+
+  #generateSpellcastingData() {
+    this.spellCastingData = this.#getSpellcastingData();
+  }
+
+  async #getCastSpellActivitySpellData(spellData, compendiumSpell) {
+    const spellOverride = {
+      uuid: compendiumSpell.uuid,
+      properties: [],
+      level: null,
+      challenge: {
+        attack: null,
+        save: null,
+        override: false,
+      },
+      spellbook: true,
+    };
+
+    const consumptionOverride = {
+      spellSlot: false,
+      targets: [],
+      scaling: {
+        allowed: false,
+        max: "",
+      },
+    };
+
+    const usesOverride = {
+      spent: null,
+      recovery: [],
+      max: "",
+    };
+
+    let generateActivityUses = false;
+
+    if (!this.spellCastingData.concentration) spellOverride.properties.push("concentration");
+    if (!this.spellCastingData.material) spellOverride.properties.push("material");
+    if (spellData.level) spellOverride.level = spellData.level;
+
+    if (spellData.period || spellData.quantity) {
+      generateActivityUses = true;
+      usesOverride.spent = "0";
+      usesOverride.max = spellData.quantity ?? "1";
+      if (spellData.period) {
+        consumptionOverride.targets.push({
+          type: "activityUses",
+          value: "1",
+          scaling: {},
+        });
+        const resetType = DICTIONARY.resets.find((reset) =>
+          reset.id == spellData.period,
+        )?.value ?? "lr";
+        usesOverride.recovery.push({
+          period: resetType,
+          type: "recoverAll",
+        });
+      }
+    }
+
+    if (this.spellCastingData.ability
+      && this.spellCastingData.ability !== this.ddbMonster.npc.system.attributes.spellcasting
+    ) {
+      spellOverride.ability = this.spellCastingData.ability;
+    }
+
+    if (this.spellCastingData.dc
+      && parseInt(this.spellCastingData.dc) !== parseInt(this.ddbMonster.npc.system.attributes.spelldc)
+    ) {
+      spellOverride.challenge.override = true;
+      spellOverride.challenge.save = this.spellCastingData.dc;
+    }
+
+    const options = {
+      spellOverride,
+      generateConsumption: generateActivityUses,
+      generateUses: generateActivityUses,
+      usesOverride,
+      consumptionOverride,
+    };
+
+    const activity = this._getCastActivity({
+      name: spellData.extra ? `${spellData.name} (${spellData.extra})` : spellData.name,
+    }, options);
+
+    this.enricher.customFunction({
+      name: spellData.name,
+      activity: activity,
+    });
+
+    activity.img = compendiumSpell.img;
+
+    // console.warn("spell activite", {
+    //   activity,
+    //   spellData,
+    //   compendiumSpell,
+    //   options,
+    // });
+
+
+    this.activities.push(activity);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+
+  }
+
+  #getSpellcastingSpells() {
+    const html = this.html
+      .replaceAll(/<br>/g, "</p><p>")
+      .replaceAll(/<br \/>/g, "</p><p>");
+
+    const dom = utils.htmlToDocumentFragment(html);
+
+    dom.childNodes.forEach((node) => {
+      if (node.textContent == "\n") {
+        dom.removeChild(node);
+      }
+    });
+
+    const spells = [];
+
+    dom.childNodes.forEach((node) => {
+      const spellText = utils.nameString(node.textContent);
+      const trimmedText = spellText.trim();
+      const spellData = DDBDescriptions.parseOutMonsterSpells(trimmedText);
+      spells.push(...spellData);
+    });
+
+    return spells;
+  }
+
+  async #retrieveCompendiumSpells(spellNames) {
+    const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
+
+    const results = await CompendiumHelper.queryCompendiumEntries({
+      compendiumName,
+      documentNames: spellNames,
+      getDocuments: false,
+      matchedProperties: {
+        "system.source.rules": this.use2024Spells ? "2024" : "2014",
+      },
+    });
+    const cleanResults = results.filter((item) => item !== null);
+
+    return cleanResults;
+  }
+
+  async #buildSpellcastingActivities() {
+
+    const spells = this.#getSpellcastingSpells();
+    const compendiumSpellsIndex = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
+
+    for (const spell of spells) {
+      const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase())
+      if (!entry) {
+        logger.error(`Unable to find spell ${spell.name} for ${this.ddbMonster.name} ${this.originalName}, have you munched spells?`, {
+          spell,
+          this: this,
+          spells,
+        });
+        continue;
+      }
+      this.#getCastSpellActivitySpellData(spell, entry);
+    }
+  }
+
+  async #buildOtherSpellActivities() {
+    const activityMatch = /the (?:.*) casts (.*) using the same spellcasting ability as Spellcasting/i;
+    const match = this.strippedHtml.match(activityMatch);
+    if (match) {
+      console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
+        match,
+        strippedHtml: this.strippedHtml,
+        originalName: this.originalName,
+      })
+      let spell = match[1];
+    }
+  }
+
+  async #handleSpellCasting() {
+    if (!this.useCastActivity) return;
+    this.#generateSpellcastingData();
+
+    const spellcastingMatch = this.originalName.startsWith("Spellcasting")
+      || this.originalName.startsWith("Innate Spellcasting");
+
+    if (spellcastingMatch) {
+      await this.#buildSpellcastingActivities();
+    } else {
+      await this.#buildOtherSpellActivities();
+    }
+
+    if (Object.keys(this.data.system.activities).length > 0) {
+      this.ignoreActivityGeneration = true;
+      this.data.system.uses = {
+        spent: null,
+        recovery: [],
+        max: "",
+      };
+    }
+
+  }
+
 
   async parse() {
 
@@ -1246,6 +1491,11 @@ ${this.data.system.description.value}
     }
 
     if (!this.actionCopy) {
+      await this.#handleSpellCasting();
+      console.warn("data", {
+        originalName: this.originalName,
+        data: deepClone(this.data),
+      })
       await this._generateActivity();
       this.#addHealAdditionalActivities();
       if (this.enricher.addAutoAdditionalActivities)

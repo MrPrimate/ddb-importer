@@ -360,6 +360,8 @@ const CompendiumHelper = {
           const i = {
             _id: entry._id,
             name: data.restriction ? `${entry.name} (${data.restriction})` : entry.name,
+            uuid: entry.uuid,
+            img: entry.img,
           };
           for (const field of matchedPropertiesKeys) {
             foundry.utils.setProperty(i, field, foundry.utils.getProperty(entry, field));

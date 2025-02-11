@@ -65,6 +65,24 @@ export default class DDBMonster {
     this.is2024 = null;
     this.use2024Spells = use2024Spells;
 
+    this.spellcasting = {
+      spelldc: 10,
+      spellcasting: "", // ability associated
+      spellLevel: 0,
+      spellAttackBonus: 0,
+    };
+    this.spellList = {
+      class: [],
+      pact: [],
+      atwill: [],
+      // {name: "", type: "srt/lng/day", value: 0} // check these values
+      innate: [],
+      edgeCases: [], // map { name: "", type: "", edge: "" }
+      material: true,
+      innateMatch: false,
+      concentration: true,
+    };
+
   }
 
   static STOCK_TYPE_IMAGES = [
@@ -238,6 +256,7 @@ export default class DDBMonster {
     this._generateSource();
     this._generateEnvironments();
     this.npc.system.details.biography.value = this.source.characteristicsDescription;
+    this._generateSpellcasting();
 
     await this._generateFeatures();
 
@@ -248,7 +267,7 @@ export default class DDBMonster {
     await this._generateAC(extraGear);
     await this._generateTreasure();
 
-    // Spellcasting
+    // Spellcasting 2014
     this._generateSpells();
     await this.addSpells();
 

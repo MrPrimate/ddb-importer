@@ -497,4 +497,48 @@ export default class DDBDescriptions {
     return result;
   }
 
+  static parseOutMonsterSpells(text) {
+    const results = [];
+
+    const processSpell = (spellName) => {
+      const extraCheckRegex = /(.*)\((.*)\)/i;
+      const extraMatch = extraCheckRegex.exec(spellName.trim());
+      const levelRegex = /level (\d) version/i;
+      const levelMatch = extraMatch ? levelRegex.exec(extraMatch) : null;
+      const level = levelMatch ? levelMatch[1] : null;
+      return {
+        name: extraMatch ? extraMatch[1].trim() : spellName.trim(),
+        level,
+        extra: extraMatch && !levelMatch ? extraMatch[2].trim() : null,
+      };
+    };
+
+    // 3/day each: charm person (level 5 version), color spray, detect thoughts, hold person (level 3 version)
+    const innateSearch = /^(\d+)\/(\w+)(?:\s+each)?:\s+(.*$)/i;
+    const innateMatch = text.match(innateSearch);
+
+    // console.warn(innateMatch);
+    if (innateMatch) {
+      innateMatch[3].split(",").forEach((spell) => {
+        const data = processSpell(spell);
+        results.push(foundry.utils.mergeObject(data, {
+          period: innateMatch[2],
+          quantity: innateMatch[1],
+        }));
+      });
+    }
+
+    // At will: dancing lights
+    const atWillSearch = /^at will:\s+(.*$)/i;
+    const atWillMatch = text.match(atWillSearch);
+    // console.warn(atWillMatch);
+    if (atWillMatch) {
+      atWillMatch[1].split(",").forEach((spell) => {
+        results.push(processSpell(spell));
+      });
+    }
+
+    return results;
+  };
+
 }

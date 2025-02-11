@@ -26,7 +26,11 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.data.activation = this.actionInfo.activation;
   }
 
-  _generateConsumption() {
+  _generateConsumption({ consumptionOverride = null } = {}) {
+    if (consumptionOverride) {
+      this.data.consumption = consumptionOverride;
+      return;
+    }
     let targets = [];
     let scaling = false;
 
@@ -174,22 +178,51 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   }
 
   build({
+    activationOverride,
+    additionalTargets,
+    attackData,
+    chatFlavor,
+    checkOverride = null,
+    consumeActivity,
+    consumeItem,
+    criticalDamage,
     damageParts = [],
-    healingPart = null,
+    damageScalingOverride,
+    data,
+    ddbMacroOverride,
+    durationOverride,
     generateActivation = true,
     generateAttack = false,
-    generateConsumption = true,
     generateCheck = false,
+    generateConsumption = true,
     generateDamage = false,
+    generateDDBMacro = false,
     generateDescription = false,
     generateDuration = true,
     generateEffects = true,
+    generateEnchant = false,
     generateHealing = false,
     generateRange = true,
+    generateRoll = false,
     generateSave = false,
+    generateSpell = false,
+    generateSummon = false,
     generateTarget = true,
+    generateUses,
+    healingChatFlavor,
+    healingPart = null,
+    img,
     includeBaseDamage = true,
-    checkOverride = null,
+    noeffect,
+    noManualActivation,
+    onSave,
+    rangeOverride,
+    roll,
+    saveOverride,
+    spellOverride,
+    targetOverride,
+    usesOverride,
+    consumptionOverride = null,
   } = {}) {
 
     // override set to false on object if overriding
@@ -211,12 +244,16 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       includeBaseDamage,
       generateCheck,
       checkOverride,
+      generateDDBMacro,
+      generateRoll,
+      generateSummon,
+      consumptionOverride,
       this: this,
     });
 
     if (generateActivation) this._generateActivation();
     if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption();
+    if (generateConsumption) this._generateConsumption({ consumptionOverride });
     if (generateDescription) this._generateDescription();
     if (generateDuration) this._generateDuration();
     if (generateEffects) this._generateEffects();
@@ -228,6 +265,54 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck({ checkOverride });
+
+    super.build({
+      generateActivation: false,
+      generateAttack: false,
+      generateSpell,
+      generateConsumption: false,
+      generateCheck: false,
+      generateDamage: false,
+      generateDescription,
+      generateDuration: false,
+      generateEffects: false,
+      generateHealing: false,
+      generateRange: false,
+      generateSave: false,
+      generateTarget: false,
+      generateDDBMacro,
+      generateEnchant,
+      generateRoll,
+      generateSummon,
+      healingChatFlavor,
+      generateUses,
+      chatFlavor,
+      onSave,
+      noeffect,
+      spellOverride,
+      roll,
+      targetOverride,
+      checkOverride,
+      rangeOverride,
+      activationOverride,
+      noManualActivation,
+      durationOverride,
+      img,
+      ddbMacroOverride,
+      usesOverride,
+      additionalTargets,
+      consumeActivity,
+      consumeItem,
+      saveOverride,
+      data,
+      attackData,
+      includeBaseDamage,
+      criticalDamage,
+      damageScalingOverride,
+      healingPart,
+      damageParts,
+    });
+
 
   }
 
