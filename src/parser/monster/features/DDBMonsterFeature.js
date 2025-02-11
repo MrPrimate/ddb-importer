@@ -833,9 +833,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
       const aoeSizeMatch = aoeSizeRegex.exec(matchText);
 
-      console.warn(`Target generation for ${this.name}`, {
-        aoeSizeMatch,
-      });
+      // console.warn(`Target generation for ${this.name}`, {
+      //   aoeSizeMatch,
+      // });
 
       if (aoeSizeMatch) {
         const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
@@ -859,11 +859,6 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
-
-    console.warn(`Target generation for ${this.name}`, {
-      target,
-      this: this,
-    })
 
     return target;
   }
