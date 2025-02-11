@@ -5,10 +5,6 @@ import GenericSpellFactory from "../spells/GenericSpellFactory.js";
 import { DICTIONARY } from "../../config/_module.mjs";
 import DDBItem from "../item/DDBItem.js";
 
-// effects support
-import { parseInfusion } from "./infusions.js";
-
-// TO DO: revisit to break up item parsing
 // eslint-disable-next-line complexity
 DDBCharacter.prototype.getInventory = async function getInventory(notifier = null) {
 
@@ -45,15 +41,13 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
     await itemParser.build();
 
     logger.debug(`Item ${ddbItem.definition.name} parsed`, itemParser);
-    let item = Object.assign({}, itemParser.data);
-    if (item) {
-      if (!isCompendiumItem) {
-        // parse any infusion data for characters
-        item = parseInfusion(this.source.ddb, this.raw.character, item, ddbItem, isCompendiumItem);
-      }
 
-      items.push(item);
+    if (!isCompendiumItem) {
+      // parse any infusion data for characters
+      itemParser.processInfusion();
     }
+    let item = Object.assign({}, itemParser.data);
+    items.push(item);
   }
 
   // this.updateItemIds(items);

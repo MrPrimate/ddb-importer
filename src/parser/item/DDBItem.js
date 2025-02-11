@@ -1931,7 +1931,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         result = "dex";
       }
     }
-    if (this.flags.magicItemAttackInt && (this.ddbDefinition.magic || this.data.system.properties.includes("mgc"))) {
+    if (this.flags.magicItemAttackInt && (this.ddbDefinition.magic || this.data.system.properties.includes("mgc") || this.infusionDetail)) {
       if (this.characterEffectAbilities.int.value > this.characterEffectAbilities[mockAbility].value) {
         result = "int";
       }
@@ -2765,6 +2765,22 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   }
 
+  #getInfusionItemMap() {
+    if (!this.ddbData.infusions?.item) return undefined;
+    return this.ddbData.infusions.item.find((mapping) =>
+      mapping.itemId === this.ddbDefinition.id
+      && mapping.inventoryMappingId === this.ddbItem.id
+      && mapping.itemTypeId === this.ddbDefinition.entityTypeId,
+    );
+  }
+
+  getInfusionDetail(definitionKey) {
+    if (!this.ddbData.infusions?.infusions?.definitionData) return undefined;
+    return this.ddbData.infusions.infusions.definitionData.find(
+      (infusion) => infusion.definitionKey === definitionKey,
+    );
+  }
+
   #addExtraDDBFlags() {
     this.data.flags.ddbimporter['id'] = this.ddbItem.id;
     this.data.flags.ddbimporter['entityTypeId'] = this.ddbItem.entityTypeId;
@@ -2791,8 +2807,48 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isMonkWeapon", this.ddbDefinition.isMonkWeapon);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.isPack", this.ddbDefinition.isPack);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.levelInfusionGranted", this.ddbDefinition.levelInfusionGranted);
+    foundry.utils.setProperty(this.data, "flags.infusions", { maps: [], applied: [], infused: false });
+
+    this.infusionItemMap = this.#getInfusionItemMap();
+    this.infusionDetail = this.infusionItemMap ? this.getInfusionDetail(this.infusionItemMap.definitionKey) : null;
 
     return this.data;
+  }
+
+  processInfusion() {
+    if (this.infusionDetail) {
+      logger.debug(`Infusion detected for ${this.name}`);
+
+      // add infusion flags
+      this.data.flags.infusions.infused = true;
+
+      // if item is loot, lets move it to equipment/trinket so effects will apply
+      if (this.data.type === "loot") {
+        this.data.type = "equipment";
+        this.data.system.armor = {
+          type: "trinket",
+          value: 10,
+          dex: null,
+        };
+        // infusions will over ride the can equip status, so just check for equipped
+        this.data.system.equipped = this.ddbItem.equipped;
+      }
+
+      // check to see if we need to fiddle attack modifiers on infused weapons
+      // this still needs to be moved to an enchantment effect
+      if (this.data.type === "weapon") {
+        const intSwap = DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0;
+        if (intSwap) {
+          const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
+          const mockAbility = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.ability");
+          if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
+            this.data.system.ability = "int";
+          }
+        }
+      }
+    } else if (this.infusionItemMap && !this.infusionDetail) {
+      logger.warn(`${this.data.name} marked as infused but no infusion info found`);
+    }
   }
 
   #enrichFlags() {

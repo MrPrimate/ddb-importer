@@ -1,3 +1,9 @@
+# Next Up
+
+- Adjustments to 2024 AC parsing for some edge cases.
+- 2024 Monster features will now parse out mentioned spells as Cast actions.
+- Battle Ready from Artificer would not apply to infused items.
+
 # 6.0.76
 
 - More under the hood summon processing and monster parsing improvements.
