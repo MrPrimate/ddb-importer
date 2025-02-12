@@ -1,6 +1,7 @@
 # Next Up
 
 - Adjustments to 2024 AC parsing for some edge cases.
+- Some adjustments to 2014 monsters who get bonuses from items such as bracers of defense.
 - 2024 Monster features will now parse out mentioned spells as Cast actions.
 - Battle Ready from Artificer would not apply to infused items.
 

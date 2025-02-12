@@ -101,7 +101,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   const adjustedItems = rawItems
     .filter((item) => item.type !== "weapon")
     .map((item) => {
-      if (item.system.attunement === 1) item.system.attunement = 2;
+      if (item.system.attunement === "required") item.system.attuned = true;
       if (foundry.utils.hasProperty(item.system.equipped)) item.system.equipped = true;
       const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
       if (check) {
@@ -113,7 +113,11 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   const acItems = adjustedItems.filter((i) => {
     if (["light", "medium", "heavy", "shield"].includes(i.system.type?.value)) return true;
     if (i.system.type?.value === "trinket") {
-      if ((i.effects ?? []).some((e) => e.key.includes("ac"))) return true;
+      const effectHasACChanges = (i.effects ?? []).some((e) => {
+        const changeACKey = e.changes.some((c) => c.key.includes("system.attributes.ac"));
+        return changeACKey;
+      });
+      if (effectHasACChanges) return true;
     }
     return false;
   });
