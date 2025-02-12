@@ -37,7 +37,7 @@ function getLimitedUse(action) {
 
     return {
       spent: action.limitedUse.numberUsed ?? 0,
-      max: (finalMaxUses != 0) ? finalMaxUses : null,
+      max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
       per: resetType ? resetType.value : "",
       recovery: resetType
         ? [

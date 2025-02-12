@@ -12,7 +12,7 @@ export default class PsionicPowerRecovery extends DDBEnricherData {
         uses: this._getUsesWithSpent({
           type: "class",
           name: "Psionic Power: Recovery",
-          max: 1,
+          max: "1",
           period: "lr",
         }),
       },

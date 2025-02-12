@@ -510,13 +510,40 @@ export default class DDBDescriptions {
     const processSpell = (spellName) => {
       const extraCheckRegex = /(.*)\((.*)\)/i;
       const extraMatch = extraCheckRegex.exec(spellName.trim());
-      const levelRegex = /level (\d) version/i;
-      const levelMatch = extraMatch ? levelRegex.exec(extraMatch) : null;
-      const level = levelMatch ? levelMatch[1] : null;
+
+      let level = null;
+      let targetSelf = null;
+      let duration = null;
+      const extras = [];
+
+      if (extraMatch) {
+        for (const extra of extraMatch[2].split(",")) {
+          const levelRegex = /level (\d) version/i;
+          const levelMatch = levelRegex.exec(extra);
+          if (levelMatch) level = levelMatch[1];
+          const targetSelfRegex = /(self only|on itself)/i;
+          const targetSelfMatch = targetSelfRegex.exec(extra);
+          if (targetSelfMatch) targetSelf = true;
+          const durationRegex = /(\d+)-(\w+) duration/i;
+          const durationMatch = durationRegex.exec(extra);
+          if (durationMatch) {
+            duration = {
+              override: true,
+              value: durationMatch[1],
+              units: durationMatch[2],
+            };
+          }
+          if (!levelMatch) {
+            extras.push(extra.trim());
+          }
+        }
+      }
       return {
         name: extraMatch ? extraMatch[1].trim() : spellName.trim(),
         level,
-        extra: extraMatch && !levelMatch ? extraMatch[2].trim() : null,
+        extra: extras.length > 0 ? extras.join(", ") : null,
+        targetSelf,
+        duration,
       };
     };
 

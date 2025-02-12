@@ -37,7 +37,7 @@ export default class LargeForm extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "race",
       name: "Activate Large Form",
-      max: 1,
+      max: "1",
       period: "lr",
     });
     return {

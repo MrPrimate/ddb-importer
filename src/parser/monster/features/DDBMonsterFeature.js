@@ -439,12 +439,12 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
     // e.g. mephit death
-    const specialDie = this.strippedHtml.toLowerCase().match(/dies/);
+    const deathDie = this.strippedHtml.toLowerCase().match(/(creature|target|it) dies/);
     if (bonusAction) {
       action = "bonus";
     } else if (reAction) {
       action = "reaction";
-    } else if (specialDie) {
+    } else if (deathDie) {
       action = "special";
     } else if (actionAction) {
       action = "action";
@@ -1067,7 +1067,7 @@ ${this.data.system.description.value}
     if (this.name !== "Villain Actions") {
       this.data.system.uses = {
         spent: 0,
-        max: `${this.actionInfo.uses.max}`,
+        max: this.actionInfo.uses.max ? `${this.actionInfo.uses.max}` : null,
         recovery: [
           { period: "sr", type: 'recoverAll', formula: undefined },
         ],
@@ -1383,6 +1383,11 @@ ${this.data.system.description.value}
       activity.data.target.affects.type = "self";
     }
 
+    if (spellData.duration) {
+      activity.data.duration = foundry.utils.mergeObject((activity.data.duration ?? {}), spellData.duration);
+      activity.data.duration.override = true;
+    }
+
     this.enricher.customFunction({
       name: spellData.name,
       activity: activity,
@@ -1426,6 +1431,10 @@ ${this.data.system.description.value}
       spells.push(...spellData);
     });
 
+    logger.debug(`${this.ddbMonster.name}: ${this.name}: Parsed spellcasting spells`, {
+      spells,
+    });
+
     return spells;
   }
 
@@ -1455,6 +1464,7 @@ ${this.data.system.description.value}
   //   consumeType: "itemUses",// defaults to activity uses
   //   targetSelf: true,
   //   noComponents: true,
+  //   duration: {},
   // }
   async #buildSpellcastingActivities(spells) {
 
@@ -1510,6 +1520,7 @@ ${this.data.system.description.value}
           // consumeType: "itemUses",
           // targetSelf: true,
           // noComponents: true,
+          // duration: {},
         };
 
         if (matches.groups.self) {

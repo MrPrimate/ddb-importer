@@ -50,5 +50,5 @@ DDBMonster.prototype._generateSource = function _generateSource() {
     : spells2024
       ? true
       : this.is2024;
-  this.use2024SpellProcessing = this.use2024SpellProcessing ?? localSpellProcessing;
+  this.useCastActivity = this.useCastActivity ?? localSpellProcessing;
 };

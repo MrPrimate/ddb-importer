@@ -526,7 +526,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     } else if (foundry.utils.hasProperty(this.ddbDefinition, "limitedUse.value")) {
       this.data.system.uses = {
         spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
-        max: this.ddbDefinition.limitedUse.value,
+        max: `${this.ddbDefinition.limitedUse.value}`,
         recovery: [
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
         ],
