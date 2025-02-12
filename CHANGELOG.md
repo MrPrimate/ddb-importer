@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.77
 
 - Adjustments to 2024 AC parsing for some edge cases.
 - Some adjustments to 2014 monsters who get bonuses from items such as bracers of defense.
