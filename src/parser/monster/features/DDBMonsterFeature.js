@@ -310,7 +310,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         const damageTypes = dmg.groups.type && dmg.groups.type.trim() !== ""
           && Object.keys(CONFIG.DND5E.damageTypes).includes(dmg.groups.type.trim().toLowerCase())
           ? [dmg.groups.type.trim().toLowerCase()]
-          : (typesMatch?.[1] ?? []).replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase());
+          : typesMatch
+            ? typesMatch?.[1].replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase())
+            : [];
 
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
         const includesDice = includesDiceRegExp.test(damage);
