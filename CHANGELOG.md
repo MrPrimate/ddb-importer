@@ -3,6 +3,7 @@
 - Adjustments to 2024 AC parsing for some edge cases.
 - Some adjustments to 2014 monsters who get bonuses from items such as bracers of defense.
 - 2024 Monster features will now parse out mentioned spells as Cast actions.
+- Improved 2024 monster feature template detection.
 - Battle Ready from Artificer would not apply to infused items.
 - Module setting to force 2024 spells on 2014 monsters. Know Issue: if force 2024 is selected and a monster has a spell that doesn't have a 2024 version, it won't be added to the actor.
 - Slight tweak to determine if a source uses 2014 or 2024 rules.
