@@ -23,6 +23,7 @@ export default class Illumination extends DDBEnricherData {
     const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml);
 
     const justDimRegex = /sheds dim light in a (?<dim>\d+)-\s?foot radius/i;
+    const justDimMatch = justDimRegex.exec(this.ddbParser.strippedHtml);
 
     // console.warn("Illumination", {
     //   this: this,
@@ -30,7 +31,7 @@ export default class Illumination extends DDBEnricherData {
     //   atlACtove: DDBEnricherData.AutoEffects.effectModules().atlInstalled,
     // });
 
-    const match = basicMatch ?? justDimRegex;
+    const match = basicMatch ?? justDimMatch;
     if (match && DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       const effect = {
         options: {

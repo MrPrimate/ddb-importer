@@ -68,7 +68,8 @@ async function generateCastSpells(actor) {
       await Promise.all(
         item.system.activities.getByType("cast").map((a) => a.getCachedSpellData()),
       )).filter((spell) => !actor.items.find((i) =>
-      i.type === "spell" && i.flags.dnd5e.cachedFor === spell.flags.dnd5e.cachedFor,
+      i.type === "spell" && foundry.utils.hasProperty(i, "flags.dnd5e.cachedFor")
+      && i.flags?.dnd5e?.cachedFor === spell.flags?.dnd5e?.cachedFor,
     ));
     if (spells.length) actor.createEmbeddedDocuments("Item", spells);
   }
