@@ -1315,7 +1315,8 @@ ${this.data.system.description.value}
     let generateActivityUses = false;
     let generateConsumption = false;
 
-    if (!this.spellCastingData.concentration) spellOverride.properties.push("concentration");
+    if (!this.spellCastingData.concentration || spellData.noConcentration)
+      spellOverride.properties.push("concentration");
     if (!this.spellCastingData.material) spellOverride.properties.push("material");
     if (spellData.level) spellOverride.level = spellData.level;
 
@@ -1370,14 +1371,17 @@ ${this.data.system.description.value}
       generateUses: generateActivityUses,
       usesOverride,
       consumptionOverride,
+      generateTarget: spellData.targetSelf,
     };
 
-    // console.warn(`options for ${this.name}`, {
-    //   options,
-    // })
     const activity = this._getCastActivity({
       name: spellData.extra ? `${spellData.name} (${spellData.extra})` : spellData.name,
     }, options);
+
+    if (spellData.targetSelf) {
+      activity.data.target.override = true;
+      activity.data.target.affects.type = "self";
+    }
 
     this.enricher.customFunction({
       name: spellData.name,
@@ -1449,6 +1453,8 @@ ${this.data.system.description.value}
   //   period: "Day", // reset timeframe
   //   quantity: "2"  // quantity available per period
   //   consumeType: "itemUses",// defaults to activity uses
+  //   targetSelf: true,
+  //   noComponents: true,
   // }
   async #buildSpellcastingActivities(spells) {
 
@@ -1469,15 +1475,15 @@ ${this.data.system.description.value}
   }
 
   async #buildOtherSpellActivities() {
-    const basicRegex = /The (?:.*) casts(?: the)? (.*?)(?: spell| on that creature)?(?: in response to (?:the|that) spell’s trigger)?, using the same spellcasting ability as Spellcasting/i;
+    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no spell components and )?using the same spellcasting ability as Spellcasting/i;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
-    const useRegex = /The (?:.*) uses Spellcasting to cast (.*?)( on itself)?(?:, and it can|\.)/i;
+    const useRegex = /The (?:.*) uses Spellcasting to cast (?<spells>.*?)(?<self> on itself)?(?:, and it can|\.)/i;
     const useMatch = this.strippedHtml.match(useRegex);
-    const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (.*?)\./i;
+    const canCastRegex = /the (?:.*) can cast one of the following spells, (?:.*): (?<spells>.*?)\./i;
     const canCastMatch = this.strippedHtml.match(canCastRegex);
 
-    const lairRegex = /While in its lair, the (?:.*) can cast (.*?), (requiring no spell components and )?using the same spellcasting ability as its Spellcasting action./i;
+    const lairRegex = /While in its lair, the (?:.*) can cast (?<spells>.*?), (?<components>requiring no spell components and )?using the same spellcasting ability as its Spellcasting action./i;
     const lairMatch = this.strippedHtml.match(lairRegex);
 
     const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
@@ -1493,7 +1499,7 @@ ${this.data.system.description.value}
       const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
       const perUseMatch = this.strippedHtml.match(perUseRegex);
 
-      const names = DDBDescriptions.splitStringByComma(matches[1].replace(", or ", ", ").replace(" or ", ", "));
+      const names = DDBDescriptions.splitStringByComma(matches.groups.spells.replace(", or ", ", ").replace(" or ", ", "));
       for (const name of names) {
         const spell = {
           name: name, // required
@@ -1502,10 +1508,16 @@ ${this.data.system.description.value}
           // period: "Day", // reset timeframe
           // quantity: "2",
           // consumeType: "itemUses",
+          // targetSelf: true,
+          // noComponents: true,
         };
 
-        if (matches[2]) {
-          spell.extra = matches[2].trim();
+        if (matches.groups.self) {
+          spell.extra = "on itself";
+          spell.targetSelf = true;
+        }
+        if (matches.groups.components) {
+          spell.noComponents = true;
         }
 
         if (perUseMatch) {
