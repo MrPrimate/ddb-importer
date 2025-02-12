@@ -8970,5 +8970,9 @@
   {
     "name": "Robe",
     "path": "icons/equipment/chest/robe-layered-teal.webp"
+  },
+  {
+    "name": "Blasted Goggles",
+    "path": "icons/equipment/head/goggles-leather-tan.webp"
   }
 ]

@@ -9992,7 +9992,11 @@
   },
   {
     "name": "Self-Restoration",
-    "path": "icons/magic/life/cross-worn-green.webp"
+    "path": "icons/magic/holy/prayer-hands-glowing-yellow-white.webp"
+  },
+  {
+    "name": "Self Restoration",
+    "path": "icons/magic/holy/prayer-hands-glowing-yellow-white.webp"
   },
   {
     "name": "Stride of the Elements",
