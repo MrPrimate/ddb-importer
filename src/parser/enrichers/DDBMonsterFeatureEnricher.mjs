@@ -5,8 +5,9 @@ import { logger } from "../../lib/_module.mjs";
 export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
   _loadEnricherData() {
-    if (!this.ENRICHERS?.[this.monsterHintName]?.[this.hintName]) return null;
-    return new this.ENRICHERS[this.monsterHintName][this.hintName]({
+    const monsterHintName = this.monsterHintName ?? this.monsterName;
+    if (!this.ENRICHERS?.[monsterHintName]?.[this.hintName]) return null;
+    return new this.ENRICHERS[monsterHintName][this.hintName]({
       ddbEnricher: this,
     });
   }
@@ -119,7 +120,11 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
   NAME_HINTS_2014 = {};
 
-  NAME_HINTS = {};
+  NAME_HINTS = {
+    "Elemental Cultist": {
+      "Elemental Absorption (1/Day)": "Elemental Absorption",
+    },
+  };
 
   GENERIC_FEATURE_NAME = {
     "Fallible Invisibility": "Invisibility",
@@ -183,6 +188,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     "Summon Animated Object": {
       "Slam": MonsterEnrichers.SummonAnimatedObject.Slam,
+    },
+    "Elemental Cultist": {
+      "Elemental Absorption": MonsterEnrichers.ElementalCultist.ElementalAbsorption,
     },
   };
 

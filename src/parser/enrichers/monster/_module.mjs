@@ -9,3 +9,4 @@ export * as FlamingSphere from "./FlamingSphere/_module.mjs";
 export * as GraspingVine from "./GraspingVine/_module.mjs";
 export * as SummonConstruct from "./SummonConstruct/_module.mjs";
 export * as SummonAnimatedObject from "./SummonAnimatedObject/_module.mjs";
+export * as ElementalCultist from "./ElementalCultist/_module.mjs";
