@@ -304,13 +304,29 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
       // Make sure we did match a damage
       if (damage) {
+        const typesRegex = /damage of a type chosen by the (?:.*?): (.*?)\./i;
+        const typesMatch = typesRegex.exec(hit);
+
+        const damageTypes = dmg.groups.type && dmg.groups.type.trim() !== ""
+          && Object.keys(CONFIG.DND5E.damageTypes).includes(dmg.groups.type.trim().toLowerCase())
+          ? [dmg.groups.type.trim().toLowerCase()]
+          : (typesMatch?.[1] ?? []).replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase());
+
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
         const includesDice = includesDiceRegExp.test(damage);
         const parsedDiceDamage = (this.actionInfo && includesDice)
-          ? this.damageModReplace(damage.replace("plus", "+"), dmg.groups.type)
+          ? this.damageModReplace(damage.replace("plus", "+"))
           : damage.replace("plus", "+");
 
         const finalDamage = [parsedDiceDamage, profBonus].filter((t) => t !== "").join(" + ");
+
+        const damageHasMod = finalDamage.includes("@mod");
+
+        // console.warn("MODS", {
+        //   parsedDiceDamage,
+        //   finalDamage,
+        //   damageHasMod,
+        // })
 
         // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
         // versatile for damage
@@ -327,11 +343,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         }
         // assumption here is that there is just one field added to versatile. this is going to be rare.
         if (other) {
-          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: this.templateType === "weapon" });
-
+          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
           if (!thisOther && dmg.groups.prefix.trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
+            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice, noBonus: part.bonus === "", damageHasMod });
           } else {
             this.additionalActivities.push({
               name: save ? "Save vs" : "Damage",
@@ -351,12 +366,12 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
           // }
           if (!thisVersatile && dmg.groups.prefix.trim() == "plus") {
             this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: this.templateType === "weapon" });
-            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
+            const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
+            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice, noBonus: part.bonus === "", damageHasMod });
           }
         } else {
-          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, type: dmg.groups.type, stripMod: this.templateType === "weapon" });
-          this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice });
+          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
+          this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice, noBonus: part.bonus === "", damageHasMod });
         }
       }
     }
@@ -1108,19 +1123,30 @@ ${this.data.system.description.value}
       ? !this.actionInfo.damageParts[0].includesDice
       : false;
 
+    const noDamageMods = this.actionInfo.damageParts.every((p) => !p.damageHasMod);
+    const noModWeapon = this.templateType === "weapon" && noDamageMods;
+
     const parts = this.actionInfo.damageParts.length > 1
       ? this.isSave
         ? []
         : this.actionInfo.damageParts.slice(1).map((s) => s.part) // otherwise we assume the weapon attack wants the base damage
-      : isFlatWeaponDamage
+      : isFlatWeaponDamage || noModWeapon
         ? this.actionInfo.damageParts.map((s) => s.part) // includes no dice, i.e. is flat, we want to ignore the base damage
         : [];
+
+    // console.warn("activity buikd", {
+    //   isFlatWeaponDamage,
+    //   this: this,
+    //   noDamageMods,
+    //   noModWeapon,
+    //   parts,
+    // })
 
     const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
       generateRange: this.templateType !== "weapon",
       generateDamage: !this.isSave,
-      includeBaseDamage: this.templateType === "weapon" && !isFlatWeaponDamage,
+      includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
       damageParts: parts,
     }, options);
 

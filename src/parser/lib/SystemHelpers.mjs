@@ -50,12 +50,12 @@ export default class SystemHelpers {
     }
   }
 
-  static buildDamagePart({ dice = null, damageString = "", type, stripMod = false } = {}) {
+  static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false } = {}) {
     const damage = {
       number: null,
       denomination: 0,
       bonus: "",
-      types: type ? [type.toLowerCase()] : [],
+      types: types ?? (type ? [type.toLowerCase()] : []),
       custom: {
         enabled: false,
         formula: "",

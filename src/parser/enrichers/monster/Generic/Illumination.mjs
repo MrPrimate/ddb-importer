@@ -20,7 +20,9 @@ export default class Illumination extends DDBEnricherData {
     // The sphere is bright light, sheds dim light for an additional 30 feet, and moves with the faerie
     // The faerie sheds dim light in a 15-foot radius.
     const basicRegex = /sheds bright light in a (?<bright>\d+)-\s?foot radius and dim light (in a|for an additional) (?<dim>\d+)-?\s?(foot radius|feet)/i;
-    const match = basicRegex.exec(this.ddbParser.strippedHtml);
+    const basicMatch = basicRegex.exec(this.ddbParser.strippedHtml);
+
+    const justDimRegex = /sheds dim light in a (?<dim>\d+)-\s?foot radius/i;
 
     // console.warn("Illumination", {
     //   this: this,
@@ -28,6 +30,7 @@ export default class Illumination extends DDBEnricherData {
     //   atlACtove: DDBEnricherData.AutoEffects.effectModules().atlInstalled,
     // });
 
+    const match = basicMatch ?? justDimRegex;
     if (match && DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       const effect = {
         options: {
