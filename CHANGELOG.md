@@ -7,6 +7,7 @@
 - Battle Ready from Artificer would not apply to infused items.
 - Module setting to force 2024 spells on 2014 monsters. Know Issue: if force 2024 is selected and a monster has a spell that doesn't have a 2024 version, it won't be added to the actor.
 - Slight tweak to determine if a source uses 2014 or 2024 rules.
+- Monsters with the Illuminate feature will get light adjustments to tokens or an Active Token Effect if ATL is installed.
 
 # 6.0.76
 

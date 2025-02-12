@@ -26,22 +26,15 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     // pop items in later
     delete actorUpdate.items;
 
-
     const updateImages = game.settings.get("ddb-importer", "munching-policy-update-world-monster-update-images");
     if (!updateImages) {
       actorUpdate.img = targetActor.img;
-      actorUpdate.prototypeToken.texture.src = targetActor.prototypeToken.texture.src;
-      actorUpdate.prototypeToken.scale = targetActor.prototypeToken.scale;
+      actorUpdate.prototypeToken.texture = targetActor.prototypeToken.texture;
       actorUpdate.prototypeToken.randomImg = targetActor.prototypeToken.randomImg;
-      actorUpdate.prototypeToken.mirrorX = targetActor.prototypeToken.mirrorX;
-      actorUpdate.prototypeToken.mirrorY = targetActor.prototypeToken.mirrorY;
       actorUpdate.prototypeToken.lockRotation = targetActor.prototypeToken.lockRotation;
       actorUpdate.prototypeToken.rotation = targetActor.prototypeToken.rotation;
       actorUpdate.prototypeToken.alpha = targetActor.prototypeToken.alpha;
-      actorUpdate.prototypeToken.lightAlpha = targetActor.prototypeToken.lightAlpha;
-      actorUpdate.prototypeToken.lightAnimation = targetActor.prototypeToken.lightAnimation;
-      actorUpdate.prototypeToken.tint = targetActor.prototypeToken.tint;
-      actorUpdate.prototypeToken.lightColor = targetActor.prototypeToken.lightColor;
+      actorUpdate.prototypeToken.ring = targetActor.prototypeToken.ring;
     }
 
     const retainBiography = game.settings.get("ddb-importer", "munching-policy-update-world-monster-retain-biography");

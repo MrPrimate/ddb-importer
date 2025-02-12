@@ -120,18 +120,11 @@ const CompendiumHelper = {
         foundryActor.img = existingNPC.system.img;
       }
       if (!updateImages && foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN) {
-        foundryActor.prototypeToken.texture.src = existingNPC.prototypeToken.texture.src;
-        foundryActor.prototypeToken.scale = existingNPC.prototypeToken.scale;
-        foundryActor.prototypeToken.randomImg = existingNPC.prototypeToken.randomImg;
-        foundryActor.prototypeToken.mirrorX = existingNPC.prototypeToken.mirrorX;
-        foundryActor.prototypeToken.mirrorY = existingNPC.prototypeToken.mirrorY;
-        foundryActor.prototypeToken.lockRotation = existingNPC.prototypeToken.lockRotation;
-        foundryActor.prototypeToken.rotation = existingNPC.prototypeToken.rotation;
-        foundryActor.prototypeToken.alpha = existingNPC.prototypeToken.alpha;
-        foundryActor.prototypeToken.lightAlpha = existingNPC.prototypeToken.lightAlpha;
-        foundryActor.prototypeToken.lightAnimation = existingNPC.prototypeToken.lightAnimation;
-        foundryActor.prototypeToken.tint = existingNPC.prototypeToken.tint;
-        foundryActor.prototypeToken.lightColor = existingNPC.prototypeToken.lightColor;
+        const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken);
+        delete oldValues.name;
+        delete oldValues.sight;
+        delete oldValues.light;
+        foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken, oldValues);
       }
 
       const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
@@ -482,3 +475,4 @@ const CompendiumHelper = {
 };
 
 export default CompendiumHelper;
+

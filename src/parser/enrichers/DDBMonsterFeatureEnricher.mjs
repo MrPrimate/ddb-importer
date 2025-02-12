@@ -133,6 +133,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Suave Defense": "Suave Defense",
     "Superior Invisibility": "Invisibility",
     "Uncanny Dodge": "Uncanny Dodge",
+    "Illumination": "Illumination",
   };
 
   GENERIC_FEATURE_NAME_STARTS_WITH = {
@@ -154,6 +155,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Reversal of Fortune": MonsterEnrichers.Generic.ReversalOfFortune,
     "Suave Defense": MonsterEnrichers.Generic.SuaveDefense,
     "Uncanny Dodge": GenericEnrichers.UncannyDodge,
+    "Illumination": MonsterEnrichers.Generic.Illumination,
   };
 
   ENRICHERS = {

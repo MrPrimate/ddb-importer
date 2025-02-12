@@ -81,6 +81,8 @@ async function addNPCToCompendium(npc, type = "monster") {
   if (itemImporter.compendium) {
     const npcBasic = (await itemImporter.addCompendiumFolderIds([foundry.utils.duplicate(npc)]))[0];
 
+    console.warn("HERE", { npc: foundry.utils.deepClone(npcBasic)});
+
     let compendiumNPC;
     if (foundry.utils.hasProperty(npc, "_id") && itemImporter.compendium.index.has(npc._id)) {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
@@ -324,40 +326,6 @@ async function swapItems(data) {
   }
 }
 
-// async function linkResourcesConsumption(actor) {
-//   // TODO: I think this is actually in recovery
-//   // is consume gone?
-//   if (actor.items.some((item) =>
-//     foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge"),
-//   )) {
-//     logger.debug(`Resource linking for ${actor.name}`);
-//     actor.items.forEach((item) => {
-//       if (foundry.utils.getProperty(item, "system.uses.recovery")?.some((r) => r.period === "recharge")) {
-//         const itemID = item._id ?? foundry.utils.randomID(16);
-//         item._id = itemID;
-//         if (item.type === "weapon") {
-//           item.type = "feat";
-//           delete item.system.type.value;
-//           item.system.type = {
-//             value: "monster",
-//             subtype: "",
-//           };
-//         }
-//         // item.system.uses.recovery = [
-//         //   { period: "recharge", type: 'recoverAll', formula: "5" },
-//         // ];
-//         item.system.consume = {
-//           type: "charges",
-//           target: itemID,
-//           amount: null,
-//         };
-//       }
-//     });
-//   }
-//   return actor;
-// }
-
-
 export async function buildNPC(data, type = "monster", {
   temporary = true, update = false, handleBuild = false,
   forceImageUpdate = undefined,
@@ -376,7 +344,6 @@ export async function buildNPC(data, type = "monster", {
     monsterName: data.name,
   });
   data = Iconizer.addActorEffectIcons(data);
-  // if (!["monster", "summons"].includes(type)) data = await linkResourcesConsumption(data);
 
   if (handleBuild) {
     // create the new npc
@@ -426,47 +393,47 @@ export function addNPC(data, type, buildOptions = {}) {
 
 export async function useSRDMonsterImages(monsters) {
   // eslint-disable-next-line require-atomic-updates
-  if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) {
-    const srdImageLibrary = await Iconizer.getSRDImageLibrary();
-    utils.munchNote(`Updating SRD Monster Images`, true);
+  if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return monsters;
+  const srdImageLibrary = await Iconizer.getSRDImageLibrary();
+  utils.munchNote(`Updating SRD Monster Images`, true);
 
-    monsters.forEach((monster) => {
-      logger.debug(`Checking ${monster.name} for srd images`);
-      const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
-      if (nameMatch) {
-        logger.debug(`Updating monster ${monster.name} to srd images`, nameMatch);
-        const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == "monsters").name;
-        const moduleArt = game.dnd5e.moduleArt.map.get(`Compendium.${compendiumName}.${nameMatch._id}`);
-        logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
-        monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
-        monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
-        if (moduleArt?.actor && nameMatch.actor !== "" && !moduleArt.actor.includes("mystery-man")) {
-          monster.img = moduleArt.actor;
-          foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
-        } else if (nameMatch.img && nameMatch.img !== "" && !nameMatch.img.includes("mystery-man")) {
-          monster.img = nameMatch.img;
-          foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
-        }
-        if (moduleArt?.token && !foundry.utils.hasProperty(moduleArt, "token.texture.src")) {
-          monster.prototypeToken.texture.src = moduleArt.token;
-        } else if (moduleArt?.token?.texture?.src
-          && moduleArt.token.texture.src !== ""
-          && !moduleArt.token.texture.src.includes("mystery-man")
-        ) {
-          monster.prototypeToken.texture.src = moduleArt.token.texture.src;
-          foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
-          if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
-          if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
-        } else if (nameMatch.prototypeToken?.texture?.src
-          && nameMatch.prototypeToken.texture.src !== ""
-          && !nameMatch.prototypeToken.texture.src.includes("mystery-man")
-        ) {
-          foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
-          monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;
-        }
+  monsters.forEach((monster) => {
+    logger.debug(`Checking ${monster.name} for srd images`);
+    const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
+    if (nameMatch) {
+      logger.debug(`Updating monster ${monster.name} to srd images`, nameMatch);
+      const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == "monsters").name;
+      const moduleArt = game.dnd5e.moduleArt.map.get(`Compendium.${compendiumName}.${nameMatch._id}`);
+      logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
+      monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
+      monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
+      if (moduleArt?.actor && nameMatch.actor !== "" && !moduleArt.actor.includes("mystery-man")) {
+        monster.img = moduleArt.actor;
+        foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
+      } else if (nameMatch.img && nameMatch.img !== "" && !nameMatch.img.includes("mystery-man")) {
+        monster.img = nameMatch.img;
+        foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
       }
-    });
-  }
+      if (moduleArt?.token && !foundry.utils.hasProperty(moduleArt, "token.texture.src")) {
+        monster.prototypeToken.texture.src = moduleArt.token;
+      } else if (moduleArt?.token?.texture?.src
+        && moduleArt.token.texture.src !== ""
+        && !moduleArt.token.texture.src.includes("mystery-man")
+      ) {
+        monster.prototypeToken.texture.src = moduleArt.token.texture.src;
+        foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+        if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
+        if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
+        if (moduleArt.token.ring) monster.prototypeToken.ring = moduleArt.token.ring;
+      } else if (nameMatch.prototypeToken?.texture?.src
+        && nameMatch.prototypeToken.texture.src !== ""
+        && !nameMatch.prototypeToken.texture.src.includes("mystery-man")
+      ) {
+        foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+        monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;
+      }
+    }
+  });
 
   return monsters;
 }
@@ -496,13 +463,14 @@ export async function generateIconMap(monsters) {
 
 export function copyExistingMonsterImages(monsters, existingMonsters) {
   const updated = monsters.map((monster) => {
-    const existing = existingMonsters.find((m) => monster.name === m.name
+    const existing = existingMonsters.find((m) =>
+      monster.name === m.name
       && monster.system.source.rules === m.system.source.rules,
     );
     if (existing) {
       monster.img = existing.img;
       for (const key of Object.keys(monster.prototypeToken)) {
-        if (!["sight", "detectionModes", "flags"].includes(key) && foundry.utils.hasProperty(existing.prototypeToken, key)) {
+        if (!["name", "sight", "detectionModes", "flags", "light", "ring", "occludable"].includes(key) && foundry.utils.hasProperty(existing.prototypeToken, key)) {
           monster.prototypeToken[key] = foundry.utils.deepClone(existing.prototypeToken[key]);
         }
       }
