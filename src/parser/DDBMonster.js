@@ -19,7 +19,8 @@ export default class DDBMonster {
   }
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
-    legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null } = {}, overrides = {},
+    legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null,
+    use2024SpellProcessing = null } = {}, overrides = {},
   ) {
     this.source = ddbObject;
 
@@ -64,6 +65,7 @@ export default class DDBMonster {
     this.is2014 = null;
     this.is2024 = null;
     this.use2024Spells = use2024Spells;
+    this.use2024SpellProcessing = use2024SpellProcessing;
 
     this.spellcasting = {
       spelldc: 10,

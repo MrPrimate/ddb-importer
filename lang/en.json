@@ -26,6 +26,8 @@
       }
     },
     "settings": {
+      "munching-policy-force-spell-version.name": "Monster Spell Version",
+      "munching-policy-force-spell-version.hint": "Determines if monsters should use 2024 spells or spell version that match their original rules",
       "user-hint-setting": "If you are unaware of the purpose of a specific setting, it's recommended to leave it at the default value. Several of the settings rely on additional modules and are only recommended if you want to add that level of automation to your game.",
       "user-hint-effects": "Several settings make mention of ActiveEffects. Please be aware that these are not <em>animation</em> effects.",
       "user-hint-animations": "Please be aware that these are not <em>animation</em> effects.",

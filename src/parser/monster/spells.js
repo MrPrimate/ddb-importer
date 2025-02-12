@@ -203,7 +203,7 @@ DDBMonster.prototype._generateSpellEdgeCases = function() {
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
 DDBMonster.prototype._generateSpells = function() {
-  if (!this.is2014) return;
+  if (!this.use2024SpellProcessing) return;
 
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock

@@ -31,10 +31,24 @@ DDBMonster.prototype._generateSource = function _generateSource() {
   this.legacy = CONFIG.DDB.sources.some((ds) =>
     DICTIONARY.sourceCategories.legacy.includes(ds.sourceCategoryId),
   );
-  this.is2014 = Number.isInteger(source.id) && source.id < 145;
+  const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
+  const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
+  this.is2014 = force2014
+    ? true
+    : force2024
+      ? false
+      : Number.isInteger(source.id) && source.id < 145;
   this.is2024 = !this.is2014;
 
   this.npc.system.source.rules = this.is2014 ? "2014" : "2024";
 
   this.use2024Spells = this.use2024Spells ?? this.is2024;
+  const spells2014 = DICTIONARY.source.spellDescriptions2014.includes(source.id);
+  const spells2024 = DICTIONARY.source.spellDescriptions2024.includes(source.id);
+  const localSpellProcessing = spells2014
+    ? false
+    : spells2024
+      ? true
+      : this.is2024;
+  this.use2024SpellProcessing = this.use2024SpellProcessing ?? localSpellProcessing;
 };

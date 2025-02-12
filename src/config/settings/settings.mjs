@@ -934,6 +934,17 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-force-spell-version": {
+            name: "ddb-importer.settings.munching-policy-force-spell-version.name",
+            hint: "ddb-importer.settings.munching-policy-force-spell-version.hint",
+            config: true,
+            type: String,
+            choices: {
+              DEFAULT: "Choose spells based on monster rules",
+              FORCE_2024: "Force 2024 spells",
+            },
+            default: "DEFAULT",
+          },
           "munching-policy-hide-description": {
             name: "ddb-importer.settings.munching-policy-hide-description.name",
             hint: "ddb-importer.settings.munching-policy-hide-description.hint",

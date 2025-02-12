@@ -407,7 +407,14 @@ export default class DDBClass {
       sourceIds.includes(ddbSource.id)
       && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
-    this.is2014 = this.ddbClassDefinition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+    this.is2014 = this.ddbClassDefinition.sources.some((s) => {
+      const force2014 = DICTIONARY.source.is2014.includes(s.sourceId);
+      if (force2014) return true;
+      const force2024 = DICTIONARY.source.is2024.includes(s.sourceId);
+      if (force2024) return false;
+      return Number.isInteger(s.sourceId) && s.sourceId < 145;
+    });
+    this.is2024 = !this.is2014;
 
     // quick helpers
     this.classFeatureIds = this.ddbClass.definition.classFeatures.map((f) => f.id);

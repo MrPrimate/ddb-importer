@@ -71,8 +71,10 @@ export default class DDBMonsterFactory {
     this.legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
     this.addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
-
-
+    const spellChoice = game.settings.get("ddb-importer", "munching-policy-force-spell-version");
+    this.use2024Spells = spellChoice === "FORCE_2024"
+      ? true
+      : null;
     this.currentDocument = 1;
     this.totalDocuments = 0;
     this.monstersParsed = [];
@@ -206,6 +208,7 @@ export default class DDBMonsterFactory {
           legacyName: this.legacyName,
           addMonsterEffects: this.addMonsterEffects,
           addChrisPremades: this.addChrisPremades,
+          use2024Spells: this.use2024Spells,
         });
         await ddbMonster.parse();
         foundryActors.push(foundry.utils.duplicate(ddbMonster.npc));

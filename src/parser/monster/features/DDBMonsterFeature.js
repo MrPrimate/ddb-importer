@@ -214,8 +214,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.ddbMonster = ddbMonster;
     this.is2014 = ddbMonster.is2014;
     this.is2024 = !this.is2014;
-    this.useCastActivity = this.is2024;
-    this.use2024Spells = this.is2024;
+    this.useCastActivity = ddbMonster.useCastActivity;
+    this.use2024Spells = ddbMonster.use2024Spells;
 
     this.type = type;
     this.html = html ?? "";
@@ -498,7 +498,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     const usesMatch = matchString.match(usesSearch);
     if (usesMatch && usesMatch[2].toLowerCase() !== "turn") {
       uses.spent = 0;
-      uses.max = usesMatch[1];
+      uses.max = `${usesMatch[1]}`;
       recovery.period = "day";
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
       if (perMatch) recovery.period = perMatch.value;
@@ -1067,7 +1067,7 @@ ${this.data.system.description.value}
     if (this.name !== "Villain Actions") {
       this.data.system.uses = {
         spent: 0,
-        max: this.actionInfo.uses.max,
+        max: `${this.actionInfo.uses.max}`,
         recovery: [
           { period: "sr", type: 'recoverAll', formula: undefined },
         ],
@@ -1342,7 +1342,7 @@ ${this.data.system.description.value}
     if (spellData.period) {
       generateActivityUses = true;
       usesOverride.spent = "0";
-      usesOverride.max = spellData.quantity ?? "1";
+      usesOverride.max = `${spellData.quantity}` ?? "1";
       const resetType = DICTIONARY.resets.find((reset) =>
         reset.id == spellData.period,
       )?.value ?? "lr";

@@ -18,11 +18,12 @@ import { CONDITIONS } from "./actor/conditions.mjs";
 import { SIZES } from "./actor/sizes.mjs";
 import { ITEM_TYPES } from "./items/types.mjs";
 import { CURRENCY } from "./actor/currency.mjs";
-import { SOURCE_CATEGORIES } from "./generics/sources.mjs";
+import { SOURCE_CATEGORIES, SOURCE_DATA } from "./generics/sources.mjs";
 import { NUMBER_MATRIX } from "./generics/numbers.mjs";
 import { COMPANIONS } from "./parsing/companions.mjs";
 
 const DICTIONARY = {
+  source: SOURCE_DATA,
   sourceCategories: SOURCE_CATEGORIES,
   numbers: NUMBER_MATRIX,
   currency: CURRENCY,
