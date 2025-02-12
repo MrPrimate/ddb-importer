@@ -81,8 +81,6 @@ async function addNPCToCompendium(npc, type = "monster") {
   if (itemImporter.compendium) {
     const npcBasic = (await itemImporter.addCompendiumFolderIds([foundry.utils.duplicate(npc)]))[0];
 
-    console.warn("HERE", { npc: foundry.utils.deepClone(npcBasic)});
-
     let compendiumNPC;
     if (foundry.utils.hasProperty(npc, "_id") && itemImporter.compendium.index.has(npc._id)) {
       if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")) {
