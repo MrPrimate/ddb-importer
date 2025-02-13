@@ -940,37 +940,49 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     const orMakesRegex = /The (?:.*) makes (\w+) (?<attackNames>.*) attack, or it makes (\w+) (?<replaceName>.*?) attacks/i;
     const orMakesMatch = orMakesRegex.exec(this.strippedHtml);
 
-    const multRegex = /The (?:.*) makes (\w+) attacks, using (?<attackNames>.*:?) in any combination\. It can replace one attack with a (?<replaceName>..*) attack/i;
+    const multRegex = /The (?:.*) makes (\w+) attacks, using (?<attackNames>.*:?)( in any combination(?:, and( it)? uses (?<attackNames2>.*)\.)?)/i;
+    const multiMatch = multRegex.exec(this.strippedHtml);
     const basicMARegex = /The (?:.*) makes (\w+) (?<attackNames>.*:?) attacks?\.(\s+It can replace (?:\w+|the (?:\w+)) attacks? with a use of (?<replaceName>.*?)\.)?/i;
     const basicMAMatch = basicMARegex.exec(this.strippedHtml);
 
-    console.warn({
+    const actionNames = new Set();
+    const match = orMakesMatch ?? multiMatch ?? basicMAMatch;
+
+    console.warn(`${this.ddbMonster.name}`,{
       orMakesMatch,
       basicMAMatch,
-    })
+      multiMatch,
+      match,
+      strippedHtml: this.strippedHtml,
+    });
 
-    const actionNames = new Set();
-    const match = orMakesMatch ?? basicMAMatch;
     if (match) {
-      const names = match.groups.attackNames
-        .replace("attacks. It can replace one attack with a ", ",")
-        .replace("attack and one ", ",")
-        .replace("attack, one ", ",")
-        .replace("attack, two ", ",")
-        .replace("attack, and one ", ",")
-        .replace("attacks, and one ", ",")
-        .replace("attacks and one ", ",")
-        .replace("attack and two ", ",")
-        .replace("attacks or two ", ",")
-        .replace("attack and three ", ",")
-        .replace("attacks or four ", ",")
-        .replace("attacks or five ", ",")
-        .replace(", or ", ",")
-        .replace(" or ", ",")
-        .split(",")
-        .map((s) => s.trim());
-      for (const name of names) {
-        actionNames.add(name.trim());
+      const attackNames = [];
+      if (match.groups.attackNames) attackNames.push(match.groups.attackNames);
+      if (match.groups.attackNames2) attackNames.push(match.groups.attackNames2);
+      console.warn("Attack names", attackNames);
+      for (const attackNameString of attackNames) {
+        const names = attackNameString
+          .replace("if available", "")
+          .replace("attacks. It can replace one attack with a ", ",")
+          .replace("attack and one ", ",")
+          .replace("attack, one ", ",")
+          .replace("attack, two ", ",")
+          .replace("attack, and one ", ",")
+          .replace("attacks, and one ", ",")
+          .replace("attacks and one ", ",")
+          .replace("attack and two ", ",")
+          .replace("attacks or two ", ",")
+          .replace("attack and three ", ",")
+          .replace("attacks or four ", ",")
+          .replace("attacks or five ", ",")
+          .replace(", or ", ",")
+          .replace(" or ", ",")
+          .split(",")
+          .map((s) => s.trim());
+        for (const name of names) {
+          actionNames.add(name.trim());
+        }
       }
       if (match.groups.replaceName) {
         const replaceNames = match.groups.replaceName
@@ -995,6 +1007,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
             actionNames.add(name.trim());
           }
         }
+      } else {
+        const replaceRegex = /(?: It can replace one attack with a (?<replaceName>.*) attack)/i;
       }
       console.warn("Matches", {
         match,
