@@ -17,6 +17,7 @@ import "./monster/features.js";
 import "./monster/spells.js";
 import "./monster/treasure.js";
 import "./monster/spellcasting.js";
+import "./monster/habitats.js";
 
 // character parser
 import "./DDBCharacter.js";

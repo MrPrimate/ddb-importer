@@ -246,6 +246,7 @@ export default class DDBMonster {
     this._generateLanguages();
     this._generateHitPoints();
     this._generateMovement();
+    this._generateHabitats();
 
     this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
     this._generateType();
