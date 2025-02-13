@@ -297,7 +297,8 @@ function parseHardCompendiumReferenceTag(type, text) {
 
 function damageRollGenerator({ text, damageType, actor, document, extraMods = [] } = {}) {
   let result;
-  const damageHint = damageType ? ` type=${damageType.toLowerCase()}` : "";
+  const types = damageType.replace(", or ", ",").replace(" or ", ",").split(",").map((s) => s.trim().toLowerCase());
+  const damageHint = damageType ? ` type=${types.join("/")}` : "";
   const diceParse = utils.parseDiceString(text, null, "");
   const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.baseAbility");
   const mods = extraMods.join(" + ");

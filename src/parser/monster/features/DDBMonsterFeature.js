@@ -260,12 +260,39 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     return result;
   }
 
+  static _getDamageTypes(text, dmgMatch) {
+    const typesRegex = /damage of a type chosen by the (?:.*?): (.*?)\./i;
+    const typesMatch = typesRegex.exec(text);
+
+    const result = new Set();
+
+    const processMatches = ((str) => {
+      const matches = str.replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase());
+
+      for (const match of matches) {
+        if (match.trim() !== "" && Object.keys(CONFIG.DND5E.damageTypes).includes(match.trim().toLowerCase())) {
+          result.add(match.trim().toLowerCase());
+        }
+      }
+    });
+
+    if (dmgMatch && dmgMatch.trim() !== "") {
+      processMatches(dmgMatch);
+    }
+
+    if (typesMatch && result.size === 0) {
+      processMatches(typesMatch[1]);
+    }
+
+    return Array.from(result);
+  }
+
   // eslint-disable-next-line complexity
   _generateDamageInfo2014(hit) {
     // console.warn(hit);
     // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
+    const damageExpression = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?|[\w]* or [\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
 
     // Adjustments
     // removed space in damage detection this might be a problem, for 2024 Summon Construct
@@ -309,16 +336,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
       // Make sure we did match a damage
       if (damage) {
-        const typesRegex = /damage of a type chosen by the (?:.*?): (.*?)\./i;
-        const typesMatch = typesRegex.exec(hit);
-
-        const damageTypes = dmg.groups.type && dmg.groups.type.trim() !== ""
-          && Object.keys(CONFIG.DND5E.damageTypes).includes(dmg.groups.type.trim().toLowerCase())
-          ? [dmg.groups.type.trim().toLowerCase()]
-          : typesMatch
-            ? typesMatch?.[1].replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase())
-            : [];
-
+        const damageTypes = DDBMonsterFeature._getDamageTypes(hit, dmg.groups.type);
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
         const includesDice = includesDiceRegExp.test(damage);
         const parsedDiceDamage = (this.actionInfo && includesDice)
@@ -1134,11 +1152,11 @@ ${this.data.system.description.value}
 
     if (this.actionInfo.damageParts.length > 1) {
       // otherwise we assume the weapon attack wants the base damage
-      if (!this.isSave && this.templateType === "weapon") parts = this.actionInfo.damageParts.slice(1).map((s) => s.part)
-      else if (!this.isSave) parts = this.actionInfo.damageParts.map((s) => s.part)
+      if (!this.isSave && this.templateType === "weapon") parts = this.actionInfo.damageParts.slice(1).map((s) => s.part);
+      else if (!this.isSave) parts = this.actionInfo.damageParts.map((s) => s.part);
     } else if (isFlatWeaponDamage || noModWeapon) {
       // includes no dice, i.e. is flat, we want to ignore the base damage
-      parts = this.actionInfo.damageParts.map((s) => s.part)
+      parts = this.actionInfo.damageParts.map((s) => s.part);
     }
 
     // console.warn("activity buikd", {

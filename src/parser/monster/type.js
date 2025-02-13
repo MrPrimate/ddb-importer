@@ -1,3 +1,4 @@
+import { utils } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
 
 //   "value": "",
@@ -30,7 +31,7 @@ DDBMonster.prototype._generateType = function _generateType() {
 
   this.npc.system.details.type.subtype = CONFIG.DDB.monsterSubTypes
     .filter((c) => this.source.subTypes.includes(c.id))
-    .map((c) => c.name)
+    .map((c) => utils.capitalize(c.name))
     .join(", ");
 
 };

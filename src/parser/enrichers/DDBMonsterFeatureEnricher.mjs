@@ -116,6 +116,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
   MONSTER_NAME_HINT_INCLUDES = {
     // "Dragon": "Dragon",
     "Animated Object (": "Summon Animated Object",
+    "Empyrean (": "Empyrean",
   };
 
   NAME_HINTS_2014 = {};
@@ -191,6 +192,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     "Elemental Cultist": {
       "Elemental Absorption": MonsterEnrichers.ElementalCultist.ElementalAbsorption,
+    },
+    "Empyrean": {
+      "Sacred Weapon": MonsterEnrichers.Empyrean.SacredWeapon,
     },
   };
 
