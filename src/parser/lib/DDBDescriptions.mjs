@@ -399,11 +399,39 @@ export default class DDBDescriptions {
   // eslint-disable-next-line complexity
   static featureBasics({ text } = {}) {
 
-    const attackMatches = text.match(
-      /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i,
-    );
+    const standardMatchRegex = /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i;
+    const standardAttackMatches = standardMatchRegex.exec(text);
+    const summonAttackRegex = /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<spellAttackMod>Bonus equals your spell attack modifier)/i;
+    const summonAttackMatches = summonAttackRegex.exec(text);
 
-    const summonAttackMatches = text.match(/(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*Bonus equals your spell attack modifier/);
+    const match = standardAttackMatches ?? summonAttackMatches;
+    const weaponAttack = match
+      ? (match.groups.type.toLowerCase() === "weapon" || match.groups.type === "")
+      : false;
+
+    const spellAttack = match ? match.groups.type.toLowerCase() === "spell" : false;
+    const meleeAttack = match ? match.groups.range.includes("Melee") : false;
+    const rangedAttack = match ? match.groups.range.includes("Ranged") : false;
+
+    const pbToAttack = standardAttackMatches ? standardAttackMatches.groups.pb !== undefined : false;
+    const yourSpellAttackModToHit = standardAttackMatches?.groups?.bonus?.startsWith("your spell")
+      ?? Boolean(summonAttackMatches?.groups?.spellAttackMod);
+
+    const toHit = standardAttackMatches
+      ? Number.isInteger(parseInt(standardAttackMatches.groups.bonus))
+        ? parseInt(standardAttackMatches.groups.bonus)
+        : 0
+      : 0;
+
+    const isSummonAttack = summonAttackMatches
+      ? summonAttackMatches.groups.range !== undefined
+      : false;
+
+    const isAttack = isSummonAttack
+      ? true
+      : standardAttackMatches
+        ? standardAttackMatches.groups.range !== undefined
+        : false;
 
     const save = {
       ability: "",
@@ -440,22 +468,12 @@ export default class DDBDescriptions {
       save.dc.calculation = "spellcasting";
     }
 
-    const isSummonAttack = summonAttackMatches
-      ? summonAttackMatches.groups.range !== undefined
-      : false;
-
-    const isAttack = isSummonAttack
-      ? true
-      : attackMatches
-        ? attackMatches.groups.range !== undefined
-        : false;
-
     const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
     const healingMatch = healingRegex.test(text);
 
     const result = {
       matches: {
-        attackMatches,
+        attackMatches: standardAttackMatches,
         summonAttackMatches,
         healingMatch,
         spellSave,
@@ -475,22 +493,14 @@ export default class DDBDescriptions {
         summonSave,
         isSave: Boolean(spellSave || savingThrow || summonSave),
         halfDamage: halfMatch,
-        pbToAttack: attackMatches ? attackMatches.groups.pb !== undefined : false,
-        weaponAttack: attackMatches
-          ? (attackMatches.groups.type.toLowerCase() === "weapon" || attackMatches.groups.type === "")
-          : false,
-        // warning - unclear how to parse these out for 2024 monsters
-        // https://comicbook.com/gaming/news/dungeons-dragons-first-look-2025-monster-manual/
-        spellAttack: attackMatches ? attackMatches.groups.type.toLowerCase() === "spell" : false,
-        meleeAttack: attackMatches ? attackMatches.groups.range.includes("Melee") : false,
-        rangedAttack: attackMatches ? attackMatches.groups.range.includes("Ranged") : false,
+        pbToAttack,
+        weaponAttack,
+        spellAttack,
+        meleeAttack,
+        rangedAttack,
         healingAction: healingMatch,
-        toHit: attackMatches
-          ? Number.isInteger(parseInt(attackMatches.groups.bonus))
-            ? parseInt(attackMatches.groups.bonus)
-            : 0
-          : 0,
-        yourSpellAttackModToHit: attackMatches ? attackMatches.groups.bonus?.startsWith("your spell") : false,
+        toHit,
+        yourSpellAttackModToHit,
       },
     };
 

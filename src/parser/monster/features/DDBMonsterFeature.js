@@ -58,6 +58,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
     const descriptionParse = DDBDescriptions.featureBasics({ text: this.strippedHtml });
+    this.descriptionParse = descriptionParse;
 
     // set calc flags
     this.isAttack = descriptionParse.properties.isAttack;
@@ -81,7 +82,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     this.isRecharge = this.#matchRecharge();
     this.templateType = this.isAttack && this.isRecharge === null ? "weapon" : "feat";
-    if (this.name === "Legendary Actions") {
+    this.weaponLookup = DICTIONARY.monsters.weapons.find((weapon) => this.name.startsWith(weapon.name));
+
+    if (this.name === "Legendary Actions" || !this.weaponLookup) {
       this.templateType = "feat";
     }
 
@@ -94,7 +97,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.data.system.identifier = this.identifier;
 
     // if not attack set to a monster type action
-    if (!this.isAttack) foundry.utils.setProperty(this.data, "system.type.value", "monster");
+    if (this.templateType !== "weapon") foundry.utils.setProperty(this.data, "system.type.value", "monster");
 
     this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
@@ -104,6 +107,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (this.isSummonAttack) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.spellAttack", true);
     }
+
+
   }
 
   async loadEnricher() {
@@ -631,7 +636,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         result.ability = ability;
         result.proficient = true;
         break;
-      } else if (result.toHit == this.ddbMonster.abilities[ability].mod) {
+      } else if (this.toHit == this.ddbMonster.abilities[ability].mod) {
         result.success = true;
         result.ability = ability;
         result.proficient = false;
@@ -676,21 +681,20 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     let weaponAbilities = ["str", "dex"];
     let spellAbilities = ["cha", "wis", "int"];
 
-    const lookup = DICTIONARY.monsters.weapons.find((weapon) => this.name.startsWith(weapon.name));
     // we have a weapon name match so we can infer a bit more
-    if (lookup) {
-      for (const [key, value] of Object.entries(lookup.properties)) {
+    if (this.weaponLookup) {
+      for (const [key, value] of Object.entries(this.weaponLookup.properties)) {
         // logger.info(`${key}: ${value}`);
         this.actionInfo.properties[key] = value;
       }
       const versatileWeapon = this.actionInfo.properties.ver
         && this.ddbMonster.abilities['dex'].mod > this.ddbMonster.abilities['str'].mod;
-      if (versatileWeapon || lookup.actionType == "rwak") {
+      if (versatileWeapon || this.weaponLookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
-      } else if (lookup.actionType == "mwak") {
+      } else if (this.weaponLookup.actionType == "mwak") {
         weaponAbilities = ["str"];
       }
-      this.actionInfo.weaponType = lookup.weaponType;
+      this.actionInfo.weaponType = this.weaponLookup.weaponType;
     } else if (this.meleeAttack) {
       this.actionInfo.weaponType = "simpleM";
     } else if (this.rangedAttack) {
@@ -940,14 +944,12 @@ ${this.data.system.description.value}
 
     this.data.system.proficient = this.actionInfo.proficient;
 
-    if (this.templateType !== "feat" && (this.weaponAttack || this.spellAttack)) {
+    if (this.templateType === "weapon" && (this.weaponAttack || this.spellAttack)) {
       this.data.system.equipped = true;
     }
 
-    if (this.weaponAttack) {
-      if (this.templateType !== "feat") {
-        this.data.system.type.value = this.actionInfo.weaponType;
-      }
+    if (this.weaponAttack && this.templateType === "weapon") {
+      this.data.system.type.value = this.actionInfo.weaponType;
     } else if (this.spellAttack) {
       // if (!this.meleeAttack && !this.rangedAttack) {
       //   this.activityType = "save";
@@ -1128,13 +1130,16 @@ ${this.data.system.description.value}
     const noDamageMods = this.actionInfo.damageParts.every((p) => !p.damageHasMod);
     const noModWeapon = this.templateType === "weapon" && noDamageMods;
 
-    const parts = this.actionInfo.damageParts.length > 1
-      ? this.isSave
-        ? []
-        : this.actionInfo.damageParts.slice(1).map((s) => s.part) // otherwise we assume the weapon attack wants the base damage
-      : isFlatWeaponDamage || noModWeapon
-        ? this.actionInfo.damageParts.map((s) => s.part) // includes no dice, i.e. is flat, we want to ignore the base damage
-        : [];
+    let parts = [];
+
+    if (this.actionInfo.damageParts.length > 1) {
+      // otherwise we assume the weapon attack wants the base damage
+      if (!this.isSave && this.templateType === "weapon") parts = this.actionInfo.damageParts.slice(1).map((s) => s.part)
+      else if (!this.isSave) parts = this.actionInfo.damageParts.map((s) => s.part)
+    } else if (isFlatWeaponDamage || noModWeapon) {
+      // includes no dice, i.e. is flat, we want to ignore the base damage
+      parts = this.actionInfo.damageParts.map((s) => s.part)
+    }
 
     // console.warn("activity buikd", {
     //   isFlatWeaponDamage,
@@ -1142,6 +1147,8 @@ ${this.data.system.description.value}
     //   noDamageMods,
     //   noModWeapon,
     //   parts,
+    //   options,
+    //   includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
     // })
 
     const itemOptions = foundry.utils.mergeObject({

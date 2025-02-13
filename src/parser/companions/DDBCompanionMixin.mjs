@@ -181,7 +181,7 @@ export default class DDBCompanionMixin {
     };
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
-    ddbMonster.npc = foundry.utils.duplicate(this.npc);
+    ddbMonster.npc = this.npc;
     ddbMonster.abilities = ddbMonster.npc.system.abilities;
     ddbMonster.proficiencyBonus = 0;
     const featureFactory = new DDBMonsterFeatureFactory({
@@ -190,7 +190,7 @@ export default class DDBCompanionMixin {
       updateExisting: false,
     });
     await featureFactory.generateActions(text, type);
-    logger.debug("Generating companion feature", { text, type, featureFactory });
+    // console.warn("Generating companion feature", { text, type, featureFactory });
     const toHitRegex = /(your spell attack modifier to hit|equals your spell attack modifier)/i;
     if (toHitRegex.test(text)) {
       this.summons.match.attacks = true;

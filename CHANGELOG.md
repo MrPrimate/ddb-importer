@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix for some Summons companions generating with incorrect damage generation, e,g, Summon Fey
+
 # 6.0.77
 
 - Adjustments to 2024 AC parsing for some edge cases.
