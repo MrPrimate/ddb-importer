@@ -213,19 +213,23 @@ export default class DDBRace {
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
+    const rules = this.data.system.source?.rules ?? "2024";
+    const book = utils.normalizeString(this.data.system.source?.book ?? "");
+
     if (this.race.portraitAvatarUrl) {
-      const imageNamePrefix = useDeepPaths ? "" : "race-portrait";
+      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-race-portrait`;
       const pathPostfix = useDeepPaths ? `/race/portrait` : "";
-      const downloadOptions = { type: "race-portrait", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix };
+      const downloadOptions = { type: "race-portrait", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix, download: true };
       portraitAvatarUrl = await FileHelper.getImagePath(this.race.portraitAvatarUrl, downloadOptions);
+
       this.data.img = portraitAvatarUrl;
       this.data.flags.ddbimporter['portraitAvatarUrl'] = this.race.portraitAvatarUrl;
     }
 
     if (this.race.avatarUrl) {
-      const imageNamePrefix = useDeepPaths ? "" : "race-avatar";
+      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-race-avatar`;
       const pathPostfix = useDeepPaths ? `/race/avatar` : "";
-      const downloadOptions = { type: "race-avatar", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix };
+      const downloadOptions = { type: "race-avatar", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix, download: true };
       avatarUrl = await FileHelper.getImagePath(this.race.avatarUrl, downloadOptions);
       this.data.flags.ddbimporter['avatarUrl'] = this.race.avatarUrl;
       if (!this.data.img) {

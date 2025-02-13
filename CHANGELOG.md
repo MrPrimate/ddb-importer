@@ -5,6 +5,7 @@
 - Allow parsing of damage choices for creatures such as the Empyrean's Divine Ray.
 - Capitalise creature subtype names.
 - Monsters will now parse out their Habitats/Environments again.
+- Character Race/Species images were not always downloaded
 
 # 6.0.77
 
