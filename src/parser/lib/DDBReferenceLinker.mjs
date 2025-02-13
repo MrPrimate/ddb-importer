@@ -40,6 +40,7 @@ const SUPER_LOOSE = [
   "actions",
   "areaTargetTypes",
   "creatureTypes",
+  "damageTypes",
 ];
 
 

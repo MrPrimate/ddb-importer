@@ -6,6 +6,7 @@
 - Capitalise creature subtype names.
 - Monsters will now parse out their Habitats/Environments again.
 - Character Race/Species images were not always downloaded
+- Some work towards adding item references in Multiattack description blocks.
 
 # 6.0.77
 
