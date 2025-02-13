@@ -931,10 +931,90 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     return description;
   }
 
+  #processMultiAttack(description) {
+    if (!CONFIG.DDBI.MULTIATTACK) {
+      CONFIG.DDBI.MULTIATTACK = []
+    }
+    CONFIG.DDBI.MULTIATTACK.push(this.strippedHtml);
+
+    const orMakesRegex = /The (?:.*) makes (\w+) (?<attackNames>.*) attack, or it makes (\w+) (?<replaceName>.*?) attacks/i;
+    const orMakesMatch = orMakesRegex.exec(this.strippedHtml);
+
+    const multRegex = /The (?:.*) makes (\w+) attacks, using (?<attackNames>.*:?) in any combination\. It can replace one attack with a (?<replaceName>..*) attack/i;
+    const basicMARegex = /The (?:.*) makes (\w+) (?<attackNames>.*:?) attacks?\.(\s+It can replace (?:\w+|the (?:\w+)) attacks? with a use of (?<replaceName>.*?)\.)?/i;
+    const basicMAMatch = basicMARegex.exec(this.strippedHtml);
+
+    console.warn({
+      orMakesMatch,
+      basicMAMatch,
+    })
+
+    const actionNames = new Set();
+    const match = orMakesMatch ?? basicMAMatch;
+    if (match) {
+      const names = match.groups.attackNames
+        .replace("attacks. It can replace one attack with a ", ",")
+        .replace("attack and one ", ",")
+        .replace("attack, one ", ",")
+        .replace("attack, two ", ",")
+        .replace("attack, and one ", ",")
+        .replace("attacks, and one ", ",")
+        .replace("attacks and one ", ",")
+        .replace("attack and two ", ",")
+        .replace("attacks or two ", ",")
+        .replace("attack and three ", ",")
+        .replace("attacks or four ", ",")
+        .replace("attacks or five ", ",")
+        .replace(", or ", ",")
+        .replace(" or ", ",")
+        .split(",")
+        .map((s) => s.trim());
+      for (const name of names) {
+        actionNames.add(name.trim());
+      }
+      if (match.groups.replaceName) {
+        const replaceNames = match.groups.replaceName
+          .replace("if available", "")
+          .replace(", or ", ",")
+          .replace(" or ", ",")
+          .split(",")
+          .map((s) => s.trim());
+        console.warn("Replace names", replaceNames);
+        for (const name of replaceNames) {
+          const listNameRegex = /\(\w\) (.*)/i;
+          const listNameMatch = listNameRegex.exec(name);
+          // eslint-disable-next-line max-depth
+          if (listNameMatch) {
+            const listName = listNameMatch[1];
+            // eslint-disable-next-line max-depth
+            if (listName.includes("Spellcasting")) actionNames.add("Spellcasting");
+            else actionNames.add(listName.split("(")[0].trim());
+          } else if (name.includes("Spellcasting")) {
+            actionNames.add("Spellcasting");
+          } else {
+            actionNames.add(name.trim());
+          }
+        }
+      }
+      console.warn("Matches", {
+        match,
+        actionNames,
+      })
+    }
+
+    for (const actionName of actionNames) {
+      description = description.replaceAll(actionName, `[[/item ${actionName}]]`);
+    }
+    return description;
+  }
+
   async #generateDescription() {
     this.html = this.html.replace(/<strong> \.<\/strong>/, "").trim();
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
+    if (this.originalName === "Multiattack") {
+      description = this.#processMultiAttack(description);
+    }
     description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
     // description = parseToHitRoll({ text: description, document: this.feature });
     description = DDBReferenceLinker.parseTags(description);
@@ -947,6 +1027,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.data.system.description.value = `<div class="ddb">
 ${this.data.system.description.value}
 </div>`;
+
+
   }
 
   #buildAction() {
