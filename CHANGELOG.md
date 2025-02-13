@@ -1,6 +1,7 @@
 # Next Up
 
 - Fix for some Summons companions generating with incorrect damage generation, e,g, Summon Fey
+- Monster features that were previously attacks wuld be imported as weapons, this has now changed to features, due to the advent of features allowing attack activities. Actions that DDB Importer can match as weapons will still be created as weapons.
 
 # 6.0.77
 
