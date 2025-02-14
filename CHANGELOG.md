@@ -1,7 +1,7 @@
-# Next Up
+# 6.0.78
 
 - Fix for some Summons companions generating with incorrect damage generation, e,g, Summon Fey
-- Monster features that were previously attacks wuld be imported as weapons, this has now changed to features, due to the advent of features allowing attack activities. Actions that DDB Importer can match as weapons will still be created as weapons.
+- Monster features that were previously attacks would be imported as weapons, this has now changed to features, due to the advent of features allowing attack activities. Actions that DDB Importer can match as weapons will still be created as weapons.
 - Allow parsing of damage choices for creatures such as the Empyrean's Divine Ray.
 - Capitalise creature subtype names.
 - Monsters will now parse out their Habitats/Environments again.
