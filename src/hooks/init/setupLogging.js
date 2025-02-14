@@ -12,6 +12,7 @@ export default function () {
     record: enabledDebugLogging,
     log: [],
     download: downloadLog,
+    multiattack: false,
   };
 
   foundry.utils.setProperty(CONFIG.debug, "ddbimporter", defaults);

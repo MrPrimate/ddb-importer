@@ -933,17 +933,17 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
   // eslint-disable-next-line complexity
   #processMultiAttack(description) {
-    if (!CONFIG.DDBI.MULTIATTACK) {
-      CONFIG.DDBI.MULTIATTACK = []
-    }
-    CONFIG.DDBI.MULTIATTACK.push(this.strippedHtml);
+    if (this.is2014) return description;
 
     const actionNames = new Set();
     const extractActions = ((str) => {
       return str
+        .replace("many Bite", "Bite")
         .replace("if available", "")
         .replace("attacks. It can replace one attack with a ", ",")
         .replace(". It can replace one attack with a use of", ",")
+        .replaceAll("and one with its", "")
+        .replaceAll("one with its", "")
         .replace("attack and one ", ",")
         .replace("attack, one ", ",")
         .replace("attack, two ", ",")
@@ -952,18 +952,19 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         .replace("attacks and one ", ",")
         .replace("attack and two ", ",")
         .replace("attacks or two ", ",")
+        .replace("attack and three other ", ",")
         .replace("attack and three ", ",")
         .replace("attacks or four ", ",")
         .replace("attacks or five ", ",")
-        .replace(", or ", ",")
-        .replace(" or ", ",")
+        .replaceAll(", or ", ",")
+        .replaceAll(" or ", ",")
         .split(",")
         .map((s) => s.trim());
     });
 
     const handleReplaceNames = ((str) => {
       const replaceNames = extractActions(str);
-      console.warn("Replace names", replaceNames);
+      // console.warn("Replace names", replaceNames);
       for (const name of replaceNames) {
         const listNameRegex = /\(\w\) (.*)/i;
         const listNameMatch = listNameRegex.exec(name);
@@ -986,60 +987,105 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     const multRegex = /The (?:.*) makes (\w+) attacks, using (?<attackNames>.*:?)( in any combination(?:, and( it)? uses (?<attackNames2>.*)\.)?)/i;
     const multiMatch = multRegex.exec(this.strippedHtml);
-    const basicMARegex = /The (?:.*) makes (\w+) (?<attackNames>.*:?) attacks?(?: and uses (?<attackNames2>.*))\./i;
+    const basicMARegex = /The (?:.*) makes (\w+) (?<attackNames>.*:?) attacks?(?:(?: and uses|, and it can use) (?<attackNames2>.*))\./i;
     const basicMAMatch = basicMARegex.exec(this.strippedHtml);
 
     const simpleMARegex = /The (?:.*) makes (\w+) attacks: (?<attackNames>.*:?)\./i;
     const simpleMAMatch = simpleMARegex.exec(this.strippedHtml);
 
-    const match = orMakesMatch ?? multiMatch ?? basicMAMatch ?? simpleMAMatch;
+    const makesAttRegex = /The (?:.*) makes (\w+) (?<attackNames>.*?) attacks(, or it makes three (?<attackNames2>.*) attacks| and| as| or uses (?<attackNames3>.*?)(?:\.| (twice|three))|, using (?<attackNames4>.*?) in any combination|\.)/i;
+    const makesAttMatch = makesAttRegex.exec(this.strippedHtml);
 
-    console.warn(`${this.ddbMonster.name}`,{
-      orMakesMatch,
-      basicMAMatch,
-      multiMatch,
-      match,
-      strippedHtml: this.strippedHtml,
-    });
+    const fallbackMakesOrRegex = /The (?:.*) makes (\w+) (?<attackNames>.*?) attack, and it uses (?<attackNames2>.*?)\./i;
+    const fallbackMakesOrMatch = fallbackMakesOrRegex.exec(this.strippedHtml);
+
+    const superFallbackRegex = /The (?:.*) makes (\w+) (?<attackNames>.*:?) attacks?/i;
+    const superFallbackMatch = superFallbackRegex.exec(this.strippedHtml);
+
+    const match = orMakesMatch
+      ?? multiMatch
+      ?? basicMAMatch
+      ?? simpleMAMatch
+      ?? makesAttMatch
+      ?? fallbackMakesOrMatch
+      ?? superFallbackMatch;
 
     if (match) {
       const attackNames = [];
       if (match.groups.attackNames) attackNames.push(match.groups.attackNames);
       if (match.groups.attackNames2) attackNames.push(match.groups.attackNames2);
-      console.warn("Attack names", attackNames);
+      if (match.groups.attackNames3) attackNames.push(match.groups.attackNames3);
+      if (match.groups.attackNames4) attackNames.push(match.groups.attackNames4);
+      if (match.groups.replaceName) attackNames.push(match.groups.replaceName);
       for (const attackNameString of attackNames) {
         handleReplaceNames(attackNameString);
       }
-      if (match.groups.replaceName) {
-        handleReplaceNames(match.groups.replaceName);
-      }
-      console.warn("Matches", {
-        match,
-        actionNames,
-      });
     }
 
     const replaceRegex = /It can replace (?:\w+|the (?:\w+)) attacks? with a use of (?<replaceName>.*?)\./i;
-    const replaceMatch = replaceRegex.exec(this.strippedHtml);
+    const replaceRegex2 = /It can replace (?:\w+|the (?:\w+)) attacks? with a (?<replaceName>.*?) attack\./i;
+    const replaceMatch = replaceRegex.exec(this.strippedHtml) ?? replaceRegex2.exec(this.strippedHtml);
     if (replaceMatch) {
       handleReplaceNames(replaceMatch.groups.replaceName);
     }
 
-    const andRegex = /"The (?:.*) can use its (?<attackNames>.*) and makes/i;
+    const andRegex = /The (?:.*) can use its (?<attackNames>.*) and makes/i;
     const andMatch = andRegex.exec(this.strippedHtml);
     if (andMatch) {
       handleReplaceNames(andMatch.groups.attackNames);
     }
 
-
-    if (actionNames.size === 0 || !match) {
-      if (!CONFIG.DDBI.NO_MULTIATTACK) {
-        CONFIG.DDBI.NO_MULTIATTACK = [];
-        CONFIG.DDBI.NO_MULTIATTACK_DETAILS = [];
-      }
-      CONFIG.DDBI.NO_MULTIATTACK.push(this.strippedHtml);
-      CONFIG.DDBI.NO_MULTIATTACK_DETAILS.push({ name: this.ddbMonster.name, html: this.strippedHtml, match });
+    const andCanRegex = /(?:and can use|It also uses|and it uses|and it can use) (?<attackNames>.*)\./i;
+    const andCanMatch = andCanRegex.exec(this.strippedHtml);
+    if (andCanMatch) {
+      handleReplaceNames(andCanMatch.groups.attackNames);
     }
+
+    const ifItUsedRegex = /if it used (?<attackNames>.*) this turn/i;
+    const ifItUsedMatch = ifItUsedRegex.exec(this.strippedHtml);
+    if (ifItUsedMatch) {
+      handleReplaceNames(ifItUsedMatch.groups.attackNames);
+    }
+
+    const usesRegex = /The (?:.*) uses (?<attackNames>.*?)(?:\.| twice| three| four| five)/i;
+    const usesMatch = usesRegex.exec(this.strippedHtml);
+    if (usesMatch) {
+      handleReplaceNames(usesMatch.groups.attackNames);
+    }
+
+    if (CONFIG.debug.ddbimporter.multiattack) {
+      if (actionNames.size === 0) {
+        if (!CONFIG.DDBI.NO_MULTIATTACK) {
+          CONFIG.DDBI.NO_MULTIATTACK = [];
+          CONFIG.DDBI.NO_MULTIATTACK_DETAILS = [];
+        }
+        CONFIG.DDBI.NO_MULTIATTACK.push(this.strippedHtml);
+        CONFIG.DDBI.NO_MULTIATTACK_DETAILS.push({ actionNames, name: this.ddbMonster.name, html: this.strippedHtml, match, is2014: this.is2014 });
+      } else {
+        if (!CONFIG.DDBI.NO_MULTIATTACK) {
+          CONFIG.DDBI.MULTIATTACK_MATCHES = [];
+          CONFIG.DDBI.MULTIATTACK_MATCHES_DETAILS = [];
+        }
+        CONFIG.DDBI.MULTIATTACK_MATCHES.push(actionNames);
+        CONFIG.DDBI.MULTIATTACK_MATCHES_DETAILS.push({ actionNames, name: this.ddbMonster.name, html: this.strippedHtml, match, is2014: this.is2014 });
+
+      }
+    }
+
+
+    // console.warn(`${this.ddbMonster.name}`,{
+    //   orMakesMatch,
+    //   basicMAMatch,
+    //   multiMatch,
+    //   simpleMAMatch,
+    //   makesAttMatch,
+    //   fallbackMakesOrMatch,
+    //   match,
+    //   strippedHtml: this.strippedHtml,
+    //   is2014: this.is2014,
+    //   this: this,
+    //   actionNames,
+    // });
 
     for (const actionName of actionNames) {
       description = description.replaceAll(actionName, `[[/item ${actionName}]]`);
