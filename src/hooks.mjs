@@ -82,11 +82,13 @@ export function onReady() {
   setupSockets();
 }
 
-export function renderCompendiumTab(app, [html], _data) {
+export function renderCompendiumTab(app, html, _data) {
+  html = html instanceof HTMLElement ? html : html[0];
   addMuncher(app, html);
 }
 
-export function renderScenesTab(app, [html], _data) {
+export function renderScenesTab(app, html, _data) {
+  html = html instanceof HTMLElement ? html : html[0];
   addEncounterMuncher(app, html);
 }
 

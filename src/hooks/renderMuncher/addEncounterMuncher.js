@@ -6,7 +6,7 @@ import { logger, Secrets, PatreonHelper } from "../../lib/_module.mjs";
 
 
 export function addEncounterMuncher (app, html) {
-  if (!game.user.isGM) return;
+  if ((app.id !== "scenes" && app.options.id !== "scenes") || !game.user.isGM) return;
 
   const tier = PatreonHelper.getPatreonTier();
   const tiers = PatreonHelper.calculateAccessMatrix(tier);
@@ -58,7 +58,12 @@ export function addEncounterMuncher (app, html) {
 
   const top = game.settings.get("ddb-importer", "show-munch-top");
   if (top) {
-    const headerActions = html.querySelector(".header-actions");
+    let headerActions = html.querySelector(".header-actions");
+    if (foundry.utils.isNewerVersion(game.version, "13")) {
+      headerActions = document.createElement("div");
+      headerActions.className = "header-actions action-buttons flexrow";
+      html.querySelector(":scope > header").insertAdjacentElement("afterbegin", headerActions);
+    }
     headerActions.append(button);
   } else {
     const headerActions = html.querySelector(".footer-actions");
