@@ -102,7 +102,8 @@ export class DDBCompendiumFolders {
 
   static getCreatureDDBType(document) {
     const creatureType = document.system?.details?.type?.value ?? "Unknown";
-    const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase());
+    const ddbType = CONFIG.DDB.monsterTypes.find((c) => creatureType.toLowerCase() == c.name.toLowerCase())
+      ?? { name: "Unknown" };
 
     return ddbType;
   }
