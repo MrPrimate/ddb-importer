@@ -106,15 +106,20 @@ export default class SpellListFactory {
     }
   }
 
-
-  async init() {
-    if (!this.available) return;
+  async _getIndexes() {
     await this.spellCompendium.getIndex({
       fields: ["name", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy"],
     });
     await this.journalCompendium.getIndex({
       fields: ["name", "flags.ddbimporter"],
     });
+
+  }
+
+  async init() {
+    if (!this.available) return;
+
+    await this._getIndexes();
 
     this.journalFolder = await CompendiumHelper.createFolder({
       pack: this.journalCompendium,
