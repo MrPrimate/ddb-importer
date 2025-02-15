@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.79
 
 - Monster Type filter for importing monsters of matching types only.
 - Improve Compendium Folder generation speed for Items and Spells.
