@@ -28,7 +28,7 @@ import { setupSockets } from "./hooks/socket/sockets.js";
 // image hooks
 import { linkTables } from "./hooks/renderJournalSheet/linkTables.js";
 import { linkImages } from "./hooks/renderJournalSheet/linkImages.js";
-import adventureFlags from "./hooks/renderJournalSheet/adventure.js";
+import { adventureFlags } from "./hooks/renderJournalSheet/adventure.js";
 import { showReadAlouds } from "./hooks/renderJournalSheet/linkReadAlouds.js";
 
 import { activateUpdateHooks } from "./updater/character.js";
@@ -113,3 +113,19 @@ export function renderJournalSheet(sheet, html, data) {
   }
   adventureFlags(sheet, html, data);
 }
+
+export function renderJournalEntryPageSheet(sheet, html, data) {
+  if (sheet.options.mode === "view") {
+    if (sheet.document.flags?.ddb) {
+      linkTables("journal", html);
+      linkImages(html, data);
+    }
+
+    const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
+    if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
+      showReadAlouds(html, data);
+    }
+  }
+  adventureFlags(sheet, html, data);
+}
+

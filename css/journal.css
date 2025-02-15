@@ -742,7 +742,7 @@ div.ddbimporter-image-popout img {
 .ddb .text-rules-sidebar::before,
 .ddb .text--rules-sidebar::before {
   content: '';
-  background-image: url("modules/ddb-importer/img/svg-rules-banner-4.svg"),url("modules/ddb-importer/img/svg-rules-banner-3.svg");
+  background-image: url("../img/svg-rules-banner-4.svg"),url("../img/svg-rules-banner-3.svg");
   background-position: left, right;
   background-size: contain;
   background-repeat: no-repeat;
@@ -761,7 +761,7 @@ div.ddbimporter-image-popout img {
 .ddb .text-rules-sidebar::after,
 .ddb .text--rules-sidebar::after {
   content: '';
-  background-image: url("modules/ddb-importer/img/svg-rules-banner-4.svg"),url("modules/ddb-importer/img/svg-rules-banner-3.svg");
+  background-image: url("../img/svg-rules-banner-4.svg"),url("../img/svg-rules-banner-3.svg");
   background-position: left, right;
   background-size: contain;
   background-repeat: no-repeat;

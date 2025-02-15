@@ -22,35 +22,44 @@ const renderPopup = (type, url) => {
   return true;
 };
 
-function adventureFlags(app, html, data) {
+export function adventureFlags(app, html, data) {
   if (!app.document.flags.ddb) return;
-  let journalContent = html.closest('.app').find('section.journal-page-content');
-  journalContent.addClass("ddb");
+  const isv13 = foundry.utils.isNewerVersion(game.version, "13");
+  let journalContent = isv13
+    ? html.querySelector('section.journal-page-content')
+    : html.closest('.app').find('section.journal-page-content');
+
+  if (isv13)
+    journalContent.classList.add('ddb');
+  else
+    journalContent.addClass('ddb');
 
   if (!game.user.isGM) return;
-  const existingLink = html.closest('.app').find('.open-adventure-ddb-importer');
-  if (existingLink.length > 0) return;
 
-  const title = `Go to DDB`;
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
-  let button = $(`<a class="open-adventure-ddb-importer" title="${title}"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`);
-  button.click((event) => {
-    if (event.shiftKey && event.ctrlKey) {
-      new DDBAdventureFlags(app.document, {}).render(true);
-    } else {
-      event.preventDefault();
-      const flags = app.document.flags.ddb;
-      const bookSource = CONFIG.DDB.sources.find((book) => flags.bookCode.toLowerCase() === book.name.toLowerCase());
-      return renderPopup("web", `https://www.dndbeyond.com/${bookSource.sourceURL}/${flags.slug}`);
-    }
-    return true;
-  });
-
-  let titleElement = html.closest('.app').find('.window-title');
-  button.insertAfter(titleElement);
   buildNotes(html, data);
 
 }
 
+export function getJournalSheet5eHeaderButtons(config, buttons) {
+  if (!config.object.isOwner) return;
+  if (!(config.object instanceof JournalEntry)) return;
 
-export default adventureFlags;
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+
+  buttons.unshift({
+    label: undefined,
+    class: 'ddb-open-url',
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    onclick: (event) => {
+      if (event.shiftKey && event.ctrlKey) {
+        new DDBAdventureFlags(config.document, {}).render(true);
+        return true;
+      } else {
+        event.preventDefault();
+        const flags = config.document.flags.ddb;
+        const bookSource = CONFIG.DDB.sources.find((book) => flags.bookCode.toLowerCase() === book.name.toLowerCase());
+        return renderPopup("web", `https://www.dndbeyond.com/${bookSource.sourceURL}/${flags.slug}`);
+      }
+    },
+  });
+}
