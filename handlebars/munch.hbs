@@ -162,10 +162,16 @@
                   <input type="text" name="monster-filter" id="monster-munch-filter" style="flex: 0 1 auto" ;value="" />
               </div>
               <hr>
+              <p>Filter by Monster Type (Leave blank for all)</p>
+              <div class="form-fields" id="munch-excluded-config">
+                <multi-select id="muncher-monster-types" name="muncher-monster-types">
+                  {{#each monsterTypes}}
+                  <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+                  {{/each}}
+                </multi-select>
+              </div>
+              <hr>
               <div>
-                  {{#if sourcesSelected}}
-                  <div style="text-align:center"><b>{{sourceDescription}}</b></div>
-                  {{/if}}
                   <button type="button" id="munch-monsters-start" class="munch-button"
                       {{#if tiers.all}}enabled{{else}}disabled{{/if}}>{{#if tiers.all}}Monster Munch!{{else}}Monster Munch for Patreon Supporters! (or run your own proxy){{/if}}
                   </button>

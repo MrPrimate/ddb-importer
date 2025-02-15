@@ -1023,6 +1023,10 @@ const SETTINGS = {
             type: Array,
             default: [10, 15, 25],
           },
+          "munching-policy-muncher-monster-types": {
+            type: Array,
+            default: [],
+          },
           "munching-policy-monster-use-item-ac": {
             type: Boolean,
             default: true,

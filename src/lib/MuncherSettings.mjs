@@ -735,12 +735,15 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       return data;
     });
 
+    const monsterTypes = MuncherSettings.getMonsterTypeLookups();
+
     const resultData = {
       bookSources,
       cobalt,
       genericConfig,
       sourceConfig,
       selectedSources,
+      monsterTypes,
       excludedCategories,
       monsterConfig,
       spellConfig,
@@ -777,6 +780,22 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       });
 
     return selections.sort((a, b) => {
+      return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+    });
+  },
+
+  getMonsterTypeLookups: () => {
+    const chosenMonsterTypeIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types").map((id) => parseInt(id));
+    const monsterTypes = CONFIG.DDB.monsterTypes;
+
+    const monsterTypeSelections = monsterTypes.map((type) => {
+      return {
+        id: type.id,
+        selected: chosenMonsterTypeIds.includes(type.id) ? "selected" : "",
+        label: type.name,
+      };
+    });
+    return monsterTypeSelections.sort((a, b) => {
       return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
     });
   },
