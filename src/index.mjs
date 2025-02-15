@@ -22,7 +22,7 @@ Hooks.on("renderJournalEntryPageSheet", renderJournalEntryPageSheet);
 Hooks.on("renderItemSheet", renderItemSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
-Hooks.on("getJournalSheet5eHeaderButtons", getJournalSheet5eHeaderButtons)
+Hooks.on("getJournalSheet5eHeaderButtons", getJournalSheet5eHeaderButtons);
 
 // console.warn("SILENT MODE FOR DEBUG");
 // const includeRgx = new RegExp("/module/ddb-importer/");
