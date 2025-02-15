@@ -40,6 +40,10 @@ export default class DDBItemImporter {
     }
     this.totalDocuments = this.documents?.length ?? 0;
     this.currentDocumentCount = 0;
+
+    this.compendiumFolders = new DDBCompendiumFolders(this.type, {
+      noCreateClassFolders: true,
+    });
   }
 
   async buildIndex(indexFilter = {}) {
@@ -222,11 +226,8 @@ export default class DDBItemImporter {
 
   async addCompendiumFolderIds(documents) {
     if (this.useCompendiumFolders) {
-      const compendiumFolders = new DDBCompendiumFolders(this.type, {
-        noCreateClassFolders: true,
-      });
-      await compendiumFolders.loadCompendium(this.type, true);
-      const results = await compendiumFolders.addCompendiumFolderIds(documents);
+      await this.compendiumFolders.loadCompendium(this.type, true);
+      const results = await this.compendiumFolders.addCompendiumFolderIds(documents);
       return results;
     } else {
       return documents;

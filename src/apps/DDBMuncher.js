@@ -248,7 +248,6 @@ export default class DDBMuncher extends Application {
       await DDBReferenceLinker.importCacheLoad();
       const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
-      await DDBCompendiumFolders.cleanupCompendiumFolders("monsters", DDBMuncher.munchNote);
       DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
       DDBMuncher.munchNote("");
       DDBMuncher.enableButtons();

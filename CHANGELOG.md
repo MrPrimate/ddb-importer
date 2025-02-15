@@ -1,3 +1,7 @@
+# Next Up
+
+- Improve Compendium Folder generation speed for Items and Spells.
+
 # 6.0.78
 
 - Fix for some Summons companions generating with incorrect damage generation, e,g, Summon Fey

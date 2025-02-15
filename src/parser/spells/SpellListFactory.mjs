@@ -271,8 +271,10 @@ export default class SpellListFactory {
       },
     };
 
-    logger.debug(`Updating Journal Page`, { update, page, spells, newSpells });
-    await journal.updateEmbeddedDocuments("JournalEntryPage", [update]);
+    if (foundry.utils.isNewerVersion("13", game.version)) {
+      logger.debug(`Updating Journal Page`, { update, page, spells, newSpells });
+      await journal.updateEmbeddedDocuments("JournalEntryPage", [update]);
+    }
 
   }
 

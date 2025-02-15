@@ -103,7 +103,6 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   const resolvedNotifier = notifier ?? utils.munchNote;
   // to speed up file checking we pregenerate existing files now.
   await FileHelper.generateCurrentFiles(uploadDirectory);
-  await DDBCompendiumFolders.generateCompendiumFolders("spells", resolvedNotifier);
 
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
     // eslint-disable-next-line require-atomic-updates
@@ -179,6 +178,10 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   const finalCount = itemHandler.documents.length;
   resolvedNotifier(`Importing ${finalCount} spells...`, true);
   logger.time("Spell Import Time");
+
+  await itemHandler.compendiumFolders.loadCompendium("spells", true);
+  await itemHandler.compendiumFolders.createSpellFoldersForDocuments({ documents: itemHandler.documents });
+
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
@@ -186,7 +189,9 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   resolvedNotifier("");
   logger.timeEnd("Spell Import Time");
 
-  await DDBCompendiumFolders.cleanupCompendiumFolders("spells", resolvedNotifier);
+  if (foundry.utils.isNewerVersion("13", game.version)) {
+    await DDBCompendiumFolders.cleanupCompendiumFolders("spells", resolvedNotifier);
+  }
 
   logger.debug("Starting Spell List Generation");
   resolvedNotifier(`Generating Spell List Journals...`, true);

@@ -50,7 +50,7 @@ export class DDBCompendiumFolders {
     return Promise.all(results);
   }
 
-  async loadCompendium(type = null, noCreate = false) {
+  async loadCompendium(type = null, noCreate = true) {
     if (type) {
       this.packName = await CompendiumHelper.getCompendiumLabel(type);
       this.entityType = this.entityTypes.get(type);
@@ -253,27 +253,29 @@ export class DDBCompendiumFolders {
         break;
       // no default
     }
+  }
 
-
+  async createSpellLevelFolder({ levelName, categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
+    logger.debug(`Checking for folder '${levelName}'`);
+    const flagTag = categoryFolderId
+      ? DDBCompendiumFolders.getSourceCategoryFolderName({
+        categoryId: categoryFolderKey,
+        type: "spell",
+      }).flagTag
+      : "";
+    const folder = this.getFolder(levelName, flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: levelName,
+        flagTag,
+        parentId: categoryFolderId,
+      }));
+    this.validFolderIds.push(folder._id);
   }
 
   // spell level
   async createSpellLevelFolders({ categoryFolderKey = undefined, categoryFolderId = undefined } = {}) {
     for (const levelName of DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL) {
-      logger.debug(`Checking for folder '${levelName}'`);
-      const flagTag = categoryFolderId
-        ? DDBCompendiumFolders.getSourceCategoryFolderName({
-          categoryId: categoryFolderKey,
-          type: "spell",
-        }).flagTag
-        : "";
-      const folder = this.getFolder(levelName, flagTag)
-        ?? (await this.createCompendiumFolder({
-          name: levelName,
-          flagTag,
-          parentId: categoryFolderId,
-        }));
-      this.validFolderIds.push(folder._id);
+      await this.createSpellLevelFolder({ levelName, categoryFolderKey, categoryFolderId });
     }
   }
 
@@ -306,6 +308,25 @@ export class DDBCompendiumFolders {
     }
   }
 
+  async createSpellLevelFoldersWithSourceCategoriesForDocuments(documents) {
+    for (const doc of documents) {
+      const folderData = DDBCompendiumFolders.getSpellFolderNameForTypeSourceCategory(doc);
+      const categoryFolderData = DDBCompendiumFolders.getSourceCategoryFolderName({
+        type: "spell",
+        categoryId: folderData.result.categoryId,
+      });
+      const sourceFolder = await this._createSourceFolder(categoryFolderData.name, categoryFolderData.flagTag, categoryFolderData.color);
+      const levelName = DICTIONARY.COMPENDIUM_FOLDERS.SPELL_LEVEL[doc.system?.level];
+      if (!levelName) return;
+      await this.createSpellLevelFolder({
+        levelName,
+        categoryFolderKey: folderData.result.categoryId,
+        categoryFolderId: sourceFolder._id,
+      });
+    }
+  }
+
+
   // spell school
   async createSpellSchoolFolders() {
     for (const school of DICTIONARY.spell.schools) {
@@ -324,6 +345,21 @@ export class DDBCompendiumFolders {
       const folder = this.getFolder(rarityName, rarityName)
         ?? (await this.createCompendiumFolder({ name: rarityName, flagTag: rarityName }));
       this.validFolderIds.push(folder._id);
+    }
+  }
+
+  async createSpellFoldersForDocuments({ documents = [] }) {
+    switch (this.compendiumFolderTypeSpell) {
+      case "SCHOOL":
+        await this.createSpellSchoolFolders();
+        break;
+      case "LEVEL":
+        await this.createSpellLevelFolders();
+        break;
+      case "SOURCE_CATEGORY_LEVEL":
+        await this.createSpellLevelFoldersWithSourceCategoriesForDocuments(documents);
+        break;
+      // no default
     }
   }
 
@@ -411,6 +447,49 @@ export class DDBCompendiumFolders {
   //   return newFolder;
   // }
 
+  async createItemTypeCompendiumFolder({
+    folderName, type, color, bookCode,
+    categoryId, categoryFolderId,
+    sourceFolderId,
+    createSubFolder = false,
+    subFolderName, subKey, flagList, subFolderColor,
+  } = {}) {
+    logger.debug(`Checking for root folder '${folderName}' with key '${type}'`);
+    const flagTag = categoryFolderId
+      ? DDBCompendiumFolders.getSourceCategoryFolderName({
+        categoryId,
+        type,
+      }).flagTag
+      : sourceFolderId
+        ? DDBCompendiumFolders.getSourceFolderName({
+          bookCode,
+          type,
+        }).flagTag
+        : type;
+    const folder = this.getFolder(folderName, flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: folderName,
+        flagTag,
+        color: color,
+        parentId: categoryFolderId ?? sourceFolderId,
+      }));
+    this.validFolderIds.push(folder._id);
+
+    if (!createSubFolder) return;
+    logger.debug(`Checking for ${categoryId}, ${flagTag} sub folder '${subFolderName}' with key '${subKey}'`);
+
+    const subFlagTag = `${flagTag}/${subKey}`;
+    if (flagList && !flagList.has(subFlagTag)) return;
+    const subFolder = this.getFolder(subFolderName, subFlagTag)
+      ?? (await this.createCompendiumFolder({
+        name: subFolderName,
+        parentId: folder._id,
+        color: subFolderColor ?? "#222222",
+        flagTag: subFlagTag,
+      }));
+    this.validFolderIds.push(subFolder._id);
+  }
+
   // item type folder
   async createItemTypeCompendiumFolders({
     categoryFolderKey = undefined, categoryFolderId = undefined,
@@ -418,71 +497,56 @@ export class DDBCompendiumFolders {
   } = {}) {
     const TYPE_FOLDERS = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders;
     for (const [key, data] of Object.entries(TYPE_FOLDERS)) {
-      logger.debug(`Checking for root folder '${data.folderName}' with key '${key}'`);
-      const flagTag = categoryFolderId
-        ? DDBCompendiumFolders.getSourceCategoryFolderName({
-          categoryId: categoryFolderKey,
-          type: key,
-        }).flagTag
-        : sourceFolderId
-          ? DDBCompendiumFolders.getSourceFolderName({
-            bookCode: sourceFolderKey,
-            type: key,
-          }).flagTag
-          : key;
-      const folder = this.getFolder(data.folderName, flagTag)
-        ?? (await this.createCompendiumFolder({
-          name: data.folderName,
-          flagTag,
-          color: data.color,
-          parentId: categoryFolderId ?? sourceFolderId,
-        }));
-      this.validFolderIds.push(folder._id);
+      const options = {
+        folderName: data.folderName,
+        type: key,
+        color: data.color,
+        bookCode: sourceFolderKey,
+        categoryId: categoryFolderKey,
+        categoryFolderId,
+        sourceFolderId,
+        flagList,
+      };
+      await this.createItemTypeCompendiumFolder(options);
 
       if (!data.subFolders) continue;
       for (const [subKey, subData] of Object.entries(data.subFolders)) {
-        logger.debug(`Checking for ${categoryFolderKey}, ${flagTag} sub folder '${subData.folderName}' with key '${subKey}'`);
+        const subFolderData = foundry.utils.deepClone(options);
 
-        const subFlagTag = `${flagTag}/${subKey}`;
-        if (flagList && !flagList.has(subFlagTag)) continue;
-        const subFolder = this.getFolder(subData.folderName, subFlagTag)
-          ?? (await this.createCompendiumFolder({
-            name: subData.folderName,
-            parentId: folder._id,
-            color: subData.color ?? "#222222",
-            flagTag: subFlagTag,
-          }));
-        this.validFolderIds.push(subFolder._id);
-
+        subFolderData.createSubFolder = true;
+        subFolderData.subFolderName = subData.folderName;
+        subFolderData.subKey = subKey;
+        subFolderData.subFolderColor = subData.color;
+        await this.createItemTypeCompendiumFolder(subFolderData);
       }
     }
   }
 
-  async createItemTypeFoldersWithSources() {
-    const index = await this.compendium.getIndex({ fields: this.#getIndexFields() });
-    // const sources = new Set(index.filter((s) => s.system?.source.book).map((s) => s.system.source.book));
+  // async createItemTypeFoldersWithSources() {
+  //   const index = await this.compendium.getIndex({ fields: this.#getIndexFields() });
+  //   // const sources = new Set(index.filter((s) => s.system?.source.book).map((s) => s.system.source.book));
 
-    const sources = new Set();
-    const flagList = new Set();
+  //   const sources = new Set();
+  //   const flagList = new Set();
 
-    for (const i of index) {
-      const d = DDBCompendiumFolders.getItemFolderNameForTypeSource(i, "item");
-      flagList.add(d.flagTag);
-      sources.add(d.result.bookCode);
-    }
+  //   for (const i of index) {
+  //     const d = DDBCompendiumFolders.getItemFolderNameForTypeSource(i, "item");
+  //     flagList.add(d.flagTag);
+  //     sources.add(d.result.bookCode);
+  //   }
 
-    const sourceFoldersData = DDBCompendiumFolders.getAllSourceFolders("item")
-      .filter((f) => sources.has(f.bookCode));
+  //   const sourceFoldersData = DDBCompendiumFolders.getAllSourceFolders("item")
+  //     .filter((f) => sources.has(f.bookCode));
 
-    for (const data of sourceFoldersData) {
-      const sourceFolder = await this._createSourceFolder(data.name, data.flagTag);
-      await this.createItemTypeCompendiumFolders({
-        sourceFolderKey: data.bookCode,
-        sourceFolderId: sourceFolder._id,
-        flagList,
-      });
-    }
-  }
+  //   for (const data of sourceFoldersData) {
+  //     const sourceFolder = await this._createSourceFolder(data.name, data.flagTag);
+  //     await this.createItemTypeCompendiumFolders({
+  //       sourceFolderKey: data.bookCode,
+  //       sourceFolderId: sourceFolder._id,
+  //       flagList,
+  //     });
+  //   }
+  // }
 
   async createItemTypeFoldersWithSourceCategories(restrict = false) {
     const index = await this.compendium.getIndex({ fields: this.#getIndexFields() });
@@ -511,6 +575,58 @@ export class DDBCompendiumFolders {
         categoryFolderId: sourceFolder._id,
         flagList: restrict ? flagList : null,
       });
+    }
+  }
+
+  async createItemTypeFoldersWithSourceCategoriesForDocuments(documents) {
+    for (const doc of documents) {
+      const folderData = DDBCompendiumFolders.getItemFolderNameForTypeSourceCategory(doc, "item");
+
+      const categoryFolderData = DDBCompendiumFolders.getSourceCategoryFolderName({
+        type: "item",
+        categoryId: folderData.result.categoryId,
+      });
+
+      const sourceFolder = await this._createSourceFolder(categoryFolderData.name, categoryFolderData.flagTag, categoryFolderData.color);
+
+      const data = DICTIONARY.COMPENDIUM_FOLDERS.TYPE_FOLDERS.subFolders[folderData.parsed.type];
+
+      const options = {
+        folderName: data.folderName,
+        type: folderData.parsed.type,
+        color: data.color,
+        categoryId: folderData.result.categoryId,
+        categoryFolderId: sourceFolder._id,
+      };
+      await this.createItemTypeCompendiumFolder(options);
+
+      if (!data.subFolders) continue;
+      if (!folderData.parsed.suffix) continue;
+
+      const subData = data.subFolders[folderData.parsed.suffix];
+      if (!subData) continue;
+      const subFolderData = foundry.utils.deepClone(options);
+      subFolderData.createSubFolder = true;
+      subFolderData.subFolderName = subData.folderName;
+      subFolderData.subKey = folderData.parsed.suffix;
+      subFolderData.subFolderColor = subData.color;
+      await this.createItemTypeCompendiumFolder(subFolderData);
+
+    }
+  }
+
+  async createItemFoldersForDocuments({ documents = [] }) {
+    switch (this.compendiumFolderTypeItem) {
+      case "TYPE":
+        await this.createItemTypeCompendiumFolders();
+        break;
+      case "RARITY":
+        await this.createItemRarityFolders();
+        break;
+      case "SOURCE_CATEGORY_TYPE":
+        await this.createItemTypeFoldersWithSourceCategoriesForDocuments(documents);
+        break;
+      // no default
     }
   }
 
@@ -771,9 +887,9 @@ export class DDBCompendiumFolders {
           case "RARITY":
             await this.createItemRarityFolders();
             break;
-          case "SOURCE_TYPE":
-            await this.createItemTypeFoldersWithSources();
-            break;
+          // case "SOURCE_TYPE":
+          //   await this.createItemTypeFoldersWithSources();
+          //   break;
           case "SOURCE_CATEGORY_TYPE":
             await this.createItemTypeFoldersWithSourceCategories();
             break;
@@ -922,36 +1038,36 @@ export class DDBCompendiumFolders {
 
   }
 
-  static getItemFolderNameForTypeSource(document, sourceType = null) {
-    const folderData = this.getItemFolderNameForType(document);
+  // static getItemFolderNameForTypeSource(document, sourceType = null) {
+  //   const folderData = this.getItemFolderNameForType(document);
 
-    const parent = folderData.subTypeFolder
-      ? DDBCompendiumFolders.getSourceFolderNameFromDocument({
-        type: sourceType ?? folderData.parsed.type,
-        document,
-        nameSuffix: folderData.parsed.parentFolderName,
-      })
-      : null;
+  //   const parent = folderData.subTypeFolder
+  //     ? DDBCompendiumFolders.getSourceFolderNameFromDocument({
+  //       type: sourceType ?? folderData.parsed.type,
+  //       document,
+  //       nameSuffix: folderData.parsed.parentFolderName,
+  //     })
+  //     : null;
 
-    const result = DDBCompendiumFolders.getSourceFolderNameFromDocument({
-      type: folderData.parsed.type,
-      document,
-      flagSuffix: folderData.parsed.suffix,
-      nameSuffix: folderData.parsed.name,
-    });
-    return {
-      parent,
-      folderData,
-      parsed: folderData.parsed,
-      result,
-      name: result.name,
-      flagTag: result.flagTag,
-    };
-  }
+  //   const result = DDBCompendiumFolders.getSourceFolderNameFromDocument({
+  //     type: folderData.parsed.type,
+  //     document,
+  //     flagSuffix: folderData.parsed.suffix,
+  //     nameSuffix: folderData.parsed.name,
+  //   });
+  //   return {
+  //     parent,
+  //     folderData,
+  //     parsed: folderData.parsed,
+  //     result,
+  //     name: result.name,
+  //     flagTag: result.flagTag,
+  //   };
+  // }
 
 
   static getItemFolderNameForTypeSourceCategory(document, sourceType = null) {
-    const folderData = this.getItemFolderNameForType(document);
+    const folderData = DDBCompendiumFolders.getItemFolderNameForType(document);
 
     const parent = folderData.subTypeFolder
       ? DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
@@ -992,10 +1108,10 @@ export class DDBCompendiumFolders {
         name = DDBCompendiumFolders.getItemFolderNameForType(document);
         break;
       }
-      case "SOURCE_TYPE": {
-        name = DDBCompendiumFolders.getItemFolderNameForTypeSource(document, "item");
-        break;
-      }
+      // case "SOURCE_TYPE": {
+      //   name = DDBCompendiumFolders.getItemFolderNameForTypeSource(document, "item");
+      //   break;
+      // }
       case "SOURCE_CATEGORY_TYPE": {
         name = DDBCompendiumFolders.getItemFolderNameForTypeSourceCategory(document, "item");
         break;
@@ -1650,8 +1766,14 @@ export class DDBCompendiumFolders {
     await compendiumFolders._migrateExistingCompendium({ deleteExisting, cleanup });
   }
 
+  // .filter((c) =>
+  //   (c.contents === undefined || c.contents.length === 0)
+  //   && (c.children === undefined || c.children.length === 0),
+  // )
+
   async removeUnusedFolders() {
     for (let i = 0; i < 3; i++) {
+      await this.compendium._reindexing;
       const folderIds = this.compendium.folders
         .filter((c) => c.contents.length === 0 && c.children.length === 0)
         .map((f) => f.id);

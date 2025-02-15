@@ -265,8 +265,6 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-  await DDBCompendiumFolders.generateCompendiumFolders("items", resolvedNotifier);
-
   resolvedNotifier("Downloading item data..");
 
   // disable source filter if ids provided
@@ -307,10 +305,15 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   resolvedNotifier(`Preparing to import ${finalCount} items!`, true);
   logger.time("Item Import Time");
 
+  await itemHandler.compendiumFolders.loadCompendium("items", true);
+  await itemHandler.compendiumFolders.createItemFoldersForDocuments({ documents: itemHandler.documents });
+
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
-  await DDBCompendiumFolders.cleanupCompendiumFolders("items", resolvedNotifier);
+  if (foundry.utils.isNewerVersion("13", game.version)) {
+    await DDBCompendiumFolders.cleanupCompendiumFolders("items", resolvedNotifier);
+  }
 
   logger.debug("Final Item Import Data", { finalItems: itemHandler.documents, updateResults, updatePromiseResults });
   resolvedNotifier("");
