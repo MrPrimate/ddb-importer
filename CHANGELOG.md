@@ -1,5 +1,6 @@
 # Next Up
 
+- Monster Type filter for importing monsters of matching types only.
 - Improve Compendium Folder generation speed for Items and Spells.
 - Some fixes for Homebrew Monster import: @baiseralice
 - Some internal adjustments for Foundry v13 (DDB Importer is not yet supported due to some outstanding compendium bugs).
