@@ -181,6 +181,12 @@ export default class DDBMuncher extends Application {
         await DDBSources.updateSelectedSources(Array.from(event.target._value));
       });
 
+    $(html)
+      .find('#muncher-monster-types-select')
+      .on("change", async (event) => {
+        await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
+      });
+
     html.find("#monster-munch-filter").on("keyup", (event) => {
       event.preventDefault();
       if (event.key !== "Enter") return; // Use `.key` instead.

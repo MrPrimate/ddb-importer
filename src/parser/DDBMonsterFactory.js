@@ -119,6 +119,7 @@ export default class DDBMonsterFactory {
       body.exactMatch = exactMatch;
       body.excludeLegacy = excludeLegacy;
       body.excludedCategories = DDBSources.getAllExcludedCategoryIds();
+      body.monsterTypes = DDBSources.getSelectedMonsterTypeIds();
     }
 
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");

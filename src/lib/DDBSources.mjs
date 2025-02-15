@@ -173,6 +173,11 @@ export default class DDBSources {
       .map((id) => parseInt(id));
   }
 
+  static getSelectedMonsterTypeIds() {
+    const chosenMonsterTypeIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types").map((id) => parseInt(id));
+    return chosenMonsterTypeIds;
+  }
+
   // eslint-disable-next-line class-methods-use-this
   static AlwaysExcludedCategoryIds = DICTIONARY.sourceCategories.excluded;
 
@@ -243,6 +248,10 @@ export default class DDBSources {
 
   static async updateExcludedCategories(ids) {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories", ids.map((id) => parseInt(id)));
+  }
+
+  static async updateSelectedMonsterTypes(ids) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types", ids.map((id) => parseInt(id)));
   }
 
 }

@@ -785,7 +785,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
   },
 
   getMonsterTypeLookups: () => {
-    const chosenMonsterTypeIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types").map((id) => parseInt(id));
+    const chosenMonsterTypeIds = DDBSources.getSelectedMonsterTypeIds();
     const monsterTypes = CONFIG.DDB.monsterTypes;
 
     const monsterTypeSelections = monsterTypes.map((type) => {
