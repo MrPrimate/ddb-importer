@@ -7,12 +7,18 @@ export default class AnimateDead extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getAnimateDead;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       type: "summon",
       noTemplate: true,
-      generateSummons: true,
-      summonsFunction: DDBImporter.lib.DDBSummonsInterface.getAnimateDead,
       profileKeys: this.is2014
         ? [
           { count: 1, name: "AnimatedSkeleton2014" },

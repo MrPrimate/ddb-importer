@@ -7,12 +7,18 @@ export default class GraspingVine extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getGraspingVines2024;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       type: "summon",
       noTemplate: true,
-      generateSummons: true,
-      summonsFunction: DDBImporter.lib.DDBSummonsInterface.getGraspingVines2024,
       profileKeys: [
         { count: 1, name: "GraspingVine" },
       ],

@@ -1020,8 +1020,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   async _generateSummons() {
-    if (this.enricher.activity?.generateSummons) {
-      const summons = await this.enricher.activity.summonsFunction({
+    if (this.enricher.generateSummons) {
+      const summons = await this.enricher.summonsFunction({
         ddbParser: this,
         document: this.data,
         raw: this.ddbDefinition.description,

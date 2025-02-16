@@ -43,6 +43,7 @@ const COMPANION_SPELLS_2024 = [
   "Animate Objects",
   "Giant Insect",
   "Find Steed",
+  "Summon Dragon",
 ];
 
 const MULTI_COMPANIONS_2024 = {

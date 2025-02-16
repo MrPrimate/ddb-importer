@@ -51,8 +51,6 @@ export default class Example extends DDBEnricherData {
       addSingleFreeRecoveryPeriod: "lr", // single free use recovery period.
       additionalDamageIncludeBase: true, // items only, additional damage parsing should include base damage
       stopHealSpellActivity: true, // in spells prevents healing activity auto generation
-      generateSummons: true, // during spell parsing will call the summonsFunction
-      summonsFunction: () => {}, // summons function to call when generateSummons is true
       profileKeys: [], // array of summon profile keys to use
       summons: {}, // data to merge to summon config
       splitDamage: true, // used by the spell parser to split damage

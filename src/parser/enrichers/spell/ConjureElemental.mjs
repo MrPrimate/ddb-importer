@@ -8,13 +8,19 @@ export default class ConjureElemental extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getConjureElementals2024;
+  }
+
+  get generateSummons() {
+    return !this.is2014;
+  }
+
   get activity() {
     if (this.is2014) return null;
     return {
       type: "summon",
       noTemplate: true,
-      generateSummons: !this.is2014,
-      summonsFunction: DDBImporter.lib.DDBSummonsInterface.getConjureElementals2024,
       profileKeys: [
         { count: 1, name: "ConjureElementalAir" },
         { count: 1, name: "ConjureElementalEarth" },

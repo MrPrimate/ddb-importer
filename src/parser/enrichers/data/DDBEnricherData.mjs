@@ -201,14 +201,22 @@ export default class DDBEnricherData {
    *   addSingleFreeRecoveryPeriod: {string} Single free use recovery period.
    *   additionalDamageIncludeBase: {boolean} Add additional damage include base.
    *   stopHealSpellActivity: {boolean} in spells prevents healing activity auto generation
-   *   generateSummons: {boolean} during spell parsing will call the summonsFunction
-   *   summonsFunction: {Function} summons function to call when generateSummons is true
    *   profileKeys: {Array} array of summon profile keys to use
    *   summons: {object} data to merge to summon config
    *   splitDamage: {boolean} used by the spell parser to split damage
    */
   get activity() {
     return null;
+  }
+
+  // {Function} summons function to call when generateSummons is true
+  get summonsFunction() {
+    return null;
+  }
+
+  // generateSummons: {boolean} during spell parsing will call the summonsFunction
+  get generateSummons() {
+    return false;
   }
 
   /**

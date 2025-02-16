@@ -7,12 +7,18 @@ export default class ArcaneHand extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getArcaneHands2024;
+  }
+
+  get generateSummons() {
+    return !this.is2014;
+  }
+
   get activity() {
     return {
       type: "summon",
       noTemplate: true,
-      generateSummons: !this.is2014,
-      summonsFunction: DDBImporter.lib.DDBSummonsInterface.getArcaneHands2024,
       profileKeys: this.is2014
         ? [
           { count: 1, name: "ArcaneHandRed" },
