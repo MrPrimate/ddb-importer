@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.80
 
 - Several fixes for summons parsing. A spell munch is strongly recommended after this update.
 - Summons activities for Spirtual Weapon, Create Undead, Clairvoyance, Minor Illusion, Silent Image, Major Image, Finger of Death.
