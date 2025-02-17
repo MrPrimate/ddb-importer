@@ -494,6 +494,10 @@ export default class DDBEnricherFactoryMixin {
       });
     }
 
+    if (overrideData.profileKeys && isSummon && this.manager) {
+      this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
+    }
+
     if (overrideData.data) {
       const data = utils.isFunction(overrideData.data)
         ? overrideData.data()
@@ -503,10 +507,6 @@ export default class DDBEnricherFactoryMixin {
 
     if (overrideData.allowMagical) {
       activity.restrictions.allowMagical = true;
-    }
-
-    if (overrideData.profileKeys && isSummon && this.manager) {
-      this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
     }
 
     if (overrideData.noeffect) {

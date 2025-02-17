@@ -1,3 +1,8 @@
+# Next Up
+
+- Summons activities for Minor Illusion, Finger of Death.
+- Summons parsing corrections for Drake Warden (would not always add size categories and bonus damage).
+
 # 6.0.79
 
 - Monster Type filter for importing monsters of matching types only.

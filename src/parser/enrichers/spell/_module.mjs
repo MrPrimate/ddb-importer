@@ -105,6 +105,7 @@ export { default as MageHand } from "./MageHand.mjs";
 export { default as MagicWeapon } from "./MagicWeapon.mjs";
 export { default as MassSuggestion } from "./MassSuggestion.mjs";
 export { default as MindBlank } from "./MindBlank.mjs";
+export { default as MinorIllusion } from "./MinorIllusion.mjs";
 export { default as MirrorImage } from "./MirrorImage.mjs";
 export { default as MistyStep } from "./MistyStep.mjs";
 export { default as PassWithoutTrace } from "./PassWithoutTrace.mjs";

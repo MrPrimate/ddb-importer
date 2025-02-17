@@ -18,7 +18,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
       const simpleMatch
         = item.name === owned.name
         && item.type === owned.type
-        && item.system.activation?.type === owned.system.activation?.type
+        // && item.system.activation?.type === owned.system.activation?.type
         && ((checkId && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id) || !checkId);
 
       return simpleMatch;

@@ -365,6 +365,22 @@ export default class DDBCompanionFactory {
       summonsData.profiles = activity.profiles;
     }
 
+    if (activity) {
+      if (activity.creatureTypes.length > 0) {
+        summonsData.creatureTypes = activity.creatureTypes;
+      }
+      if (activity.creatureSizes.length > 0) {
+        summonsData.creatureSizes = activity.creatureSizes;
+      }
+      if (activity.bonuses) {
+        for (const [key, value] of Object.entries(activity.bonuses)) {
+          if (value && value !== "") {
+            summonsData.bonuses[key] = value;
+          }
+        }
+      }
+    }
+
     const activityData = activity
       ? foundry.utils.mergeObject(activity, summonsData)
       : foundry.utils.mergeObject(this.#getDocumentActivity(updateDocument), summonsData);

@@ -15,6 +15,7 @@ import { getFlamingSphere } from "./types/FlamingSphere.mjs";
 import { getGraspingVines } from "./types/GraspingVine.mjs";
 import { getAnimateDead } from "./types/AnimateDead.mjs";
 import { getFingerOfDeath } from "./types/FingerOfDeath.mjs";
+import { getMinorIllusions } from "./types/MinorIllusion.mjs";
 
 export default class DDBSummonsInterface {
 
@@ -51,5 +52,7 @@ export default class DDBSummonsInterface {
   static getAnimateDead = getAnimateDead;
 
   static getFingerOfDeath = getFingerOfDeath;
+
+  static getMinorIllusions = getMinorIllusions;
 
 }

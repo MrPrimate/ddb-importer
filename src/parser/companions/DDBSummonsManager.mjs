@@ -15,14 +15,16 @@ async function getSummonActors() {
   const arcaneEyes = await DDBImporter.lib.DDBSummonsInterface.getArcaneEyes();
   const dancingLights = DDBImporter.lib.DDBSummonsInterface.getDancingLights(jb2aMod);
   const mageHands = DDBImporter.lib.DDBSummonsInterface.getMageHands(jb2aMod);
-  const getBubblingCauldron = DDBImporter.lib.DDBSummonsInterface.getBubblingCauldrons();
+  const bubblingCauldron = DDBImporter.lib.DDBSummonsInterface.getBubblingCauldrons();
+  const minorIllusions = DDBImporter.lib.DDBSummonsInterface.getMinorIllusions();
   // const conjureAnimals = await getConjureAnimals();
 
   const localActors = {
     ...arcaneEyes,
     ...dancingLights,
     ...mageHands,
-    ...getBubblingCauldron,
+    ...bubblingCauldron,
+    ...minorIllusions,
     // ...conjureAnimals,
   };
 
