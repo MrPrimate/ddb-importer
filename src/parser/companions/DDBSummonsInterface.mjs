@@ -17,6 +17,7 @@ import { getAnimateDead } from "./types/AnimateDead.mjs";
 import { getFingerOfDeath } from "./types/FingerOfDeath.mjs";
 import { getIllusions } from "./types/Illusions.mjs";
 import { getClairvoyance } from "./types/Clairvoyance.mjs";
+import { getCreateUndead } from "./types/CreateUndead.mjs";
 
 export default class DDBSummonsInterface {
 
@@ -57,5 +58,7 @@ export default class DDBSummonsInterface {
   static getIllusions = getIllusions;
 
   static getClairvoyance = getClairvoyance;
+
+  static getCreateUndead = getCreateUndead;
 
 }

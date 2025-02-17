@@ -129,6 +129,7 @@ export default class DDBSummonsManager {
           name: actor.name,
           uuid: actor.uuid,
           count: summonsKeys.find((s) => flag === s.name)?.count ?? "",
+          level: summonsKeys.find((s) => flag === s.name)?.level ?? { min: null, max: null },
         };
       });
 
