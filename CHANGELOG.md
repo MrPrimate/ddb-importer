@@ -1,7 +1,7 @@
 # Next Up
 
 - Several fixes for summons parsing. A spell munch is strongly recommended after this update.
-- Summons activities for Minor Illusion, Major Image, Finger of Death.
+- Summons activities for Clairvoyance, Minor Illusion, Major Image, Finger of Death.
 - Summons parsing corrections for Drake Warden (would not always add size categories and bonus damage).
 
 # 6.0.79
