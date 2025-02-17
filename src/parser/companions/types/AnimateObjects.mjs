@@ -103,13 +103,6 @@ export async function getAnimateObjects2014({
     stub = await DDBCompanionMixin.addEnrichedImageData(stub);
     const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
-    // eslint-disable-next-line no-console
-    console.warn(`Animate Objects ${data.name}`, {
-      stub: foundry.utils.deepClone(stub),
-      enriched,
-      raw, action,
-    });
-
     result[`AnimateObject${size.label}`] = {
       name: `Animated Object ${size.label}${data.suffix ?? ""}`,
       version: enriched ? "2" : "1",

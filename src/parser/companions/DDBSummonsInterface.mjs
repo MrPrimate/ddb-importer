@@ -18,6 +18,8 @@ import { getFingerOfDeath } from "./types/FingerOfDeath.mjs";
 import { getIllusions } from "./types/Illusions.mjs";
 import { getClairvoyance } from "./types/Clairvoyance.mjs";
 import { getCreateUndead } from "./types/CreateUndead.mjs";
+import { getSpiritualWeapons } from "./types/SpiritualWeapon.mjs";
+import { getAnimateObjects2014 } from "./types/AnimateObjects.mjs";
 
 export default class DDBSummonsInterface {
 
@@ -60,5 +62,9 @@ export default class DDBSummonsInterface {
   static getClairvoyance = getClairvoyance;
 
   static getCreateUndead = getCreateUndead;
+
+  static getSpiritualWeapons = getSpiritualWeapons;
+
+  static getAnimateObjects2014 = getAnimateObjects2014;
 
 }

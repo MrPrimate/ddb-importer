@@ -3,22 +3,45 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class SpiritualWeapon extends DDBEnricherData {
   get type() {
-    return "utility";
+    return this.is2014 ? "utility" : "summon";
+  }
+
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getSpiritualWeapons;
+  }
+
+  get generateSummons() {
+    return !this.is2014;
   }
 
   get activity() {
-    return {
-      data: {
-        name: "Summon",
-        target: {
-          override: true,
-          template: {
-            size: "2.5",
-            type: "radius",
+    return this.is2014
+      ? {
+        data: {
+          name: "Summon",
+          target: {
+            override: true,
+            template: {
+              size: "2.5",
+              type: "radius",
+            },
           },
         },
-      },
-    };
+      }
+      : {
+        noTemplate: true,
+        profileKeys: [
+          { count: 1, name: "SpiritualWeaponShortSword" },
+          { count: 1, name: "ArcaneSwordAstralBlue" },
+        ],
+        summons: {
+          "match": {
+            "proficiency": false,
+            "attacks": true,
+            "saves": false,
+          },
+        },
+      };
   }
 
   get additionalActivities() {
@@ -40,7 +63,7 @@ export default class SpiritualWeapon extends DDBEnricherData {
               denomination: 8,
               bonus: "@mod",
               type: "force",
-              scalingMode: "half",
+              scalingMode: this.is2014 ? "half" : "whole",
               scalingNumber: 1,
             }),
           ],
