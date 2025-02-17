@@ -1504,6 +1504,34 @@ export const fallbackDDBConfig = {
     { id: 16, name: "Max Hit Points Add Monster CON Modifier", key: "MHPAMCM", value: null, valueContextId: 3 },
     { id: 17, name: "Use Challenge Rating As Level", key: "UCRAL", value: null, valueContextId: null },
     { id: 18, name: "Max Hit Points Base Artificer Level", key: "MHPBAL", value: null, valueContextId: 252717 },
+    {
+      id: 19,
+      name: "Use Owner Max Hit Points",
+      key: "UOMHP",
+      value: null,
+      valueContextId: null,
+    },
+    {
+      id: 20,
+      name: "Temp Hit Points Base Druid Level",
+      key: "THPBDL",
+      value: null,
+      valueContextId: 2190878,
+    },
+    {
+      id: 21,
+      name: "Temp Hit Points Base Druid Level Multiplier",
+      key: "THPBDLM",
+      value: 3,
+      valueContextId: 2190917,
+    },
+    {
+      id: 22,
+      name: "Armor Add Owner WIS Plus Fixed Value",
+      key: "AAOWPFV",
+      value: 13,
+      valueContextId: 2190917,
+    },
   ],
   monsterTypes: [
     {
@@ -1839,6 +1867,25 @@ export const fallbackDDBConfig = {
       ownerStats: [],
       description: "<p>You learn intricate methods for magically creating a creature that serves you.</p>",
       actionSnippet: null,
+    },
+    {
+      id: 13,
+      name: "Wild Shape (2024)",
+      categoryId: 2,
+      enabledByDefault: false,
+      allowDuplicates: true,
+      allowCombat: true,
+      isPrimary: true,
+      isMisc: false,
+      specialQualityTitle: "Wild Shape (2024)",
+      specialQualityText:
+        "You shape-shift into a Beast form that you have learned for this feature. You stay in that form for a number of hours equal to half your Druid level or until you use Wild Shape again, have the Incapacitated condition, or die. Your game statistics are replaced by the Beast?s stat block, but you retain your creature type; Hit Points; Hit Point Dice; Intelligence, Wisdom, and Charisma scores; class features; languages; and feats. You also gain a number of Temporary Hit Points equal to your Druid level.",
+      flags: ["EOSKP", "EOSVP", "CBS", "CULGA", "CULRA", "EUPP", "EOPP", "UOMHP", "THPBDL", "THPBDLM", "AAOWPFV"],
+      monsterTypes: [],
+      ownerStats: [4, 5, 6],
+      description:
+        "<p>The power of nature allows you to assume the form of an animal. As a Bonus Action, you shape-shift into a Beast form that you have learned for this feature.</p>",
+      actionSnippet: "<p><strong><em>Revert Form.</em></strong> You can leave the form early as a Bonus Action.</p>",
     },
   ],
   creatureGroupCategories: [
