@@ -197,6 +197,8 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Find Familiar": SpellEnrichers.FindFamiliar,
     "Finger of Death": SpellEnrichers.FingerOfDeath,
     "Minor Illusion": SpellEnrichers.MinorIllusion,
+    "Major Image": SpellEnrichers.MajorImage,
+    "Clairvoyance": SpellEnrichers.Clairvoyance,
   };
 
 }

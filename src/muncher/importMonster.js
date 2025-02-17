@@ -344,27 +344,24 @@ export async function buildNPC(data, type = "monster", {
   });
   data = Iconizer.addActorEffectIcons(data);
 
-  if (handleBuild) {
-    // create the new npc
-    logger.debug("Creating NPC actor");
-    if (update) {
-      const npc = game.actors.get(data._id);
-      await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-      await Actor.updateDocuments([data]);
-      return npc;
-    } else {
-      const options = {
-        temporary,
-        displaySheet: false,
-      };
-      const npc = temporary
-        ? new Actor.implementation(data, options)
-        : await Actor.create(data, options);
-      return npc;
-    }
+  if (!handleBuild) return data;
 
+  // create the new npc
+  logger.debug("Creating NPC actor");
+  if (update) {
+    const npc = game.actors.get(data._id);
+    await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
+    await Actor.updateDocuments([data]);
+    return npc;
   } else {
-    return data;
+    const options = {
+      temporary,
+      displaySheet: false,
+    };
+    const npc = temporary
+      ? new Actor.implementation(data, options)
+      : await Actor.create(data, options);
+    return npc;
   }
 
 }

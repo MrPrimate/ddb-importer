@@ -48,7 +48,7 @@ export function SUMMONS_ACTOR_STUB() {
       "traits": {
         "size": "tiny",
         ci: {
-          value: Object.keys(CONFIG.DND5E.conditionTypes),
+          value: Object.keys(CONFIG.DND5E.conditionTypes).filter((type) => !["invisible"].includes(type)),
         },
         di: {
           value: Object.keys(CONFIG.DND5E.damageTypes),

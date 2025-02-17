@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class MinorIllusion extends DDBEnricherData {
+export default class MajorImage extends DDBEnricherData {
 
   get type() {
     return "summon";
@@ -13,9 +13,17 @@ export default class MinorIllusion extends DDBEnricherData {
       profileKeys: [
         { count: 1, name: "IllusionObject" },
         { count: 1, name: "IllusionSound" },
+        { count: 1, name: "IllusionCreature" },
       ],
       data: {
-        creatureSizes: ["sm", "med", "tiny"],
+        creatureSizes: [
+          "tiny",
+          "sm",
+          "med",
+          "lg",
+          "huge",
+          "grg",
+        ],
       },
     };
   }

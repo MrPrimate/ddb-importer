@@ -5,7 +5,7 @@ export async function getArcaneEyes() {
   const results = {
     ArcaneEye: {
       name: "Arcane Eye",
-      version: "1",
+      version: "2",
       required: null,
       isJB2A: true,
       needsJB2A: false,
