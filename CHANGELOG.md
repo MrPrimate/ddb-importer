@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.81
 
 - Changes to Summon generation, you may need to delete and recreate your DDB Summons compendium.
 - Friends 2024 fix.
