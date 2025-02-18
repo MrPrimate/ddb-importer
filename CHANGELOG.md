@@ -1,3 +1,8 @@
+# Next Up
+
+- Friends 2024 fix.
+
+
 # 6.0.80
 
 - Several fixes for summons parsing. A spell munch is strongly recommended after this update.

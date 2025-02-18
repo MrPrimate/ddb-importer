@@ -201,6 +201,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Clairvoyance": SpellEnrichers.Clairvoyance,
     "Create Undead": SpellEnrichers.CreateUndead,
     "Silent Image": SpellEnrichers.SilentImage,
+    "Friends": SpellEnrichers.Friends,
   };
 
 }

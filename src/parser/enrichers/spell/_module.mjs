@@ -75,6 +75,7 @@ export { default as FlamingSphere } from "./FlamingSphere.mjs";
 export { default as FleshToStone } from "./FleshToStone.mjs";
 export { default as Fly } from "./Fly.mjs";
 export { default as FountOfMoonlight } from "./FountOfMoonlight.mjs";
+export { default as Friends } from "./Friends.mjs";
 export { default as Frostbite } from "./Frostbite.mjs";
 export { default as GlyphOfWarding } from "./GlyphOfWarding.mjs";
 export { default as GraspingVine } from "./GraspingVine.mjs";
