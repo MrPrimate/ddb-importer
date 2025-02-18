@@ -205,6 +205,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Project Image": SpellEnrichers.ProjectImage,
     "Programmed Illusion": SpellEnrichers.ProgrammedIllusion,
     "Mislead": SpellEnrichers.Mislead,
+    "Phantom Steed": SpellEnrichers.PhantomSteed,
   };
 
 }
