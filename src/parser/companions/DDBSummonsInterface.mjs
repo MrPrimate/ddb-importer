@@ -21,6 +21,7 @@ import { getCreateUndead } from "./types/CreateUndead.mjs";
 import { getSpiritualWeapons } from "./types/SpiritualWeapon.mjs";
 import { getAnimateObjects2014 } from "./types/AnimateObjects.mjs";
 import { getPhantomSteed } from "./types/PhantomSteed.mjs";
+import { getFaithfulHound } from "./types/FaithfulHound.mjs";
 
 export default class DDBSummonsInterface {
 
@@ -69,5 +70,7 @@ export default class DDBSummonsInterface {
   static getAnimateObjects2014 = getAnimateObjects2014;
 
   static getPhantomSteed = getPhantomSteed;
+
+  static getFaithfulHound = getFaithfulHound;
 
 }

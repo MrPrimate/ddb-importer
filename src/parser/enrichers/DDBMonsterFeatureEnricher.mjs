@@ -199,6 +199,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Spiritual Weapon": {
       "Move and Attack": MonsterEnrichers.SpiritualWeapon.MoveAndAttack,
     },
+    "Faithful Hound": {
+      "Bite": MonsterEnrichers.FaithfulHound.Bite,
+    },
   };
 
 }

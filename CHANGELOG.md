@@ -1,7 +1,8 @@
 # Next Up
 
+- Changes to Summon generation, you may need to delete and recreate your DDB Summons compendium.
 - Friends 2024 fix.
-- Summons activities for: Project Image, Programmed Illusion, Project Image, Mislead, Phantom Steed.
+- Summons activities for: Project Image, Programmed Illusion, Project Image, Mislead, Phantom Steed, Faithful Hound.
 - If using D&D 4.3.x the importer will now use the updated spellmod attribute to reduce deprecation warnings.
 
 # 6.0.80

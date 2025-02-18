@@ -18,6 +18,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Bigby's Hand": "Arcane Hand",
     "Melf's Acid Arrow": "Acid Arrow",
     "Mordenkainen's Sword": "Arcane Sword",
+    "Mordenkainen's Faithful Hound": "Faithful Hound",
     "Evard's Black Tentacles": "Black Tentacles",
     "Otiluke's Resilient Sphere": "Resilient Sphere",
     "Otto's Irresistible Dance": "Irresistible Dance",
@@ -206,6 +207,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Programmed Illusion": SpellEnrichers.ProgrammedIllusion,
     "Mislead": SpellEnrichers.Mislead,
     "Phantom Steed": SpellEnrichers.PhantomSteed,
+    "Faithful Hound": SpellEnrichers.FaithfulHound,
   };
 
 }

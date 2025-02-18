@@ -95,8 +95,10 @@ export default class DDBMonsterFactory {
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
     homebrewOnly = false, exactMatch = false, excludeLegacy = false },
   ) {
-    const cobaltCookie = Secrets.getCobalt();
-    const betaKey = PatreonHelper.getPatreonKey();
+    const keyPostfix = CONFIG.DDBI.keyPostfix ?? null;
+    const useLocal = CONFIG.DDBI.useLocal ?? false;
+    const cobaltCookie = Secrets.getCobalt(keyPostfix);
+    const betaKey = PatreonHelper.getPatreonKey(useLocal);
     const parsingApi = DDBProxy.getProxy();
 
     const body = {

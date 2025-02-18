@@ -166,7 +166,7 @@ export default class DDBSummonsManager {
         version: value.version,
         folder: value.folderName,
       });
-      companion._id = utils.namedIDStub(value.name, { prefix: "ddbSum" });
+      companion._id = utils.namedIDStub(value.name, { prefix: "ddbSum", postfix: companion.system.source?.rules ?? "" });
 
       if (value.isJB2A) {
         foundry.utils.setProperty(companion, "system.details.biography", {

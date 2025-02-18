@@ -20,7 +20,7 @@ export default class DDBMonster {
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
     legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null,
-    useCastActivity = null } = {}, overrides = {},
+    useCastActivity = null, forceRulesVersion = null } = {}, overrides = {},
   ) {
     this.source = ddbObject;
 
@@ -66,6 +66,14 @@ export default class DDBMonster {
     this.is2024 = null;
     this.use2024Spells = use2024Spells;
     this.useCastActivity = useCastActivity;
+    this.forceRulesVersion = forceRulesVersion;
+
+    if (forceRulesVersion !== null) {
+      this.is2014 = forceRulesVersion === "2014";
+      this.is2024 = forceRulesVersion === "2024";
+      this.use2024Spells = this.is2024;
+      this.useCastActivity = this.is2024;
+    }
 
     this.spellcasting = {
       spelldc: 10,

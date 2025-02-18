@@ -178,6 +178,7 @@ export default class DDBCompanionMixin {
       legacyName: this.legacyName,
       addMonsterEffects: this.addMonsterEffects,
       addChrisPremades: this.addChrisPremades,
+      forceRulesVersion: this.options.forceRulesVersion,
     };
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
