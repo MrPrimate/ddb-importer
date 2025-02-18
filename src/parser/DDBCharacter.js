@@ -132,7 +132,8 @@ export default class DDBCharacter {
     const proxyCampaignId = campaignId === "" ? null : campaignId;
     let body = {
       cobalt: cobaltCookie,
-      betaKey, characterId: this.characterId,
+      betaKey,
+      characterId: this.characterId,
       campaignId: proxyCampaignId,
       filterModifiers: false,
       splitSpells: true,

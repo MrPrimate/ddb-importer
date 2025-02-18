@@ -415,6 +415,8 @@ export default class DDBCharacterManager extends FormApplication {
             syncId: null,
             localCobaltPostFix: this.actor.id,
           };
+          CONFIG.DDBI.keyPostfix = this.actor.id;
+          CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
           this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
           await this.ddbCharacter.getCharacterData(getOptions);
           logger.debug("import.js getCharacterData result", this.ddbCharacter);
@@ -447,6 +449,9 @@ export default class DDBCharacterManager extends FormApplication {
               break;
           }
           return false;
+        } finally {
+          delete CONFIG.DDBI.keyPostfix;
+          delete CONFIG.DDBI.useLocal;
         }
 
         $(html).find("#dndbeyond-character-import-start").prop("disabled", false);
