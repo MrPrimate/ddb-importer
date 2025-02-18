@@ -202,6 +202,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Faithful Hound": {
       "Bite": MonsterEnrichers.FaithfulHound.Bite,
     },
+    "Guardian of Faith": {
+      "Guardian Aura": MonsterEnrichers.GuardianOfFaith.GuardianAura,
+    },
   };
 
 }

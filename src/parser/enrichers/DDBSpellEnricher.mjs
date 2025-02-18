@@ -208,6 +208,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Mislead": SpellEnrichers.Mislead,
     "Phantom Steed": SpellEnrichers.PhantomSteed,
     "Faithful Hound": SpellEnrichers.FaithfulHound,
+    "Guardian of Faith": SpellEnrichers.GuardianOfFaith,
   };
 
 }

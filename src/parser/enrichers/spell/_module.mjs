@@ -82,6 +82,7 @@ export { default as GlyphOfWarding } from "./GlyphOfWarding.mjs";
 export { default as GraspingVine } from "./GraspingVine.mjs";
 export { default as Grease } from "./Grease.mjs";
 export { default as GreenFlameBlade } from "./GreenFlameBlade.mjs";
+export { default as GuardianOfFaith } from "./GuardianOfFaith.mjs";
 export { default as Guidance } from "./Guidance.mjs";
 export { default as GuidingBolt } from "./GuidingBolt.mjs";
 export { default as GustOfWind } from "./GustOfWind.mjs";
