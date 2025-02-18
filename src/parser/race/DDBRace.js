@@ -215,9 +215,10 @@ export default class DDBRace {
 
     const rules = this.data.system.source?.rules ?? "2024";
     const book = utils.normalizeString(this.data.system.source?.book ?? "");
+    const bookRuleStub = [rules, book].join("-");
 
     if (this.race.portraitAvatarUrl) {
-      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-race-portrait`;
+      const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-race-portrait`;
       const pathPostfix = useDeepPaths ? `/race/portrait` : "";
       const downloadOptions = { type: "race-portrait", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix, download: true };
       portraitAvatarUrl = await FileHelper.getImagePath(this.race.portraitAvatarUrl, downloadOptions);
@@ -227,7 +228,7 @@ export default class DDBRace {
     }
 
     if (this.race.avatarUrl) {
-      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-race-avatar`;
+      const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-race-avatar`;
       const pathPostfix = useDeepPaths ? `/race/avatar` : "";
       const downloadOptions = { type: "race-avatar", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix, download: true };
       avatarUrl = await FileHelper.getImagePath(this.race.avatarUrl, downloadOptions);

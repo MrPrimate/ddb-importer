@@ -473,6 +473,7 @@ export default class Iconizer {
 
       const rules = item.system.source?.rules ?? "2024";
       const book = utils.normalizeString(item.system.source?.book ?? "");
+      const bookRuleStub = [rules, book].join("-");
 
       const pathPostfix = useDeepPaths ? `/item/${item.type}` : "";
 
@@ -481,7 +482,7 @@ export default class Iconizer {
           const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
           if (avatarUrl && avatarUrl != "") {
             utils.munchNote(`Downloading ${item.name} image`, true);
-            const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-item`;
+            const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-item`;
             const downloadOptions = {
               type: "item",
               name: item.name,
@@ -499,7 +500,7 @@ export default class Iconizer {
         if (item.flags.ddbimporter.dndbeyond.largeAvatarUrl) {
           const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
           if (largeAvatarUrl && largeAvatarUrl != "") {
-            const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-item`;
+            const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-item`;
             const name = useDeepPaths ? `${item.name}-large` : item.name;
             const downloadOptions = {
               type: "item-large",
@@ -540,7 +541,8 @@ export default class Iconizer {
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
       const rules = item.system.source?.rules ?? "2024";
       const book = utils.normalizeString(item.system.source?.book ?? "");
-      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-${type}`;
+      const bookRuleStub = [rules, book].join("-");
+      const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${type}`;
       const name = useDeepPaths ? `${item.name}` : item.name;
       const downloadOptions = {
         type,

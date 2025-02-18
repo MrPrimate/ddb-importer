@@ -216,6 +216,7 @@ export async function getNPCImage(npcData, {
 
   const rules = npcData.system.source?.rules ?? "2024";
   const book = utils.normalizeString(npcData.system.source?.book ?? "");
+  const bookRuleStub = [rules, book].join("-");
 
   if (ddbAvatarUrl && foundry.utils.getProperty(npcData, "flags.monsterMunch.imgSet") !== true) {
     if (hasAvatarProcessedAlready) {
@@ -225,7 +226,7 @@ export async function getNPCImage(npcData, {
       const genericNpc = ddbAvatarUrl.endsWith(npcType + "." + ext) || isStock;
       const name = genericNpc ? genericNPCName : npcName;
       const nameType = genericNpc ? "npc-generic" : "npc";
-      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-${nameType}`;
+      const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
       // const imageNamePrefix = useDeepPaths ? "" : nameType;
       const pathPostfix = useDeepPaths ? `/monster/avatar/${subType}` : "";
       const downloadOptions = { type: nameType, name, targetDirectory, pathPostfix, imageNamePrefix, force: forceUpdate || updateImages };
@@ -243,7 +244,7 @@ export async function getNPCImage(npcData, {
       const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
       const name = genericNpc ? genericNPCName : npcName;
       const nameType = genericNpc ? "npc-generic-token" : "npc-token";
-      const imageNamePrefix = useDeepPaths ? `${book}-${rules}` : `${book}-${rules}-${nameType}`;
+      const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
       // const imageNamePrefix = useDeepPaths ? "" : nameType;
       const pathPostfix = useDeepPaths ? `/monster/token/${subType}` : "";
       // Token images always have to be downloaded.
@@ -281,7 +282,7 @@ export async function getNPCImage(npcData, {
     const tokenizerName = isStock
       ? npcType
       : npcData.name;
-    const autoOptions = { name: tokenizerName, nameSuffix: `-${book}-${rules}${compendiumLabel}`, updateActor: false };
+    const autoOptions = { name: tokenizerName, nameSuffix: `-${bookRuleStub}${compendiumLabel}`, updateActor: false };
     // eslint-disable-next-line require-atomic-updates
     npcData.prototypeToken.texture.src = await window.Tokenizer.autoToken(npcData, autoOptions);
     logger.debug(`Generated tokenizer image at ${npcData.prototypeToken.texture.src}`);
