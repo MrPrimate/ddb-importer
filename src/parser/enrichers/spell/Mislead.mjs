@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class ProjectImage extends DDBEnricherData {
+export default class Mislead extends DDBEnricherData {
 
   get type() {
     return "summon";
@@ -22,6 +22,15 @@ export default class ProjectImage extends DDBEnricherData {
         ],
       },
     };
+  }
+
+  get effects() {
+    return [
+      {
+        name: "Invisible",
+        statuses: "Invisible",
+      },
+    ];
   }
 
 }

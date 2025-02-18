@@ -42,7 +42,7 @@ export default class Sharpshooter extends DDBEnricherData {
           transfer: true,
         },
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 30, "flags.midi-qol.sharpShooter"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 30, "flags.dnd5e.sharpShooter"),
           DDBEnricherData.ChangeHelper.customChange("2", 30, "flags.dnd5e.helpersIgnoreCover"),
           ...versionedChanges,
         ],

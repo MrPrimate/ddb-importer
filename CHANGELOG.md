@@ -1,7 +1,7 @@
 # Next Up
 
 - Friends 2024 fix.
-- Summons activities for Project Image, Programmed Illusion, Project Image.
+- Summons activities for Project Image, Programmed Illusion, Project Image, Mislead.
 - If using D&D 4.3.x the importer will now use the updated spellmod attribute to reduce deprecation warnings.
 
 # 6.0.80
