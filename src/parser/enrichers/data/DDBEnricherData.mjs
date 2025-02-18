@@ -11,6 +11,12 @@ export default class DDBEnricherData {
 
   static ChangeHelper = ChangeHelper;
 
+  get spellModAttribute() {
+    return foundry.utils.isNewerVersion("4.3.0", game.system.version)
+      ? "@attributes.spellmod"
+      : "@attributes.spell.mod";
+  }
+
   getFeatureActionsName({ type = null } = {}) {
     return this.ddbEnricher.getFeatureActionsName({ type });
   }

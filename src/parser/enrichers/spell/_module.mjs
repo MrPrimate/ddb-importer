@@ -118,6 +118,8 @@ export { default as PowerWordFortify } from "./PowerWordFortify.mjs";
 export { default as PrimalSavagery } from "./PrimalSavagery.mjs";
 export { default as PrismaticWall } from "./PrismaticWall.mjs";
 export { default as ProduceFlame } from "./ProduceFlame.mjs";
+export { default as ProgrammedIllusion } from "./ProgrammedIllusion.mjs";
+export { default as ProjectImage } from "./ProjectImage.mjs";
 export { default as ProtectionFromEnergy } from "./ProtectionFromEnergy.mjs";
 export { default as ProtectionFromPoison } from "./ProtectionFromPoison.mjs";
 export { default as PsychicScream } from "./PsychicScream.mjs";

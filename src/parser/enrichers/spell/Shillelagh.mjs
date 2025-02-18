@@ -28,8 +28,8 @@ export default class Shillelagh extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.overrideChange("8", 20, "system.damage.base.denomination"),
         DDBEnricherData.ChangeHelper.overrideChange("0", 50, "system.damage.base.custom.enabled"),
         DDBEnricherData.ChangeHelper.overrideChange("none", 50, "activities[attack].attack.ability"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.str.mod, @attributes.spellmod)", 50, "activities[attack].attack.bonus"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.str.mod, @attributes.spellmod)s", 50, "system.damage.base.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, ${this.spellModAttribute})`, 50, "activities[attack].attack.bonus"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, ${this.spellModAttribute})`, 50, "system.damage.base.bonus"),
       ];
 
       return [{
@@ -52,8 +52,8 @@ export default class Shillelagh extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("force", 50, "system.damage.base.types"),
           DDBEnricherData.ChangeHelper.overrideChange("0", 50, "system.damage.base.custom.enabled"),
           DDBEnricherData.ChangeHelper.overrideChange("none", 50, "activities[attack].attack.ability"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.str.mod, @attributes.spellmod)", 50, "activities[attack].attack.bonus"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.str.mod, @attributes.spellmod)", 50, "system.damage.base.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, ${this.spellModAttribute})`, 50, "activities[attack].attack.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`max(@abilities.str.mod, ${this.spellModAttribute})`, 50, "system.damage.base.bonus"),
         ];
         return {
           name: `${name} (${data.number ?? 1}d${data.denomination})`,
