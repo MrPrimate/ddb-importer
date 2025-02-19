@@ -1,6 +1,7 @@
 # Next Up
 
 - Various spell parsing improvements.
+- Fix over zealous marking of 2014 spells as legacy if they are not in the legacy category.
 
 # 6.0.81
 

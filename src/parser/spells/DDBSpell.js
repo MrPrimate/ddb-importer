@@ -44,7 +44,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       },
     };
 
-    if (this.legacyPostfix && this.is2014) {
+    if (this.legacyPostfix && this.legacy && !this.isHomebrew) {
       this.data.name += " (Legacy)";
     }
   }
