@@ -18,4 +18,12 @@ export const EQUIPMENT = {
     "legendary": "2d6 * 25000",
     "artifact": "2d10 * 50000",
   },
+  dmg2024Price: {
+    "common": "100",
+    "uncommon": "400",
+    "rare": "4000",
+    "veryRare": "40000",
+    "legendary": "200000",
+    "artifact": "",
+  },
 };

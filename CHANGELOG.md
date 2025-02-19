@@ -1,3 +1,7 @@
+# Next Up
+
+- Various spell parsing improvements.
+
 # 6.0.81
 
 - Changes to Summon generation, you may need to delete and recreate your DDB Summons compendium.
@@ -6,7 +10,6 @@
 - If using D&D 4.3.x the importer will now use the updated spellmod attribute to reduce deprecation warnings.
 - Attempt to fix "Cobalt token missing" messages when importing characters as a player.
 - Monster feature icon updates.
-
 
 # 6.0.80
 

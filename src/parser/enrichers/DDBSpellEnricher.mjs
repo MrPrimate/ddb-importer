@@ -209,6 +209,10 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Phantom Steed": SpellEnrichers.PhantomSteed,
     "Faithful Hound": SpellEnrichers.FaithfulHound,
     "Guardian of Faith": SpellEnrichers.GuardianOfFaith,
+    "Sanctuary": SpellEnrichers.Sanctuary,
+    "Animal Messenger": SpellEnrichers.AnimalMessenger,
+    "Antipathy/Sympathy": SpellEnrichers.AntipathySympathy,
+    "Delayed Blast Fireball": SpellEnrichers.DelayedBlastFireball,
   };
 
 }
