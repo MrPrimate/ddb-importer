@@ -213,6 +213,8 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Animal Messenger": SpellEnrichers.AnimalMessenger,
     "Antipathy/Sympathy": SpellEnrichers.AntipathySympathy,
     "Delayed Blast Fireball": SpellEnrichers.DelayedBlastFireball,
+    "Raise Dead": SpellEnrichers.RaiseDead,
+    "Resurrection": SpellEnrichers.Resurrection,
   };
 
 }
