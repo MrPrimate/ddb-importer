@@ -2,6 +2,7 @@
 
 - Various spell parsing improvements.
 - Fix over zealous marking of 2014 spells as legacy if they are not in the legacy category.
+- Some changes to prevent Condition Lab and Triggler preventing world load. I would recommend NOT removing default system statuses/conditions as it will break many imported features and creatures.
 
 # 6.0.81
 

@@ -1,7 +1,8 @@
-
+import DDBEffectHelper from "../../../effects/DDBEffectHelper.mjs";
 import { SUMMONS_ACTOR_STUB } from "./_data.mjs";
 
 export async function getArcaneEyes() {
+  const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
   const results = {
     ArcaneEye: {
       name: "Arcane Eye",
@@ -23,7 +24,7 @@ export async function getArcaneEyes() {
           },
         },
         "effects": [
-          (await ActiveEffect.implementation.fromStatusEffect("invisible")).toObject(),
+          (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject(),
         ],
       }),
     },

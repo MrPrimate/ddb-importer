@@ -908,6 +908,19 @@ export default class DDBEffectHelper {
     }
   }
 
+  static findCondition({ conditionName, forceSystemCondition = false } = {}) {
+    const condition = CONFIG.statusEffects.find((se) =>
+      se.name.toLowerCase() === conditionName.toLowerCase()
+      && (!forceSystemCondition || (forceSystemCondition && se._id?.startsWIth("dnd5e"))),
+    );
+
+    if (!condition) {
+      logger.error(`Condition ${conditionName} not found`);
+      return null;
+    }
+    return condition;
+  }
+
   static async addCondition({ conditionName, actor, actorUuid, level = null, origin = null } = {}) {
     if (!actor) actor = await fromUuid(actorUuid);
     if (!actor) {
@@ -915,7 +928,7 @@ export default class DDBEffectHelper {
       return;
     }
 
-    const condition = CONFIG.statusEffects.find((se) => se.name.toLowerCase() === conditionName.toLowerCase());
+    const condition = DDBEffectHelper.findCondition({ conditionName, forceSystemCondition: true });
 
     if (!condition) {
       logger.error(`Condition ${conditionName} not found`);

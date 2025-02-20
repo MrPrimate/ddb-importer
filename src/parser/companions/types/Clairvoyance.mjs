@@ -1,7 +1,8 @@
-
+import DDBEffectHelper from "../../../effects/DDBEffectHelper.mjs";
 import { SUMMONS_ACTOR_STUB } from "./_data.mjs";
 
 export async function getClairvoyance() {
+  const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
   const results = {
     Clairvoyance: {
       name: "Invisible Sensor",
@@ -16,7 +17,7 @@ export async function getClairvoyance() {
         "prototypeToken.texture.src": "icons/magic/perception/eye-tendrils-web-purple.webp",
         "img": "icons/magic/perception/eye-tendrils-web-purple.webp",
         "effects": [
-          (await ActiveEffect.implementation.fromStatusEffect("invisible")).toObject(),
+          (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject(),
         ],
       }),
     },
