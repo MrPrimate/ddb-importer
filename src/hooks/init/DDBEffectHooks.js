@@ -24,7 +24,7 @@ function daeLightStubEffects(actor, change, _current, _delta, _changes) {
     case "system.traits.dr.all":
     case "system.traits.dv.all": {
       const key = change.key.replace(".all", ".value");
-      foundry.utils.setProperty(actor, key, new Set(Object.keys(CONFIG.DND5e.damageTypes)));
+      foundry.utils.setProperty(actor, key, new Set(Object.keys(CONFIG.DND5E.damageTypes)));
       return true;
     }
     case "system.traits.languages.all":
