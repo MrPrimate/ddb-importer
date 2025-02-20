@@ -12,7 +12,7 @@ export default class PhantomSteed extends DDBEnricherData {
   }
 
   get generateSummons() {
-    return !this.is2014;
+    return true;
   }
 
   get activity() {
