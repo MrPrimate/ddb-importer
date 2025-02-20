@@ -218,6 +218,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Meld into Stone": SpellEnrichers.MeldIntoStone,
     "Crusaders Mantle": SpellEnrichers.CrusadersMantle,
     "Crusader's Mantle": SpellEnrichers.CrusadersMantle,
+    "Forbiddance": SpellEnrichers.Forbiddance,
   };
 
 }

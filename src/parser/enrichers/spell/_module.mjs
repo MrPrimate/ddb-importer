@@ -79,6 +79,7 @@ export { default as FlameBlade } from "./FlameBlade.mjs";
 export { default as FlamingSphere } from "./FlamingSphere.mjs";
 export { default as FleshToStone } from "./FleshToStone.mjs";
 export { default as Fly } from "./Fly.mjs";
+export { default as Forbiddance } from "./Forbiddance.mjs";
 export { default as FountOfMoonlight } from "./FountOfMoonlight.mjs";
 export { default as Friends } from "./Friends.mjs";
 export { default as Frostbite } from "./Frostbite.mjs";
