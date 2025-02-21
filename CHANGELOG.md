@@ -1,3 +1,7 @@
+# 6.0.83
+
+- Fix Phantom Steed Processing Issue in some circumstances.
+
 # 6.0.82
 
 - Various spell parsing improvements.

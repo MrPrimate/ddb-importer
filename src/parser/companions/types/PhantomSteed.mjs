@@ -23,7 +23,7 @@ export async function getPhantomSteed({
       name: "Riding Horse",
       source: "2014",
       is2014: true,
-      ddbId: "16872",
+      ddbId: "16997",
     },
     {
       name: "Riding Horse",
@@ -42,13 +42,14 @@ export async function getPhantomSteed({
   await monsterFactory.fetchDDBMonsterSourceData({ ids });
   const monsterResults = await monsterFactory.parse();
 
-
   for (const data of creatures) {
 
     let stub = monsterResults.actors.find((m) =>
       m.name === data.name
       && m.system.source?.rules === data.source,
     );
+
+    if (!stub) continue;
 
     stub.system.attributes = {
       movement: {
@@ -80,6 +81,6 @@ export async function getPhantomSteed({
 
   }
 
-  logger.verbose("Phantom Steed result", result);
+  logger.debug("Phantom Steed result", result);
   return result;
 }
