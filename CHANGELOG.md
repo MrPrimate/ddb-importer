@@ -2,6 +2,7 @@
 
 - Summon Giant Insect fixes.
 - Some Monster damage type parsing improvements.
+- Some spell improvements.
 
 # 6.0.83
 

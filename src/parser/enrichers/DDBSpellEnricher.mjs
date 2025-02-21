@@ -219,6 +219,9 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Crusaders Mantle": SpellEnrichers.CrusadersMantle,
     "Crusader's Mantle": SpellEnrichers.CrusadersMantle,
     "Forbiddance": SpellEnrichers.Forbiddance,
+    "Power Word Heal": SpellEnrichers.PowerWordHeal,
+    "Symbol": SpellEnrichers.Symbol,
+    "Maze": SpellEnrichers.Maze,
   };
 
 }
