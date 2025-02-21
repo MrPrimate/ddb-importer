@@ -1,3 +1,8 @@
+# Next Up
+
+- Summon Giant Insect fixes.
+- Some Monster damage type parsing improvements.
+
 # 6.0.83
 
 - Fix Phantom Steed Processing Issue in some circumstances.

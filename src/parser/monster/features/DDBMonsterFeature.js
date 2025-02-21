@@ -292,7 +292,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     // console.warn(hit);
     // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
     // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?|[\w]* or [\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
+    const damageExpression = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*(?:[-+]|plus)\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?|[\w]* or [\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
 
     // Adjustments
     // removed space in damage detection this might be a problem, for 2024 Summon Construct

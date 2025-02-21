@@ -117,6 +117,7 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     // "Dragon": "Dragon",
     "Animated Object (": "Summon Animated Object",
     "Empyrean (": "Empyrean",
+    "Giant Insect (": "Giant Insect",
   };
 
   NAME_HINTS_2014 = {};
@@ -204,6 +205,10 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     "Guardian of Faith": {
       "Guardian Aura": MonsterEnrichers.GuardianOfFaith.GuardianAura,
+    },
+    "Giant Insect": {
+      "Poison Jab": MonsterEnrichers.GiantInsect.PoisonJab,
+      "Venomous Spew (Centipede Only)": MonsterEnrichers.GiantInsect.VenomousSpew,
     },
   };
 

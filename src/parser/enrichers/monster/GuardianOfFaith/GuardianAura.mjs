@@ -31,7 +31,7 @@ export default class GuardianAura extends DDBEnricherData {
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: "20",
-              damageType: "radiant",
+              type: "radiant",
             }),
           ],
         },
