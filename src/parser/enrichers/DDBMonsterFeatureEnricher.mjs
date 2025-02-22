@@ -1,12 +1,25 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 import { GenericEnrichers, MonsterEnrichers } from "./_module.mjs";
-import { logger } from "../../lib/_module.mjs";
+import { logger, utils } from "../../lib/_module.mjs";
 
 export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
+  _defaultNameLoader() {
+    const monsterHintName = utils.camelCase(this.monsterHintName ?? this.monsterName);
+    const featName = utils.camelCase(this.name);
+    if (!MonsterEnrichers[monsterHintName]?.[featName]) {
+      return null;
+    }
+    return new MonsterEnrichers[monsterHintName][featName]({
+      ddbEnricher: this,
+    });
+  }
+
   _loadEnricherData() {
     const monsterHintName = this.monsterHintName ?? this.monsterName;
-    if (!this.ENRICHERS?.[monsterHintName]?.[this.hintName]) return null;
+    if (!this.ENRICHERS?.[monsterHintName]?.[this.hintName]) {
+      return this._defaultNameLoader();
+    }
     return new this.ENRICHERS[monsterHintName][this.hintName]({
       ddbEnricher: this,
     });
@@ -210,6 +223,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
       "Poison Jab": MonsterEnrichers.GiantInsect.PoisonJab,
       "Venomous Spew (Centipede Only)": MonsterEnrichers.GiantInsect.VenomousSpew,
     },
+    // "Nosferatu": {
+    //   "Bite": MonsterEnrichers.Nosferatu.Bite,
+    // },
   };
 
 }

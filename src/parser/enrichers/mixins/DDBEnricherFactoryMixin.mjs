@@ -19,7 +19,10 @@ export default class DDBEnricherFactoryMixin {
 
 
   _loadEnricherData() {
-    if (!this.ENRICHERS?.[this.hintName]) return null;
+    if (!this.ENRICHERS?.[this.hintName]) {
+      if (utils.isFunction(this._defaultNameLoader)) return this._defaultNameLoader();
+      return null;
+    }
     return new this.ENRICHERS[this.hintName]({
       ddbEnricher: this,
     });
