@@ -62,6 +62,10 @@ export default class Utils {
     return str.replace(/[^a-zA-Z0-9]/g, "");
   }
 
+  static camelCase(str) {
+    return str.split(" ").map((s) => Utils.capitalize(Utils.idString(s))).join("");
+  }
+
   static namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
     const nameSplit = name.split(" ").map((n) => Utils.idString(n));
     const remainingN = length - (prefix ? `${prefix}`.length : 0) - (postfix ? `${postfix}`.length : 0);

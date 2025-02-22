@@ -21,6 +21,7 @@ import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
 import * as Enrichers from "./parser/enrichers/_module.mjs";
 import * as ParserLib from "./parser/lib/_module.mjs";
 import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface.mjs";
+import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -217,6 +218,10 @@ export function registerApi() {
       utils: lib.utils,
       lib,
       importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
+      lowdash: {
+        isEqual,
+        uniq,
+      },
     },
     DICTIONARY: config.DICTIONARY,
   };
