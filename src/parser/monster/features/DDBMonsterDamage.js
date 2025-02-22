@@ -17,18 +17,16 @@ export class DDBMonsterDamage {
 
     this.damageParts = [];
     this.healingParts = [];
+    this.versatileParts = [];
     this.levelBonus = false;
 
     this.ddbMonsterFeature = ddbMonsterFeature;
     this.templateType = ddbMonsterFeature.templateType;
 
-    this.data = {
-      versatile: "",
-    };
-
     this.saves = {
       type: null,
       hit: "",
+      parts: null,
     };
 
     this.additionalActivities = [];
@@ -95,12 +93,12 @@ export class DDBMonsterDamage {
     this.hitsMatch = this.hit.split(startEndRegex);
     const matches = [...this.hitsMatch[0].matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION)];
 
-    logger.debug(`${this.name} Damage matches`, { hit: this.hit, matches });
+    logger.debug(`${this.ddbMonsterFeature.name} Damage matches`, { hit: this.hit, matches, hitsMatch: this.hitsMatch });
 
     this.hitMatches = matches;
-    if (this.hitMatches.length > 1) {
-      this.saves.type = this.hitMatches[1];
-      this.saves.hit = this.hitMatches[2];
+    if (this.hitsMatch.length > 1) {
+      this.saves.type = this.hitsMatch[1];
+      this.saves.hit = this.hitsMatch[2];
     }
   }
 
@@ -122,7 +120,7 @@ export class DDBMonsterDamage {
     }
 
     // Make sure we did match a damage
-    if (!damage) return null;
+    if (!damage) return { finalDamage: null, includesDice: false };
 
     const includesDiceRegExp = /[0-9]*d[0-9]+/;
     const includesDice = includesDiceRegExp.test(damage);
@@ -168,13 +166,13 @@ export class DDBMonsterDamage {
     // versatile for damage
     // ignore if dmg.groups.prefix is and as it likely indicates the whole thing is a save
     const hasSave = DDBMonsterDamage.damageMatchSave(dmg);
-    if (hasSave !== null && this.actionInfo.damageParts.length >= 1) {
+    if (hasSave !== null && this.damageParts.length >= 1) {
       save = hasSave;
       other = true;
     }
+    const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
     // assumption here is that there is just one field added to versatile. this is going to be rare.
     if (other) {
-      const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
       this.additionalActivities.push({
         name: save ? "Save vs" : "Damage",
         type: save ? "save" : "damage",
@@ -185,14 +183,13 @@ export class DDBMonsterDamage {
         },
       });
     } else if (this.versatile) {
-      if (this.data.versatile == "") this.data.versatile = finalDamage;
+      if (this.versatileParts.length === 0) this.versatileParts.push(part);
       // so things like the duergar mind master have oddity where we might want to use a different thing
       // } else {
       //   result.damage.versatile += ` + ${finalDamage}`;
       // }
       if (dmg.groups.prefix.trim() == "plus") {
-        this.data.versatile += ` + ${finalDamage}`;
-        const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
+        this.versatileParts.push(part);
         this.damageParts.push({
           profBonus,
           levelBonus,
@@ -205,7 +202,6 @@ export class DDBMonsterDamage {
         });
       }
     } else {
-      const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
       this.damageParts.push({
         profBonus,
         levelBonus,
@@ -220,15 +216,26 @@ export class DDBMonsterDamage {
   }
 
   _generateOnStartEndDamage() {
-    console.warn(this);
     const allMatches = this.saves.hit.matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION);
     const matches = [...allMatches];
-    logger.debug(`${this.name} Start/End Damage matches`, {
+    logger.debug(`${this.ddbMonsterFeature.name} Start/End Damage matches`, {
       type: this.saves.type,
       hit: this.saves.hit,
       matches,
     });
 
+    for (const dmg of matches) {
+      const { finalDamage } = this._getHitMatchDamage(dmg);
+      if (!finalDamage) continue;
+      const damageTypes = DDBMonsterDamage._getDamageTypes(this.saves.hit, dmg.groups.type);
+      const part = SystemHelpers.buildDamagePart({
+        damageString: finalDamage,
+        types: damageTypes,
+        stripMod: this.templateType === "weapon",
+      });
+      if (!this.saves.parts) this.saves.parts = [];
+      this.saves.parts.push(part);
+    }
 
   }
 
@@ -236,7 +243,7 @@ export class DDBMonsterDamage {
   generateRegain() {
     const regainMatch = this.hit.match(DDBMonsterDamage.REGAIN_EXPRESSION);
 
-    logger.debug(`${this.name} Regain matches`, { hit: this.hit, regainMatch });
+    logger.debug(`${this.ddbMonsterFeature.name} Regain matches`, { hit: this.hit, regainMatch });
 
     if (regainMatch) {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];

@@ -128,11 +128,12 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       damage: {
         base: null,
         onSave: null,
-        parts: [],
-        versatile: "",
+        // parts: [],
+        // versatile: "",
       },
       damageParts: [],
       healingParts: [],
+      versatileParts: [],
       formula: "",
       target: {
         template: {
@@ -292,7 +293,6 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     let hit = (hitIndex > 0)
       ? `${this.strippedHtml.slice(hitIndex)}`.trim()
       : `${this.strippedHtml}`.replace(this.fullName, "").trim();
-    // TODO: test : in addition the 2024 summons need this, see Aberrant Spirit (Mind Flayer)
     hit = hit.replace(/[–-–−]/g, "-");
 
     this.ddbMonsterDamage = new DDBMonsterDamage(hit, { ddbMonsterFeature: this });
@@ -301,19 +301,18 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.ddbMonsterDamage.generateRegain();
 
     this.actionInfo.damageParts.push(...this.ddbMonsterDamage.damageParts);
-    this.actionInfo.damage.versatile = this.ddbMonsterDamage.data.versatile;
+    this.actionInfo.versatileParts = this.ddbMonsterDamage.versatileParts;
 
     this._generateEscapeCheck(hit);
 
     if (this.actionInfo.damageParts.length > 0 && this.templateType === "weapon") {
       this.actionInfo.damage.base = this.actionInfo.damageParts[0].part;
-    } else if (this.templateType !== "weapon" && this.actionInfo.damage.versatile.trim() !== "") {
-      const part = SystemHelpers.buildDamagePart({ damageString: this.actionInfo.damage.versatile, stripMod: this.templateType === "weapon" });
+    } else if (this.templateType !== "weapon" && this.actionInfo.versatileParts.length > 0) {
       this.additionalActivities.push({
         name: `Versatile`,
         options: {
           generateDamage: true,
-          damageParts: [part],
+          damageParts: this.actionInfo.versatileParts,
           includeBaseDamage: false,
         },
       });
@@ -1146,9 +1145,12 @@ ${this.data.system.description.value}
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const startEndDamageParts = this.ddbMonsterDamage.saves.parts;
+
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: this.templateType === "weapon",
+      damageParts: startEndDamageParts?.length > 0 ? startEndDamageParts : [],
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
@@ -1164,7 +1166,7 @@ ${this.data.system.description.value}
 
     let parts = [];
 
-    if (this.actionInfo.damageParts.length > 1) {
+    if (this.actionInfo.damageParts.length > 1 && !this.ddbMonsterDamage.saves.type) {
       // otherwise we assume the weapon attack wants the base damage
       if (!this.isSave && this.templateType === "weapon") parts = this.actionInfo.damageParts.slice(1).map((s) => s.part);
       else if (!this.isSave) parts = this.actionInfo.damageParts.map((s) => s.part);
@@ -1176,15 +1178,15 @@ ${this.data.system.description.value}
       parts = this.actionInfo.damageParts.map((s) => s.part);
     }
 
-    console.warn("activity build", {
-      isFlatWeaponDamage,
-      this: this,
-      noDamageMods,
-      noModWeapon,
-      parts,
-      options,
-      includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
-    })
+    // console.warn("activity build", {
+    //   isFlatWeaponDamage,
+    //   this: this,
+    //   noDamageMods,
+    //   noModWeapon,
+    //   parts,
+    //   options,
+    //   includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
+    // })
 
     const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
@@ -1216,14 +1218,17 @@ ${this.data.system.description.value}
   }
 
   #addSaveAdditionalActivity(includeBase = false) {
+    const startEndDamageParts = this.ddbMonsterDamage.saves.parts;
+    const parts = this.templateType !== "weapon" || includeBase
+      ? this.actionInfo.damageParts.map((dp) => dp.part)
+      : this.actionInfo.damageParts.slice(1).map((dp) => dp.part);
+
     this.additionalActivities.push({
       name: "Save",
       type: "save",
       options: {
         generateDamage: this.actionInfo.damageParts.length > 1,
-        damageParts: this.templateType !== "weapon" || includeBase
-          ? this.actionInfo.damageParts.map((dp) => dp.part)
-          : this.actionInfo.damageParts.slice(1).map((dp) => dp.part),
+        damageParts: startEndDamageParts ?? parts,
         includeBaseDamage: false,
       },
     });
