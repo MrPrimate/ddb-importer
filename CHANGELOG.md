@@ -1,4 +1,4 @@
-# Next Up
+# 6.0.84
 
 - [BIG] Some Monster features that had an attack and save would not process the damage correctly. [RECOMMENDATION]: Remunch monsters.
 - Monster features such as the 2014 Flumph Tentacles will now parse attack and damage correctly for both the attack and save activities.
