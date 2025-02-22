@@ -1,5 +1,6 @@
 # Next Up
 
+- [BIG] Some Monster features that had an attack and save would not process the damage correctly. [RECOMMENDATION]: Remunch monsters.
 - Summon Giant Insect fixes.
 - Some Monster damage type parsing improvements.
 - Some spell improvements.

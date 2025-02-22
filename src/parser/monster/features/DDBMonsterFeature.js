@@ -3,6 +3,7 @@ import { DICTIONARY, SETTINGS } from "../../../config/_module.mjs";
 import { DDBMonsterFeatureActivity } from "../../activities/_module.mjs";
 import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module.mjs";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module.mjs";
+import { DDBMonsterDamage } from "./DDBMonsterDamage.js";
 
 export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
@@ -260,180 +261,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     return result;
   }
 
-  static _getDamageTypes(text, dmgMatch) {
-    const typesRegex = /damage of a type chosen by the (?:.*?): (.*?)\./i;
-    const typesMatch = typesRegex.exec(text);
-
-    const result = new Set();
-
-    const processMatches = ((str) => {
-      const matches = str.replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase());
-
-      for (const match of matches) {
-        if (match.trim() !== "" && Object.keys(CONFIG.DND5E.damageTypes).includes(match.trim().toLowerCase())) {
-          result.add(match.trim().toLowerCase());
-        }
-      }
-    });
-
-    if (dmgMatch && dmgMatch.trim() !== "") {
-      processMatches(dmgMatch);
-    }
-
-    if (typesMatch && result.size === 0) {
-      processMatches(typesMatch[1]);
-    }
-
-    return Array.from(result);
-  }
-
-  // eslint-disable-next-line complexity
-  _generateDamageInfo2014(hit) {
-    // console.warn(hit);
-    // Using match with global modifier then map to regular match because RegExp.matchAll isn't available on every browser
-    // eslint-disable-next-line no-useless-escape
-    const damageExpression = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*(?:[-+]|plus)\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?|[\w]* or [\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
-
-    // Adjustments
-    // removed space in damage detection this might be a problem, for 2024 Summon Construct
-
-    const matches = [...hit.matchAll(damageExpression)];
-
-    logger.debug(`${this.name} Damage matches`, { hit, matches });
-    let versatile = false;
-    for (const dmg of matches) {
-      let other = false;
-      let save = false;
-      let thisVersatile = false;
-      let thisOther = false;
-      if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
-        continue; // eslint-disable-line no-continue
-      }
-      // check for versatile
-      if (dmg.groups.prefix == "or " || dmg.groups.suffix == "two hands") {
-        versatile = true;
-      }
-      // check for other
-      if (dmg.groups.suffix && dmg.groups.suffix.trim() == "at the start of") other = true;
-      const hasProfBonus = dmg.groups.dice?.includes(" + PB") || dmg.groups.dice?.includes(" plus PB");
-      const profBonus = hasProfBonus ? "@prof" : "";
-      const levelBonus = dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice); // ? "@item.level" : "";
-
-      if (levelBonus) {
-        this.levelBonus = true;
-        foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);
-      }
-      let damage;
-
-      if (hasProfBonus || levelBonus) {
-        damage = `${dmg.groups.diceminor}${dmg.groups.dice.replace(" + PB", "").replace(" plus PB", "").replace(" + the spell’s level", "").replace(" + the spell's level", "")}`;
-      } else if (dmg.groups.dice && dmg.groups.dice.startsWith("d") && dmg.groups.diceminor) {
-        // tweaked for Aberrant Spirit (Mind Flayer)
-        damage = `${dmg.groups.diceminor}${dmg.groups.dice}`;
-      } else {
-        damage = dmg.groups.dice ?? dmg.groups.diceminor;
-      }
-
-      // Make sure we did match a damage
-      if (damage) {
-        const damageTypes = DDBMonsterFeature._getDamageTypes(hit, dmg.groups.type);
-        const includesDiceRegExp = /[0-9]*d[0-9]+/;
-        const includesDice = includesDiceRegExp.test(damage);
-        const parsedDiceDamage = (this.actionInfo && includesDice)
-          ? this.damageModReplace(damage.replace("plus", "+"))
-          : damage.replace("plus", "+");
-
-        const finalDamage = [parsedDiceDamage, profBonus].filter((t) => t !== "").join(" + ");
-
-        const damageHasMod = finalDamage.includes("@mod");
-
-        // console.warn("MODS", {
-        //   parsedDiceDamage,
-        //   finalDamage,
-        //   damageHasMod,
-        // })
-
-        // if this is a save based attack, and multiple damage entries, we assume any entry beyond the first is going into
-        // versatile for damage
-        // ignore if dmg.groups.prefix is and as it likely indicates the whole thing is a save
-        const savePart1 = dmg.groups.prefix && dmg.groups.prefix.includes("saving throw");
-        const savePart5 = (dmg.groups.suffix ?? "").trim() == "on a failed save";
-        if (((savePart5 && (dmg.groups.prefix ?? "").trim() !== "and")
-            || savePart1)
-          && this.actionInfo.damageParts.length >= 1
-        ) {
-          save = savePart1 || savePart5;
-          other = true;
-          thisOther = true;
-        }
-        // assumption here is that there is just one field added to versatile. this is going to be rare.
-        if (other) {
-          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
-          if (!thisOther && dmg.groups.prefix.trim() == "plus") {
-            this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice, noBonus: part.bonus === "", damageHasMod });
-          } else {
-            this.additionalActivities.push({
-              name: save ? "Save vs" : "Damage",
-              type: save ? "save" : "damage",
-              options: {
-                generateDamage: true,
-                damageParts: [part],
-                includeBaseDamage: false,
-              },
-            });
-          }
-        } else if (versatile) {
-          if (this.actionInfo.damage.versatile == "") this.actionInfo.damage.versatile = finalDamage;
-          // so things like the duergar mind master have oddity where we might want to use a different thing
-          // } else {
-          //   result.damage.versatile += ` + ${finalDamage}`;
-          // }
-          if (!thisVersatile && dmg.groups.prefix.trim() == "plus") {
-            this.actionInfo.damage.versatile += ` + ${finalDamage}`;
-            const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
-            this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice, noBonus: part.bonus === "", damageHasMod });
-          }
-        } else {
-          const part = SystemHelpers.buildDamagePart({ damageString: finalDamage, types: damageTypes, stripMod: this.templateType === "weapon" });
-          this.actionInfo.damageParts.push({ profBonus, levelBonus, versatile, other, thisOther, thisVersatile, part, includesDice, noBonus: part.bonus === "", damageHasMod });
-        }
-      }
-    }
-
-    return { versatile };
-  }
-
-  // eslint-disable-next-line complexity
-  generateDamageInfo() {
-    const hitIndex = this.strippedHtml.indexOf("Hit:");
-    let hit = (hitIndex > 0)
-      ? `${this.strippedHtml.slice(hitIndex)}`.trim()
-      : `${this.strippedHtml}`.replace(this.fullName, "").trim();
-    // adjusted for 2024 monsters which have some changes to structure,
-    // in addition the 2024 summons need this, see Aberrant Spirit (Mind Flayer)
-    hit = hit.startsWith("At the end of each") || hit.startsWith("At the start of each")
-      ? hit
-      : hit.split("At the end of each")[0].split("At the start of each")[0];
-    hit = hit.replace(/[–-–−]/g, "-");
-
-    const data = this._generateDamageInfo2014(hit);
-    let versatile = data.versatile;
-
-    const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
-    const regainMatch = hit.match(regainExpression);
-
-    logger.debug(`${this.name} Regain matches`, { hit, regainMatch });
-
-    if (regainMatch) {
-      const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
-      const part = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(damageValue, null).diceString,
-        type: 'healing',
-      });
-      this.actionInfo.healingParts.push({ versatile, part });
-    }
-
+  _generateEscapeCheck(hit) {
     const escape = hit.match(/escape DC ([0-9]+)/);
     if (escape) {
       this.additionalActivities.push({
@@ -457,6 +285,25 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         },
       });
     }
+  }
+
+  generateDamageInfo() {
+    const hitIndex = this.strippedHtml.indexOf("Hit:");
+    let hit = (hitIndex > 0)
+      ? `${this.strippedHtml.slice(hitIndex)}`.trim()
+      : `${this.strippedHtml}`.replace(this.fullName, "").trim();
+    // TODO: test : in addition the 2024 summons need this, see Aberrant Spirit (Mind Flayer)
+    hit = hit.replace(/[–-–−]/g, "-");
+
+    this.ddbMonsterDamage = new DDBMonsterDamage(hit, { ddbMonsterFeature: this });
+
+    this.ddbMonsterDamage.generateDamage();
+    this.ddbMonsterDamage.generateRegain();
+
+    this.actionInfo.damageParts.push(...this.ddbMonsterDamage.damageParts);
+    this.actionInfo.damage.versatile = this.ddbMonsterDamage.data.versatile;
+
+    this._generateEscapeCheck(hit);
 
     if (this.actionInfo.damageParts.length > 0 && this.templateType === "weapon") {
       this.actionInfo.damage.base = this.actionInfo.damageParts[0].part;
@@ -1324,22 +1171,25 @@ ${this.data.system.description.value}
     } else if (isFlatWeaponDamage || noModWeapon) {
       // includes no dice, i.e. is flat, we want to ignore the base damage
       parts = this.actionInfo.damageParts.map((s) => s.part);
+    } else if (this.isSave && this.templateType === "feat") {
+      // e.g. Armanite Hooves
+      parts = this.actionInfo.damageParts.map((s) => s.part);
     }
 
-    // console.warn("activity buikd", {
-    //   isFlatWeaponDamage,
-    //   this: this,
-    //   noDamageMods,
-    //   noModWeapon,
-    //   parts,
-    //   options,
-    //   includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
-    // })
+    console.warn("activity build", {
+      isFlatWeaponDamage,
+      this: this,
+      noDamageMods,
+      noModWeapon,
+      parts,
+      options,
+      includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
+    })
 
     const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
       generateRange: this.templateType !== "weapon",
-      generateDamage: !this.isSave,
+      generateDamage: parts.length > 0 || !this.isSave,
       includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
       damageParts: parts,
     }, options);
@@ -1843,6 +1693,8 @@ ${this.data.system.description.value}
     foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.proficient", this.actionInfo.proficient);
     foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.extraAttackBonus", this.actionInfo.extraAttackBonus);
 
+    if (this.levelBonus)
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);
     await this.#generateDescription();
 
     await this.enricher.addDocumentOverride();
