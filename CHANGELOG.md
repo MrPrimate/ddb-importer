@@ -1,8 +1,9 @@
 # Next Up
 
 - [BIG] Some Monster features that had an attack and save would not process the damage correctly. [RECOMMENDATION]: Remunch monsters.
+- Monster features such as the 2014 Flumph Tentacles will now parse attack and damage correctly for both the attack and save activities.
+- Monster damage type parsing improvements.
 - Summon Giant Insect fixes.
-- Some Monster damage type parsing improvements.
 - Some spell improvements.
 
 # 6.0.83
