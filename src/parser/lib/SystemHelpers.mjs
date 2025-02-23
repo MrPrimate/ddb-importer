@@ -5,7 +5,7 @@ export default class SystemHelpers {
       return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
     }
     const midiQolInstalled = game.modules.get("midi-qol")?.active ?? false;
-    const timesUp = game.modules.get("times-up")?.active ?? false;
+    const timesUpInstalled = game.modules.get("times-up")?.active ?? false;
     const daeInstalled = game.modules.get("dae")?.active ?? false;
 
     const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
@@ -18,10 +18,10 @@ export default class SystemHelpers {
     const vision5eInstalled = game.modules.get("vision-5e")?.active ?? false;
 
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules = {
-      hasCore: midiQolInstalled && timesUp && daeInstalled,
-      hasMonster: midiQolInstalled && timesUp && daeInstalled,
+      hasCore: midiQolInstalled && timesUpInstalled && daeInstalled,
+      hasMonster: midiQolInstalled && timesUpInstalled && daeInstalled,
       midiQolInstalled,
-      timesUp,
+      timesUpInstalled,
       daeInstalled,
       atlInstalled,
       tokenMagicInstalled,
