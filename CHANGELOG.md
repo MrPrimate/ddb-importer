@@ -1,3 +1,7 @@
+# 6.0.85
+
+- Some changes to parsing monster attacks with saves.
+
 # 6.0.84
 
 - [BIG] Some Monster features that had an attack and save would not process the damage correctly. [RECOMMENDATION]: Remunch monsters.

@@ -298,9 +298,8 @@ export default class DDBMonster {
     }
 
     this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
-    this.npc = specialCases(this.npc);
-
     this.npc = await monsterFeatureEffectAdjustment(this, this.addMonsterEffects);
+    this.npc = specialCases(this.npc);
 
     if (this.addChrisPremades) {
       for (let item of this.npc.items) {

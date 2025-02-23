@@ -4,6 +4,7 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 export default class Bite extends DDBEnricherData {
 
   get type() {
+    if (this.is2014) return null;
     return "attack";
   }
 

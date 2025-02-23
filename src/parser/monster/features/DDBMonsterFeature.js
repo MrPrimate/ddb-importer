@@ -134,6 +134,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       damageParts: [],
       healingParts: [],
       versatileParts: [],
+      saveParts: [],
       formula: "",
       target: {
         template: {
@@ -300,8 +301,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.ddbMonsterDamage.generateDamage();
     this.ddbMonsterDamage.generateRegain();
 
-    this.actionInfo.damageParts.push(...this.ddbMonsterDamage.damageParts);
+    this.actionInfo.damageParts = this.ddbMonsterDamage.damageParts;
     this.actionInfo.versatileParts = this.ddbMonsterDamage.versatileParts;
+    this.actionInfo.saveParts = this.ddbMonsterDamage.saveParts;
 
     this._generateEscapeCheck(hit);
 
@@ -1145,12 +1147,10 @@ ${this.data.system.description.value}
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const startEndDamageParts = this.ddbMonsterDamage.saves.parts;
-
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
-      includeBaseDamage: this.templateType === "weapon",
-      damageParts: startEndDamageParts?.length > 0 ? startEndDamageParts : [],
+      includeBaseDamage: false,
+      damageParts: this.actionInfo.saveParts,
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
@@ -1166,14 +1166,12 @@ ${this.data.system.description.value}
 
     let parts = [];
 
-    if (this.actionInfo.damageParts.length > 1 && !this.ddbMonsterDamage.saves.type) {
-      // otherwise we assume the weapon attack wants the base damage
-      if (!this.isSave && this.templateType === "weapon") parts = this.actionInfo.damageParts.slice(1).map((s) => s.part);
-      else if (!this.isSave) parts = this.actionInfo.damageParts.map((s) => s.part);
-    } else if (isFlatWeaponDamage || noModWeapon) {
+    if (isFlatWeaponDamage || noModWeapon) {
       // includes no dice, i.e. is flat, we want to ignore the base damage
       parts = this.actionInfo.damageParts.map((s) => s.part);
-    } else if (this.isSave && this.templateType === "feat") {
+    } else if (this.actionInfo.damageParts.length > 1 && this.templateType === "weapon") {
+      parts = this.actionInfo.damageParts.slice(1).map((s) => s.part);
+    } else if (this.templateType === "feat") {
       // e.g. Armanite Hooves
       parts = this.actionInfo.damageParts.map((s) => s.part);
     }
@@ -1186,7 +1184,7 @@ ${this.data.system.description.value}
     //   parts,
     //   options,
     //   includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
-    // })
+    // });
 
     const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
@@ -1218,7 +1216,6 @@ ${this.data.system.description.value}
   }
 
   #addSaveAdditionalActivity(includeBase = false) {
-    const startEndDamageParts = this.ddbMonsterDamage.saves.parts;
     const parts = this.templateType !== "weapon" || includeBase
       ? this.actionInfo.damageParts.map((dp) => dp.part)
       : this.actionInfo.damageParts.slice(1).map((dp) => dp.part);
@@ -1228,7 +1225,7 @@ ${this.data.system.description.value}
       type: "save",
       options: {
         generateDamage: this.actionInfo.damageParts.length > 1,
-        damageParts: startEndDamageParts ?? parts,
+        damageParts: this.actionInfo.saveParts ?? parts,
         includeBaseDamage: false,
       },
     });
@@ -1259,10 +1256,10 @@ ${this.data.system.description.value}
     }
     if (this.isAttack) {
       // some attacks will have a save and attack
+      // console.warn("isAttack", this.isAttack, this.isSave);
       if (this.isSave) {
-        if (this.actionInfo.damageParts.length > 0) {
-          this.#addSaveAdditionalActivity(false);
-        }
+        // console.warn("add save additional activity");
+        this.#addSaveAdditionalActivity();
       }
       return "attack";
     }

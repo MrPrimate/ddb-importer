@@ -16,3 +16,4 @@ export * as GuardianOfFaith from "./GuardianOfFaith/_module.mjs";
 export * as GiantInsect from "./GiantInsect/_module.mjs";
 export * as Nosferatu from "./Nosferatu/_module.mjs";
 export * as LivingBladeOfDisaster from "./LivingBladeOfDisaster/_module.mjs";
+export * as ClayGolem from "./ClayGolem/_module.mjs";

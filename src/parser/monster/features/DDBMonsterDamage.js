@@ -18,6 +18,7 @@ export class DDBMonsterDamage {
     this.damageParts = [];
     this.healingParts = [];
     this.versatileParts = [];
+    this.saveParts = [];
     this.levelBonus = false;
 
     this.ddbMonsterFeature = ddbMonsterFeature;
@@ -26,7 +27,6 @@ export class DDBMonsterDamage {
     this.saves = {
       type: null,
       hit: "",
-      parts: null,
     };
 
     this.additionalActivities = [];
@@ -97,6 +97,13 @@ export class DDBMonsterDamage {
 
     this.hitMatches = matches;
     if (this.hitsMatch.length > 1) {
+      this.saves.type = this.hitsMatch[1];
+      this.saves.hit = this.hitsMatch[2];
+    } else {
+      const saveRegex = /(saving throw)/ig;
+      this.hitsMatch = this.hit.split(saveRegex);
+      const saveMatches = [...this.hitsMatch[0].matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION)];
+      logger.debug(`${this.ddbMonsterFeature.name} Damage matches`, { hit: this.hit, saveMatches, hitsMatch: this.hitsMatch });
       this.saves.type = this.hitsMatch[1];
       this.saves.hit = this.hitsMatch[2];
     }
@@ -215,15 +222,7 @@ export class DDBMonsterDamage {
     }
   }
 
-  _generateOnStartEndDamage() {
-    const allMatches = this.saves.hit.matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION);
-    const matches = [...allMatches];
-    logger.debug(`${this.ddbMonsterFeature.name} Start/End Damage matches`, {
-      type: this.saves.type,
-      hit: this.saves.hit,
-      matches,
-    });
-
+  _generateSaveParts(matches) {
     for (const dmg of matches) {
       const { finalDamage } = this._getHitMatchDamage(dmg);
       if (!finalDamage) continue;
@@ -233,10 +232,32 @@ export class DDBMonsterDamage {
         types: damageTypes,
         stripMod: this.templateType === "weapon",
       });
-      if (!this.saves.parts) this.saves.parts = [];
-      this.saves.parts.push(part);
+      this.saveParts.push(part);
     }
+  }
 
+  _generateOnStartEndDamage() {
+    const allMatches = this.saves.hit.matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION);
+    const matches = [...allMatches];
+    logger.debug(`${this.ddbMonsterFeature.name} Start/End Damage matches`, {
+      type: this.saves.type.toLowerCase(),
+      hit: this.saves.hit,
+      matches,
+    });
+
+    this._generateSaveParts(matches);
+  }
+
+  _generateOtherSaveDamage() {
+    const allMatches = this.saves.hit.matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION);
+    const matches = [...allMatches];
+    logger.debug(`${this.ddbMonsterFeature.name} Other Save Damage matches`, {
+      type: null,
+      hit: this.saves.hit,
+      matches,
+    });
+
+    this._generateSaveParts(matches);
   }
 
 
@@ -261,8 +282,10 @@ export class DDBMonsterDamage {
       this._generateHitMatch(match);
     }
 
-    if (this.saves.type) {
+    if (["start", "end"].includes(this.saves.type)) {
       this._generateOnStartEndDamage();
+    } else if (this.saves.type) {
+      this._generateOtherSaveDamage();
     }
   }
 
