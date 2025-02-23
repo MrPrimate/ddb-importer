@@ -180,49 +180,19 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
   ENRICHERS = {
     Generic: this.GENERIC_ENRICHERS,
-    // "Flying Snake": { "Bite": MonsterEnrichers.FlyingSnake.Bite },
-    // "Purple Worm": { "Bite": MonsterEnrichers.PurpleWorm.Bite },
     "Conjured Animals": { "Pack Damage": MonsterEnrichers.ConjuredAnimals.PackDamage },
     "Conjured Air Elemental": { "Air Element": MonsterEnrichers.ConjuredElemental.AirElement },
     "Conjured Earth Elemental": { "Earth Element": MonsterEnrichers.ConjuredElemental.EarthElement },
     "Conjured Fire Elemental": { "Fire Element": MonsterEnrichers.ConjuredElemental.FireElement },
     "Conjured Water Elemental": { "Water Element": MonsterEnrichers.ConjuredElemental.WaterElement },
     "Conjured Fey": { "Psychic Attack": MonsterEnrichers.ConjuredFey.PsychicAttack },
-    // "Flaming Sphere": {
-    //   "Move and Attack": MonsterEnrichers.FlamingSphere.MoveAndAttack,
-    //   "Flame Damage": MonsterEnrichers.FlamingSphere.FlameDamage,
-    // },
-    // "Grasping Vine": {
-    //   "Vine Attack": MonsterEnrichers.GraspingVine.VineAttack,
-    // },
     "Construct Spirit (Stone)": {
       "Stony Lethargy (Stone Only)": MonsterEnrichers.SummonConstruct.StonyLethargy,
     },
-    // "Summon Animated Object": {
-    //   "Slam": MonsterEnrichers.SummonAnimatedObject.Slam,
-    // },
-    // "Elemental Cultist": {
-    //   "Elemental Absorption": MonsterEnrichers.ElementalCultist.ElementalAbsorption,
-    // },
-    // "Empyrean": {
-    //   "Sacred Weapon": MonsterEnrichers.Empyrean.SacredWeapon,
-    // },
-    // "Spiritual Weapon": {
-    //   "Move and Attack": MonsterEnrichers.SpiritualWeapon.MoveAndAttack,
-    // },
-    // "Faithful Hound": {
-    //   "Bite": MonsterEnrichers.FaithfulHound.Bite,
-    // },
-    // "Guardian of Faith": {
-    //   "Guardian Aura": MonsterEnrichers.GuardianOfFaith.GuardianAura,
-    // },
     "Giant Insect": {
       "Poison Jab": MonsterEnrichers.GiantInsect.PoisonJab,
       "Venomous Spew (Centipede Only)": MonsterEnrichers.GiantInsect.VenomousSpew,
     },
-    // "Nosferatu": {
-    //   "Bite": MonsterEnrichers.Nosferatu.Bite,
-    // },
     "Clay Golem": {
       "Haste (Recharge 5–6)": MonsterEnrichers.ClayGolem.Haste,
     },

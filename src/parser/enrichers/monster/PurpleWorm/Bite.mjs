@@ -4,27 +4,65 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 export default class Bite extends DDBEnricherData {
 
   get type() {
-    if (this.is2014) return null;
     return "attack";
   }
 
   get activity() {
     return {
       name: this.is2014
-        ? this.ddbEnricher?._originalActivity?.type === "damage"
-          ? "Swallowed Damage"
-          : "Bite"
+        ? "Bite"
         : this.ddbEnricher?._originalActivity?.type === "check"
           ? "Escape Check"
           : "Bite",
       activationType: this.is2014
-        ? this.ddbEnricher?._originalActivity?.type === "damage"
-          ? "special"
-          : "action"
+        ? "action"
         : this.ddbEnricher?._originalActivity?.type === "check"
           ? "special"
           : "action",
+      data: this.is2014
+        ? {
+          damage: {
+            parts: [this.ddbParser.actionInfo.damageParts[0]],
+          },
+        }
+        : {
+
+        },
     };
+  }
+
+  get additionalActivities2014() {
+    return [
+      {
+        constructor: {
+          name: "Swallowed Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+        },
+        overrides: {
+          activationType: "special",
+        },
+      },
+      {
+        constructor: {
+          name: "Escape Check",
+          type: "check",
+        },
+        build: {
+          generateCheck: true,
+        },
+        overrides: {
+          activationType: "special",
+        },
+      },
+    ];
+  }
+
+  get additionalActivities() {
+    if (this.is2014) return this.additionalActivities2014;
+    return [];
   }
 
   get effects() {
@@ -38,15 +76,5 @@ export default class Bite extends DDBEnricherData {
       ]
       : [];
   }
-
-  // rename({ enricher } = {}) {
-  //   if (this.is2014) enricher.data.system.activities.damageDamageIIII.name = "Swallowed Damage";
-  // }
-
-  // get override() {
-  //   return {
-  //     func: this.rename,
-  //   };
-  // }
 
 }

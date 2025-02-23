@@ -1224,7 +1224,7 @@ ${this.data.system.description.value}
       name: "Save",
       type: "save",
       options: {
-        generateDamage: this.actionInfo.damageParts.length > 1,
+        generateDamage: this.actionInfo.saveParts.length > 0,
         damageParts: this.actionInfo.saveParts ?? parts,
         includeBaseDamage: false,
       },
