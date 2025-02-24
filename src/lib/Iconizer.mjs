@@ -557,7 +557,7 @@ export default class Iconizer {
       if (img) item.img = img;
     }
 
-    this.notifier("", true);
+    this.notifier("");
 
   }
 
