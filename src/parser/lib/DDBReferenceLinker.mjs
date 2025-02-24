@@ -477,3 +477,108 @@ export async function importCacheLoad() {
   await loadDDBCompendiumIndexes();
   getRuleLookups();
 }
+
+
+export async function replaceMonsterNameBadLinks(str, rules = "2014", name = "Unknown") {
+
+  const pack = CompendiumHelper.getCompendiumType("monsters", false);
+  await pack.getIndex({ fields: ["name", "system.source.rules"] });
+
+  const packs = {
+    "monsters": pack,
+  };
+
+  str = utils.nameString(str);
+
+  const functionReplaceMatch = (str, search, substitute, type) => {
+    const indexMatch = packs[type]?.index.find((i) =>
+      i.name.toLowerCase() === search.toLowerCase()
+      && i.system?.source?.rules === rules,
+    );
+    if (indexMatch) {
+      const replaceText = `@UUID[${indexMatch.uuid}]{${substitute}}`;
+      str = str.replaceAll(search, replaceText);
+    } else {
+      // these are not always monsters, sometimes they are references to other things like spells, conditions, rules, etc
+      // const label = foundry.utils.getProperty(CONFIG.DDBI, `compendium.label.monsters`);
+      // const replaceText = `@Compendium[${label}.${match[1]}]{${match[1]}${post}}`;
+      str = str.replaceAll(search, `${substitute}`);
+    }
+  };
+
+  // outliers
+  // wolf;wolves
+  // or swarm of rats;rats
+  // surprise;surprised
+  // grapple;grappling
+  // shape-shifting;shape-shifts
+  // red slaad;red slaadi
+  // suffocation;suffocating
+  // carpet of flying;Carpets of Flying
+
+
+  const outliers = [
+    { lookup: "wolf", linkWord: "wolves", hint: "monsters" },
+    { lookup: "swarm of rats", linkWord: "rats", hint: "monsters" },
+    // { lookup: "red slaad", linkWord: "red slaadi", hint: "monsters" },
+    { lookup: "surprise", linkWord: "surprised", hint: "rules" },
+    { lookup: "grapple", linkWord: "grappling", hint: "rules" },
+    { lookup: "suffocation", linkWord: "suffocating", hint: "rules" },
+    { lookup: "shape-shifting", linkWord: "shape-shifts", hint: "feature" },
+    { lookup: "shape-shifting", linkWord: "shape-shift", hint: "feature" },
+    { lookup: "fist of Bane;", linkWord: "fists of Bane", hint: "monsters" },
+    // { lookup: "priest of osybus", linkWord: "priests of Osybus", hint: "monsters" },
+    { lookup: "Necromite of Myrkul", linkWord: "Necromites", hint: "monsters" },
+    { lookup: "Skull Lasher of Myrkul", linkWord: "Skull lashers", hint: "monsters" },
+    { lookup: "necromancer wizard", linkWord: "necromancer", hint: "monsters" },
+    { lookup: "ox", linkWord: "oxen", hint: "monsters" },
+    { lookup: "Aurumach Rilmani", linkWord: "aurumachs", hint: "monsters" },
+    { lookup: "greater star spawn emissary", linkWord: "greater", hint: "monsters" },
+    { lookup: "Swarm of Gremishkas", linkWord: "swarms", hint: "monsters" },
+    { lookup: "Magic", linkWord: "Cast a Spell", hunt: "rules" },
+    { lookup: "resistance", linkWord: "potion of resistance", hunt: "rules" },
+
+
+    // master of souls;Masters of Souls
+    // Skull Lasher of Myrkul;Skull lashers
+    // necromancer wizard;necromancer
+    // carpet of flying;Carpets of Flying
+
+  ];
+
+  const outlierMatchResults = [];
+
+  for (const outlier of outliers) {
+    const matchRegex = new RegExp(`\\b(${outlier.lookup});(${outlier.linkWord})\\b`, "ig");
+    const outlierMatches = [...str.matchAll(matchRegex)];
+    outlierMatchResults.push(outlierMatches);
+    for (const match of outlierMatches) {
+      str = functionReplaceMatch(str, match[0], outlier.linkWord, outlier.hint);
+    }
+  }
+
+  // examples: Yeti (Chilling Gaze), Vampire (Children of the Night), Necromancer Wizard (Summon Undead).
+  const monsterSimpleMatchRegex = /\b(([\w']+)\s*(of|)(\s\w*|)(\s\w*|));(\2(?:s|es|'s|)\s*\3\4(?:s|)\5(?:s|es|'s|i|))\b/ig;
+  const matchSimpleAll = [...str.matchAll(monsterSimpleMatchRegex)];
+  for (const match of matchSimpleAll) {
+    str = functionReplaceMatch(str, match[0], match[6], "monsters");
+  }
+
+  // if (!CONFIG.debug.ddbimporter.referenceLinking) return str;
+  const finalMatchRegex = /\b(\w+);(\w+)\b/ig;
+  const remainingMatches = [...str.matchAll(finalMatchRegex)];
+  if (remainingMatches && remainingMatches.length > 0) {
+    if (!CONFIG.DDBI.remaining) {
+      CONFIG.DDBI.remaining = [];
+    }
+    CONFIG.DDBI.remaining.push({
+      name,
+      str,
+      remainingMatches,
+      matchSimpleAll,
+      outlierMatchResults,
+    });
+  }
+  return str;
+
+}

@@ -222,7 +222,7 @@ export default class DDBMonster {
   }
 
   async parse() {
-    if (!this.name) this.name = this.source.name;
+    if (!this.name) this.name = utils.nameString(this.source.name);
     this.npc = foundry.utils.duplicate(newNPC(this.name, this.source.id));
     this.npc.system.identifier = utils.referenceNameString(this.name.toLowerCase());
     this._calculateImage();

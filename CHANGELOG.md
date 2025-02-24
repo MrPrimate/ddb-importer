@@ -1,3 +1,7 @@
+# Next Up
+
+- Some monster features and descriptions would reference another monster and sometimes it's name would be displayed as `zombie;zombies`. This is still unable to correct a few edge cases.
+
 # 6.0.85
 
 - Some changes to parsing monster attacks with saves.

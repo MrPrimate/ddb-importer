@@ -94,7 +94,18 @@ export default class Utils {
   }
 
   static nameString(str) {
-    return str.replaceAll("’", "'").trim();
+    return str
+      .replaceAll("&amp;", "&")
+      .replaceAll("&nbsp;", " ")
+      .replaceAll("&eacute;", "é")
+      .replaceAll("&ucirc;", "û")
+      .replaceAll("&iacute;", "í")
+      .replaceAll("&shy;", "")
+      .replaceAll("&hellip;", "...")
+      .replaceAll(/&mdash;|&ndash;/g, "-")
+      .replaceAll(/&ldquo;|&rdquo;/g, "\"")
+      .replaceAll("&rsquo;", "'")
+      .replaceAll("’", "'").trim();
   }
 
   static regexSanitizeString(str) {
