@@ -5,11 +5,8 @@
 //   "weightType": 1
 // }, {
 
-
 //   "traits": {
 //     "size": "grg",
-
-
 //     "sizeId": 7,
 
 import { DICTIONARY, SETTINGS } from '../../config/_module.mjs';
@@ -21,7 +18,7 @@ DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {
   const sizeData = DICTIONARY.sizes.find((s) => size == s.name);
 
   if (!sizeData) {
-    logger.warn(`No size found for, using medium`, size);
+    logger.warn(`No foundry size found for "${size}" (${this.name}), using medium`);
     return { name: "Medium", value: "med", size: 1 };
   }
   return sizeData;

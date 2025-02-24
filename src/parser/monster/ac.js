@@ -145,7 +145,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   if (spellCastingAC) {
     const compendium = CompendiumHelper.getCompendiumLabel("monster");
     effects.push({
-      img: "icons/magic/defensive/shield-barrier-glowing-triangle-blue.webp",
+      img: "icons/equipment/chest/breastplate-helmet-metal.webp",
       name: "Mage Armor",
       statuses: [],
       changes: [

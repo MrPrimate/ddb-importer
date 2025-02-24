@@ -1,6 +1,7 @@
 import { logger } from "../../lib/_module.mjs";
 import { SETTINGS } from "../../config/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
+import { DDBReferenceLinker } from "../lib/_module.mjs";
 
 // extracts various attacks and features (not spells)
 // generates and extra descriptions found in these fields
@@ -58,4 +59,6 @@ DDBMonster.prototype._generateFeatures = async function () {
   this.characterDescription += this.featureFactory.characterDescription.reaction;
   this.characterDescription += this.featureFactory.characterDescription.special;
   this.npc.system.details.biography.value += this.characterDescription;
+
+  this.npc.system.details.biography.value = await DDBReferenceLinker.replaceMonsterNameBadLinks(this.npc.system.details.biography.value, this.npc.system?.source?.rules, this.npc.name);
 };
