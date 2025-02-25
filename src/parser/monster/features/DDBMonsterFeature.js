@@ -1625,6 +1625,7 @@ ${this.data.system.description.value}
 
   async #handleSpellCasting() {
     if (!this.useCastActivity) return;
+    if (this.name === "Legendary Actions") return;
     this.#generateSpellcastingData();
 
     const spellcastingMatch = this.originalName.startsWith("Spellcasting")
