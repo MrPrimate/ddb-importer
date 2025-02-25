@@ -126,9 +126,10 @@ export default class DDBMonsterFactory {
 
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
-    const url = ids && ids.length > 0
+    const defaultUrl = ids && ids.length > 0
       ? `${parsingApi}/proxy/monsters/ids`
       : `${parsingApi}/proxy/monster`;
+    const url = CONFIG.DDBI.monsterURL ?? defaultUrl;
 
     return new Promise((resolve, reject) => {
       fetch(url, {
@@ -201,7 +202,7 @@ export default class DDBMonsterFactory {
     for (const monster of monsterSource) {
       const name = `${monster.name}${monster.isLegacy ? " legacy" : ""}`;
       try {
-        this.notifier(`[${i}/${this.currentDocument + monsterSource.length - 1} of ${totalMonsters}] Parsing Foundry Actor for ${name}`, false, true);
+        this.notifier(`[${i}/${this.currentDocument + monsterSource.length - 1} of ${totalMonsters}] Parsing data for guest ${name}`, false, true);
         i++;
         logger.debug(`Attempting to parse ${i}/${totalMonsters} ${monster.name}`);
         logger.time(`Monster Parse ${name}`);
