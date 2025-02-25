@@ -504,6 +504,7 @@ export async function replaceMonsterNameBadLinks(str, rules = "2014", name = "Un
       // const replaceText = `@Compendium[${label}.${match[1]}]{${match[1]}${post}}`;
       str = str.replaceAll(search, `${substitute}`);
     }
+    return str;
   };
 
   // outliers
