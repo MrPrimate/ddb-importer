@@ -62,6 +62,7 @@ async function existingItemRetentionCheck(currentItems, newItems, checkId = true
 // this generates any missing spell data for actors
 // it wont appear in the compendium but will upon import
 async function generateCastSpells(actor) {
+  if (foundry.utils.isNewerVersion(game.system.version, "4.3.3")) return;
   for (const item of actor.items) {
     if (!item.system.activities) continue;
     const spells = (
