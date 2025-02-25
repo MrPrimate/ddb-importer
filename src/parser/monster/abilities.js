@@ -51,14 +51,21 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
 
   this.abilities = this.npc.system.abilities;
 
-  if (foundry.utils.hasProperty(this.source, 'extraInitiative') && Number.isInteger(parseInt(this.source.extraInitiative))) {
-    const bonus = parseInt(this.source.extraInitiative) - this.npc.system.abilities.dex.mod;
-    if ((bonus / 2) === parseInt(proficiencyBonus)) {
+  let initBonus = null;
+
+  if (foundry.utils.hasProperty(this.source, 'initiativeBonus') && Number.isInteger(parseInt(this.source.initiativeBonus))) {
+    initBonus = parseInt(this.source.initiativeBonus) - this.npc.system.abilities.dex.mod;
+  } else if (foundry.utils.hasProperty(this.source, 'extraInitiative') && Number.isInteger(parseInt(this.source.extraInitiative))) {
+    initBonus = parseInt(this.source.extraInitiative) - this.npc.system.abilities.dex.mod;
+  }
+
+  if (initBonus !== null && Number.isInteger(parseInt(initBonus))) {
+    if ((initBonus / 2) === parseInt(proficiencyBonus)) {
       this.npc.system.attributes.init.bonus = "2 * @prof";
-    } else if (bonus === parseInt(proficiencyBonus)) {
+    } else if (initBonus === parseInt(proficiencyBonus)) {
       this.npc.system.attributes.init.bonus = "@prof";
     } else {
-      this.npc.system.attributes.init.bonus = `${bonus}`;
+      this.npc.system.attributes.init.bonus = `${initBonus}`;
     }
   }
 
