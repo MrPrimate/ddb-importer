@@ -25,27 +25,26 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
 
   NAME_HINTS_2014 = {};
 
-  NAME_HINTS = {
-    "Bigby's Hand": "Arcane Hand",
-    "Melf's Acid Arrow": "Acid Arrow",
-    "Mordenkainen's Sword": "Arcane Sword",
-    "Mordenkainen's Faithful Hound": "Faithful Hound",
-    "Evard's Black Tentacles": "Black Tentacles",
-    "Otiluke's Resilient Sphere": "Resilient Sphere",
-    "Otto's Irresistible Dance": "Irresistible Dance",
-    "Tasha's Hideous Laughter": "Hideous Laughter",
-  };
+  NAME_HINTS = {};
 
   ENRICHERS = {
+    "Antipathy/Sympathy": SpellEnrichers.AntipathySympathy,
+    "Bigby's Hand": SpellEnrichers.ArcaneHand,
+    "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
     "Dragon's Breath": SpellEnrichers.DragonsBreath,
     "Enlarge/Reduce": SpellEnrichers.EnlargeReduce,
+    "Evard's Black Tentacles": SpellEnrichers.BlackTentacles,
     "Green-Flame Blade": SpellEnrichers.GreenFlameBlade,
     "Hunter's Mark": SpellEnrichers.HuntersMark,
     "Jallarzi's Storm of Radiance": SpellEnrichers.JallarzisStormOfRadiance,
+    "Melf's Acid Arrow": SpellEnrichers.AcidArrow,
+    "Mordenkainen's Faithful Hound": SpellEnrichers.FaithfulHound,
+    "Mordenkainen's Sword": SpellEnrichers.ArcaneSword,
+    "Otiluke's Resilient Sphere": SpellEnrichers.ResilientSphere,
+    "Otto's Irresistible Dance": SpellEnrichers.IrresistibleDance,
     "Tasha's Bubbling Cauldron": SpellEnrichers.TashasBubblingCauldron,
     "Tasha's Caustic Brew": SpellEnrichers.TashasCausticBrew,
-    "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
-    "Antipathy/Sympathy": SpellEnrichers.AntipathySympathy,
+    "Tasha's Hideous Laughter": SpellEnrichers.HideousLaughter,
   };
 
 }

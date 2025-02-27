@@ -1,6 +1,6 @@
 import { getArcaneHands2024 } from "./types/ArcaneHand2024.mjs";
 import { getArcaneEyes } from "./types/ArcaneEye.mjs";
-import { getArcaneHands } from "./types/ArcaneHand.mjs";
+import { getArcaneHands2014 } from "./types/ArcaneHand2014.mjs";
 import { getArcaneSwords } from "./types/ArcaneSword.mjs";
 import { getBubblingCauldrons } from "./types/BubblingCauldron.mjs";
 import { getConjureAnimals } from "./types/ConjureAnimals.mjs";
@@ -28,7 +28,7 @@ export default class DDBSummonsInterface {
 
   static getArcaneEyes = getArcaneEyes;
 
-  static getArcaneHands = getArcaneHands;
+  static getArcaneHands2014 = getArcaneHands2014;
 
   static getArcaneHands2024 = getArcaneHands2024;
 

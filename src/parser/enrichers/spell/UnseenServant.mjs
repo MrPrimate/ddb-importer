@@ -7,6 +7,14 @@ export default class UnseenServant extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getUnseenServant;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       noTemplate: true,

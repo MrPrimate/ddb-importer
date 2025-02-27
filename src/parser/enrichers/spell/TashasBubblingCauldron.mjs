@@ -7,6 +7,14 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getBubblingCauldrons;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       name: "Create Cauldron",

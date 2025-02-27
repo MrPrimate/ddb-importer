@@ -7,6 +7,14 @@ export default class Clairvoyance extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getClairvoyance;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       noTemplate: true,

@@ -5,34 +5,6 @@ import {
   DDBItemImporter,
 } from "../../lib/_module.mjs";
 import { addNPC } from "../../muncher/importMonster.js";
-import { SRDExtractor } from "./SRDExtractor.mjs";
-
-async function getSummonActors() {
-  const jb2aMod = game.modules.get('jb2a_patreon')?.active
-    ? "jb2a_patreon"
-    : "JB2A_DnD5e";
-
-  const arcaneEyes = await DDBImporter.lib.DDBSummonsInterface.getArcaneEyes();
-  const dancingLights = DDBImporter.lib.DDBSummonsInterface.getDancingLights(jb2aMod);
-  const mageHands = DDBImporter.lib.DDBSummonsInterface.getMageHands(jb2aMod);
-  const bubblingCauldron = DDBImporter.lib.DDBSummonsInterface.getBubblingCauldrons();
-  const illusions = DDBImporter.lib.DDBSummonsInterface.getIllusions();
-  const sensors = await DDBImporter.lib.DDBSummonsInterface.getClairvoyance();
-  // const conjureAnimals = await getConjureAnimals();
-
-  const localActors = {
-    ...arcaneEyes,
-    ...dancingLights,
-    ...mageHands,
-    ...bubblingCauldron,
-    ...illusions,
-    ...sensors,
-    // ...conjureAnimals,
-  };
-
-  const srdActors = await SRDExtractor.getSRDActors();
-  return foundry.utils.mergeObject(srdActors, localActors);
-}
 
 const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A and are licensed by <a href="https://creativecommons.org/licenses/by-nc-sa/4.0">Attribution-NonCommercial-ShareAlike 4.0 International</a>.</p>
 <p>Check them out at <a href="https://jb2a.com">https://jb2a.com</a> they have a free and patreon supported Foundry module providing wonderful animations and assets for a variety of situations.</p>
@@ -179,14 +151,6 @@ export default class DDBSummonsManager {
 
       await manager.addToCompendium(companion);
     }
-  }
-
-  static async generateFixedSummons() {
-    if (!game.user.isGM) return;
-    logger.debug("Generating Fixed summons");
-
-    const generatedSummonedActors = await getSummonActors();
-    await DDBSummonsManager.addGeneratedSummons(generatedSummonedActors);
   }
 
 }

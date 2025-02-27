@@ -7,6 +7,14 @@ export default class DancingLights extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getDancingLights;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       noTemplate: true,

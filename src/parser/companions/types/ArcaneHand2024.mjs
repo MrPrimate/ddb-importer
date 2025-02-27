@@ -1,16 +1,27 @@
-import { utils } from "../../../lib/_module.mjs";
-import { SRDExtractor } from "../SRDExtractor.mjs";
+import { logger, utils } from "../../../lib/_module.mjs";
 
-export async function getArcaneHands2024({ text }) {
-  // eslint-disable-next-line no-use-before-define
-  const arcaneHand = await SRDExtractor.getCompendiumDocument({ name: "Arcane Hand" });
-  const arcaneHand2024 = arcaneHand.toObject();
-  // add arcane hand 2024 descriptions and adjust damage
+export async function getArcaneHands2024({
+  ddbParser, // this,
+  document, // this.data,
+  raw, // this.ddbDefinition.description,
+  text, // this.data.system.description,
+} = {}) {
 
-  arcaneHand2024.system.details.cr = null;
-  // console.warn("2024 Arcane Hands", { arcaneHand, arcaneHand2024});
+  logger.verbose("getArcaneHands2024", {
+    ddbParser,
+    document,
+    raw,
+    text,
+  });
 
-  const hands2024 = DDBImporter.lib.DDBSummonsInterface.getArcaneHands(arcaneHand2024, "Bigby's Hand", "2024");
+  const hands2024 = await DDBImporter.lib.DDBSummonsInterface.getArcaneHands2014({
+    ddbParser,
+    document,
+    raw,
+    text,
+    name: "Bigby's Hand",
+    postfix: "2024",
+  });
 
   const dom = utils.htmlToDocumentFragment(text);
 
@@ -26,6 +37,7 @@ export async function getArcaneHands2024({ text }) {
   });
 
   Object.keys(hands2024).forEach((key) => {
+    hands2024[key].data.system.details.cr = null;
     hands2024[key].data.items.forEach((item) => {
       const update = descriptionUpdates[item.name];
       if (update) {

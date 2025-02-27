@@ -1,6 +1,10 @@
 import { SUMMONS_ACTOR_STUB } from "./_data.mjs";
 
-export function getMageHands(jb2aMod) {
+export function getMageHands() {
+  const jb2aMod = game.modules.get('jb2a_patreon')?.active
+    ? "jb2a_patreon"
+    : "JB2A_DnD5e";
+
   return {
     MageHandRed: {
       name: "Mage Hand (Red)",

@@ -1,6 +1,8 @@
 # Next Up
 
 - Some monster features and descriptions would reference another monster and sometimes it's name would be displayed as `zombie;zombies`. This is still unable to correct a few edge cases.
+- Historical summons created on world load have been moved to the new creation on import.
+- Some spells with generic names and licensed names e.g. Arcane Hand vs Bigby's Hand might not have imported with the correct config.
 
 # 6.0.85
 

@@ -1,10 +1,16 @@
+import { SRDExtractor } from "../SRDExtractor.mjs";
 
-
-export function getArcaneSwords(arcaneSword) {
+export async function getArcaneSwords() {
   const jb2aMod = game.modules.get('jb2a_patreon')?.active
     ? "jb2a_patreon"
     : "JB2A_DnD5e";
   const results = {};
+
+  const pack = game.packs.get("dnd5e.monsters");
+  if (!pack) return results;
+
+  const arcaneSword = await SRDExtractor.getCompendiumDocument({ pack, name: "Arcane Sword" });
+  if (!arcaneSword) return results;
 
   results["ArcaneSwordSpectralGreen"] = {
     name: "Arcane Sword (Spectral Green)",

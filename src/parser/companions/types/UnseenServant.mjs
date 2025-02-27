@@ -2,18 +2,26 @@
 import {
   utils,
 } from "../../../lib/_module.mjs";
+import { SRDExtractor } from "../SRDExtractor.mjs";
 
 
 const UNSEEN_SERVANT_INSTANCES = [
   { name: "SRD", token: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp", actor: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp" },
 ];
 
-export function getUnseenServant(unseenServant, name = "Unseen Servant", postfix = "") {
+export async function getUnseenServant(name = "Unseen Servant", postfix = "") {
+
   const results = {};
+  const pack = game.packs.get("dnd5e.monsters");
+  if (!pack) return results;
+
+  const unseenServant = await SRDExtractor.getCompendiumDocument({ pack, name });
+  if (!unseenServant) return results;
+
   const idString = utils.idString(name);
 
   UNSEEN_SERVANT_INSTANCES.forEach((data) => {
-    const actorData = foundry.utils.mergeObject(foundry.utils.deepClone(unseenServant), {
+    const actorData = foundry.utils.mergeObject(unseenServant.toObject(), {
       "name": `${name}`,
       "prototypeToken.texture.src": data.token,
       "img": data.actor,

@@ -2,6 +2,7 @@ import DDBEffectHelper from "../../../effects/DDBEffectHelper.mjs";
 import { SUMMONS_ACTOR_STUB } from "./_data.mjs";
 
 export async function getClairvoyance() {
+  if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Clairvoyance")) return {};
   const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
   const results = {
     Clairvoyance: {
@@ -22,6 +23,8 @@ export async function getClairvoyance() {
       }),
     },
   };
+
+  await foundry.utils.setProperty(CONFIG, "DDBI.parsed.Clairvoyance", true);
 
   return results;
 };

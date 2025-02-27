@@ -7,6 +7,14 @@ export default class ArcaneEye extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getArcaneEyes;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       noTemplate: true,

@@ -1,7 +1,8 @@
 import {
+  logger,
   utils,
 } from "../../../lib/_module.mjs";
-
+import { SRDExtractor } from "../SRDExtractor.mjs";
 
 const EXTRA_ARCANE_HAND_INSTANCES = (jb2aMod) => {
   return [
@@ -14,17 +15,39 @@ const EXTRA_ARCANE_HAND_INSTANCES = (jb2aMod) => {
   ];
 };
 
-export function getArcaneHands(arcaneHand, name = "Arcane Hand", postfix = "") {
+export async function getArcaneHands2014({
+  ddbParser, // this,
+  document, // this.data,
+  raw, // this.ddbDefinition.description,
+  text, // this.data.system.description,
+  name = "Arcane Hand",
+  postfix = "",
+} = {}) {
+
+  logger.verbose("getArcaneHands2014", {
+    ddbParser,
+    document,
+    raw,
+    text,
+  });
+
   const jb2aMod = game.modules.get('jb2a_patreon')?.active
     ? "jb2a_patreon"
     : "JB2A_DnD5e";
   const results = {};
 
+  const pack = game.packs.get("dnd5e.monsters");
+  if (!pack) return results;
+
+  const arcaneHand = await SRDExtractor.getCompendiumDocument({ pack, name });
+  if (!arcaneHand) return results;
+
+
   const idString = utils.idString(name);
 
   EXTRA_ARCANE_HAND_INSTANCES(jb2aMod).forEach((data) => {
 
-    const actorData = foundry.utils.mergeObject(foundry.utils.deepClone(arcaneHand), {
+    const actorData = foundry.utils.mergeObject(arcaneHand.toObject(), {
       "name": `${name} (${data.color})`,
       "prototypeToken.texture.src": data.token,
       "img": data.actor,

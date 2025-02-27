@@ -7,6 +7,14 @@ export default class HoundOfIllOmen extends DDBEnricherData {
     return "summon";
   }
 
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getHoundOfIllOmen;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       noTemplate: true,

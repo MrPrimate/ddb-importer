@@ -25,12 +25,9 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   }
 
 
-  NAME_HINTS_2014 = {
-  };
+  NAME_HINTS_2014 = {};
 
-  NAME_HINTS = {
-    "Interception": "Fighting Style: Interception",
-  };
+  NAME_HINTS = {};
 
   NAME_HINT_INCLUDES = {
   };
@@ -40,6 +37,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     Generic: FeatEnrichers.Generic,
     "Epic Boon: Choose an Epic Boon feat": FeatEnrichers.EpicBoon,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
+    "Interception": GenericEnrichers.FightingStyleInterception,
     "Lucky": GenericEnrichers.Lucky,
     "Polearm Master - Bonus Attack": FeatEnrichers.PolearmMasterBonusAttack,
     "Squire of Solamnia: Precise Strike": FeatEnrichers.SquireOfSolamniaPreciseStrike,

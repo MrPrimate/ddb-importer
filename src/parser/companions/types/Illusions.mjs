@@ -1,6 +1,9 @@
 import { SUMMONS_ACTOR_STUB } from "./_data.mjs";
 
-export function getIllusions() {
+export async function getIllusions() {
+
+  if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Illusions")) return {};
+
   const results = {
     IllusionObject: {
       name: "Object",
@@ -57,5 +60,8 @@ export function getIllusions() {
       }),
     },
   };
+
+  await foundry.utils.setProperty(CONFIG, "DDBI.parsed.Illusions", true);
+
   return results;
 }

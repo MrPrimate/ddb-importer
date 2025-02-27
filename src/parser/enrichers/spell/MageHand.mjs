@@ -7,6 +7,15 @@ export default class MageHand extends DDBEnricherData {
     return "summon";
   }
 
+
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getMageHands;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
   get activity() {
     return {
       noTemplate: true,
