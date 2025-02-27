@@ -4526,6 +4526,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/46767/260/638727288656465942.jpeg",
       sourceURL: "sources/dnd/hwt",
     },
+    {
+      id: 159,
+      name: "ISotSS",
+      description: "Dungeons of Drakkenheim: In Search of the Smuggler's Secrets",
+      sourceCategoryId: 19,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/47377/293/638751718810530425.jpeg",
+      sourceURL: "sources/dnd/isotss",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
