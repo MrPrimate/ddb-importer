@@ -1,10 +1,11 @@
 # Next Up
 
-- Some monster features and descriptions would reference another monster and sometimes it's name would be displayed as `zombie;zombies`. This is still unable to correct a few edge cases.
+- Some monster features and descriptions would reference another monster and sometimes it's name would be displayed as `zombie;zombies`. This is still unable to correct a few edge cases. Further improvements to come. @arbordrake
 - Historical summons created on world load have been moved to the new creation on import.
 - Some spells with generic names and licensed names e.g. Arcane Hand vs Bigby's Hand might not have imported with the correct config.
 - Tweak to compendium folders for Tattoos if TCoE is not installed.
 - Reworked some internals for mosnter importing.
+- Importing a character that was granted find familar twice could cause a race condition and failure to import the character.
 
 # 6.0.85
 
