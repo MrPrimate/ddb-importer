@@ -226,7 +226,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   static async prepareSpellCompendiumIndex() {
     await CompendiumHelper.loadCompendiumIndex("spells", {
-      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy"],
+      fields: ["name", "flags.ddbimporter.id", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "system.source.rules"],
     });
   }
 

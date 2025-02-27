@@ -46,7 +46,13 @@ const SUPER_LOOSE = [
 
 export async function loadDDBCompendiumIndexes() {
   for (const i of INDEX_COMPENDIUMS) {
-    await CompendiumHelper.loadCompendiumIndex(i);
+    await CompendiumHelper.loadCompendiumIndex(i, {
+      fields: [
+        "name",
+        "flags.ddbbimporter.id",
+        "system.source.rules",
+      ],
+    });
   }
 }
 
@@ -476,6 +482,146 @@ export function parseTags(text) {
 export async function importCacheLoad() {
   await loadDDBCompendiumIndexes();
   getRuleLookups();
+}
+
+const COMPENDIUM_MAP = {
+  "spells": "spells",
+  "magicitems": "items",
+  "weapons": "items",
+  "armor": "items",
+  "adventuring-gear": "items",
+  "monsters": "monsters",
+  "vehicles": "vehicles",
+};
+
+// const DDB_MAP = {
+//   "spells": "spells",
+//   "magicitems": "magic-items",
+//   "weapons": "equipment",
+//   "armor": "equipment",
+//   "adventuring-gear": "equipment",
+//   "monsters": "monsters",
+//   "vehicles": "vehicles",
+// };
+
+// <a class=\"tooltip-hover spell-tooltip\" href=\"/spells/2095-feather-fall\" aria-haspopup=\"true\" data-tooltip-href=\"/spells/2095-tooltip\" data-tooltip-json-href=\"/spells/2095/tooltip-json\">Feather Fall</a>
+// <a class=\"tooltip-hover monster-tooltip\" href=\"/monsters/16781-ancient-green-dragon\" aria-haspopup=\"true\" data-tooltip-href=\"/monsters/16781-tooltip\" data-tooltip-json-href=\"/monsters/16781/tooltip-json\">ancient</a>
+function replaceHREFLookupLinks(doc, { rules = "2014", name = "Unknown" } = {}) {
+
+  for (const lookupKey in COMPENDIUM_MAP) {
+    const compendiumLinks = doc.querySelectorAll(`a[href*="/${lookupKey}/"]`);
+    const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)-(\\w?-*)`);
+    compendiumLinks.forEach((node) => {
+      const lookupMatch = node.outerHTML.match(lookupRegExp);
+
+      const lookupValue = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${COMPENDIUM_MAP[lookupKey]}`)
+        ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${COMPENDIUM_MAP[lookupKey]}`)
+        : undefined;
+      if (!lookupValue) {
+        logger.warn(`Unable to load compendium for ${lookupKey}`);
+      }
+
+      if (lookupValue) {
+        const lookupEntry = lookupValue.find((e) => e.flags?.ddbimporter?.id == lookupMatch[1]);
+
+        if (lookupEntry) {
+          const linkBody = `${lookupEntry.compendium}.${lookupEntry.uuid}`;
+          doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@UUID[${linkBody}]{${node.textContent}}`);
+        } else {
+          console.warn(node)
+          node.setAttribute("href", node.href.replace(document.location.origin, "https://www.dndbeyond.com"));
+          logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}, using key "${lookupKey}"`, {
+            lookupRegExp,
+            lookupKey,
+            href: node.href,
+          });
+        }
+      } else {
+        node.setAttribute("href", node.href.replace(document.location.origin, "https://www.dndbeyond.com"));
+        logger.warn(`NO Lookup Compendium for ${node.outerHTML}, using key "${lookupKey}"`, {
+          lookupRegExp,
+          lookupKey,
+          href: node.href,
+        });
+      }
+    });
+  }
+
+  return doc;
+};
+
+const TOOLTIP_MAP = {
+  "skills": {
+    path: "DDBI.DICTIONARY.actor.skills",
+    id: "valueId",
+    foundry: "subType",
+  },
+  "conditions": {
+    path: "DDBI.DICTIONARY.conditions",
+    id: "ddbId",
+    foundry: "foundry",
+  },
+  "senses": {
+    path: "DDBI.DICTIONARY.actor.senses",
+    id: "id",
+    foundry: "name",
+  },
+};
+
+// <a class=\"tooltip-hover skill-tooltip\" href=\"/sources/dnd/free-rules/playing-the-game#Skills\" aria-haspopup=\"true\" data-tooltip-href=\"/skills/6-tooltip\" data-tooltip-json-href=\"/skills/6/tooltip-json\">Arcana</a>
+// <a class=\"tooltip-hover sense-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#Blindsight\" aria-haspopup=\"true\" data-tooltip-href=\"/senses/1-tooltip\" data-tooltip-json-href=\"/senses/1/tooltip-json\">Blindsight</a>
+// <a class=\"tooltip-hover sense-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#Darkvision\" aria-haspopup=\"true\" data-tooltip-href=\"/senses/2-tooltip\" data-tooltip-json-href=\"/senses/2/tooltip-json\">Darkvision</a>
+// <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#CharmedCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/2-tooltip\" data-tooltip-json-href=\"/conditions/2/tooltip-json\">Charmed</a>
+// <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#PoisonedCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/11-tooltip\" data-tooltip-json-href=\"/conditions/11/tooltip-json\">Poisoned</a>
+// <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#ExhaustionCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/4-tooltip\" data-tooltip-json-href=\"/conditions/4/tooltip-json\">Exhaustion</a>
+function replaceHREFRules(doc, { rules = "2014", name = "Unknown" } = {}) {
+  for (const [lookupKey, lookupData] of Object.entries(TOOLTIP_MAP)) {
+    const compendiumLinks = doc.querySelectorAll(`a[data-tooltip-json-href*="/${lookupKey}/"]`);
+    const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)/`);
+    compendiumLinks.forEach((node) => {
+      const lookupMatch = node.outerHTML.match(lookupRegExp);
+      const dict = foundry.utils.getProperty(CONFIG, lookupData.path);
+      const data = dict.find((d) => Number.parseInt(d[lookupData.id]) === Number.parseInt(lookupMatch[1]));
+
+      console.warn({
+        lookupKey,
+        lookupData,
+        lookupMatch,
+        dict,
+        data,
+      })
+      const lookupValue = data[lookupData.foundry];
+
+      if (lookupValue) {
+        const lowerCaseTag = utils.normalizeString(lookupValue);
+        const replacement = ruleReplacer(lookupKey, lookupValue, lowerCaseTag);
+        doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, replacement);
+      } else {
+        node.setAttribute("href", node.href.replace(document.location.origin, "https://www.dndbeyond.com"));
+        logger.warn(`NO Lookup Compendium for ${node.outerHTML}, using key "${lookupKey}"`, {
+          lookupRegExp,
+          lookupKey,
+          href: node.href,
+        });
+      }
+    });
+  }
+
+  return doc;
+}
+
+// Not handled
+// <span data-dicenotation=\"1d20+5\" data-rolltype=\"to hit\" data-rollaction=\"Wind Staff\">+5</span>
+// <span data-dicenotation=\"1d8+3\" data-rolltype=\"damage\" data-rollaction=\"Wind Staff\" data-rolldamagetype=\"Bludgeoning\">(1d8 + 3)</span>
+// <span data-dicenotation=\"1d6\" data-rolltype=\"recharge\" data-rollaction=\"Poison Breath\">(Recharge 5–6)</span>
+
+
+export function replaceMonsterALinks(str, { rules = "2014", name = "Unknown" } = {}) {
+  let doc = utils.htmlToDoc(str);
+  doc = replaceHREFLookupLinks(doc, { rules, name });
+  doc = replaceHREFRules(doc, { rules, name });
+  return doc.body.innerHTML;
+
 }
 
 

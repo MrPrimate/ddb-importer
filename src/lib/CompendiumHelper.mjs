@@ -141,7 +141,7 @@ const CompendiumHelper = {
   /* eslint-enable require-atomic-updates */
 
   getActorIndexActor: async (type, npc) => {
-    const monsterIndexFields = ["name", "flags.ddbimporter.id"];
+    const monsterIndexFields = ["name", "flags.ddbimporter.id", "system.source.rules"];
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
     const npcMatch = index.contents.find((entity) =>

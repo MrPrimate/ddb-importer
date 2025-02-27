@@ -60,5 +60,9 @@ DDBMonster.prototype._generateFeatures = async function () {
   this.characterDescription += this.featureFactory.characterDescription.special;
   this.npc.system.details.biography.value += this.characterDescription;
 
+  this.npc.system.details.biography.value = DDBReferenceLinker.replaceMonsterALinks(this.npc.system.details.biography.value, {
+    rules: this.npc.system?.source?.rules,
+    name: `${this.npc.name}`,
+  });
   this.npc.system.details.biography.value = await DDBReferenceLinker.replaceMonsterNameBadLinks(this.npc.system.details.biography.value, this.npc.system?.source?.rules, this.npc.name);
 };

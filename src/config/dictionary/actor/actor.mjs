@@ -78,6 +78,8 @@ export const ACTOR = {
     { id: 1, name: "Blindsight" },
     { id: 2, name: "Darkvision" },
     { id: 3, name: "Tremorsense" },
+    { id: 4, name: "Truesight" },
+    { id: 5, name: "Unknown" },
   ],
   speeds: [
     { id: 1, type: "walk", innate: "walking" },

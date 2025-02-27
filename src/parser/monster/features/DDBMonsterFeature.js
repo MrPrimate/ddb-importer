@@ -948,6 +948,11 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (this.originalName === "Multiattack") {
       description = this.#processMultiAttack(description);
     }
+    description = DDBReferenceLinker.replaceMonsterALinks(description, {
+      rules: this.ddbMonster.npc.system?.source?.rules,
+      name: `${this.ddbMonster.npc.name}-${this.originalName}`,
+    });
+
     description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
     // description = parseToHitRoll({ text: description, document: this.feature });
     description = DDBReferenceLinker.parseTags(description);
