@@ -283,7 +283,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   //   characterInventory,
   // });
 
-  resolvedNotifier("Parsing item data..");
+  resolvedNotifier("Analysing generated items...", true);
 
   await Iconizer.preFetchDDBIconImages();
 

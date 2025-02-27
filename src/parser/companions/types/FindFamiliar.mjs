@@ -175,7 +175,9 @@ export async function getFindFamiliarActivityData(activity, options) {
   const is2014 = options.is2014;
   const rules = is2014 ? "2014" : "2024";
 
-  const monsterFactory = new DDBMonsterFactory();
+  const monsterFactory = new DDBMonsterFactory({
+    forceUpdate: false,
+  });
   const baseMap = is2014 ? animals2014 : animals2024;
   const packMap = is2014 ? pactFamiliars2014 : pactFamiliars2024;
 

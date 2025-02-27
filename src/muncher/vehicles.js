@@ -10,14 +10,11 @@ import {
   utils,
   DDBSources,
 } from "../lib/_module.mjs";
-import {
-  addNPC,
-  generateIconMap,
-  copyExistingMonsterImages,
-} from "./importMonster.js";
 import { parseVehicles } from "../parser/vehicle/vehicle.js";
 import { SETTINGS } from "../config/_module.mjs";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
+import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import DDBMonsterImporter from "./DDBMonsterImporter.mjs";
 
 /**
  * Get the JSON data for vehicles from DDB
@@ -141,7 +138,7 @@ export async function parseTransports(ids = null) {
     if (!updateImages) {
       logger.debug("Copying vehicle images across...");
       utils.munchNote(`Copying images for ${existingVehiclesTotal} vehicles...`);
-      vehicles = copyExistingMonsterImages(vehicles, existingVehicles);
+      vehicles = DDBMonsterFactory.copyExistingMonsterImages(vehicles, existingVehicles);
     }
   }
   utils.munchNote("");
@@ -150,7 +147,7 @@ export async function parseTransports(ids = null) {
   await vehicleHandler.iconAdditions();
 
   utils.munchNote(`Generating Icon Map..`, true);
-  await generateIconMap(vehicleHandler.documents);
+  await vehicleHandler.generateIconMap();
 
   // Compendium folders not yet in use for Vehicles
   const compendiumFolders = new DDBCompendiumFolders("vehicles");
@@ -165,7 +162,7 @@ export async function parseTransports(ids = null) {
   for (const vehicle of vehicleHandler.documents) {
     utils.munchNote(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, false, true);
     logger.debug(`Importing/second parse of ${vehicle.name} data`);
-    const munched = await addNPC(vehicle, "vehicle");
+    const munched = await DDBMonsterImporter.addNPC(vehicle, "vehicle");
     vehiclesParsed.push(munched);
     currentVehicle += 1;
   }

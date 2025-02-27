@@ -636,6 +636,10 @@ function removeDDBToolTipLinks(doc) {
   compendiumLinks.forEach((node) => {
     doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, node.innerHTML);
   });
+  const rollTypeLinks = doc.querySelectorAll(`a[data-rolltype*="/"]`);
+  rollTypeLinks.forEach((node) => {
+    doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, node.innerHTML);
+  });
   return doc;
 }
 

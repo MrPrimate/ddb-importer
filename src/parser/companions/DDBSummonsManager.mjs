@@ -4,7 +4,7 @@ import {
   DDBCompendiumFolders,
   DDBItemImporter,
 } from "../../lib/_module.mjs";
-import { addNPC } from "../../muncher/importMonster.js";
+import DDBMonsterImporter from "../../muncher/DDBMonsterImporter.mjs";
 
 const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A and are licensed by <a href="https://creativecommons.org/licenses/by-nc-sa/4.0">Attribution-NonCommercial-ShareAlike 4.0 International</a>.</p>
 <p>Check them out at <a href="https://jb2a.com">https://jb2a.com</a> they have a free and patreon supported Foundry module providing wonderful animations and assets for a variety of situations.</p>
@@ -72,16 +72,17 @@ export default class DDBSummonsManager {
     await this.itemHandler.init();
   }
 
-  async addToCompendium(companion) {
+  async addToCompendium(companion, updateExisting = null) {
     const results = [];
     if (!game.user.isGM) return results;
     const compendiumCompanion = foundry.utils.deepClone(companion);
     delete compendiumCompanion.folder;
     const folder = await this.compendiumFolders.createSummonsFolder(compendiumCompanion);
     compendiumCompanion.folder = folder._id;
-    const npc = await addNPC(compendiumCompanion, "summons", {
+
+    const npc = await DDBMonsterImporter.addNPC(compendiumCompanion, "summons", {
       forceImageUpdate: true,
-    });
+    }, { updateExisting });
     results.push(npc);
     return results;
   }

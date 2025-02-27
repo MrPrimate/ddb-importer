@@ -5,8 +5,8 @@ import {
   DDBItemImporter,
   utils,
 } from "../lib/_module.mjs";
-import { getNPCImage } from "./importMonster.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import DDBMonsterImporter from "./DDBMonsterImporter.mjs";
 
 let totalTargets = 0;
 let count = 0;
@@ -109,8 +109,12 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
   const updates = await Promise.all(index
     .filter((i) => i.name !== "#[CF_tempEntity]")
     .map(async (i) => {
-      const options = { forceUpdate: true, disableAutoTokenizeOverride: true, type };
-      const update = await getNPCImage(foundry.utils.duplicate(i), options);
+      const options = { forceUpdate: true, disableAutoTokenizeOverride: true };
+      const monsterImporter = new DDBMonsterImporter({
+        monster: i,
+        type,
+      });
+      const update = await monsterImporter.getNPCImage(options);
       logger.info(`Resetting ${i.name}`, update);
       return update;
     }));

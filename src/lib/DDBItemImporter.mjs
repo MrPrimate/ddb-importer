@@ -524,6 +524,76 @@ ${item.system.description.chat}
     });
   }
 
+  async useSRDMonsterImages() {
+    // eslint-disable-next-line require-atomic-updates
+    if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
+    const srdImageLibrary = await Iconizer.getSRDImageLibrary();
+    this.notifier(`Updating SRD Monster Images`, true);
+
+    this.documents.forEach((monster) => {
+      logger.debug(`Checking ${monster.name} for srd images`);
+      const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
+      if (nameMatch) {
+        logger.debug(`Updating monster ${monster.name} to srd images`, nameMatch);
+        const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == "monsters").name;
+        const moduleArt = game.dnd5e.moduleArt.map.get(`Compendium.${compendiumName}.${nameMatch._id}`);
+        logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
+        monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
+        monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
+        if (moduleArt?.actor && nameMatch.actor !== "" && !moduleArt.actor.includes("mystery-man")) {
+          monster.img = moduleArt.actor;
+          foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
+        } else if (nameMatch.img && nameMatch.img !== "" && !nameMatch.img.includes("mystery-man")) {
+          monster.img = nameMatch.img;
+          foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
+        }
+        if (moduleArt?.token && !foundry.utils.hasProperty(moduleArt, "token.texture.src")) {
+          monster.prototypeToken.texture.src = moduleArt.token;
+        } else if (moduleArt?.token?.texture?.src
+          && moduleArt.token.texture.src !== ""
+          && !moduleArt.token.texture.src.includes("mystery-man")
+        ) {
+          monster.prototypeToken.texture.src = moduleArt.token.texture.src;
+          foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+          if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
+          if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
+          if (moduleArt.token.ring) monster.prototypeToken.ring = moduleArt.token.ring;
+        } else if (nameMatch.prototypeToken?.texture?.src
+          && nameMatch.prototypeToken.texture.src !== ""
+          && !nameMatch.prototypeToken.texture.src.includes("mystery-man")
+        ) {
+          foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
+          monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;
+        }
+      }
+    });
+
+    return this.documents;
+  }
+
+  async generateIconMap() {
+    let promises = [];
+
+    const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
+    // eslint-disable-next-line require-atomic-updates
+    if (srdIcons) {
+      const srdImageLibrary = await Iconizer.getSRDImageLibrary();
+      this.notifier(`Updating SRD Icons`, true);
+      let itemMap = [];
+
+      this.documents.forEach((monster) => {
+        this.notifier(`Processing ${monster.name}`);
+        promises.push(
+          Iconizer.copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
+            monster.items = items;
+          }),
+        );
+      });
+    }
+
+    return Promise.all(promises);
+  }
+
   static async buildHandler(type, documents, updateBool,
     { srdFidding = true, removeSRDDuplicates = true, ids = null, chrisPremades = false, matchFlags = [],
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null } = {},

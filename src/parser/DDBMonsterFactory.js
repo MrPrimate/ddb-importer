@@ -12,14 +12,8 @@ import {
 } from "../lib/_module.mjs";
 import DDBMonster from "./DDBMonster.js";
 import { SETTINGS } from "../config/_module.mjs";
+import DDBMonsterImporter from "../muncher/DDBMonsterImporter.mjs";
 
-// targets for migration
-import {
-  addNPC,
-  generateIconMap,
-  copyExistingMonsterImages,
-  useSRDMonsterImages,
-} from "../muncher/importMonster.js";
 
 export default class DDBMonsterFactory {
 
@@ -296,7 +290,7 @@ export default class DDBMonsterFactory {
       if (!this.updateImages) {
         logger.debug("Copying monster images across...");
         this.notifier(`Copying images for ${existingMonstersTotal} monsters...`);
-        itemHandler.documents = copyExistingMonsterImages(itemHandler.documents, existingMonsters);
+        itemHandler.documents = DDBMonsterFactory.copyExistingMonsterImages(itemHandler.documents, existingMonsters);
       }
     }
     this.notifier("");
@@ -304,8 +298,8 @@ export default class DDBMonsterFactory {
     await itemHandler.srdFiddling();
     await itemHandler.iconAdditions();
     this.notifier(`Generating Icon Map..`, true);
-    await generateIconMap(itemHandler.documents);
-    await useSRDMonsterImages(itemHandler.documents);
+    await itemHandler.generateIconMap();
+    await itemHandler.useSRDMonsterImages();
 
     logger.timeEnd(`Monster Process Time ${i}`);
     logger.debug(`Monster Document Generation ${i}`, {
@@ -321,10 +315,32 @@ export default class DDBMonsterFactory {
     for (const monster of documents) {
       this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, false, true);
       logger.debug(`Preparing ${monster.name} data for import`);
-      const munched = await addNPC(monster, "monster");
+      const munched = await DDBMonsterImporter.addNPC(monster, "monster");
       this.monstersParsed.push(munched);
       this.currentDocument += 1;
     }
+  }
+
+
+  static copyExistingMonsterImages(monsters, existingMonsters) {
+    const updated = monsters.map((monster) => {
+      const existing = existingMonsters.find((m) =>
+        monster.name === m.name
+        && monster.system.source.rules === m.system.source.rules,
+      );
+      if (existing) {
+        monster.img = existing.img;
+        for (const key of Object.keys(monster.prototypeToken)) {
+          if (!["name", "sight", "detectionModes", "flags", "light", "ring", "occludable"].includes(key) && foundry.utils.hasProperty(existing.prototypeToken, key)) {
+            monster.prototypeToken[key] = foundry.utils.deepClone(existing.prototypeToken[key]);
+          }
+        }
+        return monster;
+      } else {
+        return monster;
+      }
+    });
+    return updated;
   }
 
   /**

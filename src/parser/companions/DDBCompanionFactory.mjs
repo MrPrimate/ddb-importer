@@ -4,7 +4,6 @@ import {
   DDBItemImporter,
   FolderHelper,
 } from "../../lib/_module.mjs";
-import { buildNPC, copyExistingMonsterImages, generateIconMap } from "../../muncher/importMonster.js";
 import DDBCompanion2014 from "./DDBCompanion2014.mjs";
 import { isEqual } from "../../../vendor/lowdash/_module.mjs";
 import DDBSummonsManager from "./DDBSummonsManager.mjs";
@@ -13,6 +12,8 @@ import DDBCompanion2024 from "./DDBCompanion2024.mjs";
 import { CR_DATA } from "./types/CRSRD.mjs";
 import { DICTIONARY } from "../../config/_module.mjs";
 import { getFindFamiliarActivityData } from "./types/FindFamiliar.mjs";
+import DDBMonsterFactory from "../DDBMonsterFactory.js";
+import DDBMonsterImporter from "../../muncher/DDBMonsterImporter.mjs";
 
 
 export default class DDBCompanionFactory {
@@ -212,11 +213,13 @@ export default class DDBCompanionFactory {
   static async addToWorld(companion, update) {
     const results = [];
     if (!game.user.can("ITEM_CREATE")) return results;
-    const npc = await buildNPC(companion, "monster", {
+    const npcBuilder = new DDBMonsterImporter({ monster: companion, type: "monster" });
+    await npcBuilder.build(companion, "monster", {
       temporary: false,
       update,
-      handleBuild: true,
+      addToWorld: true,
     });
+    const npc = this.data;
     results.push(npc);
     return results;
   }
@@ -295,7 +298,7 @@ export default class DDBCompanionFactory {
     if (!this.updateCompanions || !this.updateImages) {
       if (!this.updateImages) {
         logger.debug("Copying monster images across...");
-        companionData = copyExistingMonsterImages(companionData, existingCompanions);
+        companionData = DDBMonsterFactory.copyExistingMonsterImages(companionData, existingCompanions);
       }
     }
 
@@ -303,7 +306,7 @@ export default class DDBCompanionFactory {
     await this.itemHandler.srdFiddling();
     await this.itemHandler.iconAdditions();
 
-    await generateIconMap(this.itemHandler.documents);
+    await this.itemHandler.generateIconMap();
 
     if (this.updateCompanions) {
       this.results.updated = await this.#updateCompanions(this.itemHandler.documents, existingCompanions);

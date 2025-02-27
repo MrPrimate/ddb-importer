@@ -13,7 +13,6 @@ import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
 import { getFeats } from "./muncher/feats/feats.js";
 import { External, DDBEffectHelper, AuraAutomations } from "./effects/_module.mjs";
-import { getNPCImage } from "./muncher/importMonster.js";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
@@ -173,7 +172,6 @@ export function registerApi() {
     generateIcon: lib.Iconizer.generateIcon,
 
     importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
-    getNPCImage,
     resetCompendiumActorImages,
 
     generateItemMacroFlag: lib.DDBMacros.generateItemMacroFlag,

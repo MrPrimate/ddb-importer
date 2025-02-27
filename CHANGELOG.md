@@ -3,6 +3,8 @@
 - Some monster features and descriptions would reference another monster and sometimes it's name would be displayed as `zombie;zombies`. This is still unable to correct a few edge cases.
 - Historical summons created on world load have been moved to the new creation on import.
 - Some spells with generic names and licensed names e.g. Arcane Hand vs Bigby's Hand might not have imported with the correct config.
+- Tweak to compendium folders for Tattoos if TCoE is not installed.
+- Reworked some internals for mosnter importing.
 
 # 6.0.85
 
