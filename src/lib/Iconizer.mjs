@@ -526,7 +526,7 @@ export default class Iconizer {
   }
 
   async _addDDBHintImages(type) {
-    this.notifier(`Fetching DDB Hint Images for ${type}`);
+    this.notifier(`Fetching DDB Hint Images for ${type}`, true);
     // const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     // const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -557,7 +557,7 @@ export default class Iconizer {
       if (img) item.img = img;
     }
 
-    this.notifier("");
+    this.notifier("", true);
 
   }
 
