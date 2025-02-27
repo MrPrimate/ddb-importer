@@ -161,6 +161,9 @@ function getRuleLookups() {
  * @returns {string} The replaced reference based on the rule.
  */
 function ruleReplacer(baseType, text, slug, forceTrimCheck = false) {
+  if (slug.includes("Reference")) {
+    return text;
+  }
   const type = RULE_ADJUSTMENT[baseType] ?? baseType;
 
   const rules = getRuleLookups()[type];
@@ -228,7 +231,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
     if (!superLoose && SUPER_LOOSE.includes(type)) continue;
     for (const [key, value] of Object.entries(entries)) {
       if (!value.reference) continue;
-      const newLinkRegex = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(${value.label})( (saving throw:|check:|average=true|average=false))?(<\\/\\w+>)?(\\sDC (\\d\\d))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
+      const newLinkRegex = new RegExp(`(&(?:amp;)*Reference)?(^| |\\(|\\[|>)(${value.label})( (saving throw:|check:|average=true|average=false))?(<\\/\\w+>)?(\\sDC (\\d\\d))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
       const replaceRuleNew = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
         if (p1 || (p5 && p5.includes("average="))) return match; // already a reference match don't match this
         if (p5 && ["saving throw:", "check:"].includes(p5.toLowerCase().trim())) {
@@ -245,7 +248,8 @@ function parseLooseRuleReferences(text, superLoose = false) {
       };
       // eslint-disable-next-line no-continue
       text = text.replaceAll(newLinkRegex, replaceRuleNew);
-      const linkRegEx = new RegExp(`(&Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|check|average=true|average=false))?( \\(DC 8 plus your ${value.label} modifier and Proficiency Bonus\\))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
+
+      const linkRegEx = new RegExp(`(&(?:amp;)*Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|check|average=true|average=false))?( \\(DC 8 plus your ${value.label} modifier and Proficiency Bonus\\))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
       const replaceRule = (match, p1, p2, p3, p4, p5, p6, p7, p8, p9) => {
         if (p1 || (p7 && p7.includes("average="))) return match; // already a reference match don't match this
         if (p7 && ["saving throw", "check"].includes(p7.toLowerCase())) {
