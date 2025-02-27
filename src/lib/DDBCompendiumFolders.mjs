@@ -888,9 +888,6 @@ export class DDBCompendiumFolders {
           case "RARITY":
             await this.createItemRarityFolders();
             break;
-          // case "SOURCE_TYPE":
-          //   await this.createItemTypeFoldersWithSources();
-          //   break;
           case "SOURCE_CATEGORY_TYPE":
             await this.createItemTypeFoldersWithSourceCategories();
             break;
@@ -996,6 +993,7 @@ export class DDBCompendiumFolders {
 
     if (ddbTypeId === "tattoo") {
       parsed.type = "tattoo";
+      parsed.suffix = null;
     }
 
     if (subTypeFolder) {
@@ -1039,34 +1037,6 @@ export class DDBCompendiumFolders {
 
   }
 
-  // static getItemFolderNameForTypeSource(document, sourceType = null) {
-  //   const folderData = this.getItemFolderNameForType(document);
-
-  //   const parent = folderData.subTypeFolder
-  //     ? DDBCompendiumFolders.getSourceFolderNameFromDocument({
-  //       type: sourceType ?? folderData.parsed.type,
-  //       document,
-  //       nameSuffix: folderData.parsed.parentFolderName,
-  //     })
-  //     : null;
-
-  //   const result = DDBCompendiumFolders.getSourceFolderNameFromDocument({
-  //     type: folderData.parsed.type,
-  //     document,
-  //     flagSuffix: folderData.parsed.suffix,
-  //     nameSuffix: folderData.parsed.name,
-  //   });
-  //   return {
-  //     parent,
-  //     folderData,
-  //     parsed: folderData.parsed,
-  //     result,
-  //     name: result.name,
-  //     flagTag: result.flagTag,
-  //   };
-  // }
-
-
   static getItemFolderNameForTypeSourceCategory(document, sourceType = null) {
     const folderData = DDBCompendiumFolders.getItemFolderNameForType(document);
 
@@ -1109,10 +1079,6 @@ export class DDBCompendiumFolders {
         name = DDBCompendiumFolders.getItemFolderNameForType(document);
         break;
       }
-      // case "SOURCE_TYPE": {
-      //   name = DDBCompendiumFolders.getItemFolderNameForTypeSource(document, "item");
-      //   break;
-      // }
       case "SOURCE_CATEGORY_TYPE": {
         name = DDBCompendiumFolders.getItemFolderNameForTypeSourceCategory(document, "item");
         break;

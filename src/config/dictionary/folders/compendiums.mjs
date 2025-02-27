@@ -29,47 +29,42 @@ export const COMPENDIUM_FOLDERS = {
           },
           trinket: {
             folderName: "Trinket",
-            subFolders: {
-              wondrousitem: {
-                folderName: "Wondrous items",
-              },
-              ring: {
-                folderName: "Rings",
-              },
-              arcanefocus: {
-                folderName: "Arcane Foci",
-              },
-              holysymbol: {
-                folderName: "Holy Symbols",
-              },
-              druidicfocus: {
-                folderName: "Druidic Foci",
-              },
-              adventuringgear: {
-                folderName: "Adventuring Gear",
-              },
-              tattoo: {
-                folderName: "Tattoos",
-              },
-            },
           },
           shield: {
-            folderName: "Shield",
+            folderName: "Shields",
           },
           clothing: {
             folderName: "Clothing",
           },
           wand: {
-            folderName: "Wand",
+            folderName: "Wands",
           },
           rod: {
-            folderName: "Rod",
+            folderName: "Rods",
           },
           trap: {
-            folderName: "Trap",
+            folderName: "Traps",
+          },
+          wondrousitem: {
+            folderName: "Wondrous items",
           },
           ring: {
-            folderName: "Ring",
+            folderName: "Rings",
+          },
+          arcanefocus: {
+            folderName: "Arcane Foci",
+          },
+          holysymbol: {
+            folderName: "Holy Symbols",
+          },
+          druidicfocus: {
+            folderName: "Druidic Foci",
+          },
+          adventuringgear: {
+            folderName: "Adventuring Gear",
+          },
+          tattoo: {
+            folderName: "Tattoos",
           },
         },
       },
