@@ -510,13 +510,23 @@ const COMPENDIUM_MAP = {
 
 // <a class=\"tooltip-hover spell-tooltip\" href=\"/spells/2095-feather-fall\" aria-haspopup=\"true\" data-tooltip-href=\"/spells/2095-tooltip\" data-tooltip-json-href=\"/spells/2095/tooltip-json\">Feather Fall</a>
 // <a class=\"tooltip-hover monster-tooltip\" href=\"/monsters/16781-ancient-green-dragon\" aria-haspopup=\"true\" data-tooltip-href=\"/monsters/16781-tooltip\" data-tooltip-json-href=\"/monsters/16781/tooltip-json\">ancient</a>
-function replaceHREFLookupLinks(doc, { rules = "2014", name = "Unknown" } = {}) {
+function replaceHREFLookupLinks(doc, actor) {
+  const rules = actor?.system?.source?.rules ?? "2014";
+  let npcLookup = null;
+
+  if (actor) {
+    const label = foundry.utils.getProperty(CONFIG.DDBI, `compendium.label.monsters`);
+    npcLookup = {
+      compendiumRef: true,
+      uuid: `${label}.${actor._id}`,
+    };
+  }
 
   for (const lookupKey in COMPENDIUM_MAP) {
     const compendiumLinks = doc.querySelectorAll(`a[href*="/${lookupKey}/"]`);
-    const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)-(\\w?-*)`);
+    const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)-(.*)`);
     compendiumLinks.forEach((node) => {
-      const lookupMatch = node.outerHTML.match(lookupRegExp);
+      const lookupMatch = node.href.match(lookupRegExp);
 
       const lookupValue = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${COMPENDIUM_MAP[lookupKey]}`)
         ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${COMPENDIUM_MAP[lookupKey]}`)
@@ -526,18 +536,27 @@ function replaceHREFLookupLinks(doc, { rules = "2014", name = "Unknown" } = {}) 
       }
 
       if (lookupValue) {
-        const lookupEntry = lookupValue.find((e) => e.flags?.ddbimporter?.id == lookupMatch[1]);
+        const name = lookupMatch[2].split("-").join(" ");
+        const lookupEntry = lookupValue.find((e) =>
+          e.name.split(" ").map((n) => utils.normalizeString(n)).join(" ").toLowerCase() == name.toLowerCase()
+          && e.system?.source?.rules === rules,
+          // we would normally prefer and id lookup, but right now the ids to spells and monsters reference legacy version on 2024 monsters
+        )
+        ?? npcLookup
+        ?? lookupValue.find((e) => e.flags?.ddbimporter?.id == lookupMatch[1]);
 
         if (lookupEntry) {
-          const linkBody = `${lookupEntry.compendium}.${lookupEntry.uuid}`;
-          doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@UUID[${linkBody}]{${node.textContent}}`);
+          const prefix = lookupValue.compendiumRef ? "Compendium" : "UUID";
+          doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@${prefix}[${lookupEntry.uuid}]{${node.textContent}}`);
         } else {
-          console.warn(node)
           node.setAttribute("href", node.href.replace(document.location.origin, "https://www.dndbeyond.com"));
           logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}, using key "${lookupKey}"`, {
             lookupRegExp,
             lookupKey,
             href: node.href,
+            name,
+            lookupValue,
+            rules,
           });
         }
       } else {
@@ -578,7 +597,7 @@ const TOOLTIP_MAP = {
 // <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#CharmedCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/2-tooltip\" data-tooltip-json-href=\"/conditions/2/tooltip-json\">Charmed</a>
 // <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#PoisonedCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/11-tooltip\" data-tooltip-json-href=\"/conditions/11/tooltip-json\">Poisoned</a>
 // <a class=\"tooltip-hover condition-tooltip\" href=\"/sources/dnd/free-rules/rules-glossary#ExhaustionCondition\" aria-haspopup=\"true\" data-tooltip-href=\"/conditions/4-tooltip\" data-tooltip-json-href=\"/conditions/4/tooltip-json\">Exhaustion</a>
-function replaceHREFRules(doc, { rules = "2014", name = "Unknown" } = {}) {
+function replaceHREFRules(doc) {
   for (const [lookupKey, lookupData] of Object.entries(TOOLTIP_MAP)) {
     const compendiumLinks = doc.querySelectorAll(`a[data-tooltip-json-href*="/${lookupKey}/"]`);
     const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)/`);
@@ -587,13 +606,6 @@ function replaceHREFRules(doc, { rules = "2014", name = "Unknown" } = {}) {
       const dict = foundry.utils.getProperty(CONFIG, lookupData.path);
       const data = dict.find((d) => Number.parseInt(d[lookupData.id]) === Number.parseInt(lookupMatch[1]));
 
-      console.warn({
-        lookupKey,
-        lookupData,
-        lookupMatch,
-        dict,
-        data,
-      })
       const lookupValue = data[lookupData.foundry];
 
       if (lookupValue) {
@@ -619,17 +631,29 @@ function replaceHREFRules(doc, { rules = "2014", name = "Unknown" } = {}) {
 // <span data-dicenotation=\"1d8+3\" data-rolltype=\"damage\" data-rollaction=\"Wind Staff\" data-rolldamagetype=\"Bludgeoning\">(1d8 + 3)</span>
 // <span data-dicenotation=\"1d6\" data-rolltype=\"recharge\" data-rollaction=\"Poison Breath\">(Recharge 5–6)</span>
 
-
-export function replaceMonsterALinks(str, { rules = "2014", name = "Unknown" } = {}) {
-  let doc = utils.htmlToDoc(str);
-  doc = replaceHREFLookupLinks(doc, { rules, name });
-  doc = replaceHREFRules(doc, { rules, name });
-  return doc.body.innerHTML;
-
+function removeDDBToolTipLinks(doc) {
+  const compendiumLinks = doc.querySelectorAll(`a[data-tooltip-href*="/"]`);
+  compendiumLinks.forEach((node) => {
+    doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, node.innerHTML);
+  });
+  return doc;
 }
 
 
-export async function replaceMonsterNameBadLinks(str, rules = "2014", name = "Unknown") {
+// eslint-disable-next-line no-unused-vars
+export function replaceMonsterALinks(str, actor) {
+  let doc = utils.htmlToDoc(str);
+  doc = replaceHREFLookupLinks(doc, actor);
+  doc = replaceHREFRules(doc);
+  doc = removeDDBToolTipLinks(doc);
+  return doc.body.innerHTML;
+}
+
+
+export async function replaceMonsterNameBadLinks(str, actor) {
+
+  const rules = actor?.system?.source?.rules ?? "2014";
+  const name = actor?.name ?? "Unknown";
 
   const pack = CompendiumHelper.getCompendiumType("monsters", false);
   await pack.getIndex({ fields: ["name", "system.source.rules"] });
