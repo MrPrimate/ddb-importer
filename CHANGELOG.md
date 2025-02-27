@@ -4,8 +4,8 @@
 - Historical summons created on world load have been moved to the new creation on import.
 - Some spells with generic names and licensed names e.g. Arcane Hand vs Bigby's Hand might not have imported with the correct config.
 - Tweak to compendium folders for Tattoos if TCoE is not installed.
-- Reworked some internals for mosnter importing.
-- Importing a character that was granted find familar twice could cause a race condition and failure to import the character.
+- Reworked some internals for monster importing.
+- Importing a character that was granted find familiar twice could cause a race condition and failure to import the character.
 
 # 6.0.85
 
