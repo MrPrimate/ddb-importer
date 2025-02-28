@@ -1,3 +1,4 @@
+
 export * as ClayGolem from "./ClayGolem/_module.mjs";
 export * as ConjuredAnimals from "./ConjuredAnimals/_module.mjs";
 export * as ConjuredElemental from "./ConjuredElemental/_module.mjs";
@@ -12,6 +13,7 @@ export * as Generic from "./Generic/_module.mjs";
 export * as GiantInsect from "./GiantInsect/_module.mjs";
 export * as GraspingVine from "./GraspingVine/_module.mjs";
 export * as GuardianOfFaith from "./GuardianOfFaith/_module.mjs";
+export * as Imp from "./Imp/_module.mjs";
 export * as LivingBladeOfDisaster from "./LivingBladeOfDisaster/_module.mjs";
 export * as Nosferatu from "./Nosferatu/_module.mjs";
 export * as PurpleWorm from "./PurpleWorm/_module.mjs";
