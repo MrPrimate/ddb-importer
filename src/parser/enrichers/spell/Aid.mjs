@@ -3,10 +3,23 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class Aid extends DDBEnricherData {
 
+  get type() {
+    if (this.useMidiAutomations) return "utility";
+    return "heal";
+  }
+
   get activity() {
-    const originalName = this.ddbEnricher.originalActivity?.name ?? "";
     return {
-      name: originalName === "" ? "Cast" : originalName,
+      name: "Cast",
+      stopHealSpellActivity: !this.useMidiAutomations,
+      data: {
+        healing: DDBEnricherData.basicDamagePart({
+          bonus: "5",
+          types: ["healing"],
+          scalingMode: "whole",
+          scalingFormula: "5",
+        }),
+      },
     };
   }
 
@@ -15,7 +28,6 @@ export default class Aid extends DDBEnricherData {
       return {
         name: `Aid: Level ${level} Max HP Bonus`,
         daeNever: true,
-        activityMatch: "Cast",
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.tempmax"),
         ],

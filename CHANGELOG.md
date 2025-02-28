@@ -1,7 +1,7 @@
 # Next up
 
 - Improved monster spell detection for some edge cases like 2024 Imp Invisibility feature.
-
+- Small tweaks to Aid Spell parsing.
 
 # 6.0.86
 
