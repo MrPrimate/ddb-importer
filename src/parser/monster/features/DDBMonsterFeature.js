@@ -1561,7 +1561,7 @@ ${this.data.system.description.value}
   }
 
   async #buildOtherSpellActivities() {
-    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no spell components and )?using the same spellcasting ability as Spellcasting/i;
+    const basicRegex = /The (?:.*) casts(?: the)? (?<spells>.*?)(?: spell| on that creature)?(?<self>on itself)?(?: in response to (?:the|that) spell’s trigger)?, (?<components>requiring no spell components and )?using (?:the same spellcasting ability as Spellcasting|(?<ability>\w+) as the spellcasting ability)/i;
     const basicMatch = this.strippedHtml.match(basicRegex);
 
     const useRegex = /The (?:.*) uses Spellcasting to cast (?<spells>.*?)(?<self> on itself)?(?:, and it can|\.)/i;
@@ -1605,6 +1605,10 @@ ${this.data.system.description.value}
         }
         if (matches.groups.components) {
           spell.noComponents = true;
+        }
+
+        if (matches.groups.ability) {
+          spell.ability = matches.groups.ability;
         }
 
         if (perUseMatch) {

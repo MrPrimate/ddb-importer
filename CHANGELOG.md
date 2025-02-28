@@ -1,3 +1,8 @@
+# Next up
+
+- Improved monster spell detection for some edge cases like 2024 Imp Invisibility feature.
+
+
 # 6.0.86
 
 - Some monster features and descriptions would reference another monster and sometimes it's name would be displayed as `zombie;zombies`. This is still unable to correct a few edge cases. Further improvements to come. @arbordrake
