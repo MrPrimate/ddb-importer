@@ -27,7 +27,7 @@ export default class Aid extends DDBEnricherData {
     const noMidiEffects = [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
       return {
         name: `Aid: Level ${level} Max HP Bonus`,
-        daeNever: true,
+        notMidi: true,
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${5 * (level - 1)}`, 20, "system.attributes.hp.tempmax"),
         ],
@@ -37,8 +37,8 @@ export default class Aid extends DDBEnricherData {
     const midiEffects = [
       {
         name: "Aid: Max HP Bonus",
-        daeOnly: true,
-        daeChanges: [
+        midiOnly: true,
+        midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("5 * (@spellLevel - 1)", 20, "system.attributes.hp.tempmax"),
         ],
         macroChanges: [
