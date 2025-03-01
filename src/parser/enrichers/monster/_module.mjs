@@ -20,3 +20,4 @@ export * as PurpleWorm from "./PurpleWorm/_module.mjs";
 export * as SpiritualWeapon from "./SpiritualWeapon/_module.mjs";
 export * as SummonAnimatedObject from "./SummonAnimatedObject/_module.mjs";
 export * as SummonConstruct from "./SummonConstruct/_module.mjs";
+export * as Aboleth from "./Aboleth/_module.mjs";

@@ -2,6 +2,8 @@
 
 - Improved monster spell detection for some edge cases like 2024 Imp Invisibility feature.
 - Small tweaks to Aid Spell parsing.
+- Fixes to: Sun Blade
+- Aboleth 2014 parsing fixes.
 
 # 6.0.86
 
