@@ -18,6 +18,7 @@ export { default as BanishingSmite } from "./BanishingSmite.mjs";
 export { default as Banishment } from "./Banishment.mjs";
 export { default as Barkskin } from "./Barkskin.mjs";
 export { default as BeaconOfHope } from "./BeaconOfHope.mjs";
+export { default as BlackTentacles } from "./BlackTentacles.mjs";
 export { default as BladeWard } from "./BladeWard.mjs";
 export { default as Bless } from "./Bless.mjs";
 export { default as BlindnessDeafness } from "./BlindnessDeafness.mjs";

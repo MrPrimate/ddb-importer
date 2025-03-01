@@ -46,6 +46,7 @@ export { default as SpellguardShield } from "./SpellguardShield.mjs";
 export { default as StaffOfCharming } from "./StaffOfCharming.mjs";
 export { default as StaffOfHealing } from "./StaffOfHealing.mjs";
 export { default as StinkBomb } from "./StinkBomb.mjs";
+export { default as SunBlade } from "./SunBlade.mjs";
 export { default as Torch } from "./Torch.mjs";
 export { default as WandOfFireballs } from "./WandOfFireballs.mjs";
 export { default as WandOfMagicMissiles } from "./WandOfMagicMissiles.mjs";
