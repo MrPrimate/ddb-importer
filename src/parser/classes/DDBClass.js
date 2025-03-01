@@ -574,15 +574,10 @@ export default class DDBClass {
   }
 
   _generateHitDice() {
-    if (foundry.utils.isNewerVersion("4.2.0", game.system.version)) {
-      this.data.system.hitDice = `d${this.ddbClass.definition.hitDice}`;
-      this.data.system.hitDiceUsed = this.ddbClass.hitDiceUsed;
-    } else {
-      this.data.system.hd = {
-        denomination: `d${this.ddbClass.definition.hitDice}`,
-        value: this.ddbClass.hitDiceUsed,
-      };
-    }
+    this.data.system.hd = {
+      denomination: `d${this.ddbClass.definition.hitDice}`,
+      spent: this.ddbClass.hitDiceUsed,
+    };
   }
 
   _setClassLevel() {

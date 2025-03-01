@@ -30,7 +30,7 @@ export default class CreateBonfire extends DDBEnricherData {
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `turn=end,label=${this.data.name} (End of Turn),damageRoll=(@cantripDice)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=dex,saveDamage=nodamage,killAnim=true`,
+            `turn=end,label=${this.data.name} (End of Turn),damageRoll=(@cantripDice)d8,damageType=fire,saveRemove=false,saveDC=@attributes.spell.dc,saveAbility=dex,saveDamage=nodamage,killAnim=true`,
             20,
             "flags.midi-qol.OverTime",
           ),

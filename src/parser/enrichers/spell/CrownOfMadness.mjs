@@ -10,7 +10,7 @@ export default class CrownOfMadness extends DDBEnricherData {
         midiOnly: true,
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            "label=Crown of Madness (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=wis,saveMagic=true,killAnim=true",
+            "label=Crown of Madness (End of Turn),turn=end,saveDC=@attributes.spell.dc,saveAbility=wis,saveMagic=true,killAnim=true",
             20,
             "flags.midi-qol.OverTime",
           ),

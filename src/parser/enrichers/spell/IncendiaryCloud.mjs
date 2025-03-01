@@ -31,7 +31,7 @@ export default class IncendiaryCloud extends DDBEnricherData {
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `label=${this.data.name} Turn End,turn=end, saveAbility=dex, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=fire, killAnim=true`,
+            `label=${this.data.name} Turn End,turn=end, saveAbility=dex, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=fire, killAnim=true`,
             20,
             "flags.midi-qol.OverTime",
           ),

@@ -17,7 +17,7 @@ async function attemptRemoval(targetToken, condition, item) {
           label: "Yes",
           callback: async () => {
             const caster = item.parent;
-            const saveDc = caster.system.attributes.spelldc;
+            const saveDc = caster.system.attributes.spell.dc;
             const removalCheck = foundry.utils.getProperty(item, "system.flags.ddbimporter.effect.removalCheck");
             const removalSave = foundry.utils.getProperty(item, "system.flags.ddbimporter.effect.removalSave");
             const ability = removalCheck

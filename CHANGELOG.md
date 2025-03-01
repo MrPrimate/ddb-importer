@@ -1,5 +1,6 @@
 # Next up
 
+- [REQUIRES D&D 4.3.5] Updates to DDB Importer to handle changes in the 4.3.x branch of D&D
 - Improved monster spell detection for some edge cases like 2024 Imp Invisibility feature.
 - Small tweaks to Aid Spell parsing.
 - Fixes to: Sun Blade

@@ -1435,7 +1435,7 @@ ${this.data.system.description.value}
     }
 
     if (this.spellCastingData.dc
-      && parseInt(this.spellCastingData.dc) !== parseInt(this.ddbMonster.npc.system.attributes.spelldc)
+      && parseInt(this.spellCastingData.dc) !== parseInt(this.ddbMonster.spellcasting.spelldc)
     ) {
       spellOverride.challenge.override = true;
       spellOverride.challenge.save = this.spellCastingData.dc;

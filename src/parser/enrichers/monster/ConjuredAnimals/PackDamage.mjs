@@ -67,7 +67,7 @@ export default class PackDamage extends DDBEnricherData {
       "damageRoll=(@flags.dnd5e.summon.level)d10",
       "damageType=slashing",
       "saveRemove=false",
-      "saveDC=@attributes.spelldc",
+      "saveDC=@attributes.spell.dc",
       "saveAbility=dex",
       "saveDamage=halfdamage",
       "killAnim=true",

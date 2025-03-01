@@ -69,7 +69,6 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter() 
   this._generateSpeed();
   this._generateSenses();
   this._generateSpellCasting();
-  this._generateSpellDC();
   // resources
   this._generateResources();
   this._generateMaxPreparedSpells();

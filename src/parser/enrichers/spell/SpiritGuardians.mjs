@@ -114,7 +114,7 @@ export default class SpiritGuardians extends DDBEnricherData {
     //   "damageRoll=(@spellLevel)d8",
     //   "damageType=radiant",
     //   "saveRemove=false",
-    //   "saveDC=@attributes.spelldc",
+    //   "saveDC=@attributes.spell.dc",
     //   "saveAbility=wis",
     //   "saveDamage=halfdamage",
     //   "killAnim=true",

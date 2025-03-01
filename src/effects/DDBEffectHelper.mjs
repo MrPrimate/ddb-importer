@@ -1409,7 +1409,7 @@ export default class DDBEffectHelper {
     const caster = document.parent;
     const derivedActivity = activity
       ?? Object.values(foundry.utils.getProperty(document, "system.activities") ?? {}).find((a) => a.type === "save");
-    const derivedSaveDc = saveDC ?? derivedActivity?.save?.dc?.value ?? caster?.system.attributes.spelldc;
+    const derivedSaveDc = saveDC ?? derivedActivity?.save?.dc?.value ?? caster?.system.attributes.spell?.dc;
     if (!derivedSaveDc) throw new Error("No save DC specified, and no default spelldc found on document parent actor!");
     const removalCheck = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalCheck");
     const removalSave = foundry.utils.getProperty(document, "flags.ddbimporter.effect.removalSave");

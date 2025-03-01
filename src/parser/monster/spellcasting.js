@@ -43,7 +43,6 @@ DDBMonster.prototype._generateSpelldc = function(text) {
     dc = parseInt(match[1]);
   }
   this.spellcasting.spelldc = dc;
-  this.npc.system.attributes.spelldc = dc;
 };
 
 DDBMonster.prototype._generateSpellAttackBonus = function(text) {

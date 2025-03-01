@@ -45,7 +45,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
           },
           midiChanges: [
             DDBEnricherData.ChangeHelper.overrideChange(
-              `label=${this.data.name} (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true`,
+              `label=${this.data.name} (End of Turn),turn=end,saveDC=@attributes.spell.dc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true`,
               20,
               "flags.midi-qol.OverTime",
             ),
@@ -82,7 +82,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
           ],
           midiChanges: [
             DDBEnricherData.ChangeHelper.overrideChange(
-              `label=${this.data.name} (End of Turn),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true`,
+              `label=${this.data.name} (End of Turn),turn=end,saveDC=@attributes.spell.dc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true`,
               20,
               "flags.midi-qol.OverTime",
             ),

@@ -10,7 +10,7 @@ export default class AnimateObjects extends DDBEnricherData {
 
   get activity() {
     if (this.is2014) return null;
-    const spellMod = `${this.spellModAttribute}`;
+    const spellMod = `@attributes.spell.mod`;
     return {
       noTemplate: true,
       profileKeys: [
@@ -45,7 +45,7 @@ export default class AnimateObjects extends DDBEnricherData {
           target: {
             affects: {
               "type": "object",
-              "count": this.spellModAttribute,
+              "count": "@attributes.spell.mod",
             },
           },
         },

@@ -31,7 +31,7 @@ async function addOvertimeEffect({ name , actorUuid, damageType, damageRoll, abi
     `damageRoll=${damageRoll}`,
     `damageType=${damageType}`,
     "saveRemove=false",
-    "saveDC=@attributes.spelldc",
+    "saveDC=@attributes.spell.dc",
     `saveAbility=${ability}`,
     "saveDamage=halfdamage",
     "killAnim=true",

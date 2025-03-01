@@ -283,7 +283,7 @@ export async function buildBaseClass(klass) {
 
   // setup data
   result.system.levels = 1;
-  result.system.hitDice = `d${klass.hitDice}`;
+  result.system.hd.denomination = `d${klass.hitDice}`;
 
   let spellcasting = {};
   if (klass.canCastSpells) {

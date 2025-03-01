@@ -31,7 +31,7 @@ export default class InsectPlague extends DDBEnricherData {
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `label=${this.data.name} Turn End,turn=end, saveAbility=con, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=piercing, killAnim=true`,
+            `label=${this.data.name} Turn End,turn=end, saveAbility=con, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=piercing, killAnim=true`,
             20,
             "flags.midi-qol.OverTime",
           ),

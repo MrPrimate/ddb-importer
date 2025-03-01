@@ -471,7 +471,7 @@ async function updateDDBHitDice(actor, klass, update) {
         classHitDiceUsed: {},
         resetMaxHpModifier: false,
       };
-      hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = update.system.hitDiceUsed;
+      hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = update.system.hd.spent;
       resolve(updateCharacterCall(actor, "hitdice", { shortRest: hitDiceData }, "Hit Dice"));
     } else {
       resolve();
@@ -497,7 +497,7 @@ async function hitDice(actor, ddbCharacter) {
     klasses.forEach((klass) => {
       const classMatch = ddbClasses.find((ddbClass) => ddbClass.flags.ddbimporter.id === klass.flags.ddbimporter.id);
       if (classMatch && classMatch.system.hitDiceUsed !== klass.system.hitDiceUsed) {
-        hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = klass.system.hitDiceUsed;
+        hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = klass.system.hd.spent;
       }
     });
 
@@ -1538,7 +1538,7 @@ async function activeUpdateUpdateItem(document, update) {
         } else {
           resolve([]);
         }
-      } else if (document.type === "class" && syncHD && update.system?.hitDiceUsed) {
+      } else if (document.type === "class" && syncHD && foundry.utils.hasProperty(update, "system.hd.spent")) {
         logger.debug("Updating hitdice on DDB");
         resolve(updateDDBHitDice(parentActor, document, update));
       } else if (document.type === "spell" && syncSpellsPrepared

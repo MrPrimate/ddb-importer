@@ -57,7 +57,7 @@ export default class StoneRune extends DDBEnricherData {
         statuses: ["Charmed", "Incapacitated"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            "label=Stone Rune (End of Turn Save),turn=end,saveDC=@attributes.spelldc,saveAbility=con,savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true",
+            "label=Stone Rune (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=con,savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true",
             20,
             "flags.midi-qol.OverTime",
           ),

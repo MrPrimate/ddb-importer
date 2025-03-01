@@ -41,7 +41,7 @@ export default class ThunderousSmite extends DDBEnricherData {
           activityMatch: "Cast (Automation)",
           midiOnly: true,
           midiChanges: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("@attributes.spelldc", 20, "flags.midi-qol.thunderousSmite.dc"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("@attributes.spell.dc", 20, "flags.midi-qol.thunderousSmite.dc"),
           ],
           damageBonusMacroChanges: [
             { macroType: "spell", macroName: "thunderousSmite.js", document: this.data },

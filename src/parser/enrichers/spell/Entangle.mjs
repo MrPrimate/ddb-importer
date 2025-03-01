@@ -16,7 +16,7 @@ export default class Entangle extends DDBEnricherData {
               "flags.midi-qol.OverTime",
             ),
             DDBEnricherData.ChangeHelper.customChange(
-              `turn=end, rollType=check, actionSave=true, saveAbility=str, saveDC=@attributes.spelldc, label=Restrained by ${this.data.name}`,
+              `turn=end, rollType=check, actionSave=true, saveAbility=str, saveDC=@attributes.spell.dc, label=Restrained by ${this.data.name}`,
               20,
               "flags.midi-qol.OverTime",
             ),
@@ -36,7 +36,7 @@ export default class Entangle extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
           DDBEnricherData.ChangeHelper.customChange(
-            `turn=end, rollType=check, actionSave=true, saveAbility=ath, saveDC=@attributes.spelldc, label=Restrained by ${this.data.name}`,
+            `turn=end, rollType=check, actionSave=true, saveAbility=ath, saveDC=@attributes.spell.dc, label=Restrained by ${this.data.name}`,
             20,
             "flags.midi-qol.OverTime",
           ),

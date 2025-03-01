@@ -77,7 +77,7 @@ export default class FireRune extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
           DDBEnricherData.ChangeHelper.customChange(
-            "label=Fire Rune (End of Turn Save),turn=end,saveDC=@attributes.spelldc,saveAbility=str,savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true",
+            "label=Fire Rune (End of Turn Save),turn=end,saveDC=@attributes.spell.dc,saveAbility=str,savingThrow=true,saveMagic=true,saveRemove=true,killAnim=true",
             20,
             "flags.midi-qol.OverTime",
           ),

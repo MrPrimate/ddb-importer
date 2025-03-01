@@ -18,7 +18,7 @@ export async function stormSphereEffect(document) {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value:
-        "turn=end,label=Storm Sphere (End of Turn),damageRoll=(@item.level - 2)d6,damageType=bludgeoning,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=str,saveDamage=nodamage,killAnim=true",
+        "turn=end,label=Storm Sphere (End of Turn),damageRoll=(@item.level - 2)d6,damageType=bludgeoning,saveRemove=false,saveDC=@attributes.spell.dc,saveAbility=str,saveDamage=nodamage,killAnim=true",
       priority: "20",
     },
   );

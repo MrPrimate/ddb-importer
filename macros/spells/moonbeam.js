@@ -7,7 +7,7 @@ const targetToken = tokenFromUuid.data || token;
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveData = DAEItem.system.save;
 const saveDC = (saveData.dc === null || saveData.dc === "") && saveData.scaling === "spell"
-  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spelldc
+  ? (await fromUuid(lastArg.efData.origin)).parent.getRollData().attributes.spell.dc
   : saveData.dc;
 const castItemName = "Moonbeam Attack";
 const castItem = targetActor.items.find((i) => i.name === castItemName && i.type === "spell");

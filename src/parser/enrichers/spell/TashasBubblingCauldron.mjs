@@ -23,7 +23,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
         { count: 1, name: "TashasBubblingCauldron" },
       ],
       addItemConsume: true,
-      itemConsumeValue: "-@attributes.spelldc",
+      itemConsumeValue: "-@attributes.spell.dc",
       data: {
         img: "systems/dnd5e/icons/svg/activity/summon.svg",
         target: {
@@ -91,7 +91,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
       descriptionSuffix,
       data: {
         "system.uses": {
-          max: this.spellModAttribute,
+          max: "@attributes.spell.mod",
           spent: null,
         },
       },

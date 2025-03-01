@@ -1246,7 +1246,7 @@ ${item.system.description.chat}
             (original) => original.name === klass.name && original.type === "class",
           );
           if (originalKlass) {
-            klass.system.hitDiceUsed = originalKlass.system.hitDiceUsed;
+            klass.system.hd.spent = originalKlass.system.hd.spent;
           }
           return klass;
         });

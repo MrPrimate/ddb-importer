@@ -99,7 +99,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
         activityMatch: "Save vs Restrained",
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `turn=start,damageRoll=(@spellLevel)d6,damageType=piercing,label=${this.data.name}: Entangled,actionSave=roll,rollType=check,saveAbility=str,saveDC=@attributes.spelldc,killAnim=true`,
+            `turn=start,damageRoll=(@spellLevel)d6,damageType=piercing,label=${this.data.name}: Entangled,actionSave=roll,rollType=check,saveAbility=str,saveDC=@attributes.spell.dc,killAnim=true`,
             20,
             "flags.midi-qol.OverTime",
           ),

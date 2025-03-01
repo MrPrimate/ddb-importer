@@ -17,8 +17,8 @@ export default class Cloudkill extends DDBEnricherData {
   get effects() {
 
     const killChange = this.is2014
-      ? `label=${this.data.name} (Start of Turn),turn=start, saveAbility=con, killAnim=true, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=poison`
-      : `label=${this.data.name} (End of Turn),turn=end, saveAbility=con, killAnim=true, saveDC=@attributes.spelldc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=poison`;
+      ? `label=${this.data.name} (Start of Turn),turn=start, saveAbility=con, killAnim=true, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=poison`
+      : `label=${this.data.name} (End of Turn),turn=end, saveAbility=con, killAnim=true, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d8, damageType=poison`;
     return [
       {
         name: "Within Cloudkill Fog",

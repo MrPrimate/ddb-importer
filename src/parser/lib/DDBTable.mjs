@@ -163,9 +163,7 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
       "results": [],
       "formula": formulaMatch
         ? spellCastingAttackMatch
-          ? foundry.utils.isNewerVersion("4.3.0", game.system.version)
-            ? "1d20 + @prof + @attributes.spellmod"
-            : "1d20 + @prof + @attributes.spell.mod"
+          ? "1d20 + @prof + @attributes.spell.mod"
           : formulaMatch[0].trim()
         : "",
       "replacement": true,

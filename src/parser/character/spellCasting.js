@@ -46,16 +46,6 @@ DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting() 
   }
 };
 
-DDBCharacter.prototype._generateSpellDC = function _generateSpellDC() {
-  if (this.raw.character.system.attributes.spellcasting === "") {
-    this.raw.character.system.attributes.spelldc = 10;
-  } else {
-    const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
-    const dc = 8 + characterAbilities[this.raw.character.system.attributes.spellcasting].mod + this.raw.character.system.attributes.prof;
-    this.raw.character.system.attributes.spelldc = dc;
-  }
-};
-
 DDBCharacter.prototype.getCasterInfo = function getCasterInfo() {
   return this.source.ddb.character.classes
     .filter((cls) => {

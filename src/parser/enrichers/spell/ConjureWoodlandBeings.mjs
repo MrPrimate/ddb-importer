@@ -88,7 +88,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
       "damageRoll=(@spellLevel + 1)d8",
       "damageType=force",
       "saveRemove=false",
-      "saveDC=@attributes.spelldc",
+      "saveDC=@attributes.spell.dc",
       "saveAbility=wis",
       "saveDamage=halfdamage",
       "killAnim=true",

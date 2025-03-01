@@ -63,7 +63,7 @@ export default class Heroism extends DDBEnricherData {
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
-            `turn=start,damageRoll=${this.spellModAttribute},damageType=temphp,label=${this.data.name} Renewal,fastForwardDamage=true`,
+            `turn=start,damageRoll=@attributes.spell.mod,damageType=temphp,label=${this.data.name} Renewal,fastForwardDamage=true`,
             20,
             "flags.midi-qol.OverTime",
           ),
