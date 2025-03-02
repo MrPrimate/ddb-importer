@@ -5,6 +5,7 @@
 - Small tweaks to Aid Spell parsing.
 - Fixes to: Sun Blade
 - Aboleth 2014 parsing fixes.
+- Fix Primal Companion parsing.
 
 # 6.0.86
 

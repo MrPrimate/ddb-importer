@@ -915,7 +915,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
         }
       }
     }
-    return false;
+    return foundry.utils.hasProperty(this, "companionFeatureOption.childName");
   }
 
   _getFullSummonsDescription() {

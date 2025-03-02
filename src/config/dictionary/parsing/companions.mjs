@@ -68,6 +68,10 @@ const COMPANION_FEATURES = [
   // "Primal Companion",
   "Drake Companion",
   // "Drake Companion: Summon",
+  // parsed as separate choice features
+  "Beast of the Land",
+  "Beast of the Sea",
+  "Beast of the Sky",
 ];
 
 const COMPANION_OPTIONS = {
