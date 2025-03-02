@@ -287,11 +287,6 @@ export default class DDBCharacter {
       // this adds extras like a Divine Smite spell to this.data
       this._addSpecialAdditions();
 
-      // find supported companion blocks
-      if (this.enableCompanions && game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")) {
-        await this.generateCompanions();
-      }
-
       this._linkItemsToContainers();
 
     } catch (error) {
