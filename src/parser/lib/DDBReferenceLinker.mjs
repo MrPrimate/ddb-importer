@@ -317,7 +317,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
   if (baseAbility) {
     const baseAbilityMod = actor ? actor.system.abilities[baseAbility].mod : diceParse.bonus;
     const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
-    const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
+    const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? ` + @abilities.${baseAbility}.mod ` : "";
     const finalMods = extraMods.length > 0
       ? `${useMod} + ${mods}`
       : useMod;
@@ -444,15 +444,27 @@ export function parseDamageRolls({ text, document, actor } = {}) {
 
 export function parseToHitRoll({ text, document } = {}) {
 
+  text = text.replace("<strong></strong>", "");
   if (!document) return text;
 
   const matches = utils.stripHtml(`${text}`).trim().match(
-    /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i,
+    // /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i,
+    /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<toHitString>(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit,|,|\(|\.))/i,
   );
 
-  const toHit = matches && Number.isInteger(parseInt(matches[1]));
+  const toHit = matches && Number.isInteger(parseInt(matches.groups?.bonus));
+
 
   if (!toHit) return text;
+
+  const useExtendedAttackEnricher = true;
+  if (useExtendedAttackEnricher) {
+    const htmlReplace = /<em>\s*((?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*(?:Attack|Attack Roll):\s*)<\/em>/i;
+    text = text.replace(htmlReplace, "$1");
+    text = text.replace(matches[0], "[[/attack extended]],");
+
+    return text;
+  }
 
   const ability = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.baseAbility");
   const proficient = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.proficient") ? " + @prof" : "";
