@@ -130,6 +130,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Dreadful Strike": ClassEnrichers.Ranger.DreadfulStrike,
     "Dreadful Strikes": ClassEnrichers.Ranger.DreadfulStrikes,
     "Elder Champion": ClassEnrichers.Paladin.ElderChampion,
+    "Eldritch Cannon": ClassEnrichers.Artificer.EldritchCannon,
     "Eldritch Cannon: Flamethrower": ClassEnrichers.Artificer.EldritchCannonFlamethrower,
     "Eldritch Cannon: Force Ballista": ClassEnrichers.Artificer.EldritchCannonForceBallista,
     "Eldritch Cannon: Protector": ClassEnrichers.Artificer.EldritchCannonProtector,

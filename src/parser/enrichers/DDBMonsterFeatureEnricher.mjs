@@ -131,6 +131,9 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Animated Object (": "Summon Animated Object",
     "Empyrean (": "Empyrean",
     "Giant Insect (": "Giant Insect",
+    "Force Ballista": "Eldritch Cannon",
+    "Flamethrower": "Eldritch Cannon",
+    "Protector": "Eldritch Cannon",
   };
 
   NAME_HINTS_2014 = {};
@@ -195,6 +198,14 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     "Clay Golem": {
       "Haste (Recharge 5–6)": MonsterEnrichers.ClayGolem.Haste,
+    },
+    "EldritchCannon": {
+      "Force Ballista": MonsterEnrichers.EldritchCannon.ForceBallista,
+      "Flamethrower": MonsterEnrichers.EldritchCannon.Flamethrower,
+      "Protector": MonsterEnrichers.EldritchCannon.Protector,
+      "Explosive Force Ballista": MonsterEnrichers.EldritchCannon.ForceBallista,
+      "Explosive Flamethrower": MonsterEnrichers.EldritchCannon.Flamethrower,
+      "Explosive Protector": MonsterEnrichers.EldritchCannon.Protector,
     },
   };
 

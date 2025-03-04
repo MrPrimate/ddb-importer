@@ -1,6 +1,7 @@
 # Next Up
 
 - Improvements to attack and damage parsing roll enrichers in monster features.
+- Artificers Eldritch Cannon now offers a summons option.
 
 # 6.0.87
 

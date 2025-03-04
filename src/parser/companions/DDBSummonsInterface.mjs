@@ -5,7 +5,7 @@ import { getArcaneSwords } from "./types/ArcaneSword.mjs";
 import { getBubblingCauldrons } from "./types/BubblingCauldron.mjs";
 import { getConjureAnimals } from "./types/ConjureAnimals.mjs";
 import { getDancingLights } from "./types/DancingLights.mjs";
-import { getEldritchCannonStub } from "./types/EldritchCannon.mjs";
+import { getEldritchCannons } from "./types/EldritchCannon.mjs";
 import { getHoundOfIllOmen } from "./types/HoundOfIllOmen.mjs";
 import { getMageHands } from "./types/MageHand.mjs";
 import { getUnseenServant } from "./types/UnseenServant.mjs";
@@ -40,7 +40,7 @@ export default class DDBSummonsInterface {
 
   static getDancingLights = getDancingLights;
 
-  static getEldritchCannonStub = getEldritchCannonStub;
+  static getEldritchCannons = getEldritchCannons;
 
   static getHoundOfIllOmen = getHoundOfIllOmen;
 

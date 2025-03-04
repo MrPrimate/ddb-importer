@@ -10954,5 +10954,17 @@
   {
     "name": "Guardian Aura",
     "path": "icons/magic/defensive/barrier-shield-dome-deflect-teal.webp"
+  },
+  {
+    "name": "Protector",
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
+  },
+  {
+    "name": "Flamethrower",
+    "path": "icons/magic/fire/blast-jet-stream-splash.webp"
+  },
+  {
+    "name": "Force Ballista",
+    "path": "icons/magic/air/wind-tornado-wall-blue.webp"
   }
 ]

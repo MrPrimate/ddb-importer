@@ -1,4 +1,3 @@
-
 export * as ClayGolem from "./ClayGolem/_module.mjs";
 export * as ConjuredAnimals from "./ConjuredAnimals/_module.mjs";
 export * as ConjuredElemental from "./ConjuredElemental/_module.mjs";
@@ -21,3 +20,4 @@ export * as SpiritualWeapon from "./SpiritualWeapon/_module.mjs";
 export * as SummonAnimatedObject from "./SummonAnimatedObject/_module.mjs";
 export * as SummonConstruct from "./SummonConstruct/_module.mjs";
 export * as Aboleth from "./Aboleth/_module.mjs";
+export * as EldritchCannon from "./EldritchCannon/_module.mjs";

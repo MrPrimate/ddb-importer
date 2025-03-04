@@ -47,19 +47,6 @@ export default class DDBSummonsManager {
     this.notifier = notifier;
   }
 
-  async generateDDBDataActors(ddbFeature) {
-    if (!ddbFeature) return undefined;
-    if (!this.ddbData) return undefined;
-    if (ddbFeature.originalName === "Eldritch Cannon") {
-      for (const size of ["Small", "Tiny"]) {
-        const cannonBase = DDBImporter.lib.DDBSummonsInterface.getEldritchCannonStub(size.toLowerCase());
-        return cannonBase;
-      }
-    }
-    // KNOWN_ISSUE_4_0 for say eldrich cannon
-    return undefined;
-  }
-
   async init() {
     this.compendiumFolders = new DDBCompendiumFolders("summons");
     await this.compendiumFolders.loadCompendium("summons");
