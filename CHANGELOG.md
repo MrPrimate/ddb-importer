@@ -2,6 +2,7 @@
 
 - Improvements to attack and damage parsing roll enrichers in monster features.
 - Artificers Eldritch Cannon now offers a summons option.
+- v 13 under the hood changes.
 
 # 6.0.87
 

@@ -311,9 +311,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
-  if (foundry.utils.isNewerVersion("13", game.version)) {
-    await DDBCompendiumFolders.cleanupCompendiumFolders("items", resolvedNotifier);
-  }
+  await DDBCompendiumFolders.cleanupCompendiumFolders("items", resolvedNotifier);
 
   logger.debug("Final Item Import Data", { finalItems: itemHandler.documents, updateResults, updatePromiseResults });
   resolvedNotifier("");

@@ -189,9 +189,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   resolvedNotifier("");
   logger.timeEnd("Spell Import Time");
 
-  if (foundry.utils.isNewerVersion("13", game.version)) {
-    await DDBCompendiumFolders.cleanupCompendiumFolders("spells", resolvedNotifier);
-  }
+  await DDBCompendiumFolders.cleanupCompendiumFolders("spells", resolvedNotifier);
 
   logger.debug("Starting Spell List Generation");
   resolvedNotifier(`Generating Spell List Journals...`, true);
