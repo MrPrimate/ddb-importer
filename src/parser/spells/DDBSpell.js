@@ -785,8 +785,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     } else if (this.enricher.effects?.length > 0) {
       return "utility";
     }
-    // KNOWN_ISSUE_4_0: Enchants like for magic weapon etc
-    // KNOWN_ISSUE_4_0: Summoning
     return undefined;
   }
 
