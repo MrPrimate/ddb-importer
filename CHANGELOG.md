@@ -1,8 +1,9 @@
-# Next Up
+# 6.0.88
 
 - Improvements to attack and damage parsing roll enrichers in monster features.
 - Artificers Eldritch Cannon now offers a summons option.
 - v 13 under the hood changes.
+- Some combinations of settings would cause legacy monsters to not add spells to the sheets.
 
 # 6.0.87
 
