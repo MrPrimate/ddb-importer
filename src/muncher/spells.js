@@ -17,6 +17,7 @@ import { SETTINGS } from "../config/_module.mjs";
 import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
+import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
 
 function getSpellData({ className, sourceFilter, rulesVersion = null, notifier } = {}) {
   const cobaltCookie = Secrets.getCobalt();
@@ -97,6 +98,8 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
 }
 
 export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null } = {}) {
+
+  await DDBReferenceLinker.importCacheLoad();
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
 

@@ -16,7 +16,7 @@ import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
-import { SystemHelpers } from "../parser/lib/_module.mjs";
+import { DDBReferenceLinker, SystemHelpers } from "../parser/lib/_module.mjs";
 
 function getCharacterInventory(items, extra = []) {
   return items.map((item) => {
@@ -250,6 +250,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
 
 
 export async function parseItems({ useSourceFilter = true, ids = [], deleteBeforeUpdate = null, notifier = null } = {}) {
+  await DDBReferenceLinker.importCacheLoad();
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   // const magicItemsInstalled = !!game.modules.get("magicitems");
   const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");

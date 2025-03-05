@@ -251,7 +251,6 @@ export default class DDBMuncher extends Application {
   static async parseCritters() {
     try {
       logger.info("Munching monsters!");
-      await DDBReferenceLinker.importCacheLoad();
       const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
       DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
@@ -279,7 +278,6 @@ export default class DDBMuncher extends Application {
   static async parseSpells() {
     try {
       logger.info("Munching spells!");
-      await DDBReferenceLinker.importCacheLoad();
       await parseSpells({ notifier: DDBMuncher.munchNote });
       DDBMuncher.munchNote(`Finished importing spells!`, true);
       DDBMuncher.munchNote("");
@@ -294,7 +292,6 @@ export default class DDBMuncher extends Application {
   static async parseItems() {
     try {
       logger.info("Munching items!");
-      await DDBReferenceLinker.importCacheLoad();
       await parseItems({ notifier: DDBMuncher.munchNote });
       DDBMuncher.munchNote(`Finished importing items!`, true);
       DDBMuncher.munchNote("");

@@ -13,6 +13,7 @@ import {
 import DDBMonster from "./DDBMonster.js";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter.mjs";
+import { DDBReferenceLinker } from "./lib/_module.mjs";
 
 
 export default class DDBMonsterFactory {
@@ -242,6 +243,7 @@ export default class DDBMonsterFactory {
 
   async #prepareImporter() {
     // to speed up file checking we pregenerate existing files now.
+    await DDBReferenceLinker.importCacheLoad();
     logger.info("Checking for existing files...");
     this.notifier(`Checking existing image files...`);
     CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.clear();
