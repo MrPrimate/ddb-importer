@@ -1,3 +1,7 @@
+# Next Up
+
+- Improve parsing of Lair resources for 2024 monsters.
+
 # 6.0.88
 
 - Improvements to attack and damage parsing roll enrichers in monster features.

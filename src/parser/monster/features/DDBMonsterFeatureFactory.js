@@ -254,9 +254,11 @@ export default class DDBMonsterFeatureFactory {
   #generateLairActions(type = "lair") {
     let dom = this.#buildDom(type);
 
-    const defaultAction = { name: "Lair Actions", options: { html: "", ddbMonster: this.ddbMonster, type } };
-    this.featureBlocks[type].push(defaultAction);
+    if (this.ddbMonster.is2014) {
+      const defaultAction = { name: "Lair Actions", options: { html: "", ddbMonster: this.ddbMonster, type } };
+      this.featureBlocks[type].push(defaultAction);
 
+    }
     dom.querySelectorAll("h4").forEach((node) => {
       const name = node.textContent.trim();
       if (name !== "") {
@@ -284,6 +286,7 @@ export default class DDBMonsterFeatureFactory {
 
     if (!action) {
       action = this.featureBlocks[type][0];
+      // actionType = action.name;
     }
 
     dom.childNodes.forEach((node) => {
@@ -305,11 +308,12 @@ export default class DDBMonsterFeatureFactory {
       }
 
       const initiativeMatch = node.textContent.match(/initiative count (\d+)/);
+      this.resources.lair = {
+        value: true,
+        initiative: null,
+      };
       if (initiativeMatch) {
-        this.resources.lair = {
-          value: true,
-          initiative: parseInt(initiativeMatch[1]),
-        };
+        this.resources.lair.initiative = parseInt(initiativeMatch[1]);
       }
     });
   }
