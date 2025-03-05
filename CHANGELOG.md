@@ -1,6 +1,7 @@
 # Next Up
 
 - Improve parsing of Lair resources for 2024 monsters.
+- Some newer books such as Griffons Saddlebag tried to parse monsters as 2024 monsters which would lead to failure.
 
 # 6.0.88
 

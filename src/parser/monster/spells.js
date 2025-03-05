@@ -553,7 +553,7 @@ DDBMonster.prototype.addSpells = async function() {
               max: null,
               recovery: [],
             };
-          } else {
+          } else if (spellInfo.value) {
             const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
             const per = spellInfo.type === "atwill"
               ? null
@@ -562,7 +562,7 @@ DDBMonster.prototype.addSpells = async function() {
                 : "day";
             spell.system.uses = {
               spent: 0,
-              max: `${spellInfo.value}` ?? "",
+              max: `${spellInfo.value}`,
               recovery: [
                 { period: per, type: "recoverAll", formula: undefined },
               ],

@@ -31,8 +31,8 @@ DDBMonster.prototype._generateSource = function _generateSource() {
   this.legacy = CONFIG.DDB.sources.some((ds) =>
     DICTIONARY.sourceCategories.legacy.includes(ds.sourceCategoryId),
   );
-  const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
-  const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
+  const force2014 = DICTIONARY.source.is2014.includes(source.sourceId ?? source.id);
+  const force2024 = DICTIONARY.source.is2024.includes(source.sourceId ?? source.id);
   this.is2014 = force2014
     ? true
     : force2024

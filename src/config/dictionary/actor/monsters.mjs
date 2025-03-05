@@ -53,6 +53,8 @@ export const MONSTERS = {
     { name: "Slam", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Rake", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Beak", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Fist", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Kickf", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Tentacles", actionType: "mwak", weaponType: "natural", properties: {} },
   ],
   resets: [

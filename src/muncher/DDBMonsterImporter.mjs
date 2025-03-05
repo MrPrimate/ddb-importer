@@ -28,6 +28,11 @@ export default class DDBMonsterImporter {
   // it wont appear in the compendium but will upon import
   async generateCastSpells() {
     // if (foundry.utils.isNewerVersion(game.system.version, "4.3.3")) return;
+    console.warn("Spell Fixes", {
+      this: this,
+      actor: this.compendiumActor,
+      actorClone: foundry.utils.duplicate(this.compendiumActor),
+    })
     for (const item of this.compendiumActor.items) {
       if (!item.system.activities) continue;
       const spells = (
