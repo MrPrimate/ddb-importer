@@ -1,3 +1,7 @@
+# Next Up
+
+- Heroes' Feast Midi-Qol fix
+
 # 6.0.89
 
 - Improve parsing of Lair resources for 2024 monsters.

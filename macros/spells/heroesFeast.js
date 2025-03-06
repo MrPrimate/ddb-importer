@@ -1,8 +1,8 @@
-console.warn("midi", {
-  scope,
-  item,
-  args
-})
+// console.warn("midi", {
+//   scope,
+//   item,
+//   args
+// })
 
 if (scope.rolledActivity?.type !== "heal") return;
 
@@ -17,7 +17,9 @@ await DDBImporter.EffectHelper.wait(500);
 
 for (const damageData of scope.workflow.damageList) {
   const targetActor = await fromUuid(damageData.actorUuid);
-  const originalEffect = targetActor.effects.find((a) => a.origin === item.uuid);
+  // console.warn("targetActor", targetActor);
+
+  const originalEffect = targetActor.effects.find((e) => e.name === item.name);
 
   const effect = {
     _id: originalEffect._id,

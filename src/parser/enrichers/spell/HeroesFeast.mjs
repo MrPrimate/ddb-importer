@@ -10,10 +10,12 @@ export default class HeroesFeast extends DDBEnricherData {
       addItemConsume: !this.useMidiAutomations,
       targetType: "creature",
       overrideTarget: true,
+      overrideTemplate: true,
       noSpellslot: true,
+      noTemplate: true,
       data: {
         target: {
-          prmpt: false,
+          prompt: false,
         },
         duration: {
           value: 1,
@@ -30,6 +32,7 @@ export default class HeroesFeast extends DDBEnricherData {
       noConsumeTargets: true,
       addItemConsume: !this.useMidiAutomations,
       itemConsumeValue: "-12",
+      noEffect: true,
     };
   }
 
