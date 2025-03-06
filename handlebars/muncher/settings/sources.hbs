@@ -1,6 +1,7 @@
 <section id="ddb-importer-muncher-sources" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
-<div>
-    <h3>Choose Ingredients</h3>
+
+    <fieldset>
+    <legend>Choose Ingredients (Sourcebooks)</legend>
     <p>If any books are selected here DDB Importer will filter content that is <i>only</i> in that book. Please note that sometimes DDB marks a book as from it's first source only, e.g. the SRD/Basic rules for some monsters.</p>
     {{#each sourceConfig}}
     <div class="munching-source-config">
@@ -17,8 +18,11 @@
         {{/each}}
       </multi-select>
     </div>
-    <h3>Excluded Flavour Profiles</h3>
+    </fieldset>
+    <fieldset>
+    <legend>Excluded Flavour Profiles (Categories)</legend>
     <p>DDB Importer will exclude any content that belongs in any of the following source categories. Please adjust to taste.</p>
+    <p>Categories are used on D&D Beyond to filter content. These are groups of books.</p>
     <div class="form-fields" id="munch-excluded-config">
       <multi-select id="muncher-excluded-source-categories" name="muncher-excluded-source-categories">
         {{#each excludedCategories}}
@@ -26,5 +30,6 @@
         {{/each}}
       </multi-select>
     </div>
-</div>
+    </fieldset>
+
 </section>

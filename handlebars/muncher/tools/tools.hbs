@@ -1,0 +1,34 @@
+<section id="ddb-importer-muncher-tools" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+    <fieldset>
+    <legend>Magic Item Prices</legend>
+      <p>Set magic item prices to values as per <a href="https://www.dndbeyond.com/sources/xgte/downtime-revisited#MagicItemPrice">Xanathar's Guide</a> rules. This will set items which have a rarity specified and no/0 cost to a random price in the range.</p>
+      <div>
+        <button data-action="setPricesXanthar" type="button" id="munch-xanthar-price" class="munch-button"><i class="fas fa-coins"></i> Set Magic Item Prices</button>
+      </div>
+    </fieldset>
+    <fieldset>
+    <legend>Monsters</legend>
+      <p>Reset compendium actor images back to munched defaults.</p>
+      <div>
+        <button data-action="resetCompendiumActorImages" type="button" id="munch-reset-images" class="munch-button"><i class="fas fa-person-booth"></i> Reset compendium actor images</button>
+      </div>
+      <p>Update world actors with compendium actors (only targets DDB imported monsters).</p>
+      {{#each worldUpdateConfig}}
+      <div class="munching-monster-world-update-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+              name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
+              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+      </div>
+      {{/each}}
+      <div>
+        <button data-action="updateWorldActors" type="button" id="munch-world-monster-update" class="munch-button"><i class="fas fa-user-edit"></i> Update world monsters</button>
+      </div>
+    </fieldset>
+    <fieldset>
+    <legend>Token Frames</legend>
+      <div>
+        <p>Munch token frames from D&D Beyond.</p>
+        <button data-action="parseFrames" type="button" id="munch-frames-start" class="munch-button"
+          {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}><i class="fas fa-universal-access"></i>{{#if tiers.supporter}}Token Frame Munch{{else}}Token Frames for Patreon Supporters{{/if}}</button>
+      </div>
+    </fieldset>
+</section>

@@ -1,0 +1,4 @@
+<section class="tab tools-{{ tab.id }} {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+    {{> "templates/generic/tab-navigation.hbs" tabs=tabs.tools.tabs }}
+    {{> "modules/ddb-importer/handlebars/muncher/tools/tools.hbs" tab=tabs.tools.tabs.tools }}
+</section>

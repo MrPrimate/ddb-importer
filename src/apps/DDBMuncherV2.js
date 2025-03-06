@@ -34,10 +34,10 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
       parseSpells: DDBMuncherV2.parseSpells,
-      // parseItems: DDBMuncherV2.parseItems,
-      // parseMonsters: DDBMuncherV2.parseMonsters,
-      // parseVehicles: DDBMuncherV2.parseVehicles,
-      // parseFrames: DDBMuncherV2.parseFrames,
+      parseItems: DDBMuncherV2.parseItems,
+      parseMonsters: DDBMuncherV2.parseMonsters,
+      parseVehicles: DDBMuncherV2.parseVehicles,
+      parseFrames: DDBMuncherV2.parseFrames,
     },
     position: {
       width: "800",
@@ -74,6 +74,13 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
       templates: [
         "modules/ddb-importer/handlebars/muncher/munch/spells.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/items.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/monsters.hbs",
+      ],
+    },
+    tools: {
+      template: "modules/ddb-importer/handlebars/muncher/tools.hbs",
+      templates: [
+        "modules/ddb-importer/handlebars/muncher/tools/tools.hbs",
       ],
     },
     footer: { template: "modules/ddb-importer/handlebars/muncher/footer.hbs" },
@@ -85,6 +92,7 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     info: "intro",
     settings: "general",
     munch: "spells",
+    tools: "tools",
   };
 
   _markTabs(tabs) {
@@ -129,18 +137,23 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
           items: {
             id: "items", group: "munch", label: "Items", icon: "fas fa-shield-alt",
           },
-          // monsters: {
-          //   id: "monsters", group: "munch", label: "Monsters", icon: "fas fa-pastafarianism",
-          // },
+          monsters: {
+            id: "monsters", group: "munch", label: "Monsters", icon: "fas fa-pastafarianism",
+          },
           // adventures: {
           //   id: "adventures", group: "munch", label: "Adventures", icon: "fas fa-book-reader",
-          // },
-          // tools: {
-          //   id: "tools", group: "munch", label: "Tools", icon: "fas fa-tools",
           // },
           // characters: {
           //   id: "characters", group: "munch", label: "Characters", icon: "fas fa-users ",
           // },
+        },
+      },
+      tools: {
+        id: "tools", group: "sheet", label: "Tools", icon: "fas fa-tools",
+        tabs: {
+          tools: {
+            id: "tools", group: "tools", label: "Tools", icon: "fas fa-border-all",
+          },
         },
       },
     });
@@ -293,7 +306,12 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   // }
 
 
-  // static async parseCritters() {
+  static async parseMonsters(event, target) {
+    console.warn("parseMonsters", {
+      event,
+      target,
+      this: this,
+    });
   //   try {
   //     logger.info("Munching monsters!");
   //     const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncherV2.munchNote });
@@ -305,9 +323,9 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   //     logger.error(error);
   //     logger.error(error.stack);
   //   }
-  // }
+  }
 
-  // static async parseTransports() {
+  static async parseVehicles(event, target) {
   //   try {
   //     logger.info("Munching vehicles!");
   //     const result = await parseTransports();
@@ -318,7 +336,7 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   //     logger.error(error);
   //     logger.error(error.stack);
   //   }
-  // }
+  }
 
   static async parseSpells(event, target) {
     console.warn("parseSpells", {
@@ -339,7 +357,12 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   }
 
 
-  // static async parseItems() {
+  static async parseItems(event, target) {
+    console.warn("parseItems", {
+      event,
+      target,
+      this: this,
+    });
   //   try {
   //     logger.info("Munching items!");
   //     await parseItems({ notifier: DDBMuncherV2.munchNote });
@@ -350,10 +373,15 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   //     logger.error(error);
   //     logger.error(error.stack);
   //   }
-  // }
+  }
 
 
-  // static async parseFrames() {
+  static async parseFrames(event, target) {
+    console.warn("parseFrames", {
+      event,
+      target,
+      this: this,
+    });
   //   try {
   //     logger.info("Munching frames!");
   //     const result = await parseFrames();
@@ -364,7 +392,7 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   //     logger.error(error);
   //     logger.error(error.stack);
   //   }
-  // }
+  }
 
   // static async generateAdventureConfig() {
   //   try {
