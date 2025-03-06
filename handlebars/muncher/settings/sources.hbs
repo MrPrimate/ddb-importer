@@ -1,0 +1,30 @@
+<section id="ddb-importer-muncher-sources" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+<div>
+    <h3>Choose Ingredients</h3>
+    <p>If any books are selected here DDB Importer will filter content that is <i>only</i> in that book. Please note that sometimes DDB marks a book as from it's first source only, e.g. the SRD/Basic rules for some monsters.</p>
+    {{#each sourceConfig}}
+    <div class="munching-source-config">
+      <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            id="munching-generic-policy-{{this.name}}"
+            name="munching-policy-{{this.name}}"
+            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+    </div>
+    {{/each}}
+    <div id="munch-source-div" {{#if enableSources}}{{else}}class="ddbimporter-hidden"{{/if}}>
+      <multi-select id="muncher-source-select" name="muncher-source-select">
+        {{#each selectedSources}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+    <h3>Excluded Flavour Profiles</h3>
+    <p>DDB Importer will exclude any content that belongs in any of the following source categories. Please adjust to taste.</p>
+    <div class="form-fields" id="munch-excluded-config">
+      <multi-select id="muncher-excluded-source-categories" name="muncher-excluded-source-categories">
+        {{#each excludedCategories}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+</div>
+</section>

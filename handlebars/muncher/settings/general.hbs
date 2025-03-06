@@ -1,0 +1,11 @@
+<section id="ddb-importer-muncher-general" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div>
+    {{#each genericConfig}}
+    <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            id="munching-generic-policy-{{this.name}}"
+            name="munching-policy-{{this.name}}"
+            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+    </div>
+    {{/each}}
+  </div>
+</section>
