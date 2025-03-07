@@ -243,7 +243,40 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     }
 
 
-    //
+    // custom listeners
+
+    // watch the change of the import-policy-selector checkboxes
+    const basicSelectors = [
+      '.munching-generic-config input[type="checkbox"]',
+      '.munching-source-config input[type="checkbox"]',
+      '.munching-spell-config input[type="checkbox"]',
+      '.munching-item-config input[type="checkbox"]',
+      '.munching-monster-config input[type="checkbox"]',
+      '.munching-monster-config-basic input[type="checkbox"]',
+      '.munching-monster-config-homebrew input[type="checkbox"]',
+      '.munching-monster-config-filter input[type="checkbox"]',
+      '.munching-monster-config-art input[type="checkbox"]',
+      '.munching-monster-world-update-config input[type="checkbox"]',
+    ].join(',');
+
+    this.element.querySelectorAll(basicSelectors).forEach((checkbox) => {
+      checkbox.addEventListener('change', async (event) => {
+        await MuncherSettings.updateMuncherSettings(this.element, event, this);
+      });
+    });
+
+    // multi-selects
+    this.element.querySelector("#muncher-excluded-source-categories")?.addEventListener("change", async (event) => {
+      await DDBSources.updateExcludedCategories(Array.from(event.target._value));
+    });
+
+    this.element.querySelector("#muncher-source-select")?.addEventListener("change", async (event) => {
+      await DDBSources.updateSelectedSources(Array.from(event.target._value));
+    });
+
+    this.element.querySelector("#muncher-monster-types-select")?.addEventListener("change", async (event) => {
+      await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
+    });
 
     this.#toggleNestedTabs();
   }
