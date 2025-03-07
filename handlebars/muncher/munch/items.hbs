@@ -1,22 +1,15 @@
 <section id="ddb-importer-muncher-items" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
-  <div class="ddb-importer">
-     <div class="form-section">
-          <div class="form-description">
-              <div>
-                {{#each itemConfig}}
-                <div class="munching-item-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                        name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-                        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
-                </div>
-                {{/each}}
-                {{#if sourcesSelected}}
-                <br>
-                <div style="text-align:center"><b>{{sourceDescription}}</b></div>
-                {{/if}}
-                  <button data-action="parseItems" type="button" id="munch-items-start" class="munch-button"
-                      {{#if cobalt}}enabled{{else}}disabled{{/if}}>Item Munch</button>
-              </div>
-          </div>
-      </div>
+  <fieldset>
+  <legend>Options</legend>
+
+  {{#each itemConfig}}
+  <div class="munching-item-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
   </div>
+  {{/each}}
+  </fieldset>
+  <button data-action="parseItems" type="button" id="munch-items-start" class="munch-button"
+      {{#if cobalt}}enabled{{else}}disabled{{/if}}>Item Munch</button>
+
 </section>

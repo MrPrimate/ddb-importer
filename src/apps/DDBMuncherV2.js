@@ -31,6 +31,7 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
 
   /** @inheritDoc */
   static DEFAULT_OPTIONS = {
+    id: "ddb-importer-monsters",
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
       parseSpells: DDBMuncherV2.parseSpells,
@@ -38,6 +39,15 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
       parseMonsters: DDBMuncherV2.parseMonsters,
       parseVehicles: DDBMuncherV2.parseVehicles,
       parseFrames: DDBMuncherV2.parseFrames,
+      resetCompendiumActorImages: DDBMuncherV2.resetCompendiumActorImages,
+      generateAdventureConfig: DDBMuncherV2.generateAdventureConfig,
+      importAdventure: DDBMuncherV2.importAdventure,
+      importThirdParty: DDBMuncherV2.importThirdParty,
+      updateWorldActors: DDBMuncherV2.updateWorldMonsters,
+      migrateCompendiumMonster: () => DDBMuncherV2.migrateCompendiumFolders("monster"),
+      migrateCompendiumSpell: () => DDBMuncherV2.migrateCompendiumFolders("spell"),
+      migrateCompendiumItem: () => DDBMuncherV2.migrateCompendiumFolders("item"),
+      setPricesXanathar: DDBMuncherV2.addItemPrices,
     },
     position: {
       width: "800",
@@ -75,14 +85,20 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
         "modules/ddb-importer/handlebars/muncher/munch/spells.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/items.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/monsters.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/monsters/main.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/monsters/settings.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/adventures.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/characters.hbs",
       ],
     },
     tools: {
       template: "modules/ddb-importer/handlebars/muncher/tools.hbs",
       templates: [
         "modules/ddb-importer/handlebars/muncher/tools/tools.hbs",
+        "modules/ddb-importer/handlebars/muncher/tools/compendiums.hbs",
       ],
     },
+    details: { template: "modules/ddb-importer/handlebars/muncher/details.hbs" },
     footer: { template: "modules/ddb-importer/handlebars/muncher/footer.hbs" },
   };
 
@@ -93,6 +109,7 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     settings: "general",
     munch: "spells",
     tools: "tools",
+    monsters: "monsterMain",
   };
 
   _markTabs(tabs) {
@@ -139,13 +156,21 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
           },
           monsters: {
             id: "monsters", group: "munch", label: "Monsters", icon: "fas fa-pastafarianism",
+            tabs: {
+              main: {
+                id: "monsterMain", group: "monsters", label: "Monster Munch", icon: "fas fa-dragon",
+              },
+              settings: {
+                id: "monsterSettings", group: "monsters", label: "Monster Import Configuration", icon: "fas fa-dungeon",
+              },
+            },
           },
-          // adventures: {
-          //   id: "adventures", group: "munch", label: "Adventures", icon: "fas fa-book-reader",
-          // },
-          // characters: {
-          //   id: "characters", group: "munch", label: "Characters", icon: "fas fa-users ",
-          // },
+          adventures: {
+            id: "adventures", group: "munch", label: "Adventures", icon: "fas fa-book-reader",
+          },
+          characters: {
+            id: "characters", group: "munch", label: "Characters", icon: "fas fa-users ",
+          },
         },
       },
       tools: {
@@ -153,6 +178,9 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
         tabs: {
           tools: {
             id: "tools", group: "tools", label: "Tools", icon: "fas fa-border-all",
+          },
+          compendiums: {
+            id: "compendiums", group: "tools", label: "Compendiums", icon: "fas fa-atlas",
           },
         },
       },
@@ -225,7 +253,6 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     await DDBReferenceLinker.importCacheLoad();
     let context = MuncherSettings.getMuncherSettings();
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
-    // V12-only:
     context.tabs = this._getTabs();
     logger.debug("Muncher: _prepareContext", context);
     return context;
@@ -291,155 +318,216 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     utils.munchNote(note, nameField, monsterNote);
   }
 
-  // static munchMonsters() {
-  //   DDBMuncherV2.munchNote(`Downloading monsters...`, true);
-  //   $('button[id^="munch-"]').prop('disabled', true);
-  //   $('button[id^="adventure-config-start"]').prop('disabled', true);
-  //   DDBMuncherV2.parseCritters();
-  // }
-
-  // static munchVehicles() {
-  //   DDBMuncherV2.munchNote(`Downloading vehicles...`, true);
-  //   $('button[id^="munch-"]').prop('disabled', true);
-  //   $('button[id^="adventure-config-start"]').prop('disabled', true);
-  //   DDBMuncherV2.parseTransports();
-  // }
-
-
-  static async parseMonsters(event, target) {
-    console.warn("parseMonsters", {
-      event,
-      target,
-      this: this,
+  _disableButtons() {
+    const buttonSelectors = [
+      'button[id^="adventure-config-start"]',
+      'button[id^="munch-"]',
+    ];
+    buttonSelectors.forEach((selector) => {
+      const buttons = this.element.querySelectorAll(selector);
+      buttons.forEach((button) => {
+        button.disabled = true;
+      });
     });
-  //   try {
-  //     logger.info("Munching monsters!");
-  //     const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncherV2.munchNote });
-  //     const result = await monsterFactory.processIntoCompendium();
-  //     DDBMuncherV2.munchNote(`Finished importing ${result} monsters!`, true);
-  //     DDBMuncherV2.munchNote("");
-  //     DDBMuncherV2.enableButtons();
-  //   } catch (error) {
-  //     logger.error(error);
-  //     logger.error(error.stack);
-  //   }
   }
 
-  static async parseVehicles(event, target) {
-  //   try {
-  //     logger.info("Munching vehicles!");
-  //     const result = await parseTransports();
-  //     DDBMuncherV2.munchNote(`Finished importing ${result} vehicles!`, true);
-  //     DDBMuncherV2.munchNote("");
-  //     DDBMuncherV2.enableButtons();
-  //   } catch (error) {
-  //     logger.error(error);
-  //     logger.error(error.stack);
-  //   }
-  }
+  _enableButtons() {
+    const cobalt = Secrets.getCobalt() != "";
+    if (!cobalt) return;
+    const tier = PatreonHelper.getPatreonTier();
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
 
-  static async parseSpells(event, target) {
-    console.warn("parseSpells", {
-      event,
-      target,
-      this: this,
+    const buttonSelectors = [
+      'button[id^="adventure-config-start"]',
+      'button[id^="munch-spells-start"]',
+      'button[id^="munch-items-start"]',
+      'button[id^="munch-adventure-config-start"]',
+      'button[id^="munch-adventure-import-start"]',
+      'button[id^="munch-adventure-third-party-start"]',
+      'button[id^="munch-migrate-compendium-monster"]',
+      'button[id^="munch-migrate-compendium-spell"]',
+      'button[id^="munch-migrate-compendium-item"]',
+      'button[id^="munch-reset-images"]',
+      'button[id^="munch-xanathar-price"]',
+    ];
+
+    if (tiers.all) {
+      buttonSelectors.push('button[id^="munch-monsters-start"]');
+      buttonSelectors.push('button[id^="munch-source-select"]');
+    }
+    if (tiers.supporter) {
+      buttonSelectors.push('button[id^="munch-frames-start"]');
+      // $('button[id^="munch-races-start"]').prop('disabled', false);
+      // $('button[id^="munch-feats-start"]').prop('disabled', false);
+      // $('button[id^="munch-classes-start"]').prop('disabled', false);
+      // $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
+    }
+    if (tiers.experimentalMid) {
+      // buttonSelectors.push('button[id^="munch-vehicles-start"]');
+    }
+
+    buttonSelectors.forEach((selector) => {
+      const buttons = this.element.querySelectorAll(selector);
+      buttons.forEach((button) => {
+        button.disabled = false;
+      });
     });
-    // try {
-    //   logger.info("Munching spells!");
-    //   await parseSpells({ notifier: DDBMuncherV2.munchNote });
-    //   DDBMuncherV2.munchNote(`Finished importing spells!`, true);
-    //   DDBMuncherV2.munchNote("");
-    //   DDBMuncherV2.enableButtons();
-    // } catch (error) {
-    //   logger.error(error);
-    //   logger.error(error.stack);
-    // }
+  }
+
+  static async parseMonsters(_event, _target) {
+    try {
+      logger.info("Munching monsters!");
+      this._disableButtons();
+      const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncherV2.munchNote });
+      const result = await monsterFactory.processIntoCompendium();
+      DDBMuncherV2.munchNote(`Finished importing ${result} monsters!`, true);
+      DDBMuncherV2.munchNote("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  static async parseVehicles(_event, _target) {
+    try {
+      logger.info("Munching vehicles!");
+      this._disableButtons();
+      const result = await parseTransports();
+      DDBMuncherV2.munchNote(`Finished importing ${result} vehicles!`, true);
+      DDBMuncherV2.munchNote("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  static async parseSpells(_event, _target) {
+    try {
+      logger.info("Munching spells!");
+      this._disableButtons();
+      await parseSpells({ notifier: DDBMuncherV2.munchNote });
+      DDBMuncherV2.munchNote(`Finished importing spells!`, true);
+      DDBMuncherV2.munchNote("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
   }
 
 
-  static async parseItems(event, target) {
-    console.warn("parseItems", {
-      event,
-      target,
-      this: this,
-    });
-  //   try {
-  //     logger.info("Munching items!");
-  //     await parseItems({ notifier: DDBMuncherV2.munchNote });
-  //     DDBMuncherV2.munchNote(`Finished importing items!`, true);
-  //     DDBMuncherV2.munchNote("");
-  //     DDBMuncherV2.enableButtons();
-  //   } catch (error) {
-  //     logger.error(error);
-  //     logger.error(error.stack);
-  //   }
+  static async parseItems(_event, _target) {
+    try {
+      logger.info("Munching items!");
+      this._disableButtons();
+      await parseItems({ notifier: DDBMuncherV2.munchNote });
+      DDBMuncherV2.munchNote(`Finished importing items!`, true);
+      DDBMuncherV2.munchNote("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
   }
 
 
-  static async parseFrames(event, target) {
-    console.warn("parseFrames", {
-      event,
-      target,
-      this: this,
-    });
-  //   try {
-  //     logger.info("Munching frames!");
-  //     const result = await parseFrames();
-  //     DDBMuncherV2.munchNote(`Finished importing ${result.length} frames!`, true);
-  //     DDBMuncherV2.munchNote("");
-  //     DDBMuncherV2.enableButtons();
-  //   } catch (error) {
-  //     logger.error(error);
-  //     logger.error(error.stack);
-  //   }
+  static async parseFrames(_event, _target) {
+    try {
+      logger.info("Munching frames!");
+      this._disableButtons();
+      const result = await parseFrames();
+      DDBMuncherV2.munchNote(`Finished importing ${result.length} frames!`, true);
+      DDBMuncherV2.munchNote("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
   }
 
-  // static async generateAdventureConfig() {
-  //   try {
-  //     logger.info("Generating adventure config!");
-  //     await downloadAdventureConfig();
-  //     DDBMuncherV2.munchNote(`Downloading config file`, true);
-  //     DDBMuncherV2.munchNote("");
-  //     DDBMuncherV2.enableButtons();
-  //   } catch (error) {
-  //     logger.error(error);
-  //     logger.error(error.stack);
-  //   }
-  // }
+  static async generateAdventureConfig(_event, _target) {
+    try {
+      logger.info("Generating adventure config!");
+      await downloadAdventureConfig();
+      DDBMuncherV2.munchNote(`Downloading config file`, true);
+      DDBMuncherV2.munchNote("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    }
+  }
 
-  // static async updateWorldMonsters() {
-  //   try {
-  //     logger.info("Updating world monsters!");
-  //     await updateWorldMonsters();
-  //     DDBMuncherV2.enableButtons();
-  //   } catch (error) {
-  //     logger.error(error);
-  //     logger.error(error.stack);
-  //   }
-  // }
+  static async importAdventure(_event, _target) {
+    new AdventureMunch().render(true);
+  }
 
-  // static async migrateCompendiumFolders(type) {
-  //   logger.info(`Migrating ${type} compendium`);
-  //   await DDBCompendiumFolders.migrateExistingCompendium(type);
-  //   DDBMuncherV2.munchNote(`Migrating complete.`, true);
-  //   DDBMuncherV2.enableButtons();
-  // }
+  static async importThirdParty(_event, _target) {
+    new ThirdPartyMunch().render(true);
+  }
 
-  // static async resetCompendiumActorImages() {
-  //   logger.info("Resetting compendium actor images");
-  //   const results = await resetCompendiumActorImages();
-  //   const notifyString = `Reset ${results.length} compendium actors.`;
-  //   DDBMuncherV2.munchNote(notifyString, true);
-  //   DDBMuncherV2.enableButtons();
-  // }
+  static async updateWorldMonsters(_event, _target) {
+    try {
+      logger.info("Updating world monsters!");
+      this._disableButtons();
+      await updateWorldMonsters();
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
 
-  // static async addItemPrices() {
-  //   logger.info("Checking to see if items need prices...");
-  //   const results = await updateItemPrices();
-  //   const notifyString = `Added ${results.length} prices to items.`;
-  //   DDBMuncherV2.munchNote(notifyString, true);
-  //   DDBMuncherV2.enableButtons();
-  // }
+  static async migrateCompendiumFolders(type) {
+    try {
+      logger.info(`Migrating ${type} compendium`);
+      this._disableButtons();
+      await DDBCompendiumFolders.migrateExistingCompendium(type);
+      DDBMuncherV2.munchNote(`Migrating complete.`, true);
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  static async resetCompendiumActorImages(_event, _target) {
+    try {
+      logger.info("Resetting compendium actor images");
+      this._disableButtons();
+      const results = await resetCompendiumActorImages();
+      const notifyString = `Reset ${results.length} compendium actors.`;
+      DDBMuncherV2.munchNote(notifyString, true);
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  static async addItemPrices(_event, _target) {
+    try {
+      logger.info("Checking to see if items need prices...");
+      this._disableButtons();
+      const results = await updateItemPrices();
+      const notifyString = `Added ${results.length} prices to items.`;
+      DDBMuncherV2.munchNote(notifyString, true);
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
 
 }
 

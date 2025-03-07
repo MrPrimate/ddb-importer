@@ -147,7 +147,7 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.resetCompendiumActorImages();
     });
-    html.find("#munch-xanthar-price").click(async () => {
+    html.find("#munch-xanathar-price").click(async () => {
       DDBMuncher.munchNote(`Updating item prices...`, true);
       $('button[id^="munch-"]').prop('disabled', true);
       DDBMuncher.addItemPrices();
@@ -229,7 +229,7 @@ export default class DDBMuncher extends Application {
       $('button[id^="munch-migrate-compendium-item"]').prop('disabled', false);
       // $('button[id^="munch-fix-base64"]').prop('disabled', false);
       $('button[id^="munch-reset-images"]').prop('disabled', false);
-      $('button[id^="munch-xanthar-price"]').prop('disabled', false);
+      $('button[id^="munch-xanathar-price"]').prop('disabled', false);
 
       if (tiers.all) {
         $('button[id^="munch-monsters-start"]').prop('disabled', false);

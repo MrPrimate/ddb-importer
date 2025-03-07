@@ -554,6 +554,33 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
+        name: "monster-retain-biography",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-retain-biography"),
+        description: "Should monsters retain existing biography?",
+        enabled: true,
+      },
+      {
+        name: "monster-strip-name",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name"),
+        description: "Strip uses and recharge information from action names?",
+        enabled: true,
+      },
+      {
+        name: "monster-set-legendary-resource-bar",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar"),
+        description: "Monsters display legendary resources on bar2? (Like the SRD Monsters).",
+        enabled: true,
+      },
+      {
+        name: "add-monster-midi-effects",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-midi-effects"),
+        description: `Generate Automation Effects that use Midi-QOL on monster attacks/features? <br>These are for a highly automated game, and are things such as managing abilities with conditions that have saves every round, or attacks which apply conditions such as frightened or prone.<br>Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")} and Times Up${MuncherSettings.getInstalledIcon("timesUpInstalled")}.`,
+        enabled: effectModulesAvailable.hasMonster,
+      },
+    ];
+
+    const artMonsterConfig = [
+      {
         name: "use-full-token-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image"),
         description: "Use portrait image for token rather than token image (i.e. full art).",
@@ -595,30 +622,6 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the Tokenizer module).",
         enabled: tokenizerReady,
       },
-      {
-        name: "monster-retain-biography",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-retain-biography"),
-        description: "Should monsters retain existing biography?",
-        enabled: true,
-      },
-      {
-        name: "monster-strip-name",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name"),
-        description: "Strip uses and recharge information from action names?",
-        enabled: true,
-      },
-      {
-        name: "monster-set-legendary-resource-bar",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar"),
-        description: "Monsters display legendary resources on bar2? (Like the SRD Monsters).",
-        enabled: true,
-      },
-      {
-        name: "add-monster-midi-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-midi-effects"),
-        description: `Generate Automation Effects that use Midi-QOL on monster attacks/features? <br>These are for a highly automated game, and are things such as managing abilities with conditions that have saves every round, or attacks which apply conditions such as frightened or prone.<br>Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")} and Times Up${MuncherSettings.getInstalledIcon("timesUpInstalled")}.`,
-        enabled: effectModulesAvailable.hasMonster,
-      },
     ];
 
     const homebrewMonsterConfig = includeHomebrew
@@ -635,16 +638,18 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
           description: "Homebrew monsters only? (Otherwise both)",
           enabled: tiers.homebrew && !sourcesSelected,
         },
-        {
-          name: "monster-exact-match",
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match"),
-          description: "Exact name match?",
-          enabled: tiers.homebrew,
-        },
+
       ]
       : [];
 
-    const monsterConfig = basicMonsterConfig.concat(homebrewMonsterConfig);
+    const filterMonsterConfig = [
+      {
+        name: "monster-exact-match",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match"),
+        description: "Exact name match?",
+        enabled: tiers.homebrew,
+      },
+    ];
 
     const genericConfig = [
       {
@@ -745,7 +750,10 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       selectedSources,
       monsterTypes,
       excludedCategories,
-      monsterConfig,
+      basicMonsterConfig,
+      filterMonsterConfig,
+      artMonsterConfig,
+      homebrewMonsterConfig,
       spellConfig,
       itemConfig,
       worldUpdateConfig,

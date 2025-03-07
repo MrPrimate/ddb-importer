@@ -1,44 +1,5 @@
-<section id="ddb-importer-muncher-monsters" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
-<div class="form-section">
-      <div class="form-description">
-          <div class="form-description"></div>
-                {{#each monsterConfig}}
-                <div class="munching-monster-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                        name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-                        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
-                </div>
-                {{/each}}
-                <hr>
-
-              <div>
-                  <h4>Monster Search Filter (leave blank for all - case insensitive)</h4>
-              </div>
-                <div class="form-content" style="display: flex">
-                  <input type="text" name="monster-filter" id="monster-munch-filter" style="flex: 0 1 auto" ;value="" />
-              </div>
-              <hr>
-              <p>Filter by Monster Type (Leave blank for all)</p>
-              <div class="form-fields" id="munch-excluded-config">
-                <multi-select id="muncher-monster-types-select" name="muncher-monster-types-select">
-                  {{#each monsterTypes}}
-                  <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
-                  {{/each}}
-                </multi-select>
-              </div>
-              <hr>
-              <div>
-                  <button data-action="parseMonsters" type="button" id="munch-monsters-start" class="munch-button"
-                      {{#if tiers.all}}enabled{{else}}disabled{{/if}}>{{#if tiers.all}}Monster Munch!{{else}}Monster Munch for Patreon Supporters! (or run your own proxy){{/if}}
-                  </button>
-                  <button data-action="parseVehicles" type="button" id="munch-vehicles-start" class="munch-button" disabled>
-                      Vehicle import is not yet available for this version of the D&D 5e System
-                  </button>
-                  <!--
-                      {{#if tiers.experimentalMid}}enabled{{else}}disabled{{/if}}>{{#if tiers.experimentalMid}}[Experimental BETA] Vehicle Munch!{{else}}[Experimental BETA] Vehicle Munch for Undying+ Patreon Supporters!{{/if}}
-                  -->
-                  </button>
-              </div>
-              <div style="text-align:center"><i>Make sure you have imported spells before Monsters!</i> Tokens will use default token settings.</div>
-          </div>
-      </div>
+<section class="tab monsters-{{ tab.id }} {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+    {{> "templates/generic/tab-navigation.hbs" tabs=tabs.munch.tabs.monsters.tabs }}
+    {{> "modules/ddb-importer/handlebars/muncher/munch/monsters/main.hbs" tab=tabs.munch.tabs.monsters.tabs.main }}
+    {{> "modules/ddb-importer/handlebars/muncher/munch/monsters/settings.hbs" tab=tabs.munch.tabs.monsters.tabs.settings }}
 </section>

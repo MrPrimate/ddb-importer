@@ -1,0 +1,25 @@
+<section id="ddb-importer-muncher-monster-settings" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+      <fieldset>
+      <legend>Settings</legend>
+        {{#each basicMonsterConfig}}
+        <div class="munching-monster-config-basic">
+          <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
+            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+        </div>
+        {{/each}}
+      </fieldset>
+
+      <fieldset>
+      <legend>Monster Art and Images</legend>
+        {{#each artMonsterConfig}}
+        <div class="munching-monster-config-art">
+          <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+            name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
+            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+        </div>
+        {{/each}}
+      </fieldset>
+
+</section>

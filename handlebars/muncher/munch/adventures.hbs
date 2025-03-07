@@ -1,0 +1,18 @@
+<section id="ddb-importer-muncher-adventures" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <fieldset>
+  <legend>Information</legend>
+
+      <div>
+          <p>Adventure Munching is a multipart process that requires a program that runs on your computer (ddb-adventure-muncher). Please follow
+            the <a href="https://docs.ddb.mrprimate.co.uk/docs/ddb-importer/adventures">documentation</a>, it has a step by step guide!</p>
+      </div>
+    <div>
+      <i>When you import an adventure it will use the items, spells and monsters in your DDB compendiums. If it can't find them it will attempt to import from DDB, and will use the currently selected settings in the muncher!</i>
+    </div>
+
+  </fieldset>
+
+  <button data-action="generateAdventureConfig" type="button" id="munch-adventure-config-start" class="munch-button"><i class="fas fa-cog"></i> Generate Adventure Muncher Config File</button>
+  <button data-action="importAdventure" type="button" id="munch-adventure-import-start" class="munch-button"><i class="fas fa-check"></i> Import Generated Adventure</button>
+  <button data-action="monsterThirdParty" type="button" id="munch-adventure-third-party-start" class="munch-button"><i class="fas fa-map-marked-alt"></i> Enhance Third Party Scenes</button>
+</section>

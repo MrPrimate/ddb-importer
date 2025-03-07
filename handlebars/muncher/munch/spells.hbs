@@ -1,24 +1,14 @@
 <section id="ddb-importer-muncher-spells" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
-  <div class="ddb-importer">
-    <div class="form-section">
-      <div class="form-description">
-        <div>
-          <div>
-            {{#each spellConfig}}
-            <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-                name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-                data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
-            </div>
-            {{/each}}
-            {{#if sourcesSelected}}
-            <br>
-            <div style="text-align:center"><b>{{sourceDescription}}</b></div>
-            {{/if}}
-            <button data-action="parseSpells" type="button" id="munch-spells-start" class="munch-button"
-                {{#if cobalt}}enabled{{else}}disabled{{/if}}>Spell Munch</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <fieldset>
+  <legend>Options</legend>
+  {{#each spellConfig}}
+  <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
+      name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
+      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
   </div>
+  {{/each}}
+  </fieldset>
+  <button data-action="parseSpells" type="button" id="munch-spells-start" class="munch-button"
+      {{#if cobalt}}enabled{{else}}disabled{{/if}}>Spell Munch</button>
+
 </section>
