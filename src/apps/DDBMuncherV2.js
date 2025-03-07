@@ -82,6 +82,7 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     munch: {
       template: "modules/ddb-importer/handlebars/muncher/munch.hbs",
       templates: [
+        "modules/ddb-importer/handlebars/generic/tab-navigation.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/spells.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/items.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/monsters.hbs",
@@ -199,10 +200,16 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   }
 
   #toggleNestedTabs() {
+    const munch = this.element.querySelector('.munch-munch > [data-application-part="muncherTabs"]');
+    const munchActive = this.element.querySelector('.tab.active[data-group="munch"]');
+    if (munch && munchActive) {
+      const monstersActive = this.element.querySelector('.tab.active[data-tab="monsters"]');
+      munch.classList.toggle("nested-tabs", monstersActive ?? false);
+    }
     const primary = this.element.querySelector('.window-content > [data-application-part="tabs"]');
     const active = this.element.querySelector('.tab.active[data-group="sheet"]');
     if (!primary || !active) return;
-    primary.classList.toggle("nested-tabs", active.querySelector(":scope > .sheet-tabs"));
+    primary.classList.toggle("nested-tabs", active.querySelector(`:scope > .sheet-tabs`));
   }
 
   /* -------------------------------------------- */
@@ -245,8 +252,9 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
   /** @inheritDoc */
   changeTab(tab, group, options) {
     super.changeTab(tab, group, options);
-    if (group !== "sheet") return;
-    this.#toggleNestedTabs();
+    if (["sheet", "munch"].includes(group)) {
+      this.#toggleNestedTabs();
+    }
   }
 
   async _prepareContext(options) {
