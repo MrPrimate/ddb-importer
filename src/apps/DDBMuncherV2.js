@@ -44,9 +44,9 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
       importAdventure: DDBMuncherV2.importAdventure,
       importThirdParty: DDBMuncherV2.importThirdParty,
       updateWorldActors: DDBMuncherV2.updateWorldMonsters,
-      migrateCompendiumMonster: () => DDBMuncherV2.migrateCompendiumFolders("monster"),
-      migrateCompendiumSpell: () => DDBMuncherV2.migrateCompendiumFolders("spell"),
-      migrateCompendiumItem: () => DDBMuncherV2.migrateCompendiumFolders("item"),
+      migrateCompendiumMonster: DDBMuncherV2.migrateCompendiumFolders,
+      migrateCompendiumSpell: DDBMuncherV2.migrateCompendiumFolders,
+      migrateCompendiumItem: DDBMuncherV2.migrateCompendiumFolders,
       setPricesXanathar: DDBMuncherV2.addItemPrices,
     },
     position: {
@@ -241,6 +241,10 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
       element.querySelector(".collapsible")?.classList
         .toggle("collapsed", !this.#expandedSections.get(element.dataset.expandId));
     }
+
+
+    //
+
     this.#toggleNestedTabs();
   }
 
@@ -493,10 +497,25 @@ export default class DDBMuncherV2 extends HandlebarsApplicationMixin(Application
     }
   }
 
-  static async migrateCompendiumFolders(type) {
+  static async migrateCompendiumFolders(event, target) {
+    let type = null;
+    switch (target.id) {
+      case "munch-migrate-compendium-monster":
+        type = "monster";
+        break;
+      case "munch-migrate-compendium-spell":
+        type = "spell";
+        break;
+      case "munch-migrate-compendium-item":
+        type = "item";
+        break;
+      // no default
+    }
+    if (!type) return;
     try {
       logger.info(`Migrating ${type} compendium`);
       this._disableButtons();
+      DDBMuncherV2.munchNote(`Begin migration.... this might take some considerable time, please wait...`, true);
       await DDBCompendiumFolders.migrateExistingCompendium(type);
       DDBMuncherV2.munchNote(`Migrating complete.`, true);
     } catch (error) {
