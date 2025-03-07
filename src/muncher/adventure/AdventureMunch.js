@@ -29,7 +29,10 @@ export default class AdventureMunch {
 
 
   /** @override */
-  constructor() {
+  constructor({
+    importFile, allScenes = null, allMonsters = null, journalWorldActors = null, addToCompendiums = null,
+    addToAdventureCompendium = null,
+  } = {}) {
     this._itemsToRevisit = [];
     this.adventure = null;
     this.folders = null;
@@ -59,7 +62,8 @@ export default class AdventureMunch {
     this.zip = null;
     this.allMonsters = false;
     this.journalWorldActors = false;
-    this.importFilename = null;
+    this.importFile = importFile;
+    this.importFilename = importFile.name;
     this.lookups = {
       folders: {},
       compendiumFolders: {},
@@ -79,11 +83,11 @@ export default class AdventureMunch {
     this.altpattern
       = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gim;
 
-    this.allScenes = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes");
-    this.allMonsters = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world");
-    this.journalWorldActors = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors");
-    this.addToCompendiums = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums");
-    this.addToAdventureCompendium = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium");
+    this.allScenes = allScenes ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes");
+    this.allMonsters = allMonsters ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world");
+    this.journalWorldActors = journalWorldActors ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors");
+    this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums");
+    this.addToAdventureCompendium = addToAdventureCompendium ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium");
   }
 
   findCompendiumEntityByImportId(type, id) {
@@ -609,19 +613,7 @@ export default class AdventureMunch {
     const form = document.querySelector(`form[class="ddb-importer-window"]`);
     if (form.data.files.length) {
       this.importFilename = form.data.files[0].name;
-      this.zip = await FileHelper.readBlobFromFile(form.data.files[0]).then(JSZip.loadAsync);
-    } else {
-      const selectedFile = document.querySelector(`[name="import-file"]`).value;
-      this.importFilename = selectedFile;
-      this.zip = await fetch(`/${selectedFile}`)
-        .then((response) => {
-          if (response.status === 200 || response.status === 0) {
-            return Promise.resolve(response.blob());
-          } else {
-            return Promise.reject(new Error(response.statusText));
-          }
-        })
-        .then(JSZip.loadAsync);
+      this.zip = await FileHelper.readBlobFromFile(this.importFile).then(JSZip.loadAsync);
     }
   }
 
@@ -729,7 +721,7 @@ export default class AdventureMunch {
         }
       }
 
-      await this._loadZip();
+      this.zip = await FileHelper.readBlobFromFile(this.importFile).then(JSZip.loadAsync);
       this._unpackZip();
 
       this.adventure = JSON.parse(await this.zip.file("adventure.json").async("text"));

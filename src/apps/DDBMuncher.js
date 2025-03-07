@@ -522,22 +522,35 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
 
   static async importAdventure(_event, _target) {
 
-    try {
-      logger.info("Generating adventure config!");
-      this._disableButtons();
-      const adventureMuncher = new AdventureMunch({
-        // to do extract file details, plus settings
-        notifierElement: this.element,
-      });
+    const fileDiv = this.element.querySelector(`#munch-adventure-file`);
+    console.warn("Importing adventure!", {
+      event: _event,
+      target: _target,
+      fileDiv,
+    });
 
-      await adventureMuncher.importAdventure();
+    // try {
+    //   logger.info("Generating adventure config!");
+    //   this._disableButtons();
+    // const form = document.querySelector(`form[class="ddb-importer-window"]`);
+    // if (form.data.files.length) {
+    //   this.importFilename = form.data.files[0].name;
+    //   this.zip = await FileHelper.readBlobFromFile(form.data.files[0]).then(JSZip.loadAsync);
+    // }
+    //   const adventureMuncher = new AdventureMunch({
+    //     // to do extract file details, plus settings
+    //     importFile: this.element.querySelector(`#munch-adventure-file`).files[0],
+    //     notifierElement: this.element,
+    //   });
 
-    } catch (error) {
-      logger.error(error);
-      logger.error(error.stack);
-    } finally {
-      this._enableButtons();
-    }
+    //   await adventureMuncher.importAdventure();
+
+    // } catch (error) {
+    //   logger.error(error);
+    //   logger.error(error.stack);
+    // } finally {
+    //   this._enableButtons();
+    // }
 
 
   }
