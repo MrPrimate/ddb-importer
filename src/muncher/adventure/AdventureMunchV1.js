@@ -5,7 +5,7 @@ import { SETTINGS } from "../../config/_module.mjs";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
 import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
 
-export default class AdventureMunch {
+export default class AdventureMunch extends FormApplication {
 
   static COMPENDIUM_MAP = {
     "spells": "spells",
@@ -29,7 +29,8 @@ export default class AdventureMunch {
 
 
   /** @override */
-  constructor() {
+  constructor(object = {}, options = {}) {
+    super(object, options);
     this._itemsToRevisit = [];
     this.adventure = null;
     this.folders = null;
@@ -60,6 +61,7 @@ export default class AdventureMunch {
     this.allMonsters = false;
     this.journalWorldActors = false;
     this.importFilename = null;
+    this.importToAdventureCompendium = false;
     this.lookups = {
       folders: {},
       compendiumFolders: {},
@@ -79,11 +81,18 @@ export default class AdventureMunch {
     this.altpattern
       = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gim;
 
-    this.allScenes = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes");
-    this.allMonsters = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world");
-    this.journalWorldActors = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors");
-    this.addToCompendiums = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums");
-    this.addToAdventureCompendium = game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium");
+  }
+
+  /** @override */
+  static get defaultOptions() {
+
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      id: "ddb-adventure-import",
+      classes: ["ddb-adventure-import"],
+      title: "Adventure Munch",
+      template: "modules/ddb-importer/handlebars/adventure/import.hbs",
+      width: 350,
+    });
   }
 
   findCompendiumEntityByImportId(type, id) {
@@ -245,6 +254,17 @@ export default class AdventureMunch {
     return path;
   }
 
+  /** @override */
+  // eslint-disable-next-line class-methods-use-this
+  async getData() {
+    return {
+      allScenes: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes"),
+      allMonsters: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
+      journalWorldActors: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors"),
+      addToCompendiums: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums"),
+      cssClass: "ddb-importer-window",
+    };
+  }
 
   async importFolder(folders, folderList) {
     // console.warn("Creating Folders", {
@@ -270,7 +290,7 @@ export default class AdventureMunch {
         // eslint-disable-next-line require-atomic-updates
         const newFolder = await Folder.create(folderData, { keepId: true });
         this.temporary.folders.push(newFolder);
-        if (this.addToAdventureCompendium) this.remove.folderIds.add(newFolder._id);
+        if (this.importToAdventureCompendium) this.remove.folderIds.add(newFolder._id);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
@@ -338,6 +358,13 @@ export default class AdventureMunch {
     }
   }
 
+  /** @override */
+  activateListeners(html) {
+    super.activateListeners(html);
+
+    html.find(".world-button").on("click", this._importAdventure.bind(this));
+    html.find(".compendium-button").on("click", this._importAdventure.bind(this));
+  }
 
   /**
    * Checks for any missing data from DDB in the compendiums, spells, items, monsters that have been referenced by the
@@ -446,7 +473,7 @@ export default class AdventureMunch {
    * @returns {object} Actor
    */
   _getWorldActor(actorId) {
-    return this.addToAdventureCompendium
+    return this.importToAdventureCompendium
       ? this.temporary.actors.find((a) => a._id === actorId)
       : game.actors.get(actorId);
   }
@@ -550,7 +577,7 @@ export default class AdventureMunch {
     // this is a scene we need to update links to all items
     logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
 
-    if (!this.addToAdventureCompendium) {
+    if (!this.importToAdventureCompendium) {
       // In 0.8.x the thumbs don't seem to be generated.
       // This code would embed the thumbnail.
       // Consider writing this out.
@@ -579,7 +606,7 @@ export default class AdventureMunch {
             this.close();
           }, 180000);
           try {
-            const document = this.addToAdventureCompendium
+            const document = this.importToAdventureCompendium
               ? this.fetchTemporaryItem(itemUuid)
               : await fromUuid(itemUuid);
             // let rawData;
@@ -715,78 +742,96 @@ export default class AdventureMunch {
 
   }
 
-  async importAdventure() {
-    try {
-      $(".import-progress").toggleClass("import-hidden");
-      $(".ddb-overlay").toggleClass("import-invalid");
+  async _importAdventure(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    const a = event.currentTarget;
+    const action = a.dataset.button;
 
-      if (this.addToCompendiums) {
-        const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
-        await createDDBCompendium(compData);
-        for (const key of Object.keys(this.compendiums)) {
-          this.compendiums[key] = CompendiumHelper.getCompendiumType(key);
-          await this.compendiums[key].getIndex();
-        }
-      }
-
-      await this._loadZip();
-      this._unpackZip();
-
-      this.adventure = JSON.parse(await this.zip.file("adventure.json").async("text"));
-      logger.debug("Loaded adventure data", { adventure: this.adventure });
+    if (action === "world" || action === "compendium") {
       try {
-        this.folders = JSON.parse(await this.zip.file("folders.json").async("text"));
-        logger.debug("Adventure folders", { folders: this.folders });
+        $(".import-progress").toggleClass("import-hidden");
+        $(".ddb-overlay").toggleClass("import-invalid");
+
+        this.allScenes = document.querySelector(`[name="all-scenes"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-scenes", this.allScenes);
+        this.allMonsters = document.querySelector(`[name="all-monsters"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world", this.allMonsters);
+        this.journalWorldActors = document.querySelector(`[name="journal-world-actors"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors", this.journalWorldActors);
+        this.addToCompendiums = document.querySelector(`[name="add-to-compendiums"]`).checked;
+        game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums", this.addToCompendiums);
+
+        if (this.addToCompendiums) {
+          const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
+          await createDDBCompendium(compData);
+          for (const key of Object.keys(this.compendiums)) {
+            this.compendiums[key] = CompendiumHelper.getCompendiumType(key);
+            await this.compendiums[key].getIndex();
+          }
+        }
+
+        await this._loadZip();
+        this._unpackZip();
+
+        this.adventure = JSON.parse(await this.zip.file("adventure.json").async("text"));
+        logger.debug("Loaded adventure data", { adventure: this.adventure });
+        try {
+          this.folders = JSON.parse(await this.zip.file("folders.json").async("text"));
+          logger.debug("Adventure folders", { folders: this.folders });
+        } catch (err) {
+          logger.warn(`Folder structure file not found.`);
+        }
+
+        if (this.adventure.system !== game.data.system.id) {
+          ui.notifications.error(
+            `Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`,
+            { permanent: true },
+          );
+          throw new Error(`Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`);
+        }
+
+        if (parseFloat(this.adventure.version) < 4.0) {
+          ui.notifications.error(
+            `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
+            { permanent: true },
+          );
+          throw new Error(
+            `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
+          );
+        }
+
+        if (action === "compendium") this.importToAdventureCompendium = true;
+
+        await this._createFolders();
+        if (!this.allScenes) await this._chooseScenes();
+        await this._checkForMissingData();
+        this.lookups.adventureConfig = await generateAdventureConfig(true);
+
+        if (action === "world") await this._importAdventureToWorld();
+        else if (action === "compendium") {
+          const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Adventures");
+          await createDDBCompendium(compData);
+          await this._importAdventureToCompendium();
+        }
+
+        $(".ddb-overlay").toggleClass("import-invalid");
+
+        this._renderCompleteDialog();
+
+        this.close();
       } catch (err) {
-        logger.warn(`Folder structure file not found.`);
+        $(".ddb-overlay").toggleClass("import-invalid");
+        ui.notifications.error(`There was an error importing ${this.importFilename}`);
+        logger.error(`Error importing file ${this.importFilename}`, err);
+        logger.error(err);
+        logger.error(err.stack);
+        this.close();
+      } finally {
+        // eslint-disable-next-line require-atomic-updates
+        this.lookups = {};
       }
-
-      if (this.adventure.system !== game.data.system.id) {
-        ui.notifications.error(
-          `Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`,
-          { permanent: true },
-        );
-        throw new Error(`Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`);
-      }
-
-      if (parseFloat(this.adventure.version) < 4.0) {
-        ui.notifications.error(
-          `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
-          { permanent: true },
-        );
-        throw new Error(
-          `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
-        );
-      }
-
-      await this._createFolders();
-      if (!this.allScenes) await this._chooseScenes();
-      await this._checkForMissingData();
-      this.lookups.adventureConfig = await generateAdventureConfig(true);
-
-      if (this.addToAdventureCompendium) {
-        const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Adventures");
-        await createDDBCompendium(compData);
-        await this._importAdventureToCompendium();
-      } else {
-        await this._importAdventureToWorld();
-      }
-
-      $(".ddb-overlay").toggleClass("import-invalid");
-
-      this._renderCompleteDialog();
-
-      this.close();
-    } catch (err) {
-      $(".ddb-overlay").toggleClass("import-invalid");
-      ui.notifications.error(`There was an error importing ${this.importFilename}`);
-      logger.error(`Error importing file ${this.importFilename}`, err);
-      logger.error(err);
-      logger.error(err.stack);
-      this.close();
-    } finally {
-      // eslint-disable-next-line require-atomic-updates
-      this.lookups = {};
     }
   }
 
@@ -813,7 +858,7 @@ export default class AdventureMunch {
         }
       }
       if (worldActor) results.push(worldActor);
-      if (this.addToAdventureCompendium && !this.temporary.actors.some((a) => a._id === actor.actorId)) {
+      if (this.importToAdventureCompendium && !this.temporary.actors.some((a) => a._id === actor.actorId)) {
         this.temporary.actors.push(worldActor);
       }
     });
@@ -851,7 +896,7 @@ export default class AdventureMunch {
           monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId,
         );
         if (monsterHit) {
-          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${this.addToAdventureCompendium})`);
+          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${this.importToAdventureCompendium})`);
           try {
             const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
             const options = { keepId: true, keepEmbeddedIds: true };
@@ -867,7 +912,7 @@ export default class AdventureMunch {
         }
       }
       if (worldActor) results.push(worldActor);
-      if (worldActor && this.addToAdventureCompendium && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+      if (worldActor && this.importToAdventureCompendium && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
         this.temporary.actors.push(worldActor);
       }
     });
@@ -1110,7 +1155,7 @@ export default class AdventureMunch {
 
   // import a scene file
   async _importRenderedSceneFile(data, overwriteEntity) {
-    if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.addToAdventureCompendium) {
+    if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.importToAdventureCompendium) {
       await utils.asyncForEach(data.tokens, async (token) => {
         foundry.utils.setProperty(token, "flags.ddbActorFlags.tokenLinkId", token._id);
         // eslint-disable-next-line require-atomic-updates
@@ -1158,7 +1203,7 @@ export default class AdventureMunch {
       const sceneTokens = await scene.createEmbeddedDocuments("Token", tokenUpdates, { keepId: false });
       logger.debug(`Token update response for ${data.name}`, sceneTokens);
       this._itemsToRevisit.push(`Scene.${scene.id}`);
-      if (this.addToAdventureCompendium) {
+      if (this.importToAdventureCompendium) {
         this.temporary.scenes.push(scene);
         scene.delete();
       }
@@ -1179,21 +1224,21 @@ export default class AdventureMunch {
           let actor = await Actor.create(data, options);
           await actor.update({ [`prototypeToken.actorId`]: actor.id });
           if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
-          if (this.addToAdventureCompendium) this.temporary.actors.push(actor);
+          if (this.importToAdventureCompendium) this.temporary.actors.push(actor);
         }
         break;
       case "Item":
         if (!AdventureMunchHelpers.findEntityByImportId("items", data._id)) {
           let item = await Item.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
-          if (this.addToAdventureCompendium) this.temporary.items.push(item);
+          if (this.importToAdventureCompendium) this.temporary.items.push(item);
         }
         break;
       case "JournalEntry":
         if (!AdventureMunchHelpers.findEntityByImportId("journal", data._id)) {
           let journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
-          if (this.addToAdventureCompendium) this.temporary.journals.push(journal);
+          if (this.importToAdventureCompendium) this.temporary.journals.push(journal);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.journal.metadata.id });
@@ -1210,7 +1255,7 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("tables", data._id)) {
           let rolltable = await RollTable.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
-          if (this.addToAdventureCompendium) this.temporary.tables.push(rolltable);
+          if (this.importToAdventureCompendium) this.temporary.tables.push(rolltable);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.table.metadata.id });
@@ -1222,14 +1267,14 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
           let playlist = await Playlist.create(data, options);
-          if (this.addToAdventureCompendium) this.temporary.playlists.push(playlist);
+          if (this.importToAdventureCompendium) this.temporary.playlists.push(playlist);
         }
         break;
       case "Macro":
         if (!AdventureMunchHelpers.findEntityByImportId("macros", data._id)) {
           let macro = await Macro.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Macro.${macro.id}`);
-          if (this.addToAdventureCompendium) this.temporary.macros.push(macro);
+          if (this.importToAdventureCompendium) this.temporary.macros.push(macro);
         }
         break;
       // no default

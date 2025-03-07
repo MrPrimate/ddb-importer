@@ -162,6 +162,10 @@
   visibility: hidden;
 }
 
+.ddb-overlay .import-hidden {
+  visibility: hidden;
+}
+
 .ddb-adventure-import .import-progress {
   background-color: #f1f1f1;
   margin: 5px 0;

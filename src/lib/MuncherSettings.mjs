@@ -742,7 +742,46 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     const monsterTypes = MuncherSettings.getMonsterTypeLookups();
 
+    const adventureOptions = [
+      {
+        name: "adventure-policy-all-scenes",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes"),
+        description: "Import all scenes?",
+        tooltip: "If unchecked will allow scene selections",
+        enabled: true,
+      },
+      {
+        name: "adventure-policy-all-actors-into-world",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
+        description: "Import all monsters in adventure to world?",
+        tooltip: "If unchecked, will only import monsters placed on scenes.",
+        enabled: true,
+      },
+      {
+        name: "adventure-policy-journal-world-actors",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors"),
+        description: "Link journals to world actors?",
+        tooltip: "If unchecked, will link to compendium actors.",
+        enabled: true,
+      },
+      {
+        name: "adventure-policy-add-to-compendiums",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums"),
+        description: "Add Journals and Tables to Compendiums?",
+        tooltip: "If checked will add adventure journals into the DDB Journals compendium.",
+        enabled: true,
+      },
+      {
+        name: "adventure-policy-import-to-adventure-compendium",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium"),
+        description: "Add Adventure to DDB Adventures Compendium?",
+        tooltip: "If checked will add the imported adventure to the Adventures Compendium.",
+        enabled: true,
+      },
+    ];
+
     const resultData = {
+      adventureOptions,
       bookSources,
       cobalt,
       genericConfig,

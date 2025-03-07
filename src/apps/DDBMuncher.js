@@ -18,6 +18,7 @@ import { parseTransports } from "../muncher/vehicles.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -273,6 +274,21 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
       await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
     });
 
+    // adventure muncher selectors
+    const adventureSelectors = [
+      '.adventure-config input[type="checkbox"]',
+    ];
+
+    this.element.querySelectorAll(adventureSelectors).forEach((checkbox) => {
+      checkbox.addEventListener('change', async (event) => {
+        const selection = event.currentTarget.dataset.section;
+        const checked = event.currentTarget.checked;
+        logger.debug(`Updating ${selection} to ${checked}`);
+        await game.settings.set(SETTINGS.MODULE_ID, selection, checked);
+      });
+    });
+
+
     this.#toggleNestedTabs();
   }
 
@@ -505,7 +521,25 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static async importAdventure(_event, _target) {
-    new AdventureMunch().render(true);
+
+    try {
+      logger.info("Generating adventure config!");
+      this._disableButtons();
+      const adventureMuncher = new AdventureMunch({
+        // to do extract file details, plus settings
+        notifierElement: this.element,
+      });
+
+      await adventureMuncher.importAdventure();
+
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+
+
   }
 
   static async importThirdParty(_event, _target) {
