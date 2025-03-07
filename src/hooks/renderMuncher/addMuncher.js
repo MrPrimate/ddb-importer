@@ -1,9 +1,8 @@
-import DDBMuncher from "../../apps/DDBMuncher.js";
 import DDBCookie from "../../apps/DDBCookie.js";
 import DDBSetup from "../../apps/DDBSetup.js";
 import { Secrets } from "../../lib/_module.mjs";
 import { isValidKey } from "../../apps/DDBKeyChange.js";
-import DDBMuncherV2 from "../../apps/DDBMuncherV2.js";
+import DDBMuncher from "../../apps/DDBMuncher.js";
 
 export function addMuncher(app, html) {
   if (app.options.id !== "compendium" || !game.user.isGM) return;
@@ -24,7 +23,7 @@ export function addMuncher(app, html) {
       if (cobaltStatus.success) {
         let validKey = await isValidKey();
         if (validKey) {
-          new DDBMuncherV2().render(true);
+          new DDBMuncher().render(true);
         }
       } else {
         new DDBCookie().render(true);

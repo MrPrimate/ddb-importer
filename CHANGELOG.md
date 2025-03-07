@@ -1,6 +1,7 @@
 # Next Up
 
 - Heroes' Feast Midi-Qol fix
+- DDB Muncher Screen migrated to Application V2.
 
 # 6.0.89
 

@@ -1,43 +1,352 @@
-// Main module class
 import {
   logger,
   PatreonHelper,
   MuncherSettings,
   Secrets,
-  base64Check,
   DDBCompendiumFolders,
   utils,
   DDBSources,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
-import { parseRaces } from "../muncher/races.js";
-import { parseFeats } from "../muncher/feats.js";
-import { parseClasses } from "../muncher/classes.js";
 import { parseFrames } from "../muncher/frames.js";
 import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
-import { parseBackgrounds } from "../muncher/backgrounds.js";
 import { parseTransports } from "../muncher/vehicles.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
 
-export default class DDBMuncher extends Application {
-  static get defaultOptions() {
-    const options = super.defaultOptions;
-    options.id = "ddb-importer-monsters";
-    options.template = "modules/ddb-importer/handlebars/munch.hbs";
-    options.resizable = false;
-    options.height = "auto";
-    options.width = 800;
-    options.title = "MrPrimate's Muncher";
-    options.classes = ["ddb-muncher", "sheet"];
-    options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "settings" }];
-    return options;
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2) {
+
+
+  /** @inheritDoc */
+  static DEFAULT_OPTIONS = {
+    id: "ddb-importer-monsters",
+    classes: ["sheet", "standard-form", "dnd5e2"],
+    actions: {
+      parseSpells: DDBMuncher.parseSpells,
+      parseItems: DDBMuncher.parseItems,
+      parseMonsters: DDBMuncher.parseMonsters,
+      parseVehicles: DDBMuncher.parseVehicles,
+      parseFrames: DDBMuncher.parseFrames,
+      resetCompendiumActorImages: DDBMuncher.resetCompendiumActorImages,
+      generateAdventureConfig: DDBMuncher.generateAdventureConfig,
+      importAdventure: DDBMuncher.importAdventure,
+      importThirdParty: DDBMuncher.importThirdParty,
+      updateWorldActors: DDBMuncher.updateWorldMonsters,
+      migrateCompendiumMonster: DDBMuncher.migrateCompendiumFolders,
+      migrateCompendiumSpell: DDBMuncher.migrateCompendiumFolders,
+      migrateCompendiumItem: DDBMuncher.migrateCompendiumFolders,
+      setPricesXanathar: DDBMuncher.addItemPrices,
+    },
+    position: {
+      width: "800",
+      height: "auto",
+    },
+    window: {
+      icon: 'fab fa-d-and-d-beyond',
+      title: "MrPrimate's DDB Muncher",
+      resizable: true,
+      minimizable: true,
+      subtitle: "",
+    },
+  };
+
+  static PARTS = {
+    header: { template: "modules/ddb-importer/handlebars/muncher/header.hbs" },
+    tabs: { template: "templates/generic/tab-navigation.hbs" },
+    info: {
+      template: "modules/ddb-importer/handlebars/muncher/info.hbs",
+      templates: [
+        "modules/ddb-importer/handlebars/muncher/info/intro.hbs",
+        "modules/ddb-importer/handlebars/muncher/info/help.hbs",
+      ],
+    },
+    settings: {
+      template: "modules/ddb-importer/handlebars/muncher/settings.hbs",
+      templates: [
+        "modules/ddb-importer/handlebars/muncher/settings/general.hbs",
+        "modules/ddb-importer/handlebars/muncher/settings/sources.hbs",
+      ],
+    },
+    munch: {
+      template: "modules/ddb-importer/handlebars/muncher/munch.hbs",
+      templates: [
+        "modules/ddb-importer/handlebars/generic/tab-navigation.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/spells.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/items.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/monsters.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/monsters/main.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/monsters/settings.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/adventures.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/characters.hbs",
+      ],
+    },
+    tools: {
+      template: "modules/ddb-importer/handlebars/muncher/tools.hbs",
+      templates: [
+        "modules/ddb-importer/handlebars/muncher/tools/tools.hbs",
+        "modules/ddb-importer/handlebars/muncher/tools/compendiums.hbs",
+      ],
+    },
+    details: { template: "modules/ddb-importer/handlebars/muncher/details.hbs" },
+    footer: { template: "modules/ddb-importer/handlebars/muncher/footer.hbs" },
+  };
+
+  /** @override */
+  tabGroups = {
+    sheet: "info",
+    info: "intro",
+    settings: "general",
+    munch: "spells",
+    tools: "tools",
+    monsters: "monsterMain",
+  };
+
+  _markTabs(tabs) {
+    for (const v of Object.values(tabs)) {
+      v.active = this.tabGroups[v.group] === v.id;
+      v.cssClass = v.active ? "active" : "";
+      if ("tabs" in v) this._markTabs(v.tabs);
+    }
+    return tabs;
   }
+
+  _getTabs() {
+    const tabs = this._markTabs({
+      info: {
+        id: "info", group: "sheet", label: "Info", icon: "fas fa-info",
+        tabs: {
+          intro: {
+            id: "intro", group: "info", label: "Intro", icon: "fas fa-info",
+          },
+          help: {
+            id: "help", group: "info", label: "Help", icon: "fas fa-question",
+          },
+        },
+      },
+      settings: {
+        id: "settings", group: "sheet", label: "Settings", icon: "fas fa-cogs",
+        tabs: {
+          general: {
+            id: "general", group: "settings", label: "General", icon: "fas fa-cog",
+          },
+          sources: {
+            id: "sources", group: "settings", label: "Sources", icon: "fas fa-book",
+          },
+        },
+      },
+      munch: {
+        id: "munch", group: "sheet", label: "Munch", icon: "fas fa-utensils",
+        tabs: {
+          spells: {
+            id: "spells", group: "munch", label: "Spells", icon: "fas fa-magic",
+          },
+          items: {
+            id: "items", group: "munch", label: "Items", icon: "fas fa-shield-alt",
+          },
+          monsters: {
+            id: "monsters", group: "munch", label: "Monsters", icon: "fas fa-pastafarianism",
+            tabs: {
+              main: {
+                id: "monsterMain", group: "monsters", label: "Monster Munch", icon: "fas fa-dragon",
+              },
+              settings: {
+                id: "monsterSettings", group: "monsters", label: "Monster Import Configuration", icon: "fas fa-dungeon",
+              },
+            },
+          },
+          adventures: {
+            id: "adventures", group: "munch", label: "Adventures", icon: "fas fa-book-reader",
+          },
+          characters: {
+            id: "characters", group: "munch", label: "Characters", icon: "fas fa-users ",
+          },
+        },
+      },
+      tools: {
+        id: "tools", group: "sheet", label: "Tools", icon: "fas fa-tools",
+        tabs: {
+          tools: {
+            id: "tools", group: "tools", label: "Tools", icon: "fas fa-border-all",
+          },
+          compendiums: {
+            id: "compendiums", group: "tools", label: "Compendiums", icon: "fas fa-atlas",
+          },
+        },
+      },
+    });
+    return tabs;
+  }
+
+  /**
+   * Expanded states for additional settings sections.
+   * @type {Map<string, boolean>}
+   */
+  #expandedSections = new Map();
+
+  get expandedSections() {
+    return this.#expandedSections;
+  }
+
+  #toggleNestedTabs() {
+    const munch = this.element.querySelector('.munch-munch > [data-application-part="muncherTabs"]');
+    const munchActive = this.element.querySelector('.tab.active[data-group="munch"]');
+    if (munch && munchActive) {
+      const monstersActive = this.element.querySelector('.tab.active[data-tab="monsters"]');
+      munch.classList.toggle("nested-tabs", monstersActive ?? false);
+    }
+    const primary = this.element.querySelector('.window-content > [data-application-part="tabs"]');
+    const active = this.element.querySelector('.tab.active[data-group="sheet"]');
+    if (!primary || !active) return;
+    primary.classList.toggle("nested-tabs", active.querySelector(`:scope > .sheet-tabs`));
+  }
+
+  /* -------------------------------------------- */
+  /*  Life-Cycle Handlers                         */
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    // Allow multi-select tags to be removed when the whole tag is clicked.
+    this.element.querySelectorAll("multi-select").forEach((select) => {
+      if (select.disabled) return;
+      select.querySelectorAll(".tag").forEach((tag) => {
+        tag.classList.add("remove");
+        tag.querySelector(":scope > span")?.classList.add("remove");
+      });
+    });
+
+    // Add special styling for label-top hints.
+    this.element.querySelectorAll(".label-top > p.hint").forEach((hint) => {
+      const label = hint.parentElement.querySelector(":scope > label");
+      if (!label) return;
+      hint.ariaLabel = hint.innerText;
+      hint.dataset.tooltip = hint.innerHTML;
+      hint.innerHTML = "";
+      label.insertAdjacentElement("beforeend", hint);
+    });
+    for (const element of this.element.querySelectorAll("[data-expand-id]")) {
+      element.querySelector(".collapsible")?.classList
+        .toggle("collapsed", !this.#expandedSections.get(element.dataset.expandId));
+    }
+
+
+    // custom listeners
+
+    // watch the change of the import-policy-selector checkboxes
+    const basicSelectors = [
+      '.munching-generic-config input[type="checkbox"]',
+      '.munching-source-config input[type="checkbox"]',
+      '.munching-spell-config input[type="checkbox"]',
+      '.munching-item-config input[type="checkbox"]',
+      '.munching-monster-config input[type="checkbox"]',
+      '.munching-monster-config-basic input[type="checkbox"]',
+      '.munching-monster-config-homebrew input[type="checkbox"]',
+      '.munching-monster-config-filter input[type="checkbox"]',
+      '.munching-monster-config-art input[type="checkbox"]',
+      '.munching-monster-world-update-config input[type="checkbox"]',
+    ].join(',');
+
+    this.element.querySelectorAll(basicSelectors).forEach((checkbox) => {
+      checkbox.addEventListener('change', async (event) => {
+        await MuncherSettings.updateMuncherSettings(this.element, event, this);
+      });
+    });
+
+    // multi-selects
+    this.element.querySelector("#muncher-excluded-source-categories")?.addEventListener("change", async (event) => {
+      await DDBSources.updateExcludedCategories(Array.from(event.target._value));
+    });
+
+    this.element.querySelector("#muncher-source-select")?.addEventListener("change", async (event) => {
+      await DDBSources.updateSelectedSources(Array.from(event.target._value));
+    });
+
+    this.element.querySelector("#muncher-monster-types-select")?.addEventListener("change", async (event) => {
+      await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
+    });
+
+    this.#toggleNestedTabs();
+  }
+
+
+  /* -------------------------------------------- */
+  /*  Event Listeners and Handlers                */
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  changeTab(tab, group, options) {
+    super.changeTab(tab, group, options);
+    if (["sheet", "munch"].includes(group)) {
+      this.#toggleNestedTabs();
+    }
+  }
+
+  async _prepareContext(options) {
+    await DDBReferenceLinker.importCacheLoad();
+    let context = MuncherSettings.getMuncherSettings();
+    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
+    context.tabs = this._getTabs();
+    logger.debug("Muncher: _prepareContext", context);
+    return context;
+  }
+
+  /** @override */
+  // eslint-disable-next-line class-methods-use-this
+  async _preparePartContext(partId, context) {
+    switch (partId) {
+      case "info":
+      case "settings":
+      case "munch":
+      case "tools": {
+        context.tab = context.tabs[partId];
+        break;
+      }
+      // no default
+    };
+    return context;
+  }
+
+  /* -------------------------------------------- */
+  /*  Rendering                                   */
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    if (options.isFirstRender && this.hasFrame) {
+      options.window ||= {};
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
+    const containers = {};
+    for (const [part, config] of Object.entries(this.constructor.PARTS)) {
+      if (!config.container?.id) continue;
+      const element = this.element.querySelector(`[data-application-part="${part}"]`);
+      if (!element) continue;
+      if (!containers[config.container.id]) {
+        const div = document.createElement("div");
+        div.dataset.containerId = config.container.id;
+        div.classList.add(...config.container.classes ?? []);
+        containers[config.container.id] = div;
+        element.replaceWith(div);
+      }
+      containers[config.container.id].append(element);
+    }
+  }
+
 
   /**
    * Display information when Munching
@@ -49,392 +358,231 @@ export default class DDBMuncher extends Application {
     utils.munchNote(note, nameField, monsterNote);
   }
 
-  static munchMonsters() {
-    DDBMuncher.munchNote(`Downloading monsters...`, true);
-    $('button[id^="munch-"]').prop('disabled', true);
-    $('button[id^="adventure-config-start"]').prop('disabled', true);
-    DDBMuncher.parseCritters();
+  _disableButtons() {
+    const buttonSelectors = [
+      'button[id^="adventure-config-start"]',
+      'button[id^="munch-"]',
+    ];
+    buttonSelectors.forEach((selector) => {
+      const buttons = this.element.querySelectorAll(selector);
+      buttons.forEach((button) => {
+        button.disabled = true;
+      });
+    });
   }
 
-  static munchVehicles() {
-    DDBMuncher.munchNote(`Downloading vehicles...`, true);
-    $('button[id^="munch-"]').prop('disabled', true);
-    $('button[id^="adventure-config-start"]').prop('disabled', true);
-    DDBMuncher.parseTransports();
-  }
-
-  activateListeners(html) {
-    super.activateListeners(html);
-    html.find("#munch-monsters-start").click(async () => {
-      DDBMuncher.munchMonsters();
-    });
-    html.find("#munch-vehicles-start").click(async () => {
-      DDBMuncher.munchVehicles();
-    });
-    html.find("#munch-spells-start").click(async () => {
-      DDBMuncher.munchNote(`Downloading spells...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseSpells();
-    });
-    html.find("#munch-items-start").click(async () => {
-      DDBMuncher.munchNote(`Downloading items...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseItems();
-    });
-    html.find("#munch-races-start").click(async () => {
-      DDBMuncher.munchNote(`Downloading races...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseRaces();
-    });
-    html.find("#munch-feats-start").click(async () => {
-      DDBMuncher.munchNote(`Downloading feats...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseFeats();
-    });
-    html.find("#munch-backgrounds-start").click(async () => {
-      DDBMuncher.munchNote(`Downloading backgrounds...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseBackgrounds();
-    });
-    html.find("#munch-classes-start").click(async () => {
-      DDBMuncher.munchNote(`Downloading classes...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseClasses();
-    });
-    html.find("#munch-frames-start").click(async () => {
-      DDBMuncher.munchNote(`Downloading frames...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.parseFrames();
-    });
-    html.find("#munch-adventure-config-start").click(async () => {
-      DDBMuncher.munchNote(`Generating config file...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.generateAdventureConfig();
-    });
-    html.find("#munch-adventure-import-start").click(async () => {
-      new AdventureMunch().render(true);
-    });
-    html.find("#munch-adventure-third-party-start").click(async () => {
-      new ThirdPartyMunch().render(true);
-    });
-    html.find("#munch-migrate-compendium-monster").click(async () => {
-      DDBMuncher.munchNote(`Migrating monster compendium...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.migrateCompendiumFolders("monsters");
-    });
-    html.find("#munch-migrate-compendium-spell").click(async () => {
-      DDBMuncher.munchNote(`Migrating spell compendium...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.migrateCompendiumFolders("spells");
-    });
-    html.find("#munch-migrate-compendium-item").click(async () => {
-      DDBMuncher.munchNote(`Migrating item compendium...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.migrateCompendiumFolders("items");
-    });
-    html.find("#munch-fix-base64").click(async () => {
-      DDBMuncher.munchNote(`Checking Scenes for base64 data...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.base64Check();
-    });
-    html.find("#munch-world-monster-update").click(async () => {
-      DDBMuncher.munchNote(`Updating world actors...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.updateWorldMonsters();
-    });
-    html.find("#munch-reset-images").click(async () => {
-      DDBMuncher.munchNote(`Resetting images...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.resetCompendiumActorImages();
-    });
-    html.find("#munch-xanathar-price").click(async () => {
-      DDBMuncher.munchNote(`Updating item prices...`, true);
-      $('button[id^="munch-"]').prop('disabled', true);
-      DDBMuncher.addItemPrices();
-    });
-
-    // watch the change of the import-policy-selector checkboxes
-    $(html)
-      .find(
-        [
-          '.munching-generic-config input[type="checkbox"]',
-          '.munching-source-config input[type="checkbox"]',
-          '.munching-spell-config input[type="checkbox"]',
-          '.munching-item-config input[type="checkbox"]',
-          '.munching-monster-config input[type="checkbox"]',
-          '.munching-monster-world-update-config input[type="checkbox"]',
-        ].join(","),
-      )
-      .on("change", async (event) => {
-        await MuncherSettings.updateMuncherSettings(html, event, this);
-      });
-
-    $(html)
-      .find('#muncher-excluded-source-categories')
-      .on("change", async (event) => {
-        await DDBSources.updateExcludedCategories(Array.from(event.target._value));
-      });
-
-    $(html)
-      .find('#muncher-source-select')
-      .on("change", async (event) => {
-        await DDBSources.updateSelectedSources(Array.from(event.target._value));
-      });
-
-    $(html)
-      .find('#muncher-monster-types-select')
-      .on("change", async (event) => {
-        await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
-      });
-
-    html.find("#monster-munch-filter").on("keyup", (event) => {
-      event.preventDefault();
-      if (event.key !== "Enter") return; // Use `.key` instead.
-      DDBMuncher.munchMonsters();
-    });
-
-    // compendium style migrations
-    html.find("#compendium-folder-style-monster").on("change", async () => {
-      const style = html.find("#compendium-folder-style-monster");
-      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SOURCE_CATEGORY_TYPE";
-      game.settings.set("ddb-importer", "munching-selection-compendium-folders-monster", importStyle);
-    });
-    html.find("#compendium-folder-style-spell").on("change", async () => {
-      const style = html.find("#compendium-folder-style-spell");
-      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SOURCE_CATEGORY_LEVEL";
-      game.settings.set("ddb-importer", "munching-selection-compendium-folders-spell", importStyle);
-    });
-    html.find("#compendium-folder-style-item").on("change", async () => {
-      const style = html.find("#compendium-folder-style-item");
-      const importStyle = style[0].selectedOptions[0] ? style[0].selectedOptions[0].value : "SOURCE_CATEGORY_TYPE";
-      game.settings.set("ddb-importer", "munching-selection-compendium-folders-item", importStyle);
-    });
-
-    this.close();
-  }
-
-  static enableButtons() {
+  _enableButtons() {
     const cobalt = Secrets.getCobalt() != "";
+    if (!cobalt) return;
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
 
-    if (cobalt) {
-      $('button[id^="munch-spells-start"]').prop('disabled', false);
-      $('button[id^="munch-items-start"]').prop('disabled', false);
-      $('button[id^="munch-adventure-config-start"]').prop('disabled', false);
-      $('button[id^="munch-adventure-import-start"]').prop('disabled', false);
-      $('button[id^="munch-adventure-third-party-start"]').prop('disabled', false);
-      $('button[id^="munch-migrate-compendium-monster"]').prop('disabled', false);
-      $('button[id^="munch-migrate-compendium-spell"]').prop('disabled', false);
-      $('button[id^="munch-migrate-compendium-item"]').prop('disabled', false);
-      // $('button[id^="munch-fix-base64"]').prop('disabled', false);
-      $('button[id^="munch-reset-images"]').prop('disabled', false);
-      $('button[id^="munch-xanathar-price"]').prop('disabled', false);
+    const buttonSelectors = [
+      'button[id^="adventure-config-start"]',
+      'button[id^="munch-spells-start"]',
+      'button[id^="munch-items-start"]',
+      'button[id^="munch-adventure-config-start"]',
+      'button[id^="munch-adventure-import-start"]',
+      'button[id^="munch-adventure-third-party-start"]',
+      'button[id^="munch-migrate-compendium-monster"]',
+      'button[id^="munch-migrate-compendium-spell"]',
+      'button[id^="munch-migrate-compendium-item"]',
+      'button[id^="munch-reset-images"]',
+      'button[id^="munch-xanathar-price"]',
+    ];
 
-      if (tiers.all) {
-        $('button[id^="munch-monsters-start"]').prop('disabled', false);
-        $('button[id^="munch-source-select"]').prop('disabled', false);
-      }
-      if (tiers.supporter) {
-        // $('button[id^="munch-races-start"]').prop('disabled', false);
-        // $('button[id^="munch-feats-start"]').prop('disabled', false);
-        $('button[id^="munch-frames-start"]').prop('disabled', false);
-        // $('button[id^="munch-classes-start"]').prop('disabled', false);
-        // $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
-      }
-      if (tiers.experimentalMid) {
-        // $('button[id^="munch-vehicles-start"]').prop('disabled', false);
-      }
+    if (tiers.all) {
+      buttonSelectors.push('button[id^="munch-monsters-start"]');
+      buttonSelectors.push('button[id^="munch-source-select"]');
     }
+    if (tiers.supporter) {
+      buttonSelectors.push('button[id^="munch-frames-start"]');
+      // $('button[id^="munch-races-start"]').prop('disabled', false);
+      // $('button[id^="munch-feats-start"]').prop('disabled', false);
+      // $('button[id^="munch-classes-start"]').prop('disabled', false);
+      // $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
+    }
+    if (tiers.experimentalMid) {
+      // buttonSelectors.push('button[id^="munch-vehicles-start"]');
+    }
+
+    buttonSelectors.forEach((selector) => {
+      const buttons = this.element.querySelectorAll(selector);
+      buttons.forEach((button) => {
+        button.disabled = false;
+      });
+    });
   }
 
-  static async parseCritters() {
+  static async parseMonsters(_event, _target) {
     try {
       logger.info("Munching monsters!");
+      this._disableButtons();
       const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncher.munchNote });
       const result = await monsterFactory.processIntoCompendium();
       DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
       DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+    } finally {
+      this._enableButtons();
     }
   }
 
-  static async parseTransports() {
+  static async parseVehicles(_event, _target) {
     try {
       logger.info("Munching vehicles!");
+      this._disableButtons();
       const result = await parseTransports();
       DDBMuncher.munchNote(`Finished importing ${result} vehicles!`, true);
       DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+    } finally {
+      this._enableButtons();
     }
   }
 
-  static async parseSpells() {
+  static async parseSpells(_event, _target) {
     try {
       logger.info("Munching spells!");
+      this._disableButtons();
       await parseSpells({ notifier: DDBMuncher.munchNote });
       DDBMuncher.munchNote(`Finished importing spells!`, true);
       DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+    } finally {
+      this._enableButtons();
     }
   }
 
 
-  static async parseItems() {
+  static async parseItems(_event, _target) {
     try {
       logger.info("Munching items!");
+      this._disableButtons();
       await parseItems({ notifier: DDBMuncher.munchNote });
       DDBMuncher.munchNote(`Finished importing items!`, true);
       DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+    } finally {
+      this._enableButtons();
     }
   }
 
-  static async parseRaces() {
-    try {
-      logger.info("Munching races!");
-      await DDBReferenceLinker.importCacheLoad();
-      const result = await parseRaces();
-      DDBMuncher.munchNote(`Finished importing ${result.length} races and features!`, true);
-      DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
-    } catch (error) {
-      logger.error(error);
-      logger.error(error.stack);
-    }
-  }
 
-  static async parseFeats() {
-    try {
-      logger.info("Munching feats!");
-      await DDBReferenceLinker.importCacheLoad();
-      const result = await parseFeats();
-      DDBMuncher.munchNote(`Finished importing ${result.length} feats!`, true);
-      DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
-    } catch (error) {
-      logger.error(error);
-      logger.error(error.stack);
-    }
-  }
-
-  static async parseBackgrounds() {
-    try {
-      logger.info("Munching backgrounds!");
-      await DDBReferenceLinker.importCacheLoad();
-      const result = await parseBackgrounds();
-      DDBMuncher.munchNote(`Finished importing ${result.length} backgrounds!`, true);
-      DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
-    } catch (error) {
-      logger.error(error);
-      logger.error(error.stack);
-    }
-  }
-
-  static async parseClasses() {
-    try {
-      logger.info("Munching classes!");
-      await DDBReferenceLinker.importCacheLoad();
-      const result = await parseClasses();
-      DDBMuncher.munchNote(`Finished importing ${result.length} classes and features!`, true);
-      DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
-    } catch (error) {
-      logger.error(error);
-      logger.error(error.stack);
-    }
-  }
-
-  static async parseFrames() {
+  static async parseFrames(_event, _target) {
     try {
       logger.info("Munching frames!");
+      this._disableButtons();
       const result = await parseFrames();
       DDBMuncher.munchNote(`Finished importing ${result.length} frames!`, true);
       DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+    } finally {
+      this._enableButtons();
     }
   }
 
-  static async generateAdventureConfig() {
+  static async generateAdventureConfig(_event, _target) {
     try {
       logger.info("Generating adventure config!");
       await downloadAdventureConfig();
       DDBMuncher.munchNote(`Downloading config file`, true);
       DDBMuncher.munchNote("");
-      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
     }
   }
 
-  static async updateWorldMonsters() {
+  static async importAdventure(_event, _target) {
+    new AdventureMunch().render(true);
+  }
+
+  static async importThirdParty(_event, _target) {
+    new ThirdPartyMunch().render(true);
+  }
+
+  static async updateWorldMonsters(_event, _target) {
     try {
       logger.info("Updating world monsters!");
+      this._disableButtons();
       await updateWorldMonsters();
-      DDBMuncher.enableButtons();
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
+    } finally {
+      this._enableButtons();
     }
   }
 
-  static async migrateCompendiumFolders(type) {
-    logger.info(`Migrating ${type} compendium`);
-    await DDBCompendiumFolders.migrateExistingCompendium(type);
-    DDBMuncher.munchNote(`Migrating complete.`, true);
-    DDBMuncher.enableButtons();
-  }
-
-  static async base64Check() {
-    logger.info("Checking base64 in scenes");
-    const results = base64Check();
-    let notifyString = `Check complete.`;
-    if (results.fixedScenes.length === 0 && results.badScenes.length === 0) {
-      notifyString += " No problems found.";
-    } else {
-      if (results.fixedScenes.length > 0) notifyString += ` Fixing ${results.fixedScenes.length} scenes (wait untill uploads complete).`;
-      if (results.badScenes.length > 0) notifyString += ` Found ${results.badScenes.length} scenes that I couldn't fix.`;
+  static async migrateCompendiumFolders(event, target) {
+    let type = null;
+    switch (target.id) {
+      case "munch-migrate-compendium-monster":
+        type = "monster";
+        break;
+      case "munch-migrate-compendium-spell":
+        type = "spell";
+        break;
+      case "munch-migrate-compendium-item":
+        type = "item";
+        break;
+      // no default
     }
-    DDBMuncher.munchNote(notifyString, true);
-    DDBMuncher.enableButtons();
+    if (!type) return;
+    try {
+      logger.info(`Migrating ${type} compendium`);
+      this._disableButtons();
+      DDBMuncher.munchNote(`Begin migration.... this might take some considerable time, please wait...`, true);
+      await DDBCompendiumFolders.migrateExistingCompendium(type);
+      DDBMuncher.munchNote(`Migrating complete.`, true);
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
   }
 
-  static async resetCompendiumActorImages() {
-    logger.info("Resetting compendium actor images");
-    const results = await resetCompendiumActorImages();
-    const notifyString = `Reset ${results.length} compendium actors.`;
-    DDBMuncher.munchNote(notifyString, true);
-    DDBMuncher.enableButtons();
+  static async resetCompendiumActorImages(_event, _target) {
+    try {
+      logger.info("Resetting compendium actor images");
+      this._disableButtons();
+      const results = await resetCompendiumActorImages();
+      const notifyString = `Reset ${results.length} compendium actors.`;
+      DDBMuncher.munchNote(notifyString, true);
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
   }
 
-  static async addItemPrices() {
-    logger.info("Checking to see if items need prices...");
-    const results = await updateItemPrices();
-    const notifyString = `Added ${results.length} prices to items.`;
-    DDBMuncher.munchNote(notifyString, true);
-    DDBMuncher.enableButtons();
+  static async addItemPrices(_event, _target) {
+    try {
+      logger.info("Checking to see if items need prices...");
+      this._disableButtons();
+      const results = await updateItemPrices();
+      const notifyString = `Added ${results.length} prices to items.`;
+      DDBMuncher.munchNote(notifyString, true);
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
   }
 
-  async getData() { // eslint-disable-line class-methods-use-this
-    const resultData = MuncherSettings.getMuncherSettings();
-    await DDBReferenceLinker.importCacheLoad();
-    return resultData;
-  }
 }
+
