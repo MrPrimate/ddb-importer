@@ -28,7 +28,7 @@ export default class ArmorModel extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              type: "self",
+              type: "object",
             },
           },
         },
@@ -62,7 +62,7 @@ export default class ArmorModel extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              type: "self",
+              type: "object",
             },
           },
         },
