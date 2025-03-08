@@ -31,7 +31,7 @@ export default class AdventureMunch {
   /** @override */
   constructor({
     importFile, allScenes = null, allMonsters = null, journalWorldActors = null, addToCompendiums = null,
-    addToAdventureCompendium = null,
+    addToAdventureCompendium = null, notifierElement = null,
   } = {}) {
     this._itemsToRevisit = [];
     this.adventure = null;
@@ -88,6 +88,16 @@ export default class AdventureMunch {
     this.journalWorldActors = journalWorldActors ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors");
     this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums");
     this.addToAdventureCompendium = addToAdventureCompendium ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium");
+
+
+    this.notifierElement = notifierElement;
+    // this.notifier =
+
+    // if (!notifier) {
+    //   this.notifier = (note, nameField = false, monsterNote = false) => {
+    //     logger.info(note, { nameField, monsterNote });
+    //   };
+    // }
   }
 
   findCompendiumEntityByImportId(type, id) {
@@ -709,8 +719,6 @@ export default class AdventureMunch {
 
   async importAdventure() {
     try {
-      $(".import-progress").toggleClass("import-hidden");
-      $(".ddb-overlay").toggleClass("import-invalid");
 
       if (this.addToCompendiums) {
         const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
@@ -763,19 +771,12 @@ export default class AdventureMunch {
       } else {
         await this._importAdventureToWorld();
       }
-
-      $(".ddb-overlay").toggleClass("import-invalid");
-
       this._renderCompleteDialog();
-
-      this.close();
     } catch (err) {
-      $(".ddb-overlay").toggleClass("import-invalid");
       ui.notifications.error(`There was an error importing ${this.importFilename}`);
       logger.error(`Error importing file ${this.importFilename}`, err);
       logger.error(err);
       logger.error(err.stack);
-      this.close();
     } finally {
       // eslint-disable-next-line require-atomic-updates
       this.lookups = {};

@@ -6,6 +6,7 @@ import {
   DDBCompendiumFolders,
   utils,
   DDBSources,
+  FileHelper,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
@@ -506,28 +507,26 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
       fileDiv,
     });
 
-    // try {
-    //   logger.info("Generating adventure config!");
-    //   this._disableButtons();
-    // const form = document.querySelector(`form[class="ddb-importer-window"]`);
-    // if (form.data.files.length) {
-    //   this.importFilename = form.data.files[0].name;
-    //   this.zip = await FileHelper.readBlobFromFile(form.data.files[0]).then(JSZip.loadAsync);
-    // }
-    //   const adventureMuncher = new AdventureMunch({
-    //     // to do extract file details, plus settings
-    //     importFile: this.element.querySelector(`#munch-adventure-file`).files[0],
-    //     notifierElement: this.element,
-    //   });
+    try {
+      logger.info("Generating adventure config!");
+      this._disableButtons();
+      $(".import-progress").toggleClass("import-hidden");
+      $(".ddb-overlay").toggleClass("import-invalid");
 
-    //   await adventureMuncher.importAdventure();
+      const adventureMuncher = new AdventureMunch({
+        importFile: this.element.querySelector(`#munch-adventure-file`).files[0],
+        notifierElement: this.element,
+      });
 
-    // } catch (error) {
-    //   logger.error(error);
-    //   logger.error(error.stack);
-    // } finally {
-    //   this._enableButtons();
-    // }
+      await adventureMuncher.importAdventure();
+
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      $(".ddb-overlay").toggleClass("import-invalid");
+      this._enableButtons();
+    }
 
 
   }
