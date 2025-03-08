@@ -15,16 +15,6 @@
   <button data-action="generateAdventureConfig" type="button" id="munch-adventure-config-start" class="munch-button"><i class="fas fa-cog"></i> Generate Adventure Muncher Config File</button>
 
   <fieldset>
-  <legend>Adventure File</legend>
-    <p>Select an adventure file to upload and import.</p>
-    <div>
-      <div class="form-group">
-        <input id="munch-adventure-file" type="file" name="data" accept=".fvttadv"/>
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset>
   <legend>Options</legend>
     {{#each adventureOptions}}
     <div class="form-group adventure-config">
@@ -36,6 +26,16 @@
       <p class="hint">{{{this.hint}}}</p>
     </div>
   {{/each}}
+  </fieldset>
+
+  <fieldset>
+  <legend>Adventure File</legend>
+    <p>Select an adventure file to upload and import.</p>
+    <div>
+      <div class="form-group">
+        <input id="munch-adventure-file" type="file" name="data" accept=".fvttadv"/>
+      </div>
+    </div>
   </fieldset>
 
   <button data-action="importAdventure" type="button" id="munch-adventure-import-start" class="munch-button"><i class="fas fa-check"></i> Import Generated Adventure</button>
