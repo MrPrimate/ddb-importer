@@ -6,7 +6,6 @@ import {
   DDBCompendiumFolders,
   utils,
   DDBSources,
-  FileHelper,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
@@ -19,7 +18,6 @@ import { parseTransports } from "../muncher/vehicles.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
-import { SETTINGS } from "../config/_module.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -499,14 +497,6 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static async importAdventure(_event, _target) {
-
-    const fileDiv = this.element.querySelector(`#munch-adventure-file`);
-    console.warn("Importing adventure!", {
-      event: _event,
-      target: _target,
-      fileDiv,
-    });
-
     try {
       logger.info("Generating adventure config!");
       this._disableButtons();
@@ -527,8 +517,6 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
       $(".ddb-overlay").toggleClass("import-invalid");
       this._enableButtons();
     }
-
-
   }
 
   static async importThirdParty(_event, _target) {
