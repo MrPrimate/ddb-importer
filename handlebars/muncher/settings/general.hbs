@@ -2,10 +2,13 @@
   <fieldset>
     <legend>Shared Settings</legend>
     {{#each genericConfig}}
-    <div class="munching-generic-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-            id="munching-generic-policy-{{this.name}}"
-            name="munching-policy-{{this.name}}"
-            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+    <div class="form-group munching-generic-config">
+      <label>{{ this.label }}</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="{{this.name}}" id="munching-generic-policy-{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+      </div>
+      <p class="hint">{{{this.hint}}}</p>
     </div>
     {{/each}}
   </fieldset>

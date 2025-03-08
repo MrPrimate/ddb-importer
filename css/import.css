@@ -83,3 +83,7 @@ div.ddbCharacterName {
   font-size: 2rem;
 }
 
+
+label.ddbimporter-long {
+  flex: 3 !important;
+}

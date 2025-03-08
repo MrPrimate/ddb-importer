@@ -26,14 +26,15 @@
 
   <fieldset>
   <legend>Options</legend>
-
     {{#each adventureOptions}}
-  <div class="adventure-config" data-tooltip="{{this.tooltip}}" data-tooltip-direction="UP">
-    <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-      name="{{this.name}}" id="{{this.name}}"
-      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}
-    >{{{this.description}}}
-  </div>
+    <div class="form-group adventure-config">
+      <label>{{ this.label }}</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+      </div>
+      <p class="hint">{{{this.hint}}}</p>
+    </div>
   {{/each}}
   </fieldset>
 

@@ -2,9 +2,13 @@
   <fieldset>
   <legend>Options</legend>
   {{#each spellConfig}}
-  <div class="munching-spell-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-      name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+  <div class="form-group munching-spell-config">
+    <label>{{ this.label }}</label>
+    <div class="form-fields">
+      <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+      data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+    </div>
+    <p class="hint">{{{this.hint}}}</p>
   </div>
   {{/each}}
   </fieldset>

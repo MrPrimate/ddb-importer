@@ -14,9 +14,13 @@
       </div>
       <p>Update world actors with compendium actors (only targets DDB imported monsters).</p>
       {{#each worldUpdateConfig}}
-      <div class="munching-monster-world-update-config"><input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-              name="munching-policy-{{this.name}}" id="munching-policy-{{this.name}}"
-              data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{this.description}}
+      <div class="form-group munching-monster-world-update-config">
+        <label>{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
       </div>
       {{/each}}
       <div>

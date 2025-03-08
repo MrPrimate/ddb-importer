@@ -473,60 +473,69 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     const itemConfig = [
       {
-        name: "use-ddb-item-icons",
+        name: "munching-policy-use-ddb-item-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-item-icons"),
-        description: "Use D&D Beyond item images, if available",
+        label: "Use DDB Item Images?",
+        hint: "Use D&D Beyond item images, if available",
         enabled: true,
       },
       {
-        name: "use-ddb-generic-item-icons",
+        name: "munching-policy-use-ddb-generic-item-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons"),
-        description: "Use D&D Beyond generic item type images, if available (final fallback)",
+        label: "Use DDB Generic Item Images?",
+        hint: "Use D&D Beyond generic item type images, if available (final fallback)",
         enabled: true,
       },
       {
-        name: "add-midi-effects",
+        name: "munching-policy-add-midi-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects"),
-        description: automationText,
+        label: "Use MidiQOL Automation Effects?",
+        hint: automationText,
         enabled: effectModulesAvailable.hasCore,
       },
       {
-        name: "item-homebrew",
+        name: "munching-policy-item-homebrew",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew"),
-        description: homebrewDescription,
+        label: "Include homebrew?",
+        hint: homebrewDescription,
         enabled: !sourcesSelected,
       },
       {
-        name: "item-homebrew-only",
+        name: "munching-policy-item-homebrew-only",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only"),
-        description: "Only import homebrew items?",
+        label: "Only import homebrew items?",
+        hint: "Excludes non-homebrew items",
         enabled: !sourcesSelected,
       },
     ];
 
     const spellConfig = [
       {
-        name: "use-ddb-spell-icons",
+        name: "munching-policy-use-ddb-spell-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons"),
-        description: "If no other icon, use the D&DBeyond spell school icon.",
+        label: "Use DDB Spell School Images?",
+        hint: "If no other icon, use the D&DBeyond spell school icon.",
         enabled: true,
       },
       {
-        name: "add-midi-effects",
+        name: "munching-policy-add-midi-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects"),
-        description: automationText,
+        label: "Use MidiQOL Automation Effects?",
+        hint: automationText,
         enabled: effectModulesAvailable.hasCore,
       },
       {
-        name: "spell-homebrew",
+        name: "munching-policy-spell-homebrew",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew"),
-        description: homebrewDescription,
+        label: "Include homebrew?",
+        hint: homebrewDescription,
         enabled: !sourcesSelected,
       },
       {
-        name: "spell-homebrew-only",
+        name: "munching-policy-spell-homebrew-only",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only"),
-        description: "Only import homebrew spells?",
+        label: "Only import homebrew spells?",
+        hint: "Excludes non-homebrew spells",
         enabled: !sourcesSelected,
       },
     ];
@@ -535,9 +544,10 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     const basicMonsterConfig = [
       {
-        name: "hide-description",
+        name: "munching-policy-hide-description",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description"),
-        description: "Hide monster action description from players?",
+        label: "Hide monster actions?",
+        hint: "Hides monster action description from players in chat.",
         enabled: true,
       },
       // temporarily disabled
@@ -548,78 +558,90 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       //   enabled: true,
       // },
       {
-        name: "monster-use-item-ac",
+        name: "munching-policy-monster-use-item-ac",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-use-item-ac"),
-        description: "Use AC items instead of setting a flat AC? (Recommended if using spell effects like shield on NPC's).",
+        label: "Use item AC?",
+        hint: "Use AC items instead of setting a flat AC? (Recommended if using spell effects like shield on NPC's).",
         enabled: true,
       },
       {
-        name: "monster-retain-biography",
+        name: "munching-policy-monster-retain-biography",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-retain-biography"),
-        description: "Should monsters retain existing biography?",
+        label: "Retain existing biography?",
+        hint: "Should monsters retain existing biography?",
         enabled: true,
       },
       {
-        name: "monster-strip-name",
+        name: "munching-policy-monster-strip-name",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name"),
-        description: "Strip uses and recharge information from action names?",
+        label: "Clean name?",
+        hint: "Strip uses and recharge information from action names?",
         enabled: true,
       },
       {
-        name: "monster-set-legendary-resource-bar",
+        name: "munching-policy-monster-set-legendary-resource-bar",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar"),
-        description: "Monsters display legendary resources on bar2? (Like the SRD Monsters).",
+        label: "Set legendary resource bar?",
+        hint: "Monsters display legendary resources on bar2? (Like the SRD Monsters).",
         enabled: true,
       },
       {
-        name: "add-monster-midi-effects",
+        name: "munching-policy-add-monster-midi-effects",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-monster-midi-effects"),
-        description: `Generate Automation Effects that use Midi-QOL on monster attacks/features? <br>These are for a highly automated game, and are things such as managing abilities with conditions that have saves every round, or attacks which apply conditions such as frightened or prone.<br>Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")} and Times Up${MuncherSettings.getInstalledIcon("timesUpInstalled")}.`,
+        label: "Use MidiQOL Automation Effects?",
+        hint: `Generate Automation Effects that use Midi-QOL on monster attacks/features? <br>These are for a highly automated game, and are things such as managing abilities with conditions that have saves every round, or attacks which apply conditions such as frightened or prone.<br>Requires DAE${MuncherSettings.getInstalledIcon("daeInstalled")}, Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")} and Times Up${MuncherSettings.getInstalledIcon("timesUpInstalled")}.`,
         enabled: effectModulesAvailable.hasMonster,
       },
     ];
 
     const artMonsterConfig = [
       {
-        name: "use-full-token-image",
+        name: "munching-policy-use-full-token-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image"),
-        description: "Use portrait image for token rather than token image (i.e. full art).",
+        label: "Portrait Image for Token",
+        hint: "Use portrait image for token rather than token image (i.e. full art).",
         enabled: true,
       },
       {
-        name: "use-token-avatar-image",
+        name: "munching-policy-use-token-avatar-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image"),
-        description: "Use token image for portrait rather than the portrait image (i.e. close up).",
+        label: "Token for Portrait Image",
+        hint: "Use token image for portrait rather than the portrait image (i.e. close up).",
         enabled: true,
       },
       {
-        name: "use-srd-monster-images",
+        name: "munching-policy-use-srd-monster-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images"),
-        description: "Use images from the SRD compendiums.",
+        label: "Use SRD images?",
+        hint: "Use images from the SRD compendiums.",
         enabled: true,
       },
       {
-        name: "update-images",
+        name: "munching-policy-update-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images"),
-        description: "[CAUTION] Update Monster images on existing npcs? (This will dramatically slow down re-munching).",
+        label: "[CAUTION] Update Monster images on existing npcs?",
+        hint: "Update Monster images on existing npcs? (This will dramatically slow down re-munching).",
         enabled: true,
       },
       {
-        name: "download-images",
+        name: "munching-policy-download-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images"),
-        description: "Download D&D Beyond monster images (takes longer and needs space).",
+        label: "Download D&D Beyond monster images?",
+        hint: "Download D&D Beyond monster images (takes longer and needs space). Otherwise uses DDB CDN images. (Token images are always downloaded).",
         enabled: true,
       },
       {
-        name: "remote-images",
+        name: "munching-policy-remote-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images"),
-        description: "Use D&D Beyond remote monster images (a lot quicker)",
+        label: "Use D&D Beyond remote images?",
+        hint: "Use D&D Beyond remote monster images (a lot quicker). (Token images are always downloaded).",
         enabled: true,
       },
       {
-        name: "monster-tokenize",
+        name: "munching-policy-monster-tokenize",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize"),
-        description: "Auto-Tokenize monsters token image? (Adds Tokenizer default token ring using the Tokenizer module).",
+        label: "Auto-Tokenize monsters?",
+        hint: "Adds Tokenizer default token ring using the Tokenizer module to monster tokens.",
         enabled: tokenizerReady,
       },
     ];
@@ -627,15 +649,17 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const homebrewMonsterConfig = includeHomebrew
       ? [
         {
-          name: "monster-homebrew",
+          name: "munching-policy-monster-homebrew",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew") && !sourcesSelected,
-          description: homebrewDescription,
+          label: "Include Homebrew Monsters?",
+          hint: homebrewDescription,
           enabled: tiers.homebrew && !sourcesSelected,
         },
         {
-          name: "monster-homebrew-only",
+          name: "munching-policy-monster-homebrew-only",
           isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only") && !sourcesSelected,
-          description: "Homebrew monsters only? (Otherwise both)",
+          label: "Homebrew monsters only?",
+          hint: "Only imports homebrew monsters.",
           enabled: tiers.homebrew && !sourcesSelected,
         },
 
@@ -644,42 +668,48 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     const filterMonsterConfig = [
       {
-        name: "monster-exact-match",
+        name: "munching-policy-monster-exact-match",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match"),
-        description: "Exact name match?",
+        label: "Exact name match?",
+        hint: "Matches the monster name exactly, otherwise will match on similar names.",
         enabled: tiers.homebrew,
       },
     ];
 
     const genericConfig = [
       {
-        name: "update-existing",
+        name: "munching-policy-update-existing",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing"),
-        description: "Update existing things.",
+        label: "Update existing things?",
+        hint: "If not checked will only add new things to the compendiums, if checked will also update existing things.",
         enabled: true,
       },
       {
-        name: "delete-during-update",
+        name: "munching-policy-delete-during-update",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update"),
-        description: "Faster updates? Will delete items during updates, so they can be re-imported.",
+        label: "Faster updates?",
+        hint: "Will delete items during updates, so they can be re-imported.",
         enabled: true,
       },
       {
-        name: "use-inbuilt-icons",
+        name: "munching-policy-use-inbuilt-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary. (High coverage, recommended, fast).",
+        label: "Use inbuilt icons?",
+        hint: "Use icons from the inbuilt dictionary. (High coverage, recommended, fast).",
         enabled: true,
       },
       {
-        name: "use-srd-icons",
+        name: "munching-policy-use-srd-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"),
-        description: "Use icons from the SRD compendiums.",
+        label: "Use SRD icons?",
+        hint: "Use icons from the SRD compendiums.",
         enabled: true,
       },
       {
-        name: "use-chris-premades",
+        name: "munching-policy-use-chris-premades",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades"),
-        description: `Use Automation Effects from the Cauldron of Plentiful Resources module? These provide high quality automations for spells, features, monsters, etc. (Requires Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
+        label: "Cauldron of Plentiful Resources Automation?",
+        hint: `Use Automation Effects from the Cauldron of Plentiful Resources module? These provide high quality automations for spells, features, monsters, etc. (Requires Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} module).<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       // {
@@ -690,39 +720,44 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       //   enabled: true,
       // },
       {
-        name: "legacy-postfix",
+        name: "munching-policy-legacy-postfix",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix"),
-        description: "Append (Legacy) to Legacy names? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
+        label: "Legacy postfix?",
+        hint: "Append (Legacy) to Legacy names? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
     ];
 
     const sourceConfig = [
       {
-        name: "exclude-legacy",
+        name: "munching-policy-exclude-legacy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy"),
-        description: "Exclude legacy things from import? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
+        label: "Exclude legacy?",
+        hint: "Exclude legacy things from import? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
         enabled: true,
       },
       {
-        name: "use-source-filter",
+        name: "munching-policy-use-source-filter",
         isChecked: enableSources,
-        description: "Restrict import to specific source book(s)? (DDB sets this as the <i>first</i> book a monster appears in).",
+        label: "Use source filter?",
+        hint: "Restrict import to specific source book(s)? (DDB sets this as the <i>first</i> book a monster appears in).",
         enabled: true,
       },
     ];
 
     const worldUpdateConfig = [
       {
-        name: "update-world-monster-update-images",
+        name: "munching-policy-update-world-monster-update-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-world-monster-update-images"),
-        description: "Update Monster images?",
+        label: "Update Monster images?",
+        hint: "",
         enabled: true,
       },
       {
-        name: "update-world-monster-retain-biography",
+        name: "munching-policy-update-world-monster-retain-biography",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-world-monster-retain-biography"),
-        description: "Retain existing biography?",
+        label: "Retain existing biography?",
+        hint: "",
         enabled: true,
       },
     ];
@@ -746,36 +781,36 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       {
         name: "adventure-policy-all-scenes",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes"),
-        description: "Import all scenes?",
-        tooltip: "If unchecked will allow scene selections",
+        label: "Import all scenes?",
+        hint: "If unchecked will allow scene selections",
         enabled: true,
       },
       {
         name: "adventure-policy-all-actors-into-world",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
-        description: "Import all monsters in adventure to world?",
-        tooltip: "If unchecked, will only import monsters placed on scenes.",
+        label: "Import all monsters in adventure to world?",
+        hint: "If unchecked, will only import monsters placed on scenes.",
         enabled: true,
       },
       {
         name: "adventure-policy-journal-world-actors",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors"),
-        description: "Link journals to world actors?",
-        tooltip: "If unchecked, will link to compendium actors.",
+        label: "Link journals to world actors?",
+        hint: "If unchecked, will link to compendium actors.",
         enabled: true,
       },
       {
         name: "adventure-policy-add-to-compendiums",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums"),
-        description: "Add Journals and Tables to Compendiums?",
-        tooltip: "If checked will add adventure journals into the DDB Journals compendium.",
+        label: "Add Journals and Tables to Compendiums?",
+        hint: "If checked will add adventure journals into the DDB Journals/Tables compendium.",
         enabled: true,
       },
       {
         name: "adventure-policy-import-to-adventure-compendium",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium"),
-        description: "Add Adventure to DDB Adventures Compendium?",
-        tooltip: "If checked will add the imported adventure to the Adventures Compendium.",
+        label: "Add Adventure to DDB Adventures Compendium?",
+        hint: "If checked will add the imported adventure to the Adventures Compendium. This will not leave the adventure playable in this world. If the system or Foundry is updated, this maybe left unusable. This my leave elements remaining in the world. <i>This is not recommended if you wish to play adventures in this world.</i>",
         enabled: true,
       },
     ];
@@ -863,71 +898,71 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
-  updateMuncherSettings: async (_html, event, _dialog) => {
-    const selection = event.currentTarget.dataset.section;
-    const checked = event.currentTarget.checked;
-    logger.debug(`Updating munching-policy-${selection} to ${checked}`);
+  updateMuncherSettings: async (_html, event) => {
+    const selection = event.target.dataset.section;
+    const checked = event.target.checked;
+    logger.debug(`Updating ${selection} to ${checked}`);
 
-    game.settings.set(SETTINGS.MODULE_ID, "munching-policy-" + selection, checked);
+    await game.settings.set(SETTINGS.MODULE_ID, selection, checked);
 
     switch (selection) {
-      case "monster-homebrew": {
+      case "munching-policy-monster-homebrew": {
         if (!checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only", false);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only", false);
           $("#munching-policy-monster-homebrew-only").prop("checked", false);
         }
         break;
       }
-      case "monster-homebrew-only": {
+      case "munching-policy-monster-homebrew-only": {
         if (checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew", true);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew", true);
           $("#munching-policy-monster-homebrew").prop("checked", true);
         }
         break;
       }
-      case "spell-homebrew": {
+      case "munching-policy-spell-homebrew": {
         if (!checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only", false);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only", false);
           $("#munching-policy-spell-homebrew-only").prop("checked", false);
         }
         break;
       }
-      case "spell-homebrew-only": {
+      case "munching-policy-spell-homebrew-only": {
         if (checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew", true);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew", true);
           $("#munching-policy-spell-homebrew").prop("checked", true);
         }
         break;
       }
-      case "item-homebrew": {
+      case "munching-policy-item-homebrew": {
         if (!checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only", false);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only", false);
           $("#munching-policy-item-homebrew-only").prop("checked", false);
         }
         break;
       }
-      case "item-homebrew-only": {
+      case "munching-policy-item-homebrew-only": {
         if (checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-item-homebrew", true);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-item-homebrew", true);
           $("#munching-policy-item-homebrew").prop("checked", true);
         }
         break;
       }
-      case "remote-images": {
+      case "munching-policy-remote-images": {
         if (checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-download-images", false);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-download-images", false);
           $("#munching-generic-policy-download-images").prop("checked", false);
         }
         break;
       }
-      case "download-images": {
+      case "munching-policy-download-images": {
         if (checked) {
-          game.settings.set(SETTINGS.MODULE_ID, "munching-policy-remote-images", false);
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-remote-images", false);
           $("#munching-generic-policy-remote-images").prop("checked", false);
         }
         break;
       }
-      case "use-source-filter": {
+      case "munching-policy-use-source-filter": {
         $("#munch-source-div").toggleClass("ddbimporter-hidden");
         break;
       }

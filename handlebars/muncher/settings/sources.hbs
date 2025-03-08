@@ -4,11 +4,13 @@
     <legend>Choose Ingredients (Sourcebooks)</legend>
     <p>If any books are selected here DDB Importer will filter content that is <i>only</i> in that book. Please note that sometimes DDB marks a book as from it's first source only, e.g. the SRD/Basic rules for some monsters.</p>
     {{#each sourceConfig}}
-    <div class="munching-source-config">
-      <input {{#if this.isChecked}}checked{{/if}} type="checkbox"
-            id="munching-generic-policy-{{this.name}}"
-            name="munching-policy-{{this.name}}"
-            data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}>{{{this.description}}}
+    <div class="form-group munching-source-config">
+      <label>{{ this.label }}</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="{{this.name}}" id="munching-source-policy-{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+      </div>
+      <p class="hint">{{{this.hint}}}</p>
     </div>
     {{/each}}
     <div id="munch-source-div" {{#if enableSources}}{{else}}class="ddbimporter-hidden"{{/if}}>

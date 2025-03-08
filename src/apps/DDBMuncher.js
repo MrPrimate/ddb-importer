@@ -84,6 +84,7 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
         "modules/ddb-importer/handlebars/muncher/munch/monsters.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/monsters/main.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/monsters/settings.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/monsters/art.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/adventures.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters.hbs",
       ],
@@ -158,7 +159,10 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
                 id: "monsterMain", group: "monsters", label: "Monster Munch", icon: "fas fa-dragon",
               },
               settings: {
-                id: "monsterSettings", group: "monsters", label: "Monster Import Configuration", icon: "fas fa-dungeon",
+                id: "monsterSettings", group: "monsters", label: "Monster Configuration", icon: "fas fa-dungeon",
+              },
+              art: {
+                id: "monsterArt", group: "monsters", label: "Monster Art", icon: "fas fa-image",
               },
             },
           },
@@ -241,26 +245,6 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
 
     // custom listeners
 
-    // watch the change of the import-policy-selector checkboxes
-    const basicSelectors = [
-      '.munching-generic-config input[type="checkbox"]',
-      '.munching-source-config input[type="checkbox"]',
-      '.munching-spell-config input[type="checkbox"]',
-      '.munching-item-config input[type="checkbox"]',
-      '.munching-monster-config input[type="checkbox"]',
-      '.munching-monster-config-basic input[type="checkbox"]',
-      '.munching-monster-config-homebrew input[type="checkbox"]',
-      '.munching-monster-config-filter input[type="checkbox"]',
-      '.munching-monster-config-art input[type="checkbox"]',
-      '.munching-monster-world-update-config input[type="checkbox"]',
-    ].join(',');
-
-    this.element.querySelectorAll(basicSelectors).forEach((checkbox) => {
-      checkbox.addEventListener('change', async (event) => {
-        await MuncherSettings.updateMuncherSettings(this.element, event, this);
-      });
-    });
-
     // multi-selects
     this.element.querySelector("#muncher-excluded-source-categories")?.addEventListener("change", async (event) => {
       await DDBSources.updateExcludedCategories(Array.from(event.target._value));
@@ -274,20 +258,13 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
       await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
     });
 
-    // adventure muncher selectors
-    const adventureSelectors = [
-      '.adventure-config input[type="checkbox"]',
-    ];
-
-    this.element.querySelectorAll(adventureSelectors).forEach((checkbox) => {
+    // watch the change of the muncher-policy-selector checkboxes
+    this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
       checkbox.addEventListener('change', async (event) => {
-        const selection = event.currentTarget.dataset.section;
-        const checked = event.currentTarget.checked;
-        logger.debug(`Updating ${selection} to ${checked}`);
-        await game.settings.set(SETTINGS.MODULE_ID, selection, checked);
+        await MuncherSettings.updateMuncherSettings(this.element, event);
+        await this.render();
       });
     });
-
 
     this.#toggleNestedTabs();
   }
