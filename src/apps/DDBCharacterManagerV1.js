@@ -22,9 +22,7 @@ import { ExternalAutomations } from "../effects/_module.mjs";
 import { createInfusedItems } from "../parser/character/infusions.js";
 import { DDBDataUtils } from "../parser/lib/_module.mjs";
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-export default class DDBCharacterManager extends HandlebarsApplicationMixin(ApplicationV2) {
+export default class DDBCharacterManagerV1 extends FormApplication {
   constructor(options, actor, ddbCharacter = null) {
     super(options);
     this.actor = game.actors.get(actor._id);
@@ -125,7 +123,7 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
    */
   filterItemsByUserSelection(invert = false) {
     let items = [];
-    const validItemTypes = DDBCharacterManager.getCharacterUpdatePolicyTypes(invert);
+    const validItemTypes = DDBCharacterManagerV1.getCharacterUpdatePolicyTypes(invert);
 
     for (const section of SETTINGS.FILTER_SECTIONS) {
       items = items.concat(this.result[section]).filter((item) => validItemTypes.includes(item.type));
@@ -134,7 +132,7 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
   }
 
   filterActorItemsByUserSelection(invert = false) {
-    const validItemTypes = DDBCharacterManager.getCharacterUpdatePolicyTypes(invert);
+    const validItemTypes = DDBCharacterManagerV1.getCharacterUpdatePolicyTypes(invert);
 
     const items = this.actorOriginal.items.filter((item) => validItemTypes.includes(item.type));
 
@@ -234,7 +232,7 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
    * @returns {Promise<Array<string>>} list of item ids removed
    */
   async clearItemsByUserSelection(excludedList = []) {
-    const includedItems = DDBCharacterManager.getCharacterUpdatePolicyTypes();
+    const includedItems = DDBCharacterManagerV1.getCharacterUpdatePolicyTypes();
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("Item");
     const toRemove = ownedItems
@@ -655,7 +653,7 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
         this.html = html;
         try {
           const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
-          DDBCharacterManager.renderPopup("json", characterUrl);
+          DDBCharacterManagerV1.renderPopup("json", characterUrl);
         } catch (error) {
           this.showCurrentTask("Error opening JSON URL", error, true);
         }
@@ -871,7 +869,7 @@ ${item.system.description.chat}
         if (existingItem) {
           // we use flags on the item to determine if we keep various properties
           // NOW IS THE TIME!
-          item = DDBCharacterManager.restoreDDBMatchedFlags(existingItem, item);
+          item = DDBCharacterManagerV1.restoreDDBMatchedFlags(existingItem, item);
           // we can now determine if we are going to ignore this item or not,
           // this effectively filters out the items we don't want and they don't
           // get returned from this function
@@ -941,11 +939,11 @@ ${item.system.description.chat}
     });
 
     if (individualOverrideItems.length > 0) {
-      const individualOverrideCompendiumItems = await DDBCharacterManager.getIndividualOverrideItems(individualOverrideItems);
+      const individualOverrideCompendiumItems = await DDBCharacterManagerV1.getIndividualOverrideItems(individualOverrideItems);
       individualCompendiumItems = individualOverrideCompendiumItems;
       // remove existing items from those to be imported
       logger.info("Removing matching Override compendium items");
-      items = await DDBCharacterManager.removeItems(items, individualCompendiumItems);
+      items = await DDBCharacterManagerV1.removeItems(items, individualCompendiumItems);
     }
 
     /**
@@ -956,7 +954,7 @@ ${item.system.description.chat}
       const compendiumOverrideItems = await DDBItemImporter.getCompendiumItems(items, "custom", { linkItemFlags: true });
       overrideCompendiumItems = compendiumOverrideItems;
       // remove existing items from those to be imported
-      items = await DDBCharacterManager.removeItems(items, overrideCompendiumItems);
+      items = await DDBCharacterManagerV1.removeItems(items, overrideCompendiumItems);
     }
 
     /**
@@ -982,7 +980,7 @@ ${item.system.description.chat}
         compendiumFeatureItems,
       );
       // remove existing items from those to be imported
-      items = await DDBCharacterManager.removeItems(items, srdCompendiumItems);
+      items = await DDBCharacterManagerV1.removeItems(items, srdCompendiumItems);
     }
 
     if (this.settings.useExistingCompendiumItems) {
@@ -1007,7 +1005,7 @@ ${item.system.description.chat}
         compendiumBackgroundsItems,
       );
       // remove existing items from those to be imported
-      items = await DDBCharacterManager.removeItems(items, compendiumItems);
+      items = await DDBCharacterManagerV1.removeItems(items, compendiumItems);
     }
 
     // import remaining items to character
@@ -1379,7 +1377,7 @@ export async function importCharacter(actor, html) {
     }
     if (ddbCharacter.source.success) {
       // begin parsing the character data
-      const importer = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actorData, ddbCharacter);
+      const importer = new DDBCharacterManagerV1(DDBCharacterManagerV1.defaultOptions, actorData, ddbCharacter);
       importer.html = html ? html : utils.htmlToDoc("");
       await importer.processCharacterData();
       importer.showCurrentTask("Loading Character data", "Done.", false);
