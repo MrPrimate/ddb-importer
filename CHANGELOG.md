@@ -2,6 +2,7 @@
 
 - Heroes' Feast Midi-Qol fix
 - Font of Magic generated/added sorcery point value to it as wel as the Sorcery Points feature.
+- Bard Feature: Blade Flourish corrections.
 - DDB Muncher Screen migrated to Application V2.
 
 # 6.0.89
