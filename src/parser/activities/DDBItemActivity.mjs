@@ -42,6 +42,8 @@ export default class DDBItemActivity extends DDBBasicActivity {
       ? "activityUses"
       : "itemUses";
 
+    const isStaff = this.ddbParent.parsingType === "staff";
+
     if (consumeActivity) {
       targets.push({
         type: "activityUses",
@@ -64,6 +66,8 @@ export default class DDBItemActivity extends DDBBasicActivity {
           formula: "",
         },
       });
+    } else if (isStaff) {
+      // no op
     } else if (![0, null, undefined].includes(this.ddbParent.data.system.uses?.max)) {
       targets.push({
         type: consumptionType,

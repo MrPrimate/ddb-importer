@@ -14,4 +14,16 @@ export default class SorceryPoints extends DDBEnricherData {
 
   }
 
+  get override() {
+    return {
+      data: {
+        system: {
+          uses: {
+            max: "@scale.sorcerer.points",
+          },
+        },
+      },
+    };
+  }
+
 }

@@ -41,6 +41,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Lucky": GenericEnrichers.Lucky,
     "Polearm Master - Bonus Attack": FeatEnrichers.PolearmMasterBonusAttack,
     "Squire of Solamnia: Precise Strike": FeatEnrichers.SquireOfSolamniaPreciseStrike,
+    "Metamagic Adept": FeatEnrichers.MetamagicAdept,
   };
 
   FALLBACK_ENRICHERS = {

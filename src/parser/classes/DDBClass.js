@@ -1483,6 +1483,27 @@ export default class DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(bardicInspiration);
+    } else if (this.data.name === "Sorcerer") {
+      const points = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "points",
+          type: "number",
+          scale: {},
+        },
+        value: {},
+        title: "Sorcery Points",
+        icon: null,
+      };
+      utils.arrayRange(20, 1, 2).forEach((i) => {
+        points.configuration.scale[i] = {
+          value: i,
+        };
+      });
+
+      this.data.system.advancement.push(points);
     }
 
   }

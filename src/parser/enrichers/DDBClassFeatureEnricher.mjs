@@ -40,9 +40,14 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Cloak of Shadows": "Channel Divinity: Cloak of Shadows",
   };
 
+  NAME_HINT_INCLUDES = {
+    "Metamagic:": "MetamagicGeneric",
+  };
+
   ENRICHERS = {
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
+    MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
     "Abjure Foes": ClassEnrichers.Paladin.AbjureFoes,
     "Action Surge": ClassEnrichers.Fighter.ActionSurge,
     "Ancestral Protectors": ClassEnrichers.Barbarian.AncestralProtectors,

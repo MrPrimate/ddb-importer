@@ -8,6 +8,7 @@ export { default as FontOfMagic } from "./FontOfMagic.mjs";
 export { default as FontOfMagicSorceryPoints } from "./FontOfMagicSorceryPoints.mjs";
 export { default as HoundOfIllOmen } from "./HoundOfIllOmen.mjs";
 export { default as InnateSorcery } from "./InnateSorcery.mjs";
+export { default as MetamagicGeneric } from "./MetamagicGeneric.mjs";
 export { default as MetamagicOptions } from "./MetamagicOptions.mjs";
 export { default as RevelationInFlesh } from "./RevelationInFlesh.mjs";
 export { default as SorcerousRestoration } from "./SorcerousRestoration.mjs";
