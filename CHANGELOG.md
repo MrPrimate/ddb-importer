@@ -3,6 +3,7 @@
 - Heroes' Feast Midi-Qol fix
 - Font of Magic generated/added sorcery point value to it as wel as the Sorcery Points feature.
 - Bard Feature: Blade Flourish corrections.
+- Item enhancements: Air Render, Siege Staff @eikka
 - DDB Muncher Screen migrated to Application V2.
 
 # 6.0.89

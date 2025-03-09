@@ -50,7 +50,7 @@ export default class Overchannel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  customFormula: "(2 + @activity.uses.spent - 1)d12",
+                  customFormula: "(2 + @item.uses.spent - 1)d12",
                   types: ["necrotic"],
                 }),
               ],
