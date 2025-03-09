@@ -1,6 +1,7 @@
 export { default as AbsorbingTattoo } from "./AbsorbingTattoo.mjs";
 export { default as Acid } from "./Acid.mjs";
 export { default as AcidVial } from "./AcidVial.mjs";
+export { default as AirRender } from "./AirRender.mjs";
 export { default as AlchemistsFire } from "./AlchemistsFire.mjs";
 export { default as ArcaneOil } from "./ArcaneOil.mjs";
 export { default as ArmorOfInvulnerability } from "./ArmorOfInvulnerability.mjs";
