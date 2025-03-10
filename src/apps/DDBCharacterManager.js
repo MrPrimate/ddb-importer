@@ -71,18 +71,49 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
     return true;
   }
 
-  // Define default options
-  static get defaultOptions() {
-    const options = super.defaultOptions;
-    options.title = game.i18n.localize("ddb-importer.module-name");
-    options.template = "modules/ddb-importer/handlebars/character.hbs";
-    options.width = 900;
-    options.height = "auto";
-    options.classes = ["ddbimporter", "sheet"];
-    options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "import" }];
 
-    return options;
+  /** @inheritDoc */
+  static DEFAULT_OPTIONS = {
+    id: "ddb-importer-character",
+    classes: ["sheet", "standard-form", "dnd5e2"],
+    actions: {
+
+    },
+    position: {
+      width: "900",
+      height: "auto",
+    },
+    window: {
+      icon: 'fab fa-d-and-d-beyond',
+      resizable: true,
+      minimizable: true,
+      subtitle: "",
+    },
+  };
+
+  get id() {
+    return `ddb-importer-character-${this.actor.id}`;
   }
+
+  /** @override */
+  get title() {
+    return `DDB Character Manager: ${this.actor.name}`;
+  }
+
+
+  static PARTS = {
+    header: { template: "modules/ddb-importer/handlebars/character/header.hbs" },
+    tabs: { template: "templates/generic/tab-navigation.hbs" },
+    info: {
+      template: "modules/ddb-importer/handlebars/character/import.hbs",
+    },
+    details: { template: "modules/ddb-importer/handlebars/character/details.hbs" },
+    footer: { template: "modules/ddb-importer/handlebars/character/footer.hbs" },
+  };
+
+  /** @override */
+  tabGroups = {
+  };
 
   showCurrentTask(title, message = null, isError = false) {
     let element = $(this.html).find(".task-name");
