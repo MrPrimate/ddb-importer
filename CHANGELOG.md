@@ -5,6 +5,7 @@
 - Bard Feature: Blade Flourish corrections.
 - Item enhancements: Air Render, Siege Staff @eikka
 - Sorcerer Sorcery Points corrections with Metamagic Adept. @co6dm
+- Legendary creatures legendary features could occasionally generate without an activity, and they would then appear in the Features section of the monster.
 - DDB Muncher Screen migrated to Application V2.
 
 # 6.0.89

@@ -322,7 +322,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   getActionType() {
-    let action = this.type;
+    let action = `${this.type}`;
     const actionAction = this.strippedHtml.toLowerCase().match(/as (a|an) action/);
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
@@ -1249,13 +1249,19 @@ ${this.data.system.description.value}
     }
   }
 
+  #determineLegendaryActionTypeFallback() {
+    // legendary actions are a special case and need an action to be marked as a legendary feature
+    if (this.type === "legendary") return "utility";
+    return null;
+  }
+
   _getActivitiesType() {
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.name === "Legendary Actions") return null;
     if (this.healingAction) {
       if (!this.isAttack && !this.isSave && this.actionInfo.damageParts.length === 0) {
         // we generate heal activities as additionals;
-        return null;
+        return this.#determineLegendaryActionTypeFallback();
       }
     }
     if (this.isAttack) {
@@ -1272,10 +1278,12 @@ ${this.data.system.description.value}
     // we generate heal activities as additionals;
     if (!this.healingAction && this.actionInfo.healingParts.length > 0) return null;
     if (this.actionInfo.activation.type === "special" && !this.actionInfo.uses.max) {
-      return null;
+      return this.#determineLegendaryActionTypeFallback();
     }
     if (this.actionInfo.activation.type && !this.healingAction) return "utility";
-    return null;
+    // legendary actions are a special case and need an action to be marked as a legendary feature
+    if (this.type === "legendary") return "utility";
+    return this.#determineLegendaryActionTypeFallback();
   }
 
   async _generateEffects() {
