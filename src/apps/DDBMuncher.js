@@ -17,11 +17,10 @@ import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tool
 import { parseTransports } from "../muncher/vehicles.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
-import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
+import DDBAppV2 from "./DDBAppV2.js";
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2) {
+export default class DDBMuncher extends DDBAppV2 {
 
 
   /** @inheritDoc */
@@ -109,15 +108,7 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
     monsters: "monsterMain",
   };
 
-  _markTabs(tabs) {
-    for (const v of Object.values(tabs)) {
-      v.active = this.tabGroups[v.group] === v.id;
-      v.cssClass = v.active ? "active" : "";
-      if ("tabs" in v) this._markTabs(v.tabs);
-    }
-    return tabs;
-  }
-
+  /** @override */
   _getTabs() {
     const tabs = this._markTabs({
       info: {
@@ -188,27 +179,15 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
     return tabs;
   }
 
-  /**
-   * Expanded states for additional settings sections.
-   * @type {Map<string, boolean>}
-   */
-  #expandedSections = new Map();
 
-  get expandedSections() {
-    return this.#expandedSections;
-  }
-
-  #toggleNestedTabs() {
+  _toggleNestedTabs() {
     const munch = this.element.querySelector('.munch-munch > [data-application-part="muncherTabs"]');
     const munchActive = this.element.querySelector('.tab.active[data-group="munch"]');
     if (munch && munchActive) {
       const monstersActive = this.element.querySelector('.tab.active[data-tab="monsters"]');
       munch.classList.toggle("nested-tabs", monstersActive ?? false);
     }
-    const primary = this.element.querySelector('.window-content > [data-application-part="tabs"]');
-    const active = this.element.querySelector('.tab.active[data-group="sheet"]');
-    if (!primary || !active) return;
-    primary.classList.toggle("nested-tabs", active.querySelector(`:scope > .sheet-tabs`));
+    super._toggleNestedTabs();
   }
 
   /* -------------------------------------------- */
@@ -218,32 +197,8 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
   /** @inheritDoc */
   _onRender(context, options) {
     super._onRender(context, options);
-    // Allow multi-select tags to be removed when the whole tag is clicked.
-    this.element.querySelectorAll("multi-select").forEach((select) => {
-      if (select.disabled) return;
-      select.querySelectorAll(".tag").forEach((tag) => {
-        tag.classList.add("remove");
-        tag.querySelector(":scope > span")?.classList.add("remove");
-      });
-    });
-
-    // Add special styling for label-top hints.
-    this.element.querySelectorAll(".label-top > p.hint").forEach((hint) => {
-      const label = hint.parentElement.querySelector(":scope > label");
-      if (!label) return;
-      hint.ariaLabel = hint.innerText;
-      hint.dataset.tooltip = hint.innerHTML;
-      hint.innerHTML = "";
-      label.insertAdjacentElement("beforeend", hint);
-    });
-    for (const element of this.element.querySelectorAll("[data-expand-id]")) {
-      element.querySelector(".collapsible")?.classList
-        .toggle("collapsed", !this.#expandedSections.get(element.dataset.expandId));
-    }
-
 
     // custom listeners
-
     // multi-selects
     this.element.querySelector("#muncher-excluded-source-categories")?.addEventListener("change", async (event) => {
       await DDBSources.updateExcludedCategories(Array.from(event.target._value));
@@ -257,15 +212,6 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
       await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
     });
 
-    // watch the change of the muncher-policy-selector checkboxes
-    this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
-      checkbox.addEventListener('change', async (event) => {
-        await MuncherSettings.updateMuncherSettings(this.element, event);
-        await this.render();
-      });
-    });
-
-    this.#toggleNestedTabs();
   }
 
 
@@ -276,16 +222,14 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
   /** @inheritDoc */
   changeTab(tab, group, options) {
     super.changeTab(tab, group, options);
-    if (["sheet", "munch"].includes(group)) {
-      this.#toggleNestedTabs();
+    if (["munch"].includes(group)) {
+      this._toggleNestedTabs();
     }
   }
 
   async _prepareContext(options) {
-    await DDBReferenceLinker.importCacheLoad();
     let context = MuncherSettings.getMuncherSettings();
-    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
-    context.tabs = this._getTabs();
+    context = foundry.utils.mergeObject(await super._prepareContext(options, context), context, { inplace: false });
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -304,39 +248,6 @@ export default class DDBMuncher extends HandlebarsApplicationMixin(ApplicationV2
       // no default
     };
     return context;
-  }
-
-  /* -------------------------------------------- */
-  /*  Rendering                                   */
-  /* -------------------------------------------- */
-
-  /** @inheritDoc */
-  _configureRenderOptions(options) {
-    super._configureRenderOptions(options);
-    if (options.isFirstRender && this.hasFrame) {
-      options.window ||= {};
-    }
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritDoc */
-  _onFirstRender(context, options) {
-    super._onFirstRender(context, options);
-    const containers = {};
-    for (const [part, config] of Object.entries(this.constructor.PARTS)) {
-      if (!config.container?.id) continue;
-      const element = this.element.querySelector(`[data-application-part="${part}"]`);
-      if (!element) continue;
-      if (!containers[config.container.id]) {
-        const div = document.createElement("div");
-        div.dataset.containerId = config.container.id;
-        div.classList.add(...config.container.classes ?? []);
-        containers[config.container.id] = div;
-        element.replaceWith(div);
-      }
-      containers[config.container.id].append(element);
-    }
   }
 
 
