@@ -1,0 +1,38 @@
+<section id="ddb-character-manager-import-sources" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <fieldset>
+  <legend>Source Options</legend>
+    <div class="sources-import-config">
+
+      {{#each sourcesConfig}}
+      <div class="form-group character-import-policy-sources">
+        <label class="ddbimporter-long">{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
+      </div>
+      {{/each}}
+
+    </div>
+  </fieldset>
+
+  <fieldset>
+  <legend>Compendium Sources</legend>
+    <div class="compendium-sources-import-config">
+
+      {{#each compendiumSourcesConfig}}
+      <div class="form-group character-import-policy-compendium-sources">
+        <label class="ddbimporter-long">{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
+      </div>
+      {{/each}}
+
+    </div>
+  </fieldset>
+
+</section>

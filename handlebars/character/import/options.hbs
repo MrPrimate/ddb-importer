@@ -1,0 +1,47 @@
+<section id="ddb-character-manager-import-options" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+  <fieldset>
+  <legend>Import Options</legend>
+    <div class="import-policy-group">
+      {{#each importConfig}}
+      <div class="form-group character-import-policy-config">
+        <label class="ddbimporter-long">{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
+      </div>
+      {{/each}}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Resource Selection</legend>
+    <div class="form-group character-import-policy-resources">
+      <label class="ddbimporter-long">Enable Resource Selection Dialog</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="resource-selection" id="resource-selection" {{#if resourceSelection}}checked{{/if}}
+        data-section="resource-selection">Display resource selection dialog?</dnd5e-checkbox>
+      </div>
+      <p class="hint">Enable the resource selection dialogue if you wish to use the legacy character sheet resource options.</p>
+    </div>
+  </fieldset>
+
+  <fieldset>
+  <legend>Experimental Options</legend>
+    <div class="import-policy-group-experimental">
+      {{#each experimentalConfig}}
+      <div class="form-group character-import-policy-experimental">
+        <label class="ddbimporter-long">{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
+      </div>
+      {{/each}}
+    </div>
+  </fieldset>
+
+</section>

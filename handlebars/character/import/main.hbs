@@ -1,0 +1,29 @@
+<section id="ddb-character-manager-import-main" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <fieldset>
+  <legend>Update targets</legend>
+    <div class="form-group stacked checkbox-grid">
+      <div class="form-fields" style="--num-cols:5;">
+        {{#each importPolicies}}
+        <label class="checkbox">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" data-section="{{this.name}}" {{#if this.isChecked}}checked{{/if}}></dnd5e-checkbox>
+          <span>{{this.label}}</span>
+        </label>
+        {{/each}}
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+  <legend>Notes</legend>
+      <p>To get full known spell lists for Clerics, Druids and Paladins set your cobalt cookie (in the module settings).<br>
+          Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome extension</a> to get this!
+      </p>
+      <p>Having problems read the <a href="https://docs.ddb.mrprimate.co.uk/docs/faqs/ddb-importer">FAQ</a> and <a href="https://docs.ddb.mrprimate.co.uk/docs/category/ddb-importer">documentation</a>.</p>
+      <p>While you wait, why not support me on <a href="https://www.patreon.com/MrPrimate">Patreon</a>?</p>
+  </fieldset>
+
+
+<button data-action="importCharacter"  type="button" id="dndbeyond-character-import-start"
+  {{#if actor.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>Start Import</button>
+
+</section>

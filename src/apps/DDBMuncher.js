@@ -212,6 +212,14 @@ export default class DDBMuncher extends DDBAppV2 {
       await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
     });
 
+    // watch the change of the muncher-policy-selector checkboxes
+    this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
+      checkbox.addEventListener('change', async (event) => {
+        await MuncherSettings.updateMuncherSettings(this.element, event);
+        await this.render();
+      });
+    });
+
   }
 
 
@@ -229,7 +237,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
   async _prepareContext(options) {
     let context = MuncherSettings.getMuncherSettings();
-    context = foundry.utils.mergeObject(await super._prepareContext(options, context), context, { inplace: false });
+    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }

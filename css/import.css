@@ -8,6 +8,15 @@ div.ddbCharacterName {
   align-items: center;
 }
 
+.ddbcharacterold.sheet-header > .right {
+  --level-size: 78px;
+  --padding-right: 3rem;
+  padding-right: var(--padding-right);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
 .ddbimporter-hidden {
   visibility: hidden;
 }
@@ -42,6 +51,13 @@ div.ddbCharacterName {
 }
 
 .ddbimporter .import-policy-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ddbi-import-policy-group {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

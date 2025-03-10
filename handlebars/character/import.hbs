@@ -1,4 +1,7 @@
-<div>
-
-
-</div>
+<section class="tab import-{{ tab.id }} {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+    {{> "templates/generic/tab-navigation.hbs" tabs=tabs.import.tabs }}
+    {{> "modules/ddb-importer/handlebars/character/import/main.hbs" tab=tabs.import.tabs.main }}
+    {{> "modules/ddb-importer/handlebars/character/import/options.hbs" tab=tabs.import.tabs.options }}
+    {{> "modules/ddb-importer/handlebars/character/import/sources.hbs" tab=tabs.import.tabs.sources }}
+    {{> "modules/ddb-importer/handlebars/character/import/automation.hbs" tab=tabs.import.tabs.automation }}
+</section>

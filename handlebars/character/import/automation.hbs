@@ -1,0 +1,31 @@
+<section id="ddb-character-manager-import-automation" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+  <fieldset>
+
+    <legend>Information</legend>
+    <p class="notification info">This section adds extra Automation Active Effects to imported content. Many of these are designed to work with <em>highly automated</em> games. Please read the descriptions carefully.</a></p>
+    <p>{{{localize "ddb-importer.settings.user-hint-setting"}}}</p>
+    <p>{{{localize "ddb-importer.settings.user-hint-animations"}}}</p>
+
+    <p>{{{installedModulesText}}}</p>
+
+  <fieldset>
+
+  <legend>Automation Options</legend>
+    <div class="effect-import-config">
+      {{#each effectImportConfig}}
+      <div class="form-group character-import-policy-config">
+        <label class="ddbimporter-long">{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
+      </div>
+      {{/each}}
+
+    </div>
+
+  </fieldset>
+
+</section>

@@ -1,2 +1,37 @@
-<header class="form-header">
+<header class="ddbcharacter sheet-header" style="justify-content:space-between">
+  <div class="left">
+    <img class="portrait" src="{{actor.prototypeToken.texture.src}}">
+  </div>
+
+  <div class="middle" style="flex:6">
+    <div class="form-section">
+      <div class="form-caption">
+        URL
+        <span class="dndbeyond-url-status">{{#if actor.flags.ddbimporter.dndbeyond.characterId}}<i
+            class="fas fa-check-circle" style="color: green"></i>{{else}}<i></i>{{/if}}</span>
+      </div>
+      <div class="form-content" style="display: flex">
+        <input type="text" name="dndbeyond-url" style="flex: 0 1 auto" ;
+          value="{{#if actor.flags.ddbimporter.dndbeyond.url}}{{actor.flags.ddbimporter.dndbeyond.url}}{{/if}}" />
+        <button type="button" id="open-dndbeyond-url" name="open-dndbeyond-url"
+          style="flex-basis: 20px; flex-grow: 0;line-height: 20px;"
+          {{#if actor.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>
+          <i class="fas fa-external-link-alt"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="right" style="text-align: center;">
+    <div class="form-section">
+      <div class="form-caption">
+        Character ID
+      </div>
+      <div class="form-content">
+        <span class="dndbeyond-character-id">{{#if actor.flags.ddbimporter.dndbeyond.characterId}}{{actor.flags.ddbimporter.dndbeyond.characterId}}{{else}}Not detected{{/if}}</span>
+      </div>
+    </div>
+  </div>
+
+
+
 </header>

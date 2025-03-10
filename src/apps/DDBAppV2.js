@@ -1,6 +1,5 @@
 import {
   logger,
-  MuncherSettings,
   utils,
 } from "../lib/_module.mjs";
 
@@ -75,17 +74,7 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
         .toggle("collapsed", !this.#expandedSections.get(element.dataset.expandId));
     }
 
-
     // custom listeners
-
-    // watch the change of the muncher-policy-selector checkboxes
-    this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
-      checkbox.addEventListener('change', async (event) => {
-        await MuncherSettings.updateMuncherSettings(this.element, event);
-        await this.render();
-      });
-    });
-
     this._toggleNestedTabs();
   }
 
@@ -97,14 +86,14 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
   /** @inheritDoc */
   changeTab(tab, group, options) {
     super.changeTab(tab, group, options);
-    if (["sheet", "munch"].includes(group)) {
+    if (["sheet"].includes(group)) {
       this._toggleNestedTabs();
     }
   }
 
-  async _prepareContext(options, context = {}) {
+  async _prepareContext(options) {
     await DDBReferenceLinker.importCacheLoad();
-    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
+    const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false });
     context.tabs = this._getTabs();
     logger.debug("DDBAppV2: _prepareContext", context);
     return context;

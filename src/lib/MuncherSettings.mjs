@@ -34,78 +34,76 @@ const MuncherSettings = {
   },
 
   getCharacterImportSettings: () => {
-    const importPolicies1 = [
+    const importPolicies = [
       {
-        name: "name",
+        name: "character-update-policy-name",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-name"),
-        description: "Name",
+        label: "Name",
       },
       {
-        name: "hp",
+        name: "character-update-policy-hp",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-hp"),
-        description: "HP",
+        label: "HP",
       },
       {
-        name: "xp",
+        name: "character-update-policy-xp",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-xp"),
-        description: "XP",
+        label: "XP",
       },
       {
-        name: "hit-die",
+        name: "character-update-policy-hit-die",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-hit-die"),
-        description: "Hit Die",
+        label: "Hit Die",
       },
       {
-        name: "image",
+        name: "character-update-policy-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-image"),
-        description: "Image",
+        label: "Image",
       },
       {
-        name: "bio",
+        name: "character-update-policy-bio",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-bio"),
-        description: "Bio",
+        label: "Bio",
       },
       {
-        name: "languages",
+        name: "character-update-policy-languages",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-languages"),
-        description: "Languages",
+        label: "Languages",
       },
       {
-        name: "spell-use",
+        name: "character-update-policy-spell-use",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-spell-use"),
-        description: "Spell Slots",
+        label: "Spell Slots",
       },
-    ];
-    const importPolicies2 = [
       {
-        name: "class",
+        name: "character-update-policy-class",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-class"),
-        description: "Classes",
+        label: "Classes",
       },
       {
-        name: "feat",
+        name: "character-update-policy-feat",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-feat"),
-        description: "Features",
+        label: "Features",
       },
       {
-        name: "weapon",
+        name: "character-update-policy-weapon",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-weapon"),
-        description: "Weapons",
+        label: "Weapons",
       },
       {
-        name: "equipment",
+        name: "character-update-policy-equipment",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-equipment"),
-        description: "Other Equipment",
+        label: "Other Equipment",
       },
       {
-        name: "currency",
+        name: "character-update-policy-currency",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-currency"),
-        description: "Currency",
+        label: "Currency",
       },
       {
-        name: "spell",
+        name: "character-update-policy-spell",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-spell"),
-        description: "Spells",
+        label: "Spells",
       },
     ];
 
@@ -127,45 +125,52 @@ const MuncherSettings = {
 
     const importConfig = [
       {
-        name: "use-inbuilt-icons",
+        name: "character-update-policy-use-inbuilt-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-inbuilt-icons"),
-        description: "Use icons from the inbuilt dictionary? (High coverage of items, feats, and spells).",
+        label: "Use Inbuilt Icons",
+        hint: "Use icons from the inbuilt dictionary? (High coverage of items, feats, and spells).",
         enabled: true,
       },
       {
-        name: "use-srd-icons",
+        name: "character-update-policy-use-srd-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons"),
-        description: "Use icons from the SRD compendium? (This can take a while).",
+        label: "Use SRD Icons",
+        hint: "Use icons from the SRD compendium? (This can take a while).",
         enabled: true,
       },
       {
-        name: "use-ddb-spell-icons",
+        name: "character-update-policy-use-ddb-spell-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-spell-icons"),
-        description: "Use spell school icons from D&DBeyond?",
+        label: "Use DDB Spell School Icons",
+        hint: "Use spell school icons from D&DBeyond?",
         enabled: true,
       },
       {
-        name: "use-ddb-item-icons",
+        name: "character-update-policy-use-ddb-item-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-item-icons"),
-        description: "Use equipment icons from D&DBeyond (where they exist)?",
+        label: "Use D&DBeyond equipment icons?",
+        hint: "Use equipment icons from D&DBeyond where they exist?",
         enabled: true,
       },
       {
-        name: "use-ddb-generic-item-icons",
+        name: "character-update-policy-use-ddb-generic-item-icons",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-generic-item-icons"),
-        description: "Use D&D Beyond generic item type images, if available? (final fallback)",
+        label: "Use D&DBeyond generic item icons?",
+        hint: "Use D&D Beyond generic item type images, if available? (final fallback)",
         enabled: true,
       },
       {
-        name: "use-combined-description",
+        name: "character-update-policy-use-combined-description",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-combined-description"),
-        description: "Use short snippets? If selected will use the short snippet snippet, with the full description in a collapsed box.",
+        label: "Use short snippets?",
+        hint: "If selected will use the short snippet snippet, with the full description in a collapsed box.",
         enabled: true,
       },
       {
         name: "add-description-to-chat",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "add-description-to-chat"),
-        description: "Use the short description for the chat card? (otherwise will use normal description).",
+        label: "Use short description for chat?",
+        hint: "Use the short description for the chat card? (otherwise will use normal description).",
         enabled: true,
       },
       // {
@@ -183,107 +188,115 @@ const MuncherSettings = {
       //   enabled: true,
       // },
       {
-        name: "ignore-non-ddb-items",
+        name: "character-update-policy-ignore-non-ddb-items",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-ignore-non-ddb-items"),
-        description:
+        label: "Ignore non-DDB items?",
+        hint:
           "Ignore items on character sheet that have not been imported from D&D Beyond? This will remove items that have been removed from the DDB character since the last import, but will keep items added to the character within Foundry.",
         enabled: true,
       },
       {
-        name: "create-companions",
+        name: "character-update-policy-create-companions",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"),
-        description: "Generate summon monster actors? (Requires item/actor create permissions)",
+        label: "Generate companion actors?",
+        hint: "Generate summon monster actors? (Requires item/actor create permissions)",
         enabled: true,
       },
     ];
 
-    const advancedImportConfig = [
+    const sourcesConfig = [
       {
-        name: "add-features-to-compendiums",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums"),
-        title: "[EXPERIMENTAL] Import classes/class features, species, feats and backgrounds to compendiums?",
-        description:
-          "Adds classes (if level20), class features, backgrounds, species, species traits, and feats to your DDB Importer compendiums.",
-        enabled: true,
-      },
-      {
-        name: "import-full-spell-list",
+        name: "character-update-policy-import-full-spell-list",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-full-spell-list"),
-        title: "Import full spell list?",
-        description:
+        label: "Import full spell list?",
+        hint:
           "If a Cobalt Cookie is set, import all available spells for classes such as Cleric, where spells can be changed out on a long rest.",
         enabled: true,
       },
       {
-        name: "use-active-sources",
+        name: "character-update-policy-use-active-sources",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources"),
-        title: "Restrict imported spells to allowed sources?",
-        description:
+        label: "Restrict imported spells to allowed sources?",
+        hint:
           "Use allowed source on DDB when adding spells to character.",
         enabled: true,
       },
       {
-        name: "remove-2024",
+        name: "character-update-policy-remove-2024",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024"),
-        title: "Remove 2024 Spells?",
-        description:
+        label: "Remove 2024 Spells?",
+        hint:
           "Removes 2024 spells from character imports, and removes (Legacy) suffix on spell names.",
         enabled: true,
       },
       {
-        name: "remove-legacy",
+        name: "character-update-policy-remove-legacy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy"),
-        title: "Remove Legacy Spells?",
-        description:
+        label: "Remove Legacy Spells?",
+        hint:
           "Removes legacy spells from character imports.",
         enabled: true,
       },
+    ];
+
+    const compendiumSourcesConfig = [
       {
-        name: "use-override",
+        name: "character-update-policy-use-override",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-override"),
-        title: "Replace Items using those in your Override compendium",
-        description:
+        label: "Replace Items using those in your Override compendium",
+        hint:
           "Use existing items from <i>ddb-import Override compendium</i>, rather than parsing from DDB. This is useful if you want to place customised items into the compendium for use by characters.",
         enabled: true,
       },
       {
-        name: "use-existing",
+        name: "character-update-policy-use-existing",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-existing"),
-        title: "[Caution] Replace Items using ddb-importer compendiums",
-        description:
+        label: "[Caution] Replace Items using ddb-importer compendiums",
+        hint:
           "Use existing items from <i>ddb-import compendiums</i>, rather than parsing from DDB. This is useful if you have customised the items in the compendium, although you will lose any custom effects applied by this module e.g. Improved Divine Smite. Please consider marking the item you wish to keep as ignored by import instead.",
         enabled: true,
       },
       {
-        name: "use-srd",
+        name: "character-update-policy-use-srd",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd"),
-        title: "[Caution] Replace Items using SRD compendiums",
-        description:
+        label: "[Caution] Replace Items using SRD compendiums",
+        hint:
           "Use the <i>SRD compendiums</i>, rather than DDB. Importing using SRD will not include features like fighting style and divine smite in damage calculations. Please consider marking the item you wish to keep as ignored by import instead.",
+        enabled: true,
+      },
+    ];
+
+    const experimentalConfig = [
+      {
+        name: "character-update-policy-add-features-to-compendiums",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums"),
+        label: "[EXPERIMENTAL] Import features to compendiums?",
+        hint:
+          "Adds classes (if level20), class features, backgrounds, species, species traits, and feats to your DDB Importer compendiums.",
         enabled: true,
       },
     ];
 
     const effectImportConfig = [
       {
-        name: "add-midi-effects",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects"),
-        title: "Generate MidiQOL Automation Effects?",
-        description: `Generates high degree of automation Effects for MidiQOL? <br> <i>This is not recommended for new users to Foundry.</i><br> Requires MidiQOL ${MuncherSettings.getInstalledIcon("midiQolInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
+        name: "character-update-policy-add-midi-effects",
+        isChecked: effectModulesAvailable.hasCore && game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects"),
+        label: "Generate MidiQOL Automation Effects?",
+        hint: `Generates high degree of automation Effects for MidiQOL? <br> <i>This is not recommended for new users to Foundry.</i><br> Requires MidiQOL ${MuncherSettings.getInstalledIcon("midiQolInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
         enabled: effectModulesAvailable.hasCore,
       },
       {
-        name: "use-chris-premades",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
-        title: "Use Automation Effects from the Cauldron of Plentiful Resources module?",
-        description: `Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} offer even more automation for all aspects of D&D, but have even more pre-requisites. You should investigate and set up this module before importing with this option selected. Requires Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
+        name: "character-update-policy-use-chris-premades",
+        isChecked: chrisInstalled && game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"),
+        label: "Use Automation Effects from the Cauldron of Plentiful Resources module?",
+        hint: `Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} offer even more automation for all aspects of D&D, but have even more pre-requisites. You should investigate and set up this module before importing with this option selected. Requires Cauldron of Plentiful Resources ${MuncherSettings.getInstalledIcon("chrisInstalled")} module.<br>These will replace any effects created by DDB Importer.`,
         enabled: chrisInstalled,
       },
       {
-        name: "active-effect-copy",
+        name: "character-update-policy-active-effect-copy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-active-effect-copy"),
-        title: "Retain Active Effects?",
-        description:
+        label: "Retain Active Effects?",
+        hint:
           "Retain existing Active Effects, this will try and transfer any existing effects on the actor such as custom effects, effects from conditions or existing spells. Untick this option if you experience <i>odd</i> behaviour.",
         enabled: true,
       },
@@ -291,75 +304,75 @@ const MuncherSettings = {
 
     const syncConfig = [
       {
-        name: "action-use",
+        name: "sync-policy-action-use",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-action-use"),
-        description: "Action Uses (Currently unavailable for this version of DDB Importer)",
+        label: "Action Uses (Currently unavailable for this version of DDB Importer)",
         enabled: false,
       },
       {
-        name: "currency",
+        name: "sync-policy-currency",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency"),
-        description: "Currency",
+        label: "Currency",
         enabled: true,
       },
       {
-        name: "deathsaves",
+        name: "sync-policy-deathsaves",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-deathsaves"),
-        description: "Death Saves",
+        label: "Death Saves",
         enabled: true,
       },
       {
-        name: "equipment",
+        name: "sync-policy-equipment",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment"),
-        description: "Equipment",
+        label: "Equipment",
         enabled: true,
       },
       {
-        name: "condition",
+        name: "sync-policy-condition",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition"),
-        description: "Conditions/Exhaustion",
+        label: "Conditions/Exhaustion",
         enabled: true,
       },
       {
-        name: "hitdice",
+        name: "sync-policy-hitdice",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitdice"),
-        description: "Hit Dice/Short Rest",
+        label: "Hit Dice/Short Rest",
         enabled: true,
       },
       {
-        name: "hitpoints",
+        name: "sync-policy-hitpoints",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitpoints"),
-        description: "Hit Points",
+        label: "Hit Points",
         enabled: true,
       },
       {
-        name: "inspiration",
+        name: "sync-policy-inspiration",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-inspiration"),
-        description: "Inspiration",
+        label: "Inspiration",
         enabled: true,
       },
       {
-        name: "spells-prepared",
+        name: "sync-policy-spells-prepared",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-prepared"),
-        description: "Spells Prepared",
+        label: "Spells Prepared",
         enabled: true,
       },
       {
-        name: "spells-slots",
+        name: "sync-policy-spells-slots",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-slots"),
-        description: "Spell Slots",
+        label: "Spell Slots",
         enabled: true,
       },
       {
-        name: "spells-sync",
+        name: "sync-policy-spells-sync",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-sync"),
-        description: "Spells Known",
+        label: "Spells Known",
         enabled: false,
       },
       {
-        name: "xp",
+        name: "sync-policy-xp",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "sync-policy-xp"),
-        description: "XP",
+        label: "XP",
         enabled: true,
       },
     ];
@@ -373,50 +386,58 @@ const MuncherSettings = {
 
     const result = {
       installedModulesText,
-      importPolicies1,
-      importPolicies2,
+      importPolicies,
       importConfig,
       extrasConfig,
-      advancedImportConfig,
+      sourcesConfig,
+      experimentalConfig,
       effectImportConfig,
+      compendiumSourcesConfig,
       dataDirSet,
       syncConfig,
       tiers,
+      version: CONFIG.DDBI.version,
     };
 
     return result;
   },
 
-  toggleByName(name, value = null) {
-    const checkbox = document.querySelector(`input[type="checkbox"][name="${name}"]`);
-    if (value === null) checkbox.checked = !checkbox.checked;
-    else checkbox.checked = value;
-  },
 
-  updateActorSettings: (html, event) => {
+  updateActorSettings: async (html, event) => {
     const selection = event.currentTarget.dataset.section;
     const checked = event.currentTarget.checked;
 
+    await game.settings.set(SETTINGS.MODULE_ID, selection, checked);
+
     logger.debug(`Updating munching-policy-${selection} to ${checked}`);
-    if (selection === "add-description-to-chat") {
-      game.settings.set(SETTINGS.MODULE_ID, "add-description-to-chat", checked);
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-combined-description", false);
-      MuncherSettings.toggleByName("character-import-policy-use-combined-description", false);
-    } else {
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-" + selection, checked);
-    }
 
-    if (selection === "use-combined-description") {
-      game.settings.set(SETTINGS.MODULE_ID, "add-description-to-chat", false);
-      MuncherSettings.toggleByName("character-import-policy-add-description-to-chat", false);
-    }
-
-    if (selection === "remove-2024" && checked) {
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy", false);
-      MuncherSettings.toggleByName("character-import-policy-remove-legacy", false);
-    } else if (selection === "remove-legacy" && checked) {
-      game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-remove-2024", false);
-      MuncherSettings.toggleByName("character-import-policy-remove-2024", false);
+    switch (selection) {
+      case "character-update-policy-add-description-to-chat": {
+        await game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-description-to-chat", checked);
+        await game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-use-combined-description", false);
+        $("#character-import-policy-use-combined-description").prop("checked", false);
+        break;
+      }
+      case "character-update-policy-use-combined-description": {
+        await game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-description-to-chat", false);
+        $("#character-import-policy-add-description-to-chat").prop("checked", false);
+        break;
+      }
+      case "character-update-policy-remove-2024": {
+        if (checked) {
+          await game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy", false);
+          $("#character-import-policy-remove-legacy").prop("checked", false);
+        }
+        break;
+      }
+      case "character-update-policy-remove-legacy": {
+        if (checked) {
+          await game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-remove-2024", false);
+          $("#character-import-policy-remove-2024").prop("checked", false);
+        }
+        break;
+      }
+      // no default
     }
   },
 

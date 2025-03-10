@@ -21,10 +21,10 @@ import { setConditions } from "../parser/character/conditions.js";
 import { ExternalAutomations } from "../effects/_module.mjs";
 import { createInfusedItems } from "../parser/character/infusions.js";
 import { DDBDataUtils } from "../parser/lib/_module.mjs";
+import DDBAppV2 from "./DDBAppV2.js";
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export default class DDBCharacterManager extends HandlebarsApplicationMixin(ApplicationV2) {
+export default class DDBCharacterManager extends DDBAppV2 {
   constructor(options, actor, ddbCharacter = null) {
     super(options);
     this.actor = game.actors.get(actor._id);
@@ -77,7 +77,7 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
     id: "ddb-importer-character",
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
-
+      importCharacter: DDBCharacterManager.importCharacterClickEvent,
     },
     position: {
       width: "900",
@@ -104,8 +104,14 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
   static PARTS = {
     header: { template: "modules/ddb-importer/handlebars/character/header.hbs" },
     tabs: { template: "templates/generic/tab-navigation.hbs" },
-    info: {
+    import: {
       template: "modules/ddb-importer/handlebars/character/import.hbs",
+      templates: [
+        "modules/ddb-importer/handlebars/character/import/main.hbs",
+        "modules/ddb-importer/handlebars/character/import/options.hbs",
+        "modules/ddb-importer/handlebars/character/import/sources.hbs",
+        "modules/ddb-importer/handlebars/character/import/automation.hbs",
+      ],
     },
     details: { template: "modules/ddb-importer/handlebars/character/details.hbs" },
     footer: { template: "modules/ddb-importer/handlebars/character/footer.hbs" },
@@ -113,12 +119,131 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
 
   /** @override */
   tabGroups = {
+    sheet: "import",
+    import: "main",
   };
 
+
+  _getTabs() {
+    const tabs = this._markTabs({
+      import: {
+        id: "import", group: "sheet", label: "Import", icon: "fas fa-arrow-alt-circle-down",
+        tabs: {
+          main: {
+            id: "main", group: "import", label: "Import", icon: "fas fa-arrow-alt-circle-down",
+          },
+          options: {
+            id: "options", group: "import", label: "Options", icon: "fas fa-cogs",
+          },
+          sources: {
+            id: "sources", group: "import", label: "Sources", icon: "fas fa-book",
+          },
+          automation: {
+            id: "automation", group: "import", label: "Automation", icon: "fas fa-robot",
+          },
+        },
+      },
+    });
+    return tabs;
+  }
+
+
+  /* -------------------------------------------- */
+  /*  Life-Cycle Handlers                         */
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    // custom listeners
+    // watch the change of the muncher-policy-selector checkboxes
+    this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
+      checkbox.addEventListener('change', async (event) => {
+        switch (event.currentTarget.dataset.section) {
+          case "resource-selection": {
+            const updateData = { flags: { ddbimporter: { resources: { ask: event.currentTarget.checked } } } };
+            await this.actor.update(updateData);
+            break;
+          }
+          default: {
+            await MuncherSettings.updateActorSettings(this.element, event);
+          }
+        }
+
+        await this.render();
+      });
+    });
+  }
+
+  /** @override */
+  async _prepareContext(options) {
+
+    // loads settings for actor
+    this.importSettings = MuncherSettings.getCharacterImportSettings();
+    const useLocalPatreonKey = this.actor.flags?.ddbimporter?.useLocalPatreonKey;
+
+    const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
+    this.dmSyncEnabled = characterId && this.importSettings.tiers.all;
+    this.playerSyncEnabled = characterId && useLocalPatreonKey;
+    const syncEnabled = characterId && (this.importSettings.tiers.all || useLocalPatreonKey);
+
+    const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
+    const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
+    const syncOnly = trustedUsersOnly && allowAllSync && !game.user.isTrusted;
+
+    const localCobalt = Secrets.isLocalCobalt(this.actor.id);
+    const cobaltCookie = Secrets.getCobalt(this.actor.id);
+    const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
+
+    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
+    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    const gmSyncUser = game.user.isGM && game.user.id == updateUser;
+    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
+    const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
+    const resourceSelection = !foundry.utils.hasProperty(this.actor, "flags.ddbimporter.resources.ask")
+      || foundry.utils.getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
+
+    const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
+    this.itemsMunched = itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
+
+    this.actorSettings = {
+      actor: this.actor,
+      localCobalt: localCobalt,
+      cobaltSet: cobaltSet,
+      syncEnabled: syncEnabled && this.itemsMunched,
+      importAllowed: !syncOnly,
+      itemsMunched: this.itemsMunched,
+      dynamicUpdateAllowed,
+      dynamicUpdateStatus,
+      resourceSelection,
+      useLocalPatreonKey: useLocalPatreonKey && this.itemsMunched,
+    };
+
+    let context = foundry.utils.mergeObject(this.importSettings, this.actorSettings);
+    const parentContext = await super._prepareContext(options);
+    context = foundry.utils.mergeObject(parentContext, context, { inplace: false });
+    logger.debug("DDBCharacterManager: _prepareContext", context);
+    return context;
+  }
+
+  /** @override */
+  // eslint-disable-next-line class-methods-use-this
+  async _preparePartContext(partId, context) {
+    switch (partId) {
+      case "import": {
+        context.tab = context.tabs[partId];
+        break;
+      }
+      // no default
+    };
+    return context;
+  }
+
+
   showCurrentTask(title, message = null, isError = false) {
-    let element = $(this.html).find(".task-name");
+    let element = $(this.element).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
-    $(this.html).parent().parent().css("height", "auto");
+    $(this.element).parent().parent().css("height", "auto");
   }
 
   static getCharacterUpdatePolicyTypes(invert = false) {
@@ -330,165 +455,14 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
 
   /* -------------------------------------------- */
 
-  async getData() {
-    // loads settings for actor
-    this.importSettings = MuncherSettings.getCharacterImportSettings();
-    const useLocalPatreonKey = this.actor.flags?.ddbimporter?.useLocalPatreonKey;
-
-    const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
-    this.dmSyncEnabled = characterId && this.importSettings.tiers.all;
-    this.activateListenersplayerSyncEnabled = characterId && useLocalPatreonKey;
-    const syncEnabled = characterId && (this.importSettings.tiers.all || useLocalPatreonKey);
-
-    const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
-    const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
-    const syncOnly = trustedUsersOnly && allowAllSync && !game.user.isTrusted;
-
-    const localCobalt = Secrets.isLocalCobalt(this.actor.id);
-    const cobaltCookie = Secrets.getCobalt(this.actor.id);
-    const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
-
-    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
-    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
-    const gmSyncUser = game.user.isGM && game.user.id == updateUser;
-    const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
-    const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
-    const resourceSelection = !foundry.utils.hasProperty(this.actor, "flags.ddbimporter.resources.ask")
-      || foundry.utils.getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
-
-    const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
-    this.itemsMunched = itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
-
-    this.actorSettings = {
-      actor: this.actor,
-      localCobalt: localCobalt,
-      cobaltSet: cobaltSet,
-      syncEnabled: syncEnabled && this.itemsMunched,
-      importAllowed: !syncOnly,
-      itemsMunched: this.itemsMunched,
-      dynamicUpdateAllowed,
-      dynamicUpdateStatus,
-      resourceSelection,
-      useLocalPatreonKey: useLocalPatreonKey && this.itemsMunched,
-    };
-
-    return foundry.utils.mergeObject(this.importSettings, this.actorSettings);
-  }
-
-  /* -------------------------------------------- */
-
   activateListeners(html) {
-    super.activateListeners(html);
-    // watch the change of the import-policy-selector checkboxes
-    $(html)
-      .find(
-        [
-          '.import-policy input[type="checkbox"]',
-          '.advanced-import-config input[type="checkbox"]',
-          '.effect-policy input[type="checkbox"]',
-          '.effect-import-config input[type="checkbox"]',
-          '.extras-import-config input[type="checkbox"]',
-          '.import-config input[type="checkbox"]',
-        ].join(","),
-      )
-      .on("change", (event) => {
-        this.html = html;
-        MuncherSettings.updateActorSettings(html, event);
-      });
 
-    $(html)
-      .find("#default-effects")
-      .on("click", async (event) => {
-        event.preventDefault();
-        MuncherSettings.setRecommendedCharacterActiveEffectSettings(html);
-      });
-
-    $(html)
-      .find(['.resource-selection input[type="checkbox"]'].join(","))
-      .on("change", async (event) => {
-        const updateData = { flags: { ddbimporter: { resources: { ask: event.currentTarget.checked } } } };
-        await this.actor.update(updateData);
-      });
-
-    $(html)
-      .find('.sync-policy input[type="checkbox"]')
-      .on("change", (event) => {
-        game.settings.set(
-          "ddb-importer",
-          "sync-policy-" + event.currentTarget.dataset.section,
-          event.currentTarget.checked,
-        );
-      });
 
     $(html)
       .find("#dndbeyond-character-dynamic-update")
       .on("change", async (event) => {
         const activeUpdateData = { flags: { ddbimporter: { activeUpdate: event.currentTarget.checked } } };
         await this.actor.update(activeUpdateData);
-      });
-
-    $(html)
-      .find("#dndbeyond-character-import-start")
-      .on("click", async (event) => {
-        // retrieve the character data from the proxy
-        event.preventDefault();
-        this.html = html;
-
-        try {
-          $(html).find("#dndbeyond-character-import-start").prop("disabled", true);
-          this.showCurrentTask("Getting Character data");
-          const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
-          const ddbCharacterOptions = {
-            currentActor: this.actor,
-            characterId,
-            selectResources: true,
-            enableCompanions: true,
-          };
-          const getOptions = {
-            syncId: null,
-            localCobaltPostFix: this.actor.id,
-          };
-          CONFIG.DDBI.keyPostfix = this.actor.id;
-          CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
-          this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-          await this.ddbCharacter.getCharacterData(getOptions);
-          logger.debug("import.js getCharacterData result", this.ddbCharacter);
-          if (game.settings.get("ddb-importer", "debug-json")) {
-            FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
-          }
-          if (this.ddbCharacter.source?.success) {
-            // begin parsing the character data
-            await this.processCharacterData();
-            this.showCurrentTask("Loading Character data", "Done.", false);
-            logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
-            this.close();
-          } else {
-            this.showCurrentTask(this.ddbCharacter.source.message, null, true);
-            return false;
-          }
-        } catch (error) {
-          switch (error.message) {
-            case "ImportFailure":
-              logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
-              break;
-            case "Forbidden":
-              this.showCurrentTask("Error retrieving Character: " + error, error, true);
-              break;
-            default:
-              logger.error(error);
-              logger.error(error.stack);
-              this.showCurrentTask("Error processing Character: " + error, error, true);
-              logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
-              break;
-          }
-          return false;
-        } finally {
-          delete CONFIG.DDBI.keyPostfix;
-          delete CONFIG.DDBI.useLocal;
-        }
-
-        $(html).find("#dndbeyond-character-import-start").prop("disabled", false);
-        return true;
       });
 
     $(html)
@@ -691,6 +665,70 @@ export default class DDBCharacterManager extends HandlebarsApplicationMixin(Appl
           this.showCurrentTask("Error opening JSON URL", error, true);
         }
       });
+  }
+
+  static async importCharacterClickEvent(_event, _target) {
+    // retrieve the character data from the proxy
+    console.warn("Importing Character", {
+      this: this,
+      event: _event,
+      target: _target,
+    });
+    try {
+      $(this.element).find("#dndbeyond-character-import-start").prop("disabled", true);
+      this.showCurrentTask("Getting Character data");
+      const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
+      const ddbCharacterOptions = {
+        currentActor: this.actor,
+        characterId,
+        selectResources: true,
+        enableCompanions: true,
+      };
+      const getOptions = {
+        syncId: null,
+        localCobaltPostFix: this.actor.id,
+      };
+      CONFIG.DDBI.keyPostfix = this.actor.id;
+      CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+      this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+      await this.ddbCharacter.getCharacterData(getOptions);
+      logger.debug("import.js getCharacterData result", this.ddbCharacter);
+      if (game.settings.get("ddb-importer", "debug-json")) {
+        FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
+      }
+      if (this.ddbCharacter.source?.success) {
+        // begin parsing the character data
+        await this.processCharacterData();
+        this.showCurrentTask("Loading Character data", "Done.", false);
+        logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
+        this.close();
+      } else {
+        this.showCurrentTask(this.ddbCharacter.source.message, null, true);
+        return false;
+      }
+    } catch (error) {
+      switch (error.message) {
+        case "ImportFailure":
+          logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
+          break;
+        case "Forbidden":
+          this.showCurrentTask("Error retrieving Character: " + error, error, true);
+          break;
+        default:
+          logger.error(error);
+          logger.error(error.stack);
+          this.showCurrentTask("Error processing Character: " + error, error, true);
+          logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
+          break;
+      }
+      return false;
+    } finally {
+      delete CONFIG.DDBI.keyPostfix;
+      delete CONFIG.DDBI.useLocal;
+    }
+
+    $(this.element).find("#dndbeyond-character-import-start").prop("disabled", false);
+    return true;
   }
 
   async enrichCharacterItems(items) {

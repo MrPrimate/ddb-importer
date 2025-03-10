@@ -304,7 +304,7 @@ export default class DDBCharacterManagerV1 extends FormApplication {
 
     const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
     this.dmSyncEnabled = characterId && this.importSettings.tiers.all;
-    this.activateListenersplayerSyncEnabled = characterId && useLocalPatreonKey;
+    this.playerSyncEnabled = characterId && useLocalPatreonKey;
     const syncEnabled = characterId && (this.importSettings.tiers.all || useLocalPatreonKey);
 
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
