@@ -1441,6 +1441,15 @@ export default class DDBClass {
       };
       this.data.system.advancement.push(sneakAttack);
     } else if (this.data.name === "Barbarian" && !this.is2014) {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Brutal Strike") continue;
+        advancement.configuration.type = "dice";
+        advancement.configuration.scale = {
+          9: { number: 1, faces: 10 },
+          17: { number: 2, faces: 10 },
+        };
+      };
+
       const damage = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
