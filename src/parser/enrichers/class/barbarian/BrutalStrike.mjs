@@ -9,7 +9,9 @@ export default class BrutalStrike extends DDBEnricherData {
 
   get activity() {
     return {
-      name: "Forceful Blow",
+      targetType: "creature",
+      noeffect: true,
+      name: "Brutal Strike Damage",
       data: {
         damage: {
           parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
@@ -22,15 +24,21 @@ export default class BrutalStrike extends DDBEnricherData {
     return [
       {
         constructor: {
+          name: "Forceful Blow",
+          type: "utility",
+        },
+        build: {
+          noeffect: true,
+          generateActivation: true,
+        },
+      },
+      {
+        constructor: {
           name: "Hamstrung Blow",
-          type: "damage",
+          type: "utility",
         },
         build: {
           generateActivation: true,
-          generateDamage: true,
-          damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
-          ],
         },
       },
     ];
@@ -43,8 +51,16 @@ export default class BrutalStrike extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("-15", 90, "system.attributes.movement.walk"),
         ],
-        data: {
-          "flags.ddbimporter.activityMatch": "Hamstrung Blow",
+        activityMatch: "Hamstrung Blow",
+      },
+      {
+        name: "Reckless Attack: Brutal Strike Damage",
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange("@scale.barbarian.brutal-strike", 20, "system.bonuses.mwak.damage"),
+        ],
+        options: {
+          transfer: true,
+          disabled: true,
         },
       },
     ];

@@ -3,6 +3,7 @@
 - Heroes' Feast Midi-Qol fix
 - Font of Magic generated/added sorcery point value to it as wel as the Sorcery Points feature.
 - Bard Feature: Blade Flourish corrections.
+- Fixes and improvements to Brutal Strike and Improved Brutal Strike. @netenes
 - Item enhancements: Air Render, Siege Staff @eikka
 - Sorcerer Sorcery Points corrections with Metamagic Adept. @co6dm
 - Legendary creatures legendary features could occasionally generate without an activity, and they would then appear in the Features section of the monster.

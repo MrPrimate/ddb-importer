@@ -9,9 +9,8 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "damage",
       targetType: "creature",
-      name: "Staggering Blow",
+      name: "Brutal Strike Damage",
       data: {
         damage: {
           parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],
@@ -25,14 +24,31 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
       {
         constructor: {
           name: "Staggering Blow",
-          type: "damage",
+          type: "utility",
         },
         build: {
           generateActivation: true,
-          generateDamage: true,
-          damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" }),
-          ],
+          generateDamage: false,
+        },
+        overrides: {
+          targetType: "creature",
+        },
+      },
+      {
+        constructor: {
+          name: "Sundering Blow",
+          type: "enchant",
+        },
+        build: {
+          generateActivation: true,
+          generateDamage: false,
+        },
+        overrides: {
+          data: {
+            restrictions: {
+              allowMagical: true,
+            },
+          },
         },
       },
     ];
@@ -43,11 +59,25 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
       {
         name: "Staggered",
         changes: [],
+        options: {
+          description: `Disadvantage on next saving throws and can't make opportunity attacks.`,
+        },
         activityMatch: "Staggering Blow",
       },
       {
-        name: "Sundered",
-        changes: [],
+        name: "Sundering Blow",
+        changes: [
+          {
+            type: "enchant",
+            name: `Sundering Blow Bonus`,
+            options: {
+              description: `A plus 5 bonus to hit the creature.`,
+            },
+            changes: [
+              DDBEnricherData.ChangeHelper.addChange("5", 20, "activities[attack].attack.bonus"),
+            ],
+          },
+        ],
         activityMatch: "Sundering Blow",
       },
     ];
