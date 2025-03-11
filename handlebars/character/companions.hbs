@@ -1,0 +1,13 @@
+<section id="ddb-character-manager-companions" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+  <fieldset>
+    <legend>Informations</legend>
+    <p>Extras can be added to your character sheet in D&D Beyond. These might be wild shapes, familiars, pets etc.</p>
+    <p>DDB Importer will do it's best to import them into a folder in your world. We call them companions, but DDB Importer calls them Extras!</p>
+  </fieldset>
+
+  <button data-action="importCompanions" type="button" id="dndbeyond-character-extras-start"
+    {{#if actor.flags.ddbimporter.dndbeyond.characterId}}enabled{{else}}disabled{{/if}}>
+    {{#if actor.flags.ddbimporter.dndbeyond.characterId}}Import Extras{{else}}Please Import the Character First{{/if}}</button>
+
+</section>

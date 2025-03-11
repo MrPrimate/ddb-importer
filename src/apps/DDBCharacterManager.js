@@ -57,6 +57,8 @@ export default class DDBCharacterManager extends DDBAppV2 {
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
       importCharacter: DDBCharacterManager.importCharacterClickEvent,
+      importCompanions: DDBCharacterManager.importCompanionsClickEvent,
+      updateCharacter: DDBCharacterManager.updateCharacterClickEvent,
     },
     position: {
       width: "900",
@@ -92,7 +94,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
         "modules/ddb-importer/handlebars/character/import/automation.hbs",
       ],
     },
+    companions: { template: "modules/ddb-importer/handlebars/character/companions.hbs" },
     update: { template: "modules/ddb-importer/handlebars/character/update.hbs" },
+    advanced: { template: "modules/ddb-importer/handlebars/character/advanced.hbs" },
     details: { template: "modules/ddb-importer/handlebars/character/details.hbs" },
     footer: { template: "modules/ddb-importer/handlebars/character/footer.hbs" },
   };
@@ -123,8 +127,14 @@ export default class DDBCharacterManager extends DDBAppV2 {
           },
         },
       },
+      companions: {
+        id: "companions", group: "sheet", label: "Import Companions", icon: "fas fa-pastafarianism",
+      },
       update: {
         id: "update", group: "sheet", label: "Update D&DBeyond", icon: "fas fa-arrow-alt-circle-up",
+      },
+      advanced: {
+        id: "advanced", group: "sheet", label: "Advanced", icon: "fas fa-cogs",
       },
     });
     return tabs;
@@ -146,6 +156,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
           case "resource-selection": {
             const updateData = { flags: { ddbimporter: { resources: { ask: event.currentTarget.checked } } } };
             await this.actor.update(updateData);
+            break;
+          }
+          case "dndbeyond-character-dynamic-update": {
+            const activeUpdateData = { flags: { ddbimporter: { activeUpdate: event.currentTarget.checked } } };
+            await this.actor.update(activeUpdateData);
             break;
           }
           default: {
@@ -237,6 +252,14 @@ export default class DDBCharacterManager extends DDBAppV2 {
         context.tab = context.tabs.update;
         break;
       }
+      case "companions": {
+        context.tab = context.tabs.companions;
+        break;
+      }
+      case "advanced": {
+        context.tab = context.tabs.advanced;
+        break;
+      }
       // no default
     };
     return context;
@@ -312,37 +335,6 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   activateListeners(html) {
-
-
-    $(html)
-      .find("#dndbeyond-character-dynamic-update")
-      .on("change", async (event) => {
-        const activeUpdateData = { flags: { ddbimporter: { activeUpdate: event.currentTarget.checked } } };
-        await this.actor.update(activeUpdateData);
-      });
-
-    $(html)
-      .find("#dndbeyond-character-update")
-      .on("click", async () => {
-        this.html = html;
-        try {
-          $(html).find("#dndbeyond-character-update").prop("disabled", true);
-          await updateDDBCharacter(this.actor).then((result) => {
-            const updateNotes = result
-              .flat()
-              .filter((r) => r !== undefined)
-              .map((r) => r.message)
-              .join(" ");
-            logger.debug(updateNotes);
-            this.showCurrentTask("Update complete", updateNotes);
-            $(html).find("#dndbeyond-character-update").prop("disabled", false);
-          });
-        } catch (error) {
-          logger.error(error);
-          logger.error(error.stack);
-          this.showCurrentTask("Error updating character", error, true);
-        }
-      });
 
     $(html)
       .find("#delete-local-cobalt")
@@ -426,58 +418,77 @@ export default class DDBCharacterManager extends DDBAppV2 {
         }
       });
 
-    $(html)
-      .find("#dndbeyond-character-extras-start")
-      .on("click", async () => {
-        this.html = html;
-        try {
-          $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
-          this.showCurrentTask("Fetching character data");
-          const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
-          const ddbCharacterOptions = {
-            currentActor: this.actor,
-            ddb: null,
-            characterId,
-            selectResources: false,
-          };
-          const getOptions = {
-            syncId: null,
-            localCobaltPostFix: this.actor.id,
-          };
-          this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-          await this.ddbCharacter.getCharacterData(getOptions);
-          logger.debug("import.js getCharacterData result", this.ddbCharacter);
-          const debugJson = game.settings.get("ddb-importer", "debug-json");
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
-          }
-          if (this.ddbCharacter.source?.success) {
-            await generateCharacterExtras(html, this.ddbCharacter, this.actor);
-            this.showCurrentTask("Loading Extras", "Done.", false);
-            $(html).find("#dndbeyond-character-extras-start").prop("disabled", true);
-            this.close();
-          } else {
-            this.showCurrentTask(this.ddbCharacter.source.message, null, true);
-            return false;
-          }
-        } catch (error) {
-          switch (error.message) {
-            case "ImportFailure":
-              logger.error("Failure");
-              break;
-            case "Forbidden":
-              this.showCurrentTask("Error retrieving Character: " + error, error, true);
-              break;
-            default:
-              logger.error(error);
-              logger.error(error.stack);
-              this.showCurrentTask("Error processing Character: " + error, error, true);
-              break;
-          }
-          return false;
-        }
-        return true;
+  }
+
+
+  static async updateCharacterClickEvent(_event, _target) {
+    try {
+      $(this.element).find("#dndbeyond-character-update").prop("disabled", true);
+      await updateDDBCharacter(this.actor).then((result) => {
+        const updateNotes = result
+          .flat()
+          .filter((r) => r !== undefined)
+          .map((r) => r.message)
+          .join(" ");
+        logger.debug(updateNotes);
+        this.showCurrentTask("Update complete", updateNotes);
+        $(this.element).find("#dndbeyond-character-update").prop("disabled", false);
       });
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+      this.showCurrentTask("Error updating character", error, true);
+    }
+  }
+
+  static async importCompanionsClickEvent(_event, _target) {
+    try {
+      $(this.element).find("#dndbeyond-character-extras-start").prop("disabled", true);
+      this.showCurrentTask("Fetching character data");
+      const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
+      const ddbCharacterOptions = {
+        currentActor: this.actor,
+        ddb: null,
+        characterId,
+        selectResources: false,
+      };
+      const getOptions = {
+        syncId: null,
+        localCobaltPostFix: this.actor.id,
+      };
+      this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+      await this.ddbCharacter.getCharacterData(getOptions);
+      logger.debug("import.js getCharacterData result", this.ddbCharacter);
+      const debugJson = game.settings.get("ddb-importer", "debug-json");
+      if (debugJson) {
+        FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
+      }
+      if (this.ddbCharacter.source?.success) {
+        await generateCharacterExtras(this.element, this.ddbCharacter, this.actor);
+        this.showCurrentTask("Loading Extras", "Done.", false);
+        $(this.element).find("#dndbeyond-character-extras-start").prop("disabled", true);
+        this.close();
+      } else {
+        this.showCurrentTask(this.ddbCharacter.source.message, null, true);
+        return false;
+      }
+    } catch (error) {
+      switch (error.message) {
+        case "ImportFailure":
+          logger.error("Failure");
+          break;
+        case "Forbidden":
+          this.showCurrentTask("Error retrieving Character: " + error, error, true);
+          break;
+        default:
+          logger.error(error);
+          logger.error(error.stack);
+          this.showCurrentTask("Error processing Character: " + error, error, true);
+          break;
+      }
+      return false;
+    }
+    return true;
   }
 
   static async importCharacterClickEvent(_event, _target) {
