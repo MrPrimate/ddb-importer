@@ -152,6 +152,22 @@ export default class DDBCharacterManager extends DDBAppV2 {
         await this.render();
       });
     });
+
+    this.element.querySelector("input[name=dndbeyond-url]").addEventListener('input', async (event) => {
+      await this.#handleURLUpdate(event);
+    });
+
+
+    this.element.querySelector("#open-dndbeyond-url").addEventListener('click', async () => {
+      try {
+        const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
+        DDBCharacterManager.renderPopup("json", characterUrl);
+      } catch (error) {
+        this.showCurrentTask("Error opening JSON URL", error, true);
+      }
+    });
+
+
   }
 
   /** @override */
@@ -233,6 +249,59 @@ export default class DDBCharacterManager extends DDBAppV2 {
   // }
 
   /* -------------------------------------------- */
+
+  async #handleURLUpdate(event) {
+    let URL = event.currentTarget.value;
+    const characterId = DDBCharacter.getCharacterId(URL);
+
+    const status = this.element.querySelector(".dndbeyond-url-status i");
+
+    // console.warn("URL", {
+    //   status,
+    //   classList: status.classList,
+    //   characterId,
+    //   URL,
+    // });
+
+    if (URL === "") {
+      status.classList.remove("fa-exclamation-triangle");
+      status.classList.remove("fa-check-circle");
+      status.classList.remove("fas");
+      status.style.color = "";
+      this.element.querySelector("span.dndbeyond-character-id").textContent = "";
+      this.element.querySelector("#dndbeyond-character-import-start").disabled = true;
+      this.element.querySelector("#open-dndbeyond-url").disabled = true;
+      this.showCurrentTask("URL Cleared", "", false);
+      await this.actor.update({
+        "flags.ddbimporter.dndbeyond": {
+          url: URL,
+          characterId,
+        },
+      });
+    } else if (characterId) {
+      status.classList.add("fas");
+      status.classList.remove("fa-exclamation-triangle");
+      status.classList.add("fa-check-circle");
+      status.style.color = "green";
+      this.element.querySelector("span.dndbeyond-character-id").textContent = characterId;
+      this.element.querySelector("#dndbeyond-character-import-start").disabled = false;
+      this.element.querySelector("#open-dndbeyond-url").disabled = false;
+      this.showCurrentTask("", "", false);
+
+      await this.actor.update({
+        "flags.ddbimporter.dndbeyond": {
+          url: URL,
+          characterId,
+        },
+      });
+
+    } else {
+      this.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
+      status.classList.add("fa-exclamation-triangle");
+      status.classList.remove("fa-check-circle");
+      status.style.color = "red";
+    }
+  }
 
   activateListeners(html) {
 
@@ -400,49 +469,6 @@ export default class DDBCharacterManager extends DDBAppV2 {
           return false;
         }
         return true;
-      });
-
-    $(html)
-      .find("input[name=dndbeyond-url]")
-      .on("input", async (event) => {
-        this.html = html;
-        let URL = event.target.value;
-        const characterId = DDBCharacter.getCharacterId(URL);
-
-        if (characterId) {
-          $(html)
-            .find(".dndbeyond-url-status i")
-            .replaceWith('<i class="fas fa-check-circle" style="color: green"></i>');
-          $(html).find("span.dndbeyond-character-id").text(characterId);
-          $(html).find("#dndbeyond-character-import-start").prop("disabled", false);
-          $(html).find("#open-dndbeyond-url").prop("disabled", false);
-
-          this.showCurrentTask("Saving reference");
-          await this.actor.update({
-            "flags.ddbimporter.dndbeyond": {
-              url: URL,
-              characterId,
-            },
-          });
-          this.showCurrentTask("Status");
-        } else {
-          this.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
-          $(html)
-            .find(".dndbeyond-url-status i")
-            .replaceWith('<i class="fas fa-exclamation-triangle" style="color:red"></i>');
-        }
-      });
-
-    $(html)
-      .find("#open-dndbeyond-url")
-      .on("click", () => {
-        this.html = html;
-        try {
-          const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
-          DDBCharacterManager.renderPopup("json", characterUrl);
-        } catch (error) {
-          this.showCurrentTask("Error opening JSON URL", error, true);
-        }
       });
   }
 
