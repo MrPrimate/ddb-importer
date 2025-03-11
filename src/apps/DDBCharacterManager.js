@@ -474,11 +474,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
   static async importCharacterClickEvent(_event, _target) {
     // retrieve the character data from the proxy
-    console.warn("Importing Character", {
-      this: this,
-      event: _event,
-      target: _target,
-    });
+    // console.warn("Importing Character", {
+    //   this: this,
+    //   event: _event,
+    //   target: _target,
+    // });
     try {
       $(this.element).find("#dndbeyond-character-import-start").prop("disabled", true);
 
@@ -486,11 +486,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
       const result = await this.characterImporter.importCharacter();
 
-      console.warn("Importing Character Result", {
-        result,
-        ddbCharacter: this.ddbCharacter,
-        characterImporter: this.characterImporter,
-      });
+      // console.warn("Importing Character Result", {
+      //   result,
+      //   ddbCharacter: this.ddbCharacter,
+      //   characterImporter: this.characterImporter,
+      // });
       if (result === true) {
         this.close();
       }
