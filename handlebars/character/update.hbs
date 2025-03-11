@@ -1,0 +1,59 @@
+<section id="ddb-character-manager-sync" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+  <fieldset>
+    <legend>Update selection</legend>
+
+    <div class="form-group stacked checkbox-grid">
+      <div class="form-fields" style="--num-cols:5;">
+        {{#each syncConfig}}
+        <label class="checkbox">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}"
+            data-section="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+            {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+          <span>{{this.label}}</span>
+        </label>
+        {{/each}}
+      </div>
+    </div>
+
+  </fieldset>
+
+  <fieldset>
+    <legend>Information</legend>
+    <p>Select the changes you wish to update on D&D Beyond.</p>
+    <p>Item update only works best with items imported from DDB into the Item Compendium or via a character.</p><p>If it comes from another source it will try to guess.</p>
+
+    <i>Action Uses sync is currently unavailable for this version of DDB Importer.</i>
+
+  </fieldset>
+
+  <button data-action="updateCharacter" type="button" id="dndbeyond-character-update"
+    {{#if syncEnabled}}enabled{{else if useLocalPatreonKey}}enabled{{else}}disabled{{/if}}>
+    {{#if tiers.supporter}}
+      {{#if itemsMunched}}Update D&D Beyond with changes{{else}}Please import D&D Beyond items and spells into your DDB compendiums first.{{/if}}
+    {{else if useLocalPatreonKey}}
+      {{#if itemsMunched}}Update D&D Beyond with changes{{else}}Your DM needs to import D&D Beyond items and spells into the DDB compendiums first.{{/if}}
+    {{else}}D&D Beyond Update Available to Patreon Supporters{{/if}}</button>
+
+    {{#if dynamicUpdateAllowed}}
+
+  <fieldset>
+  <legend>Dynamic Updates</legend>
+
+  <div class="form-group dndbeyond-character-dynamic-update">
+    <label class="ddbimporter-long">Enable Dynamic Updates to D&D Beyond?</label>
+    <div class="form-fields">
+      <dnd5e-checkbox name="dndbeyond-character-dynamic-update" id="dndbeyond-character-dynamic-update"
+      {{#if dynamicUpdateStatus}}checked{{/if}}
+      data-section="dndbeyond-character-dynamic-update"
+      {{#if dynamicUpdateAllowed}}enabled{{else}}disabled{{/if}}>Enable Dynamic Updates to D&D Beyond?</dnd5e-checkbox>
+    </div>
+    <p class="hint">Enable Dynamic Updates to D&D Beyond - sync above changes to D&D Beyond as they happen.</p>
+  </div>
+
+  <p>Only a GM can (currently) dynamically sync changes, and must be logged in to do so.</p>
+  {{#if dynamicUpdateAllowed}}{{else}}<p><b>Additional setup in module settings is required to configure this feature.</b></p>{{/if}}
+  </fieldset>
+  {{/if}}
+
+</section>

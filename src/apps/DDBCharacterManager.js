@@ -92,6 +92,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         "modules/ddb-importer/handlebars/character/import/automation.hbs",
       ],
     },
+    update: { template: "modules/ddb-importer/handlebars/character/update.hbs" },
     details: { template: "modules/ddb-importer/handlebars/character/details.hbs" },
     footer: { template: "modules/ddb-importer/handlebars/character/footer.hbs" },
   };
@@ -106,7 +107,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   _getTabs() {
     const tabs = this._markTabs({
       import: {
-        id: "import", group: "sheet", label: "Import", icon: "fas fa-arrow-alt-circle-down",
+        id: "import", group: "sheet", label: "Import Character", icon: "fas fa-arrow-alt-circle-down",
         tabs: {
           main: {
             id: "main", group: "import", label: "Import", icon: "fas fa-arrow-alt-circle-down",
@@ -121,6 +122,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
             id: "automation", group: "import", label: "Automation", icon: "fas fa-robot",
           },
         },
+      },
+      update: {
+        id: "update", group: "sheet", label: "Update D&DBeyond", icon: "fas fa-arrow-alt-circle-up",
       },
     });
     return tabs;
@@ -227,6 +231,10 @@ export default class DDBCharacterManager extends DDBAppV2 {
     switch (partId) {
       case "import": {
         context.tab = context.tabs[partId];
+        break;
+      }
+      case "update": {
+        context.tab = context.tabs.update;
         break;
       }
       // no default
