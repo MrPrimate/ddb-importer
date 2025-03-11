@@ -7,10 +7,10 @@ import {
   DDBCampaigns,
   FolderHelper,
 } from "../lib/_module.mjs";
-import { importCharacterById } from "./DDBCharacterManager.js";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBEncounters from "../parser/DDBEncounters.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
 
 export default class DDBEncounterMunch extends Application {
 
@@ -256,7 +256,7 @@ export default class DDBEncounterMunch extends Application {
     const importCharacters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters");
     if (importCharacters && this.encounter.missingCharacters) {
       await utils.asyncForEach(this.encounter.missingCharacterData, async (character) => {
-        await importCharacterById(character.ddbId, html);
+        await DDBCharacterImporter.importCharacterById(character.ddbId, html);
       });
     }
   }

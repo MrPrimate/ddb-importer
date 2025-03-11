@@ -10,7 +10,7 @@ import DDBEncounterMunch from "./apps/DDBEncounterMunch.js";
 import DDBEncounters from "./parser/DDBEncounters.js";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
-import DDBCharacterManager, { importCharacter, importCharacterById } from "./apps/DDBCharacterManager.js";
+import DDBCharacterManager from "./apps/DDBCharacterManager.js";
 import { getFeats } from "./muncher/feats/feats.js";
 import { External, DDBEffectHelper, AuraAutomations } from "./effects/_module.mjs";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
@@ -21,6 +21,7 @@ import * as Enrichers from "./parser/enrichers/_module.mjs";
 import * as ParserLib from "./parser/lib/_module.mjs";
 import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface.mjs";
 import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";
+import DDBCharacterImporter from "./muncher/DDBCharacterImporter.mjs";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -63,7 +64,7 @@ async function updateFoundryCharacters() {
     const ddbImported = 'ddbimporter' in actor.flags;
     if (ddbImported && actor.type === "character") {
       lib.logger.info(`Updating ${actor.name} to DDB`);
-      await importCharacter(actor);
+      await DDBCharacterImporter.importCharacter(actor);
     }
   }
 }
@@ -103,6 +104,7 @@ export function registerApi() {
       CompendiumHelper: lib.CompendiumHelper,
       DDBCampaigns: lib.DDBCampaigns,
       DDBCharacterManager,
+      DDBCharacterImporter,
       DDBCompanion2014,
       DDBCompanionFactory,
       // Companions,
@@ -142,8 +144,8 @@ export function registerApi() {
     generateAdventureConfig,
     downloadAdventureConfig,
 
-    importCharacter, // imports an actor
-    importCharacterById, // imports and actor by id
+    importCharacter: DDBCharacterImporter.importCharacter, // imports an actor
+    importCharacterById: DDBCharacterImporter.importCharacterById, // imports and actor by id
     updateDDBCharacter, // updates an actor back to ddb
 
     // bulk update
