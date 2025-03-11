@@ -24,25 +24,25 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   let effect = {
     changes: [
       {
-        key: "data.bonuses.rwak.attack",
+        key: "system.bonuses.rwak.attack",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: `+${characterProficiencyBonus}`,
         priority: 20,
       },
       {
-        key: "data.bonuses.rwak.damage",
+        key: "system.bonuses.rwak.damage",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: `+${characterProficiencyBonus}`,
         priority: 20,
       },
       {
-        key: "data.bonuses.mwak.attack",
+        key: "system.bonuses.mwak.attack",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: `+${characterProficiencyBonus}`,
         priority: 20,
       },
       {
-        key: "data.bonuses.mwak.damage",
+        key: "system.bonuses.mwak.damage",
         mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
         value: `+${characterProficiencyBonus}`,
         priority: 20,
