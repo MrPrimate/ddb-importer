@@ -50,7 +50,10 @@ export default class VitalityOfTheTree extends DDBEnricherData {
               type: "ally",
             },
           },
-          healingPart: DDBEnricherData.basicDamagePart({ customFormula: "(@scale.barbarian.rage-damage)d4", type: "temphp" }),
+          healingPart: DDBEnricherData.basicDamagePart({
+            customFormula: "(@scale.barbarian.rage-damage)d6",
+            type: "temphp",
+          }),
         },
       },
     ];
