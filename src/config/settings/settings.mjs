@@ -415,10 +415,6 @@ const SETTINGS = {
           type: Number,
           default: 0.9,
         },
-        "settings-call-muncher": {
-          type: Boolean,
-          default: false,
-        },
         "update-check": {
           name: "ddb-importer.settings.update-check.name",
           config: true,

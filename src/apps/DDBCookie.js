@@ -1,13 +1,14 @@
 import DDBMuncher from "../apps/DDBMuncher.js";
 import { Secrets } from "../lib/_module.mjs";
-import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBCookie extends FormApplication {
 
-  constructor(options, actor = null, localCobalt = false) {
-    super(options);
+  constructor({ actor = null, localCobalt = false, callMuncher = false, callback = null } = {}) {
+    super({});
     this.localCobalt = localCobalt;
     this.actor = actor;
+    this.callMuncher = callMuncher;
+    this.callback = callback;
   }
 
   static get defaultOptions() {
@@ -47,14 +48,12 @@ export default class DDBCookie extends FormApplication {
 
     const cobaltStatus = await Secrets.checkCobalt();
     if (!cobaltStatus.success) {
-      new DDBCookie().render(true);
-    } else {
-      const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
-
-      if (callMuncher) {
-        game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
-        new DDBMuncher().render(true);
-      }
+      new DDBCookie({ actor: this.actor, localCobalt: this.localCobalt, callMuncher: this.callMuncher }).render(true);
+    } else if (this.callMuncher) {
+      new DDBMuncher().render(true);
+    } else if (this.callback) {
+      this.callback();
     }
+
   }
 }

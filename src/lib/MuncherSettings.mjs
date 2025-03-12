@@ -210,7 +210,7 @@ const MuncherSettings = {
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-full-spell-list"),
         label: "Import full spell list?",
         hint:
-          "If a Cobalt Cookie is set, import all available spells for classes such as Cleric, where spells can be changed out on a long rest.",
+          "If a Cobalt Cookie is set, import all available spells for prepared casters classes such as Clerics, where spells can be changed out on a long rest.",
         enabled: true,
       },
       {

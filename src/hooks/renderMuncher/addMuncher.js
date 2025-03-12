@@ -26,11 +26,10 @@ export function addMuncher(app, html) {
           new DDBMuncher().render(true);
         }
       } else {
-        new DDBCookie().render(true);
+        new DDBCookie({ callMuncher: true }).render(true);
       }
     } else {
-      game.settings.set("ddb-importer", "settings-call-muncher", true);
-      new DDBSetup().render(true);
+      new DDBSetup({ callMuncher: true }).render(true);
     }
   });
 

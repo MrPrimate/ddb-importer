@@ -59,6 +59,10 @@ export default class DDBCharacterManager extends DDBAppV2 {
       importCharacter: DDBCharacterManager.importCharacterClickEvent,
       importCompanions: DDBCharacterManager.importCompanionsClickEvent,
       updateCharacter: DDBCharacterManager.updateCharacterClickEvent,
+      deleteLocalCobalt: DDBCharacterManager.deleteLocalCobaltClickEvent,
+      setLocalCobalt: DDBCharacterManager.setLocalCobaltClickEvent,
+      deleteLocalPatreonKey: DDBCharacterManager.deleteLocalPatreonKeyClickEvent,
+      setLocalPatreonKey: DDBCharacterManager.setLocalPatreonKeyClickEvent,
     },
     position: {
       width: "900",
@@ -230,7 +234,8 @@ export default class DDBCharacterManager extends DDBAppV2 {
       dynamicUpdateAllowed,
       dynamicUpdateStatus,
       resourceSelection,
-      useLocalPatreonKey: useLocalPatreonKey && this.itemsMunched,
+      useLocalPatreonKey,
+      useLocalPatreonKeyAndItemsMunched: useLocalPatreonKey && this.itemsMunched,
     };
 
     let context = foundry.utils.mergeObject(this.importSettings, this.actorSettings);
@@ -334,96 +339,85 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  activateListeners(html) {
-
-    $(html)
-      .find("#delete-local-cobalt")
-      .on("click", async () => {
-        this.html = html;
-        try {
-          Secrets.deleteLocalCobalt(this.actor.id);
-          $(html).find("#delete-local-cobalt").prop("disabled", true);
-          $(html).find("#set-local-cobalt").text("Add Cobalt Cookie");
-        } catch (error) {
-          logger.error(error);
-          logger.error(error.stack);
-          this.showCurrentTask("Error deleting local cookie", error, true);
-        }
-      });
-
-    $(html)
-      .find("#set-local-cobalt")
-      .on("click", async () => {
-        this.html = html;
-        try {
-          new DDBCookie({}, this.actor, true).render(true);
-          $(html).find("#delete-local-cobalt").prop("disabled", false);
-          $(html).find("#set-local-cobalt").text("Update Cobalt Cookie");
-        } catch (error) {
-          logger.error(error);
-          logger.error(error.stack);
-          this.showCurrentTask("Error setting local cookie", error, true);
-        }
-      });
-
-    $(html)
-      .find("#delete-local-patreon-key")
-      .on("click", async () => {
-        this.html = html;
-        try {
-          await PatreonHelper.setPatreonKey(null, true);
-          await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } });
-          $(html).find("#delete-local-patreon-key").prop("disabled", true);
-          $(html).find("#set-local-patreon-key").text("Add Patreon Key");
-          if (!this.dmSyncEnabled) {
-            $(html).find("#dndbeyond-character-update").prop("disabled", true);
-            $(html).find("#dndbeyond-character-update").text("D&D Beyond Update Available to Patreon Supporters");
-          }
-        } catch (error) {
-          logger.error(error);
-          logger.error(error.stack);
-          this.showCurrentTask("Error deleting local cookie", error, true);
-        }
-      });
-
-    $(html)
-      .find("#set-local-patreon-key")
-      .on("click", async () => {
-        this.html = html;
-        const updateActorState = async () => {
-          await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: true } } });
-          $(html).find("#delete-local-patreon-key").prop("disabled", false);
-          $(html).find("#set-local-patreon-key").text("Update Patreon Key");
-          if (this.itemsMunched) {
-            $(html).find("#dndbeyond-character-update").prop("disabled", false);
-            $(html).find("#dndbeyond-character-update").text("Update D&D Beyond with changes");
-          } else {
-            $(html).find("#dndbeyond-character-update").text("Your DM needs to import D&D Beyond items and spells into the DDB compendiums first.");
-          }
-        };
-        try {
-          const existingKey = await PatreonHelper.getPatreonKey(true);
-          if (!this.actor.flags.ddbimporter?.useLocalPatreonKey && existingKey && existingKey !== "") {
-            await updateActorState();
-          } else {
-            new DDBKeyChange({
-              local: true,
-              success: updateActorState,
-            }).render(true);
-          }
-        } catch (error) {
-          logger.error(error);
-          logger.error(error.stack);
-          this.showCurrentTask("Error setting local patreon key", error, true);
-        }
-      });
-
+  async setLocalPatreonKey() {
+    await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: true } } });
+    this.element.querySelector("#delete-local-patreon-key").disabled = false;
+    this.element.querySelector("#set-local-patreon-key").textContent = "Update Patreon Key";
+    if (this.itemsMunched) {
+      this.element.querySelector("#dndbeyond-character-update").disabled = false;
+      this.element.querySelector("#dndbeyond-character-update").textContent = "Update D&D Beyond with changes";
+    } else {
+      this.element.querySelector("#dndbeyond-character-update").textContent = "Your DM needs to import D&D Beyond items and spells into the DDB compendiums first.";
+    }
   }
 
+  static async setLocalPatreonKeyClickEvent(_event, _target) {
+    try {
+      const existingKey = await PatreonHelper.getPatreonKey(true);
+      if (!this.actor.flags.ddbimporter?.useLocalPatreonKey && existingKey && existingKey !== "") {
+        await this.setLocalPatreonKey();
+      } else {
+        new DDBKeyChange({
+          local: true,
+          callback: this.setLocalPatreonKey.bind(this),
+        }).render(true);
+      }
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+      this.showCurrentTask("Error setting local patreon key", error, true);
+    }
+  }
+
+  static async deleteLocalPatreonKeyClickEvent(_event, _target) {
+    try {
+      await PatreonHelper.setPatreonKey(null, true);
+      await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } });
+      this.element.querySelector("#delete-local-patreon-key").disabled = true;
+      this.element.querySelector("#set-local-patreon-key").textContent = "Add Patreon Key";
+      if (!this.dmSyncEnabled) {
+        this.element.querySelector("#dndbeyond-character-update").disabled = true;
+        this.element.querySelector("#dndbeyond-character-update").textContent = "D&D Beyond Update Available to Patreon Supporters";
+      }
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+      this.showCurrentTask("Error deleting local cookie", error, true);
+    }
+  }
+
+  static async setLocalCobaltClickEvent(_event, _target) {
+    try {
+      new DDBCookie({
+        actor: this.actor,
+        localCobalt: true,
+        callback: () => {
+          this.element.querySelector("#delete-local-cobalt").disabled = false;
+          this.element.querySelector("#set-local-cobalt").textContent = "Update Cobalt Cookie";
+        },
+      }).render(true);
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+      this.showCurrentTask("Error setting local cookie", error, true);
+    }
+  }
+
+  static async deleteLocalCobaltClickEvent(_event, _target) {
+    try {
+      Secrets.deleteLocalCobalt(this.actor.id);
+      this.element.querySelector("#delete-local-cobalt").disabled = true;
+      this.element.querySelector("#set-local-cobalt").textContent = "Add Cobalt Cookie";
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+      this.showCurrentTask("Error deleting local cookie", error, true);
+    }
+  }
 
   static async updateCharacterClickEvent(_event, _target) {
     try {
-      $(this.element).find("#dndbeyond-character-update").prop("disabled", true);
+      this.element.querySelector("#dndbeyond-character-update").disabled = true;
       await updateDDBCharacter(this.actor).then((result) => {
         const updateNotes = result
           .flat()
@@ -432,7 +426,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
           .join(" ");
         logger.debug(updateNotes);
         this.showCurrentTask("Update complete", updateNotes);
-        $(this.element).find("#dndbeyond-character-update").prop("disabled", false);
+        this.element.querySelector("#dndbeyond-character-update").disabled = false;
       });
     } catch (error) {
       logger.error(error);
@@ -443,7 +437,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
   static async importCompanionsClickEvent(_event, _target) {
     try {
-      $(this.element).find("#dndbeyond-character-extras-start").prop("disabled", true);
+      this.element.querySelector("#dndbeyond-character-extras-start").disabled = true;
       this.showCurrentTask("Fetching character data");
       const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
       const ddbCharacterOptions = {
@@ -466,7 +460,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       if (this.ddbCharacter.source?.success) {
         await generateCharacterExtras(this.element, this.ddbCharacter, this.actor);
         this.showCurrentTask("Loading Extras", "Done.", false);
-        $(this.element).find("#dndbeyond-character-extras-start").prop("disabled", true);
+        this.element.querySelector("#dndbeyond-character-extras-start").disabled = true;
         this.close();
       } else {
         this.showCurrentTask(this.ddbCharacter.source.message, null, true);
@@ -492,24 +486,12 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   static async importCharacterClickEvent(_event, _target) {
-    // retrieve the character data from the proxy
-    // console.warn("Importing Character", {
-    //   this: this,
-    //   event: _event,
-    //   target: _target,
-    // });
     try {
-      $(this.element).find("#dndbeyond-character-import-start").prop("disabled", true);
+      this.element.querySelector("#dndbeyond-character-import-start").disabled = true;
 
       this.showCurrentTask("Preparing Importer...");
 
       const result = await this.characterImporter.importCharacter();
-
-      // console.warn("Importing Character Result", {
-      //   result,
-      //   ddbCharacter: this.ddbCharacter,
-      //   characterImporter: this.characterImporter,
-      // });
       if (result === true) {
         this.close();
       }
@@ -534,7 +516,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       delete CONFIG.DDBI.useLocal;
     }
 
-    $(this.element).find("#dndbeyond-character-import-start").prop("disabled", false);
+    this.element.querySelector("#dndbeyond-character-import-start").disabled = false;
     return true;
   }
 

@@ -501,7 +501,7 @@ export default class DDBCharacterManagerV1 extends FormApplication {
       .on("click", async () => {
         this.html = html;
         try {
-          new DDBCookie({}, this.actor, true).render(true);
+          new DDBCookie({ actor: this.actor, localCobalt: true }).render(true);
           $(html).find("#delete-local-cobalt").prop("disabled", false);
           $(html).find("#set-local-cobalt").text("Update Cobalt Cookie");
         } catch (error) {
@@ -553,7 +553,7 @@ export default class DDBCharacterManagerV1 extends FormApplication {
           } else {
             new DDBKeyChange({
               local: true,
-              success: updateActorState,
+              callback: updateActorState,
             }).render(true);
           }
         } catch (error) {

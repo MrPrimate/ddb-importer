@@ -37,6 +37,11 @@ export default class DDBSetup extends FormApplication {
     return "DDB Importer Settings";
   }
 
+  constructor({ callMuncher = false } = {}) {
+    super();
+    this.callMuncher = callMuncher;
+  }
+
   /** @override */
   async getData() { // eslint-disable-line class-methods-use-this
     const cobalt = Secrets.getCobalt();
@@ -173,14 +178,11 @@ export default class DDBSetup extends FormApplication {
     await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
     await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
 
-    const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
-
-    if (callMuncher && cobaltCookie === "") {
+    if (this.callMuncher && cobaltCookie === "") {
       $('#munching-task-setup').text(`To use Muncher you need to set a Cobalt Cookie value!`);
       $('#ddb-importer-settings').css("height", "auto");
       throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
-    } else if (callMuncher) {
-      game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
+    } else if (this.callMuncher) {
       new DDBMuncher().render(true);
     }
   }

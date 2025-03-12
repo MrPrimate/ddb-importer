@@ -28,7 +28,7 @@
   </fieldset>
 
   <button data-action="updateCharacter" type="button" id="dndbeyond-character-update"
-    {{#if syncEnabled}}enabled{{else if useLocalPatreonKey}}enabled{{else}}disabled{{/if}}>
+    {{#if syncEnabled}}enabled{{else if useLocalPatreonKeyAndItemsMunched}}enabled{{else}}disabled{{/if}}>
     {{#if tiers.supporter}}
       {{#if itemsMunched}}Update D&D Beyond with changes{{else}}Please import D&D Beyond items and spells into your DDB compendiums first.{{/if}}
     {{else if useLocalPatreonKey}}

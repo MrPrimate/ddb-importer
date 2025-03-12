@@ -6,13 +6,13 @@
 
     <p>You can save a Cobalt Cookie to use just for this character. This is saved in your browser and can only be used by you, on the current machine.</p>
 
-      <button type="button" id="delete-local-cobalt" {{#if cobaltSet}}enabled{{else}}disabled{{/if}}>Delete local Cobalt Cookie</button>
-      <button type="button" id="set-local-cobalt">{{#if cobaltSet}}Update Cobalt Cookie{{else}}Add Cobalt Cookie{{/if}}</button>
+      <button data-action="deleteLocalCobalt" type="button" id="delete-local-cobalt" {{#if cobaltSet}}enabled{{else}}disabled{{/if}}>Delete local Cobalt Cookie</button>
+      <button data-action="setLocalCobalt" type="button" id="set-local-cobalt">{{#if cobaltSet}}Update Cobalt Cookie{{else}}Add Cobalt Cookie{{/if}}</button>
 
     <p>You can save a Patreon key to use just for this character. This is saved in your browser and can only be used by you, on the current machine to update the character back to DDB.</p>
 
-      <button type="button" id="delete-local-patreon-key" {{#if useLocalPatreonKey}}enabled{{else}}disabled{{/if}}>Delete local Patreon Key</button>
-      <button type="button" id="set-local-patreon-key">{{#if useLocalPatreonKey}}Update Patreon Key{{else}}Add Patreon Key{{/if}}</button>
+      <button data-action="deleteLocalPatreonKey" type="button" id="delete-local-patreon-key" {{#if useLocalPatreonKey}}enabled{{else}}disabled{{/if}}>Delete local Patreon Key</button>
+      <button data-action="setLocalPatreonKey" type="button" id="set-local-patreon-key">{{#if useLocalPatreonKey}}Update Patreon Key{{else}}Add Patreon Key{{/if}}</button>
 
     </fieldset>
 

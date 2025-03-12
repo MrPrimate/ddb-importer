@@ -1,16 +1,16 @@
 import { PatreonHelper } from "../lib/_module.mjs";
 import DDBMuncher from "./DDBMuncher.js";
-import { SETTINGS } from "../config/_module.mjs";
 
 export class DDBKeyChange extends FormApplication {
 
-  constructor({ local = false, success = null } = {}, options = {}) {
+  constructor({ local = false, callback = null, callMuncher = false } = {}, options = {}) {
     options.template = local
       ? "modules/ddb-importer/handlebars/local-key.hbs"
       : "modules/ddb-importer/handlebars/key-change.hbs";
     super({}, options);
     this.local = local;
-    this.success = success;
+    this.callback = callback;
+    this.callMuncher = callMuncher;
   }
 
   static get defaultOptions() {
@@ -68,15 +68,13 @@ export class DDBKeyChange extends FormApplication {
     if (currentKey !== formData['beta-key']) {
       await PatreonHelper.setPatreonKey(formData['beta-key'], this.local);
       await PatreonHelper.setPatreonTier(this.local);
-      if (this.success) {
-        this.success();
-      }
     }
 
-    const callMuncher = game.settings.get(SETTINGS.MODULE_ID, "settings-call-muncher");
+    if (this.callback) {
+      await this.callback();
+    }
 
-    if (callMuncher) {
-      game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", false);
+    if (this.callMuncher) {
       new DDBMuncher().render(true);
     }
 
@@ -95,8 +93,7 @@ export async function isValidKey() {
       validKey = true;
     } else {
       validKey = false;
-      game.settings.set(SETTINGS.MODULE_ID, "settings-call-muncher", true);
-      new DDBKeyChange().render(true);
+      new DDBKeyChange({ callMuncher: true }).render(true);
     }
   }
   return validKey;
