@@ -11,87 +11,8 @@ import { SETTINGS } from "../config/_module.mjs";
 import DDBEncounters from "../parser/DDBEncounters.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
-import DDBAppV2 from "./DDBAppV2.js";
 
-export default class DDBEncounterMunch extends DDBAppV2 {
-
-  /** @inheritDoc */
-  static DEFAULT_OPTIONS = {
-    id: "ddb-encounter-muncher",
-    classes: ["sheet", "standard-form", "dnd5e2"],
-    actions: {
-      importEncounter: "TODO",
-    },
-    position: {
-      width: "800",
-      height: "auto",
-    },
-    window: {
-      icon: 'fab fa-d-and-d-beyond',
-      title: "Encounter Muncher",
-      resizable: true,
-      minimizable: true,
-      subtitle: "",
-    },
-  };
-
-  static PARTS = {
-    header: { template: "modules/ddb-importer/handlebars/encounters/header.hbs" },
-    tabs: { template: "templates/generic/tab-navigation.hbs" },
-    main: {
-      template: "modules/ddb-importer/handlebars/encounters/main.hbs",
-    },
-    details: { template: "modules/ddb-importer/handlebars/encounters/details.hbs" },
-    footer: { template: "modules/ddb-importer/handlebars/encounters/footer.hbs" },
-  };
-
-  /** @override */
-  tabGroups = {
-    sheet: "main",
-  };
-
-
-  /** @override */
-  _getTabs() {
-    const tabs = this._markTabs({
-      main: {
-        id: "main", group: "sheet", label: "Import", icon: "fas fa-info",
-      },
-    });
-    return tabs;
-  }
-
-  /** @inheritDoc */
-  _onRender(context, options) {
-    super._onRender(context, options);
-
-    // custom listeners
-
-
-    // watch the change of the muncher-policy-selector checkboxes
-    this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
-      checkbox.addEventListener('change', async (event) => {
-        await MuncherSettings.updateMuncherSettings(this.element, event);
-        await this.render();
-      });
-    });
-
-  }
-
-  async _prepareContext(options) {
-    let context = MuncherSettings.getMuncherSettings();
-    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
-    logger.debug("Encounters: _prepareContext", context);
-    return context;
-  }
-
-  /** @override */
-  // eslint-disable-next-line class-methods-use-this
-  async _preparePartContext(partId, context) {
-    context.tab = context.tabs[partId];
-    return context;
-  }
-
+export default class DDBEncounterMunch extends Application {
 
   constructor(options = {}) {
     super(options);
@@ -132,6 +53,20 @@ export default class DDBEncounterMunch extends DDBAppV2 {
       $("#munching-task-notes").text(note);
       $("#ddb-importer-monsters").css("height", "auto");
     }
+  }
+
+  static get defaultOptions() {
+    const options = super.defaultOptions;
+    options.baseApplication = "DDBEncounterMuncher";
+    options.id = "ddb-importer-encounters";
+    options.template = "modules/ddb-importer/handlebars/encounters.hbs";
+    options.resizable = false;
+    options.height = "auto";
+    options.width = 800;
+    options.title = "MrPrimate's DDB Encounter Muncher";
+    options.classes = ["ddb-muncher", "sheet"];
+    options.tabs = [{ navSelector: ".tabs", contentSelector: "div", initial: "settings" }];
+    return options;
   }
 
   async parseEncounter(id) {

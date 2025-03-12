@@ -1,0 +1,73 @@
+<section id="ddb-encounter-munch-main" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+  <fieldset>
+    <legend>Encounter Selector</legend>
+      <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select">
+        <option value="">Filter encounters by Campaign?</option>
+        {{#each availableCampaigns}}
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+        {{/each}}
+      </select>
+
+    <select name="encounter-select" class="form-select" id="encounter-select">
+      <option value="">Choose your encounter here!</option>
+      {{#each availableEncounters}}
+      <option value="{{this.id}}">{{this.name}} ({{this.campaign.name}})</option>
+      {{/each}}
+    </select>
+  </fieldset>
+
+  <fieldset>
+    <legend>Encounter Selector</legend>
+    <div class="form-description" id="campaign-details">
+      <p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>
+      <p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>
+      <p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>
+      <p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>
+      <p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>
+      <p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>
+      <p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Encounter Options</legend>
+
+    <div class="encounter-import-group">
+      {{#each encounterConfig}}
+      <div class="form-group encounter-import-policy-config">
+        <label class="ddbimporter-long">{{ this.label }}</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+        </div>
+        <p class="hint">{{{this.hint}}}</p>
+      </div>
+      {{/each}}
+    </div>
+  </fieldset>
+
+
+  <div class="form-group">
+    <select name="encounter-scene-img-select" class="form-select" id="encounter-scene-img-select" {{#if createSceneSelect}}{{else}}disabled{{/if}}>
+      <option value="">No scene background image</option>
+      {{#each sceneImg}}
+      <option value="{{this.img}}">{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="form-group">
+    <select name="encounter-scene-select" class="form-select" id="encounter-scene-select" {{#if existingSceneSelect}}{{else}}disabled{{/if}}>
+      <option value="">Scene selection...</option>
+      {{#each scenes}}
+      <option value="{{this.id}}">{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <hr>
+  <div class="munching-task-setup" id="munching-task-setup" style="color: red">
+  </div>
+  <button data-action="importEncounter" id="encounter-button" class="encounter-button" disabled>Import Encounter</button>
+
+
+</section>
