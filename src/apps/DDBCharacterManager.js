@@ -103,6 +103,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     advanced: { template: "modules/ddb-importer/handlebars/character/advanced.hbs" },
     details: { template: "modules/ddb-importer/handlebars/character/details.hbs" },
     footer: { template: "modules/ddb-importer/handlebars/character/footer.hbs" },
+    help: { template: "modules/ddb-importer/handlebars/character/help.hbs" },
   };
 
   /** @override */
@@ -139,6 +140,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
       },
       advanced: {
         id: "advanced", group: "sheet", label: "Advanced", icon: "fas fa-cogs",
+      },
+      help: {
+        id: "help", group: "sheet", label: "Help", icon: "fas fa-question-circle",
       },
     });
     return tabs;
@@ -249,22 +253,22 @@ export default class DDBCharacterManager extends DDBAppV2 {
   // eslint-disable-next-line class-methods-use-this
   async _preparePartContext(partId, context) {
     switch (partId) {
-      case "import": {
+      default: {
         context.tab = context.tabs[partId];
         break;
       }
-      case "update": {
-        context.tab = context.tabs.update;
-        break;
-      }
-      case "companions": {
-        context.tab = context.tabs.companions;
-        break;
-      }
-      case "advanced": {
-        context.tab = context.tabs.advanced;
-        break;
-      }
+      // case "update": {
+      //   context.tab = context.tabs.update;
+      //   break;
+      // }
+      // case "companions": {
+      //   context.tab = context.tabs.companions;
+      //   break;
+      // }
+      // case "advanced": {
+      //   context.tab = context.tabs.advanced;
+      //   break;
+      // }
       // no default
     };
     return context;
