@@ -179,7 +179,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredSpells, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
-  resolvedNotifier(`Importing ${finalCount} spells...`, true);
+  resolvedNotifier(`Importing ${finalCount} spells...`, { nameField: true });
   logger.time("Spell Import Time");
 
   await itemHandler.compendiumFolders.loadCompendium("spells", true);
@@ -195,7 +195,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   await DDBCompendiumFolders.cleanupCompendiumFolders("spells", resolvedNotifier);
 
   logger.debug("Starting Spell List Generation");
-  resolvedNotifier(`Generating Spell List Journals...`, true);
+  resolvedNotifier(`Generating Spell List Journals...`, { nameField: true });
   await spellListFactory.buildSpellLists();
   await spellListFactory.registerSpellLists();
   logger.debug("Spell List Generation Complete");

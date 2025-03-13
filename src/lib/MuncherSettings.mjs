@@ -754,7 +754,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         name: "munching-policy-exclude-legacy",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy"),
         label: "Exclude legacy?",
-        hint: "Exclude legacy things from import? These are replaced by newer versions e.g. in Monsters of the Multiverse, 2024 PHB.",
+        hint: "Exclude legacy things from import? This is anything marked as legacy on DDB. If you are trying to import 2014 PHB/DMG/MM, do not select this. If yu want to exclude things replaced by newer versions e.g. in Monsters of the Multiverse then these fall under the Legacy category and should be excluded in the section below.",
         enabled: true,
       },
       {

@@ -42,7 +42,7 @@ async function getFrameData() {
         return data;
       })
       .then((data) => {
-        utils.munchNote(`Retrieved ${data.data.length} frames, starting parse...`, true, false);
+        utils.munchNote(`Retrieved ${data.data.length} frames, starting parse...`, { nameField: true });
         logger.info(`Retrieved ${data.data.length} frames`);
         resolve(data.data);
       })

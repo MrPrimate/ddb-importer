@@ -10,7 +10,7 @@ import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBMonsterImporter {
 
-  constructor({ monster, type, updateExisting } = {}) {
+  constructor({ monster, type, updateExisting, notifier } = {}) {
     this.monster = monster;
     this.type = type;
     this.updataExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
@@ -19,7 +19,7 @@ export default class DDBMonsterImporter {
 
 
     this.itemImporter = new DDBItemImporter(type, [], {
-      notifier: utils.munchNote,
+      notifier: notifier ?? utils.munchNote,
     });
   }
 

@@ -190,7 +190,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
         DDBCharacterManager.renderPopup("json", characterUrl);
       } catch (error) {
-        this.showCurrentTask("Error opening JSON URL", error, true);
+        this.showCurrentTask("Error opening JSON URL", { message: error, isError: true });
       }
     });
 
@@ -257,25 +257,12 @@ export default class DDBCharacterManager extends DDBAppV2 {
         context.tab = context.tabs[partId];
         break;
       }
-      // case "update": {
-      //   context.tab = context.tabs.update;
-      //   break;
-      // }
-      // case "companions": {
-      //   context.tab = context.tabs.companions;
-      //   break;
-      // }
-      // case "advanced": {
-      //   context.tab = context.tabs.advanced;
-      //   break;
-      // }
-      // no default
     };
     return context;
   }
 
 
-  showCurrentTask(title, message = null, isError = false) {
+  showCurrentTask(title, { message = null, isError = false } = {}) {
     let element = $(this.element).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
     $(this.element).parent().parent().css("height", "auto");
@@ -311,7 +298,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       this.element.querySelector("span.dndbeyond-character-id").textContent = "";
       this.element.querySelector("#dndbeyond-character-import-start").disabled = true;
       this.element.querySelector("#open-dndbeyond-url").disabled = true;
-      this.showCurrentTask("URL Cleared", "", false);
+      this.showCurrentTask("URL Cleared", { message: "", isError: false });
       await this.actor.update({
         "flags.ddbimporter.dndbeyond": {
           url: URL,
@@ -326,7 +313,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       this.element.querySelector("span.dndbeyond-character-id").textContent = characterId;
       this.element.querySelector("#dndbeyond-character-import-start").disabled = false;
       this.element.querySelector("#open-dndbeyond-url").disabled = false;
-      this.showCurrentTask("", "", false);
+      this.showCurrentTask("", { message: "", isError: false });
 
       await this.actor.update({
         "flags.ddbimporter.dndbeyond": {
@@ -336,7 +323,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       });
 
     } else {
-      this.showCurrentTask("URL format incorrect", "That seems not to be the URL we expected...", true);
+      this.showCurrentTask("URL format incorrect", { message: "That seems not to be the URL we expected...", isError: true });
       status.classList.add("fa-exclamation-triangle");
       status.classList.remove("fa-check-circle");
       status.style.color = "red";
@@ -369,7 +356,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
-      this.showCurrentTask("Error setting local patreon key", error, true);
+      this.showCurrentTask("Error setting local patreon key", { message: error, isError: true });
     }
   }
 
@@ -386,7 +373,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
-      this.showCurrentTask("Error deleting local cookie", error, true);
+      this.showCurrentTask("Error deleting local cookie", { message: error, isError: true });
     }
   }
 
@@ -403,7 +390,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
-      this.showCurrentTask("Error setting local cookie", error, true);
+      this.showCurrentTask("Error setting local cookie", { message: error, isError: true });
     }
   }
 
@@ -415,7 +402,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
-      this.showCurrentTask("Error deleting local cookie", error, true);
+      this.showCurrentTask("Error deleting local cookie", { message: error, isError: true });
     }
   }
 
@@ -429,13 +416,13 @@ export default class DDBCharacterManager extends DDBAppV2 {
           .map((r) => r.message)
           .join(" ");
         logger.debug(updateNotes);
-        this.showCurrentTask("Update complete", updateNotes);
+        this.showCurrentTask("Update complete", { message: updateNotes, isError: false });
         this.element.querySelector("#dndbeyond-character-update").disabled = false;
       });
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
-      this.showCurrentTask("Error updating character", error, true);
+      this.showCurrentTask("Error updating character", { message: error, isError: true });
     }
   }
 
@@ -463,11 +450,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
       }
       if (this.ddbCharacter.source?.success) {
         await generateCharacterExtras(this.element, this.ddbCharacter, this.actor);
-        this.showCurrentTask("Loading Extras", "Done.", false);
+        this.showCurrentTask("Loading Extras", { message: "Done." });
         this.element.querySelector("#dndbeyond-character-extras-start").disabled = true;
         this.close();
       } else {
-        this.showCurrentTask(this.ddbCharacter.source.message, null, true);
+        this.showCurrentTask(this.ddbCharacter.source.message, { message: null, isError: true });
         return false;
       }
     } catch (error) {
@@ -476,12 +463,12 @@ export default class DDBCharacterManager extends DDBAppV2 {
           logger.error("Failure");
           break;
         case "Forbidden":
-          this.showCurrentTask("Error retrieving Character: " + error, error, true);
+          this.showCurrentTask("Error retrieving Character: " + error, { message: error, isError: true });
           break;
         default:
           logger.error(error);
           logger.error(error.stack);
-          this.showCurrentTask("Error processing Character: " + error, error, true);
+          this.showCurrentTask("Error processing Character: " + error, { message: error, isError: true });
           break;
       }
       return false;
@@ -505,12 +492,12 @@ export default class DDBCharacterManager extends DDBAppV2 {
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
         case "Forbidden":
-          this.showCurrentTask("Error retrieving Character: " + error, error, true);
+          this.showCurrentTask("Error retrieving Character: " + error, { message: error, isError: true });
           break;
         default:
           logger.error(error);
           logger.error(error.stack);
-          this.showCurrentTask("Error processing Character: " + error, error, true);
+          this.showCurrentTask("Error processing Character: " + error, { message: error, isError: true });
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
       }

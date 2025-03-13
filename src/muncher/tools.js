@@ -81,7 +81,7 @@ export async function updateWorldMonsters() {
       );
 
       if (worldMatches.length > 0) {
-        utils.munchNote(`Found ${value.name} world monster`, true);
+        utils.munchNote(`Found ${value.name} world monster`, { nameField: true });
         logger.debug(`Matched ${value.name} (${key})`);
         const monster = await monsterCompendium.getDocument(value._id);
         let updatedActors = await updateActorsWithActor(worldMatches, monster, count);
@@ -89,7 +89,7 @@ export async function updateWorldMonsters() {
       }
     }
     utils.munchNote(`Finished updating ${totalTargets} world monsters`);
-    utils.munchNote("", true);
+    utils.munchNote("", { nameField: true });
 
   } else {
     logger.error("Error opening compendium, check your settings");

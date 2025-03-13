@@ -7,7 +7,6 @@ import {
   PatreonHelper,
   DDBCompendiumFolders,
   Iconizer,
-  utils,
   DDBSources,
 } from "../lib/_module.mjs";
 import DDBMonster from "./DDBMonster.js";
@@ -18,7 +17,7 @@ import { DDBReferenceLinker } from "./lib/_module.mjs";
 
 export default class DDBMonsterFactory {
 
-  static #noteStub(note, nameField = false, monsterNote = false) {
+  static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
   }
 
@@ -148,7 +147,7 @@ export default class DDBMonsterFactory {
           return result;
         })
         .then((result) => {
-          this.notifier(`Retrieved ${result.data.length} monsters from DDB`, true, false);
+          this.notifier(`Retrieved ${result.data.length} monsters from DDB`, { nameField: true, monsterNote: false });
           logger.info(`Retrieved ${result.data.length} monsters from DDB`);
           return result.data;
         })
@@ -197,7 +196,7 @@ export default class DDBMonsterFactory {
     for (const monster of monsterSource) {
       const name = `${monster.name}${monster.isLegacy ? " legacy" : ""}`;
       try {
-        this.notifier(`[${i}/${this.currentDocument + monsterSource.length - 1} of ${totalMonsters}] Parsing data for guest ${name}`, false, true);
+        this.notifier(`[${i}/${this.currentDocument + monsterSource.length - 1} of ${totalMonsters}] Parsing data for guest ${name}`, { nameField: false, monsterNote: true });
         i++;
         logger.debug(`Attempting to parse ${i}/${totalMonsters} ${monster.name}`);
         logger.time(`Monster Parse ${name}`);
@@ -229,8 +228,7 @@ export default class DDBMonsterFactory {
 
     this.notifier(
       `Parsed ${result.actors.length} monsters, failed ${result.failedMonsterNames.length} monsters`,
-      false,
-      true,
+      { nameField: false, monsterNote: true },
     );
     logger.info(`Parsed ${result.actors.length} monsters, failed ${result.failedMonsterNames.length} monsters`);
     if (result.failedMonsterNames && result.failedMonsterNames.length !== 0) {
@@ -274,13 +272,13 @@ export default class DDBMonsterFactory {
     const monsterResults = await this.parse(monsters);
 
     const itemHandler = new DDBItemImporter(this.type, monsterResults.actors, {
-      notifier: utils.munchNote,
+      notifier: this.notifier,
     });
     await itemHandler.init();
 
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
-      this.notifier(`Calculating which monsters to update...`, true);
+      this.notifier(`Calculating which monsters to update...`, { nameField: true });
       const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, "npc", { keepDDBId: true });
       const existingMonstersTotal = existingMonsters.length + 1;
       if (!this.update) {
@@ -296,10 +294,10 @@ export default class DDBMonsterFactory {
       }
     }
     this.notifier("");
-    this.notifier(`Fiddling with the SRD data...`, true);
+    this.notifier(`Fiddling with the SRD data...`, { nameField: true });
     await itemHandler.srdFiddling();
     await itemHandler.iconAdditions();
-    this.notifier(`Generating Icon Map..`, true);
+    this.notifier(`Generating Icon Map..`, { nameField: true });
     await itemHandler.generateIconMap();
     await itemHandler.useSRDMonsterImages();
 
@@ -315,7 +313,7 @@ export default class DDBMonsterFactory {
   async #loadIntoCompendiums(documents) {
     const startingCount = this.currentDocument;
     for (const monster of documents) {
-      this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, false, true);
+      this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, { monsterNote: true });
       logger.debug(`Preparing ${monster.name} data for import`);
       const munched = await DDBMonsterImporter.addNPC(monster, "monster");
       this.monstersParsed.push(munched);
@@ -361,9 +359,9 @@ export default class DDBMonsterFactory {
     await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids));
     this.notifier("");
 
-    this.notifier(`Checking compendium folders..`, true);
+    this.notifier(`Checking compendium folders..`, { nameField: true });
     await this.compendiumFolders.loadCompendium("monsters", true);
-    this.notifier("", true);
+    this.notifier("", { nameField: true });
 
     this.totalDocuments = this.source.length;
 
@@ -372,14 +370,14 @@ export default class DDBMonsterFactory {
       logger.debug(`Processing documents for ${i + 1} to ${i + 100}`, { sourceDocuments, this: this });
       const documents = await this.#createMonsterDocuments({ monsters: this.source.slice(i, i + 100), i });
       const monsterCount = this.currentDocument + documents.length - 1;
-      this.notifier(`Setting the table for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, true);
+      this.notifier(`Setting the table for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, { nameField: true });
       await this.compendiumFolders.createMonsterFoldersForDocuments({ documents });
-      this.notifier(`Preparing dinner for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, true);
+      this.notifier(`Preparing dinner for monsters ${i + 1} to ${monsterCount} of ${this.totalDocuments}!`, { nameField: true });
       await this.#loadIntoCompendiums(documents);
     }
 
     logger.debug("Monsters Parsed", this.monstersParsed);
-    this.notifier("", false, true);
+    this.notifier("", { monsterNote: true });
 
     logger.timeEnd("Monster Import Time");
     if (ids !== null) {

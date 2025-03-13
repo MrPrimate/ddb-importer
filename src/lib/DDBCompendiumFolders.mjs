@@ -1757,18 +1757,18 @@ export class DDBCompendiumFolders {
   static async cleanupCompendiumFolders(type, notifier = null) {
     logger.info(`Cleaning ${type} compendium folders...`);
     const compendiumFolders = new DDBCompendiumFolders(type);
-    if (notifier) notifier(`Cleaning compendium folders...`, true);
+    if (notifier) notifier(`Cleaning compendium folders...`, { nameField: true });
     await compendiumFolders.loadCompendium(type, true);
     await compendiumFolders.compendium.getIndex({ fields: compendiumFolders.#getIndexFields() });
     await compendiumFolders.removeUnusedFolders();
-    if (notifier) notifier(`Cleaning compendium folders complete`, true);
+    if (notifier) notifier(`Cleaning compendium folders complete`, { nameField: true });
   }
 
   static async generateCompendiumFolders(type, notifier = null) {
     logger.info(`Migrating ${type} compendium`);
     const compendiumFolders = new DDBCompendiumFolders(type);
-    if (notifier) notifier(`Checking compendium folders..`, true);
+    if (notifier) notifier(`Checking compendium folders..`, { nameField: true });
     await compendiumFolders.loadCompendium(type);
-    if (notifier) notifier("", true);
+    if (notifier) notifier("", { nameField: true });
   }
 }

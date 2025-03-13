@@ -98,9 +98,9 @@ export async function getClasses(data) {
   let classFeatures = [];
 
   const compendiumFolders = new DDBCompendiumFolders("features");
-  utils.munchNote(`Checking compendium folders..`, true);
+  utils.munchNote(`Checking compendium folders..`, { nameField: true });
   await compendiumFolders.loadCompendium("features");
-  utils.munchNote("", true);
+  utils.munchNote("", { nameField: true });
 
   for (const klass of data) {
     logger.debug(`${klass.name} feature parsing started...`, { klass });

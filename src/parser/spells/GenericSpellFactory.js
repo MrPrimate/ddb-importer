@@ -72,7 +72,7 @@ export default class GenericSpellFactory {
     let i = 0;
     const length = filteredSpells.length;
     for (const spellData of filteredSpells) {
-      if (notifier) notifier(`Parsing spell ${++i} of ${length}: ${spellData.definition.name}`, true);
+      if (notifier) notifier(`Parsing spell ${++i} of ${length}: ${spellData.definition.name}`, { nameField: true });
       spellData.flags = {
         ddbimporter: {
           generic: true,

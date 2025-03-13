@@ -284,7 +284,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   //   characterInventory,
   // });
 
-  resolvedNotifier("Analysing generated items...", true);
+  resolvedNotifier("Analysing generated items...", { nameField: true });
 
   await Iconizer.preFetchDDBIconImages();
 
@@ -295,7 +295,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   });
   await itemHandler.init();
   await itemHandler.srdFiddling();
-  resolvedNotifier(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, true);
+  resolvedNotifier(`Imps are creating iconographs for ${itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
   await itemHandler.iconAdditions();
   const filteredItems = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
@@ -303,7 +303,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredItems, compendiumItem: true });
 
   const finalCount = itemHandler.documents.length;
-  resolvedNotifier(`Preparing to import ${finalCount} items!`, true);
+  resolvedNotifier(`Preparing to import ${finalCount} items!`, { nameField: true });
   logger.time("Item Import Time");
 
   await itemHandler.compendiumFolders.loadCompendium("items", true);

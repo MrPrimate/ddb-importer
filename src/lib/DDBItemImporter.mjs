@@ -34,7 +34,7 @@ export default class DDBItemImporter {
     this.notifier = notifier;
 
     if (!notifier) {
-      this.notifier = (note, nameField = false, monsterNote = false) => {
+      this.notifier = (note, { nameField = false, monsterNote = false } = {}) => {
         logger.info(note, { nameField, monsterNote });
       };
     }
@@ -392,7 +392,7 @@ ${item.system.description.chat}
 
     let results = [];
     // update existing items
-    this.notifier(`Creating and updating ${inputItems.length} ${this.type} documents in compendium...`, true);
+    this.notifier(`Creating and updating ${inputItems.length} ${this.type} documents in compendium...`, { nameField: true });
 
     if (updateExisting) {
       results = await this.updateCompendiumItems(inputItems);
@@ -402,7 +402,7 @@ ${item.system.description.chat}
     // create new items
     const createResults = await this.createCompendiumItems(inputItems);
     logger.debug(`Created ${createResults.length} new ${this.type} documents in compendium`);
-    this.notifier("", true);
+    this.notifier("", { nameField: true });
 
     this.results = createResults.concat(results);
     return new Promise((resolve) => resolve(this.results));
@@ -528,7 +528,7 @@ ${item.system.description.chat}
     // eslint-disable-next-line require-atomic-updates
     if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
     const srdImageLibrary = await Iconizer.getSRDImageLibrary();
-    this.notifier(`Updating SRD Monster Images`, true);
+    this.notifier(`Updating SRD Monster Images`, { nameField: true });
 
     this.documents.forEach((monster) => {
       logger.debug(`Checking ${monster.name} for srd images`);
@@ -578,7 +578,7 @@ ${item.system.description.chat}
     // eslint-disable-next-line require-atomic-updates
     if (srdIcons) {
       const srdImageLibrary = await Iconizer.getSRDImageLibrary();
-      this.notifier(`Updating SRD Icons`, true);
+      this.notifier(`Updating SRD Icons`, { nameField: true });
       let itemMap = [];
 
       this.documents.forEach((monster) => {
@@ -610,7 +610,7 @@ ${item.system.description.chat}
     if (chrisPremades) {
       handler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }
-    if (notifier) notifier(`Importing ${handler.documents.length} ${type} documents!`, true);
+    if (notifier) notifier(`Importing ${handler.documents.length} ${type} documents!`, { nameField: true });
     logger.debug(`Importing ${handler.documents.length} ${type} documents!`, foundry.utils.deepClone(documents));
     await handler.updateCompendium(updateBool, filterDuplicates);
     await handler.buildIndex();

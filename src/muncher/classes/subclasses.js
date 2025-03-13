@@ -71,11 +71,11 @@ export async function getSubClasses(subClassData, klassData) {
   let results = [];
 
   const featureCompendiumFolders = new DDBCompendiumFolders("features");
-  utils.munchNote(`Checking compendium folders..`, true);
+  utils.munchNote(`Checking compendium folders..`, { nameField: true });
   await featureCompendiumFolders.loadCompendium("features");
   const subClassCompendiumFolders = new DDBCompendiumFolders("subclasses");
   await subClassCompendiumFolders.loadCompendium("subclasses");
-  utils.munchNote("", true);
+  utils.munchNote("", { nameField: true });
 
 
   for (const subClass of subClassData) {

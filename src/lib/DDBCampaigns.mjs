@@ -8,11 +8,11 @@ export default class DDBCampaigns {
     const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
 
     if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
-      if (notifier) notifier(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, true);
+      if (notifier) notifier(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, { nameField: true });
       logger.error(`Campaign Id is invalid! Set to "${campaignId}", using empty string`);
       return "";
     } else if (campaignId.includes("join")) {
-      if (notifier) notifier(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, true);
+      if (notifier) notifier(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`, { nameField: true });
       logger.error(`Campaign URL is a join campaign link, using empty string! Set to "${campaignId}"`);
       return "";
     }

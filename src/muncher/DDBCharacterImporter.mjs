@@ -29,7 +29,7 @@ export default class DDBCharacterImporter {
     this.notifier = notifier;
 
     if (!notifier) {
-      this.notifier = (title, message = false, isError = false) => {
+      this.notifier = (title, { message = false, isError = false } = {}) => {
         logger.info(title, { message, isError });
       };
     }
@@ -939,7 +939,7 @@ ${item.system.description.chat}
     } catch (error) {
       logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });
       logger.error(error.stack);
-      this.notifier("Error importing character, attempting rolling back, see console (F12) for details.", error, true);
+      this.notifier("Error importing character, attempting rolling back, see console (F12) for details.", { message: error, isError: true });
       await this.resetActor();
       throw new Error("ImportFailure");
     } finally {
@@ -975,10 +975,10 @@ ${item.system.description.chat}
       if (this.ddbCharacter.source?.success) {
         // begin parsing the character data
         await this.processCharacterData();
-        this.notifier("Loading Character data", "Done.", false);
+        this.notifier("Loading Character data", { message: "Done." });
         logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
       } else {
-        this.notifier(this.ddbCharacter.source.message, null, true);
+        this.notifier(this.ddbCharacter.source.message, { message: null, isError: true });
         return false;
       }
     } catch (error) {
@@ -987,12 +987,12 @@ ${item.system.description.chat}
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
         case "Forbidden":
-          this.notifier("Error retrieving Character: " + error, error, true);
+          this.notifier("Error retrieving Character: " + error, { message: error, isError: true });
           break;
         default:
           logger.error(error);
           logger.error(error.stack);
-          this.notifier("Error processing Character: " + error, error, true);
+          this.notifier("Error processing Character: " + error, { message: error, isError: true });
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
       }
@@ -1005,7 +1005,7 @@ ${item.system.description.chat}
   }
 
 
-  static async importCharacter({ actor, html } = {}) {
+  static async importCharacter({ actor, notifier } = {}) {
     try {
       const actorData = actor.toObject();
       const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
@@ -1032,11 +1032,11 @@ ${item.system.description.chat}
         const importer = new DDBCharacterImporter({
           actorId: actorData._id,
           ddbCharacter,
-          notifier: html ? html : utils.htmlToDoc(""),
+          notifier,
         });
 
         await importer.processCharacterData();
-        importer.showCurrentTask("Loading Character data", "Done.", false);
+        importer.showCurrentTask("Loading Character data", { message: "Done." });
         logger.info("Loading Character data");
         return true;
       } else {
@@ -1060,7 +1060,7 @@ ${item.system.description.chat}
     }
   }
 
-  static async importCharacterById(characterId, html) {
+  static async importCharacterById(characterId, notifier) {
     const actor = await Actor.create({
       name: "New Actor",
       type: "character",
@@ -1074,7 +1074,7 @@ ${item.system.description.chat}
       },
     });
 
-    const result = await DDBCharacterImporter.importCharacter(actor, html);
+    const result = await DDBCharacterImporter.importCharacter(actor, notifier);
     return result;
   }
 

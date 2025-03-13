@@ -601,7 +601,7 @@ export default class Utils {
    * @param {*} nameField
    * @param {*} monsterNote
    */
-  static munchNote(note, nameField = false, monsterNote = false) {
+  static munchNote(note, { nameField = false, monsterNote = false } = {}) {
     if (nameField) {
       $("#munching-task-name").text(note);
       $("#ddb-importer-monsters").css("height", "auto");

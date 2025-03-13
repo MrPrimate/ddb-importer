@@ -1,6 +1,5 @@
 import {
   logger,
-  utils,
 } from "../lib/_module.mjs";
 
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
@@ -8,6 +7,11 @@ import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
+
+  constructor() {
+    super();
+    this.notifier = this.munchNote;
+  }
 
   /** @override */
   tabGroups = {};
@@ -138,15 +142,33 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     }
   }
 
-
   /**
    * Display information when Munching
-   * @param {*} note
-   * @param {*} nameField
-   * @param {*} monsterNote
+   * @param {string} note
+   * @param {{ nameField: boolean, monsterNote: boolean }} [options]
+   * @description
+   * Updates the text content of the appropriate HTML element:
+   *   - `#munching-task-name` if `options.nameField` is true
+   *   - `#munching-task-monster` if `options.monsterNote` is true
+   *   - `#munching-task-notes` otherwise
    */
-  static munchNote(note, nameField = false, monsterNote = false) {
-    utils.munchNote(note, nameField, monsterNote);
+  munchNote(note, { nameField = false, monsterNote = false, isError = false, message = null } = {}) {
+    const taskName = this.element.querySelector("#munching-task-name");
+    const taskMonster = this.element.querySelector("#munching-task-monster");
+    const taskNotes = this.element.querySelector("#munching-task-notes");
+
+    if (nameField) {
+      taskName.textContent = note;
+      taskMonster.style.height = "auto";
+    } else if (monsterNote) {
+      taskMonster.textContent = note;
+      taskMonster.style.height = "auto";
+    } else {
+      taskNotes.textContent = note;
+      taskMonster.style.height = "auto";
+    }
+
+    logger.debug(`Munching: ${note}`, { message, isError, monsterNote, nameField });
   }
 
 

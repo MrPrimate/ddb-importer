@@ -222,7 +222,7 @@ export default class Iconizer {
   } = {}) {
     this.notifier = notifier;
     if (!notifier) {
-      this.notifier = (note, nameField = false, monsterNote = false) => {
+      this.notifier = (note, { nameField = false, monsterNote = false } = {}) => {
         logger.info(note, { nameField, monsterNote });
       };
     }
@@ -457,7 +457,7 @@ export default class Iconizer {
   }
 
   static async getDDBItemImages(items, download) {
-    utils.munchNote(`Fetching DDB Item Images`, true);
+    utils.munchNote(`Fetching DDB Item Images`, { nameField: true });
     const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -481,7 +481,7 @@ export default class Iconizer {
         if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
           const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
           if (avatarUrl && avatarUrl != "") {
-            utils.munchNote(`Downloading ${item.name} image`, true);
+            utils.munchNote(`Downloading ${item.name} image`, { nameField: true });
             const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-item`;
             const downloadOptions = {
               type: "item",
@@ -518,7 +518,7 @@ export default class Iconizer {
         }
       }
 
-      utils.munchNote("", true);
+      utils.munchNote("", { nameField: true });
       return itemImage;
     });
 
@@ -526,7 +526,7 @@ export default class Iconizer {
   }
 
   async _addDDBHintImages(type) {
-    this.notifier(`Fetching DDB Hint Images for ${type}`, true);
+    this.notifier(`Fetching DDB Hint Images for ${type}`, { nameField: true });
     // const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     // const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
@@ -557,12 +557,12 @@ export default class Iconizer {
       if (img) item.img = img;
     }
 
-    this.notifier("", true);
+    this.notifier("", { nameField: true });
 
   }
 
   static async getDDBGenericItemImages() {
-    utils.munchNote(`Fetching DDB Generic Item icons`, true);
+    utils.munchNote(`Fetching DDB Generic Item icons`, { nameField: true });
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
     const imageNamePrefix = useDeepPaths ? "" : "item";
@@ -585,13 +585,13 @@ export default class Iconizer {
       return itemIcons;
     });
 
-    utils.munchNote("", true);
+    utils.munchNote("", { nameField: true });
     return Promise.all(itemMap);
   }
 
 
   static async getDDBGenericLootImages() {
-    utils.munchNote(`Fetching DDB Generic Loot icons`, true);
+    utils.munchNote(`Fetching DDB Generic Loot icons`, { nameField: true });
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
     const imageNamePrefix = useDeepPaths ? "" : "equipment";
@@ -614,7 +614,7 @@ export default class Iconizer {
       return itemIcons;
     });
 
-    utils.munchNote("", true);
+    utils.munchNote("", { nameField: true });
     return Promise.all(itemMap);
   }
 
@@ -645,7 +645,7 @@ export default class Iconizer {
   }
 
   static async getDDBSchoolSpellImages() {
-    utils.munchNote(`Fetching spell school icons`, true);
+    utils.munchNote(`Fetching spell school icons`, { nameField: true });
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
     const imageNamePrefix = useDeepPaths ? "" : "spell";
@@ -662,7 +662,7 @@ export default class Iconizer {
       return schoolIcons;
     });
 
-    utils.munchNote("", true);
+    utils.munchNote("", { nameField: true });
     return Promise.all(schoolMap);
   }
 

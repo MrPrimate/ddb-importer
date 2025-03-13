@@ -4,7 +4,6 @@ import {
   MuncherSettings,
   Secrets,
   DDBCompendiumFolders,
-  utils,
   DDBSources,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
@@ -258,17 +257,6 @@ export default class DDBMuncher extends DDBAppV2 {
     return context;
   }
 
-
-  /**
-   * Display information when Munching
-   * @param {*} note
-   * @param {*} nameField
-   * @param {*} monsterNote
-   */
-  static munchNote(note, nameField = false, monsterNote = false) {
-    utils.munchNote(note, nameField, monsterNote);
-  }
-
   _disableButtons() {
     const buttonSelectors = [
       'button[id^="adventure-config-start"]',
@@ -329,10 +317,12 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching monsters!");
       this._disableButtons();
-      const monsterFactory = new DDBMonsterFactory({ notifier: DDBMuncher.munchNote });
+      const monsterFactory = new DDBMonsterFactory({
+        notifier: this.notifier.bind(this),
+      });
       const result = await monsterFactory.processIntoCompendium();
-      DDBMuncher.munchNote(`Finished importing ${result} monsters!`, true);
-      DDBMuncher.munchNote("");
+      this.notifier(`Finished importing ${result} monsters!`, { nameField: true });
+      this.notifier("");
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -346,8 +336,8 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching vehicles!");
       this._disableButtons();
       const result = await parseTransports();
-      DDBMuncher.munchNote(`Finished importing ${result} vehicles!`, true);
-      DDBMuncher.munchNote("");
+      this.notifier(`Finished importing ${result} vehicles!`, { nameField: true });
+      this.notifier("");
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -360,9 +350,11 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching spells!");
       this._disableButtons();
-      await parseSpells({ notifier: DDBMuncher.munchNote });
-      DDBMuncher.munchNote(`Finished importing spells!`, true);
-      DDBMuncher.munchNote("");
+      await parseSpells({
+        notifier: this.notifier.bind(this),
+      });
+      this.notifier(`Finished importing spells!`, { nameField: true });
+      this.notifier("");
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -376,9 +368,11 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching items!");
       this._disableButtons();
-      await parseItems({ notifier: DDBMuncher.munchNote });
-      DDBMuncher.munchNote(`Finished importing items!`, true);
-      DDBMuncher.munchNote("");
+      await parseItems({
+        notifier: this.notifier.bind(this),
+      });
+      this.notifier(`Finished importing items!`, { nameField: true });
+      this.notifier("");
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -393,8 +387,8 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Munching frames!");
       this._disableButtons();
       const result = await parseFrames();
-      DDBMuncher.munchNote(`Finished importing ${result.length} frames!`, true);
-      DDBMuncher.munchNote("");
+      this.notifier(`Finished importing ${result.length} frames!`, { nameField: true });
+      this.notifier("");
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -407,8 +401,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Generating adventure config!");
       await downloadAdventureConfig();
-      DDBMuncher.munchNote(`Downloading config file`, true);
-      DDBMuncher.munchNote("");
+      this.notifier(`Downloading config file`, { nameField: true });
+      this.notifier("");
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -473,9 +467,9 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info(`Migrating ${type} compendium`);
       this._disableButtons();
-      DDBMuncher.munchNote(`Begin migration.... this might take some considerable time, please wait...`, true);
+      this.notifier(`Begin migration.... this might take some considerable time, please wait...`, { nameField: true });
       await DDBCompendiumFolders.migrateExistingCompendium(type);
-      DDBMuncher.munchNote(`Migrating complete.`, true);
+      this.notifier(`Migrating complete.`, true);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -490,7 +484,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       const results = await resetCompendiumActorImages();
       const notifyString = `Reset ${results.length} compendium actors.`;
-      DDBMuncher.munchNote(notifyString, true);
+      this.notifier(notifyString, { nameField: true });
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -505,7 +499,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       const results = await updateItemPrices();
       const notifyString = `Added ${results.length} prices to items.`;
-      DDBMuncher.munchNote(notifyString, true);
+      this.notifier(notifyString, { nameField: true });
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);

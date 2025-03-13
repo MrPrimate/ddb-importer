@@ -84,7 +84,7 @@ export function getVehicleData(ids) {
  * @returns {Array} An array of parsed vehicle actors ready for use in Foundry.
  */
 async function processVehicleData(ddbData) {
-  utils.munchNote(`Retrieved ${ddbData.length} vehicles, starting parse...`, true, false);
+  utils.munchNote(`Retrieved ${ddbData.length} vehicles, starting parse...`, { nameField: true });
   logger.info(`Retrieved ${ddbData.length} vehicles`);
   const parsedVehicles = await parseVehicles(ddbData);
 
@@ -101,7 +101,7 @@ async function processVehicleData(ddbData) {
 }
 
 
-export async function parseTransports(ids = null) {
+export async function parseTransports(ids = null, { notifier = null } = {}) {
   const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Vehicles");
   await createDDBCompendium(compData);
 
@@ -119,55 +119,57 @@ export async function parseTransports(ids = null) {
   let vehicleJSON = await getVehicleData(ids);
   let vehicles = await processVehicleData(vehicleJSON);
 
+  const resolvedNotifier = notifier ?? utils.munchNote;
+
   const vehicleHandler = new DDBItemImporter("vehicles", vehicles, {
     matchFlags: ["is2014", "is2024"],
-    notifier: utils.munchNote,
+    notifier: resolvedNotifier,
   });
   await vehicleHandler.init();
 
   if (!updateBool || !updateImages) {
-    utils.munchNote(`Calculating which vehicles to update...`, true);
+    utils.munchNote(`Calculating which vehicles to update...`, { nameField: true });
     const existingVehicles = await DDBItemImporter.getCompendiumItems(vehicles, "vehicles", { keepDDBId: true });
     const existingVehiclesTotal = existingVehicles.length + 1;
     if (!updateBool) {
       logger.debug("Removing existing vehicles from import list");
       logger.debug(`Matched ${existingVehiclesTotal}`);
-      utils.munchNote(`Removing ${existingVehiclesTotal} from update...`);
+      resolvedNotifier(`Removing ${existingVehiclesTotal} from update...`);
       vehicleHandler.removeItems(existingVehicles);
     }
     if (!updateImages) {
       logger.debug("Copying vehicle images across...");
-      utils.munchNote(`Copying images for ${existingVehiclesTotal} vehicles...`);
+      resolvedNotifier(`Copying images for ${existingVehiclesTotal} vehicles...`);
       vehicles = DDBMonsterFactory.copyExistingMonsterImages(vehicles, existingVehicles);
     }
   }
-  utils.munchNote("");
-  utils.munchNote(`Fiddling with the SRD data...`, true);
+  resolvedNotifier("");
+  resolvedNotifier(`Fiddling with the SRD data...`, { nameField: true });
   await vehicleHandler.srdFiddling();
   await vehicleHandler.iconAdditions();
 
-  utils.munchNote(`Generating Icon Map..`, true);
+  resolvedNotifier(`Generating Icon Map..`, { nameField: true });
   await vehicleHandler.generateIconMap();
 
   // Compendium folders not yet in use for Vehicles
   const compendiumFolders = new DDBCompendiumFolders("vehicles");
-  utils.munchNote(`Checking compendium folders..`, true);
+  resolvedNotifier(`Checking compendium folders..`, { nameField: true });
   await compendiumFolders.loadCompendium("vehicles");
-  utils.munchNote("", true);
+  resolvedNotifier("", { nameField: true });
 
   let vehiclesParsed = [];
   let currentVehicle = 1;
   const vehicleCount = vehicleHandler.documents.length;
-  utils.munchNote(`Preparing to wax ${vehicleCount} vehicles!`, true);
+  resolvedNotifier(`Preparing to wax ${vehicleCount} vehicles!`, { nameField: true });
   for (const vehicle of vehicleHandler.documents) {
-    utils.munchNote(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, false, true);
+    resolvedNotifier(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, { nameField: false, monsterNote: true });
     logger.debug(`Importing/second parse of ${vehicle.name} data`);
     const munched = await DDBMonsterImporter.addNPC(vehicle, "vehicle");
     vehiclesParsed.push(munched);
     currentVehicle += 1;
   }
   logger.debug("Vehicles Parsed", vehiclesParsed);
-  utils.munchNote("", false, true);
+  resolvedNotifier("", { nameField: false, monsterNote: true });
   foundry.utils.setProperty(CONFIG.DDBI, "MUNCHER.TEMPORARY", {});
 
   if (ids !== null) {
