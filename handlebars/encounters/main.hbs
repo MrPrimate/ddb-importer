@@ -2,19 +2,31 @@
 
   <fieldset>
     <legend>Encounter Selector</legend>
-      <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select">
-        <option value="">Filter encounters by Campaign?</option>
-        {{#each availableCampaigns}}
-        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
-        {{/each}}
-      </select>
 
-    <select name="encounter-select" class="form-select" id="encounter-select">
-      <option value="">Choose your encounter here!</option>
-      {{#each availableEncounters}}
-      <option value="{{this.id}}">{{this.name}} ({{this.campaign.name}})</option>
-      {{/each}}
-    </select>
+    <div class="form-group">
+      <label>Filter encounters by Campaign?</label>
+      <div class="form-fields">
+        <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select"></select>
+          <option value="">All Campaigns</option>
+          {{#each availableCampaigns}}
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Choose your encounter here!</label>
+      <div class="form-fields">
+        <select name="encounter-select" class="form-select" id="encounter-select">
+          <option value=""></option>
+          {{#each availableCampaigns}}
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
   </fieldset>
 
   <fieldset>
@@ -48,26 +60,34 @@
   </fieldset>
 
 
-  <div class="form-group">
-    <select name="encounter-scene-img-select" class="form-select" id="encounter-scene-img-select" {{#if createSceneSelect}}{{else}}disabled{{/if}}>
-      <option value="">No scene background image</option>
-      {{#each sceneImg}}
-      <option value="{{this.img}}">{{this.name}}</option>
-      {{/each}}
-    </select>
-  </div>
-  <div class="form-group">
-    <select name="encounter-scene-select" class="form-select" id="encounter-scene-select" {{#if existingSceneSelect}}{{else}}disabled{{/if}}>
-      <option value="">Scene selection...</option>
-      {{#each scenes}}
-      <option value="{{this.id}}">{{this.name}}</option>
-      {{/each}}
-    </select>
-  </div>
-  <hr>
-  <div class="munching-task-setup" id="munching-task-setup" style="color: red">
-  </div>
+  <fieldset>
+    <legend>Scene Selection</legend>
+
+    <div class="form-group">
+      <label>Scene Background Image</label>
+      <div class="form-fields">
+        <select name="encounter-scene-img-select" class="form-select" id="encounter-scene-img-select" {{#if createSceneSelect}}{{else}}disabled{{/if}}>
+          <option value="">No scene background image</option>
+          {{#each sceneImg}}
+          <option value="{{this.img}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Use Existing Scene</label>
+      <div class="form-fields">
+        <select name="encounter-scene-select" class="form-select" id="encounter-scene-select" {{#if existingSceneSelect}}{{else}}disabled{{/if}}>
+          <option value="">No scene selection</option>
+          {{#each scenes}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+
+  </fieldset>
+
   <button data-action="importEncounter" id="encounter-button" class="encounter-button" disabled>Import Encounter</button>
-
-
 </section>

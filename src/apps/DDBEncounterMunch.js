@@ -218,36 +218,6 @@ export default class DDBEncounterMunch extends DDBAppV2 {
     super.activateListeners(html);
 
     $(html)
-      .find(
-        ['.munching-generic-config input[type="checkbox"]', '.munching-monster-config input[type="checkbox"]'].join(","),
-      )
-      .on("change", async (event) => {
-        await MuncherSettings.updateMuncherSettings(html, event);
-      });
-
-    $(html)
-      .find(
-        [
-          '.import-policy input[type="checkbox"]',
-          '.advanced-import-config input[type="checkbox"]',
-          '.effect-policy input[type="checkbox"]',
-          '.effect-import-config input[type="checkbox"]',
-          '.extras-import-config input[type="checkbox"]',
-          '.import-config input[type="checkbox"]',
-        ].join(","),
-      )
-      .on("change", (event) => {
-        MuncherSettings.updateActorSettings(html, event);
-      });
-
-    $(html)
-      .find("#default-effects")
-      .on("click", async (event) => {
-        event.preventDefault();
-        MuncherSettings.setRecommendedCharacterActiveEffectSettings(html);
-      });
-
-    $(html)
       .find('.sync-policy input[type="checkbox"]')
       .on("change", (event) => {
         game.settings.set(
