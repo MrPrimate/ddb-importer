@@ -1,5 +1,6 @@
 # Next Up
 
+- New UI for DDB Character Importer, DDB Muncher and DDB Encounter Muncher! (migrated to Application V2).
 - Heroes' Feast Midi-Qol fix
 - Font of Magic generated/added sorcery point value to it as wel as the Sorcery Points feature.
 - Bard Feature: Blade Flourish corrections.
@@ -8,7 +9,7 @@
 - Sorcerer Sorcery Points corrections with Metamagic Adept. @co6dm
 - Fix Life-Giving Force scaling issues. @oregonpinkrose
 - Legendary creatures legendary features could occasionally generate without an activity, and they would then appear in the Features section of the monster.
-- DDB Muncher Screen migrated to Application V2.
+- Spell effects: Aid would add the non-midi effects when using midi.
 
 # 6.0.89
 
