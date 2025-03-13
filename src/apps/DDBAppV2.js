@@ -153,6 +153,10 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
    *   - `#munching-task-notes` otherwise
    */
   munchNote(note, { nameField = false, monsterNote = false, isError = false, message = null } = {}) {
+    if (!this.element) {
+      logger.info("PreRenderNote:", { note, nameField, monsterNote, message, isError });
+      return;
+    }
     const taskName = this.element.querySelector("#munching-task-name");
     const taskMonster = this.element.querySelector("#munching-task-monster");
     const taskNotes = this.element.querySelector("#munching-task-notes");

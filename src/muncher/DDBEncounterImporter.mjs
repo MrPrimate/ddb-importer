@@ -9,8 +9,7 @@ import DDBEncounters from "../parser/DDBEncounters.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
 
-export default class DDBEncounterMunch {
-
+export default class DDBEncounterImporter {
 
   constructor({ notifier }) {
     this.encounter = {};
@@ -20,15 +19,18 @@ export default class DDBEncounterMunch {
     this.combat = undefined;
     this.tokens = [];
     this.folders = {};
-    this.ddbEncounters = new DDBEncounters();
 
     this.notifier = notifier;
 
     if (!notifier) {
-      this.munchNote = (note, { nameField = false, monsterNote = false, message = false, isError = false } = {}) => {
+      this.notifier = (note, { nameField = false, monsterNote = false, message = false, isError = false } = {}) => {
         logger.info(note, { nameField, monsterNote, message, isError });
       };
     }
+
+    this.ddbEncounters = new DDBEncounters({
+      notifier: this.notifier,
+    });
   }
 
   static SCENE_IMG = [

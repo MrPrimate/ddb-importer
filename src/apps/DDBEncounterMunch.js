@@ -6,8 +6,16 @@ import {
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBAppV2 from "./DDBAppV2.js";
+import DDBEncounterImporter from "../muncher/DDBEncounterImporter.mjs";
 
 export default class DDBEncounterMunch extends DDBAppV2 {
+
+  constructor() {
+    super();
+    this.encounterImporter = new DDBEncounterImporter({
+      notifier: this.notifier.bind(this),
+    });
+  }
 
   /** @inheritDoc */
   static DEFAULT_OPTIONS = {
@@ -73,9 +81,86 @@ export default class DDBEncounterMunch extends DDBAppV2 {
   }
 
   async _prepareContext(options) {
-    let context = MuncherSettings.getMuncherSettings();
+    const tier = PatreonHelper.getPatreonTier();
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
+    const availableCampaigns = await DDBCampaigns.getAvailableCampaigns();
+    const availableEncounters = await this.encounterImporter.ddbEncounters.filterEncounters();
+
+    const characterSettings = MuncherSettings.getCharacterImportSettings();
+    const muncherSettings = MuncherSettings.getMuncherSettings(false);
+
+    const importSettings = foundry.utils.mergeObject(characterSettings, muncherSettings);
+
+    const encounterConfig = [
+      {
+        name: "encounter-import-policy-missing-characters",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters"),
+        enabled: true,
+        hint: "",
+        label: "Import missing characters?",
+      },
+      {
+        name: "encounter-import-policy-missing-monsters",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-monsters"),
+        enabled: true,
+        hint: "",
+        label: "Import missing monsters?",
+      },
+      {
+        name: "encounter-import-policy-create-journal",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-journal"),
+        enabled: true,
+        hint: "",
+        label: "Create encounter journal entry?",
+      },
+      {
+        name: "encounter-import-policy-use-ddb-save",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save"),
+        enabled: false,
+        hint: "HP for monsters and initiative for all",
+        label: "Use save information from Encounter?",
+      },
+      {
+        name: "encounter-import-policy-create-scene",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
+        enabled: true,
+        hint: "Also adds available characters and NPC's",
+        label: "Create/update a scene?",
+      },
+      {
+        name: "encounter-import-policy-existing-scene",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
+        enabled: true,
+        hint: "",
+        label: "Use an existing scene?",
+      },
+    ];
+
+    const scenes = game.scenes.filter((scene) => !scene.flags?.ddbimporter?.encounters)
+      .map((scene) => {
+        const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
+        const s = {
+          name: `${folderName}${scene.name}`,
+          id: scene.id,
+        };
+        return s;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    const encounterSettings = {
+      tiers,
+      availableCampaigns,
+      availableEncounters,
+      encounterConfig,
+      sceneImg: DDBEncounterMunch.SCENE_IMG,
+      scenes,
+      createSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
+      existingSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
+    };
+
+    let context = foundry.utils.mergeObject(importSettings, encounterSettings);
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
-    logger.debug("Encounters: _prepareContext", context);
+    logger.debug("Encounter: _prepareContext", context);
     return context;
   }
 
@@ -84,14 +169,6 @@ export default class DDBEncounterMunch extends DDBAppV2 {
   async _preparePartContext(partId, context) {
     context.tab = context.tabs[partId];
     return context;
-  }
-
-
-  constructor(options = {}) {
-    super(options);
-    this.encounterImporter = new DDBEncounterMunch({
-      notifier: this.notifier.bind(this),
-    });
   }
 
   resetEncounter() {
@@ -303,88 +380,5 @@ export default class DDBEncounterMunch extends DDBAppV2 {
 
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async getData() {
-    const tier = PatreonHelper.getPatreonTier();
-    const tiers = PatreonHelper.calculateAccessMatrix(tier);
-    const availableCampaigns = await DDBCampaigns.getAvailableCampaigns();
-    const availableEncounters = await this.ddbEncounters.filterEncounters();
 
-    const characterSettings = MuncherSettings.getCharacterImportSettings();
-    const muncherSettings = MuncherSettings.getMuncherSettings(false);
-
-    const importSettings = foundry.utils.mergeObject(characterSettings, muncherSettings);
-
-    const encounterConfig = [
-      {
-        name: "encounter-import-policy-missing-characters",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters"),
-        enabled: true,
-        hint: "",
-        label: "Import missing characters?",
-      },
-      {
-        name: "encounter-import-policy-missing-monsters",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-monsters"),
-        enabled: true,
-        hint: "",
-        label: "Import missing monsters?",
-      },
-      {
-        name: "encounter-import-policy-create-journal",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-journal"),
-        enabled: true,
-        hint: "",
-        label: "Create encounter journal entry?",
-      },
-      {
-        name: "encounter-import-policy-use-ddb-save",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save"),
-        enabled: false,
-        hint: "HP for monsters and initiative for all",
-        label: "Use save information from Encounter?",
-      },
-      {
-        name: "encounter-import-policy-create-scene",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
-        enabled: true,
-        hint: "Also adds available characters and NPC's",
-        label: "Create/update a scene?",
-      },
-      {
-        name: "encounter-import-policy-existing-scene",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
-        enabled: true,
-        hint: "",
-        label: "Use an existing scene?",
-      },
-    ];
-
-    const scenes = game.scenes.filter((scene) => !scene.flags?.ddbimporter?.encounters)
-      .map((scene) => {
-        const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
-        const s = {
-          name: `${folderName}${scene.name}`,
-          id: scene.id,
-        };
-        return s;
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    const encounterSettings = {
-      tiers,
-      availableCampaigns,
-      availableEncounters,
-      encounterConfig,
-      sceneImg: DDBEncounterMunch.SCENE_IMG,
-      scenes,
-      createSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
-      existingSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
-    };
-
-    const data = foundry.utils.mergeObject(importSettings, encounterSettings);
-    logger.debug("Encounter muncher form data", data);
-
-    return data;
-  }
 }

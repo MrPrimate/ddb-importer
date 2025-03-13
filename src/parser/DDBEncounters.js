@@ -1,11 +1,17 @@
 
 import { logger, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
-import DDBEncounterMunch from "../apps/DDBEncounterMunch.js";
 
 export default class DDBEncounters {
 
-  constructor() {
+  constructor({ notifier = null } = {}) {
+    this.notifier = notifier;
+
+    if (!notifier) {
+      this.notifier = (note, { nameField = false, monsterNote = false, message = false, isError = false } = {}) => {
+        logger.info(note, { nameField, monsterNote, message, isError });
+      };
+    }
     this.encounters = [];
   }
 
@@ -17,7 +23,7 @@ export default class DDBEncounters {
     { id: 4, name: "Deadly", color: "red" },
   ];
 
-  static async getEncounterData() {
+  static async getEncounterData(notifier = null) {
     const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
@@ -40,7 +46,7 @@ export default class DDBEncounters {
         .then((response) => response.json())
         .then((data) => {
           if (!data.success) {
-            DDBEncounterMunch.munchNote(`API Failure: ${data.message}`);
+            if (notifier) notifier(`API Failure: ${data.message}`);
             reject(data.message);
           }
           if (debugJson) {
@@ -49,7 +55,7 @@ export default class DDBEncounters {
           return data;
         })
         .then((data) => {
-          DDBEncounterMunch.munchNote(`Retrieved ${data.data.length} encounters, starting parse...`, true, false);
+          if (notifier) notifier(`Retrieved ${data.data.length} encounters, starting parse...`, { nameField: true });
           logger.info(`Retrieved ${data.data.length} encounters`);
           resolve(data.data);
         })
@@ -58,10 +64,10 @@ export default class DDBEncounters {
   }
 
   async parseEncounters() {
-    this.encounters = await DDBEncounters.getEncounterData();
+    this.encounters = await DDBEncounters.getEncounterData(this.notifier.bind(this));
     logger.debug("Fetched encounters", this.encounters);
-    DDBEncounterMunch.munchNote(`Fetched Available DDB Encounters`);
-    DDBEncounterMunch.munchNote("");
+    this.notifier(`Fetched Available DDB Encounters`);
+    this.notifier("");
     return this.encounters;
   }
 
