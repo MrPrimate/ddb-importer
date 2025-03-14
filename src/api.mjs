@@ -7,7 +7,7 @@ import { parseItems } from "./muncher/items.js";
 import { parseTransports } from "./muncher/vehicles.js";
 import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "./muncher/tools.js";
 import DDBEncounterMunch from "./apps/DDBEncounterMunch.js";
-import DDBEncounters from "./parser/DDBEncounters.js";
+import DDBEncounterFactory from "./parser/DDBEncounterFactory.js";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager from "./apps/DDBCharacterManager.js";
@@ -112,7 +112,7 @@ export function registerApi() {
       DDBSimpleMacro: lib.DDBSimpleMacro,
       DDBEffectHelper,
       DDBEncounterMunch,
-      DDBEncounters,
+      DDBEncounterFactory,
       DDBSources: lib.DDBSources,
       DDBItemImporter: lib.DDBItemImporter,
       DDBMacros: lib.DDBMacros,

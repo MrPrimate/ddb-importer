@@ -6,7 +6,7 @@ import {
   PatreonHelper,
   DDBSources,
 } from "./_module.mjs";
-import { SETTINGS } from "../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { SystemHelpers } from "../parser/lib/_module.mjs";
 
 const MuncherSettings = {
@@ -868,6 +868,73 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     return resultData;
   },
 
+  getEncounterSettings: () => {
+    const encounterConfig = [
+      {
+        name: "encounter-import-policy-missing-characters",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters"),
+        enabled: true,
+        hint: "",
+        label: "Import missing characters?",
+      },
+      {
+        name: "encounter-import-policy-missing-monsters",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-monsters"),
+        enabled: true,
+        hint: "",
+        label: "Import missing monsters?",
+      },
+      {
+        name: "encounter-import-policy-create-journal",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-journal"),
+        enabled: true,
+        hint: "",
+        label: "Create encounter journal entry?",
+      },
+      {
+        name: "encounter-import-policy-use-ddb-save",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save"),
+        enabled: false,
+        hint: "HP for monsters and initiative for all",
+        label: "Use save information from Encounter?",
+      },
+      {
+        name: "encounter-import-policy-create-scene",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
+        enabled: true,
+        hint: "Also adds available characters and NPC's",
+        label: "Create/update a scene?",
+      },
+      {
+        name: "encounter-import-policy-existing-scene",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
+        enabled: true,
+        hint: "",
+        label: "Use an existing scene?",
+      },
+    ];
+
+    const scenes = game.scenes.filter((scene) => !scene.flags?.ddbimporter?.encounters)
+      .map((scene) => {
+        const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
+        const s = {
+          name: `${folderName}${scene.name}`,
+          id: scene.id,
+        };
+        return s;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    const encounterSettings = {
+      encounterConfig,
+      scenes,
+      sceneImg: DICTIONARY.encounters.SCENE_IMG,
+      createSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
+      existingSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
+    };
+
+    return encounterSettings;
+  },
 
   getSourcesLookups: (overrideSelected = null) => {
     const selected = (overrideSelected ?? DDBSources.getSelectedSourceIds()).map((id) => parseInt(id));
@@ -919,6 +986,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
+  // eslint-disable-next-line complexity
   updateMuncherSettings: async (_html, event) => {
     const selection = event.target.dataset.section;
     const checked = event.target.checked;
@@ -927,6 +995,18 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     await game.settings.set(SETTINGS.MODULE_ID, selection, checked);
 
     switch (selection) {
+      case "encounter-import-policy-create-scene": {
+        await game.settings.set(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene", false);
+        if (checked) $("#encounter-scene-select").prop("disabled", true);
+        $("#encounter-import-policy-existing-scene").prop('checked', false);
+        break;
+      }
+      case "encounter-import-policy-existing-scene": {
+        await game.settings.set(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene", false);
+        if (checked) $("#encounter-scene-img-select").prop("disabled", true);
+        $("#encounter-import-policy-create-scene").prop('checked', false);
+        break;
+      }
       case "munching-policy-monster-homebrew": {
         if (!checked) {
           await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only", false);

@@ -20,7 +20,6 @@ import DDBEffectHooks from "./hooks/init/DDBEffectHooks.js";
 // monster muncher
 import { earlySettings } from "./hooks/init/settings.js";
 import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
-import { addEncounterMuncher } from "./hooks/renderMuncher/addEncounterMuncher.js";
 
 // socket messaging
 import { setupSockets } from "./hooks/socket/sockets.js";
@@ -84,12 +83,6 @@ export function renderCompendiumTab(app, html, _data) {
   html = html instanceof HTMLElement ? html : html[0];
   addMuncher(app, html);
 }
-
-export function renderScenesTab(app, html, _data) {
-  html = html instanceof HTMLElement ? html : html[0];
-  addEncounterMuncher(app, html);
-}
-
 
 export function renderItemSheet(sheet, html) {
   linkTables("item", html);

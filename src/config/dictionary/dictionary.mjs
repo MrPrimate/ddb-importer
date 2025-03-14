@@ -21,6 +21,7 @@ import { CURRENCY } from "./actor/currency.mjs";
 import { SOURCE_CATEGORIES, SOURCE_DATA } from "./generics/sources.mjs";
 import { NUMBER_MATRIX } from "./generics/numbers.mjs";
 import { COMPANIONS } from "./parsing/companions.mjs";
+import { SCENE_IMG } from "./encounters.mjs";
 
 const DICTIONARY = {
   source: SOURCE_DATA,
@@ -54,6 +55,9 @@ const DICTIONARY = {
     vision5e: VISION_5E_EFFECTS,
   },
   companions: COMPANIONS,
+  encounters: {
+    SCENE_IMG,
+  },
 };
 
 export default DICTIONARY;

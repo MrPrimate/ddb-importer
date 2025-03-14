@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 import {
   logger,
   PatreonHelper,
@@ -5,10 +6,11 @@ import {
   Secrets,
   DDBCompendiumFolders,
   DDBSources,
+  DDBCampaigns,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
-import { parseFrames } from "../muncher/frames.js";
+import DDBFrameImporter from "../muncher/DDBFrameImporter.js";
 import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
@@ -17,9 +19,19 @@ import { parseTransports } from "../muncher/vehicles.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import DDBAppV2 from "./DDBAppV2.js";
+import DDBEncounterFactory from "../parser/DDBEncounterFactory.js";
 
 
 export default class DDBMuncher extends DDBAppV2 {
+
+  constructor() {
+    super();
+    this.encounterFactory = new DDBEncounterFactory({
+      notifier: this.notifier.bind(this),
+    });
+    this.encounterId = null;
+    this.encounter = null;
+  }
 
 
   /** @inheritDoc */
@@ -41,6 +53,7 @@ export default class DDBMuncher extends DDBAppV2 {
       migrateCompendiumSpell: DDBMuncher.migrateCompendiumFolders,
       migrateCompendiumItem: DDBMuncher.migrateCompendiumFolders,
       setPricesXanathar: DDBMuncher.addItemPrices,
+      importEncounter: DDBMuncher.importEncounter,
     },
     position: {
       width: "800",
@@ -83,6 +96,7 @@ export default class DDBMuncher extends DDBAppV2 {
         "modules/ddb-importer/handlebars/muncher/munch/monsters/settings.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/monsters/art.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/adventures.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/encounters.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters.hbs",
       ],
     },
@@ -158,6 +172,9 @@ export default class DDBMuncher extends DDBAppV2 {
           adventures: {
             id: "adventures", group: "munch", label: "Adventures", icon: "fas fa-book-reader",
           },
+          encounters: {
+            id: "encounters", group: "munch", label: "Encounters", icon: "fas fa-dungeon",
+          },
           characters: {
             id: "characters", group: "munch", label: "Characters", icon: "fas fa-users ",
           },
@@ -211,6 +228,26 @@ export default class DDBMuncher extends DDBAppV2 {
       await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
     });
 
+    this.element.querySelector("#encounter-campaign-select")?.addEventListener("change", async (event) => {
+      const campaignId = event.target._value ?? undefined;
+      const encounters = await this.encounterFactory.filterEncounters(campaignId);
+      const campaignSelected = campaignId && campaignId !== "";
+      let encounterList = `<option value=""></option>`;
+      encounters.forEach((encounter) => {
+        encounterList += `<option value="${encounter.id}">${encounter.name}${
+          campaignSelected || !encounter.campaign ? "" : ` (${encounter.campaign.name})`
+        }</option>\n`;
+      });
+      const list = this.element.querySelector("#encounter-select");
+      list.innerHTML = encounterList;
+      this.resetEncounter();
+    });
+
+    this.element.querySelector("#encounter-select")?.addEventListener("change", async (event) => {
+      this.encounterId = event.target.value ?? undefined;
+      await this.render();
+    });
+
     // watch the change of the muncher-policy-selector checkboxes
     this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
       checkbox.addEventListener('change', async (event) => {
@@ -234,8 +271,81 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
+  async _prepareEncounterContext(context) {
+    context.encounter = {
+      id: null,
+      data: {},
+    };
+    if (!context.tiers.supporter) {
+      return foundry.utils.mergeObject(context, {
+        availableCampaigns: [],
+        availableEncounters: [],
+      });
+    }
+
+    context.availableCampaigns = await DDBCampaigns.getAvailableCampaigns();
+    context.availableEncounters = await this.encounterFactory.filterEncounters();
+    if (!this.encounterId) return context;
+    this.encounter = await this.encounterFactory.parseEncounter(this.encounterId);
+    if (!this.encounter) return context;
+
+    const missingCharacters = this.encounter.missingCharacters
+      ? `fa-times-circle' style='color: red`
+      : `fa-check-circle' style='color: green`;
+    const missingMonsters = this.encounter.missingMonsters
+      ? `fa-times-circle' style='color: red`
+      : `fa-check-circle' style='color: green`;
+
+    const goodCharacters = this.encounter.goodCharacterData.map((character) => `${character.name}`).join(", ");
+    const goodMonsters = this.encounter.goodMonsterIds.map((monster) => `${monster.name}`).join(", ");
+    const neededCharactersHTML = this.encounter.missingCharacters
+      ? ` <span style="color: red"> Missing ${
+        this.encounter.missingCharacterData.length
+      }: ${this.encounter.missingCharacterData.map((character) => character.name).join(", ")}</span>`
+      : "";
+    const neededMonstersHTML = this.encounter.missingMonsters
+      ? ` <span style="color: red"> Missing ${
+        this.encounter.missingMonsterIds.length
+      }. DDB Id's: ${this.encounter.missingMonsterIds.map((monster) => monster.ddbId).join(", ")}</span>`
+      : "";
+
+    context.encounter.nameHtml = `<i class='fas fa-check-circle' style='color: green'></i> <b>Encounter:</b> ${this.encounter.name}`;
+    if (this.encounter.summary && this.encounter.summary.trim() !== "") {
+      context.encounter.summaryHtml = `<i class='fas fa-check-circle' style='color: green'></i> <b>Summary:</b> ${this.encounter.summary}`;
+    }
+    if (this.encounter.goodCharacterData.length > 0 || this.encounter.missingCharacterData.length > 0) {
+      context.encounter.charactersHtml = `<i class='fas ${missingCharacters}'></i> <b>Characters:</b> ${goodCharacters}${neededCharactersHTML}`;
+    }
+    if (this.encounter.goodMonsterIds.length > 0 || this.encounter.missingMonsterIds.length > 0) {
+      context.encounter.monstersHtml = `<i class='fas ${missingMonsters}'></i> <b>Monsters:</b> ${goodMonsters}${neededMonstersHTML}`;
+    }
+    context.encounter.difficultyHtml = `<i class='fas fa-check-circle' style='color: green'></i> <b>Difficulty:</b> <span style="color: ${this.encounter.difficulty.color}">${this.encounter.difficulty.name}</span>`;
+    if (this.encounter.rewards && this.encounter.rewards.trim() !== "") {
+      context.encounter.rewardsHtml = `<i class='fas fa-check-circle' style='color: green'></i> <b>Rewards:</b> ${this.encounter.rewards}`;
+    }
+
+    context.encounter.progressHtml = this.encounter.inProgress
+      ? `<i class='fas fa-times-circle' style='color: red'></i> <b>In Progress:</b> <span style="color: red"> Encounter in progress on <a href="https://www.dndbeyond.com/combat-tracker/${this.encounterId}">D&D Beyond!</a></span>`
+      : `<i class='fas fa-check-circle' style='color: green'></i> <b>In Progress:</b> No`;
+
+    context.encounter.id = this.encounterId;
+    context.encounter.data = this.encounter;
+
+    return context;
+  }
+
   async _prepareContext(options) {
     let context = MuncherSettings.getMuncherSettings();
+    context = foundry.utils.mergeObject(context, MuncherSettings.getCharacterImportSettings());
+    context = foundry.utils.mergeObject(context, MuncherSettings.getEncounterSettings());
+    context = await this._prepareEncounterContext(context);
+
+    if (this.encounter) {
+      context.encounterConfig = context.encounterConfig.map((setting) => {
+        if (setting.name === "encounter-import-policy-use-ddb-save") setting.enabled = this.encounter.inProgress;
+        return setting;
+      });
+    }
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
     logger.debug("Muncher: _prepareContext", context);
     return context;
@@ -244,6 +354,7 @@ export default class DDBMuncher extends DDBAppV2 {
   /** @override */
   // eslint-disable-next-line class-methods-use-this
   async _preparePartContext(partId, context) {
+    // console.warn("Muncher: _preparePartContext", partId, context);
     switch (partId) {
       case "info":
       case "settings":
@@ -293,6 +404,7 @@ export default class DDBMuncher extends DDBAppV2 {
     if (tiers.all) {
       buttonSelectors.push('button[id^="munch-monsters-start"]');
       buttonSelectors.push('button[id^="munch-source-select"]');
+      buttonSelectors.push('button[id^="munch-encounter-start"]');
     }
     if (tiers.supporter) {
       buttonSelectors.push('button[id^="munch-frames-start"]');
@@ -386,7 +498,7 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching frames!");
       this._disableButtons();
-      const result = await parseFrames();
+      const result = await DDBFrameImporter.parseFrames();
       this.notifier(`Finished importing ${result.length} frames!`, { nameField: true });
       this.notifier("");
     } catch (error) {
@@ -506,6 +618,69 @@ export default class DDBMuncher extends DDBAppV2 {
     } finally {
       this._enableButtons();
     }
+  }
+
+  resetEncounter() {
+    const nameHtml = this.element.querySelector("#ddb-encounter-name");
+    const summaryHtml = this.element.querySelector("#ddb-encounter-summary");
+    const charactersHtml = this.element.querySelector("#ddb-encounter-characters");
+    const monstersHtml = this.element.querySelector("#ddb-encounter-monsters");
+    const difficultyHtml = this.element.querySelector("#ddb-encounter-difficulty");
+    const rewardsHtml = this.element.querySelector("#ddb-encounter-rewards");
+    const progressHtml = this.element.querySelector("#ddb-encounter-progress");
+
+    nameHtml.innerHTML = `<p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>`;
+    summaryHtml.innerHTML = `<p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>`;
+    charactersHtml.innerHTML = `<p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>`;
+    monstersHtml.innerHTML = `<p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>`;
+    difficultyHtml.innerHTML = `<p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>`;
+    rewardsHtml.innerHTML = `<p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>`;
+    progressHtml.innerHTML = `<p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>`;
+
+    const importButton = this.element.querySelector("#encounter-button");
+    importButton.disabled = true;
+    importButton.innerText = "Import Encounter";
+
+    // $("#ddb-importer-encounters").css("height", "auto");
+    this.element.querySelector("#encounter-import-policy-use-ddb-save").disabled = true;
+
+    this.encounterFactory.resetEncounters();
+  }
+
+  static async importEncounter(_event, _target) {
+
+    const img = this.element.querySelector("#encounter-scene-img-select").value;
+    const sceneId = this.element.querySelector("#encounter-scene-select").value;
+    const id = this.element.querySelector("#encounter-select").value;
+
+    console.warn("Munching encounter!", {
+      encounterFactory: this.encounterFactory,
+      event: _event,
+      target: _target,
+      img,
+      sceneId,
+      id,
+    });
+
+    return;
+
+    try {
+      logger.info("Preparing for encounter munch.");
+      this._disableButtons();
+      await this.encounterFactory.importEncounter(id);
+      const campaignFluff = this.encounterFactory.data.campaign?.name && this.encounterFactory.data.campaign.name.trim() !== ""
+        ? ` of ${this.encounterFactory.data.name}`
+        : "";
+      ui.notifications.warn(`Prepare to battle heroes${campaignFluff}, your doom awaits in ${this.encounterFactory.data.name}!`);
+
+      this.notifier("Encounter munched!", { nameField: true });
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+
   }
 
 }

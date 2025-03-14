@@ -5,16 +5,15 @@ import {
   FolderHelper,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
-import DDBEncounters from "../parser/DDBEncounters.js";
-import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import DDBMonsterFactory from "./DDBMonsterFactory.js";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
 
-export default class DDBEncounterImporter {
+export default class DDBEncounter {
 
-  constructor({ notifier }) {
-    this.encounter = {};
-    this.img = "";
-    this.sceneId = "";
+  constructor({ ddbEncounterData, notifier, img = "", sceneId = "" } = {}) {
+    this.data = {};
+    this.img = img;
+    this.sceneId = sceneId;
     this.journal = undefined;
     this.combat = undefined;
     this.tokens = [];
@@ -28,34 +27,25 @@ export default class DDBEncounterImporter {
       };
     }
 
-    this.ddbEncounters = new DDBEncounters({
-      notifier: this.notifier,
-    });
+    this.ddbEncounterData = ddbEncounterData;
   }
 
-  static SCENE_IMG = [
-    { name: "Bar", img: "modules/ddb-importer/img/encounters/bar.webp" },
-    { name: "Cobbles", img: "modules/ddb-importer/img/encounters/cobbles.webp" },
-    { name: "Dungeon", img: "modules/ddb-importer/img/encounters/dungeon.png" },
-    { name: "Grass", img: "modules/ddb-importer/img/encounters/grass.webp" },
-    { name: "Snow", img: "modules/ddb-importer/img/encounters/snow.webp" },
-    { name: "Stone", img: "modules/ddb-importer/img/encounters/stone.webp" },
-    { name: "Void", img: "modules/ddb-importer/img/encounters/void.webp" },
+  static DIFFICULTY_LEVELS = [
+    { id: null, name: "No challenge", color: "grey" },
+    { id: 1, name: "Easy", color: "green" },
+    { id: 2, name: "Medium", color: "brown" },
+    { id: 3, name: "Hard", color: "orange" },
+    { id: 4, name: "Deadly", color: "red" },
   ];
 
-
-  async parseEncounter(id) {
-    logger.debug(`Looking for Encounter "${id}"`);
-    if (this.ddbEncounters.encounters.length === 0) return this.encounter;
+  async parseEncounter() {
     const monsterPack = CompendiumHelper.getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
-    const encounter = this.ddbEncounters.encounters.find((e) => e.id == id.trim());
-
     let goodMonsterIds = [];
     let missingMonsterIds = [];
-    logger.debug("Parsing encounter", encounter);
-    encounter.monsters.forEach((monster) => {
+    logger.debug("Parsing encounter", this.ddbEncounterData);
+    this.ddbEncounterData.monsters.forEach((monster) => {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f) => f.flags?.ddbimporter?.id == id);
       if (monsterInPack) {
@@ -67,7 +57,7 @@ export default class DDBEncounterImporter {
 
     let goodCharacterData = [];
     let missingCharacterData = [];
-    encounter.players
+    this.ddbEncounterData.players
       .filter((character) => !character.hidden)
       .forEach((character) => {
         const characterInGame = game.actors.find(
@@ -82,21 +72,21 @@ export default class DDBEncounterImporter {
         }
       });
 
-    const difficulty = DDBEncounters.DIFFICULTY_LEVELS.find((level) => level.id == encounter.difficulty);
+    const difficulty = DDBEncounter.DIFFICULTY_LEVELS.find((level) => level.id == this.ddbEncounterData.difficulty);
 
-    this.encounter = {
-      id,
-      name: encounter.name,
-      inProgress: encounter.inProgress,
-      turnNum: encounter.turnNum,
-      roundNum: encounter.roundNum,
+    this.data = {
+      id: this.ddbEncounterData.id,
+      name: this.ddbEncounterData.name,
+      inProgress: this.ddbEncounterData.inProgress,
+      turnNum: this.ddbEncounterData.turnNum,
+      roundNum: this.ddbEncounterData.roundNum,
       difficulty,
-      description: encounter.description,
-      rewards: encounter.rewards,
-      summary: encounter.flavorText,
-      campaign: encounter.campaign,
-      monsters: encounter.monsters,
-      characters: encounter.players,
+      description: this.ddbEncounterData.description,
+      rewards: this.ddbEncounterData.rewards,
+      summary: this.ddbEncounterData.flavorText,
+      campaign: this.ddbEncounterData.campaign,
+      monsters: this.ddbEncounterData.monsters,
+      characters: this.ddbEncounterData.players,
       goodMonsterIds,
       missingMonsterIds,
       goodCharacterData,
@@ -107,25 +97,25 @@ export default class DDBEncounterImporter {
 
     this.folders = {};
 
-    logger.debug("Current encounter", this.encounter);
+    logger.debug("Current encounter", this.data);
 
-    return this.encounter;
+    return this.data;
   }
 
   resetEncounter() {
-    this.encounter = {};
+    this.data = {};
     this.journal = undefined;
     this.combat = undefined;
     this.tokens = [];
   }
 
-  async importMonsters() {
+  async #importMonsters() {
     const importMonsters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-monsters");
 
-    if (importMonsters && this.encounter.missingMonsters && this.encounter.missingMonsterIds.length > 0) {
+    if (importMonsters && this.data.missingMonsters && this.data.missingMonsterIds.length > 0) {
       logger.debug("Importing missing monsters from DDB");
       const monsterFactory = new DDBMonsterFactory({ notifier: this.munchNote.bind(this) });
-      await monsterFactory.processIntoCompendium(this.encounter.missingMonsterIds.map((monster) => monster.ddbId));
+      await monsterFactory.processIntoCompendium(this.data.missingMonsterIds.map((monster) => monster.ddbId));
       logger.debug("Finised Importing missing monsters from DDB");
     }
 
@@ -134,10 +124,10 @@ export default class DDBEncounterImporter {
     const compendiumName = CompendiumHelper.getCompendiumLabel("monster");
 
     let monstersToAddToWorld = [];
-    this.encounter.monsterData = [];
-    this.encounter.worldMonsters = [];
+    this.data.monsterData = [];
+    this.data.worldMonsters = [];
     let journalMonsterInfo = new Map();
-    this.encounter.monsters.forEach((monster) => {
+    this.data.monsters.forEach((monster) => {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f) => f.flags?.ddbimporter?.id == id);
       if (monsterInPack) {
@@ -167,11 +157,11 @@ export default class DDBEncounterImporter {
         }
       }
     });
-    this.encounter.monsterData = Object.values(journalMonsterInfo);
+    this.data.monsterData = Object.values(journalMonsterInfo);
 
     const encounterMonsterFolder = await FolderHelper.getFolder(
       "npc",
-      this.encounter.name,
+      this.data.name,
       "D&D Beyond Encounters",
       "#6f0006",
       "#98020a",
@@ -199,30 +189,30 @@ export default class DDBEncounterImporter {
           );
         }
       }
-      this.encounter.worldMonsters.push(foundry.utils.mergeObject(actor, { id: worldActor.id }));
+      this.data.worldMonsters.push(foundry.utils.mergeObject(actor, { id: worldActor.id }));
     });
 
     return new Promise((resolve) => {
-      resolve(this.encounter.worldMonsters);
+      resolve(this.data.worldMonsters);
     });
   }
 
-  async importCharacters() {
+  async #importCharacters() {
     const importCharacters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters");
-    if (importCharacters && this.encounter.missingCharacters) {
-      await utils.asyncForEach(this.encounter.missingCharacterData, async (character) => {
+    if (importCharacters && this.data.missingCharacters) {
+      await utils.asyncForEach(this.data.missingCharacterData, async (character) => {
         await DDBCharacterImporter.importCharacterById(character.ddbId, this.characterNotifier.bind(this));
       });
     }
   }
 
-  async createJournalEntry() {
+  async #createJournalEntry() {
     logger.debug(`Creating journal entry`);
     const journal = {
-      name: this.encounter.name,
+      name: this.data.name,
       flags: {
         ddbimporter: {
-          encounterId: this.encounter.id,
+          encounterId: this.data.id,
         },
       },
     };
@@ -231,36 +221,36 @@ export default class DDBEncounterImporter {
     if (importJournal) {
       const journalFolder = await FolderHelper.getFolder(
         "journal",
-        this.encounter.name,
+        this.data.name,
         "D&D Beyond Encounters",
         "#6f0006",
         "#98020a",
         false,
       );
       journal.folder = journalFolder.id;
-      journal.content = `<h1>${this.encounter.name}</h1>`;
-      if (this.encounter.summary && this.encounter.summary != "") {
-        journal.content += `<h2>Summary</h2>${this.encounter.summary}`;
+      journal.content = `<h1>${this.data.name}</h1>`;
+      if (this.data.summary && this.data.summary != "") {
+        journal.content += `<h2>Summary</h2>${this.data.summary}`;
       }
-      if (this.encounter.monsterData && this.encounter.monsterData.length > 0) {
+      if (this.data.monsterData && this.data.monsterData.length > 0) {
         journal.content += `<h2>Monsters</h2><ul>`;
-        this.encounter.monsterData.forEach((monster) => {
+        this.data.monsterData.forEach((monster) => {
           journal.content += `<li><p>${monster.journalLink} x${monster.quantity}</p></li>`;
         });
         journal.content += `</ul>`;
       }
-      if (this.encounter.difficulty && this.encounter.difficulty != "") {
-        journal.content += `<h2>Difficulty: <span style="color: ${this.encounter.difficulty.color}">${this.encounter.difficulty.name}</span></h3>`;
+      if (this.data.difficulty && this.data.difficulty != "") {
+        journal.content += `<h2>Difficulty: <span style="color: ${this.data.difficulty.color}">${this.data.difficulty.name}</span></h3>`;
       }
-      if (this.encounter.description && this.encounter.description != "") {
-        journal.content += `<h2>Description</h2>${this.encounter.description}`;
+      if (this.data.description && this.data.description != "") {
+        journal.content += `<h2>Description</h2>${this.data.description}`;
       }
-      if (this.encounter.rewards && this.encounter.rewards != "") {
-        journal.content += `<h2>Rewards</h2>${this.encounter.rewards}`;
+      if (this.data.rewards && this.data.rewards != "") {
+        journal.content += `<h2>Rewards</h2>${this.data.rewards}`;
       }
 
       let worldJournal = game.journal.find(
-        (a) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.encounter.id,
+        (a) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.data.id,
       );
       if (!worldJournal) {
         logger.info(`Importing journal ${journal.name}`);
@@ -284,10 +274,10 @@ export default class DDBEncounterImporter {
   }
 
 
-  async createNewScene() {
+  async #createNewScene() {
     this.folders["scene"] = await FolderHelper.getFolder(
       "scene",
-      this.encounter.name,
+      this.data.name,
       "D&D Beyond Encounters",
       "#6f0006",
       "#98020a",
@@ -295,10 +285,10 @@ export default class DDBEncounterImporter {
     );
 
     let sceneData = {
-      name: this.encounter.name,
+      name: this.data.name,
       flags: {
         ddbimporter: {
-          encounterId: this.encounter.id,
+          encounterId: this.data.id,
           encounters: true,
         },
       },
@@ -327,7 +317,7 @@ export default class DDBEncounterImporter {
   }
 
   // eslint-disable-next-line complexity
-  async createScene() {
+  async #createScene() {
     const importDDBIScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene");
     const useExistingScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
 
@@ -337,13 +327,13 @@ export default class DDBEncounterImporter {
     let worldScene;
 
     if (importDDBIScene) {
-      logger.debug(`Creating scene for encounter "${this.encounter.name}""`);
-      sceneData = await this.createNewScene();
+      logger.debug(`Creating scene for encounter "${this.data.name}""`);
+      sceneData = await this.#createNewScene();
     } else if (useExistingScene) {
       worldScene = game.scenes.find((s) => s.id == this.sceneId);
       if (worldScene) {
         sceneData = worldScene.toObject();
-        logger.debug(`Using existing scene "${worldScene.name}" for encounter "${this.encounter.name}""`, { worldScene, sceneData });
+        logger.debug(`Using existing scene "${worldScene.name}" for encounter "${this.data.name}""`, { worldScene, sceneData });
       } else {
         logger.warn(`Unable to find scene ${this.sceneId}, creating a new scene `);
         throw new Error(`Unable to find scene ${this.sceneId}, creating a new scene `);
@@ -354,7 +344,7 @@ export default class DDBEncounterImporter {
     if (sceneData) {
       let tokenData = [];
       const useDDBSave
-        = this.encounter.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
+        = this.data.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid.size;
       const ySquares = sceneData.height / sceneData.grid.size;
       const midSquareOffset = sceneData.grid.size / 2;
@@ -365,10 +355,10 @@ export default class DDBEncounterImporter {
       const xStartPixelPC = xStartPixelMonster + xPCOffset;
       const yStartPixel = heightPaddingOffset + midSquareOffset;
       let characterCount = 0;
-      this.encounter.characters
+      this.data.characters
         .filter((character) => !character.hidden)
         .forEach(async (character) => {
-          logger.info(`Generating token ${character.name} for ${this.encounter.name}`);
+          logger.info(`Generating token ${character.name} for ${this.data.name}`);
           const characterInGame = game.actors.find(
             (actor) =>
               actor.flags?.ddbimporter?.dndbeyond?.characterId
@@ -384,7 +374,7 @@ export default class DDBEncounterImporter {
                 foundry.utils.setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
               }
               foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
-              foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
+              foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.data.id);
               linkedToken.x = xStartPixelPC;
               const yOffsetChange = characterCount * sceneData.grid.size;
               linkedToken.y = yStartPixel + yOffsetChange;
@@ -397,8 +387,8 @@ export default class DDBEncounterImporter {
       let monsterDepth = 0;
       let monsterRows = 0;
       let rowMonsterWidth = 1;
-      for (const worldMonster of this.encounter.worldMonsters) {
-        logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.encounter.name}`);
+      for (const worldMonster of this.data.worldMonsters) {
+        logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.data.name}`);
         const monster = game.actors.get(worldMonster.id);
         const linkedToken = foundry.utils.duplicate(await monster.getTokenDocument());
         if (monsterDepth + linkedToken.height > ySquares) {
@@ -410,10 +400,10 @@ export default class DDBEncounterImporter {
         foundry.utils.setProperty(linkedToken, "name", worldMonster.ddbName);
         foundry.utils.setProperty(linkedToken, `delta.name`, worldMonster.ddbName);
         foundry.utils.setProperty(linkedToken, "flags.ddbimporter.dndbeyond.uniqueId", worldMonster.uniqueId);
-        foundry.utils.setProperty(linkedToken, "flags.ddbimporter.encounterId", this.encounter.id);
+        foundry.utils.setProperty(linkedToken, "flags.ddbimporter.encounterId", this.data.id);
         foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.dndbeyond.uniqueId`, worldMonster.uniqueId);
         foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounters`, true);
-        foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.encounter.id);
+        foundry.utils.setProperty(linkedToken, `delta.flags.ddbimporter.encounterId`, this.data.id);
         const xOffsetChange = sceneData.grid.size * monsterRows;
         const yOffsetChange = monsterDepth * sceneData.grid.size;
         linkedToken.x = xStartPixelMonster + xOffsetChange;
@@ -441,7 +431,7 @@ export default class DDBEncounterImporter {
       if (importDDBIScene) {
         worldScene = game.scenes.find(
           (a) => a.folder == this.folders["scene"].id
-          && a.flags?.ddbimporter?.encounterId == this.encounter.id,
+          && a.flags?.ddbimporter?.encounterId == this.data.id,
         );
       }
 
@@ -449,7 +439,7 @@ export default class DDBEncounterImporter {
         logger.info(`Updating scene ${sceneData.name}`);
         const existingCombats = game.combats.filter((c) =>
           c.scene?.id == worldScene.id
-          && c.flags?.ddbimporter?.encounterId == this.encounter.id,
+          && c.flags?.ddbimporter?.encounterId == this.data.id,
         );
         await Combat.deleteDocuments(existingCombats.map((c) => c.id));
         if (importDDBIScene) {
@@ -460,7 +450,7 @@ export default class DDBEncounterImporter {
         } else if (useExistingScene) {
           logger.info(`Checking existing scene ${sceneData.name} for encounter monsters`);
           const existingSceneMonsterIds = worldScene.tokens
-            .filter((t) => t.flags?.ddbimporter?.encounterId == this.encounter.id && t.actor.type == "npc")
+            .filter((t) => t.flags?.ddbimporter?.encounterId == this.data.id && t.actor.type == "npc")
             .map((t) => t.id);
           await worldScene.deleteEmbeddedDocuments("Token", existingSceneMonsterIds);
         }
@@ -494,26 +484,26 @@ export default class DDBEncounterImporter {
     return this.scene;
   }
 
-  async createCombatEncounter() {
+  async #createCombatEncounter() {
     const importCombat = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene")
       || game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
 
     if (!importCombat) return undefined;
-    logger.debug(`Creating combat for encounter ${this.encounter.name}`);
+    logger.debug(`Creating combat for encounter ${this.data.name}`);
 
     const useDDBSave
-      = this.encounter.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
+      = this.data.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
 
     await this.scene.view();
     const flags = {
-      "ddbimporter.encounterId": this.encounter.id,
+      "ddbimporter.encounterId": this.data.id,
     };
     this.combat = await Combat.create({ scene: this.scene.id, flags: flags });
     await this.combat.activate();
 
     let toCreate = [];
     const tokens = canvas.tokens.placeables
-      .filter((t) => t.document.flags?.ddbimporter?.encounterId == this.encounter.id || t.actor.type == "character");
+      .filter((t) => t.document.flags?.ddbimporter?.encounterId == this.data.id || t.actor.type == "character");
     if (tokens.length) {
       tokens.forEach((t) => {
         let combatant = { tokenId: t.id, actorId: t.document.actorId, hidden: t.document.hidden };
@@ -537,14 +527,16 @@ export default class DDBEncounterImporter {
     return this.combat;
   }
 
-  async importEncounter() {
-    await this.encounterImporter.importMonsters();
-    await this.encounterImporter.importCharacters();
-    await this.encounterImporter.createJournalEntry();
-    const scene = await this.encounterImporter.createScene();
+  async importEncounter({ img = null, sceneId = null } = {}) {
+    if (img) this.img = img;
+    if (sceneId) this.sceneId = sceneId;
+    await this.#importMonsters();
+    await this.#importCharacters();
+    await this.#createJournalEntry();
+    const scene = await this.#createScene();
     if (scene) {
       logger.info(`Scene ${scene.id} created`);
-      await this.encounterImporter.createCombatEncounter();
+      await this.#createCombatEncounter();
     };
     // to do?
     // adjust monsters hp?

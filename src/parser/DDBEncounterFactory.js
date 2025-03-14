@@ -1,8 +1,9 @@
 
 import { logger, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
+import DDBEncounter from "./DDBEncounter.mjs";
 
-export default class DDBEncounters {
+export default class DDBEncounterFactory {
 
   constructor({ notifier = null } = {}) {
     this.notifier = notifier;
@@ -12,18 +13,11 @@ export default class DDBEncounters {
         logger.info(note, { nameField, monsterNote, message, isError });
       };
     }
-    this.encounters = [];
+    this.encountersData = [];
+    this.encounters = {};
   }
 
-  static DIFFICULTY_LEVELS = [
-    { id: null, name: "No challenge", color: "grey" },
-    { id: 1, name: "Easy", color: "green" },
-    { id: 2, name: "Medium", color: "brown" },
-    { id: 3, name: "Hard", color: "orange" },
-    { id: 4, name: "Deadly", color: "red" },
-  ];
-
-  static async getEncounterData(notifier = null) {
+  static async getEncountersData(notifier = null) {
     const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
@@ -55,7 +49,7 @@ export default class DDBEncounters {
           return data;
         })
         .then((data) => {
-          if (notifier) notifier(`Retrieved ${data.data.length} encounters, starting parse...`, { nameField: true });
+          // if (notifier) notifier(`Retrieved ${data.data.length} encounters, starting parse...`, { nameField: true });
           logger.info(`Retrieved ${data.data.length} encounters`);
           resolve(data.data);
         })
@@ -63,18 +57,18 @@ export default class DDBEncounters {
     });
   }
 
-  async parseEncounters() {
-    this.encounters = await DDBEncounters.getEncounterData(this.notifier.bind(this));
-    logger.debug("Fetched encounters", this.encounters);
+  async getEncounters() {
+    this.encountersData = await DDBEncounterFactory.getEncountersData(this.notifier.bind(this));
+    logger.debug("Fetched encounters", this.encountersData);
     this.notifier(`Fetched Available DDB Encounters`);
     this.notifier("");
-    return this.encounters;
+    return this.encountersData;
   }
 
   async filterEncounters(campaignId) {
     const campaigns = await DDBCampaigns.getAvailableCampaigns();
     const campaignIds = campaigns.map((c) => c.id);
-    const allEncounters = this.encounters.length !== 0 ? this.encounters : await this.parseEncounters();
+    const allEncounters = this.encountersData.length !== 0 ? this.encountersData : await this.getEncounters();
 
     logger.debug(`${allEncounters.length} encounters`, allEncounters);
     logger.debug("CampaignIds", campaignIds);
@@ -83,5 +77,37 @@ export default class DDBEncounters {
     const filteredEncounters = allEncounters.filter((encounter) => encounter.campaign?.id == campaignId);
     logger.debug(`${filteredEncounters.length} filtered encounters`, filteredEncounters);
     return filteredEncounters;
+  }
+
+  async parseEncounter(id, { img = "", sceneId = "" } = {}) {
+    logger.debug(`Looking for Encounter "${id}"`);
+    if (this.encountersData.length === 0) return {};
+
+    const encounter = new DDBEncounter({
+      notifier: this.notifier,
+      ddbEncounterData: this.encountersData.find((e) => e.id === id),
+      img,
+      sceneId,
+    });
+
+    console.warn("Parsing Encounter", {
+      id,
+      encounter,
+      this: this,
+      encountersData: this.encountersData,
+    });
+
+    await encounter.parseEncounter();
+    this.encounters[id] = encounter;
+    return foundry.utils.deepClone(encounter.data);
+  }
+
+  async importEncounter(id, { img = null, sceneId = null } = {}) {
+    const encounter = this.encounters[id];
+    await encounter.importEncounter({ img, sceneId });
+  }
+
+  resetEncounters() {
+    this.encounters = {};
   }
 }

@@ -6,7 +6,7 @@
     <div class="form-group">
       <label>Filter encounters by Campaign?</label>
       <div class="form-fields">
-        <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select"></select>
+        <select name="encounter-campaign-select" class="form-select" id="encounter-campaign-select">
           <option value="">All Campaigns</option>
           {{#each availableCampaigns}}
           <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
@@ -20,8 +20,8 @@
       <div class="form-fields">
         <select name="encounter-select" class="form-select" id="encounter-select">
           <option value=""></option>
-          {{#each availableCampaigns}}
-          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+          {{#each availableEncounters}}
+          <option value="{{this.id}}">{{this.name}} ({{this.campaign.name}})</option>
           {{/each}}
         </select>
       </div>
@@ -32,33 +32,30 @@
   <fieldset>
     <legend>Encounter Selector</legend>
     <div class="form-description" id="campaign-details">
-      <p id="ddb-encounter-name"><i class='fas fa-question'></i> <b>Encounter:</b></p>
-      <p id="ddb-encounter-summary"><i class='fas fa-question'></i> <b>Summary:</b></p>
-      <p id="ddb-encounter-characters"><i class='fas fa-question'></i> <b>Characters:</b></p>
-      <p id="ddb-encounter-monsters"><i class='fas fa-question'></i> <b>Monsters:</b></p>
-      <p id="ddb-encounter-difficulty"><i class='fas fa-question'></i> <b>Difficulty:</b></p>
-      <p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>
-      <p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>
+      <p id="ddb-encounter-name">{{#if encounter.nameHtml }}{{{encounter.nameHtml}}}{{else}}<i class='fas fa-question'></i> <b>Encounter:</b></p>{{/if}}
+      <p id="ddb-encounter-summary">{{#if encounter.summaryHtml }}{{{encounter.summaryHtml}}}{{else}}<i class='fas fa-question'></i> <b>Summary:</b></p>{{/if}}
+      <p id="ddb-encounter-characters">{{#if encounter.charactersHtml }}{{{encounter.charactersHtml}}}{{else}}<i class='fas fa-question'></i> <b>Characters:</b></p>{{/if}}
+      <p id="ddb-encounter-monsters">{{#if encounter.monstersHtml }}{{{encounter.monstersHtml}}}{{else}}<i class='fas fa-question'></i> <b>Monsters:</b></p>{{/if}}
+      <p id="ddb-encounter-difficulty">{{#if encounter.difficultyHtml }}{{{encounter.difficultyHtml}}}{{else}}<i class='fas fa-question'></i> <b>Difficulty:</b></p>{{/if}}
+      <p id="ddb-encounter-rewards">{{#if encounter.rewardsHtml }}{{{encounter.rewardsHtml}}}{{else}}<i class='fas fa-question'></i> <b>Rewards:</b></p>{{/if}}
+      <p id="ddb-encounter-progress">{{#if encounter.progressHtml }}{{{encounter.progressHtml}}}{{else}}<i class='fas fa-question'></i> <b>In Progress:</b></p>{{/if}}
     </div>
   </fieldset>
 
   <fieldset>
     <legend>Encounter Options</legend>
-
-    <div class="encounter-import-group">
-      {{#each encounterConfig}}
-      <div class="form-group encounter-import-policy-config">
-        <label class="ddbimporter-long">{{ this.label }}</label>
-        <div class="form-fields">
+    <div class="form-group encounter-import-policy-config stacked checkbox-grid">
+      <div class="form-fields" style="--num-cols:2;">
+        {{#each encounterConfig}}
+        <label class="ddbimporter-long">
           <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
           data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
-        </div>
-        <p class="hint">{{{this.hint}}}</p>
+          <span>{{this.label}}</span>
+        </label>
+        {{/each}}
       </div>
-      {{/each}}
     </div>
   </fieldset>
-
 
   <fieldset>
     <legend>Scene Selection</legend>
@@ -89,5 +86,5 @@
 
   </fieldset>
 
-  <button data-action="importEncounter" id="encounter-button" class="encounter-button" disabled>Import Encounter</button>
+  <button data-action="importEncounter" id="encounter-button" class="encounter-button" {{#if encounter.id}}disabled{{/if}}>Import Encounter</button>
 </section>
