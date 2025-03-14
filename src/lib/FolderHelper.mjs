@@ -17,7 +17,7 @@ export default class FolderHelper {
         name: folderName,
         type: entityType,
         color: folderColor,
-        parent: (root) ? root.id : null,
+        folder: (root) ? (root._id ?? root.id) : null,
       },
       { displaySheet: false },
     );

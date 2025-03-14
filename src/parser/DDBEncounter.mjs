@@ -114,7 +114,7 @@ export default class DDBEncounter {
 
     if (importMonsters && this.data.missingMonsters && this.data.missingMonsterIds.length > 0) {
       logger.debug("Importing missing monsters from DDB");
-      const monsterFactory = new DDBMonsterFactory({ notifier: this.munchNote.bind(this) });
+      const monsterFactory = new DDBMonsterFactory({ notifier: this.notifier });
       await monsterFactory.processIntoCompendium(this.data.missingMonsterIds.map((monster) => monster.ddbId));
       logger.debug("Finised Importing missing monsters from DDB");
     }
@@ -201,7 +201,7 @@ export default class DDBEncounter {
     const importCharacters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters");
     if (importCharacters && this.data.missingCharacters) {
       await utils.asyncForEach(this.data.missingCharacterData, async (character) => {
-        await DDBCharacterImporter.importCharacterById(character.ddbId, this.characterNotifier.bind(this));
+        await DDBCharacterImporter.importCharacterById(character.ddbId, this.notifier);
       });
     }
   }
@@ -221,7 +221,7 @@ export default class DDBEncounter {
     if (importJournal) {
       const journalFolder = await FolderHelper.getFolder(
         "journal",
-        this.data.name,
+        "",
         "D&D Beyond Encounters",
         "#6f0006",
         "#98020a",
@@ -277,7 +277,7 @@ export default class DDBEncounter {
   async #createNewScene() {
     this.folders["scene"] = await FolderHelper.getFolder(
       "scene",
-      this.data.name,
+      "",
       "D&D Beyond Encounters",
       "#6f0006",
       "#98020a",
@@ -306,11 +306,16 @@ export default class DDBEncounter {
         y: 500,
         scale: 0.57,
       },
-      img: this.img,
+      // img: this.img,
+      background: {
+        src: this.img,
+      },
       tokenVision: false,
       fogExploration: false,
       folder: this.folders["scene"].id,
     };
+
+    console.warn("Creating scene", sceneData);
 
     return sceneData;
 

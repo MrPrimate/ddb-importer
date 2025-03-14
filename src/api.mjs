@@ -6,7 +6,6 @@ import { parseSpells } from "./muncher/spells.js";
 import { parseItems } from "./muncher/items.js";
 import { parseTransports } from "./muncher/vehicles.js";
 import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "./muncher/tools.js";
-import DDBEncounterMunch from "./apps/DDBEncounterMunch.js";
 import DDBEncounterFactory from "./parser/DDBEncounterFactory.js";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
@@ -111,7 +110,6 @@ export function registerApi() {
       DDBCompendiumFolders: lib.DDBCompendiumFolders,
       DDBSimpleMacro: lib.DDBSimpleMacro,
       DDBEffectHelper,
-      DDBEncounterMunch,
       DDBEncounterFactory,
       DDBSources: lib.DDBSources,
       DDBItemImporter: lib.DDBItemImporter,

@@ -21,7 +21,7 @@
         <select name="encounter-select" class="form-select" id="encounter-select">
           <option value=""></option>
           {{#each availableEncounters}}
-          <option value="{{this.id}}">{{this.name}} ({{this.campaign.name}})</option>
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.campaign.name}})</option>
           {{/each}}
         </select>
       </div>
@@ -86,5 +86,5 @@
 
   </fieldset>
 
-  <button data-action="importEncounter" id="encounter-button" class="encounter-button" {{#if encounter.id}}disabled{{/if}}>Import Encounter</button>
+  <button data-action="importEncounter" id="encounter-button" class="encounter-button" {{#if encounter.id}}{{else}}disabled{{/if}}>Import Encounter</button>
 </section>

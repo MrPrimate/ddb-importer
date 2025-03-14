@@ -289,6 +289,11 @@ export default class DDBMuncher extends DDBAppV2 {
     this.encounter = await this.encounterFactory.parseEncounter(this.encounterId);
     if (!this.encounter) return context;
 
+    context.availableEncounters = context.availableEncounters.map((encounter) => {
+      encounter.selected = encounter.id === this.encounterId;
+      return encounter;
+    });
+
     const missingCharacters = this.encounter.missingCharacters
       ? `fa-times-circle' style='color: red`
       : `fa-check-circle' style='color: green`;
@@ -662,12 +667,10 @@ export default class DDBMuncher extends DDBAppV2 {
       id,
     });
 
-    return;
-
     try {
       logger.info("Preparing for encounter munch.");
       this._disableButtons();
-      await this.encounterFactory.importEncounter(id);
+      await this.encounterFactory.importEncounter(id, { img, sceneId });
       const campaignFluff = this.encounterFactory.data.campaign?.name && this.encounterFactory.data.campaign.name.trim() !== ""
         ? ` of ${this.encounterFactory.data.name}`
         : "";
