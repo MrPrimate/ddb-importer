@@ -14,7 +14,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader() {
-    const itemName = utils.camelCase(this.name);
+    const itemName = utils.pascalCase(this.name);
     if (!ItemEnrichers[itemName]) {
       return null;
     }

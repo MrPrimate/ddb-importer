@@ -5,8 +5,8 @@ import { logger, utils } from "../../lib/_module.mjs";
 export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
   _defaultNameLoader() {
-    const monsterHintName = utils.camelCase(this.monsterHintName ?? this.monsterName);
-    const featName = utils.camelCase(this.name);
+    const monsterHintName = utils.pascalCase(this.monsterHintName ?? this.monsterName);
+    const featName = utils.pascalCase(this.name);
     if (!MonsterEnrichers[monsterHintName]?.[featName]) {
       return null;
     }

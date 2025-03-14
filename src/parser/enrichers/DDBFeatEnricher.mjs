@@ -15,7 +15,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader() {
-    const featName = utils.camelCase(this.name);
+    const featName = utils.pascalCase(this.name);
     if (!FeatEnrichers[featName]) {
       return null;
     }

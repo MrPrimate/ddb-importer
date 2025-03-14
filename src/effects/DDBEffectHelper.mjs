@@ -912,7 +912,11 @@ export default class DDBEffectHelper {
     const condition = CONFIG.statusEffects.find((se) =>
       se.name.toLowerCase() === conditionName.toLowerCase()
       && (!forceSystemCondition || (forceSystemCondition && se._id?.startsWIth("dnd5e"))),
-    );
+    )
+      ?? CONFIG.statusEffects.find((se) =>
+        se.id === utils.camelCase(conditionName)
+        && (!forceSystemCondition || (forceSystemCondition && se._id?.startsWith("dnd5e"))),
+      );
 
     if (!condition) {
       logger.error(`Condition ${conditionName} not found`);

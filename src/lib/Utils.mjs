@@ -62,8 +62,13 @@ export default class Utils {
     return str.replace(/[^a-zA-Z0-9]/g, "");
   }
 
-  static camelCase(str) {
+  static pascalCase(str) {
     return str.split(" ").map((s) => Utils.capitalize(Utils.idString(s))).join("");
+  }
+
+  static camelCase(str) {
+    const pascal = Utils.pascalCase(str);
+    return pascal.charAt(0).toLowerCase() + pascal.slice(1);
   }
 
   static namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
