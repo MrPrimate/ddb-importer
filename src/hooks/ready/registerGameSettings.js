@@ -17,6 +17,7 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
     item: {},
     feat: {},
   },
+  CAPTURED_ERRORS: [],
   KNOWN: {
     CHECKED_DIRS: new Set(),
     FILES: new Set(),
@@ -53,7 +54,6 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
     json: null,
     web: null,
   },
-  GENERIC_EQUIPMENT: [],
 });
 
 async function resetSettings() {
@@ -193,7 +193,5 @@ export default async function () {
   if (game.settings.get(SETTINGS.MODULE_ID, "developer-mode")) {
     CONFIG.DDBI.DEV.enabled = true;
   }
-
-  CONFIG.DDBI.GENERIC_EQUIPMENT = new Set(game.settings.get(SETTINGS.MODULE_ID, "generic-items"));
 
 }

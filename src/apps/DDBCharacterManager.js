@@ -101,9 +101,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
     companions: { template: "modules/ddb-importer/handlebars/character/companions.hbs" },
     update: { template: "modules/ddb-importer/handlebars/character/update.hbs" },
     advanced: { template: "modules/ddb-importer/handlebars/character/advanced.hbs" },
+    help: { template: "modules/ddb-importer/handlebars/character/help.hbs" },
     details: { template: "modules/ddb-importer/handlebars/character/details.hbs" },
     footer: { template: "modules/ddb-importer/handlebars/character/footer.hbs" },
-    help: { template: "modules/ddb-importer/handlebars/character/help.hbs" },
   };
 
   /** @override */

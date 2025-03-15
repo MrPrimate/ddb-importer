@@ -90,6 +90,7 @@ const logger = {
         } else {
           console.error(msg);// eslint-disable-line no-console
         }
+        CONFIG.DDBI.CAPTURED_ERRORS.push({ type: "ERROR", msg, payload });
         break;
       case "TIME":
         if (payload) {

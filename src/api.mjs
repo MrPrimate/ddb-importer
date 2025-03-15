@@ -223,6 +223,7 @@ export function registerApi() {
       },
     },
     DICTIONARY: config.DICTIONARY,
+    SETTINGS: config.SETTINGS,
   };
 
   globalThis['DDBImporter'] = API;

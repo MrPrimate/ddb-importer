@@ -22,6 +22,7 @@ export { default as NameMatcher } from "./NameMatcher.mjs";
 export { default as OriginFixer } from "./OriginFixer.mjs";
 export { default as PatreonHelper } from "./PatreonHelper.mjs";
 export * as Secrets from "./Secrets.mjs";
+export { default as DDBDebug } from "./DDBDebug.mjs";
 
 export { default as DDBSimpleMacro } from "./DDBSimpleMacro.mjs";
 export { default as DDBMacros } from "./DDBMacros.mjs";

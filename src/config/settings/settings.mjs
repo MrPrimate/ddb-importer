@@ -207,12 +207,6 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
-      "generic-items": {
-        scope: "world",
-        config: false,
-        type: Array,
-        default: [],
-      },
     },
     // ready settings
     READY: {
@@ -1243,6 +1237,9 @@ const SETTINGS = {
       };
 
     return SETTINGS.APPLY_GLOBAL_DEFAULTS(defaultSettings);
+  },
+  GET_ALL_SETTINGS() {
+    return foundry.utils.mergeObject(SETTINGS.GET_DEFAULT_SETTINGS(), SETTINGS.GET_DEFAULT_SETTINGS(true));
   },
   STATUS: {
     activeUpdate,

@@ -192,10 +192,6 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         };
       })
       .then((data) => {
-        // handle generic item filtering
-        const genericNames = data.items.filter((item) => !item.canBeAddedToInventory).map((i) => utils.nameString(i.name));
-        CONFIG.DDBI.GENERIC_EQUIPMENT = new Set([...CONFIG.DDBI.GENERIC_EQUIPMENT, ...genericNames]);
-
         // handle source filtering
         const filteredItems = useGenerics ? data.items : data.items.filter((item) => item.canBeAddedToInventory);
         return {
@@ -271,8 +267,6 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   // disable source filter if ids provided
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
   const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
-
-  await game.settings.set(SETTINGS.MODULE_ID, "generic-items", Array.from(CONFIG.DDBI.GENERIC_EQUIPMENT));
 
   const characterInventory = getCharacterInventory(raw.items, raw.extra);
   const results = await generateImportItems(characterInventory, resolvedNotifier, raw.spells);
