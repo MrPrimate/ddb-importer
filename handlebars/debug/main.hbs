@@ -1,0 +1,31 @@
+<section id="ddb-debug-main" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <fieldset>
+    <legend>Debug Information</legend>
+    <ul class="unlist full-width">
+      <li><strong>Foundry Version:</strong> <span class="value">{{versions.game}}</span></li>
+      <li><strong>System Version:</strong> <span class="value">{{versions.system}}</span></li>
+      <li><strong>DDB Importer Version:</strong> <span class="value">{{versions.ddbimporter}}</span></li>
+
+      <li><strong>Active Modules:</strong> <span class="value">{{modules.active.length}} ({{modules.excludingKnown.length}})</span></li>
+
+      <li><strong>Error messages captured</strong> <span class="value">{{capturedErrors.length}}</span></li>
+    </ul>
+  </fieldset>
+
+  <fieldset>
+  <legend>Instructions</legend>
+  <p>When logging a support issue downloading the file below to upload to a support issue in discord will help a lot.</p>
+
+  <p>You will be asked to disable other modules, so why not do that now, replicate your error, then open this screen to capture the relevant information.</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Recommendations</legend>
+    <p>If you are having problems please try the following steps:</p>
+    <ul class="unlist full-width">
+      <li><strong>Disable modules:</strong> <span class="value">{{modules.exclusionString}}</span></li>
+    </ul>
+  </fieldset>
+
+  <button data-action="downloadDebug"  type="button" id="dndbeyond-download-debug">Download Debug Datafile</button>
+</section>

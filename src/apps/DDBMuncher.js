@@ -20,6 +20,7 @@ import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import DDBAppV2 from "./DDBAppV2.js";
 import DDBEncounterFactory from "../parser/DDBEncounterFactory.js";
+import DDBDebugger from "./DDBDebugger.mjs";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -54,6 +55,7 @@ export default class DDBMuncher extends DDBAppV2 {
       migrateCompendiumItem: DDBMuncher.migrateCompendiumFolders,
       setPricesXanathar: DDBMuncher.addItemPrices,
       importEncounter: DDBMuncher.importEncounter,
+      openDebug: DDBMuncher.openDebug,
     },
     position: {
       width: "800",
@@ -658,14 +660,14 @@ export default class DDBMuncher extends DDBAppV2 {
     const sceneId = this.element.querySelector("#encounter-scene-select").value;
     const id = this.element.querySelector("#encounter-select").value;
 
-    console.warn("Munching encounter!", {
-      encounterFactory: this.encounterFactory,
-      event: _event,
-      target: _target,
-      img,
-      sceneId,
-      id,
-    });
+    // console.warn("Munching encounter!", {
+    //   encounterFactory: this.encounterFactory,
+    //   event: _event,
+    //   target: _target,
+    //   img,
+    //   sceneId,
+    //   id,
+    // });
 
     try {
       logger.info("Preparing for encounter munch.");
@@ -684,6 +686,10 @@ export default class DDBMuncher extends DDBAppV2 {
       this._enableButtons();
     }
 
+  }
+
+  static openDebug(_event, _target) {
+    new DDBDebugger({ actor: this.actor }).render(true);
   }
 
 }

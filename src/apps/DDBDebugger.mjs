@@ -1,20 +1,8 @@
 import {
   logger,
-  FileHelper,
-  CompendiumHelper,
-  MuncherSettings,
-  PatreonHelper,
-  Secrets,
   DDBDebug,
 } from "../lib/_module.mjs";
-import DDBCharacter from "../parser/DDBCharacter.js";
-import { updateDDBCharacter } from "../updater/character.js";
-import { generateCharacterExtras } from "../parser/DDBExtras.js";
-import { SETTINGS } from "../config/_module.mjs";
-import DDBCookie from "../apps/DDBCookie.js";
-import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import DDBAppV2 from "./DDBAppV2.js";
-import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
 
 
 export default class DDBDebugger extends DDBAppV2 {
@@ -23,7 +11,7 @@ export default class DDBDebugger extends DDBAppV2 {
     super();
     this.actor = actor ?? null;
 
-    this.debug = new DDBDebug();
+    this.debug = new DDBDebug({ actor });
   }
 
 
@@ -60,7 +48,7 @@ export default class DDBDebugger extends DDBAppV2 {
   static PARTS = {
     tabs: { template: "templates/generic/tab-navigation.hbs" },
     main: { template: "modules/ddb-importer/handlebars/debug/main.hbs" },
-    recommendations: { template: "modules/ddb-importer/handlebars/debug/recommendations.hbs" },
+    // recommendations: { template: "modules/ddb-importer/handlebars/debug/recommendations.hbs" },
   };
 
   /** @override */
@@ -74,9 +62,9 @@ export default class DDBDebugger extends DDBAppV2 {
       main: {
         id: "main", group: "sheet", label: "Debug", icon: "fas hand-holding-heart",
       },
-      recommendations: {
-        id: "recommendations", group: "sheet", label: "Recommendations", icon: "fas gem",
-      },
+      // recommendations: {
+      //   id: "recommendations", group: "sheet", label: "Recommendations", icon: "fas gem",
+      // },
     });
     return tabs;
   }

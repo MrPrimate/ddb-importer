@@ -1,15 +1,36 @@
+import { utils } from "./_module.mjs";
 import FileHelper from "./FileHelper.mjs";
 import MuncherSettings from "./MuncherSettings.mjs";
 
 export default class DDBDebug {
 
-  constructor() {
+  static KNOWN_MODULES = [
+    "ATL",
+    "ActiveAuras",
+    "chris-premades",
+    "dae",
+    "ddb-importer",
+    "dnd-dungeon-masters-guide",
+    "dnd-monster-manual",
+    "dnd-players-handbook",
+    "dnd-tashas-cauldron",
+    "lib-wrapper",
+    "midi-qol",
+    "socketlib",
+    "stairways",
+    "tidy5e-sheet",
+    "times-up",
+    "vision-5e",
+    "vtta-tokenizer",
+    "forge-vtt",
+  ];
+
+  constructor({ actor } = {}) {
     this.debug = true;
     this.sources = MuncherSettings.getSourcesLookups();
     this.monsterTypes = MuncherSettings.getMonsterTypeLookups();
     this.sources = {
       excluded: MuncherSettings.getExcludedCategoriesLookup(),
-
     };
     this.muncherSettings = {
       character: MuncherSettings.getCharacterImportSettings(),
@@ -39,35 +60,28 @@ export default class DDBDebug {
       ddbimporter: game.modules.get("ddb-importer").version,
     };
 
-    const knownModules = [
-      "ATL",
-      "ActiveAuras",
-      "chris-premades",
-      "dae",
-      "ddb-importer",
-      "dnd-dungeon-masters-guide",
-      "dnd-monster-manual",
-      "dnd-players-handbook",
-      "dnd-tashas-cauldron",
-      "lib-wrapper",
-      "midi-qol",
-      "socketlib",
-      "stairways",
-      "tidy5e-sheet",
-      "times-up",
-      "vision-5e",
-      "vtta-tokenizer",
-    ];
-
     this.modules = {
-      active: game.modules.filter((m) => m.active),
-      excludingKnown: game.modules.filter((m) => m.active && !knownModules.includes(m.id)),
+      active: game.modules.filter((m) => m.active).map((m) => m.id),
+      excludingKnown: game.modules.filter((m) => m.active && !DDBDebug.KNOWN_MODULES.includes(m.id)).map((m) => m.id),
+      exclusionString: game.modules.filter((m) => m.active && !DDBDebug.KNOWN_MODULES.includes(m.id)).map((m) => m.title).join(", "),
     };
 
-    this.DDBI = foundry.utils.getProperty(CONFIG, "DDBI");
+    this.actor = actor;
 
+    delete this.muncherSettings.character.installedModulesText;
+
+    const types = ["character", "muncher", "encounter"];
+
+    for (const type of types) {
+      for (const [key, setting] of Object.entries(this.muncherSettings[type])) {
+        if (!utils.isArray(setting)) continue;
+        this.muncherSettings[type][key] = setting.map((s) => {
+          delete s.hint;
+          return s;
+        });
+      }
+    }
   }
-
 
   get data() {
     return {
@@ -78,7 +92,11 @@ export default class DDBDebug {
       ddbChangedSettings: this.ddbChangedSettings,
       versions: this.versions,
       modules: this.modules,
-      DDBI: this.DDBI,
+      capturedErrors: CONFIG.DDBI.CAPTURED_ERRORS,
+      actor: {
+        id: this.actor?.id,
+        characterId: foundry.utils.getProperty(this.actor, "flags.ddbimporter.dndbeyond.characterId"),
+      },
     };
   }
 

@@ -315,7 +315,7 @@ export default class DDBEncounter {
       folder: this.folders["scene"].id,
     };
 
-    console.warn("Creating scene", sceneData);
+    // console.warn("Creating scene", sceneData);
 
     return sceneData;
 

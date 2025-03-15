@@ -14,6 +14,7 @@ import DDBCookie from "../apps/DDBCookie.js";
 import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import DDBAppV2 from "./DDBAppV2.js";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
+import DDBDebugger from "./DDBDebugger.mjs";
 
 
 export default class DDBCharacterManager extends DDBAppV2 {
@@ -63,6 +64,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       setLocalCobalt: DDBCharacterManager.setLocalCobaltClickEvent,
       deleteLocalPatreonKey: DDBCharacterManager.deleteLocalPatreonKeyClickEvent,
       setLocalPatreonKey: DDBCharacterManager.setLocalPatreonKeyClickEvent,
+      openDebug: DDBCharacterManager.openDebug,
     },
     position: {
       width: "900",
@@ -509,6 +511,10 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
     this.element.querySelector("#dndbeyond-character-import-start").disabled = false;
     return true;
+  }
+
+  static openDebug(_event, _target) {
+    new DDBDebugger({ actor: this.actor }).render(true);
   }
 
 }

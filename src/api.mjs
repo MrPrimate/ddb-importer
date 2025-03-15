@@ -21,6 +21,7 @@ import * as ParserLib from "./parser/lib/_module.mjs";
 import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface.mjs";
 import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";
 import DDBCharacterImporter from "./muncher/DDBCharacterImporter.mjs";
+import DDBDebugger from "./apps/DDBDebugger.mjs";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -98,13 +99,15 @@ export function registerApi() {
       fetchPatreonTier: lib.PatreonHelper.fetchPatreonTier,
       getPatreonValidity: lib.PatreonHelper.getPatreonValidity,
     },
+    apps: {
+      DDBDebugger,
+      DDBCharacterManager,
+    },
     lib: {
       CPRHelper: External.ChrisPremadesHelper,
       ChrisPremadesHelper: External.ChrisPremadesHelper,
       CompendiumHelper: lib.CompendiumHelper,
       DDBCampaigns: lib.DDBCampaigns,
-      DDBCharacterManager,
-      DDBCharacterImporter,
       DDBCompanion2014,
       DDBCompanionFactory,
       // Companions,
