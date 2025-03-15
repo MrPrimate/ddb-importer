@@ -44,7 +44,7 @@ export function getVehicleData(ids) {
     body.homebrewOnly = body.sources.length > 0 ? false : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only");
     body.searchTerm = encodeURIComponent(searchTerm);
     body.exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match");
-    body.excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
+    body.excludeLegacy = false;
   }
 
   const url = ids && ids.length > 0

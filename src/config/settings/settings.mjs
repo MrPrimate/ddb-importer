@@ -870,10 +870,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "munching-policy-exclude-legacy": {
-            type: Boolean,
-            default: true,
-          },
           "munching-policy-legacy-postfix": {
             type: Boolean,
             default: false,

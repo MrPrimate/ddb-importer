@@ -35,7 +35,6 @@ export default class DDBMonsterFactory {
       ? false
       : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only");
     const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match");
-    const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
 
     const options = {
       ids,
@@ -44,7 +43,6 @@ export default class DDBMonsterFactory {
       homebrew,
       homebrewOnly,
       exactMatch,
-      excludeLegacy,
     };
     logger.debug("Generated monster fetch options", options);
     return options;

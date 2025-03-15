@@ -125,14 +125,11 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
     ? DDBSources.getSelectedSourceIds()
     : [];
 
-  const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
-
   logger.debug(`Fetching Items with:`, {
     debugJson,
     enableSources,
     useGenerics,
     sources,
-    excludeLegacy,
     useSourceFilter,
   });
 
@@ -230,14 +227,6 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
           extra: data.extra,
         };
         return data;
-      })
-      .then((data) => {
-        if (!excludeLegacy) return data;
-        return {
-          items: data.items.filter((r) => !r.isLegacy),
-          spells: data.spells,
-          extra: data.extra,
-        };
       })
       .then((data) => resolve(data))
       .catch((error) => reject(error));

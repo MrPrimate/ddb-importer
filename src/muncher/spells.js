@@ -24,13 +24,12 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
-  const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
   const body = {
     cobalt: cobaltCookie,
     campaignId,
     betaKey,
     className,
-    rulesVersion: rulesVersion ?? (excludeLegacy ? "2024" : "2014"),
+    rulesVersion: rulesVersion ?? "2014",
   };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
@@ -131,10 +130,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
 
   resolvedNotifier("Parsing spell data.");
 
-  const excludeLegacy = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-exclude-legacy");
-
   const filteredResults = results
-    .filter((r) => !excludeLegacy || (excludeLegacy && !r.definition.isLegacy))
     .filter((v, i, a) => a.findIndex((t) =>
       t.definition.name === v.definition.name
       && t.definition.isLegacy === v.definition.isLegacy) === i);

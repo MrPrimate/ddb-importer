@@ -37,10 +37,7 @@ export async function getRaces(data) {
   const traitCompendiumFolders = new DDBCompendiumFolders("traits");
   await traitCompendiumFolders.loadCompendium("traits");
 
-  const excludeLegacy = game.settings.get("ddb-importer", "munching-policy-exclude-legacy");
-  const filteredRaces = data.filter((race) => !excludeLegacy || (excludeLegacy && !race.isLegacy));
-
-  for (const race of filteredRaces) {
+  for (const race of data) {
     logger.debug(`${race.fullName} features parsing started...`);
     const groupName = DDBRace.getGroupName(race.groupIds, race.baseRaceName);
     for (const trait of race.racialTraits) {
@@ -66,7 +63,7 @@ export async function getRaces(data) {
   const traitHelper = await DDBItemImporter.buildHandler("traits", racialFeatures, updateBool, traitOptions);
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traitHelper.documents);
 
-  for (const race of filteredRaces) {
+  for (const race of data) {
     logger.debug(`${race.fullName} race parsing started...`);
     const ddbRace = new DDBRace(null, race, compendiumRacialTraits, true);
     await ddbRace.build();
