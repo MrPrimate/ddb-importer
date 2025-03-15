@@ -45,7 +45,7 @@ export default class ExternalAutomations {
 
   static async applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, monsterName = null } = {}) {
     if (!game.modules.get("chris-premades")?.active) {
-      logger.debug("Chris Premades not active");
+      logger.debug("Cauldron of Plentiful Resources not active");
       return documents;
     }
 
@@ -60,7 +60,7 @@ export default class ExternalAutomations {
     for (let doc of documents) {
       if (["class", "subclass", "background"].includes(doc.type)) continue;
       const type = ChrisPremadesHelper.getTypeMatch(doc, monsterName !== null);
-      logger.debug(`Evaluating ${doc.name} of type ${type} for Chris's Premade application.`, { type, monsterName });
+      logger.debug(`Evaluating ${doc.name} of type ${type} for Cauldron of Plentiful Resources application.`, { type, monsterName });
 
       doc = await ChrisPremadesHelper.findAndUpdate({
         document: doc,
@@ -68,7 +68,7 @@ export default class ExternalAutomations {
         monsterName,
       });
       if (monsterName && !["monsterfeature"].includes(type) && !foundry.utils.getProperty(doc, "flags.ddbimporter.effectsApplied") === true) {
-        logger.debug(`No Chris' Premade found for ${doc.name} with type "${type}", checking for monster feature.`);
+        logger.debug(`No Cauldron of Plentiful Resources found for ${doc.name} with type "${type}", checking for monster feature.`);
         doc = await ChrisPremadesHelper.findAndUpdate({
           document: doc,
           type: "monsterfeature",
@@ -82,14 +82,14 @@ export default class ExternalAutomations {
 
   static async addChrisEffectsToActorDocuments(actor) {
     if (!game.modules.get("chris-premades")?.active) {
-      ui.notifications.error("Chris Premades module not installed");
+      ui.notifications.error("Cauldron of Plentiful Resources module not installed");
       return [];
     }
 
     const externalAutomations = new ExternalAutomations(actor);
     await externalAutomations.disableDynamicUpdates();
 
-    logger.info("Starting to update actor documents with Chris Premades effects");
+    logger.info("Starting to update actor documents with Cauldron of Plentiful Resources effects");
     let documents = actor.getEmbeddedCollection("Item").toObject();
     const isMonster = actor.type === "npc";
     const monsterName = isMonster ? actor.name : null;
@@ -104,7 +104,7 @@ export default class ExternalAutomations {
         && !foundry.utils.hasProperty(d, "flags.items-with-spells-5e.item-spells.parent-item"),
       );
     const dataIds = data.map((d) => d._id);
-    logger.debug("Chris premades generation complete, beginning replace", {
+    logger.debug("Cauldron of Plentiful Resources generation complete, beginning replace", {
       isMonster,
       monsterName,
       data,
@@ -113,12 +113,12 @@ export default class ExternalAutomations {
       documents,
     });
     await actor.deleteEmbeddedDocuments("Item", dataIds);
-    logger.debug("Chris premades, deletion complete");
-    logger.debug("Creating chris premade items", data);
+    logger.debug("Cauldron of Plentiful Resources, deletion complete");
+    logger.debug("Creating Cauldron of Plentiful Resourcese items", data);
     await actor.createEmbeddedDocuments("Item", data, { keepId: true });
     logger.debug("Delete and recreate complete, beginning restricted item replacer");
     await ChrisPremadesHelper.restrictedItemReplacer(actor, monsterName);
-    logger.debug("Restricted item replacer complete, beginning Replacement of Redundant Chris Documents");
+    logger.debug("Restricted item replacer complete, beginning Replacement of Redundant CPR Documents");
     await ChrisPremadesHelper.addAndReplaceRedundantChrisDocuments(actor, monsterName);
     logger.info("Effect replacement complete");
     await externalAutomations.enableDynamicUpdates();

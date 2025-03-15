@@ -99,6 +99,7 @@ export function registerApi() {
       getPatreonValidity: lib.PatreonHelper.getPatreonValidity,
     },
     lib: {
+      CPRHelper: External.ChrisPremadesHelper,
       ChrisPremadesHelper: External.ChrisPremadesHelper,
       CompendiumHelper: lib.CompendiumHelper,
       DDBCampaigns: lib.DDBCampaigns,

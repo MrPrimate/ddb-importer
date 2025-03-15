@@ -232,11 +232,11 @@ export default class ChrisPremadesHelper {
 
     const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${this.chrisName}`);
     if (correctionProperties) {
-      logger.debug(`Updating ${this.original.name} with a Chris correction properties`);
+      logger.debug(`Updating ${this.original.name} with a CPR correction properties`);
       this.document = foundry.utils.mergeObject(this.document, correctionProperties);
     }
 
-    logger.debug(`Updated ${this.original.name} with a Chris effect`);
+    logger.debug(`Updated ${this.original.name} with a CPR effect`);
     delete this.document.folder;
 
   }
@@ -244,7 +244,7 @@ export default class ChrisPremadesHelper {
   static async findAndUpdate({ document, type, monsterName = null, chrisNameOverride = null } = {}) {
     if (!game.modules.get("chris-premades")?.active) return document;
     if (foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
-      logger.info(`${document.name} set to ignore Chris's Premade effect application`);
+      logger.info(`${document.name} set to ignore Cauldron of Plentiful Resources effect application`);
       return document;
     }
 
@@ -470,7 +470,7 @@ export default class ChrisPremadesHelper {
 
     }
 
-    logger.debug("Adding and removing the following restricted Chris's Premades", {
+    logger.debug("Adding and removing the following restricted Cauldron of Plentiful Resources items", {
       toDelete,
       toAdd,
     });
