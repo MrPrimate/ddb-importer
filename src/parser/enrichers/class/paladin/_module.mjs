@@ -1,6 +1,7 @@
 export { default as AbjureFoes } from "./AbjureFoes.mjs";
 export { default as AuraOfHate } from "./AuraOfHate.mjs";
 export { default as AvengingAngel } from "./AvengingAngel.mjs";
+export { default as ChannelDivinityTurnTheUnholy } from "./ChannelDivinityTurnTheUnholy.mjs";
 export { default as DivineSmite } from "./DivineSmite.mjs";
 export { default as ElderChampion } from "./ElderChampion.mjs";
 export { default as EmbodyLegends } from "./EmbodyLegends.mjs";

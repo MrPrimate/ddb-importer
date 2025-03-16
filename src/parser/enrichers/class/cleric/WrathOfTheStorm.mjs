@@ -2,6 +2,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class WrathOfTheStorm extends DDBEnricherData {
+
+  get type() {
+    return "save";
+  }
+
   get activity() {
     return {
       data: {
