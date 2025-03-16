@@ -90,12 +90,12 @@ export default class DDBEncounterFactory {
       sceneId,
     });
 
-    console.warn("Parsing Encounter", {
-      id,
-      encounter,
-      this: this,
-      encountersData: this.encountersData,
-    });
+    // console.warn("Parsing Encounter", {
+    //   id,
+    //   encounter,
+    //   this: this,
+    //   encountersData: this.encountersData,
+    // });
 
     await encounter.parseEncounter();
     this.encounters[id] = encounter;

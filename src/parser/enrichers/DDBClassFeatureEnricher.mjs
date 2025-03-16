@@ -92,6 +92,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Channel Divinity: Cloak of Shadows": ClassEnrichers.Cleric.ChannelDivinityCloakOfShadows,
     "Channel Divinity: Preserve Life": ClassEnrichers.Cleric.ChannelDivinityPreserveLife,
     "Channel Divinity: Radiance of the Dawn": ClassEnrichers.Cleric.ChannelDivinityRadianceOfTheDawn,
+    "Channel Divinity: Turn the Unholy": ClassEnrichers.Paladin.ChannelDivinityTurnTheUnholy,
     "Channel Divinity": ClassEnrichers.Shared.ChannelDivinity,
     "Circle Forms": ClassEnrichers.Druid.CircleForms,
     "Clairvoyant Combatant": ClassEnrichers.Warlock.ClairvoyantCombatant,

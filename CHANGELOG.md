@@ -11,6 +11,8 @@
 - Legendary creatures legendary features could occasionally generate without an activity, and they would then appear in the Features section of the monster.
 - Spell effects: Aid would add the non-midi effects when using midi.
 - Fixes to detecting conditions in multi-lingual worlds @zasujeong
+- Fixes to spirit shroud effect duration when using active auras/midi
+- Fixes to 2014 Paladin Channel Divinity activities generation @stubbybignose
 
 # 6.0.89
 

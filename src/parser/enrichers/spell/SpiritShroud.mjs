@@ -43,6 +43,9 @@ export default class SpiritShroud extends DDBEnricherData {
         name: "Surrounded by a Spirit Shroud",
         activeAurasNever: true,
         midiNever: true,
+        options: {
+          durationSeconds: 60,
+        },
       },
       {
         name: "Slowed by Spirit Shroud",
@@ -55,11 +58,17 @@ export default class SpiritShroud extends DDBEnricherData {
             "system.attributes.movement.all",
           ),
         ],
+        options: {
+          durationSeconds: 60,
+        },
       },
       {
         name: "Spirit Shroud",
         activityMatch: "Cast",
         activeAurasOnly: true,
+        options: {
+          durationSeconds: 60,
+        },
         changes: [
           DDBEnricherData.ChangeHelper.customChange(
             "-10",
