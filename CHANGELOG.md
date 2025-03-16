@@ -1,4 +1,4 @@
-# Next Up
+# 6.1.0
 
 - New UI for DDB Character Importer, DDB Muncher and DDB Encounter Muncher! (migrated to Application V2). Encounter munch is now part of the regular muncher.
 - Heroes' Feast Midi-Qol fix
