@@ -32,6 +32,7 @@ export { default as KorolnorScepter } from "./KorolnorScepter.mjs";
 export { default as Lamp } from "./Lamp.mjs";
 export { default as MoonSickle } from "./MoonSickle.mjs";
 export { default as NeedlerPistol } from "./NeedlerPistol.mjs";
+export { default as Net } from "./Net.mjs";
 export { default as OilOfSharpness } from "./OilOfSharpness.mjs";
 export { default as ParalysisPistol } from "./ParalysisPistol.mjs";
 export { default as PearlOfPower } from "./PearlOfPower.mjs";

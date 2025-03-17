@@ -1,6 +1,7 @@
 # Next Up
 
 - Stirge 2024 damage parsing corrections @ekcameron
+- Fix net parsing
 
 
 # 6.1.0
