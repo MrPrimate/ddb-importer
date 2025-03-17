@@ -214,7 +214,7 @@ export default class DDBCompanionFactory {
     const results = [];
     if (!game.user.can("ITEM_CREATE")) return results;
     const npcBuilder = new DDBMonsterImporter({ monster: companion, type: "monster" });
-    await npcBuilder.build(companion, "monster", {
+    await npcBuilder.build({
       temporary: false,
       update,
       addToWorld: true,

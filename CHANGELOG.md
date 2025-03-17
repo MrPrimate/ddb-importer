@@ -2,6 +2,7 @@
 
 - Stirge 2024 damage parsing corrections @ekcameron
 - Fix net parsing
+- Companion import fixes. @ashli_gator @.oscarguy
 
 
 # 6.1.0
