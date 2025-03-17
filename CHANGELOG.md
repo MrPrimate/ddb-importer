@@ -1,4 +1,4 @@
-# Next Up
+# 6.1.1
 
 - Stirge 2024 damage parsing corrections @ekcameron
 - Fix net parsing
