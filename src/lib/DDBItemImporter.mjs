@@ -284,7 +284,7 @@ export default class DDBItemImporter {
       logger.error(`Item ${item.name} failed creation`, { item, newItem });
     }
     this.currentDocumentCount++;
-    this.notifier(`Creating ${item.name} (${this.currentDocumentCount}/${this.totalDocuments})`);
+    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
     logger.debug(`Pushing ${item.name} to compendium (${this.currentDocumentCount}/${this.totalDocuments})`);
     return this.compendium.importDocument(newItem);
   }
@@ -295,7 +295,7 @@ export default class DDBItemImporter {
     if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.currentDocumentCount++;
-    this.notifier(`Updating ${updateItem.name} (${this.currentDocumentCount}/${this.totalDocuments})`);
+    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
     logger.debug(`Updating ${updateItem.name} compendium entry (${this.currentDocumentCount}/${this.totalDocuments})`, {
       updateItem,
       existingItem,
@@ -309,7 +309,7 @@ export default class DDBItemImporter {
 
   async deleteCreateCompendiumItem(updateItem, existingItem) {
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
-    this.notifier(`Removing and Recreating ${updateItem.name} compendium entry`);
+    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Removing and Recreating ${updateItem.name} compendium entry`);
     logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
     await existingItem.delete();
     let newItem = await this.createCompendiumItem(updateItem);
