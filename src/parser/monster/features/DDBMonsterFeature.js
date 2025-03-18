@@ -309,7 +309,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     if (this.actionInfo.damageParts.length > 0 && this.templateType === "weapon") {
       this.actionInfo.damage.base = this.actionInfo.damageParts[0].part;
-    } else if (this.templateType !== "weapon" && this.actionInfo.versatileParts.length > 0) {
+    } else if (this.templateType !== "weapon" && this.actionInfo.versatileParts.length > 0 && !this.enricher.noVersatile) {
       this.additionalActivities.push({
         name: `Versatile`,
         options: {

@@ -22,3 +22,4 @@ export * as SummonConstruct from "./SummonConstruct/_module.mjs";
 export * as Aboleth from "./Aboleth/_module.mjs";
 export * as EldritchCannon from "./EldritchCannon/_module.mjs";
 export * as Stirge from "./Stirge/_module.mjs";
+export * as SwarmOfStirges from "./SwarmOfStirges/_module.mjs";

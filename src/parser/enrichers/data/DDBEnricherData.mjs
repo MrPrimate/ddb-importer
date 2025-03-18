@@ -360,4 +360,8 @@ export default class DDBEnricherData {
     return null;
   }
 
+  get noVersatile() {
+    return false;
+  }
+
 }
