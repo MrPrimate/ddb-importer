@@ -136,6 +136,7 @@ export function collectSceneData(scene, bookCode) {
     background: foundry.utils.deepClone(scene.background),
     name: scene.name,
     navName: scene.navName,
+    navOrder: scene.navOrder,
     // dimensions
     width: scene.width,
     height: scene.height,
@@ -154,11 +155,8 @@ export function collectSceneData(scene, bookCode) {
     //
     drawings: scene.drawings,
     weather: scene.weather,
-    // lights
-    darkness: scene.darkness,
+    // environment
     tokenVision: scene.tokenVision,
-    globalLight: scene.globalLight,
-    globalLightThreshold: scene.globalLightThreshold,
     lights: scene.lights.map((light) => {
       const l = light.toObject();
       delete l._id;
