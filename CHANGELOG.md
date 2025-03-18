@@ -1,3 +1,7 @@
+# Next Up
+
+- If using Legacy Postfix when munching, 2014 monsters would not pick up legacy spells. @noclipnate
+
 # 6.1.1
 
 - Stirge 2024 damage parsing corrections @ekcameron

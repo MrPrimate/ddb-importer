@@ -316,10 +316,11 @@ const CompendiumHelper = {
 
     // retrieve the compendium index
     const matchedPropertiesKeys = Object.keys(matchedProperties);
-    const fields = ["name", ...matchedPropertiesKeys];
+    const fields = ["name", "flags.ddbimporter.originalName", ...matchedPropertiesKeys];
     let index = await compendium.getIndex({ fields });
     index = index.map((entry) => {
       entry.normalizedName = utils.normalizeString(entry.name);
+      entry.originalNormalisedName = utils.normalizeString(entry.flags?.ddbimporter?.originalName ?? entry.name);
       return entry;
     });
 
@@ -342,7 +343,7 @@ const CompendiumHelper = {
       })
       .map((data) => {
         let entry = index.find((entity) => {
-          const nameMatch = entity.normalizedName === data.name;
+          const nameMatch = (entity.originalNormalisedName === data.name) ?? (entity.normalizedName === data.name);
           if (!nameMatch) return false;
           for (const [field, value] of Object.entries(matchedProperties)) {
             if (foundry.utils.getProperty(entity, field) !== value) return false;
