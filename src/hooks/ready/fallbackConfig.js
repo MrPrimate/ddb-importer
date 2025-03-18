@@ -120,6 +120,30 @@ export const fallbackDDBConfig = {
       name: "Ring-Mail",
       categoryId: 3,
     },
+    {
+      id: 26,
+      entityTypeId: 701257905,
+      name: "Pot Lid",
+      categoryId: 4,
+    },
+    {
+      id: 27,
+      entityTypeId: 701257905,
+      name: "Bark Armor",
+      categoryId: 1,
+    },
+    {
+      id: 28,
+      entityTypeId: 701257905,
+      name: "Divers Armor",
+      categoryId: 3,
+    },
+    {
+      id: 29,
+      entityTypeId: 701257905,
+      name: "Scumweed Armor",
+      categoryId: 2,
+    },
   ],
   tools: [
     {
@@ -881,6 +905,42 @@ export const fallbackDDBConfig = {
       id: 136,
       name: "Dunlendish",
     },
+    {
+      id: 137,
+      name: "Thieves’ Cant",
+    },
+    {
+      id: 138,
+      name: "Capran",
+    },
+    {
+      id: 139,
+      name: "Eluran",
+    },
+    {
+      id: 140,
+      name: "Tilia",
+    },
+    {
+      id: 141,
+      name: "Swallybog",
+    },
+    {
+      id: 142,
+      name: "Dara",
+    },
+    {
+      id: 143,
+      name: "Howler",
+    },
+    {
+      id: 144,
+      name: "Naku Naku",
+    },
+    {
+      id: 145,
+      name: "Torum",
+    },
   ],
   restoreTypes: [
     { id: 1, name: "Full", description: "Restore life with full HP" },
@@ -1004,6 +1064,21 @@ export const fallbackDDBConfig = {
     {
       id: 48,
       name: "Heroic Cultures",
+      avatarUrl: null,
+    },
+    {
+      id: 49,
+      name: "Cnidaran",
+      avatarUrl: "https://www.dndbeyond.com/avatars/47746/881/638766221800967880.jpeg",
+    },
+    {
+      id: 50,
+      name: "Rakin",
+      avatarUrl: "https://www.dndbeyond.com/avatars/47746/882/638766221804244601.jpeg",
+    },
+    {
+      id: 51,
+      name: "Dara",
       avatarUrl: null,
     },
   ],
@@ -1483,6 +1558,58 @@ export const fallbackDDBConfig = {
     {
       id: 174,
       name: "Evil Man",
+    },
+    {
+      id: 175,
+      name: "geleton",
+    },
+    {
+      id: 176,
+      name: "etherean",
+    },
+    {
+      id: 177,
+      name: "Capran",
+    },
+    {
+      id: 178,
+      name: "tilia",
+    },
+    {
+      id: 179,
+      name: "Genie",
+    },
+    {
+      id: 180,
+      name: "Lycanthrope",
+    },
+    {
+      id: 181,
+      name: "psyche",
+    },
+    {
+      id: 182,
+      name: "swallybog",
+    },
+    {
+      id: 183,
+      name: "Spirit",
+    },
+    {
+      id: 184,
+      name: "Fish Folk",
+    },
+    {
+      id: 185,
+      name: "Howler",
+    },
+    {
+      id: 186,
+      name: "Nakudama",
+    },
+    {
+      id: 187,
+      name: "Yokario",
     },
   ],
   creatureGroupFlags: [
@@ -3334,6 +3461,38 @@ export const fallbackDDBConfig = {
       isMulti: true,
       displayOrder: 36,
     },
+    {
+      id: 86,
+      name: "Bludgeoning, Piercing, and Slashing from weapons that aren’t enchanted with spells for the Bane of the Undead",
+      type: 1,
+      slug: "bludgeoning-piercing-and-slashing-from-weapons",
+      isMulti: true,
+      displayOrder: 38,
+    },
+    {
+      id: 87,
+      name: "Piercing damage from weapons wielded by creatures under the effect of a Bless spell",
+      type: 3,
+      slug: "piercing-damage-from-weapons-wielded-by-creatures",
+      isMulti: false,
+      displayOrder: 0,
+    },
+    {
+      id: 88,
+      name: "Bludgeoning and Slashing from nonmagical attacks",
+      type: 1,
+      slug: "bludgeoning-and-slashing-from-nonmagical-attacks",
+      isMulti: true,
+      displayOrder: 1,
+    },
+    {
+      id: 89,
+      name: "All",
+      type: 2,
+      slug: "all",
+      isMulti: true,
+      displayOrder: 99,
+    },
   ],
   statModifiers: [
     { value: 1, modifier: -5 },
@@ -4534,6 +4693,15 @@ export const fallbackDDBConfig = {
       isReleased: true,
       avatarURL: "https://www.dndbeyond.com/avatars/47377/293/638751718810530425.jpeg",
       sourceURL: "sources/dnd/isotss",
+    },
+    {
+      id: 160,
+      name: "OTTG",
+      description: "Obojima: Tales from the Tall Grass",
+      sourceCategoryId: 29,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/47916/932/638773269278133135.jpeg",
+      sourceURL: "sources/dnd/ottg",
     },
     {
       id: 162,
