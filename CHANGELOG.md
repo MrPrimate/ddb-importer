@@ -1,4 +1,4 @@
-# Next Up
+# 6.1.2
 
 - If using Legacy Postfix when munching, 2014 monsters would not pick up legacy spells. @noclipnate
 - Swarm of Stirges parsing tweaks.
