@@ -103,3 +103,28 @@ div.ddbCharacterName {
 label.ddbimporter-long {
   flex: 3 !important;
 }
+
+
+img.ddbcharacter {
+  display: block;
+  width: 96px !important;
+  height: 96px !important;
+  border-radius: 2px;
+  border: 4px solid var(--dnd5e-color-gold);
+  box-shadow: 0 0 4px var(--dnd5e-shadow-45);
+  object-fit: cover;
+  background: var(--dnd5e-color-light-gray);
+  margin: 0;
+  color: var(--color-light-1);
+  text-align: center;
+  align-content: center;
+}
+
+header.ddbcharacter {
+  align-items: stretch;
+  box-sizing: border-box;
+  column-gap: 8px;
+  display: flex;
+  row-gap: 8px;
+  justify-content:space-between;
+}
