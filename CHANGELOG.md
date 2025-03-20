@@ -1,6 +1,7 @@
 # Next Up
 
 - Innate Sorcery tweaks
+- v13 tweaks
 
 # 6.1.2
 
