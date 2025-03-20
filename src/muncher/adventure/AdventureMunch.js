@@ -1477,6 +1477,20 @@ export default class AdventureMunch {
     return data;
   }
 
+  _updateSceneTokensWithNewMonsters(scene) {
+    scene.tokens = scene.tokens.map((token) => {
+      const ddbId = token.ddbActorFlags?.id;
+      const name = token.ddbActorFlags?.name;
+      const match = this.monstersToReplace.find((m) => m.id2014 === ddbId);
+      if (!match) return token;
+      token.ddbActorFlags.id = match.id2024;
+      if (name !== match.name2014) {
+        token.name = match.name2024;
+      }
+      return token;
+    });
+  }
+
   async _importFile(type, { overwriteIds = [] } = {}) {
     let totalCount = 0;
     let currentCount = 0;
@@ -1497,6 +1511,10 @@ export default class AdventureMunch {
       let needRevisit = false;
 
       if (rawData.match(this.pattern) || rawData.match(this.altpattern)) needRevisit = true;
+
+      if (importType === "scene") {
+        this._updateSceneTokensWithNewMonsters(data);
+      }
 
       // eslint-disable-next-line require-atomic-updates
       data = await this._loadDocumentAssets(data, importType);
