@@ -55,7 +55,7 @@ export default class DDBCompanionMixin {
 
   static async getEnrichedImageData(document) {
     const tiers = await PatreonHelper.checkPatreon();
-    if (!tiers.all || DDBProxy.isCustom()) return null;
+    if (!tiers.all || DDBProxy.isCustom(true)) return null;
     const name = document.name;
     // this endpoint is not supported in custom proxies
     if (!CONFIG.DDBI.EXTRA_IMAGES) {

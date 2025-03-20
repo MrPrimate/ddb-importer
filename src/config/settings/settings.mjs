@@ -855,6 +855,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "adventure-policy-use2024-monsters": {
+            type: Boolean,
+            default: false,
+          },
         },
         MUNCH: {
           "munching-policy-update-existing": {

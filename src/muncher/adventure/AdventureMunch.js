@@ -1,5 +1,5 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import { logger, utils, FileHelper, CompendiumHelper } from "../../lib/_module.mjs";
+import { logger, utils, FileHelper, CompendiumHelper, Secrets, DDBProxy, PatreonHelper } from "../../lib/_module.mjs";
 import { generateAdventureConfig } from "../adventure.js";
 import { SETTINGS } from "../../config/_module.mjs";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
@@ -31,7 +31,7 @@ export default class AdventureMunch {
   /** @override */
   constructor({
     importFile, allScenes = null, allMonsters = null, journalWorldActors = null, addToCompendiums = null,
-    addToAdventureCompendium = null, notifierElement = null,
+    addToAdventureCompendium = null, notifierElement = null, use2024monsters = null,
   } = {}) {
     this._itemsToRevisit = [];
     this.adventure = null;
@@ -77,6 +77,7 @@ export default class AdventureMunch {
     this.compendiums = {
       journal: null,
       table: null,
+      monster: null,
     };
     this._compendiumItemsToRevisit = [];
     this.pattern = /(@[a-z]*)(\[)([a-z0-9]*|[a-z0-9.]*)(\])(\{)(.*?)(\})/gim;
@@ -88,7 +89,9 @@ export default class AdventureMunch {
     this.journalWorldActors = journalWorldActors ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors");
     this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums");
     this.addToAdventureCompendium = addToAdventureCompendium ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium");
+    this.use2024monsters = use2024monsters ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-use2024-monsters");
 
+    this.monstersToReplace = [];
 
     this.notifierElement = notifierElement;
     // this.notifier =
@@ -717,6 +720,115 @@ export default class AdventureMunch {
 
   }
 
+
+  async _chooseMonstersToReplace(monsterData) {
+
+    logger.info(`Selecting Monsters for ${this.adventure.name} - (${monsterData.length} possible monsters for replacement)`);
+
+    // const content = await renderTemplate("modules/ddb-importer/handlebars/adventure/choose-monsters.hbs", {
+    //   monsterData: monsterData,
+    // });
+
+    const fields = foundry.applications.fields;
+
+    const options = monsterData.map((m) => {
+      return {
+        label: `${m.name2014} (${m.id2014}) to ${m.name2024} (${m.id2024})`,
+        value: m.id2014,
+        selected: false,
+        disabled: false,
+      };
+    });
+
+    const multiSelectInput = fields.createMultiSelectInput({
+      options,
+      sort: true,
+      type: "checkboxes",
+      name: "ids",
+    });
+
+
+    const content = `${multiSelectInput.outerHTML}`;
+
+    const response = await foundry.applications.api.DialogV2.prompt({
+      rejectClose: false,
+      ok: {
+        label: "Select",
+        icon: "fa-solid fa-floppy-disk",
+        callback: (_event, button, _dialog) => new FormDataExtended(button.form).object,
+      },
+      window: { title: "Select Monsters to Update to latest version" },
+      content,
+    });
+
+    return response.ids;
+  }
+
+
+  _fetchUpdatedMonsterInfo() {
+    const cobaltCookie = Secrets.getCobalt();
+    const parsingApi = DDBProxy.getProxy();
+    const betaKey = PatreonHelper.getPatreonKey();
+    const body = { cobalt: cobaltCookie, betaKey: betaKey };
+
+    const ids = this.adventure.required?.monsters ?? [];
+    const monsterDataIds = this.adventure.required.monsterData.map((m) => m.ddbId) ?? [];
+
+    ids.push(...monsterDataIds);
+
+    body.ids = Array.from(new Set(ids)); // remove duplicates from ids;
+    body.type = "id";
+
+    return new Promise((resolve, reject) => {
+      fetch(`${parsingApi}/proxy/monsters/hints`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body), // body data type must match "Content-Type" header
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.success) {
+            utils.munchNote(`Failure: ${data.message}`);
+            reject(data.message);
+          }
+          return data.data;
+        })
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    });
+  }
+
+  async _updateMonsterData() {
+    if (!this.use2024monsters) return;
+
+    const monsterData = await this._fetchUpdatedMonsterInfo();
+    logger.debug("Updated Monster Data", monsterData);
+
+    const monstersToReplace = await this._chooseMonstersToReplace(monsterData);
+    logger.debug("Monsters to Replace", monstersToReplace);
+
+    if (monstersToReplace.length === 0) return;
+
+    this.monstersToReplace = monsterData.filter((m) => monstersToReplace.includes(m.id2014));
+
+    this.adventure.required.monsterData = this.adventure.required.monsterData.map((md) => {
+      if (!monstersToReplace.includes(md.ddbId)) return md;
+      const updatedMonster = monsterData.find((data) => data.id2014 === md.ddbId);
+      md.ddbId = updatedMonster.id2024;
+      md.name = updatedMonster.name2024;
+      return md;
+    });
+
+    this.adventure.required.monsters = this.adventure.required.monsters.map((id) => {
+      if (!monstersToReplace.includes(id)) return id;
+      const updatedMonster = monsterData.find((data) => data.id2014 === id);
+      return updatedMonster.id2024;
+    });
+
+  }
+
   async importAdventure() {
     try {
 
@@ -725,7 +837,7 @@ export default class AdventureMunch {
         await createDDBCompendium(compData);
         for (const key of Object.keys(this.compendiums)) {
           this.compendiums[key] = CompendiumHelper.getCompendiumType(key);
-          await this.compendiums[key].getIndex();
+          await this.compendiums[key].getIndex({ fields: ["name", "flags.ddbimporter.id", "system.source.rules"] });
         }
       }
 
@@ -761,6 +873,10 @@ export default class AdventureMunch {
 
       await this._createFolders();
       if (!this.allScenes) await this._chooseScenes();
+
+      // checks to see if we want to fiddle some data
+      await this._updateMonsterData();
+
       await this._checkForMissingData();
       this.lookups.adventureConfig = await generateAdventureConfig(true);
 
@@ -1380,7 +1496,6 @@ export default class AdventureMunch {
       let data = JSON.parse(rawData);
       let needRevisit = false;
 
-      // let pattern = /(\@[a-z]*)(\[)([a-z0-9]*|[a-z0-9\.]*)(\])/gmi
       if (rawData.match(this.pattern) || rawData.match(this.altpattern)) needRevisit = true;
 
       // eslint-disable-next-line require-atomic-updates
@@ -1389,26 +1504,6 @@ export default class AdventureMunch {
       if (data.flags.ddb.needRevisit) needRevisit = true;
 
       foundry.utils.setProperty(data.flags, "ddbimporter.version", CONFIG.DDBI.version);
-
-      // if (importType !== "Playlist" && importType !== "Compendium") {
-      //   if (this.lookups.folders[data.folder]) {
-      //     logger.debug(
-      //       `Adding data to subfolder importkey = ${data.folder}, folder = ${
-      //         this.lookups.folders[data.folder]
-      //       }`
-      //     );
-      //     data.folder = this.lookups.folders[data.folder];
-      //   } else {
-      //     logger.debug(
-      //       `Adding data to subfolder importkey = ${data.folder}, folder = ${this.lookups.folders["null"]}`
-      //     );
-      //     if (this.adventure?.options?.folders) {
-      //       data.folder = this.lookups.folders["null"];
-      //     } else {
-      //       data.folder = this.lookups.folders[importType];
-      //     }
-      //   }
-      // }
 
       await this._importRenderedFile(importType, data, needRevisit, overwriteIds);
 

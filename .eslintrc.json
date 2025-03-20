@@ -37,6 +37,7 @@
     "ForgeAPI": true,
     "ForgeVTT": true,
     "FormApplication": true,
+    "FormDataExtended": true,
     "foundry": true,
     "fromUuid": true,
     "fromUuidSync": true,

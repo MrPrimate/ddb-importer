@@ -153,7 +153,7 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         return data.data;
       })
       .then((data) => {
-        if (DDBProxy.isCustom()) {
+        if (DDBProxy.isCustom(true)) {
           return {
             items: data,
             spells: [],

@@ -2,7 +2,8 @@ import { SETTINGS } from "../config/_module.mjs";
 
 const DDBProxy = {
 
-  isCustom: () => {
+  isCustom: (orDev = false) => {
+    if (orDev && CONFIG.DDBI.DEV.enabled) return false;
     return game.settings.get(SETTINGS.MODULE_ID, "custom-proxy");
   },
 
