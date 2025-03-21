@@ -761,7 +761,7 @@ export default class AdventureMunch {
       content,
     });
 
-    return response.ids;
+    return response.ids.map((id) => Number.parseInt(id));
   }
 
 
@@ -776,7 +776,7 @@ export default class AdventureMunch {
 
     ids.push(...monsterDataIds);
 
-    body.ids = Array.from(new Set(ids)); // remove duplicates from ids;
+    body.ids = Array.from(new Set(ids.map((id) => Number.parseInt(id)))); // remove duplicates from ids;
     body.type = "id";
 
     return new Promise((resolve, reject) => {
