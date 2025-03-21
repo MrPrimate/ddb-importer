@@ -827,6 +827,8 @@ export default class AdventureMunch {
       return updatedMonster.id2024;
     });
 
+    console.warn(this);
+
   }
 
   async importAdventure() {
@@ -1512,7 +1514,7 @@ export default class AdventureMunch {
 
       if (rawData.match(this.pattern) || rawData.match(this.altpattern)) needRevisit = true;
 
-      if (importType === "scene") {
+      if (importType === "Scene") {
         this._updateSceneTokensWithNewMonsters(data);
       }
 
