@@ -1065,6 +1065,7 @@ export default class AdventureMunch {
 
     if (importType === "Scene") {
       if (data.tokens) {
+        this._updateSceneTokensWithNewMonsters(data);
         await this.generateTokenActors(data);
       }
       if (data.flags["perfect-vision"] && Array.isArray(data.flags["perfect-vision"])) {
@@ -1480,17 +1481,21 @@ export default class AdventureMunch {
   }
 
   _updateSceneTokensWithNewMonsters(scene) {
+    console.warn(`Updating Scene Tokens (${scene.tokens.length}) with new monsters`, { scene, monstersToReplace: this.monstersToReplace });
     scene.tokens = scene.tokens.map((token) => {
-      const ddbId = token.ddbActorFlags?.id;
-      const name = token.ddbActorFlags?.name;
+      const ddbId = token.flags?.ddbActorFlags?.id;
+      const name = token.flags?.ddbActorFlags?.name;
       const match = this.monstersToReplace.find((m) => m.id2014 === ddbId);
+
+      console.warn("Checking Token", { ddbId, name, match });
       if (!match) return token;
-      token.ddbActorFlags.id = match.id2024;
+      token.flags.ddbActorFlags.id = match.id2024;
       if (name !== match.name2014) {
         token.name = match.name2024;
       }
       return token;
     });
+    console.warn("Updated Scene Tokens", scene.tokens);
   }
 
   async _importFile(type, { overwriteIds = [] } = {}) {
@@ -1513,10 +1518,6 @@ export default class AdventureMunch {
       let needRevisit = false;
 
       if (rawData.match(this.pattern) || rawData.match(this.altpattern)) needRevisit = true;
-
-      if (importType === "Scene") {
-        this._updateSceneTokensWithNewMonsters(data);
-      }
 
       // eslint-disable-next-line require-atomic-updates
       data = await this._loadDocumentAssets(data, importType);
