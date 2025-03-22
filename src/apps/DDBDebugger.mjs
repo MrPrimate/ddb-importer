@@ -17,7 +17,7 @@ export default class DDBDebugger extends DDBAppV2 {
 
   /** @inheritDoc */
   static DEFAULT_OPTIONS = {
-    id: "ddb-importer-character",
+    id: "ddb-debugger",
     classes: ["sheet", "standard-form", "dnd5e2"],
     actions: {
       downloadDebug: DDBDebugger.downloadDebug,

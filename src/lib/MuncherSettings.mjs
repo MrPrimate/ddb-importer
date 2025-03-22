@@ -827,6 +827,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         hint: "If checked will add the imported adventure to the Adventures Compendium. This will not leave the adventure playable in this world. If the system or Foundry is updated, this maybe left unusable. This my leave elements remaining in the world. <i>This is not recommended if you wish to play adventures in this world.</i>",
         enabled: true,
       },
+      {
+        name: "adventure-policy-use2024-monsters",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-use2024-monsters"),
+        label: "Replace legacy monsters with latest versions?",
+        hint: "If checked will replace legacy monsters with the latest versions from the 2024 rules. If you don't have access to these monsters, this may leave you with unlinked or missing tokens.",
+        enabled: true,
+      },
     ];
 
     const resultData = {

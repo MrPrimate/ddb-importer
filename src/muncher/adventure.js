@@ -133,7 +133,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
   }
 
   // vehicles
-  if (!DDBProxy.isCustom() && cobalt) {
+  if (!DDBProxy.isCustom(true) && cobalt) {
     const vehicleData = await getVehicleData();
 
     result.lookups.vehicles = vehicleData.map((v) => {

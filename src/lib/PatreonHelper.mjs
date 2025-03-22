@@ -63,7 +63,7 @@ const PatreonHelper = {
   },
 
   fetchPatreonTier: async (local = false) => {
-    if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: "CUSTOM" };
+    if (DDBProxy.isCustom(true)) return { success: true, message: "custom proxy", data: "CUSTOM" };
     const key = PatreonHelper.getPatreonKey(local);
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: key };
@@ -101,7 +101,7 @@ const PatreonHelper = {
   },
 
   getPatreonValidity: async (betaKey) => {
-    if (DDBProxy.isCustom()) return { success: true, message: "custom proxy", data: true };
+    if (DDBProxy.isCustom(true)) return { success: true, message: "custom proxy", data: true };
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: betaKey };
 
