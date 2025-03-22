@@ -1,5 +1,6 @@
 # Next Up
 
+- Add option to use 2024 monsters in imported adventures.
 - Innate Sorcery tweaks
 - v13 tweaks
 

@@ -827,8 +827,6 @@ export default class AdventureMunch {
       return updatedMonster.id2024;
     });
 
-    console.warn(this);
-
   }
 
   async importAdventure() {
@@ -1481,13 +1479,13 @@ export default class AdventureMunch {
   }
 
   _updateSceneTokensWithNewMonsters(scene) {
-    console.warn(`Updating Scene Tokens (${scene.tokens.length}) with new monsters`, { scene, monstersToReplace: this.monstersToReplace });
+    logger.debug(`Updating Scene Tokens (${scene.tokens.length}) with new monsters`, { scene, monstersToReplace: this.monstersToReplace });
     scene.tokens = scene.tokens.map((token) => {
       const ddbId = token.flags?.ddbActorFlags?.id;
       const name = token.flags?.ddbActorFlags?.name;
       const match = this.monstersToReplace.find((m) => m.id2014 === ddbId);
 
-      console.warn("Checking Token", { ddbId, name, match });
+      logger.debug("Checking Token", { ddbId, name, match });
       if (!match) return token;
       token.flags.ddbActorFlags.id = match.id2024;
       if (name !== match.name2014) {
@@ -1495,7 +1493,7 @@ export default class AdventureMunch {
       }
       return token;
     });
-    console.warn("Updated Scene Tokens", scene.tokens);
+    logger.info(`Updated Scene Tokens for ${scene.name}`, scene.tokens);
   }
 
   async _importFile(type, { overwriteIds = [] } = {}) {
