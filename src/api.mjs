@@ -22,6 +22,7 @@ import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface.mjs";
 import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";
 import DDBCharacterImporter from "./muncher/DDBCharacterImporter.mjs";
 import DDBDebugger from "./apps/DDBDebugger.mjs";
+import AdventureMunch from "./muncher/adventure/AdventureMunch.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -102,6 +103,7 @@ export function registerApi() {
     apps: {
       DDBDebugger,
       DDBCharacterManager,
+      AdventureMunch: AdventureMunch,
     },
     lib: {
       CPRHelper: External.ChrisPremadesHelper,

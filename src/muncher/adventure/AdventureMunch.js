@@ -765,16 +765,11 @@ export default class AdventureMunch {
   }
 
 
-  _fetchUpdatedMonsterInfo() {
+  static fetchUpdatedMonsterInfo(ids = []) {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
     const body = { cobalt: cobaltCookie, betaKey: betaKey };
-
-    const ids = this.adventure.required?.monsters ?? [];
-    const monsterDataIds = this.adventure.required.monsterData.map((m) => m.ddbId) ?? [];
-
-    ids.push(...monsterDataIds);
 
     body.ids = Array.from(new Set(ids.map((id) => Number.parseInt(id)))); // remove duplicates from ids;
     body.type = "id";
@@ -803,7 +798,12 @@ export default class AdventureMunch {
   async _updateMonsterData() {
     if (!this.use2024monsters) return;
 
-    const monsterData = await this._fetchUpdatedMonsterInfo();
+    const ids = this.adventure.required?.monsters ?? [];
+    const monsterDataIds = this.adventure.required.monsterData.map((m) => m.ddbId) ?? [];
+
+    ids.push(...monsterDataIds);
+
+    const monsterData = await this.fetchUpdatedMonsterInfo(ids);
     logger.debug("Updated Monster Data", monsterData);
 
     const monstersToReplace = await this._chooseMonstersToReplace(monsterData);
