@@ -2,6 +2,7 @@
 
 - Innate Sorcery tweaks
 - v13 tweaks
+- Add Fey Step (Eladrin) for DoggoInCircle
 
 # 6.1.2
 
