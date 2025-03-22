@@ -19,7 +19,10 @@ export default class BreathWeapon2024 extends DDBEnricherData {
       data: {
         damage: {
           onSave: "half",
-          parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.dragonborn.breath-weapon", type: this.damageType })],
+          parts: [DDBEnricherData.basicDamagePart({
+            customFormula: "@scale.dragonborn.breath-weapon",
+            type: this.damageType,
+          })],
         },
         target: {
           affects: {

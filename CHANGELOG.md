@@ -4,6 +4,7 @@
 - Innate Sorcery tweaks
 - v13 tweaks
 - Add Fey Step (Eladrin) for DoggoInCircle
+- Fix some variant dragonborn breath weapons coming in incorrectly.
 
 # 6.1.2
 

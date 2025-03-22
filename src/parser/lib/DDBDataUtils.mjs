@@ -177,6 +177,19 @@ export default class DDBDataUtils {
     return undefined;
   }
 
+  static getFeatureFromOptionId(ddb, optionId, type) {
+    const option = ddb.character.options[type].find((option) => option.definition.id === optionId);
+
+    if (!option) return undefined;
+
+    if (type === "race") {
+      const trait = ddb.character.race.racialTraits.find((component) => component.definition.id === option.componentId);
+      if (trait) return trait;
+    }
+
+    return undefined;
+  }
+
   /**
    * Look up a component by id
    * For now we assume that most features we are going to want to get a scaling value
@@ -211,6 +224,11 @@ export default class DDBDataUtils {
           }
         }
       }
+    }
+
+    if (!result) {
+      const trait = DDBDataUtils.getFeatureFromOptionId(ddb, componentId, "race");
+      if (trait) result = trait;
     }
 
     return result;
