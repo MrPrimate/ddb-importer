@@ -1,6 +1,7 @@
 # 6.1.4
 
-- Maneuvers (2014) parse could fail on high level characters.
+- Maneuvers (2014) parse could fail on high level characters. @jackh17
+- Fix some issues with circular references when generating a debug log.
 
 # 6.1.3
 

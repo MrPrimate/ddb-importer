@@ -25,6 +25,45 @@ export default class DDBDebug {
     "forge-vtt",
   ];
 
+  static fixCircularReferences(o) {
+
+    const weirdTypes = [
+      Int8Array,
+      Uint8Array,
+      Uint8ClampedArray,
+      Int16Array,
+      Uint16Array,
+      Int32Array,
+      Uint32Array,
+      BigInt64Array,
+      BigUint64Array,
+      // Float16Array,
+      Float32Array,
+      Float64Array,
+      ArrayBuffer,
+      // SharedArrayBuffer,
+      DataView,
+    ];
+
+    const defs = new Map();
+    return (k, v) => {
+      if (k && v == o) return '[' + k + ' is the same as original object]';
+      if (v === undefined) return undefined;
+      if (v === null) return null;
+      const weirdType = weirdTypes.find((t) => v instanceof t);
+      if (weirdType) return weirdType.toString();
+      if (typeof (v) == 'function') {
+        return v.toString();
+      }
+      if (v && typeof (v) == 'object') {
+        const def = defs.get(v);
+        if (def) return '[' + k + ' is the same as ' + def + ']';
+        defs.set(v, k);
+      }
+      return v;
+    };
+  }
+
   constructor({ actor } = {}) {
     this.debug = true;
     this.sources = MuncherSettings.getSourcesLookups();
@@ -92,7 +131,7 @@ export default class DDBDebug {
       ddbChangedSettings: this.ddbChangedSettings,
       versions: this.versions,
       modules: this.modules,
-      capturedErrors: CONFIG.DDBI.CAPTURED_ERRORS,
+      capturedErrors: foundry.utils.deepClone(CONFIG.DDBI.CAPTURED_ERRORS),
       actor: {
         id: this.actor?.id,
         characterId: foundry.utils.getProperty(this.actor, "flags.ddbimporter.dndbeyond.characterId"),
@@ -101,7 +140,7 @@ export default class DDBDebug {
   }
 
   download() {
-    FileHelper.download(JSON.stringify(this.data), `${game.world.id}.json`, "application/json");
+    FileHelper.download(JSON.stringify(this.data, DDBDebug.fixCircularReferences(), 2), `${game.world.id}.json`, "application/json");
   }
 
   static async generateDebug() {
