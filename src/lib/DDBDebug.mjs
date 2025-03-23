@@ -88,7 +88,7 @@ export default class DDBDebug {
       sources: this.sources,
       monsterTypes: this.monsterTypes,
       muncherSettings: this.muncherSettings,
-      ddbSettings: this.ddbSettings,
+      // ddbSettings: this.ddbSettings,
       ddbChangedSettings: this.ddbChangedSettings,
       versions: this.versions,
       modules: this.modules,

@@ -261,6 +261,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Maneuver Options: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Maneuver Options: Trip Attack": ClassEnrichers.Fighter.ManeuverTripAttack,
     "Maneuver Options": GenericEnrichers.None,
+    "Maneuvers": GenericEnrichers.None,
     "Maneuvers: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
     "Maneuvers: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,
     "Maneuvers: Brace": ClassEnrichers.Fighter.ManeuverBrace,

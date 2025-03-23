@@ -464,8 +464,13 @@ export default class DDBFeature extends DDBFeatureMixin {
       : DDBFeature.CHOICE_DEFS.USE_ALL_CHOICES.includes(this.originalName)
         ? this._choices
         : this._parentOnlyChoices;
+
     const choiceText = choices
       .sort((a, b) => ((a.label < b.label) ? -1 : (a.label > b.label) ? 1 : 0))
+      .reduce((p, c) => {
+        if (!p.some((e) => e.label === c.label)) p.push(c);
+        return p;
+      }, [])
       .reduce((p, c) => {
         if (c.description) {
           const nameReg = new RegExp(`^(<p>)?(?:<em><strong>|<strong>|<strong><em>)${c.label}\\.(?:<\\/strong><\\/em>|<\\/strong>|<\\/em><\\/strong>)`);

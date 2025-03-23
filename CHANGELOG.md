@@ -1,3 +1,7 @@
+# 6.1.4
+
+- Maneuvers (2014) parse could fail on high level characters.
+
 # 6.1.3
 
 - Add option to use 2024 monsters in imported adventures.

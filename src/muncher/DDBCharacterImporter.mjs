@@ -321,11 +321,15 @@ ${item.system.description.chat}
     }
     if (nonKlassItems.length > 0) {
       logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(nonKlassItems) });
-      await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
-      // for (const nonKlassItem of nonKlassItems) {
-      //   console.warn(`Importing ${nonKlassItem.name}`, nonKlassItem);
-      //   await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
-      // }
+      if (CONFIG.DDBI.DEV.enabled) {
+        for (const nonKlassItem of nonKlassItems) {
+          logger.info(`Importing ${nonKlassItem.name}`, nonKlassItem);
+          await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
+        }
+      } else {
+        await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+      }
+
     }
   }
 
