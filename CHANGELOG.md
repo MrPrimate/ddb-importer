@@ -1,7 +1,6 @@
-# Next Up
+# 6.1.5
 
 - Replace monsters stopped working in 6.1.4 @crimsonedge
-
 
 # 6.1.4
 
