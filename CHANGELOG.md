@@ -1,3 +1,8 @@
+# Next Up
+
+- Replace monsters stopped working in 6.1.4 @crimsonedge
+
+
 # 6.1.4
 
 - Maneuvers (2014) parse could fail on high level characters. @jackh17

@@ -803,7 +803,7 @@ export default class AdventureMunch {
 
     ids.push(...monsterDataIds);
 
-    const monsterData = await this.fetchUpdatedMonsterInfo(ids);
+    const monsterData = await AdventureMunch.fetchUpdatedMonsterInfo(ids);
     logger.debug("Updated Monster Data", monsterData);
 
     const monstersToReplace = await this._chooseMonstersToReplace(monsterData);

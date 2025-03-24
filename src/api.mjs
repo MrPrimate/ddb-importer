@@ -134,6 +134,7 @@ export function registerApi() {
       Crosshairs: lib.Crosshairs,
       Enrichers,
       ParserLib,
+      DDBDebug: lib.DDBDebug,
     },
     settings: {
       muncherSettings: lib.MuncherSettings.getMuncherSettings,
