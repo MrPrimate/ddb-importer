@@ -128,3 +128,7 @@ header.ddbcharacter {
   row-gap: 8px;
   justify-content:space-between;
 }
+
+dialog.ddb-monster-select-dialog > section {
+  overflow: scroll !important;
+}

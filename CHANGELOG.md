@@ -1,3 +1,7 @@
+# 6.1.6
+
+- Add scroll bar to monster swap on adventure import (select all option to follow later)
+
 # 6.1.5
 
 - Replace monsters stopped working in 6.1.4 @crimsonedge

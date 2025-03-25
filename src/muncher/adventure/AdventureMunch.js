@@ -759,6 +759,7 @@ export default class AdventureMunch {
       },
       window: { title: "Select Monsters to Update to latest version" },
       content,
+      classes: ["ddb-monster-select-dialog"],
     });
 
     return response.ids.map((id) => Number.parseInt(id));
@@ -1548,9 +1549,12 @@ export default class AdventureMunch {
         const lookupValue = lookups[AdventureMunch.COMPENDIUM_MAP[lookupKey]];
         if (lookupValue) {
           const worldActorLink = this.journalWorldActors && ["monsters"].includes(lookupKey);
+          let monsterId = lookupMatch[1];
+          const replacedMonster = this.monstersToReplace.find((m) => m.id2014 === parseInt(monsterId));
+          if (replacedMonster) monsterId = replacedMonster.id2024;
           const lookupEntry = worldActorLink
-            ? actorData.find((a) => a.ddbId === parseInt(lookupMatch[1]))
-            : lookupValue.find((e) => e.id == lookupMatch[1]);
+            ? actorData.find((a) => a.ddbId === parseInt(monsterId))
+            : lookupValue.find((e) => e.id == monsterId);
 
           if (lookupEntry) {
             const pageLink = lookupEntry.pageId ? `.JournalEntryPage.${lookupEntry.pageId}` : "";
