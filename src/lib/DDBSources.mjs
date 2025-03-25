@@ -239,6 +239,7 @@ export default class DDBSources {
 
   static isSourceInAllowedCategory(source) {
     const sourceCategory = CONFIG.DDB.sources.find((s) => s.id == source.sourceId);
+    if (!sourceCategory) return false;
     return !DDBSources.getAllExcludedCategoryIds().includes(sourceCategory.sourceCategoryId);
   }
 
