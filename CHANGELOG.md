@@ -1,6 +1,7 @@
 # Next Up
 
 - Update character macro call was broken. @icarus35
+- Deflect Attacks had OnSave set to half. @nikolai.sw
 
 # 6.1.6
 
