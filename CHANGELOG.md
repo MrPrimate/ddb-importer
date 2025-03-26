@@ -1,3 +1,7 @@
+# Next Up
+
+- Update character macro call was broken. @icarus35
+
 # 6.1.6
 
 - Add scroll bar to monster swap on adventure import (select all option to follow later)

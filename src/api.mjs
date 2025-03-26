@@ -65,7 +65,7 @@ async function updateFoundryCharacters() {
     const ddbImported = 'ddbimporter' in actor.flags;
     if (ddbImported && actor.type === "character") {
       lib.logger.info(`Updating ${actor.name} to DDB`);
-      await DDBCharacterImporter.importCharacter(actor);
+      await DDBCharacterImporter.importCharacter({ actor });
     }
   }
 }
