@@ -12,7 +12,7 @@ async function getMonsterMap () {
   // ddb://monsters
   const monsterCompendiumLabel = CompendiumHelper.getCompendiumLabel("monster");
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
-  const monsterIndices = ["name", "flags.ddbimporter.id"];
+  const monsterIndices = ["name", "flags.ddbimporter.id", "system.source.rules"];
   const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
 
   const results = monsterIndex
@@ -24,6 +24,8 @@ async function getMonsterMap () {
         compendium: monsterCompendiumLabel,
         name: monster.name,
         documentName: monster.name,
+        rules: monster.system?.source?.rules,
+        uuid: monster.uuid,
       };
     });
 
@@ -35,7 +37,7 @@ async function getSpellMap() {
   // mm 2176
   const spellCompendiumLabel = await game.settings.get("ddb-importer", "entity-spell-compendium");
   const spellCompendium = await game.packs.find((pack) => pack.collection === spellCompendiumLabel);
-  const spellIndices = ["name", "flags.ddbimporter.definitionId"];
+  const spellIndices = ["name", "flags.ddbimporter.definitionId", "system.source.rules"];
   const spellIndex = await spellCompendium.getIndex({ fields: spellIndices });
 
   const results = spellIndex
@@ -47,6 +49,8 @@ async function getSpellMap() {
         compendium: spellCompendiumLabel,
         name: spell.name,
         documentName: spell.name,
+        rules: spell.system?.source?.rules,
+        uuid: spell.uuid,
       };
     });
 
@@ -57,18 +61,20 @@ async function getItemMap() {
   // ddb://magicitems
   const itemCompendiumLabel = await game.settings.get("ddb-importer", "entity-item-compendium");
   const itemCompendium = await game.packs.find((pack) => pack.collection === itemCompendiumLabel);
-  const itemIndices = ["name", "flags.ddbimporter.definitionId"];
+  const itemIndices = ["name", "flags.ddbimporter.definitionId", "system.source.rules"];
   const itemIndex = await itemCompendium.getIndex({ fields: itemIndices });
 
   const results = itemIndex
-    .filter((item) => item.flags?.ddbimporter?.definitionId)
-    .map((item) => {
+    .filter((i) => i.flags?.ddbimporter?.definitionId)
+    .map((i) => {
       return {
-        id: item.flags.ddbimporter.definitionId,
-        _id: item._id,
+        id: i.flags.ddbimporter.definitionId,
+        _id: i._id,
         compendium: itemCompendiumLabel,
-        name: item.name,
-        documentName: item.name,
+        name: i.name,
+        documentName: i.name,
+        rules: i.system?.source?.rules,
+        uuid: i.uuid,
       };
     });
 
@@ -141,6 +147,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
         id: v.id,
         url: v.url,
         name: v.name,
+        uuid: v.uuid,
       };
     });
   }
