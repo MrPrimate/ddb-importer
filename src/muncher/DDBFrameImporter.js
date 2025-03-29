@@ -51,7 +51,7 @@ export default class DDBFrameImporter {
     });
   }
 
-  static async DDBFrameImporter() {
+  static async parseFrames() {
     const frames = await DDBFrameImporter.getFrameData();
     logger.debug("Importing frames", frames);
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory").replace(/^\/|\/$/g, "");

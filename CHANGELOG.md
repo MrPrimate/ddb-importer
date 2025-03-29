@@ -1,3 +1,7 @@
+# Next Up
+
+- Frame importer corrrection.
+
 # 6.1.7
 
 - Update character macro call was broken. @icarus35
