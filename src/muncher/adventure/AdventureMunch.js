@@ -63,7 +63,7 @@ export default class AdventureMunch {
     this.allMonsters = false;
     this.journalWorldActors = false;
     this.importFile = importFile;
-    this.importFilename = importFile.name;
+    this.importFilename = importFile?.name;
     this.lookups = {
       folders: {},
       compendiumFolders: {},

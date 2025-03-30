@@ -1,6 +1,8 @@
 # Next Up
 
-- Frame importer corrrection.
+- Frame importer correction.
+- Muncher could fail to open under some circumstances if you were previously a patreon supporter but now run your own proxy. @kinosuave
+- Third Party Muncher screen would not always open. @njkb
 
 # 6.1.7
 

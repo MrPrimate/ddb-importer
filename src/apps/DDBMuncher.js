@@ -231,6 +231,7 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.element.querySelector("#encounter-campaign-select")?.addEventListener("change", async (event) => {
+      if (!context.tiers.supporter) return;
       const campaignId = event.target._value ?? undefined;
       const encounters = await this.encounterFactory.filterEncounters(campaignId);
       const campaignSelected = campaignId && campaignId !== "";

@@ -46,6 +46,7 @@ const PatreonHelper = {
   },
 
   getPatreonTier: (local = false) => {
+    if (DDBProxy.isCustom(true)) return "CUSTOM";
     if (local) {
       return localStorage.getItem("ddb-patreon-tier");
     } else {
@@ -127,6 +128,7 @@ const PatreonHelper = {
     const undyingTier = tier === "UNDYING";
     const coffeeTier = tier === "COFFEE";
     const custom = tier === "CUSTOM" || DDBProxy.isCustom();
+    const devCustom = DDBProxy.isCustom(true);
 
     const tiers = {
       god: godTier,
@@ -137,7 +139,7 @@ const PatreonHelper = {
       experimentalMid: godTier || undyingTier,
       homebrew: godTier || undyingTier || coffeeTier || custom,
       all: godTier || undyingTier || coffeeTier || custom,
-      supporter: godTier || undyingTier || coffeeTier,
+      supporter: custom && devCustom ? false : (godTier || undyingTier || coffeeTier),
       not: !godTier && !undyingTier && !coffeeTier && !custom,
     };
 
