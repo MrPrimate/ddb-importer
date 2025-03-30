@@ -174,6 +174,16 @@ export default class DDBDataUtils {
       );
       return klass;
     }
+
+    if (ddb.classOptions) {
+      const option = ddb.classOptions.find((option) => option.id === optionId);
+      if (option) {
+        const klass = ddb.character.classes.find((cls) => cls.definition.id === option.classId)
+          ?? ddb.character.classes.find((cls) => cls.subclassDefinition?.id === option.classId);
+        return klass;
+      }
+    }
+
     return undefined;
   }
 
@@ -512,11 +522,25 @@ export default class DDBDataUtils {
   static determineActualFeatureId(ddb, featureId, type = "class") {
     const optionalFeatureReplacement = ddb.character?.optionalClassFeatures
       ? ddb.character.optionalClassFeatures
-        .filter((f) => f.classFeatureId === featureId)
+        .filter((f) => f.classFeatureId === featureId && f.affectedClassFeatureId)
         .map((f) => f.affectedClassFeatureId)
       : [];
     // are we dealing with an optional class feature?
     const choiceFeature = DDBDataUtils.getComponentIdFromOptionValue(ddb, type, featureId);
+
+    const additionalFeature = ddb.character?.optionalClassFeatures
+      ? ddb.character.optionalClassFeatures
+        .filter((f) => f.classFeatureId === featureId && !f.affectedClassFeatureId)
+        .map((f) => f.classFeatureId)
+      : [];
+
+
+    // console.warn("determineActualFeatureId", {
+    //   featureId,
+    //   optionalFeatureReplacement,
+    //   choiceFeature,
+    //   additionalFeature,
+    // });
 
     if (choiceFeature) {
       const choiceOptionalFeature = ddb.character.optionalClassFeatures
@@ -528,7 +552,11 @@ export default class DDBDataUtils {
     } else if (optionalFeatureReplacement && optionalFeatureReplacement.length > 0) {
       logger.debug(`Feature ${featureId} is replacing ${optionalFeatureReplacement[0]}`);
       return optionalFeatureReplacement[0];
+    } else if (additionalFeature && additionalFeature.length > 0) {
+      logger.debug(`Feature ${featureId} is additional to ${additionalFeature[0]}`);
+      return additionalFeature[0];
     }
+
     return featureId;
   }
 

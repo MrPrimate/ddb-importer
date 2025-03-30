@@ -105,7 +105,7 @@ export default class GenericSpellFactory {
 
     let items = [];
     const proficiencyModifier = character.system.attributes.prof;
-    const lookups = getLookups(ddb.character);
+    const lookups = getLookups(ddb);
 
     const spellCountDict = {};
 

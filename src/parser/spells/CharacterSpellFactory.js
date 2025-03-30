@@ -18,7 +18,7 @@ export default class CharacterSpellFactory {
     this.processed = [];
 
     this.proficiencyModifier = this.character.system.attributes.prof;
-    this.lookups = getLookups(this.ddb.character);
+    this.lookups = getLookups(this.ddb);
 
     logger.debug("Character spell lookups", this.lookups);
     this.characterAbilities = this.character.flags.ddbimporter.dndbeyond.effectAbilities;
