@@ -1,8 +1,9 @@
-# Next Up
+# 6.1.8
 
 - Frame importer correction.
 - Muncher could fail to open under some circumstances if you were previously a patreon supporter but now run your own proxy. @kinosuave
 - Third Party Muncher screen would not always open. @njkb
+- Fix an issue where spells granted by subclasses would not show up on spell lists. @affinno
 
 # 6.1.7
 
