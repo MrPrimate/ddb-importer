@@ -118,14 +118,17 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   const results = [];
   const spellListFactory = new SpellListFactory();
 
-  for (const className of SpellListFactory.CLASS_NAMES) {
-    const spellData = await getSpellData({
-      className,
-      sourceFilter,
-      notifier: resolvedNotifier,
-    });
-    spellListFactory.extractSpellListData(className, spellData);
-    results.push(...spellData);
+  for (const [rulesVersion, klassNames] of Object.entries(SpellListFactory.CLASS_NAMES_MAP)) {
+    for (const className of klassNames) {
+      const spellData = await getSpellData({
+        className,
+        sourceFilter,
+        notifier: resolvedNotifier,
+        rulesVersion,
+      });
+      spellListFactory.extractSpellListData(className, spellData);
+      results.push(...spellData);
+    }
   }
 
   resolvedNotifier("Parsing spell data.");

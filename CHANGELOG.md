@@ -1,3 +1,7 @@
+# Next Up
+
+- Befuddlement would not import via Spell Muncher.
+
 # 6.1.8
 
 - Frame importer correction.

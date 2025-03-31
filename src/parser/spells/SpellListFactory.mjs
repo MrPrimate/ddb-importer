@@ -145,6 +145,13 @@ export default class SpellListFactory {
 
   static WIZARD_FILTER = ["Graviturgy", "Chronurgy"];
 
+  static CLASS_NAMES_MAP = {
+    "2014": SpellListFactory.CLASS_NAMES,
+    "2024": [
+      "Wizard",
+    ],
+  };
+
 
   #generateSpellsBySourceAndClass(className) {
     for (const source of this.sources) {
