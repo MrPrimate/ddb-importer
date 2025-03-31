@@ -92,6 +92,7 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   static async downloadDebug(_event, _target) {
+    await this.debug.fetch();
     this.debug.download();
   }
 

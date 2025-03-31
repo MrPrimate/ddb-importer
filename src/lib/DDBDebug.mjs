@@ -1,4 +1,4 @@
-import { utils } from "./_module.mjs";
+import { DDBProxy, PatreonHelper, Secrets, utils } from "./_module.mjs";
 import FileHelper from "./FileHelper.mjs";
 import MuncherSettings from "./MuncherSettings.mjs";
 
@@ -64,7 +64,7 @@ export default class DDBDebug {
     };
   }
 
-  constructor({ actor } = {}) {
+  constructor({ actor, extra } = {}) {
     this.debug = true;
     this.sources = MuncherSettings.getSourcesLookups();
     this.monsterTypes = MuncherSettings.getMonsterTypeLookups();
@@ -120,10 +120,15 @@ export default class DDBDebug {
         });
       }
     }
+
+    this.secrets = null;
+
+    this.extra = extra;
   }
 
   get data() {
     return {
+      secrets: this.secrets,
       sources: this.sources,
       monsterTypes: this.monsterTypes,
       muncherSettings: this.muncherSettings,
@@ -143,9 +148,23 @@ export default class DDBDebug {
     FileHelper.download(JSON.stringify(this.data, DDBDebug.fixCircularReferences(), 2), `${game.world.id}.json`, "application/json");
   }
 
+  async fetch() {
+    this.secrets = {
+      cobalt: await Secrets.checkCobalt(this.actor?.id),
+      proxy: {
+        isCustom: await DDBProxy.isCustom(),
+        proxy: await DDBProxy.getProxy(),
+      },
+      patreon: {
+        tier: await PatreonHelper.checkPatreon(),
+        tierLocal: await PatreonHelper.checkPatreon(true),
+      },
+    };
+  }
+
   static async generateDebug() {
     const debug = new DDBDebug();
-
+    await debug.fetch();
     return debug.data;
   }
 
