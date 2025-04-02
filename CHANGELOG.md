@@ -1,3 +1,8 @@
+# Next Up
+
+- Flying Broomstick from Obojima is no longer a container.
+- Some prepared food items from Obojima now import as consumables/foods.
+
 # 6.1.9
 
 - Befuddlement would not import via Spell Muncher.

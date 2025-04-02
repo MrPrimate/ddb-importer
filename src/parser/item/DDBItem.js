@@ -81,7 +81,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Daern's Instant Fortress",
     // "Flying Chariot",
     "Cauldron of Plenty",
-
+    "Flying Broomstick",
   ];
 
   // eslint-disable-next-line complexity
@@ -150,6 +150,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
     this.isTattoo = this.ddbDefinition.name.toLowerCase().includes("tattoo");
     this.tattooType = this.isTashasInstalled && this.isTattoo;
+    this.isMealTag = this.ddbDefinition.tags.includes('Meal')
+      || this.ddbDefinition.tags.includes('magical meal')
+      || this.ddbDefinition.tags.includes('Food')
+      || this.originalName.includes("Magnetite Curry");
 
     // if the item is x per spell
     this.isPerSpell = this.ddbItem.limitedUse
@@ -774,6 +778,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         //   clothingItem: DDBItem.CLOTHING_ITEMS.includes(this.ddbDefinition.name),
         //   clothingExpressions: !this.isContainer && this.isOuterwearTag && !this.isContainerTag,
         // });
+        // if (this.isMealTag) {
+        //   this.documentType = "consumable";
+        //   this.systemType.value = "food";
+        //   this.parsingType = "consumable";
+        //   // this.overrides.ddbType = this.ddbDefinition.subType;
+        // } else
         if ((!this.isContainer && this.isOuterwearTag && !this.isContainerTag)
           || DDBItem.CLOTHING_ITEMS.includes(this.ddbDefinition.name)
         ) {
@@ -996,6 +1006,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         } else if (this.isContainer) {
           this.documentType = "container";
           this.parsingType = "wonderous";
+        } else if (this.isMealTag) {
+          this.documentType = "consumable";
+          this.systemType.value = "food";
+          this.parsingType = "consumable";
         } else {
           this.documentType = "equipment";
           this.systemType.value = "trinket";

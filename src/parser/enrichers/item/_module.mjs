@@ -21,6 +21,7 @@ export { default as DragonWing } from "./DragonWing.mjs";
 export { default as DustOfSneezingAndChoking } from "./DustOfSneezingAndChoking.mjs";
 export { default as FarRealmShard } from "./FarRealmShard.mjs";
 export { default as FlameTongue } from "./FlameTongue.mjs";
+export { default as FlyingBroomstick } from "./FlyingBroomstick.mjs";
 export { default as GnomengardeGrenade } from "./GnomengardeGrenade.mjs";
 export { default as HammerOfThunderbolts } from "./HammerOfThunderbolts.mjs";
 export { default as HealersKit } from "./HealersKit.mjs";
