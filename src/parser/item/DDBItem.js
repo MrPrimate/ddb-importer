@@ -153,7 +153,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.isMealTag = this.ddbDefinition.tags.includes('Meal')
       || this.ddbDefinition.tags.includes('magical meal')
       || this.ddbDefinition.tags.includes('Food')
-      || this.originalName.includes("Magnetite Curry");
+      || this.originalName.startsWith("Magnetite Curry");
+    this.isConsumable = [
+      "Planter Kernels",
+      "Tossable Kernels",
+    ].includes(this.originalName);
+    // this.ddbDefinition.isConsumable; // this adds too many
 
     // if the item is x per spell
     this.isPerSpell = this.ddbItem.limitedUse
@@ -1010,6 +1015,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           this.documentType = "consumable";
           this.systemType.value = "food";
           this.parsingType = "consumable";
+        } else if (this.isConsumable) {
+          // console.error(`Consumable: ${this.ddbDefinition.name}`);
+          this.documentType = "consumable";
+          this.systemType.value = "trinket";
+          this.parsingType = "consumable";
+          this.overrides.ddbType = this.ddbDefinition.type;
         } else {
           this.documentType = "equipment";
           this.systemType.value = "trinket";
