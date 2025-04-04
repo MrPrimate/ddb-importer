@@ -32,6 +32,7 @@ export default class DDBMuncher extends DDBAppV2 {
     });
     this.encounterId = null;
     this.encounter = null;
+    this.searchTerm = "";
   }
 
 
@@ -230,6 +231,10 @@ export default class DDBMuncher extends DDBAppV2 {
       await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
     });
 
+    this.element.querySelector("#monster-munch-filter")?.addEventListener("change", async (event) => {
+      this.searchTerm = event.target.value ?? "";
+    });
+
     this.element.querySelector("#encounter-campaign-select")?.addEventListener("change", async (event) => {
       if (!context.tiers.supporter) return;
       const campaignId = event.target._value ?? undefined;
@@ -355,6 +360,7 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     }
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
+    context.searchTerm = this.searchTerm;
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
