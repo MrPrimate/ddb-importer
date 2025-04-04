@@ -1,7 +1,8 @@
-# Next Up
+# 6.1.10
 
 - Flying Broomstick from Obojima is no longer a container.
 - Some prepared food items from Obojima now import as consumables/foods.
+- Muncher search field will remember value if other options are checked/changed. @gloriousge0rge
 
 # 6.1.9
 
