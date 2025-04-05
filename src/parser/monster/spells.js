@@ -567,6 +567,24 @@ DDBMonster.prototype.addSpells = async function() {
                 { period: per, type: "recoverAll", formula: undefined },
               ],
             };
+            for (const key of Object.keys(spell.system.activities)) {
+              const activity = spell.system.activities[key];
+              if (!activity.consumption?.spellSlot) continue;
+              activity.consumption.spellSlot = false;
+              if (!activity.consumption.targets) {
+                activity.consumption.targets = [];
+              }
+              activity.consumption.targets.push({
+                type: "itemUses",
+                target: "",
+                value: 1,
+                scaling: {
+                  mode: "",
+                  formula: "",
+                },
+              });
+              spell.system.activities[key] = activity;
+            }
           }
           this.getSpellEdgeCase(spell, "innate", this.spellList);
         }

@@ -1,3 +1,7 @@
+# Next up
+
+- Limited per use at will spells on legacy monsters did not set consumption properly.
+
 # 6.1.10
 
 - Flying Broomstick from Obojima is no longer a container.
