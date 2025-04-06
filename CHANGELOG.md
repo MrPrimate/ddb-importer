@@ -1,4 +1,4 @@
-# Next up
+# 6.1.11
 
 - Limited per use at will spells on legacy monsters did not set consumption properly.
 
