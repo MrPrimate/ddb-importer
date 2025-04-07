@@ -1,4 +1,4 @@
-const activity = args[0].attackRoll.data.activity;
+const activity = workflow.activity;
 
 if (activity.type !== "attack") return;
 

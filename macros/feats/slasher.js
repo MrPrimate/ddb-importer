@@ -37,7 +37,7 @@ if (args[0].tag === "DamageBonus" && args[0].isCritical) {
 }
 
 if (args[0].hitTargets == 0) return;
-const activity = args[0].attackRoll.data.activity;
+const activity = workflow.activity;
 
 if (activity.type !== "attack") return;
 

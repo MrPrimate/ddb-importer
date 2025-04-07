@@ -56,7 +56,7 @@ if (args[0].tag === "OnUse") {
   selectDamage(caster);
 } else if (args[0].tag === "DamageBonus") {
   // only attacks
-  const activity = args[0].attackRoll.data.activity;
+  const activity = workflow.activity;
   if (activity.type !== "attack") return;
   const target = args[0].hitTargets[0];
   // only on the marked target

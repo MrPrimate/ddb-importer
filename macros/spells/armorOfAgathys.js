@@ -4,7 +4,7 @@ if (args[0].macroPass === "isHit") {
     const reactingActor = options.actor;
     const reactingToken = options.token;
 
-    const activity = args[0].attackRoll.data.activity;
+    const activity = workflow.activity;
     if (activity.attack?.type?.value !== "melee") return;
     if (workflow.token.actor.uuid === workflow.hitTargets.first().actor.uuid) return;
 

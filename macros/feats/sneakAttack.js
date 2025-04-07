@@ -1,30 +1,27 @@
-// Based on MidiQoL Macro
 
+
+
+console.warn("Sneak Attack Damage Macro", { args, workflow, rolledItem});
 try {
-    const activity = args[0].attackRoll.data.activity;
-    if (activity.type !== "attack") return;
-    if (activity.attack?.type?.classification !== "weapon") return;
-
-    if (activity.attack.type.value === "melee" && !args[0].itemData.system.properties?.includes("fin"))
+    if (!["mwak","rwak"].includes(workflow.activity.actionType)) return {}; // weapon attack
+    if (workflow.activity.actionType === "mwak" && !rolledItem?.system.properties?.has("fin"))
       return {}; // ranged or finesse
-    if (args[0].hitTargets.length < 1) return {};
-    token = canvas.tokens.get(args[0].tokenId);
-    actor = token.actor;
-    if (!actor || !token || args[0].hitTargets.length < 1) return {};
+    if (workflow.hitTargets.size < 1) return {};
+    if (!actor || !token || workflow.hitTargets.size < 1) return {};
     const rogueLevels = actor.getRollData().classes.rogue?.levels;
     if (!rogueLevels) {
-      ui.notifications.warn("Sneak Attack Damage: Trying to do sneak attack and not a rogue");
+      MidiQOL.warn("Sneak Attack Damage: Trying to do sneak attack and not a rogue");
       return {}; // rogue only
     }
-    let target = canvas.tokens.get(args[0].hitTargets[0].id ?? args[0].hitTargers[0]._id);
-    if (!target) ui.notifications.error("Sneak attack macro failed");
+    let target = workflow.hitTargets.first();
+    if (!target) MidiQOL.error("Sneak attack macro failed");
 
     if (game.combat) {
       const combatTime = `${game.combat.id}-${game.combat.round + game.combat.turn /100}`;
       const lastTime = actor.getFlag("midi-qol", "sneakAttackTime");
       if (combatTime === lastTime) {
-       ui.notifications.warn("Sneak Attack Damage: Already done a sneak attack this turn");
-       return {};
+      MidiQOL.warn("Sneak Attack Damage: Already done a sneak attack this turn");
+      return {};
       }
     }
     let foundEnemy = true;
@@ -34,19 +31,19 @@ try {
       foundEnemy = false;
       let nearbyEnemy = canvas.tokens.placeables.filter(t => {
         let nearby = (t.actor &&
-             t.actor?.id !== args[0].actor._id && // not me
-             t.id !== target.id && // not the target
-             t.actor?.system.attributes?.hp?.value > 0 && // not incapacitated
-             t.document.disposition !== target.document.disposition && // not an ally
-             DDBImporter.EffectHelper.getDistance(t, target) <= 5 // close to the target
-         );
+            t.actor?.id !== args[0].actor._id && // not me
+            t.id !== target.id && // not the target
+            t.actor?.system.attributes?.hp?.value > 0 && // not incapacitated
+            t.document.disposition !== target.document.disposition && // not an ally
+            MidiQOL.computeDistance(t, target, {wallsBlock: false}) <= 5 // close to the target
+        );
         foundEnemy = foundEnemy || (nearby && t.document.disposition === -target.document.disposition)
         return nearby;
       });
       isSneak = nearbyEnemy.length > 0;
     }
     if (!isSneak) {
-      ui.notifications.warn("Sneak Attack Damage: No advantage/ally next to target");
+      MidiQOL.warn("Sneak Attack Damage: No advantage/ally next to target");
       return {};
     }
     let useSneak = foundry.utils.getProperty(actor, "flags.dae.autoSneak");
@@ -55,40 +52,41 @@ try {
           new Dialog({
           // localize this text
           title: "Conditional Damage",
-          content: `<p>Use Sneak attack?</p>`+(!foundEnemy ? "<p>Only Neutral creatures nearby</p>" : ""),
+          content: `<p>Use Sneak attack?</p>`+(!foundEnemy ? "<p>Only Nuetral creatures nearby</p>" : ""),
           buttons: {
-              one: {
+              confirm: {
                   icon: '<i class="fas fa-check"></i>',
                   label: "Confirm",
                   callback: () => resolve(true)
               },
-              two: {
+              cancel: {
                   icon: '<i class="fas fa-times"></i>',
                   label: "Cancel",
                   callback: () => {resolve(false)}
               }
           },
-          default: "two"
+          default: "confirm"
           }).render(true);
         });
         useSneak = await dialog;
     }
     if (!useSneak) return {}
-    const baseDice = Math.ceil(rogueLevels/2);
     if (game.combat) {
       const combatTime = `${game.combat.id}-${game.combat.round + game.combat.turn /100}`;
       const lastTime = actor.getFlag("midi-qol", "sneakAttackTime");
       if (combatTime !== lastTime) {
-         await actor.setFlag("midi-qol", "sneakAttackTime", combatTime)
+        await actor.setFlag("midi-qol", "sneakAttackTime", combatTime)
       }
     }
-    const damageFormula = new CONFIG.Dice.DamageRoll(`${baseDice}d6`, {}, {
-        critical: args[0].isCritical ?? false,
-        powerfulCritical: game.settings.get("dnd5e", "criticalDamageMaxDice"),
-        multiplyNumeric: game.settings.get("dnd5e", "criticalDamageModifiers")
-    }).formula;
-    // How to check that we've already done one this turn?
-    return {damageRoll: damageFormula, flavor: "Sneak Attack"};
+    const sneakActivity = macroItem.system.activities?.contents[0];
+    if (!sneakActivity) {
+      console.error("no activity");
+      return {};
+    }
+  let damageRolls = await sneakActivity.rollDamage({midiOptions: {isCritical: workflow.isCritical}}, {configure: false}, {create: false});
+  for (let damageRoll of damageRolls)
+    damageRoll.options.flavor = sneakActivity.name;
+    return damageRolls;
 } catch (err) {
-    console.error(`${args[0].itemData.name} - Sneak Attack DDB Macro`, err);
+  console.error(`${args[0].itemData.name} - Sneak Attack ${version}`, err);
 }
