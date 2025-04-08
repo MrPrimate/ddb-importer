@@ -1,3 +1,8 @@
+# Next Up
+
+- Sneak attack macro fix
+- 2014 Soul Knife weapon fixes
+
 # 6.1.11
 
 - Limited per use at will spells on legacy monsters did not set consumption properly.

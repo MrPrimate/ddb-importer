@@ -1,6 +1,7 @@
 export const PARSING_ACTIONS = {
   KEEP_ACTIONS: [
     "Psychic Blades",
+    "Psychic Blades: Attack (DEX)",
     "Sorcery Points",
     "Font of Magic: Sorcery Points",
     "Form of the Beast: Bite",
