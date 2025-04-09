@@ -7,9 +7,9 @@ import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
 import { quasitEffects } from "./monsterFeatures/quasit.js";
 import { deathlyChoirEffect } from "./monsterFeatures/deathlyChoir.js";
 import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
-import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
+// import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
-import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
+// import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
 import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 
 export function baseMonsterFeatureEffect(document, label,
@@ -35,24 +35,24 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
       });
       break;
     }
-    case "Beholder": {
-      for (let [index, item] of npc.items.entries()) {
-        if (item.name === "Eye Rays") {
-          npc.items[index] = await beholderEyeRaysEffect(item, 3, 120);
-        } else if (item.name === "Eye Ray") {
-          npc.items[index] = await beholderEyeRayLegendaryEffect(item, 3, 120);
-        }
-      }
-      break;
-    }
-    case "Beholder Zombie": {
-      for (let [index, item] of npc.items.entries()) {
-        if (item.name === "Eye Ray") {
-          npc.items[index] = await beholderEyeRaysEffect(item, 1, 60);
-        }
-      }
-      break;
-    }
+    // case "Beholder": {
+    //   for (let [index, item] of npc.items.entries()) {
+    //     if (item.name === "Eye Rays") {
+    //       npc.items[index] = await beholderEyeRaysEffect(item, 3, 120);
+    //     } else if (item.name === "Eye Ray") {
+    //       npc.items[index] = await beholderEyeRayLegendaryEffect(item, 3, 120);
+    //     }
+    //   }
+    //   break;
+    // }
+    // case "Beholder Zombie": {
+    //   for (let [index, item] of npc.items.entries()) {
+    //     if (item.name === "Eye Ray") {
+    //       npc.items[index] = await beholderEyeRaysEffect(item, 1, 60);
+    //     }
+    //   }
+    //   break;
+    // }
     case "Carrion Crawler":
     case "Reduced-threat Carrion Crawler": {
       npc.items.forEach(function(item, index) {
@@ -83,14 +83,14 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
       npc = await skeletalJuggernautEffects(npc);
       break;
     }
-    case "Spectator": {
-      for (let [index, item] of npc.items.entries()) {
-        if (item.name === "Eye Rays") {
-          npc.items[index] = await beholderEyeRaysEffect(item, 2, 90);
-        }
-      }
-      break;
-    }
+    // case "Spectator": {
+    //   for (let [index, item] of npc.items.entries()) {
+    //     if (item.name === "Eye Rays") {
+    //       npc.items[index] = await beholderEyeRaysEffect(item, 2, 90);
+    //     }
+    //   }
+    //   break;
+    // }
     case "Strahd Zombie": {
       npc = await strahdZombieEffects(npc);
       break;

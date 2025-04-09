@@ -2,6 +2,7 @@
 
 - Sneak attack macro fix
 - 2014 Soul Knife weapon fixes
+- Beholder and Spectator Eye Ray fixes (midi automation fixes to follow).
 
 # 6.1.11
 

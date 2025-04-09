@@ -207,6 +207,13 @@ export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
       "Explosive Flamethrower": MonsterEnrichers.EldritchCannon.Flamethrower,
       "Explosive Protector": MonsterEnrichers.EldritchCannon.Protector,
     },
+    "Beholder Zombie": {
+      "Eye Ray": MonsterEnrichers.Beholder.EyeRays,
+      "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
+    "Spectator": {
+      "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
   };
 
 }

@@ -5,7 +5,7 @@ import ChangeHelper from "./ChangeHelper.mjs";
 
 export default class MidiOverTimeEffect {
 
-  constructor({ document, actor, otherDescription = null, flags = {} } = {}) {
+  constructor({ document, actor, otherDescription = null, flags = {}, addToMonster = true } = {}) {
     this.document = document;
     this.actor = actor;
     this.effect = AutoEffects.MonsterFeatureEffect(document, `${document.name}`);
@@ -16,6 +16,7 @@ export default class MidiOverTimeEffect {
       : null;
     this.parsedDescription = DDBDescriptions.featureBasics({ text: this.description });
     this.flags = flags;
+    this.addToMonster = addToMonster;
     // console.warn(`MidiOvertimeEffect for ${this.document.name} on ${this.actor.name}`, {
     //   this: this,
     //   conditionStatus: deepClone(this.conditionStatus),
@@ -41,6 +42,7 @@ export default class MidiOverTimeEffect {
   }
 
   effectCleanup() {
+    if (!this.addToMonster) return;
     if (this.effect.changes.length > 0 || this.effect.statuses.length > 0) {
       this.document.effects.push(this.effect);
       let overTimeFlags = foundry.utils.hasProperty(this.actor, "flags.monsterMunch.overTime")

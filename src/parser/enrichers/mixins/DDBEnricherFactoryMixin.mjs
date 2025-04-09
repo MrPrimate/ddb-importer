@@ -606,6 +606,10 @@ export default class DDBEnricherFactoryMixin {
         if (effectOptions.description) effect.description = effectOptions.description;
       } else if (effectHint.noCreate && effects.length > 0) {
         effect = effects[effects.length - 1];
+      } else if (effectHint.raw) {
+        effect = foundry.utils.deepClone(effectHint.raw);
+        if (effectHint.name) effect.name = effectHint.name;
+        if (effectOptions.description) effect.description = effectOptions.description;
       } else {
         switch (effectHint.type ?? this.effectType) {
           case "enchant":

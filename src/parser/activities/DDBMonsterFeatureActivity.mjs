@@ -138,7 +138,11 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     this.data.healing = healing;
   }
 
-  _generateSave() {
+  _generateSave({ saveOverride = null } = {}) {
+    if (saveOverride) {
+      this.data.save = saveOverride;
+      return;
+    }
     this.data.save = this.actionInfo.save;
   }
 
@@ -248,6 +252,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       generateRoll,
       generateSummon,
       consumptionOverride,
+      saveOverride,
       this: this,
     });
 
@@ -260,7 +265,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     if (generateRange) this._generateRange();
     if (generateTarget) this._generateTarget();
 
-    if (generateSave) this._generateSave();
+    if (generateSave) this._generateSave({ saveOverride });
     if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
     if (generateHealing) this._generateHealing({ part: healingPart });
 

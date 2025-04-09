@@ -23,6 +23,8 @@ import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";
 import DDBCharacterImporter from "./muncher/DDBCharacterImporter.mjs";
 import DDBDebugger from "./apps/DDBDebugger.mjs";
 import AdventureMunch from "./muncher/adventure/AdventureMunch.js";
+import { DDBMonsterDamage } from "./parser/monster/features/DDBMonsterDamage.js";
+import DDBMonsterFeature from "./parser/monster/features/DDBMonsterFeature.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -122,6 +124,8 @@ export function registerApi() {
       DDBMacros: lib.DDBMacros,
       DDBMonster,
       DDBMonsterFactory,
+      DDBMonsterFeature,
+      DDBMonsterDamage,
       DDBProxy: lib.DDBProxy,
       DDBSummonsManager,
       DDBSummonsInterface,

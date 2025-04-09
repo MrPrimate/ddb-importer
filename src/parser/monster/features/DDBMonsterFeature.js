@@ -942,7 +942,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   async #generateDescription() {
-    this.html = this.html.replace(/<strong> \.<\/strong>/, "").trim();
+    this.html = this.html.replace(/<strong> \.<\/strong>/, "").trim().replaceAll("<strong></strong>", "").replaceAll("<em></em>", "");
     let description = this.hideDescription ? this.#getHiddenDescription() : `${this.html}`;
     description = description.replaceAll("<em><strong></strong></em>", "");
     if (this.originalName === "Multiattack") {
@@ -1286,9 +1286,7 @@ ${this.data.system.description.value}
     return this.#determineLegendaryActionTypeFallback();
   }
 
-  async _generateEffects() {
-    // if (this.data.effects.length === 0) this.#addConditionEffects();
-
+  _generateAutoEffects({ html, addToMonster = true } = {}) {
     const flags = {
       ddbimporter: {},
     };
@@ -1300,8 +1298,9 @@ ${this.data.system.description.value}
     const overtimeGenerator = new Effects.MidiOverTimeEffect({
       document: this.data,
       actor: this.ddbMonster.npc,
-      otherDescription: this.strippedHtml,
+      otherDescription: html,
       flags,
+      addToMonster,
     });
 
     const deps = Effects.AutoEffects.effectModules();
@@ -1312,6 +1311,11 @@ ${this.data.system.description.value}
       logger.debug(`Adding Over Time Effects to ${this.name}`);
       overtimeGenerator.generateOverTimeEffect();
     }
+    return overtimeGenerator;
+  }
+
+  async _generateEffects() {
+    this._generateAutoEffects({ html: this.strippedHtml });
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = await this.enricher.createEffects();
