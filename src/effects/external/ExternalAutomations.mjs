@@ -90,7 +90,10 @@ export default class ExternalAutomations {
     await externalAutomations.disableDynamicUpdates();
 
     logger.info("Starting to update actor documents with Cauldron of Plentiful Resources effects");
-    let documents = actor.getEmbeddedCollection("Item").toObject();
+    let documents = actor.getEmbeddedCollection("Item").toObject().filter((d) =>
+      foundry.utils.getProperty(d, "flags.ddbimporter.ignoreItemImport") !== true
+      && foundry.utils.getProperty(d, "flags.ddbimporter.ignoreItemForChrisPremades") !== true,
+    );
     const isMonster = actor.type === "npc";
     const monsterName = isMonster ? actor.name : null;
     const data = (await ExternalAutomations.applyChrisPremadeEffects({
