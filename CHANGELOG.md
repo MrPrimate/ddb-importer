@@ -1,4 +1,4 @@
-# Next Up
+#  6.1.12
 
 - Sneak attack and GFB macro fix
 - 2014 Soul Knife weapon fixes
