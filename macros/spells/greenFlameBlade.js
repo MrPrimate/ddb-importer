@@ -106,9 +106,9 @@ async function attackNearby(originToken, ignoreIds) {
 
   const userId = DAE.getFlag(caster, "greenFlameBladeUserId") ?? game.userId;
 
-  console.warn({
-    caster, itemData: lastArg.itemData, sourceItem, userId: game.userId,
-  });
+  // console.warn({
+  //   caster, itemData: lastArg.itemData, sourceItem, userId: game.userId,
+  // });
 
   // const userId = foundry.utils.getProperty(sourceItem, "flags.userId") ?? game.userId;
   const result = await DDBImporter.DialogHelper.AskUserChooserDialog(userId,
@@ -139,10 +139,11 @@ async function attackNearby(originToken, ignoreIds) {
     const targetToken = canvas.tokens.get(selectedId);
     const sourceItem = await fromUuid(lastArg.efData.flags.origin);
 
-    const mod = caster.system.abilities[sourceItem.ability].mod;
+    const ability = sourceItem.abilityMod ?? sourceItem.ability ?? "@attributes.spell.mod";
+    const mod = caster.system.abilities[ability].mod;
     const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate();
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
-    const workflowItemData = sourceItem.parent.parent.toObject();
+    const workflowItemData = sourceItem.toObject();
     workflowItemData.effects = [];
     foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
     workflowItemData.system.range = { value: 5, long: null, units: "ft" };
@@ -156,8 +157,8 @@ async function attackNearby(originToken, ignoreIds) {
       [targetToken],
       damageRoll,
       {
-        flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,
-        itemCardId: "new",
+        flavor: `${workflowItemData.name} (${CONFIG.DND5E.damageTypes[damageType].label})`,
+        itemCardUuid: "new",
         itemData: workflowItemData,
         isCritical: false,
       },

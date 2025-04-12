@@ -1,6 +1,6 @@
 # Next Up
 
-- Sneak attack macro fix
+- Sneak attack and GFB macro fix
 - 2014 Soul Knife weapon fixes
 - Beholder and Spectator Eye Ray fixes (midi automation fixes to follow).
 
