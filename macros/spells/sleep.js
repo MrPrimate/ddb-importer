@@ -2,7 +2,7 @@
 // uses convinient effects
 // Midi-qol "On Use"
 
-const sleepHp = await args[0].damageTotal;
+const sleepHp = await workflow.damageDetail[0].damage;
 const condition = "Unconscious";
 console.log(`Sleep Spell => Available HP Pool [${sleepHp}] points`);
 const targets = await args[0].targets

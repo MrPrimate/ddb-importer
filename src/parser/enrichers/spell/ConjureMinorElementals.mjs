@@ -50,7 +50,7 @@ export default class ConjureMinorElementals extends DDBEnricherData {
                   number: 2,
                   types: ["acid", "cold", "fire", "lightning"],
                   scalingMode: "whole",
-                  scalingNumber: 2,
+                  scalingNumber: 1,
                 }),
               ],
             },

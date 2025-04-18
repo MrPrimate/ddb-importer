@@ -1,3 +1,7 @@
+# Next Up
+
+- Errata Fixes
+
 #  6.1.12
 
 - Sneak attack and GFB macro fix

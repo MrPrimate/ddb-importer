@@ -37,7 +37,7 @@ export default class ConjureElemental extends DDBEnricherData {
           "ac": "",
           "hp": "",
           "attackDamage": "",
-          "saveDamage": "(2 * @item.level - 10)d8",
+          "saveDamage": "(@item.level - 1)d8",
           "healing": "",
         },
       },

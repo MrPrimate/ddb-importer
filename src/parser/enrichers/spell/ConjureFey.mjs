@@ -33,7 +33,7 @@ export default class ConjureFey extends DDBEnricherData {
         "bonuses": {
           "ac": "",
           "hp": "",
-          "attackDamage": "(2 * (@item.level - 6))d12 + @mod",
+          "attackDamage": "(@item.level - 6)d12 + @mod",
           "saveDamage": "",
           "healing": "",
         },
