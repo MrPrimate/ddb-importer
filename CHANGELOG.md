@@ -1,3 +1,7 @@
+# Next Up
+
+- Some spell icon mappings from @crimsonedge
+
 # 6.1.13
 
 - Errata Fixes

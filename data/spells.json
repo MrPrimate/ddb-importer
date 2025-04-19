@@ -2214,5 +2214,28 @@
   {
     "name": "Magical Berries",
     "path": "icons/consumables/fruit/lingonberry-cluster-red.webp"
-  }
+  },
+  { "name": "Douse Light", "path": "icons/magic/unholy/orb-rays-blue.webp" },
+  { "name": "Gust Barrier", "path": "icons/magic/air/wind-swirl-purple-blue.webp" },
+  { "name": "Holy Word", "path": "icons/magic/light/orb-hands-humanoid-yellow.webp" },
+  { "name": "Chameleon Skin", "path": "icons/creatures/reptiles/chameleon-camouflage-green-brown.webp" },
+  { "name": "Corrupting Ichor", "path": "icons/magic/acid/projectile-faceted-glob.webp" },
+  { "name": "Daydream", "path": "icons/magic/symbols/runes-star-pentagon-orange-purple.webp" },
+  { "name": "Doom of Poor Fortune", "path": "icons/magic/unholy/silhouette-light-fire-blue.webp" },
+  { "name": "Elevated Sight", "path": "icons/magic/perception/eye-ringed-green.webp" },
+  { "name": "Emerald Goblet", "path": "icons/magic/holy/chalice-glowing-gold-water.webp" },
+  { "name": "Fireflies", "path": "icons/magic/light/orbs-firefly-hand-yellow.webp" },
+  { "name": "Pratfall", "path": "icons/magic/control/silhouette-fall-slip-prone.webp" },
+  { "name": "Spiny Shield", "path": "icons/magic/nature/vines-thorned-entwined-teal.webp" },
+  { "name": "Veil of Dusk", "path": "icons/magic/perception/silhouette-stealth-shadow.webp" },
+  { "name": "Bloodletter", "path": "icons/skills/wounds/blood-drip-droplet-red.webp" },
+  { "name": "Conjure Ferryman", "path": "icons/tools/nautical/steering-wheel.webp" },
+  { "name": "Drayfn's Blunted Blade", "path": "icons/skills/melee/sword-damaged-broken-orange.webp" },
+  { "name": "Hibernation", "path": "icons/magic/control/sleep-bubble-purple.webp" },
+  { "name": "Krail's Maggot", "path": "icons/creatures/invertebrates/beetle-grub-larvae-gray.webp" },
+  { "name": "Krail's Rupture", "path": "icons/magic/unholy/strike-beam-blood-small-red-teal.webp" },
+  { "name": "Leiloch's Irritating Kazoo", "path": "icons/magic/sonic/projectile-sound-rings-wave.webp" },
+  { "name": "Life Tether", "path": "icons/magic/control/debuff-energy-hold-green.webp" },
+  { "name": "Ominous Winds", "path": "icons/magic/air/wind-swirl-red-orange.webp" },
+  { "name": "Wrack", "path": "icons/magic/control/voodoo-doll-pain-damage-red.webp" }
 ]
