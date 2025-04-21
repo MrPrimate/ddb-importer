@@ -1,6 +1,7 @@
 # Next Up
 
 - Some spell icon mappings from @crimsonedge
+- More v13 support.
 
 # 6.1.13
 
