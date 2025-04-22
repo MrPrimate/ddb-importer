@@ -1,8 +1,9 @@
-# Next Up
+# 6.2.0
 
 - Some spell icon mappings from @crimsonedge
 - More v13 support.
 - Summon blocks in v13 looked wonky in dark mode.
+- Basic Rules (2024) changes
 
 # 6.1.13
 

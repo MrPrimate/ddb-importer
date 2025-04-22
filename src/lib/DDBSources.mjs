@@ -12,7 +12,7 @@ export default class DDBSources {
   }
 
   static getAdjustedSourceBook(sourceBook) {
-    if (["free-rules"].includes(sourceBook)) {
+    if (["free-rules", "br-2024"].includes(sourceBook)) {
       return "PHB 2024";
     } else if (sourceBook === "BR") {
       return "SRD 5.1";

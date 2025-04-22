@@ -14,7 +14,7 @@
   "compatibleCoreVersion": "12",
   "compatibility": {
     "minimum": "12.330",
-    "verified": 12,
+    "verified": 13,
     "maximum": 13
   },
   "authors": [
