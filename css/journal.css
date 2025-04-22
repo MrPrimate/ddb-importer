@@ -940,6 +940,11 @@ div.ddbimporter-image-popout img {
   outline-offset: -4px;
   font-family: var(--sb-stat-block-font, Roboto, Helvetica, sans-serif);
   columns: 2 384px;
+  color: var(--dnd5e-color-blue-gray-1);
+
+  a.content-link {
+    color: var(--dnd5e-color-blue-gray-1);
+  }
 
   :is(h2, h3, h4, h5) {
     font-size: 22px;

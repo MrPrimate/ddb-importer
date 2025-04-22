@@ -2,6 +2,7 @@
 
 - Some spell icon mappings from @crimsonedge
 - More v13 support.
+- Summon blocks in v13 looked wonky in dark mode.
 
 # 6.1.13
 
