@@ -220,7 +220,7 @@ export default class ChrisPremadesHelper {
       const values = foundry.utils.getProperty(this.chrisDoc, field);
       if (field === "effects") {
         values.forEach((effect) => {
-          effect._id = foundry.utils.randomID();
+          if (!effect._id) effect._id = foundry.utils.randomID();
         });
       }
       foundry.utils.setProperty(this.document, field, values);

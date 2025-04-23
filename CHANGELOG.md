@@ -1,3 +1,7 @@
+# 6.2.1
+
+- CPR effects did not always link correctly to activities on import.
+
 # 6.2.0
 
 - Some spell icon mappings from @crimsonedge
