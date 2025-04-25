@@ -13,7 +13,7 @@ export default class DDBMonsterImporter {
   constructor({ monster, type, updateExisting, notifier } = {}) {
     this.monster = monster;
     this.type = type;
-    this.updataExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+    this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
 
     this.compendiumActor = null;
 
@@ -112,7 +112,7 @@ export default class DDBMonsterImporter {
     this.monster = (await this.itemImporter.addCompendiumFolderIds([foundry.utils.duplicate(this.monster)]))[0];
 
     if (foundry.utils.hasProperty(this.monster, "_id") && this.itemImporter.compendium.index.has(this.monster._id)) {
-      if (this.updataExisting) {
+      if (this.updateExisting) {
         this.compendiumActor = await this.itemImporter.compendium.getDocument(this.monster._id);
 
         if (foundry.utils.hasProperty(this.monster, "prototypeToken.flags.tagger.tags")
@@ -339,7 +339,7 @@ export default class DDBMonsterImporter {
       await monsterImporter.build(buildOptions);
       logger.info(`Processing ${type} ${monsterImporter.monster.name} for the compendium`);
       await monsterImporter.addToCompendium();
-      return this.compendiumActor;
+      return monsterImporter.compendiumActor;
     } catch (error) {
       logger.error(`error parsing NPC type ${type}: ${error} ${data.name}`);
       logger.error(error.stack);

@@ -271,13 +271,17 @@ export default class DDBMonsterFactory {
 
     const itemHandler = new DDBItemImporter(this.type, monsterResults.actors, {
       notifier: this.notifier,
+      matchFlags: ["id"],
     });
     await itemHandler.init();
 
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
       this.notifier(`Calculating which monsters to update...`, { nameField: true });
-      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, "npc", { keepDDBId: true });
+      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, "npc", {
+        keepDDBId: true,
+        indexFilter: { fields: ["name", "flags.ddbimporter.id"] },
+      });
       const existingMonstersTotal = existingMonsters.length + 1;
       if (!this.update) {
         logger.debug("Removing existing monsters from import list");
@@ -314,7 +318,7 @@ export default class DDBMonsterFactory {
       this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${monster.name} to compendium`, { monsterNote: true });
       logger.debug(`Preparing ${monster.name} data for import`);
       const munched = await DDBMonsterImporter.addNPC(monster, "monster");
-      this.monstersParsed.push(munched);
+      if (munched) this.monstersParsed.push(munched);
       this.currentDocument += 1;
     }
   }
@@ -381,6 +385,6 @@ export default class DDBMonsterFactory {
     if (ids !== null) {
       return Promise.all(this.monstersParsed);
     }
-    return this.totalDocuments;
+    return this.monstersParsed.length;
   }
 }

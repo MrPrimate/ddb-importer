@@ -1,6 +1,7 @@
 # Next Up
 
 - Darkness and Light Toggle macros would not work when clicked from chat by player. @oestred
+- Fixed a subtle bug where is Update existing was unchecked, and a 2014 version of the monster exited in the compendium, the 2024 version would not be added on import.
 
 # 6.2.1
 
