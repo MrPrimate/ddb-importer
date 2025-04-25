@@ -85,10 +85,10 @@ function createTemplateLight({ cx, cy, radius, darkness = false, flag = "light",
 
 const flag = parameters.flag ?? "light";
 
-console.warn("GM CALL", {
+console.debug("GM CALL", {
   scope,
   parameters,
-})
+});
 
 if (parameters.isTemplate) {
   if (scope.toggle === "on") {

@@ -24,7 +24,7 @@ const isOff = flagData?.active ?? false;
 
 const isSimpleDDBMacro = scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction");
 
-console.warn("MACRO CALL", {
+console.debug("MACRO CALL", {
   scope,
   isSimpleDDBMacro,
   isOn,
@@ -58,7 +58,7 @@ async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
       },
     });
     canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
-    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin, effect: origin }, { toggle: "on", parameters: params });
+    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin.uuid }, { toggle: "on", parameters: params });
   });
 
   const measureTemplateData = {

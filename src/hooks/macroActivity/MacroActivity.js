@@ -1,4 +1,4 @@
-import { DDBSimpleMacro } from "../../lib/_module.mjs";
+import { DDBSimpleMacro, logger } from "../../lib/_module.mjs";
 import MacroActivityData from "./MacroActivityData.js";
 import MacroSheet from "./MacroSheet.js";
 
@@ -70,6 +70,14 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
       targetUuids,
       parameters: this.macro.parameters,
     };
+
+    logger.verbose("executing simple ddb macro", {
+      this: this,
+      ids,
+      context,
+      scope,
+      macroParts,
+    });
 
     await DDBSimpleMacro.execute(macroParts[1], macroParts[2], context, ids, scope);
 

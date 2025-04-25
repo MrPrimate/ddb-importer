@@ -12,7 +12,7 @@ async function placeTemplate({ origin, targetActor, targetToken } = {}) {
     const v12 = foundry.utils.isNewerVersion(game.version, 12);
     const data = v12 ? template : template.data;
     const grid = v12 ? canvas.grid : canvas.grid.grid.options.dimensions;
-    console.warn(template)
+    // console.warn(template)
     let radius = canvas.grid.size * (data.distance / grid.distance);
     const darknessSpellParams = {
       radius,
@@ -30,7 +30,7 @@ async function placeTemplate({ origin, targetActor, targetToken } = {}) {
     });
     canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
     // console.warn("Darkness Spell", darknessSpellParams);
-    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { origin: origin, effect: origin }, { args: ["on", darknessSpellParams] });
+    await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { origin: origin.uuid }, { args: ["on", darknessSpellParams] });
   });
 
   const measureTemplateData = {
@@ -58,16 +58,20 @@ async function placeTemplate({ origin, targetActor, targetToken } = {}) {
 
 const isSimpleDDBMacro = scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction");
 
+console.debug("MACRO CALL", {
+  scope,
+  isSimpleDDBMacro,
+  actor: actor,
+  token: token,
+  item: item,
+});
+
 if (isSimpleDDBMacro) {
-
-
   if (!actor || !item) {
     console.warn("no actor or item selected", actor, item);
     return;
   }
 }
-
-console.warn("SimpleMacro", isSimpleDDBMacro);
 
 const lastArg = isSimpleDDBMacro
   ? {}
@@ -96,13 +100,11 @@ const isOff = isSimpleDDBMacro
 if (isOn) {
   await placeTemplate({ origin, targetActor, targetToken: tokenOrActor });
 } else if (isOff) {
-  // const params = await DAE.getFlag(targetActor, "darknessSpell");
-  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { actor: actor._id, token: token._id }, { args: ["off", flagData.params] });
+  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "darkness", { actor: actor?._id, token: token?._id }, { args: ["off", flagData.params] });
   await targetActor.update({
     "flags.world.darknessSpell": {
       active: false,
       params: null,
     },
   });
-  // await DAE.unsetFlag(targetActor, "darknessSpell");
 }

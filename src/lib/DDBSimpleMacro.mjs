@@ -41,10 +41,27 @@ export default class DDBSimpleMacro {
   static async execute(type, name, context = {}, ids = {}, { ...scope } = {}) {
     const names = DDBMacros._getMacroFileNameFromName(name);
     const script = await DDBMacros.getMacroBody(type, names.fileName);
+
+    logger.debug("DDBSimpleMacro.execute", {
+      type,
+      name,
+      names,
+      context,
+      ids,
+      scope,
+    });
     const effect = ids.effect ? await fromUuid(ids.effect) : null;
     const effectVariables = ids.effect
       ? DDBMacros._getEffectVariables(effect)
-      : {};
+      : {
+        actor: null,
+        token: null,
+        speaker: null,
+        origin: null,
+        effect: null,
+        item: null,
+        scene: null,
+      };
 
     const actor = ids.actor
       ? await fromUuid(ids.actor)
@@ -69,6 +86,11 @@ export default class DDBSimpleMacro {
     if (!effectVariables.speaker && actor) {
       const speaker = ChatMessage.implementation.getSpeaker({ actor, token });
       if (speaker) effectVariables.speaker = speaker;
+    }
+
+    if (!effectVariables.scene) {
+      const scene = game.scenes.get(ids.scene) ?? (await fromUuid(ids.token));
+      if (scene) effectVariables.scene = scene;
     }
 
     effectVariables.character = game.user.character;

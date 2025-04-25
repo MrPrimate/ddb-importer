@@ -1,3 +1,7 @@
+# Next Up
+
+- Darkness and Light Toggle macros would not work when clicked from chat by player. @oestred
+
 # 6.2.1
 
 - CPR effects did not always link correctly to activities on import.
