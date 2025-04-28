@@ -1,7 +1,7 @@
 # Next Up
 
 - Weapons and armour did not link correctly in imported journals (possible DDB change, or maybe long standing issue).
-- The DDB Importer Activity Macro feature name has been tweaked.
+- The DDB Importer Activity Macro feature name has been tweaked, and some of the settings made clearer.
 
 # 6.2.2
 
