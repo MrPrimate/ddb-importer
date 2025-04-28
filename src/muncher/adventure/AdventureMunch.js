@@ -27,6 +27,10 @@ export default class AdventureMunch {
     "vehicles": "vehicles",
   };
 
+  static CONFIG_MAP = {
+    "armor": "armor",
+    "weapons": "weapons",
+  };
 
   /** @override */
   constructor({
@@ -807,6 +811,8 @@ export default class AdventureMunch {
     const monsterData = await AdventureMunch.fetchUpdatedMonsterInfo(ids);
     logger.debug("Updated Monster Data", monsterData);
 
+    if (monsterData.length === 0) return;
+
     const monstersToReplace = await this._chooseMonstersToReplace(monsterData);
     logger.debug("Monsters to Replace", monstersToReplace);
 
@@ -1543,18 +1549,24 @@ export default class AdventureMunch {
 
     for (const lookupKey in AdventureMunch.COMPENDIUM_MAP) {
       const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
-      const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)`);
+      const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)"`);
       compendiumLinks.forEach((node) => {
         const lookupMatch = node.outerHTML.match(lookupRegExp);
-        const lookupValue = lookups[AdventureMunch.COMPENDIUM_MAP[lookupKey]];
-        if (lookupValue) {
+        const lookupDictionary = lookups[AdventureMunch.COMPENDIUM_MAP[lookupKey]];
+        if (lookupDictionary) {
           const worldActorLink = this.journalWorldActors && ["monsters"].includes(lookupKey);
-          let monsterId = lookupMatch[1];
-          const replacedMonster = this.monstersToReplace.find((m) => m.id2014 === parseInt(monsterId));
-          if (replacedMonster) monsterId = replacedMonster.id2024;
+          let ddbId = lookupMatch[1];
+          const dictionaryName = AdventureMunch.CONFIG_MAP[lookupKey]
+            ? CONFIG.DDB[lookupKey]?.find((e) => e.id == ddbId)?.name
+            : null;
+          const replacedMonster = this.monstersToReplace.find((m) => m.id2014 === parseInt(ddbId));
+          if (replacedMonster) ddbId = replacedMonster.id2024;
           const lookupEntry = worldActorLink
-            ? actorData.find((a) => a.ddbId === parseInt(monsterId))
-            : lookupValue.find((e) => e.id == monsterId);
+            ? actorData.find((a) => a.ddbId === parseInt(ddbId))
+            : dictionaryName
+              ? lookupDictionary.find((e) => e.name == dictionaryName)
+              : (lookupDictionary.find((e) => e.id == ddbId && e.name === (node.textContent?.trim() ?? ""))
+               ?? lookupDictionary.find((e) => e.id == ddbId));
 
           if (lookupEntry) {
             const pageLink = lookupEntry.pageId ? `.JournalEntryPage.${lookupEntry.pageId}` : "";

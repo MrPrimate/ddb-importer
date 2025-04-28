@@ -12,7 +12,7 @@ async function getMonsterMap () {
   // ddb://monsters
   const monsterCompendiumLabel = CompendiumHelper.getCompendiumLabel("monster");
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
-  const monsterIndices = ["name", "flags.ddbimporter.id", "system.source.rules"];
+  const monsterIndices = ["name", "flags.ddbimporter.id", "flags.ddbbimporter.originalName", "system.source.rules"];
   const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
 
   const results = monsterIndex
@@ -23,7 +23,7 @@ async function getMonsterMap () {
         _id: monster._id,
         compendium: monsterCompendiumLabel,
         name: monster.name,
-        documentName: monster.name,
+        documentName: monster.flags?.ddbimporter?.originalName ?? monster.name,
         rules: monster.system?.source?.rules,
         uuid: monster.uuid,
       };
@@ -37,7 +37,7 @@ async function getSpellMap() {
   // mm 2176
   const spellCompendiumLabel = await game.settings.get("ddb-importer", "entity-spell-compendium");
   const spellCompendium = await game.packs.find((pack) => pack.collection === spellCompendiumLabel);
-  const spellIndices = ["name", "flags.ddbimporter.definitionId", "system.source.rules"];
+  const spellIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
   const spellIndex = await spellCompendium.getIndex({ fields: spellIndices });
 
   const results = spellIndex
@@ -47,7 +47,7 @@ async function getSpellMap() {
         id: spell.flags.ddbimporter.definitionId,
         _id: spell._id,
         compendium: spellCompendiumLabel,
-        name: spell.name,
+        name: spell.flags?.ddbimporter?.originalName ?? spell.name,
         documentName: spell.name,
         rules: spell.system?.source?.rules,
         uuid: spell.uuid,
@@ -61,7 +61,7 @@ async function getItemMap() {
   // ddb://magicitems
   const itemCompendiumLabel = await game.settings.get("ddb-importer", "entity-item-compendium");
   const itemCompendium = await game.packs.find((pack) => pack.collection === itemCompendiumLabel);
-  const itemIndices = ["name", "flags.ddbimporter.definitionId", "system.source.rules"];
+  const itemIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
   const itemIndex = await itemCompendium.getIndex({ fields: itemIndices });
 
   const results = itemIndex
@@ -72,7 +72,7 @@ async function getItemMap() {
         _id: i._id,
         compendium: itemCompendiumLabel,
         name: i.name,
-        documentName: i.name,
+        documentName: i.flags?.ddbimporter?.originalName ?? i.name,
         rules: i.system?.source?.rules,
         uuid: i.uuid,
       };

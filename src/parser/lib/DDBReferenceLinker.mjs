@@ -50,6 +50,7 @@ export async function loadDDBCompendiumIndexes() {
       fields: [
         "name",
         "flags.ddbbimporter.id",
+        "flags.ddbbimporter.originalName",
         "system.source.rules",
       ],
     });
