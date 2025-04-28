@@ -3,14 +3,15 @@
     "module-name": "D&D Beyond Importer",
     "activities": {
       "macro": {
-        "Title": "Macro",
+        "Title": "Macro (DBB Importer)",
         "Button": "Execute Macro",
         "Config": "Macro Configuration",
+        "Hide": "Hide Macro Activity",
         "FIELDS": {
           "macro": {
             "label": "Macro",
             "function": {
-              "label": "Macro Name"
+              "label": "Macro Name or UUID"
             },
             "parameters": {
               "label": "Function Parameters"
@@ -19,7 +20,7 @@
               "label": "Visible to all players?"
             },
             "name": {
-              "label": "Name"
+              "label": "Button Name"
             }
           }
         }

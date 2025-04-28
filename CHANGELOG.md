@@ -1,3 +1,8 @@
+# Next Up
+
+- Weapons and armour did not link correctly in imported journals (possible DDB change, or maybe long standing issue).
+- The DDB Importer Activity Macro feature name has been tweaked.
+
 # 6.2.2
 
 - Darkness and Light Toggle macros would not work when clicked from chat by player. @oestred
