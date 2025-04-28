@@ -84,6 +84,24 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Flying Broomstick",
   ];
 
+  static CONSUMABLE_TRINKETS = [
+    "Perfume of Bewitching",
+    "Ale Seed",
+    "Pressure Capsule",
+    "Bonfire Seed",
+    "Feather Token",
+    "Rain and Thunder Seed",
+    "Stallion Seed",
+    "Pot of Awakening",
+    "Moodmark Paint",
+    "Planter Kernels",
+    "Tossable Kernels",
+  ];
+
+  static AMMUNITION = [
+    "Bag of Bellstones",
+  ];
+
   // eslint-disable-next-line complexity
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
     const addEffects = isCompendium
@@ -154,10 +172,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       || this.ddbDefinition.tags.includes('magical meal')
       || this.ddbDefinition.tags.includes('Food')
       || this.originalName.startsWith("Magnetite Curry");
-    this.isConsumable = [
-      "Planter Kernels",
-      "Tossable Kernels",
-    ].includes(this.originalName);
+    this.isConsumable = DDBItem.CONSUMABLE_TRINKETS.includes(this.originalName);
     // this.ddbDefinition.isConsumable; // this adds too many
 
     // if the item is x per spell
@@ -999,7 +1014,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           this.overrides.ddbType = "Tattoo";
           const type = this.tattooType
             ? "dnd-tashas-cauldron.tattoo"
-            : this.isContainer ? "container" : "equipment";
+            : this.isContainer
+              ? "container"
+              : this.ddbDefinition.name.toLowerCase().includes("spellwrought") ? "consumable" : "equipment";
           this.documentType = type;
           this.parsingType = "wonderous";
           if (this.tattooType) {
@@ -1629,7 +1646,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         autoUse: false,
       };
     }
-    this.data.system.uses.autoDestroy = !["wand", "trinket", "ring"].includes(this.systemType.value);
+    this.data.system.uses.autoDestroy = !["wand", "trinket", "ring"].includes(this.systemType.value)
+      || this.ddbDefinition.name.toLowerCase().includes("spellwrought");
   }
 
   targetsCreature() {
