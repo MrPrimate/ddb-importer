@@ -96,6 +96,39 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Moodmark Paint",
     "Planter Kernels",
     "Tossable Kernels",
+    "Orchard Seed",
+    "Luckleaf",
+    "Poison Popper",
+    "Aurora Dust",
+    "Quaal's Feather Token",
+    "Paper Bird",
+    "Deck of Illusions",
+    "Baffled Candle",
+    "Egg of Primal Water",
+    "Gnashing Key",
+    "Balloon Pack",
+    "Pixie Dust",
+    "Life Tether Ankh",
+    "Road Seed",
+    "Knightly Seed",
+    // "Wind Fan",
+    "Tossable Kernels",
+    "Tavern Seed",
+    "Bridge Seed",
+    "Instaprint Camera",
+    // "Guardian Spheres",
+    "Planter Kernels",
+    "Deck of Miscellany",
+    "Smokepowder",
+    // "Propeller Helm",
+  ];
+
+  static POTIONS = [
+    "Melon Soda",
+    "Cola Soda",
+    "Fish Sauce Soda",
+    "Canister of Vreyval's Soothing Tea",
+    "Eyedrops of Clarity",
   ];
 
   static AMMUNITION = [
@@ -172,7 +205,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       || this.ddbDefinition.tags.includes('magical meal')
       || this.ddbDefinition.tags.includes('Food')
       || this.originalName.startsWith("Magnetite Curry");
-    this.isConsumable = DDBItem.CONSUMABLE_TRINKETS.includes(this.originalName);
+    this.isConsumable = DDBItem.CONSUMABLE_TRINKETS.includes(this.originalName)
+      || DDBItem.CONSUMABLE_TRINKETS.some((t) => this.originalName.startsWith(t));
+    this.isPotion = this.ddbDefinition.tags.includes('Potion')
+      || DDBItem.POTIONS.includes(this.originalName);
     // this.ddbDefinition.isConsumable; // this adds too many
 
     // if the item is x per spell
@@ -1036,6 +1072,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           // console.error(`Consumable: ${this.ddbDefinition.name}`);
           this.documentType = "consumable";
           this.systemType.value = "trinket";
+          this.parsingType = "consumable";
+          this.overrides.ddbType = this.ddbDefinition.type;
+        } else if (this.isPotion) {
+          this.documentType = "consumable";
+          this.systemType.value = "potion";
           this.parsingType = "consumable";
           this.overrides.ddbType = this.ddbDefinition.type;
         } else {

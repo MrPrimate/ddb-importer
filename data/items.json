@@ -9894,5 +9894,9 @@
   {
     "name": "Poison Burst (Yuan-ti Form Only)",
     "path": "icons/magic/acid/projectile-faceted-glob.webp"
+  },
+  {
+    "name": "Deck of Miscellany",
+    "path": "icons/sundries/gaming/rune-card.webp"
   }
 ]
