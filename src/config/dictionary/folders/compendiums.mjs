@@ -157,6 +157,9 @@ export const COMPENDIUM_FOLDERS = {
           miscellaneous: {
             folderName: "Miscellaneous",
           },
+          tattoo: {
+            folderName: "Tattoos",
+          },
         },
       },
       tattoo: {
