@@ -563,10 +563,8 @@ export default class Iconizer {
 
   static async getDDBGenericItemImages() {
     utils.munchNote(`Fetching DDB Generic Item icons`, { nameField: true });
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
-    const imageNamePrefix = useDeepPaths ? "" : "item";
-    const pathPostfix = useDeepPaths ? "/ddb/item" : "";
+    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+    const pathPostfix = "/ddb/item";
 
     const itemMap = DICTIONARY.items.map(async (item) => {
       const downloadOptions = {
@@ -575,7 +573,6 @@ export default class Iconizer {
         download: true,
         targetDirectory,
         pathPostfix,
-        imageNamePrefix,
       };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
       let itemIcons = {
@@ -592,10 +589,8 @@ export default class Iconizer {
 
   static async getDDBGenericLootImages() {
     utils.munchNote(`Fetching DDB Generic Loot icons`, { nameField: true });
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
-    const imageNamePrefix = useDeepPaths ? "" : "equipment";
-    const pathPostfix = useDeepPaths ? "/ddb/loot" : "";
+    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+    const pathPostfix = "/ddb/loot";
 
     const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
       const downloadOptions = {
@@ -604,7 +599,6 @@ export default class Iconizer {
         download: true,
         targetDirectory,
         pathPostfix,
-        imageNamePrefix,
       };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
       let itemIcons = {
@@ -646,13 +640,11 @@ export default class Iconizer {
 
   static async getDDBSchoolSpellImages() {
     utils.munchNote(`Fetching spell school icons`, { nameField: true });
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
-    const imageNamePrefix = useDeepPaths ? "" : "spell";
-    const pathPostfix = useDeepPaths ? "/spell/school" : "";
+    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+    const pathPostfix = "/spell/school";
 
     const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
-      const downloadOptions = { type: "spell", name: school.name, download: true, targetDirectory, imageNamePrefix, pathPostfix };
+      const downloadOptions = { type: "spell", name: school.name, download: true, targetDirectory, pathPostfix };
       const img = await FileHelper.getImagePath(school.img, downloadOptions);
       let schoolIcons = {
         name: school.name,

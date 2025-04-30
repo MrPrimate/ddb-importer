@@ -34,6 +34,7 @@ import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
 import { DDBEnhancers } from "./effects/_module.mjs";
+// import { createStorage } from "./hooks/ready/storage.mjs";
 
 // foundry is initializing
 export function init() {
@@ -52,6 +53,8 @@ export function init() {
 export async function onceReady() {
   // register the game settings
   await registerGameSettings();
+
+  // await createStorage();
 
   // check for valid compendiums
   await checkCompendiums();
