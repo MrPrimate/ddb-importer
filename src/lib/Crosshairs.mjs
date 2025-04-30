@@ -5,7 +5,9 @@ import { utils } from "./_module.mjs";
  * https://github.com/chrisk123999/chris-premades/blob/development/scripts/lib/crosshairs.js
  */
 
-export default class Crosshairs extends MeasuredTemplate {
+const Sheet = foundry.canvas?.placeables?.MeasuredTemplate ?? MeasuredTemplate;
+
+export default class Crosshairs extends Sheet {
   constructor(config, callbacks = {}) {
     const templateData = {
       t: config.shape ?? "circle",

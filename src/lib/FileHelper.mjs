@@ -1,6 +1,8 @@
 import { logger, utils, DDBProxy, DirectoryPicker } from "./_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 
+const FPClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
+
 export class FileHelper {
 
   static BAD_DIRS = ["[data]", "[data] ", "", null];
@@ -396,7 +398,7 @@ export class FileHelper {
     if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
       return FileHelper.forgeCreateDirectory(target);
     }
-    return FilePicker.createDirectory(source, target, options);
+    return FPClass.createDirectory(source, target, options);
   }
 
   /**
@@ -442,7 +444,7 @@ export class FileHelper {
 
   static async uploadToPath(path, file) {
     const options = DirectoryPicker.parse(path);
-    return FilePicker.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
+    return FPClass.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
   }
 
   static parseDirectory(str) {

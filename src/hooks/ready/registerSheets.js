@@ -65,6 +65,11 @@ function characterButtonClick(event, document, actor) {
   return false;
 }
 
+function characterButtonClickV2(event, _target) {
+  // eslint-disable-next-line no-invalid-this
+  characterButtonClick(event, this.document, this.actor);
+}
+
 function getCharacterButton(document, actor) {
   const buttonText = '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
@@ -88,6 +93,11 @@ function npcButtonClick(event, document) {
     logger.debug(`Clicked for url ${url}`);
     renderPopup("web", url);
   }
+}
+
+function npcButtonClickV2(event, _target) {
+  // eslint-disable-next-line no-invalid-this
+  npcButtonClick(event, this.document);
 }
 
 function getNPCButton(document) {
@@ -136,6 +146,46 @@ function createActorHeaderButtons(config, buttons, label = true) {
   }
 }
 
+function handlePCHeaderButtonV2(config, buttons, label = true) {
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  config.options.actions["ddbclick"] = characterButtonClickV2;
+  buttons.unshift({
+    label: label ? `DDB Importer` : undefined,
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    action: "ddbclick",
+    ownership: "OWNER",
+  });
+}
+
+function handleNPCHeaderButtonV2(config, buttons, label = true) {
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  config.options.actions["ddbclick"] = npcButtonClickV2;
+  buttons.unshift({
+    label: label ? `DDB Importer` : undefined,
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    action: "ddbclick",
+    ownership: "OWNER",
+  });
+}
+
+
+function createActorHeaderButtonsV2(config, buttons, label = true) {
+  const isCharacterSheet = config.actor?.type === "character";
+  const isNpcSheet = config.actor?.type === "npc";
+
+  if (!isCharacterSheet && !isNpcSheet) return;
+
+  if (!game.settings.get("ddb-importer", "character-link-title") && isCharacterSheet) return;
+  if (!game.settings.get("ddb-importer", "monster-link-title") && isNpcSheet) return;
+
+  if (isCharacterSheet) {
+    handlePCHeaderButtonV2(config, buttons, label);
+  } else if (isNpcSheet) {
+    if (!config.document.flags?.monsterMunch?.url) return;
+    handleNPCHeaderButtonV2(config, buttons, label);
+  }
+}
+
 function createOldSheetHeaderButtons(config, buttons) {
   if (!config.object.isOwner) return;
   if (!(config.object instanceof Actor)) return;
@@ -163,8 +213,23 @@ function createDefault5eButtons(config, buttons) {
   createActorHeaderButtons(config, buttons, true);
 }
 
+function createDefault5eButtonsV2(config, buttons) {
+  if (!config.document.isOwner) return;
+  if (!(config.document instanceof Actor)) return;
 
-export function tidySheets() {
+  const isCharacterSheet = config.constructor.name === "CharacterActorSheet";
+  const isNpcSheet = config.constructor.name === "NPCActorSheet";
+
+  if (!isCharacterSheet && !isNpcSheet) {
+    logger.debug(`Unknown Character Sheet`, {
+      config,
+    });
+    return;
+  }
+  createActorHeaderButtonsV2(config, buttons, true);
+}
+
+function tidySheets() {
   const api = game.modules.get('tidy5e-sheet')?.api;
   if (!api) return;
   if (!game.settings.get("ddb-importer", "character-link-title")) {
@@ -229,6 +294,7 @@ export default function () {
   //   : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
   tidySheets();
+  Hooks.on("getHeaderControlsBaseActorSheet", createDefault5eButtonsV2);
   Hooks.on('getActorSheet5eHeaderButtons', createDefault5eButtons);
   Hooks.on('getActorSheetHeaderButtons', createOldSheetHeaderButtons);
   pcSheetNames.forEach((sheetName) => {
