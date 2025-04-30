@@ -2,7 +2,9 @@
  * Game Settings: Directory
  */
 
-export class DirectoryPicker extends FilePicker {
+const FPClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
+
+export class DirectoryPicker extends FPClass {
   constructor(options = {}) {
     super(options);
   }
@@ -164,6 +166,6 @@ export class DirectoryPicker extends FilePicker {
       }
     }
 
-    return FilePicker.browse(source, target, options);
+    return FPClass.browse(source, target, options);
   }
 }

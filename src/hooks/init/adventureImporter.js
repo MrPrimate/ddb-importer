@@ -2,7 +2,7 @@ import { DDBAdventureImporter } from "../../apps/DDBAdventureImporter.js";
 import { SETTINGS } from "../../config/_module.mjs";
 
 export default function () {
-  DocumentSheetConfig.registerSheet(Adventure, SETTINGS.MODULE_ID, DDBAdventureImporter, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Adventure, SETTINGS.MODULE_ID, DDBAdventureImporter, {
     label: "DDB Adventure Importer",
   });
 

@@ -1,7 +1,8 @@
 import { SETTINGS } from "../config/_module.mjs";
 
+const Sheet = foundry?.appv1?.sheets?.AdventureImporter ?? AdventureImporter;
 
-export class DDBAdventureImporter extends AdventureImporter {
+export class DDBAdventureImporter extends Sheet {
 
   constructor(adventure, options) {
     super(adventure, options);
