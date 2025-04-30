@@ -4730,6 +4730,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/48099/191/638780952881052606.jpeg",
       sourceURL: "sources/dnd/vsspp",
     },
+    {
+      id: 167,
+      name: "SSH",
+      description: "Ruins of Symbaroum: Setting Handbook",
+      sourceCategoryId: 25,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/48763/470/638809277854391620.jpeg",
+      sourceURL: "sources/dnd/ssh",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
