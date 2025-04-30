@@ -1,4 +1,26 @@
 <section id="ddb-importer-muncher-spells" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+  <fieldset>
+  <legend>Spell Name Filter</legend>
+  <p>Spell Search Filter (leave blank for all - case insensitive)</p>
+
+  <div class="form-content" style="display: flex">
+    <input type="text" name="spell-munch-filter" id="spell-munch-filter" style="flex: 0 1 auto" value="{{ searchTermSpell }}" />
+  </div>
+
+    {{#each filterSpellConfig}}
+    <div class="form-group munching-spell-config-filter">
+      <label>{{ this.label }}</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+      </div>
+      <p class="hint">{{{this.hint}}}</p>
+    </div>
+    {{/each}}
+
+  </fieldset>
+
   <fieldset>
   <legend>Options</legend>
   {{#each spellConfig}}

@@ -3,7 +3,8 @@
 - v13 adjustments for new App V2 Character Sheet, and some deprecation warnings.
 - Some differences in formatting meant some OTTG monsters did not have spells added, e.g. "Flora Spirit".
 - New Compendium folders created by DDBImporter will get a DDB banner.
-- Homebrew items and spells would not go into the correct folder in the compendium when munched.
+- Homebrew items and spells would not go into the correct folder in the compendium when munched. @crimsonedge
+- Item and spells and now be filtered by name
 
 # 6.2.3
 

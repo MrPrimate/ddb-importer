@@ -32,7 +32,9 @@ export default class DDBMuncher extends DDBAppV2 {
     });
     this.encounterId = null;
     this.encounter = null;
-    this.searchTerm = "";
+    this.searchTermMonster = "";
+    this.searchTermItem = "";
+    this.searchTermSpell = "";
   }
 
 
@@ -232,7 +234,15 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.element.querySelector("#monster-munch-filter")?.addEventListener("change", async (event) => {
-      this.searchTerm = event.target.value ?? "";
+      this.searchTermMonster = event.target.value ?? "";
+    });
+
+    this.element.querySelector("#item-munch-filter")?.addEventListener("change", async (event) => {
+      this.searchTermItem = event.target.value ?? "";
+    });
+
+    this.element.querySelector("#spell-munch-filter")?.addEventListener("change", async (event) => {
+      this.searchTermSpell = event.target.value ?? "";
     });
 
     this.element.querySelector("#encounter-campaign-select")?.addEventListener("change", async (event) => {
@@ -360,7 +370,9 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     }
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
-    context.searchTerm = this.searchTerm;
+    context.searchTermMonster = this.searchTermMonster;
+    context.searchTermItem = this.searchTermItem;
+    context.searchTermSpell = this.searchTermSpell;
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -446,7 +458,7 @@ export default class DDBMuncher extends DDBAppV2 {
       const monsterFactory = new DDBMonsterFactory({
         notifier: this.notifier.bind(this),
       });
-      const result = await monsterFactory.processIntoCompendium();
+      const result = await monsterFactory.processIntoCompendium(null, this.searchTermMonster);
       this.notifier(`Finished importing ${result} monsters!`, { nameField: true });
       this.notifier("");
     } catch (error) {
@@ -478,6 +490,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       await parseSpells({
         notifier: this.notifier.bind(this),
+        searchFilter: this.searchTermSpell,
       });
       this.notifier(`Finished importing spells!`, { nameField: true });
       this.notifier("");
@@ -496,6 +509,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       await parseItems({
         notifier: this.notifier.bind(this),
+        searchFilter: this.searchTermItem,
       });
       this.notifier(`Finished importing items!`, { nameField: true });
       this.notifier("");

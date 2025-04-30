@@ -1013,6 +1013,14 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-item-exact-match": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-spell-exact-match": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-size-flat-scale": {
             type: Boolean,
             default: true,

@@ -19,7 +19,7 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
 
-function getSpellData({ className, sourceFilter, rulesVersion = null, notifier } = {}) {
+function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, searchFilter } = {}) {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
@@ -36,6 +36,18 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
   const sources = enableSources
     ? DDBSources.getSelectedSourceIds()
     : [];
+  const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
+
+  logger.debug(`Fetching Spells with:`, {
+    debugJson,
+    enableSources,
+    sources,
+    sourceFilter,
+    exactMatch,
+    rulesVersion,
+    className,
+    searchFilter,
+  });
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/class/spells`, {
@@ -88,6 +100,13 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
           return data;
         }
       })
+      .then((data) => {
+        if (!searchFilter || searchFilter === "") return data;
+        if (exactMatch) {
+          return data.filter((spell) => spell.definition.name.toLowerCase() === searchFilter.toLowerCase());
+        }
+        return data.filter((spell) => spell.definition.name.toLowerCase().includes(searchFilter.toLowerCase()));
+      })
       .then((data) => resolve(data))
       .catch((error) => {
         logger.warn(error);
@@ -96,7 +115,7 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier }
   });
 }
 
-export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null } = {}) {
+export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, searchFilter = null } = {}) {
 
   await DDBReferenceLinker.importCacheLoad();
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
@@ -125,6 +144,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
         sourceFilter,
         notifier: resolvedNotifier,
         rulesVersion,
+        searchFilter,
       });
       spellListFactory.extractSpellListData(className, spellData);
       results.push(...spellData);
