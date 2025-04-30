@@ -348,17 +348,18 @@ export default class DDBMonsterFactory {
   /**
    * Downloads, parses and imports monsters into a compendium
    * @param {Array} ids a list of monster ids to import, if null imports all monsters
+   * @param {string} searchTerm an optional search term
    * @returns {Promise<number|Array>} If ids is null, returns the total number of monsters processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed monster documents
    */
-  async processIntoCompendium(ids = null) {
+  async processIntoCompendium(ids = null, searchTerm = null) {
 
     logger.time("Monster Import Time");
     await this.#prepareImporter();
 
     logger.info("Check complete getting monster data...");
     this.notifier(`Getting monster data from DDB...`);
-    await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids));
+    await this.fetchDDBMonsterSourceData(DDBMonsterFactory.defaultFetchOptions(ids, searchTerm));
     this.notifier("");
 
     this.notifier(`Checking compendium folders..`, { nameField: true });
