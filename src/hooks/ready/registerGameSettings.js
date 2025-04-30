@@ -112,6 +112,9 @@ async function createFolderPaths() {
 
     const iconUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path");
     FileHelper.verifyPath(FileHelper.parseDirectory(iconUploads));
+
+    const persistentUploads = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location");
+    FileHelper.verifyPath(FileHelper.parseDirectory(persistentUploads));
   }
 }
 

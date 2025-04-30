@@ -88,11 +88,6 @@
         "id": "chris-premades",
         "type": "module",
         "reason": "Amazing effects by Chris"
-      },
-      {
-        "id": "tokenmagic",
-        "type": "module",
-        "reason": "Provides some cool token effects"
       }
     ]
   },
@@ -108,5 +103,6 @@
     "./css/adventure.css"
   ],
   "packs": [],
-  "socket": true
+  "socket": true,
+  "persistentStorage": true
 }

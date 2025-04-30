@@ -1,4 +1,4 @@
-import { logger, utils, DDBItemImporter } from "./_module.mjs";
+import { logger, utils, DDBItemImporter, FileHelper } from "./_module.mjs";
 import { SETTINGS } from '../config/_module.mjs';
 
 const CompendiumHelper = {
@@ -180,6 +180,20 @@ const CompendiumHelper = {
     return name;
   },
 
+  async getCompendiumBannerImage(url, name) {
+    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+
+    const downloadOptions = {
+      type: "banner",
+      name,
+      download: true,
+      targetDirectory,
+      pathPostfix: "/ddb/banner",
+    };
+    const img = await FileHelper.getImagePath(url, downloadOptions);
+    return img;
+  },
+
   /**
    * Checks if a compendium exists with the given id or label, if not, creates a new one.
    * @param {object} options
@@ -190,6 +204,8 @@ const CompendiumHelper = {
    * @param {string} [options.folderId] folder id for compendium
    * @param {string[]} [options.dnd5eTypeTags] dnd5e type tags for compendium
    * @param {number} [options.version] version of compendium
+   * @param {string} [options.image] banner image for compendium
+   * @param {string} [options.title] title of compendium
    * @returns {object} Object consisting of compendium and creation result
    */
   createIfNotExists: async ({
@@ -201,9 +217,11 @@ const CompendiumHelper = {
     // eslint-disable-next-line no-unused-vars
     dnd5eTypeTags = [],
     version = null,
+    image = null,
+    title,
   } = {}) => {
-    if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID}`);
-    else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID}`);
+    if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
+    else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
     const compendium = (await game.packs.get(id)) ?? game.packs.find((p) => p.metadata.label === label);
     if (compendium) {
       logger.debug(`Compendium '${id}' (${compendium.metadata.label}) found, will not create compendium.`);
@@ -223,11 +241,13 @@ const CompendiumHelper = {
         };
       } else {
         // create a compendium for the user
-        const newCompendium = await CompendiumCollection.createCompendium({
+        const banner = image ? await CompendiumHelper.getCompendiumBannerImage(image, title) : null;
+        const newCompendium = await (foundry.documents?.collections?.CompendiumCollection ?? CompendiumCollection).createCompendium({
           type,
           label,
           name,
           package: packageType,
+          banner,
           flags: {
             // dnd5e: {
             //   types: dnd5eTypeTags,
@@ -241,6 +261,7 @@ const CompendiumHelper = {
         return {
           compendium: newCompendium,
           created: true,
+          banner,
         };
       }
     }

@@ -55,5 +55,6 @@
     "./css/adventure.css"
   ],
   "packs": [],
-  "socket": true
+  "socket": true,
+  "persistentStorage": true
 }

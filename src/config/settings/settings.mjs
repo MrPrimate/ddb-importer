@@ -207,6 +207,12 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
+      "ddb-compendium-banner": {
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: true,
+      },
     },
     // ready settings
     READY: {
@@ -255,6 +261,12 @@ const SETTINGS = {
           hint: "ddb-importer.settings.adventure-misc-path.hint",
           default: "[data] ddb-images/adventures/misc",
           type: DirectoryPicker.Directory,
+        },
+        "persistent-storage-location": {
+          scope: "world",
+          config: false,
+          type: DirectoryPicker.Directory,
+          default: `[data] modules/ddb-importer/storage`,
         },
       },
       UI: {

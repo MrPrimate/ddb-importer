@@ -42,7 +42,7 @@ jobs:
     - name: Build icon json
       run: ./icon.sh
     - name: Create Release Zip
-      run: zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data vendor macros LICENSE.md       # Add folders/files here
+      run: zip -r ./ddb-importer.zip module.json dist icons handlebars css img lang data vendor macros storage LICENSE.md       # Add folders/files here
     - name: Create Release                                # Create an additional release for this version
       id: create_versioned_release
       uses: ncipollo/release-action@v1
