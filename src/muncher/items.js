@@ -112,7 +112,7 @@ async function generateImportItems(items, notifier, itemSpells = []) {
   return results;
 }
 
-function getItemData({ useSourceFilter = true, ids = [] } = {}) {
+function getItemData({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
@@ -125,12 +125,17 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
     ? DDBSources.getSelectedSourceIds()
     : [];
 
+  const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-exact-match");
+
   logger.debug(`Fetching Items with:`, {
     debugJson,
     enableSources,
     useGenerics,
     sources,
     useSourceFilter,
+    exactMatch,
+    ids,
+    searchFilter,
   });
 
   return new Promise((resolve, reject) => {
@@ -228,13 +233,28 @@ function getItemData({ useSourceFilter = true, ids = [] } = {}) {
         };
         return data;
       })
+      .then((data) => {
+        if (!searchFilter || searchFilter === "") return data;
+        if (exactMatch) {
+          return {
+            items: data.items.filter((item) => item.name.toLowerCase() === searchFilter.toLowerCase()),
+            spells: data.spells,
+            extra: data.extra,
+          };
+        }
+        return {
+          items: data.items.filter((item) => item.name.toLowerCase().includes(searchFilter.toLowerCase())),
+          spells: data.spells,
+          extra: data.extra,
+        };
+      })
       .then((data) => resolve(data))
       .catch((error) => reject(error));
   });
 }
 
 
-export async function parseItems({ useSourceFilter = true, ids = [], deleteBeforeUpdate = null, notifier = null } = {}) {
+export async function parseItems({ useSourceFilter = true, ids = [], deleteBeforeUpdate = null, notifier = null, searchFilter = null } = {}) {
   await DDBReferenceLinker.importCacheLoad();
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
   // const magicItemsInstalled = !!game.modules.get("magicitems");
@@ -255,7 +275,7 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
 
   // disable source filter if ids provided
   const sourceFilter = (ids === null || ids.length === 0) && useSourceFilter;
-  const raw = await getItemData({ useSourceFilter: sourceFilter, ids });
+  const raw = await getItemData({ useSourceFilter: sourceFilter, ids, searchFilter });
 
   const characterInventory = getCharacterInventory(raw.items, raw.extra);
   const results = await generateImportItems(characterInventory, resolvedNotifier, raw.spells);

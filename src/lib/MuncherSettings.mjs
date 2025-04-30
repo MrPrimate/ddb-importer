@@ -697,6 +697,26 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
+    const filterSpellConfig = [
+      {
+        name: "munching-policy-spell-exact-match",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match"),
+        label: "Exact name match?",
+        hint: "Matches the spell name exactly, otherwise will match on similar names.",
+        enabled: tiers.homebrew,
+      },
+    ];
+
+    const filterItemConfig = [
+      {
+        name: "munching-policy-monster-exact-match",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-exact-match"),
+        label: "Exact name match?",
+        hint: "Matches the item name exactly, otherwise will match on similar names.",
+        enabled: tiers.homebrew,
+      },
+    ];
+
     const genericConfig = [
       {
         name: "munching-policy-update-existing",
@@ -847,6 +867,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       excludedCategories,
       basicMonsterConfig,
       filterMonsterConfig,
+      filterSpellConfig,
+      filterItemConfig,
       artMonsterConfig,
       homebrewMonsterConfig,
       spellConfig,
