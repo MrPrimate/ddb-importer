@@ -1,4 +1,4 @@
-# Next Up
+# 6.2.4
 
 - v13 adjustments for new App V2 Character Sheet, and some deprecation warnings.
 - Some differences in formatting meant some OTTG monsters did not have spells added, e.g. "Flora Spirit".
