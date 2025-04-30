@@ -108,6 +108,16 @@ export default class DDBSources {
       };
       DDBSources.tweakSourceData(source);
       results.push(source);
+    } else if (definition.isHomebrew) {
+      const source = {
+        book: "Homebrew",
+        page: "",
+        license: "",
+        custom: "",
+        id: 9999999,
+        categoryId: 9999999,
+      };
+      results.push(source);
     }
     return results;
   }
