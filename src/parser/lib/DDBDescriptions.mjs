@@ -511,7 +511,7 @@ export default class DDBDescriptions {
     // Regular expression to match commas not inside brackets
     const regex = /,(?![^(]*\))/g;
     const result = str.split(regex);
-    return result.map((item) => item.trim());
+    return result.map((item) => item.replaceAll("*", "").trim());
   }
 
   static parseOutMonsterSpells(text) {
