@@ -149,6 +149,8 @@ function getWeaponProperties(action, weapon) {
 
 }
 
+// DDBMonsterFeatureActivity
+
 // eslint-disable-next-line complexity
 function buildComponents(ddb, configurations, component) {
   const results = [];
@@ -156,18 +158,13 @@ function buildComponents(ddb, configurations, component) {
   const item = foundry.utils.duplicate(newComponent(component.definition.name, TYPE_MAPPING[types[0]]));
 
   if (types[0] === "equipment") {
-    foundry.utils.setProperty(item, "data.armor.type", "vehicle");
+    foundry.utils.setProperty(item, "system.type.value", "vehicle");
   }
 
   if (component.description) item.system.description.value = DDBReferenceLinker.parseTags(component.description);
 
   item.system.quantity = component.count;
 
-  item.system.armor = {
-    value: null,
-    type: "vehicle",
-    dex: null,
-  };
   item.system.hp = {
     value: null,
     max: null,
@@ -229,11 +226,7 @@ function buildComponents(ddb, configurations, component) {
     }
 
     if (Number.isInteger(component.definition.armorClass)) {
-      item.system.armor = {
-        value: parseInt(component.definition.armorClass),
-        type: "vehicle",
-        dex: null,
-      };
+      item.system.armor.value = parseInt(component.definition.armorClass);
     }
 
     if (Number.isInteger(component.definition.hitPoints)) {
