@@ -23,6 +23,8 @@ export default class DDBDebug {
     "vision-5e",
     "vtta-tokenizer",
     "forge-vtt",
+    "find-the-culprit",
+    "dice-so-nice",
   ];
 
   static fixCircularReferences(o) {
