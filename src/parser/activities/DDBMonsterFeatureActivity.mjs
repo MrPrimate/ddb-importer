@@ -19,11 +19,11 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       id,
     });
 
-    this.actionInfo = ddbParent.actionInfo;
+    this.actionData = ddbParent.actionData;
   }
 
   _generateActivation() {
-    this.data.activation = this.actionInfo.activation;
+    this.data.activation = this.actionData.activation;
   }
 
   _generateConsumption({ consumptionOverride = null } = {}) {
@@ -44,13 +44,13 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       ? "activityUses"
       : "itemUses";
 
-    if (this.actionInfo.consumptionTargets?.length > 0) {
-      targets = this.actionInfo.consumptionTargets;
-    } else if (this.actionInfo.consumptionValue) {
+    if (this.actionData.consumptionTargets?.length > 0) {
+      targets = this.actionData.consumptionTargets;
+    } else if (this.actionData.consumptionValue) {
       targets.push({
         type: consumptionType,
         target: "",
-        value: this.actionInfo.consumptionValue,
+        value: this.actionData.consumptionValue,
         scaling: {
           mode: "",
           formula: "",
@@ -75,7 +75,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   }
 
   _generateDuration() {
-    this.data.duration = this.actionInfo.duration;
+    this.data.duration = this.actionData.duration;
   }
 
   _generateEffects() {
@@ -84,17 +84,17 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   }
 
   _generateRange() {
-    this.data.range = this.actionInfo.range;
+    this.data.range = this.actionData.range;
   }
 
   _generateTarget() {
-    this.data.target = this.actionInfo.target;
+    this.data.target = this.actionData.target;
   }
 
   _getFeaturePartsDamage() {
     let baseParts = this.ddbParent.templateType === "weapon"
-      ? this.actionInfo.damageParts.slice(1)
-      : this.actionInfo.damageParts;
+      ? this.actionData.damageParts.slice(1)
+      : this.actionData.damageParts;
 
     return baseParts;
   }
@@ -132,8 +132,8 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   _generateHealing({ part = null } = {}) {
     const healing = part
       ? part
-      : this.actionInfo.healingParts.length > 0
-        ? this.actionInfo.healingParts.map((data) => data.part)[0]
+      : this.actionData.healingParts.length > 0
+        ? this.actionData.healingParts.map((data) => data.part)[0]
         : undefined;
     this.data.healing = healing;
   }
@@ -143,7 +143,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       this.data.save = saveOverride;
       return;
     }
-    this.data.save = this.actionInfo.save;
+    this.data.save = this.actionData.save;
   }
 
 
@@ -157,8 +157,8 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       : "melee";
 
     const attack = {
-      ability: this.actionInfo.baseAbility,
-      bonus: this.actionInfo.extraAttackBonus && `${this.actionInfo.extraAttackBonus}`.trim() !== "0" ? `${this.actionInfo.extraAttackBonus}` : "",
+      ability: this.actionData.baseAbility,
+      bonus: this.actionData.extraAttackBonus && `${this.actionData.extraAttackBonus}`.trim() !== "0" ? `${this.actionData.extraAttackBonus}` : "",
       critical: {
         threshold: undefined,
       },
@@ -175,8 +175,8 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   _generateCheck({ checkOverride = null }) {
     this.data.check = checkOverride ?? {
-      associated: this.actionInfo.associatedToolsOrAbilities,
-      ability: this.actionInfo.ability,
+      associated: this.actionData.associatedToolsOrAbilities,
+      ability: this.actionData.ability,
       dc: {},
     };
   }

@@ -45,7 +45,7 @@ export default class DDBBasicActivity {
 
 
   constructor({
-    type, name, foundryFeature = null, actor = null, ddbParent = null,
+    type, name, actor = null, ddbParent = null,
     nameIdPrefix = null, nameIdPostfix = null, id = null,
   } = {}) {
 
@@ -56,7 +56,6 @@ export default class DDBBasicActivity {
     }
     this.name = name;
     this.ddbParent = ddbParent;
-    this.foundryFeature = this.ddbParent?.data ?? foundryFeature;
     this.actor = actor;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";

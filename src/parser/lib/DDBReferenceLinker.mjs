@@ -312,7 +312,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
   const types = damageType.replace(", or ", ",").replace(" or ", ",").split(",").map((s) => s.trim().toLowerCase());
   const damageHint = damageType ? ` type=${types.join("/")}` : "";
   const diceParse = utils.parseDiceString(text, null, "");
-  const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.baseAbility");
+  const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility");
   const mods = extraMods.join(" + ");
 
   if (baseAbility) {
@@ -467,9 +467,9 @@ export function parseToHitRoll({ text, document } = {}) {
     return text;
   }
 
-  const ability = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.baseAbility");
-  const proficient = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.proficient") ? " + @prof" : "";
-  const extraNum = foundry.utils.getProperty(document, "flags.monsterMunch.actionInfo.extraAttackBonus");
+  const ability = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility");
+  const proficient = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.proficient") ? " + @prof" : "";
+  const extraNum = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.extraAttackBonus");
   const extra = extraNum === 0 ? "" : ` + ${extraNum}`;
   const result = `[[/roll 1d20 + @abilities.${ability}.mod${proficient}${extra}]]`;
 

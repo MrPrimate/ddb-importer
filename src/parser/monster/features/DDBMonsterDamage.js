@@ -75,7 +75,7 @@ export class DDBMonsterDamage {
     let result;
     const diceParse = utils.parseDiceString(text, null);
     if (this.baseAbility) {
-      const baseAbilityMod = this.ddbMonster.abilities[this.actionInfo.baseAbility].mod;
+      const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
@@ -131,7 +131,7 @@ export class DDBMonsterDamage {
 
     const includesDiceRegExp = /[0-9]*d[0-9]+/;
     const includesDice = includesDiceRegExp.test(damage);
-    const parsedDiceDamage = (this.ddbMonsterFeature.actionInfo && includesDice)
+    const parsedDiceDamage = (this.ddbMonsterFeature.actionData && includesDice)
       ? this.ddbMonsterFeature.damageModReplace(damage.replace("plus", "+"))
       : damage.replace("plus", "+");
 

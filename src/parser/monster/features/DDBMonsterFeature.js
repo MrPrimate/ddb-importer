@@ -121,8 +121,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     });
   }
 
-  resetActionInfo() {
-    this.actionInfo = {
+  resetActionData() {
+    this.actionData = {
       baseItem: null,
       baseTool: null,
       damage: {
@@ -242,16 +242,16 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (this.ddbMonster?.npc?.system.details?.source)
       this.data.system.source = this.ddbMonster.npc.system.details.source;
 
-    this.actionInfo = {};
-    this.resetActionInfo();
+    this.actionData = {};
+    this.resetActionData();
 
   }
 
   damageModReplace(text) {
     let result;
     const diceParse = utils.parseDiceString(text, null);
-    if (this.actionInfo.baseAbility) {
-      const baseAbilityMod = this.ddbMonster.abilities[this.actionInfo.baseAbility].mod;
+    if (this.actionData.baseAbility) {
+      const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
@@ -301,20 +301,20 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.ddbMonsterDamage.generateDamage();
     this.ddbMonsterDamage.generateRegain();
 
-    this.actionInfo.damageParts = this.ddbMonsterDamage.damageParts;
-    this.actionInfo.versatileParts = this.ddbMonsterDamage.versatileParts;
-    this.actionInfo.saveParts = this.ddbMonsterDamage.saveParts;
+    this.actionData.damageParts = this.ddbMonsterDamage.damageParts;
+    this.actionData.versatileParts = this.ddbMonsterDamage.versatileParts;
+    this.actionData.saveParts = this.ddbMonsterDamage.saveParts;
 
     this._generateEscapeCheck(hit);
 
-    if (this.actionInfo.damageParts.length > 0 && this.templateType === "weapon") {
-      this.actionInfo.damage.base = this.actionInfo.damageParts[0].part;
-    } else if (this.templateType !== "weapon" && this.actionInfo.versatileParts.length > 0 && !this.enricher.noVersatile) {
+    if (this.actionData.damageParts.length > 0 && this.templateType === "weapon") {
+      this.actionData.damage.base = this.actionData.damageParts[0].part;
+    } else if (this.templateType !== "weapon" && this.actionData.versatileParts.length > 0 && !this.enricher.noVersatile) {
       this.additionalActivities.push({
         name: `Versatile`,
         options: {
           generateDamage: true,
-          damageParts: this.actionInfo.versatileParts,
+          damageParts: this.actionData.versatileParts,
           includeBaseDamage: false,
         },
       });
@@ -408,7 +408,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       uses.recovery.push(recharge);
       if (uses.max === null) uses.max = "1";
       uses.spent = 0;
-      this.actionInfo.consumptionValue = "1";
+      this.actionData.consumptionValue = "1";
     }
 
     // if (!name && uses.max === null && uses.recovery.length === 0) {
@@ -427,15 +427,15 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   getActivation() {
-    const activation = foundry.utils.deepClone(this.actionInfo.activation);
+    const activation = foundry.utils.deepClone(this.actionData.activation);
     activation.value = this.getActivationValue();
     activation.type = this.getActionType();
     return activation;
   }
 
   getFeatSave() {
-    this.actionInfo.save = this.descriptionSave;
-    return this.actionInfo.save;
+    this.actionData.save = this.descriptionSave;
+    return this.actionData.save;
   }
 
   getReach() {
@@ -477,11 +477,11 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       range.value = parseInt(matches3[1]);
       range.units = "ft";
     } else if (reachMatch) {
-      this.actionInfo.properties.rch = true;
+      this.actionData.properties.rch = true;
       range.reach = parseInt(reachMatch[1]);
       range.units = "ft";
     } else if (withinMatch) {
-      this.actionInfo.properties.rch = true;
+      this.actionData.properties.rch = true;
       range.reach = parseInt(withinMatch[1]);
       range.units = "ft";
     }
@@ -551,24 +551,24 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (this.weaponLookup) {
       for (const [key, value] of Object.entries(this.weaponLookup.properties)) {
         // logger.info(`${key}: ${value}`);
-        this.actionInfo.properties[key] = value;
+        this.actionData.properties[key] = value;
       }
-      const versatileWeapon = this.actionInfo.properties.ver
+      const versatileWeapon = this.actionData.properties.ver
         && this.ddbMonster.abilities['dex'].mod > this.ddbMonster.abilities['str'].mod;
       if (versatileWeapon || this.weaponLookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
       } else if (this.weaponLookup.actionType == "mwak") {
         weaponAbilities = ["str"];
       }
-      this.actionInfo.weaponType = this.weaponLookup.weaponType;
+      this.actionData.weaponType = this.weaponLookup.weaponType;
     } else if (this.meleeAttack) {
-      this.actionInfo.weaponType = "simpleM";
+      this.actionData.weaponType = "simpleM";
     } else if (this.rangedAttack) {
-      this.actionInfo.weaponType = "simpleR";
+      this.actionData.weaponType = "simpleR";
     }
 
     if (this.strippedHtml.includes("is a magic weapon attack")) {
-      this.actionInfo.properties["mgc"] = true;
+      this.actionData.properties["mgc"] = true;
       foundry.utils.setProperty(this.data, "flags.midiProperties.magicdam", true);
     }
 
@@ -582,28 +582,28 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     // force companions to null and proficient
     if (this.yourSpellAttackModToHit) {
-      this.actionInfo.baseAbility = null;
-      this.actionInfo.proficient = true;
+      this.actionData.baseAbility = null;
+      this.actionData.proficient = true;
     } else if (this.weaponAttack || this.spellAttack) {
       // check most likely initial attacks - str and dex based weapon, mental for spell
       const checkInitialAbilities = this.checkAbility(initialAbilities);
       if (checkInitialAbilities.success) {
-        this.actionInfo.baseAbility = checkInitialAbilities.ability;
-        this.actionInfo.proficient = checkInitialAbilities.proficient;
+        this.actionData.baseAbility = checkInitialAbilities.ability;
+        this.actionData.proficient = checkInitialAbilities.proficient;
       }
 
       // okay lets see if its one of the others then!
-      if (!this.actionInfo.baseAbility) {
+      if (!this.actionData.baseAbility) {
         const checkAllAbilities = this.checkAbility(abilities);
         if (checkAllAbilities.success) {
-          this.actionInfo.baseAbility = checkAllAbilities.ability;
-          this.actionInfo.proficient = checkAllAbilities.proficient;
+          this.actionData.baseAbility = checkAllAbilities.ability;
+          this.actionData.proficient = checkAllAbilities.proficient;
         }
       }
 
       // okay, some oddity, maybe magic bonus, lets calculate one!
       // we are going to assume it's dex or str based.
-      if (!this.actionInfo.baseAbility) {
+      if (!this.actionData.baseAbility) {
         const magicAbilities = this.checkAbilities(initialAbilities);
 
         const filteredAbilities = magicAbilities.filter((ab) => ab.success == true).sort((a, b) => {
@@ -618,14 +618,14 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
         // fine lets use the first hit
         if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
-          this.actionInfo.baseAbility = filteredAbilities[0].ability;
-          this.actionInfo.proficient = filteredAbilities[0].proficient;
-          this.actionInfo.extraAttackBonus = filteredAbilities[0].bonus;
+          this.actionData.baseAbility = filteredAbilities[0].ability;
+          this.actionData.proficient = filteredAbilities[0].proficient;
+          this.actionData.extraAttackBonus = filteredAbilities[0].bonus;
         }
       }
 
       // negative mods!
-      if (!this.actionInfo.baseAbility) {
+      if (!this.actionData.baseAbility) {
         logger.info(`Negative ability parse for ${this.ddbMonster.npc.name}, to hit ${this.toHit} with ${this.name}`);
 
         const magicAbilities = this.checkAbilities(initialAbilities, true);
@@ -642,9 +642,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         logger.debug("Filtered abilities", { filteredAbilities, html: this.strippedHtml });
         // fine lets use the first hit
         if (filteredAbilities.length >= 1 && filteredAbilities[0].success) {
-          this.actionInfo.baseAbility = filteredAbilities[0].ability;
-          this.actionInfo.proficient = filteredAbilities[0].proficient;
-          this.actionInfo.extraAttackBonus = filteredAbilities[0].bonus;
+          this.actionData.baseAbility = filteredAbilities[0].ability;
+          this.actionData.proficient = filteredAbilities[0].proficient;
+          this.actionData.extraAttackBonus = filteredAbilities[0].bonus;
         } else {
           logger.error("Unable to calculate attack!", { filteredAbilities, html: this.strippedHtml, ddbFeature: this });
         }
@@ -730,7 +730,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         target.template.size = aoeSizeMatch[1] ?? "";
         target.template.units = "ft";
         if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
-          this.actionInfo.range.units = "self";
+          this.actionData.range.units = "self";
         }
       }
     }
@@ -969,24 +969,24 @@ ${this.data.system.description.value}
   }
 
   #buildAction() {
-    if (Number.isInteger(parseInt(this.actionInfo.activation.value))) {
-      this.actionInfo.consumptionValue = this.actionInfo.activation.value;
+    if (Number.isInteger(parseInt(this.actionData.activation.value))) {
+      this.actionData.consumptionValue = this.actionData.activation.value;
     } else {
-      this.actionInfo.activation.value = 1;
+      this.actionData.activation.value = 1;
     }
 
     if (this.templateType === "weapon") {
-      this.data.system.damage = this.actionInfo.damage;
+      this.data.system.damage = this.actionData.damage;
     }
 
-    this.data.system.proficient = this.actionInfo.proficient;
+    this.data.system.proficient = this.actionData.proficient;
 
     if (this.templateType === "weapon" && (this.weaponAttack || this.spellAttack)) {
       this.data.system.equipped = true;
     }
 
     if (this.weaponAttack && this.templateType === "weapon") {
-      this.data.system.type.value = this.actionInfo.weaponType;
+      this.data.system.type.value = this.actionData.weaponType;
     } else if (this.spellAttack) {
       // if (!this.meleeAttack && !this.rangedAttack) {
       //   this.activityType = "save";
@@ -996,16 +996,16 @@ ${this.data.system.description.value}
       // }
       foundry.utils.setProperty(this.data, "flags.midiProperties.magicdam", true);
       foundry.utils.setProperty(this.data, "flags.midiProperties.magiceffect", true);
-      this.actionInfo.properties.mgc = true;
+      this.actionData.properties.mgc = true;
     }
 
     if (this.templateType === "weapon") {
-      this.data.system.damage = this.actionInfo.damage;
-      this.data.system.range = this.actionInfo.range;
+      this.data.system.damage = this.actionData.damage;
+      this.data.system.range = this.actionData.range;
     }
-    this.data.system.uses = this.actionInfo.uses;
+    this.data.system.uses = this.actionData.uses;
 
-    for (const [key, value] of Object.entries(this.actionInfo.properties)) {
+    for (const [key, value] of Object.entries(this.actionData.properties)) {
       if (value) this.data.system.properties.push(key);
     }
 
@@ -1017,11 +1017,11 @@ ${this.data.system.description.value}
   }
 
   #buildLair() {
-    this.actionInfo.activation.type = "lair";
+    this.actionData.activation.type = "lair";
     if (this.data.name.trim() === "Lair Actions") {
-      this.actionInfo.activation.value = 1;
+      this.actionData.activation.value = 1;
     } else if (this.data.name.trim() === "Regional Effects") {
-      this.actionInfo.activation.type = "";
+      this.actionData.activation.type = "";
     }
     return this.data;
   }
@@ -1030,67 +1030,67 @@ ${this.data.system.description.value}
     // for the legendary actions feature itself we don't want to do most processing
     if (this.name === "Legendary Actions") {
       this.activityType = "none";
-      this.actionInfo.activation.type = "";
+      this.actionData.activation.type = "";
       return;
     }
 
-    this.actionInfo.activation.type = "legendary";
+    this.actionData.activation.type = "legendary";
 
-    this.actionInfo.consumptionTargets.push({
+    this.actionData.consumptionTargets.push({
       type: "attribute",
       target: "resources.legact.value",
-      value: this.actionInfo.activation.value ?? 1,
+      value: this.actionData.activation.value ?? 1,
       scaling: {
         mode: "",
         formula: "",
       },
     });
 
-    if (Number.isInteger(parseInt(this.actionInfo.activation.value))) {
-      this.actionInfo.consumptionValue = this.actionInfo.activation.value;
+    if (Number.isInteger(parseInt(this.actionData.activation.value))) {
+      this.actionData.consumptionValue = this.actionData.activation.value;
     } else {
       // this.data.system.activation.cost = 1;
-      this.actionInfo.activation.value = 1;
+      this.actionData.activation.value = 1;
     }
 
     // only attempt to update these if we don't parse an action
     // most legendary actions are just do x thing, where thing is an existing action
     // these have been copied from the existing actions so we don't change
     if (!this.actionCopy) {
-      this.data.system.uses = this.actionInfo.uses;
+      this.data.system.uses = this.actionData.uses;
       if (this.templateType === "weapon") {
-        this.data.system.damage = this.actionInfo.damage;
-        this.data.system.range = this.actionInfo.range;
+        this.data.system.damage = this.actionData.damage;
+        this.data.system.range = this.actionData.range;
       }
     } else {
       for (const id of Object.keys(this.data.system.activities)) {
-        this.data.system.activities[id].activation = this.actionInfo.activation;
-        this.data.system.activities[id].consumption.targets = this.actionInfo.consumptionTargets;
+        this.data.system.activities[id].activation = this.actionData.activation;
+        this.data.system.activities[id].consumption.targets = this.actionData.consumptionTargets;
       }
     }
 
   }
 
   #buildSpecial() {
-    if (Number.isInteger(parseInt(this.actionInfo.activation.value))) {
-      this.actionInfo.consumptionValue = this.actionInfo.activation.value;
+    if (Number.isInteger(parseInt(this.actionData.activation.value))) {
+      this.actionData.consumptionValue = this.actionData.activation.value;
     } else {
-      this.actionInfo.activation.value = 1;
+      this.actionData.activation.value = 1;
     }
 
-    this.data.system.uses = this.actionInfo.uses;
+    this.data.system.uses = this.actionData.uses;
 
     if (this.templateType === "weapon") {
-      this.data.system.damage = this.actionInfo.damage;
-      this.data.system.range = this.actionInfo.range;
+      this.data.system.damage = this.actionData.damage;
+      this.data.system.range = this.actionData.range;
     }
 
     // legendary resistance check
     const resistanceMatch = this.name.match(/Legendary Resistance \((\d+)\/Day/i);
     if (resistanceMatch) {
-      this.actionInfo.activation.type = "special";
-      this.actionInfo.activation.value = null;
-      this.actionInfo.consumptionTargets.push({
+      this.actionData.activation.type = "special";
+      this.actionData.activation.value = null;
+      this.actionData.consumptionTargets.push({
         type: "attribute",
         target: "resources.legres.value",
         value: 1,
@@ -1111,7 +1111,7 @@ ${this.data.system.description.value}
     //   // TODO: ensure this is now correct
     //   && this.data.system.uses.recovery.length === 0
     // ) {
-    //   this.actionInfo.activation = {
+    //   this.actionData.activation = {
     //     value: null,
     //     type: "",
     //     condition: "",
@@ -1123,7 +1123,7 @@ ${this.data.system.description.value}
     if (this.name !== "Villain Actions") {
       this.data.system.uses = {
         spent: 0,
-        max: this.actionInfo.uses.max ? `${this.actionInfo.uses.max}` : null,
+        max: this.actionData.uses.max ? `${this.actionData.uses.max}` : null,
         recovery: [
           { period: "sr", type: 'recoverAll', formula: undefined },
         ],
@@ -1131,53 +1131,53 @@ ${this.data.system.description.value}
     }
 
     if (this.templateType === "weapon") {
-      this.data.system.damage = this.actionInfo.damage;
-      this.data.system.range = this.actionInfo.range;
+      this.data.system.damage = this.actionData.damage;
+      this.data.system.range = this.actionData.range;
     }
 
   }
 
-  #generateActionInfo() {
+  #generateActionData() {
     if (this.weaponAttack || this.spellAttack) {
       this.generateWeaponAttackInfo();
     }
     this.generateDamageInfo();
 
-    this.actionInfo.range = this.getRange();
-    this.actionInfo.activation = this.getActivation();
-    this.actionInfo.save = this.getFeatSave();
-    this.actionInfo.target = this.getTarget();
-    this.actionInfo.uses = this.getUses();
+    this.actionData.range = this.getRange();
+    this.actionData.activation = this.getActivation();
+    this.actionData.save = this.getFeatSave();
+    this.actionData.target = this.getTarget();
+    this.actionData.uses = this.getUses();
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: false,
-      damageParts: this.actionInfo.saveParts,
+      damageParts: this.actionData.saveParts,
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const isFlatWeaponDamage = this.templateType === "weapon" && this.actionInfo.damageParts.length > 0
-      ? !this.actionInfo.damageParts[0].includesDice
+    const isFlatWeaponDamage = this.templateType === "weapon" && this.actionData.damageParts.length > 0
+      ? !this.actionData.damageParts[0].includesDice
       : false;
 
-    const noDamageMods = this.actionInfo.damageParts.every((p) => !p.damageHasMod);
+    const noDamageMods = this.actionData.damageParts.every((p) => !p.damageHasMod);
     const noModWeapon = this.templateType === "weapon" && noDamageMods;
 
     let parts = [];
 
     if (isFlatWeaponDamage || noModWeapon) {
       // includes no dice, i.e. is flat, we want to ignore the base damage
-      parts = this.actionInfo.damageParts.map((s) => s.part);
-    } else if (this.actionInfo.damageParts.length > 1 && this.templateType === "weapon") {
-      parts = this.actionInfo.damageParts.slice(1).map((s) => s.part);
+      parts = this.actionData.damageParts.map((s) => s.part);
+    } else if (this.actionData.damageParts.length > 1 && this.templateType === "weapon") {
+      parts = this.actionData.damageParts.slice(1).map((s) => s.part);
     } else if (this.templateType === "feat") {
       // e.g. Armanite Hooves
-      parts = this.actionInfo.damageParts.map((s) => s.part);
+      parts = this.actionData.damageParts.map((s) => s.part);
     }
 
     // console.warn("activity build", {
@@ -1221,22 +1221,22 @@ ${this.data.system.description.value}
 
   #addSaveAdditionalActivity(includeBase = false) {
     const parts = this.templateType !== "weapon" || includeBase
-      ? this.actionInfo.damageParts.map((dp) => dp.part)
-      : this.actionInfo.damageParts.slice(1).map((dp) => dp.part);
+      ? this.actionData.damageParts.map((dp) => dp.part)
+      : this.actionData.damageParts.slice(1).map((dp) => dp.part);
 
     this.additionalActivities.push({
       name: "Save",
       type: "save",
       options: {
-        generateDamage: this.actionInfo.saveParts.length > 0,
-        damageParts: this.actionInfo.saveParts ?? parts,
+        generateDamage: this.actionData.saveParts.length > 0,
+        damageParts: this.actionData.saveParts ?? parts,
         includeBaseDamage: false,
       },
     });
   }
 
   #addHealAdditionalActivities() {
-    for (const part of this.actionInfo.healingParts) {
+    for (const part of this.actionData.healingParts) {
       this.additionalActivities.push({
         type: "heal",
         options: {
@@ -1259,7 +1259,7 @@ ${this.data.system.description.value}
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.name === "Legendary Actions") return null;
     if (this.healingAction) {
-      if (!this.isAttack && !this.isSave && this.actionInfo.damageParts.length === 0) {
+      if (!this.isAttack && !this.isSave && this.actionData.damageParts.length === 0) {
         // we generate heal activities as additionals;
         return this.#determineLegendaryActionTypeFallback();
       }
@@ -1274,13 +1274,13 @@ ${this.data.system.description.value}
       return "attack";
     }
     if (this.isSave) return "save";
-    if (this.actionInfo.damageParts.length > 0) return "damage";
+    if (this.actionData.damageParts.length > 0) return "damage";
     // we generate heal activities as additionals;
-    if (!this.healingAction && this.actionInfo.healingParts.length > 0) return null;
-    if (this.actionInfo.activation.type === "special" && !this.actionInfo.uses.max) {
+    if (!this.healingAction && this.actionData.healingParts.length > 0) return null;
+    if (this.actionData.activation.type === "special" && !this.actionData.uses.max) {
       return this.#determineLegendaryActionTypeFallback();
     }
-    if (this.actionInfo.activation.type && !this.healingAction) return "utility";
+    if (this.actionData.activation.type && !this.healingAction) return "utility";
     // legendary actions are a special case and need an action to be marked as a legendary feature
     if (this.type === "legendary") return "utility";
     return this.#determineLegendaryActionTypeFallback();
@@ -1674,7 +1674,7 @@ ${this.data.system.description.value}
 
     await this.enricher.init();
 
-    this.#generateActionInfo();
+    this.#generateActionData();
     switch (this.type) {
       case "action":
       case "mythic":
@@ -1709,12 +1709,12 @@ ${this.data.system.description.value}
       this._generateEffects();
     }
 
-    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.damage", this.actionInfo.damage);
-    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.damageParts", this.actionInfo.damageParts);
-    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.baseAbility", this.actionInfo.baseAbility);
-    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.toHit", this.toHit);
-    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.proficient", this.actionInfo.proficient);
-    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionInfo.extraAttackBonus", this.actionInfo.extraAttackBonus);
+    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.damage", this.actionData.damage);
+    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.damageParts", this.actionData.damageParts);
+    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.baseAbility", this.actionData.baseAbility);
+    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.toHit", this.toHit);
+    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.proficient", this.actionData.proficient);
+    foundry.utils.setProperty(this.data, "flags.monsterMunch.actionData.extraAttackBonus", this.actionData.extraAttackBonus);
 
     if (this.levelBonus)
       foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);

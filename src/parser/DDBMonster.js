@@ -290,11 +290,9 @@ export default class DDBMonster {
 
     this.npc.items = this.items;
 
-    if (this.legacyName) {
-      if (this.source.isLegacy) {
-        this.npc.name += " (Legacy)";
-        this.npc.prototypeToken.name += " (Legacy)";
-      }
+    if (this.legacyName && this.source.isLegacy) {
+      this.npc.name += " (Legacy)";
+      this.npc.prototypeToken.name += " (Legacy)";
     }
 
     this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);

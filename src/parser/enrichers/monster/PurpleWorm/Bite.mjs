@@ -22,7 +22,7 @@ export default class Bite extends DDBEnricherData {
       data: this.is2014
         ? {
           damage: {
-            parts: [this.ddbParser.actionInfo.damageParts[0]],
+            parts: [this.ddbParser.actionData.damageParts[0]],
           },
         }
         : {
