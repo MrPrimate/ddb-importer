@@ -250,7 +250,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     this.#determineType();
 
-    this.actionInfo = {
+    this.actionData = {
       associatedToolsOrAbilities: [],
       ability: null,
       activation: null,
@@ -354,7 +354,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.data.system.identified = true;
 
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    if (this.isCompendiumItem && legacyName && this.is2014) {
+    if (this.isCompendiumItem && legacyName && this.legacy) {
       this.data.name += " (Legacy)";
     }
 
@@ -421,7 +421,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       if (spellSaveCheck[2]) {
         save.dc.calculation = "spellcasting";
       }
-      this.actionInfo.save = save;
+      this.actionData.save = save;
     }
 
     const saveCheck = (this.ddbDefinition.description ?? "").match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
@@ -429,13 +429,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       save.ability = saveCheck[2].toLowerCase().substr(0, 3);
       save.dc.formula = `${saveCheck[1]}`;
       save.dc.calculation = "";
-      this.actionInfo.save = save;
+      this.actionData.save = save;
     }
   }
 
   #generateActivityActivation() {
     // default
-    this.actionInfo.activation = { type: "action", value: 1, condition: "" };
+    this.actionData.activation = { type: "action", value: 1, condition: "" };
 
     if (this.parsingType === "wonderous") {
       let action = "special";
@@ -448,7 +448,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         else if (match[3]) action = "action";
       }
 
-      this.actionInfo.activation = { type: action ?? "", value: action ? 1 : null, condition: "" };
+      this.actionData.activation = { type: action ?? "", value: action ? 1 : null, condition: "" };
     }
 
   }
@@ -457,25 +457,25 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const attachRegex = /makes its attack roll with a \+(\d+) bonus/;
     const attackMatch = (this.ddbDefinition.description ?? "").match(attachRegex);
     if (attackMatch) {
-      this.actionInfo.isFlat = true;
-      this.actionInfo.extraAttackBonus = attackMatch[1];
-      this.actionInfo.ability = "none";
-      this.actionInfo.spellAttack = true;
+      this.actionData.isFlat = true;
+      this.actionData.extraAttackBonus = attackMatch[1];
+      this.actionData.ability = "none";
+      this.actionData.spellAttack = true;
     }
 
     const attackTypeRegex = /(ranged|melee) (spell|weapon|unarmed) attack/;
     const attackTypeMatch = (this.ddbDefinition.description ?? "").match(attackTypeRegex);
     if (attackTypeMatch) {
-      this.actionInfo.spellAttack = attackTypeMatch[2] === "spell";
-      this.actionInfo.rangedAttack = attackTypeMatch[1] === "ranged";
-      this.actionInfo.meleeAttack = attackTypeMatch[1] === "melee";
+      this.actionData.spellAttack = attackTypeMatch[2] === "spell";
+      this.actionData.rangedAttack = attackTypeMatch[1] === "ranged";
+      this.actionData.meleeAttack = attackTypeMatch[1] === "melee";
     }
 
   }
 
-  #generateActionInfo() {
-    this.actionInfo.duration = this.#getActivityDuration();
-    this.actionInfo.range = this.#getActivityRange();
+  #generateActionData() {
+    this.actionData.duration = this.#getActivityDuration();
+    this.actionData.range = this.#getActivityRange();
     this.#generateActivityActivation();
     this.#generateSave();
     this.#fixedAttackCheck();
@@ -1283,7 +1283,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     await this.loadEnricher();
     await this.#generateDataStub();
     this.#generateBaseItem();
-    this.#generateActionInfo();
+    this.#generateActionData();
     this.#generateDamageParts();
   }
 
@@ -1449,7 +1449,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (baseItem) foundry.utils.setProperty(this.data, "system.type.baseItem", baseItem);
     if (toolType) {
       foundry.utils.setProperty(this.data, "system.type.value", toolType);
-      this.actionInfo.associatedToolsOrAbilities.push(toolType);
+      this.actionData.associatedToolsOrAbilities.push(toolType);
     }
 
   }
@@ -1490,8 +1490,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #generateMagicalBonus() {
-    this.actionInfo.magicBonus.null = this.#getMagicalBonus();
-    this.actionInfo.magicBonus.zero = this.#getMagicalBonus(true);
+    this.actionData.magicBonus.null = this.#getMagicalBonus();
+    this.actionData.magicBonus.zero = this.#getMagicalBonus(true);
     switch (this.parsingType) {
       case "armor": {
         const magicBonus = this.#getMagicalArmorBonus();
@@ -1503,15 +1503,15 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       }
       case "staff":
       case "ammunition": {
-        if (this.actionInfo.magicBonus.zero > 0) {
+        if (this.actionData.magicBonus.zero > 0) {
           this.addMagical = true;
-          this.data.system.magicalBonus = this.actionInfo.magicBonus.zero;
+          this.data.system.magicalBonus = this.actionData.magicBonus.zero;
         }
         break;
       }
       case "weapon": {
         const magicalBonus = this.#getWeaponMagicalBonus(true);
-        this.actionInfo.magicBonus.zero = magicalBonus;
+        this.actionData.magicBonus.zero = magicalBonus;
         if (magicalBonus > 0) {
           this.data.system.magicalBonus = magicalBonus;
           this.addMagical = true;
@@ -1519,7 +1519,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         break;
       }
       default: {
-        if (this.actionInfo.magicBonus.zero > 0) {
+        if (this.actionData.magicBonus.zero > 0) {
           this.addMagical = true;
           if (!this.enricher.effects || this.enricher.effects.length === 0)
             logger.error(`Magical Bonus detected, but not handled for ${this.name}`, {
@@ -1647,7 +1647,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           formula: recoveryIsMax ? "" : recoveryFormula,
         });
       }
-      this.actionInfo.consumptionValue = 1;
+      this.actionData.consumptionValue = 1;
 
       return {
         max: `${limitedUse.maxUses}`,
@@ -1674,7 +1674,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   _generateConsumableUses() {
-    this.actionInfo.consumptionValue = 1;
+    this.actionData.consumptionValue = 1;
     if (this.ddbItem.limitedUse) {
       this._generateUses(true, "1");
     } else {
@@ -1756,7 +1756,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       if (damage) {
         const includesDiceRegExp = /[0-9]*d[0-9]+/;
         const includesDice = includesDiceRegExp.test(damage);
-        const finalDamage = (this.actionInfo && includesDice)
+        const finalDamage = (this.actionData && includesDice)
           ? utils.parseDiceString(damage.replace("plus", "+"), null).diceString
           : damage.replace("plus", "+");
 
@@ -1819,7 +1819,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #generateTargets() {
-    this.actionInfo.target = {
+    this.actionData.target = {
       prompt: true,
       affects: {
         count: "",
@@ -1842,8 +1842,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const creatureTargetCount = (/(each|one|a|the) creature(?: or object)?/ig).exec(this.ddbDefinition.description);
 
     if (targetsCreature || creatureTargetCount) {
-      this.actionInfo.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
-      this.actionInfo.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
+      this.actionData.target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
+      this.actionData.target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
     }
     const aoeSizeRegex = /(?<!one creature you can see |an object you can see )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
     const aoeSizeMatch = aoeSizeRegex.exec(this.ddbDefinition.description);
@@ -1856,10 +1856,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     if (aoeSizeMatch) {
       const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-      this.actionInfo.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
-      this.actionInfo.target.template.size = aoeSizeMatch[1] ?? "";
+      this.actionData.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+      this.actionData.target.template.size = aoeSizeMatch[1] ?? "";
       if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
-        this.actionInfo.range.units = "self";
+        this.actionData.range.units = "self";
       }
     }
   }
@@ -2118,7 +2118,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (this.data.system.type.value === "wand") this.addMagical = true;
     this._generateConsumableUses();
     if (["Potion", "Poison"].includes((this.overrides.ddbType ?? this.ddbDefinition.subType))) {
-      this.actionInfo.target = {
+      this.actionData.target = {
         "template": {
           "contiguous": false,
           "units": "ft",
@@ -2131,7 +2131,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           "special": "",
         },
       };
-      this.actionInfo.range = {
+      this.actionData.range = {
         "units": "touch",
         "override": false,
         "special": "",
@@ -2165,8 +2165,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.#generateStaffProperties();
     this.data.system.proficient = this.#getWeaponProficient();
     this.data.system.range = this.#getWeaponBehaviourRange();
-    this.actionInfo.ability = this.#getAbility();
-    this.actionInfo.meleeAttack = this.data.system.range.long === 5;
+    this.actionData.ability = this.#getAbility();
+    this.actionData.meleeAttack = this.data.system.range.long === 5;
     if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
       this._generateUses();
     }
@@ -2174,7 +2174,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.data.system.damage = {
         base: this.damageParts[0],
         versatile: this.versatileDamage,
-        parts: this.actionInfo.save
+        parts: this.actionData.save
           ? []
           : this.damageParts.slice(1),
       };
@@ -2184,8 +2184,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   #generateToolSpecifics() {
     this.activityOptions.generateCheck = true;
     const defaultAbility = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
-    this.actionInfo.ability = defaultAbility?.ability ?? "dex";
-    this.data.system.proficient = this.ddbData ? this.#getToolProficiency(this.ddbDefinition.name, this.actionInfo.ability) : 0;
+    this.actionData.ability = defaultAbility?.ability ?? "dex";
+    this.data.system.proficient = this.ddbData ? this.#getToolProficiency(this.ddbDefinition.name, this.actionData.ability) : 0;
     this._generateUses();
   }
 
@@ -2199,21 +2199,21 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       ? true
       : this.#getWeaponProficient();
 
-    if (this.flags.classFeatures.includes("OffHand")) this.actionInfo.activation.type = "bonus";
+    if (this.flags.classFeatures.includes("OffHand")) this.actionData.activation.type = "bonus";
     this.data.system.range = this.#getWeaponRange();
     this._generateUses(false);
     this.data.system.uses.prompt = false;
-    this.actionInfo.ability = this.#getWeaponAbility();
+    this.actionData.ability = this.#getWeaponAbility();
     if (this.ddbDefinition.attackType === 1) {
-      this.actionInfo.meleeAttack = true;
+      this.actionData.meleeAttack = true;
     } else {
-      this.actionInfo.meleeAttack = false;
+      this.actionData.meleeAttack = false;
     }
     if (this.damageParts.length > 0) {
       this.data.system.damage = {
         base: this.damageParts[0],
         versatile: this.versatileDamage,
-        parts: this.actionInfo.save
+        parts: this.actionData.save
           ? []
           : this.damageParts.slice(1),
       };
@@ -2414,7 +2414,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       : undefined;
 
     const maxNumberConsumed = `${spellData.limitedUse?.maxNumberConsumed ?? 1}`;
-    const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1}`;
+    const minNumberConsumed = `${spellData.limitedUse?.minNumberConsumed ?? this.actionData.consumptionValue ?? 1}`;
     if (generateActivityUses) {
       // spells manage charges
       usesOverride.max = maxNumberConsumed;
@@ -2530,7 +2530,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         ? {
           type: "itemUses",
           target: "",
-          value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
+          value: spellData.limitedUse.minNumberConsumed ?? this.actionData.consumptionValue ?? 1,
           scaling: {
             mode: "",
             formula: "",
@@ -2590,7 +2590,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         activity.uses = activityUses;
       }
 
-      if (this.actionInfo.save?.dc && activity.save?.dc) {
+      if (this.actionData.save?.dc && activity.save?.dc) {
         activity.save.dc = saveDC;
       }
 
@@ -2657,7 +2657,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         ? {
           type: "itemUses",
           target: `${this.data._id}`,
-          value: spellData.limitedUse.minNumberConsumed ?? this.actionInfo.consumptionValue ?? 1,
+          value: spellData.limitedUse.minNumberConsumed ?? this.actionData.consumptionValue ?? 1,
           scaling: {
             mode: "",
             formula: "",
@@ -2690,7 +2690,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         ? scalingValue
         : "";
       spell.system.activities[id].consumption.spellSlot = false;
-      if (this.actionInfo.save?.dc && spell.system.activities[id].save?.dc) {
+      if (this.actionData.save?.dc && spell.system.activities[id].save?.dc) {
         spell.system.activities[id].save.dc = saveDC;
       }
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
@@ -2755,7 +2755,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
 
     // const spent = foundry.utils.getProperty(this.data, "system.uses.spent");
-    // const activation = this.actionInfo.activation?.type ?? "";
+    // const activation = this.actionData.activation?.type ?? "";
 
     // if (activation === "" && spent === 0) {
     //   this.data.system.activation.type = "special";
@@ -2977,7 +2977,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       // don't add extra damages if it's a save (assume its save damage)
-      generateDamage: !this.actionInfo.save,
+      generateDamage: !this.actionData.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
     }, options);
 
@@ -3040,33 +3040,33 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (this.parsingType === "tool") return "check";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (this.healingParts.length > 0) {
-      if (!this.actionInfo.save && !["weapon", "staff"].includes(this.parsingType) && this.damageParts.length === 0) {
+      if (!this.actionData.save && !["weapon", "staff"].includes(this.parsingType) && this.damageParts.length === 0) {
         // we damage healing parts elsewhere
         return null;
       }
     }
     if (["weapon", "staff"].includes(this.parsingType)) {
       // some attacks will have a save and attack
-      if (this.actionInfo.save) {
+      if (this.actionData.save) {
         if (this.damageParts.length > 1) {
           this.#addSaveAdditionalActivity(false);
         }
       }
       return "attack";
     }
-    if (this.actionInfo.save) return "save";
-    if (this.actionInfo.isFlat) return "attack";
+    if (this.actionData.save) return "save";
+    if (this.actionData.isFlat) return "attack";
     if (this.damageParts.length > 0) return "damage";
-    if (this.actionInfo.activation?.type === "special" && (!this.data.uses?.max || this.data.uses.max === "")) {
+    if (this.actionData.activation?.type === "special" && (!this.data.uses?.max || this.data.uses.max === "")) {
       return undefined;
     }
-    if (this.actionInfo.activation?.type
+    if (this.actionData.activation?.type
       && !this.healingAction
       && !["wand", "scroll"].includes(this.systemType.value)
     ) return "utility";
     if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value)) return "utility";
     if (this.data.effects.length > 0) return "utility";
-    if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionInfo.target?.template?.type)) return "utility";
+    if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionData.target?.template?.type)) return "utility";
     return null;
   }
 
