@@ -1,3 +1,7 @@
+# Next Up
+
+- Gunner feat would not grant proficiency with Firearm weapons on character import. @vralek
+
 # 6.2.4
 
 - v13 adjustments for new App V2 Character Sheet, and some deprecation warnings.

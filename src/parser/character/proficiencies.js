@@ -5,7 +5,7 @@ DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(in
   return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "proficiency", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((proficiency) => {
-      return { name: proficiency.friendlySubtypeName };
+      return { name: proficiency.friendlySubtypeName, custom: false };
     });
 };
 
@@ -35,7 +35,7 @@ DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(
     ...this.proficiencyFinder.getCustomProficiencies("Weapons"),
     ...this.proficiencyFinder.getCustomProficiencies("Languages"),
   ].map((proficiency) => {
-    return { name: proficiency };
+    return { name: proficiency, custom: true };
   });
 
   this.proficiencies = this._getCoreProficiencies(false).concat(customProficiencies);

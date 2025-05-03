@@ -295,6 +295,7 @@ export const ACTOR = {
     { name: "War Pick", type: "Weapon", subType: "Martial Weapon", mastery: "sap", foundryValue: "warpick", advancement: "mar", melee: true, ranged: false, properties: {} },
     { name: "Warhammer", type: "Weapon", subType: "Martial Weapon", mastery: "push", foundryValue: "warhammer", advancement: "mar", melee: true, ranged: false, properties: { ver: true } },
     { name: "Whip", type: "Weapon", subType: "Martial Weapon", mastery: "slow", foundryValue: "whip", advancement: "mar", melee: true, ranged: false, properties: { fin: true, rch: true } },
+    { name: "Firearms", type: "Weapon", melee: false, ranged: true, properties: { amm: true, lod: true, fir: true } },
 
     // special
     { name: "Light Crossbow", type: "Weapon", subType: "Simple Weapon", mastery: "slow", ammunitionType: "crossbowBolt", foundryValue: "lightcrossbow", advancement: "sim", melee: false, ranged: true, properties: { amm: true, lod: true, two: true } },
