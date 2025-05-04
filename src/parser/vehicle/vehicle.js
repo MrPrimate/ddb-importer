@@ -14,7 +14,7 @@ import { ACTION_THRESHOLDS } from './threshold.js';
 async function parseVehicle(ddb, extra = {}) {
 
   logger.debug("Parsing vehicle", { extra });
-  let vehicle = foundry.utils.duplicate(await newVehicle(ddb.name));
+  let vehicle = newVehicle(ddb.name);
   const configurations = {};
   ddb.configurations.forEach((c) => {
     configurations[c.key] = c.value;
@@ -98,8 +98,6 @@ async function parseVehicle(ddb, extra = {}) {
       ? "water"
       : "land";
 
-  vehicle.items = processComponents(ddb, configurations);
-
   // No 5e support for vehicles yet:
   // fuel data
 
@@ -110,6 +108,8 @@ async function parseVehicle(ddb, extra = {}) {
   if (configurations.EAS) {
     vehicle.system.attributes.actions.stations = true;
   }
+
+  vehicle.items = await processComponents(ddb, configurations, vehicle);
 
   if (ddb.actionsText) {
     vehicle.system.details.biography.value += `<h2>Actions</h2>\n<p>${ddb.actionsText}</p>`;
@@ -140,14 +140,13 @@ async function parseVehicle(ddb, extra = {}) {
 
 
 export async function parseVehicles(ddbData, extra = false) {
-
   let foundryActors = [];
   let failedVehicleNames = [];
 
-  ddbData.forEach((vehicle) => {
+  for (const vehicle of ddbData) {
     try {
       logger.debug(`Attempting to parse ${vehicle.name}`);
-      const foundryActor = parseVehicle(vehicle, extra);
+      const foundryActor = await parseVehicle(vehicle, extra);
       foundryActors.push(foundryActor);
     } catch (err) {
       logger.error(`Failed parsing ${vehicle.name}`);
@@ -155,12 +154,14 @@ export async function parseVehicles(ddbData, extra = false) {
       logger.error(err.stack);
       failedVehicleNames.push(vehicle.name);
     }
-  });
+  }
 
   const result = {
-    actors: await Promise.all(foundryActors),
+    actors: foundryActors,
     failedVehicleNames,
   };
+
+  console.warn(result)
 
   return result;
 }

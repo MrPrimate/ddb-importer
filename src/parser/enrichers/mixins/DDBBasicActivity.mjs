@@ -47,6 +47,7 @@ export default class DDBBasicActivity {
   constructor({
     type, name, actor = null, ddbParent = null,
     nameIdPrefix = null, nameIdPostfix = null, id = null,
+    foundryFeature = null,
   } = {}) {
 
     this.type = type.toLowerCase();
@@ -57,6 +58,7 @@ export default class DDBBasicActivity {
     this.name = name;
     this.ddbParent = ddbParent;
     this.actor = actor;
+    this.foundryFeature = foundryFeature ?? ddbParent.data;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -68,7 +70,7 @@ export default class DDBBasicActivity {
   }
 
   getParsedAction() {
-    const description = this.foundryFeature.system?.description?.value;
+    const description = this.foundryFeature?.system?.description?.value;
     if (!description) return undefined;
     // pcs don't have mythic
     const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);

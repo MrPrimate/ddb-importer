@@ -4,7 +4,7 @@ import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
 export default class DDBVehicleActivity extends DDBBasicActivity {
 
   _init() {
-    logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
+    logger.debug(`Generating DDBVehicleActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
   }
 
   constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
@@ -15,11 +15,21 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
       foundryFeature: ddbParent.data,
       nameIdPrefix,
       nameIdPostfix,
-      actor: ddbParent.ddbMonster.npc,
+      actor: ddbParent.ddbVehicle.vehicle,
       id,
     });
 
-    this.actionInfo = ddbParent.actionInfo;
+    this.actionData = ddbParent.actionData;
+
+    console.warn({
+      type,
+      name,
+      ddbParent,
+      nameIdPrefix,
+      nameIdPostfix,
+      id,
+      this: this,
+    })
   }
 
   build({
