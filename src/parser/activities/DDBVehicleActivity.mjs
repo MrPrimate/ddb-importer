@@ -29,7 +29,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
       nameIdPostfix,
       id,
       this: this,
-    })
+    });
   }
 
   build({
@@ -107,35 +107,20 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
       this: this,
     });
 
-    if (generateActivation) this._generateActivation();
-    if (generateAttack) this._generateAttack();
-    if (generateConsumption) this._generateConsumption({ consumptionOverride });
-    if (generateDescription) this._generateDescription();
-    if (generateDuration) this._generateDuration();
-    if (generateEffects) this._generateEffects();
-    if (generateRange) this._generateRange();
-    if (generateTarget) this._generateTarget();
-
-    if (generateSave) this._generateSave({ saveOverride });
-    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage });
-    if (generateHealing) this._generateHealing({ part: healingPart });
-
-    if (generateCheck) this._generateCheck({ checkOverride });
-
     super.build({
-      generateActivation: false,
-      generateAttack: false,
+      generateActivation,
+      generateAttack,
       generateSpell,
-      generateConsumption: false,
-      generateCheck: false,
-      generateDamage: false,
+      generateConsumption,
+      generateCheck,
+      generateDamage,
       generateDescription,
-      generateDuration: false,
-      generateEffects: false,
-      generateHealing: false,
-      generateRange: false,
-      generateSave: false,
-      generateTarget: false,
+      generateDuration,
+      generateEffects,
+      generateHealing,
+      generateRange,
+      generateSave,
+      generateTarget,
       generateDDBMacro,
       generateEnchant,
       generateRoll,

@@ -147,8 +147,8 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       consumptionTargets: [],
       damageParts: [],
       healingParts: [],
-      versatileParts: [],
-      saveParts: [],
+      // versatileParts: [],
+      // saveParts: [],
       data: {
         damage: {
           base: null,
@@ -305,6 +305,22 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       this.actionData.type = "utility";
     }
 
+    if (this.action.dice && this.action.dice.diceString) {
+      const damageString = utils.parseDiceString(this.action.dice.diceString).diceString;
+      const damage = SystemHelpers.buildDamagePart({
+        damageString,
+        type: this.actionData.damageType,
+      });
+      this.actionData.damageParts.push(damage);
+    }
+
+    console.warn("DDBComponentFeature", {
+      action: this.action,
+      actionData: this.actionData,
+      component: this.component,
+      this: this,
+    });
+
   }
 
   async loadEnricher() {
@@ -388,48 +404,20 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: false,
-      damageParts: this.actionData.saveParts,
+      damageParts: this.actionData.damageParts,
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const isFlatWeaponDamage = this.templateType === "weapon" && this.actionData.damageParts.length > 0
-      ? !this.actionData.damageParts[0].includesDice
-      : false;
-
-    const noDamageMods = this.actionData.damageParts.every((p) => !p.damageHasMod);
-    const noModWeapon = this.templateType === "weapon" && noDamageMods;
-
-    let parts = [];
-
-    if (isFlatWeaponDamage || noModWeapon) {
-      // includes no dice, i.e. is flat, we want to ignore the base damage
-      parts = this.actionData.damageParts.map((s) => s.part);
-    } else if (this.actionData.damageParts.length > 1 && this.templateType === "weapon") {
-      parts = this.actionData.damageParts.slice(1).map((s) => s.part);
-    } else if (this.templateType === "feat") {
-      // e.g. Armanite Hooves
-      parts = this.actionData.damageParts.map((s) => s.part);
-    }
-
-    // console.warn("activity build", {
-    //   isFlatWeaponDamage,
-    //   this: this,
-    //   noDamageMods,
-    //   noModWeapon,
-    //   parts,
-    //   options,
-    //   includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
-    // });
 
     const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
       generateRange: this.templateType !== "weapon",
-      generateDamage: parts.length > 0 || !this.isSave,
-      includeBaseDamage: (this.templateType === "weapon" && !isFlatWeaponDamage) && !noModWeapon,
-      damageParts: parts,
+      generateDamage: this.actionData.damageParts.length > 0 || !this.isSave,
+      includeBaseDamage: false,
+      damageParts: this.actionData.damageParts,
     }, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
@@ -453,8 +441,8 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       name: "Save",
       type: "save",
       options: {
-        generateDamage: this.actionData.saveParts.length > 0,
-        damageParts: this.actionData.saveParts ?? parts,
+        generateDamage: parts.length > 0,
+        damageParts: parts ?? parts,
         includeBaseDamage: false,
       },
     });

@@ -355,7 +355,7 @@ export async function processComponents(ddb, configurations, vehicle) {
     .map((feature) => {
       foundry.utils.setProperty(feature, "definition.types", [{ type: "feature" }]);
       foundry.utils.setProperty(feature, "definition.name", feature.name);
-      const builtItems = buildComponents({ ddb, configurations, feature, vehicle });
+      const builtItems = buildComponents({ ddb, configurations, component: feature, vehicle });
       return builtItems;
     })
     .flat());
