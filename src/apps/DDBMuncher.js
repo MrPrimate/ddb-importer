@@ -21,6 +21,7 @@ import { updateItemPrices } from "../muncher/prices.js";
 import DDBAppV2 from "./DDBAppV2.js";
 import DDBEncounterFactory from "../parser/DDBEncounterFactory.js";
 import DDBDebugger from "./DDBDebugger.mjs";
+import { SETTINGS } from "../config/_module.mjs";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -243,6 +244,12 @@ export default class DDBMuncher extends DDBAppV2 {
 
     this.element.querySelector("#spell-munch-filter")?.addEventListener("change", async (event) => {
       this.searchTermSpell = event.target.value ?? "";
+    });
+
+    this.element.querySelectorAll("[id^='munching-selection-compendium-folders-'")?.forEach((folder) => {
+      folder.addEventListener("change", async (event) => {
+        await game.settings.set(SETTINGS.MODULE_ID, folder.id, event.target.value);
+      });
     });
 
     this.element.querySelector("#encounter-campaign-select")?.addEventListener("change", async (event) => {

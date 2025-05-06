@@ -2,6 +2,7 @@
 
 - Plasmoids were not imported as Oozes.
 - Item imports did not append the Legacy suffix correctly, and applied to all content prior to 2024 core rules. @vralek
+- Compendium folder migration tool would not respect chosen setting in muncher.
 
 # 6.2.4
 
