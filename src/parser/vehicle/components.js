@@ -320,6 +320,7 @@ async function buildComponents({ ddb, configurations, component, vehicle }) {
       },
     );
 
+    await ddbFeature.loadEnricher();
     await ddbFeature.parse();
     results.push(ddbFeature.data);
 

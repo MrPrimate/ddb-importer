@@ -102,7 +102,9 @@ async function parseVehicle(ddb, extra = {}) {
   // fuel data
 
   // details
-  vehicle.system.details.source = DDBSources.parseSource(ddb);
+  vehicle.system.source = DDBSources.parseSource(ddb);
+  vehicle.system.source.rules = "2014";
+  foundry.utils.setProperty(vehicle, "flags.ddbimporter.legacy", false);
   vehicle.system.details.biography.value = DDBReferenceLinker.parseTags(ddb.description);
 
   if (configurations.EAS) {

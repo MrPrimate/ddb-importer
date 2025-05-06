@@ -4,6 +4,7 @@ import { DDBMonsterFeatureEnricher, mixins } from "../enrichers/_module.mjs";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../lib/_module.mjs";
 
 import DDBVehicleActivity from "../activities/DDBVehicleActivity.mjs";
+import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage.js";
 
 export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin {
 
@@ -145,10 +146,10 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       "diceString": null,
       consumptionValue: null,
       consumptionTargets: [],
-      damageParts: [],
+      diceParts: [],
       healingParts: [],
       // versatileParts: [],
-      // saveParts: [],
+      saveParts: [],
       data: {
         damage: {
           base: null,
@@ -239,8 +240,46 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     }
   }
 
+  damageModReplace(text) {
+    let result;
+    const diceParse = utils.parseDiceString(text, null);
+    if (this.actionData.baseAbility) {
+      const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
+      const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
+      const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
+      const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
+      result = reParse.diceString;
+    } else {
+      result = diceParse.diceString;
+    }
+
+    return result;
+  }
+
+  #generateDamageInfo() {
+    const hitIndex = this.strippedHtml.indexOf("Hit:");
+    let hit = (hitIndex > 0)
+      ? `${this.strippedHtml.slice(hitIndex)}`.trim()
+      : `${this.strippedHtml}`.replace(this.fullName, "").trim();
+    hit = hit.replace(/[–-–−]/g, "-");
+
+    this.ddbMonsterDamage = new DDBMonsterDamage(hit, { ddbMonsterFeature: this, splitSaves: true });
+
+    this.ddbMonsterDamage.generateDamage();
+    this.ddbMonsterDamage.generateRegain();
+
+    this.actionData.damageParts = this.ddbMonsterDamage.damageParts;
+    this.actionData.versatileParts = this.ddbMonsterDamage.versatileParts;
+    this.actionData.saveParts = this.ddbMonsterDamage.saveParts;
+
+    this._generateEscapeCheck(hit);
+
+  }
+
   // eslint-disable-next-line complexity
   #generateActionData() {
+    this.#generateDamageInfo();
+
     if (this.action.fixedToHit !== null) {
       // item.system.attack.bonus = `${action.fixedToHit}`;
       this.actionData.fixedToHit = `${this.action.fixedToHit}`;
@@ -311,7 +350,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
         damageString,
         type: this.actionData.damageType,
       });
-      this.actionData.damageParts.push(damage);
+      this.actionData.diceParts.push(damage);
     }
 
     console.warn("DDBComponentFeature", {
@@ -404,7 +443,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: false,
-      damageParts: this.actionData.damageParts,
+      damageParts: this.actionData.saveParts,
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
@@ -417,7 +456,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       generateRange: this.templateType !== "weapon",
       generateDamage: this.actionData.damageParts.length > 0 || !this.isSave,
       includeBaseDamage: false,
-      damageParts: this.actionData.damageParts,
+      damageParts: this.actionData.damageParts.map((dp) => dp.part),
     }, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
@@ -433,9 +472,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
   }
 
   #addSaveAdditionalActivity(includeBase = false) {
-    const parts = this.templateType !== "weapon" || includeBase
-      ? this.actionData.damageParts.map((dp) => dp.part)
-      : this.actionData.damageParts.slice(1).map((dp) => dp.part);
+    const parts = this.actionData.saveParts;
 
     this.additionalActivities.push({
       name: "Save",
@@ -443,7 +480,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       options: {
         generateDamage: parts.length > 0,
         damageParts: parts ?? parts,
-        includeBaseDamage: false,
+        includeBaseDamage: includeBase,
       },
     });
   }
@@ -534,6 +571,7 @@ ${this.data.system.description.value}
 
   }
 
+  // eslint-disable-next-line complexity
   async parse() {
 
     await this.enricher.init();
@@ -619,11 +657,21 @@ ${this.data.system.description.value}
       }
     }
 
+    if (this.templateType === "weapon") {
+      this.data.system.range = this.actionData.data.range;
+    }
+
     console.warn("DDBComponentFeature", {
       this: this,
       data: this.data,
     });
+
+
     await this._generateActivity();
+
+    if (this.enricher.addAutoAdditionalActivities)
+      await this._generateAdditionalActivities();
+    await this.enricher.addAdditionalActivities(this);
 
     await this.#generateDescription();
 

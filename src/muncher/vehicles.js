@@ -164,6 +164,7 @@ export async function parseTransports(ids = null, { notifier = null } = {}) {
   for (const vehicle of vehicleHandler.documents) {
     resolvedNotifier(`[${currentVehicle}/${vehicleCount}] Importing ${vehicle.name}`, { nameField: false, monsterNote: true });
     logger.debug(`Importing/second parse of ${vehicle.name} data`);
+    await compendiumFolders.createVehicleFolder(vehicle);
     const munched = await DDBMonsterImporter.addNPC(vehicle, "vehicle");
     vehiclesParsed.push(munched);
     currentVehicle += 1;
