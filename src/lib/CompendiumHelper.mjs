@@ -463,6 +463,10 @@ const CompendiumHelper = {
   } = {}) {
     logger.debug("Finding folder", {
       folders: pack.folders,
+      name,
+      flagTag,
+      folderId,
+      entityType,
       parentId,
     });
     const existingFolder = pack.folders.find((f) =>

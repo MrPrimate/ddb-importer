@@ -7,10 +7,14 @@ export default class ComprehendLanguages extends DDBEnricherData {
     return [
       {
         name: "Comprehend Languages",
-        changes: [
-          // this effect is provided by DDBI or DAE
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "system.traits.languages.all"),
-        ],
+        changes: foundry.utils.isNewerVersion(game.system.version, "5.0.1")
+          ? [
+            DDBEnricherData.ChangeHelper.addChange("ALL", "system.traits.languages.value"),
+          ]
+          : [
+            // this effect is provided by DDBI or DAE
+            DDBEnricherData.ChangeHelper.customChange("1", 20, "system.traits.languages.all"),
+          ],
       },
     ];
   }

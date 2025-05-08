@@ -20,7 +20,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       id,
     });
 
-    this.actionInfo = ddbParent.actionInfo;
+    this.actionData = ddbParent.actionData;
 
   }
 
@@ -54,13 +54,13 @@ export default class DDBItemActivity extends DDBBasicActivity {
           formula: "",
         },
       });
-    } else if (this.actionInfo.consumptionTargets?.length > 0) {
-      targets = this.actionInfo.consumptionTargets;
-    } else if (this.actionInfo.consumptionValue) {
+    } else if (this.actionData.consumptionTargets?.length > 0) {
+      targets = this.actionData.consumptionTargets;
+    } else if (this.actionData.consumptionValue) {
       targets.push({
         type: consumptionType,
         target: "",
-        value: this.actionInfo.consumptionValue,
+        value: this.actionData.consumptionValue,
         scaling: {
           mode: "",
           formula: "",
@@ -94,8 +94,8 @@ export default class DDBItemActivity extends DDBBasicActivity {
 
   _generateCheck({ checkOverride = null } = {}) {
     this.data.check = checkOverride ?? {
-      associated: this.actionInfo.associatedToolsOrAbilities,
-      ability: this.actionInfo.ability,
+      associated: this.actionData.associatedToolsOrAbilities,
+      ability: this.actionData.ability,
       dc: {},
     };
   }
@@ -184,27 +184,27 @@ export default class DDBItemActivity extends DDBBasicActivity {
       noeffect,
       spellOverride,
       roll,
-      targetOverride: targetOverride ?? this.actionInfo.target,
+      targetOverride: targetOverride ?? this.actionData.target,
       checkOverride,
-      rangeOverride: rangeOverride ?? this.actionInfo.range,
-      activationOverride: activationOverride ?? this.actionInfo.activation,
+      rangeOverride: rangeOverride ?? this.actionData.range,
+      activationOverride: activationOverride ?? this.actionData.activation,
       noManualActivation: true,
-      durationOverride: durationOverride ?? this.actionInfo.duration,
+      durationOverride: durationOverride ?? this.actionData.duration,
       img,
       ddbMacroOverride,
-      usesOverride: usesOverride ?? this.actionInfo.uses,
+      usesOverride: usesOverride ?? this.actionData.uses,
       additionalTargets,
       consumeActivity,
       consumeItem,
-      saveOverride: saveOverride ?? this.actionInfo.save,
+      saveOverride: saveOverride ?? this.actionData.save,
       data,
       attackData: foundry.utils.mergeObject({
         criticalThreshold,
-        ability: this.actionInfo.ability,
-        bonus: this.actionInfo.extraAttackBonus,
-        flat: this.actionInfo.isFlat,
-        type: this.actionInfo.meleeAttack ? "melee" : "ranged",
-        classification: this.actionInfo.spellAttack ? "spell" : "weapon",
+        ability: this.actionData.ability,
+        bonus: this.actionData.extraAttackBonus,
+        flat: this.actionData.isFlat,
+        type: this.actionData.meleeAttack ? "melee" : "ranged",
+        classification: this.actionData.spellAttack ? "spell" : "weapon",
       }, attackData),
       includeBaseDamage: includeBaseDamage ?? true,
       criticalDamage,

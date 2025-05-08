@@ -25,6 +25,7 @@ import DDBDebugger from "./apps/DDBDebugger.mjs";
 import AdventureMunch from "./muncher/adventure/AdventureMunch.js";
 import { DDBMonsterDamage } from "./parser/monster/features/DDBMonsterDamage.js";
 import DDBMonsterFeature from "./parser/monster/features/DDBMonsterFeature.js";
+import { createStorage } from "./hooks/ready/storage.mjs";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -184,6 +185,7 @@ export function registerApi() {
 
     importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
     resetCompendiumActorImages,
+    createStorage,
 
     generateItemMacroFlag: lib.DDBMacros.generateItemMacroFlag,
     EffectHelper: DDBEffectHelper,

@@ -25,13 +25,13 @@ export default class DDBEffectHelper {
   static generateATLChange = ChangeHelper.atlChange;
 
   static getMonsterFeatureDamage(damageText, featureDoc = null) {
-    const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionInfo.damage");
+    const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage");
     if (preParsed) return preParsed;
     logger.debug("Monster feature damage miss", { damageText, featureDoc });
     const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
     feature.prepare();
     feature.generateDamageInfo();
-    return feature.actionInfo.damageParts;
+    return feature.actionData.damageParts;
   }
 
   static getOvertimeDamage(text, featureDoc = null) {

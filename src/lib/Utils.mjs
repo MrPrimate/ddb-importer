@@ -375,6 +375,8 @@ export default class Utils {
     entityTypes.set("character", "Actor");
     entityTypes.set("monsters", "Actor");
     entityTypes.set("monster", "Actor");
+    entityTypes.set("vehicle", "Actor");
+    entityTypes.set("vehicles", "Actor");
     entityTypes.set("extras", "Actor");
     entityTypes.set("summon", "Actor");
     entityTypes.set("summons", "Actor");

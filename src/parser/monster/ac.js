@@ -43,6 +43,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   descriptionItems.push(...additionalItems.map((item) => item));
 
   if (descriptionItems.length > 0) {
+    // eslint-disable-next-line complexity
     descriptionItems.forEach((item) => {
       let lowerItem = item.toLowerCase();
       if (lowerItem == "natural" || lowerItem == "natural armor") {
@@ -74,7 +75,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
           const match = lowerItem.match(quantityRegex);
           let name = match ? match[1] : lowerItem;
           let quantity = match ? parseInt(match[2]) : 1;
-          itemsToCheck.push({
+          if (name && name != "") itemsToCheck.push({
             name: name
               .split(" ")
               .map((word) => utils.capitalize(word))

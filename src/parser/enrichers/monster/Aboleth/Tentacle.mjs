@@ -7,7 +7,7 @@ export default class Tentacle extends DDBEnricherData {
     if (!this.ddbEnricher.originalActivity) return null;
     const parts = this.ddbEnricher.originalActivity.type === "save"
       ? []
-      : [this.ddbParser.actionInfo.damageParts[0].part];
+      : [this.ddbParser.actionData.damageParts[0].part];
     return {
       data: {
         damage: {

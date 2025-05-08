@@ -19,6 +19,7 @@ export class DDBCompendiumFolders {
     this.classFolders = {};
     this.subClassFeaturesFolder = {};
     this.backgroundFolders = {};
+    this.vehicleFolders = {};
   }
 
   constructor(type, { packName = null, noCreateClassFolders = false } = {}) {
@@ -813,6 +814,22 @@ export class DDBCompendiumFolders {
     return newFolder;
   }
 
+  async createVehicleFolder(document) {
+    const details = DDBCompendiumFolders.getVehicleFolderName(document);
+    if (this.vehicleFolders[details.name]) return this.vehicleFolders[details.name];
+    logger.debug(`Checking for Vehicle folder '${details.name}'`);
+    const existingFolder = this.getFolder(details.name, details.flagTag);
+    if (existingFolder) return existingFolder;
+    logger.debug(`Not found, creating vehicles folder '${details.name}'`);
+    const newFolder = await this.createCompendiumFolder({
+      name: details.name,
+      flagTag: details.flagTag,
+    });
+    this.validFolderIds.push(newFolder._id);
+    this.backgroundFolders[details.name] = newFolder;
+    return newFolder;
+  }
+
   // async createSummonsSubFolder(type, subFolderName) {
   //   const flagTag = `summons/${type}/${subFolderName}`;
   //   logger.debug(`Checking for Summons folder '${subFolderName}' with Base Folder '${subFolderName}'`);
@@ -1382,6 +1399,10 @@ export class DDBCompendiumFolders {
     return DDBCompendiumFolders.getSourceFolderNameFromDocument({ document, type: "background" });
   }
 
+  static getVehicleFolderName(document) {
+    return DDBCompendiumFolders.getSourceFolderNameFromDocument({ document, type: "vehicle" });
+  }
+
   // eslint-disable-next-line complexity
   getCompendiumFolderData(document) {
     let data;
@@ -1503,6 +1524,12 @@ export class DDBCompendiumFolders {
           logger.error("Error in getItemCompendiumFolderName", { error: e, document });
           throw e;
         }
+        break;
+      }
+      case "vehicle":
+      case "vehicles": {
+        data = DDBCompendiumFolders.getVehicleFolderName(document);
+        break;
       }
       // no default
     }
@@ -1640,6 +1667,8 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.legacy",
         ];
       }
+      case "vehicle":
+      case "vehicles":
       case "background":
       case "backgrounds": {
         return [

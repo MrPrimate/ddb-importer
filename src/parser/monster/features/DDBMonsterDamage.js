@@ -10,7 +10,7 @@ export class DDBMonsterDamage {
 
   static REGAIN_EXPRESSION = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
 
-  constructor(hit, { ddbMonsterFeature } = {}) {
+  constructor(hit, { ddbMonsterFeature, splitSaves = false } = {}) {
     this.hit = hit;
 
     this.versatile = false;
@@ -20,6 +20,7 @@ export class DDBMonsterDamage {
     this.versatileParts = [];
     this.saveParts = [];
     this.levelBonus = false;
+    this.splitSaves = splitSaves;
 
     this.ddbMonsterFeature = ddbMonsterFeature;
     this.templateType = ddbMonsterFeature.templateType;
@@ -75,7 +76,7 @@ export class DDBMonsterDamage {
     let result;
     const diceParse = utils.parseDiceString(text, null);
     if (this.baseAbility) {
-      const baseAbilityMod = this.ddbMonster.abilities[this.actionInfo.baseAbility].mod;
+      const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
@@ -104,6 +105,7 @@ export class DDBMonsterDamage {
       this.hitsMatch = this.hit.split(saveRegex);
       const saveMatches = [...this.hitsMatch[0].matchAll(DDBMonsterDamage.DAMAGE_EXPRESSION)];
       logger.debug(`${this.ddbMonsterFeature.name} Damage matches`, { hit: this.hit, saveMatches, hitsMatch: this.hitsMatch });
+      if (this.splitSaves) this.hitMatches = saveMatches;
       this.saves.type = this.hitsMatch[1];
       this.saves.hit = this.hitsMatch[2];
     }
@@ -131,7 +133,7 @@ export class DDBMonsterDamage {
 
     const includesDiceRegExp = /[0-9]*d[0-9]+/;
     const includesDice = includesDiceRegExp.test(damage);
-    const parsedDiceDamage = (this.ddbMonsterFeature.actionInfo && includesDice)
+    const parsedDiceDamage = (this.ddbMonsterFeature.actionData && includesDice)
       ? this.ddbMonsterFeature.damageModReplace(damage.replace("plus", "+"))
       : damage.replace("plus", "+");
 

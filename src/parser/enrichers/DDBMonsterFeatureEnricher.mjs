@@ -2,7 +2,7 @@ import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 import { GenericEnrichers, MonsterEnrichers } from "./_module.mjs";
 import { logger, utils } from "../../lib/_module.mjs";
 
-export default class DDDMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
+export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
   _defaultNameLoader() {
     const monsterHintName = utils.pascalCase(this.monsterHintName ?? this.monsterName);

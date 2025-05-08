@@ -10966,5 +10966,9 @@
   {
     "name": "Force Ballista",
     "path": "icons/magic/air/wind-tornado-wall-blue.webp"
+  },
+  {
+    "name": "Hull",
+    "path": "icons/commodities/wood/bark-brown-red.webp"
   }
 ]
