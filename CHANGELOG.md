@@ -1,3 +1,7 @@
+# 6.2.6
+
+- Comprehend languages/spell munching fix.
+
 # 6.2.5
 
 - Gunner feat would not grant proficiency with Firearm weapons on character import. @vralek
