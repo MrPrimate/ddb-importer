@@ -1,4 +1,4 @@
-# Next Up
+# 6.2.5
 
 - Gunner feat would not grant proficiency with Firearm weapons on character import. @vralek
 - Plasmoids were not imported as Oozes.
