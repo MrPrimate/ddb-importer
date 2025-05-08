@@ -1,6 +1,6 @@
 import { utils, logger } from "../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { DDBMonsterFeatureEnricher, mixins } from "../enrichers/_module.mjs";
+import { DDBMonsterFeatureEnricher, Effects, mixins } from "../enrichers/_module.mjs";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../lib/_module.mjs";
 
 import DDBVehicleActivity from "../activities/DDBVehicleActivity.mjs";
@@ -19,6 +19,47 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     feature: "feat",
     // "loot": loot
   };
+
+  constructor({ ddbVehicle, updateExisting, hideDescription, sort, component, action } = {}) {
+
+    const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBVehicleActivity });
+    super({
+      enricher,
+      activityGenerator: DDBVehicleActivity,
+      useMidiAutomations: ddbVehicle.addMonsterEffects ?? false,
+    });
+
+    this.name = `${component.definition.name}`.trim();
+    if (action?.name) this.name += `: ${action.name}`;
+    this.originalName = `${this.name}`;
+    this.ddbVehicle = ddbVehicle;
+    this.component = component;
+    this.action = action;
+    this.is2014 = ddbVehicle.is2014;
+    this.is2024 = !this.is2014;
+    let description = "";
+    if (component.description) description = `${component.description}`;
+    if (action.description) description += `\n${action.description}`;
+    this.parseHtml = action.description
+      ? action.description
+      : (component.description ?? "");
+    this.html = description.trim();
+
+    this.sort = sort ?? null;
+
+    this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
+    this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+    this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
+
+    this.prepare();
+
+    // copy source details from parent
+    if (this.ddbVehicle?.vehicle?.system.details?.source)
+      this.data.system.source = this.ddbVehicle.vehicle.system.details.source;
+
+    this.#generateActionDataStub();
+
+  }
 
   #generateAdjustedName() {
     if (!this.stripName) return;
@@ -63,7 +104,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
 
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
   prepare() {
-    this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
+    this.strippedHtml = utils.stripHtml(`${this.parseHtml}`).trim();
 
     const descriptionParse = DDBDescriptions.featureBasics({ text: this.strippedHtml });
     this.descriptionParse = descriptionParse;
@@ -89,7 +130,6 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     this.descriptionSave = descriptionParse.save;
 
     if (this.action.actionType === 1) {
-      this.isAttack = true;
       if (this.action.attackTypeRange === 2) {
         this.rangedAttack = true;
       } else {
@@ -97,9 +137,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       }
     } else if (this.action.attackTypeRange === 1) {
       this.meleeAttack = true;
-      this.isAttack = true;
     } else if (this.action.attackTypeRange === 2) {
-      this.isAttack = true;
       this.rangedAttack = true;
     }
 
@@ -353,13 +391,6 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       this.actionData.diceParts.push(damage);
     }
 
-    console.warn("DDBComponentFeature", {
-      action: this.action,
-      actionData: this.actionData,
-      component: this.component,
-      this: this,
-    });
-
   }
 
   async loadEnricher() {
@@ -369,48 +400,6 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       monster: this.ddbVehicle.vehicle,
       name: this.name,
     });
-  }
-
-  constructor(name, { ddbVehicle, updateExisting, hideDescription, sort, component, action } = {}) {
-
-    console.warn("DDBComponentFeature",
-      {
-        name, ddbVehicle, updateExisting, hideDescription, sort, component, action}
-      );
-
-    const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBVehicleActivity });
-    super({
-      enricher,
-      activityGenerator: DDBVehicleActivity,
-      useMidiAutomations: ddbVehicle.addMonsterEffects ?? false,
-    });
-
-    this.name = name.trim();
-    this.originalName = `${this.name}`;
-    this.ddbVehicle = ddbVehicle;
-    this.component = component;
-    this.action = action;
-    this.is2014 = ddbVehicle.is2014;
-    this.is2024 = !this.is2014;
-    let description = "";
-    if (component.description) description = `${component.description}`;
-    if (action.description) description += `\n${action.description}`;
-    this.html = description.trim();
-
-    this.sort = sort ?? null;
-
-    this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
-    this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-    this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
-
-    this.prepare();
-
-    // copy source details from parent
-    if (this.ddbVehicle?.vehicle?.system.details?.source)
-      this.data.system.source = this.ddbVehicle.vehicle.system.details.source;
-
-    this.#generateActionDataStub();
-
   }
 
   _generateEscapeCheck(hit) {
@@ -440,10 +429,20 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
   }
 
   _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const saveOverride = this.actionData.saveAbility
+      ? null
+      : this.descriptionSave;
+
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: false,
       damageParts: this.actionData.saveParts,
+      saveOverride,
+      onSave: this.descriptionSave.half ? "half" : "none",
+      saveData: {
+        dc: this.actionData.fixedSaveDc,
+        ability: this.actionData.saveAbility,
+      },
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
@@ -457,6 +456,10 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       generateDamage: this.actionData.damageParts.length > 0 || !this.isSave,
       includeBaseDamage: false,
       damageParts: this.actionData.damageParts.map((dp) => dp.part),
+      attackData: {
+        flat: this.actionData.fixedToHit !== null,
+        bonus: this.actionData.fixedToHit,
+      },
     }, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
@@ -473,6 +476,9 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
 
   #addSaveAdditionalActivity(includeBase = false) {
     const parts = this.actionData.saveParts;
+    const saveOverride = this.actionData.saveAbility
+      ? null
+      : this.descriptionSave;
 
     this.additionalActivities.push({
       name: "Save",
@@ -481,6 +487,12 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
         generateDamage: parts.length > 0,
         damageParts: parts ?? parts,
         includeBaseDamage: includeBase,
+        saveOverride,
+        onSave: this.descriptionSave.half ? "half" : "none",
+        saveData: {
+          dc: this.actionData.fixedSaveDc,
+          ability: this.actionData.saveAbility,
+        },
       },
     });
   }
@@ -569,6 +581,46 @@ ${this.data.system.description.value}
 </div>`;
 
 
+  }
+
+  _generateAutoEffects({ html, addToMonster = true } = {}) {
+    const flags = {
+      ddbimporter: {},
+    };
+
+    if (this.isAttack && this.isSave) {
+      flags.ddbimporter.activityMatch = "Save";
+    }
+
+    const overtimeGenerator = new Effects.MidiOverTimeEffect({
+      document: this.data,
+      actor: this.ddbVehicle.vehicle,
+      otherDescription: html,
+      flags,
+      addToMonster,
+    });
+
+    const deps = Effects.AutoEffects.effectModules();
+    if (!deps.hasCore || !this.ddbMonster.addMonsterEffects) {
+      logger.debug(`Adding Condition Effects to ${this.name}`);
+      overtimeGenerator.generateConditionOnlyEffect();
+    } else if (this.ddbVehicle.addMonsterEffects) {
+      logger.debug(`Adding Over Time Effects to ${this.name}`);
+      overtimeGenerator.generateOverTimeEffect();
+    }
+    return overtimeGenerator;
+  }
+
+  async _generateEffects() {
+    this._generateAutoEffects({ html: this.strippedHtml });
+
+    if (this.enricher.clearAutoEffects) this.data.effects = [];
+    const effects = await this.enricher.createEffects();
+    this.data.effects.push(...effects);
+    this.enricher.createDefaultEffects();
+
+    this._activityEffectLinking();
+    Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 
   // eslint-disable-next-line complexity
@@ -661,17 +713,14 @@ ${this.data.system.description.value}
       this.data.system.range = this.actionData.data.range;
     }
 
-    console.warn("DDBComponentFeature", {
-      this: this,
-      data: this.data,
-    });
-
 
     await this._generateActivity();
 
     if (this.enricher.addAutoAdditionalActivities)
       await this._generateAdditionalActivities();
     await this.enricher.addAdditionalActivities(this);
+
+    await this._generateEffects();
 
     await this.#generateDescription();
 

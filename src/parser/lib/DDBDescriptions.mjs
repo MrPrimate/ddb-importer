@@ -455,6 +455,7 @@ export default class DDBDescriptions {
     const savingThrow = saveSearchMatch ?? saveSearchNewMatch;
     const halfSaveSearch = /or half as much damage on a successful one|Success: Half damage/i;
     const halfMatch = halfSaveSearch.test(text);
+    if (halfMatch) save.half = true;
 
     if (savingThrow) {
       save.dc.formula = parseInt(savingThrow.groups.dc);

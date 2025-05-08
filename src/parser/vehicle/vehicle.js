@@ -163,7 +163,7 @@ export async function parseVehicles(ddbData, extra = false) {
     failedVehicleNames,
   };
 
-  console.warn(result)
+  // console.warn(result)
 
   return result;
 }

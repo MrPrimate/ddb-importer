@@ -21,15 +21,20 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
     this.actionData = ddbParent.actionData;
 
-    console.warn({
-      type,
-      name,
-      ddbParent,
-      nameIdPrefix,
-      nameIdPostfix,
-      id,
-      this: this,
-    });
+  }
+
+  _generateSave({ saveOverride = null, dc = null, ability = null } = {}) {
+    if (saveOverride) {
+      this.data.save = saveOverride;
+      return;
+    }
+    this.data.save = {
+      ability: ability ? [ability] : [Object.keys(CONFIG.DND5E.abilities)[0]],
+      dc: {
+        calculation: "",
+        formula: dc ?? "",
+      },
+    };
   }
 
   build({
@@ -78,7 +83,12 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     targetOverride,
     usesOverride,
     consumptionOverride = null,
+    saveData = {},
   } = {}) {
+
+    this._generateSave(foundry.utils.mergeObject({
+      saveOverride,
+    }, saveData));
 
     // override set to false on object if overriding
 
@@ -104,6 +114,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
       generateSummon,
       consumptionOverride,
       saveOverride,
+      saveData,
       this: this,
     });
 
@@ -119,7 +130,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
       generateEffects,
       generateHealing,
       generateRange,
-      generateSave,
+      generateSave: false,
       generateTarget,
       generateDDBMacro,
       generateEnchant,

@@ -447,7 +447,7 @@ export default class DDBMuncher extends DDBAppV2 {
       // $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
     }
     if (tiers.experimentalMid) {
-      // buttonSelectors.push('button[id^="munch-vehicles-start"]');
+      buttonSelectors.push('button[id^="munch-vehicles-start"]');
     }
 
     buttonSelectors.forEach((selector) => {
