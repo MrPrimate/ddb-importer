@@ -1,3 +1,7 @@
+# 6.2.7
+
+- Monster and Spell compendium migration buttons would not work.
+
 # 6.2.6
 
 - Comprehend languages/spell munching fix.
