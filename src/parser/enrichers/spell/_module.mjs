@@ -171,6 +171,7 @@ export { default as Symbol } from "./Symbol.mjs";
 export { default as SynapticStatic } from "./SynapticStatic.mjs";
 export { default as TashasBubblingCauldron } from "./TashasBubblingCauldron.mjs";
 export { default as TashasCausticBrew } from "./TashasCausticBrew.mjs";
+export { default as TashasOtherworldlyGuise } from "./TashasOtherworldlyGuise.mjs";
 export { default as ThunderStep } from "./ThunderStep.mjs";
 export { default as Thunderclap } from "./Thunderclap.mjs";
 export { default as ThunderousSmite } from "./ThunderousSmite.mjs";
