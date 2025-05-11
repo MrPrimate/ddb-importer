@@ -2230,7 +2230,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (dictionaryWeapon?.mastery) {
       foundry.utils.setProperty(this.data, "system.mastery", dictionaryWeapon.mastery);
     }
-    if (dictionaryWeapon.properties.fir && this.characterProficiencies.some((proficiency) => proficiency.name === "Firearms")) {
+    if (dictionaryWeapon?.properties.fir && this.characterProficiencies.some((proficiency) => proficiency.name === "Firearms")) {
       this.data.system.proficient = 1;
     }
 
