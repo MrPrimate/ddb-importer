@@ -709,7 +709,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     const filterItemConfig = [
       {
-        name: "munching-policy-monster-exact-match",
+        name: "munching-policy-item-exact-match",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-exact-match"),
         label: "Exact name match?",
         hint: "Matches the item name exactly, otherwise will match on similar names.",

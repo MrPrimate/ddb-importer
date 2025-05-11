@@ -1,3 +1,8 @@
+# Next Up
+
+- When migrating items and spells compendium, homebrew folder would not be created. @dineshm72
+- Item name match import setting would not stick.
+
 # 6.2.7
 
 - Monster and Spell compendium migration buttons would not work.
