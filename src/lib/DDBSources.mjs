@@ -220,9 +220,10 @@ export default class DDBSources {
       .map((source) => source.id);
   }
 
-  static getDisplaySourceCategories() {
+  static getDisplaySourceCategories(includeHomebrew = false) {
     return DDBSources.getAvailableCategories()
-      .filter((c) => !DDBSources.AlwaysHiddenCategoryIds.includes(c.id));
+      .filter((c) => !DDBSources.AlwaysHiddenCategoryIds.includes(c.id)
+      || (includeHomebrew && c.id === 9999999));
   }
 
   static getAllowedSources() {

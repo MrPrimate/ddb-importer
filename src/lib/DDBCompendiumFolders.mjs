@@ -1371,7 +1371,7 @@ export class DDBCompendiumFolders {
 
   static getAllSourceCategoryFolders(type) {
     const results = [];
-    for (const data of DDBSources.getDisplaySourceCategories()) {
+    for (const data of DDBSources.getDisplaySourceCategories(true)) {
       results.push(DDBCompendiumFolders.getSourceCategoryFolderName({
         type,
         categoryId: data.id,
@@ -1727,6 +1727,8 @@ export class DDBCompendiumFolders {
       case "summon":
       case "summons":
       case "monsters":
+      case "vehicle":
+      case "vehicles":
       case "npc":
       case "monster": {
         const chunkSize = 250;
