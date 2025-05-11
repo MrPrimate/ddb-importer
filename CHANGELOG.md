@@ -1,4 +1,4 @@
-# Next Up
+# 6.2.8
 
 - When migrating items and spells compendium, homebrew folder would not be created. @dineshm72
 - Item name match import setting would not stick.
