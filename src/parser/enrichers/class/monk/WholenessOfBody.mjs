@@ -9,7 +9,7 @@ export default class WholenessOfBody extends DDBEnricherData {
 
   get activity() {
     const formula = this.is2014
-      ? "3@classes.monk.levels"
+      ? "3 * @classes.monk.levels"
       : "@scale.monk.martial-arts.die + @abilities.wis.mod";
     return {
       targetType: "self",

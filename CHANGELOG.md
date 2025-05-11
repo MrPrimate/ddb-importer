@@ -1,3 +1,7 @@
+# 6.2.9
+
+- Wholeness of body formula fix
+
 # 6.2.8
 
 - When migrating items and spells compendium, homebrew folder would not be created. @dineshm72
