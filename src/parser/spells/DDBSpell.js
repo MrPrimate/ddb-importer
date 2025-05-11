@@ -959,7 +959,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     this.cleanup();
     await this.enricher.addDocumentOverride();
-    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
   }
 
   static async parseSpell(data, character,

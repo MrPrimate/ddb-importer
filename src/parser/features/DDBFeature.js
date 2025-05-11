@@ -193,7 +193,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     this.cleanup();
     await this.enricher.addDocumentOverride();
-    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
   }
 
   async _generateFeatureAdvancements() {
@@ -433,7 +433,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       this.data.name = this.data.name.split("Background: ").pop();
 
       await this.enricher.addDocumentOverride();
-      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
     } catch (err) {
       logger.warn(
         `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
@@ -508,7 +508,7 @@ ${description}`;
     // this._addCustomValues();
 
     await this.enricher.addDocumentOverride();
-    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
   }
 
 

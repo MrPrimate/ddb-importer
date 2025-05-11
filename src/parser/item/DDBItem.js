@@ -2844,7 +2844,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.cleanup();
       await this.enricher.addDocumentOverride();
 
-      this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+      this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
 
     } catch (err) {
       logger.warn(
