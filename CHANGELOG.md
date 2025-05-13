@@ -1,3 +1,7 @@
+# Next Up
+
+- In v13 monsters with a large number of items could sometimes fail to update.
+
 # 6.2.10
 
 - Item config sheet not added to menus in v13.
