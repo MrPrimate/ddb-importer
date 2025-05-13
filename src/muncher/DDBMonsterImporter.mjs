@@ -134,8 +134,16 @@ export default class DDBMonsterImporter {
         await this.compendiumActor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
 
         // console.warn("ExistingNPC", { existingNPC: this.compendiumActor.toObject() });
+        const items = foundry.utils.deepClone(this.monster.items);
+        this.monster.items = [];
 
-        const updatedNPC = await this.compendiumActor.update(this.monster, { pack: this.itemImporter.compendium.collection, render: false, keepId: true });
+        const updatedNPC = await this.compendiumActor.update(this.monster, {
+          pack: this.itemImporter.compendium.collection,
+          render: false,
+          keepId: true,
+        });
+        await updatedNPC.createEmbeddedDocuments("Item", items, { keepId: true });
+
         // await existingNPC.createEmbeddedDocuments("Item", items, { keepId: true });
         await this.generateCastSpells();
         if (!updatedNPC) {
