@@ -1,3 +1,7 @@
+# 6.2.10
+
+- Item config sheet not added to menus in v13.
+
 # 6.2.9
 
 - Wholeness of body formula fix
