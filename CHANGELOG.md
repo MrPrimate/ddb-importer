@@ -1,3 +1,7 @@
+# Next Up
+
+- Some tweaks and icons for Steel Hawk subclass. @arrowed1
+
 # 6.2.11
 
 - In v13 monsters with a large number of items could sometimes fail to update. @vgpunx

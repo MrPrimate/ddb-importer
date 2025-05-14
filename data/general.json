@@ -226,5 +226,9 @@
   {
     "name": "Improved Dash",
     "path": "icons/skills/movement/ball-spinning-blue.webp"
+  },
+  {
+    "name": "Hero's Journey Boon",
+    "path": "icons/environment/wilderness/mine-interior-dungeon-door.webp"
   }
 ]

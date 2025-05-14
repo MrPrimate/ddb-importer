@@ -954,6 +954,7 @@ div.ddbimporter-image-popout img {
     margin-right: 8px;
     margin-block-start: 0.45rem;
     margin-block-end: 0;
+    color: var(--dnd5e-color-blue-gray-1);
 
     &::after {
       content: "";

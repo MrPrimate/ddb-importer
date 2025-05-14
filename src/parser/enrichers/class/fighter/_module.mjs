@@ -8,6 +8,7 @@ export { default as GiantsMight } from "./GiantsMight.mjs";
 export { default as HillRune } from "./HillRune.mjs";
 export { default as ImprovedCritical } from "./ImprovedCritical.mjs";
 export { default as Indomitable } from "./Indomitable.mjs";
+export { default as Launch } from "./Launch.mjs";
 export { default as Maneuver } from "./Maneuver.mjs";
 export { default as ManeuverAmbush } from "./ManeuverAmbush.mjs";
 export { default as ManeuverBaitAndSwitch } from "./ManeuverBaitAndSwitch.mjs";

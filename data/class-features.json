@@ -10409,5 +10409,17 @@
   {
     "name": "Vile Transmogrification",
     "path": "icons/magic/unholy/silhouette-robe-evil-power.webp"
+  },
+  {
+    "name": "Launch",
+    "path": "icons/creatures/birds/birds-flock-fly-yellow.webp"
+  },
+  {
+    "name": "Nimble Lancer",
+    "path": "icons/weapons/polearms/spear-flared-bronze-teal.webp"
+  },
+  {
+    "name": "Bird Caller",
+    "path": "icons/creatures/birds/corvid-call-sound-blue.webp"
   }
 ]

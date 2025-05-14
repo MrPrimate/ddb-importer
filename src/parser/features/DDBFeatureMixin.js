@@ -18,6 +18,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     "Drake Companion: Summon",
     "Drake Companion: Command",
     "Drake Companion",
+    "Launch",
   ];
 
   static LEVEL_SCALE_INFUSIONS = [

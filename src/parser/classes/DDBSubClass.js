@@ -1,9 +1,8 @@
-import AdvancementHelper from '../advancements/AdvancementHelper.js';
-import { DDBDataUtils, SystemHelpers } from '../lib/_module.mjs';
-import DDBClass from './DDBClass.js';
+import AdvancementHelper from "../advancements/AdvancementHelper.js";
+import { DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
+import DDBClass from "./DDBClass.js";
 
 export default class DDBSubClass extends DDBClass {
-
   // these are advancement helpers
   static SPECIAL_ADVANCEMENTS = {
     "Combat Superiority": {
@@ -33,9 +32,7 @@ export default class DDBSubClass extends DDBClass {
     },
   };
 
-  static NOT_ADVANCEMENT_FOR_FEATURE = [
-    "Soul Blades",
-  ];
+  static NOT_ADVANCEMENT_FOR_FEATURE = ["Soul Blades"];
 
   static NO_ADVANCEMENT_2014 = [];
 
@@ -45,7 +42,6 @@ export default class DDBSubClass extends DDBClass {
     super._fleshOutCommonDataStub();
     // add parent class identifier
     this.data.system.classIdentifier = DDBDataUtils.classIdentifierName(this.ddbClass.definition.name);
-
   }
 
   _generateDataStub() {
@@ -81,7 +77,7 @@ export default class DDBSubClass extends DDBClass {
     this.NO_ADVANCEMENT_2024 = DDBSubClass.NO_ADVANCEMENT_2024;
   }
 
-
+  // eslint-disable-next-line complexity
   _fixes() {
     if (this.data.name.startsWith("Order of the Profane Soul")) {
       this.data.name = "Order of the Profane Soul";
@@ -249,9 +245,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(form);
-    } else if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife"))
-      && !this.is2014
-    ) {
+    } else if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
       for (let advancement of this.data.system.advancement) {
         if (advancement.title !== "Energy Die") continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
@@ -262,7 +256,7 @@ export default class DDBSubClass extends DDBClass {
           13: { number: 10, faces: 10 },
           17: { number: 12, faces: 12 },
         });
-      };
+      }
     } else if (this.data.name.startsWith("Rune Knight")) {
       const number = {
         _id: foundry.utils.randomID(),
@@ -290,9 +284,19 @@ export default class DDBSubClass extends DDBClass {
           7: { number: 1, faces: 6 },
           15: { number: 2, faces: 6 },
         };
-      };
+      }
+    } else if (this.data.name.startsWith("Steel Hawk")) {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Launch") continue;
+        advancement.configuration.scale = {
+          3: { number: 3, faces: 8 },
+          7: { number: 4, faces: 8 },
+          10: { number: 4, faces: 10 },
+          15: { number: 5, faces: 10 },
+          18: { number: 5, faces: 12 },
+        };
+      }
     }
-
   }
 
   async generateFromCharacter(character) {
@@ -303,5 +307,4 @@ export default class DDBSubClass extends DDBClass {
     this._fixes();
     await this._addToCompendium();
   }
-
 }

@@ -223,6 +223,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Jack of All Trades": ClassEnrichers.Bard.JackOfAllTrades,
     "Ki": ClassEnrichers.Monk.Ki,
     "Land's Aid": ClassEnrichers.Druid.LandsAid,
+    "Launch": ClassEnrichers.Fighter.Launch,
     "Lay On Hands: Purify Poison": ClassEnrichers.Paladin.LayOnHandsPurifyPoison,
     "Lay on Hands": ClassEnrichers.Paladin.LayOnHands,
     "Lay On Hands": ClassEnrichers.Paladin.LayOnHands,
