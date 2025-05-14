@@ -34,6 +34,7 @@ import { activateUpdateHooks } from "./updater/character.js";
 import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
 import { DDBEnhancers } from "./effects/_module.mjs";
+import { addTattooConsumable } from "./hooks/tattoo/main.mjs";
 // import { createStorage } from "./hooks/ready/storage.mjs";
 
 // foundry is initializing
@@ -47,6 +48,7 @@ export function init() {
   DDBEffectHooks.loadHooks();
   registerCustomEnrichers();
   addActivitiesHooks();
+  addTattooConsumable();
 }
 
 // foundry is ready

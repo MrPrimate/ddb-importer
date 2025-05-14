@@ -26,6 +26,10 @@
         }
       }
     },
+    "tattoo": {
+      "CreateSpellwroughtTattoo": "Create Spellwrought Tattoo",
+      "Details": "Tattoo Details"
+    },
     "settings": {
       "munching-policy-force-spell-version.name": "Monster Spell Version",
       "munching-policy-force-spell-version.hint": "Determines if monsters should use 2024 spells or spell version that match their original rules",
