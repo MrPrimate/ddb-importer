@@ -26,6 +26,7 @@ import AdventureMunch from "./muncher/adventure/AdventureMunch.js";
 import { DDBMonsterDamage } from "./parser/monster/features/DDBMonsterDamage.js";
 import DDBMonsterFeature from "./parser/monster/features/DDBMonsterFeature.js";
 import { createStorage } from "./hooks/ready/storage.mjs";
+import { libWrapper } from "../vendor/libwrapper/shim.js";
 
 function resetSecrets() {
   game.settings.set("ddb-importer", "cobalt-cookie-local", false);
@@ -85,6 +86,7 @@ async function updateDDBCharacters() {
 
 export function registerApi() {
   const API = {
+    libWrapper,
     migrateCompendiums,
     compendiums: {
       migrateCompendiums,
