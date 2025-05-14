@@ -84,9 +84,9 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
     context.fields = [{
       field: new NumberField({ label: game.i18n.localize("DND5E.SpellLevel") }),
       name: "level",
-      options: Object.entries(CONFIG.DDBI.SPELLWROUGHT_TATTOO)
-        .map(([level, label]) => ({ level, label }))
-        .filter((l) => Number(l.level) >= this.spell.system.level),
+      options: Object.entries(CONFIG.DND5E.spellLevels)
+        .map(([level, label]) => ({ value: level, label }))
+        .filter((l) => Number(l.value) >= this.spell.system.level && Number(l.value) <= 5),
       value: this.config.level ?? this.spell.system.level,
     }];
     context.values = {

@@ -75,8 +75,10 @@ async function createTattooFromCompendiumSpell(uuid, config = {}) {
   // Create the spell tattoo data
   const spellTattooData = foundry.utils.mergeObject(tattooData, {
     name: `Spellwrought Tatoo: ${spell.name}`,
+    img: "icons/tools/scribal/ink-quill-red.webp",
     system: {
       activities: { ...(tattooData.system.activities ?? {}), [activity._id]: activity },
+      type: { value: "tattoo" },
     },
   });
 
@@ -113,6 +115,7 @@ async function createTattooFromCompendiumSpell(uuid, config = {}) {
 
 // eslint-disable-next-line complexity
 async function createTattooFromSpell(spell, options = {}, config = {}) {
+  console.warn(spell)
   if (spell.pack) return createTattooFromCompendiumSpell(spell.uuid, config);
 
   const values = {};
@@ -194,6 +197,7 @@ async function createTattooFromSpell(spell, options = {}, config = {}) {
   // Create the spell tattoo data
   const spellTattooData = foundry.utils.mergeObject(tattooData, {
     name: `Spellwrought Tatoo: ${itemData.name}`,
+    img: "icons/tools/scribal/ink-quill-red.webp",
     effects: itemData.effects ?? [],
     flags,
     system: {
@@ -305,4 +309,8 @@ export function addTattooConsumable() {
 
   // character sheet option
   Hooks.on("dnd5e.getItemContextOptions", addCharacterSheetContext);
+
+  // TODO: move to cast activity
+  // Add v12 support
+  // Should properties be a reduced set?
 }
