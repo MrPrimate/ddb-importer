@@ -4,6 +4,7 @@ const Range = function *(total = 0, step = 1, from = 0) {
   for (let i = 0; i < total; yield from + i++ * step) {}
 };
 
+const signed = new Intl.NumberFormat(undefined, { signDisplay: "always" });
 
 export default class Utils {
 
@@ -578,6 +579,11 @@ export default class Utils {
       return i + "rd";
     }
     return i + "th";
+  }
+
+
+  static intSigner(num) {
+    return signed.format(num);
   }
 
   static async wait(ms) {

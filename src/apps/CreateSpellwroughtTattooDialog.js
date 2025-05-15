@@ -35,13 +35,12 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
     this.#spell = options.spell;
   }
 
-
   /** @override */
   static DEFAULT_OPTIONS = {
     classes: ["create-scroll"],
     window: {
-      title: "DND5E.Scroll.CreateScroll",
-      icon: "fa-solid fa-scroll",
+      title: "ddb-importer.tattoo.CreateSpellwroughtTattoo",
+      icon: "fa-solid fa-user-pen",
     },
     form: {
       handler: CreateSpellwroughtTattooDialog.#handleFormSubmission,
@@ -52,7 +51,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
     buttons: [{
       action: "create",
       label: "ddb-importer.tattoo.CreateSpellwroughtTattoo",
-      icon: "fa-solid fa-scribble",
+      icon: "fa-solid fa-user-pen",
       default: true,
     }],
     config: null,
@@ -124,9 +123,10 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /** @inheritDoc */
   _onChangeForm(formConfig, event) {
     super._onChangeForm(formConfig, event);
-    const formData = new FormDataExtended(this.form);
+    const formData = new (foundry.applications?.ux?.FormDataExtended ?? FormDataExtended)(this.form);
     foundry.utils.mergeObject(this.#config, formData.object);
     this.#config.level = Number(this.#config.level);
+    this.#config.values = CONFIG.DDBI.SPELLWROUGHT_TATTOO[this.#config.level];
     this.render({ parts: ["content"] });
   }
 
