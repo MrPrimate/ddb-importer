@@ -138,16 +138,20 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
 async function compendiumContext(app, options) {
   if (!game.user.hasPermission("ITEM_CREATE")) return;
 
-  if (app.collection instanceof foundry.documents.collections.CompendiumCollection) {
+  const collectionType = foundry.documents?.collections?.CompendiumCollection ?? CompendiumCollection;
+
+  if (app.collection instanceof collectionType) {
     await app.collection.getIndex({
       fields: ["name", "system.level", "system.identifier"],
     });
   }
 
   const getSpellDetailsFromLi = (li) => {
-    let spell = game.items.get(li.dataset.documentId ?? li.dataset.entryId);
-    if (app.collection instanceof foundry.documents.collections.CompendiumCollection) {
-      let indexSpell = app.collection.index.get(li.dataset.entryId);
+    li = foundry.utils.isNewerVersion(game.version, "13") ? li : li[0];
+    let id = li.dataset.documentId ?? li.dataset.entryId;
+    let spell = game.items.get(id);
+    if (app.collection instanceof collectionType) {
+      let indexSpell = app.collection.index.get(id);
       if (!indexSpell) return false;
       spell = fromUuidSync(indexSpell.uuid);
       if (!spell) return false;
@@ -195,7 +199,6 @@ function addCharacterSheetContext(doc, buttons) {
  * @returns {void}
  */
 export function addTattooConsumable() {
-  if (!foundry.utils.isNewerVersion(game.version, "13")) return;
   if (game.modules.get("dnd-tashas-cauldron")?.active) return;
   CONFIG.DND5E.consumableTypes["tattoo"] = {
     label: "Spellwrought Tattoo",
@@ -218,8 +221,10 @@ export function addTattooConsumable() {
   // );
 
   // v13hooks
-  // items tab
   Hooks.on("getItemContextOptions", compendiumContext);
+  // v12 hooks
+  Hooks.on("getCompendiumEntryContext", compendiumContext);
+  Hooks.on("getItemDirectoryEntryContext", compendiumContext);
 
   // character sheet option
   Hooks.on("dnd5e.getItemContextOptions", addCharacterSheetContext);
