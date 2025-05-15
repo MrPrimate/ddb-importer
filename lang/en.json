@@ -31,6 +31,8 @@
       "Details": "Tattoo Details"
     },
     "settings": {
+      "disable-tattoo-type.name": "Disable Spellwrought Tattoo",
+      "disable-tattoo-type.hint": "DDB Importer injects a tattoo consumable type and allows creation of Spellwrought tattoos.",
       "munching-policy-force-spell-version.name": "Monster Spell Version",
       "munching-policy-force-spell-version.hint": "Determines if monsters should use 2024 spells or spell version that match their original rules",
       "user-hint-setting": "If you are unaware of the purpose of a specific setting, it's recommended to leave it at the default value. Several of the settings rely on additional modules and are only recommended if you want to add that level of automation to your game.",

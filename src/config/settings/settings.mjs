@@ -213,6 +213,15 @@ const SETTINGS = {
         type: Boolean,
         default: true,
       },
+      "disable-tattoo-type": {
+        name: "ddb-importer.settings.disable-tattoo-type.name",
+        hint: "ddb-importer.settings.disable-tattoo-type.hint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: false,
+        requiresReload: true,
+      },
     },
     // ready settings
     READY: {

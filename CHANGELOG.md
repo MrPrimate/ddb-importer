@@ -1,3 +1,7 @@
+# Next Up
+
+- New Feature: If the official Tasha's Cauldron module is not installed, DDB Importer will add a new consumable type "Spellwrought Tattoo" and also entries to context menus where you can usually create scrolls from spells. You can disable this option in the settings.
+
 # 6.2.12
 
 - Some tweaks and icons for Steel Hawk subclass. @arrowed1
