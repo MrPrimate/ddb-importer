@@ -201,6 +201,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
     this.isTattoo = this.ddbDefinition.name.toLowerCase().includes("tattoo");
     this.tattooType = this.isTashasInstalled && this.isTattoo;
+    this.isSpellwrought = this.ddbDefinition.name.toLowerCase().includes("spellwrought");
     this.isMealTag = this.ddbDefinition.tags.includes('Meal')
       || this.ddbDefinition.tags.includes('magical meal')
       || this.ddbDefinition.tags.includes('Food')
@@ -1052,11 +1053,15 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
             ? "dnd-tashas-cauldron.tattoo"
             : this.isContainer
               ? "container"
-              : this.ddbDefinition.name.toLowerCase().includes("spellwrought") ? "consumable" : "equipment";
+              : this.isSpellwrought ? "consumable" : "equipment";
           this.documentType = type;
           this.parsingType = "wonderous";
+          if (this.isSpellwrought) {
+            this.systemType.value = "tattoo";
+            this.addMagical = true;
+          }
           if (this.tattooType) {
-            this.systemType.value = this.ddbDefinition.name.toLowerCase().includes("spellwrought")
+            this.systemType.value = this.isSpellwrought
               ? "spellwrought"
               : "permanent";
             this.addMagical = true;
@@ -1688,7 +1693,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       };
     }
     this.data.system.uses.autoDestroy = !["wand", "trinket", "ring"].includes(this.systemType.value)
-      || this.ddbDefinition.name.toLowerCase().includes("spellwrought");
+      || this.isSpellwrought;
   }
 
   targetsCreature() {
@@ -2241,7 +2246,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.#generateCurrency();
       this.#generateWeightless();
     }
-    if (!this.isContainer && !this.tattooType) {
+    if (!this.isContainer && !this.tattooType && !this.isSpellwrought) {
       this.data.system.armor = {
         value: null,
         dex: null,
@@ -2253,8 +2258,17 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.data.system.proficient = null;
     }
     this._generateUses(true);
-    if (!this.isTattoo) {
+    if (!this.isTattoo && !this.isSpellwrought) {
       this.#generateCapacity();
+    }
+    if (this.isSpellwrought && !this.tattooType) {
+      this.data.system.uses = {
+        spent: 0,
+        max: "1",
+        recovery: [],
+        autoDestroy: true,
+        autoUse: false,
+      };
     }
     this.#generateTargets();
     this.#generateDamageFromDescription();
