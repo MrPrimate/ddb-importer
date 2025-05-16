@@ -344,16 +344,21 @@ export default class DDBItemImporter {
   }
 
   async createCompendiumItems(inputItems) {
-    let promises = [];
+    let results = [];
     for (const item of inputItems) {
-      const existingItems = await this.getFilteredItems(item);
-      // we have a single match
-      if (existingItems.length === 0) {
-        let newItem = await this.createCompendiumItem(item);
-        promises.push(newItem);
+      try {
+        const existingItems = await this.getFilteredItems(item);
+        // we have a single match
+        if (existingItems.length === 0) {
+          let newItem = await this.createCompendiumItem(item);
+          results.push(newItem);
+        }
+      } catch (err) {
+        logger.error(`Error creating ${item.name}`, { item, err });
+        throw err;
       }
     };
-    return Promise.all(promises);
+    return results;
   }
 
   async updateCompendium(updateExisting = false, filterDuplicates = true) {
