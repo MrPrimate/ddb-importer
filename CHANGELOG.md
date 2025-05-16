@@ -1,4 +1,4 @@
-# Next Up
+# 6.3.0
 
 - New Feature: If the official Tasha's Cauldron module is not active, DDB Importer will add a new consumable type "Spellwrought Tattoo" and also adds to context menus where you can usually create scrolls from spells. You can disable this option in the settings.
 - Bugfix: The locations directory picker was not working in v13.
