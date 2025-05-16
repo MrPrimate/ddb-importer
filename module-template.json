@@ -10,8 +10,6 @@
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "url": "https://github.com/mrprimate/ddb-importer",
-  "minimumCoreVersion": "12.330",
-  "compatibleCoreVersion": "12",
   "compatibility": {
     "minimum": "12.330",
     "verified": 13,
