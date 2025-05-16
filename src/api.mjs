@@ -133,7 +133,6 @@ export function registerApi() {
       DDBSummonsManager,
       DDBSummonsInterface,
       DialogHelper: lib.DialogHelper,
-      DirectoryPicker: lib.DirectoryPicker,
       FileHelper: lib.FileHelper,
       MuncherSettings: lib.MuncherSettings,
       NameMatcher: lib.NameMatcher,

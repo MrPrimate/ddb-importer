@@ -1,5 +1,4 @@
 import { PatreonHelper } from "../../lib/_module.mjs";
-import { DirectoryPicker } from "../../lib/DirectoryPicker.mjs";
 import { COMPENDIUM_REMOVE_FLAGS, COMPENDIUMS, FOUNDRY_COMPENDIUM_LOOKUPS, FOUNDRY_COMPENDIUM_MAP, SRD_COMPENDIUM_LOOKUPS } from "./compendiums/compendiums.mjs";
 import DICTIONARY from "../dictionary/dictionary.mjs";
 
@@ -244,37 +243,45 @@ const SETTINGS = {
         "image-upload-directory": {
           name: "ddb-importer.settings.image-upload-directory.name",
           hint: "ddb-importer.settings.image-upload-directory.hint",
-          type: DirectoryPicker.Directory,
+          type: String,
+          filePicker: "folder",
           default: "[data] ddb-images/characters",
         },
         "other-image-upload-directory": {
           name: "ddb-importer.settings.other-image-upload-directory.name",
           hint: "ddb-importer.settings.other-image-upload-directory.hint",
-          type: DirectoryPicker.Directory,
+          type: String,
+          filePicker: "folder",
           default: "[data] ddb-images/other",
         },
         "frame-image-upload-directory": {
           name: "ddb-importer.settings.frame-image-upload-directory.name",
           hint: "ddb-importer.settings.frame-image-upload-directory.hint",
-          type: DirectoryPicker.Directory,
+          type: String,
+          filePicker: "folder",
           default: "[data] ddb-images/frames",
         },
         "adventure-upload-path": {
           name: "ddb-importer.settings.adventure-upload-path.name",
           hint: "ddb-importer.settings.adventure-upload-path.hint",
           default: "[data] ddb-images/adventures",
-          type: DirectoryPicker.Directory,
+          type: String,
+          filePicker: "folder",
         },
         "adventure-misc-path": {
           name: "ddb-importer.settings.adventure-misc-path.name",
           hint: "ddb-importer.settings.adventure-misc-path.hint",
           default: "[data] ddb-images/adventures/misc",
-          type: DirectoryPicker.Directory,
+          type: String,
+          filePicker: "folder",
         },
         "persistent-storage-location": {
+          name: "ddb-importer.settings.persistent-storage-location.name",
+          hint: "ddb-importer.settings.persistent-storage-location.hint",
           scope: "world",
           config: false,
-          type: DirectoryPicker.Directory,
+          type: String,
+          filePicker: "folder",
           default: `[data] modules/ddb-importer/storage`,
         },
       },

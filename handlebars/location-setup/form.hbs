@@ -1,0 +1,18 @@
+<div class="scrollable">
+  {{#each directories}}
+  <strong>{{this.name}}</strong>
+  <p>{{this.description}}</p>
+  <div class="form-content" style="display: flex">
+    <input class="setup-config" type="text" data-dtype="Directory" name="{{this.key}}" style="flex: 0 1 auto" value="{{this.value}}" />
+    <button type="button" data-action="selectDirectory" id="button-{{this.key}}" class="ddb-importer-folder-picker" data-target="{{this.key}}" title="Pick directory"><i class="fas fa-file-import fa-fw"></i></button>
+  </div>
+  <hr>
+  {{/each}}
+
+  <strong>Image settings</strong>
+    <div><input {{#if use-webp}}checked{{/if}} class="setup-config" type="checkbox" name="use-webp" data-section="useWebP" style="flex: 0 1 auto"> Convert images to webp?</div>
+    <div><input {{#if use-deep-file-paths}}checked{{/if}} class="setup-config" type="checkbox" name="use-deep-file-paths" data-section="useDeepFilePaths" style="flex: 0 1 auto"> Use deep file paths? Store images in different folders for npcs, items etc. Will store monster images inside a folder related to their monster type.</div>
+
+  </div>
+</div>
+

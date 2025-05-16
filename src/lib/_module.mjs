@@ -14,7 +14,6 @@ export { DDBCompendiumFolders } from "./DDBCompendiumFolders.mjs";
 export { default as DDBItemImporter } from "./DDBItemImporter.mjs";
 export { default as DDBProxy } from "./DDBProxy.mjs";
 export { default as DialogHelper } from "./DialogHelper.mjs";
-export { DirectoryPicker } from "./DirectoryPicker.mjs";
 export { default as FileHelper } from "./FileHelper.mjs";
 export { default as FolderHelper } from "./FolderHelper.mjs";
 export { default as MuncherSettings } from "./MuncherSettings.mjs";

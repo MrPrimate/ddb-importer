@@ -33,6 +33,8 @@
     "settings": {
       "disable-tattoo-type.name": "Disable Spellwrought Tattoo",
       "disable-tattoo-type.hint": "DDB Importer injects a tattoo consumable type and allows creation of Spellwrought tattoos.",
+      "persistent-storage-location.name": "Persistent Storage Location",
+      "persistent-storage-location.hint": "This is the location where DDB will cache DDB files like compendium backgrounds and DDB spell icons.",
       "munching-policy-force-spell-version.name": "Monster Spell Version",
       "munching-policy-force-spell-version.hint": "Determines if monsters should use 2024 spells or spell version that match their original rules",
       "user-hint-setting": "If you are unaware of the purpose of a specific setting, it's recommended to leave it at the default value. Several of the settings rely on additional modules and are only recommended if you want to add that level of automation to your game.",
@@ -64,7 +66,7 @@
       "adventure-upload-path.name": "Adventure Upload Path",
       "adventure-upload-path.hint": "Location where the module will upload adventure images and data",
       "adventure-misc-path.name": "Adventure Misc Upload Path",
-      "adventure-misc-path.hint": "Location where the module will upload misc adventure e.g. icons, this should not be an S3 location",
+      "adventure-misc-path.hint": "Location where the module will upload misc adventure e.g. icons",
       "monster-link-title.name": "Monster D&D Beyond link in title bar?",
       "monster-link-title.hint": "Otherwise it's a button next to the name. (Reload to take effect).",
       "cobalt-cookie.name": "DDB Cobalt Cookie",

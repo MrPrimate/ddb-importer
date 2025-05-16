@@ -1,4 +1,4 @@
-import { logger, utils, DDBProxy, DirectoryPicker } from "./_module.mjs";
+import { logger, utils, DDBProxy } from "./_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 
 const FPClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
@@ -65,9 +65,9 @@ export class FileHelper {
   }
 
   static async doesDirExist(directoryPath) {
-    const dir = DirectoryPicker.parse(directoryPath);
+    const dir = FileHelper.parseDirectory(directoryPath);
     try {
-      await DirectoryPicker.browse(dir.activeSource, dir.current, {
+      await FPClass.browse(dir.activeSource, dir.current, {
         bucket: dir.bucket,
       });
       return true;
@@ -79,8 +79,9 @@ export class FileHelper {
   static async generateCurrentFilesFromParsedDir(parsedDir) {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedDir.fullPath)) {
       logger.verbose(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
-      const fileList = await DirectoryPicker.browse(parsedDir.activeSource, parsedDir.current, {
+      const fileList = await FPClass.browse(parsedDir.activeSource, parsedDir.current, {
         bucket: parsedDir.bucket,
+        recursive: true,
       });
       FileHelper.fileExistsUpdate(parsedDir, fileList.files);
       FileHelper.dirExistsUpdate(fileList.dirs);
@@ -95,10 +96,9 @@ export class FileHelper {
             FileHelper.addFileToKnown(parsedDir, file);
           });
         } else {
-          const status = ForgeAPI.lastStatus || (await ForgeAPI.status());
-          const userId = status.user;
+          const assetPrefix = ForgeVTT.ASSETS_LIBRARY_URL_PREFIX + await ForgeAPI.getUserId();
           // eslint-disable-next-line require-atomic-updates
-          CONFIG.DDBI.KNOWN.FORGE.TARGET_URL_PREFIX[parsedDir.fullPath] = `https://assets.forge-vtt.com/${userId}/${parsedDir.current}`;
+          CONFIG.DDBI.KNOWN.FORGE.TARGET_URL_PREFIX[parsedDir.fullPath] = `${assetPrefix}/${parsedDir.current}`;
         }
       }
 
@@ -111,7 +111,7 @@ export class FileHelper {
   static async generateCurrentFiles(directoryPath) {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
       logger.verbose(`Checking for files in directoryPath ${directoryPath}...`);
-      const dir = DirectoryPicker.parse(directoryPath);
+      const dir = FileHelper.parseDirectory(directoryPath);
       await FileHelper.generateCurrentFilesFromParsedDir(dir);
     } else {
       logger.debug(`Skipping full dir scan for ${directoryPath}...`);
@@ -244,7 +244,7 @@ export class FileHelper {
       // hack as proxy returns ddb access denied as application/xml
       if (data.type === "application/xml") return null;
       const result = await FileHelper.uploadImage(data, targetDirectory, filename + "." + ext);
-      FileHelper.addFileToKnown(DirectoryPicker.parse(targetDirectory), result);
+      FileHelper.addFileToKnown(FileHelper.parseDirectory(targetDirectory), result);
       CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, result);
       return result;
     } catch (error) {
@@ -268,7 +268,7 @@ export class FileHelper {
       uri = `${prefix}/${filename}`;
     } else {
       // we can't find the directory path for some reason, final fallback, try and guess the url
-      const dir = DirectoryPicker.parse(directoryPath);
+      const dir = FileHelper.parseDirectory(directoryPath);
       if (dir.activeSource == "data") {
         // Local on-server file system
         uri = `https://assets.forge-vtt.com/bazaar/${dir.current}/${filename}`;
@@ -288,7 +288,7 @@ export class FileHelper {
         uri = await FileHelper.getForgeUrl(directoryPath, filename);
         return uri;
       } else {
-        const dir = DirectoryPicker.parse(directoryPath);
+        const dir = FileHelper.parseDirectory(directoryPath);
         if (dir.activeSource == "data") {
           // Local on-server file system
           uri = dir.current + "/" + filename;
@@ -328,7 +328,7 @@ export class FileHelper {
     });
     const uploadDirectory = `${targetDirectory}${pathPostfix}`;
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(uploadDirectory)) {
-      const parsedPath = DirectoryPicker.parse(uploadDirectory);
+      const parsedPath = FileHelper.parseDirectory(uploadDirectory);
       await FileHelper.verifyPath(parsedPath);
       await FileHelper.generateCurrentFilesFromParsedDir(parsedPath);
     }
@@ -404,7 +404,7 @@ export class FileHelper {
   /**
    * Verifies server path exists, and if it doesn't creates it.
    *
-   * @param  {object} parsedPath output from DirectoryPicker,parse
+   * @param  {object} parsedPath output from FilePicker, parsed
    * @param  {string} targetPath if set will check this path, else check parsedPath.current
    * @returns {boolean} true if verified, false if unable to create/verify
    */
@@ -443,12 +443,45 @@ export class FileHelper {
   }
 
   static async uploadToPath(path, file) {
-    const options = DirectoryPicker.parse(path);
+    const options = FileHelper.parseDirectory(path);
     return FPClass.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
   }
 
   static parseDirectory(str) {
-    return DirectoryPicker.parse(str);
+    // parses the string back to something the FilePicker can understand as an option
+    let matches = str.match(/\[(.+)\]\s*(.+)/);
+    if (matches) {
+      let source = matches[1];
+      const current = matches[2].trim();
+      const [s3, bucket] = source.split(":");
+      if (bucket !== undefined) {
+        return {
+          activeSource: s3,
+          bucket: bucket,
+          current: current,
+          fullPath: str,
+        };
+      } else {
+        return {
+          activeSource: s3,
+          bucket: null,
+          current: current,
+          fullPath: str,
+        };
+      }
+    }
+    // failsave, try it at least
+    return {
+      activeSource: "data",
+      bucket: null,
+      current: str,
+    };
+  }
+
+  static formatDirectoryPath(data) {
+    return data.bucket !== null && data.bucket !== ""
+      ? `[${data.activeSource}:${data.bucket}] ${data.path ?? data.current ?? ""}`
+      : `[${data.activeSource}] ${data.path ?? data.current ?? ""}`;
   }
 
 };

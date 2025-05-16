@@ -2,17 +2,12 @@ import DDBMuncher from "./DDBMuncher.js";
 import {
   logger,
   FileHelper,
-  DirectoryPicker,
   PatreonHelper,
   DDBCampaigns,
   Secrets,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 
-// eslint-disable-next-line no-unused-vars
-Hooks.on("renderma", (app, html, user) => {
-  DirectoryPicker.processHtml(html);
-});
 
 export default class DDBSetup extends FormApplication {
   static get defaultOptions() {

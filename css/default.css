@@ -135,3 +135,10 @@ header > a.header-button.control.ddb-open-url {
   width: auto;
   aspect-ratio: auto;
 }
+
+.ddb-importer-folder-picker {
+  flex: 0 0 24px;
+  line-height: 24px;
+  margin: -1px 0 -1px 4px;
+  order: 99;
+}
