@@ -116,6 +116,7 @@ if (parameters.isTemplate) {
 } else if (parameters.targetsToken) {
   if (scope.toggle === "on") {
     for (const tokenUuid of parameters.targetTokenUuids) {
+      console.debug(`Checking token ${tokenUuid} for light mod`);
       const token = await fromUuid(tokenUuid);
       if (!token) {
         console.warn(`Unable to find token for ${tokenUuid}`, { parameters });
@@ -135,6 +136,8 @@ if (parameters.isTemplate) {
           backup: foundry.utils.deepClone(currentLight),
         },
       };
+
+      // console.warn("Light effect data", data);
 
       await token.update(data);
     }

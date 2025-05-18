@@ -1,4 +1,4 @@
-console.warn(scope)
+// console.warn(scope)
 
 const parentActor = (typeof actor !== 'undefined')
   ? actor
@@ -8,11 +8,16 @@ const caster = (typeof token !== 'undefined')
   ? token
   : undefined;
 
+if (!parentActor) {
+  ui.notifications.error("No parent actor found");
+  return;
+}
+
 const origin = item;
 
 const scopeParameters = JSON.parse(scope.parameters ?? "\{\}");
 const flag = scopeParameters.flag ?? "light";
-const flagData = foundry.utils.getProperty(actor, `flags.world.${flag}`);
+const flagData = foundry.utils.getProperty(parentActor, `flags.world.${flag}`);
 
 const darkness = scopeParameters.darkness ?? false;
 const lightConfig = scopeParameters.lightConfig ?? {};
@@ -21,6 +26,7 @@ const distance = scopeParameters.distance ?? 15;
 
 const isOn = !flagData?.active ?? true;
 const isOff = flagData?.active ?? false;
+const forceOn = scopeParameters.forceOn ?? false;
 
 const isSimpleDDBMacro = scope && foundry.utils.getProperty(scope, "flags.ddb-importer.ddbMacroFunction");
 
@@ -35,6 +41,9 @@ console.debug("MACRO CALL", {
   lightConfig,
   scopeParameters,
   darkness,
+  parentActor,
+  caster,
+  origin,
 });
 
 async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
@@ -57,7 +66,7 @@ async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
         params,
       },
     });
-    canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
+    await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [template.id]);
     await DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { origin: origin.uuid }, { toggle: "on", parameters: params });
   });
 
@@ -89,11 +98,11 @@ async function placeTemplate({ origin, parentActor, distance, flag } = {}) {
 //   trackDistance: false,
 // });
 
-if (isOff) {
 
+async function removeLight() {
   ui.notifications.info("Attempting to remove previous casting effects");
 
-  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: actor._id }, {
+  DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light", { actor: parentActor._id }, {
     toggle: "off",
     parameters: flagData.params,
   });
@@ -103,14 +112,14 @@ if (isOff) {
       params: null,
     },
   });
+}
 
-} else if (isOn) {
-
+async function createLight() {
   if (targetsToken) {
 
-    const targetTokenUuids = parameters.targetsSelf && token
-      ? [token.uuid]
-      : scope.targets ?? Array.from(game.user.targets).map((t) => t.document.uuid);
+    const targetTokenUuids = scopeParameters.targetsSelf && caster
+      ? [caster.uuid]
+      : scope.targetUuids ?? Array.from(game.user.targets).map((t) => t.document.uuid);
     const params = {
       parentActorId: parentActor.id,
       lightConfig,
@@ -131,13 +140,24 @@ if (isOff) {
         params,
       },
     });
-    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM("gm", "light",
-      { actor: actor._id },
+    DDBImporter.lib.DDBMacros.executeDDBMacroAsGM(
+      "gm",
+      "light",
+      { actor: parentActor._id },
       { toggle: "on", parameters: params },
     );
   } else {
     await placeTemplate({ origin, parentActor, distance, flag });
   }
 
+}
+
+if (isOff) {
+  await removeLight();
+  if (forceOn) {
+    await createLight();
+  }
+} else if (isOn) {
+  await createLight();
 }
 

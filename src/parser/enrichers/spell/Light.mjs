@@ -20,7 +20,7 @@ export default class Light extends DDBEnricherData {
           name: "Place or Remove Light",
           function: "ddb.generic.light",
           visible: false,
-          parameters: '{"distance":20,"isTemplate":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
+          parameters: '{"distance":20,"isTemplate":true,"lightConfig":{"dim":40,"bright":20},"flag":"light","forceOn":true}',
         },
         targetOverride: {
           override: true,
@@ -68,7 +68,7 @@ export default class Light extends DDBEnricherData {
               name: "Place on Targetted Token",
               function: "ddb.generic.light",
               visible: false,
-              parameters: '{"distance":20,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light"}',
+              parameters: '{"distance":20,"targetsToken":true,"lightConfig":{"dim":40,"bright":20},"flag":"light","forceOn":true}',
             },
             targetOverride: {
               override: true,
