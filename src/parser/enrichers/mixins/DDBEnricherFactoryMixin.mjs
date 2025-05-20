@@ -594,6 +594,10 @@ export default class DDBEnricherFactoryMixin {
       if (effectHint.midiOnly && !applyMidiOnlyEffects) continue;
       if (effectHint.activeAurasNever && AutoEffects.effectModules().activeAurasInstalled) continue;
       if (effectHint.activeAurasOnly && !AutoEffects.effectModules().activeAurasInstalled) continue;
+      if (effectHint.auraeffectsNever && AutoEffects.effectModules().auraeffectsInstalled) continue;
+      if (effectHint.auraeffectsOnly && !AutoEffects.effectModules().auraeffectsInstalled) continue;
+      if (effectHint.aurasNever && (AutoEffects.effectModules().auraeffectsInstalled || AutoEffects.effectModules().activeAurasInstalled)) continue;
+      if (effectHint.aurasOnly && !AutoEffects.effectModules().auraeffectsInstalled && !AutoEffects.effectModules().activeAurasInstalled) continue;
       if (effectHint.atlNever && AutoEffects.effectModules().atlInstalled) continue;
       if (effectHint.atlOnly && !AutoEffects.effectModules().atlInstalled) continue;
       let name = effectHint.name ?? this.name;
@@ -752,8 +756,19 @@ export default class DDBEnricherFactoryMixin {
         }
       }
 
+      if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
+        foundry.utils.setProperty(effect, "system", effectHint.auraeffects);
+        effect.type = "auraeffects.aura";
+      }
+
       if (effectHint.data) {
         effect = foundry.utils.mergeObject(effect, effectHint.data);
+      }
+
+      if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
+        if (foundry.utils.hasProperty(effect, "flags.ActiveAuras")) {
+          delete effect.flags.ActiveAuras;
+        }
       }
 
       if (effectHint?.func) {

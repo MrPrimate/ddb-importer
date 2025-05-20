@@ -138,6 +138,11 @@ export default class Example extends DDBEnricherData {
         daeNever: true, // never add effect if dae is active
         atlNever: true, // never add effect if atl is active
         midiNever: true, // never add effect if MIDI-QOL is installed.
+        aurasOnly: true, // only add effect if aura effects or active auras is installed.
+        aurasNever: true, // never add effect if aura effects or active auras is installed.
+        auraeffectsNever: true, // never add effect if aura effects is installed.
+        auraeffectsOnly: true, // only add effect if aura effects is installed.
+        auraeffects: {}, // add aura effects
         activeAurasNever: true, // never add effect if ActiveAuras is installed.
         activityMatch: "Attack", // Match to this activity only
         activitiesMatch: ["Save"], // Match to only these activities

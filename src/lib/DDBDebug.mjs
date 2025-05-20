@@ -7,6 +7,7 @@ export default class DDBDebug {
   static KNOWN_MODULES = [
     "ATL",
     "ActiveAuras",
+    "auraeffects",
     "chris-premades",
     "dae",
     "ddb-importer",

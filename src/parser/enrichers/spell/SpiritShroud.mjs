@@ -41,7 +41,7 @@ export default class SpiritShroud extends DDBEnricherData {
     return [
       {
         name: "Surrounded by a Spirit Shroud",
-        activeAurasNever: true,
+        aurasNever: true,
         midiNever: true,
         options: {
           durationSeconds: 60,
@@ -50,7 +50,7 @@ export default class SpiritShroud extends DDBEnricherData {
       {
         name: "Slowed by Spirit Shroud",
         midiNever: true,
-        activeAurasNever: true,
+        aurasNever: true,
         changes: [
           DDBEnricherData.ChangeHelper.customChange(
             "-10",
@@ -65,7 +65,7 @@ export default class SpiritShroud extends DDBEnricherData {
       {
         name: "Spirit Shroud",
         activityMatch: "Cast",
-        activeAurasOnly: true,
+        aurasOnly: true,
         options: {
           durationSeconds: 60,
         },
@@ -97,6 +97,19 @@ export default class SpiritShroud extends DDBEnricherData {
               displayTemp: true,
             },
           },
+        },
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: `10`,
+          disposition: -1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
         },
         midiChanges: [
           DDBEnricherData.ChangeHelper.overrideChange(

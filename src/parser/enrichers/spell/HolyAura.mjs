@@ -97,6 +97,19 @@ export default class HolyAura extends DDBEnricherData {
             },
           },
         },
+        auraeffects: {
+          applyToSelf: true,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: `30`,
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
+        },
       },
     ];
   }

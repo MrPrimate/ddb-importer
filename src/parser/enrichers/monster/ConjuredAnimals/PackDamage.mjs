@@ -77,7 +77,7 @@ export default class PackDamage extends DDBEnricherData {
     return [
       {
         activityMatch: "Pack Damage (Aura Automation)",
-        activeAurasOnly: true,
+        aurasOnly: true,
         options: {
           transfer: true,
         },
@@ -115,6 +115,19 @@ export default class PackDamage extends DDBEnricherData {
               displayTemp: true,
             },
           },
+        },
+        auraeffects: {
+          applyToSelf: true,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: `10`,
+          disposition: -1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
         },
       },
     ];

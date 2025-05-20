@@ -20,7 +20,7 @@ export default class AuraOfHate extends DDBEnricherData {
       },
       {
         name: "Aura of Hate (Fiends and Undead)",
-        activeAurasOnly: true,
+        aurasOnly: true,
         daeStackable: "none",
         data: {
           flags: {
@@ -35,6 +35,19 @@ export default class AuraOfHate extends DDBEnricherData {
               type: "undead; fiend",
             },
           },
+        },
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: "@scale.oathbreaker.aura-of-hate",
+          disposition: 0,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: `(Object.values(actor.system.details.type).concat(actor.system.details.race?.name).some(type => "undead; fiend".split(";").filter(t => t).includes(type?.toLowerCase())))`,
         },
         statuses: ["Aura of Hate (Fiends and Undead)"],
         changes: [

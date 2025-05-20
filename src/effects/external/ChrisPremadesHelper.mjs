@@ -13,6 +13,7 @@ export default class ChrisPremadesHelper {
     "midi-qol",
     "midiProperties",
     "ActiveAuras",
+    "auraeffects",
     "dae",
     "itemacro",
   ];

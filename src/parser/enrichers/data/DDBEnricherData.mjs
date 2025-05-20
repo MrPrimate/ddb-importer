@@ -262,6 +262,9 @@ export default class DDBEnricherData {
    *     - atlNever: {boolean} never add effect if atl is active
    *     - midiNever: {boolean} never add effect if MIDI-QOL is installed.
    *     - activeAurasNever: {boolean} never add effect if ActiveAuras is installed.
+   *     - auraeffectsOnly: {boolean} only add effect if aura effects is active
+   *     - auraeffectsNever: {boolean} never add effect if aura effects is active
+   *     - auraeffects: {object} aura effects data
    */
   get effects() {
     return [];

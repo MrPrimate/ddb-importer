@@ -39,7 +39,7 @@ export default class FlameDamage extends DDBEnricherData {
     return [
       {
         name: "Flaming Sphere: Heat",
-        activeAurasOnly: true,
+        aurasOnly: true,
         midiOnly: true,
         options: {
           transfer: true,
@@ -59,13 +59,26 @@ export default class FlameDamage extends DDBEnricherData {
               radius: 5,
               alignment: "",
               type: "",
-              ignoreSelf: false,
+              ignoreSelf: true,
               height: false,
               hidden: false,
               onlyOnce: false,
               displayTemp: true,
             },
           },
+        },
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: `5`,
+          disposition: 0,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
         },
       },
     ];

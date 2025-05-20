@@ -9,6 +9,7 @@ export default class SystemHelpers {
     const daeInstalled = game.modules.get("dae")?.active ?? false;
 
     const activeAurasInstalled = game.modules.get("ActiveAuras")?.active ?? false;
+    const auraeffectsInstalled = game.modules.get("auraeffects")?.active ?? false;
     const atlInstalled = game.modules.get("ATL")?.active ?? false;
     const tokenMagicInstalled = game.modules.get("tokenmagic")?.active ?? false;
     const autoAnimationsInstalled = game.modules.get("autoanimations")?.active ?? false;
@@ -26,6 +27,7 @@ export default class SystemHelpers {
       atlInstalled,
       tokenMagicInstalled,
       activeAurasInstalled,
+      auraeffectsInstalled,
       autoAnimationsInstalled,
       chrisInstalled,
       vision5eInstalled,

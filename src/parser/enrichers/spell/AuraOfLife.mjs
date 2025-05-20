@@ -18,6 +18,7 @@ export default class AuraOfLife extends DDBEnricherData {
         noCreate: true,
         daeOnly: true,
         activeAuraOnly: true,
+        auraeffectsOnly: true,
         macroChanges: [
           { macroValues: "@token", macroType: "spell", macroName: "auraOfLife.js" },
         ],
@@ -43,6 +44,19 @@ export default class AuraOfLife extends DDBEnricherData {
               displayTemp: true,
             },
           },
+        },
+        auraeffects: {
+          applyToSelf: true,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: `30`,
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
         },
       },
     ];

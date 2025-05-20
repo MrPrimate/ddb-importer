@@ -2,7 +2,6 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class ShieldingStorm extends DDBEnricherData {
-
   get type() {
     return "utility";
   }
@@ -55,13 +54,11 @@ export default class ShieldingStorm extends DDBEnricherData {
     ];
   }
 
-
   get effects() {
     return [
       {
         name: "Shielding Storm: Desert",
-        options: {
-        },
+        options: {},
         data: {
           flags: {
             ddbimporter: {
@@ -78,14 +75,24 @@ export default class ShieldingStorm extends DDBEnricherData {
             },
           },
         },
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("fire", 20, "system.traits.dr.value"),
-        ],
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: "10",
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
+        },
+        changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("fire", 20, "system.traits.dr.value")],
       },
       {
         name: "Shielding Storm: Sea",
-        options: {
-        },
+        options: {},
         data: {
           flags: {
             ddbimporter: {
@@ -102,14 +109,24 @@ export default class ShieldingStorm extends DDBEnricherData {
             },
           },
         },
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("lightning", 20, "system.traits.dr.value"),
-        ],
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: "10",
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
+        },
+        changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("lightning", 20, "system.traits.dr.value")],
       },
       {
         name: "Shielding Storm: Tundra",
-        options: {
-        },
+        options: {},
         data: {
           flags: {
             ddbimporter: {
@@ -126,11 +143,21 @@ export default class ShieldingStorm extends DDBEnricherData {
             },
           },
         },
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("cold", 20, "system.traits.dr.value"),
-        ],
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: "10",
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
+        },
+        changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("cold", 20, "system.traits.dr.value")],
       },
     ];
   }
-
 }

@@ -132,7 +132,7 @@ export default class SpiritGuardians extends DDBEnricherData {
       {
         activityMatch: "Cast",
         noCreate: true,
-        activeAurasOnly: true,
+        aurasOnly: true,
         changes: [
           DDBEnricherData.ChangeHelper.customChange("/2", 20, "system.attributes.movement.all"),
         ],
@@ -172,6 +172,19 @@ export default class SpiritGuardians extends DDBEnricherData {
               displayTemp: true,
             },
           },
+        },
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: true,
+          disableOnHidden: true,
+          distanceFormula: `15`,
+          disposition: -1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
         },
       },
     ];

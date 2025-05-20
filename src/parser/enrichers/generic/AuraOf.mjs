@@ -21,6 +21,19 @@ export default class AuraOf extends DDBEnricherData {
             },
           },
         },
+        auraeffects: {
+          applyToSelf: true,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: `@scale.paladin.${this.data.name.toLowerCase().replaceAll(" ", "-")}`,
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
+        },
       },
     ];
   }

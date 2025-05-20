@@ -22,6 +22,7 @@ export default class DDBCompendiumSetup extends FormApplication {
       "chris-premades",
       "ATL",
       "ActiveAuras",
+      "auraeffects",
       "token-attacher",
     ];
 
