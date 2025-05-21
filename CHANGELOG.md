@@ -1,4 +1,4 @@
-# Next Up
+# 6.3.1
 
 - Tweaks to Light Macro
 - AuraEffects support - If AuraEffects by @hi25114 is installed, this will be preferred for creation of actor based aura effects. AuraEffects is the spiritual successor to Active Auras and is a highly performant generic aura management module, with bells and whistles for Aura visualisation. v13 only.
