@@ -6,10 +6,10 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
   try {
     // Default to the most basic token setup.
     // everything else can be handled by the user / Token Mold
-    const existingData = foundry.utils.deepClone(this.currentActor.prototypeToken);
+    const existingData = foundry.utils.duplicate(this.currentActor.prototypeToken);
     let tokenData = foundry.utils.mergeObject(existingData, {
       actorLink: true,
-      name: this.source.ddb.character.name,
+      name: this.raw.character.name,
       sight: {
         enabled: true,
         range: 0,

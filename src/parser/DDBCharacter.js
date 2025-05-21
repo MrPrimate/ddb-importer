@@ -262,7 +262,7 @@ export default class DDBCharacter {
       await this._addFeatureFactoryDocuments();
 
       // generate data stub to link
-      this.data = foundry.utils.deepClone({
+      this.data = foundry.utils.duplicate({
         character: this.raw.character,
         features: this.raw.features,
         race: this.raw.race,
@@ -272,7 +272,6 @@ export default class DDBCharacter {
         actions: this.raw.actions,
         itemSpells: this.raw.itemSpells,
       });
-
 
       // regenerate classes now we have generated features in compendium
       if (this.addToCompendiums) {
