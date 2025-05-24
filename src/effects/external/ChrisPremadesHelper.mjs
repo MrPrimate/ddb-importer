@@ -40,7 +40,6 @@ export default class ChrisPremadesHelper {
     "system.mastery",
     "system.scaling",
     "system.activities",
-    "system.uses",
     "system.properties",
     "system.enchant",
     "flags.chris-premades",

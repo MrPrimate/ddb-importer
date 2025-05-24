@@ -1,3 +1,7 @@
+# Next Up
+
+- CPR integration no longer replaces Uses with CPR uses.
+
 # 6.3.1
 
 - Tweaks to Light Macro
