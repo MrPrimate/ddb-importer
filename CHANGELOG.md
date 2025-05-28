@@ -1,4 +1,4 @@
-# Next Up
+# 6.3.2
 
 - CPR integration no longer replaces Uses with CPR uses.
 - Witch Bolt 2024 automation changes. @nolenthar
