@@ -68,7 +68,7 @@ export default class WitchBolt extends DDBEnricherData {
     return {
       type: "spell",
       name: "witchBolt.js",
-      triggerPoints: ["postActiveEffects"],
+      triggerPoints: this.is2014 ? ["postActiveEffects"] : ["postAttackRoll"],
     };
   }
 

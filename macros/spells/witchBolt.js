@@ -46,8 +46,12 @@ const lastArg = args[args.length - 1];
 const damageDice = "1d12";
 const damageType = "lightning";
 
-if (args[0].macroPass === "postActiveEffects") {
-  if (args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
+if (args[0].macroPass === "postActiveEffects" || args[0].macroPass === "postAttackRoll") {
+  const is2014 = args[0].item.system.source.rules === "2014" ?? false;
+
+  if (is2014 && args[0].hitTargetUuids.length === 0) return {}; // did not hit anyone
+
+  const targets = is2014 ? args[0].hitTargetUuids : args[0].targetUuids;
 
   const effectData = [{
     label: "WitchBolt Ongoing",
@@ -63,7 +67,7 @@ if (args[0].macroPass === "postActiveEffects") {
   const effect = await args[0].actor.createEmbeddedDocuments("ActiveEffect", effectData);
 
   const options = {
-    targets: args[0].hitTargetUuids,
+    targets: targets,
     sourceUuid: args[0].tokenUuid,
     distance: args[0].item.system.range.value,
     userId: game.userId,
@@ -82,13 +86,13 @@ if (args[0].macroPass === "postActiveEffects") {
   const sourceItem = await fromUuid(lastArg.origin);
   const caster = sourceItem.parent;
   const options = DAE.getFlag(caster, "witchBoltSpell");
-  const is2014 = sourceItem.flags.ddbimporter?.is2014 ?? false;
+  const is2014 = sourceItem.system.source.rules === "2014" ?? false;
 
   const isInRange = await DDBImporter?.EffectHelper.checkTargetInRange(options);
   if (isInRange) {
     const userIds = Object.entries(caster.ownership).filter((k) => k[1] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER).map((k) => k[0]);
     await ChatMessage.create({
-      content: `<p>${caster.name} may use their action to sustain Witch Bolt. Asking them now...</p><br>`,
+      content: `<p>${caster.name} may use their ${is2014 ? "" : "bonus "}action to sustain Witch Bolt. Asking them now...</p><br>`,
       type: CONST.CHAT_MESSAGE_TYPES.OTHER,
       speaker: caster.uuid,
       whisper: game.users.filter((u) => userIds.includes(u.id) || u.isGM),
