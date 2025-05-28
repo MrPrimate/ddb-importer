@@ -824,7 +824,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world"),
         label: "Import all monsters in adventure to world?",
         hint: "If unchecked, will only import monsters placed on scenes.",
-        enabled: true,
+        enabled: tiers.supporter,
       },
       {
         name: "adventure-policy-journal-world-actors",
@@ -850,11 +850,16 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       {
         name: "adventure-policy-use2024-monsters",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-use2024-monsters"),
-        label: "Replace legacy monsters with latest versions?",
+        label: "Replace legacy monsters with latest versions? (Patreon only)",
         hint: "If checked will replace legacy monsters with the latest versions from the 2024 rules. If you don't have access to these monsters, this may leave you with unlinked or missing tokens.",
-        enabled: true,
+        enabled: tiers.supporter,
       },
     ];
+
+    if (!tiers.supporter) {
+      game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world", false);
+      game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-use2024-monsters", false);
+    }
 
     const resultData = {
       adventureOptions,

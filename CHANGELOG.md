@@ -1,6 +1,8 @@
 # Next Up
 
 - CPR integration no longer replaces Uses with CPR uses.
+- Witch Bolt 2024 automation changes. @nolenthar
+- Some tweaks to adventure import to disable features that are patreon only when importing with no patreon link.
 
 # 6.3.1
 
