@@ -1,6 +1,5 @@
 {
   "id": "ddb-importer",
-  "name": "ddb-importer",
   "title": "DDB-Importer: A D&D Beyond Integrator (Automation Edition)",
   "license": "MIT License",
   "description": "Import your dndbeyond.com characters, spells, items, monsters, encounters, and adventures!",
