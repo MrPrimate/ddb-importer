@@ -1,3 +1,7 @@
+# Next Up
+
+- Fix character updates to DDB on v13/D&Dv5
+
 # 6.3.2
 
 - CPR integration no longer replaces Uses with CPR uses.
