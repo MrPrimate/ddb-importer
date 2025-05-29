@@ -1,3 +1,7 @@
+# Next Up
+
+- Add monks martial arts die as die advancement. @elwin1410
+
 # 6.3.3
 
 - Fix character updates to DDB on v13/D&Dv5

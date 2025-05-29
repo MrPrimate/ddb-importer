@@ -1379,6 +1379,14 @@ export default class DDBClass {
         this.data.system.advancement.push(knownForms);
       }
     } else if (this.data.name === "Monk") {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.configuration.identifier !== "martial-arts") continue;
+        const die = foundry.utils.deepClone(advancement);
+        die.title = "Martial Arts Die";
+        die._id = foundry.utils.randomID();
+        die.configuration.identifier = "die";
+        this.data.system.advancement.push(die);
+      }
       const ki = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
