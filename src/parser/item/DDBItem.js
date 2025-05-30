@@ -1899,7 +1899,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   // eslint-disable-next-line complexity
   #get2024Price() {
     if (this.is2014) return 0;
-    if (!this.data.system.properties.includes("mgc")) return 0;
+    if (!this.data.system.properties.includes("mgc")) {
+      return 0;
+    }
 
     let price = 0;
     if (this.parsingType === "scroll") {
@@ -2902,7 +2904,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.#generateEquipped();
       this.#generateItemRarity();
       this.#generateQuantity();
-      this.#generatePrice();
       this.#generateMagicalBonus();
       this.#generateExtraProperties();
 
@@ -2928,6 +2929,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           await this._generateAdditionalActivities();
         await this.enricher.addAdditionalActivities(this);
       }
+
+      this.#generatePrice();
 
       this.data.system.attuned = this.ddbItem.isAttuned;
       this.#generateAttunement();
