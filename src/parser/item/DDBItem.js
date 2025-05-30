@@ -887,6 +887,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     } else if (this.ddbDefinition.name.startsWith("Spell Scroll:")) {
       this.documentType = "consumable";
       this.systemType.value = "scroll";
+      this.parsingType = "scroll";
       return;
     }
 
@@ -1003,10 +1004,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       if (this.ddbDefinition.name.startsWith("Spell Scroll:")) {
         this.documentType = "consumable";
         this.systemType.value = "scroll";
+        this.parsingType = "scroll";
       } else {
         this.documentType = "loot";
+        this.parsingType = "custom";
       }
-      this.parsingType = "custom";
       this.overrides.ddbType = "Custom Item";
       this.overrides.custom = true;
       return;
@@ -1102,7 +1104,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       case "Scroll":
         this.documentType = "consumable";
         this.systemType.value = this.ddbDefinition.filterType.toLowerCase();
-        this.parsingType = "consumable";
+        this.parsingType = "scroll";
         this.overrides.ddbType = this.ddbDefinition.type;
         break;
       case "Staff":
@@ -1894,8 +1896,89 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
+  // eslint-disable-next-line complexity
+  #get2024Price() {
+    if (this.is2014) return 0;
+    if (!this.data.system.properties.includes("mgc")) return 0;
+
+    let price = 0;
+    if (this.parsingType === "scroll") {
+      const levelRegex = /level (\d+)/i;
+      const levelMatch = levelRegex.exec(this.originalName);
+      if (levelMatch && levelMatch[1]) {
+        const level = parseInt(levelMatch[1]);
+        switch (level) {
+          case 0:
+            price = 30;
+            break;
+          case 1:
+            price = 50;
+            break;
+          case 2:
+            price = 200;
+            break;
+          case 3:
+            price = 300;
+            break;
+          case 4:
+            price = 2000;
+            break;
+          case 5:
+            price = 3000;
+            break;
+          case 6:
+            price = 20000;
+            break;
+          case 7:
+            price = 25000;
+            break;
+          case 8:
+            price = 30000;
+            break;
+          case 9:
+            price = 100000;
+            break;
+          default:
+            price = 0; // no match
+        }
+      }
+    } else {
+      switch (this.data.system.rarity) {
+        case "common":
+          price = 100;
+          break;
+        case "uncommon":
+          price = 400;
+          break;
+        case "rare":
+          price = 4000;
+          break;
+        case "veryRare":
+          price = 40000;
+          break;
+        case "legendary":
+          price = 200000;
+          break;
+        case "artifact":
+        default:
+          price = 0;
+      }
+
+      if (this.parsingType === "consumable") {
+        price /= 2;
+      }
+    }
+
+    return price;
+  }
+
   #generatePrice() {
-    const value = this.ddbDefinition.cost ? Number.parseFloat(this.ddbDefinition.cost) : 0;
+    let value = this.ddbDefinition.cost
+      ? Number.parseFloat(this.ddbDefinition.cost)
+      : 0;
+
+    if (value === 0) value = this.#get2024Price();
+
     this.data.system.price = {
       "value": Number.isInteger(value) ? value : (value * 10),
       "denomination": Number.isInteger(value) ? "gp" : "sp",
@@ -2162,6 +2245,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #generateScrollSpecifics() {
     // KNOWN_ISSUE_4_0: what kind of activity type are scrolls?
+    this.addMagical = true;
     this._generateConsumableUses();
   }
 
