@@ -103,6 +103,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Primal Order",
     "The Third Eye",
     "Unbreakable Majesty",
+    "Aspect of the Beast",
   ],
   KEEP_CHOICE_FEATURE_NAME: [
     "Defensive Tactics",
@@ -181,6 +182,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Elven Lineage",
     "Armor Model",
     "Pact Boon",
+    "Aspect of the Beast",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",

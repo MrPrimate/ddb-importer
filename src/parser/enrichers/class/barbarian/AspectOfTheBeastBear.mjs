@@ -10,10 +10,7 @@ export default class AspectOfTheBeastBear extends DDBEnricherData {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange("@attributes.encumbrance.max * 2", 20, "system.attributes.encumbrance.max"),
-        ],
-        daeChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("dae.eval(100 * attributes.encumbrance.value / attributes.encumbrance.max)", 20, "system.attributes.encumbrance.pct"),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, "system.attributes.encumbrance.multipliers.overall"),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),

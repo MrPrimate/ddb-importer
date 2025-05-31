@@ -2,6 +2,7 @@
 
 - Add monks martial arts die as die advancement. @elwin1410
 - 2024 magic items will now use the 2024 DMG prices.
+- Aspect of the Beast: description parsing and Bear encumbrance fixes. @vendiir
 
 # 6.3.3
 
