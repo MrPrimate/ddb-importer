@@ -1,3 +1,7 @@
+# Next Up
+
+- More spell icons from @crimsonedge
+
 # 6.3.4
 
 - Add monks martial arts die as die advancement. @elwin1410

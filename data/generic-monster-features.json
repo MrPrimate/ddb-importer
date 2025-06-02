@@ -10970,5 +10970,21 @@
   {
     "name": "Hull",
     "path": "icons/commodities/wood/bark-brown-red.webp"
+  },
+  {
+    "name": "Mycelium",
+    "path": "icons/magic/nature/root-vine-entangled-hand.webp"
+  },
+  {
+    "name": "Unbearable Stench",
+    "path": "icons/magic/nature/plant-undersea-seaweed-glow-green.webp"
+  },
+  {
+    "name": "Poison Glob",
+    "path": "icons/magic/nature/plant-poison-spit-green.webp"
+  },
+  {
+    "name": "Chow Time",
+    "path": "icons/magic/nature/plant-venus-flytrap-blood.webp"
   }
 ]

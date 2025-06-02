@@ -2237,5 +2237,209 @@
   { "name": "Leiloch's Irritating Kazoo", "path": "icons/magic/sonic/projectile-sound-rings-wave.webp" },
   { "name": "Life Tether", "path": "icons/magic/control/debuff-energy-hold-green.webp" },
   { "name": "Ominous Winds", "path": "icons/magic/air/wind-swirl-red-orange.webp" },
-  { "name": "Wrack", "path": "icons/magic/control/voodoo-doll-pain-damage-red.webp" }
+  { "name": "Wrack", "path": "icons/magic/control/voodoo-doll-pain-damage-red.webp" },
+  {
+    "name": "Hellfire",
+    "path": "icons/magic/fire/projectile-fireball-smoke-teal.webp"
+  },
+  {
+    "name": "Swarm",
+    "path": "icons/creatures/invertebrates/wasp-swarm-attack.webp"
+  },
+  {
+    "name": "Vengeful Blade",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-teal-purple.webp"
+  },
+  {
+    "name": "Accelerate/Decelerate",
+    "path": "icons/magic/time/clock-spinning-gold-pink.webp"
+  },
+  {
+    "name": "Armament",
+    "path": "icons/weapons/swords/swords-short.webp"
+  },
+  {
+    "name": "Blade of Blood and Bone",
+    "path": "icons/skills/melee/blade-tip-chipped-blood-red.webp"
+  },
+  {
+    "name": "Bubble Lift",
+    "path": "icons/magic/water/orb-water-bubbles.webp"
+  },
+  {
+    "name": "Clue",
+    "path": "icons/tools/scribal/lens-grey-red.webp"
+  },
+  {
+    "name": "Forest Guard",
+    "path": "icons/environment/wilderness/tree-ash.webp"
+  },
+  {
+    "name": "Hell's Lash",
+    "path": "icons/magic/fire/beam-strike-whip-red.webp"
+  },
+  {
+    "name": "Memorize",
+    "path": "icons/sundries/books/book-open-purple.webp"
+  },
+  {
+    "name": "Pacify Person",
+    "path": "icons/magic/control/silhouette-hold-change-green.webp"
+  },
+  {
+    "name": "Sand Structure",
+    "path": "icons/magic/earth/projectile-stone-landslide.webp"
+  },
+  {
+    "name": "Sprout Foliage",
+    "path": "icons/magic/nature/root-vines-face-glow-green.webp"
+  },
+  {
+    "name": "Summon Vehicle",
+    "path": "icons/commodities/tech/transmission.webp"
+  },
+  {
+    "name": "Water Bullet",
+    "path": "icons/magic/water/projectile-bolts-salvo-blue.webp"
+  },
+  {
+    "name": "Whelm Weapon",
+    "path": "icons/magic/water/strike-weapon-blade-ice-blue.webp"
+  },
+  {
+    "name": "Arcanomagnetic Repulsion",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },
+  {
+    "name": "At Your Side",
+    "path": "icons/magic/control/energy-stream-link-large-blue.webp"
+  },
+  {
+    "name": "Beast Transmutation",
+    "path": "icons/magic/nature/wolf-paw-glow-large-purple-teal.webp"
+  },
+  {
+    "name": "Control Animal",
+    "path": "icons/magic/control/encase-creature-spider-hold.webp"
+  },
+  {
+    "name": "Counterspy",
+    "path": "icons/magic/symbols/runes-star-pentagon-magenta.webp"
+  },
+  {
+    "name": "Endoleech",
+    "path": "icons/magic/unholy/orb-hands-pink.webp"
+  },
+  {
+    "name": "Infernal Challenge",
+    "path": "icons/skills/melee/weapons-crossed-swords-yellow.webp"
+  },
+  {
+    "name": "Monkey's Grasp",
+    "path": "icons/magic/nature/wolf-paw-glow-large-green.webp"
+  },
+  {
+    "name": "Mortiferous Pulse",
+    "path": "icons/magic/unholy/orb-colllecting-energy-green.webp"
+  },
+  {
+    "name": "Mushroom Ballista",
+    "path": "icons/magic/nature/mushroom-glow-red.webp"
+  },
+  {
+    "name": "Pillar of Force",
+    "path": "icons/environment/wilderness/carved-standing-stone.webp"
+  },
+  {
+    "name": "Preserve",
+    "path": "icons/magic/unholy/projectile-flame-white-purple.webp"
+  },
+  {
+    "name": "Rageful Nimbus",
+    "path": "icons/magic/lightning/bolt-cloud-sky-white.webp"
+  },
+  {
+    "name": "Riptide",
+    "path": "icons/magic/water/waves-water-blue.webp"
+  },
+  {
+    "name": "Shadow Puppets",
+    "path": "icons/magic/unholy/hand-grasping-green.webp"
+  },
+  {
+    "name": "Shared Vision",
+    "path": "icons/magic/perception/eye-slit-red-orange.webp"
+  },
+  {
+    "name": "Spell Signature",
+    "path": "icons/magic/symbols/rune-sigil-green-purple.webp"
+  },
+  {
+    "name": "Bitter Wind",
+    "path": "icons/magic/air/air-wave-gust-blue.webp"
+  },
+  {
+    "name": "Deep Roots of the Moon",
+    "path": "icons/magic/nature/root-vine-beanstalk-moon.webp"
+  },
+  {
+    "name": "Faerie Toast",
+    "path": "icons/consumables/drinks/wine-bottle-glass-white.webp"
+  },
+  {
+    "name": "Feathered Reach",
+    "path": "icons/magic/holy/angel-winged-humanoid-blue.webp"
+  },
+  {
+    "name": "Globe of Twilight",
+    "path": "icons/magic/light/projectile-stars-blue.webp"
+  },
+  {
+    "name": "Lost",
+    "path": "icons/magic/time/arrows-circling-green.webp"
+  },
+  {
+    "name": "Polybrachia",
+    "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
+  },
+  {
+    "name": "Purge Contamination",
+    "path": "icons/magic/life/heart-pink.webp"
+  },
+  {
+    "name": "Drafyn's Curse of Incompetence",
+    "path": "icons/magic/symbols/star-inverted-yellow.webp"
+  },
+  {
+    "name": "Knife of Fate",
+    "path": "icons/magic/control/energy-stream-link-orange.webp"
+  },
+  {
+    "name": "Lunar Transfer",
+    "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+  },
+  {
+    "name": "Moonlight Sending",
+    "path": "icons/magic/nature/moon-crescent.webp"
+  },
+  {
+    "name": "Ride the Lightning",
+    "path": "icons/magic/movement/trail-streak-zigzag-yellow.webp"
+  },
+  {
+    "name": "Shape Plants",
+    "path": "icons/magic/nature/plant-sprout-hands-vines.webp"
+  },
+  {
+    "name": "Stellar Bodies",
+    "path": "icons/magic/light/orbs-smoke-pink.webp"
+  },
+  {
+    "name": "Storm Door",
+    "path": "icons/magic/lightning/bolt-strike-explosion-blue.webp"
+  },
+  {
+    "name": "Wall of Death",
+    "path": "icons/magic/control/debuff-chains-ropes-net-green.webp"
+  }
 ]
