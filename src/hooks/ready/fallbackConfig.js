@@ -4955,6 +4955,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/49171/58/638827635248036080.jpeg",
       sourceURL: "sources/dnd/oswfst",
     },
+    {
+      id: 196,
+      name: "MoDr",
+      description: "Monsters of Drakkenheim",
+      sourceCategoryId: 19,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/49204/418/638829230579961696.jpeg",
+      sourceURL: "sources/dnd/modr",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
