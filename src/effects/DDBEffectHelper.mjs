@@ -655,6 +655,43 @@ export default class DDBEffectHelper {
     return controlled.length ? controlled.shift() : tokens.shift();
   }
 
+  static getActiveCreaturesFromTokenByDisposition(target, {
+    includeIncapacitated = false,
+    excludedActorIds = [], excludedTokenIds = [], distance = 5,
+  } = {}) {
+
+    const result = {
+      allies: [],
+      enemies: [],
+      neutrals: [],
+      others: [],
+    };
+    if (!target) return result;
+    canvas.tokens.placeables.forEach((t) => {
+      const nearby = t.actor
+        && !excludedActorIds.includes(t.actor?.id) // typically the origin actor
+        && !excludedTokenIds.includes(t.id) // token ids excluded
+        && t.id !== target.id // not the target
+        && (includeIncapacitated || (t.actor?.system.attributes?.hp?.value ?? 0) > 0) // not incapacitated
+        && DDBEffectHelper.getDistance(t, target) <= distance; // close to the target;
+
+      if (nearby) {
+        if (t.document.disposition === target.document.disposition) {
+          result.allies.push(t);
+        } else if (t.document.disposition === -target.document.disposition) {
+          result.enemies.push(t);
+        } else if (t.document.disposition === 0) {
+          result.neutrals.push(t);
+        } else {
+          result.others.push(t);
+        }
+      }
+
+    });
+
+    return result;
+  }
+
   /**
    * Get the image for the token.
    *

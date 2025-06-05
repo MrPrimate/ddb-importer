@@ -1,6 +1,8 @@
 # Next Up
 
 - More spell icons from @crimsonedge
+- Sneak attack macro will now detect Rakish Audacity. (Thanks to ByronWLong).
+
 
 # 6.3.4
 
