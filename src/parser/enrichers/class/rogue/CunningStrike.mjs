@@ -106,7 +106,10 @@ export default class CunningStrike extends DDBEnricherData {
             },
           },
           damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6", types: ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"] }),
+            DDBEnricherData.basicDamagePart({
+              customFormula: "(@scale.rogue.sneak-attack.number - @scaling)d6",
+              types: DDBEnricherData.allDamageTypes(),
+            }),
           ],
         },
       },

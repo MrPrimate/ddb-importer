@@ -8,6 +8,7 @@ export default class SneakAttack extends DDBEnricherData {
 
   get activity() {
     return {
+      name: "Sneak Attack Damage",
       targetType: "creature",
       activationType: "special",
       noeffect: true,
@@ -15,6 +16,7 @@ export default class SneakAttack extends DDBEnricherData {
       data: {
         "range.units": "spec",
         damage: {
+          critical: { allow: true },
           parts: [
             DDBEnricherData.basicDamagePart({
               customFormula: "@scale.rogue.sneak-attack",
@@ -50,9 +52,11 @@ export default class SneakAttack extends DDBEnricherData {
   }
 
   get itemMacro() {
-    return {
-      type: "feat",
-      name: "sneakAttack.js",
-    };
+    return this.is2014
+      ? {
+        type: "feat",
+        name: "sneakAttack.js",
+      }
+      : null;
   }
 }

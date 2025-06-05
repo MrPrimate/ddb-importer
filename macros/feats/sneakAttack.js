@@ -1,4 +1,4 @@
-console.warn(args)
+
 try {
   if (workflow.activity.type !== "attack") return;
   if (workflow.activity.attack?.type?.classification !== "weapon") return;
@@ -14,7 +14,16 @@ try {
     return {}; // rogue only
   }
   let target = workflow.hitTargets.first();
-  if (!target) ui.notifications.error("Sneak attack macro failed");
+  if (!target) {
+    ui.notifications.error("Sneak attack macro failed, no target");
+    return {};
+  }
+
+  let sneakAttack = args[0].actor.collections.items.find((i) => i.system.identifier === "sneak-attack");
+  if (!sneakAttack) {
+    ui.notifications.error("Sneak attack macro failed, sneak attack item not found");
+    return {};
+  }
 
   if (game.combat) {
     const combatTime = `${game.combat.id}-${game.combat.round + game.combat.turn /100}`;
@@ -107,16 +116,18 @@ try {
       await actor.setFlag("midi-qol", "sneakAttackTime", combatTime)
     }
   }
-  const sneakActivity = macroItem.system.activities?.contents[0];
+  const sneakActivity = sneakAttack.system.activities?.contents[0];
   if (!sneakActivity) {
     console.error("no activity");
     return {};
   }
-  let damageRolls = await sneakActivity.rollDamage({
-    midiOptions: {isCritical: workflow.isCritical}},
-    {configure: false},
-    {create: false}
-    );
+  let damageRolls = await sneakActivity.rollDamage(
+    {
+      midiOptions: { isCritical: workflow.isCritical },
+    },
+    { configure: false },
+    { create: false }
+  );
   for (let damageRoll of damageRolls)
     damageRoll.options.flavor = sneakActivity.name;
   return damageRolls;
