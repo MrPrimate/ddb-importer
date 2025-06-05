@@ -28,14 +28,19 @@ try {
 
     let foundEnemy = true;
     let isSneak = args[0].advantage;
+    let rakishAudacity;
 
     if (!isSneak) {
       foundEnemy = false;
+      const me = args[0].actor;
+      const activeCreature = t =>
+        t.actor &&
+        t.actor?.id !== me._id && // not me
+        t.id !== target.id && // not the target
+        t.actor?.system.attributes?.hp?.value > 0; // not incapacitated 
       let nearbyEnemy = canvas.tokens.placeables.filter(t => {
-        let nearby = (t.actor &&
-             t.actor?.id !== args[0].actor._id && // not me
-             t.id !== target.id && // not the target
-             t.actor?.system.attributes?.hp?.value > 0 && // not incapacitated
+        let nearby = (
+             activeCreature(t) && 
              t.document.disposition !== target.document.disposition && // not an ally
              DDBImporter.EffectHelper.getDistance(t, target) <= 5 // close to the target
          );
@@ -43,9 +48,25 @@ try {
         return nearby;
       });
       isSneak = nearbyEnemy.length > 0;
+
+      // Rakish Audacity - if attacker is within 5 feet of target, has the class feature
+      // and no other creatures are within 5 feet of the attacker then sneak attack is available
+      if (!isSneak && DDBImporter.EffectHelper.getDistance(target, me) <= 5) {
+        rakishAudacity = me.collections.items.find(i => i.system.identifier === "rakish-audacity");
+        if (rakishAudacity) {
+          foundEnemy = foundEnemy || target.document.disposition === -(me.prototypeToken?.disposition || 1)
+          const nearbyCreatures = canvas.tokens.placeables.filter(t =>
+            activeCreature(t) &&
+            DDBImporter.EffectHelper.getDistance(t, me) <= 5 // close to the me
+          );
+          isSneak = nearbyCreatures.length === 0;
+        }
+      }
     }
+
     if (!isSneak) {
-      ui.notifications.warn("Sneak Attack Damage: No advantage/ally next to target");
+      ui.notifications.warn("Sneak Attack Damage: No advantage/ally next to target" + 
+        (rakishAudacity ? " and creature too close for " + rakishAudacity.name : ""));
       return {};
     }
     let useSneak = foundry.utils.getProperty(actor, "flags.dae.autoSneak");
@@ -82,9 +103,7 @@ try {
       }
     }
     const damageFormula = new CONFIG.Dice.DamageRoll(`${baseDice}d6`, {}, {
-        critical: args[0].isCritical ?? false,
-        powerfulCritical: game.settings.get("dnd5e", "criticalDamageMaxDice"),
-        multiplyNumeric: game.settings.get("dnd5e", "criticalDamageModifiers")
+        isCritical: args[0].isCritical ?? false
     }).formula;
     // How to check that we've already done one this turn?
     return {damageRoll: damageFormula, flavor: "Sneak Attack"};
