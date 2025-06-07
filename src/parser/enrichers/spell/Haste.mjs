@@ -6,6 +6,11 @@ export default class Haste extends DDBEnricherData {
   get effects() {
     return [
       {
+        data: {
+          duration: {
+            seconds: 60,
+          },
+        },
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
           DDBEnricherData.ChangeHelper.customChange("*2", 30, "system.attributes.movement.all"),
