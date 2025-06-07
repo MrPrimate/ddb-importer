@@ -1,8 +1,9 @@
-# Next Up
+# 6.3.5
 
 - More spell icons from @crimsonedge
 - Sneak attack macro will now detect Rakish Audacity. (Thanks to ByronWLong).
-
+- Fixes for Third Party Scene Linker - in particular the WDDotMM maps from Cyren would not link up correctly in newer versions of 5e/Foundry. @zara9765
+- Haste effect duration parsed to 6 seconds rather than 60.
 
 # 6.3.4
 
