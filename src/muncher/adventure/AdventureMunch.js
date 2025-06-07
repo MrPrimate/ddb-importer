@@ -472,6 +472,7 @@ export default class AdventureMunch {
       : game.actors.get(actorId);
   }
 
+  // eslint-disable-next-line complexity
   static async _getTokenUpdateData(worldActor, sceneToken) {
     const items = [];
     const ddbItems = sceneToken.flags.ddbItems ?? [];
@@ -519,6 +520,28 @@ export default class AdventureMunch {
       delete sceneToken.actorData;
     }
 
+    if (sceneToken.delta?.effects) {
+      for (const effect of sceneToken.delta.effects) {
+        if (effect.label) {
+          effect.name = effect.label;
+          delete effect.label;
+        }
+        if (effect.icon) {
+          effect.img = effect.icon;
+          delete effect.icon;
+        }
+        if (foundry.utils.hasProperty(effect, "flags.core.statusId")) {
+          const condition = CONFIG.statusEffects.find((c) => c.id === effect.flags.core.statusId)
+            ?? CONFIG.statusEffects.find((c) => c.id.startsWith(effect.flags.core.statusId));
+          if (!condition) continue;
+          effect.id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
+          if (!effect.statuses) effect.statuses = [];
+          effect.statuses.push(condition.id);
+          delete effect.flags.core.statusId;
+        }
+      }
+    }
+
     if (items.length > 0) {
       foundry.utils.setProperty(tokenStub, "delta.items", items);
     }
@@ -532,10 +555,19 @@ export default class AdventureMunch {
       foundry.utils.setProperty(updateData, "delta.name", updateData.name);
     }
 
-    const tokenData = await worldActor.getTokenDocument(updateData);
+    let result;
+    try {
+      logger.debug(`Creating token data for ${sceneToken.name} for id ${sceneToken.actorId}`, { updateData, worldActorUUID: worldActor.uuid });
+      const tokenData = await worldActor.getTokenDocument(updateData);
 
-    logger.debug(`${sceneToken.name} token data for id ${sceneToken.actorId}`, tokenData);
-    return tokenData.toObject();
+      logger.debug(`${sceneToken.name} token data for id ${sceneToken.actorId}`, { tokenData, updateData, worldActorUUID: worldActor.uuid });
+      result = tokenData.toObject();
+    } catch (err) {
+      logger.error(`Error creating token data for ${sceneToken.name} for id ${sceneToken.actorId}`, err);
+      logger.error("Token data", { updateData, sceneToken, worldActor, result });
+      throw err;
+    }
+    return result;
   }
 
   async _getSceneTokens(scene, tokens) {

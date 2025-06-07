@@ -2,11 +2,10 @@ import { FileHelper } from "../../lib/_module.mjs";
 import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport.js";
 
 function getSceneId(li) {
-  return $(li).attr("data-document-id")
-    ? $(li).attr("data-document-id")
-    : $(li).attr("data-scene-id")
-      ? $(li).attr("data-scene-id")
-      : $(li).attr("data-entity-id");
+  return $(li).attr("data-entry-id")
+    ?? $(li).attr("data-document-id")
+    ?? $(li).attr("data-scene-id")
+    ?? $(li).attr("data-entity-id");
 }
 
 export default function (html, contextOptions) {
@@ -26,7 +25,7 @@ export default function (html, contextOptions) {
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
       const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
-      const allowDownload = game.user.isGM && sceneDownload && scene.flags.ddb?.ddbId;
+      const allowDownload = game.user.isGM && sceneDownload && scene.flags?.ddb?.ddbId;
       return allowDownload;
     },
     icon: '<i class="fas fa-share-alt"></i>',
@@ -41,7 +40,7 @@ export default function (html, contextOptions) {
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
       const sceneDownload = game.settings.get("ddb-importer", "allow-third-party-scene-download");
-      const allowDownload = game.user.isGM && sceneDownload && !scene.flags.ddb?.ddbId;
+      const allowDownload = game.user.isGM && sceneDownload && !scene.flags?.ddb?.ddbId;
       return allowDownload;
     },
     icon: '<i class="fas fa-share-alt"></i>',
