@@ -1,3 +1,7 @@
+# Next Up
+
+- Frostbite did not get it's Midi-QoL effect generated
+
 # 6.3.5
 
 - More spell icons from @crimsonedge

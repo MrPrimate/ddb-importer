@@ -4,7 +4,7 @@ export const SOURCE_CATEGORIES = {
     3, 6, 9, 11, 13, 28,
   ],
   hidden: [
-    16, 9999999,
+    16, 9999999, 35,
   ],
 };
 

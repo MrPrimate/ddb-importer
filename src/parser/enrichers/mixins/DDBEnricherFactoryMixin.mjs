@@ -604,12 +604,15 @@ export default class DDBEnricherFactoryMixin {
       let effectOptions = effectHint.options ?? {};
 
       let effect;
+      let useExistingEffect = false;
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
         if (effectHint.name) effect.name = effectHint.name;
         if (effectOptions.description) effect.description = effectOptions.description;
+        useExistingEffect = true;
       } else if (effectHint.noCreate && effects.length > 0) {
         effect = effects[effects.length - 1];
+        useExistingEffect = true;
       } else if (effectHint.raw) {
         effect = foundry.utils.deepClone(effectHint.raw);
         if (effectHint.name) effect.name = effectHint.name;
@@ -783,7 +786,7 @@ export default class DDBEnricherFactoryMixin {
   </section>`;
       }
 
-      if (!effectHint.noCreate) effects.push(effect);
+      if (!useExistingEffect) effects.push(effect);
     }
 
     AutoEffects.forceDocumentEffect(this.data);
