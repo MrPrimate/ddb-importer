@@ -1,4 +1,4 @@
-# Next Up
+# 6.3.6
 
 - Frostbite did not get it's Midi-QoL effect generated. @dineshm72
 - Fix and issue when updating/adding custom items back to DDB. @dineshm72
