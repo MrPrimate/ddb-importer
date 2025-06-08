@@ -692,7 +692,9 @@ async function addDDBCustomItems(actor, itemsToAdd) {
       },
     };
 
-    const itemData = item.toObject();
+    const itemData = (typeof item.toObject === "function")
+      ? item.toObject()
+      : foundry.utils.duplicate(item);
     const data = await updateCharacterCall(actor, "custom/item", customData, { name: itemData.name });
     foundry.utils.setProperty(itemData, "flags.ddbimporter.id", data.data.addItems[0].id);
     foundry.utils.setProperty(itemData, "flags.ddbimporter.custom", true);
