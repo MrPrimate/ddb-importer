@@ -1,9 +1,10 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import { logger, utils, FileHelper, CompendiumHelper, Secrets, DDBProxy, PatreonHelper } from "../../lib/_module.mjs";
+import { logger, utils, FileHelper, CompendiumHelper } from "../../lib/_module.mjs";
 import { generateAdventureConfig } from "../adventure.js";
 import { SETTINGS } from "../../config/_module.mjs";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
 import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
+import MonsterReplacer from "../../apps/MonsterReplacer.js";
 
 export default class AdventureMunch {
 
@@ -756,82 +757,6 @@ export default class AdventureMunch {
 
   }
 
-
-  async _chooseMonstersToReplace(monsterData) {
-
-    logger.info(`Selecting Monsters for ${this.adventure.name} - (${monsterData.length} possible monsters for replacement)`);
-
-    // const content = await renderTemplate("modules/ddb-importer/handlebars/adventure/choose-monsters.hbs", {
-    //   monsterData: monsterData,
-    // });
-
-    const fields = foundry.applications.fields;
-
-    const options = monsterData.map((m) => {
-      return {
-        label: `${m.name2014} (${m.id2014}) to ${m.name2024} (${m.id2024})`,
-        value: m.id2014,
-        selected: false,
-        disabled: false,
-      };
-    });
-
-    const multiSelectInput = fields.createMultiSelectInput({
-      options,
-      sort: true,
-      type: "checkboxes",
-      name: "ids",
-    });
-
-
-    const content = `${multiSelectInput.outerHTML}`;
-
-    const response = await foundry.applications.api.DialogV2.prompt({
-      rejectClose: false,
-      ok: {
-        label: "Select",
-        icon: "fa-solid fa-floppy-disk",
-        callback: (_event, button, _dialog) => new FormDataExtended(button.form).object,
-      },
-      window: { title: "Select Monsters to Update to latest version" },
-      content,
-      classes: ["ddb-monster-select-dialog"],
-    });
-
-    return response.ids.map((id) => Number.parseInt(id));
-  }
-
-
-  static fetchUpdatedMonsterInfo(ids = []) {
-    const cobaltCookie = Secrets.getCobalt();
-    const parsingApi = DDBProxy.getProxy();
-    const betaKey = PatreonHelper.getPatreonKey();
-    const body = { cobalt: cobaltCookie, betaKey: betaKey };
-
-    body.ids = Array.from(new Set(ids.map((id) => Number.parseInt(id)))); // remove duplicates from ids;
-    body.type = "id";
-
-    return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/proxy/monsters/hints`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (!data.success) {
-            utils.munchNote(`Failure: ${data.message}`);
-            reject(data.message);
-          }
-          return data.data;
-        })
-        .then((data) => resolve(data))
-        .catch((error) => reject(error));
-    });
-  }
-
   async _updateMonsterData() {
     if (!this.use2024monsters) return;
 
@@ -840,12 +765,16 @@ export default class AdventureMunch {
 
     ids.push(...monsterDataIds);
 
-    const monsterData = await AdventureMunch.fetchUpdatedMonsterInfo(ids);
+    const monsterData = await MonsterReplacer.fetchUpdatedMonsterInfo(ids);
     logger.debug("Updated Monster Data", monsterData);
 
     if (monsterData.length === 0) return;
 
-    const monstersToReplace = await this._chooseMonstersToReplace(monsterData);
+    const monsterReplacer = new MonsterReplacer({
+      name: this.adventure.name,
+    });
+
+    const monstersToReplace = await monsterReplacer.chooseMonstersToReplace(monsterData);
     logger.debug("Monsters to Replace", monstersToReplace);
 
     if (monstersToReplace.length === 0) return;

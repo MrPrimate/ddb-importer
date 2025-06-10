@@ -1,3 +1,8 @@
+# Next Up
+
+- Legacy Monster replacer on adventure importer now allows a select all quick option.
+- Moving items from containers to characters when syncing back to DDB, required an update. @dineshm72
+
 # 6.3.6
 
 - Frostbite did not get it's Midi-QoL effect generated. @dineshm72
