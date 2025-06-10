@@ -932,6 +932,11 @@ async function removeEquipment(actor, ddbCharacter) {
 }
 
 async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
+  logger.debug("Updating DDB Equipment Status", {
+    updateItemDetails,
+    actor,
+    ddbItems,
+  });
   const itemsToEquip = updateItemDetails.itemsToEquip || [];
   const itemsToAttune = updateItemDetails.itemsToAttune || [];
   const itemsToCharge = updateItemDetails.itemsToCharge || [];
@@ -944,10 +949,16 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   let promises = [];
 
   itemsToMove.forEach((item) => {
+    const characterId = parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
+    const containerEntityTypeId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
+      && parseInt(item.flags.ddbimporter.containerEntityId) === parseInt(characterId)
+      ? parseInt("1581111423") // default to character inventory
+      : parseInt(item.flags.ddbimporter.containerEntityTypeId);
+
     const itemData = {
       itemId: item.flags.ddbimporter.id,
       containerEntityId: item.flags.ddbimporter.containerEntityId,
-      containerEntityTypeId: item.flags.ddbimporter.containerEntityTypeId,
+      containerEntityTypeId: containerEntityTypeId,
     };
     promises.push(updateCharacterCall(actor, "equipment/move", itemData, { name: item.name }));
   });
