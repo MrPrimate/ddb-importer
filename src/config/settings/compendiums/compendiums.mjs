@@ -216,6 +216,7 @@ export const FOUNDRY_COMPENDIUM_MAP = {
   "classes2024": [
     "dnd-tashas-cauldron.tcoe-character-options",
     "dnd-players-handbook.classes",
+    "dnd5e.classes24",
   ],
   "spells": [
     "dnd5e.spells",
@@ -224,13 +225,16 @@ export const FOUNDRY_COMPENDIUM_MAP = {
   "spells2024": [
     "dnd-players-handbook.spells",
     "dnd-tashas-cauldron.tcoe-character-options",
+    "dnd5e.spells24",
   ],
   "items": [
     "dnd-tashas-cauldron.tcoe-magic-items",
+    "dnd5e.items",
   ],
   "items2024": [
     "dnd-tashas-cauldron.tcoe-magic-items",
     "dnd-players-handbook.equipment",
+    "dnd5e.equipment24",
   ],
 };
 
