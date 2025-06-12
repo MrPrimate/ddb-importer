@@ -1,4 +1,9 @@
+# Next Up
+
+- Improvements to class generation and imports to compendiums. (Such as primary abilities and being set at level 20).
+
 # 6.3.7
+
 - Legacy Monster replacer on adventure importer now allows a select all quick option.
 - Moving items from containers to characters when syncing back to DDB, required an update. @dineshm72
 

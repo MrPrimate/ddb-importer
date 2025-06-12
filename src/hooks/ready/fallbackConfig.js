@@ -4974,6 +4974,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/dnd/modr",
     },
     {
+      id: 197,
+      name: "TGC",
+      description: "The Gunslinger Class: Valda’s Spire of Secrets",
+      sourceCategoryId: 32,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/49204/548/638829235504613833.jpeg",
+      sourceURL: "sources/dnd/tgc",
+    },
+    {
       id: 198,
       name: "Core",
       description: "Core Rules",

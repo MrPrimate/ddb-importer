@@ -163,6 +163,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Armor Model",
     "Drake Companion",
     "Bond of Fang and Scale",
+    "Scholar",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -240,6 +241,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Storm Soul",
     "Drake Companion",
     "Bond of Fang and Scale",
+    "Scholar",
     // "Maneuver Options",
   ],
   OVERRIDE_CHOICE_FEATURE: [

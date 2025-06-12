@@ -64,6 +64,7 @@ export default class DDBClass {
     "Deft Explorer",
     "Survivalist",
     "Blessings of Knowledge",
+    "Scholar",
     // "Tool Expertise", // revisit,this doesn't work the same way
   ];
 
@@ -750,13 +751,15 @@ export default class DDBClass {
         title: "Maximum Prepared Spells",
         icon: null,
       };
-      this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.forEach((value, i) => {
-        if (i !== 0) {
-          advancement.configuration.scale[i] = {
-            value,
-          };
-        }
-      });
+      for (let i = 1; i < this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.length; i += 1) {
+        const value = this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes[i];
+        if (value === 0) continue;
+        const previousValue = this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes[i - 1];
+        if (value === previousValue) continue;
+        advancement.configuration.scale[i] = {
+          value,
+        };
+      }
       this.data.system.advancement.push(advancement);
     }
 
@@ -775,13 +778,15 @@ export default class DDBClass {
         title: "Cantrips Known",
         icon: null,
       };
-      this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes.forEach((value, i) => {
-        if (i !== 0) {
-          advancement.configuration.scale[i] = {
-            value,
-          };
-        }
-      });
+      for (let i = 1; i < this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes.length; i += 1) {
+        const value = this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes[i];
+        if (value === 0) continue;
+        const previousValue = this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes[i - 1];
+        if (value === previousValue) continue;
+        advancement.configuration.scale[i] = {
+          value,
+        };
+      }
       this.data.system.advancement.push(advancement);
     }
 
@@ -800,13 +805,15 @@ export default class DDBClass {
         title: "Spells Known",
         icon: null,
       };
-      this.ddbClassDefinition.spellRules.levelSpellKnownMaxes.forEach((value, i) => {
-        if (i !== 0) {
-          advancement.configuration.scale[i] = {
-            value,
-          };
-        }
-      });
+      for (let i = 1; i < this.ddbClassDefinition.spellRules.levelSpellKnownMaxes.length; i += 1) {
+        const value = this.ddbClassDefinition.spellRules.levelSpellKnownMaxes[i];
+        if (value === 0) continue;
+        const previousValue = this.ddbClassDefinition.spellRules.levelSpellKnownMaxes[i - 1];
+        if (value === previousValue) continue;
+        advancement.configuration.scale[i] = {
+          value,
+        };
+      }
       this.data.system.advancement.push(advancement);
     }
   }
@@ -1526,10 +1533,23 @@ export default class DDBClass {
   }
 
   _generatePrimaryAbility() {
+    const primaryAbilities = [];
+    for (const prerequisite of this.ddbClassDefinition.prerequisites) {
+      for (const mapping of prerequisite.prerequisiteMappings) {
+        if (mapping.type !== "ability-score") continue;
+        const ability = DICTIONARY.actor.abilities.find((a) => a.id === mapping.entityId);
+        if (ability) {
+          primaryAbilities.push(ability.value);
+        } else {
+          logger.warn("DDBClass - Missing primary ability mapping", { mapping, prerequisite, this: this });
+        }
+      }
+    }
+
     this.data.system.primaryAbility = {
-      value: this.ddbClassDefinition.primaryAbilities.map((a) => DICTIONARY.actor.abilities.id === a)?.value,
-      all: false, // if multiclassing selected does muticlass require all to be 13, or just 1?
-    }; // KNOWN_ISSUE_4_0: can i use preq data in ddb for this?
+      value: primaryAbilities,
+      all: false,
+    };
   };
 
   async _addToCompendium() {
@@ -1561,7 +1581,15 @@ export default class DDBClass {
       notifier: null,
     };
 
-    const handler = await DDBItemImporter.buildHandler(type, [foundry.utils.deepClone(this.data)], updateFeatures, handlerOptions);
+    const data = foundry.utils.deepClone(this.data);
+
+    for (const advancement of data.system.advancement) {
+      delete advancement.value;
+    }
+    if (data.system.levels) data.system.levels = 1;
+    if (data.system.hd) data.system.hd.spent = 0;
+
+    const handler = await DDBItemImporter.buildHandler(type, [data], updateFeatures, handlerOptions);
     await handler.buildIndex();
   }
 
