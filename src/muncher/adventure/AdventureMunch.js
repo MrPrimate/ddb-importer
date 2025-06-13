@@ -61,9 +61,6 @@ export default class AdventureMunch {
       macros: [],
       folders: [],
     };
-    this.remove = {
-      folderIds: new Set(),
-    };
     this.zip = null;
     this.allMonsters = false;
     this.journalWorldActors = false;
@@ -78,7 +75,6 @@ export default class AdventureMunch {
       adventureConfig: {},
     };
 
-    this.addToCompendiums = false;
     this.compendiums = {
       journal: null,
       table: null,
@@ -292,7 +288,6 @@ export default class AdventureMunch {
         // eslint-disable-next-line require-atomic-updates
         const newFolder = await Folder.create(folderData, { keepId: true });
         this.temporary.folders.push(newFolder);
-        if (this.addToAdventureCompendium) this.remove.folderIds.add(newFolder._id);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
@@ -680,15 +675,7 @@ export default class AdventureMunch {
     } catch (err) {
       logger.error("Error importing to compendium", err);
       throw err;
-    } finally {
-      const folderIds = [...this.remove.folderIds];
-      if (folderIds.length > 0) {
-        logger.debug("Removing folders", folderIds);
-        const results = await Folder.deleteDocuments(folderIds);
-        logger.debug("Delete results", results);
-      }
     }
-
   }
 
   _unpackZip() {
