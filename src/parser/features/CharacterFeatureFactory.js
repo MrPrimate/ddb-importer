@@ -509,8 +509,19 @@ export default class CharacterFeatureFactory {
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
+        logger.debug(`Processing racial trait ${item.name}`, {
+          trait,
+          existingFeature,
+          duplicateFeature,
+          item,
+        });
         if (existingFeature && !duplicateFeature) {
           existingFeature.system.description.value += `<h3>Racial Trait Addition</h3>${item.system.description.value}`;
+        } else if (existingFeature) {
+          logger.debug(`Duplicate feature found for ${item.name}, skipping`, {
+            existingFeature,
+            trait,
+          });
         } else if (!existingFeature) {
           foundry.utils.setProperty(item, "flags.ddbimporter.baseName", (trait.definition.fullName ?? trait.definition.name));
           foundry.utils.setProperty(item, "flags.ddbimporter.fullRaceName", this.ddbCharacter._ddbRace.fullName);
@@ -782,7 +793,13 @@ export default class CharacterFeatureFactory {
         && !foundry.utils.getProperty(doc, "flags.ddbimporter.infusionFeature")
         && (klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class")
         || klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.class")),
-      );
+      ).map((doc) => {
+        if (!doc.system.advancement) return doc;
+        for (const advancement of doc.system.advancement) {
+          delete advancement.value;
+        }
+        return doc;
+      });
 
       logger.debug(`Adding class features for ${klassName} to the class compendium`, {
         classFeatures,
@@ -798,7 +815,13 @@ export default class CharacterFeatureFactory {
     const traitFeatures = featTypeDocs.filter((doc) =>
       ["race", "trait", "species"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
       && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
-    );
+    ).map((doc) => {
+      if (!doc.system.advancement) return doc;
+      for (const advancement of doc.system.advancement) {
+        delete advancement.value;
+      }
+      return doc;
+    });
     logger.debug(`Adding species traits to the species compendium`, {
       traitFeatures,
     });
@@ -833,7 +856,13 @@ export default class CharacterFeatureFactory {
     const featFeatures = featTypeDocs.filter((doc) =>
       ["feat"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
       && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
-    );
+    ).map((doc) => {
+      if (!doc.system.advancement) return doc;
+      for (const advancement of doc.system.advancement) {
+        delete advancement.value;
+      }
+      return doc;
+    });
     logger.debug(`Adding feats to the feats compendium`, {
       featFeatures,
     });
@@ -848,7 +877,13 @@ export default class CharacterFeatureFactory {
     const backgroundFeatures = documents.filter((doc) =>
       ["background"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
       && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
-    );
+    ).map((doc) => {
+      if (!doc.system.advancement) return doc;
+      for (const advancement of doc.system.advancement) {
+        delete advancement.value;
+      }
+      return doc;
+    });
     logger.debug(`Adding backgrounds to the backgrounds compendium`, {
       backgroundFeatures,
     });

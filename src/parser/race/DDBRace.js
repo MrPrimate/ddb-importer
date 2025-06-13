@@ -418,6 +418,18 @@ export default class DDBRace {
     if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
+  async #generateSpellAdvancement() {
+    // loop through race spells
+
+    // determine if spell is choice or grant
+
+    // if choice, filter out 2014/2024 versions
+
+    // find spells in compendium
+    // prepare advancement
+
+  }
+
   async #generateFeatAdvancement(trait) {
     if (!["Feats", "Feat"].includes(trait.name.trim())) return;
 
@@ -720,6 +732,7 @@ export default class DDBRace {
       this.#generateTraitAdvancementFromCompendiumMatch(trait);
     });
 
+    this.#generateSpellAdvancement();
     this.#generateAbilityAdvancement();
     this.#advancementFixes();
     this.#generateSenses();
@@ -766,6 +779,10 @@ export default class DDBRace {
     }
 
     const race = foundry.utils.deepClone(this.data);
+
+    for (const advancement of race.system.advancement) {
+      delete advancement.value;
+    }
 
     const speciesHandler = await DDBItemImporter.buildHandler("race", [race], updateFeatures, traitHandlerOptions);
     await speciesHandler.buildIndex(traitHandlerOptions.indexFilter);
