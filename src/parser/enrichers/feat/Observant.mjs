@@ -4,6 +4,9 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class Observant extends DDBEnricherData {
 
   get effects() {
+    if (!this.is2014) {
+      return [];
+    }
     return [
       {
         noCreate: true,
@@ -15,6 +18,10 @@ export default class Observant extends DDBEnricherData {
         ],
       },
     ];
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 
   get additionalActivities() {
