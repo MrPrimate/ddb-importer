@@ -3,6 +3,7 @@
 - Improvements to class generation and imports to compendiums. (Such as primary abilities and being set at level 20).
 - When importing an Adventure to a compendium, depending on setting selections, it could delete the folders in the world.
 - Fix for 2014 Observant feat parsing. @rexx2008
+- Some newer monsters have different language configuration, and languages would parse with a null postfix.
 
 # 6.3.7
 

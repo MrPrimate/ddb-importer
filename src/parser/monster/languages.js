@@ -20,7 +20,7 @@ DDBMonster.prototype._generateLanguages = function _generateLanguages () {
     const languageId = lng.languageId === 100 ? 46 : lng.languageId;
     const language = config.find((cfg) => languageId == cfg.id);
     const foundryLanguage = ProficiencyFinder.getMappedLanguage({ name: language?.name ?? "Unknown Language" });
-    if (foundryLanguage && lng.notes == '') {
+    if (foundryLanguage && (!lng.notes || lng.notes == '')) {
       values.push(foundryLanguage);
     } else if (language) {
       const notes = (lng.notes !== '') ? ` ${lng.notes}` : "";
