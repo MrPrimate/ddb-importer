@@ -1527,19 +1527,9 @@ ${this.data.system.description.value}
   }
 
   async #retrieveCompendiumSpells(spellNames) {
-    const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
-
-    const results = await CompendiumHelper.queryCompendiumEntries({
-      compendiumName,
-      documentNames: spellNames,
-      getDocuments: false,
-      matchedProperties: {
-        "system.source.rules": this.use2024Spells ? "2024" : "2014",
-      },
+    return CompendiumHelper.retrieveCompendiumSpellReferences(spellNames, {
+      use2024Spells: this.use2024Spells,
     });
-    const cleanResults = results.filter((item) => item !== null);
-
-    return cleanResults;
   }
 
 

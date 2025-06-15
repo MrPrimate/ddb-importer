@@ -1784,6 +1784,113 @@ export default class AdvancementHelper {
   //   return parsedExpertises;
   // }
 
+
+  static parseHTMLSpellAdvancementData(description) {
+    const result = {
+      cantripChoices: [],
+      cantripGrants: [],
+      spellGrants: [],
+      spellChoices: [],
+      abilities: [],
+      hint: "",
+    };
+    const spellsAdded = new Set();
+
+    if (description.includes("Choose a lineage from the")) {
+      // TODO : handle lineage tables
+      return result;
+    }
+
+    // You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.
+    if (description.includes("one of the following cantrips of your choice")) {
+      const choices = description.split("one of the following cantrips of your choice:")
+        .slice(1)[0]
+        .split(".")[0]
+        .replace(" or ", ",")
+        .replaceAll(",,", ",")
+        .split(",")
+        .map((cantrip) => cantrip.toLowerCase().trim());
+      for (const choice of choices) {
+        if (spellsAdded.has(choice)) continue;
+        result.cantripChoices.push(choice);
+        spellsAdded.add(choice);
+      }
+    }
+
+    // You also know the Poison Spray cantrip.
+    // You know the shocking grasp cantrip.
+    // You know the druidcraft cantrip.
+    // You know the mage hand cantrip, and the hand is invisible when you cast the cantrip with this trait.
+    const cantripGrantRegex = /You (?:also )?know the ([\w /]+) cantrip/ig;
+    const cantripGrants = description.matchAll(cantripGrantRegex);
+    for (const match of cantripGrants) {
+      const cantrip = match[1].toLowerCase().trim();
+      if (spellsAdded.has(cantrip)) continue;
+      result.cantripGrants.push(cantrip);
+      spellsAdded.add(cantrip);
+    }
+
+    // Starting at 3rd level, you can cast the feather fall spell with this trait, without requiring a material component. Starting at 5th level, you can also cast the levitate spell with this trait, without requiring a material component.
+    // Starting at 3rd level, you can also cast suggestion with this trait.
+    // Starting at 3rd level, you can cast the disguise self spell with this trait. Starting at 5th level, you can also cast the nondetection spell with it, without requiring a material component.
+    // Starting at 3rd level, you can cast the enlarge/reduce spell on yourself with this trait, without requiring a material component. Starting at 5th level, you can also cast the invisibility spell on yourself with this trait, without requiring a material component.
+    // Starting at 5th level, you can cast the pass without trace spell with this trait, without requiring a material component.
+    // Starting at 3rd level, you can cast the faerie fire spell with this trait. Starting at 5th level, you can also cast the enlarge/reduce spell with this trait.
+    //  When you reach 3rd level, you can cast the create or destroy water spell as a 2nd-level spell once with this trait, and you regain the ability to cast it this way when you finish a long rest
+
+    const startingAtRegex = /(?:Starting at|When you reach) (\d+)(?:st|nd|rd|th) level, you can (?:also )?cast (?:the )?(.+?)(?: spell)?(?:spell on yourself)? (?:with this trait|as a|with it)/ig;
+    const startingAtMatches = description.matchAll(startingAtRegex);
+    for (const match of startingAtMatches) {
+      const spell = match[2].toLowerCase().trim();
+      if (spellsAdded.has(spell)) continue;
+      const level = parseInt(match[1]);
+      spellsAdded.add(spell);
+      result.spellGrants.push({
+        level: level,
+        name: spell,
+      });
+    }
+
+    // You can cast the detect magic and disguise self spells with this trait. When you use this version of disguise self, you can seem up to 3 feet shorter or taller. Once you cast either of these spells with this trait, you can’t cast that spell with it again until you finish a long rest.
+    // You can cast the levitate spell once with this trait, requiring no material components, and you regain the ability to cast it this way when you finish a long rest.
+    // You can cast animal friendship an unlimited number of times with this trait, but you can target only snakes with it.
+    const canCastRegex = /you can (?:also )?cast (?:the )?(.+?)(?: spells?)? (once |an unlimited number of times |on yourself |as a \d+(?:st|nd|rd|th)[- ]level spell once )?with this trait/ig;
+
+    const canCastMatches = description.matchAll(canCastRegex);
+    for (const match of canCastMatches) {
+      const spells = match[1].split(" and ").map((s) => s.toLowerCase().trim());
+      const unlimited = match[2] && match[2].includes("unlimited");
+      for (const spell of spells) {
+        if (spellsAdded.has(spell)) continue;
+        spellsAdded.add(spell);
+        result.spellGrants.push({
+          level: 1,
+          name: spell,
+          amount: unlimited ? "" : "1",
+        });
+      }
+    }
+
+    // Intelligence, Wisdom, or Charisma is your spellcasting ability for it
+    // Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait
+    // Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells when you cast them with this trait
+    // Constitution is your spellcasting ability for this spell.
+    const abilityRegex = /(Intelligence, Wisdom, or Charisma|Intelligence|Wisdom|Charisma|Constitution) is your spellcasting ability for/i;
+
+    const abilityMatches = abilityRegex.exec(description);
+    if (abilityMatches) {
+      if (abilityMatches[1].includes("Intelligence, Wisdom, or Charisma")) {
+        result.hint = "You can choose Intelligence, Wisdom, or Charisma as your spellcasting ability for these spells.";
+      }
+      result.abilities = abilityMatches[1].replace(" or ", ",").replaceAll(",,", ",").split(",").map((ability) =>
+        ability.trim().toLowerCase().substr(0, 3),
+      );
+    }
+    // When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table
+
+    return result;
+  }
+
   static CONDITION_MAPPING = {
     "resistance": "dr",
     "immunity": "di",

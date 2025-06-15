@@ -164,6 +164,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Drake Companion",
     "Bond of Fang and Scale",
     "Scholar",
+    "Astral Fire",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",

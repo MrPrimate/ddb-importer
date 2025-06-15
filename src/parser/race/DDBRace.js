@@ -418,8 +418,177 @@ export default class DDBRace {
     if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 
-  async #generateSpellAdvancement() {
+  static async getCompendiumSpellUuidsFromNames(names) {
+    const spellChoice = game.settings.get("ddb-importer", "munching-policy-force-spell-version");
+    const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
+      use2024Spells: spellChoice === "FORCE_2024",
+    });
+
+    if (spells.length > 0) {
+      return spells.map((s) => {
+        return { uuid: s.uuid };
+      });
+    }
+    return [];
+  }
+
+  async #generateSpellAdvancement(trait) {
+    const advancements = [];
+
+    const htmlData = AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
+
+    console.warn("Spell Advancement Data", {
+      htmlData,
+      this: this,
+      trait,
+    });
+
+    if (htmlData.cantripChoices.length > 0) {
+      const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+      const uuids = await DDBRace.getCompendiumSpellUuidsFromNames(htmlData.cantripChoices);
+
+      advancement.updateSource({
+        title: trait.name,
+        configuration: {
+          allowDrops: false,
+          pool: uuids,
+          choices: {
+            "0": {
+              count: 1,
+              replacement: false,
+            },
+            replacement: {
+              count: null,
+              replacement: false,
+            },
+          },
+          restriction: {
+            level: "0",
+            type: "spell",
+          },
+          type: "spell",
+          spell: {
+            ability: htmlData.abilities,
+            preparation: "",
+            uses: {
+              max: "",
+              per: "",
+              requireSlot: false,
+            },
+          },
+          hint: htmlData.hint,
+        },
+      });
+      advancements.push(advancement);
+    }
+
+    if (htmlData.cantripGrants.length > 0) {
+      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+      const uuids = await this.getCompendiumSpellUuidsFromNames(htmlData.cantripGrants);
+
+      advancement.updateSource({
+        title: trait.name,
+        level: 1,
+        configuration: {
+          items: uuids.map((s) => {
+            s.optional = false;
+            return s;
+          }),
+          type: "spell",
+          spell: {
+            ability: htmlData.abilities,
+            preparation: "",
+            uses: {
+              max: "",
+              per: "",
+              requireSlot: false,
+            },
+          },
+        },
+        hint: htmlData.hint,
+      });
+      advancements.push(advancement);
+    }
+
+
+    for (const spellGrant of  htmlData.spellGrants) {
+      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+      const uuids = await this.getCompendiumSpellUuidsFromNames([spellGrant.name]);
+
+      advancement.updateSource({
+        title: trait.name,
+        level: spellGrant.level,
+        configuration: {
+          items: uuids.map((s) => {
+            s.optional = false;
+            return s;
+          }),
+          type: "spell",
+          spell: {
+            ability: htmlData.abilities,
+            preparation: "always",
+            uses: {
+              max: spellGrant.amount === "" ? "" : spellGrant.amount,
+              per: spellGrant.amount === "" ? "" : "lr",
+              requireSlot: false,
+            },
+          },
+        },
+        hint: htmlData.hint,
+      });
+
+      advancements.push(advancement);
+    }
     // loop through race spells
+
+    // let isChoice = false;
+    // const advancements = [];
+    // const choiceData = {
+    //   0: [],
+    //   1: [],
+    //   2: [],
+    //   3: [],
+    //   4: [],
+    //   5: [],
+    //   6: [],
+    //   7: [],
+    //   8: [],
+    //   9: [],
+    // };
+
+    // const speciesSpells = this.ddbData.character.spells.race;
+    // const speciesOptions = this.ddbData.character.options.race;
+    // const spellChoices = this.ddbData.character.choices.race;
+
+    // const grantSpells = [];
+    // const choiceSpells = [];
+
+    // for (const spell of speciesSpells) {
+
+    //   const advancement = new game.dnd5e.documents.advancement.SpellAdvancement();
+
+    //   const spellComponentId = spell.componentId;
+
+    //   // SPELL COMPONENT ID MATCH
+    //   // chosen spell option
+    //   options.race[]  definition.id //spellcoponent id
+
+    //   options.race[] componentId // OPTIONCOMPONENTID
+    //     // race.racialTraits.definition.id === OPTIONCOMPONENTID
+    //     // choices.race.componentId
+    //     // for spellcasting choice
+    //     // choices.choiceDefinitions.options.componentId === OPTIONCOMPONENTID
+
+
+
+    //   // chpsen option
+    //   choices{ race: [ { optionValue}]}
+    //   // available options
+    //   choices{ race: [ { optionIds[]}]}
+
+
+    // }
+
 
     // determine if spell is choice or grant
 
@@ -427,6 +596,14 @@ export default class DDBRace {
 
     // find spells in compendium
     // prepare advancement
+
+
+    // TODO: handle lingeage 2024 spells
+    // set chosen values
+
+    advancements.forEach((advancement) => {
+      this.data.system.advancement.push(advancement.toObject());
+    });
 
   }
 
@@ -727,12 +904,11 @@ export default class DDBRace {
       this.#generateToolAdvancement(trait);
       this.#generateFeatAdvancement(trait);
       this.#generateConditionAdvancement(trait);
-      // FUTURE, spells (at various levels, when supported)
+      this.#generateSpellAdvancement(trait);
 
       this.#generateTraitAdvancementFromCompendiumMatch(trait);
     });
 
-    this.#generateSpellAdvancement();
     this.#generateAbilityAdvancement();
     this.#advancementFixes();
     this.#generateSenses();
