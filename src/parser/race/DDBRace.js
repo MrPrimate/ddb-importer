@@ -438,12 +438,19 @@ export default class DDBRace {
     const advancements = [];
 
     const htmlData = trait.description.includes("Choose a lineage from the")
-      ? AdvancementHelper.parseHTMLTableLineageSpellAdvancementData({
+      || trait.description.includes("Choose a legacy from the")
+      ? AdvancementHelper.parseHTMLTableSpellAdvancementData({
         description: trait.description,
         species: this.fullName,
       })
-      : AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
+      : trait.description.includes(" Choose one of the following options")
+        ? AdvancementHelper.parseHTMLPTagSpellAdvancementData({
+          description: trait.description,
+          species: this.fullName,
+        })
+        : AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
 
+    const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(trait.description);
     logger.debug("Spell Advancement Data", {
       htmlData,
       this: this,
@@ -487,7 +494,7 @@ export default class DDBRace {
           },
           type: "spell",
           spell: {
-            ability: htmlData.abilities,
+            ability: abilityData.abilities,
             preparation: "",
             uses: {
               max: "",
@@ -495,10 +502,10 @@ export default class DDBRace {
               requireSlot: false,
             },
           },
-          hint: htmlData.hint,
+          hint: abilityData.hint,
         },
       });
-      advancements.push(advancement);
+      if (uuids.length > 0) advancements.push(advancement);
     }
 
     if (htmlData.cantripGrants.length > 0) {
@@ -523,7 +530,7 @@ export default class DDBRace {
           }),
           type: "spell",
           spell: {
-            ability: htmlData.abilities,
+            ability: abilityData.abilities,
             preparation: "",
             uses: {
               max: "",
@@ -532,9 +539,9 @@ export default class DDBRace {
             },
           },
         },
-        hint: htmlData.hint,
+        hint: abilityData.hint,
       });
-      advancements.push(advancement);
+      if (uuids.length > 0) advancements.push(advancement);
     }
 
 
@@ -560,7 +567,7 @@ export default class DDBRace {
           }),
           type: "spell",
           spell: {
-            ability: htmlData.abilities,
+            ability: abilityData.abilities,
             preparation: "always",
             uses: {
               max: spellGrant.amount === "" ? "" : spellGrant.amount,
@@ -569,10 +576,10 @@ export default class DDBRace {
             },
           },
         },
-        hint: htmlData.hint,
+        hint: abilityData.hint,
       });
 
-      advancements.push(advancement);
+      if (uuids.length > 0) advancements.push(advancement);
     }
     // Add chosen to advancements
     // loop through race spells
@@ -811,10 +818,20 @@ export default class DDBRace {
           foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
         }
 
-        a.value = {
-          ability,
-          added: addedSpells,
-        };
+        if (a.type === "ItemChoice") {
+          a.value = {
+            ability,
+            added: {
+              "0": addedSpells,
+            },
+          };
+        } else {
+          a.value = {
+            ability,
+            added: addedSpells,
+          };
+        }
+
         advancements[idx] = a;
       });
 

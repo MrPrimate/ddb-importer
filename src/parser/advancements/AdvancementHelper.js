@@ -1785,6 +1785,38 @@ export default class AdvancementHelper {
   // }
 
 
+  static parseHTMLSpellCastingAbilities(description) {
+    const result = {
+      hint: "",
+      abilities: [],
+    };
+
+    // Intelligence, Wisdom, or Charisma is your spellcasting ability for it
+    // Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait
+    // Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells when you cast them with this trait
+    // Constitution is your spellcasting ability for this spell.
+    const abilityRegex = /(Intelligence, Wisdom, or Charisma|Intelligence|Wisdom|Charisma|Constitution) is your spellcasting ability for/i;
+    const abilityMatches = abilityRegex.exec(description);
+    if (abilityMatches) {
+      if (abilityMatches[1].includes("Intelligence, Wisdom, or Charisma")) {
+        result.hint = "You can choose Intelligence, Wisdom, or Charisma as your spellcasting ability for these spells.";
+      }
+      result.abilities = abilityMatches[1].replace(" or ", ",").replaceAll(",,", ",").split(",").map((ability) =>
+        ability.trim().toLowerCase().substr(0, 3),
+      );
+    } else {
+      // the spell uses the same spellcasting ability
+      const otherTraitRegex = /When you cast it with this trait, the spell uses (\w+)./i;
+      const otherTraitMatch = description.match(otherTraitRegex);
+      if (otherTraitMatch) {
+        result.abilities = [otherTraitMatch[1].toLowerCase().substr(0, 3)];
+      }
+    }
+
+
+    return result;
+  }
+
   static parseHTMLSpellAdvancementData(description) {
     const result = {
       cantripChoices: [],
@@ -1880,30 +1912,32 @@ export default class AdvancementHelper {
       }
     }
 
-    // Intelligence, Wisdom, or Charisma is your spellcasting ability for it
-    // Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait
-    // Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells when you cast them with this trait
-    // Constitution is your spellcasting ability for this spell.
-    const abilityRegex = /(Intelligence, Wisdom, or Charisma|Intelligence|Wisdom|Charisma|Constitution) is your spellcasting ability for/i;
-
-    const abilityMatches = abilityRegex.exec(strippedDescription);
-    if (abilityMatches) {
-      if (abilityMatches[1].includes("Intelligence, Wisdom, or Charisma")) {
-        result.hint = "You can choose Intelligence, Wisdom, or Charisma as your spellcasting ability for these spells.";
-      }
-      result.abilities = abilityMatches[1].replace(" or ", ",").replaceAll(",,", ",").split(",").map((ability) =>
-        ability.trim().toLowerCase().substr(0, 3),
-      );
-    }
     // When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table
 
     return result;
   }
 
-  static parseHTMLTableLineageSpellAdvancementData({ description, species } = {}) {
+  static parseHTMLPTagSpellAdvancementData({ description, species } = {}) {
+
     const dom = utils.htmlToDocumentFragment(description);
 
-    console.warn("parseHTMLTableLineageSpellAdvancementData", {description, species, dom});
+    const pTags = dom.querySelectorAll('p strong');
+
+    let result;
+
+    pTags.forEach((pTag) => {
+      const textContent = pTag.textContent.trim().replace(".", "");
+      if (textContent.toLowerCase() === species.toLowerCase()) {
+        result = AdvancementHelper.parseHTMLSpellAdvancementData(pTag.parentNode.innerHTML); ;
+      }
+    });
+    return result || AdvancementHelper.parseHTMLSpellAdvancementData(description);
+
+  }
+
+  static parseHTMLTableSpellAdvancementData({ description, species } = {}) {
+    const dom = utils.htmlToDocumentFragment(description);
+
     const rows = dom.querySelectorAll('table tbody tr');
     const lineages = [];
 
@@ -1929,18 +1963,6 @@ Starting at 3rd level, you can cast the ${lineageMatch.three} spell with this tr
 Starting at 5th level, you can cast the ${lineageMatch.five} spell with this trait.`;
 
     const result = AdvancementHelper.parseHTMLSpellAdvancementData(adjustedDescription);
-
-    // Add lineage spellcasting abilities
-    const abilityRegex = /(Intelligence, Wisdom, or Charisma|Intelligence|Wisdom|Charisma|Constitution) is your spellcasting ability for/i;
-    const abilityMatches = abilityRegex.exec(description);
-    if (abilityMatches) {
-      if (abilityMatches[1].includes("Intelligence, Wisdom, or Charisma")) {
-        result.hint = "You can choose Intelligence, Wisdom, or Charisma as your spellcasting ability for these spells.";
-      }
-      result.abilities = abilityMatches[1].replace(" or ", ",").replaceAll(",,", ",").split(",").map((ability) =>
-        ability.trim().toLowerCase().substr(0, 3),
-      );
-    }
 
     return result;
   }
