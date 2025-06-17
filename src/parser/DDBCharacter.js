@@ -281,6 +281,7 @@ export default class DDBCharacter {
 
       this._classParser.linkFeatures();
       this._ddbRace.linkFeatures(this);
+      this._ddbRace.linkSpells(this);
       this._characterFeatureFactory.linkFeatures();
 
       // this adds extras like a Divine Smite spell to this.data

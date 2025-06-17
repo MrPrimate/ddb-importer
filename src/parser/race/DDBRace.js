@@ -174,6 +174,8 @@ export default class DDBRace {
       uuid: null,
     };
 
+    this.spellLinks = [];
+
     // compendium
     this._compendiums = {
       traits: CompendiumHelper.getCompendiumType("traits", false),
@@ -426,7 +428,7 @@ export default class DDBRace {
 
     if (spells.length > 0) {
       return spells.map((s) => {
-        return { uuid: s.uuid };
+        return { uuid: s.uuid, name: s.name };
       });
     }
     return [];
@@ -435,20 +437,37 @@ export default class DDBRace {
   async #generateSpellAdvancement(trait) {
     const advancements = [];
 
-    const htmlData = AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
+    const htmlData = trait.description.includes("Choose a lineage from the")
+      ? AdvancementHelper.parseHTMLTableLineageSpellAdvancementData({
+        description: trait.description,
+        species: this.fullName,
+      })
+      : AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
 
-    console.warn("Spell Advancement Data", {
+    logger.debug("Spell Advancement Data", {
       htmlData,
       this: this,
       trait,
     });
 
+    const name = trait.name.toLowerCase().includes("spell")
+      ? trait.name
+      : `${trait.name} (Spells)`;
+
     if (htmlData.cantripChoices.length > 0) {
       const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
       const uuids = await DDBRace.getCompendiumSpellUuidsFromNames(htmlData.cantripChoices);
 
+      this.spellLinks.push({
+        type: "choice",
+        advancementId: advancement._id,
+        choices: htmlData.cantripChoices,
+        uuids,
+        level: 0,
+      });
+
       advancement.updateSource({
-        title: trait.name,
+        title: name,
         configuration: {
           allowDrops: false,
           pool: uuids,
@@ -484,10 +503,18 @@ export default class DDBRace {
 
     if (htmlData.cantripGrants.length > 0) {
       const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
-      const uuids = await this.getCompendiumSpellUuidsFromNames(htmlData.cantripGrants);
+      const uuids = await DDBRace.getCompendiumSpellUuidsFromNames(htmlData.cantripGrants);
+
+      this.spellLinks.push({
+        type: "grant",
+        advancementId: advancement._id,
+        choices: htmlData.cantripGrants,
+        uuids,
+        level: 1,
+      });
 
       advancement.updateSource({
-        title: trait.name,
+        title: name,
         level: 1,
         configuration: {
           items: uuids.map((s) => {
@@ -511,12 +538,20 @@ export default class DDBRace {
     }
 
 
-    for (const spellGrant of  htmlData.spellGrants) {
+    for (const spellGrant of htmlData.spellGrants) {
       const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
-      const uuids = await this.getCompendiumSpellUuidsFromNames([spellGrant.name]);
+      const uuids = await DDBRace.getCompendiumSpellUuidsFromNames([spellGrant.name]);
+
+      this.spellLinks.push({
+        type: "grant",
+        advancementId: advancement._id,
+        choices: htmlData.cantripGrants,
+        uuids,
+        level: spellGrant.level,
+      });
 
       advancement.updateSource({
-        title: trait.name,
+        title: name,
         level: spellGrant.level,
         configuration: {
           items: uuids.map((s) => {
@@ -539,6 +574,7 @@ export default class DDBRace {
 
       advancements.push(advancement);
     }
+    // Add chosen to advancements
     // loop through race spells
 
     // let isChoice = false;
@@ -579,8 +615,6 @@ export default class DDBRace {
     //     // for spellcasting choice
     //     // choices.choiceDefinitions.options.componentId === OPTIONCOMPONENTID
 
-
-
     //   // chpsen option
     //   choices{ race: [ { optionValue}]}
     //   // available options
@@ -597,8 +631,6 @@ export default class DDBRace {
     // find spells in compendium
     // prepare advancement
 
-
-    // TODO: handle lingeage 2024 spells
     // set chosen values
 
     advancements.forEach((advancement) => {
@@ -744,6 +776,48 @@ export default class DDBRace {
       this.traitAdvancements[levelAdvancement].configuration.items.push({ uuid: traitMatch.uuid, optional: false });
       this._advancementMatches.traits[this.traitAdvancements[levelAdvancement]._id][traitMatch.name] = traitMatch.uuid;
     }
+  }
+
+  linkSpells(ddbCharacter) {
+    logger.debug("Linking Spells to Race", {
+      DDBRace: this,
+      ddbCharacter,
+    });
+
+    ddbCharacter.data.race.system.advancement
+      .filter((a) => foundry.utils.hasProperty(a, "configuration.spell"))
+      .forEach((a, idx, advancements) => {
+        const addedSpells = {};
+        let ability;
+
+        for (const spell of ddbCharacter.data.spells) {
+          const valid = spell.flags.ddbimporter.dndbeyond.lookup === "race"
+            && !spell.flags.ddbimporter.dndbeyond.usesSpellSlot;
+          if (!valid) continue;
+
+          const spellLinkMatch = this.spellLinks.find((l) => l.advancementId === a._id);
+          if (!spellLinkMatch) continue;
+
+          const spellUuidMatch = spellLinkMatch.find((l) =>
+            l.name.toLowerCase() === spell.flags.ddbimporter.originalName.toLowerCase(),
+          );
+          if (!spellUuidMatch) continue;
+
+          if (spell.flags.ddbimporter.dndbeyond.ability) ability = spell.flags.ddbimporter.dndbeyond.ability;
+
+          logger.debug(`Advancement Race ${a._id} found Spell ${spell.name} (${spellUuidMatch.uuid})`);
+          addedSpells[spell._id] = spellUuidMatch.uuid;
+          foundry.utils.setProperty(spell, "flags.dnd5e.sourceId", spellUuidMatch.uuid);
+          foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+        }
+
+        a.value = {
+          ability,
+          added: addedSpells,
+        };
+        advancements[idx] = a;
+      });
+
   }
 
   linkFeatures(ddbCharacter) {
