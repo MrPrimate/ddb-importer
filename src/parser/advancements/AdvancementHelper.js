@@ -1806,10 +1806,11 @@ export default class AdvancementHelper {
       );
     } else {
       // the spell uses the same spellcasting ability
-      const otherTraitRegex = /When you cast it with this trait, the spell uses (\w+)./i;
+      const otherTraitRegex = /When you cast it with this trait, the spell uses the same spellcasting ability./i;
       const otherTraitMatch = description.match(otherTraitRegex);
       if (otherTraitMatch) {
-        result.abilities = [otherTraitMatch[1].toLowerCase().substr(0, 3)];
+        result.hint = otherTraitMatch[0];
+        result.abilities = ["int", "wis", "cha"];
       }
     }
 
