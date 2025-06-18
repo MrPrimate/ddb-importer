@@ -1820,15 +1820,23 @@ export default class AdvancementHelper {
 
   static parseHTMLSpellAdvancementData(description) {
     const result = {
+      spellListCantripChoice: null,
       cantripChoices: [],
       cantripGrants: [],
       spellGrants: [],
       spellChoices: [],
-      abilities: [],
       hint: "",
     };
     const spellsAdded = new Set();
     const strippedDescription = AdvancementHelper.stripDescription(description);
+
+    const spellListRegex = /You know one cantrip of your choice from the (\w+) spell list/i;
+    const spellListMatch = strippedDescription.match(spellListRegex);
+
+    if (spellListMatch) {
+      result.hint = `You know one cantrip of your choice from the ${spellListMatch[1]} spell list.`;
+      result.spellListCantripChoice = spellListMatch[1].toLowerCase();
+    }
 
     // You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.
     if (strippedDescription.includes("one of the following cantrips of your choice")) {

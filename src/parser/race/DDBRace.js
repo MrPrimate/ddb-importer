@@ -434,6 +434,133 @@ export default class DDBRace {
     return [];
   }
 
+  async #getCantripChoiceAdvancement({ choices = [], abilities = [], hint = "", name, spellListChoice = null } = {}) {
+    if (choices.length === 0 && !spellListChoice) return undefined;
+    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const uuids = await DDBRace.getCompendiumSpellUuidsFromNames(choices);
+
+    this.spellLinks.push({
+      type: "choice",
+      advancementId: advancement._id,
+      choices,
+      uuids,
+      level: 0,
+    });
+
+    advancement.updateSource({
+      title: name,
+      hint,
+      configuration: {
+        allowDrops: false,
+        pool: uuids,
+        choices: {
+          "0": {
+            count: 1,
+            replacement: false,
+          },
+          replacement: {
+            count: null,
+            replacement: false,
+          },
+        },
+        restriction: {
+          level: "0",
+          type: "spell",
+        },
+        type: "spell",
+        spell: {
+          ability: abilities,
+          preparation: "",
+          uses: {
+            max: "",
+            per: "",
+            requireSlot: false,
+          },
+        },
+      },
+    });
+    if (uuids.length > 0 || spellListChoice) return advancement;
+
+    return undefined;
+  }
+
+  async #getCantripGrantAdvancement({ choices = [], abilities = [], hint = "", name } = {}) {
+    if (choices.length === 0) return undefined;
+    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const uuids = await DDBRace.getCompendiumSpellUuidsFromNames(choices);
+
+    this.spellLinks.push({
+      type: "grant",
+      advancementId: advancement._id,
+      choices,
+      uuids,
+      level: 1,
+    });
+
+    advancement.updateSource({
+      title: name,
+      level: 1,
+      configuration: {
+        items: uuids.map((s) => {
+          s.optional = false;
+          return s;
+        }),
+        type: "spell",
+        spell: {
+          ability: abilities,
+          preparation: "",
+          uses: {
+            max: "",
+            per: "",
+            requireSlot: false,
+          },
+        },
+      },
+      hint,
+    });
+    if (uuids.length > 0) return advancement;
+
+    return undefined;
+  }
+
+  async #getSpellGrantAdvancement({ spellGrant, abilities = [], hint = "", name } = {}) {
+    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const uuids = await DDBRace.getCompendiumSpellUuidsFromNames([spellGrant.name]);
+
+    this.spellLinks.push({
+      type: "grant",
+      advancementId: advancement._id,
+      choices: [spellGrant],
+      uuids,
+      level: spellGrant.level,
+    });
+
+    advancement.updateSource({
+      title: name,
+      level: spellGrant.level,
+      configuration: {
+        items: uuids.map((s) => {
+          s.optional = false;
+          return s;
+        }),
+        type: "spell",
+        spell: {
+          ability: abilities,
+          preparation: "always",
+          uses: {
+            max: spellGrant.amount === "" ? "" : spellGrant.amount,
+            per: spellGrant.amount === "" ? "" : "lr",
+            requireSlot: false,
+          },
+        },
+      },
+      hint,
+    });
+
+    if (uuids.length > 0) return advancement;
+    return advancement;
+  }
+
   async #generateSpellAdvancement(trait) {
     const advancements = [];
 
@@ -451,136 +578,55 @@ export default class DDBRace {
         : AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
 
     const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(trait.description);
-    logger.debug("Spell Advancement Data", {
-      htmlData,
-      this: this,
-      trait,
-    });
-
     const name = trait.name.toLowerCase().includes("spell")
       ? trait.name
       : `${trait.name} (Spells)`;
 
-    if (htmlData.cantripChoices.length > 0) {
-      const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
-      const uuids = await DDBRace.getCompendiumSpellUuidsFromNames(htmlData.cantripChoices);
+    const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
 
-      this.spellLinks.push({
-        type: "choice",
-        advancementId: advancement._id,
-        choices: htmlData.cantripChoices,
-        uuids,
-        level: 0,
-      });
+    logger.debug("Spell Advancement Data", {
+      htmlData,
+      this: this,
+      trait,
+      abilityData,
+      name,
+      hint,
+    });
 
-      advancement.updateSource({
-        title: name,
-        configuration: {
-          allowDrops: false,
-          pool: uuids,
-          choices: {
-            "0": {
-              count: 1,
-              replacement: false,
-            },
-            replacement: {
-              count: null,
-              replacement: false,
-            },
-          },
-          restriction: {
-            level: "0",
-            type: "spell",
-          },
-          type: "spell",
-          spell: {
-            ability: abilityData.abilities,
-            preparation: "",
-            uses: {
-              max: "",
-              per: "",
-              requireSlot: false,
-            },
-          },
-          hint: abilityData.hint,
-        },
-      });
-      if (uuids.length > 0) advancements.push(advancement);
+    const cantripChoiceAdvancement = await this.#getCantripChoiceAdvancement({
+      choices: htmlData.cantripChoices,
+      abilities: abilityData.abilities,
+      hint,
+      name,
+      spellListChoice: htmlData.spellListCantripChoice,
+    });
+    if (cantripChoiceAdvancement) {
+      advancements.push(cantripChoiceAdvancement);
     }
 
-    if (htmlData.cantripGrants.length > 0) {
-      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
-      const uuids = await DDBRace.getCompendiumSpellUuidsFromNames(htmlData.cantripGrants);
-
-      this.spellLinks.push({
-        type: "grant",
-        advancementId: advancement._id,
-        choices: htmlData.cantripGrants,
-        uuids,
-        level: 1,
-      });
-
-      advancement.updateSource({
-        title: name,
-        level: 1,
-        configuration: {
-          items: uuids.map((s) => {
-            s.optional = false;
-            return s;
-          }),
-          type: "spell",
-          spell: {
-            ability: abilityData.abilities,
-            preparation: "",
-            uses: {
-              max: "",
-              per: "",
-              requireSlot: false,
-            },
-          },
-        },
-        hint: abilityData.hint,
-      });
-      if (uuids.length > 0) advancements.push(advancement);
+    const cantripGrantAdvancement = await this.#getCantripGrantAdvancement({
+      choices: htmlData.cantripGrants,
+      abilities: abilityData.abilities,
+      hint,
+      name,
+    });
+    if (cantripGrantAdvancement) {
+      advancements.push(cantripGrantAdvancement);
     }
-
 
     for (const spellGrant of htmlData.spellGrants) {
-      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
-      const uuids = await DDBRace.getCompendiumSpellUuidsFromNames([spellGrant.name]);
-
-      this.spellLinks.push({
-        type: "grant",
-        advancementId: advancement._id,
-        choices: htmlData.cantripGrants,
-        uuids,
-        level: spellGrant.level,
+      const spellGrantAdvancement = await this.#getSpellGrantAdvancement({
+        spellGrant,
+        abilities: abilityData.abilities,
+        hint,
+        name,
       });
-
-      advancement.updateSource({
-        title: name,
-        level: spellGrant.level,
-        configuration: {
-          items: uuids.map((s) => {
-            s.optional = false;
-            return s;
-          }),
-          type: "spell",
-          spell: {
-            ability: abilityData.abilities,
-            preparation: "always",
-            uses: {
-              max: spellGrant.amount === "" ? "" : spellGrant.amount,
-              per: spellGrant.amount === "" ? "" : "lr",
-              requireSlot: false,
-            },
-          },
-        },
-        hint: abilityData.hint,
-      });
-
-      if (uuids.length > 0) advancements.push(advancement);
+      if (spellGrantAdvancement) {
+        advancements.push(spellGrantAdvancement);
+      }
     }
+
+
     // Add chosen to advancements
     // loop through race spells
 
@@ -639,6 +685,10 @@ export default class DDBRace {
     // prepare advancement
 
     // set chosen values
+
+    logger.debug("Spell Advancements", {
+      advancements,
+    });
 
     advancements.forEach((advancement) => {
       this.data.system.advancement.push(advancement.toObject());
@@ -984,7 +1034,7 @@ export default class DDBRace {
 
     await this._buildCompendiumIndex("traits", this._indexFilter.traits);
 
-    this.race.racialTraits.forEach((t) => {
+    for (const t of this.race.racialTraits) {
       const trait = t.definition;
       this.#addFeatureDescription(trait);
       this.#typeCheck(trait);
@@ -995,10 +1045,10 @@ export default class DDBRace {
       this.#generateToolAdvancement(trait);
       this.#generateFeatAdvancement(trait);
       this.#generateConditionAdvancement(trait);
-      this.#generateSpellAdvancement(trait);
+      await this.#generateSpellAdvancement(trait);
 
       this.#generateTraitAdvancementFromCompendiumMatch(trait);
-    });
+    }
 
     this.#generateAbilityAdvancement();
     this.#advancementFixes();
