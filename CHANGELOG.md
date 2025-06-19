@@ -1,4 +1,4 @@
-# Next Up
+# 6.3.8
 
 - Improvements to class generation and imports to compendiums. (Such as primary abilities and being set at level 20).
 - Species will now generate spell advancements grants/choices where possible.
