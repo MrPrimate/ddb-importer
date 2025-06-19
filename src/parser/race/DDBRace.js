@@ -426,12 +426,7 @@ export default class DDBRace {
       use2024Spells: spellChoice === "FORCE_2024",
     });
 
-    if (spells.length > 0) {
-      return spells.map((s) => {
-        return { uuid: s.uuid, name: s.name };
-      });
-    }
-    return [];
+    return spells;
   }
 
   async #getCantripChoiceAdvancement({ choices = [], abilities = [], hint = "", name, spellListChoice = null } = {}) {
@@ -452,7 +447,9 @@ export default class DDBRace {
       hint,
       configuration: {
         allowDrops: false,
-        pool: uuids,
+        pool: uuids.map((s) => {
+          return { uuid: s.uuid };
+        }),
         choices: {
           "0": {
             count: 1,
@@ -502,8 +499,10 @@ export default class DDBRace {
       level: 1,
       configuration: {
         items: uuids.map((s) => {
-          s.optional = false;
-          return s;
+          return {
+            uuid: s.uuid,
+            optional: false,
+          };
         }),
         type: "spell",
         spell: {
@@ -540,8 +539,10 @@ export default class DDBRace {
       level: spellGrant.level,
       configuration: {
         items: uuids.map((s) => {
-          s.optional = false;
-          return s;
+          return {
+            uuid: s.uuid,
+            optional: false,
+          };
         }),
         type: "spell",
         spell: {
@@ -855,7 +856,7 @@ export default class DDBRace {
           const spellLinkMatch = this.spellLinks.find((l) => l.advancementId === a._id);
           if (!spellLinkMatch) continue;
 
-          const spellUuidMatch = spellLinkMatch.find((l) =>
+          const spellUuidMatch = spellLinkMatch.uuids.find((l) =>
             l.name.toLowerCase() === spell.flags.ddbimporter.originalName.toLowerCase(),
           );
           if (!spellUuidMatch) continue;
