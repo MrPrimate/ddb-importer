@@ -1,3 +1,7 @@
+# 6.3.9
+
+- Double Barrell Shotgun weapon specialisation support.
+
 # 6.3.8
 
 - Improvements to class generation and imports to compendiums. (Such as primary abilities and being set at level 20).
