@@ -421,7 +421,7 @@ export default class DDBRace {
   }
 
   static async getCompendiumSpellUuidsFromNames(names) {
-    const spellChoice = game.settings.get("ddb-importer", "munching-policy-force-spell-version");
+    const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
     const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
       use2024Spells: spellChoice === "FORCE_2024",
     });
