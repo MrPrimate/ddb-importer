@@ -1,4 +1,5 @@
-import { utils, logger, DDBMacros } from "../../../lib/_module.mjs";
+import { SETTINGS } from "../../../config/_module.mjs";
+import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module.mjs";
 import { AutoEffects, EnchantmentEffects, MidiEffects, ChangeHelper } from "../effects/_module.mjs";
@@ -325,6 +326,30 @@ export default class DDBEnricherFactoryMixin {
     return this.ddbParser.isAction ?? false;
   }
 
+  static async getCompendiumSpellUuidsFromNames(names) {
+    const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
+    const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
+      use2024Spells: spellChoice === "FORCE_2024",
+    });
+
+    return spells;
+  }
+
+
+  // eslint-disable-next-line class-methods-use-this
+  async _addCompendiumSpellToCastActivity(spell, activity) {
+    const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames(spell);
+    if (!spellIndex || spellIndex.length === 0) {
+      logger.warn(`No compendium spell found for ${spell}`);
+      return activity;
+    }
+
+    activity.spell.uuid = spellIndex[0].uuid;
+
+    return activity;
+
+  }
+
   // eslint-disable-next-line complexity
   async _applyActivityDataOverride(activity, overrideData) {
     if (overrideData.name) activity.name = overrideData.name;
@@ -525,6 +550,10 @@ export default class DDBEnricherFactoryMixin {
       ids.push(this.data._id);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
+    }
+
+    if (overrideData.addSpellUuid) {
+      activity = await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
     }
 
     if (overrideData.func) {
