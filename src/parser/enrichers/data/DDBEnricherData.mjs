@@ -204,6 +204,7 @@ export default class DDBEnricherData {
    *   profileKeys: {Array} array of summon profile keys to use
    *   summons: {object} data to merge to summon config
    *   splitDamage: {boolean} used by the spell parser to split damage
+   *   addSpellUuid: {boolean} add spell uuid to activity
    */
   get activity() {
     return null;
