@@ -1,3 +1,7 @@
+# Next Up
+
+- Custom language proficiencies would get added to irrelevant features and items, resulting in very interesting custom languages.
+
 # 6.3.9
 
 - Double Barrell Shotgun weapon specialisation support.

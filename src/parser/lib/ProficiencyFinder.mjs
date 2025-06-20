@@ -4,8 +4,9 @@ import DDBModifiers from "./DDBModifiers.mjs";
 
 export default class ProficiencyFinder {
 
-  constructor({ ddb = null } = {}) {
+  constructor({ ddb = null, excludeCustom = false } = {}) {
     this.ddb = ddb;
+    this.excludeCustom = excludeCustom;
   }
 
   isHalfProficiencyRoundedUp(skill, modifiers = null) {
@@ -21,6 +22,7 @@ export default class ProficiencyFinder {
 
   getCustomProficiencies(type) {
     if (!this.ddb?.character) return [];
+    if (this.excludeCustom) return [];
     const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);
     const profCharacterValues = this.ddb.character.characterValues.filter(
       (value) =>
@@ -260,7 +262,7 @@ export default class ProficiencyFinder {
         }
       });
 
-    if (this.ddb) {
+    if (this.ddb && !this.excludeCustom) {
       this.ddb.character.customProficiencies.forEach((proficiency) => {
         if (proficiency.type === 3) {
           // type 3 is LANGUAGE, 1 is SKILL, 2 is TOOL

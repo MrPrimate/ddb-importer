@@ -41,7 +41,7 @@ export default class EffectGenerator {
       this.document.effects = [];
     }
 
-    this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb });
+    this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb, excludeCustom: true });
     this.grantedModifiers = ddbItem.definition?.grantedModifiers;
 
     if (this.grantedModifiers && type === "item") {
@@ -80,7 +80,7 @@ export default class EffectGenerator {
   }
 
   _addLanguages() {
-    const languages = this.proficiencyFinder.getLanguagesFromModifiers(this.grantedModifiers);
+    const languages = this.proficiencyFinder.getLanguagesFromModifiers(this.grantedModifiers, true);
 
     languages.value.forEach((prof) => {
       logger.debug(`Generating language ${prof} for ${this.document.name}`);
