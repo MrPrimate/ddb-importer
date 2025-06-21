@@ -338,7 +338,7 @@ export default class DDBEnricherFactoryMixin {
 
   // eslint-disable-next-line class-methods-use-this
   async _addCompendiumSpellToCastActivity(spell, activity) {
-    const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames(spell);
+    const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spell]);
     if (!spellIndex || spellIndex.length === 0) {
       logger.warn(`No compendium spell found for ${spell}`);
       return activity;
@@ -534,6 +534,10 @@ export default class DDBEnricherFactoryMixin {
       this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
     }
 
+    if (overrideData.addSpellUuid) {
+      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
+    }
+
     if (overrideData.data) {
       const data = utils.isFunction(overrideData.data)
         ? overrideData.data()
@@ -542,6 +546,7 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.allowMagical) {
+      // eslint-disable-next-line require-atomic-updates
       activity.restrictions.allowMagical = true;
     }
 
@@ -550,10 +555,6 @@ export default class DDBEnricherFactoryMixin {
       ids.push(this.data._id);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
-    }
-
-    if (overrideData.addSpellUuid) {
-      activity = await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
     }
 
     if (overrideData.func) {

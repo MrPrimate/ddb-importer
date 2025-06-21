@@ -165,6 +165,12 @@ export const PARSING_CHOICE_FEATURES = {
     "Bond of Fang and Scale",
     "Scholar",
     "Astral Fire",
+    "Ritual Caster",
+    "Ritual Caster (Cleric)",
+    "Ritual Caster (Druid)",
+    "Ritual Caster (Sorcerer)",
+    "Ritual Caster (Warlock)",
+    "Ritual Caster (Wizard)",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",

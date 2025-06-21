@@ -30,6 +30,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   NAME_HINTS = {};
 
   NAME_HINT_INCLUDES = {
+    "Ritual Caster (": "Ritual Caster",
   };
 
   ENRICHERS = {
@@ -42,6 +43,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Polearm Master - Bonus Attack": FeatEnrichers.PolearmMasterBonusAttack,
     "Squire of Solamnia: Precise Strike": FeatEnrichers.SquireOfSolamniaPreciseStrike,
     "Metamagic Adept": FeatEnrichers.MetamagicAdept,
+    "Ritual Caster": FeatEnrichers.RitualCaster,
   };
 
   FALLBACK_ENRICHERS = {

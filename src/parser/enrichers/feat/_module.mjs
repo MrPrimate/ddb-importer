@@ -26,6 +26,7 @@ export { default as Piercer } from "./Piercer.mjs";
 export { default as Poisoner } from "./Poisoner.mjs";
 export { default as PolearmMasterBonusAttack } from "./PolearmMasterBonusAttack.mjs";
 export { default as ReliableTalent } from "./ReliableTalent.mjs";
+export { default as RitualCaster } from "./RitualCaster.mjs";
 export { default as SavageAttacker } from "./SavageAttacker.mjs";
 export { default as Sharpshooter } from "./Sharpshooter.mjs";
 export { default as Slasher } from "./Slasher.mjs";

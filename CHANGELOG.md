@@ -1,6 +1,7 @@
 # Next Up
 
 - Custom language proficiencies would get added to irrelevant features and items, resulting in very interesting custom languages.
+- Ritual Caster improved support for 2024. @_swindsor
 
 # 6.3.9
 
