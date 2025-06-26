@@ -1,6 +1,13 @@
+# Next Up
+
+- Some adventure muncher export and import behind the scenes improvements for upcoming adventure improvements.
+- Fix parsing of Dragon Slayer and similar weapons.
+- Add chosen element to 2024 Elemental Adept name. @brill_web
+- Some additional 2024 monster equipment detection.
+
 # 6.3.10
 
-- Custom language proficiencies would get added to irrelevant features and items, resulting in very interesting custom languages.
+- Custom language proficiencies would get added to irrelevant features and items, resulting in very interesting custom languages. @affinno
 - Ritual Caster improved support for 2024. @_swindsor
 
 # 6.3.9
