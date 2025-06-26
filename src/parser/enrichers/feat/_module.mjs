@@ -11,6 +11,7 @@ export { default as Crusher } from "./Crusher.mjs";
 export { default as DefensiveDuelist } from "./DefensiveDuelist.mjs";
 export { default as DualWielder } from "./DualWielder.mjs";
 export { default as Durable } from "./Durable.mjs";
+export { default as ElementalAdept } from "./ElementalAdept.mjs";
 export { default as ElvenAccuracy } from "./ElvenAccuracy.mjs";
 export { default as EnergyRedirection } from "./EnergyRedirection.mjs";
 export { default as EpicBoon } from "./EpicBoon.mjs";
