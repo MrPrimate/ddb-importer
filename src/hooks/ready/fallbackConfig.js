@@ -4722,6 +4722,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/dnd/hgtmh1",
     },
     {
+      id: 163,
+      name: "DrDe",
+      description: "Dragon Delves",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/49845/417/638857756109181610.jpeg",
+      sourceURL: "sources/dnd/drde",
+    },
+    {
       id: 164,
       name: "VSSPP",
       description: "Valda’s Spire of Secrets: Player Pack",
