@@ -309,7 +309,12 @@ function parseHardCompendiumReferenceTag(type, text) {
 
 function damageRollGenerator({ text, damageType, actor, document, extraMods = [] } = {}) {
   let result;
-  const types = damageType.replace(", or ", ",").replace(" or ", ",").split(",").map((s) => s.trim().toLowerCase());
+  const types = damageType
+    .replace(", or ", ",")
+    .replace(" or ", ",")
+    .replace("points of ", "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase());
   const damageHint = damageType ? ` type=${types.join("/")}` : "";
   const diceParse = utils.parseDiceString(text, null, "");
   const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility");
@@ -415,7 +420,7 @@ export function parseDamageRolls({ text, document, actor } = {}) {
       //   dmg
       // })
       if (fixedDamageMatch) {
-        text = text.replace(fixedDamageMatch[0], `[[/damage ${fixedDamageMatch[1]} ${fixedDamageMatch[2]} average=false]] damage`);
+        text = text.replace(fixedDamageMatch[0], `[[/damage ${fixedDamageMatch[1]} ${fixedDamageMatch[2].toLowerCase()} average=false]] damage`);
       }
     }
   }

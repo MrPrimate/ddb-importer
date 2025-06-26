@@ -699,12 +699,15 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
           const viciousWeapon = this.originalName.startsWith("Vicious ");
           if (!viciousWeapon) {
+            const includeBaseRegex = /takes an extra/i;
+            const includeBaseDamage = includeBaseRegex.test(this.ddbDefinition.description);
+
             this.additionalActivities.push({
               name: `Restricted Attack: ${mod.restriction}`,
               options: {
                 generateDamage: true,
                 damageParts: [damage],
-                includeBaseDamage: this.enricher.activity?.additionalDamageIncludeBase ?? false,
+                includeBaseDamage: includeBaseDamage || (this.enricher.activity?.additionalDamageIncludeBase ?? false),
                 chatFlavor: mod.restriction ?? "",
               },
             });
