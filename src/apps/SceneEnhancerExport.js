@@ -207,12 +207,25 @@ export function collectSceneData(scene, bookCode) {
       };
 
       // the token actor flags here help us match up actors using the DDB ID
-      if (token.actor) {
-        if (token.actor.flags.ddbimporter) {
-          result.flags.ddbActorFlags = token.actor.flags.ddbimporter;
-          result.flags.ddbActorFlags.name = token.actor.prototypeToken?.name ? token.actor.prototypeToken.name : token.actor.name;
+      const ddbFlags = foundry.utils.getProperty(token, "actor.flags.ddbimporter");
+      if (ddbFlags) {
+        if (ddbFlags.keepAvatar) {
+          const image = token.actor.img.split("assets/").pop();
+          ddbFlags.avatarImage = `assets/${image}`;
         }
+        if (ddbFlags.keepToken) {
+          const image = token.texture.src.split("assets/").pop();
+          ddbFlags.tokenImage = `assets/${image}`;
+        }
+        ddbFlags.name = token.actor.prototypeToken?.name ? token.actor.prototypeToken.name : token.actor.name;
+        result.flags.ddbActorFlags = ddbFlags;
       }
+
+      // console.warn("token details", {
+      //   token,
+      //   result,
+      //   scene,
+      // });
       if (foundry.utils.hasProperty(token, "token.actorData.flags")) delete token.actorData.flags["token-action-hud-core"];
       delete token.flags["token-action-hud-core"];
       delete token.flags["simbuls-cover-calculator"];
