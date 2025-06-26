@@ -60,7 +60,9 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
         lowerItem = lowerItem
           .replace("leather armor", "leather")
           .replace("hide armor", "hide")
-          .replace("plate mail", "plate");
+          .replace("plate mail", "plate")
+          .replace("plate armor", "plate")
+          .replace("breastplate armor", "breastplate");
         if (lowerItem.startsWith("+")) {
           const bonusRegex = /(\+\d+)(?:\s+)(.*)/;
           const matches = lowerItem.match(bonusRegex);
