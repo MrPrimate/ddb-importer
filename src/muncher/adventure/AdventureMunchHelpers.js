@@ -1,4 +1,4 @@
-import { logger, CompendiumHelper, PatreonHelper, utils } from "../../lib/_module.mjs";
+import { logger, CompendiumHelper, PatreonHelper, utils, FileHelper } from "../../lib/_module.mjs";
 import { parseSpells } from "../spells.js";
 import { parseItems } from "../items.js";
 import AdventureMunch from "./AdventureMunch.js";
@@ -319,5 +319,62 @@ export default class AdventureMunchHelpers {
     return files;
   }
 
+  /**
+   * Returns an object with various file paths, including the key to the file in the upload folder,
+   * the path to the file relative to the adventure upload path, the full path to the file, and the
+   * filename with or without the .webp extension.
+   * @param {object} options The options object.
+   * @param {string} options.adventureName The name of the adventure.
+   * @param {string} options.path The path to the file.
+   * @param {boolean} options.misc Indicates if the file is a miscellaneous import.
+   * @returns {object} An object containing:
+   *   pathKey: the key to the file in the upload folder
+   *   adventurePath: the path to the file relative to the adventure upload path
+   *   targetPath: the path to the file relative to the base upload path
+   *   filename: the filename with the .webp extension if useWebP is true
+   *   baseUploadPath: the base upload path
+   *   parsedBaseUploadPath: the parsed base upload path
+   *   uploadPath: the full path to the file
+   *   returnFilePath: the path to the file relative to the adventure upload path
+   *   baseFilename: the filename without the .webp extension
+   *   fullUploadPath: the full path to the file
+   *   forcingWebp: whether the .webp extension was added
+   */
+
+  static getImportFilePaths({ adventureName, path, misc } = {}) {
+    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
+    const adventurePath = adventureName.replace(/[^a-z0-9]/gi, "_");
+    const targetPath = path.replace(/[\\/][^\\/]+$/, "");
+    const baseFilename = path.replace(/^.*[\\/]/, "").replace(/\?(.*)/, "");
+    const filename
+      = useWebP && !baseFilename.endsWith(".webp")
+        ? `${FileHelper.removeFileExtension(baseFilename)}.webp`
+        : baseFilename;
+    const baseUploadPath = misc
+      ? game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path")
+      : game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
+    const parsedBaseUploadPath = FileHelper.parseDirectory(baseUploadPath);
+    const uploadPath = misc
+      ? `${parsedBaseUploadPath.current}/${targetPath}`
+      : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
+    const fullUploadPath = misc
+      ? `${baseUploadPath}/${targetPath}`
+      : `${baseUploadPath}/${adventurePath}/${targetPath}`;
+    const pathKey = `${fullUploadPath}/${filename}`;
+    const returnFilePath = misc ? `${targetPath}/${filename}` : `${adventurePath}/${targetPath}/${filename}`;
+    return {
+      pathKey,
+      adventurePath,
+      targetPath,
+      filename,
+      baseUploadPath,
+      parsedBaseUploadPath,
+      uploadPath,
+      returnFilePath,
+      baseFilename,
+      fullUploadPath,
+      forcingWebp: useWebP && baseFilename !== filename,
+    };
+  }
 
 }
