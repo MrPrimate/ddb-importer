@@ -18,16 +18,4 @@ export default class PsychicScream extends DDBEnricherData {
     ];
   }
 
-  get override() {
-    return {
-      data: {
-        flags: {
-          midiProperties: {
-            halfdam: true,
-            saveDamage: "halfdam",
-          },
-        },
-      },
-    };
-  }
 }

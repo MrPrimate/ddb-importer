@@ -3,10 +3,12 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class Catapult extends DDBEnricherData {
 
-  get override() {
+  get activity() {
     return {
       data: {
-        "flags.midiProperties.nodam": true,
+        damage: {
+          onSave: "none",
+        },
       },
     };
   }
