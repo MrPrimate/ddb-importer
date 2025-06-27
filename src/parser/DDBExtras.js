@@ -541,7 +541,15 @@ export async function generateCharacterExtras(html, ddbCharacter, actor) {
       });
 
     logger.debug("Extracted creatures", foundry.utils.duplicate(extractedCreatures));
-    const monsterFactory = new DDBMonsterFactory({ ddbData: extractedCreatures, extra: true });
+    const keyPostfix = actor.id;
+    const useLocalKey = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+
+    const monsterFactory = new DDBMonsterFactory({
+      ddbData: extractedCreatures,
+      extra: true,
+      keyPostfix,
+      useLocalKey,
+    });
     const parsedExtras = await monsterFactory.parse();
     logger.debug("Parsed Extras:", foundry.utils.duplicate(parsedExtras.actors));
 

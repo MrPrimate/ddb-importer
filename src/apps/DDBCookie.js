@@ -46,7 +46,8 @@ export default class DDBCookie extends FormApplication {
     const keyPostFix = this.localCobalt && this.actor ? this.actor.id : null;
     await Secrets.setCobalt(formData['cobalt-cookie'], keyPostFix);
 
-    const cobaltStatus = await Secrets.checkCobalt();
+    const cobaltStatus = await Secrets.checkCobalt(keyPostFix);
+
     if (!cobaltStatus.success) {
       new DDBCookie({ actor: this.actor, localCobalt: this.localCobalt, callMuncher: this.callMuncher }).render(true);
     } else if (this.callMuncher) {
