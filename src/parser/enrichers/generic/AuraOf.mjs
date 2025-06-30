@@ -37,7 +37,7 @@ export default class AuraOf extends DDBEnricherData {
             ActiveAuras: {
               ignoreSelf: this.ignoreSelf,
               aura: "Allies",
-              radius: `@scale.paladin.aura-of-protection`,
+              radius: this.is2014 ? `@scale.paladin.aura-of-protection` : `@scale.paladin.aura`,
               isAura: true,
               inactive: false,
               hidden: false,

@@ -5,9 +5,9 @@
 - Add chosen element to 2024 Elemental Adept name. @brill_web
 - Some additional 2024 monster equipment detection.
 - When using a patreon key on a player, companions could not be imported.
-- Staff focus item was not importing quarterstaff weapon properties.
-- Dragonborn breath weapons now set to range of self for midi users.
-- Unarmed Strikes, and natural weapons from species were not parsing out correctly unless you were a monk. Unsure when this started.
+- Staff focus item was not importing quarterstaff weapon properties. @tminz
+- Dragonborn breath weapons now set to range of self for midi users. @tminz
+- Unarmed Strikes, and natural weapons from species were not parsing out correctly unless you were a monk. Unsure when this started. @dineshm72
 - Fix some paladin auras using the incorrect class identifier @mattswymer
 
 # 6.3.10
