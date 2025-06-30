@@ -46,6 +46,10 @@ export default class DDBEnricherData {
     });
   }
 
+  getClassIdentifier(name) {
+    return DDBDataUtils.classIdentifierName(name);
+  }
+
   hasAction({ name, type } = {}) {
     return this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       a.name === name,

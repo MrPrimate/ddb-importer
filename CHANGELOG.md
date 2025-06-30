@@ -8,6 +8,7 @@
 - Staff focus item was not importing quarterstaff weapon properties.
 - Dragonborn breath weapons now set to range of self for midi users.
 - Unarmed Strikes, and natural weapons from species were not parsing out correctly unless you were a monk. Unsure when this started.
+- Fix some paladin auras using the incorrect class identifier @mattswymer
 
 # 6.3.10
 
