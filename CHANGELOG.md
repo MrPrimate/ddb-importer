@@ -4,6 +4,9 @@
 - Fix parsing of Dragon Slayer and similar weapons.
 - Add chosen element to 2024 Elemental Adept name. @brill_web
 - Some additional 2024 monster equipment detection.
+- When using a patreon key on a player, companions could not be imported.
+- Staff focus item was not importing quarterstaff weapon properties.
+- Dragonborn breath weapons now set to range of self for midi users.
 
 # 6.3.10
 
