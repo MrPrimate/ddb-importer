@@ -281,7 +281,7 @@ export default class ThirdPartyMunch extends FormApplication {
     }
   }
 
-  static async _linkSceneTokens(scene) {
+  async _linkSceneTokens(scene) {
     logger.info(`Linking ${scene.name}, ${scene.tokens.length} tokens`);
     const tokens = await Promise.all(scene.tokens.map(async (token) => {
       if (token.actorId) {
@@ -292,7 +292,7 @@ export default class ThirdPartyMunch extends FormApplication {
           const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === token._id);
           delete sceneToken.scale;
 
-          const newToken = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken);
+          const newToken = await this.adventureMunch._getTokenUpdateData(worldActor, sceneToken);
           return newToken;
         }
       }
@@ -599,7 +599,7 @@ export default class ThirdPartyMunch extends FormApplication {
         .map(async (scene) => {
           logger.debug(`Generating scene tokens for ${scene.name}`);
           const newScene = foundry.utils.duplicate(scene);
-          newScene.tokens = await ThirdPartyMunch._linkSceneTokens(scene);
+          newScene.tokens = await this._linkSceneTokens(scene);
           return newScene;
         }),
       );

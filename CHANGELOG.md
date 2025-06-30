@@ -1,12 +1,13 @@
 # Next Up
 
-- Some adventure muncher export and import behind the scenes improvements for upcoming adventure improvements.
+- Some adventure muncher export and import behind the scenes improvements for upcoming adventure improvements. Notable the ability to have adventure art be used for a monsters token and avatar art.
 - Fix parsing of Dragon Slayer and similar weapons.
 - Add chosen element to 2024 Elemental Adept name. @brill_web
 - Some additional 2024 monster equipment detection.
 - When using a patreon key on a player, companions could not be imported.
 - Staff focus item was not importing quarterstaff weapon properties.
 - Dragonborn breath weapons now set to range of self for midi users.
+- Unarmed Strikes, and natural weapons from species were not parsing out correctly unless you were a monk. Unsure when this started.
 
 # 6.3.10
 

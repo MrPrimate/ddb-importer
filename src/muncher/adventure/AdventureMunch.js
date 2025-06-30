@@ -136,39 +136,7 @@ export default class AdventureMunch {
    *   forcingWebp: whether the .webp extension was added
    */
   getImportFilePaths(path, misc) {
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
-    const adventurePath = this.adventure.name.replace(/[^a-z0-9]/gi, "_");
-    const targetPath = path.replace(/[\\/][^\\/]+$/, "");
-    const baseFilename = path.replace(/^.*[\\/]/, "").replace(/\?(.*)/, "");
-    const filename
-      = useWebP && !baseFilename.endsWith(".webp")
-        ? `${FileHelper.removeFileExtension(baseFilename)}.webp`
-        : baseFilename;
-    const baseUploadPath = misc
-      ? game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path")
-      : game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
-    const parsedBaseUploadPath = FileHelper.parseDirectory(baseUploadPath);
-    const uploadPath = misc
-      ? `${parsedBaseUploadPath.current}/${targetPath}`
-      : `${parsedBaseUploadPath.current}/${adventurePath}/${targetPath}`;
-    const fullUploadPath = misc
-      ? `${baseUploadPath}/${targetPath}`
-      : `${baseUploadPath}/${adventurePath}/${targetPath}`;
-    const pathKey = `${fullUploadPath}/${filename}`;
-    const returnFilePath = misc ? `${targetPath}/${filename}` : `${adventurePath}/${targetPath}/${filename}`;
-    return {
-      pathKey,
-      adventurePath,
-      targetPath,
-      filename,
-      baseUploadPath,
-      parsedBaseUploadPath,
-      uploadPath,
-      returnFilePath,
-      baseFilename,
-      fullUploadPath,
-      forcingWebp: useWebP && baseFilename !== filename,
-    };
+    return AdventureMunchHelpers.getImportFilePaths({ adventureName: this.adventure.name, path, misc });
   }
 
   /**
@@ -469,7 +437,7 @@ export default class AdventureMunch {
   }
 
   // eslint-disable-next-line complexity
-  static async _getTokenUpdateData(worldActor, sceneToken) {
+  async _getTokenUpdateData(worldActor, sceneToken) {
     const items = [];
     const ddbItems = sceneToken.flags.ddbItems ?? [];
     for (const item of ddbItems) {
@@ -541,10 +509,21 @@ export default class AdventureMunch {
     if (items.length > 0) {
       foundry.utils.setProperty(tokenStub, "delta.items", items);
     }
-    if (sceneToken.flags.ddbImages?.keepToken)
-      foundry.utils.setProperty(tokenStub, "texture.src", sceneToken.flags.ddbImages.tokenImage);
-    if (sceneToken.flags.ddbImages?.keepAvatar)
-      foundry.utils.setProperty(tokenStub, "delta.img", sceneToken.flags.ddbImages.avatarImage);
+
+    if (sceneToken.flags.ddbActorFlags?.keepToken
+      && sceneToken.flags.ddbActorFlags.tokenImage
+      && sceneToken.flags.ddbActorFlags.tokenImage !== ""
+    ) {
+      const tokenImage = await this.importImage(sceneToken.flags.ddbActorFlags.tokenImage);
+      foundry.utils.setProperty(tokenStub, "texture.src", tokenImage);
+    }
+    if (sceneToken.flags.ddbActorFlags?.keepAvatar
+      && sceneToken.flags.ddbActorFlags.avatarImage
+      && sceneToken.flags.ddbActorFlags.avatarImage !== ""
+    ) {
+      const avatarImage = await this.importImage(sceneToken.flags.ddbActorFlags.avatarImage);
+      foundry.utils.setProperty(tokenStub, "delta.img", avatarImage);
+    }
 
     const updateData = foundry.utils.mergeObject(tokenStub, sceneToken);
     if (updateData.name !== worldActor.name && !foundry.utils.hasProperty(updateData, "delta.name")) {
@@ -576,7 +555,7 @@ export default class AdventureMunch {
         delete sceneToken.scale;
         const worldActor = this._getWorldActor(token.actorId);
         if (worldActor) {
-          const updateData = await AdventureMunch._getTokenUpdateData(worldActor, sceneToken);
+          const updateData = await this._getTokenUpdateData(worldActor, sceneToken);
           tokenResults.push(updateData);
         } else {
           deadTokens.push(token._id);
@@ -985,7 +964,7 @@ export default class AdventureMunch {
       // eslint-disable-next-line require-atomic-updates
       data = await this._importTokenImage("token", data, { img: true, texture: false });
     }
-    if (data.toke?.texture?.src) {
+    if (data.token?.texture?.src) {
       // eslint-disable-next-line require-atomic-updates
       data = await this._importTokenImage("token", data);
     }
