@@ -36,7 +36,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     "Bite",
     "Claw",
     "Claws",
-    "Claws",
+    "Cat's Claws",
     "Fangs",
     "Gore",
     "Sting",

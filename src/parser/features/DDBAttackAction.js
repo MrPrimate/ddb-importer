@@ -9,10 +9,10 @@ export default class DDBAttackAction extends DDBAction {
 
   _init() {
     this.isAction = true;
-    this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.ddbDefinition.name)
+    this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
       ? "weapon"
       : "feat";
-    logger.debug(`Generating Attack Action ${this.ddbDefinition.name}`);
+    logger.debug(`Generating Attack Action ${this.ddbDefinition.name} as ${this.documentType}`);
   }
 
   async build() {

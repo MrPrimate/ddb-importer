@@ -77,4 +77,21 @@ export default class UnarmedStrike extends DDBEnricherData {
     ];
   }
 
+  get override() {
+    return this.ddbParser.isMartialArtist()
+      ? null
+      : {
+        data: {
+          system: {
+            damage: {
+              base: DDBEnricherData.basicDamagePart({
+                customFormula: "1 + @abilities.str.mod",
+                type: "bludgeoning",
+              }),
+            },
+          },
+        },
+      };
+  }
+
 }

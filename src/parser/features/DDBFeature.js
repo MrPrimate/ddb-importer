@@ -31,7 +31,9 @@ export default class DDBFeature extends DDBFeatureMixin {
 
 
   _init() {
-    this.documentType = DDBFeature.DOC_TYPE[this.type];
+    this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
+      ? "weapon"
+      : DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
     logger.debug(`Init Feature ${this.ddbDefinition.name}`);
     this._class = this.isGeneric
@@ -146,36 +148,6 @@ export default class DDBFeature extends DDBFeatureMixin {
       && this.scaleValueUsesLink
       && this.scaleValueUsesLink !== ""
       && this.scaleValueUsesLink !== "{{scalevalue-unknown}}";
-  }
-
-  async _buildNatural() {
-    const override = {
-      name: this.data.name,
-      description: this.ddbDefinition.description,
-      snippet: this.ddbDefinition.snippet,
-      id: this.ddbDefinition.id,
-      entityTypeId: this.ddbDefinition.entityTypeId,
-      componentId: this.ddbDefinition.componentId,
-      componentTypeId: this.ddbDefinition.componentTypeId,
-    };
-
-    const unarmedStrikeMock = foundry.utils.deepClone(CONFIG.DDB.naturalActions[0]);
-    unarmedStrikeMock.displayAsAttack = true;
-    const strikeMock = Object.assign(unarmedStrikeMock, override);
-
-    logger.debug(`Building Natural Attack for ${this.data.name}`);
-    const ddbAttackAction = new DDBAttackAction({
-      ddbData: this.ddbData,
-      ddbDefinition: strikeMock,
-      rawCharacter: this.rawCharacter,
-      type: this.type,
-      documentType: "weapon",
-    });
-    ddbAttackAction.naturalWeapon = true;
-    await ddbAttackAction.loadEnricher();
-    await ddbAttackAction.build();
-
-    this.data = ddbAttackAction.data;
   }
 
   async _buildBasic() {
@@ -514,9 +486,7 @@ ${description}`;
 
   async build() {
     try {
-      if (this.naturalWeapon) {
-        await this._buildNatural();
-      } else if (this.type === "background") {
+      if (this.type === "background") {
         // work around till background parsing support advancements
         this.isChoiceFeature = false;
         await this._buildBackground();

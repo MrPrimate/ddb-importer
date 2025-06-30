@@ -222,6 +222,7 @@ export const PARSING_ATTACK_ACTIONS = {
     "Talon",
     "Trunk",
     "Claws",
+    "Cat's Claws",
     "Fangs",
     "Form of the Beast: Bite",
     "Form of the Beast: Claws",

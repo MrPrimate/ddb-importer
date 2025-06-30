@@ -25,6 +25,8 @@ export default class DDBActivityFactoryMixin {
 
   ignoreActivityGeneration = false;
 
+  forceDefaultActionBuild = false;
+
   data = null;
 
   constructor({

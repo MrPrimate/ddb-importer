@@ -140,7 +140,6 @@ export default class CharacterFeatureFactory {
       isAttack: true,
     });
 
-    // console.warn("Unarmed Strike Data", { feature, overrides, unarmedStrikeMock, enricher, enricherClass });
     return feature;
 
   }
@@ -453,7 +452,9 @@ export default class CharacterFeatureFactory {
       extraFlags: flags,
       fallbackEnricher: "Generic",
     });
+    logger.debug(`Start CharacterFeatureFactory.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`);
     await ddbFeature.loadEnricher();
+    logger.debug(`Loaded Enricher for ${ddbFeature.ddbDefinition.name}`);
     await ddbFeature.build();
     logger.debug(`CharacterFeatureFactory.getFeaturesFromDefinition (type: ${type}): ${ddbFeature.ddbDefinition.name}`, {
       ddbFeature,
@@ -508,6 +509,7 @@ export default class CharacterFeatureFactory {
       features.forEach((item) => {
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)
+          // ||
           || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(item.flags.ddbimporter.originalName ?? item.name);
         logger.debug(`Processing racial trait ${item.name}`, {
           trait,
@@ -1078,70 +1080,6 @@ export default class CharacterFeatureFactory {
           && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"),
         ),
       );
-
-    // const actionsNoFeatures = this.parsed.actions.filter((action) => {
-    //   const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
-    //   const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
-    //   const featureMatch = this.processed.features.find((feature) => {
-    //     const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
-    //     const featureNamePrefix = originalFeatureName.split(":")[0].trim();
-    //     const replaceRegex = new RegExp(`${utils.regexSanitizeString(featureNamePrefix)}(?:\\s*)-`);
-    //     const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
-    //     const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);
-
-    //     return (
-    //       originalFeatureName === originalActionName
-    //       || replacedActionName === originalFeatureName
-    //       || feature.name === action.name
-    //       || replacedActionName === feature.name
-    //     )
-    //     && featureFlagType === actionFlagType;
-    //   });
-
-    //   return !featureMatch;
-    // });
-
-    // console.warn("actionsNoFeatures", actionsNoFeatures);
-
-    // const actionsNoFeatureIdMatch = actionsNoFeatures.filter((action) => {
-    //   const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
-    //   const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
-
-    //   const match = this.processed.features.find((feature) => {
-    //     const id = foundry.utils.getProperty(feature, "flags.ddbimporter.id");
-    //     const entityTypeId = foundry.utils.getProperty(feature, "flags.ddbimporter.entityTypeId");
-    //     return id === actionComponentId && entityTypeId === actionComponentTypeId;
-    //   });
-    //   if (match) {
-    //     console.warn(`Match action ${action.name} to ${match.name}`, { action, match });
-    //   }
-    //   return !match;
-    // });
-
-    // console.warn("actionsNoFeatureIdMatch", actionsNoFeatureIdMatch);
-
-    // const noChoiceActions = actionsNoFeatureIdMatch.filter((action) => {
-    //   const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
-    //   const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
-    //   const type = foundry.utils.getProperty(action, "flags.ddbimporter.type");
-    //   if (!this.ddbData.character.options[type]) return true;
-    //   const optionMatch = this.ddbData.character.options[type].find((option) =>
-    //     option.definition.id === actionComponentId
-    //     && option.definition.entityTypeId === actionComponentTypeId,
-    //   );
-
-    //   const match = this.processed.features.find((feature) => {
-    //     const id = foundry.utils.getProperty(feature, "flags.ddbimporter.id");
-    //     const entityTypeId = foundry.utils.getProperty(feature, "flags.ddbimporter.entityTypeId");
-    //     return id === optionMatch.componentId && entityTypeId === optionMatch.componentTypeId;
-    //   });
-    //   if (match) {
-    //     console.warn(`Match action ${action.name} to option ${match.name}`, { action, match });
-    //   }
-    //   return !match;
-    // });
-
-    // console.warn("noChoiceActions", noChoiceActions);
 
   }
 

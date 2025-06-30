@@ -78,7 +78,7 @@ export default class DDBEnricherFactoryMixin {
   async _prepare() {
     this._getNameHint();
     this._getEnricherMatches();
-    if (!this.ddbParser.isAction) {
+    if (!this.ddbParser.isAction && !this.ddbParser.forceDefaultActionBuild) {
       await this._buildDefaultActionFeatures();
     }
   }
@@ -1015,6 +1015,15 @@ export default class DDBEnricherFactoryMixin {
           featureName,
         });
 
+        if (feature.type === "weapon" && this.data.type === "weapon"
+          && !this.data.system.damage.base.bonus
+          && !this.data.system.damage.base.number
+          && !this.data.system.damage.base.denomination
+          && !this.data.system.damage.base.custom.enabled
+        ) {
+          this.data.system.damage.base = foundry.utils.deepClone(feature.system.damage.base);
+        }
+
         for (const activityKey of activityKeys) {
           let newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
           while (activityData.activities[newKey] || this.data.system.activities[newKey]) {
@@ -1073,6 +1082,13 @@ export default class DDBEnricherFactoryMixin {
   async addAdditionalActivities(ddbParent) {
     const useDefaultActivities = this.useDefaultAdditionalActivities;
     const addToDefaultAdditionalActivities = this.addToDefaultAdditionalActivities;
+
+    logger.debug(`Adding additional activities for ${this.ddbParser.originalName}`, {
+      useDefaultActivities,
+      addToDefaultAdditionalActivities,
+      this: this,
+      ddbParent,
+    });
 
     if (useDefaultActivities) {
       logger.debug(`Adding default additional activities for ${this.ddbParser.originalName}`);
@@ -1245,7 +1261,10 @@ export default class DDBEnricherFactoryMixin {
       i++;
     }
 
-    logger.debug(`Default Feature Action Build Complete for ${this.ddbParser.originalName}`);
+    logger.debug(`Default Feature Action Build Complete for ${this.ddbParser.originalName}`, {
+      this: this,
+      defaultActionFeatures: this.defaultActionFeatures,
+    });
   }
 
   customFunction(options = {}) {
