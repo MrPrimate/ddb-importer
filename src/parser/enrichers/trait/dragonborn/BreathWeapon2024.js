@@ -13,9 +13,12 @@ export default class BreathWeapon2024 extends DDBEnricherData {
   }
 
   get activity() {
-    if (this.is2014) return {};
+    if (this.is2014) return {
+      rangeSelf: true,
+    };
     return {
       name: "Cone",
+      rangeSelf: true,
       data: {
         damage: {
           onSave: "half",
@@ -62,6 +65,9 @@ export default class BreathWeapon2024 extends DDBEnricherData {
               units: "ft",
             },
           },
+        },
+        overrides: {
+          rangeSelf: true,
         },
       },
     ];
