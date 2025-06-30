@@ -48,8 +48,15 @@ export default class DDBMonsterFactory {
     return options;
   }
 
-  constructor ({ ddbData = null, extra = false, notifier = null, type = "monsters", forceUpdate = null } = {}) {
+  constructor ({
+    ddbData = null, extra = false, notifier = null, type = "monsters", forceUpdate = null,
+    useLocalKey = null, keyPostfix = null,
+  } = {}) {
     this.extra = extra;
+    this.keys = {
+      useLocal: useLocalKey,
+      keyPostfix,
+    };
     this.npcs = [];
     this.source = ddbData;
     this.notifier = notifier ?? DDBMonsterFactory.#noteStub;
@@ -87,8 +94,8 @@ export default class DDBMonsterFactory {
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
     homebrewOnly = false, exactMatch = false, excludeLegacy = false },
   ) {
-    const keyPostfix = CONFIG.DDBI.keyPostfix ?? null;
-    const useLocal = CONFIG.DDBI.useLocal ?? false;
+    const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
+    const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
     const cobaltCookie = Secrets.getCobalt(keyPostfix);
     const betaKey = PatreonHelper.getPatreonKey(useLocal);
     const parsingApi = DDBProxy.getProxy();
