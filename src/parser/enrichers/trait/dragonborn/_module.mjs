@@ -1,3 +1,4 @@
-export { default as BreathWeapon2024 } from "./BreathWeapon2024.js";
-export { default as ChromaticInfusion } from "./ChromaticInfusion.js";
+export { default as BreathWeapon } from "./BreathWeapon.mjs";
+export { default as BreathWeapon2024 } from "./BreathWeapon2024.mjs";
+export { default as ChromaticInfusion } from "./ChromaticInfusion.mjs";
 

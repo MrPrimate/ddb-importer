@@ -19,22 +19,25 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Gnomish Lineage": "Generic",
     "Gnomish Lineage: Rock Gnome": "Generic",
     "Gnomish Lineage: Forest Gnome": "Generic",
+    "Breath Weapon (Acid)": "Breath Weapon (2024)",
+    "Breath Weapon (Cold)": "Breath Weapon (2024)",
+    "Breath Weapon (Fire)": "Breath Weapon (2024)",
+    "Breath Weapon (Lightning)": "Breath Weapon (2024)",
+    "Breath Weapon (Poison)": "Breath Weapon (2024)",
   };
 
   NAME_HINT_INCLUDES = {
     " Lineage": "Lineage",
     " Legacy": "Lineage",
+    "Breath Weapon (": "Breath Weapon",
   };
 
   ENRICHERS = {
     None: GenericEnrichers.None,
     Generic: SpeciesEnrichers.Generic.Generic,
     Lineage: SpeciesEnrichers.Generic.Lineage,
-    "Breath Weapon (Acid)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
-    "Breath Weapon (Cold)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
-    "Breath Weapon (Fire)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
-    "Breath Weapon (Lightning)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
-    "Breath Weapon (Poison)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
+    "Breath Weapon": SpeciesEnrichers.Dragonborn.BreathWeapon,
+    "Breath Weapon (2024)": SpeciesEnrichers.Dragonborn.BreathWeapon2024,
     "Celestial Revelation (Heavenly Wings)": SpeciesEnrichers.Aasimar.CelestialRevelationHeavenlyWings,
     "Celestial Revelation (Inner Radiance)": SpeciesEnrichers.Aasimar.CelestialRevelationInnerRadiance,
     "Celestial Revelation (Necrotic Shroud)": SpeciesEnrichers.Aasimar.CelestialRevelationNecroticShroud,
