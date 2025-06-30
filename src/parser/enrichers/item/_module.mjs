@@ -47,6 +47,7 @@ export { default as RingOfTheRam } from "./RingOfTheRam.mjs";
 export { default as SiegeStaff } from "./SiegeStaff.mjs";
 export { default as SpellRefuelingRingReaction } from "./SpellRefuelingRingReaction.mjs";
 export { default as SpellguardShield } from "./SpellguardShield.mjs";
+export { default as Staff } from "./Staff.mjs";
 export { default as StaffOfCharming } from "./StaffOfCharming.mjs";
 export { default as StaffOfHealing } from "./StaffOfHealing.mjs";
 export { default as StinkBomb } from "./StinkBomb.mjs";
