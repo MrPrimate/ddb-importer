@@ -1,3 +1,7 @@
+# 6.4.1
+
+- In 13.346 some spells would no longer import due to changes in the validation of flag data.
+
 # 6.3.11
 
 - Some adventure muncher export and import behind the scenes improvements for upcoming adventure improvements. Notable the ability to have adventure art be used for a monsters token and avatar art.

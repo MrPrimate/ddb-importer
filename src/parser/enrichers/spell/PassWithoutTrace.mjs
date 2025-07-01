@@ -9,9 +9,9 @@ export default class PassWithoutTrace extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("10", 20, "system.skills.ste.bonuses.check"),
         ],
+        daeStackable: "noneNameOnly",
         data: {
           flags: {
-            "dae.stackable": "noneNameOnly",
             ActiveAuras: {
               aura: "Allies",
               radius: "30",

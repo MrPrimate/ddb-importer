@@ -31,9 +31,9 @@ export default class AuraOf extends DDBEnricherData {
     return [
       {
         noCreate: true,
+        daeStackable: "noneNameOnly",
         data: {
           flags: {
-            "dae.stackable": "noneNameOnly",
             ActiveAuras: {
               ignoreSelf: this.ignoreSelf,
               aura: "Allies",
