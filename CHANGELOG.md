@@ -1,3 +1,7 @@
+# Next Up
+
+- Some monster description roll enrichers would parse the wrong damage for regain hit point rolls. e.g. Rotbeast. @motomoto0295
+
 # 6.4.1
 
 - In 13.346 some spells would no longer import due to changes in the validation of flag data.

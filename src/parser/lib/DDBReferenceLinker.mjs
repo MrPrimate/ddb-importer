@@ -375,7 +375,7 @@ export function parseDamageRolls({ text, document, actor } = {}) {
   const damageExpression = new RegExp(/((?:takes\s+|plus\s+|or take\s+|taking\s+)|(?:[\w]*\s+))(?:([0-9]+))?(?:\s*\(?([0-9]*d[0-9]+(?:\s*[-+]\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^)]+)?)\)?)\s*([\w ]*?)\s*damage/gi);
 
   const matches = [...hit.matchAll(damageExpression)];
-  const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
+  const regainExpression = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?( *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/);
 
   const regainMatch = hit.match(regainExpression);
 
@@ -426,10 +426,10 @@ export function parseDamageRolls({ text, document, actor } = {}) {
   }
 
   if (regainMatch) {
-    const damageValue = regainMatch[3]
-      ? regainMatch[2]
-        ? `${regainMatch[2]}${regainMatch[3]}`
-        : regainMatch[3]
+    const damageValue = regainMatch[4]
+      ? regainMatch[2] && !regainMatch[3].includes("(")
+        ? `${regainMatch[2]}${regainMatch[4]}`
+        : regainMatch[4]
       : regainMatch[2];
     const parsedDiceDamage = Number.isInteger(parseInt(damageValue))
       ? `[[/damage ${damageValue} type=heal average=false]]`
