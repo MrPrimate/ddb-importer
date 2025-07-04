@@ -230,17 +230,10 @@ function createDefault5eButtonsV2(config, buttons) {
 }
 
 function tidySheets() {
-  // onceReady timeout necessitates the two methods of getting the API.
-  const api = game.modules.get("tidy5e-sheet")?.api;
-  if (api) {
-    runTidyIntegrations(api);
-  } else {
-    Hooks.once("tidy5e-sheet.ready", (api) => {
-      runTidyIntegrations(api);
-    });
-  }
-
-  /** All Tidy integrations for DDBI */
+  /**
+   * All Tidy integrations for DDBI
+   * @param {*} api the Tidy 5e Sheets API found at https://kgar.github.io/foundry-vtt-tidy-5e-sheets/classes/Tidy5eSheetsApi.html
+   */
   function runTidyIntegrations(api) {
 
     // Prepare content injections for non-title DDBI logo on character sheets.
@@ -303,6 +296,16 @@ function tidySheets() {
       }
 
       createActorHeaderButtonsV2(config, buttons, true);
+    });
+  }
+
+  // onceReady timeout necessitates the two methods of getting the API.
+  const api = game.modules.get("tidy5e-sheet")?.api;
+  if (api) {
+    runTidyIntegrations(api);
+  } else {
+    Hooks.once("tidy5e-sheet.ready", (api) => {
+      runTidyIntegrations(api);
     });
   }
 }
