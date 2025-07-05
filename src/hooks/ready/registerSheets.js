@@ -230,50 +230,84 @@ function createDefault5eButtonsV2(config, buttons) {
 }
 
 function tidySheets() {
-  const api = game.modules.get('tidy5e-sheet')?.api;
-  if (!api) return;
-  if (!game.settings.get("ddb-importer", "character-link-title")) {
-    api.registerCharacterContent(
-      new api.models.HtmlContent({
-        html: `<div class="ddbCharacterName"></div>`,
-        injectParams: {
-          selector: `[data-tidy-sheet-part="name-header-row"]`,
-          position: "afterbegin",
-        },
-        enabled: (data) => {
-          const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
-          const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
-          const titleLink = game.settings.get("ddb-importer", "character-link-title");
-          const onlyTrustedUser = !allowAllSync && trustedUsersOnly && !game.user.isTrusted;
-          return (data.owner || onlyTrustedUser) && !titleLink;
-        },
-        onRender: (params) => {
-          const $ddbCharacterName = $(params.element).find(".ddbCharacterName");
-          const button = getCharacterButton(params.app.document, params.data.actor);
-          $ddbCharacterName.append(button);
-        },
-      }),
-    );
+  /**
+   * All Tidy integrations for DDBI
+   * @param {*} api the Tidy 5e Sheets API found at https://kgar.github.io/foundry-vtt-tidy-5e-sheets/classes/Tidy5eSheetsApi.html
+   */
+  function runTidyIntegrations(api) {
+
+    // Prepare content injections for non-title DDBI logo on character sheets.
+    const html = `<div class="ddbCharacterName"></div>`;
+
+    const enabled = (data) => {
+      const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
+      const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
+      const titleLink = game.settings.get("ddb-importer", "character-link-title");
+      const onlyTrustedUser = !allowAllSync && trustedUsersOnly && !game.user.isTrusted;
+      return (data.owner || onlyTrustedUser) && !titleLink;
+    };
+
+    const onRender = (params) => {
+      const $ddbCharacterName = $(params.element).find(".ddbCharacterName");
+      const button = getCharacterButton(params.app.document, params.data.actor);
+      $ddbCharacterName.append(button);
+    };
+
+    const classicContent = {
+      html: html,
+      injectParams: {
+        selector: `[data-tidy-sheet-part="name-header-row"]`,
+        position: "afterbegin",
+      },
+      enabled: enabled,
+      onRender: onRender,
+    };
+
+    // Register content on Tidy's classic sheet
+    api.registerCharacterContent(new api.models.HtmlContent(classicContent), {
+      layout: "classic",
+    });
+
+    const quadroneContent = {
+      html: html,
+      injectParams: {
+        selector: `.sheet-header-actions`,
+        position: "afterbegin",
+      },
+      enabled: enabled,
+      onRender: onRender,
+    };
+
+    // Register content on Tidy's quadrone sheet
+    api.registerCharacterContent(new api.models.HtmlContent(quadroneContent), {
+      layout: "quadrone",
+    });
+
+    // Provider header controls to Tidy Character and NPC sheets in the App V2 manner
+    Hooks.on("getHeaderControlsActorSheetV2", (config, buttons) => {
+      if (!config.object.isOwner) return;
+      if (!(config.object instanceof Actor)) return;
+
+      const isCharacterSheet = api.isTidy5eCharacterSheet(config);
+      const isNpcSheet = api.isTidy5eNpcSheet(config);
+
+      if (!isCharacterSheet && !isNpcSheet) {
+        return;
+      }
+
+      createActorHeaderButtonsV2(config, buttons, true);
+    });
   }
 
-
-  // api.registerNpcContent(
-  //   new api.models.HtmlContent({
-  //     html: `<div class="ddbCharacterName"></div>`,
-  //     injectParams: {
-  //       selector: `[data-tidy-sheet-part="name-header-row"]`,
-  //       position: "afterbegin",
-  //     },
-  //     enabled: (params) => {
-  //       return foundry.utils.hasProperty(params, "app.document.flags.monsterMunch.url");
-  //     },
-  //     onRender: (params) => {
-  //       const $ddbCharacterName = $(params.element).find(".ddbCharacterName");
-  //       const button = getCharacterButton(params.app.document, params.data.actor);
-  //       $ddbCharacterName.append(button);
-  //     },
-  //   })
-  // );
+  // onceReady timeout necessitates the two methods of getting the API.
+  const api = game.modules.get("tidy5e-sheet")?.api;
+  if (api) {
+    runTidyIntegrations(api);
+  } else {
+    Hooks.once("tidy5e-sheet.ready", (api) => {
+      runTidyIntegrations(api);
+    });
+  }
 }
 
 export default function () {
