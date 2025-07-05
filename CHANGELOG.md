@@ -1,6 +1,7 @@
 # Next Up
 
-- Some monster description roll enrichers would parse the wrong damage for regain hit point rolls. e.g. Rotbeast. @motomoto0295
+- Regain damage fixes for some monster damage enrichers which captured the incorrect values. e.g. Rotbeast from MCDM. @motomoto0295
+- Updates to support latest Tidy5e Sheet fixes. Thanks @_kgar !
 
 # 6.4.1
 
