@@ -540,7 +540,27 @@ export default class CharacterFeatureFactory {
     logger.debug("Parsing feats");
     const validFeats = this.ddbData.character.feats.filter((feat) =>
       CharacterFeatureFactory.includedFeatureNameCheck(feat.definition.name),
-    );
+    ).filter((feat) => {
+      if (feat.componentId === null) return true;
+      const isComponentId = DDBDataUtils.findComponentByComponentId(this.ddbData, feat.componentId);
+      if (isComponentId) return true;
+      if (this.ddbData.character.background.definition?.grantedFeats?.find((f) => f.id === feat.componentId)) {
+        return true;
+      }
+
+      for (const [key, choices] of Object.entries(this.ddbData.character.choices)) {
+        if (!choices) continue;
+        if (!["feat", "background", "class", "item", "race"].includes(key)) continue;
+        const match = choices.some((choice) =>
+          choice.componentId === feat.componentId
+          && choice.componentTypeId === feat.componentTypeId
+          && choice.optionValue === feat.definition.id,
+        );
+        if (match) return true;
+      }
+
+      return false;
+    });
     for (const feat of validFeats) {
       const feats = await this.getFeaturesFromDefinition(feat, "feat");
       this.parsed[type].push(...feats);
