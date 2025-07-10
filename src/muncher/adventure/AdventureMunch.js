@@ -61,7 +61,7 @@ export default class AdventureMunch {
       macros: [],
       folders: [],
     };
-    this.zip = null;
+    this.zipEntries = [];
     this.allMonsters = false;
     this.journalWorldActors = false;
     this.importFile = importFile;
@@ -213,7 +213,7 @@ export default class AdventureMunch {
 
         if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
           logger.debug(`Importing image from ${path}`, paths);
-          const img = await this.zip.file(path).async("blob");
+          const img = await this.getZipFile(path);
           const targetPath = await FileHelper.uploadImage(img, paths.fullUploadPath, paths.filename, paths.forcingWebp);
           CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
           CONFIG.DDBI.KNOWN.LOOKUPS.set(paths.pathKey, targetPath);
@@ -361,31 +361,31 @@ export default class AdventureMunch {
    * @returns {Promise<>}
    */
   async _importFiles() {
-    if (AdventureMunchHelpers.folderExists("scene", this.zip)) {
+    if (this.folderExistsInZip("scene")) {
       logger.debug(`${this.adventure.name} - Loading scenes`);
       await this._checkForDataUpdates("scene");
     }
-    if (AdventureMunchHelpers.folderExists("actor", this.zip)) {
+    if (this.folderExistsInZip("actor")) {
       logger.debug(`${this.adventure.name} - Loading actors`);
       await this._importFile("actor");
     }
-    if (AdventureMunchHelpers.folderExists("item", this.zip)) {
+    if (this.folderExistsInZip("item")) {
       logger.debug(`${this.adventure.name} - Loading item`);
       await this._importFile("item");
     }
-    if (AdventureMunchHelpers.folderExists("journal", this.zip)) {
+    if (this.folderExistsInZip("journal")) {
       logger.debug(`${this.adventure.name} - Loading journal`);
       await this._importFile("journal");
     }
-    if (AdventureMunchHelpers.folderExists("table", this.zip)) {
+    if (this.folderExistsInZip("table")) {
       logger.debug(`${this.adventure.name} - Loading table`);
       await this._importFile("table");
     }
-    if (AdventureMunchHelpers.folderExists("playlist", this.zip)) {
+    if (this.folderExistsInZip("playlist")) {
       logger.debug(`${this.adventure.name} - Loading playlist`);
       await this._importFile("playlist");
     }
-    if (AdventureMunchHelpers.folderExists("macro", this.zip)) {
+    if (this.folderExistsInZip("macro")) {
       logger.debug(`${this.adventure.name} - Loading macro`);
       await this._importFile("macro");
     }
@@ -633,14 +633,6 @@ export default class AdventureMunch {
     logger.info("Revisit data complete");
   }
 
-  async _loadZip() {
-    const form = document.querySelector(`form[class="ddb-importer-window"]`);
-    if (form.data.files.length) {
-      this.importFilename = form.data.files[0].name;
-      this.zip = await FileHelper.readBlobFromFile(this.importFile).then(JSZip.loadAsync);
-    }
-  }
-
   async _importAdventureToWorld() {
     await this._importFiles();
     await this._revisitItems();
@@ -657,10 +649,42 @@ export default class AdventureMunch {
     }
   }
 
-  _unpackZip() {
+  async _unpackZip() {
+    const zipReader = new globalThis.window.zip.ZipReader(new globalThis.window.zip.BlobReader(this.importFile));
+    this.zipEntries = await zipReader.getEntries();
     for (const key of Object.keys(this.raw)) {
-      this.raw[key] = AdventureMunchHelpers.getFiles(key, this.zip);
+      this.raw[key] = this.zipEntries.filter((entry) => {
+        return !entry.directory
+          && entry.filename.split('.').pop() === 'json'
+          && entry.filename.includes(`${key}/`);
+      });
     }
+  }
+
+  async getZipFile(fileName) {
+    const file = this.zipEntries.find((entry) => {
+      return entry.filename === fileName;
+    });
+    if (!file) return null;
+    const mimeType = globalThis.window.zip.getMimeType(file.filename);
+    const data = await file.getData(new globalThis.window.zip.BlobWriter(mimeType));
+    return data;
+  }
+
+  async _getTextFileFromZip(filename) {
+    const raw = await this.getZipFile(filename);
+    if (raw) {
+      return raw.text();
+    } else {
+      logger.error(`Unable to find file ${filename} in adventure zip`, { this: this });
+      throw new Error(`Unable to find file ${filename} in adventure zip`);
+    }
+  }
+
+  folderExistsInZip(folder) {
+    return this.zipEntries.some((entry) => {
+      return entry.directory && entry.filename.toLowerCase().includes(folder);
+    });
   }
 
   async _chooseScenes() {
@@ -671,7 +695,7 @@ export default class AdventureMunch {
     let fileData = [];
 
     await utils.asyncForEach(dataFiles, async (file) => {
-      const raw = await this.zip.file(file.name).async("text");
+      const raw = await this._getTextFileFromZip(file.filename);
       const json = JSON.parse(raw);
       const existingScene = await game.scenes.find((item) => item.id === json._id);
       const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene);
@@ -775,13 +799,12 @@ export default class AdventureMunch {
         }
       }
 
-      this.zip = await FileHelper.readBlobFromFile(this.importFile).then(JSZip.loadAsync);
-      this._unpackZip();
+      await this._unpackZip();
 
-      this.adventure = JSON.parse(await this.zip.file("adventure.json").async("text"));
+      this.adventure = JSON.parse(await this._getTextFileFromZip("adventure.json"));
       logger.debug("Loaded adventure data", { adventure: this.adventure });
       try {
-        this.folders = JSON.parse(await this.zip.file("folders.json").async("text"));
+        this.folders = JSON.parse(await this._getTextFileFromZip("folders.json"));
         logger.debug("Adventure folders", { folders: this.folders });
       } catch (err) {
         logger.warn(`Folder structure file not found.`);
@@ -1290,7 +1313,7 @@ export default class AdventureMunch {
     let hasVersions = false;
 
     await utils.asyncForEach(dataFiles, async (file) => {
-      const raw = await this.zip.file(file.name).async("text");
+      const raw = await this._getTextFileFromZip(file.filename);
       const json = JSON.parse(raw);
       if (!hasVersions && json?.flags?.ddb?.versions) {
         hasVersions = true;
@@ -1373,8 +1396,8 @@ export default class AdventureMunch {
       const imgFilename = imgFilepaths.reverse()[0];
       const imgFilepath = data[tokenType].img.replace(imgFilename, "");
 
-      const filesToUpload = Object.values(this.zip.files).filter((file) => {
-        return !file.dir && file.name.includes(imgFilepath);
+      const filesToUpload = this.zipEntries.filter((file) => {
+        return !file.directory && file.filename.includes(imgFilepath);
       });
 
       let adventurePath = this.adventure.name.replace(/[^a-z0-9]/gi, "_");
@@ -1445,7 +1468,7 @@ export default class AdventureMunch {
 
     // eslint-disable-next-line complexity
     await utils.asyncForEach(dataFiles, async (file) => {
-      const rawData = await this.zip.file(file.name).async("text");
+      const rawData = await this._getTextFileFromZip(file.filename);
       let data = JSON.parse(rawData);
       let needRevisit = false;
 

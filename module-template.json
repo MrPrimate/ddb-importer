@@ -41,7 +41,7 @@
     }]
   },
   "scripts": [
-    "./vendor/jszip/jszip.min.js"
+    "./vendor/zipjs/zip-fs.js"
   ],
   "esmodules": ["dist/main.mjs"],
   "styles": [

@@ -292,34 +292,6 @@ export default class AdventureMunchHelpers {
   }
 
   /**
-   * Does the folder exist in the zip archive?
-   * @param {string} folder folder name
-   * @param {Zip} zip
-   * @returns {boolean}
-   */
-  static folderExists(folder, zip) {
-    const files = Object.values(zip.files).filter((file) => {
-      return file.dir && file.name.toLowerCase().includes(folder);
-    });
-
-    return files.length > 0;
-  }
-
-  /**
-   * Get the files in the zip archive at the specified path
-   * @param {string} folder a folder path to start from
-   * @param {Zip} zip
-   * @returns {Array} list of files in zip
-   */
-  static getFiles(folder, zip) {
-    const files = Object.values(zip.files).filter((file) => {
-      return !file.dir && file.name.split('.').pop() === 'json' && file.name.includes(`${folder}/`);
-    });
-
-    return files;
-  }
-
-  /**
    * Returns an object with various file paths, including the key to the file in the upload folder,
    * the path to the file relative to the adventure upload path, the full path to the file, and the
    * filename with or without the .webp extension.
@@ -340,7 +312,6 @@ export default class AdventureMunchHelpers {
    *   fullUploadPath: the full path to the file
    *   forcingWebp: whether the .webp extension was added
    */
-
   static getImportFilePaths({ adventureName, path, misc } = {}) {
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
     const adventurePath = adventureName.replace(/[^a-z0-9]/gi, "_");
