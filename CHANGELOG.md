@@ -1,4 +1,4 @@
-# Next Up
+# 6.4.2
 
 - Regain damage fixes for some monster damage enrichers which captured the incorrect values. e.g. Rotbeast from MCDM. @motomoto0295
 - Updates to support latest Tidy5e Sheet fixes. Thanks @_kgar !
