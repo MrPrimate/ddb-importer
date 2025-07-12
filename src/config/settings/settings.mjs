@@ -125,7 +125,6 @@ const SETTINGS = {
   COMPENDIUM_REMOVE_FLAGS: COMPENDIUM_REMOVE_FLAGS,
   ADVENTURE_FLAG: "isDDBAdventure",
   ADVENTURE_CSS: "ddbAdventure",
-  NO_SOURCE_MATCH_IDS: [1, 148], // Basic rules and free-rules
   URLS,
   POPUPS,
   DISABLE_FOUNDRY_UPGRADE,
@@ -205,6 +204,14 @@ const SETTINGS = {
         config: false,
         type: Boolean,
         default: true,
+      },
+      "use-basic-rules": {
+        name: "ddb-importer.settings.use-basic-rules.name",
+        hint: "ddb-importer.settings.use-basic-rules.hint",
+        scope: "world",
+        config: false,
+        type: Boolean,
+        default: false,
       },
       "ddb-compendium-banner": {
         scope: "world",

@@ -6,6 +6,7 @@ export const SOURCE_CATEGORIES = {
   hidden: [
     16, 9999999, 35,
   ],
+  basicRules: [1, 148], // Basic rules and free-rules
 };
 
 export const SOURCE_DATA = {

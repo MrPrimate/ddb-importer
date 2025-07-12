@@ -128,6 +128,18 @@ export default class CharacterFeatureFactory {
     const unarmedStrikeMock = CONFIG.DDB.naturalActions[0];
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
+    strikeMock.sources = [
+      {
+        "sourceId": 148,
+        "pageNumber": null,
+        "sourceType": 2,
+      },
+      {
+        "sourceId": 1,
+        "pageNumber": null,
+        "sourceType": 2,
+      },
+    ];
 
     const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS["other"];
     const enricher = new enricherClass({

@@ -11,10 +11,36 @@ export default class DDBSources {
     }
   }
 
+  static is2014Source(source) {
+    const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
+    if (force2024) return false;
+    // if game is set to modern rules force items that have a 2024 source to be 2024
+    if (game.settings.get("dnd5e", "rulesVersion") === 'modern') {
+      if (force2024) return false;
+    }
+    const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
+    if (force2014) return true;
+    if (force2024) return false;
+    return Number.isInteger(source.sourceId) && source.sourceId < 145;
+  }
+
+  static is2024Source(source) {
+    const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
+    if (force2014) return false;
+    // if game is set to modern rules force items that have a 2024 source to be 2024
+    if (game.settings.get("dnd5e", "rulesVersion") === 'modern') {
+      if (force2014) return false;
+    }
+    const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
+    if (force2024) return true;
+    return Number.isInteger(source.sourceId) && source.sourceId >= 145;
+  }
+
   static getAdjustedSourceBook(sourceBook) {
-    if (["free-rules", "br-2024"].includes(sourceBook)) {
+    const useBasicRules = game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules");
+    if (!useBasicRules && ["free-rules", "br-2024", "BR-2024"].includes(sourceBook)) {
       return "PHB 2024";
-    } else if (sourceBook === "BR") {
+    } else if (!useBasicRules && sourceBook === "BR") {
       return "SRD 5.1";
     } else {
       return sourceBook.replace("-", " ");
@@ -33,8 +59,10 @@ export default class DDBSources {
     source.book = DDBSources.getAdjustedSourceBook(source.book);
     if (source.book === "BR") {
       source.license = "CC-BY-4.0";
+    } else if (source.book === "br-2024") {
+      source.book = "BR-2024";
     }
-    if (game.settings.get("ddb-importer", "no-source-book-pages"))
+    if (game.settings.get(SETTINGS.MODULE_ID, "no-source-book-pages"))
       source.page = "";
   }
 
@@ -57,16 +85,34 @@ export default class DDBSources {
   static getSourceData(definition) {
     const results = [];
     if (definition.sources?.length > 0) {
+      const typeOneSources = definition.sources.filter((source) => source.sourceType === 1);
+      const typeTwoSources = definition.sources.filter((source) => source.sourceType === 2);
       // is basic rules (e.g. SRD)
-      const basicRules = definition.sources.some((source) => source.sourceType === 2 && source.sourceId === 1);
+      const basicRules2014 = typeTwoSources.filter((source) => source.sourceId === 1);
+      // should be type 2 but aren't for core weapons
+      const basicRules2024 = definition.sources.filter((source) => source.sourceId === 148);
+      const coreRules = definition.sources.filter((source) => source.sourceId === 198);
       const hasPage = definition.sources.some((source) => source.pageNumber !== null);
-      const sources = hasPage
-        ? definition.sources.filter((source) => source.pageNumber !== null)
-        : basicRules
-          ? definition.sources.filter((source) => source.sourceType === 2 && source.sourceId === 1)
-          : definition.sources.some((source) => source.sourceType === 1)
-            ? definition.sources.filter((source) => source.sourceType === 1)
-            : definition.sources;
+      const usePages = game.settings.get(SETTINGS.MODULE_ID, "no-source-book-pages") === false;
+      const useBasicRules = game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules");
+
+      let sources = definition.sources;
+      if (usePages && hasPage) {
+        sources = definition.sources.filter((source) => source.pageNumber !== null);
+      }
+
+      if (useBasicRules && coreRules.length > 0) {
+        sources = coreRules;
+      } else if (useBasicRules
+        && game.settings.get("dnd5e", "rulesVersion") === 'modern' && basicRules2024.length > 0
+      ) {
+        sources = basicRules2024;
+      } else if (useBasicRules && basicRules2014.length > 0) {
+        sources = basicRules2014;
+      } else if (typeOneSources.length > 0) {
+        sources = typeOneSources;
+      }
+
       for (const ds of sources) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === ds.sourceId);
 
@@ -152,7 +198,14 @@ export default class DDBSources {
     if (!ddbRaw) return;
 
     const sources = {};
-    for (const source of ddbRaw.filter((s) => s.isReleased && !SETTINGS.NO_SOURCE_MATCH_IDS.includes(s.id))) {
+    const validSources = ddbRaw.filter((s) => s.isReleased
+      && (game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules")
+        || !DICTIONARY.sourceCategories.basicRules.includes(s.id)),
+    ).map((s) => {
+      if (s.name === "br-2024") s.name = "BR-2024";
+      return s;
+    });
+    for (const source of validSources) {
       sources[source.name.replace("-", " ")] = source.description;
     }
     sources["Homebrew"] = "Homebrew";

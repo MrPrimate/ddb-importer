@@ -1,3 +1,7 @@
+# 6.4.3
+
+- Some changes on DDB Sources on items have resulted in some adjustments. This resulted in some strange sources for regular weapons like longswords. These will now choose the latest source and rules version in DDB.
+
 # 6.4.2
 
 - Regain damage fixes for some monster damage enrichers which captured the incorrect values. e.g. Rotbeast from MCDM. @motomoto0295

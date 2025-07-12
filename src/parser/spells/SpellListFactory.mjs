@@ -1,4 +1,4 @@
-import { SETTINGS } from "../../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module.mjs";
 import { DDBDataUtils } from "../lib/_module.mjs";
 
@@ -317,7 +317,10 @@ export default class SpellListFactory {
 
     this.#generateUuidsBySourceAndClass();
 
-    const filteredSources = this.sources.filter((s) => !SETTINGS.NO_SOURCE_MATCH_IDS.includes(s.id));
+    const filteredSources = this.sources.filter((s) =>
+      game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules")
+      || !DICTIONARY.sourceCategories.basicRules.includes(s.id),
+    );
 
     for (const source of filteredSources) {
       if (!this.#sourceHasSpells(source)) {

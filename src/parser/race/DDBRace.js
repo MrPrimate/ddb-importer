@@ -84,13 +84,8 @@ export default class DDBRace {
   constructor(ddbData, race, compendiumRacialTraits, isGeneric = false) {
     this.ddbData = ddbData;
     this.race = race;
-    this.is2014 = this.race.sources.some((s) => {
-      const force2014 = DICTIONARY.source.is2014.includes(s.sourceId);
-      if (force2014) return true;
-      const force2024 = DICTIONARY.source.is2024.includes(s.sourceId);
-      if (force2024) return false;
-      return Number.isInteger(s.sourceId) && s.sourceId < 145;
-    });
+    this.is2014 = this.race.sources.every((s) => DDBSources.is2014Source(s));
+    this.is2024 = !this.is2014;
 
     this.isLegacy = this.race.isLegacy;
     this.#fixups();
