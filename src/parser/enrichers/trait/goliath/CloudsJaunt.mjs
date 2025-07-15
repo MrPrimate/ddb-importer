@@ -11,6 +11,20 @@ export default class CloudsJaunt extends DDBEnricherData {
     return {
       targetType: "self",
       activationType: "bonus",
+      addItemConsume: true,
+    };
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: this.ddbParser.originalName,
+          max: "@prof",
+          period: "lr",
+        }),
+      },
     };
   }
 

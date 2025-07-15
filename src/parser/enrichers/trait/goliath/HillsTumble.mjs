@@ -10,6 +10,7 @@ export default class HillsTumble extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
+      addItemConsume: true,
     };
   }
 
@@ -19,5 +20,18 @@ export default class HillsTumble extends DDBEnricherData {
         statuses: ["Prone"],
       },
     ];
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: this.ddbParser.originalName,
+          max: "@prof",
+          period: "lr",
+        }),
+      },
+    };
   }
 }

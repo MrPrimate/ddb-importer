@@ -10,6 +10,7 @@ export default class StormsThunder extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "reaction",
+      addItemConsume: true,
       data: {
         damage: {
           parts: [
@@ -20,6 +21,19 @@ export default class StormsThunder extends DDBEnricherData {
             }),
           ],
         },
+      },
+    };
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: this.ddbParser.originalName,
+          max: "@prof",
+          period: "lr",
+        }),
       },
     };
   }

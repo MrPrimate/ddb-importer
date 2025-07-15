@@ -11,6 +11,7 @@ export default class StonesEndurance extends DDBEnricherData {
     return {
       activationType: "reaction",
       midiDamageReaction: true,
+      addItemConsume: true,
       data: {
         roll: {
           prompt: false,
@@ -40,6 +41,19 @@ export default class StonesEndurance extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": this._getUsesWithSpent({
+          type: "race",
+          name: this.ddbParser.originalName,
+          max: "@prof",
+          period: "lr",
+        }),
+      },
+    };
   }
 
 }

@@ -1,3 +1,8 @@
+# Next Up
+
+- Various icon additions by @motomoto0295
+- Goliath Giant Ancestry Features were no longer parsing activities or uses. @arrowed1
+
 # 6.4.3
 
 - Some changes on DDB Sources on items have resulted in some adjustments. This resulted in some strange sources for regular weapons like longswords. These will now choose the latest source and rules version in DDB.

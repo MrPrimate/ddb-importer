@@ -120,6 +120,7 @@ export const PARSING_CHOICE_FEATURES = {
   NO_FEATURE_PREFIX_NAME: [
     "Rune Carver",
     "Primal Companion",
+    "Giant Ancestry",
   ],
   NO_CHOICE_BUILD: [
     "Aspect of the Wilds",
