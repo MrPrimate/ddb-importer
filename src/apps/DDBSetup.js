@@ -8,6 +8,7 @@ import {
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBAppV2 from "./DDBAppV2.js";
+import DDBCharacterManager from "./DDBCharacterManager.js";
 
 
 export default class DDBSetup extends DDBAppV2 {
@@ -25,6 +26,8 @@ export default class DDBSetup extends DDBAppV2 {
     this.tabGroups["info"] = this.infoTab;
     this.tabGroups["core"] = this.coreTab;
     this.showDiscouraged = showDiscouraged;
+    this.cobalt = Secrets.getCobalt();
+    this.campaignId = DDBCampaigns.getCampaignId();
   }
 
   /** @inheritDoc */
@@ -38,6 +41,7 @@ export default class DDBSetup extends DDBAppV2 {
       goToCobaltTab: DDBSetup.goToCobaltTab,
       goToCampaignTab: DDBSetup.goToCampaignTab,
       goToPatreonTab: DDBSetup.goToPatreonTab,
+      resetSettings: DDBSetup.resetSettingsDialog,
     },
     position: {
       width: "900",
@@ -147,10 +151,10 @@ export default class DDBSetup extends DDBAppV2 {
   async _prepareContext(options) {
 
     let context = {
-      isCobalt: false,
-      cobaltLocal: false,
+      isCobalt: this.cobalt !== "",
+      cobaltLocal: game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local"),
       setupConfig: {
-        "cobalt-cookie": "",
+        "cobalt-cookie": this.cobalt,
         "available-campaigns": [],
         "campaign-id": "",
         "patreon-key": "",
@@ -172,15 +176,10 @@ export default class DDBSetup extends DDBAppV2 {
       return context;
     }, 10000);
 
-    context.setupConfig["cobalt-cookie"] = Secrets.getCobalt();
-    context.isCobalt = context.setupConfig["cobalt-cookie"] !== "";
-    context.cobaltLocal = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
-
     const key = PatreonHelper.getPatreonKey();
     context.setupConfig["patreon-key"] = key;
     const hasKey = key !== "";
-    const campaignId = DDBCampaigns.getCampaignId();
-    context.setupConfig["campaign-id"] = campaignId;
+    context.setupConfig["campaign-id"] = this.campaignId;
     context.tier = PatreonHelper.getPatreonTier();
     const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
     context.patreonUser = patreonUser;
@@ -193,13 +192,16 @@ export default class DDBSetup extends DDBAppV2 {
     // eslint-disable-next-line require-atomic-updates
     context.validCobalt = cobaltStatus.success;
     const availableCampaigns = context.isCobalt && cobaltStatus.success
-      ? await DDBCampaigns.getAvailableCampaigns()
+      ? await DDBCampaigns.getAvailableCampaigns({
+        campaignId: this.campaignId === "" ? null : this.campaignId,
+        cobalt: this.cobalt,
+      })
       : [];
 
     this.campaignFallback = false;
 
     availableCampaigns.forEach((campaign) => {
-      const selected = campaign.id == campaignId;
+      const selected = campaign.id == this.campaignId;
       campaign.selected = selected;
     });
 
@@ -271,7 +273,7 @@ export default class DDBSetup extends DDBAppV2 {
         ? ""
         : campaignSelect;
     const cobaltCookie = formData.object['cobalt-cookie'];
-    const cobaltCookieLocal = formData.object['cobalt-cookie-local'];
+    const cobaltCookieLocal = formData.object['cobalt-cookie-local'] ?? true;
     const currentKey = PatreonHelper.getPatreonKey();
 
     if (currentKey !== formData.object['patreon-key']) {
@@ -289,20 +291,25 @@ export default class DDBSetup extends DDBAppV2 {
     await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
     await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
 
-    if (this.callMuncher && cobaltCookie === "") {
-      ui.notifications.error("To use DDB Muncher you need to set a Cobalt Cookie value!");
+    if (cobaltCookie === "") {
+      ui.notifications.error("To use DDB Importer you need to set a Cobalt Cookie value!");
+      this.close();
       // throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
     } else if (this.callMuncher) {
       new DDBMuncher().render(true);
       this.close();
     } else {
+      if (this.actor) {
+        const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, this.actor);
+        characterImport.render(true);
+      }
       this.close();
     }
   }
 
-  static connectToPatreonButton(event) {
+  static async connectToPatreonButton(event) {
     event.preventDefault();
-    PatreonHelper.linkToPatreon(this.element);
+    await PatreonHelper.linkToPatreon(this.element);
   }
 
   static async fetchCampaignsButton(event) {
@@ -338,24 +345,56 @@ export default class DDBSetup extends DDBAppV2 {
     const button = this.element.querySelector("#check-cobalt-button");
     if (cobaltStatus.success) {
       button.innerHTML = "Check Cobalt Cookie - Success!";
+      this.cobalt = cookie.value;
     } else {
       button.innerHTML = "Check Cobalt Cookie - Failure!";
     }
+    await this.render();
   }
 
   static goToCobaltTab(event) {
     event.preventDefault();
+    this.changeTab("core", "sheet", {});
     this.changeTab("cobalt", "core", {});
   }
 
   static goToCampaignTab(event) {
     event.preventDefault();
+    this.changeTab("core", "sheet", {});
     this.changeTab("campaign", "core", {});
   }
 
   static goToPatreonTab(event) {
     event.preventDefault();
+    this.changeTab("core", "sheet", {});
     this.changeTab("patreon", "core", {});
+  }
+
+  static async resetSettingsDialog(event) {
+    event.preventDefault();
+
+    const dialog = await foundry.applications.api.DialogV2.confirm({
+      rejectClose: false,
+      window: {
+        title: game.i18n.localize(`${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Title`),
+      },
+      content: `<p class="${SETTINGS.MODULE_ID}-dialog-important">${game.i18n.localize(
+        `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Content`,
+      )}</p>`,
+    });
+
+    logger.warn("Resetting settings to defaults", dialog);
+
+    if (dialog) {
+      for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS())) {
+        await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
+      }
+      for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS(true))) {
+        await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
+      }
+      window.location.reload();
+    }
+
   }
 
 }

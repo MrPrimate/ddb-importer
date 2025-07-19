@@ -50,13 +50,15 @@ function characterButtonClick(event, document, actor) {
       return renderPopup("json", API_ENDPOINT + characterId);
     }
   } else if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
-    const setupComplete = DDBSetup.isSetupComplete(false);
+    const setupComplete = DDBSetup.isSetupComplete(true);
 
     if (setupComplete) {
       const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actor);
       characterImport.render(true);
     } else {
-      new DDBSetup().render(true);
+      new DDBSetup({
+        actor: actor,
+      }).render(true);
     }
 
     return true;

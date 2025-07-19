@@ -61,12 +61,12 @@ export default class DDBCampaigns {
     return CONFIG.DDBI.CAMPAIGNS;
   }
 
-  static async getAvailableCampaigns(notifier = null) {
+  static async getAvailableCampaigns({ notifier = null, cobalt = null, campaignId = null } = {}) {
     if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
     // eslint-disable-next-line require-atomic-updates
     CONFIG.DDBI.CAMPAIGNS = [];
-    const campaignId = DDBCampaigns.getCampaignId(notifier);
-    const campaigns = await DDBCampaigns.getDDBCampaigns();
+    if (!campaignId) campaignId = DDBCampaigns.getCampaignId(notifier);
+    const campaigns = await DDBCampaigns.getDDBCampaigns(cobalt);
 
     if (!campaigns || campaigns.length === 0) {
       if (campaignId && campaignId.trim() !== "") {

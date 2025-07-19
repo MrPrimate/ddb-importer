@@ -56,42 +56,13 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
   },
 });
 
-async function resetSettings() {
-  for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS())) {
-    await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
-  }
-  for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS(true))) {
-    await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
-  }
-  window.location.reload();
-}
-
-class ResetSettingsDialog extends FormApplication {
-  constructor(...args) {
-    super(...args);
-    // eslint-disable-next-line no-constructor-return
-    return new Dialog({
-      title: game.i18n.localize(`${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Title`),
-      content: `<p class="${SETTINGS.MODULE_ID}-dialog-important">${game.i18n.localize(
-        `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Content`,
-      )}</p>`,
-      buttons: {
-        confirm: {
-          icon: '<i class="fas fa-check"></i>',
-          label: game.i18n.localize(`${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Confirm`),
-          callback: () => {
-            resetSettings();
-          },
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize(`${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Cancel`),
-        },
-      },
-      default: "cancel",
-    });
-  }
-}
+// class ResetSettingsDialog extends FormApplication {
+//   constructor(...args) {
+//     super(...args);
+//     // eslint-disable-next-line no-constructor-return
+//     return DDBSetup.resetSettingsDialog();
+//   }
+// }
 
 async function createFolderPaths() {
   if (game.user.isGM) {
@@ -173,14 +144,14 @@ export default async function () {
   }
 
   // reset settings
-  game.settings.registerMenu(SETTINGS.MODULE_ID, "resetToDefaults", {
-    name: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Title`,
-    label: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Label`,
-    hint: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Hint`,
-    icon: "fas fa-refresh",
-    type: ResetSettingsDialog,
-    restricted: true,
-  });
+  // game.settings.registerMenu(SETTINGS.MODULE_ID, "resetToDefaults", {
+  //   name: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Title`,
+  //   label: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Label`,
+  //   hint: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Hint`,
+  //   icon: "fas fa-refresh",
+  //   type: ResetSettingsDialog,
+  //   restricted: true,
+  // });
 
   // reset settings
   game.settings.registerMenu(SETTINGS.MODULE_ID, "ddbProxy", {
