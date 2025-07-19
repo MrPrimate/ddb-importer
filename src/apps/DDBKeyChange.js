@@ -39,7 +39,7 @@ export class DDBKeyChange extends FormApplication {
   async getData() { // eslint-disable-line class-methods-use-this
     const key = PatreonHelper.getPatreonKey(this.local);
     const setupConfig = {
-      "beta-key": key ?? "",
+      "patreon-key": key ?? "",
     };
     const patreonUser = key && key !== ""
       ? PatreonHelper.getPatreonUser(this.local)
@@ -53,7 +53,7 @@ export class DDBKeyChange extends FormApplication {
     return {
       success: (check && check.success) ? check.success : false,
       message: (check && check.message) ? check.message : "Unable to check patreon key status",
-      setupConfig: setupConfig,
+      setupConfig,
       patreonLinked: patreonUser && patreonUser != "",
       patreonUser: patreonUser ?? "",
       local: this.local,
@@ -65,8 +65,8 @@ export class DDBKeyChange extends FormApplication {
   async _updateObject(event, formData) { // eslint-disable-line class-methods-use-this
     event.preventDefault();
     const currentKey = PatreonHelper.getPatreonKey(this.local);
-    if (currentKey !== formData['beta-key']) {
-      await PatreonHelper.setPatreonKey(formData['beta-key'], this.local);
+    if (currentKey !== formData['patreon-key']) {
+      await PatreonHelper.setPatreonKey(formData['patreon-key'], this.local);
       await PatreonHelper.setPatreonTier(this.local);
     }
 

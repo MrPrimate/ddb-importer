@@ -29,7 +29,7 @@
       <div class="ddbimporter-none" name="ddb-campaign-fallback" id="ddb-campaign-fallback">
         <p>Automatic campaign detection unavailable, please enter your campaign id manually. You can find it in the URL, when you click on the campaign from <a href="https://www.dndbeyond.com/my-campaigns">My Campaigns.</a> It is a number. e.g. if the url was <i>https://www.dndbeyond.com/campaigns/12345</i> then my campaign id would be 12345</p>
         <input class="setup-config" type="number" name="campaign-fallback" id="campaign-fallback" style="flex: 0 1 auto" ;
-          value="{{campaignId}}" />
+          value="{{setupConfig.campaign-id}}" />
       </div>
     </div>
     <hr>
@@ -40,8 +40,8 @@
     <p>Tier: <i id=ddb-patreon-tier>{{#if this.tier}}{{this.tier}}{{else}}{{/if}}</i></p>
     <p>Valid: <i id=ddb-patreon-valid>{{#if this.tier}}{{validKey}}{{else}}{{/if}}</i></p>
     <p>If you have been provided a Key, enter it here instead:</p>
-    <input id="ddb-beta-key" class="setup-config" type="password" name="beta-key" style="flex: 0 1 auto" ;
-      value="{{setupConfig.beta-key}}" />
+    <input id="ddb-patreon-key" class="setup-config" type="password" name="patreon-key" style="flex: 0 1 auto" ;
+      value="{{setupConfig.patreon-key}}" />
       <p><i>Note: this will be auto filled when you connect to patreon, and the key will be valid for a month.</i></p>
     <hr>
     <p>If you need to change these settings in the future, you can do it in the module settings page.</p>

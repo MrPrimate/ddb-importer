@@ -85,7 +85,7 @@ export default class DDBDebug {
     for (const [key, setting] of Object.entries(this.ddbSettings)) {
       const value = game.settings.get(DDBImporter.SETTINGS.MODULE_ID, key);
       if (value !== setting.default) {
-        if (["beta-key", "cobalt-cookie"].includes(key)) {
+        if (["beta-key", "cobalt-cookie", "patreon-key"].includes(key)) {
           this.ddbChangedSettings[key] = "REDACTED";
         } else {
           this.ddbChangedSettings[key] = value;
@@ -95,6 +95,7 @@ export default class DDBDebug {
 
     this.ddbSettings["beta-key"] = "REDACTED";
     this.ddbSettings["cobalt-cookie"] = "REDACTED";
+    this.ddbSettings["patreon-key"] = "REDACTED";
 
     this.versions = {
       game: game.version,

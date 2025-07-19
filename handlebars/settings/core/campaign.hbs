@@ -1,0 +1,39 @@
+<section id="ddb-importer-settings-campaign" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+<fieldset>
+
+  <legend>[Optional] Campaign Link</legend>
+  {{#if this.validCobalt}}
+  <p>You do not need to set a campaign, this is only required if someone is sharing content with you via a D&D Beyond Campaign.</p>
+
+  <button data-action="fetchCampaignsButton" id="campaign-button" class="campaign-button">Fetch My Campaigns</button>
+
+  <div class="form-group">
+    <label>Filter encounters by Campaign?</label>
+    <div class="form-fields">
+      <select name="campaign-select" class="form-select" id="campaign-select">
+        <option value="">Select campaign:</option>
+        {{#each setupConfig.available-campaigns}}
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}} ({{this.dmUsername}}) - {{this.id}}</option>
+        {{/each}}
+      </select>
+      <div class="ddbimporter-none" name="ddb-campaign-fallback" id="ddb-campaign-fallback">
+        <p>Automatic campaign detection unavailable, please enter your campaign id manually. You can find it in the URL, when you click on the campaign from <a href="https://www.dndbeyond.com/my-campaigns">My Campaigns.</a> It is a number. e.g. if the url was <i>https://www.dndbeyond.com/campaigns/12345</i> then my campaign id would be 12345</p>
+        <input class="setup-config" type="number" name="campaign-fallback" id="campaign-fallback" style="flex: 0 1 auto" ;
+          value="{{setupConfig.campaign-id}}" />
+      </div>
+    </div>
+  </div>
+
+
+  {{else}}
+  <p class="hint">You must have a valid Cobalt Cookie before you can link your Patreon account. Please return to the previous step.</p>
+  {{/if}}
+
+</fieldset>
+
+<div class="flexrow">
+<button data-action="goToCobaltTab"><i class="fas fa-chevron-left"></i> Previous</button>
+<button data-action="goToPatreonTab" {{#if this.validCobalt}}{{else}}disabled{{/if}}>Next <i class="fas fa-chevron-right"></i></button>
+</div>
+
+</section>

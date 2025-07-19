@@ -448,7 +448,7 @@ const SETTINGS = {
           name: "ddb-importer.settings.update-check.name",
           config: true,
           type: Boolean,
-          default: true,
+          default: false,
         },
         "use-deep-file-paths": {
           name: "ddb-importer.settings.use-deep-file-paths.name",
@@ -456,6 +456,14 @@ const SETTINGS = {
           type: Boolean,
           default: true,
           // requiresReload: true,
+        },
+        "show-welcome-message": {
+          name: "ddb-importer.settings.show-welcome-message.name",
+          hint: "ddb-importer.settings.show-welcome-message.hint",
+          scope: "world",
+          type: Boolean,
+          default: true,
+          config: true,
         },
       },
       // character settings

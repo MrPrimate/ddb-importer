@@ -1,3 +1,8 @@
+# Next Up
+
+- New Welcome message to guide new users.
+- New v2 Core Settings Screen.
+
 # 6.4.4
 
 - Various icon additions by @motomoto0295

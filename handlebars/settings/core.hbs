@@ -1,0 +1,6 @@
+<section class="tab info-{{ tab.id }} {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+    {{> "templates/generic/tab-navigation.hbs" tabs=tabs.core.tabs }}
+    {{> "modules/ddb-importer/handlebars/settings/core/cobalt.hbs" tab=tabs.core.tabs.cobalt }}
+    {{> "modules/ddb-importer/handlebars/settings/core/patreon.hbs" tab=tabs.core.tabs.patreon }}
+    {{> "modules/ddb-importer/handlebars/settings/core/campaign.hbs" tab=tabs.core.tabs.campaign }}
+</section>

@@ -152,7 +152,7 @@ const PatreonHelper = {
     return matrix;
   },
 
-  linkToPatreon: async () => {
+  linkToPatreon: async (element) => {
 
     const proxy = DDBProxy.getProxy();
     const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
@@ -192,10 +192,10 @@ const PatreonHelper = {
       game.settings.set(SETTINGS.MODULE_ID, "patreon-user", data.email);
       game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", data.tier);
 
-      $('#ddb-patreon-user').text(data.email);
-      $('#ddb-patreon-tier').text(data.tier);
-      $('#ddb-patreon-valid').text("True");
-      $('#ddb-beta-key').val(data.key);
+      element.querySelector("#ddb-patreon-user").textContent = data.email;
+      element.querySelector("#ddb-patreon-tier").textContent = data.tier;
+      element.querySelector("#ddb-patreon-valid").textContent = "True";
+      element.querySelector("#ddb-patreon-key").value = data.key;
 
       socket.disconnect();
     });

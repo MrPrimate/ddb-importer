@@ -35,6 +35,7 @@ import { registerCustomEnrichers } from "./hooks/ready/enrichers.js";
 import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
 import { DDBEnhancers } from "./effects/_module.mjs";
 import { addTattooConsumable } from "./hooks/tattoo/main.mjs";
+import welcomeMessage from "./hooks/ready/welcomeMessage.js";
 // import { createStorage } from "./hooks/ready/storage.mjs";
 
 // foundry is initializing
@@ -77,6 +78,7 @@ export async function onceReady() {
   }, 500);
 
   anchorInjection();
+  welcomeMessage();
   logger.info("OnceReady complete");
 }
 

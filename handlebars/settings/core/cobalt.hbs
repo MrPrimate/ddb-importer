@@ -1,0 +1,32 @@
+<section id="ddb-importer-settings-cobalt" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+<fieldset>
+  <legend>[Required] Authentication with D&D Beyond</legend>
+  <p>Use my <a href="https://github.com/MrPrimate/ddb-importer-chrome">Chrome</a> to get this with a click, or follow <a href="https://raw.githubusercontent.com/MrPrimate/ddb-importer/main/docs/manual-cookie.png">these manual steps</a>. Paste into this field with Ctrl-V.</p>
+
+  <div class="form-group cobalt-setup">
+    <label>Cobalt Cookie</label>
+    <div class="form-fields">
+    <input class="setup-config" type="password" name="cobalt-cookie" id="cobalt-cookie-input" style="flex: 0 1 auto" ;
+        value="{{setupConfig.cobalt-cookie}}" />
+    </div>
+  </div>
+  <button data-action="checkCobaltButton" id="check-cobalt-button" class="check-cobalt-button">Check Cobalt Cookie</button>
+
+ {{#if this.showDiscouraged}}
+  <div class="form-group cobalt-setup">
+    <label>Store Cobalt Cookie in browser storage?</label>
+    <div class="form-fields">
+      <input {{#if this.cobaltLocal}}checked{{/if}} class="setup-config" type="checkbox" name="cobalt-cookie-local"
+       style="flex: 0 1 auto"> Use local storage?
+    </div>
+    <p class="hint"><p>If this is checked, the cobalt cookie will be stored in your local browser storage. Only your browser can run the importer.</p>
+  </div>
+ {{/if}}
+</fieldset>
+
+<div class="flexrow">
+<button disabled><i class="fas fa-chevron-left"></i> Previous</button>
+<button data-action="goToCampaignTab" {{#if this.validCobalt}}{{else}}disabled{{/if}}>Next <i class="fas fa-chevron-right"></i></button>
+</div>
+
+</section>

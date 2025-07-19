@@ -30,6 +30,14 @@
       "CreateSpellwroughtTattoo": "Create Spellwrought Tattoo",
       "Details": "Tattoo Details"
     },
+    "Welcome": {
+      "Title": "Welcome to DDB Importer!",
+      "FirstTime": "It seems like you're using this module for the first time!",
+      "SetupButton": "Open Configuration Dungeon",
+      "Setup": "DDB Importer requires some information before we can use it, chiefly linking it to your D&D Beyond account.",
+      "Later": "You can always change these settings later under 'Configure Settings > Module Settings > DDB Importer!'",
+      "Fin": "Once setup is complete, you won't see this message again."
+    },
     "settings": {
       "use-basic-rules.name": "When parsing sources, add the D&D Basic Rules source rather than SRD or PHB 2024?",
       "use-basic-rules.hint": "If unticked, the Importer will do its best to sort into the SRD 5.1 or PHB 2024 source instead. Please notes that this is a best guess as D&D Beyond does not have SRD Sources, but \"Basic Rules\" which cover a slightly different subset.",
@@ -77,8 +85,8 @@
       "campaign-id.hint": "Enter the campaign URL or ID, e.g. https://www.dndbeyond.com/campaigns/12345 or 12345",
       "spells-on-items-as-activities.name": "Spells on Items As Activities",
       "spells-on-items-as-activities.hint": "If checked spells on items will be created as activities, rather than usage linked from spells",
-      "beta-key.name": "Patreon supporter Beta Key",
-      "beta-key.hint": "Some Patreon supporter tiers have access to Beta features, enter your key here",
+      "patreon-key.name": "Patreon Supporter Key",
+      "patreon-key.hint": "Enter your Patreon Supporter Key here.",
       "auto-create-compendium.name": "Auto create compendiums if not present?",
       "auto-create-compendium.hint": "Auto create compendiums if not present?",
       "use-full-source.name": "Use full source book name?",
