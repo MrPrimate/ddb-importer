@@ -18,7 +18,17 @@ import DDBMonsterImporter from "../../muncher/DDBMonsterImporter.mjs";
 
 export default class DDBCompanionFactory {
 
-  constructor(html, options = {}) {
+  constructor(html, options = {
+    originDocument: null,
+    is2014: null,
+    notifier: null,
+    actor: null,
+    data: null,
+    folderHint: null,
+    createCompanions: true,
+    updateCompanions: true,
+    updateImages: false,
+  }) {
     // console.warn("html", html);
     this.options = options;
     this.html = html;
@@ -26,8 +36,9 @@ export default class DDBCompanionFactory {
     this.companions = [];
     this.actor = this.options.actor;
     this.folderIds = new Set();
-    this.updateCompanions = true; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
-    this.updateImages = false; // game.settings.get("ddb-importer", "munching-policy-update-images");
+    this.createCompanions = this.options.createCompanions;
+    this.updateCompanions = this.options.updateCompanions; //  game.settings.get("ddb-importer", "munching-policy-update-existing");
+    this.updateImages = this.options.updateImages; // game.settings.get("ddb-importer", "munching-policy-update-images");
     this.results = {
       created: [],
       updated: [],
@@ -292,6 +303,7 @@ export default class DDBCompanionFactory {
     let companionData = this.data;
 
     if (!game.user.isGM) {
+      this.itemHandler.documents = companionData;
       return;
     }
 
@@ -311,8 +323,9 @@ export default class DDBCompanionFactory {
     if (this.updateCompanions) {
       this.results.updated = await this.#updateCompanions(this.itemHandler.documents, existingCompanions);
     }
-    this.results.created = await this.#createCompanions(this.itemHandler.documents, existingCompanions, folderOverride?.id);
-
+    if (this.createCompanions) {
+      this.results.created = await this.#createCompanions(this.itemHandler.documents, existingCompanions, folderOverride?.id);
+    }
   }
 
 

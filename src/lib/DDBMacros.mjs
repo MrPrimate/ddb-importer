@@ -73,6 +73,7 @@ export default class DDBMacros {
   }
 
   static async configureDependencies() {
+    if (!game.user.isGM) return false;
     // allow item use macros on items
     if (game.modules.get("midi-qol")?.active) {
       let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");

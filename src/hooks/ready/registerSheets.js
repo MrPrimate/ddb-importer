@@ -1,5 +1,6 @@
+import DDBCookie from "../../apps/DDBCookie.js";
 import DDBCharacterManager from "../../apps/DDBCharacterManager.js";
-import { logger } from "../../lib/_module.mjs";
+import { logger, Secrets } from "../../lib/_module.mjs";
 import DDBSetup from "../../apps/DDBSetup.js";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags.js";
 
@@ -26,7 +27,12 @@ const renderPopup = (type, url) => {
   return true;
 };
 
-function characterButtonClick(event, document, actor) {
+function callDDBCharacterManager(actor) {
+  const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actor);
+  characterImport.render(true);
+}
+
+async function characterButtonClick(event, document, actor) {
   let url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
     ? document.flags.ddbimporter.dndbeyond.url
     : null;
@@ -50,11 +56,35 @@ function characterButtonClick(event, document, actor) {
       return renderPopup("json", API_ENDPOINT + characterId);
     }
   } else if ((!event.shiftKey && !event.ctrlKey && !event.altKey) || url === null) {
-    const setupComplete = DDBSetup.isSetupComplete(true);
+    const setupComplete = DDBSetup.isSetupComplete(game.user.isGM);
 
     if (setupComplete) {
-      const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actor);
-      characterImport.render(true);
+      if (game.user.isGM) {
+        callDDBCharacterManager(actor);
+      } else {
+        const timeout = setTimeout(async() => {
+          ui.notifications.error("Unable to connect to DDB Importer Proxy. Please check your DDB Importer settings and internet connection and try again.");
+          return new DDBSetup({
+            actor: actor,
+          }).render(true);
+        }, 10000);
+        const checkCobalt = await Secrets.checkCobalt(actor.id);
+        clearTimeout(timeout);
+        if (checkCobalt.success) {
+          callDDBCharacterManager(actor);
+          return true;
+        } else {
+          ui.notifications.warn("Cobalt cookie is invalid or expired. Please update or add your Cobalt cookie.");
+          new DDBCookie({
+            actor: actor,
+            localCobalt: true,
+            callback: () => {
+              callDDBCharacterManager(actor);
+            },
+          }).render(true);
+        }
+      }
+
     } else {
       new DDBSetup({
         actor: actor,

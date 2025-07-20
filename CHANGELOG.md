@@ -2,6 +2,8 @@
 
 - New Welcome message to guide new users.
 - New v2 Core Settings Screen.
+- Improved Cobalt Cookie checking before importing characters, especially for players.
+- Fixed some issues around players importing characters for local storage path.
 
 # 6.4.4
 

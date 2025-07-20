@@ -1028,12 +1028,15 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   createCompanionFactory() {
+    const createOrUpdate = this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions");
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "feature",
       originDocument: this.data,
       is2014: this.is2014,
       notifier: this.notifier,
       folderHint: foundry.utils.getProperty(this.data, "flags.ddbimporter.summons.folder"),
+      createCompanions: createOrUpdate,
+      updateCompanions: createOrUpdate,
     });
   }
 
@@ -1048,10 +1051,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     await this.ddbCompanionFactory.parse();
 
     // always update compendium imports, but respect player import disable
-    const addCompendium = this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions");
-    if (addCompendium) {
-      await this.ddbCompanionFactory.updateOrCreateCompanions();
-    }
+    await this.ddbCompanionFactory.updateOrCreateCompanions();
 
     logger.debug(`parsed companions for ${this.data.name}`, {
       factory: this.ddbCompanionFactory,

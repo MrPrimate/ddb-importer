@@ -76,9 +76,14 @@ export class FileHelper {
     }
   }
 
-  static async generateCurrentFilesFromParsedDir(parsedDir) {
-    if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedDir.fullPath)) {
-      logger.verbose(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
+  static async generateCurrentFilesFromParsedDir(parsedDir, verbose = true) {
+    if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedDir.fullPath)) {
+      logger.debug(`Skipping full dir scan for ${parsedDir.fullPath}...`);
+      return;
+    }
+    logger.verbose(`Checking for files in ${parsedDir.fullPath}...`, parsedDir);
+
+    try {
       const fileList = await FPClass.browse(parsedDir.activeSource, parsedDir.current, {
         bucket: parsedDir.bucket,
         recursive: true,
@@ -103,9 +108,11 @@ export class FileHelper {
       }
 
       CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(parsedDir.fullPath);
-    } else {
-      logger.debug(`Skipping full dir scan for ${parsedDir.fullPath}...`);
+    } catch (error) {
+      if (verbose) logger.error(`Error checking for files in ${parsedDir.fullPath}`, error);
+      else logger.verbose(`Can't find in ${parsedDir.fullPath}`);
     }
+
   }
 
   static async generateCurrentFiles(directoryPath) {
@@ -419,7 +426,13 @@ export class FileHelper {
           if (currentSource !== paths[i]) {
             currentSource = `${currentSource}/${paths[i]}`;
           }
-          await FileHelper.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
+
+          // first lets try a quick check
+          await FileHelper.generateCurrentFilesFromParsedDir(parsedPath, false);
+          // still missing, create
+          if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) {
+            await FileHelper.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
+          }
         } catch (err) {
           const errMessage = `${(err?.message ?? utils.isString(err) ? err : err)}`.replace(/^Error: /, "").trim();
           if (!errMessage.startsWith("EEXIST") && !errMessage.startsWith("The S3 key")) {

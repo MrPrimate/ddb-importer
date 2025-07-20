@@ -706,19 +706,19 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   async _generateCompanions() {
     if (!this.isSummons) return;
+    const createOrUpdate = this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions");
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "spell",
       originDocument: this.data,
       is2014: this.is2014,
       notifier: this.notifier,
+      createCompanions: createOrUpdate,
+      updateCompanions: createOrUpdate,
     });
     await this.ddbCompanionFactory.parse();
 
     // always update compendium imports, but respect player import disable
-    const addCompendium = this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions");
-    if (addCompendium) {
-      await this.ddbCompanionFactory.updateOrCreateCompanions();
-    }
+    await this.ddbCompanionFactory.updateOrCreateCompanions();
 
     logger.debug(`parsed companions for ${this.data.name}`, {
       factory: this.ddbCompanionFactory,

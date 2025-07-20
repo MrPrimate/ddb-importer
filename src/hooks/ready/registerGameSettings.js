@@ -65,26 +65,38 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
 // }
 
 async function createFolderPaths() {
-  if (game.user.isGM) {
-    const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
-    FileHelper.verifyPath(FileHelper.parseDirectory(characterUploads));
+  const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
+  const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
+  const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
+  const adventureUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
+  const iconUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path");
+  const persistentUploads = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location");
 
-    const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
+  for (const path of [
+    characterUploads,
+    otherUploads,
+    frameUploads,
+    adventureUploads,
+    iconUploads,
+    persistentUploads,
+  ]) {
+    if (!path || path === "") {
+      throw new Error(`DDB Importer: Invalid folder path "${path}" in settings.`);
+    } else {
+      const parsedPath = FileHelper.parseDirectory(path);
+      await FileHelper.generateCurrentFilesFromParsedDir(parsedPath);
+    }
+  }
+
+  if (game.user.isGM) {
+    FileHelper.verifyPath(FileHelper.parseDirectory(characterUploads));
     if (!(await FileHelper.doesDirExist(otherUploads))) {
       await game.settings.set(SETTINGS.MODULE_ID, "use-deep-file-paths", true);
     }
     FileHelper.verifyPath(FileHelper.parseDirectory(otherUploads));
-
-    const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
     FileHelper.verifyPath(FileHelper.parseDirectory(frameUploads));
-
-    const adventureUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
     FileHelper.verifyPath(FileHelper.parseDirectory(adventureUploads));
-
-    const iconUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path");
     FileHelper.verifyPath(FileHelper.parseDirectory(iconUploads));
-
-    const persistentUploads = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location");
     FileHelper.verifyPath(FileHelper.parseDirectory(persistentUploads));
   }
 }
