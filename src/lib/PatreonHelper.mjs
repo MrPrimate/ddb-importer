@@ -152,7 +152,7 @@ const PatreonHelper = {
     return matrix;
   },
 
-  linkToPatreon: async (element) => {
+  linkToPatreon: async (element, callback) => {
 
     const proxy = DDBProxy.getProxy();
     const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
@@ -198,6 +198,12 @@ const PatreonHelper = {
       element.querySelector("#ddb-patreon-key").value = data.key;
 
       socket.disconnect();
+
+      if (callback) {
+        return callback(data);
+      } else {
+        return true;
+      }
     });
 
     socket.on('error', (data) => {

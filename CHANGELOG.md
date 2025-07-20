@@ -1,8 +1,8 @@
 # Next Up
 
 - New Welcome message to guide new users.
-- New v2 Core Settings Screen.
-- Location and Compendium config merged into Core Screen.
+- New v2 DDB Importer Settings Screen.
+- Locations, Compendiums, and Dynamic Sync merged into Settings Dialog.
 - Improved Cobalt Cookie checking before importing characters, especially for players.
 - Fixed some issues around players importing characters for local storage path.
 

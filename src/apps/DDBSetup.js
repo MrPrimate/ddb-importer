@@ -32,6 +32,7 @@ export default class DDBSetup extends DDBAppV2 {
     this.cobalt = Secrets.getCobalt();
     this.campaignId = DDBCampaigns.getCampaignId();
     this.closeOnSave = true; // close on save by default
+    this.reloadApplication = false; // reload the application after saving
 
     // LOCATIONS
     this.useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
@@ -62,6 +63,27 @@ export default class DDBSetup extends DDBAppV2 {
         enabled: true,
       },
     ];
+
+    // DYNAMIC SYNC
+    this.dynamicEnabledSettings = [
+      {
+        name: "dynamic-sync",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync"),
+        description: game.i18n.localize(`${SETTINGS.MODULE_ID}.settings.dynamic-sync.dynamic-sync`),
+        enabled: true,
+      },
+    ];
+    this.dynamicPolicySettings = Object.keys(SETTINGS.DEFAULT_SETTINGS.READY.CHARACTER.DYNAMIC_SYNC)
+      .map((key) => {
+        return {
+          name: key,
+          isChecked: game.settings.get(SETTINGS.MODULE_ID, key),
+          description: game.i18n.localize(`${SETTINGS.MODULE_ID}.settings.dynamic-sync.${key}`),
+          enabled: true,
+        };
+      });
+    this.gmUsers = DDBSetup.getGMUsers();
+    this.dynamicEnabled = false;
 
   }
 
@@ -96,6 +118,23 @@ export default class DDBSetup extends DDBAppV2 {
       subtitle: "",
     },
   };
+
+  static getGMUsers() {
+    const updateUser = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user");
+
+    const gmUsers = game.users
+      .filter((user) => user.isGM)
+      .reduce((choices, user) => {
+        choices.push({
+          userId: user.id,
+          userName: user.name,
+          selected: user.id === updateUser,
+        });
+        return choices;
+      }, []);
+
+    return gmUsers;
+  }
 
   static isSetupComplete(needsCobalt = true) {
     const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
@@ -140,6 +179,9 @@ export default class DDBSetup extends DDBAppV2 {
     compendiums: {
       template: "modules/ddb-importer/handlebars/settings/compendiums.hbs",
     },
+    dynamic: {
+      template: "modules/ddb-importer/handlebars/settings/dynamic.hbs",
+    },
 
     footer: { template: "modules/ddb-importer/handlebars/settings/footer.hbs" },
   };
@@ -183,6 +225,9 @@ export default class DDBSetup extends DDBAppV2 {
       compendiums: {
         id: "compendiums", group: "sheet", label: "Compendiums", icon: "fas fa-book",
       },
+      dynamic: {
+        id: "dynamic", group: "sheet", label: "Dynamic Sync", icon: "fas fa-sync",
+      },
     });
     return tabs;
   }
@@ -223,6 +268,11 @@ export default class DDBSetup extends DDBAppV2 {
       // compendiums
       compendiums: this.compendiums,
       compendiumSettings: this.compendiumSettings,
+      // dynamic
+      dynamicEnabledSettings: this.dynamicEnabledSettings,
+      dynamicPolicySettings: this.dynamicPolicySettings,
+      gmUsers: this.gmUsers,
+      dynamicEnabled: this.dynamicEnabled,
     };
 
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
@@ -277,12 +327,26 @@ export default class DDBSetup extends DDBAppV2 {
     return context;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async _prepareDynamicContext(context) {
+    const tier = PatreonHelper.getPatreonTier();
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
+    this.dynamicEnabled = tiers.experimentalMid;
+    context.dynamicEnabled = this.dynamicEnabled;
+
+    return context;
+  }
+
   /** @override */
   // eslint-disable-next-line class-methods-use-this
   async _preparePartContext(partId, context) {
     switch (partId) {
       case "core": {
         context = await this._prepareCoreContext(context);
+        break;
+      }
+      case "dynamic": {
+        await this._prepareDynamicContext(context);
         break;
       }
       // no default
@@ -317,7 +381,10 @@ export default class DDBSetup extends DDBAppV2 {
 
   static async connectToPatreonButton(event) {
     event.preventDefault();
-    await PatreonHelper.linkToPatreon(this.element);
+    await PatreonHelper.linkToPatreon(this.element, () => {
+      // Callback after linking to Patreon
+      this.render();
+    });
   }
 
   static async fetchCampaignsButton(event) {
@@ -541,6 +608,30 @@ export default class DDBSetup extends DDBAppV2 {
     }
   }
 
+  async _saveDynamic(formData) {
+    const initial = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");
+    const post = formData.object["dynamic-sync"];
+
+    if (initial !== post) {
+      this.reloadApplication = true; // reload the application after saving
+      logger.warn("Dynamic Sync setting changed, reloading application!");
+    }
+
+    if (!this.dynamicEnabled) {
+      game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync", false);
+      return;
+    }
+    for (const setting of this.dynamicEnabledSettings) {
+      logger.debug(`Saving setting ${setting.name} with value ${formData.object[setting.name]}`);
+      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+    }
+    for (const setting of this.dynamicPolicySettings) {
+      logger.debug(`Saving setting ${setting.name} with value ${formData.object[setting.name]}`);
+      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+    }
+
+  }
+
   /**
    * Process form submission for the sheet
    * @this {DDBLocationSetup}                      The handler is called with the application as its bound scope
@@ -551,12 +642,24 @@ export default class DDBSetup extends DDBAppV2 {
    */
   static async formHandler(event, form, formData) {
     event.preventDefault();
+    // console.warn({
+    //   event,
+    //   form,
+    //   formData,
+    //   this: this,
+    // })
     await this._saveCore(formData);
     await this._saveLocations(formData);
     await this._saveCompendiums(formData);
+    await this._saveDynamic(formData);
 
     if (this.closeOnSave) {
       this.close();
+    }
+
+    if (this.reloadApplication) {
+      logger.warn("RELOADING!");
+      foundry.utils.debounce(window.location.reload(), 100);
     }
   }
 

@@ -1,0 +1,72 @@
+<section id="setting-dynamic" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+<div class="scrollable">
+
+    <p>If you are a Undying Patreon Supporter you can <i>dynamically</i> sync your character(s) back to D&D Beyond.</p>
+
+
+  <fieldset>
+  <legend>Caveats</legend>
+  <ul>
+    <li>This feature is currently in Beta and is restricted to higher tier Patreon supporters.</li>
+    <li>There is a good chance it won't work.</li>
+    <li>The feature is not yet complete.</li>
+    <li>Only a single GM user can sync to DDB, and it will only sync changes detected while that user is connected.</li>
+    <li>The user needs to have permission to write to all of the characters. This will likely mean they are the DM of a campaign on D&D Beyond.</li>
+    <li>Before you turn on dynamic syn it's best to make sure the characters have been recently imported or updated</li>
+    <li>Each character will need dynamic updates enabled on their character in addition to enabling below.</li>
+  </ul>
+
+  </fieldset>
+
+  <fieldset>
+    <legend>Enable Dynamic Sync</legend>
+    {{#if dynamicEnabled}}
+    <div class="form-content">
+      {{#each dynamicEnabledSettings}}
+      <label class="checkbox">
+        <dnd5e-checkbox {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          id="{{this.name}}"
+          name="{{this.name}}"
+          data-section="{{this.name}}"
+        ></dnd5e-checkbox>
+        <span> {{this.description}} </span>
+      </label>
+      {{/each}}
+    </div>
+    {{else}}
+    <p>You're Patreon Tier does not support this feature.</p>
+    {{/if}}
+  </fieldset>
+
+  {{#if dynamicEnabled}}
+  <fieldset>
+    <legend>GM User used for Syncing</legend>
+    <div class="form-content">
+      <select name="dynamic-sync-user" id="dynamic-sync-user" style="flex: 55%">
+        {{#each this.gmUsers}}
+          <option value="{{this.userId}}" {{#if this.selected}}selected{{/if}}>{{this.userName}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Sync selection</legend>
+    <div class="form-content">
+      {{#each dynamicPolicySettings}}
+      <label class="checkbox">
+        <dnd5e-checkbox {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          id="{{this.name}}"
+          name="{{this.name}}"
+          data-section="{{this.name}}"
+        ></dnd5e-checkbox>
+        <span> {{this.description}} </span>
+      </label>
+      {{/each}}
+    </div>
+  </fieldset>
+  {{/if}}
+</div>
+
+</section>

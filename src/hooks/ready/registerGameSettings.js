@@ -1,7 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
 import { FileHelper } from "../../lib/_module.mjs";
-import DDBDynamicUpdateSetup from "../../apps/DDBDynamicUpdateSetup.js";
 import DDBSetup from "../../apps/DDBSetup.js";
 
 foundry.utils.setProperty(CONFIG, "DDBI", {
@@ -99,15 +98,6 @@ export default async function () {
     hint: `${SETTINGS.MODULE_ID}.settings.setup.hint`,
     icon: 'fas fa-wrench',
     type: DDBSetup,
-    restricted: true,
-  });
-
-  game.settings.registerMenu(SETTINGS.MODULE_ID, 'dynamicUpdateMenu', {
-    name: `${SETTINGS.MODULE_ID}.settings.dynamic-update-setup.name`,
-    label: `${SETTINGS.MODULE_ID}.settings.dynamic-update-setup.name`,
-    hint: `${SETTINGS.MODULE_ID}.settings.dynamic-update-setup.hint`,
-    icon: 'fas fa-wrench',
-    type: DDBDynamicUpdateSetup,
     restricted: true,
   });
 
