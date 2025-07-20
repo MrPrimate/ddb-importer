@@ -2,7 +2,7 @@
 
 - New Welcome message to guide new users.
 - New v2 Core Settings Screen.
-- Location config merged into Core Screen.
+- Location and Compendium config merged into Core Screen.
 - Improved Cobalt Cookie checking before importing characters, especially for players.
 - Fixed some issues around players importing characters for local storage path.
 
