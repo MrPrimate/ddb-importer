@@ -4,7 +4,6 @@ import { FileHelper } from "../../lib/_module.mjs";
 import DDBDynamicUpdateSetup from "../../apps/DDBDynamicUpdateSetup.js";
 import DDBSetup from "../../apps/DDBSetup.js";
 import DDBCompendiumSetup from "../../apps/DDBCompendiumSetup.js";
-import DDBLocationSetup from "../../apps/DDBLocationSetup.js";
 
 foundry.utils.setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",
@@ -55,14 +54,6 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
     web: null,
   },
 });
-
-// class ResetSettingsDialog extends FormApplication {
-//   constructor(...args) {
-//     super(...args);
-//     // eslint-disable-next-line no-constructor-return
-//     return DDBSetup.resetSettingsDialog();
-//   }
-// }
 
 async function createFolderPaths() {
   const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
@@ -121,14 +112,6 @@ export default async function () {
     restricted: true,
   });
 
-  game.settings.registerMenu(SETTINGS.MODULE_ID, 'folderMenu', {
-    name: `${SETTINGS.MODULE_ID}.settings.folder-setup.name`,
-    label: `${SETTINGS.MODULE_ID}.settings.folder-setup.name`,
-    hint: `${SETTINGS.MODULE_ID}.settings.folder-setup.hint`,
-    icon: 'fas fa-wrench',
-    type: DDBLocationSetup,
-    restricted: true,
-  });
 
   game.settings.registerMenu(SETTINGS.MODULE_ID, 'dynamicUpdateMenu', {
     name: `${SETTINGS.MODULE_ID}.settings.dynamic-update-setup.name`,
@@ -155,17 +138,6 @@ export default async function () {
     game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", game.user.id);
   }
 
-  // reset settings
-  // game.settings.registerMenu(SETTINGS.MODULE_ID, "resetToDefaults", {
-  //   name: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Title`,
-  //   label: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Label`,
-  //   hint: `${SETTINGS.MODULE_ID}.Dialogs.ResetSettings.Hint`,
-  //   icon: "fas fa-refresh",
-  //   type: ResetSettingsDialog,
-  //   restricted: true,
-  // });
-
-  // reset settings
   game.settings.registerMenu(SETTINGS.MODULE_ID, "ddbProxy", {
     name: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Title`,
     label: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Label`,

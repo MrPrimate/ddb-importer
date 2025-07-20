@@ -10,6 +10,8 @@ import { SETTINGS } from "../config/_module.mjs";
 import DDBAppV2 from "./DDBAppV2.js";
 import DDBCharacterManager from "./DDBCharacterManager.js";
 
+const FPClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
+
 
 export default class DDBSetup extends DDBAppV2 {
   constructor({
@@ -28,6 +30,20 @@ export default class DDBSetup extends DDBAppV2 {
     this.showDiscouraged = showDiscouraged;
     this.cobalt = Secrets.getCobalt();
     this.campaignId = DDBCampaigns.getCampaignId();
+    this.closeOnSave = true; // close on save by default
+
+    // LOCATIONS
+    this.useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    this.useDeepFilePaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    this.directories = [];
+    for (const [key, value] of Object.entries(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
+      this.directories.push({
+        key,
+        value: game.settings.get(SETTINGS.MODULE_ID, key),
+        name: game.i18n.localize(value.name),
+        description: game.i18n.localize(value.hint),
+      });
+    }
   }
 
   /** @inheritDoc */
@@ -42,6 +58,7 @@ export default class DDBSetup extends DDBAppV2 {
       goToCampaignTab: DDBSetup.goToCampaignTab,
       goToPatreonTab: DDBSetup.goToPatreonTab,
       resetSettings: DDBSetup.resetSettingsDialog,
+      selectDirectory: DDBSetup.selectDirectory,
     },
     position: {
       width: "900",
@@ -98,6 +115,9 @@ export default class DDBSetup extends DDBAppV2 {
         "modules/ddb-importer/handlebars/settings/core/patreon.hbs",
       ],
     },
+    location: {
+      template: "modules/ddb-importer/handlebars/settings/location.hbs",
+    },
 
     footer: { template: "modules/ddb-importer/handlebars/settings/footer.hbs" },
   };
@@ -135,6 +155,9 @@ export default class DDBSetup extends DDBAppV2 {
           },
         },
       },
+      location: {
+        id: "location", group: "sheet", label: "Locations", icon: "fas fa-map-marker-alt",
+      },
     });
     return tabs;
   }
@@ -151,6 +174,7 @@ export default class DDBSetup extends DDBAppV2 {
   async _prepareContext(options) {
 
     let context = {
+      // core
       isCobalt: this.cobalt !== "",
       cobaltLocal: game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local"),
       setupConfig: {
@@ -167,6 +191,10 @@ export default class DDBSetup extends DDBAppV2 {
       validCobalt: false,
       failure: false,
       version: game.modules.get(SETTINGS.MODULE_ID)?.version ?? "unknown",
+      // locations
+      "use-webp": this.useWebP,
+      "use-deep-file-paths": this.useDeepFilePaths,
+      directories: this.directories,
     };
 
     const timeout = setTimeout(async() => {
@@ -221,12 +249,10 @@ export default class DDBSetup extends DDBAppV2 {
   // eslint-disable-next-line class-methods-use-this
   async _preparePartContext(partId, context) {
     switch (partId) {
-      case "info":
-      case "core": {
+      default: {
         context.tab = context.tabs[partId];
         break;
       }
-      // no default
     };
     return context;
   }
@@ -252,58 +278,6 @@ export default class DDBSetup extends DDBAppV2 {
       Secrets.moveCobaltToLocal();
     } else if (runCookieMigrate && !local) {
       Secrets.moveCobaltToSettings();
-    }
-  }
-
-  /**
-   * Process form submission for the sheet
-   * @this {DDBLocationSetup}                      The handler is called with the application as its bound scope
-   * @param {SubmitEvent} event                   The originating form submission event
-   * @param {HTMLFormElement} form                The form element that was submitted
-   * @param {FormDataExtended} formData           Processed data for the submitted form
-   * @returns {Promise<void>}
-   */
-  static async formHandler(event, form, formData) {
-    event.preventDefault();
-    const campaignSelect = formData.object['campaign-select'];
-    const fallbackCampaign = formData.object['campaign-fallback'];
-    const campaignId = this.campaignFallback && fallbackCampaign && fallbackCampaign !== ""
-      ? (fallbackCampaign ?? "")
-      : campaignSelect == 0
-        ? ""
-        : campaignSelect;
-    const cobaltCookie = formData.object['cobalt-cookie'];
-    const cobaltCookieLocal = formData.object['cobalt-cookie-local'] ?? true;
-    const currentKey = PatreonHelper.getPatreonKey();
-
-    if (currentKey !== formData.object['patreon-key']) {
-      await PatreonHelper.setPatreonKey(formData.object['patreon-key']);
-      await PatreonHelper.setPatreonTier();
-    }
-
-    try {
-      await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
-    } catch (error) {
-      if (cobaltCookie !== "") {
-        ui.notifications.error("Error validating your cobalt cookie!");
-      }
-    }
-    await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
-    await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
-
-    if (cobaltCookie === "") {
-      ui.notifications.error("To use DDB Importer you need to set a Cobalt Cookie value!");
-      this.close();
-      // throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
-    } else if (this.callMuncher) {
-      new DDBMuncher().render(true);
-      this.close();
-    } else {
-      if (this.actor) {
-        const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, this.actor);
-        characterImport.render(true);
-      }
-      this.close();
     }
   }
 
@@ -395,6 +369,148 @@ export default class DDBSetup extends DDBAppV2 {
       window.location.reload();
     }
 
+  }
+
+  static async selectDirectory(event, target) {
+    const targetDirSetting = target.dataset.target;
+    const currentDir = game.settings.get(SETTINGS.MODULE_ID, targetDirSetting);
+    // const parsedDir = FileHelper.parseDirectory(currentDir);
+    const current = await FileHelper.getFileUrl(currentDir, "");
+
+    const filePicker = new FPClass({
+      type: "folder",
+      current: current,
+      // source: parsedDir.activeSource,
+      // activeSource: parsedDir.activeSource,
+      // bucket: parsedDir.bucket,
+      callback: async (path, picker) => {
+        const activeSource = picker.activeSource;
+        const bucket = activeSource === "s3" && picker.sources.s3?.bucket && picker.sources.s3.bucket !== ""
+          ? picker.sources.s3.bucket
+          : null;
+
+        const formattedPath = FileHelper.formatDirectoryPath({
+          activeSource,
+          bucket,
+          path,
+        });
+
+        this.element.querySelector(`input[name='${targetDirSetting}']`).value = formattedPath;
+      },
+    });
+    filePicker.render();
+
+  }
+
+
+  async _saveCore(formData) {
+    const campaignSelect = formData.object['campaign-select'];
+    const fallbackCampaign = formData.object['campaign-fallback'];
+    const campaignId = this.campaignFallback && fallbackCampaign && fallbackCampaign !== ""
+      ? (fallbackCampaign ?? "")
+      : campaignSelect == 0
+        ? ""
+        : campaignSelect;
+    const cobaltCookie = formData.object['cobalt-cookie'];
+    const cobaltCookieLocal = formData.object['cobalt-cookie-local'] ?? true;
+    const currentKey = PatreonHelper.getPatreonKey();
+
+    if (currentKey !== formData.object['patreon-key']) {
+      await PatreonHelper.setPatreonKey(formData.object['patreon-key']);
+      await PatreonHelper.setPatreonTier();
+    }
+
+    try {
+      await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
+    } catch (error) {
+      if (cobaltCookie !== "") {
+        ui.notifications.error("Error validating your cobalt cookie!");
+      }
+    }
+    await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
+    await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
+
+    if (cobaltCookie === "") {
+      ui.notifications.error("To use DDB Importer you need to set a Cobalt Cookie value!");
+      // throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
+    } else if (this.callMuncher) {
+      new DDBMuncher().render(true);
+    } else if (this.actor) {
+      const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, this.actor);
+      characterImport.render(true);
+    }
+  }
+
+  async _saveLocations(formData) {
+    const directoryStatus = [];
+
+    for (const [key, data] of Object.entries(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
+      const newValue = formData.object[key];
+      directoryStatus.push({
+        key,
+        value: newValue,
+        isBad: FileHelper.BAD_DIRS.includes(newValue),
+        isValid: await FileHelper.verifyPath(FileHelper.parseDirectory(newValue)),
+        name: game.i18n.localize(data.name),
+      });
+    }
+
+    if (directoryStatus.some((dir) => dir.isBad)) {
+      for (const data of directoryStatus.filter((dir) => dir.isBad)) {
+        ui.notifications.error(
+          `Please set the image upload directory for ${data.name} to something other than the root.`,
+          { permanent: true },
+        );
+        logger.error("Error setting Image directory", {
+          directoryStatus,
+          data,
+        });
+        this.closeOnSave = false; // don't close if there is an error
+      }
+    } else if (directoryStatus.some((dir) => !dir.isValid)) {
+      for (const data of directoryStatus.filter((dir) => !dir.isValid)) {
+        ui.notifications.error(
+          `Directory Validation Failed for ${data.name} please check it exists and can be written to.`,
+          { permanent: true },
+        );
+        logger.error("Error validating Image directory", {
+          directoryStatus,
+          data,
+        });
+        this.closeOnSave = false; // don't close if there is an error
+      }
+    } else {
+      // save changes
+      for (const data of directoryStatus.filter((dir) => !dir.isBad)) {
+        await game.settings.set(SETTINGS.MODULE_ID, data.key, data.value);
+      }
+      const useWebP = formData.object['use-webp'];
+      const useDeepFilePaths = formData.object['use-deep-file-paths'];
+
+      if (this.useWebP !== useWebP) await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
+      if (this.useDeepFilePaths !== useDeepFilePaths) {
+        await game.settings.set(SETTINGS.MODULE_ID, "use-deep-file-paths", useDeepFilePaths);
+      }
+    }
+
+  }
+
+  /**
+   * Process form submission for the sheet
+   * @this {DDBLocationSetup}                      The handler is called with the application as its bound scope
+   * @param {SubmitEvent} event                   The originating form submission event
+   * @param {HTMLFormElement} form                The form element that was submitted
+   * @param {FormDataExtended} formData           Processed data for the submitted form
+   * @returns {Promise<void>}
+   */
+  static async formHandler(event, form, formData) {
+    event.preventDefault();
+    await this._saveCore(formData);
+    await this._saveLocations(formData);
+
+    if (this.closeOnSave) {
+      this.close();
+    }
   }
 
 }

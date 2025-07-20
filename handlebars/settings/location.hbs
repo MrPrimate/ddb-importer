@@ -1,0 +1,33 @@
+<section id="setting-locations" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+<div class="scrollable">
+
+  <fieldset>
+  <legend>File Save Locations</legend>
+  {{#each directories}}
+    <strong>{{this.name}}</strong>
+    <p>{{this.description}}</p>
+    <div class="form-content" style="display: flex">
+      <input class="setup-config" type="text" data-dtype="Directory" name="{{this.key}}" style="flex: 0 1 auto" value="{{this.value}}" />
+      <button type="button" data-action="selectDirectory" id="button-{{this.key}}" class="ddb-importer-folder-picker" data-target="{{this.key}}" title="Pick directory"><i class="fas fa-file-import fa-fw"></i></button>
+    </div>
+    <hr>
+  {{/each}}
+  </fieldset>
+
+  <fieldset>
+    <legend>Image settings</legend>
+    <div class="form-content">
+      <label class="checkbox">
+        <dnd5e-checkbox {{#if use-webp}}checked{{/if}} class="setup-config" type="checkbox" name="use-webp" data-section="useWebP"></dnd5e-checkbox>
+        <span> Convert images to webp?</span>
+      </label>
+      <label class="checkbox">
+        <dnd5e-checkbox {{#if use-deep-file-paths}}checked{{/if}} class="setup-config" type="checkbox" name="use-deep-file-paths" data-section="useDeepFilePaths"></dnd5e-checkbox>
+        <span> Use deep file paths? Store images in different folders for npcs, items etc. Will store monster images inside a folder related to their monster type.</span>
+      </label>
+    </div>
+  </fieldset>
+</div>
+
+</section>
