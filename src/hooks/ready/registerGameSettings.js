@@ -3,7 +3,6 @@ import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
 import { FileHelper } from "../../lib/_module.mjs";
 import DDBDynamicUpdateSetup from "../../apps/DDBDynamicUpdateSetup.js";
 import DDBSetup from "../../apps/DDBSetup.js";
-import DDBCompendiumSetup from "../../apps/DDBCompendiumSetup.js";
 
 foundry.utils.setProperty(CONFIG, "DDBI", {
   module: "DDB Importer",
@@ -102,16 +101,6 @@ export default async function () {
     type: DDBSetup,
     restricted: true,
   });
-
-  game.settings.registerMenu(SETTINGS.MODULE_ID, 'compendiumMenu', {
-    name: `${SETTINGS.MODULE_ID}.settings.compendium-setup.name`,
-    label: `${SETTINGS.MODULE_ID}.settings.compendium-setup.name`,
-    hint: `${SETTINGS.MODULE_ID}.settings.compendium-setup.hint`,
-    icon: 'fas fa-wrench',
-    type: DDBCompendiumSetup,
-    restricted: true,
-  });
-
 
   game.settings.registerMenu(SETTINGS.MODULE_ID, 'dynamicUpdateMenu', {
     name: `${SETTINGS.MODULE_ID}.settings.dynamic-update-setup.name`,

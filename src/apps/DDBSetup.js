@@ -5,6 +5,7 @@ import {
   PatreonHelper,
   DDBCampaigns,
   Secrets,
+  CompendiumHelper,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBAppV2 from "./DDBAppV2.js";
@@ -44,6 +45,24 @@ export default class DDBSetup extends DDBAppV2 {
         description: game.i18n.localize(value.hint),
       });
     }
+
+    // COMPENDIUMS
+    this.compendiums = SETTINGS.COMPENDIUMS.map((comp) => ({
+      setting: comp.setting,
+      name: comp.title,
+      current: game.settings.get(SETTINGS.MODULE_ID, comp.setting),
+      compendiums: CompendiumHelper.getCompendiumLookups(comp.type, game.settings.get(SETTINGS.MODULE_ID, comp.setting)),
+      auto: comp.auto,
+    }));
+    this.compendiumSettings = [
+      {
+        name: "auto-create-compendium",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium"),
+        description: "Create default compendiums if missing?",
+        enabled: true,
+      },
+    ];
+
   }
 
   /** @inheritDoc */
@@ -115,8 +134,11 @@ export default class DDBSetup extends DDBAppV2 {
         "modules/ddb-importer/handlebars/settings/core/patreon.hbs",
       ],
     },
-    location: {
-      template: "modules/ddb-importer/handlebars/settings/location.hbs",
+    locations: {
+      template: "modules/ddb-importer/handlebars/settings/locations.hbs",
+    },
+    compendiums: {
+      template: "modules/ddb-importer/handlebars/settings/compendiums.hbs",
     },
 
     footer: { template: "modules/ddb-importer/handlebars/settings/footer.hbs" },
@@ -155,8 +177,11 @@ export default class DDBSetup extends DDBAppV2 {
           },
         },
       },
-      location: {
-        id: "location", group: "sheet", label: "Locations", icon: "fas fa-map-marker-alt",
+      locations: {
+        id: "locations", group: "sheet", label: "Locations", icon: "fas fa-map-marker-alt",
+      },
+      compendiums: {
+        id: "compendiums", group: "sheet", label: "Compendiums", icon: "fas fa-book",
       },
     });
     return tabs;
@@ -195,11 +220,20 @@ export default class DDBSetup extends DDBAppV2 {
       "use-webp": this.useWebP,
       "use-deep-file-paths": this.useDeepFilePaths,
       directories: this.directories,
+      // compendiums
+      compendiums: this.compendiums,
+      compendiumSettings: this.compendiumSettings,
     };
 
+    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
+
+    logger.debug("Settings: _prepareContext", context);
+    return context;
+  }
+
+  async _prepareCoreContext(context) {
     const timeout = setTimeout(async() => {
-      context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
-      logger.debug("Fallback Settings: _prepareContext", context);
+      logger.debug("Fallback Settings: _prepareCoreContext", context);
       context.failure = true;
       return context;
     }, 10000);
@@ -239,9 +273,7 @@ export default class DDBSetup extends DDBAppV2 {
     context.setupComplete = context.isCobalt;
     clearTimeout(timeout);
 
-    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
-
-    logger.debug("Settings: _prepareContext", context);
+    logger.debug("Settings: _prepareCoreContext", context);
     return context;
   }
 
@@ -249,11 +281,13 @@ export default class DDBSetup extends DDBAppV2 {
   // eslint-disable-next-line class-methods-use-this
   async _preparePartContext(partId, context) {
     switch (partId) {
-      default: {
-        context.tab = context.tabs[partId];
+      case "core": {
+        context = await this._prepareCoreContext(context);
         break;
       }
+      // no default
     };
+    context.tab = context.tabs[partId];
     return context;
   }
 
@@ -495,6 +529,18 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
+  async _saveCompendiums(formData) {
+    for (const setting of this.compendiumSettings) {
+      logger.debug(`Saving setting ${setting.name} with value ${formData.object[setting.name]}`);
+      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+    }
+
+    for (const compendium of this.compendiums) {
+      logger.debug(`Saving compendium setting ${compendium.setting} with value ${formData.object[compendium.setting]}`);
+      await game.settings.set(SETTINGS.MODULE_ID, compendium.setting, formData.object[compendium.setting]);
+    }
+  }
+
   /**
    * Process form submission for the sheet
    * @this {DDBLocationSetup}                      The handler is called with the application as its bound scope
@@ -507,6 +553,7 @@ export default class DDBSetup extends DDBAppV2 {
     event.preventDefault();
     await this._saveCore(formData);
     await this._saveLocations(formData);
+    await this._saveCompendiums(formData);
 
     if (this.closeOnSave) {
       this.close();

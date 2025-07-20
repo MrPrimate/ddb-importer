@@ -1,0 +1,40 @@
+<section id="setting-compendiums" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+<div class="scrollable">
+
+  <fieldset>
+  <legend>Target Compendiums</legend>
+  <p>Choose the locations you wish the Importer to store content when imported.</p>
+  {{#each compendiums}}
+    <div class="form-group">
+      <label>{{this.name}}</label>
+      <div class="form-fields">
+        <select name="{{this.setting}}" id="{{this.setting}}" style="flex: 55%">
+          {{#each this.compendiums}}
+            <option value="{{@key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    <hr>
+  {{/each}}
+  </fieldset>
+
+  <fieldset>
+    <legend>Image settings</legend>
+    <div class="form-content">
+      {{#each compendiumSettings}}
+      <label class="checkbox">
+        <dnd5e-checkbox {{#if this.isChecked}}checked{{/if}} type="checkbox"
+          id="{{this.name}}"
+          name="{{this.name}}"
+          data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}
+        ></dnd5e-checkbox>
+        <span> {{this.description}} </span>
+      </label>
+      {{/each}}
+    </div>
+  </fieldset>
+</div>
+
+</section>

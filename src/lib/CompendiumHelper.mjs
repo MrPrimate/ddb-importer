@@ -514,6 +514,39 @@ const CompendiumHelper = {
     return cleanResults;
   },
 
+  getCompendiumLookups(type, selected) {
+    const excludedCompendiumPackages = [
+      "dnd5e",
+      "dae",
+      "midiqol",
+      "magicitems",
+      "midi-srd",
+      "dae-srd",
+      "midi-qol",
+      "magic-items-2",
+      "chris-premades",
+      "ATL",
+      "ActiveAuras",
+      "auraeffects",
+      "token-attacher",
+    ];
+
+    const selections = game.packs
+      .filter((pack) =>
+        pack.documentName === type
+      && !excludedCompendiumPackages.includes(pack.metadata.packageName),
+      )
+      .reduce((choices, pack) => {
+        choices[pack.collection] = {
+          label: `[${pack.metadata.packageName}] ${pack.metadata.label}`,
+          selected: pack.collection === selected,
+        };
+        return choices;
+      }, {});
+
+    return selections;
+  },
+
 
 };
 
