@@ -14,7 +14,12 @@ function sequencerEffect(target, file, scale) {
 
 function weaponAttack(caster, sourceItemData, origin, target) {
   const chosenWeapon = DAE.getFlag(caster, "boomingBladeChoice");
-  const filteredWeapons = caster.items.filter((i) => i.type === "weapon" && i.system.equipped);
+  const filteredWeapons = caster.items.filter((i) =>
+    i.type === "weapon"
+    && i.system.equipped
+    && i.system.attackType === "melee"
+    && i.system.hasAttack,
+  );
   const weaponContent = filteredWeapons
     .map((w) => {
       const selected = chosenWeapon && chosenWeapon == w.id ? " selected" : "";
@@ -55,10 +60,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             disabled: false,
             duration: { rounds: 1 },
             img: sourceItemData.img,
-            label: sourceItemData.name,
+            name: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType, dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false } },
+            flags: {
+              spellEffects: { targetUuid: target.uuid, casterUuid: caster.uuid, origin, cantripDice, damageType },
+              dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false },
+            },
           });
           if (foundry.utils.hasProperty(sourceItemData, "flags.itemacro")) foundry.utils.setProperty(weaponCopy, "flags.itemacro", foundry.utils.duplicate(sourceItemData.flags.itemacro));
           if (foundry.utils.hasProperty(sourceItemData, "flags.dae.macro")) foundry.utils.setProperty(weaponCopy, "flags.dae.macro", foundry.utils.duplicate(sourceItemData.flags.dae.macro));
@@ -107,13 +115,11 @@ if (args[0].tag === "OnUse") {
   // uses midis move flag to determine if to apply extra damage
   if (lastArg["expiry-reason"] === "midi-qol:isMoved" || lastArg["expiry-reaason"] === "midi-qol:isMoved") {
     const targetToken = await fromUuid(lastArg.tokenUuid);
-    const caster = await fromUuid(lastArg.efData.flags.casterUuid);
+    const caster = await fromUuid(lastArg.efData.flags.spellEffects.casterUuid);
     const itemId = DAE.getFlag(caster, "boomingBladeChoice");
-    // const sourceItem = await fromUuid(lastArg.efData.flags.origin);
     const sourceItem = caster.getEmbeddedDocument("Item", itemId);
-    // const caster = sourceItem.parent;
     const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-    const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate();
+    const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.spellEffects.cantripDice}d8[${damageType}]`).evaluate();
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
     const workflowItemData = foundry.utils.duplicate(sourceItem);
     workflowItemData.system.target = { value: 1, units: "", type: "creature" };
@@ -128,7 +134,7 @@ if (args[0].tag === "OnUse") {
       [targetToken.object], // bug in midi/levels auto cover can't cope with token
       damageRoll,
       {
-        flavor: `(${CONFIG.DND5E.damageTypes[damageType].label})`,
+        flavor: `Booming Blade: Movement Damage (${CONFIG.DND5E.damageTypes[damageType].label})`,
         itemCardId: "new",
         itemData: workflowItemData,
         isCritical: false,

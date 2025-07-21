@@ -5,6 +5,7 @@
 - Locations, Compendiums, and Dynamic Sync merged into Settings Dialog.
 - Improved Cobalt Cookie checking before importing characters, especially for players.
 - Fixed some issues around players importing characters for local storage path.
+- Fixes to Booming Blade and Green Flame Blade in v13.
 
 # 6.4.4
 

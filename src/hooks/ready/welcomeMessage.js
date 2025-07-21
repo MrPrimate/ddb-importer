@@ -1,4 +1,5 @@
 import { SETTINGS } from "../../config/_module.mjs";
+import { Secrets } from "../../lib/_module.mjs";
 
 function showMessage() {
 
@@ -34,17 +35,17 @@ export default function welcomeMessage() {
   if (!game.user.isGM) return;
   if (!game.settings.get(SETTINGS.MODULE_ID, "show-welcome-message")) return;
 
-  // const timeout = setTimeout(() => {
-  //   showMessage();
-  // }, 10000);
+  const timeout = setTimeout(() => {
+    showMessage();
+  }, 10000);
 
-  const cookie = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie");
+  const cookie = Secrets.getCobalt();
   if (cookie && cookie !== "") {
-    // clearTimeout(timeout);
+    clearTimeout(timeout);
     game.settings.set(SETTINGS.MODULE_ID, "show-welcome-message", false);
     return;
   }
 
-  // clearTimeout(timeout);
+  clearTimeout(timeout);
   showMessage();
 }

@@ -100,17 +100,12 @@ function sequencerEffect(target, origin = null) {
 async function attackNearby(originToken, ignoreIds) {
   const potentialTargets = await MidiQOL.findNearby(null, originToken, 5).filter((tok) => !ignoreIds.includes(tok.actor?.id));
   if (potentialTargets.length === 0) return;
-  const sourceItem = await fromUuid(lastArg.efData.flags.origin);
+  const sourceItem = await fromUuid(lastArg.efData.flags.spellEffects.origin);
   const caster = sourceItem.actor;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
 
   const userId = DAE.getFlag(caster, "greenFlameBladeUserId") ?? game.userId;
 
-  // console.warn({
-  //   caster, itemData: lastArg.itemData, sourceItem, userId: game.userId,
-  // });
-
-  // const userId = foundry.utils.getProperty(sourceItem, "flags.userId") ?? game.userId;
   const result = await DDBImporter.DialogHelper.AskUserChooserDialog(userId,
     [{
       type: 'select',
@@ -137,11 +132,11 @@ async function attackNearby(originToken, ignoreIds) {
   if (foundry.utils.hasProperty(result, "results") && result.results.length > 0) {
     const selectedId = result.results[0];
     const targetToken = canvas.tokens.get(selectedId);
-    const sourceItem = await fromUuid(lastArg.efData.flags.origin);
+    const sourceItem = await fromUuid(lastArg.efData.flags.spellEffects.origin);
 
     const ability = sourceItem.abilityMod ?? sourceItem.ability ?? "@attributes.spell.mod";
     const mod = caster.system.abilities[ability].mod;
-    const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate();
+    const damageRoll = await new CONFIG.Dice.DamageRoll(`${lastArg.efData.flags.spellEffects.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate();
     await MidiQOL.displayDSNForRoll(damageRoll, "damageRoll");
     const workflowItemData = sourceItem.toObject();
     workflowItemData.effects = [];
@@ -170,8 +165,10 @@ async function attackNearby(originToken, ignoreIds) {
 function weaponAttack(caster, sourceItemData, origin, target) {
   const chosenWeapon = DAE.getFlag(caster, "greenFlameBladeChoice");
   const filteredWeapons = caster.items.filter((i) =>
-    i.type === "weapon" && i.system.equipped
-    && i.system.activation.type === "action" && i.system.actionType == "mwak",
+    i.type === "weapon"
+    && i.system.equipped
+    && i.system.hasAttack
+    && i.system.attackType == "melee",
   );
   const weaponContent = filteredWeapons
     .map((w) => {
@@ -208,11 +205,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             // duration: { turns: 0 },
             duration: { turns: 1 },
             img: sourceItemData.img,
-            label: sourceItemData.name,
             name: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { userId: game.userId, targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { specialDuration: ["1Action", "1Attack", "turnStartSource"], transfer: false } },
+            flags: {
+              spellEffects: { userId: game.userId, targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType },
+              dae: { specialDuration: ["1Action", "1Attack", "turnStartSource"], transfer: false },
+            },
           });
           if (foundry.utils.hasProperty(sourceItemData, "flags.itemacro")) foundry.utils.setProperty(weaponCopy, "flags.itemacro", foundry.utils.duplicate(sourceItemData.flags.itemacro));
           if (foundry.utils.hasProperty(sourceItemData, "flags.dae.macro")) foundry.utils.setProperty(weaponCopy, "flags.dae.macro", foundry.utils.duplicate(sourceItemData.flags.dae.macro));
@@ -249,20 +248,16 @@ function weaponAttack(caster, sourceItemData, origin, target) {
 }
 
 if (args[0].tag === "OnUse") {
-  if (lastArg.targets.length > 0) {
-    // console.warn(lastArg);
+  if (lastArg.targets.length > 0) {;
     const casterData = await fromUuid(lastArg.actorUuid);
     const caster = casterData.actor ? casterData.actor : casterData;
-    // console.warn({
-    //   caster, itemData: lastArg.itemData, uuid: lastArg.uuid, targets: lastArg.targets[0], lastArg
-    // })
     weaponAttack(caster, lastArg.itemData, lastArg.uuid, lastArg.targets[0]);
   } else {
     ui.notifications.error("Green Flame Blade: No target selected: please select a target and try again.");
   }
 } else if (args[0] === "on") {
   const targetToken = canvas.tokens.get(lastArg.tokenId);
-  const casterId = lastArg.efData.flags.casterId;
+  const casterId = foundry.utils.getProperty(lastArg, "efData.flags.spellEffects.casterId");
   console.log(`Checking ${targetToken.name} for nearby tokens for Green-Flame Blade from ${casterId}`);
   await attackNearby(targetToken, [casterId]);
 }

@@ -4,7 +4,7 @@
 async function wardingBondCasterEffect(caster, targetActor, spell) {
   const effectData = {
     name: `${spell.name}: ${targetActor.name}`,
-    flags: {
+    {
       WardingBondOrigin: spell.uuid,
     },
     duration: {
