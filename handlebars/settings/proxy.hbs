@@ -1,0 +1,28 @@
+<section id="setting-proxy" class="tab {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+
+  <fieldset>
+  <legend>Custom Proxy</legend>
+
+  <p>If you are hosting your own Proxy to D&D Beyond please change the address here and enable below. This will disable some functionality of the module only available to Patreon supporters.</p>
+
+  <p>{{localize "ddb-importer.Dialogs.DDBProxy.AddressExample"}}</p>
+
+  <div class="form-content">
+    <input class="setup-config" type="text" id="api-endpoint" name="api-endpoint" value="{{proxyAddress}}" />
+  </div>
+  <hr>
+
+  <div class="form-content">
+    <label class="checkbox">
+      <dnd5e-checkbox {{#if useCustomProxy}}checked{{/if}} type="checkbox"
+        id="custom-proxy"
+        name="custom-proxy"
+        data-section="custom-proxy"
+      ></dnd5e-checkbox>
+      <span> {{localize "ddb-importer.Dialogs.DDBProxy.Use"}} </span>
+    </label>
+  </div>
+
+  </fieldset>
+
+</section>

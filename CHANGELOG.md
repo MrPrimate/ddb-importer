@@ -2,7 +2,7 @@
 
 - New Welcome message to guide new users.
 - New v2 DDB Importer Settings Screen.
-- Locations, Compendiums, and Dynamic Sync merged into Settings Dialog.
+- Locations, Compendiums, and Dynamic Sync, and Proxy settings merged into Settings Dialog.
 - Improved Cobalt Cookie checking before importing characters, especially for players.
 - Fixed some issues around players importing characters for local storage path.
 - Fixes to Booming Blade and Green Flame Blade in v13.

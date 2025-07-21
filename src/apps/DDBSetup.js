@@ -6,6 +6,7 @@ import {
   DDBCampaigns,
   Secrets,
   CompendiumHelper,
+  DDBProxy,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBAppV2 from "./DDBAppV2.js";
@@ -84,6 +85,11 @@ export default class DDBSetup extends DDBAppV2 {
       });
     this.gmUsers = DDBSetup.getGMUsers();
     this.dynamicEnabled = false;
+
+    // PROXY
+    this.useCustomProxy = DDBProxy.isCustom();
+    this.defaultAddress = SETTINGS.URLS.PROXY;
+    this.proxyAddress = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
 
   }
 
@@ -182,6 +188,9 @@ export default class DDBSetup extends DDBAppV2 {
     dynamic: {
       template: "modules/ddb-importer/handlebars/settings/dynamic.hbs",
     },
+    proxy: {
+      template: "modules/ddb-importer/handlebars/settings/proxy.hbs",
+    },
 
     footer: { template: "modules/ddb-importer/handlebars/settings/footer.hbs" },
   };
@@ -228,6 +237,9 @@ export default class DDBSetup extends DDBAppV2 {
       dynamic: {
         id: "dynamic", group: "sheet", label: "Dynamic Sync", icon: "fas fa-sync",
       },
+      proxy: {
+        id: "proxy", group: "sheet", label: "Proxy", icon: "fas fa-ethernet",
+      },
     });
     return tabs;
   }
@@ -273,6 +285,10 @@ export default class DDBSetup extends DDBAppV2 {
       dynamicPolicySettings: this.dynamicPolicySettings,
       gmUsers: this.gmUsers,
       dynamicEnabled: this.dynamicEnabled,
+      // proxy
+      useCustomProxy: this.useCustomProxy,
+      defaultAddress: this.defaultAddress,
+      proxyAddress: this.proxyAddress,
     };
 
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
@@ -300,10 +316,18 @@ export default class DDBSetup extends DDBAppV2 {
     // eslint-disable-next-line require-atomic-updates
     context.validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
 
-    const cobaltStatus = await Secrets.checkCobalt("", context.setupConfig["cobalt-cookie"]);
-    // eslint-disable-next-line require-atomic-updates
-    context.validCobalt = cobaltStatus.success;
-    const availableCampaigns = context.isCobalt && cobaltStatus.success
+    try {
+      const cobaltStatus = await Secrets.checkCobalt("", context.setupConfig["cobalt-cookie"]);
+      // eslint-disable-next-line require-atomic-updates
+      context.validCobalt = cobaltStatus.success;
+    } catch (error) {
+      logger.error("Failed to validate cobalt cookie", { error });
+      logger.error(error.stack);
+      // eslint-disable-next-line require-atomic-updates
+      context.validCobalt = false;
+    }
+
+    const availableCampaigns = context.isCobalt && context.validCobalt
       ? await DDBCampaigns.getAvailableCampaigns({
         campaignId: this.campaignId === "" ? null : this.campaignId,
         cobalt: this.cobalt,
@@ -521,15 +545,17 @@ export default class DDBSetup extends DDBAppV2 {
       await PatreonHelper.setPatreonTier();
     }
 
-    try {
-      await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
-    } catch (error) {
-      if (cobaltCookie !== "") {
-        ui.notifications.error("Error validating your cobalt cookie!");
+    if (this.cobalt !== cobaltCookie) {
+      try {
+        await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
+      } catch (error) {
+        if (cobaltCookie !== "") {
+          ui.notifications.error("Error validating your cobalt cookie!");
+        }
       }
     }
+
     await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
-    await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
 
     if (cobaltCookie === "") {
       ui.notifications.error("To use DDB Importer you need to set a Cobalt Cookie value!");
@@ -609,10 +635,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   async _saveDynamic(formData) {
-    const initial = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync");
-    const post = formData.object["dynamic-sync"];
-
-    if (initial !== post) {
+    if (this.dynamicEnabled !== formData.object["dynamic-sync"]) {
       this.reloadApplication = true; // reload the application after saving
       logger.warn("Dynamic Sync setting changed, reloading application!");
     }
@@ -632,6 +655,16 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async _saveProxy(formData) {
+    if (this.proxyAddress !== formData.object['api-endpoint']
+      || this.useCustomProxy !== formData.object['custom-proxy']
+    ) {
+      await game.settings.set(SETTINGS.MODULE_ID, "custom-proxy", formData.object['custom-proxy']);
+      await game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", formData.object['api-endpoint']);
+    }
+  }
+
   /**
    * Process form submission for the sheet
    * @this {DDBLocationSetup}                      The handler is called with the application as its bound scope
@@ -642,16 +675,12 @@ export default class DDBSetup extends DDBAppV2 {
    */
   static async formHandler(event, form, formData) {
     event.preventDefault();
-    // console.warn({
-    //   event,
-    //   form,
-    //   formData,
-    //   this: this,
-    // })
+
+    await this._saveProxy(formData);
     await this._saveCore(formData);
     await this._saveLocations(formData);
     await this._saveCompendiums(formData);
-    await this._saveDynamic(formData);
+    if (this.dynamicEnabled) await this._saveDynamic(formData);
 
     if (this.closeOnSave) {
       this.close();

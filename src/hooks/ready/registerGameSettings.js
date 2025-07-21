@@ -1,5 +1,4 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { DDBProxySetup } from "../../apps/DDBProxySetup.js";
 import { FileHelper } from "../../lib/_module.mjs";
 import DDBSetup from "../../apps/DDBSetup.js";
 
@@ -116,16 +115,6 @@ export default async function () {
   if (game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user") === "" && game.user.isGM) {
     game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", game.user.id);
   }
-
-  game.settings.registerMenu(SETTINGS.MODULE_ID, "ddbProxy", {
-    name: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Title`,
-    label: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Label`,
-    hint: `${SETTINGS.MODULE_ID}.Dialogs.DDBProxy.Hint`,
-    icon: "fas fa-ethernet",
-    type: DDBProxySetup,
-    restricted: true,
-  });
-
 
   if (game.settings.get(SETTINGS.MODULE_ID, "developer-mode")) {
     CONFIG.DDBI.DEV.enabled = true;
