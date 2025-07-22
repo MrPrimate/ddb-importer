@@ -1,3 +1,7 @@
+# 6.4.6
+
+- Cobalt Cookie would fail to save in some circumstances.
+
 # 6.4.5
 
 - New Welcome message to guide new users.

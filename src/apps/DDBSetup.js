@@ -30,10 +30,14 @@ export default class DDBSetup extends DDBAppV2 {
     this.tabGroups["info"] = this.infoTab;
     this.tabGroups["core"] = this.coreTab;
     this.showDiscouraged = showDiscouraged;
+
+    // CORE SETTINGS
     this.cobalt = Secrets.getCobalt();
+    this.cobaltCheckMessage = "";
     this.campaignId = DDBCampaigns.getCampaignId();
     this.closeOnSave = true; // close on save by default
     this.reloadApplication = false; // reload the application after saving
+    this.isLocalCobalt = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
 
     // LOCATIONS
     this.useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
@@ -258,13 +262,14 @@ export default class DDBSetup extends DDBAppV2 {
     let context = {
       // core
       isCobalt: this.cobalt !== "",
-      cobaltLocal: game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local"),
+      cobaltLocal: this.isLocalCobalt,
       setupConfig: {
         "cobalt-cookie": this.cobalt,
         "available-campaigns": [],
         "campaign-id": "",
         "patreon-key": "",
       },
+      cobaltCheckMessage: this.cobaltCheckMessage,
       setupComplete: false,
       tier: "",
       patreonLinked: false,
@@ -441,14 +446,13 @@ export default class DDBSetup extends DDBAppV2 {
     const cookie = this.element.querySelector("#cobalt-cookie-input");
     if (cookie.value === undefined) throw new Error("undefined");
     const cobaltStatus = await Secrets.checkCobalt("", cookie.value);
-    const button = this.element.querySelector("#check-cobalt-button");
     if (cobaltStatus.success) {
-      button.innerHTML = "Check Cobalt Cookie - Success!";
+      this.cobaltCheckMessage = " - Success!";
       this.cobalt = cookie.value;
+      await this.render();
     } else {
-      button.innerHTML = "Check Cobalt Cookie - Failure!";
+      this.cobaltCheckMessage = " - Failure!";
     }
-    await this.render();
   }
 
   static goToCobaltTab(event) {
@@ -529,15 +533,6 @@ export default class DDBSetup extends DDBAppV2 {
 
 
   async _saveCore(formData) {
-    const campaignSelect = formData.object['campaign-select'];
-    const fallbackCampaign = formData.object['campaign-fallback'];
-    const campaignId = this.campaignFallback && fallbackCampaign && fallbackCampaign !== ""
-      ? (fallbackCampaign ?? "")
-      : campaignSelect == 0
-        ? ""
-        : campaignSelect;
-    const cobaltCookie = formData.object['cobalt-cookie'];
-    const cobaltCookieLocal = formData.object['cobalt-cookie-local'] ?? true;
     const currentKey = PatreonHelper.getPatreonKey();
 
     if (currentKey !== formData.object['patreon-key']) {
@@ -545,7 +540,11 @@ export default class DDBSetup extends DDBAppV2 {
       await PatreonHelper.setPatreonTier();
     }
 
-    if (this.cobalt !== cobaltCookie) {
+    const cobaltCookie = formData.object['cobalt-cookie'];
+    const cobaltCookieLocal = formData.object['cobalt-cookie-local'] ?? true;
+    const currentCobalt = Secrets.getCobalt();
+
+    if (currentCobalt !== cobaltCookie) {
       try {
         await DDBSetup.setCobaltCookie(cobaltCookie, cobaltCookieLocal);
       } catch (error) {
@@ -554,6 +553,19 @@ export default class DDBSetup extends DDBAppV2 {
         }
       }
     }
+
+    const currentLocalCobalt = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+    if (currentLocalCobalt !== cobaltCookieLocal) {
+      await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", cobaltCookieLocal);
+    }
+
+    const campaignSelect = formData.object['campaign-select'];
+    const fallbackCampaign = formData.object['campaign-fallback'];
+    const campaignId = this.campaignFallback && fallbackCampaign && fallbackCampaign !== ""
+      ? (fallbackCampaign ?? "")
+      : campaignSelect == 0
+        ? ""
+        : campaignSelect;
 
     await game.settings.set(SETTINGS.MODULE_ID, "campaign-id", campaignId);
 
