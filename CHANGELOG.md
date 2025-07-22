@@ -1,3 +1,7 @@
+# 6.4.7
+
+- Resolves #564 Multiclass Psi Warrior and Soulknife do not import nicely with their similarly named features.
+
 # 6.4.6
 
 - Cobalt Cookie would fail to save in some circumstances.

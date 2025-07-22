@@ -40,6 +40,9 @@ export default class CharacterFeatureFactory {
 
   static FORCE_DUPLICATE_OVERWRITE = DICTIONARY.parsing.features.FORCE_DUPLICATE_OVERWRITE;
 
+  // always duplicate these features
+  static FORCE_FEATURE_CLASS_MATCH = DICTIONARY.parsing.features.FORCE_FEATURE_CLASS_MATCH;
+
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
@@ -65,12 +68,30 @@ export default class CharacterFeatureFactory {
       .map((f) => f.affectedRacialTraitId);
   }
 
-  static isDuplicateFeature(items, item) {
-    return items.some((dup) => dup.name === item.name && dup.system.description.value === item.system.description.value);
+  static isDuplicateFeature(items, item, { matchClass = false } = {}) {
+    const forceFeatureClassMatch = matchClass || CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(item.flags?.ddbimporter?.originalName ?? item.name);
+    return items.some((dup) => {
+      const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
+        && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
+        && foundry.utils.hasProperty(item.flags.ddbimporter, "class")
+        && dup.flags.ddbimporter.class === item.flags.ddbimporter.class);
+
+      return dup.name === item.name && dup.system.description.value === item.system.description.value && classMatched;
+    });
   }
 
-  static getNameMatchedFeature(items, item) {
-    return items.find((dup) => dup.name === item.name && item.flags.ddbimporter.type === dup.flags.ddbimporter.type);
+  static getNameMatchedFeature(items, item, { matchClass = false } = {}) {
+    const forceFeatureClassMatch = matchClass || CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(item.flags?.ddbimporter?.originalName ?? item.name);
+    return items.find((dup) => {
+      const classMatched = !forceFeatureClassMatch || (forceFeatureClassMatch
+        && foundry.utils.hasProperty(dup.flags.ddbimporter, "class")
+        && foundry.utils.hasProperty(item.flags.ddbimporter, "class")
+        && dup.flags.ddbimporter.class === item.flags.ddbimporter.class);
+
+      return dup.name === item.name
+        && item.flags.ddbimporter.type === dup.flags.ddbimporter.type
+        && classMatched;
+    });
   }
 
   static includedFeatureNameCheck(featName) {
@@ -681,7 +702,8 @@ export default class CharacterFeatureFactory {
     // now we loop over class features and add to list, removing any that match racial traits, e.g. Darkvision
     logger.debug("Removing matching traits");
     this._ddbClassFeatures.data.forEach((doc) => {
-      const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc);
+      const forceFeatureClassMatch = CharacterFeatureFactory.FORCE_FEATURE_CLASS_MATCH.includes(doc.flags.ddbimporter.originalName ?? doc.name);
+      const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed.features, doc, { matchClass: forceFeatureClassMatch });
       const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed.features, doc)
         || CharacterFeatureFactory.FORCE_DUPLICATE_FEATURE.includes(doc.flags.ddbimporter.originalName ?? doc.name);
       if (existingFeature && !duplicateFeature) {

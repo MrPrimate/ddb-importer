@@ -11,6 +11,7 @@ import {
 import { SETTINGS } from "../config/_module.mjs";
 import DDBAppV2 from "./DDBAppV2.js";
 import DDBCharacterManager from "./DDBCharacterManager.js";
+import DDBDebugger from "./DDBDebugger.mjs";
 
 const FPClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
 
@@ -97,6 +98,10 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
+  static openDebug(_event, _target) {
+    new DDBDebugger().render(true);
+  }
+
   /** @inheritDoc */
   static DEFAULT_OPTIONS = {
     id: "ddb-importer-settings",
@@ -110,6 +115,7 @@ export default class DDBSetup extends DDBAppV2 {
       goToPatreonTab: DDBSetup.goToPatreonTab,
       resetSettings: DDBSetup.resetSettingsDialog,
       selectDirectory: DDBSetup.selectDirectory,
+      openDebug: DDBSetup.openDebug,
     },
     position: {
       width: "900",

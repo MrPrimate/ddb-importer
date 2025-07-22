@@ -85,6 +85,9 @@ export const PARSING_FEATURES = {
     "Cosmic Omen",
     "Trance of Order",
   ],
+  FORCE_FEATURE_CLASS_MATCH: [
+    "Psionic Power",
+  ],
 };
 
 export const PARSING_CHOICE_FEATURES = {
