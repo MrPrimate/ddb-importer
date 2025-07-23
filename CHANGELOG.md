@@ -1,3 +1,7 @@
+# Next Up
+
+- Adventure imports could fail in some circumstances.
+
 # 6.4.7
 
 - Resolves #564 Multiclass Psi Warrior and Soulknife do not import nicely with their similarly named features.

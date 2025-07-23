@@ -119,6 +119,7 @@ export class FileHelper {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
       logger.verbose(`Checking for files in directoryPath ${directoryPath}...`);
       const dir = FileHelper.parseDirectory(directoryPath);
+      await FileHelper.verifyPath(dir);
       await FileHelper.generateCurrentFilesFromParsedDir(dir);
     } else {
       logger.debug(`Skipping full dir scan for ${directoryPath}...`);
@@ -427,10 +428,15 @@ export class FileHelper {
             currentSource = `${currentSource}/${paths[i]}`;
           }
 
+          const tempParsed = foundry.utils.deepClone(parsedPath);
+          tempParsed.path = currentSource;
+          const possiblePath = FileHelper.formatDirectoryPath(tempParsed);
+          const newPathed = FileHelper.parseDirectory(possiblePath);
+
           // first lets try a quick check
-          await FileHelper.generateCurrentFilesFromParsedDir(parsedPath, false);
+          await FileHelper.generateCurrentFilesFromParsedDir(newPathed, false);
           // still missing, create
-          if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) {
+          if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(newPathed.fullPath)) {
             await FileHelper.createDirectory(parsedPath.activeSource, `${currentSource}`, { bucket: parsedPath.bucket });
           }
         } catch (err) {
