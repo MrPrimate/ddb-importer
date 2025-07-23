@@ -302,6 +302,7 @@ export default class DDBSetup extends DDBAppV2 {
       proxyAddress: this.proxyAddress,
     };
 
+    options.noCacheLoad = true;
     context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
 
     logger.debug("Settings: _prepareContext", context);

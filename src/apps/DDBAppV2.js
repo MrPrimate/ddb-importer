@@ -96,7 +96,8 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   async _prepareContext(options) {
-    await DDBReferenceLinker.importCacheLoad();
+    const noCacheLoad = options?.noCacheLoad ?? false;
+    if (!noCacheLoad) await DDBReferenceLinker.importCacheLoad();
     const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false });
     context.tabs = this._getTabs();
     logger.debug("DDBAppV2: _prepareContext", context);
