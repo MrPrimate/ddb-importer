@@ -1,3 +1,7 @@
+# Next Up
+
+- Some monsters would not parse spells. Notably in new Cthulhu book.
+
 # 6.4.9
 
 - Core settings config would not open if compendiums were not linked correctly.
