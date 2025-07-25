@@ -431,8 +431,8 @@ export class DDBInfusion {
       switch (this.ddbInfusion.modifierDataType) {
         case "class-level": {
           const minLevel = effectData.value;
-          const maxLevel = index < this.ddbInfusion.modifierData.length - 1
-            ? (this.ddbInfusion.modifierData[index + 1].value ?? null)
+          const maxLevel = index < (this.ddbInfusion.modifierData.length - 1)
+            ? (this.ddbInfusion.modifierData[index + 1].value ?? null) - 1
             : null;
           effectLink.level = {
             min: minLevel,
@@ -534,9 +534,9 @@ export class DDBInfusion {
     this._specials();
     await this._addActionsToEffects();
 
-    await this.addInfusionsToCompendium([this.data]);
-
     foundry.utils.setProperty(this.data, `system.activities.${this.activity.data._id}`, this.activity.data);
+
+    await this.addInfusionsToCompendium([this.data]);
 
     logger.debug(`DDBInfusions for ${this.name}`, {
       data: foundry.utils.deepClone(this.data),

@@ -23,10 +23,10 @@ export async function createInfusedItems(ddb, actor) {
 
     for (const activity of infusionActivities) {
       const infusionEffectCount = activity.effects.size;
+      const artificerLevel = rollData.classes.artificer?.levels ?? 0;
 
       const infusionEffectIds = activity.effects.filter((e) => {
         if (infusionEffectCount === 1) return true;
-        const artificerLevel = rollData.classes.artificer?.levels ?? 0;
         const appropriateLevel = artificerLevel >= e.level.min
           && (artificerLevel <= e.level.max || e.level.max === null);
         return appropriateLevel;
