@@ -1,4 +1,4 @@
-# Next Up
+# 6.4.10
 
 - Some monsters would not parse spells. Notably in new Cthulhu book.
 - Artificer infusions did not generate max level properly for items like the Enhanced Weapon/Defence, where there would be an overlap between the effects, resulting in the character importing with the wrong infusion effect applied if they were of that overlapping level, i.e. 10.
