@@ -18,19 +18,20 @@ import DDBMonsterImporter from "../../muncher/DDBMonsterImporter.mjs";
 
 export default class DDBCompanionFactory {
 
-  constructor(html, options = {
-    originDocument: null,
-    is2014: null,
-    notifier: null,
-    actor: null,
-    data: null,
-    folderHint: null,
-    createCompanions: true,
-    updateCompanions: true,
-    updateImages: false,
-  }) {
+  constructor(html, options = {}) {
+    const defaultOptions = {
+      originDocument: null,
+      is2014: null,
+      notifier: null,
+      actor: null,
+      data: null,
+      folderHint: null,
+      createCompanions: true,
+      updateCompanions: true,
+      updateImages: false,
+    };
     // console.warn("html", html);
-    this.options = options;
+    this.options = Object.assign({}, defaultOptions, options);
     this.html = html;
     this.doc = new DOMParser().parseFromString(html.replaceAll("\n", ""), 'text/html');
     this.companions = [];
@@ -43,15 +44,15 @@ export default class DDBCompanionFactory {
       created: [],
       updated: [],
     };
-    this.originDocument = options.originDocument;
+    this.originDocument = this.options.originDocument;
     this.originName = foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName")
       ?? this.originDocument?.name
       ?? null;
-    this.is2014 = options.is2014;
-    this.is2024 = !options.is2014 || options.is2024;
+    this.is2014 = this.options.is2014;
+    this.is2024 = !this.options.is2014 || this.options.is2024;
     this.summons = null;
     this.badSummons = false;
-    this.noCompendiums = options.noCompendiums ?? false;
+    this.noCompendiums = this.options.noCompendiums ?? false;
     this.indexFilter = { fields: [
       "name",
       "flags.ddbimporter.compendiumId",
@@ -59,7 +60,7 @@ export default class DDBCompanionFactory {
       "flags.ddbimporter.summons",
       "system.source.rules",
     ] };
-    this.notifier = options.notifier;
+    this.notifier = this.options.notifier;
     this.summonsManager = new DDBSummonsManager({ notifier: this.notifier });
     this.itemHandler = null;
   }
