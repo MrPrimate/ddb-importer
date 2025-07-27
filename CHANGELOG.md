@@ -2,7 +2,6 @@
 
 - Some recent changes broke Companion/Extra imports.
 
-
 # 6.4.10
 
 - Some monsters would not parse spells. Notably in new Cthulhu book.
