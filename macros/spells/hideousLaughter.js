@@ -7,15 +7,17 @@ const activity = await fromUuid(lastArg.activity);
 const DAEItem = lastArg.efData.flags.dae.itemData;
 const saveDC = activity.save.dc.value;
 const dcString = saveDC && saveDC !== "" ? `DC${saveDC} ` : "";
-const flavor = `${CONFIG.DND5E.abilities["wis"].label} DC${dcString}${DAEItem?.name || ""}`;
+const flavor = `${CONFIG.DND5E.abilities["wis"].label} ${dcString}${DAEItem?.name ?? ""}`;
 
 
-async function cleanUp() {
+async function cleanUp(removeProne = false) {
   // cleanup conditions
-  // const hasProne = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Prone", targetActor);
-  // if (hasProne) DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Prone", actor: targetActor });
+  const hasProne = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Prone", targetActor);
   const hasIncapacitated = DDBImporter.EffectHelper.isConditionEffectAppliedAndActive("Incapacitated", targetActor);
   if (hasIncapacitated) DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Incapacitated", actor: targetActor });
+  if ( removeProne && hasProne ) {
+    DDBImporter.EffectHelper.adjustCondition({ remove: true, conditionName: "Prone", actor: targetActor });
+  }
   // remove hook
   const flag = await DAE.getFlag(targetActor, "hideousLaughterHook");
   if (flag) {
@@ -24,6 +26,7 @@ async function cleanUp() {
   }
   // remove effect
   await targetActor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
+  if (!removeProne && hasProne) DDBImporter.EffectHelper.adjustCondition({ add: true, conditionName: "Prone", actor: targetActor });
 }
 
 async function onDamageHook(hookActor, update) {
@@ -38,6 +41,7 @@ async function onDamageHook(hookActor, update) {
     const saveRoll = (await targetActor.rollSavingThrow({
       ability: activity.save.ability.first(),
       target: activity.save.dc.value,
+      advantage: true,
     }, {}, { data: { speaker, flavor } }))[0];
 
     if (saveRoll.total >= saveDC) {
@@ -48,7 +52,7 @@ async function onDamageHook(hookActor, update) {
 
 if (args[0] === "on") {
   if (targetActor.system.abilities.int.value < 4) {
-    await cleanUp();
+    await cleanUp(true);
   } else {
     const hookId = Hooks.on("preUpdateActor", onDamageHook);
     await DAE.setFlag(targetActor, "hideousLaughterHook", hookId);

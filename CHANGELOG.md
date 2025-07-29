@@ -1,3 +1,7 @@
+# Next Up
+
+- Fixes to Hideous Laughter MidiQoL Automation.
+
 # 6.4.11
 
 - Some recent changes broke Companion/Extra imports.
