@@ -192,10 +192,12 @@ const PatreonHelper = {
       game.settings.set(SETTINGS.MODULE_ID, "patreon-user", data.email);
       game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", data.tier);
 
-      element.querySelector("#ddb-patreon-user").textContent = data.email;
-      element.querySelector("#ddb-patreon-tier").textContent = data.tier;
-      element.querySelector("#ddb-patreon-valid").textContent = "True";
-      element.querySelector("#ddb-patreon-key").value = data.key;
+      if (element) {
+        element.querySelector("#ddb-patreon-user").textContent = data.email;
+        element.querySelector("#ddb-patreon-tier").textContent = data.tier;
+        element.querySelector("#ddb-patreon-valid").textContent = "True";
+        element.querySelector("#ddb-patreon-key").value = data.key;
+      }
 
       socket.disconnect();
 
