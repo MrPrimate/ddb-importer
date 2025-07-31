@@ -11,10 +11,10 @@ import { updateDDBCharacter } from "../updater/character.js";
 import { generateCharacterExtras } from "../parser/DDBExtras.js";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCookie from "../apps/DDBCookie.js";
-import { DDBKeyChange } from "../apps/DDBKeyChange.js";
 import DDBAppV2 from "./DDBAppV2.js";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
 import DDBDebugger from "./DDBDebugger.mjs";
+import DDBKeyChangeDialog from "./DDBKeyChangeDialog.js";
 
 
 export default class DDBCharacterManager extends DDBAppV2 {
@@ -350,7 +350,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       if (!this.actor.flags.ddbimporter?.useLocalPatreonKey && existingKey && existingKey !== "") {
         await this.setLocalPatreonKey();
       } else {
-        new DDBKeyChange({
+        new DDBKeyChangeDialog({
           local: true,
           callback: this.setLocalPatreonKey.bind(this),
         }).render(true);

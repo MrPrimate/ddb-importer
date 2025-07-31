@@ -1,5 +1,6 @@
 import { logger, utils, DDBProxy } from "./_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
+import DDBKeyChangeDialog from "../apps/DDBKeyChangeDialog.js";
 
 async function setLocalStorage(key, value) {
   // remove item if null or undefined
@@ -12,6 +13,24 @@ async function setLocalStorage(key, value) {
 
 
 const PatreonHelper = {
+
+  isValidKey: async() => {
+    let validKey = false;
+
+    const key = PatreonHelper.getPatreonKey();
+    if (key === "") {
+      validKey = true;
+    } else {
+      const check = await PatreonHelper.getPatreonValidity(key);
+      if (check.success && check.data) {
+        validKey = true;
+      } else {
+        validKey = false;
+        new DDBKeyChangeDialog({ callMuncher: true }).render(true);
+      }
+    }
+    return validKey;
+  },
 
   getPatreonKey: (local = false) => {
     if (local) {

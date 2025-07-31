@@ -1,7 +1,6 @@
 import DDBCookie from "../../apps/DDBCookie.js";
 import DDBSetup from "../../apps/DDBSetup.js";
-import { Secrets } from "../../lib/_module.mjs";
-import { isValidKey } from "../../apps/DDBKeyChange.js";
+import { PatreonHelper, Secrets } from "../../lib/_module.mjs";
 import DDBMuncher from "../../apps/DDBMuncher.js";
 
 export function addMuncher(app, html) {
@@ -21,7 +20,7 @@ export function addMuncher(app, html) {
     if (setupComplete) {
       const cobaltStatus = await Secrets.checkCobalt();
       if (cobaltStatus.success) {
-        let validKey = await isValidKey();
+        let validKey = await PatreonHelper.isValidKey();
         if (validKey) {
           new DDBMuncher().render(true);
         }

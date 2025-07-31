@@ -1,0 +1,29 @@
+<section class="ddb-key-change-dialog">
+
+<fieldset>
+
+  <legend>Patreon Link {{#if success}}Expiry{{else}}Failure{{/if}}</legend>
+
+  {{#if success}}
+  <p>Hello! Your connection to Patreon has expired :(</p>
+  <p>If you're an active supporter you can re-authenticate below.</a></p>
+
+  {{else}}
+  <p>There was a failure checking your Patreon Key the API said:</p>
+  <p style="color: red">{{message}}</p>
+  {{/if}}
+
+  <p>Link your <a href="https://www.patreon.com/MrPrimate">Patreon account</a> by clicking the button, or enter a <a href="https://activate.ddb.mrprimate.co.uk">generated key</a>.</p>
+  <button data-action="connectToPatreonButton" id="patreon-button" class="patreon-button">Detect Patreon Status</button>
+  <p>Patreon User: <i id=ddb-patreon-user>{{#if this.patreonLinked}}{{patreonUser}}{{else}}Not connected{{/if}}</i></p>
+  <p>Tier: <i id=ddb-patreon-tier>{{#if this.tier}}{{this.tier}}{{else}}{{/if}}</i></p>
+  <p>Valid: <i id=ddb-patreon-valid>{{#if this.tier}}{{this.success}}{{else}}{{/if}}</i></p>
+  <p>If you have been provided a Key, enter it here instead:</p>
+  <input id="ddb-patreon-key" class="setup-config" type="password" name="patreon-key" style="flex: 0 1 auto" ;
+    value="{{this.key}}" />
+    <p><i>Note: this will be auto filled when you connect to patreon, you may need to occasionally refresh this key.</i></p>
+
+</fieldset>
+
+
+</section>

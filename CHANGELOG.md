@@ -1,8 +1,9 @@
-# Next Up
+# 6.4.12
 
 - Fixes to Hideous Laughter MidiQoL Automation.
 - Some Weapons like Lunar Sickle would import with double spaces in the name.
 - Recent version would produce error messages that upload folders didn't exist (red herring as it would then go on to create them).
+- Move Patreon Key Change Dialogue to App V2.
 
 # 6.4.11
 

@@ -26,6 +26,7 @@ import AdventureMunch from "./muncher/adventure/AdventureMunch.js";
 import { DDBMonsterDamage } from "./parser/monster/features/DDBMonsterDamage.js";
 import DDBMonsterFeature from "./parser/monster/features/DDBMonsterFeature.js";
 import { createStorage } from "./hooks/ready/storage.mjs";
+import DDBKeyChangeDialog from "./apps/DDBKeyChangeDialog.js";
 // import { libWrapper } from "../vendor/libwrapper/shim.js";
 
 function resetSecrets() {
@@ -109,6 +110,8 @@ export function registerApi() {
       DDBDebugger,
       DDBCharacterManager,
       AdventureMunch: AdventureMunch,
+      DDBKeyChangeDialog: DDBKeyChangeDialog,
+      DDBDebug: lib.DDBDebug,
     },
     lib: {
       CPRHelper: External.ChrisPremadesHelper,
