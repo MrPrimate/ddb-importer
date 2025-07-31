@@ -111,7 +111,8 @@ export default class Utils {
       .replaceAll(/&mdash;|&ndash;/g, "-")
       .replaceAll(/&ldquo;|&rdquo;/g, "\"")
       .replaceAll("&rsquo;", "'")
-      .replaceAll("’", "'").trim();
+      .replaceAll("’", "'")
+      .replaceAll("  ", " ").trim();
   }
 
   static regexSanitizeString(str) {
