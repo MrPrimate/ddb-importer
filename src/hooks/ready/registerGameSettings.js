@@ -72,7 +72,7 @@ async function createFolderPaths() {
       throw new Error(`DDB Importer: Invalid folder path "${path}" in settings.`);
     } else {
       const parsedPath = FileHelper.parseDirectory(path);
-      await FileHelper.generateCurrentFilesFromParsedDir(parsedPath);
+      await FileHelper.generateCurrentFilesFromParsedDir(parsedPath, false);
     }
   }
 
