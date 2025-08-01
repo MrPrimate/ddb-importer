@@ -1,3 +1,9 @@
+# Next Up
+
+- Generate ability maximum effects.
+- Fixes to some Tome of.... items.
+- Icon path fix ups from MotoMoto.
+
 # 6.4.12
 
 - Fixes to Hideous Laughter MidiQoL Automation.
