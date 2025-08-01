@@ -1,9 +1,5 @@
 [
   {
-    "name": "Iron Spikes",
-    "path": "icons/tools/fasteners/nails-steel-brown.webp"
-  },
-  {
     "name": "Abacus",
     "path": "icons/commodities/currency/coins-engraved-hole-gold.webp"
   },
@@ -88,6 +84,18 @@
     "path": "icons/equipment/chest/breastplate-banded-steel-grey.webp"
   },
   {
+    "name": "Adamantine Arrow",
+    "path": "icons/weapons/ammunition/arrows-war-white.webp"
+  },
+  {
+    "name": "Adamantine Battleaxe",
+    "path": "icons/weapons/axes/axe-battle-blackened.webp"
+  },
+  {
+    "name": "Adamantine Bolt",
+    "path": "icons/weapons/ammunition/arrows-war-white.webp"
+  },
+  {
     "name": "Adamantine Breastplate",
     "path": "icons/equipment/chest/breastplate-banded-steel-grey.webp"
   },
@@ -100,12 +108,96 @@
     "path": "icons/commodities/metal/mail-chain-steel.webp"
   },
   {
+    "name": "Adamantine Club",
+    "path": "icons/weapons/staves/staff-metal-mask.webp"
+  },
+  {
+    "name": "Adamantine Dagger",
+    "path": "icons/weapons/daggers/dagger-crooked-red.webp"
+  },
+  {
+    "name": "Adamantine Firearm Bullet",
+    "path": "icons/weapons/ammunition/bullets-cartridge-shell-gray.webp"
+  },
+  {
+    "name": "Adamantine Flail",
+    "path": "icons/weapons/maces/flail-triple-grey.webp"
+  },
+  {
+    "name": "Adamantine Glaive",
+    "path": "icons/weapons/polearms/glaive-hooked-steel.webp"
+  },
+  {
+    "name": "Adamantine Greataxe",
+    "path": "icons/weapons/axes/axe-double-engraved-black.webp"
+  },
+  {
+    "name": "Adamantine Greatclub",
+    "path": "icons/weapons/staves/staff-metal-mask.webp"
+  },
+  {
+    "name": "Adamantine Greatsword",
+    "path": "icons/weapons/swords/sword-guard-worn.webp"
+  },
+  {
+    "name": "Adamantine Halberd",
+    "path": "icons/weapons/polearms/halberd-crescent-worn.webp"
+  },
+  {
     "name": "Adamantine Half Plate",
     "path": "icons/equipment/chest/breastplate-layered-steel-black.webp"
   },
   {
+    "name": "Adamantine Handaxe",
+    "path": "icons/weapons/axes/axe-double-chopping-black.webp"
+  },
+  {
+    "name": "Adamantine Javelin",
+    "path": "icons/weapons/polearms/spear-barbed-silver.webp"
+  },
+  {
+    "name": "Adamantine Lance",
+    "path": "icons/weapons/polearms/spear-barbed-silver.webp"
+  },
+  {
+    "name": "Adamantine Light Hammer",
+    "path": "icons/weapons/hammers/shorthammer-simple-iron-black.webp"
+  },
+  {
+    "name": "Adamantine Longsword",
+    "path": "icons/weapons/swords/greatsword-sheathed.webp"
+  },
+  {
+    "name": "Adamantine Mace",
+    "path": "icons/weapons/maces/mace-round-studded.webp"
+  },
+  {
+    "name": "Adamantine Maul",
+    "path": "icons/weapons/hammers/shorthammer-double-steel-embossed.webp"
+  },
+  {
+    "name": "Adamantine Morningstar",
+    "path": "icons/weapons/maces/mace-round-spiked-grey.webp"
+  },
+  {
+    "name": "Adamantine Needle",
+    "path": "icons/weapons/thrown/dart-feathered.webp"
+  },
+  {
+    "name": "Adamantine Pike",
+    "path": "icons/weapons/polearms/spear-hooked-spike.webp"
+  },
+  {
     "name": "Adamantine Plate",
     "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
+  },
+  {
+    "name": "Adamantine Quarterstaff",
+    "path": "icons/weapons/staves/staff-ornate-purple.webp"
+  },
+  {
+    "name": "Adamantine Rapier",
+    "path": "icons/weapons/swords/greatsword-crossguard-silver.webp"
   },
   {
     "name": "Adamantine Ring Mail",
@@ -116,8 +208,44 @@
     "path": "icons/equipment/chest/breastplate-scale-grey.webp"
   },
   {
+    "name": "Adamantine Scimitar",
+    "path": "icons/weapons/swords/scimitar-guard-brown.webp"
+  },
+  {
+    "name": "Adamantine Shortsword",
+    "path": "icons/weapons/swords/shortsword-winged.webp"
+  },
+ {
+    "name": "Adamantine Sickle",
+    "path": "icons/weapons/sickles/sickle-hooked-worn.webp"
+  },
+  {
+    "name": "Adamantine Sling Bullet",
+    "path": "icons/weapons/ammunition/shot-round-blue.webp"
+  },
+  {
+    "name": "Adamantine Spear",
+    "path": "icons/weapons/polearms/spear-hooked-double-engraved.webp"
+  },
+  {
     "name": "Adamantine Splint",
     "path": "icons/equipment/chest/breastplate-metal-scaled-grey.webp"
+  },
+  {
+    "name": "Adamantine Trident",
+    "path": "icons/weapons/polearms/trident-curved-steel.webp"
+  },
+  {
+    "name": "Adamantine War Pick",
+    "path": "icons/weapons/axes/pickaxe-iron-green.webp"
+  },
+  {
+    "name": "Adamantine Warhammer",
+    "path": "icons/weapons/hammers/hammer-war-spiked.webp"
+  },
+  {
+    "name": "Adamantine Whip",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
   },
   {
     "name": "Airship",
@@ -580,6 +708,30 @@
     "path": "icons/equipment/chest/breastplate-layered-leather-studded-brown.webp"
   },
   {
+    "name": "Armor of Fungal Spores, Breastplate",
+    "path": "icons/equipment/chest/breastplate-layered-steel-green.webp"
+  },
+  {
+    "name": "Armor of Fungal Spores, Chain Shirt",
+    "path": "icons/equipment/chest/breastplate-scale-grey.webp"
+  },
+  {
+    "name": "Armor of Fungal Spores, Half Plate",
+    "path": "icons/equipment/chest/breastplate-layered-leather-green.webp"
+  },
+  {
+    "name": "Armor of Fungal Spores, Hide",
+    "path": "icons/equipment/chest/vest-cloth-tattered-orange.webp"
+  },
+  {
+    "name": "Armor of Fungal Spores, Scale Mail",
+    "path": "icons/equipment/chest/breastplate-metal-scaled-grey.webp"
+  },
+  {
+    "name": "Armor of Fungal Spores, Spiked Armor",
+    "path": "icons/equipment/chest/breastplate-banded-steel.webp"
+  },
+  {
     "name": "Armor of Gleaming",
     "path": "icons/equipment/chest/breastplate-gorget-steel.webp"
   },
@@ -872,6 +1024,46 @@
     "path": "icons/equipment/chest/breastplate-banded-steel-grey.webp"
   },
   {
+    "name": "Armor of the Fallen, Breastplate",
+    "path": "icons/equipment/chest/breastplate-gorget-steel-purple.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Chain Mail",
+    "path": "icons/commodities/metal/mail-chain-steel.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Chain Shirt",
+    "path": "icons/commodities/metal/mail-chain-steel.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Half Plate",
+    "path": "icons/equipment/chest/breastplate-sculpted-green.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Hide",
+    "path": "icons/equipment/chest/vest-cloth-tattered-orange.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Plate",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Ring Mail",
+    "path": "icons/commodities/leather/ring-leather.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Scale Mail",
+    "path": "icons/equipment/chest/breastplate-scale-grey.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Spiked Armor",
+    "path": "icons/weapons/fist/glove-spiked.webp"
+  },
+  {
+    "name": "Armor of the Fallen, Splint",
+    "path": "icons/equipment/chest/breastplate-banded-blue.webp"
+  },
+  {
     "name": "Armor of Thunder Resistance, Breastplate",
     "path": "icons/equipment/chest/breastplate-layered-leather-black.webp"
   },
@@ -934,6 +1126,58 @@
   {
     "name": "Armor of Vulnerability (Slashing)",
     "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Breastplate",
+    "path": "icons/equipment/chest/breastplate-collared-steel-grey.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Chain Mail",
+    "path": "icons/commodities/metal/mail-chain-steel.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Chain Shirt",
+    "path": "icons/commodities/metal/mail-chain-steel.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Half Plate",
+    "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Hide",
+    "path": "icons/equipment/chest/vest-cloth-tattered-orange.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Leather",
+    "path": "icons/equipment/chest/coat-collared-red-gold.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Padded",
+    "path": "icons/equipment/chest/breastplate-quilted-brown.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Plate",
+    "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Ring Mail",
+    "path": "icons/commodities/leather/ring-leather.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Scale Mail",
+    "path": "icons/equipment/chest/breastplate-scale-grey.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Spiked Armor",
+    "path": "icons/weapons/fist/glove-spiked.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Splint",
+    "path": "icons/equipment/chest/breastplate-banded-leather-brown.webp"
+  },
+ {
+    "name": "Armor of Weightlessness, Studded Leather",
+    "path": "icons/equipment/chest/breastplate-layered-leather-studded-brown.webp"
   },
   {
     "name": "Armor, +1",
@@ -1609,7 +1853,7 @@
   },
   {
     "name": "Brooch of Living Essence",
-    "path": "icons/commodities/treasure/broach-jeweled-green.webp"
+    "path": "icons/commodities/treasure/brooch-jeweled-green.webp"
   },
   {
     "name": "Brooch of Shielding",
@@ -1902,6 +2146,158 @@
   {
     "name": "Chalk (1 piece)",
     "path": "icons/commodities/stone/rock-chunk-pumice-white.webp"
+  },
+  {
+    "name": "Champion's Battleaxe",
+    "path": "icons/weapons/axes/axe-battle-heavy-black.webp"
+  },
+  {
+    "name": "Champion's Blowgun",
+    "path": "icons/commodities/wood/log-rough-hickory-brown.webp"
+  },
+  {
+    "name": "Champion's Club",
+    "path": "icons/weapons/clubs/club-heavy-barbed-grey.webp"
+  },
+  {
+    "name": "Champion's Dagger",
+    "path": "icons/weapons/daggers/dagger-jeweled-purple.webp"
+  },
+  {
+    "name": "Champion's Dart",
+    "path": "icons/weapons/thrown/daggers-kunai-purple.webp"
+  },
+  {
+    "name": "Champion's Flail",
+    "path": "icons/weapons/maces/flail-triple-grey.webp"
+  },
+  {
+    "name": "Champion's Glaive",
+    "path": "icons/weapons/polearms/glaive-hooked-steel.webp"
+  },
+  {
+    "name": "Champion's Greataxe",
+    "path": "icons/weapons/axes/axe-double-engraved-runes.webp"
+  },
+  {
+    "name": "Champion's Greatclub",
+    "path": "icons/weapons/clubs/club-banded-steel.webp"
+  },
+  {
+    "name": "Champion's Greatsword",
+    "path": "icons/weapons/swords/greatsword-guard-gold-worn.webp"
+  },
+  {
+    "name": "Champion's Halberd",
+    "path": "icons/weapons/polearms/halberd-crescent-steel.webp"
+  },
+  {
+    "name": "Champion's Hand Crossbow",
+    "path": "icons/weapons/crossbows/handcrossbow-black.webp"
+  },
+  {
+    "name": "Champion's Handaxe",
+    "path": "icons/weapons/axes/shortaxe-black.webp"
+  },
+  {
+    "name": "Champion's Heavy Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-blue.webp"
+  },
+  {
+    "name": "Champion's Javelin",
+    "path": "icons/weapons/polearms/spear-hooked-brown.webp"
+  },
+  {
+    "name": "Champion's Lance",
+    "path": "icons/weapons/polearms/spear-barbed-silver.webp"
+  },
+  {
+    "name": "Champion's Light Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-ornamental-winged.webp"
+  },
+  {
+    "name": "Champion's Light Hammer",
+    "path": "icons/weapons/hammers/hammer-mallet-black.webp"
+  },
+  {
+    "name": "Champion's Longbow",
+    "path": "icons/weapons/bows/longbow-leather-green.webp"
+  },
+  {
+    "name": "Champion's Longsword",
+    "path": "icons/weapons/swords/greatsword-crossguard-silver.webp"
+  },
+  {
+    "name": "Champion's Mace",
+    "path": "icons/weapons/maces/mace-flanged-steel.webp"
+  },
+  {
+    "name": "Champion's Maul",
+    "path": "icons/weapons/hammers/hammer-double-sledge-engraved.webp"
+  },
+  {
+    "name": "Champion's Morningstar",
+    "path": "icons/weapons/maces/mace-round-spiked-black.webp"
+  },
+  {
+    "name": "Champion's Musket",
+    "path": "icons/weapons/guns/rifle-white.webp"
+  },
+  {
+    "name": "Champion's Pike",
+    "path": "icons/weapons/polearms/spear-hooked-spike.webp"
+  },
+  {
+    "name": "Champion's Pistol",
+    "path": "icons/weapons/guns/gun-pistol-flintlock-metal.webp"
+  },
+  {
+    "name": "Champion's Quarterstaff",
+    "path": "icons/weapons/staves/staff-simple.webp"
+  },
+  {
+    "name": "Champion's Rapier",
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
+  },
+  {
+    "name": "Champion's Scimitar",
+    "path": "icons/weapons/swords/scimitar-guard-brown.webp"
+  },
+  {
+    "name": "Champion's Shortbow",
+    "path": "icons/weapons/bows/shortbow-recurve-blue.webp"
+  },
+  {
+    "name": "Champion's Shortsword",
+    "path": "icons/weapons/swords/shortsword-green.webp"
+  },
+  {
+    "name": "Champion's Sickle",
+    "path": "icons/weapons/sickles/scythe-wrapped-worn-red.webp"
+  },
+  {
+    "name": "Champion's Sling",
+    "path": "icons/weapons/slings/slingshot-wood.webp"
+  },
+  {
+    "name": "Champion's Spear",
+    "path": "icons/weapons/polearms/spear-hooked-rounded.webp"
+  },
+  {
+    "name": "Champion's Trident",
+    "path": "icons/weapons/polearms/trident-silver-blue.webp"
+  },
+  {
+    "name": "Champion's War Pick",
+    "path": "icons/weapons/axes/pickaxe-iron-green.webp"
+  },
+  {
+    "name": "Champion's Warhammer",
+    "path": "icons/weapons/hammers/hammer-war-rounding.webp"
+  },
+  {
+    "name": "Champion's Whip",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
   },
   {
     "name": "Chariot",
@@ -2818,6 +3214,34 @@
   {
     "name": "Dreamlily",
     "path": "icons/containers/kitchenware/goblet-jeweled-red.webp"
+  },
+  {
+    "name": "Dried Leech, Arrows",
+    "path": "icons/weapons/ammunition/arrow-broadhead-bent-teal.webp"
+  },
+  {
+    "name": "Dried Leech, Blowgun Needles",
+    "path": "icons/weapons/thrown/dart-feathered.webp"
+  },
+  {
+    "name": "Dried Leech, Crossbow Bolts",
+    "path": "icons/weapons/ammunition/arrows-barbed-white.webp"
+  },
+  {
+    "name": "Dried Leech, Energy Cell",
+    "path": "icons/commodities/tech/electrode-copper.webp"
+  },
+  {
+    "name": "Dried Leech, Modern Bullets",
+    "path": "icons/containers/ammunition/bullets-belt.webp"
+  },
+  {
+    "name": "Dried Leech, Renaissance Bullets",
+    "path": "icons/skills/ranged/bullets-triple-ball-orange.webp"
+  },
+  {
+    "name": "Dried Leech, Sling Bullets",
+    "path": "icons/weapons/ammunition/shot-round-brown.webp"
   },
   {
     "name": "Driftglobe",
@@ -4241,7 +4665,7 @@
   },
   {
     "name": "Insignia of Claws",
-    "path": "icons/commodities/treasure/broach-jeweled-pink.webp"
+    "path": "icons/commodities/treasure/brooch-jeweled-pink.webp"
   },
   {
     "name": "Instant Fortress",
@@ -4370,6 +4794,10 @@
   {
     "name": "Iron Ring of Revelation",
     "path": "icons/equipment/finger/ring-band-engraved-scrolls-silver.webp"
+  },
+  {
+    "name": "Iron Spikes",
+    "path": "icons/tools/fasteners/nails-steel-brown.webp"
   },
   {
     "name": "Ironfang",
@@ -9389,19 +9817,19 @@
   },
   {
     "name": "Heavy Crossbow",
-    "path": "modules/dnd-monster-manual/assets/icons/items/heavy-crossbow.webp"
+    "path": "icons/weapons/crossbows/handcrossbow-green.webp"
   },
   {
     "name": "Hand Crossbow",
-    "path": "modules/dnd-monster-manual/assets/icons/items/hand-crossbow.webp"
+    "path": "icons/weapons/crossbows/crossbow-slotted.webp"
   },
   {
     "name": "Hand Crossbow (Humanoid or Hybrid Form Only)",
-    "path": "modules/dnd-monster-manual/assets/icons/items/hand-crossbow.webp"
+    "path": "icons/weapons/crossbows/crossbow-slotted.webp"
   },
   {
     "name": "Longbow (Humanoid or Hybrid Form Only)",
-    "path": "modules/dnd-monster-manual/assets/icons/items/longbow.webp"
+    "path": "icons/weapons/bows/longbow-leather-green.webp"
   },
   {
     "name": "Necrotic Bow",
@@ -9429,7 +9857,7 @@
   },
   {
     "name": "Stone Club",
-    "path": "modules/dnd-monster-manual/assets/icons/items/greatclub.webp"
+    "path": "icons/weapons/clubs/club-simple-stone-brown.webp"
   },
   {
     "name": "Holy Mace",
@@ -9453,11 +9881,11 @@
   },
   {
     "name": "Handaxe (Humanoid or Hybrid Form Only)",
-    "path": "modules/dnd-monster-manual/assets/icons/items/handaxe.webp"
+    "path": "icons/weapons/axes/axe-crooked-crystal-pink.webp"
   },
   {
     "name": "Javelin (Humanoid or Hybrid Form Only)",
-    "path": "modules/dnd-monster-manual/assets/icons/items/javelin.webp"
+    "path": "icons/weapons/polearms/spear-barbed-silver.webp"
   },
   {
     "name": "Psi Blade",
@@ -10234,5 +10662,757 @@
   {
     "name": "Deck of Miscellany",
     "path": "icons/sundries/gaming/rune-card.webp"
+  },
+  {
+    "name": "Lunar Battleaxe",
+    "path": "icons/weapons/axes/axe-broad-engraved-chipped-blue.webp"
+  },
+  {
+    "name": "Lunar Bellow Flute",
+    "path": "icons/equipment/shoulder/pauldron-fluted-steel.webp"
+  },
+  {
+    "name": "Lunar Blowgun",
+    "path": "icons/commodities/tech/pipe-hexagonal.webp"
+  },
+  {
+    "name": "Lunar Boat Oar",
+    "path": "icons/commodities/wood/wood-pole.webp"
+  },
+  {
+    "name": "Lunar Boomerang",
+    "path": "icons/weapons/thrown/shuriken-double-red.webp"
+  },
+  {
+    "name": "Lunar Butterfly Staff",
+    "path": "icons/weapons/staves/staff-simple.webp"
+  },
+  {
+    "name": "Lunar Candlemaker's Club",
+    "path": "icons/weapons/clubs/club-simple-black.webp"
+  },
+  {
+    "name": "Lunar Club",
+    "path": "icons/weapons/clubs/club-bone-blue.webp"
+  },
+  {
+    "name": "Lunar Dagger",
+    "path": "icons/weapons/daggers/dagger-blue.webp"
+  },
+  {
+    "name": "Lunar Dandelion Spear",
+    "path": "icons/weapons/polearms/spear-flared-blue.webp"
+  },
+  {
+    "name": "Lunar Dart",
+    "path": "icons/weapons/thrown/dagger-ringed-blue.webp"
+  },
+  {
+    "name": "Lunar Drive Shaft",
+    "path": "icons/weapons/hammers/hammer-drilling-spiked.webp"
+  },
+  {
+    "name": "Lunar Fan",
+    "path": "icons/commodities/cloth/cloth-worn-leaf-green.webp"
+  },
+  {
+    "name": "Lunar Field Spear",
+    "path": "icons/weapons/polearms/pike-flared-red.webp"
+  },
+  {
+    "name": "Lunar Flail",
+    "path": "icons/weapons/maces/flail-triple-grey.webp"
+  },
+  {
+    "name": "Lunar Frying Pan",
+    "path": "icons/commodities/treasure/token-silver-blue.webp"
+  },
+  {
+    "name": "Lunar Glaive",
+    "path": "icons/weapons/polearms/glaive-simple-hooked.webp"
+  },
+  {
+    "name": "Lunar Glaive",
+    "path": "icons/weapons/polearms/glaive-simple-hooked.webp"
+  },
+  {
+    "name": "Lunar Greataxe",
+    "path": "icons/weapons/axes/axe-double-blue.webp"
+  },
+  {
+    "name": "Lunar Greatclub",
+    "path": "icons/weapons/clubs/club-bone-blue.webp"
+  },
+  {
+    "name": "Lunar Greatsword",
+    "path": "icons/weapons/swords/greatsword-guard-gold-worn.webp"
+  },
+  {
+    "name": "Lunar Halberd",
+    "path": "icons/weapons/polearms/halberd-crescent-glowing.webp"
+  },
+  {
+    "name": "Lunar Halberd",
+    "path": "icons/weapons/polearms/halberd-crescent-glowing.webp"
+  },
+  {
+    "name": "Lunar Hand Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-blue.webp"
+  },
+  {
+    "name": "Lunar Handaxe",
+    "path": "icons/weapons/axes/shortaxe-engraved-green.webp"
+  },
+  {
+    "name": "Lunar Heavy Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-blue.webp"
+  },
+  {
+    "name": "Lunar Iron Tea Kettle",
+    "path": "icons/containers/misc/bucket-steel-blue.webp"
+  },
+  {
+    "name": "Lunar Javelin",
+    "path": "icons/weapons/polearms/spear-barbed-silver.webp"
+  },
+  {
+    "name": "Lunar Lance",
+    "path": "icons/weapons/polearms/spear-hooked-brown.webp"
+  },
+  {
+    "name": "Lunar Lance",
+    "path": "icons/weapons/polearms/spear-hooked-brown.webp"
+  },
+  {
+    "name": "Lunar Light Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-blue.webp"
+  },
+  {
+    "name": "Lunar Light Hammer",
+    "path": "icons/weapons/hammers/shorthammer-double-stone-engraved.webp"
+  },
+  {
+    "name": "Lunar Lom Lom Dagger",
+    "path": "icons/weapons/daggers/dagger-blue.webp"
+  },
+  {
+    "name": "Lunar Longbow",
+    "path": "icons/weapons/bows/bow-ornamental-silver-black.webp"
+  },
+  {
+    "name": "Lunar Longsword",
+    "path": "icons/weapons/swords/greatsword-crossguard-silver.webp"
+  },
+  {
+    "name": "Lunar Mace",
+    "path": "icons/weapons/maces/mace-flanged-steel.webp"
+  },
+  {
+    "name": "Lunar Maul",
+    "path": "icons/weapons/hammers/hammer-double-studded.webp"
+  },
+  {
+    "name": "Lunar Morningstar",
+    "path": "icons/weapons/maces/mace-round-spiked-grey.webp"
+  },
+  {
+    "name": "Lunar Nakudama Bubble Rod",
+    "path": "icons/weapons/staves/staff-ornate-purple.webp"
+  },
+  {
+    "name": "Lunar Pike",
+    "path": "icons/weapons/polearms/pike-flared-red.webp"
+  },
+  {
+    "name": "Lunar Quarterstaff",
+    "path": "icons/weapons/staves/staff-simple-gold.webp"
+  },
+  {
+    "name": "Lunar Quarterstaff",
+    "path": "icons/weapons/staves/staff-simple.webp"
+  },
+  {
+    "name": "Lunar Rapier",
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
+  },
+  {
+    "name": "Lunar Scimitar",
+    "path": "icons/weapons/swords/scimitar-guard-brown.webp"
+  },
+  {
+    "name": "Lunar Secret Stone Sword",
+    "path": "icons/weapons/swords/greatsword-sheathed.webp"
+  },
+  {
+    "name": "Lunar Shepherd Crook",
+    "path": "icons/weapons/staves/staff-nature-spiral.webp"
+  },
+  {
+    "name": "Lunar Shortbow",
+    "path": "icons/weapons/bows/shortbow-recurve-blue.webp"
+  },
+  {
+    "name": "Lunar Shortsword",
+    "path": "icons/weapons/swords/scimitar-blue.webp"
+  },
+  {
+    "name": "Lunar Shovel",
+    "path": "icons/tools/hand/shovel-spade-steel-white.webp"
+  },
+  {
+    "name": "Lunar Sickle",
+    "path": "icons/weapons/sickles/sickle-hooked-silver.webp"
+  },
+  {
+    "name": "Lunar Sling",
+    "path": "icons/weapons/slings/slingshot-wood.webp"
+  },
+  {
+    "name": "Lunar Spear",
+    "path": "icons/weapons/polearms/pike-flared-red.webp"
+  },
+  {
+    "name": "Lunar Spear",
+    "path": "icons/weapons/polearms/spear-flared-gray.webp"
+  },
+  {
+    "name": "Lunar Tapper Sack",
+    "path": "icons/containers/bags/pack-simple-leather-tan.webp"
+  },
+  {
+    "name": "Lunar Trident",
+    "path": "icons/weapons/polearms/trident-silver-blue.webp"
+  },
+  {
+    "name": "Lunar Umbrella",
+    "path": "icons/commodities/cloth/cloth-bolt-embroidered-pink.webp"
+  },
+  {
+    "name": "Lunar Vaulter's Axe",
+    "path": "icons/weapons/axes/axe-broad-worn-blue.webp"
+  },
+  {
+    "name": "Lunar Vertebrae Sword",
+    "path": "icons/weapons/swords/scimitar-bone.webp"
+  },
+  {
+    "name": "Lunar War Pick",
+    "path": "icons/weapons/axes/pickaxe-gray.webp"
+  },
+  {
+    "name": "Lunar Warhammer",
+    "path": "icons/weapons/hammers/hammer-war-spiked.webp"
+  },
+  {
+    "name": "Lunar Whip",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Mind Crystal (Careful)",
+    "path": "icons/commodities/gems/gem-faceted-rough-yellow.webp"
+  },
+  {
+    "name": "Mind Crystal (Distant)",
+    "path": "icons/commodities/gems/gem-faceted-rough-purple.webp"
+  },
+  {
+    "name": "Mind Crystal (Empowered)",
+    "path": "icons/commodities/gems/gem-faceted-rough-red.webp"
+  },
+  {
+    "name": "Mind Crystal (Extended)",
+    "path": "icons/commodities/gems/gem-faceted-rough-green.webp"
+  },
+  {
+    "name": "Painted Bone Stone",
+    "path": "icons/commodities/gems/gem-fragments-rough-grey.webp"
+  },
+  {
+    "name": "Painted Indigo Stone",
+    "path": "icons/commodities/gems/gem-fragments-pink.webp"
+  },
+  {
+    "name": "Painted Juniper Stone",
+    "path": "icons/commodities/gems/pearl-white-oval.webp"
+  },
+  {
+    "name": "Painted Mustard Stone",
+    "path": "icons/commodities/gems/gem-rough-square-yellow.webp"
+  },
+  {
+    "name": "Painted Puce Stone",
+    "path": "icons/commodities/gems/gem-rough-rose-red.webp"
+  },
+  {
+    "name": "Painted Slate Stone",
+    "path": "icons/commodities/gems/gem-rough-cushion-white.webp"
+  },
+  {
+    "name": "Painted Umber Stone",
+    "path": "icons/commodities/gems/gem-rough-rectangle-red.webp"
+  },
+  {
+    "name": "Painted Violet Stone",
+    "path": "icons/commodities/gems/gem-rough-oval-purple.webp"
+  },
+  {
+    "name": "Quickstep Dagger",
+    "path": "icons/weapons/daggers/dagger-double-simple-black.webp"
+  },
+  {
+    "name": "Quickstep Rapier",
+    "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
+  },
+  {
+    "name": "Red-Feather Longbow",
+    "path": "icons/weapons/bows/longbow-recurve-leather-red.webp"
+  },
+  {
+    "name": "Red-Feather Shortbow",
+    "path": "icons/weapons/bows/longbow-recurve-leather-red.webp"
+  },
+  {
+    "name": "Bridge Seed",
+    "path": "icons/commodities/gems/pearl-purple-smooth.webp"
+  },
+  {
+    "name": "Knightly Seed",
+    "path": "icons/commodities/gems/pearl-purple.webp"
+  },
+  {
+    "name": "Orchard Seed",
+    "path": "icons/commodities/gems/pearl-purple-rough.webp"
+  },
+  {
+    "name": "Road Seed",
+    "path": "icons/commodities/gems/pearl-purple-dark.webp"
+  },
+  {
+    "name": "Tavern Seed",
+    "path": "icons/commodities/gems/pearl-white-oval.webp"
+  },
+  {
+    "name": "Wraps of Unarmed Power, +1",
+    "path": "icons/commodities/cloth/cloth-worn-gold.webp"
+  },
+  {
+    "name": "Wraps of Unarmed Prowess, +1",
+    "path": "icons/commodities/cloth/ribbon-bolt-red.webp"
+  },
+  {
+    "name": "Lorehold Primer",
+    "path": "icons/sundries/books/book-eye-purple.webp"
+  },
+  {
+    "name": "Prismari Primer",
+    "path": "icons/sundries/books/book-symbol-fire-gold-orange.webp"
+  },
+  {
+    "name": "Quandrix Primer",
+    "path": "icons/sundries/books/book-symbol-link-brown.webp"
+  },
+  {
+    "name": "Silverquill Primer",
+    "path": "icons/sundries/books/book-turquoise-moon.webp"
+  },
+  {
+    "name": "Witherbloom Primer",
+    "path": "icons/sundries/books/book-symbol-potion-blue.webp"
+  },
+  {
+    "name": "True Name Antimatter Rifle",
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
+  },
+  {
+    "name": "True Name Automatic Rifle",
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
+  },
+  {
+    "name": "True Name Battleaxe",
+    "path": "icons/weapons/axes/axe-battle-heavy-jagged.webp"
+  },
+  {
+    "name": "True Name Blowgun",
+    "path": "icons/commodities/tech/pipe-metal.webp"
+  },
+  {
+    "name": "True Name Club",
+    "path": "icons/weapons/clubs/club-baton-blue.webp"
+  },
+  {
+    "name": "True Name Dagger",
+    "path": "icons/weapons/daggers/dagger-notched-blackened.webp"
+  },
+  {
+    "name": "True Name Dart",
+    "path": "icons/weapons/thrown/dagger-simple-wood.webp"
+  },
+  {
+    "name": "True Name Flail",
+    "path": "icons/weapons/maces/flail-triple-grey.webp"
+  },
+  {
+    "name": "True Name Glaive",
+    "path": "icons/weapons/polearms/glaive-simple-hooked.webp"
+  },
+  {
+    "name": "True Name Greataxe",
+    "path": "icons/weapons/axes/axe-double-brown.webp"
+  },
+  {
+    "name": "True Name Greatclub",
+    "path": "icons/weapons/clubs/club-spiked-glowing.webp"
+  },
+  {
+    "name": "True Name Greatsword",
+    "path": "icons/weapons/swords/sword-guard-worn-gold.webp"
+  },
+  {
+    "name": "True Name Halberd",
+    "path": "icons/weapons/polearms/halberd-crescent-worn-steel.webp"
+  },
+  {
+    "name": "True Name Hand Crossbow",
+    "path": "icons/weapons/crossbows/handcrossbow-green.webp"
+  },
+  {
+    "name": "True Name Handaxe",
+    "path": "icons/weapons/axes/shortaxe-worn-black.webp"
+  },
+  {
+    "name": "True Name Heavy Crossbow",
+    "path": "icons/weapons/crossbows/handcrossbow-green.webp"
+  },
+  {
+    "name": "True Name Hunting Rifle",
+    "path": "icons/weapons/guns/gun-red.webp"
+  },
+  {
+    "name": "True Name Javelin",
+    "path": "icons/weapons/polearms/spear-flared-gold.webp"
+  },
+  {
+    "name": "True Name Lance",
+    "path": "icons/weapons/polearms/spear-flared-gold.webp"
+  },
+  {
+    "name": "True Name Laser Pistol",
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
+  },
+  {
+    "name": "True Name Laser Rifle",
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
+  },
+  {
+    "name": "True Name Light Crossbow",
+    "path": "icons/weapons/crossbows/handcrossbow-green.webp"
+  },
+  {
+    "name": "True Name Light Hammer",
+    "path": "icons/weapons/hammers/shorthammer-simple-yellow.webp"
+  },
+  {
+    "name": "True Name Longbow",
+    "path": "icons/weapons/bows/bow-ornamental-gold-blue.webp"
+  },
+  {
+    "name": "True Name Longsword",
+    "path": "icons/weapons/swords/sword-guard-gold-red.webp"
+  },
+  {
+    "name": "True Name Mace",
+    "path": "icons/weapons/maces/shortmace-ornate-gold.webp"
+  },
+  {
+    "name": "True Name Maul",
+    "path": "icons/weapons/hammers/hammer-double-bronze.webp"
+  },
+  {
+    "name": "True Name Morningstar",
+    "path": "icons/weapons/maces/mace-skull-ram.webp"
+  },
+  {
+    "name": "True Name Musket",
+    "path": "icons/weapons/guns/gun-blunderbuss-steel.webp"
+  },
+  {
+    "name": "True Name Pike",
+    "path": "icons/weapons/polearms/spear-hooked-spike.webp"
+  },
+  {
+    "name": "True Name Pistol",
+    "path": "icons/weapons/guns/gun-pistol-brass.webp"
+  },
+  {
+    "name": "True Name Quarterstaff",
+    "path": "icons/weapons/staves/staff-orante-gold.webp"
+  },
+  {
+    "name": "True Name Rapier",
+    "path": "icons/weapons/swords/sword-guard-brown.webp"
+  },
+  {
+    "name": "True Name Revolver",
+    "path": "icons/weapons/guns/gun-brown.webp"
+  },
+  {
+    "name": "True Name Scimitar",
+    "path": "icons/weapons/swords/scimitar-guard-brown.webp"
+  },
+  {
+    "name": "True Name Semiautomatic Pistol",
+    "path": "icons/weapons/guns/gun-pistol-flintlock.webp"
+  },
+  {
+    "name": "True Name Shortbow",
+    "path": "icons/weapons/bows/bow-ornamental-gold-blue.webp"
+  },
+  {
+    "name": "True Name Shortsword",
+    "path": "icons/weapons/swords/shortsword-broad-engraved.webp"
+  },
+  {
+    "name": "True Name Shotgun",
+    "path": "icons/weapons/guns/gun-purple.webp"
+  },
+  {
+    "name": "True Name Sickle",
+    "path": "icons/weapons/sickles/scythe-bone-green.webp"
+  },
+  {
+    "name": "True Name Sling",
+    "path": "icons/weapons/slings/slingshot-wood.webp"
+  },
+  {
+    "name": "True Name Spear",
+    "path": "icons/weapons/polearms/spear-hooked-simple-blue.webp"
+  },
+  {
+    "name": "True Name Trident",
+    "path": "icons/weapons/polearms/trident-ornate-red.webp"
+  },
+  {
+    "name": "True Name War Pick",
+    "path": "icons/weapons/axes/pickaxe-gray.webp"
+  },
+  {
+    "name": "True Name Warhammer",
+    "path": "icons/weapons/hammers/hammer-war-rounding.webp"
+  },
+  {
+    "name": "True Name Whip",
+    "path": "icons/weapons/misc/whip-red-yellow.webp"
+  },
+  {
+    "name": "Automatic Rifle of Warning",
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
+  },
+  {
+    "name": "Hand Crossbow of Warning",
+    "path": "icons/weapons/crossbows/crossbow-slotted.webp"
+  },
+  {
+    "name": "Heavy Crossbow of Warning",
+    "path": "icons/weapons/crossbows/crossbow-purple.webp"
+  },
+  {
+    "name": "Hunting Rifle of Warning",
+    "path": "icons/weapons/guns/gun-topbarrel.webp"
+  },
+  {
+    "name": "Light Crossbow of Warning",
+    "path": "icons/weapons/crossbows/crossbow-ornamental-winged.webp"
+  },
+  {
+    "name": "Semiautomatic Pistol of Warning",
+    "path": "icons/weapons/guns/gun-pistol-flintlock.webp"
+  },
+  {
+    "name": "Winged Arrows",
+    "path": "icons/weapons/ammunition/arrows-fletching.webp"
+  },
+  {
+    "name": "Winged Blowgun Needles",
+    "path": "icons/weapons/thrown/dart-feathered.webp"
+  },
+  {
+    "name": "Winged Crossbow Bolts",
+    "path": "icons/weapons/ammunition/arrows-barbed-white.webp"
+  },
+  {
+    "name": "Winged Energy Cell",
+    "path": "icons/commodities/tech/electrode-copper.webp"
+  },
+  {
+    "name": "Winged Modern Bullets",
+    "path": "icons/containers/ammunition/bullets-belt.webp"
+  },
+  {
+    "name": "Winged Renaissance Bullets",
+    "path": "icons/skills/ranged/bullets-triple-ball-orange.webp"
+  },
+  {
+    "name": "Winged Sling Bullets",
+    "path": "icons/weapons/ammunition/shot-round-blue.webp"
+  },
+  {
+    "name": "Aboleth Ramen (Uncommon)",
+    "path": "icons/consumables/food/soup-broth-bowl-tentacle.webp"
+  },
+  {
+    "name": "Bloodrage Greataxe",
+    "path": "icons/weapons/axes/axe-battle-worn-eye.webp"
+  },
+  {
+    "name": "Card Sharp's Deck",
+    "path": "icons/sundries/gaming/rune-card.webp"
+  },
+  {
+    "name": "Carvaloth Scale Armor",
+    "path": "icons/equipment/chest/breastplate-rivited-red.webp"
+  },
+  {
+    "name": "Chitinous Club of c'Naazo",
+    "path": "icons/weapons/clubs/club-bone-blue.webp"
+  },
+  {
+    "name": "Cloak of Splendor",
+    "path": "icons/equipment/back/cloak-brown-fur-white.webp"
+  },
+  {
+    "name": "CPR Effect Interface Storage",
+    "path": "icons/magic/time/arrows-circling-green.webp"
+  },
+  {
+    "name": "Crusader's Shortsword",
+    "path": "icons/weapons/swords/greatsword-crossguard-embossed-gold.webp"
+  },
+  {
+    "name": "Earrings of Eclipse",
+    "path": "icons/equipment/neck/necklace-simple-bead-dice.webp"
+  },
+  {
+    "name": "Echo Stone",
+    "path": "icons/commodities/gems/pearl-turquoise.webp"
+  },
+  {
+    "name": "Fabulist Gem",
+    "path": "icons/commodities/gems/gem-faceted-radiant-red.webp"
+  },
+  {
+    "name": "Flame Lance",
+    "path": "icons/weapons/polearms/spear-ice-crystal-blue.webp"
+  },
+  {
+    "name": "Flammable Tincture",
+    "path": "icons/consumables/potions/bottle-bulb-corked-glowing-red.webp"
+  },
+  {
+    "name": "Glowstone Helmet",
+    "path": "icons/equipment/head/helm-goggles-leather.webp"
+  },
+  {
+    "name": "Goblin Chisel",
+    "path": "icons/tools/hand/chisel-steel-brown.webp"
+  },
+  {
+    "name": "House of Cards",
+    "path": "icons/environment/settlement/house-woods.webp"
+  },
+  {
+    "name": "Instant Door",
+    "path": "icons/environment/wilderness/mine-interior-dungeon-door.webp"
+  },
+  {
+    "name": "Mantle of the Lightbender",
+    "path": "icons/equipment/back/cloak-collared-orange.webp"
+  },
+  {
+    "name": "Millstone of Grinding",
+    "path": "icons/tools/cooking/mill-stone-grey.webp"
+  },
+  {
+    "name": "Philter of Boundless Joy",
+    "path": "icons/consumables/potions/potion-tube-corked-orange.webp"
+  },
+  {
+    "name": "Philter of Lust",
+    "path": "icons/consumables/potions/bottle-conical-corked-purple.webp"
+  },
+  {
+    "name": "Philter of Righteous Anger",
+    "path": "icons/consumables/potions/potion-tube-corked-glowing-red.webp"
+  },
+  {
+    "name": "Philter of Waking Dreams",
+    "path": "icons/consumables/potions/vial-cork-empty.webp"
+  },
+  {
+    "name": "Potion of Controlled Mutation",
+    "path": "icons/consumables/potions/potion-round-corked-glowing-green.webp"
+  },
+  {
+    "name": "Potion of Psionic Fortitude",
+    "path": "icons/consumables/potions/bottle-round-empty-glass.webp"
+  },
+  {
+    "name": "Psi Lenses",
+    "path": "icons/commodities/materials/glass-orb.webp"
+  },
+  {
+    "name": "Purging Rod",
+    "path": "icons/weapons/staves/staff-crescent-green.webp"
+  },
+  {
+    "name": "Ring of Dancing",
+    "path": "icons/equipment/finger/ring-crown-gold-red.webp"
+  },
+  {
+    "name": "Ring of Hidden Desire",
+    "path": "icons/equipment/finger/ring-cabochon-engraved-gold-teal.webp"
+  },
+  {
+    "name": "Ring of Puzzler's Wit",
+    "path": "icons/equipment/finger/ring-faceted-gold-teal.webp"
+  },
+  {
+    "name": "Sealskin Cloak",
+    "path": "icons/equipment/back/cloak-brown-accent-brown-layered-collared-fur.webp"
+  },
+  {
+    "name": "Sensory Stone",
+    "path": "icons/commodities/gems/pearl-white-oval.webp"
+  },
+  {
+    "name": "Shtriga Nonna's Pot of Plenty",
+    "path": "icons/tools/cooking/cauldron-empty.webp"
+  },
+  {
+    "name": "Skymetal Shield",
+    "path": "icons/equipment/shield/heater-steel-engraved-lance-rest.webp"
+  },
+  {
+    "name": "Spellpiercing Wand",
+    "path": "icons/weapons/wands/wand-gem-violet.webp"
+  },
+  {
+    "name": "Telltale Heart",
+    "path": "icons/commodities/treasure/doll-mummy.webp"
+  },
+  {
+    "name": "Treant Arrow",
+    "path": "icons/weapons/ammunition/arrow-broadhead-green.webp"
+  },
+  {
+    "name": "Wildspace Orrery",
+    "path": "icons/tools/navigation/sextant-brass-brown.webp"
+  },
+  {
+    "name": "Wine of the Winter Court",
+    "path": "icons/consumables/drinks/wine-bottle-glass-white.webp"
+  },
+  {
+    "name": "Wolfskin Cloak",
+    "path": "icons/equipment/back/cape-layered-simple-brown.webp"
   }
 ]
