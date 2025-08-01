@@ -149,6 +149,7 @@ export const EXCLUDED_EFFECT_MODIFIERS = {
     { type: "stacking-bonus", subType: "wisdom-score" },
     { type: "stacking-bonus", subType: "intelligence-score" },
     { type: "stacking-bonus", subType: "charisma-score" },
+    { type: "bonus", subType: "ability-score-maximum" },
   ],
   proficiencyBonus: [
     // profs

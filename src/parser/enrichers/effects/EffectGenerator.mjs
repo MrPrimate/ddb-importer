@@ -192,7 +192,6 @@ export default class EffectGenerator {
   _addStatSetEffect(subType) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
-    // dwarfen "Maximum of 20"
     if (bonuses.length > 0) {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat set for ${this.document.name}`);
@@ -202,11 +201,28 @@ export default class EffectGenerator {
     }
   }
 
+  _addStatMaximumEffect(subType) {
+    const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType);
+    const bonuses = this.grantedModifiers.filter((modifier) =>
+      modifier.type === "bonus"
+      && modifier.subType === "ability-score-maximum"
+      && modifier.statId === ability.id,
+    );
+
+    if (bonuses.length > 0) {
+      bonuses.forEach((bonus) => {
+        logger.debug(`Generating ${subType} stat max for ${this.document.name}`);
+        this.effect.changes.push(ChangeHelper.addChange(bonus.value, 3, `system.abilities.${ability.value}.max`));
+      });
+    }
+  }
+
   _addStatChanges() {
     const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
     stats.forEach((stat) => {
       const ability = DICTIONARY.actor.abilities.find((ab) => ab.long === stat);
       this._addStatSetEffect(`${stat}-score`);
+      this._addStatMaximumEffect(stat);
       this._addAbilityAdvantageEffect(`${stat}-saving-throws`, "save");
       this._addAbilityAdvantageEffect(`${stat}-ability-checks`, "check");
       this._addAddBonusChanges(this.grantedModifiers, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);

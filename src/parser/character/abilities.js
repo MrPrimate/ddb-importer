@@ -102,7 +102,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
 
     const stat = this.source.ddb.character.stats.find((stat) => stat.id === ability.id).value || 0;
     const abilityScoreMaxBonus = DDBModifiers
-      .filterBaseModifiers(this.source.ddb, "bonus", { subType: "ability-score-maximum", restriction: ["", null], includeExcludedEffects })
+      .filterBaseModifiers(this.source.ddb, "bonus", { subType: "ability-score-maximum", restriction: ["", null], includeExcludedEffects: true })
       .filter((mod) => mod.statId === ability.id)
       .reduce((prev, cur) => prev + cur.value, 0);
     const bonusStatRestrictions = [
