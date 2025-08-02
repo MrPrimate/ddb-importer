@@ -3,6 +3,7 @@
 - Generate ability maximum effects.
 - Fixes to some Tome of.... items.
 - Icon path fix ups from MotoMoto.
+- If JB2A is installed and you are using a custom path for the module, for example an S3 bucket, the DDB Importer will now read the correct path for images for summons like Mage Hand. @_mickael
 
 # 6.4.12
 

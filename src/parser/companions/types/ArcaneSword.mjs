@@ -1,9 +1,7 @@
+import { utils } from "../../../lib/_module.mjs";
 import { SRDExtractor } from "../SRDExtractor.mjs";
 
 export async function getArcaneSwords() {
-  const jb2aMod = game.modules.get('jb2a_patreon')?.active
-    ? "jb2a_patreon"
-    : "JB2A_DnD5e";
   const results = {};
 
   const pack = game.packs.get("dnd5e.monsters");
@@ -36,8 +34,8 @@ export async function getArcaneSwords() {
     folderName: "Arcane Sword",
     data: foundry.utils.mergeObject(arcaneSword.toObject(), {
       "name": "Arcane Sword (Astral Blue)",
-      "prototypeToken.texture.src": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_400x400.webm`,
-      "img": `modules/${jb2aMod}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_Thumb.webp`,
+      "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_400x400.webm`,
+      "img": `${utils.getJB2APath()}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_Thumb.webp`,
     }),
   };
 

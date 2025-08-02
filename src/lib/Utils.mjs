@@ -640,4 +640,16 @@ export default class Utils {
     }
   }
 
+  static getJB2APath() {
+    const jb2aMod = game.modules.get('jb2a_patreon')?.active
+      ? "jb2a_patreon"
+      : game.modules.get('JB2A_DnD5e')?.active
+        ? "JB2A_DnD5e"
+        : null;
+    if (!jb2aMod) return "modules/JB2A_DnD5e";
+
+    const path = game.settings.get(jb2aMod, "jb2aLocation");
+    return `${path}/${jb2aMod}`;
+  }
+
 }

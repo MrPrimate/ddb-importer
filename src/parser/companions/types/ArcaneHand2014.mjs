@@ -4,14 +4,14 @@ import {
 } from "../../../lib/_module.mjs";
 import { SRDExtractor } from "../SRDExtractor.mjs";
 
-const EXTRA_ARCANE_HAND_INSTANCES = (jb2aMod) => {
+const EXTRA_ARCANE_HAND_INSTANCES = () => {
   return [
     { color: "Red", needsJB2A: false, token: "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_400x400.webm", actor: "modules/ddb-importer/img/jb2a/ArcaneHand_Human_01_Idle_Red_Thumb.webp" },
-    { color: "Purple", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_Thumb.webp` },
-    { color: "Green", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_Thumb.webp` },
-    { color: "Blue", needsJB2A: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_Thumb.webp` },
-    { color: "Rock", needsJB2A: true, needsJB2APatreon: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_Thumb.webp` },
-    { color: "Rainbow", needsJB2A: true, needsJB2APatreon: true, token: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_400x400.webm`, actor: `modules/${jb2aMod}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp` },
+    { color: "Purple", needsJB2A: true, token: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_400x400.webm`, actor: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Purple_Thumb.webp` },
+    { color: "Green", needsJB2A: true, token: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_400x400.webm`, actor: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Green_Thumb.webp` },
+    { color: "Blue", needsJB2A: true, token: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_400x400.webm`, actor: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Blue_Thumb.webp` },
+    { color: "Rock", needsJB2A: true, needsJB2APatreon: true, token: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_400x400.webm`, actor: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rock01_Thumb.webp` },
+    { color: "Rainbow", needsJB2A: true, needsJB2APatreon: true, token: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_400x400.webm`, actor: `${utils.getJB2APath()}/Library/5th_Level/Arcane_Hand/ArcaneHand_Human_01_Idle_Rainbow_Thumb.webp` },
   ];
 };
 
@@ -31,9 +31,6 @@ export async function getArcaneHands2014({
     text,
   });
 
-  const jb2aMod = game.modules.get('jb2a_patreon')?.active
-    ? "jb2a_patreon"
-    : "JB2A_DnD5e";
   const results = {};
 
   const pack = game.packs.get("dnd5e.monsters");
@@ -45,7 +42,7 @@ export async function getArcaneHands2014({
 
   const idString = utils.idString(name);
 
-  EXTRA_ARCANE_HAND_INSTANCES(jb2aMod).forEach((data) => {
+  EXTRA_ARCANE_HAND_INSTANCES().forEach((data) => {
 
     const actorData = foundry.utils.mergeObject(arcaneHand.toObject(), {
       "name": `${name} (${data.color})`,

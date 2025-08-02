@@ -1,3 +1,4 @@
+import { utils } from "../../../lib/_module.mjs";
 import { SUMMONS_ACTOR_STUB } from "./_data.mjs";
 const DANCING_LIGHTS_BASE = {
   "name": "Dancing Lights",
@@ -47,9 +48,6 @@ const DANCING_LIGHTS_BASE = {
 
 
 export function getDancingLights() {
-  const jb2aMod = game.modules.get('jb2a_patreon')?.active
-    ? "jb2a_patreon"
-    : "JB2A_DnD5e";
 
   const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
   const results = {
@@ -79,12 +77,12 @@ export function getDancingLights() {
       folderName: "Dancing Lights",
       data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Green)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Green_200x200.webm`,
+        "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Green_200x200.webm`,
         "prototypeToken.light": {
           "color": "#a7ff7a",
           "alpha": 0.25,
         },
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Green_Thumb.webp`,
+        "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Green_Thumb.webp`,
       }),
     },
     DancingLightsBlueTeal: {
@@ -96,12 +94,12 @@ export function getDancingLights() {
       folderName: "Dancing Lights",
       data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Blue Teal)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueTeal_200x200.webm`,
+        "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueTeal_200x200.webm`,
         "prototypeToken.light": {
           "color": "#80ffff",
           "alpha": 0.25,
         },
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueTeal_Thumb.webp`,
+        "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueTeal_Thumb.webp`,
       }),
     },
     DancingLightsBlueYellow: {
@@ -113,12 +111,12 @@ export function getDancingLights() {
       folderName: "Dancing Lights",
       data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Blue Yellow)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueYellow_200x200.webm`,
+        "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueYellow_200x200.webm`,
         "prototypeToken.light": {
           "color": "#c1e6e6",
           "alpha": 0.25,
         },
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueYellow_Thumb.webp`,
+        "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_BlueYellow_Thumb.webp`,
       }),
     },
     DancingLightsPink: {
@@ -130,12 +128,12 @@ export function getDancingLights() {
       folderName: "Dancing Lights",
       data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Pink)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Pink_200x200.webm`,
+        "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Pink_200x200.webm`,
         "prototypeToken.light": {
           "color": "#f080ff",
           "alpha": 0.25,
         },
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Pink_Thumb.webp`,
+        "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Pink_Thumb.webp`,
       }),
     },
     DancingLightsPurpleGreen: {
@@ -147,12 +145,12 @@ export function getDancingLights() {
       folderName: "Dancing Lights",
       data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Purple Green)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_PurpleGreen_200x200.webm`,
+        "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_PurpleGreen_200x200.webm`,
         "prototypeToken.light": {
           "color": "#a66bff",
           "alpha": 0.25,
         },
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_PurpleGreen_Thumb.webp`,
+        "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_PurpleGreen_Thumb.webp`,
       }),
     },
     DancingLightsRed: {
@@ -164,12 +162,12 @@ export function getDancingLights() {
       folderName: "Dancing Lights",
       data: foundry.utils.mergeObject(foundry.utils.deepClone(dancingLightsBase), {
         "name": "Dancing Lights (Red)",
-        "prototypeToken.texture.src": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Red_200x200.webm`,
+        "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Red_200x200.webm`,
         "prototypeToken.light": {
           "color": "#ff817a",
           "alpha": 0.25,
         },
-        "img": `modules/${jb2aMod}/Library/Cantrip/Dancing_Lights/DancingLights_01_Red_Thumb.webp`,
+        "img": `${utils.getJB2APath()}/Library/Cantrip/Dancing_Lights/DancingLights_01_Red_Thumb.webp`,
       }),
     },
   };
