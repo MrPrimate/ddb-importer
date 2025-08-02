@@ -147,7 +147,6 @@ async function compendiumContext(app, options) {
   }
 
   const getSpellDetailsFromLi = (li) => {
-    li = foundry.utils.isNewerVersion(game.version, "13") ? li : li[0];
     let id = li.dataset.documentId ?? li.dataset.entryId;
     let spell = game.items.get(id);
     if (app.collection instanceof collectionType) {

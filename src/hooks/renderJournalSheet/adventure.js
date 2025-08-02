@@ -24,15 +24,8 @@ const renderPopup = (type, url) => {
 
 export function adventureFlags(app, html, data) {
   if (!app.document.flags.ddb) return;
-  const isv13 = foundry.utils.isNewerVersion(game.version, "13");
-  let journalContent = isv13
-    ? html.querySelector('section.journal-page-content')
-    : html.closest('.app').find('section.journal-page-content');
-
-  if (isv13)
-    journalContent.classList.add('ddb');
-  else
-    journalContent.addClass('ddb');
+  let journalContent = html.querySelector('section.journal-page-content');
+  journalContent.classList.add('ddb');
 
   if (!game.user.isGM) return;
 

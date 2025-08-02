@@ -82,56 +82,53 @@ export default class SystemHelpers {
 
   // eslint-disable-next-line complexity
   static getTemplate(type) {
-    const initFunction = foundry.utils.isNewerVersion(game.version, "13")
-      ? "getInitialValue"
-      : "initial";
     switch (type.toLowerCase()) {
       case "character":
-        return game.dnd5e.dataModels.actor.CharacterData.schema[initFunction]();
+        return game.dnd5e.dataModels.actor.CharacterData.schema.getInitialValue();
       case "npc":
-        return game.dnd5e.dataModels.actor.NPCData.schema[initFunction]();
+        return game.dnd5e.dataModels.actor.NPCData.schema.getInitialValue();
       case "vehicle":
-        return game.dnd5e.dataModels.actor.VehicleData.schema[initFunction]();
+        return game.dnd5e.dataModels.actor.VehicleData.schema.getInitialValue();
       case "class":
-        return game.dnd5e.dataModels.item.ClassData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.ClassData.schema.getInitialValue();
       case "background":
-        return game.dnd5e.dataModels.item.BackgroundData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.BackgroundData.schema.getInitialValue();
       case "consumable":
-        return game.dnd5e.dataModels.item.ConsumableData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.ConsumableData.schema.getInitialValue();
       case "backpack":
       case "container":
-        return game.dnd5e.dataModels.item.ContainerData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.ContainerData.schema.getInitialValue();
       case "equipment":
       case "armor":
-        return game.dnd5e.dataModels.item.EquipmentData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.EquipmentData.schema.getInitialValue();
       case "feat":
-        return game.dnd5e.dataModels.item.FeatData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.FeatData.schema.getInitialValue();
       case "loot":
-        return game.dnd5e.dataModels.item.LootData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.LootData.schema.getInitialValue();
       case "race":
-        return game.dnd5e.dataModels.item.RaceData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.RaceData.schema.getInitialValue();
       case "spell":
-        return game.dnd5e.dataModels.item.SpellData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.SpellData.schema.getInitialValue();
       case "subclass":
-        return game.dnd5e.dataModels.item.SubclassData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.SubclassData.schema.getInitialValue();
       case "tool":
-        return game.dnd5e.dataModels.item.ToolData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.ToolData.schema.getInitialValue();
       case "weapon":
-        return game.dnd5e.dataModels.item.WeaponData.schema[initFunction]();
+        return game.dnd5e.dataModels.item.WeaponData.schema.getInitialValue();
       case "journalpage":
       case "classjournalpage":
-        return game.dnd5e.dataModels.journal.ClassJournalPageData.schema[initFunction]();
+        return game.dnd5e.dataModels.journal.ClassJournalPageData.schema.getInitialValue();
       case "spelllistjournalpage":
-        return game.dnd5e.dataModels.journal.SpellListJournalPageData.schema[initFunction]();
+        return game.dnd5e.dataModels.journal.SpellListJournalPageData.schema.getInitialValue();
       case "maplocationjournalpage":
-        return game.dnd5e.dataModels.journal.MapLocationJournalPageData.schema[initFunction]();
+        return game.dnd5e.dataModels.journal.MapLocationJournalPageData.schema.getInitialValue();
       case "subclassjournalpage":
-        return game.dnd5e.dataModels.journal.SubClassJournalPageData.schema[initFunction]();
+        return game.dnd5e.dataModels.journal.SubClassJournalPageData.schema.getInitialValue();
       case "rulejournalpage":
-        return game.dnd5e.dataModels.journal.RuleJournalPageData.schema[initFunction]();
+        return game.dnd5e.dataModels.journal.RuleJournalPageData.schema.getInitialValue();
       case "dnd-tashas-cauldron.tattoo":
       case "tattoo":
-        return CONFIG.Item.dataModels["dnd-tashas-cauldron.tattoo"].schema[initFunction]();
+        return CONFIG.Item.dataModels["dnd-tashas-cauldron.tattoo"].schema.getInitialValue();
       default:
         return undefined;
     }

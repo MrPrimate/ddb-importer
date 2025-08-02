@@ -1,7 +1,7 @@
 import { logger, utils, DDBProxy } from "./_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 
-const FPClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
+const FPClass = foundry.applications.apps.FilePicker.implementation;
 
 export class FileHelper {
 

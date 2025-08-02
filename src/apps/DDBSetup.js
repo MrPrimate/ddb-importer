@@ -13,8 +13,6 @@ import DDBAppV2 from "./DDBAppV2.js";
 import DDBCharacterManager from "./DDBCharacterManager.js";
 import DDBDebugger from "./DDBDebugger.mjs";
 
-const FPClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
-
 
 export default class DDBSetup extends DDBAppV2 {
   constructor({
@@ -513,7 +511,7 @@ export default class DDBSetup extends DDBAppV2 {
     // const parsedDir = FileHelper.parseDirectory(currentDir);
     const current = await FileHelper.getFileUrl(currentDir, "");
 
-    const filePicker = new FPClass({
+    const filePicker = new foundry.applications.apps.FilePicker.implementation({
       type: "folder",
       current: current,
       // source: parsedDir.activeSource,

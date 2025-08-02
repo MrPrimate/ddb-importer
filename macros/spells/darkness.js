@@ -8,17 +8,13 @@ if (functionArgs && args[0].tag === "OnUse" && ["preTargeting"].includes(args[0]
 
 async function placeTemplate({ origin, targetActor, targetToken } = {}) {
   Hooks.once("createMeasuredTemplate", async (template) => {
-
-    const v12 = foundry.utils.isNewerVersion(game.version, 12);
-    const data = v12 ? template : template.data;
-    const grid = v12 ? canvas.grid : canvas.grid.grid.options.dimensions;
     // console.warn(template)
-    let radius = canvas.grid.size * (data.distance / grid.distance);
+    let radius = canvas.grid.size * (template.distance / canvas.grid.distance);
     const darknessSpellParams = {
       radius,
-      x: data.x,
-      y: data.y,
-      distance: data.distance,
+      x: template.x,
+      y: template.y,
+      distance: template.distance,
       targetActorId: targetActor.id,
     };
     // await DAE.setFlag(targetActor, "darknessSpell", darknessSpellParams);

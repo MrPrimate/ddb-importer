@@ -21,24 +21,15 @@ function addChatImgButtonClickEvent(chatImg) {
 export function chatHooks() {
 
   Hooks.on("renderChatMessageHTML", (message, element) => {
-    console.warn({
-      message,
-      element,
-    })
     const chatImg = element.querySelector("img.ddbimporter-chat-image");
     const settingsButton = element.querySelector("button.ddb-importer-chat-settings");
 
-    console.warn({
-      chatImg,
-      settingsButton
-    })
     if (chatImg) chatImg.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
       addChatImgButtonClickEvent(chatImg);
     });
     if (settingsButton) settingsButton.addEventListener("click", addAppButtonClickEvent);
-
   });
 
 }

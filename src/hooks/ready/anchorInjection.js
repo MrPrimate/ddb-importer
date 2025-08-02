@@ -11,9 +11,7 @@ function getOptions(page, current) {
 }
 
 function addSlugField(element, slug, document) {
-  const titleInput = foundry.utils.isNewerVersion(game.version, "13")
-    ? element.querySelector("select[name='pageId']")
-    : element.querySelector("input[name='text']");
+  const titleInput = element.querySelector("select[name='pageId']");
   const slugHTML = `<div class="form-group">
   <label>Jump to HTML Slug</label>
   <div class="form-fields">
@@ -61,74 +59,40 @@ export function anchorInjection() {
     }
   });
 
-  if (foundry.utils.isNewerVersion(game.version, "13")) {
-    // when we render a note we add the anchor links box
-    Hooks.on("renderNoteConfig", (noteConfig, form, data) => {
-      const slug = getSlug(noteConfig.document);
+  // when we render a note we add the anchor links box
+  Hooks.on("renderNoteConfig", (noteConfig, form, data) => {
+    const slug = getSlug(noteConfig.document);
 
-      if (!form.querySelector(`input[name='flags.ddb.slugLink']`)) {
-        addSlugField(form, slug, data.document);
-        if (!noteConfig._minimized) {
-          const pos = noteConfig.position;
-          pos.height = 'auto';
-          noteConfig.setPosition(pos);
+    if (!form.querySelector(`input[name='flags.ddb.slugLink']`)) {
+      addSlugField(form, slug, data.document);
+      if (!noteConfig._minimized) {
+        const pos = noteConfig.position;
+        pos.height = 'auto';
+        noteConfig.setPosition(pos);
+      }
+    }
+    noteConfig.element[0].style.height = "auto";
+    const isExistingNote = noteConfig.document.id !== null;
+
+    const entryIdSelect = form.querySelector("select[name='entryId']");
+    const pageIdSelect = form.querySelector("select[name='pageId']");
+
+    entryIdSelect.addEventListener("change", () => updateNotePage(noteConfig, slug));
+    pageIdSelect.addEventListener("change", () => updateNotePage(noteConfig, slug));
+
+    if (isExistingNote) {
+      const closeHookId = Hooks.on("closeDocumentSheetV2", async (documentSheet) => {
+        if (!(documentSheet instanceof NoteConfig)) return;
+        if (noteConfig.document.id !== documentSheet.document.id) return;
+        Hooks.off("closeDocumentSheetV2", closeHookId);
+        const selectedSlug = documentSheet.document.getFlag("ddb", "slugLink");
+        if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== documentSheet.document.flags.ddb?.slugLink) {
+          const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
+          await canvas.scene.updateEmbeddedDocuments("Note", [update]);
         }
-      }
-      noteConfig.element[0].style.height = "auto";
-      const isExistingNote = noteConfig.document.id !== null;
-
-      const entryIdSelect = form.querySelector("select[name='entryId']");
-      const pageIdSelect = form.querySelector("select[name='pageId']");
-
-      entryIdSelect.addEventListener("change", () => updateNotePage(noteConfig, slug));
-      pageIdSelect.addEventListener("change", () => updateNotePage(noteConfig, slug));
-
-      if (isExistingNote) {
-        const closeHookId = Hooks.on("closeDocumentSheetV2", async (documentSheet) => {
-          if (!(documentSheet instanceof NoteConfig)) return;
-          if (noteConfig.document.id !== documentSheet.document.id) return;
-          Hooks.off("closeDocumentSheetV2", closeHookId);
-          const selectedSlug = documentSheet.document.getFlag("ddb", "slugLink");
-          if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== documentSheet.document.flags.ddb?.slugLink) {
-            const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
-            await canvas.scene.updateEmbeddedDocuments("Note", [update]);
-          }
-        });
-      }
-    });
-  } else {
-    // when we render a note we add the anchor links box
-    Hooks.on("renderNoteConfig", (noteConfig, html, data) => {
-      const slug = getSlug(noteConfig.document);
-      if (!noteConfig.element[0].querySelector("input[name='flags.ddb.slugLink']")) {
-        addSlugField(noteConfig.element[0], slug, data.document);
-        if (!noteConfig._minimized) {
-          const pos = noteConfig.position;
-          pos.height = 'auto';
-          noteConfig.setPosition(pos);
-        }
-      }
-      noteConfig.element[0].style.height = "auto";
-      const isExistingNote = noteConfig.document.id !== null;
-
-      html.find("select[name='entryId']").change(() => updateNotePage(noteConfig, slug));
-      html.find("select[name='pageId']").change(() => updateNotePage(noteConfig, slug));
-
-      if (isExistingNote) {
-        const closeHookId = Hooks.on("closeDocumentSheet", async (documentSheet, html) => {
-          if (!(documentSheet instanceof NoteConfig)) return;
-          if (noteConfig.document.id !== documentSheet.document.id) return;
-          Hooks.off("closeNoteConfig", closeHookId);
-          const slugInput = html[0].querySelector("select[name='flags.ddb.slugLink']");
-          const selectedSlug = slugInput?.value;
-          if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== documentSheet.document.flags.ddb?.slugLink) {
-            const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
-            await canvas.scene.updateEmbeddedDocuments("Note", [update]);
-          }
-        });
-      }
-    });
-  }
+      });
+    }
+  });
 
   // handle new notes, we just inject the slug properties into the source from the sheet data
   Hooks.on("preCreateNote", (note, data) => {
@@ -144,9 +108,7 @@ export function anchorInjection() {
     // when we create from the side bar we fill in the input label name to match
     // the anchor name and set the slug value to the anchor slug
     Hooks.once("renderNoteConfig", (noteConfig, form, app) => {
-      const titleInput = foundry.utils.isNewerVersion(game.version, "13")
-        ? form.querySelector("input[name='text']")
-        : noteConfig.element[0].querySelector("input[name='text']");
+      const titleInput = form.querySelector("input[name='text']");
       if (dropData.anchor.slug) {
         titleInput.setAttribute('value', dropData.anchor.name);
         updateNotePage(noteConfig, dropData.anchor.slug);
