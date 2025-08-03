@@ -1348,7 +1348,7 @@ export default class DDBEffectHelper {
       newDocumentData.system.properties = utils.addToProperties(newDocumentData.system.properties, prop);
     }
     if (setToAtWill) {
-      foundry.utils.setProperty(newDocumentData, "system.preparation.mode", "atwill");
+      foundry.utils.setProperty(newDocumentData, "system.method", "atwill");
     }
     if (renameDocument) {
       newDocumentData.name = renameDocument;

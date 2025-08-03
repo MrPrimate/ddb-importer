@@ -64,7 +64,8 @@ if (args[0].macroPass === "postActiveEffects") {
     system: originDoc.toObject().system,
   };
 
-  areaSpellData.system.preparation = { mode: "atwill" };
+  areaSpellData.system.method = "atwill";
+  areaSpellData.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
 
   const newActivities = {};
   for (const [key, activity] of Object.entries(areaSpellData.system.activities)) {

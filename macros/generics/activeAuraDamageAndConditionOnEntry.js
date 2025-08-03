@@ -57,7 +57,7 @@ async function applyCondition(condition, targetToken, item, itemLevel) {
     workflowItemData.system.target = { value: null, width: null, units: "", type: "creature" };
     workflowItemData.system.uses = { value: null, max: "", per: null, recovery: "", autoDestroy: false };
     workflowItemData.system.consume = { "type": "", "target": null, "amount": null };
-    workflowItemData.system.preparation.mode = "atwill";
+    workflowItemData.system.method = "atwill";
     foundry.utils.setProperty(workflowItemData, "flags.itemacro", {});
     foundry.utils.setProperty(workflowItemData, "flags.midi-qol", {});
     foundry.utils.setProperty(workflowItemData, "flags.dae", {});

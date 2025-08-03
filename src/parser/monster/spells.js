@@ -474,15 +474,11 @@ DDBMonster.prototype.addSpells = async function() {
     let spells = await this.retrieveCompendiumSpells(atWill);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
       if (spell.system.level == 0) {
-        spell.system.preparation = {
-          mode: "prepared",
-          prepared: false,
-        };
+        spell.system.method = "spell";
+        spell.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
       } else {
-        spell.system.preparation = {
-          mode: "atwill",
-          prepared: false,
-        };
+        spell.system.method = "atwill";
+        spell.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
         spell.system.uses = {
           spent: null,
           max: null,
@@ -500,10 +496,8 @@ DDBMonster.prototype.addSpells = async function() {
     logger.debug("Retrieving class spells:", klass);
     let spells = await this.retrieveCompendiumSpells(klass);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.system.preparation = {
-        mode: "prepared",
-        prepared: true,
-      };
+      spell.system.method = "spell";
+      spell.system.prepared = CONFIG.DND5E.spellPreparationStates.prepared.value;
       this.getSpellEdgeCase(spell, "class", this.spellList);
       return spell;
     });
@@ -515,10 +509,8 @@ DDBMonster.prototype.addSpells = async function() {
     logger.debug("Retrieving pact spells:", pact);
     let spells = await this.retrieveCompendiumSpells(pact);
     spells = spells.filter((spell) => spell !== null).map((spell) => {
-      spell.system.preparation = {
-        mode: "pact",
-        prepared: true,
-      };
+      spell.system.method = "pact";
+      spell.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
       this.getSpellEdgeCase(spell, "pact", this.spellList);
       return spell;
     });
@@ -537,15 +529,11 @@ DDBMonster.prototype.addSpells = async function() {
         if (spellInfo) {
           const isAtWill = foundry.utils.hasProperty(spellInfo, "innate") && !spellInfo.innate;
           if (spell.system.level == 0) {
-            spell.system.preparation = {
-              mode: "prepared",
-              prepared: false,
-            };
+            spell.system.method = "spell";
+            spell.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
           } else {
-            spell.system.preparation = {
-              mode: isAtWill ? "atwill" : "innate",
-              prepared: !isAtWill,
-            };
+            spell.system.method = isAtWill ? "atwill" : "innate";
+            spell.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
           }
           if (isAtWill && spellInfo.type === "atwill") {
             spell.system.uses = {

@@ -109,8 +109,8 @@ export default class CharacterSpellFactory {
     const duplicateItem = this.processed[duplicateSpell];
     if (!duplicateItem) {
       this.processed.push(parsedSpell);
-    } else if (spell.alwaysPrepared || parsedSpell.system.preparation.mode === "always"
-      || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.preparation.mode === duplicateItem.system.preparation.mode && parsedSpell.prepared && !duplicateItem.prepared)) {
+    } else if (spell.alwaysPrepared || parsedSpell.system.method === "always"
+      || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.method === duplicateItem.system.method && parsedSpell.prepared && !duplicateItem.prepared)) {
       // if our new spell is always known we overwrite!
       // it's probably domain
       this.processed[duplicateSpell] = parsedSpell;

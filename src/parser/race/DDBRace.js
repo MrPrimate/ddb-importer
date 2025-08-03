@@ -502,7 +502,8 @@ export default class DDBRace {
         type: "spell",
         spell: {
           ability: abilities,
-          preparation: "",
+          method: "spell",
+          prepared: CONFIG.DND5E.spellPreparationStates.always.value,
           uses: {
             max: "",
             per: "",
@@ -542,7 +543,8 @@ export default class DDBRace {
         type: "spell",
         spell: {
           ability: abilities,
-          preparation: "always",
+          method: "innate",
+          prepared: CONFIG.DND5E.spellPreparationStates.always.value,
           uses: {
             max: spellGrant.amount === "" ? "" : spellGrant.amount,
             per: spellGrant.amount === "" ? "" : "lr",
@@ -620,6 +622,7 @@ export default class DDBRace {
       if (spellGrantAdvancement) {
         advancements.push(spellGrantAdvancement);
       }
+      // TO DO: add cast via slot
     }
 
 

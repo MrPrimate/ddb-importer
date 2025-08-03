@@ -88,6 +88,7 @@ export default class DDBItemImporter {
   }
 
 
+  // eslint-disable-next-line complexity
   static updateCharacterItemFlags(itemData, replaceData) {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
@@ -103,7 +104,8 @@ export default class DDBItemImporter {
     if (itemData.system.attunement) replaceData.system.attunement = itemData.system.attunement;
     if (itemData.system.equipped) replaceData.system.equipped = itemData.system.equipped;
     if (itemData.system.resources) replaceData.system.resources = itemData.system.resources;
-    if (itemData.system.preparation) replaceData.system.preparation = itemData.system.preparation;
+    if (itemData.system.method) replaceData.system.method = itemData.system.method;
+    if (itemData.system.prepared) replaceData.system.preparation = itemData.system.prepared;
     if (itemData.system.proficient) replaceData.system.proficient = itemData.system.proficient;
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if (itemData.system.uses) replaceData.system.uses = itemData.system.uses;

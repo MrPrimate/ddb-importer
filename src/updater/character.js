@@ -512,7 +512,8 @@ async function updateDDBSpellsPrepared(actor, spells) {
 
   const preparedSpells = spells.filter((spell) =>
     spell.type === "spell"
-    && spell.system.preparation?.mode === "prepared"
+    && spell.system.method === "spell"
+    && spell.system.prepared !== CONFIG.DND5E.spellPreparationStates.always.value
     && spell.flags.ddbimporter?.dndbeyond?.characterClassId
     && !spell.flags.ddbimporter.dndbeyond.granted,
   ).map((spell) => {
@@ -522,7 +523,7 @@ async function updateDDBSpellsPrepared(actor, spells) {
         characterClassId: spell.flags.ddbimporter.dndbeyond.characterClassId,
         entityTypeId: spell.flags.ddbimporter.entityTypeId,
         id: spell.flags.ddbimporter.id,
-        prepared: spell.system.preparation.prepared === true,
+        prepared: spell.system.prepared === CONFIG.DND5E.spellPreparationStates.prepared.value,
       },
     };
     logger.debug(`Updating spell prepared state for ${spell.name} to ${spellPreparedData.spellInfo.prepared}`);
@@ -543,14 +544,15 @@ async function spellsPrepared(actor, ddbCharacter) {
   const preparedSpells = actor.items.filter((item) => {
     const spellMatch = ddbSpells.find((s) =>
       s.name === item.name
-      && item.system.preparation?.mode === "prepared"
+      && item.system.method === "spell"
+      && item.system.prepared !== CONFIG.DND5E.spellPreparationStates.always.value
       && item.flags.ddbimporter?.dndbeyond?.characterClassId
       && item.flags.ddbimporter?.dndbeyond?.characterClassId === s.flags.ddbimporter?.dndbeyond?.characterClassId,
     );
     if (!spellMatch) return false;
     const select = item.type === "spell"
-      && item.system.preparation?.mode === "prepared"
-      && item.system.preparation.prepared !== spellMatch.system.preparation?.prepared;
+      && item.system.method === "spell"
+      && item.system.prepared !== spellMatch.system.prepared;
     return spellMatch && select;
   });
 
@@ -1546,7 +1548,7 @@ async function activeUpdateUpdateItem(document, update) {
         logger.debug("Updating hitdice on DDB");
         resolve(updateDDBHitDice(parentActor, document, update));
       } else if (document.type === "spell" && syncSpellsPrepared
-        && update.system?.preparation && document.system.preparation.mode === "prepared"
+        && document.system.method === "prepared"
       ) {
         logger.debug("Updating DDB SpellsPrepared...");
         updateSpellPrep(parentActor, document).then((results) => {

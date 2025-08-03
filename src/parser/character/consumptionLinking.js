@@ -76,8 +76,8 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
         }
       }
       if (spellData.forceInnate) {
-        foundry.utils.setProperty(update, "system.preparation.mode", "innate");
-        foundry.utils.setProperty(update, "system.preparation.prepared", true);
+        foundry.utils.setProperty(update, "system.method", "innate");
+        foundry.utils.setProperty(update, "system.prepared", CONFIG.DND5E.spellPreparationStates.always.value);
       }
       toUpdate.push(update);
     }

@@ -41,7 +41,8 @@ function getTempSpellData(originItem, spellLevel) {
     img: originItem.img,
     system: {
       level: 1,
-      preparation: { mode: "atwill" },
+      method: "atwill",
+      prepared: CONFIG.DND5E.spellPreparationStates.always.value,
       activities: newActivities,
       target: originItem.system.target,
     },

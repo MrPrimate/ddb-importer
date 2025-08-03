@@ -234,35 +234,35 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       || this.spellData.castOnlyAsRitual
       || (this.spellData.ritualCastingType !== null && this.spellClass !== "Warlock" && !this.is2014)
     ) {
-      this.data.system.preparation.mode = "ritual";
-      this.data.system.preparation.prepared = false;
+      this.data.system.method = "ritual";
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
     } else if (!this.spellData.usesSpellSlot && this.ddbDefinition.level !== 0) {
       // some class features such as druid circle of stars grants x uses of a spell
       // at the lowest level. for these we add as an innate.
-      this.data.system.preparation.mode = "innate";
+      this.data.system.method = "innate";
     } else if (this.spellData.alwaysPrepared) {
-      this.data.system.preparation.mode = this.forcePact ? "pact" : "always";
-    } else if (this.data.system.preparation.mode && classPrepMode) {
-      this.data.system.preparation.mode = classPrepMode.value;
+      this.data.system.method = this.forcePact ? "pact" : "spell";
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
+    } else if (this.data.system.method && this.data.system.method !== "" && classPrepMode) {
+      this.data.system.method = classPrepMode.method;
+      this.data.system.prepared = classPrepMode.preparation();
     }
-    // Warlocks should use Pact spells
-    // but lets mark level 0 as regular spells so they show up as cantrips
-    if (this.data.system.preparation.mode === "pact" && this.isCantrip) {
-      this.data.system.preparation.mode = "prepared";
-      this.data.system.preparation.prepared = true;
-    } else if (this.data.system.preparation.mode === "pact" && this.pactSpellsPrepared) {
-      this.data.system.preparation.prepared = true;
+    if (this.data.system.method === "pact" && this.pactSpellsPrepared) {
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
     }
   }
 
   // eslint-disable-next-line complexity
   _generateSpellPreparationMode() {
     // default values
-    this.data.system.preparation = {
-      mode: "prepared",
-      // If always prepared mark as such, if not then check to see if prepared, mark cantrips as prepared
-      prepared: this.spellData.alwaysPrepared || this.spellData.prepared || this.isCantrip,
-    };
+    this.data.system.method = "spell";
+    if (this.isCantrip || this.spellData.alwaysPrepared) {
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
+    } else if (this.spellData.prepared) {
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.prepared.value;
+    } else {
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
+    }
 
     // handle classSpells
     const featureClass = this.lookup === "classFeature"
@@ -272,39 +272,40 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       this._generateClassPreparationMode();
     } else if (this.lookup === "race" && this.ddbDefinition.level !== 0) {
       // set race spells as innate
-      this.data.system.preparation.mode = "innate";
+      this.data.system.method = "innate";
       if (this.spellData.usesSpellSlot) {
         // some racial spells allow the spell to also be added to spell lists
-        this.data.system.preparation.mode = this.onlyPactMagic ? "pact" : "always";
+        this.data.system.method = this.onlyPactMagic ? "pact" : "spell";
       }
     } else if (
       // Warlock Mystic Arcanum are passed in as Features
       this.lookupName.startsWith("Mystic Arcanum")
     ) {
       // these have limited uses (set with getUses())
-      this.data.system.preparation.mode = "pact";
-      this.data.system.preparation.prepared = false;
+      this.data.system.method = "pact";
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
     } else if (this.lookup === "item " && this.ddbDefinition.level !== 0) {
-      this.data.system.preparation.mode = "prepared";
-      this.data.system.preparation.prepared = false;
+      this.data.system.method = "atwill";
+      this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
     } else {
       // If spell doesn't use a spell slot and is not a cantrip, mark as always preped
       let always = !this.spellData.usesSpellSlot && this.ddbDefinition.level !== 0;
       let ritualOnly = this.spellData.ritualCastingType !== null || this.spellData.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
       if (always && ritualOnly) {
         // in this case we want the spell to appear in the spell list unprepared
-        this.data.system.preparation.mode = "ritual";
-        this.data.system.preparation.prepared = false;
+        this.data.system.method = "ritual";
+        this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
       } else if (always) {
         // these spells are always prepared, and have a limited use that's
         // picked up by getUses() later
         // this was changed to "atwill"
-        this.data.system.preparation.mode = "atwill";
-        this.data.system.preparation.prepared = true;
+        this.data.system.method = "atwill";
+        this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
       }
       if (["classFeature", "subclassFeature", "feat"].includes(this.lookup)) {
         if (this.spellData.alwaysPrepared) {
-          this.data.system.preparation.mode = "always";
+          this.data.system.method = "atwill";
+          this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
         }
       }
     }
