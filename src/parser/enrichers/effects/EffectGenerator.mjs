@@ -178,14 +178,17 @@ export default class EffectGenerator {
     }
   }
 
-  _addAbilityAdvantageEffect(subType, type) {
-    const bonuses = DDBModifiers.filterModifiersOld(this.grantedModifiers, "advantage", subType);
+  _addAbilityAdvantageEffect(subType, type, mode = "advantage") {
+    const bonuses = DDBModifiers.filterModifiersOld(this.grantedModifiers, mode, subType);
 
-    if (!game.modules.get("midi-qol")?.active) return;
+    const modifier = mode === "advantage"
+      ? CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE
+      : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
+
     if (bonuses.length > 0) {
-      logger.debug(`Generating ${subType} saving throw advantage for ${this.document.name}`);
+      logger.debug(`Generating ${subType} ${type} ${mode} for ${this.document.name}`);
       const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-      this.effect.changes.push(ChangeHelper.customChange(1, 4, `flags.midi-qol.advantage.ability.${type}.${ability}`));
+      this.effect.changes.push(ChangeHelper.addChange(modifier, 8, `system.abilities.${ability}.${type}.roll.mode`));
     }
   }
 
@@ -223,8 +226,10 @@ export default class EffectGenerator {
       const ability = DICTIONARY.actor.abilities.find((ab) => ab.long === stat);
       this._addStatSetEffect(`${stat}-score`);
       this._addStatMaximumEffect(stat);
-      this._addAbilityAdvantageEffect(`${stat}-saving-throws`, "save");
-      this._addAbilityAdvantageEffect(`${stat}-ability-checks`, "check");
+      this._addAbilityAdvantageEffect(`${stat}-saving-throws`, "save", "advantage");
+      this._addAbilityAdvantageEffect(`${stat}-ability-checks`, "check", "advantage");
+      this._addAbilityAdvantageEffect(`${stat}-saving-throws`, "save", "disadvantage");
+      this._addAbilityAdvantageEffect(`${stat}-ability-checks`, "check", "disadvantage");
       this._addAddBonusChanges(this.grantedModifiers, `${stat}-saving-throws`, `system.abilities.${ability.value}.bonuses.save`);
       this._addAddBonusChanges(this.grantedModifiers, `${stat}-ability-checks`, `system.abilities.${ability.value}.bonuses.check`);
     });
@@ -436,8 +441,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addSkillMidiEffect(modifiers, skill, midiEffect = "advantage") {
-    if (!game.modules.get("midi-qol")?.active) return;
+  _addSkillModeEffect(modifiers, skill, mode = "advantage") {
     const allowedRestrictions = [
       "",
       null,
@@ -446,10 +450,13 @@ export default class EffectGenerator {
       "that rely on smell",
       "While the hood is up, checks made to Hide ",
     ];
-    const advantage = DDBModifiers.filterModifiersOld(modifiers, midiEffect, skill.subType, allowedRestrictions);
+    const advantage = DDBModifiers.filterModifiersOld(modifiers, mode, skill.subType, allowedRestrictions);
     if (advantage.length > 0) {
-      logger.debug(`Generating ${skill.subType} skill ${midiEffect} for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.customChange(1, 5, `flags.midi-qol.${midiEffect}.skill.${skill.name}`));
+      logger.debug(`Generating ${skill.subType} skill ${mode} for ${this.document.name}`);
+      const modifier = mode === "advantage"
+        ? CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE
+        : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
+      this.effect.changes.push(ChangeHelper.addChange(modifier, 10, `system.skills.${skill.name}.roll.mode`));
       // handled by midi already
       // advantage/disadvantage on skill grants +/-5 passive bonus, https://www.dndbeyond.com/sources/phb/using-ability-scores#PassiveChecks
       // if (midiEffect === "advantage") {
@@ -482,7 +489,8 @@ export default class EffectGenerator {
       });
       this._addSkillBonusEffect(newMods, skill);
       this._addSkillPassiveBonusEffect(newMods, skill);
-      this._addSkillMidiEffect(newMods, skill, "advantage");
+      this._addSkillModeEffect(newMods, skill, "advantage");
+      this._addSkillModeEffect(newMods, skill, "disadvantage");
     });
   }
 
@@ -975,6 +983,11 @@ export default class EffectGenerator {
     });
 
     generator.generate();
+
+    logger.debug(`Adding effects to ${ddbItem.name}`, {
+      generator,
+      ddbItem,
+    });
     return generator.document;
 
   }

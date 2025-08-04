@@ -44,6 +44,11 @@
 
 # 6.4.14
 
+- Spell preparation changes
+- Effects for Advantage on Skill, Ability and Checks in automated effects.
+
+# Next Up
+
 - Guidance effect tweaks.
 - Song of Rest activity correction.
 - Arcane Archer Improvements. (More fixes coming for the actions).

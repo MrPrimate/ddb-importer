@@ -5,6 +5,11 @@ export const EXCLUDED_EFFECT_MODIFIERS = {
     { type: "bonus", subType: "skill-checks" },
     { type: "bonus", subType: "proficiency-bonus" },
 
+    { type: "advantage", subType: "saving-throws" },
+    { type: "advantage", subType: "ability-checks" },
+    { type: "disadvantage", subType: "saving-throws" },
+    { type: "disadvantage", subType: "ability-checks" },
+
     { type: "set", subType: "strength-score" },
     { type: "set", subType: "dexterity-score" },
     { type: "set", subType: "constitution-score" },
@@ -75,6 +80,34 @@ export const EXCLUDED_EFFECT_MODIFIERS = {
     { type: "bonus", subType: "wisdom-saving-throws" },
     { type: "bonus", subType: "intelligence-saving-throws" },
     { type: "bonus", subType: "charisma-saving-throws" },
+
+    { type: "advantage", subType: "strength-ability-checks" },
+    { type: "advantage", subType: "dexterity-ability-checks" },
+    { type: "advantage", subType: "constitution-ability-checks" },
+    { type: "advantage", subType: "wisdom-ability-checks" },
+    { type: "advantage", subType: "intelligence-ability-checks" },
+    { type: "advantage", subType: "charisma-ability-checks" },
+
+    { type: "advantage", subType: "strength-saving-throws" },
+    { type: "advantage", subType: "dexterity-saving-throws" },
+    { type: "advantage", subType: "constitution-saving-throws" },
+    { type: "advantage", subType: "wisdom-saving-throws" },
+    { type: "advantage", subType: "intelligence-saving-throws" },
+    { type: "advantage", subType: "charisma-saving-throws" },
+
+    { type: "disadvantage", subType: "strength-ability-checks" },
+    { type: "disadvantage", subType: "dexterity-ability-checks" },
+    { type: "disadvantage", subType: "constitution-ability-checks" },
+    { type: "disadvantage", subType: "wisdom-ability-checks" },
+    { type: "disadvantage", subType: "intelligence-ability-checks" },
+    { type: "disadvantage", subType: "charisma-ability-checks" },
+
+    { type: "disadvantage", subType: "strength-saving-throws" },
+    { type: "disadvantage", subType: "dexterity-saving-throws" },
+    { type: "disadvantage", subType: "constitution-saving-throws" },
+    { type: "disadvantage", subType: "wisdom-saving-throws" },
+    { type: "disadvantage", subType: "intelligence-saving-throws" },
+    { type: "disadvantage", subType: "charisma-saving-throws" },
 
     // attack modifiers
     { type: "bonus", subType: "weapon-attacks" },
