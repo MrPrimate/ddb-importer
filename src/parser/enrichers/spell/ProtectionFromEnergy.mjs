@@ -3,6 +3,12 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class ProtectionFromEnergy extends DDBEnricherData {
 
+  get activity() {
+    return {
+      data: { midiProperties: { chooseEffects: true } },
+    };
+  }
+
   get effects() {
     return ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
       return {

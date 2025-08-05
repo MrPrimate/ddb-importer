@@ -12,6 +12,7 @@ export default class AlterSelf extends DDBEnricherData {
       data: {
         name: "Aquatic Adaptation",
         img: "icons/creatures/fish/fish-bluefin-yellow-blue.webp",
+        midiProperties: { chooseEffects: true },
       },
     };
   }
