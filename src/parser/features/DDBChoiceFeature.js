@@ -19,6 +19,8 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static OVERRIDE_CHOICE_FEATURE = DICTIONARY.parsing.choiceFeatures.OVERRIDE_CHOICE_FEATURE;
 
+  static DISCARD_CHOICE_FEATURE = DICTIONARY.parsing.choiceFeatures.DISCARD_CHOICE_FEATURE;
+
   _prepare() {
     this._levelScale = null;
     this._levelScales = null;
@@ -248,6 +250,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       // console.warn(`Choice generation ${choiceFeature.data.name}`, {
       //   data: deepClone(choiceFeature.data),
       // });
+      if (DDBChoiceFeature.DISCARD_CHOICE_FEATURE.includes(ddbFeature.originalName)) continue;
+
       if (choices.length === 1
         && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
       ) {

@@ -82,6 +82,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
 
   NAME_HINT_INCLUDES = {
     "Metamagic:": "MetamagicGeneric",
+    "Enchantments:": "EnchantmentsExtras",
   };
 
   ENRICHERS = {
@@ -107,6 +108,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Channel Divinity: Radiance of the Dawn": ClassEnrichers.Cleric.ChannelDivinityRadianceOfTheDawn,
     "Channel Divinity: Turn the Unholy": ClassEnrichers.Paladin.ChannelDivinityTurnTheUnholy,
     "Channel Divinity": ClassEnrichers.Shared.ChannelDivinity,
+    "EnchantmentsExtras": ClassEnrichers.Rogue.EnchantmentsExtras,
     "Eldritch Cannon: Flamethrower": ClassEnrichers.Artificer.EldritchCannonFlamethrower,
     "Eldritch Cannon: Force Ballista": ClassEnrichers.Artificer.EldritchCannonForceBallista,
     "Eldritch Cannon: Protector": ClassEnrichers.Artificer.EldritchCannonProtector,

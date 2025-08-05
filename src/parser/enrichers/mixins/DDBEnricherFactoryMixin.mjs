@@ -1201,7 +1201,7 @@ export default class DDBEnricherFactoryMixin {
     if (!this.ddbParser?.ddbCharacter) return [];
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type })
       .filter((action) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name));
-    logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions });
+    logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions, this: this });
     if (actions.length === 0) return [];
     const actionFeatures = await Promise.all(actions.map(async (action) => {
       const generatedActionFeature = await this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({

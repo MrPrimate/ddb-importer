@@ -58,6 +58,7 @@ export const PARSING_FEATURES = {
     "Size",
     "Proficiencies",
     // "Skills",
+    "Advanced Enchantments:",
   ],
   SKIPPED_FEATURES_ENDS_WITH: [
     "Subclass",
@@ -212,6 +213,8 @@ export const PARSING_CHOICE_FEATURES = {
     // "Arcane Shot Options",
   ],
   NO_CHOICE_DESCRIPTION_ADDITION: [
+    "Enchantments",
+    "Advanced Enchantments",
     "Aspect of the Wilds",
     "Breath Weapon (Acid)",
     "Breath Weapon (Cold)",
@@ -263,5 +266,7 @@ export const PARSING_CHOICE_FEATURES = {
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
+  ],
+  DISCARD_CHOICE_FEATURE: [
   ],
 };
