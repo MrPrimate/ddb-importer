@@ -3,6 +3,8 @@
 - Guidance effect tweaks.
 - Song of Rest activity correction.
 - Arcane Archer Improvements.
+- Soul Knife Psychic Blade import fixes
+- Some changes to how hints and adjustments are loaded for class features. There is a small chance here that some clas features will no longer get adjusted properly. Please report and class features that seem broken or have bad activities associated with them.
 
 # 6.4.13
 
