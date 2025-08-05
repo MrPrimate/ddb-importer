@@ -1,7 +1,9 @@
+.sheet.dnd5e2-journal.application div.ddbimporter-image-container,
 div.journal-sheet div.ddbimporter-image-container {
   position: relative;
 }
 
+.sheet.dnd5e2-journal.application div.ddbimporter-image-container a.ddbimporter-show-image,
 div.journal-sheet div.ddbimporter-image-container a.ddbimporter-show-image {
   max-width: 255px;
   background: #2f0000d6;
@@ -22,6 +24,7 @@ div.journal-sheet div.ddbimporter-image-container a.ddbimporter-show-image {
           transform: translate(-20px, 20px);
 }
 
+.sheet.dnd5e2-journal.application div.ddbimporter-image-container a.ddbimporter-to-chat,
 div.journal-sheet div.ddbimporter-image-container a.ddbimporter-to-chat {
   max-width: 255px;
   background: #2f0000d6;

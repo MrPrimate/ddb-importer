@@ -1266,6 +1266,7 @@ export default class AdventureMunch {
         }
         break;
       case "JournalEntry":
+        foundry.utils.setProperty(data, "flags.core.sheetClass", "ddb-importer.DDBJournalSheet");
         if (!AdventureMunchHelpers.findEntityByImportId("journal", data._id)) {
           let journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);

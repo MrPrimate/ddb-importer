@@ -8,7 +8,7 @@ import {
   renderCompendiumTab,
 } from "./hooks.mjs";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext.js";
-import { getJournalSheet5eHeaderButtons } from "./hooks/renderJournalSheet/adventure.js";
+import { getHeaderControlsJournalEntrySheetButtons, getJournalSheet5eHeaderButtons } from "./hooks/renderJournalSheet/adventure.js";
 
 // register hooks
 Hooks.once("init", init);
@@ -22,6 +22,7 @@ Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneContextOptions", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
 Hooks.on("getJournalSheet5eHeaderButtons", getJournalSheet5eHeaderButtons);
+Hooks.on("getHeaderControlsJournalEntrySheet", getHeaderControlsJournalEntrySheetButtons);
 
 // console.warn("SILENT MODE FOR DEBUG");
 // const includeRgx = new RegExp("/module/ddb-importer/");

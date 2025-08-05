@@ -5,6 +5,7 @@ import { logger, Logger, Notifications } from "./lib/_module.mjs";
 import { registerApi } from "./api.mjs";
 import { chatHooks } from "./hooks/init/chatHooks.js";
 import adventureImporter from "./hooks/init/adventureImporter.js";
+import { registerJournalSheet } from "./hooks/renderJournalSheet/DDBJournalSheet.js";
 
 // ready hooks
 import registerSheets from "./hooks/ready/registerSheets.js";
@@ -36,20 +37,22 @@ import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
 import { DDBEnhancers } from "./effects/_module.mjs";
 import { addTattooConsumable } from "./hooks/tattoo/main.mjs";
 import welcomeMessage from "./hooks/ready/welcomeMessage.js";
+import { migration } from "./hooks/init/migraton.js";
 // import { createStorage } from "./hooks/ready/storage.mjs";
 
 // foundry is initializing
 export function init() {
   earlySettings();
   Logger.setupLogger();
+  registerJournalSheet();
   registerApi();
   chatHooks();
   adventureImporter();
-  logger.info("Init complete");
   DDBEffectHooks.loadHooks();
   registerCustomEnrichers();
   addActivitiesHooks();
   addTattooConsumable();
+  logger.info("Init complete");
 }
 
 // foundry is ready
@@ -66,6 +69,8 @@ export async function onceReady() {
   // notifications
   Notifications.registerNotifications();
   loadDDBConfig();
+
+  await migration();
 
   // delay the startup just a tiny little bit
   setTimeout(() => {

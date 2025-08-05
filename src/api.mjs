@@ -27,6 +27,8 @@ import { DDBMonsterDamage } from "./parser/monster/features/DDBMonsterDamage.js"
 import DDBMonsterFeature from "./parser/monster/features/DDBMonsterFeature.js";
 import { createStorage } from "./hooks/ready/storage.mjs";
 import DDBKeyChangeDialog from "./apps/DDBKeyChangeDialog.js";
+import { migrateJournalsToDDBSheet } from "./hooks/init/migration/migration_5_6_0_journals.js";
+import { migration } from "./hooks/init/migraton.js";
 // import { libWrapper } from "../vendor/libwrapper/shim.js";
 
 function resetSecrets() {
@@ -88,6 +90,11 @@ async function updateDDBCharacters() {
 export function registerApi() {
   const API = {
     // libWrapper,
+    migrations: {
+      migrateCompendiums,
+      migrateJournalsToDDBSheet,
+      migration,
+    },
     migrateCompendiums,
     compendiums: {
       migrateCompendiums,
