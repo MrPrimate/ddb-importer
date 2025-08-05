@@ -1,3 +1,11 @@
+# Next Up for 6.5.x
+
+D&D 5.1.x Support release, this release _only_ supports Foundry v13 and D&D 5.1. Sorry there were too many low level changes in this release. If you are not yet ready to update to D&D 5.1, please PIN your DDB Importer version in the Foundry Modules.
+
+- Spell preparation changes
+- Effects for Advantage on Skill, Ability and Checks in automated effects.
+- Support v2 Journal Pages introduced in 5.1.x. DDB Importer Journal Page to help preserve some of the unique formatting for DDB entries. DDB Importer journal enhancements will now only work on these DDB Importer journals (previously they used flags to determine if they world work). A migration will be triggered to check all world journals and journals in the DDB Journals compendium when you log in as a GM with this version or higher of DDB Importer.
+
 # Next Up
 
 # 6.4.21
@@ -43,12 +51,6 @@
 - Ensure that SRD and PHB Spells use consistent identifiers for spells such as Bigsby's Hand/Arcane Hand, they will default to the srd version.
 
 # 6.4.14
-
-- Spell preparation changes
-- Effects for Advantage on Skill, Ability and Checks in automated effects.
-- Support v2 Journal Pages introduced in 5.1.x. DDB Importer Journal Page to help preserve some of the unique formatting for DDB entries. DDB Importer journal enhancements will now only work on these DDB Importer journals (previously they used flags to determine if they world work). A migration will be triggered to check all world journals and journals in the DDB Journals compendium when you log in as a GM with this version or higher of DDB Importer.
-
-# Next Up
 
 - Guidance effect tweaks.
 - Song of Rest activity correction.
