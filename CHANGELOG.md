@@ -1,3 +1,7 @@
+# Next Up
+
+- Guidance effect tweaks.
+
 # 6.4.13
 
 - Generate ability maximum effects.
