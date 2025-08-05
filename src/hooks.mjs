@@ -26,8 +26,6 @@ import { addMuncher } from "./hooks/renderMuncher/addMuncher.js";
 import { setupSockets } from "./hooks/socket/sockets.js";
 
 // image hooks
-import { linkTables } from "./hooks/renderJournalSheet/linkTables.js";
-import { linkImages } from "./hooks/renderJournalSheet/linkImages.js";
 import { adventureFlags } from "./hooks/renderJournalSheet/adventure.js";
 import { showReadAlouds } from "./hooks/renderJournalSheet/linkReadAlouds.js";
 
@@ -37,7 +35,7 @@ import addActivitiesHooks from "./hooks/macroActivity/loadActivity.js";
 import { DDBEnhancers } from "./effects/_module.mjs";
 import { addTattooConsumable } from "./hooks/tattoo/main.mjs";
 import welcomeMessage from "./hooks/ready/welcomeMessage.js";
-import { migration } from "./hooks/init/migraton.js";
+import { migration } from "./hooks/ready/migraton.js";
 // import { createStorage } from "./hooks/ready/storage.mjs";
 
 // foundry is initializing
@@ -96,19 +94,8 @@ export function renderCompendiumTab(app, html, _data) {
   addMuncher(app, html);
 }
 
-export function renderItemSheet(sheet, html) {
-  linkTables("item", html);
-  // link images disabled un v10
-  // linkImages(html);
-}
-
 export function renderJournalSheet(sheet, html, data) {
   if (data.cssClass !== "editable") {
-    if (sheet.document.flags?.ddb) {
-      linkTables("journal", html);
-      linkImages(html, data);
-    }
-
     const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
     if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
       showReadAlouds(html, data);
@@ -119,16 +106,12 @@ export function renderJournalSheet(sheet, html, data) {
 
 export function renderJournalEntryPageSheet(sheet, html, data) {
   if (sheet.options.mode === "view") {
-    if (sheet.document.flags?.ddb) {
-      linkTables("journal", html);
-      linkImages(html, data);
-    }
-
     const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
     if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
       showReadAlouds(html, data);
     }
+
+    adventureFlags(sheet, html, data);
   }
-  adventureFlags(sheet, html, data);
 }
 

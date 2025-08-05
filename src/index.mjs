@@ -2,7 +2,6 @@ import {
   init,
   onReady,
   onceReady,
-  renderItemSheet,
   renderJournalSheet,
   renderJournalEntryPageSheet,
   renderCompendiumTab,
@@ -17,7 +16,6 @@ Hooks.on("ready", onReady);
 Hooks.on("renderCompendiumDirectory", renderCompendiumTab);
 Hooks.on("renderJournalPageSheet", renderJournalSheet);
 Hooks.on("renderJournalEntryPageSheet", renderJournalEntryPageSheet);
-Hooks.on("renderItemSheet", renderItemSheet);
 Hooks.on("getSceneNavigationContext", extendSceneNavigationContext);
 Hooks.on("getSceneContextOptions", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
