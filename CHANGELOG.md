@@ -2,6 +2,7 @@
 
 - Guidance effect tweaks.
 - Song of Rest activity correction.
+- Arcane Archer Improvements.
 
 # 6.4.13
 
