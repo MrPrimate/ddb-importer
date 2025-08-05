@@ -82,7 +82,7 @@ export default class GraspingArrow extends ArcaneShotOption {
           name: "Grasped",
           activityMatch: "Cast",
           changes: [
-            DDBEnricherData.ChangeHelper.addChange("-10", 10, "data.attributes.movement.all"),
+            DDBEnricherData.ChangeHelper.customChange("-10", 10, "system.attributes.movement.all"),
           ],
         },
       ];

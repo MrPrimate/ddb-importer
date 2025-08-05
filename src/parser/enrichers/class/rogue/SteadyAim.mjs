@@ -3,6 +3,14 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class SteadyAim extends DDBEnricherData {
 
+  get useDefaultAdditionalActivities() {
+    return true;
+  }
+
+  get addToDefaultAdditionalActivities() {
+    return false;
+  }
+
   get addAutoAdditionalActivities() {
     return true;
   }
@@ -23,13 +31,24 @@ export default class SteadyAim extends DDBEnricherData {
         },
       },
       {
-        midiOnly: true,
+        daeOnly: true,
         name: "Steady Aim Speed Reduction",
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.downgradeChange("0", 100, "data.attributes.movement.all"),
+        changes: [
+          DDBEnricherData.ChangeHelper.downgradeChange("0", 100, "system.attributes.movement.all"),
         ],
         daeSpecialDurations: ["turnStartSource"],
         daeStackable: "noneName",
+        options: {
+          durationSeconds: 12,
+          durationRounds: 2,
+        },
+      },
+      {
+        daeNever: true,
+        name: "Steady Aim Speed Reduction",
+        changes: [
+          DDBEnricherData.ChangeHelper.customChange("0", 100, "system.attributes.movement.all"),
+        ],
         options: {
           durationSeconds: 12,
           durationRounds: 2,

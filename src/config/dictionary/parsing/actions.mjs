@@ -28,11 +28,12 @@ export const PARSING_ACTIONS = {
 export const PARSING_ATTACK_ACTIONS = {
   FORCE_WEAPON_FEATURES: [
     "Unarmed Strike",
-    "Psychic Blades: Attack (DEX)",
-    "Psychic Blades: Attack (STR)",
-    "Psychic Blades: Bonus Attack (DEX)",
-    "Psychic Blades: Bonus Attack (STR)",
-    "Psychic Blades",
+    // "Psychic Blades: Attack (DEX)",
+    // "Psychic Blades: Attack (STR)",
+    // "Psychic Blades: Bonus Attack (DEX)",
+    // "Psychic Blades: Bonus Attack (STR)",
+    // "Psychic Blades",
+    // "Psychic Blade",
     "Thunder Gauntlets",
     "Lightning Launcher",
     // "Guardian Armor: Thunder Gauntlets",
@@ -56,5 +57,13 @@ export const PARSING_ATTACK_ACTIONS = {
     "Form of the Beast: Claws",
     "Form of the Beast: Tail",
     "Fanged Bite",
+  ],
+  FORCE_WEAPON_FEATURE_IF_ACTION: [
+    "Psychic Blades: Attack (DEX)",
+    "Psychic Blades: Attack (STR)",
+    "Psychic Blades: Bonus Attack (DEX)",
+    "Psychic Blades: Bonus Attack (STR)",
+    "Psychic Blades",
+    "Psychic Blade",
   ],
 };

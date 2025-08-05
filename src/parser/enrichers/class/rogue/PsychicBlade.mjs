@@ -45,33 +45,34 @@ export default class PsychicBlade extends DDBEnricherData {
   get override() {
     if (!this.isClass("Rogue")) return null;
 
-    if (!this.isAction) {
+    if (this.document.type === "feat") {
       return {
         descriptionSuffix: `<section class="secret" id="secret-ddbPsychicBlades">
 This features attacks have been created as the "Psychic Blade" weapon and can be found in the inventory.
 </secret>`,
       };
+    } else {
+      return {
+        data: {
+          name: "Psychic Blade",
+          system: {
+            damage: {
+              base: DDBEnricherData.basicDamagePart({
+                number: 1,
+                denomination: 6,
+                type: "psychic",
+              }),
+            },
+            mastery: "vex",
+            range: {
+              long: 120,
+            },
+            "type.value": "simpleM",
+            properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
+          },
+        },
+      };
     }
 
-    return {
-      data: {
-        name: "Psychic Blade",
-        system: {
-          damage: {
-            base: DDBEnricherData.basicDamagePart({
-              number: 1,
-              denomination: 6,
-              type: "psychic",
-            }),
-          },
-          mastery: "vex",
-          range: {
-            long: 120,
-          },
-          "type.value": "simpleM",
-          properties: ["fin", "thr"].concat(this.data.system.properties ?? []),
-        },
-      },
-    };
   }
 }

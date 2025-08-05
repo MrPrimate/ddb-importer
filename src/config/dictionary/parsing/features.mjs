@@ -49,6 +49,7 @@ export const PARSING_FEATURES = {
     "Gnomish Lineage Spells",
     "Fiendish Legacy Spells",
     "Keen Senses",
+    "Roguish Archetype",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",

@@ -7,9 +7,12 @@ export default class DDBAttackAction extends DDBAction {
 
   static FORCE_WEAPON_FEATURES = DICTIONARY.parsing.attackActions.FORCE_WEAPON_FEATURES;
 
+  static FORCE_WEAPON_FEATURE_IF_ACTION = DICTIONARY.parsing.attackActions.FORCE_WEAPON_FEATURE_IF_ACTION;
+
   _init() {
     this.isAction = true;
     this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
+      || DDBAttackAction.FORCE_WEAPON_FEATURE_IF_ACTION.includes(this.originalName)
       ? "weapon"
       : "feat";
     logger.debug(`Generating Attack Action ${this.ddbDefinition.name} as ${this.documentType}`);
