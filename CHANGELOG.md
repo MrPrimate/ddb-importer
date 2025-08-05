@@ -2,9 +2,10 @@
 
 - Guidance effect tweaks.
 - Song of Rest activity correction.
-- Arcane Archer Improvements.
+- Arcane Archer Improvements. (More fixes coming for the actions).
 - Soul Knife Psychic Blade import fixes
 - Some changes to how hints and adjustments are loaded for class features. There is a small chance here that some clas features will no longer get adjusted properly. Please report and class features that seem broken or have bad activities associated with them.
+- Fix up Obojima rogue subclass parse failure at high level
 
 # 6.4.13
 
