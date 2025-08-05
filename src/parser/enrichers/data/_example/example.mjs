@@ -194,6 +194,10 @@ export default class Example extends DDBEnricherData {
     return true;
   }
 
+  get builtFeaturesFromActionFilters() {
+    return [];
+  }
+
   get itemMacro() {
     return {
       type: "item",

@@ -1,4 +1,10 @@
 export const CONSUMPTION_LINKS = {
+  "Arcane Shot": [
+    "Arcane Shot Option:", "Arcane Shot Options:",
+    "Banishing Arrow", "Beguiling Arrow", "Bursting Arrow",
+    "Enfeebling Arrow", "Grasping Arrow", "Piercing Arrow", "Seeking Arrow",
+    "Shadow Arrow",
+  ],
   "Channel Divinity": [
     "Channel Divinity:", "Harness Divine Power", "Sacred Weapon", "Invoke Duplicity",
     "War God's Blessing", "Guided Strike", "War Priest", "Inspiring Smite", "Peerless Athlete",

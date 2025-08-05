@@ -332,6 +332,10 @@ export default class DDBEnricherData {
     return true;
   }
 
+  get builtFeaturesFromActionFilters() {
+    return [];
+  }
+
   get stopDefaultActivity() {
     return false;
   }

@@ -170,6 +170,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get builtFeaturesFromActionFilters() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.builtFeaturesFromActionFilters;
+    } else {
+      return [];
+    }
+  }
+
   get itemMacro() {
     if (this.loadedEnricher) {
       return this.loadedEnricher.itemMacro;
@@ -1083,7 +1091,7 @@ export default class DDBEnricherFactoryMixin {
     const useDefaultActivities = this.useDefaultAdditionalActivities;
     const addToDefaultAdditionalActivities = this.addToDefaultAdditionalActivities;
 
-    logger.debug(`Adding additional activities for ${this.ddbParser.originalName}`, {
+    logger.debug(`Starting additional activities add for ${this.ddbParser.originalName}`, {
       useDefaultActivities,
       addToDefaultAdditionalActivities,
       this: this,
@@ -1191,7 +1199,8 @@ export default class DDBEnricherFactoryMixin {
 
   async _buildFeaturesFromAction({ name, type, isAttack = null } = {}) {
     if (!this.ddbParser?.ddbCharacter) return [];
-    const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
+    const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type })
+      .filter((action) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name));
     logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions });
     if (actions.length === 0) return [];
     const actionFeatures = await Promise.all(actions.map(async (action) => {

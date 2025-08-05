@@ -107,6 +107,7 @@ export const PARSING_CHOICE_FEATURES = {
     "The Third Eye",
     "Unbreakable Majesty",
     "Aspect of the Beast",
+    "Arcane Shot Options",
   ],
   KEEP_CHOICE_FEATURE_NAME: [
     "Defensive Tactics",
@@ -124,6 +125,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Rune Carver",
     "Primal Companion",
     "Giant Ancestry",
+    "Arcane Shot Options",
   ],
   NO_CHOICE_BUILD: [
     "Aspect of the Wilds",
@@ -195,6 +197,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Armor Model",
     "Pact Boon",
     "Aspect of the Beast",
+    "Arcane Shot Options",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -205,6 +208,7 @@ export const PARSING_CHOICE_FEATURES = {
   ],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",
+    // "Arcane Shot Options",
   ],
   NO_CHOICE_DESCRIPTION_ADDITION: [
     "Aspect of the Wilds",
@@ -253,6 +257,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Drake Companion",
     "Bond of Fang and Scale",
     "Scholar",
+    "Variable Trait",
     // "Maneuver Options",
   ],
   OVERRIDE_CHOICE_FEATURE: [

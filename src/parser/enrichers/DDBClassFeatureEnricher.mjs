@@ -38,6 +38,14 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
     "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
     "Cloak of Shadows": "Channel Divinity: Cloak of Shadows",
+    "Banishing Arrow": "Arcane Shot Option",
+    "Beguiling Arrow": "Arcane Shot Option",
+    "Bursting Arrow": "Arcane Shot Option",
+    "Enfeebling Arrow": "Arcane Shot Option",
+    // "Grasping Arrow": "Arcane Shot Option",
+    "Piercing Arrow": "Arcane Shot Option",
+    "Seeking Arrow": "Arcane Shot Option",
+    "Shadow Arrow": "Arcane Shot Option",
   };
 
   NAME_HINT_INCLUDES = {
@@ -54,6 +62,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Arcane Armor - Create Armor": ClassEnrichers.Artificer.ArcaneArmorCreateArmor,
     "Arcane Propulsion Armor Gauntlet": ClassEnrichers.Artificer.ArcanePropulsionArmorGauntlet,
     "Arcane Recovery": ClassEnrichers.Wizard.ArcaneRecovery,
+    "Arcane Shot Option": ClassEnrichers.Fighter.ArcaneShotOption,
+    "Arcane Shot Options": ClassEnrichers.Fighter.ArcaneShotOptions,
     "Arcane Ward": ClassEnrichers.Wizard.ArcaneWard,
     "Archdruid": ClassEnrichers.Druid.Archdruid,
     "Armor Model": ClassEnrichers.Artificer.ArmorModel,
@@ -230,6 +240,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Living Legend": ClassEnrichers.Paladin.LivingLegend,
     "Lucky": GenericEnrichers.Lucky,
     "Lunar Form": ClassEnrichers.Druid.LunarForm,
+    "Magic Arrow": ClassEnrichers.Fighter.MagicArrow,
     "Magical Cunning": ClassEnrichers.Warlock.MagicalCunning,
     "Maneuver Options: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
     "Maneuver Options: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,
@@ -444,6 +455,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Planar Warrior": ClassEnrichers.Ranger.PlanarWarrior,
     "Bond of Fang and Scale": ClassEnrichers.Ranger.BondOfFangAndScale,
     "Drake's Breath": ClassEnrichers.Ranger.DrakesBreath,
+    "Grasping Arrow": ClassEnrichers.Fighter.GraspingArrow,
   };
 
   FALLBACK_ENRICHERS = {

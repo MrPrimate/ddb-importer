@@ -50,11 +50,42 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   }
 
+  _generateSystemSubType() {
+    super._generateSystemSubType();
+
+    let subType = null;
+
+    const classFeatureName = foundry.utils.getProperty(this, "_classFeatureComponent.definition.name");
+
+    if (!classFeatureName) return;
+    if (classFeatureName === "Ki") subType = "Ki";
+    // many ki abilities do not start with ki
+    else if (classFeatureName === "Channel Divinity") subType = "channelDivinity";
+    else if (classFeatureName === "Artificer Infusion") subType = "artificerInfusion";
+    else if (classFeatureName === "Invocation") subType = "eldritchInvocation";
+    else if (classFeatureName === "Fighting Style") subType = "fightingStyle";
+    else if (classFeatureName === "Maneuver") subType = "maneuver";
+    else if (classFeatureName === "Battle Master Maneuver") subType = "maneuver";
+    else if (classFeatureName === "Metamagic") subType = "metamagic";
+    else if (classFeatureName.startsWith("Pact of the")) subType = "pact";
+    else if (classFeatureName === "Rune Carver") subType = "rune";
+    else if (classFeatureName === "Psionic Power") subType = "psionicPower";
+    else if (classFeatureName === "Hunter's Prey") subType = "huntersPrey";
+    else if (classFeatureName === "Defensive Tactics") subType = "defensiveTactic";
+    else if (classFeatureName === "Superior Hunter's Defense") subType = "superiorHuntersDefense";
+    else if (classFeatureName === "Arcane Shot Options") subType = "arcaneShot";
+    else if (classFeatureName === "Elemental Disciplines") subType = "elementalDiscipline";
+
+    if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
+
+  }
+
+
   async build(choice) {
     try {
       this._generateSystemType();
 
-      logger.debug(`Adding choice ${choice.label} to ${this.data.name}`);
+      logger.debug(`Building choice ${choice.label} for ${this.data.name}`);
       const originalName = `${this.data.name}`;
 
       if (this.data.name === choice.label) {
@@ -197,6 +228,7 @@ export default class DDBChoiceFeature extends DDBFeature {
       }
     }
     for (const choice of choices) {
+      logger.debug(`Processing Choice Feature ${choice.label} for ${ddbFeature.data.name}`);
       const choiceFeature = new DDBChoiceFeature({
         ddbData: ddbFeature.ddbData,
         ddbDefinition: foundry.utils.deepClone(ddbFeature.ddbDefinition),
@@ -250,6 +282,7 @@ export default class DDBChoiceFeature extends DDBFeature {
           }
         }
       } else {
+        logger.debug(`Adding Choice Feature ${choiceFeature.data.name} as a separate feature for ${ddbFeature.originalName}`);
         features.push(choiceFeature.data);
       }
     }

@@ -33,4 +33,8 @@ export default class Empty extends DDBEnricherData {
     return true;
   }
 
+  get builtFeaturesFromActionFilters() {
+    return [];
+  }
+
 }
