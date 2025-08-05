@@ -1,6 +1,7 @@
 # Next Up
 
 - Guidance effect tweaks.
+- Song of Rest activity correction.
 
 # 6.4.13
 

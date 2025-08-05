@@ -2,6 +2,11 @@
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class SongOfRest extends DDBEnricherData {
+
+  get type() {
+    return "heal";
+  }
+
   get activity() {
     return {
       data: {
