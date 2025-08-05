@@ -1,7 +1,7 @@
 import { logger, DDBMacros } from "../../lib/_module.mjs";
 
 // eslint-disable-next-line no-unused-vars, complexity
-function daeLightStubEffects(actor, change, _current, _delta, _changes) {
+function daeStubEffects(actor, change, _current, _delta, _changes) {
 
   if (typeof change?.key !== "string") return true;
 
@@ -40,7 +40,7 @@ function daeLightStubEffects(actor, change, _current, _delta, _changes) {
         }
       }
       for (let key of Object.keys(movement)) {
-        if (["units", "hover"].includes(key)) continue;
+        if (["units", "hover", "ignoredDifficultTerrain"].includes(key)) continue;
         let valueString = change.value;
         if (op !== "") {
           if (!movement[key]) continue;
@@ -88,7 +88,7 @@ export default class DDBEffectHooks {
     // special effect functions
     Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
     if (!game.modules.get("dae")?.active) {
-      Hooks.on("applyActiveEffect", daeLightStubEffects);
+      Hooks.on("applyActiveEffect", daeStubEffects);
     }
   }
 
