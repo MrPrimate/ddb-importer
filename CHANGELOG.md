@@ -2,7 +2,7 @@
 
 - Warforged would not get the Sleep custom immunity.
 - Some nested feats would not get added, these were feats granted by optional character choices, such as a feat selected by taking the Lessons of the First Ones as an Eldritch Invocation. This was not always consistent and depended upon how the feature had been implemented in DDB.
-
+- Ensure that SRD and PHB Spells use consistent identifiers for spells such as Bigsby's Hand/Arcane Hand, they will default to the srd version.
 
 # 6.4.14
 

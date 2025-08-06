@@ -1,0 +1,18 @@
+export const IDENTIFIER_ADJUSTMENTS = {
+  "bigbys-hand": "arcane-hand",
+  "drawmijs-instant-summons": "instant-summons",
+  "evards-black-tentacles": "black-tentacles",
+  "leomunds-secret-chest": "secret-chest",
+  "leomunds-tiny-hut": "tiny-hut",
+  "melfs-acid-arrow": "acid-arrow",
+  "mordenkainens-faithful-hound": "faithful-hound",
+  "mordenkainens-magnificent-mansion": "magnificent-mansion",
+  "mordenkainens-private-sanctum": "private-sanctum",
+  "mordenkainens-sword": "arcane-sword",
+  "nystuls-magic-aura": "arcanists-magic-aura",
+  "otilukes-freezing-sphere": "freezing-sphere",
+  "otilukes-resilient-sphere": "resilient-sphere",
+  "ottos-irresistible-dance": "irresistible-dance",
+  "rarys-telepathic-bond": "telepathic-bond",
+  "tashas-hideous-laughter": "hideous-laughter",
+};

@@ -22,6 +22,7 @@ import { SOURCE_CATEGORIES, SOURCE_DATA } from "./generics/sources.mjs";
 import { NUMBER_MATRIX } from "./generics/numbers.mjs";
 import { COMPANIONS } from "./parsing/companions.mjs";
 import { SCENE_IMG } from "./encounters.mjs";
+import { IDENTIFIER_ADJUSTMENTS } from "./parsing/identifiers.mjs";
 
 const DICTIONARY = {
   source: SOURCE_DATA,
@@ -50,6 +51,7 @@ const DICTIONARY = {
     features: PARSING_FEATURES,
     choiceFeatures: PARSING_CHOICE_FEATURES,
   },
+  identifierAdjustments: IDENTIFIER_ADJUSTMENTS,
   effects: {
     excludedModifiers: EXCLUDED_EFFECT_MODIFIERS,
     vision5e: VISION_5E_EFFECTS,
