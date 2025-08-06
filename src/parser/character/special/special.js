@@ -6,6 +6,7 @@ DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {
   const sleepFeatures = [
     "Fey Ancestry",
     "Trance",
+    "Constructed Resilience",
   ];
   const features = checkList.filter((f) => sleepFeatures.includes(f.name) && f.type === "feat");
   let customs = new Set(this.data.character.system.traits.ci.custom.split(":"));
