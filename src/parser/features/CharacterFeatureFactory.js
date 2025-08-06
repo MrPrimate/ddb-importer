@@ -592,7 +592,9 @@ export default class CharacterFeatureFactory {
         if (match) return true;
       }
 
-      return false;
+      if (feat.definition.categories.some((c) => ["__DISPLAY_WITH_DATA_ORIGIN", "__DISGUISE_FEAT"].includes(c.tagName))) return false;
+
+      return true;
     });
     for (const feat of validFeats) {
       const feats = await this.getFeaturesFromDefinition(feat, "feat");
