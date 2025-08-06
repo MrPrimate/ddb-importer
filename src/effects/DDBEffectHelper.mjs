@@ -93,13 +93,14 @@ export default class DDBEffectHelper {
    * @returns {Promise<void>}
    */
   static async addSaveAdvantageToTarget(targetActor, originItem, ability, additionLabel = "", icon = null) {
+
     const effectData = {
       _id: foundry.utils.randomID(),
       changes: [
         {
-          key: `flags.midi-qol.advantage.ability.save.${ability}`,
+          key: `system.abilities.${ability}.advantage.roll.mode`,
           mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: "1",
+          value: `${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`,
           priority: 20,
         },
       ],

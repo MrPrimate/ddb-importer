@@ -13,9 +13,7 @@ export default class Bladesong extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.int.mod,1)", 20, "system.attributes.ac.bonus"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("max(@abilities.int.mod,1)", 20, "system.attributes.concentration.bonuses.save"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.walk"),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.skill.acr"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.acr.roll.mode"),
         ],
       },
     ];

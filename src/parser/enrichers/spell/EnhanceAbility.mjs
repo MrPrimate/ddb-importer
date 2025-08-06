@@ -80,10 +80,12 @@ export default class EnhanceAbility extends DDBEnricherData {
           description: `Advantage on ${CONFIG.DND5E.abilities[data.ability].label} ability checks.${data.description ?? ""}`,
           durationSeconds: 3600,
         },
-        changes: data.changes ?? [],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, `flags.midi-qol.advantage.ability.check.${data.ability}`),
-        ].concat(data.midiChanges ?? []),
+        changes: (data.changes ?? []).concat(
+          [
+            DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${data.ability}.check.roll.mode`),
+          ],
+        ),
+        midiChanges: data.midiChanges ?? [],
       };
     });
   }
@@ -104,8 +106,8 @@ export default class EnhanceAbility extends DDBEnricherData {
           description: `Advantage on ${CONFIG.DND5E.abilities[data.ability].label} ability checks.`,
           durationSeconds: 3600,
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, `flags.midi-qol.advantage.ability.check.${data.ability}`),
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${data.ability}.check.roll.mode`),
         ],
       };
     });

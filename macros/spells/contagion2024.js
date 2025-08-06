@@ -16,10 +16,10 @@ async function applyContagion(targetActor) {
         let effect = {
           changes: originalEffect.changes.concat([
             {
-              key: `flags.midi-qol.disadvantage.ability.save.${key}`,
-              mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+              key: `system.abilities.${key}.save.roll.mode`,
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
               priority: 20,
-              value: "1",
+              value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
             },
           ]),
           img: data.icon,

@@ -106,8 +106,8 @@ export default class Shifting extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.unsignedAddChange("10", 20, "system.attributes.movement.walk"),
       );
     } else if (shifterType === "Wildhunt") {
-      midiChanges.push(
-        DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.check.wis"),
+      changes.push(
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.wis.check.roll.mode`),
       );
     }
     return [

@@ -65,14 +65,12 @@ export default class HolyAura extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(
             "1",
             20,
-            "flags.midi-qol.advantage.ability.save.all",
-          ),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(
-            "1",
-            20,
             "flags.midi-qol.advantage.ability.attack.all",
           ),
         ],
+        changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability}.save.roll.mode`),
+        ),
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '5'),
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),

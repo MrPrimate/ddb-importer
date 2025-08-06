@@ -51,10 +51,8 @@ export default class Rage extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
         DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
         DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
-      ],
-      midiChanges: [
-        DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
-        DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.check.str"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
       ],
       tokenMagicChanges: [
         DDBEnricherData.ChangeHelper.customChange("outline", 20, "macro.tokenMagic"),

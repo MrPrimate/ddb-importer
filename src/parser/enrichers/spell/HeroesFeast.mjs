@@ -74,9 +74,9 @@ export default class HeroesFeast extends DDBEnricherData {
 
   get effects() {
 
-    const midiChanges = this.is2014
+    const extraChanges = this.is2014
       ? [
-        DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.ability.save.wis"),
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.wis.save.roll.mode`),
       ]
       : [];
 
@@ -88,8 +88,7 @@ export default class HeroesFeast extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("frightened", 20, "system.traits.ci.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("poisoned", 20, "system.traits.ci.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("poison", 20, "system.traits.di.value"),
-        ],
-        midiChanges,
+        ].concat(extraChanges),
         options: {
           durationSeconds: 86400,
         },

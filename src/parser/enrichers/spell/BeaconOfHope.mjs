@@ -6,10 +6,9 @@ export default class BeaconOfHope extends DDBEnricherData {
   get effects() {
     return [
       {
-        midiOnly: true,
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.ability.save.wis"),
-          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.deathSave"),
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.wis.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.attributes.death.roll.mode"),
         ],
       },
     ];

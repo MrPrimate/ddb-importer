@@ -20,8 +20,10 @@ export default class Symbol extends DDBEnricherData {
         name: "Discord",
         save: "con",
         effect: {
+          changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
+            DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability}.check.roll.mode`),
+          ),
           midiChanges: [
-            DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.ability.check.all"),
             DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
           ],
         },
@@ -85,8 +87,10 @@ export default class Symbol extends DDBEnricherData {
         name: "Discord",
         save: "wis",
         effect: {
+          changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
+            DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability}.check.roll.mode`),
+          ),
           midiChanges: [
-            DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.ability.check.all"),
             DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
           ],
         },

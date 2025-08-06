@@ -6,15 +6,12 @@ export default class VedalkenDispassion extends DDBEnricherData {
   get effects() {
     return [
       {
-        midiOnly: true,
         options: {
           transfer: false,
         },
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.cha"),
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.wis"),
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.int"),
-        ],
+        changes: ["int", "wis", "cha"].map((ability) =>
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability}.save.roll.mode`),
+        ),
       },
     ];
   }

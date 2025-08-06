@@ -51,8 +51,10 @@ export default class IrresistibleDance extends DDBEnricherData {
         macroChanges: [
           { macroType: "spell", macroName: "irresistibleDance.js" },
         ],
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.dex.save.roll.mode`),
+        ],
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.ability.save.dex"),
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
@@ -87,8 +89,10 @@ export default class IrresistibleDance extends DDBEnricherData {
         macroChanges: [
           { macroType: "spell", macroName: "irresistibleDance.js" },
         ],
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.dex.save.roll.mode`),
+        ],
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.ability.save.dex"),
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],

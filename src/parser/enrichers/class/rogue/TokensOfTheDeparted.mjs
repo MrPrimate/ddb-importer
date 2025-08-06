@@ -79,6 +79,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("(token.actor.items.getName('Tokens of the Departed')?.system.uses.value ?? 0) > 0", 20, "flags.midi-qol.advantage.ability.save.con"),
           DDBEnricherData.ChangeHelper.customChange("(token.actor.items.getName('Tokens of the Departed')?.system.uses.value ?? 0) > 0", 20, "flags.midi-qol.advantage.deathSave"),
         ],
+        // DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.attributes.death.roll.mode"),
       },
     ];
   }

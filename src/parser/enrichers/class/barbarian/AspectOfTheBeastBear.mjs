@@ -11,9 +11,7 @@ export default class AspectOfTheBeastBear extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("1", 20, "system.attributes.encumbrance.multipliers.overall"),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.ability.save.str"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
         ],
       },
     ];

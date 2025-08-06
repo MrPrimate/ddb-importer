@@ -9,10 +9,10 @@ export async function stormSphereEffect(document) {
   let effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
-      key: "flags.midi-qol.disadvantage.skill.prc",
+      key: "system.skills.prc.roll.mode",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-      value: "0",
-      priority: "20",
+      priority: 20,
+      value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
     },
     {
       key: "flags.midi-qol.OverTime",

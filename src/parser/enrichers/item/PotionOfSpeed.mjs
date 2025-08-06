@@ -8,9 +8,7 @@ export default class PotionOfSpeed extends DDBEnricherData {
       {
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),
-        ],
-        midiChanges: [
-          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "flags.midi-qol.advantage.ability.save.dex"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.dex.save.roll.mode"),
           DDBEnricherData.ChangeHelper.customChange("*2", 30, "system.attributes.movement.all"),
         ],
       },
