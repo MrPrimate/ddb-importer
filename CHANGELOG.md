@@ -966,7 +966,7 @@ For Spells: Source Category -> Level
 
 MAJOR BREAKING CHANGES!
 
-The 4.0.x fundementally changes the structure of how documents are constructed in Foundry (allowing multiple "activities" per spell). You're existing imported content will migrate (mostly successfully); however, future imports from D&D Beyond will not match the current imports 1:1.
+The 4.0.x fundementally changes the structure of how documents are constructed in Foundry (allowing multiple "activities" per spell). Your existing imported content will migrate (mostly successfully); however, future imports from D&D Beyond will not match the current imports 1:1.
 
 - Support for v4.0.0 of the D&D system.
 - Many features and actions, such as Metamagic action/feature, are no longer duplicated.
