@@ -16,8 +16,11 @@ export default class ShadowPuppets extends DDBEnricherData {
     return {
       name: this.ddbEnricher?._originalActivity?.type === "save" ? "Save vs Incapacitation" : "Bonus Attack",
       noSpellslot: true,
-      noeffect: true,
+      noeffect: this.ddbEnricher?._originalActivity?.type !== "save",
       activationType: this.ddbEnricher?._originalActivity?.type === "save" ? "special" : "bonus",
+      data: {
+        sort: this.ddbEnricher?._originalActivity?.type === "save" ? "2" : "3",
+      },
     };
   }
 
@@ -33,7 +36,6 @@ export default class ShadowPuppets extends DDBEnricherData {
           generateTarget: true,
           generateRange: true,
           generateDamage: true,
-          noeffects: true,
         },
         overrides: {
           data: {
@@ -44,11 +46,20 @@ export default class ShadowPuppets extends DDBEnricherData {
     ];
   }
 
+  get clearAutoEffects() {
+    return true;
+  }
+
   get effects() {
     return [
       {
         activityMatch: "Cast",
         name: "Animated Shadow",
+      },
+      {
+        activityMatch: "Save vs Incapacitation",
+        name: "Incapacitated",
+        statuses: ["Incapacitated"],
       },
     ];
   }
