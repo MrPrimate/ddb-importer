@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.4.18
+
 - Searing Smite generated the incorrect damage.
 - A number of smite spells did not allow the damage to be critical.
 - Produce Flame will now add a light activity.
