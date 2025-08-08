@@ -149,7 +149,7 @@ export { default as Sanctuary } from "./Sanctuary.mjs";
 export { default as ScorchingRay } from "./ScorchingRay.mjs";
 export { default as SearingSmite } from "./SearingSmite.mjs";
 export { default as ShadowBlade } from "./ShadowBlade.mjs";
-export { default as ShadowPuppet } from "./ShadowPuppets.mjs";
+export { default as ShadowPuppets } from "./ShadowPuppets.mjs";
 export { default as Shield } from "./Shield.mjs";
 export { default as ShieldOfFaith } from "./ShieldOfFaith.mjs";
 export { default as Shillelagh } from "./Shillelagh.mjs";
