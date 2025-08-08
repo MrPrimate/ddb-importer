@@ -7,6 +7,9 @@ export default class DivineSmite extends DDBEnricherData {
       data: {
         useConditionText: `!["fiend", "undead"].includes(raceOrType)`,
         damage: {
+          critical: {
+            allow: true,
+          },
           parts: [
             DDBEnricherData.basicDamagePart({
               number: 2,

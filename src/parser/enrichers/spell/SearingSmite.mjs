@@ -9,15 +9,23 @@ export default class SearingSmite extends DDBEnricherData {
   get activity() {
     return {
       name: "Initial Damage",
-      damageParts: [
-        DDBEnricherData.basicDamagePart({
-          number: 2,
-          denomination: 6,
-          types: ["fire"],
-          scalingMode: "whole",
-          scalingNumber: "1",
-        }),
-      ],
+
+      data: {
+        damage: {
+          critical: {
+            allow: true,
+          },
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              number: 2,
+              denomination: 6,
+              types: ["fire"],
+              scalingMode: "whole",
+              scalingNumber: "1",
+            }),
+          ],
+        },
+      },
     };
   }
 

@@ -1,5 +1,14 @@
 # Next Up
 
+- Searing Smite generated the incorrect damage.
+- A number of smite spells did not allow the damage to be critical.
+- Produce Flame will now add a light activity.
+- Swarm spell fix.
+- Wild shape 2024 uses recovery fix.
+- Innate Sorcery failed to detect uses.
+- Guidance used an upgrade rather than an add effect.
+- Improve parsing of Cat's Claw weapon for MotM version of Tabaxi.
+
 # 6.4.17
 
 - Artificers import could fail.

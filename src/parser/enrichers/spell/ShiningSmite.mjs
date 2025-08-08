@@ -3,6 +3,18 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class ShiningSmite extends DDBEnricherData {
 
+  get activity() {
+    return {
+      data: {
+        damage: {
+          critical: {
+            allow: true,
+          },
+        },
+      },
+    };
+  }
+
   get effects() {
     return [
       {

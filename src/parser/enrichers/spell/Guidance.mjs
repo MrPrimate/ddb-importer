@@ -67,7 +67,7 @@ export default class Guidance extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("1d4", 100, `system.skills.${skill.name}.value`),
+          DDBEnricherData.ChangeHelper.addChange("1d4", 100, `system.skills.${skill.name}.value`),
         ],
         daeSpecialDurations: [`isSkill.${skill.name}`],
       };

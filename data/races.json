@@ -109,7 +109,7 @@
     "racial_trait": "Brave",
     "race": "Halfling",
     "subrace": "",
-    "path": "icons/commodities/treasure/broach-shield-grey.webp"
+    "path": "icons/commodities/treasure/brooch-shield-grey.webp"
   },
   {
     "name": "Breath Weapon",
@@ -172,7 +172,7 @@
     "racial_trait": "Cat's Talent",
     "race": "Tabaxi",
     "subrace": "Tabaxi",
-    "path": "icons/commodities/treasure/broach-gold-eye-green.webp"
+    "path": "icons/commodities/treasure/brooch-gold-eye-green.webp"
   },
   {
     "name": "Celestial Legacy",

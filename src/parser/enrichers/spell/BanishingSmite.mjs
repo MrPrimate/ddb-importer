@@ -7,4 +7,16 @@ export default class BanishingSmite extends DDBEnricherData {
     return "damage";
   }
 
+  get activity() {
+    return {
+      data: {
+        damage: {
+          critical: {
+            allow: true,
+          },
+        },
+      },
+    };
+  }
+
 }

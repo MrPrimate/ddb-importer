@@ -95,6 +95,13 @@ export default class DDBAction extends DDBFeatureMixin {
       ).value
       : "";
 
+    console.warn({
+      name: this.name,
+      this: this,
+      isMartialArts: this.ddbDefinition.isMartialArts,
+      artist: this.isMartialArtist(),
+      stats: this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.dex.value >= this.rawCharacter.flags.ddbimporter.dndbeyond.effectAbilities.str.value,
+    })
     if (this.ddbDefinition.abilityModifierStatId
       && !([1, 2].includes(this.ddbDefinition.abilityModifierStatId) && this.ddbDefinition.isMartialArts)
     ) {

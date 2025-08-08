@@ -3,6 +3,18 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class BrandingSmite extends DDBEnricherData {
 
+  get activity() {
+    return {
+      data: {
+        damage: {
+          critical: {
+            allow: true,
+          },
+        },
+      },
+    };
+  }
+
   get additionalActivities() {
     return this.is2014 && this.useMidiAutomations
       ? [

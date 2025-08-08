@@ -1,27 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class BoomingBlade extends DDBEnricherData {
+export default class VengefulBlade extends DDBEnricherData {
 
   get type() {
-    return this.useMidiAutomations ? "utility" : "none";
-  }
-
-  get activity() {
-    return {
-      name: "Cast Spell (Automation)",
-      targetType: "creature",
-      overrideTemplate: true,
-      overrideRange: true,
-      noTemplate: true,
-      data: {
-        range: {
-          override: true,
-          units: "ft",
-          value: "5",
-        },
-      },
-    };
+    return "none";
   }
 
   get additionalActivities() {
@@ -38,11 +21,11 @@ export default class BoomingBlade extends DDBEnricherData {
           generateAttack: false,
           onsave: false,
           damageParts: [DDBEnricherData.basicDamagePart({
-            type: "thunder",
+            type: "necrotic",
             scalingMode: "whole",
             scalingFormula: "1d8",
           })],
-          // noeffect: true,
+          noeffect: true,
           overrideRange: {
             value: "5",
             units: "ft",
@@ -62,17 +45,12 @@ export default class BoomingBlade extends DDBEnricherData {
               value: 5,
               units: "ft",
             },
-            damage: {
-              critical: {
-                allow: true,
-              },
-            },
           },
         },
       },
       {
         constructor: {
-          name: "Movement Damage",
+          name: "Extra Damage",
           type: "damage",
         },
         build: {
@@ -81,7 +59,7 @@ export default class BoomingBlade extends DDBEnricherData {
           noSpellslot: true,
           generateAttack: false,
           onsave: false,
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, type: "necrotic" })],
           noeffect: true,
           overrideRange: {
             value: "5",
@@ -91,13 +69,13 @@ export default class BoomingBlade extends DDBEnricherData {
             affects: { type: "creature", count: "1" },
             template: {},
           },
-          activationOverride: { type: "", condition: "Creature moves more than 5 ft" },
+          activationOverride: { type: "", condition: "Target makes an attack or spell" },
         },
         overrides: {
           overrideTemplate: true,
           noTemplate: true,
           data: {
-            id: "ddb-boom-move-dam",
+            id: "ddb-boom-atta-dam",
           },
         },
       },
@@ -106,27 +84,12 @@ export default class BoomingBlade extends DDBEnricherData {
 
   get effects() {
     return [{
-      name: "Booming Blade: Sheaved in Booming Energy",
+      name: "Vengeful Blade: RadiatesDark Aura of Energy",
       options: {
-        description: `If the target willingly moves 5 feet or more before then, [[/item ${this.data.name} activity="Movement Damage"]](it takes thunder damage), and the spell ends.`,
+        description: `If the target makes an attack or spell before then, [[/item ${this.data.name} activity="Extra Damage"]](it takes necrotic damage), and the spell ends.`,
       },
-      midiNever: true,
+      daeSpecialDurations: ["1Attack", "1Spell", "turnEndSource"],
     }];
-  }
-
-  get itemMacro() {
-    return {
-      type: "spell",
-      name: "boomingBlade.js",
-    };
-  }
-
-  get setMidiOnUseMacroFlag() {
-    return {
-      type: "spell",
-      name: "boomingBlade.js",
-      triggerPoints: ["postActiveEffects"],
-    };
   }
 
 }

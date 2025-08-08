@@ -20,4 +20,20 @@ export default class InnateSorcery extends DDBEnricherData {
     ];
   }
 
+
+  get override() {
+    const uses = this._getUsesWithSpent({
+      type: "class",
+      name: "Innate Sorcery",
+      max: "2",
+      period: "lr",
+    });
+
+    return {
+      data: {
+        "system.uses": uses,
+      },
+    };
+  }
+
 }

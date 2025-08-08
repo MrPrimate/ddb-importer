@@ -60,6 +60,15 @@ export default class GreenFlameBlade extends DDBEnricherData {
             }),
           ],
         },
+        overrides: {
+          data: {
+            damage: {
+              critical: {
+                allow: true,
+              },
+            },
+          },
+        },
       },
     ];
   }

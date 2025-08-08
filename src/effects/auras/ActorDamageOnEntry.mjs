@@ -5,7 +5,7 @@ import { setBasicCombatFlag } from "./shared.mjs";
 
 // Pack Damage (Aura Automation) from Conjure Animals
 
-export default async function damageOnEntry({
+export default async function actorDamageOnEntry({
   // eslint-disable-next-line no-unused-vars
   speaker, actor, token, character, item, rolledItem, macroItem,
   // eslint-disable-next-line no-unused-vars

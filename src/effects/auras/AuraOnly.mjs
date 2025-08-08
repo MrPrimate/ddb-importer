@@ -1,7 +1,7 @@
 import { logger } from "../../lib/_module.mjs";
 import DDBEffectHelper from "../DDBEffectHelper.mjs";
 
-export default async function damageOnEntry({
+export default async function auraOnly({
   // eslint-disable-next-line no-unused-vars
   speaker, actor, token, character, item, rolledItem, macroItem,
   // eslint-disable-next-line no-unused-vars
