@@ -1,6 +1,8 @@
 # Next Up
 
+# 6.4.17
 
+- Artificers import could fail.
 
 # 6.4.16
 

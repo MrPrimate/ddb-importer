@@ -50,6 +50,8 @@ export const PARSING_FEATURES = {
     "Fiendish Legacy Spells",
     "Keen Senses",
     "Roguish Archetype",
+    "Tool Proficiency",
+    "Skillful",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",

@@ -38,7 +38,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   }
 
   _defaultNameLoader() {
-    const classHintName = utils.pascalCase(this.className);
+    const classHintName = utils.pascalCase(this.className ?? "Unknown Class");
     if (!this.ENRICHERS?.[classHintName]?.[this.hintName]) {
       return this._defaultClassLoader();
     }
