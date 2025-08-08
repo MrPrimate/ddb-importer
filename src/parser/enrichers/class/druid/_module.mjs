@@ -14,6 +14,7 @@ export { default as MoonlightStep } from "./MoonlightStep.mjs";
 export { default as NaturalRecovery } from "./NaturalRecovery.mjs";
 export { default as NatureMagician } from "./NatureMagician.mjs";
 export { default as NaturesWard } from "./NaturesWard.mjs";
+export { default as SpiritTotem } from "./SpiritTotem.mjs";
 export { default as StarryForm } from "./StarryForm.mjs";
 export { default as Stormborn } from "./Stormborn.mjs";
 export { default as SummonWildfireSpirit } from "./SummonWildfireSpirit.mjs";
