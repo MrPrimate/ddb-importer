@@ -1,5 +1,7 @@
 # Next Up
 
+- Water Bullet spell fixes.
+
 # 6.4.18
 
 - Searing Smite generated the incorrect damage.

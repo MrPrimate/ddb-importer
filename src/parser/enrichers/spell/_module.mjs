@@ -193,6 +193,7 @@ export { default as WallOfStone } from "./WallOfStone.mjs";
 export { default as WallOfThorns } from "./WallOfThorns.mjs";
 export { default as WallOfWater } from "./WallOfWater.mjs";
 export { default as WardingBond } from "./WardingBond.mjs";
+export { default as WaterBullet } from "./WaterBullet.mjs";
 export { default as Web } from "./Web.mjs";
 export { default as WindWall } from "./WindWall.mjs";
 export { default as WitchBolt } from "./WitchBolt.mjs";
