@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
+import GenericLightSource from "./GenericLightSource.mjs";
 
-export default class BullseyeLantern extends DDBEnricherData {
+export default class BullseyeLantern extends GenericLightSource {
 
   get effects() {
     const lightAnimation = '{type: "torch", speed: 2, intensity: 2}';
@@ -9,6 +10,10 @@ export default class BullseyeLantern extends DDBEnricherData {
       {
         atlOnly: true,
         name: "Bullseye Lantern Light",
+        activityMatch: "Light",
+        options: {
+          transfer: false,
+        },
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '120'),
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60'),
