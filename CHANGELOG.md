@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.4.19
+
 - Water Bullet spell fixes.
 - Mantle of Majesty no longer parsed correctly. @_mickael
 - Improve ATL/ATE effect for Torch and other consumable items that cast light.
