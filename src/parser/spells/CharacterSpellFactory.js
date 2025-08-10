@@ -5,7 +5,7 @@ import { utils, logger } from "../../lib/_module.mjs";
 import { getLookups } from "./metadata.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";
-import { SETTINGS } from "../../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module.mjs";
 
 export default class CharacterSpellFactory {
@@ -229,6 +229,11 @@ export default class CharacterSpellFactory {
       if (!klass) klass = DDBDataUtils.findClassByFeatureId(this.ddb, spell.componentId);
 
       logger.debug("Class spell, class found?", klass);
+
+      if (DICTIONARY.parsing.featureSpellsIgnore.includes(classInfo.name)) {
+        logger.debug(`Skipping ${spell.definition.name} for ${classInfo.name} as included in feature`);
+        continue;
+      }
 
       if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
         spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);

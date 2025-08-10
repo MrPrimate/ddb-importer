@@ -10,7 +10,7 @@ import { MAGIC_ITEMS } from "./items/magicItems.mjs";
 import { SENSES } from "./actor/senses.mjs";
 import { SPELL } from "./spell/spell.mjs";
 import { PARSING_ACTIONS, PARSING_ATTACK_ACTIONS } from "./parsing/actions.mjs";
-import { PARSING_CHOICE_FEATURES, PARSING_FEATURES } from "./parsing/features.mjs";
+import { FEATURE_SPELLS_IGNORE, PARSING_CHOICE_FEATURES, PARSING_FEATURES } from "./parsing/features.mjs";
 import { EXCLUDED_EFFECT_MODIFIERS } from "./effects/excluded.mjs";
 import { VISION_5E_EFFECTS } from "./effects/vision5e.mjs";
 import { RESETS } from "./actor/resets.mjs";
@@ -50,6 +50,7 @@ const DICTIONARY = {
     attackActions: PARSING_ATTACK_ACTIONS,
     features: PARSING_FEATURES,
     choiceFeatures: PARSING_CHOICE_FEATURES,
+    featureSpellsIgnore: FEATURE_SPELLS_IGNORE,
   },
   identifierAdjustments: IDENTIFIER_ADJUSTMENTS,
   effects: {

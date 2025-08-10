@@ -84,6 +84,7 @@ export const PARSING_FEATURES = {
     "Infernal Majesty",
     "Starry Form",
     "Rage",
+    "Mantle of Majesty",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
@@ -272,3 +273,8 @@ export const PARSING_CHOICE_FEATURES = {
   DISCARD_CHOICE_FEATURE: [
   ],
 };
+
+export const FEATURE_SPELLS_IGNORE = [
+  // "Mantle of Majesty",
+  "Activate Mantle of Majesty",
+];

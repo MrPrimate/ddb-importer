@@ -7,6 +7,7 @@ export { default as DefensiveFlourish } from "./DefensiveFlourish.mjs";
 export { default as InspiringMovement } from "./InspiringMovement.mjs";
 export { default as JackOfAllTrades } from "./JackOfAllTrades.mjs";
 export { default as MantleOfInspiration } from "./MantleOfInspiration.mjs";
+export { default as MantleOfMajesty } from "./MantleOfMajesty.mjs";
 export { default as MobileFlourish } from "./MobileFlourish.mjs";
 export { default as RegainBardicInspiration } from "./RegainBardicInspiration.mjs";
 export { default as SlashingFlourish } from "./SlashingFlourish.mjs";

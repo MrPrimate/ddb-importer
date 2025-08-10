@@ -1,6 +1,7 @@
 # Next Up
 
 - Water Bullet spell fixes.
+- Mantle of Majesty no longer parsed correctly. @_mickael
 
 # 6.4.18
 
