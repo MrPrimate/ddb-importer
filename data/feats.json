@@ -1,5 +1,9 @@
 [
   {
+    "name": "Strike of the Giants",
+    "path": "icons/skills/melee/hand-grip-staff-teal.webp"
+  },
+  {
     "name": "Aberrant Dragonmark",
     "path": "icons/creatures/reptiles/serpent-horned-green.webp"
   },

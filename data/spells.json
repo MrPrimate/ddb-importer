@@ -1,5 +1,21 @@
 [
   {
+    "name": "Chorus of the Lost",
+    "path": "icons/magic/control/fear-fright-mask-orange.webp"
+  },
+  {
+    "name": "Claws of Darkness",
+    "path": "icons/magic/unholy/hand-claw-fire-blue.webp"
+  },
+  {
+    "name": "Finger Guns",
+    "path": "icons/weapons/guns/gun-pistol-flintlock-white.webp"
+  },
+  {
+    "name": "Shadow Armor",
+    "path": "icons/magic/defensive/shield-barrier-glowing-triangle-magenta.webp"
+  },
+  {
     "name": "Create Spelljamming Helm",
     "path": "https://www.dndbeyond.com/avatars/28079/971/637961801027285105.jpeg"
   },
