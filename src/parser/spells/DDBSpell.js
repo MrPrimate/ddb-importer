@@ -301,8 +301,11 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         // this was changed to "atwill"
         this.data.system.method = "atwill";
         this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
+      } else if (this.spellData.usesSpellSlot) {
+        this.data.system.method = this.onlyPactMagic ? "pact" : "spell";
       }
-      if (["classFeature", "subclassFeature", "feat"].includes(this.lookup)) {
+
+      if (!this.spellData.usesSpellSlot && ["classFeature", "subclassFeature", "feat"].includes(this.lookup)) {
         if (this.spellData.alwaysPrepared) {
           this.data.system.method = "atwill";
           this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
