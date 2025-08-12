@@ -1,5 +1,13 @@
 # Next Up
 
+- Psychic Blade bonus attack activity parsed cha as the attack modifier.
+- Strike of the Giants, Chorus of the Lost, Claws of Darkness, Finger Guns, and Shadow Armor parsing fixes.
+- Some spells granted by feats were added as at will rather than as spell book entries.
+- Dragonmark no longer add spell to spell list/free at will.
+- Mark of...  races no longer add too many extra spells to spell list/at will.
+- Reckless Attack tweaks
+
+
 # 6.4.19
 
 - Water Bullet spell fixes.

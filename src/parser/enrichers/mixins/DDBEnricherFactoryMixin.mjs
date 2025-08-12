@@ -450,7 +450,7 @@ export default class DDBEnricherFactoryMixin {
             units: "ft",
           },
           affects: {
-            count: "",
+            count: overrideData.targetCount ?? "",
             type: overrideData.targetType,
             choice: false,
             special: "",
@@ -488,7 +488,7 @@ export default class DDBEnricherFactoryMixin {
       activity.target.prompt = false;
     }
 
-    if (overrideData.overrideTemplate || overrideData.overrideTemplate)
+    if (overrideData.overrideTemplate || overrideData.overrideTarget)
       foundry.utils.setProperty(activity, "target.override", true);
 
     if (overrideData.overrideRange)
@@ -856,6 +856,14 @@ export default class DDBEnricherFactoryMixin {
 
     if (override.replaceActivityUses) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+    }
+
+    if (override.rangeSelf) {
+      foundry.utils.setProperty(this.data.system, "range", {
+        value: null,
+        units: "self",
+        special: "",
+      });
     }
 
     if (override.noTemplate) {

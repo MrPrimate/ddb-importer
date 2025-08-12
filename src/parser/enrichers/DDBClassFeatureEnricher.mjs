@@ -218,6 +218,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Psychic Blade": ClassEnrichers.Rogue.PsychicBlade,
     "Psychic Blades": GenericEnrichers.None,
     "Rage": ClassEnrichers.Barbarian.Rage,
+    "Reckless Attack": GenericEnrichers.RecklessAttack,
     "Sacred Weapon": ClassEnrichers.Paladin.SacredWeapon,
     "Sneak Attack: Poison (Envenom)": ClassEnrichers.Rogue.SneakAttackPoisonEnvenom,
     "Sneak Attack: Supreme Sneak (Cost: 1d6)": ClassEnrichers.Rogue.SneakAttackSupremeSneak,

@@ -278,3 +278,19 @@ export const FEATURE_SPELLS_IGNORE = [
   // "Mantle of Majesty",
   "Activate Mantle of Majesty",
 ];
+
+export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
+  "Dragonmark",
+  "Magical Detection",
+  "Finder's Magic",
+  "Primal Connection",
+  "Healing Touch",
+  "Innkeeper's Magic",
+  "Spellsmith",
+  "Magical Passage",
+  "Scribe's Insight",
+  "Guardian's Shield",
+  "Shape Shadows",
+  "Headwinds",
+  "Wards and Seals",
+];

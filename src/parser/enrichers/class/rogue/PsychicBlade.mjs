@@ -19,7 +19,6 @@ export default class PsychicBlade extends DDBEnricherData {
           generateTarget: true,
           generateDamage: true,
           attackOverride: {
-            ability: "cha",
             type: {
               value: "melee",
               classification: "weapon",

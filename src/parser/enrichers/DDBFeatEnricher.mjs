@@ -31,6 +31,8 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
 
   NAME_HINT_INCLUDES = {
     "Ritual Caster (": "Ritual Caster",
+    "Strike of the Giants (": "Strike of the Giants",
+    "Strike of the Giants:": "Strike of the Giants",
   };
 
   ENRICHERS = {
@@ -44,6 +46,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Squire of Solamnia: Precise Strike": FeatEnrichers.SquireOfSolamniaPreciseStrike,
     "Metamagic Adept": FeatEnrichers.MetamagicAdept,
     "Ritual Caster": FeatEnrichers.RitualCaster,
+    "Strike of the Giants": FeatEnrichers.StrikeOfTheGiants,
   };
 
   FALLBACK_ENRICHERS = {
