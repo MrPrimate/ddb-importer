@@ -23,7 +23,7 @@ export default class WildShape extends DDBEnricherData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Wild Shape",
-      max: "@scale.druid.wild-shape-uses)",
+      max: "@scale.druid.wild-shape-uses",
       period: this.is2014 ? "sr" : "lr",
     });
 
