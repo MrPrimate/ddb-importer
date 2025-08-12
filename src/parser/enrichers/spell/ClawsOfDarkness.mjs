@@ -51,7 +51,7 @@ export default class ClawsOfDarkness extends DDBEnricherData {
     return [
       {
         name: "Claws of Darkness",
-        activityNameMatch: "Cast",
+        activityMatch: "Cast",
       },
     ];
   }

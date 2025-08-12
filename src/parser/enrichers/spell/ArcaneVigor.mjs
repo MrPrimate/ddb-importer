@@ -13,8 +13,8 @@ export default class ArcaneVigor extends DDBEnricherData {
     };
   }
 
-  get effects() {
-    return [4, 6, 8, 10, 12]
+  get additionalActivities() {
+    const activities = [4, 6, 8, 10, 12]
       .map((die) => {
         return {
           constructor: {
@@ -55,6 +55,8 @@ export default class ArcaneVigor extends DDBEnricherData {
           },
         };
       });
+    console.warn({ this: this, activities})
+    return activities;
   }
 
 }

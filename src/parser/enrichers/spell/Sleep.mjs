@@ -20,7 +20,54 @@ export default class Sleep extends DDBEnricherData {
         },
       };
     }
-    return null;
+    return {
+      name: "Cast",
+    };
+  }
+
+  get clearAutoEffects() {
+    return this.is2024;
+  }
+
+  get additionalActivities() {
+    if (this.is2014) return null;
+    return [
+      {
+        duplicate: true,
+        overrides: {
+          name: "Save vs Unconscious",
+          activationType: "special",
+          removeSpellSlotConsume: true,
+          noConsumeTargets: true,
+          noTemplate: true,
+          targetType: "creature",
+        },
+      },
+    ];
+  }
+
+  get effects() {
+    if (this.is2014) return [];
+    return [
+      {
+        name: "Incapacitated",
+        statuses: ["Incapacitated"],
+        options: {
+          durationSeconds: 6,
+        },
+        daeSpecialDurations: ["turnEnd"],
+        activityMatch: "Cast",
+      },
+      {
+        name: "Unconscious",
+        statuses: ["Unconscious"],
+        options: {
+          durationSeconds: 54,
+        },
+        daeSpecialDurations: ["isDamaged"],
+        activityMatch: "Save vs Unconscious",
+      },
+    ];
   }
 
 }

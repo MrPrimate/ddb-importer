@@ -3,41 +3,66 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class ThunderousSmite extends DDBEnricherData {
 
+  get type() {
+    return "damage";
+  }
+
   get activity() {
     return {
+      noeffect: true,
+      allowCritical: true,
       data: {
         damage: {
-          critical: {
-            allow: true,
-          },
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              number: 2,
+              denomination: 6,
+              types: ["thunder"],
+              scalingMode: "whole",
+              scalingNumber: 1,
+            }),
+          ],
         },
       },
     };
   }
 
   get additionalActivities() {
-    return this.is2014 && this.useMidiAutomations
-      ? [
-        {
-          constructor: {
-            name: "Cast (Automation)",
-            type: "utility",
-          },
-          build: {
-            generateConsumption: true,
-            generateSave: false,
-            generateDamage: false,
-            generateHealing: false,
-            generateRange: false,
-            generateActivation: true,
-          },
-          overrides: {
-            activationType: "bonus",
-
-          },
+    const activities = [
+      {
+        constructor: {
+          name: "Save vs Pushed",
+          type: "save",
         },
-      ]
-      : [];
+        build: {
+          generateConsumption: true,
+          generateSave: false,
+          generateDamage: false,
+          generateRange: true,
+        },
+      },
+    ];
+    if (this.is2014 && this.useMidiAutomations) {
+      activities.push({
+        constructor: {
+          name: "Cast (Automation)",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: true,
+          generateSave: false,
+          generateDamage: false,
+          generateHealing: false,
+          generateRange: false,
+          generateActivation: true,
+        },
+        overrides: {
+          activationType: "bonus",
+        },
+      });
+    }
+
+    return activities;
   }
 
   get clearAutoEffects() {

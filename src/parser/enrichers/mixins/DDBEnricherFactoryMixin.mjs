@@ -546,6 +546,10 @@ export default class DDBEnricherFactoryMixin {
       await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
     }
 
+    if (overrideData.allowCritical) {
+      foundry.utils.setProperty(activity, "damage.critical.allow", true);
+    }
+
     if (overrideData.data) {
       const data = utils.isFunction(overrideData.data)
         ? overrideData.data()

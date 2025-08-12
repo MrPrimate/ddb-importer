@@ -1,13 +1,12 @@
 # Next Up
 
 - Psychic Blade bonus attack activity parsed cha as the attack modifier.
-- Strike of the Giants, Chorus of the Lost, Claws of Darkness, Finger Guns, and Shadow Armor parsing fixes.
+- Strike of the Giants, Chorus of the Lost, Claws of Darkness, Finger Guns, Conjure Cover, Thunderous Smite, Searing Smite, Mind Sliver, Arcane Vigour, and Shadow Armor parsing fixes.
 - Some spells granted by feats were added as at will rather than as spell book entries.
 - Dragonmark no longer add spell to spell list/free at will.
 - Mark of...  races no longer add too many extra spells to spell list/at will.
 - Reckless Attack tweaks
 - Wildshape did not always parse. @zienem @llewinidas
-
 
 # 6.4.19
 

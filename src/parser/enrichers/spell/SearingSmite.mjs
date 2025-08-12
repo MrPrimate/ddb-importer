@@ -9,15 +9,12 @@ export default class SearingSmite extends DDBEnricherData {
   get activity() {
     return {
       name: "Initial Damage",
-
+      allowCritical: true,
       data: {
         damage: {
-          critical: {
-            allow: true,
-          },
           parts: [
             DDBEnricherData.basicDamagePart({
-              number: 2,
+              number: 1,
               denomination: 6,
               types: ["fire"],
               scalingMode: "whole",
@@ -43,10 +40,17 @@ export default class SearingSmite extends DDBEnricherData {
               number: 1,
               denomination: 6,
               type: "fire",
+              scalingMode: "whole",
+              scalingNumber: "1",
             }),
           ],
           noeffect: true,
           activationOverride: { type: "", condition: "Start of the creatures turn" },
+        },
+        overrides: {
+          data: {
+            damage: { onSave: "full" },
+          },
         },
       },
     ];
