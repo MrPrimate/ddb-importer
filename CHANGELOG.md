@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.4.20
+
 - Psychic Blade bonus attack activity parsed cha as the attack modifier.
 - Strike of the Giants, Chorus of the Lost, Claws of Darkness, Finger Guns, Conjure Cover, Thunderous Smite, Searing Smite, Mind Sliver, Arcane Vigour, and Shadow Armor parsing fixes.
 - Some spells granted by feats were added as at will rather than as spell book entries.

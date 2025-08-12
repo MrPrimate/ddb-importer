@@ -55,7 +55,7 @@ export default class ArcaneVigor extends DDBEnricherData {
           },
         };
       });
-    console.warn({ this: this, activities})
+
     return activities;
   }
 
