@@ -408,6 +408,13 @@ export default class CharacterSpellFactory {
     //   parsedSpell: deepClone(parsedSpell),
     //   unlimitedSpell: deepClone(unlimitedSpell),
     // });
+
+    if (parsedSpell.system.source.rules === "2014"
+      && DICTIONARY.parsing.spellListGrantsIgnore["2014"].some((i) => spell.flags.ddbimporter.dndbeyond.lookupName.includes(i))
+    ) {
+      logger.debug(`Ignoring 2014 granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter.originalName}`);
+      return;
+    }
     this.processed.push(parsedSpell);
   }
 

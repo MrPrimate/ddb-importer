@@ -11,6 +11,7 @@ export const PARSING_ACTIONS = {
   ],
   KEEP_ACTIONS_STARTSWITH: [
     "Metamagic:",
+    // "Strike of the Giants:",
   ],
   SKIPPED_2014_ONLY_ACTIONS: [
     "Convert Sorcery Points",
