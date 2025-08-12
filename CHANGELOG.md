@@ -6,7 +6,7 @@
 - Dragonmark no longer add spell to spell list/free at will.
 - Mark of...  races no longer add too many extra spells to spell list/at will.
 - Reckless Attack tweaks
-- Wildshape did not always parse.
+- Wildshape did not always parse. @zienem @llewinidas
 
 
 # 6.4.19
