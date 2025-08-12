@@ -127,7 +127,7 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
 }
 
 export function registerJournalSheet() {
-  DocumentSheetConfig.registerSheet(JournalEntry, "ddb-importer", DDBJournalSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, "ddb-importer", DDBJournalSheet, {
     // types: ["base"],
     label: "D&D Beyond Journal",
     makeDefault: false,
