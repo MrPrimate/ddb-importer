@@ -1,4 +1,6 @@
-# Next Up for 6.5.x
+# Next Up
+
+# 6.5.0
 
 D&D 5.1.x Support release, this release _only_ supports Foundry v13 and D&D 5.1. Sorry there were too many low level changes in this release. If you are not yet ready to update to D&D 5.1, please PIN your DDB Importer version in the Foundry Modules.
 
@@ -7,12 +9,10 @@ D&D 5.1.x Support release, this release _only_ supports Foundry v13 and D&D 5.1.
 - Support v2 Journal Pages introduced in 5.1.x. DDB Importer Journal Page to help preserve some of the unique formatting for DDB entries. DDB Importer journal enhancements will now only work on these DDB Importer journals (previously they used flags to determine if they world work). A migration will be triggered to check all world journals and journals in the DDB Journals compendium when you log in as a GM with this version or higher of DDB Importer.
 - Druid Spirit Totem improvements.
 
-# Next Up
-
 # 6.4.21
 
 - Support loading Stairways data from new syntax.
-- Dark Bargins will now parse in. Additional tweaking is needed to allow for corrections to each bargin.
+- Dark Bargains will now parse in. Additional tweaking is needed to allow for corrections to each bargain.
 
 # 6.4.20
 
