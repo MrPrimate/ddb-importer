@@ -1,5 +1,8 @@
 # Next Up
 
+- Support loading Stairways data from new syntax.
+- Dark Bargins will now parse in. Additional tweaking is needed to allow for corrections to each bargin.
+
 # 6.4.20
 
 - Psychic Blade bonus attack activity parsed cha as the attack modifier.

@@ -52,6 +52,7 @@ export const PARSING_FEATURES = {
     "Roguish Archetype",
     "Tool Proficiency",
     "Skillful",
+    "The Crooked Moon: Dark Bargain",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",
@@ -93,7 +94,11 @@ export const PARSING_FEATURES = {
   FORCE_FEATURE_CLASS_MATCH: [
     "Psionic Power",
   ],
+  IGNORED_PARENT_CHOICE_FEATURES: [
+    "Dark Bargain",
+  ],
 };
+
 
 export const PARSING_CHOICE_FEATURES = {
   KEEP_CHOICE_FEATURE: [
@@ -113,6 +118,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Unbreakable Majesty",
     "Aspect of the Beast",
     "Arcane Shot Options",
+    "Dark Bargain",
   ],
   KEEP_CHOICE_FEATURE_NAME: [
     "Defensive Tactics",
@@ -210,6 +216,7 @@ export const PARSING_CHOICE_FEATURES = {
   USE_CHOSEN_ONLY: [
     "Elven Lineage",
     "Pact Boon",
+    "Dark Bargain",
   ],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",

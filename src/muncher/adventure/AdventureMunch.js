@@ -1238,6 +1238,15 @@ export default class AdventureMunch {
     const options = { keepId: true, keepEmbeddedIds: true };
     switch (typeName) {
       case "Scene": {
+        // stairways changed how data is stored for v13 and final version of v12
+        // make sure any old style data in exports will be imported in the correct format
+        if (Array.isArray(data.flags.stairways)
+          && foundry.utils.isNewerVersion((game.modules.get("stairways")?.version ?? "0.10.7"), "0.10.6")
+        ) {
+          data.flags.stairways = {
+            data: foundry.utils.duplicate(data.flags.stairways ?? []),
+          };
+        }
         await this._importRenderedSceneFile(data, overwriteEntity);
         break;
       }
