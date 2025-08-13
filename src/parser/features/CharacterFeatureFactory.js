@@ -34,6 +34,8 @@ export default class CharacterFeatureFactory {
 
   static SKIPPED_FEATURES_INCLUDES = DICTIONARY.parsing.features.SKIPPED_FEATURES_INCLUDES;
 
+  static IGNORED_PARENT_CHOICE_FEATURES = DICTIONARY.parsing.features.IGNORED_PARENT_CHOICE_FEATURES;
+
   // if there are duplicate name entries in your feature use this, due to multiple features in builder
   // and sheet with different descriptions.
   static FORCE_DUPLICATE_FEATURE = DICTIONARY.parsing.features.FORCE_DUPLICATE_FEATURE;
@@ -504,7 +506,14 @@ export default class CharacterFeatureFactory {
     const choiceFeatures = ddbFeature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)
       : [];
-    return [ddbFeature.data].concat(choiceFeatures);
+
+    const results = [];
+    if (!CharacterFeatureFactory.IGNORED_PARENT_CHOICE_FEATURES.includes(ddbFeature.ddbDefinition.name)) {
+      results.push(ddbFeature.data);
+    }
+    results.push(...choiceFeatures);
+
+    return results;
   }
 
   fixAcEffects(type = "features") {
@@ -592,7 +601,11 @@ export default class CharacterFeatureFactory {
         if (match) return true;
       }
 
-      if (feat.definition.categories.some((c) => ["__DISPLAY_WITH_DATA_ORIGIN", "__DISGUISE_FEAT"].includes(c.tagName))) return false;
+      if (feat.definition.categories.some((c) => ["__DISPLAY_WITH_DATA_ORIGIN", "__DISGUISE_FEAT"].includes(c.tagName))) {
+        const classOptions = this.getValidOptionalClassFeatures({ requireLevel: true });
+        const grantedFeat = classOptions.some((co) => co.grantedFeats.some((gf) => gf.featIds.some((id) => id === feat.definition.id)));
+        return grantedFeat;
+      }
 
       return true;
     });
@@ -609,22 +622,26 @@ export default class CharacterFeatureFactory {
     this.parsed[type].push(...backgroundFeats);
   }
 
+  getValidOptionalClassFeatures({ requireLevel = true } = {}) {
+    return this.ddbData.classOptions
+      .filter((feat) => {
+        if (!requireLevel || !foundry.utils.hasProperty(feat, "requiredLevel")) return true;
+        const requiredLevel = foundry.utils.getProperty(feat, "requiredLevel");
+        const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
+          || cls.subclassDefinition?.id === feat.classId);
+        if (!klass) {
+          logger.info(`Unable to determine class for optional feature ${feat.name}, you might not have a suitable subclass`, { feat, this: this, requiredLevel });
+          return false;
+        }
+        return klass.level >= requiredLevel;
+      });
+  }
+
   async _buildOptionalClassFeatures({ type = "features", requireLevel = true } = {}) {
     // optional class features
     logger.debug("Parsing optional class features");
     if (this.ddbData.classOptions) {
-      const options = this.ddbData.classOptions
-        .filter((feat) => {
-          if (!requireLevel || !foundry.utils.hasProperty(feat, "requiredLevel")) return true;
-          const requiredLevel = foundry.utils.getProperty(feat, "requiredLevel");
-          const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
-            || cls.subclassDefinition?.id === feat.classId);
-          if (!klass) {
-            logger.info(`Unable to determine class for optional feature ${feat.name}, you might not have a suitable subclass`, { feat, this: this, requiredLevel });
-            return false;
-          }
-          return klass.level >= requiredLevel;
-        })
+      const options = this.getValidOptionalClassFeatures({ requireLevel })
         .filter((feat) => CharacterFeatureFactory.includedFeatureNameCheck(feat.name));
       for (const feat of options) {
         logger.debug(`Parsing Optional Feature ${feat.name}`);
