@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.4.21
+
 - Support loading Stairways data from new syntax.
 - Dark Bargins will now parse in. Additional tweaking is needed to allow for corrections to each bargin.
 
