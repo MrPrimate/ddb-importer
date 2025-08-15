@@ -1,4 +1,6 @@
-# Next Up
+# 6.4.22
+
+- Some weapon fixes for staff parsing.
 
 # 6.4.21
 
