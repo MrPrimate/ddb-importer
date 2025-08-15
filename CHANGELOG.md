@@ -1,5 +1,7 @@
 # Next Up
 
+- Some weapon fixes for staff parsing.
+
 # 6.5.0
 
 D&D 5.1.x Support release, this release _only_ supports Foundry v13 and D&D 5.1. Sorry there were too many low level changes in this release. If you are not yet ready to update to D&D 5.1, please PIN your DDB Importer version in the Foundry Modules.

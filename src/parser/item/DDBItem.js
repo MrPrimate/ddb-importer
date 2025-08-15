@@ -553,22 +553,24 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #generateStaffDamageParts() {
-    let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
-    let versatile = weaponBehavior.properties.find((property) => property.name === "Versatile");
-    if (versatile && versatile.notes) {
-      this.versatileDamage = utils.parseDiceString(versatile.notes).diceString;
-    }
+    const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    if (weaponBehavior) {
+      let versatile = (weaponBehavior.properties ?? []).find((property) => property.name === "Versatile");
+      if (versatile && versatile.notes) {
+        this.versatileDamage = utils.parseDiceString(versatile.notes).diceString;
+      }
 
-    // first damage part
-    // blowguns and other weapons rely on ammunition that provides the damage parts
-    if (weaponBehavior.damage && weaponBehavior.damage.diceString && weaponBehavior.damageType) {
-      const damageString = utils.parseDiceString(weaponBehavior.damage.diceString).diceString;
-      const damage = SystemHelpers.buildDamagePart({
-        damageString,
-        type: weaponBehavior.damageType.toLowerCase(),
-        stripMod: true,
-      });
-      this.damageParts.push(damage);
+      // first damage part
+      // blowguns and other weapons rely on ammunition that provides the damage parts
+      if (weaponBehavior.damage && weaponBehavior.damage.diceString && weaponBehavior.damageType) {
+        const damageString = utils.parseDiceString(weaponBehavior.damage.diceString).diceString;
+        const damage = SystemHelpers.buildDamagePart({
+          damageString,
+          type: weaponBehavior.damageType.toLowerCase(),
+          stripMod: true,
+        });
+        this.damageParts.push(damage);
+      }
     }
 
     // additional damage parts
@@ -1389,8 +1391,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // range: { value: null, long: null, units: '' },
     let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     return {
-      value: weaponBehavior.range ?? 5,
-      long: weaponBehavior.longRange ?? 5,
+      value: weaponBehavior?.range ?? 5,
+      long: weaponBehavior?.longRange ?? 5,
       units: "ft",
     };
   }
@@ -2012,8 +2014,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #generateStaffProperties() {
-    let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
-    if (!weaponBehavior.properties || !Array.isArray(weaponBehavior.properties)) return;
+    const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    if (!weaponBehavior?.properties || !Array.isArray(weaponBehavior.properties)) return;
 
     DICTIONARY.weapon.properties.filter((p) =>
       weaponBehavior.properties.find((prop) => prop.name === p.name) !== undefined,
@@ -2071,17 +2073,17 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #getAbility() {
     // finesse weapons can choose freely, and is now automated
-    if (this.data.system.properties.fin) {
+    if (this.data.system.properties.includes("fin")) {
       return null;
     }
 
     // thrown, but not finesse weapon: STR
-    if (this.data.system.properties.thr) {
+    if (this.data.system.properties.includes("thr")) {
       return "str";
     }
 
-    // if it's a ranged weapon, and hot a reach weapon (long = 10 (?))
-    if (this.data.system.range?.long > 5 && !this.data.system.properties.rch) {
+    // if it's a ranged weapon, and mot a reach weapon (long = 10 (?))
+    if (this.data.system.range?.long > 5 && !this.data.system.properties.includes("rch")) {
       return "dex";
     }
 
