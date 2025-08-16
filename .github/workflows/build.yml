@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - 6.4.x
     paths:
       - 'package.json'
 
