@@ -39,6 +39,7 @@ export default class VengefulBlade extends DDBEnricherData {
         overrides: {
           overrideTemplate: true,
           noTemplate: true,
+          allowCritical: true,
           data: {
             range: {
               override: true,

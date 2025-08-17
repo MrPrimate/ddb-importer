@@ -45,6 +45,7 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Tasha's Bubbling Cauldron": SpellEnrichers.TashasBubblingCauldron,
     "Tasha's Caustic Brew": SpellEnrichers.TashasCausticBrew,
     "Tasha's Hideous Laughter": SpellEnrichers.HideousLaughter,
+    "Accelerate/Decelerate": SpellEnrichers.AccelerateDecelerate,
   };
 
 }

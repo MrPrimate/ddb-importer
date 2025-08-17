@@ -1,6 +1,10 @@
 # Next Up
 
 - Some weapon fixes for staff parsing.
+- More Guidance 2024 fixes.
+- Vengeful Blade allows critical damage rolls.
+- Accelerate/Decelerate: should Allow Critical
+- Prepared Casters would get all spells marked as prepared in D&D 5.1
 
 # 6.5.0
 
