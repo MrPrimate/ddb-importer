@@ -1,4 +1,5 @@
 export { default as AbsorbElements } from "./AbsorbElements.mjs";
+export { default as AccelerateDecelerate } from "./AccelerateDecelerate.mjs";
 export { default as AcidArrow } from "./AcidArrow.mjs";
 export { default as Aid } from "./Aid.mjs";
 export { default as AlterSelf } from "./AlterSelf.mjs";
@@ -142,6 +143,7 @@ export { default as ProtectionFromEnergy } from "./ProtectionFromEnergy.mjs";
 export { default as ProtectionFromPoison } from "./ProtectionFromPoison.mjs";
 export { default as PsychicScream } from "./PsychicScream.mjs";
 export { default as Pyrotechnics } from "./Pyrotechnics.mjs";
+export { default as RagefulNimbus } from "./RagefulNimbus.mjs";
 export { default as RaiseDead } from "./RaiseDead.mjs";
 export { default as RayOfEnfeeblement } from "./RayOfEnfeeblement.mjs";
 export { default as RayOfFrost } from "./RayOfFrost.mjs";
