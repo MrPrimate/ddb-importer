@@ -99,7 +99,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
-    generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null,
+    generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null, unPreparedCantrip = null,
   } = {}) {
 
     const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic");
@@ -179,6 +179,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.DDBCompanionFactory = null; // lazy init
 
     this.isCantrip = this.ddbDefinition.level === 0;
+    this.unPreparedCantrip = this.isCantrip && unPreparedCantrip;
     const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost");
     this.cantripBoost = this.isCantrip && boost;
 
@@ -245,7 +246,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
     } else if (this.data.system.method && this.data.system.method !== "" && classPrepMode) {
       this.data.system.method = classPrepMode.method;
-      this.data.system.prepared = classPrepMode.preparation();
+      this.data.system.prepared = this.isCantrip && !this.unPreparedCantrip
+        ? CONFIG.DND5E.spellPreparationStates.always.value
+        : classPrepMode.preparation(this.spellData.prepared);
     }
     if (this.data.system.method === "pact" && this.pactSpellsPrepared) {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
