@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.5.1
+
 - Some weapon fixes for staff parsing.
 - More Guidance 2024 fixes.
 - Vengeful Blade allows critical damage rolls.
