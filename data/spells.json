@@ -2461,5 +2461,169 @@
   {
     "name": "Wall of Death",
     "path": "icons/magic/control/debuff-chains-ropes-net-green.webp"
+  },
+  {
+    "name": "Bright Sparks",
+    "path": "icons/magic/light/orb-shadow-blue.webp"
+  },
+  {
+    "name": "Concealed Shot",
+    "path": "icons/skills/ranged/rifle-scoped-gray-green.webp"
+  },
+  {
+    "name": "Drayfn's Bane of Excellence",
+    "path": "icons/magic/symbols/star-yellow.webp"
+  },
+  {
+    "name": "Drizzle",
+    "path": "icons/magic/water/projectile-beams-salvo-blue.webp"
+  },
+  {
+    "name": "Jolt",
+    "path": "icons/magic/lightning/bolt-forked-blue-yellow.webp"
+  },
+  {
+    "name": "Mend Plants",
+    "path": "icons/magic/nature/plant-seed-hands-glow-yellow.webp"
+  },
+  {
+    "name": "Moment to Think",
+    "path": "icons/magic/time/clock-stopwatch-white-blue.webp"
+  },
+  {
+    "name": "Retrieve",
+    "path": "icons/skills/targeting/crosshair-bars-yellow.webp"
+  },
+  {
+    "name": "Root Grab",
+    "path": "icons/magic/nature/root-vine-fire-entangled-hand.webp"
+  },
+  {
+    "name": "Shadow Bite",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-needles-purple.webp"
+  },
+  {
+    "name": "Shadow Blindness",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-small-teal.webp"
+  },
+  {
+    "name": "Task",
+    "path": "icons/skills/trades/academics-scribe-quill-gray.webp"
+  },
+  {
+    "name": "Word of Misfortune",
+    "path": "icons/magic/control/fear-fright-shadow-monster-purple.webp"
+  },
+  {
+    "name": "Ancestral Communion",
+    "path": "icons/magic/holy/saint-glass-portrait-halo.webp"
+  },
+  {
+    "name": "Captivate Undead",
+    "path": "icons/magic/death/skull-humanoid-crown-white-blue.webp"
+  },
+  {
+    "name": "Hell's Lash",
+    "path": "icons/magic/fire/beam-strike-whip-red.webp"
+  },
+  {
+    "name": "Hungering Blade",
+    "path": "icons/magic/death/weapon-sword-skull-purple.webp"
+  },
+  {
+    "name": "Infect",
+    "path": "icons/magic/unholy/hand-fire-skeleton-pink.webp"
+  },
+  {
+    "name": "Perforating Shot",
+    "path": "icons/weapons/ammunition/arrowhead-glowing-blue.webp"
+  },
+  {
+    "name": "Biohazard",
+    "path": "icons/magic/death/skull-poison-green.webp"
+  },
+  {
+    "name": "Controlled Mutation",
+    "path": "icons/creatures/tentacles/tentacle-eyes-yellow-pink.webp"
+  },
+  {
+    "name": "Feline Grace",
+    "path": "icons/creatures/mammals/cat-hunched-glowing-red.webp"
+  },
+  {
+    "name": "Summer Winds",
+    "path": "icons/magic/air/wind-tornado-spiral-teal-green.webp"
+  },
+  {
+    "name": "Worm's Repast",
+    "path": "icons/creatures/invertebrates/beetle-grub-larvae-gray.webp"
+  },
+  {
+    "name": "Acid Rain",
+    "path": "icons/magic/acid/projectile-beams-salvo-green.webp"
+  },
+  {
+    "name": "Butterfly Storm",
+    "path": "icons/creatures/invertebrates/wasp-swarm-movement.webp"
+  },
+  {
+    "name": "Conjure Ocean",
+    "path": "icons/magic/water/bubbles-air-water-light.webp"
+  },
+  {
+    "name": "Conjure Rot",
+    "path": "icons/magic/unholy/orb-contained-pink.webp"
+  },
+  {
+    "name": "Crooked Ward",
+    "path": "icons/magic/symbols/star-inverted-yellow.webp"
+  },
+  {
+    "name": "Culling Sickle",
+    "path": "icons/magic/death/weapon-scythe-rune-green.webp"
+  },
+  {
+    "name": "Depth Charge",
+    "path": "icons/magic/water/wave-water-explosion.webp"
+  },
+  {
+    "name": "Harvest Moonglow",
+    "path": "icons/magic/perception/eye-slit-red-orange.webp"
+  },
+  {
+    "name": "Magnetite Shard",
+    "path": "icons/magic/water/projectiles-ice-faceted-salvo-gray.webp"
+  },
+  {
+    "name": "Phantom Panther",
+    "path": "icons/creatures/claws/claw-straight-brown.webp"
+  },
+  {
+    "name": "Plummet",
+    "path": "icons/magic/movement/chevrons-down-yellow.webp"
+  },
+  {
+    "name": "Scarlet Dawn",
+    "path": "icons/magic/light/explosion-star-large-pink.webp"
+  },
+  {
+    "name": "Stench",
+    "path": "icons/magic/air/fog-gas-smoke-green.webp"
+  },
+  {
+    "name": "Vegetable Blade",
+    "path": "icons/magic/nature/leaf-juggle-humanoid-green.webp"
+  },
+  {
+    "name": "Venomous Aura",
+    "path": "icons/magic/death/undead-skeleton-energy-green.webp"
+  },
+  {
+    "name": "Zippit!",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Drayfn's Curse of Incompetence",
+    "path": "icons/magic/symbols/star-inverted-yellow.webp"
   }
 ]
