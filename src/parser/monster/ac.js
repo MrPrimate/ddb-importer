@@ -73,12 +73,12 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
         // const type = item.includes("ring") || item.includes("cloak") ? "trinket" : "equipment";
         const itemsToIgnore = this.addMonsterEffects ? ["suave defense"] : [];
         if (!itemsToIgnore.includes(lowerItem)) {
-          const quantityRegex = /(.*)s \((\d+)\)/;
+          const quantityRegex = /(.*) \((\d+)\)/;
           const match = lowerItem.match(quantityRegex);
           let name = match ? match[1] : lowerItem;
           let quantity = match ? parseInt(match[2]) : 1;
           if (name && name != "") itemsToCheck.push({
-            name: name
+            name: (match ? name.replace(` (${quantity})`, "") : name)
               .split(" ")
               .map((word) => utils.capitalize(word))
               .join(" "),
@@ -100,7 +100,10 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const rawItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "equipment", { monsterMatch: true });
+  const rawItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "equipment", {
+    looseMatch: true,
+    monsterMatch: true,
+  });
   const adjustedItems = rawItems
     .filter((item) => item.type !== "weapon")
     .map((item) => {

@@ -13,7 +13,14 @@ export default class DDBItemImporter {
   constructor(type, documents, {
     matchFlags = [],
     deleteBeforeUpdate = null,
-    indexFilter = {},
+    indexFilter = {
+      fields: [
+        "name",
+        "flags.ddbimporter.is2014",
+        "flags.ddbimporter.is2024",
+        "flags.ddbimporter.dndbeyond.alternativeNames",
+      ],
+    },
     useCompendiumFolders = null,
     notifier = null,
   } = {}) {
@@ -494,7 +501,15 @@ ${item.system.description.chat}
       deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false } = {},
   ) {
 
-    const itemImporter = new DDBItemImporter(type, []);
+    const itemImporter = new DDBItemImporter(type, [], {
+      indexFilter: { fields: [
+        "name",
+        "flags.ddbimporter.is2014",
+        "flags.ddbimporter.is2024",
+        "flags.ddbimporter.dndbeyond.alternativeNames",
+      ] },
+      matchFlags: ["is2014", "is2024"],
+    });
     await itemImporter.init();
 
     const loadOptions = {
@@ -504,7 +519,8 @@ ${item.system.description.chat}
       keepDDBId,
       deleteCompendiumId,
       linkItemFlags,
-      matchFlags: ["is2014", "is2024"],
+      indexFilter: itemImporter.indexFilter,
+      // matchFlags: ["is2014", "is2024"],
     };
     const results = await itemImporter.loadPassedItemsFromCompendium(items, loadOptions);
 

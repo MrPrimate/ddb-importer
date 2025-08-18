@@ -1,13 +1,24 @@
+# Next up
+
+# 6.4.24
+
+- Some monster weapons would import as features, such as the Light Hammer on the Bugbear Warrior, resulting in incorrect Melee/Range/Reach. @tminz
+- Some monsters could import the 2014 and 2024 version of gear on their sheet.
+- Some monsters would fail to parse some spells or features due to formatting on DDB. e.g. Jafaki in AV.
+
 # 6.4.23
 
-- More Guidance 2024 fixes.
-- Vengeful Blade allows critical damage rolls.
-- Accelerate/Decelerate: should Allow Critical
-- Prepared Casters would get all spells marked as prepared in D&D 5.1
+- Some monster weapons would import as features, such as the Light Hammer on the Bugbear Warrior, resulting in incorrect Melee/Range/Reach. @tminz
+- Some monsters could import the 2014 and 2024 version of gear on their sheet.
+- Some monsters would fail to parse some spells or features due to formatting on DDB. e.g. Jafaki in AV.
 
 # 6.4.22
 
 - Some weapon fixes for staff parsing.
+- More Guidance 2024 fixes.
+- Vengeful Blade allows critical damage rolls.
+- Accelerate/Decelerate: should Allow Critical
+
 
 # 6.4.21
 
