@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.5.2
+
 - Some monster weapons would import as features, such as the Light Hammer on the Bugbear Warrior, resulting in incorrect Melee/Range/Reach. @tminz
 - Some monsters could import the 2014 and 2024 version of gear on their sheet.
 - Some monsters would fail to parse some spells or features due to formatting on DDB. e.g. Jafaki in AV.
