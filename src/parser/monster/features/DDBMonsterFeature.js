@@ -87,6 +87,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     if (this.name === "Legendary Actions" || !this.weaponLookup) {
       this.templateType = "feat";
+    } else if (this.weaponLookup) {
+      this.templateType = "weapon";
     }
 
     if (!this.data) this.createBaseFeature();
@@ -561,6 +563,22 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         weaponAbilities = ["str"];
       }
       this.actionData.weaponType = this.weaponLookup.weaponType;
+
+      const characterWeapon = DICTIONARY.actor.proficiencies.find((w) => w.name === this.weaponLookup.name);
+      if (characterWeapon) {
+        if (characterWeapon?.ammunitionType) {
+          foundry.utils.setProperty(this.data, "system.ammunition.type", characterWeapon.ammunitionType);
+        }
+        if (characterWeapon?.mastery) {
+          foundry.utils.setProperty(this.data, "system.mastery", characterWeapon.mastery);
+        }
+        if (characterWeapon?.foundryValue) {
+          foundry.utils.setProperty(this.data, "system.type.baseItem", characterWeapon.foundryValue);
+        }
+      }
+
+      // const baseItem = this.ddbDefinition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
+      // if (baseItem) foundry.utils.setProperty(this.data, "system.type.baseItem", baseItem);
     } else if (this.meleeAttack) {
       this.actionData.weaponType = "simpleM";
     } else if (this.rangedAttack) {
