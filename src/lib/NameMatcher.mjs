@@ -22,7 +22,7 @@ export default class NameMatcher {
   }
 
   static getLooseNames(name, extraNames = [], removeMagic = true) {
-    let looseNames = new Set(extraNames.map((name) => name.toLowerCase()));
+    let looseNames = new Set(extraNames.map((n) => n.toLowerCase()));
     looseNames.add(name.toLowerCase());
     looseNames.add(name.replace(",", "").toLowerCase());
     let refactNameArray = name.split("(")[0].trim().split(", ");
@@ -51,6 +51,21 @@ export default class NameMatcher {
     looseNames.add(name.replace("(10-foot)", "(10 foot)").toLowerCase());
     looseNames.add(name.replace("(0 - Cantrip)", "Cantrip").toLowerCase());
     looseNames.add(name.replace(/\((\d..) Level\)/, "$1 Level").toLowerCase());
+
+    const avNames = ["Basic", "Greater", "Major", "Moderate"];
+    avNames.forEach((avName) => {
+      if (name.startsWith(`${avName}`)) {
+        const addition = `${name.replace(`${avName} `, "")}, ${avName}`.toLowerCase();
+        looseNames.add(addition);
+        const addition2 = `${name.replace(`${avName} `, "").replace(/s$/, "")}, ${avName}`.toLowerCase();
+        looseNames.add(addition2);
+      }
+      if (name.endsWith(`, ${avName}`)) {
+        const addition = `${avName} ${name.replace(`, ${avName}`, "")}`.toLowerCase();
+        looseNames.add(addition);
+        looseNames.add(addition.replace(/s$/, "").toLowerCase());
+      }
+    });
 
     if (removeMagic || (!removeMagic && name.split(",")[0].length > 1 && !(/\+\d$/).test(name.trim()))) {
       looseNames.add(name.split(",")[0].toLowerCase());
