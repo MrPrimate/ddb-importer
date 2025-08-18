@@ -131,6 +131,19 @@ export default class DDBMonsterFeatureFactory {
     "Yeenoghu",
   ];
 
+  static namePassMatch(name) {
+    const regex = /^(\d+)[–-–−](\d+)/;
+    const rollMatch = regex.test(name);
+
+    if (rollMatch) return true;
+
+    const regexSpell = /^At will:|^(\d+)\/Day/i;
+    const spellMatch = regexSpell.test(name);
+
+    if (spellMatch) return true;
+    return false;
+  }
+
   #generateActionActions(type) {
     let splitActions1 = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions1.length > 1) {
@@ -152,6 +165,7 @@ export default class DDBMonsterFeatureFactory {
       if (!query) return;
       let name = query.textContent.trim().replace(/\./g, '');
       name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
+      if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
       const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
       this.featureBlocks[type].push(action);
     });
@@ -164,6 +178,7 @@ export default class DDBMonsterFeatureFactory {
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
         name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
+        if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
       });
@@ -177,6 +192,7 @@ export default class DDBMonsterFeatureFactory {
         if (!query) return;
         let name = query.textContent.trim().replace(/\./g, '');
         name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
+        if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
         this.featureBlocks[type].push(action);
       });
@@ -190,6 +206,7 @@ export default class DDBMonsterFeatureFactory {
         const title = pDom.textContent.split('.')[0];
         const name = title.trim();
         if (name && name.length > 0) {
+          if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
           const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
