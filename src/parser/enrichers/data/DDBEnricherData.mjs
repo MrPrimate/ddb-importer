@@ -357,6 +357,10 @@ export default class DDBEnricherData {
     return false;
   }
 
+  get combineDamageTypes() {
+    return false;
+  }
+
   // eslint-disable-next-line no-unused-vars, no-empty-function
   customFunction(options = {}) {
 

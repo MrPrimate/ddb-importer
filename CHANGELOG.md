@@ -1,5 +1,10 @@
 # Next up
 
+
+# 6.4.25
+
+- Ballistic Smite parsing fixes
+
 # 6.4.24
 
 - Some monster weapons would import as features, such as the Light Hammer on the Bugbear Warrior, resulting in incorrect Melee/Range/Reach. @tminz

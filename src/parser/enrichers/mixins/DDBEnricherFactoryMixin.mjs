@@ -270,6 +270,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get combineDamageTypes() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.combineDamageTypes;
+    } else {
+      return false;
+    }
+  }
+
   constructor({
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,
