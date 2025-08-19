@@ -14,6 +14,7 @@ export { default as ArcaneSword } from "./ArcaneSword.mjs";
 export { default as ArcaneVigor } from "./ArcaneVigor.mjs";
 export { default as ArmorOfAgathys } from "./ArmorOfAgathys.mjs";
 export { default as AuraOfLife } from "./AuraOfLife.mjs";
+export { default as BallisticSmite } from "./BallisticSmite.mjs";
 export { default as Bane } from "./Bane.mjs";
 export { default as BanishingSmite } from "./BanishingSmite.mjs";
 export { default as Banishment } from "./Banishment.mjs";

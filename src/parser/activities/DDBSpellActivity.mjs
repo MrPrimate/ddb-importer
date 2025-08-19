@@ -395,6 +395,16 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       parts = parts.slice(0, 1);
     }
 
+    if (this.ddbParent.enricher?.combineDamageTypes) {
+      const types = new Set();
+      parts.forEach((part) => {
+        part.types.forEach((type) => types.add(type));
+      });
+      const part = parts[0];
+      part.types = Array.from(types);
+      parts = [part];
+    }
+
     this.data.damage = {
       parts,
       onSave: this.isCantrip ? "none" : "half", // default to half

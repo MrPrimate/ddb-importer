@@ -222,4 +222,8 @@ export default class Example extends DDBEnricherData {
     return true;
   }
 
+  get combineDamageTypes() {
+    return true;
+  }
+
 }
