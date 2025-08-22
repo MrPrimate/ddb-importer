@@ -250,7 +250,12 @@ export default class DDBCharacterImporter {
     if (this.actorOriginal.prototypeToken.texture.src.includes("mystery-man")) {
       foundry.utils.setProperty(this.result.character, "prototypeToken.texture.src", this.result.character.img);
     } else if (foundry.utils.hasProperty(this.actorOriginal, "prototypeToken.texture.src")) {
+      // we only adjust the prototype token if we have an original
       foundry.utils.setProperty(this.result.character, "prototypeToken.texture.src", this.actorOriginal.prototypeToken.texture.src);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.scaleX", this.actorOriginal.prototypeToken.texture.scaleX);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.scaleY", this.actorOriginal.prototypeToken.texture.scaleY);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.width", this.actorOriginal.prototypeToken.texture.width);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.height", this.actorOriginal.prototypeToken.texture.height);
     }
   }
 

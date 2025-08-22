@@ -408,14 +408,14 @@ export default class DDBCompanionMixin {
       ? DICTIONARY.sizes.find((s) => this.subType.toLowerCase() == s.name.toLowerCase())
       : null;
     const sizeData = DICTIONARY.sizes.find((s) => size.toLowerCase() == s.name.toLowerCase())
-      ?? { name: "Medium", value: "med", size: 1 };
+      ?? { name: "Medium", value: "med", size: 1, scale: 1 };
 
     const finalSize = nameSize ?? sizeData;
 
     this.npc.system.traits.size = finalSize.value;
     this.npc.prototypeToken.width = finalSize.size;
     this.npc.prototypeToken.height = finalSize.size;
-    this.npc.prototypeToken.scale = 1;
+    this.npc.prototypeToken.scale = finalSize.scale;
   }
 
   _handleType(typeString) {

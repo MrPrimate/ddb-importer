@@ -9,7 +9,7 @@
 //     "size": "grg",
 //     "sizeId": 7,
 
-import { DICTIONARY, SETTINGS } from '../../config/_module.mjs';
+import { DICTIONARY } from '../../config/_module.mjs';
 import { logger } from '../../lib/_module.mjs';
 import DDBMonster from "../DDBMonster.js";
 
@@ -26,16 +26,11 @@ DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {
 
 DDBMonster.prototype._generateSize = function _generateSize () {
   const sizeData = this.getSizeFromId(this.source.sizeId);
-  const flatScale = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-size-flat-scale");
-  const token = {
-    scale: flatScale ? 1 : (sizeData.size >= 1 ? 1 : sizeData.size),
-    value: flatScale ? sizeData.size : (sizeData.size >= 1 ? sizeData.size : 1),
-  };
 
   this.npc.system.traits.size = sizeData.value;
-  this.npc.prototypeToken.width = token.value;
-  this.npc.prototypeToken.height = token.value;
-  this.npc.prototypeToken.texture.scaleX = token.scale;
-  this.npc.prototypeToken.texture.scaleY = token.scale;
+  this.npc.prototypeToken.width = sizeData.size;
+  this.npc.prototypeToken.height = sizeData.size;
+  this.npc.prototypeToken.texture.scaleX = sizeData.scale;
+  this.npc.prototypeToken.texture.scaleY = sizeData.scale;
 
 };
