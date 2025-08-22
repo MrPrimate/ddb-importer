@@ -24,3 +24,4 @@ export * as EldritchCannon from "./EldritchCannon/_module.mjs";
 export * as Stirge from "./Stirge/_module.mjs";
 export * as SwarmOfStirges from "./SwarmOfStirges/_module.mjs";
 export * as Beholder from "./Beholder/_module.mjs";
+export * as BeastOfTheLand from "./BeastOfTheLand/_module.mjs";

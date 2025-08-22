@@ -19,6 +19,17 @@ export default class PrimalCompanionSummon extends DDBEnricherData {
             { period: "lr", type: 'recoverAll', formula: undefined },
           ],
         },
+        bonuses: {
+          ac: "@abilities.wis.mod",
+          hd: "@classes.ranger.levels",
+          hp: "@classes.ranger.levels * 5",
+          attackDamage: "@abilities.wis.mod",
+        },
+        match: {
+          proficiency: true,
+          attacks: true,
+          saves: false,
+        },
       },
     };
   }

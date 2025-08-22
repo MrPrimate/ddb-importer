@@ -108,7 +108,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
     if (companion) {
       damageParts = damageParts.map((data) => {
-        data.bonus = data.bonus.replace("@prof", "");
+        data.bonus = data.bonus.replace("@prof", "").replace(/\s*[-+]\s*$/, "");
         return data;
       });
     }

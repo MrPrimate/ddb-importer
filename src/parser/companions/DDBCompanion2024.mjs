@@ -233,8 +233,15 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
         this.summons.bonuses.attackDamage = "@item.level";
         this.summons.bonuses.saveDamage = "@item.level";
       }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.profBonus")) {
+        this.summons.bonuses.attackDamage = "@prof";
+      }
       if (foundry.utils.getProperty(feature, "flags.ddbimporter.spellSave")) {
         this.summons.match.saves = true;
+      }
+      if (html.includes("your Proficiency Bonus to any ability check or saving throw")) {
+        this.npc.system.bonuses.abilities.check = "@prof";
+        this.npc.system.bonuses.abilities.save = "@prof";
       }
     });
   }
@@ -296,8 +303,6 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     this.#generateLanguages();
     this.#generateSpeed();
     await this.#generateFeatures();
-
-    // console.warn("Result", this);
   }
 
 }

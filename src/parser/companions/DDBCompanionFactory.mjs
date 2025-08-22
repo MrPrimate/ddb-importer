@@ -97,7 +97,15 @@ export default class DDBCompanionFactory {
       const existingSummons = this.summons
         ? foundry.utils.deepClone(this.summons)
         : null;
-      const summonMatch = isEqual(existingSummons, existingSummons);
+      const summonMatch = isEqual(companionSummons, existingSummons);
+
+      // console.warn("Companion Parsed DISCOVERY", {
+      //   ddbCompanion,
+      //   companionSummons,
+      //   existingSummons,
+      //   summonMatch,
+      //   this: this
+      // });
       if (this.summons === null) {
         this.summons = foundry.utils.deepClone(ddbCompanion.summons);
       } else if (!summonMatch) {
@@ -345,7 +353,7 @@ export default class DDBCompanionFactory {
     return activity.data;
   }
 
-  async addCompanionsToDocuments(otherDocuments, activity = null) {
+  async addCompanionsToDocuments(otherDocuments, activity = null, _enricherActivity = null) {
     if (!this.originDocument || !this.summons) return;
     const compendiumSummons = await this.getExistingCompendiumCompanions();
     const summonActors = compendiumSummons.length > 0
@@ -368,6 +376,7 @@ export default class DDBCompanionFactory {
       : this.originDocument;
 
     logger.debug("Companion Data Load", {
+      activity,
       originDocument: updateDocument,
       profiles,
       activityProfiles: activity?.profiles,
@@ -398,9 +407,19 @@ export default class DDBCompanionFactory {
       }
     }
 
+    logger.debug("Final summons Data", {
+      summonsData: foundry.utils.deepClone(summonsData),
+      activity: foundry.utils.deepClone(activity),
+      updateDocument: foundry.utils.deepClone(updateDocument),
+    });
+
     const activityData = activity
       ? foundry.utils.mergeObject(activity, summonsData)
       : foundry.utils.mergeObject(this.#getDocumentActivity(updateDocument), summonsData);
+
+    logger.debug("Final Activity Data", {
+      activityData: foundry.utils.deepClone(activityData),
+    });
     delete this.originDocument.system.activities[activityData._id];
     updateDocument.system.activities[activityData._id] = activityData;
 

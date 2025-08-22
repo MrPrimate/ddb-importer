@@ -50,6 +50,11 @@ export default class SystemHelpers {
       data.custom.enabled = true;
       data.custom.formula = formula;
     }
+
+    if (data.bonus) {
+      data.bonus = data.bonus.replace(/\s*[-+]\s*$/, "");
+    }
+
   }
 
   static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false } = {}) {

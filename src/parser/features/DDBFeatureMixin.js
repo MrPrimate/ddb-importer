@@ -984,11 +984,13 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     if (!activity) return undefined;
     const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
-    if (activityData.type !== "summon") return activity;
-    if (this.isCompanionFeature2014 || this.isCompanionFeature2024)
-      await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity);
-    else if (this.isCRSummonFeature2024 || this.isCRSummonFeature2014)
-      await this.ddbCompanionFactory.addCRSummoning(activityData);
+    if (activityData?.type === "summon") {
+      if (this.isCompanionFeature2014 || this.isCompanionFeature2024) {
+        await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity);
+      } else if (this.isCRSummonFeature2024 || this.isCRSummonFeature2014) {
+        await this.ddbCompanionFactory.addCRSummoning(activityData);
+      }
+    }
 
     logger.verbose("Generated Activity", {
       activity: foundry.utils.deepClone(activity),

@@ -13,17 +13,68 @@ export default class PrimalCompanion extends DDBEnricherData {
 
   get additionalActivities() {
     return this.is2014
-      ? [{
-        constructor: {
-          name: "Summon",
-          type: "summon",
+      ? [
+        {
+          constructor: {
+            name: "Summon",
+            type: "summon",
+          },
+          build: {
+            generateRange: true,
+            generateSummon: true,
+            generateConsumption: true,
+          },
+          overrides: {
+            id: "summonPriCSclNe1",
+            summons: {
+              "bonuses": {
+                "attackDamage": "@prof",
+              },
+              match: {
+                proficiency: true,
+                attacks: true,
+                saves: true,
+              },
+            },
+          },
         },
-        build: {
-          generateRange: true,
-          generateSummon: true,
-          generateConsumption: true,
+        {
+          constructor: {
+            name: "Summon With Spell Slot",
+            type: "forward",
+          },
+          build: {
+          },
+          overrides: {
+            activationType: "action",
+            activationCondition: "Takes 1 minute to be restored to life",
+            data: {
+              activity: {
+                id: "summonPriCSclNe1",
+              },
+              consumption: {
+                targets: [
+                  {
+                    type: "spellSlots",
+                    value: "1",
+                    target: "1",
+                    scaling: {},
+                  },
+                ],
+                scaling: {
+                  allowed: true,
+                  max: "",
+                },
+                spellSlot: true,
+              },
+              uses: { spent: null, max: "" },
+              midiProperties: {
+                confirmTargets: "default",
+              },
+            },
+          },
         },
-      }]
+      ]
       : [
         {
           action: {
