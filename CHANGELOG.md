@@ -4,6 +4,7 @@
 # 6.4.25
 
 - Ballistic Smite parsing fixes
+- Some creatures or characters tokens would not be sized correctly if small.
 
 # 6.4.24
 

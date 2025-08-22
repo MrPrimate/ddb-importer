@@ -298,7 +298,7 @@ export default class DDBRace {
     if (ddbSizeData.id === 10) {
       advancement.updateSource({ configuration: { sizes: ["med", "sm"] } });
     } else if (ddbSizeData !== 4) {
-      const size = DICTIONARY.actor.actorSizes.find((s) => s.id === this.race.sizeId);
+      const size = DICTIONARY.sizes.find((s) => s.id === this.race.sizeId);
       advancement.updateSource({ configuration: { sizes: [size.value] } });
     }
 

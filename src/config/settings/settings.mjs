@@ -1052,10 +1052,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "munching-policy-size-flat-scale": {
-            type: Boolean,
-            default: true,
-          },
           "munching-policy-use-source-filter": {
             type: Boolean,
             default: false,

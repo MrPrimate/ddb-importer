@@ -39,7 +39,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(addToCompend
         const size = a.configuration.sizes.length === 1
           ? a.configuration.sizes[0]
           : modSize && modSize.length === 1
-            ? DICTIONARY.actor.actorSizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
+            ? DICTIONARY.sizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
             : `${this.raw.character.system.traits.size}`;
         a.value = {
           size,
