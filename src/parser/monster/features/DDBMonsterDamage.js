@@ -20,6 +20,7 @@ export class DDBMonsterDamage {
     this.versatileParts = [];
     this.saveParts = [];
     this.levelBonus = false;
+    this.profBonus = false;
     this.splitSaves = splitSaves;
 
     this.ddbMonsterFeature = ddbMonsterFeature;
@@ -158,6 +159,7 @@ export class DDBMonsterDamage {
     const profBonus = hasProfBonus ? "@prof" : "";
     const levelBonus = dmg.groups.dice && (/the spell[’']s level/i).test(dmg.groups.dice); // ? "@item.level" : "";
 
+    if (hasProfBonus) this.profBonus = true;
     if (levelBonus) this.levelBonus = true;
     const { includesDice, finalDamage } = this._getHitMatchDamage(dmg);
 

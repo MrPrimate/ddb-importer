@@ -217,6 +217,9 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
         this.summons.bonuses.attackDamage = "@item.level";
         this.summons.bonuses.saveDamage = "@item.level";
       }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.profBonus")) {
+        this.summons.bonuses.attackDamage = "@prof";
+      }
     });
     return { next, featType };
   }

@@ -35,6 +35,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       flags: {
         ddbimporter: {
           levelBonus: false,
+          profBonus: false,
           spellSave: false,
           dndbeyond: {
           },
@@ -52,6 +53,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.data.system.requirements = "";
     this.data.sort = this.sort;
     this.levelBonus = false;
+    this.profBonus = false;
   }
 
   // prepare the html in this.html for a parse, runs some checks and pregen to calculate values
@@ -306,6 +308,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.actionData.damageParts = this.ddbMonsterDamage.damageParts;
     this.actionData.versatileParts = this.ddbMonsterDamage.versatileParts;
     this.actionData.saveParts = this.ddbMonsterDamage.saveParts;
+    if (this.ddbMonsterDamage.levelBonus) this.levelBonus = true;
+    if (this.ddbMonsterDamage.profBonus) this.profBonus = true;
 
     this._generateEscapeCheck(hit);
 
@@ -1726,6 +1730,8 @@ ${this.data.system.description.value}
 
     if (this.levelBonus)
       foundry.utils.setProperty(this.data, "flags.ddbimporter.levelBonus", true);
+    if (this.profBonus)
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.profBonus", true);
     await this.#generateDescription();
 
     await this.enricher.addDocumentOverride();

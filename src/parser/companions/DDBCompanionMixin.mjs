@@ -315,7 +315,7 @@ export default class DDBCompanionMixin {
   }
 
   _handleAc(acString) {
-    const ac = Number.parseInt(acString.split(",")[0]);
+    const ac = Number.parseInt(acString.split(",")[0].split("plus")[0].trim());
 
     if (Number.isInteger(ac)) {
       this.npc.system.attributes.ac = {
@@ -329,6 +329,9 @@ export default class DDBCompanionMixin {
         this.summons.bonuses.ac = "@prof";
       } else if (testString.includes("+ the level of the spell") || testString.includes("the spell's level")) {
         this.summons.bonuses.ac = "@item.level";
+      } else {
+        const modMatch = acString.match(/(?:\+|plus) your (\w+) modifier/i);
+        if (modMatch) this.summons.bonuses.ac = `@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`;
       }
     }
   }
@@ -366,7 +369,7 @@ export default class DDBCompanionMixin {
     if (modMatch) hpAdjustments.push(`@abilities.${modMatch[1].toLowerCase().substring(0, 3)}.mod`);
 
     // class level
-    const klassMultiMatch = hpString.match(/\+ (\w+)?( times? )?your (\w+) level/);
+    const klassMultiMatch = hpString.match(/(?:\+|plus) (\w+)?( times? )?your (\w+) level/);
     if (klassMultiMatch) {
       const klass = klassMultiMatch[3].trim().toLowerCase();
       const multiplier = klassMultiMatch[1]
