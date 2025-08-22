@@ -1,7 +1,10 @@
 # Next Up
 
+# 6.5.3
+
 - Ballistic Smite parsing fixes
 - Some creatures or characters tokens would not be sized correctly if small.
+- Primal Companion parsing could fail @ryn987
 
 # 6.5.2
 
