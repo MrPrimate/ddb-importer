@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.5.4
+
+- Some character imports would fail in 6.5.3 with a `e.bonus.replace` error.
+
 # 6.5.3
 
 - Ballistic Smite parsing fixes

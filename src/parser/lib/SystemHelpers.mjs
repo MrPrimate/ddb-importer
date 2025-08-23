@@ -1,3 +1,5 @@
+import { utils } from "../../lib/_module.mjs";
+
 export default class SystemHelpers {
 
   static effectModules() {
@@ -51,7 +53,7 @@ export default class SystemHelpers {
       data.custom.formula = formula;
     }
 
-    if (data.bonus) {
+    if (utils.isString(data.bonus)) {
       data.bonus = data.bonus.replace(/\s*[-+]\s*$/, "");
     }
 
