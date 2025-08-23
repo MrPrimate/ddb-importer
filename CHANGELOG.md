@@ -1,5 +1,8 @@
 # Next up
 
+# 6.4.26
+
+- Some character imports would fail in 6.5.3 with a `e.bonus.replace` error.
 
 # 6.4.25
 
