@@ -1,6 +1,7 @@
 # Next Up
 
 - Add SpellSniper flag to Spell Sniper for midiqol automation.
+- New Sources option on import to add all cantrips to a 2024 Wizard as they can change one on long rest. Disabled by default. @crimsonedge
 
 # 6.5.4
 
