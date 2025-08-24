@@ -37,4 +37,4 @@ export { default as StrikeOfTheGiants } from "./StrikeOfTheGiants.mjs";
 export { default as TavernBrawler } from "./TavernBrawler.mjs";
 export { default as Telekinetic } from "./Telekinetic.mjs";
 export { default as WarCaster } from "./WarCaster.mjs";
-
+export { default as SpellSniper } from "./SpellSniper.mjs";
