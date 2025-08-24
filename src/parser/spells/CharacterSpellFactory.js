@@ -52,7 +52,8 @@ export default class CharacterSpellFactory {
     spellCastingAbility,
     abilityModifier,
     cantripBoost,
-  }) {
+    unPreparedCantrip = null,
+  } = {}) {
     // add some data for the parsing of the spells into the data structure
     spell.flags = {
       ddbimporter: {
@@ -74,6 +75,7 @@ export default class CharacterSpellFactory {
           usesSpellSlot: spell.usesSpellSlot,
           forceMaterial: classInfo.definition.name === "Artificer",
           homebrew: spell.definition.isHomebrew,
+          unPreparedCantrip,
         },
       },
       "spell-class-filter-for-5e": {
@@ -94,6 +96,7 @@ export default class CharacterSpellFactory {
       ddbData: this.ddb,
       namePostfix: `${this._getSpellCount(spell.definition.name)}`,
       generateSummons: this.generateSummons,
+      unPreparedCantrip,
     });
     foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
     const duplicateSpell = this.processed.findIndex(
@@ -204,6 +207,70 @@ export default class CharacterSpellFactory {
       }
     }
 
+  }
+
+  async getUnpreparedCantrips() {
+    for (const playerClass of this.ddb.character.classSpells) {
+      if (!playerClass.cantrips) continue;
+      if (playerClass.cantrips.length === 0) continue;
+      if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-all-cantrips")) continue;
+
+      const classInfo = this.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
+      const spellCastingAbility = getSpellCastingAbility(classInfo);
+      const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
+
+      const is2014Class = classInfo.definition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+      const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
+      if (!is2014Class && is2024NewKnownCaster) {
+        playerClass.spells = playerClass.spells.map((spell) => {
+          if (!spell.alwaysPrepared && spell.countsAsKnownSpell) spell.prepared = true;
+          return spell;
+        });
+      }
+      logger.debug("Spell parsing, class info", classInfo);
+
+      const cantripBoost
+        = DDBModifiers.getChosenClassModifiers(this.ddb).filter(
+          (mod) =>
+            mod.type === "bonus"
+            && mod.subType === `${classInfo.definition.name.toLowerCase()}-cantrip-damage`
+            && (mod.restriction === null || mod.restriction === ""),
+        ).length > 0;
+
+      const allCantrips = (playerClass.cantrips ?? []).map((cantrip) => {
+        cantrip.unPreparedCantrip = true;
+        return cantrip;
+      });
+
+      const filteredCantrips = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources")
+        ? this.filterSpellsByAllowedCategories(allCantrips)
+        : allCantrips;
+
+      const removeIds = [];
+
+      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024"))
+        removeIds.push(24);
+
+      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy"))
+        removeIds.push(23, 26);
+
+      const targetSpells = removeIds.length > 0
+        ? this.removeSpellsBySourceCategoryIds(filteredCantrips, removeIds)
+        : filteredCantrips;
+
+      for (const spell of targetSpells) {
+        if (!spell.definition) continue;
+        await this._processClassSpell({
+          classInfo,
+          playerClass,
+          spell,
+          spellCastingAbility,
+          abilityModifier,
+          cantripBoost,
+          unPreparedCantrip: spell.unPreparedCantrip ?? null,
+        });
+      }
+    }
   }
 
   // eslint-disable-next-line complexity
@@ -603,6 +670,9 @@ export default class CharacterSpellFactory {
 
     // background spells are handled slightly differently
     await this.getBackgroundSpells();
+
+    // unprepared cantrips
+    await this.getUnpreparedCantrips();
 
     return this.processed.sort((a, b) => a.name.localeCompare(b.name));
   }

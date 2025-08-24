@@ -968,7 +968,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   static async parseSpell(data, character,
-    { namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null } = {},
+    {
+      namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null,
+      unPreparedCantrip = null,
+    } = {},
   ) {
     const spell = new DDBSpell({
       ddbData,
@@ -979,6 +982,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       enricher,
       generateSummons,
       notifier,
+      unPreparedCantrip,
     });
     await spell.init();
     await spell.parse();

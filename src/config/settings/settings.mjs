@@ -690,6 +690,11 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "character-update-policy-import-all-cantrips": {
+            scope: "player",
+            type: Boolean,
+            default: false,
+          },
         },
         SYNC: {
           "sync-policy-currency": {

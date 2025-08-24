@@ -214,6 +214,14 @@ const MuncherSettings = {
         enabled: true,
       },
       {
+        name: "character-update-policy-import-all-cantrips",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-all-cantrips"),
+        label: "Import all cantrips for 2024 Wizard?",
+        hint:
+          "2024 Wizards can change a cantrip per long rest, import all available cantrips (respects other source settings on this page).",
+        enabled: true,
+      },
+      {
         name: "character-update-policy-use-active-sources",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources"),
         label: "Restrict imported spells to allowed sources?",
