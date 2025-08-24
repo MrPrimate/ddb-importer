@@ -1,5 +1,7 @@
 # Next Up
 
+- Add SpellSniper flag to Spell Sniper for midiqol automation.
+
 # 6.5.4
 
 - Some character imports would fail in 6.5.3 with a `e.bonus.replace` error.
