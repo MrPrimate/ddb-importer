@@ -34,7 +34,7 @@ export default class Guidance extends DDBEnricherData {
       },
       {
         noCreate: true,
-        noMidi: true,
+        midiNever: true,
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.abilities.check"),
         ],
