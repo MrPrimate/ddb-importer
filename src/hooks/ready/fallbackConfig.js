@@ -5036,6 +5036,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/50664/299/638895107009815728.jpeg",
       sourceURL: "sources/dnd/av",
     },
+    {
+      id: 207,
+      name: "GHPG",
+      description: "Grim Hollow: Player’s Guide",
+      sourceCategoryId: 18,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/51049/918/638912410729015597.jpeg",
+      sourceURL: "sources/dnd/ghpg",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
