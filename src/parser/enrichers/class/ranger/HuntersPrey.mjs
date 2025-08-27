@@ -14,6 +14,9 @@ export default class HuntersPrey extends DDBEnricherData {
       targetType: "self",
       activationType: "special",
       activationCondition: "Finish a short or long rest",
+      data: {
+        sort: 2,
+      },
     };
   }
 
@@ -22,12 +25,14 @@ export default class HuntersPrey extends DDBEnricherData {
       {
         name: "Colossus Slayer",
         data: {
+          img: "icons/creatures/magical/construct-iron-stomping-yellow.webp",
           "flags.ddbimporter.activityMatch": "Choice",
         },
       },
       {
         name: "Horde Breaker",
         data: {
+          img: "icons/creatures/invertebrates/wasp-swarm-movement.webp",
           "flags.ddbimporter.activityMatch": "Choice",
         },
       },
@@ -46,6 +51,11 @@ export default class HuntersPrey extends DDBEnricherData {
           ],
         },
       },
+      descriptionSuffix: `
+<section class="secret" id="secret-ddbHuntersPrey">
+<p><strong>Implementation Details</strong></p>
+<p>You can use the effects on the Choice action to track your choice. The damage activity is provided for Colossus Slayer.</p>
+</section>`,
     };
   }
 
@@ -65,6 +75,11 @@ export default class HuntersPrey extends DDBEnricherData {
           activationType: "special",
           activationCondition: "Once per turn, if target is missing hit points",
           data: {
+            sort: 1,
+            range: {
+              value: null,
+              units: "spec",
+            },
             damage: {
               parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: DDBEnricherData.allDamageTypes() })],
             },

@@ -188,6 +188,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Ritual Caster (Sorcerer)",
     "Ritual Caster (Warlock)",
     "Ritual Caster (Wizard)",
+    "Hunter's Prey",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
