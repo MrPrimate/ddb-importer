@@ -362,7 +362,7 @@ export default class DDBEnricherData {
   }
 
   // eslint-disable-next-line no-unused-vars, no-empty-function
-  customFunction(options = {}) {
+  async customFunction(options = {}) {
 
   }
 

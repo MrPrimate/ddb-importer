@@ -2461,7 +2461,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   // eslint-disable-next-line complexity
-  #addSpellAsCastActivity(spell) {
+  async #addSpellAsCastActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -2577,7 +2577,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     const activity = this._getCastActivity({ name: spell.name }, options);
 
-    this.enricher.customFunction({
+    await this.enricher.customFunction({
       name: spellData.name,
       activity: activity,
     });
@@ -2705,7 +2705,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         activity.img = img;
       }
 
-      this.enricher.customFunction({
+      await this.enricher.customFunction({
         name: spellLookupName ?? spell.name,
         activity: activity,
       });
@@ -2717,7 +2717,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.isItemCharge", !this.isPerSpell);
   }
 
-  #spellsAsSpells(spell) {
+  async #spellsAsSpells(spell) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -2783,7 +2783,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
     const scalingValue = this.data.system.uses.max ?? "";
-    Object.keys(spell.system.activities).forEach((id) => {
+    for (const id of Object.keys(spell.system.activities)) {
       if (activityConsumptionTarget)
         spell.system.activities[id].consumption.targets = [activityConsumptionTarget];
 
@@ -2797,11 +2797,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       }
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
 
-      spell.system.activities[id] = this.enricher.customFunction({
+      // eslint-disable-next-line require-atomic-updates
+      spell.system.activities[id] = await this.enricher.customFunction({
         name: spell.name,
         activity: spell.system.activities[id],
       });
-    });
+    }
 
     // console.warn(`Adjusted Spell ${spell.name} as item consumption`, {
     //   spell: foundry.utils.deepClone(spell),
@@ -2833,7 +2834,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         && spell.flags.ddbimporter.dndbeyond.lookupId === this.ddbDefinition.id;
       if (isItemSpell) {
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
-        this.#addSpellAsCastActivity(spell);
+        await this.#addSpellAsCastActivity(spell);
       }
     }
 
@@ -2852,7 +2853,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       if (isItemSpell) {
         logger.debug(`Adding spell ${spell.name} to item ${this.data.name}`);
         if (this.spellsAsActivities) await this.#addSpellAsActivity(spell);
-        else this.#spellsAsSpells(spell);
+        else await this.#spellsAsSpells(spell);
       }
     }
 

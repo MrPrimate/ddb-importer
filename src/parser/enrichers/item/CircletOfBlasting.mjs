@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class CircletOfBlasting extends DDBEnricherData {
 
-  customFunction({ name, activity }) {
+  async customFunction({ name, activity } = {}) {
     if (name === "Scorching Ray") {
       activity.data = foundry.utils.mergeObject(activity.data, {
         spell: {

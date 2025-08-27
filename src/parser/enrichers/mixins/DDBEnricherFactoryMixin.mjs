@@ -1296,8 +1296,8 @@ export default class DDBEnricherFactoryMixin {
     });
   }
 
-  customFunction(options = {}) {
-    return this.loadedEnricher?.customFunction(options);
+  async customFunction(options = {}) {
+    await this.loadedEnricher?.customFunction(options);
   }
 
 }

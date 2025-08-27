@@ -1498,7 +1498,7 @@ ${this.data.system.description.value}
       activity.data.duration.override = true;
     }
 
-    this.enricher.customFunction({
+    await this.enricher.customFunction({
       name: spellData.name,
       activity: activity,
     });

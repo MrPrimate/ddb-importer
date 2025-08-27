@@ -983,6 +983,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
 
     if (!activity) return undefined;
+
+    await this.enricher.customFunction({
+      name,
+      activity,
+    });
+
     const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
     if (activityData?.type === "summon") {
       if (this.isCompanionFeature2014 || this.isCompanionFeature2024) {
