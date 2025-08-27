@@ -25,6 +25,16 @@ export default class SpiritTotem extends DDBEnricherData {
               value: "",
               type: "ally",
             },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "30",
+              units: "ft",
+            },
+          },
+          rangeOverride: {
+            value: "60",
+            units: "ft",
           },
           healingPart: DDBEnricherData.basicDamagePart({
             customFormula: "5+@classes.druid.levels",
@@ -48,6 +58,16 @@ export default class SpiritTotem extends DDBEnricherData {
               value: "",
               type: "ally",
             },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "30",
+              units: "ft",
+            },
+          },
+          rangeOverride: {
+            value: "60",
+            units: "ft",
           },
         },
       },
@@ -67,6 +87,16 @@ export default class SpiritTotem extends DDBEnricherData {
               value: "",
               type: "ally",
             },
+            template: {
+              contiguous: false,
+              type: "radius",
+              size: "30",
+              units: "ft",
+            },
+          },
+          rangeOverride: {
+            value: "60",
+            units: "ft",
           },
         },
       },
@@ -87,6 +117,10 @@ export default class SpiritTotem extends DDBEnricherData {
               type: "ally",
             },
           },
+          rangeOverride: {
+            value: "60",
+            units: "ft",
+          },
           healingPart: DDBEnricherData.basicDamagePart({
             customFormula: "@classes.druid.levels",
             type: "healing",
@@ -105,6 +139,16 @@ export default class SpiritTotem extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
         ],
+        midiNever: true,
+      },
+      {
+        name: "Bear Totem Aura",
+        activityMatch: "Bear Totem",
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+        ],
+        midiOnly: true,
         data: {
           flags: {
             ActiveAuras: {
@@ -125,6 +169,15 @@ export default class SpiritTotem extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.prc.roll.mode"),
         ],
+        midiNever: true,
+      },
+      {
+        name: "Hawk Spirit Aura",
+        activityMatch: "Hawk Spirit",
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.prc.roll.mode"),
+        ],
+        midiOnly: true,
         data: {
           flags: {
             ActiveAuras: {
@@ -142,7 +195,12 @@ export default class SpiritTotem extends DDBEnricherData {
       {
         name: "Unicorn Spirit",
         activityMatch: "Unicorn Spirit",
-        changes: [],
+        midiNever: true,
+      },
+      {
+        name: "Unicorn Spirit Aura",
+        activityMatch: "Unicorn Spirit",
+        midiOnly: true,
         data: {
           flags: {
             ActiveAuras: {
