@@ -101,6 +101,7 @@ export { default as GustOfWind } from "./GustOfWind.mjs";
 export { default as HailOfThorns } from "./HailOfThorns.mjs";
 export { default as Haste } from "./Haste.mjs";
 export { default as HeatMetal } from "./HeatMetal.mjs";
+export { default as HellsLash } from "./HellsLash.mjs";
 export { default as HeroesFeast } from "./HeroesFeast.mjs";
 export { default as Heroism } from "./Heroism.mjs";
 export { default as Hex } from "./Hex.mjs";
