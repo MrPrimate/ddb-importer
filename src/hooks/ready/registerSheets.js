@@ -317,8 +317,9 @@ function tidySheets() {
 
     // Provider header controls to Tidy Character and NPC sheets in the App V2 manner
     Hooks.on("getHeaderControlsActorSheetV2", (config, buttons) => {
-      if (!config.object.isOwner) return;
-      if (!(config.object instanceof Actor)) return;
+      const doc = config.object ?? config.document;
+      if (!doc?.isOwner) return;
+      if (!(doc instanceof Actor)) return;
 
       const isCharacterSheet = api.isTidy5eCharacterSheet(config);
       const isNpcSheet = api.isTidy5eNpcSheet(config);
