@@ -12,7 +12,7 @@ export default class SacredWeapon extends DDBEnricherData {
       data: {
         restrictions: {
           type: "weapon",
-          allowMagical: false,
+          allowMagical: true,
         },
       },
     };
