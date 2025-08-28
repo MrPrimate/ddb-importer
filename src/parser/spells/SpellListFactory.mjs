@@ -51,9 +51,7 @@ export default class SpellListFactory {
 
   journalFolder = null;
 
-  spellsBySourceAndClass = {};
-
-  uuidsBySourceAndClass = {};
+  uuidsBySourceAndSpellListName = {};
 
   available = false;
 
@@ -79,30 +77,26 @@ export default class SpellListFactory {
     });
 
     this.sources = sources;
+    this.filteredSources = sources.filter((s) =>
+      game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules")
+      || !DICTIONARY.sourceCategories.basicRules.includes(s.id),
+    );
 
   }
 
   constructor() {
-    for (const className of SpellListFactory.CLASS_NAMES) {
-      this.spellListsData[className] = [];
-    }
     this.journalCompendium = CompendiumHelper.getCompendiumType("journals");
     this.spellCompendium = CompendiumHelper.getCompendiumType("spells");
     this.#buildSources();
 
     for (const source of this.sources) {
-      this.spellsBySourceAndClass[source.acronym] = {};
-      this.uuidsBySourceAndClass[source.acronym] = {};
-      for (const className of SpellListFactory.CLASS_NAMES) {
-        this.spellsBySourceAndClass[source.acronym][className] = [];
-        this.uuidsBySourceAndClass[source.acronym][className] = [];
-      }
+      this.uuidsBySourceAndSpellListName[source.acronym] = {};
     }
 
     if (this.journalCompendium && this.spellCompendium) {
       this.available = true;
     } else {
-      logger.error("Spell List Factory not available, check yur compendiums exist.");
+      logger.error("Spell List Factory not available, check your compendiums exist.");
     }
   }
 
@@ -129,74 +123,11 @@ export default class SpellListFactory {
     });
   }
 
-  static CLASS_NAMES = [
-    "Cleric",
-    "Druid",
-    "Sorcerer",
-    "Warlock",
-    "Wizard",
-    "Paladin",
-    "Ranger",
-    "Bard",
-    "Graviturgy",
-    "Chronurgy",
-    "Artificer",
-  ];
-
-  static WIZARD_FILTER = ["Graviturgy", "Chronurgy"];
-
-  static CLASS_NAMES_MAP = {
-    "2014": SpellListFactory.CLASS_NAMES,
-    "2024": [
-      "Wizard",
-    ],
-  };
-
-
-  #generateSpellsBySourceAndClass(className) {
-    for (const source of this.sources) {
-      for (const spell of this.spellListsData[className]) {
-        if (spell.isHomebrew) {
-          this.spellsBySourceAndClass["Homebrew"][className].push(spell);
-          continue;
-        }
-        const sourceMatch = spell.sources.some((s) => s.id === source.id);
-        if (!sourceMatch) continue;
-        this.spellsBySourceAndClass[source.acronym][className].push(spell);
-      }
-    }
+  addSpellListOutline(spellListName, sourceAcronym) {
+    this.uuidsBySourceAndSpellListName[sourceAcronym][spellListName] = [];
   }
 
-  extractSpellListData(className, spellData) {
-    this.spellListsData[className] = spellData
-      .filter((s) => !SpellListFactory.WIZARD_FILTER.includes(className)
-        || (SpellListFactory.WIZARD_FILTER.includes(className)
-        && !this.spellListsData["Wizard"].some((w) => w.id === s.definition.id)),
-      )
-      .map((s) => {
-        return {
-          id: s.definition.id,
-          name: s.definition.name,
-          isLegacy: s.definition.isLegacy,
-          sources: DDBSources.getSourceData(s.definition),
-          sourceDefinition: s.definition.sources,
-          isHomebrew: s.definition.isHomebrew,
-        };
-      });
-
-    this.#generateSpellsBySourceAndClass(className);
-
-    // console.warn(`Spell List Data for ${className}`, {
-    //   spellListsData: this.spellListsData[className],
-    //   spellData,
-    //   uuidList: this.uuidLists,
-    //   this: this,
-    // })
-
-    foundry.utils.setProperty(CONFIG, "DDBI.SPELL_LISTS", this.spellListsData);
-  }
-
-  async #createSpellListJournal(source) {
+  async _createSpellListJournal(source) {
     const journalData = {
       _id: utils.namedIDStub(source.label, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") }),
       name: source.label,
@@ -226,7 +157,7 @@ export default class SpellListFactory {
     return journal;
   }
 
-  async #getSpellListJournal(source) {
+  async _getSpellListJournal(source) {
     const journalHit = this.journalCompendium.index.find((j) =>
       j.flags?.ddbimporter?.type === this.spellListJournalFlagName
       && j.flags?.ddbimporter?.sourceName === source.acronym,
@@ -234,19 +165,19 @@ export default class SpellListFactory {
     if (journalHit) {
       return this.journalCompendium.getDocument(journalHit._id);
     }
-    const journal = await this.#createSpellListJournal(source);
+    const journal = await this._createSpellListJournal(source);
     return journal;
   }
 
-  async #getJournalClassPage(journal, className, source) {
-    const classIdentifier = DDBDataUtils.classIdentifierName(className);
-    const page = journal.pages.find((p) => p.system.identifier === classIdentifier);
+  async _getJournalSpellListPage(journal, spellListName, source) {
+    const spellListIdentifier = DDBDataUtils.classIdentifierName(spellListName);
+    const page = journal.pages.find((p) => p.system.identifier === spellListIdentifier);
     if (page) return page;
 
     const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE);
-    pageData.system.identifier = classIdentifier;
-    pageData.name = `${className} ${this.spellListJournalNameBit}`;
-    pageData._id = utils.namedIDStub(className, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") });
+    pageData.system.identifier = spellListIdentifier;
+    pageData.name = `${spellListName} ${this.spellListJournalNameBit}`;
+    pageData._id = utils.namedIDStub(spellListName, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") });
     // console.warn(`Page Data`, {
     //   journal,
     //   pageData,
@@ -255,21 +186,21 @@ export default class SpellListFactory {
     // });
     logger.debug(`Creating Spell Journal Page ${pageData.name}`);
     await journal.createEmbeddedDocuments("JournalEntryPage", [pageData], { keepId: true });
-    const newPage = journal.pages.find((p) => p.system.identifier === classIdentifier);
+    const newPage = journal.pages.find((p) => p.system.identifier === spellListIdentifier);
     return newPage;
   }
 
-  async #generateJournalClassPage(journal, className = null, source = null) {
-    if (!className && !source) return;
+  async _generateJournalSpellListPage(journal, spellListName = null, source = null) {
+    if (!spellListName && !source) return;
     if (!journal) {
       logger.error(`Journal not found for ${source.label}`);
     }
 
-    if (this.uuidsBySourceAndClass[source.acronym][className].length === 0) return;
-    const spells = this.uuidsBySourceAndClass[source.acronym][className];
+    if (this.uuidsBySourceAndSpellListName[source.acronym][spellListName].length === 0) return;
+    const spells = this.uuidsBySourceAndSpellListName[source.acronym][spellListName];
 
     if (spells.length === 0) return;
-    const page = await this.#getJournalClassPage(journal, className, source);
+    const page = await this._getJournalSpellListPage(journal, spellListName, source);
     const newSpells = new Set([...page.system.spells, ...spells]);
     const update = {
       _id: page._id,
@@ -283,55 +214,22 @@ export default class SpellListFactory {
 
   }
 
-  #generateUuidsBySourceAndClass() {
-    for (const source of this.sources) {
-      for (const className of SpellListFactory.CLASS_NAMES) {
-        const spells = new Set();
-        for (const spell of this.spellsBySourceAndClass[source.acronym][className]) {
-          const sourceMatch = this.spellCompendium.index.find((s) => s.flags?.ddbimporter?.definitionId === spell.id);
-          if (!sourceMatch) {
-            logger.debug(`Spell not found in spell compendium: ${spell.name} (${spell.id})`, { spell });
-            continue;
-          }
-          spells.add(sourceMatch.uuid);
-        }
-        this.uuidsBySourceAndClass[source.acronym][className] = Array.from(spells);
-      }
-    }
-  }
-
-  #sourceHasSpells(source) {
-    for (const className of SpellListFactory.CLASS_NAMES) {
-      const spellNumber = this.uuidsBySourceAndClass[source.acronym][className].length;
-      if (spellNumber > 0) return true;
-      logger.debug(`Found ${spellNumber} Spells found for source "${source.label}" and class "${className}"`);
-    }
+  _sourceHasSpells(source, spellListName) {
+    const spellNumber = this.uuidsBySourceAndSpellListName[source.acronym][spellListName].length;
+    if (spellNumber > 0) return true;
+    logger.debug(`Found ${spellNumber} Spells found for source "${source.label}" and class "${spellListName}"`);
     return false;
   }
 
-  async buildSpellLists() {
+  async buildSpellList(source, spellListName) {
     if (!this.available) return;
-    await this.init();
-
     if (!this.sources) return;
-
-    this.#generateUuidsBySourceAndClass();
-
-    const filteredSources = this.sources.filter((s) =>
-      game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules")
-      || !DICTIONARY.sourceCategories.basicRules.includes(s.id),
-    );
-
-    for (const source of filteredSources) {
-      if (!this.#sourceHasSpells(source)) {
-        logger.debug(`No Spells found for source "${source.label}"`);
-        continue;
-      }
-      const journal = await this.#getSpellListJournal(source);
-      for (const className of SpellListFactory.CLASS_NAMES) {
-        await this.#generateJournalClassPage(journal, className, source);
-      }
+    if (!this._sourceHasSpells(source, spellListName)) {
+      logger.debug(`No Spells found for source "${source.label}"`);
+      return;
     }
+    const journal = await this._getSpellListJournal(source);
+    await this._generateJournalSpellListPage(journal, spellListName, source);
   }
 
   async registerSpellLists() {

@@ -16,8 +16,8 @@ import {
 import { SETTINGS } from "../config/_module.mjs";
 import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
-import SpellListFactory from "../parser/spells/SpellListFactory.mjs";
 import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
+import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory.mjs";
 
 function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, searchFilter } = {}) {
   const cobaltCookie = Secrets.getCobalt();
@@ -135,9 +135,9 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
   const results = [];
-  const spellListFactory = new SpellListFactory();
+  const spellListFactory = new DDBSpellListFactory();
 
-  for (const [rulesVersion, klassNames] of Object.entries(SpellListFactory.CLASS_NAMES_MAP)) {
+  for (const [rulesVersion, klassNames] of Object.entries(DDBSpellListFactory.CLASS_NAMES_MAP)) {
     for (const className of klassNames) {
       const spellData = await getSpellData({
         className,
@@ -146,7 +146,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
         rulesVersion,
         searchFilter,
       });
-      spellListFactory.extractSpellListData(className, spellData);
+      spellListFactory.extractClassSpellListData(className, spellData);
       results.push(...spellData);
     }
   }
@@ -215,7 +215,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
 
   logger.debug("Starting Spell List Generation");
   resolvedNotifier(`Generating Spell List Journals...`, { nameField: true });
-  await spellListFactory.buildSpellLists();
+  await spellListFactory.buildClassSpellLists();
   await spellListFactory.registerSpellLists();
   logger.debug("Spell List Generation Complete");
 

@@ -29,6 +29,8 @@ import { createStorage } from "./hooks/ready/storage.mjs";
 import DDBKeyChangeDialog from "./apps/DDBKeyChangeDialog.js";
 import { migrateJournalsToDDBSheet } from "./hooks/ready/migration/migration_5_6_0_journals.js";
 import { migration } from "./hooks/ready/migraton.js";
+import SpellListFactory from "./parser/spells/SpellListFactory.mjs";
+import DDBSpellListFactory from "./parser/spells/DDBSpellListFactory.mjs";
 // import { libWrapper } from "../vendor/libwrapper/shim.js";
 
 function resetSecrets() {
@@ -151,6 +153,10 @@ export function registerApi() {
       Enrichers,
       ParserLib,
       DDBDebug: lib.DDBDebug,
+      SpellLists: {
+        SpellListFactory,
+        DDBSpellListFactory,
+      },
     },
     settings: {
       muncherSettings: lib.MuncherSettings.getMuncherSettings,
