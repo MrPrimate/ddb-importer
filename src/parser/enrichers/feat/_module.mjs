@@ -32,9 +32,10 @@ export { default as SavageAttacker } from "./SavageAttacker.mjs";
 export { default as Sharpshooter } from "./Sharpshooter.mjs";
 export { default as Slasher } from "./Slasher.mjs";
 export { default as SpeedyRecovery } from "./SpeedyRecovery.mjs";
+export { default as SpellSniper } from "./SpellSniper.mjs";
 export { default as SquireOfSolamniaPreciseStrike } from "./SquireOfSolamniaPreciseStrike.mjs";
 export { default as StrikeOfTheGiants } from "./StrikeOfTheGiants.mjs";
 export { default as TavernBrawler } from "./TavernBrawler.mjs";
 export { default as Telekinetic } from "./Telekinetic.mjs";
 export { default as WarCaster } from "./WarCaster.mjs";
-export { default as SpellSniper } from "./SpellSniper.mjs";
+

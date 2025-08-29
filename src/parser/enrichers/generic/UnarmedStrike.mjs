@@ -23,14 +23,16 @@ export default class UnarmedStrike extends DDBEnricherData {
           generateSave: true,
           generateTarget: true,
           generateRange: true,
+          generateDamage: false,
+          damageParts: [],
         },
         overrides: {
           data: {
             save: {
               ability: ["str", "dex"],
               dc: {
-                calculation: "str",
-                formula: "",
+                calculation: martialArtist ? "" : "str",
+                formula: martialArtist ? "8 + max(@abilities.dex.mod, @abilities.str.mod) + @prof" : "",
               },
             },
           },
@@ -45,14 +47,16 @@ export default class UnarmedStrike extends DDBEnricherData {
           generateSave: true,
           generateTarget: true,
           generateRange: true,
+          generateDamage: false,
+          damageParts: [],
         },
         overrides: {
           data: {
             save: {
               ability: ["str", "dex"],
               dc: {
-                calculation: "str",
-                formula: "",
+                calculation: martialArtist ? "" : "str",
+                formula: martialArtist ? "8 + max(@abilities.dex.mod, @abilities.str.mod) + @prof" : "",
               },
             },
           },
@@ -60,6 +64,10 @@ export default class UnarmedStrike extends DDBEnricherData {
       },
     );
     return results;
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 
   get effects() {
