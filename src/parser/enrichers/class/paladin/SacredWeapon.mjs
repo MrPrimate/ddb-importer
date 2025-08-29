@@ -122,7 +122,7 @@ export default class SacredWeapon extends DDBEnricherData {
           },
           changes: [
             DDBEnricherData.ChangeHelper.overrideChange("@abilities.cha.mod", 20, "attack.bonus"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "damage.base.types"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.damage.base.types"),
           ].concat(descriptionChanges),
           options: {
             name: "Sacred Weapon",
