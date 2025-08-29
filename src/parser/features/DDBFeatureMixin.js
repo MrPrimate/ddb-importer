@@ -19,6 +19,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     "Drake Companion: Command",
     "Drake Companion",
     "Launch",
+    "Grapple",
+    "Shove",
   ];
 
   static LEVEL_SCALE_INFUSIONS = [
@@ -972,7 +974,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       if (statusEffect) this.data.effects.push(statusEffect);
     }
 
-    if (hintsOnly && !this.enricher.activity) return undefined;
+    if (hintsOnly && !this.enricher.activity) {
+      await this.enricher.customFunction({
+        name,
+      });
+      return undefined;
+    }
 
     const activity = await super._generateActivity({
       hintsOnly,
@@ -982,12 +989,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }, optionsOverride);
 
 
-    if (!activity) return undefined;
-
     await this.enricher.customFunction({
       name,
       activity,
     });
+
+    if (!activity) return undefined;
 
     const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
     if (activityData?.type === "summon") {

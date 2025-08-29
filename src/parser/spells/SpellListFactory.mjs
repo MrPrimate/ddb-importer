@@ -39,8 +39,6 @@ const BASE_CLASS_PAGE = {
 
 export default class SpellListFactory {
 
-  spellListsData = {};
-
   journalCompendium = null;
 
   spellListJournalNameBit = "Spell List";
@@ -102,7 +100,7 @@ export default class SpellListFactory {
 
   async _getIndexes() {
     await this.spellCompendium.getIndex({
-      fields: ["name", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy"],
+      fields: ["name", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.is2014", "flags.ddbimporter.is2024"],
     });
     await this.journalCompendium.getIndex({
       fields: ["name", "flags.ddbimporter"],
@@ -123,7 +121,28 @@ export default class SpellListFactory {
     });
   }
 
-  addSpellListOutline(spellListName, sourceAcronym) {
+  async generateSpellUuidsForSourceAndSpellList(sourceAcronym, spellListName, spellNames, trueFlags = ["is2024"]) {
+    this._addSpellListOutline(spellListName, sourceAcronym);
+
+    for (const spellName of spellNames) {
+      const spell = this.spellCompendium.index.find((s) =>
+        s.name === spellName
+        && trueFlags.every((flag) => s.flags?.ddbimporter?.[flag] === true),
+      );
+      if (!spell) {
+        logger.warn(`Unable to find Spell "${spellName}" for spell list ${spellListName} in source ${sourceAcronym}`, {
+          spellName,
+          spellListName,
+          sourceAcronym,
+          trueFlags,
+        });
+        continue;
+      }
+      this.uuidsBySourceAndSpellListName[sourceAcronym][spellListName].push(spell.uuid);
+    }
+  }
+
+  _addSpellListOutline(spellListName, sourceAcronym) {
     this.uuidsBySourceAndSpellListName[sourceAcronym][spellListName] = [];
   }
 
@@ -158,13 +177,15 @@ export default class SpellListFactory {
   }
 
   async _getSpellListJournal(source) {
+    console.warn(this)
     const journalHit = this.journalCompendium.index.find((j) =>
       j.flags?.ddbimporter?.type === this.spellListJournalFlagName
-      && j.flags?.ddbimporter?.sourceName === source.acronym,
+      && j.flags?.ddbimporter?.sourceCode === source.acronym,
     );
     if (journalHit) {
       return this.journalCompendium.getDocument(journalHit._id);
     }
+    logger.debug(`Creating Spell List Journal for ${source.acronym}`);
     const journal = await this._createSpellListJournal(source);
     return journal;
   }

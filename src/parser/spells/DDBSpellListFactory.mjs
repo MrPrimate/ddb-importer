@@ -3,6 +3,8 @@ import SpellListFactory from "./SpellListFactory.mjs";
 
 export default class DDBSpellListFactory extends SpellListFactory {
 
+  spellListsData = {};
+
   spellsBySourceAndClass = {};
 
   constructor() {
@@ -16,7 +18,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
       this.spellsBySourceAndClass[source.acronym] = {};
       this.uuidsBySourceAndSpellListName[source.acronym] = {};
       for (const className of DDBSpellListFactory.CLASS_NAMES) {
-        this.addSpellListOutline(className, source.acronym);
+        this._addSpellListOutline(className, source.acronym);
       }
     }
   }
@@ -44,9 +46,9 @@ export default class DDBSpellListFactory extends SpellListFactory {
     ],
   };
 
-  addSpellListOutline(spellListName, sourceAcronym) {
+  _addSpellListOutline(spellListName, sourceAcronym) {
     this.spellsBySourceAndClass[sourceAcronym][spellListName] = [];
-    super.addSpellListOutline(spellListName, sourceAcronym);
+    super._addSpellListOutline(spellListName, sourceAcronym);
   }
 
   _generateSpellsBySourceAndSpellListName(spellListName) {
