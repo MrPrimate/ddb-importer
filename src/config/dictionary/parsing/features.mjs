@@ -35,6 +35,7 @@ export const PARSING_FEATURES = {
     "Core Sorcerer Traits",
     "Core Warlock Traits",
     "Core Wizard Traits",
+    "Core Monster Hunter Traits",
     "Weapon Mastery",
     // "Maneuver Options",
     // "Lay On Hands", // 2024
@@ -210,6 +211,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Pact Boon",
     "Aspect of the Beast",
     "Arcane Shot Options",
+    "Monster Grimoire",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",

@@ -3,10 +3,8 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class AbjureFoes extends DDBEnricherData {
 
-  get activity() {
-    return {
-      type: "none",
-    };
+  get type() {
+    return "none";
   }
 
   get additionalActivities() {

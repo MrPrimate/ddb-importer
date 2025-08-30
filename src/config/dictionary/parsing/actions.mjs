@@ -59,6 +59,7 @@ export const PARSING_ATTACK_ACTIONS = {
     "Form of the Beast: Claws",
     "Form of the Beast: Tail",
     "Fanged Bite",
+    "Natural Attack (Claws)",
   ],
   FORCE_WEAPON_FEATURE_IF_ACTION: [
     "Psychic Blades: Attack (DEX)",

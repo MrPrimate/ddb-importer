@@ -39,6 +39,7 @@ const directories = [
   'class/warlock',
   'class/wizard',
   'class/shared',
+  'class/monster-hunter',
   'background',
 ];
 

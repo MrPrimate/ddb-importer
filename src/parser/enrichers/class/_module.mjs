@@ -13,3 +13,4 @@ export * as Warlock from "./warlock/_module.mjs";
 export * as Wizard from "./wizard/_module.mjs";
 export * as Shared from "./shared/_module.mjs";
 export { default as Generic } from "./Generic.mjs";
+export * as MonsterHunter from "./monster-hunter/_module.mjs";
