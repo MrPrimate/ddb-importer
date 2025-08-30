@@ -10,14 +10,16 @@ export default class DDBSpellListFactory extends SpellListFactory {
   constructor() {
     super();
 
-    for (const className of DDBSpellListFactory.CLASS_NAMES) {
+    this.ALL_SPELL_LISTS = DDBSpellListFactory.CLASS_NAMES.concat(DDBSpellListFactory.SUBCLASS_NAMES);
+
+    for (const className of this.ALL_SPELL_LISTS) {
       this.spellListsData[className] = [];
     }
 
     for (const source of this.sources) {
       this.spellsBySourceAndClass[source.acronym] = {};
       this.uuidsBySourceAndSpellListName[source.acronym] = {};
-      for (const className of DDBSpellListFactory.CLASS_NAMES) {
+      for (const className of this.ALL_SPELL_LISTS) {
         this._addSpellListOutline(className, source.acronym);
       }
     }
@@ -32,15 +34,18 @@ export default class DDBSpellListFactory extends SpellListFactory {
     "Paladin",
     "Ranger",
     "Bard",
+    "Artificer",
+  ];
+
+  static SUBCLASS_NAMES = [
     "Graviturgy",
     "Chronurgy",
-    "Artificer",
   ];
 
   static WIZARD_FILTER = ["Graviturgy", "Chronurgy"];
 
   static CLASS_NAMES_MAP = {
-    "2014": DDBSpellListFactory.CLASS_NAMES,
+    "2014": DDBSpellListFactory.CLASS_NAMES.concat(DDBSpellListFactory.SUBCLASS_NAMES),
     "2024": [
       "Wizard",
     ],
@@ -109,14 +114,14 @@ export default class DDBSpellListFactory extends SpellListFactory {
 
   #generateUuidsBySourceAndClass() {
     for (const source of this.sources) {
-      for (const className of DDBSpellListFactory.CLASS_NAMES) {
+      for (const className of this.ALL_SPELL_LISTS) {
         this.#generateUuidsFromDefinitionId(source, className);
       }
     }
   }
 
   #sourceHasSpells(source) {
-    for (const className of DDBSpellListFactory.CLASS_NAMES) {
+    for (const className of this.ALL_SPELL_LISTS) {
       const spellNumber = this.uuidsBySourceAndSpellListName[source.acronym][className].length;
       if (spellNumber > 0) return true;
       logger.debug(`Found ${spellNumber} Spells found for source "${source.label}" and class "${className}"`);
@@ -139,7 +144,12 @@ export default class DDBSpellListFactory extends SpellListFactory {
       }
       const journal = await this._getSpellListJournal(source);
       for (const className of DDBSpellListFactory.CLASS_NAMES) {
+        this.type = "class";
         await this._generateJournalSpellListPage(journal, className, source);
+      }
+      for (const subclassName of DDBSpellListFactory.SUBCLASS_NAMES) {
+        this.type = "subclass";
+        await this._generateJournalSpellListPage(journal, subclassName, source);
       }
     }
   }

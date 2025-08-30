@@ -242,6 +242,13 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Unarmored Defense": ClassEnrichers.Shared.UnarmoredDefense,
     "Unarmored Movement": ClassEnrichers.Shared.UnarmoredMovement,
     "Uncanny Dodge": GenericEnrichers.UncannyDodge,
+    "Circle of the Land Spells": ClassEnrichers.Druid.CircleOfTheSpells,
+    "Circle of the Moon Spells": ClassEnrichers.Druid.CircleOfTheSpells,
+    "Circle of the Sea Spells": ClassEnrichers.Druid.CircleOfTheSpells,
+    "Circle of Blood Spells": ClassEnrichers.Druid.CircleOfTheSpells,
+    "Circle of the Old Ways Spells": ClassEnrichers.Druid.CircleOfTheSpells,
+    "Circle of the Symbiote Spells": ClassEnrichers.Druid.CircleOfTheSpells,
+    "Circle of Wicker Spells": ClassEnrichers.Druid.CircleOfTheSpells,
   };
 
   FALLBACK_ENRICHERS = {

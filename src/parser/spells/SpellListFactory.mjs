@@ -53,6 +53,7 @@ export default class SpellListFactory {
 
   available = false;
 
+  type = "class";
 
   #buildSources() {
     const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources");
@@ -82,7 +83,8 @@ export default class SpellListFactory {
 
   }
 
-  constructor() {
+  constructor({ type = "class" } = {}) {
+    this.type = type;
     this.journalCompendium = CompendiumHelper.getCompendiumType("journals");
     this.spellCompendium = CompendiumHelper.getCompendiumType("spells");
     this.#buildSources();
@@ -177,7 +179,6 @@ export default class SpellListFactory {
   }
 
   async _getSpellListJournal(source) {
-    console.warn(this)
     const journalHit = this.journalCompendium.index.find((j) =>
       j.flags?.ddbimporter?.type === this.spellListJournalFlagName
       && j.flags?.ddbimporter?.sourceCode === source.acronym,
@@ -196,6 +197,7 @@ export default class SpellListFactory {
     if (page) return page;
 
     const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE);
+    pageData.system.type = this.type;
     pageData.system.identifier = spellListIdentifier;
     pageData.name = `${spellListName} ${this.spellListJournalNameBit}`;
     pageData._id = utils.namedIDStub(spellListName, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") });
