@@ -1,7 +1,17 @@
 # Next Up
 
+# 6.5.5
+
 - Add SpellSniper flag to Spell Sniper for midiqol automation.
 - New Sources option on import to add all cantrips to a 2024 Wizard as they can change one on long rest. Disabled by default. @crimsonedge
+- Hunter's Prey parsing tweaks.
+- Fixes to the parsing of Spirit Totem for both ActiveAuras/Midiverse and regular imports.
+- Hell's Lash parsing improvements.
+- Fix a Tidy v13 sheet integration error.
+- Sacred Weapon enchantment was set to not work with magical weapons. @sturtus
+- Martial Arts Grapple and Shove DC fixes. @rupertthegrell
+- When importing 2024 Druid it will now create a spell list for the subclass. @tminz
+- Monster Hunter class characters will now import, although no enrichment or massaging of data has yet taken place on this class.
 
 # 6.5.4
 
