@@ -1,5 +1,7 @@
 # Next Up
 
+- Martial Arts created some erroneous activities.
+
 # 6.5.5
 
 - Add SpellSniper flag to Spell Sniper for midiqol automation.
