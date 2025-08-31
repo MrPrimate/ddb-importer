@@ -30,6 +30,13 @@ export default class DDBSubClass extends DDBClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    // "Arcane Shot Options": {
+    //   fix: true,
+    //   fixFunction: AdvancementHelper.rename,
+    //   functionArgs: { newName: "Damage", identifier: "damage" },
+    //   additionalAdvancements: false,
+    //   additionalFunctions: [],
+    // },
   };
 
   static NOT_ADVANCEMENT_FOR_FEATURE = ["Soul Blades"];
@@ -296,6 +303,23 @@ export default class DDBSubClass extends DDBClass {
           18: { number: 5, faces: 12 },
         };
       }
+    } else if (this.data.name.startsWith("Arcane Archer")) {
+      const form = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `secondary-damage`,
+          type: "dice",
+          scale: {
+            18: { number: 2, faces: 6 },
+          },
+        },
+        value: {},
+        title: `Secondary Damage Dice`,
+        icon: null,
+      };
+      this.data.system.advancement.push(form);
     }
   }
 

@@ -1,6 +1,7 @@
 export { default as ActionSurge } from "./ActionSurge.mjs";
 export { default as ArcaneShotOption } from "./ArcaneShotOption.mjs";
 export { default as ArcaneShotOptions } from "./ArcaneShotOptions.mjs";
+export { default as BanishingArrow } from "./BanishingArrow.mjs";
 export { default as CloudRune } from "./CloudRune.mjs";
 export { default as CombatSuperiority } from "./CombatSuperiority.mjs";
 export { default as EldritchStrike } from "./EldritchStrike.mjs";

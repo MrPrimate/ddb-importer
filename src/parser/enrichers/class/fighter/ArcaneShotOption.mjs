@@ -7,6 +7,17 @@ export default class ArcaneShotOption extends DDBEnricherData {
     return this.isAction ? null : "none";
   }
 
+  get activity() {
+    return {
+      data: {
+        damage: {
+          onSave: "full",
+          critical: { allow: true },
+        },
+      },
+    };
+  }
+
   get useDefaultAdditionalActivities() {
     return true;
   }

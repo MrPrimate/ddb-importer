@@ -71,7 +71,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Telekinetic Adept: Psi-Powered Leap": "Psionic Power: Psi-Powered Leap",
     "Telekinetic Adept: Telekinetic Thrust": "Psionic Power: Telekinetic Thrust",
     "Cloak of Shadows": "Channel Divinity: Cloak of Shadows",
-    "Banishing Arrow": "Arcane Shot Option",
+    // "Banishing Arrow": "Arcane Shot Option",
     "Beguiling Arrow": "Arcane Shot Option",
     "Bursting Arrow": "Arcane Shot Option",
     "Enfeebling Arrow": "Arcane Shot Option",
