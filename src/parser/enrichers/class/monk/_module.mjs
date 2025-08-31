@@ -24,6 +24,7 @@ export { default as HandOfHarm } from "./HandOfHarm.mjs";
 export { default as HandOfHealing } from "./HandOfHealing.mjs";
 export { default as HeightenedFocus } from "./HeightenedFocus.mjs";
 export { default as Ki } from "./Ki.mjs";
+export { default as MartialArts } from "./MartialArts.mjs";
 export { default as MonksFocus } from "./MonksFocus.mjs";
 export { default as OpenHandTechnique } from "./OpenHandTechnique.mjs";
 export { default as PatientDefense } from "./PatientDefense.mjs";

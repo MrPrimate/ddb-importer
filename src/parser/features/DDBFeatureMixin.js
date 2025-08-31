@@ -307,6 +307,15 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     });
   }
 
+  hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
+    return DDBDataUtils.hasClassFeature({
+      ddbData: this.ddbData,
+      featureName,
+      className,
+      subClassName,
+    });
+  }
+
   _getClassFeatureDescription(nameMatch = false) {
     if (!this.ddbData) return "";
     const componentId = this.ddbDefinition.componentId;
@@ -705,6 +714,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
       // set the weapon damage
       SystemHelpers.parseBasicDamageFormula(damage, damageString);
+
+      const empowered = this.hasClassFeature({ featureName: "Empowered Strike", className: "Monk" });
+      // handle 2024 empowered strike adding force damage to unarmed strikes
+      if (this.is2024 && this.originalName === "Unarmed Strike" && empowered) {
+        damage.types.push("force");
+      }
     } else if (actionDie !== null && actionDie !== undefined) {
       // The Lizardfolk jaws have a different base damage, its' detailed in
       // dice so lets capture that for actions if it exists
