@@ -29,8 +29,7 @@ DDBMonster.prototype._generateSpellLevel = function(text) {
     spellLevel = parseInt(match[1]);
   }
   this.spellcasting.spellLevel = spellLevel;
-  this.npc.system.attributes.spellLevel = spellLevel;
-  this.npc.system.details.spellLevel = spellLevel;
+  this.npc.system.attributes.spell.level = spellLevel;
 };
 
 DDBMonster.prototype._generateSpelldc = function(text) {

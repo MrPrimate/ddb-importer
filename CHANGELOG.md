@@ -1,6 +1,7 @@
 # Next Up
 
 - Martial Arts created some erroneous activities.
+- Monsters parsed in 5.1.x would not get the appropriate spellcaster level set.
 
 # 6.5.5
 
