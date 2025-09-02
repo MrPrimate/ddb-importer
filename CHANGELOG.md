@@ -1,5 +1,7 @@
 # Next Up
 
+- Fix issue with removed dnd5e-scriptlets function.
+
 # 6.5.6
 
 - Martial Arts created some erroneous activities.
