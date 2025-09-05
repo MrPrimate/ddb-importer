@@ -14,6 +14,10 @@ export default class ArcaneShotOption extends DDBEnricherData {
           onSave: "full",
           critical: { allow: true },
         },
+        range: {
+          value: null,
+          units: "spec",
+        },
       },
     };
   }

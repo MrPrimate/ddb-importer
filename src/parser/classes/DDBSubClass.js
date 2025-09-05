@@ -304,7 +304,7 @@ export default class DDBSubClass extends DDBClass {
         };
       }
     } else if (this.data.name.startsWith("Arcane Archer")) {
-      const form = {
+      const secondary = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -319,7 +319,24 @@ export default class DDBSubClass extends DDBClass {
         title: `Secondary Damage Dice`,
         icon: null,
       };
-      this.data.system.advancement.push(form);
+      this.data.system.advancement.push(secondary);
+      const minor = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `minor-damage`,
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 6 },
+            18: { number: 2, faces: 6 },
+          },
+        },
+        value: {},
+        title: `Minor Damage Dice`,
+        icon: null,
+      };
+      this.data.system.advancement.push(minor);
     }
   }
 

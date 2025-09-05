@@ -31,7 +31,7 @@ export default class StarryForm extends DDBEnricherData {
             ability: "spellcasting",
             type: {
               classification: "spell",
-              value: "range",
+              value: "ranged",
             },
           },
           damageParts: [

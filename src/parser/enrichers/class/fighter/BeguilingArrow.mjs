@@ -11,6 +11,12 @@ export default class BeguilingArrow extends ArcaneShotOption {
     return {
       name: "Extra Damage",
       noTemplate: true,
+      data: {
+        range: {
+          value: null,
+          units: "spec",
+        },
+      },
     };
   }
 
@@ -32,6 +38,12 @@ export default class BeguilingArrow extends ArcaneShotOption {
             noConsumeTargets: true,
             activationType: "special",
             noTemplate: true,
+            data: {
+              range: {
+                value: null,
+                units: "spec",
+              },
+            },
           },
         },
       ]

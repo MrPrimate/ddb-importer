@@ -75,8 +75,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     // "Beguiling Arrow": "Arcane Shot Option",
     "Bursting Arrow": "Arcane Shot Option",
     "Enfeebling Arrow": "Arcane Shot Option",
-    "Piercing Arrow": "Arcane Shot Option",
-    "Seeking Arrow": "Arcane Shot Option",
+    // "Piercing Arrow": "Arcane Shot Option",
+    // "Seeking Arrow": "Arcane Shot Option",
     "Shadow Arrow": "Arcane Shot Option",
   };
 

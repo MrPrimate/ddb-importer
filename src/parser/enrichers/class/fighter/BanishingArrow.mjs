@@ -3,10 +3,6 @@ import ArcaneShotOption from "./ArcaneShotOption.mjs";
 
 export default class BanishingArrow extends ArcaneShotOption {
 
-  get type() {
-    return this.isAction ? null : "none";
-  }
-
   get activity() {
     return {
       data: {
@@ -19,6 +15,10 @@ export default class BanishingArrow extends ArcaneShotOption {
               types: ["force"],
             }),
           ],
+        },
+        range: {
+          value: null,
+          units: "spec",
         },
       },
     };
@@ -37,13 +37,5 @@ export default class BanishingArrow extends ArcaneShotOption {
       },
     ];
   }
-
-  // get overrides() {
-  //   return {
-  //     data: {
-  //       name: this.name,
-  //     },
-  //   };
-  // }
 
 }
