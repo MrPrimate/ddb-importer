@@ -487,8 +487,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       range.reach = parseInt(reachMatch[1]);
       range.units = "ft";
     } else if (withinMatch) {
-      this.actionData.properties.rch = true;
-      range.reach = parseInt(withinMatch[1]);
+      range.value = parseInt(withinMatch[1]);
       range.units = "ft";
     }
 
@@ -737,7 +736,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       target.template.units = "ft";
       target.template.type = "sphere";
     } else {
-      const aoeSizeRegex = /(?<!one creature you can see |an object you can see )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+      const aoeSizeRegex = /(?<!creature (?:it|you) can see |an object (?:it|you) can see )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
 
       // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
       const aoeSizeMatch = aoeSizeRegex.exec(matchText);
