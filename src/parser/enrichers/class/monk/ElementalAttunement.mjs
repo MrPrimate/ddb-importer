@@ -3,15 +3,22 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class ElementalAttunement extends DDBEnricherData {
   get type() {
-    return "utility";
+    return "enchant";
   }
 
   get activity() {
     return {
-      name: "Elemental Attunement",
+      name: "Activate Attunement",
       targetType: "self",
-      activationType: "special",
+      rangeSelf: true,
+      activationType: "turnStart",
       activationCondition: "Start of turn",
+      data: {
+        enchant: {
+          identifier: "monk",
+          self: true,
+        },
+      },
     };
   }
 
@@ -30,10 +37,14 @@ export default class ElementalAttunement extends DDBEnricherData {
           generateActivation: true,
           generateConsumption: false,
           damageParts: [
-            DDBEnricherData.basicDamagePart({ customFormula: "@scale.monk.martial-arts.die + @mod", types: ["bludgeoning", "acid", "cold", "fire", "lightning", "thunder"] }),
+            DDBEnricherData.basicDamagePart({
+              customFormula: "@scale.monk.martial-arts.die + @mod",
+              types: ["bludgeoning", "acid", "cold", "fire", "lightning", "thunder"],
+            }),
           ],
         },
         overrides: {
+          id: "ddbElementStriAt",
           data: {
             target: {
               affects: {
@@ -51,6 +62,9 @@ export default class ElementalAttunement extends DDBEnricherData {
                 value: "melee",
                 classification: "unarmed",
               },
+            },
+            duration: {
+              units: "inst",
             },
           },
         },
@@ -76,6 +90,7 @@ export default class ElementalAttunement extends DDBEnricherData {
           },
         },
         overrides: {
+          id: "ddbElementStriSa",
           data: {
             target: {
               affects: {
@@ -86,6 +101,9 @@ export default class ElementalAttunement extends DDBEnricherData {
             range: {
               value: 15,
               units: "ft",
+            },
+            duration: {
+              units: "inst",
             },
           },
         },
@@ -98,8 +116,25 @@ export default class ElementalAttunement extends DDBEnricherData {
       {
         name: "Elemental Attunement",
         data: {
-          "flags.ddbimporter.activityMatch": "Elemental Attunement",
+          flags: {
+            activityMatch: "Activate Attunement",
+            ddbimporter: {
+              activityRiders: ["ddbElementStriAt", "ddbElementStriSa"],
+            },
+          },
         },
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("{} (Active)", true, "name"),
+          DDBEnricherData.ChangeHelper.overrideChange("spec", true, "activities[enchant].activation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange(
+            "end of duration",
+            true,
+            "activities[enchant].activation.condition",
+          ),
+          DDBEnricherData.ChangeHelper.overrideChange("End Attunement", true, "activities[enchant].name"),
+          DDBEnricherData.ChangeHelper.overrideChange("[]", true, "activities[enchant].consumption.targets"),
+        ],
+        type: "enchant",
       },
     ];
   }
@@ -107,10 +142,7 @@ export default class ElementalAttunement extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": [
-          "Elemental Strike",
-          "Elemental Save",
-        ],
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Elemental Strike", "Elemental Save"],
       },
     };
   }

@@ -4,40 +4,40 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 export default class MartialArts extends DDBEnricherData {
 
   get type() {
-    return "attack";
+    return "none";
   }
 
-  get activity() {
-    const empowered = this.hasClassFeature({ featureName: "Empowered Strike", className: "Monk" });
+  // get activity() {
+  //   const empowered = this.hasClassFeature({ featureName: "Empowered Strike", className: "Monk" });
 
-    return {
-      name: "Martial Arts Strike",
-      targetType: "creature",
-      id: "ddbMartialArtsSt",
-      noeffect: true,
-      data: {
-        range: {
-          value: 5,
-          units: "ft",
-        },
-        attack: {
-          ability: "dex",
-          type: {
-            value: "melee",
-            classification: "unarmed",
-          },
-        },
-        damage: {
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.martial-arts.die + @mod",
-              types: empowered ? ["bludgeoning", "force"] : ["bludgeoning"],
-            }),
-          ],
-        },
-      },
-    };
-  }
+  //   return {
+  //     name: "Martial Arts Strike",
+  //     targetType: "creature",
+  //     id: "ddbMartialArtsSt",
+  //     noeffect: true,
+  //     data: {
+  //       range: {
+  //         value: 5,
+  //         units: "ft",
+  //       },
+  //       attack: {
+  //         ability: "dex",
+  //         type: {
+  //           value: "melee",
+  //           classification: "unarmed",
+  //         },
+  //       },
+  //       damage: {
+  //         parts: [
+  //           DDBEnricherData.basicDamagePart({
+  //             customFormula: "@scale.monk.martial-arts.die + @mod",
+  //             types: empowered ? ["bludgeoning", "force"] : ["bludgeoning"],
+  //           }),
+  //         ],
+  //       },
+  //     },
+  //   };
+  // }
 
   get clearAutoEffects() {
     return true;
@@ -48,13 +48,18 @@ export default class MartialArts extends DDBEnricherData {
       {
         name: "Martial Arts",
         type: "enchant",
-        data: {
-          flags: {
-            ddbimporter: {
-              activityRiders: ["ddbMartialArtsSt"],
-            },
-          },
-        },
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange("fin", true, "system.properties"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", true, "system.damage.base.custom.enabled"),
+          DDBEnricherData.ChangeHelper.overrideChange("@scale.monk.martial-arts.die + @mod", true, "system.damage.base.custom.formula"),
+        ],
+        // data: {
+        //   flags: {
+        //     ddbimporter: {
+        //       activityRiders: ["ddbMartialArtsSt"],
+        //     },
+        //   },
+        // },
       },
     ];
   }
