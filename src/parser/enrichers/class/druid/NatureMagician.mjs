@@ -3,10 +3,13 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class NatureMagician extends DDBEnricherData {
 
+  get type() {
+    return "utility";
+  }
+
   get activity() {
     return {
       name: "Nature Magician",
-      type: "utility",
       noConsumeTargets: true,
       targetType: "self",
       rangeSelf: "self",

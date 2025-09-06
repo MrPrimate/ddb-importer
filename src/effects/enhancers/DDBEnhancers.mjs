@@ -3,6 +3,7 @@ import WildShape from "./ClassFeatures/Druid/Wildshape.mjs";
 import GreatWeaponMaster from "./Feats/GreatWeaponMaster.mjs";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard.mjs";
 import WardingBond from "./Spells/WardingBond.mjs";
+import { logger } from "../../lib/_module.mjs";
 
 // DDB Enhancers adds built in light touch automation effects
 
@@ -11,13 +12,16 @@ export default class DDBEnhancers {
   static addFeatureToEffects(subject, delta, featureName) {
     const feature = subject.items.find((i) => i.name === featureName);
     if (feature) {
+      logger.debug(`Adding effects from ${featureName} to delta`, {
+        subject, delta, feature, featureName,
+      });
       delta.effects.push(...feature.toObject().effects);
     }
   }
 
   static _loadTransformHooks() {
     if (game.settings.get(SETTINGS.MODULE_ID, "allow-moon-druid-wildshape-enhancer"))
-      Hooks.on("dnd5e.transformActor", (subject, target, delta, options) => {
+      Hooks.on("dnd5e.transformActorV2", (subject, target, delta, options) => {
         WildShape.dnd5eTransformHook(subject, target, delta, options);
       });
   }

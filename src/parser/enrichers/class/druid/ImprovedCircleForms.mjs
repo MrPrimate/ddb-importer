@@ -7,6 +7,9 @@ export default class ImprovedCircleForms extends DDBEnricherData {
     return [
       {
         noCreate: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange("@abilities.wis.mod", 20, "system.abilities.con.bonuses.save"),
+        ],
       },
     ];
   }

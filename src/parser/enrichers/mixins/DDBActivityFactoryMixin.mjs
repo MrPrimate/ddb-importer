@@ -273,6 +273,27 @@ export default class DDBActivityFactoryMixin {
     return null;
   }
 
+  _getTransformActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const activity = new this.activityGenerator({
+      name,
+      type: "transform",
+      ddbParent: this,
+      nameIdPrefix: "tran",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    const buildOptions = foundry.utils.mergeObject({
+      generateAttack: false,
+      generateRange: true,
+      generateDamage: false,
+      generateSpell: false,
+      generateActivation: true,
+    }, options);
+
+    activity.build(buildOptions);
+    return activity;
+  }
+
   getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null } = {}, options = {}) {
     const type = typeOverride ?? this._getActivitiesType();
     this.activityTypes.push(type);
@@ -300,8 +321,9 @@ export default class DDBActivityFactoryMixin {
         return this._getForwardActivity(data, options);
       case "cast":
         return this._getCastActivity(data, options);
-      case "teleport":
       case "transform":
+        return this._getTransformActivity(data, options);
+      case "teleport":
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);
         return undefined;

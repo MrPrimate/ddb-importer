@@ -85,4 +85,5 @@ export default class SummonWildfireSpirit extends DDBEnricherData {
       },
     ];
   }
+
 }
