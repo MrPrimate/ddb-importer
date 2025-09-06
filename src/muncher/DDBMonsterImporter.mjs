@@ -157,6 +157,8 @@ export default class DDBMonsterImporter {
       await this.generateCastSpells();
     }
 
+    await Hooks.callAll("ddb-importer.monsterAddToCompendiumComplete", { actor: this.compendiumActor });
+
   }
 
 

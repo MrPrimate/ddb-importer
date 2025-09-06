@@ -419,7 +419,9 @@ ${item.system.description.chat}
     this.notifier("", { nameField: true });
 
     this.results = createResults.concat(results);
-    return new Promise((resolve) => resolve(this.results));
+    await Promise.all(this.results);
+    await Hooks.callAll(`ddb-importer.${this.type.toLowerCase()}CompendiumUpdateComplete`, { results: this.results });
+    return this.results;
   }
 
   async loadPassedItemsFromCompendium(items,

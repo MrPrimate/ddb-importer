@@ -955,6 +955,8 @@ ${item.system.description.chat}
       await this.ddbCharacter.updateDynamicUpdates(activeUpdateState);
       this.actor.render();
     }
+
+    await Hooks.callAll("ddb-importer.characterProcessDataComplete", { actor: this.actor, ddbCharacter: this.ddbCharacter });
   }
 
 

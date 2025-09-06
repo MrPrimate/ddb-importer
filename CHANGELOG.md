@@ -4,6 +4,12 @@
 - Arcane Archer Arrow corrections (2014).
 - Wild Shape and Circle Forms for 2024 Druid. (Thanks to @tminz)
 - New option to save monster tokens to folder names that match actor name. @wasabiprime
+- Some monster features like the 2014 Lich's Frightening Gaze activity would get a template rather than range.
+- Added some hooks for other modules that trigger on update/import completion:
+
+- `ddb-importer.characterProcessDataComplete` when a character import finishes passes an object with the key actor that has the updated actor.,
+- `ddb-importer.monsterAddToCompendiumComplete` when a monster is added or updated in the compendium passes an object with the key actor that has the updated actor.,
+- `ddb-importer.itemsCompendiumUpdateComplete` and `ddb-importer.- spellsCompendiumUpdateComplete` passes an object with the key results which is an array of the items/spells updated or added
 
 # 6.5.6
 
