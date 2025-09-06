@@ -1033,6 +1033,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-monster-wildcard": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-use-srd-monster-images": {
             type: Boolean,
             default: false,

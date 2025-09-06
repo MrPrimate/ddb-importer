@@ -207,7 +207,8 @@ export default class DDBMonsterImporter {
 
     const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
     const subType = foundry.utils.getProperty(this.monster, "system.details.type.value") ?? "other";
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    const useWildcard = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-wildcard");
+    const useDeepPaths = useWildcard || game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
     const rules = this.monster.system.source?.rules ?? "2024";
     const book = utils.normalizeString(this.monster.system.source?.book ?? "");
@@ -230,18 +231,28 @@ export default class DDBMonsterImporter {
       }
     }
 
+    const useTokenizer = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
+      && !disableAutoTokenizeOverride
+      && game.modules.get("vtta-tokenizer")?.active;
 
+    let monsterTokenImgPath = null;
+    let tokenName = null;
     if (ddbTokenUrl && foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImgSet") !== true) {
       if (hasTokenProcessedAlready) {
         this.monster.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+        if (useWildcard && this.monster.prototypeToken.texture.src.includes('*')) this.monster.prototypeToken.randomImg = true;
       } else {
         const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
         const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
         const name = genericNpc ? genericNPCName : npcName;
+        tokenName = name;
         const nameType = genericNpc ? "npc-generic-token" : "npc-token";
         const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
-        // const imageNamePrefix = useDeepPaths ? "" : nameType;
-        const pathPostfix = useDeepPaths ? `/monster/token/${subType}` : "";
+        const pathPostfix = useDeepPaths
+          ? useWildcard && !useTokenizer
+            ? `/monster/token/${subType}/${name}`
+            : `/monster/token/${subType}`
+          : "";
         // Token images always have to be downloaded.
         const downloadOptions = {
           type: nameType,
@@ -252,35 +263,54 @@ export default class DDBMonsterImporter {
           pathPostfix,
           targetDirectory,
         };
-        // eslint-disable-next-line require-atomic-updates
-        this.monster.prototypeToken.texture.src = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
+        monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
+        this.monster.prototypeToken.texture.src = monsterTokenImgPath;
+        if (useWildcard && !useTokenizer) {
+          const lastSlashIndex = monsterTokenImgPath.lastIndexOf('/');
+          if (lastSlashIndex !== -1) {
+            // const postFix = useTokenizer ? `/${name}/*` : "/*";
+            // this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + postFix;
+            this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + '*';
+            this.monster.prototypeToken.randomImg = true;
+          }
+        }
       }
     }
 
     // check avatar, if not use token image
     // eslint-disable-next-line require-atomic-updates
-    if (!this.monster.img && this.monster.prototypeToken.texture.src) this.monster.img = this.monster.prototypeToken.texture.src;
+    if (!this.monster.img && this.monster.prototypeToken.texture.src) this.monster.img = monsterTokenImgPath;
 
     // final check if image comes back as null
     // eslint-disable-next-line require-atomic-updates
     if (this.monster.img === null) this.monster.img = CONST.DEFAULT_TOKEN;
     // eslint-disable-next-line require-atomic-updates
-    if (this.monster.prototypeToken.texture.src === null) this.monster.prototypeToken.texture.src = CONST.DEFAULT_TOKEN;
+    if (monsterTokenImgPath === null) this.monster.prototypeToken.texture.src = CONST.DEFAULT_TOKEN;
 
     // do we now want to tokenize that?
-    const useTokenizer = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
-      && !disableAutoTokenizeOverride
-      && game.modules.get("vtta-tokenizer")?.active;
     // we don't tokenize if this path was already looked up, as it will already be done
     if (useTokenizer && !hasTokenProcessedAlready) {
-      const compendiumLabel = CompendiumHelper.getCompendiumLabel(this.type);
+      const compendiumLabel = useWildcard ? "" : CompendiumHelper.getCompendiumLabel(this.type);
       const tokenizerName = isStock
         ? npcType
         : this.monster.name;
-      const autoOptions = { name: tokenizerName, nameSuffix: `-${bookRuleStub}${compendiumLabel}`, updateActor: false };
+
+      const lastSlashIndex = monsterTokenImgPath.lastIndexOf('/');
+      const autoOptions = {
+        name: tokenizerName,
+        nameSuffix: `-${bookRuleStub}${compendiumLabel}`,
+        updateActor: false,
+        isWildCard: false,
+        targetFolder: useWildcard ? monsterTokenImgPath.substring(0, lastSlashIndex + 1) + `${tokenName}/` : undefined,
+      };
       // eslint-disable-next-line require-atomic-updates
-      this.monster.prototypeToken.texture.src = await window.Tokenizer.autoToken(this.monster, autoOptions);
-      logger.debug(`Generated tokenizer image at ${this.monster.prototypeToken.texture.src}`);
+      const tokenizerResult = await window.Tokenizer.autoToken(this.monster, autoOptions);
+      this.monster.prototypeToken.texture.src = tokenizerResult;
+      if (useWildcard) {
+        this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + `${tokenName}/*`;
+        this.monster.prototypeToken.randomImg = true;
+      }
+      logger.debug(`Generated tokenizer image at ${tokenizerResult}`);
     }
 
     if (!hasAvatarProcessedAlready) CONFIG.DDBI.KNOWN.AVATAR_LOOKUPS.set(ddbAvatarUrl, this.monster.img);

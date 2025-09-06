@@ -668,6 +668,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         enabled: true,
       },
       {
+        name: "munching-policy-monster-wildcard",
+        label: "Wildcard images and folder per monster name?",
+        hint: "Creates a folder for each monster and set the path to use wildcard images from that folder, as well as setting the tokens wildcard image. If using tokenize option below, only the tokenized image will be placed in the monster folder, the untokenized artwork will be kept at the level higher.",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-wildcard"),
+        enabled: true,
+      },
+      {
         name: "munching-policy-monster-tokenize",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize"),
         label: "Auto-Tokenize monsters?",
@@ -1101,6 +1108,12 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       }
       case "munching-policy-use-source-filter": {
         $("#munch-source-div").toggleClass("ddbimporter-hidden");
+        break;
+      }
+      case "munching-policy-monster-wildcard": {
+        if (checked) {
+          await game.settings.set(SETTINGS.MODULE_ID, "use-deep-file-paths", true);
+        }
         break;
       }
       // no default
