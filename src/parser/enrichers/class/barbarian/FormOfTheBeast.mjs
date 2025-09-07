@@ -57,7 +57,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
   get override() {
     return {
       descriptionSuffix: `
-<section class="secret" id="secret-ddbFormOfTheBeast">
+<section class="secret ddbSecret" id="secret-ddbFormOfTheBeast">
 <p><strong>Implementation Details</strong></p>
 <p>Bite, Claw and Tail attacks are added as character weapons.</p>
 </section>`,

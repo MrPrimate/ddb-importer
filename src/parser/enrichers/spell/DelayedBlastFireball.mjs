@@ -140,7 +140,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
   get override() {
     return {
       descriptionSuffix: `
-<section class="secret" id="secret-ddbFormOfTheBeast">
+<section class="secret ddbSecret" id="secret-ddbFormOfTheBeast">
 <p><strong>Implementation Details</strong></p>
     <p>The uses value of this spell tracks the rounds that have passed since the casting.</p>
     <p>The <strong>Increase Turn Counter</strong> activity will increase that value by 1.</p>

@@ -58,7 +58,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
         },
       },
       descriptionSuffix: `
-<section class="secret" id="secret-ddbTokensOfTheDeparted">
+<section class="secret ddbSecret" id="secret-ddbTokensOfTheDeparted">
 <p><strong>Implementation Details</strong></p>
 <p>Track your tokens with the uses on this feature. DDB Importer initially draws them from the "Tokens of the Departed: Create Soul Trinket" action on DDB. It will retain your current uses on the character reimport.</p>
 </section>`,

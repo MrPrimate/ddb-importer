@@ -82,7 +82,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
       }
     }
     descriptionSuffix += `
-<section class="secret" id="secret-ddbTasBubCauldro">
+<section class="secret ddbSecret" id="secret-ddbTasBubCauldro">
 <p><strong>Implementation Details</strong></p>
 <p>The Uses of this spell represent the number of potions remaining in the cauldron, which is reset by the <strong>Create Cauldron</strong> activity.</p>
 <p>The <strong>Withdraw Potion</strong> activity will consume a use of the cauldron.</p>

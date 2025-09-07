@@ -111,7 +111,7 @@ export default class MartialArts extends DDBEnricherData {
   get override() {
     return {
       descriptionSuffix: `
-<section class="secret" id="secret-ddbMartialArts">
+<section class="secret ddbSecret" id="secret-ddbMartialArts">
 <p><strong>Implementation Details</strong></p>
 <p>DDB Importer will automatically adjust the Unarmed Strike and appropriate weapons during import. These enchantment activities are provided if you need to adjust another weapon in play.</p>
 </section>`,

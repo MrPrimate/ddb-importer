@@ -74,14 +74,14 @@ export default class GreatWeaponMaster extends DDBEnricherData {
   get override() {
     const description = this.is2014
       ? `
-<section class="secret" id="secret-ddbGreatWeaponMaster">
+<section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">
 <p><strong>Implementation Details</strong></p>
 
 An effect is provided that can be toggled to enable or disable the Melee Weapon attack penalty and damage bonus.
 
 </section>`
       : `
-<section class="secret" id="secret-ddbGreatWeaponMaster">
+<section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">
 <p><strong>Implementation Details</strong></p>
 <p>DDB Importer will automated the proficiency bonus damage for weapons with the Heavy property if you have this feat. A damage action is provided for situations where this might not be applied.</p>
 </section>`;

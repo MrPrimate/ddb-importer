@@ -46,7 +46,7 @@ export default class PsychicBlade extends DDBEnricherData {
 
     if (this.document.type === "feat") {
       return {
-        descriptionSuffix: `<section class="secret" id="secret-ddbPsychicBlades">
+        descriptionSuffix: `<section class="secret ddbSecret" id="secret-ddbPsychicBlades">
 This features attacks have been created as the "Psychic Blade" weapon and can be found in the inventory.
 </secret>`,
       };

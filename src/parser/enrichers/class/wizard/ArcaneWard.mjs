@@ -109,7 +109,7 @@ export default class ArcaneWard extends DDBEnricherData {
 
   get override() {
     const descriptionSuffix = `
-<section class="secret" id="secret-ddbArcaneWard">
+<section class="secret ddbSecret" id="secret-ddbArcaneWard">
 <p><strong>Implementation Details</strong></p>
 <p>There is a built in automation for absorbing damage and adding to the ward when spells are cast. To disable this see the DDB Importer documentation.</p>
 <br>

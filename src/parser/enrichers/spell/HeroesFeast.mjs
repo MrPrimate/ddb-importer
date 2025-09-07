@@ -64,7 +64,7 @@ export default class HeroesFeast extends DDBEnricherData {
       },
       descriptionSuffix: this.useMidiAutomations
         ? `
-<section class="secret" id="secret-ddbHeroesFeast">
+<section class="secret ddbSecret" id="secret-ddbHeroesFeast">
 <p><strong>Implementation Details</strong></p>
 <p>The MidiQoL automation will apply the temp hp bonus and any rolled hit points to characters targeted when Consume Feast is used.</p>
 </section>`

@@ -141,7 +141,7 @@ export default class FingerGuns extends DDBEnricherData {
         },
       },
       descriptionSuffix: `
-<section class="secret" id="secret-ddbFormOfTheBeast">
+<section class="secret ddbSecret" id="secret-ddbFormOfTheBeast">
 <p><strong>Implementation Details</strong></p>
 <p>You can use the attack on the spell, or cast this as an enchantment and apply it to your unarmed attack.</p>
 </section>`,

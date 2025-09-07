@@ -25,7 +25,7 @@ export default class WardingBond extends DDBEnricherData {
   get override() {
     return {
       descriptionSuffix: `
-<section class="secret" id="secret-ddbHeroesFeast">
+<section class="secret ddbSecret" id="secret-ddbHeroesFeast">
 <p><strong>Implementation Details</strong></p>
 <p>The DDB Macro Activity will apply an automation that will apply damage taken by the target to the caster. You can disable this automation in the settings.</p>
 </section>`,

@@ -26,7 +26,7 @@ export default class ElementalFuryPotentSpellcasting extends DDBEnricherData {
   get override() {
     return {
       descriptionSuffix: `
-<section class="secret" id="secret-ddbElementalFuryPotentSpellcasting">
+<section class="secret ddbSecret" id="secret-ddbElementalFuryPotentSpellcasting">
 <p><strong>Implementation Details</strong></p>
 <p>DDB Importer will automatically adjust cantrip damage on spells when importing a character.</p>
 </section>`,

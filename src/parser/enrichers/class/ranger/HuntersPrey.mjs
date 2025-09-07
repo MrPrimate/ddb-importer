@@ -52,7 +52,7 @@ export default class HuntersPrey extends DDBEnricherData {
         },
       },
       descriptionSuffix: `
-<section class="secret" id="secret-ddbHuntersPrey">
+<section class="secret ddbSecret" id="secret-ddbHuntersPrey">
 <p><strong>Implementation Details</strong></p>
 <p>You can use the effects on the Choice action to track your choice. The damage activity is provided for Colossus Slayer.</p>
 </section>`,

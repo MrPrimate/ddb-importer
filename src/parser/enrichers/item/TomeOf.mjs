@@ -68,7 +68,7 @@ export default class TomeOf extends DDBEnricherData {
         },
       },
       descriptionSuffix: `
-<section class="secret" id="secret-ddbTomeOf">
+<section class="secret ddbSecret" id="secret-ddbTomeOf">
 <p><strong>Implementation Details</strong></p>
 <p>Track your reading time with the uses on this feature. When the item is equipped it will apply the bonus, this is to match the DDB implementation.</p>
 </section>`,
