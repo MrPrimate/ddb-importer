@@ -1,5 +1,7 @@
 # Next Up
 
+- Warding Bond fixes. @kaallis
+
 # 6.5.7
 
 - Fix issue with removed dnd5e-scriptlets function.
