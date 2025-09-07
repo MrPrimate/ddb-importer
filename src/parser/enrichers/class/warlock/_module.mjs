@@ -3,6 +3,8 @@ export { default as ClairvoyantCombatant } from "./ClairvoyantCombatant.mjs";
 export { default as CreateThrall } from "./CreateThrall.mjs";
 export { default as DarkOnesBlessing } from "./DarkOnesBlessing.mjs";
 export { default as DarkOnesOwnLuck } from "./DarkOnesOwnLuck.mjs";
+export { default as EldritchInvocations } from "./EldritchInvocations.mjs";
+export { default as EldritchInvocationsAgonizingBlast } from "./EldritchInvocationsAgonizingBlast.mjs";
 export { default as EldritchMaster } from "./EldritchMaster.mjs";
 export { default as FiendishResilience } from "./FiendishResilience.mjs";
 export { default as GeniesVessel } from "./GeniesVessel.mjs";

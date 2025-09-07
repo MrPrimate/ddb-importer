@@ -83,6 +83,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   NAME_HINT_INCLUDES = {
     "Metamagic:": "MetamagicGeneric",
     "Enchantments:": "EnchantmentsExtras",
+    "Eldritch Invocations: Agonizing Blast": "Eldritch Invocations: Agonizing Blast",
   };
 
   ENRICHERS = {
@@ -249,6 +250,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Circle of the Old Ways Spells": ClassEnrichers.Druid.CircleOfTheSpells,
     "Circle of the Symbiote Spells": ClassEnrichers.Druid.CircleOfTheSpells,
     "Circle of Wicker Spells": ClassEnrichers.Druid.CircleOfTheSpells,
+    "Eldritch Invocations: Agonizing Blast": ClassEnrichers.Warlock.EldritchInvocationsAgonizingBlast,
   };
 
   FALLBACK_ENRICHERS = {

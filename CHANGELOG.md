@@ -1,6 +1,7 @@
 # Next Up
 
 - Warding Bond fixes. @kaallis
+- Agonising Blast enchantment.
 
 # 6.5.7
 

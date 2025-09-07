@@ -22,6 +22,7 @@ export default class InvocationPactOfTheBlade extends DDBEnricherData {
     return [
       {
         type: "enchant",
+        ignoreTransfer: true,
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Pact Weapon]`, 20, "name"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 20, "system.damage.base.types"),
