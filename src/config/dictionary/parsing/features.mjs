@@ -212,6 +212,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Aspect of the Beast",
     "Arcane Shot Options",
     "Monster Grimoire",
+    "Draconic Ancestry",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
