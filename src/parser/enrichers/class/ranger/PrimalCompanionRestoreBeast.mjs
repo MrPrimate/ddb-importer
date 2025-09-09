@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class PrimalCompanionRestoreBeast extends DDBEnricherData {
   get type() {
-    return "forward";
+    return "heal";
   }
 
   get activity() {
@@ -11,10 +11,12 @@ export default class PrimalCompanionRestoreBeast extends DDBEnricherData {
       name: "Restore Beast With Spell Slot",
       activationType: "action",
       activationCondition: "Takes 1 minute to be restored to life",
+      targetType: "creature",
       data: {
-        activity: {
-          id: "summonPriCSclNe1",
-        },
+        healing: DDBEnricherData.basicDamagePart({
+          bonus: "300",
+          types: ["healing"],
+        }),
         consumption: {
           targets: [
             {
@@ -37,4 +39,40 @@ export default class PrimalCompanionRestoreBeast extends DDBEnricherData {
       },
     };
   }
+
+  // get type() {
+  //   return "forward";
+  // }
+
+  // get activity() {
+  //   return {
+  //     name: "Restore Beast With Spell Slot",
+  //     activationType: "action",
+  //     activationCondition: "Takes 1 minute to be restored to life",
+  //     data: {
+  //       activity: {
+  //         id: "summonPriCSclNe1",
+  //       },
+  //       consumption: {
+  //         targets: [
+  //           {
+  //             type: "spellSlots",
+  //             value: "1",
+  //             target: "1",
+  //             scaling: {},
+  //           },
+  //         ],
+  //         scaling: {
+  //           allowed: true,
+  //           max: "",
+  //         },
+  //         spellSlot: true,
+  //       },
+  //       uses: { spent: null, max: "" },
+  //       midiProperties: {
+  //         confirmTargets: "default",
+  //       },
+  //     },
+  //   };
+  // }
 }
