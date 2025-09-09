@@ -929,6 +929,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     await this._generateSummons();
     await this._generateCompanions();
 
+    this._studyCheckGeneration();
+
     if (!this.enricher.stopDefaultActivity)
       await this._generateActivity();
 

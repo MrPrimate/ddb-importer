@@ -1709,35 +1709,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       || this.ddbDefinition.description.match(targets);
   }
 
-  #escapeCheckGeneration() {
-    const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
-    if (escape) {
-      const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
-      if (escape) {
-        this.additionalActivities.push({
-          type: "check",
-          name: `Escape Check`,
-          options: {
-            generateCheck: true,
-            generateTargets: false,
-            generateRange: false,
-            checkOverride: {
-              "associated": [
-                "acr",
-                "ath",
-              ],
-              "ability": "",
-              "dc": {
-                "calculation": "",
-                "formula": escape[1],
-              },
-            },
-          },
-        });
-      }
-    }
-  }
-
   // eslint-disable-next-line complexity
   #generateDamageFromDescription() {
     if (this.damageParts.length > 0) {
@@ -1823,7 +1794,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       });
     }
 
-    this.#escapeCheckGeneration();
+    this._escapeCheckGeneration();
 
   }
 

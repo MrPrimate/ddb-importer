@@ -533,4 +533,77 @@ export default class DDBActivityFactoryMixin {
     return DDBActivityFactoryMixin.filterCombinedDamageParts(additionalDamageParts);
 
   }
+
+  _escapeCheckGeneration() {
+    const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
+    if (escape) {
+      const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
+      if (escape) {
+        this.additionalActivities.push({
+          type: "check",
+          name: `Escape Check`,
+          options: {
+            generateCheck: true,
+            generateTargets: false,
+            generateRange: false,
+            checkOverride: {
+              "associated": [
+                "acr",
+                "ath",
+              ],
+              "ability": "",
+              "dc": {
+                "calculation": "",
+                "formula": escape[1],
+              },
+            },
+          },
+        });
+      }
+    }
+  }
+
+  _studyCheckGeneration() {
+    const studyRegex = /takes (the|a) Study action to examine/i;
+    const match = this.ddbDefinition.description.match(studyRegex);
+    if (match) {
+      this.additionalActivities.push({
+        type: "check",
+        name: `Study Check`,
+        options: {
+          generateCheck: true,
+          generateTargets: false,
+          generateRange: false,
+          checkOverride: {
+            "associated": [
+              "inv",
+            ],
+            "ability": "",
+            "dc": {
+              "calculation": "spellcasting",
+              "formula": "",
+            },
+          },
+          activationOverride: {
+            "type": "",
+            "override": true,
+            "condition": "Study Action to Investigate",
+          },
+          rangeOverride: {
+            units: "any",
+            "override": true,
+          },
+          targetsOverride: {
+            "type": "",
+            "override": true,
+          },
+          durationOverride: {
+            "type": "inst",
+            "override": true,
+          },
+        },
+      });
+    }
+  }
+
 }
