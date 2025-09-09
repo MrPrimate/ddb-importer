@@ -84,6 +84,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Adrenaline Rush": SpeciesEnrichers.Orc.AdrenalineRush,
     "Fey Step": SpeciesEnrichers.Eladrin.FeyStep,
     "Natural Attack (Claws)": SpeciesEnrichers.Wulven.NaturalAttackClaws,
+    "Draconic Flight": SpeciesEnrichers.Dragonborn.DraconicFlight,
   };
 
   FALLBACK_ENRICHERS = {
