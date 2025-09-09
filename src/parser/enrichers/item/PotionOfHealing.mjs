@@ -20,4 +20,24 @@ export default class PotionOfHealing extends DDBEnricherData {
     };
   }
 
+
+  get override() {
+    if (this.ddbParser.ddbDefinition.sources.some((s) => s.sourceId === 1)) {
+      return {
+        data: {
+          "flags.ddbimporter": {
+            is2014: true,
+            is2024: false,
+          },
+          system: {
+            source: {
+              rules: "2014",
+            },
+          },
+        },
+      };
+    }
+    return {};
+  }
+
 }

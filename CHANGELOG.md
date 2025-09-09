@@ -2,6 +2,8 @@
 
 - Warding Bond fixes. @kaallis
 - Agonising Blast enchantment.
+- Potion of healing versions would not import both in Core Rules for 2014 and 2024 were both enabled.
+- When using 2014 5e rules, weapon property description will be removed from weapon items, e.g. Longsword.
 
 # 6.5.7
 

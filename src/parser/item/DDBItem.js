@@ -239,6 +239,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.spellsAsCastActivity = true;
     this.spellsAsActivities = isCompendium
       || game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
+
+    this.removeWeaponMasteryDescription = this.is2014
+      || game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remove-weapon-mastery-description");
     this._init();
 
     this.data = {};
@@ -1870,6 +1873,19 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
+  #removeMasteryContainer(text) {
+    if (this.removeWeaponMasteryDescription) return text;
+    if (this.documentType !== "weapon") return text;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
+
+    doc.querySelectorAll('.mastery-container').forEach((container) => {
+      container.remove();
+    });
+
+    return doc.body.innerHTML;
+  }
+
   async #generateDescription() {
     if (this.parsingType === "custom") {
       let description = this.ddbDefinition.description && this.ddbDefinition.description !== "null"
@@ -1893,6 +1909,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       });
       this.data.system.description = this.#getDescription();
     }
+    this.data.system.description.value = this.#removeMasteryContainer(this.data.system.description.value);
   }
 
   // eslint-disable-next-line complexity
