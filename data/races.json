@@ -1904,5 +1904,9 @@
   {
     "name": "Elven Lineage",
     "path": "icons/magic/air/wind-weather-sailing-ship.webp"
+  },
+  {
+    "name": "Fiendish Legacy",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
   }
 ]

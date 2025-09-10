@@ -448,6 +448,11 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   _generateDescription({ forceFull = false, extra = "" } = {}) {
     this.data.system.description = this.getDescription({ forceFull, extra });
+
+    const repeatableRegex = /<strong>Repeatable\.<\/strong>/i;
+    if (repeatableRegex.test(this.data.system.description.value)) {
+      this.data.system.prerequisites.repeatable = true;
+    }
   }
 
   // eslint-disable-next-line complexity

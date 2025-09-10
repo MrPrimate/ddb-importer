@@ -53,9 +53,7 @@ export class DDBInfusion {
     this.requiredLevel = null;
     const requiredLevel = foundry.utils.getProperty(this.ddbInfusion, "level");
     if (Number.isInteger(Number.parseInt(requiredLevel))) {
-      this.data.system.prerequisites = {
-        level: Number.parseInt(requiredLevel),
-      };
+      foundry.utils.setProperty(this.data, "system.prerequisites.level", Number.parseInt(requiredLevel));
       this.requiredLevel = Number.parseInt(requiredLevel);
     }
 
@@ -152,6 +150,11 @@ export class DDBInfusion {
       value: DDBReferenceLinker.parseTags(prerequisitesHeader + itemHeader + valueDamageText),
       chat: chatAdd ? DDBReferenceLinker.parseTags(chatDamageText) : "",
     };
+
+    const repeatableRegex = /<strong>Repeatable\.<\/strong>/i;
+    if (repeatableRegex.test(this.data.system.description.value)) {
+      foundry.utils.setProperty(this.data, "system.prerequisites.repeatable", true);
+    }
   }
 
   _generateSystemType() {
