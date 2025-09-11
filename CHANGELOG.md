@@ -7,7 +7,7 @@
 - Spells with a mention of having a Study action will generate an Investigation activity.
 - Characters with Boon of Fortitude did not import HP correctly.
 - 2024 Beast Ranger companions now parse attacks as weapons, and Exceptional Training has an enchantment for force damage.
-- Many additional subclass spell lists will now be parsed when importing 2024 characters whos subclasses grant additional spells.
+- Many additional subclass spell lists will now be parsed when importing 2024 characters whose subclasses grant additional spells.
 - If a spell exists in the DDB Spells compendium, when importing a character the spell will now gain the spell lists associated with the compendium spell.
 - Several additional minor fixes and improvements to character feature parsing.
 

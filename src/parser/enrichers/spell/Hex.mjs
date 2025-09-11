@@ -1,4 +1,6 @@
 /* eslint-disable class-methods-use-this */
+import { DICTIONARY } from "../../../config/_module.mjs";
+import { utils } from "../../../lib/_module.mjs";
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class Hex extends DDBEnricherData {
@@ -10,6 +12,10 @@ export default class Hex extends DDBEnricherData {
   get activity() {
     return {
       name: "Mark Target",
+      id: "ddbHexMarkTarget",
+      data: {
+        midiProperties: { chooseEffects: true },
+      },
     };
   }
 
@@ -32,15 +38,35 @@ export default class Hex extends DDBEnricherData {
           activationOverride: { type: "", condition: "When you hit creature with attack" },
         },
       },
+      {
+        constructor: {
+          name: "Move Hex",
+          type: "forward",
+        },
+        build: {
+        },
+        overrides: {
+          noConsumeTargets: true,
+          activationType: "bonus",
+          data: {
+            activity: {
+              id: "ddbHexMarkTarget",
+            },
+          },
+        },
+      },
     ];
   }
 
   get effects() {
-    return [
-      {
-        name: "Hexed",
-      },
-    ];
+    return DICTIONARY.actor.abilities.map((ability) => {
+      return {
+        name: `Hexed - ${utils.capitalize(ability.long)}`,
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll`),
+        ],
+      };
+    });
   }
 
   get setMidiOnUseMacroFlag() {
