@@ -8,7 +8,7 @@ export default class PhantasmalKiller extends DDBEnricherData {
     return [
       {
         noCreate: true,
-        changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll`)),
+        changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll.mode`)),
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange(
             `label=${this.data.name} Turn End,turn=end, saveAbility=wis, saveDC=@attributes.spell.dc, saveDamage=halfdamage, rollType=save, saveMagic=true, damageBeforeSave=false, damageRoll=(@item.level)d10, damageType=psychic, killAnim=true`,

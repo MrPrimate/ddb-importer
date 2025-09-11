@@ -63,7 +63,7 @@ export default class Hex extends DDBEnricherData {
       return {
         name: `Hexed - ${utils.capitalize(ability.long)}`,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll`),
+          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.check.roll.mode`),
         ],
       };
     });
