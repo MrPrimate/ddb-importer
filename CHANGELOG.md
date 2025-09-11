@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.5.8
+
 - Warding Bond fixes. @kaallis
 - Agonising Blast enchantment.
 - Potion of healing versions would not import both in Core Rules for 2014 and 2024 were both enabled.
