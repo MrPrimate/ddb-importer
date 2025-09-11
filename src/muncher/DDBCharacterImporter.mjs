@@ -803,6 +803,22 @@ ${item.system.description.chat}
     };
   }
 
+  async resetHitPoints() {
+    const hp = this.settings.updatePolicyHP
+      ? this.result.character.system.attributes.hp
+      : this.actorOriginal.system.attributes.hp;
+
+    if (this.settings.updatePolicyHP) {
+      const removedHitPoints = this.result.character.flags.ddbimporter.removedHitPoints ?? 0;
+      const totalHP = this.result.character.flags.ddbimporter.totalHP ?? 0;
+      hp.value = totalHP - removedHitPoints;
+    }
+
+    await this.actor.update({
+      "system.attributes.hp": hp,
+    });
+  }
+
   async processCharacterData() {
     this.getSettings();
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
@@ -944,6 +960,8 @@ ${item.system.description.chat}
       }
       this.notifier(`Updating conditions...`);
       await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
+
+      this.resetHitPoints();
 
     } catch (error) {
       logger.error("Error importing character: ", { error, ddbCharacter: this.ddbCharacter, result: this.result });

@@ -10,11 +10,12 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
   const temporaryHitPoints = this.source.ddb.character.temporaryHitPoints || 0;
 
   // get allvalues hit points features
-  const bonusHitPointFeatures = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level" });
-  const bonusHitPointFeaturesWithEffects = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level", includeExcludedEffects: true });
+  const bonusHitPointFeaturesPerLevel = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level" });
+  const bonusHitPointFeaturesPerLevelWithEffects = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points-per-level", includeExcludedEffects: true });
+  const bonusHitPointModifiersWithEffects = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "hit-points", includeExcludedEffects: true });
 
   // get their
-  const bonusHitPointValues = bonusHitPointFeatures.map((bonus) => {
+  const bonusHitPointValues = bonusHitPointFeaturesPerLevel.map((bonus) => {
     const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
@@ -23,7 +24,7 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
     }
   });
 
-  const bonusHitPointValuesWithEffects = bonusHitPointFeaturesWithEffects.map((bonus) => {
+  const bonusHitPointValuesWithEffects = bonusHitPointFeaturesPerLevelWithEffects.map((bonus) => {
     const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
       return cls.level * bonus.value;
@@ -31,12 +32,16 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
       return this.raw.character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
     }
   });
+
+  const fixedBonusHitPointValuesWithEffects = bonusHitPointModifiersWithEffects
+    .map((bonus) => bonus.value)
+    .reduce((prev, cur) => prev + cur, 0);
 
   // sum up the bonus HP per class level
   const totalBonusHitPoints = bonusHitPointValues.reduce((prev, cur) => prev + cur, 0);
   const totalBonusHPWithEffects = bonusHitPointValuesWithEffects.reduce((prev, cur) => prev + cur, 0);
 
-  const bonusPerLevelValue = bonusHitPointFeatures.map((bonus) => {
+  const bonusPerLevelValue = bonusHitPointFeaturesPerLevel.map((bonus) => {
     const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     // console.warn("cls hp", { bonus, cls});
     if (!cls) {
@@ -83,7 +88,9 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints() {
 
   this.raw.character.flags.ddbimporter.rolledHP = rolledHP;
   this.raw.character.flags.ddbimporter.baseHitPoints = baseHitPoints;
-
+  this.raw.character.flags.ddbimporter.fixedBonusHitPointValuesWithEffects = parseInt(fixedBonusHitPointValuesWithEffects);
+  this.raw.character.flags.ddbimporter.totalHP = maxHitPoints + tempMaxHitPoints + parseInt(fixedBonusHitPointValuesWithEffects);
+  this.raw.character.flags.ddbimporter.removedHitPoints = removedHitPoints;
   // "hp": {
   //   "value": 23,
   //   "max": null,
