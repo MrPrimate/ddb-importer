@@ -71,6 +71,7 @@ export const MONSTERS = {
     { name: "Fist", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Kick", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Tentacles", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Beast's Strike", actionType: "mwak", weaponType: "natural", properties: {} },
   ],
   resets: [
     { id: 1, value: "sr" },

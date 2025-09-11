@@ -10,6 +10,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     if (!MonsterEnrichers[monsterHintName]?.[featName]) {
       return null;
     }
+    this.hints = {
+      monsterHintName,
+      featName,
+    };
     return new MonsterEnrichers[monsterHintName][featName]({
       ddbEnricher: this,
     });
@@ -112,6 +116,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
       notifier,
     });
     this.monsterHintName = null;
+    // this.enrichers = {
+    //   monster: MonsterEnrichers,
+    //   generic: GenericEnrichers,
+    // };
   }
 
   async load({ ddbParser, document, name = null, monster, is2014 = null } = {}) {

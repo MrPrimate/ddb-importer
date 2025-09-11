@@ -8,19 +8,12 @@ export default class BeastsStrike extends DDBEnricherData {
     return {
       data: {
         damage: {
-          parts: [
-            DDBEnricherData.basicDamagePart({
-              number: 1,
-              denomination: 8,
-              types: ["slashing"],
-              bonus: "@mod",
-            }),
-          ],
+          includeBase: true,
+          parts: [],
         },
       },
     };
   }
-
 
   get additionalActivities() {
     return [
@@ -30,12 +23,10 @@ export default class BeastsStrike extends DDBEnricherData {
           name: "Charge",
           data: {
             damage: {
+              includeBase: true,
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  number: 1,
-                  denomination: 8,
-                  types: ["slashing"],
-                  bonus: "@mod + 1d6",
+                  bonus: "1d6",
                 }),
               ],
             },
@@ -53,6 +44,17 @@ export default class BeastsStrike extends DDBEnricherData {
         statuses: ["prone"],
       },
     ];
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.damage.base": {
+          types: ["bludgeoning", "piercing", "slashing"],
+          bonus: "",
+        },
+      },
+    };
   }
 
 }

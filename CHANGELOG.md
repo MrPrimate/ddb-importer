@@ -5,6 +5,9 @@
 - Potion of healing versions would not import both in Core Rules for 2014 and 2024 were both enabled.
 - When using 2014 5e rules, weapon property description will be removed from weapon items, e.g. Longsword.
 - Spells with a mention of having a Study action will generate an Investigation activity.
+- Characters with Boon of Fortitude did not import HP correctly.
+- 2024 Beast Ranger companions now parse attacks as weapons, and Exceptional Training has an enchantment for force damage.
+- Several additional minor fixes and improvements to character feature parsing.
 
 # 6.5.7
 

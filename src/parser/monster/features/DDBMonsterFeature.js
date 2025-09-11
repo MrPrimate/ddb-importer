@@ -222,7 +222,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       useMidiAutomations: ddbMonster.addMonsterEffects,
     });
 
-    this.name = name.trim();
+    this.name = utils.nameString(name);
     this.ddbMonster = ddbMonster;
     this.is2014 = ddbMonster.is2014;
     this.is2024 = !this.is2014;
@@ -483,8 +483,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       range.value = parseInt(matches3[1]);
       range.units = "ft";
     } else if (reachMatch) {
-      this.actionData.properties.rch = true;
-      range.reach = parseInt(reachMatch[1]);
+      const value = parseInt(reachMatch[1]);
+      if (value > 5) this.actionData.properties.rch = true;
+      range.reach = value;
       range.units = "ft";
     } else if (withinMatch) {
       range.value = parseInt(withinMatch[1]);
