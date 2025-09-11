@@ -322,7 +322,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
 
   _generateDamage({ damageParts = null, onSave = null, partialDamageParts, modRestrictionFilter = null,
-    modRestrictionFilterExcludes = null } = {},
+    modRestrictionFilterExcludes = null, allowCritical = null } = {},
   ) {
 
     if (damageParts) {
@@ -406,6 +406,9 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
 
     this.data.damage = {
+      critical: {
+        allow: allowCritical ?? this.type === "attack",
+      },
       parts,
       onSave: this.isCantrip ? "none" : "half", // default to half
     };
@@ -454,6 +457,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   build({
     activationOverride = null,
     additionalTargets = [],
+    allowCritical = null,
     attackData = {},
     spellOverride = null,
     chatFlavor = null,
@@ -514,6 +518,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       partialDamageParts,
       modRestrictionFilter,
       modRestrictionFilterExcludes,
+      allowCritical,
     });
 
     if (noSpellslot) {
@@ -574,6 +579,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       healingPart: healingPart?.part ?? healingPart ?? null,
       healingChatFlavor: healingPart?.chatFlavor ?? null,
       damageParts,
+      allowCritical,
     });
 
   }

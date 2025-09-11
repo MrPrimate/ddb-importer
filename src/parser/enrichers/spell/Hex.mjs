@@ -21,6 +21,7 @@ export default class Hex extends DDBEnricherData {
           type: "damage",
         },
         build: {
+          allowCritical: true,
           generateDamage: true,
           generateConsumption: false,
           noSpellslot: true,

@@ -376,6 +376,9 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     if (!damage || damage.length === 0) return;
 
     this.data.damage = {
+      critical: {
+        allow: this.type === "attack" || this.foundryFeature.type === "weapon",
+      },
       includeBase,
       parts: damage,
     };

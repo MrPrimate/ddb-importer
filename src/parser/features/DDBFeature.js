@@ -125,6 +125,13 @@ export default class DDBFeature extends DDBFeatureMixin {
     const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel");
     if (Number.isInteger(Number.parseInt(requiredLevel))) {
       foundry.utils.setProperty(this.data, "system.prerequisites.level", Number.parseInt(requiredLevel));
+    } else if (this.ddbDefinition.prerequisites) {
+      for (const prereq of this.ddbDefinition.prerequisites) {
+        for (const mapping of prereq.prerequisiteMappings.filter((m) => m.type === "level")) {
+          foundry.utils.setProperty(this.data, "system.prerequisites.level", mapping.value);
+          break;
+        }
+      }
     }
 
     this.data.system.identifier = this.identifier;

@@ -32,6 +32,7 @@ export default class HuntersMark extends DDBEnricherData {
           type: "damage",
         },
         build: {
+          allowCritical: true,
           generateDamage: true,
           generateSave: false,
           generateConsumption: false,

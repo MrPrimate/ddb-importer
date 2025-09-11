@@ -234,7 +234,10 @@ export default class DDBBasicActivity {
     };
   }
 
-  _generateDamage({ includeBase = false, damageParts = null, onSave = null, scalingOverride = null, criticalDamage = null } = {}) {
+  _generateDamage({
+    allowCritical = null, includeBase = false, damageParts = null, onSave = null, scalingOverride = null,
+    criticalDamage = null,
+  } = {}) {
     if (damageParts) {
       this.data.damage = {
         parts: damageParts,
@@ -242,6 +245,7 @@ export default class DDBBasicActivity {
         includeBase,
         scaling: scalingOverride ?? undefined,
         critical: {
+          allow: allowCritical ?? (this.type === "attack" || this.foundryFeature.type === "weapon"),
           bonus: criticalDamage ?? "",
         },
       };
@@ -249,6 +253,10 @@ export default class DDBBasicActivity {
     }
 
     this.data.damage = {
+      critical: {
+        allow: allowCritical ?? (this.type === "attack" || this.foundryFeature.type === "weapon"),
+      },
+      onSave: onSave ?? "",
       includeBase,
       parts: [],
     };
@@ -412,6 +420,7 @@ export default class DDBBasicActivity {
   build({
     activationOverride = null,
     additionalTargets = [],
+    allowCritical = null,
     attackData = {},
     spellOverride = null,
     chatFlavor = null,
@@ -478,6 +487,7 @@ export default class DDBBasicActivity {
       includeBase: includeBaseDamage,
       scalingOverride: damageScalingOverride,
       criticalDamage,
+      allowCritical,
     });
     if (generateEnchant) this._generateEnchant();
     if (generateSummon) this._generateSummon();
