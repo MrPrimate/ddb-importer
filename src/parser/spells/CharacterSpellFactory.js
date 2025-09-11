@@ -1,5 +1,5 @@
 /* eslint-disable no-continue */
-import { utils, logger } from "../../lib/_module.mjs";
+import { utils, logger, CompendiumHelper } from "../../lib/_module.mjs";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
@@ -654,6 +654,24 @@ export default class CharacterSpellFactory {
     }
   }
 
+  async _getCompendiumSource() {
+    const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
+    await CompendiumHelper.loadCompendiumIndex("spells", {
+      fields: ["name", "flags.ddbimporter.definitionId"],
+    });
+
+    for (const spell of this.processed) {
+      const lookup = spellCompendium.index.find((s) => {
+        return s.flags.ddbimporter.definitionId === spell.flags.ddbimporter.definitionId;
+      });
+
+      if (lookup) foundry.utils.setProperty(spell, "_stats.compendiumSource", lookup.uuid);
+      else {
+        logger.warn(`Spell ${spell.name} not found in compendium for spell list linking`);
+      }
+    }
+  }
+
   async getCharacterSpells() {
     // each class has an entry here, each entry has spells
     // we loop through each class and process
@@ -673,6 +691,8 @@ export default class CharacterSpellFactory {
 
     // unprepared cantrips
     await this.getUnpreparedCantrips();
+
+    await this._getCompendiumSource();
 
     return this.processed.sort((a, b) => a.name.localeCompare(b.name));
   }

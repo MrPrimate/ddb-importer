@@ -16,6 +16,7 @@ export { default as PlanarWarrior } from "./PlanarWarrior.mjs";
 export { default as PrimalCompanion } from "./PrimalCompanion.mjs";
 export { default as PrimalCompanionRestoreBeast } from "./PrimalCompanionRestoreBeast.mjs";
 export { default as PrimalCompanionSummon } from "./PrimalCompanionSummon.mjs";
+export { default as RangerSpells } from "./RangerSpells.mjs";
 export { default as ShadowyDodge } from "./ShadowyDodge.mjs";
 export { default as SlayersPrey } from "./SlayersPrey.mjs";
 export { default as StalkersFlurry } from "./StalkersFlurry.mjs";

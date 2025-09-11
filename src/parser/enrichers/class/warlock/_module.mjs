@@ -6,6 +6,7 @@ export { default as DarkOnesOwnLuck } from "./DarkOnesOwnLuck.mjs";
 export { default as EldritchInvocations } from "./EldritchInvocations.mjs";
 export { default as EldritchInvocationsAgonizingBlast } from "./EldritchInvocationsAgonizingBlast.mjs";
 export { default as EldritchMaster } from "./EldritchMaster.mjs";
+export { default as ExtraSpells } from "./ExtraSpells.mjs";
 export { default as FiendishResilience } from "./FiendishResilience.mjs";
 export { default as GeniesVessel } from "./GeniesVessel.mjs";
 export { default as GhostlyGaze } from "./GhostlyGaze.mjs";

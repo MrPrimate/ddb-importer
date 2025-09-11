@@ -4,6 +4,12 @@ import DDBEnricherData from "./DDBEnricherData.mjs";
 
 export default class SpellListExtractorMixin extends DDBEnricherData {
 
+  USE_COLUMN_HEADER = true;
+
+  USE_COLUMN_NUMBER = false;
+
+  SPELL_COLUMN_NUMBER = 1;
+
   SPELL_COLUMN_HEADER = 'Prepared Spells';
 
   RENAME_REGEX = / Spells$/;
@@ -21,7 +27,9 @@ export default class SpellListExtractorMixin extends DDBEnricherData {
     let spellColumnIndex = -1;
 
     headers.forEach((header, index) => {
-      if (header.textContent.trim().includes(this.SPELL_COLUMN_HEADER)) {
+      if (this.USE_COLUMN_NUMBER && index === this.SPELL_COLUMN_NUMBER) {
+        spellColumnIndex = index;
+      } else if (this.USE_COLUMN_HEADER && header.textContent.trim().includes(this.SPELL_COLUMN_HEADER)) {
         spellColumnIndex = index;
       }
     });

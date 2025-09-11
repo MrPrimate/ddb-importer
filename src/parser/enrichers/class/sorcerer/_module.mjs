@@ -4,6 +4,7 @@ export { default as ClockworkCavalcade } from "./ClockworkCavalcade.mjs";
 export { default as DraconicResilience } from "./DraconicResilience.mjs";
 export { default as DragonWings } from "./DragonWings.mjs";
 export { default as ElementalAffinity } from "./ElementalAffinity.mjs";
+export { default as ExtraSpells } from "./ExtraSpells.mjs";
 export { default as FontOfMagic } from "./FontOfMagic.mjs";
 export { default as FontOfMagicSorceryPoints } from "./FontOfMagicSorceryPoints.mjs";
 export { default as HoundOfIllOmen } from "./HoundOfIllOmen.mjs";

@@ -9,6 +9,7 @@ export { default as CoronaOfLight } from "./CoronaOfLight.mjs";
 export { default as DiscipleOfLife } from "./DiscipleOfLife.mjs";
 export { default as DivineIntervention } from "./DivineIntervention.mjs";
 export { default as DivineOrderThaumaturge } from "./DivineOrderThaumaturge.mjs";
+export { default as DomainSpells } from "./DomainSpells.mjs";
 export { default as GreaterDivineIntervention } from "./GreaterDivineIntervention.mjs";
 export { default as GuidedStrike } from "./GuidedStrike.mjs";
 export { default as HarnessDivinePower } from "./HarnessDivinePower.mjs";

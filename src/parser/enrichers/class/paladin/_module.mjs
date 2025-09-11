@@ -12,6 +12,7 @@ export { default as LayOnHands } from "./LayOnHands.mjs";
 export { default as LayOnHandsPool } from "./LayOnHandsPool.mjs";
 export { default as LayOnHandsPurifyPoison } from "./LayOnHandsPurifyPoison.mjs";
 export { default as LivingLegend } from "./LivingLegend.mjs";
+export { default as OathOfSpells } from "./OathOfSpells.mjs";
 export { default as PeerlessAthlete } from "./PeerlessAthlete.mjs";
 export { default as RadiantStrikes } from "./RadiantStrikes.mjs";
 export { default as RelentlessAvenger } from "./RelentlessAvenger.mjs";
