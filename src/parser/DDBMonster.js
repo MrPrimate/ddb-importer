@@ -313,13 +313,6 @@ export default class DDBMonster {
     this._generateTaggerFlags();
     this._generate3DModels();
 
-    // final cleanup
-    this.items = this.items.map((item) => {
-      if (foundry.utils.hasProperty(item, "flags.monsterMunch.description"))
-        delete item.flags.monsterMunch.description;
-      return item;
-    });
-
     logger.debug(`Generated ${this.name}`, this);
     return this.npc;
 

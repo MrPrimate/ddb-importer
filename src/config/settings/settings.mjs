@@ -1101,6 +1101,10 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
+          "munching-policy-monster-strip-flag-data": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-item-homebrew": {
             type: Boolean,
             default: false,

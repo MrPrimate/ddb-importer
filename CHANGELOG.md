@@ -1,5 +1,9 @@
 # Next Up
 
+- Hex fix
+- Phantasmal Killer adjustments
+- Handle Spelllist linking for character spells when linked compendium contains spells not from DDB Importer. @sayshal
+
 # 6.5.8
 
 - Warding Bond fixes. @kaallis

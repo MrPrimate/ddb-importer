@@ -239,6 +239,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
     this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
+    this.stripFlagData = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-flag-data");
 
     this.prepare();
 
@@ -1681,6 +1682,13 @@ ${this.data.system.description.value}
 
   }
 
+  flagCleanup() {
+    delete this.data.flags.ddbimporter?.defaultAdditionalActivities;
+    delete this.data.flags.monsterMunch?.description;
+    if (this.stripFlagData) {
+      delete this.data.flags.monsterMunch?.actionData;
+    }
+  }
 
   async parse() {
 
@@ -1736,6 +1744,8 @@ ${this.data.system.description.value}
 
     await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(this.data.name.toLowerCase());
+
+    this.flagCleanup();
 
     logger.debug(`Parsed Feature ${this.name} for ${this.ddbMonster.name}`, { feature: this });
 

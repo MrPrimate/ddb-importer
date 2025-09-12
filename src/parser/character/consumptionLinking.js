@@ -223,6 +223,25 @@ DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getA
   return toUpdate;
 };
 
+DDBCharacter.prototype._flagCleanup = async function _flagCleanup() {
+  const possibleItems = this.currentActor.items.toObject();
+  const toUpdate = possibleItems
+    .filter((doc) => foundry.utils.hasProperty(doc, "flags.ddbimporter.defaultAdditionalActivities"))
+    .map((doc) => {
+      return {
+        _id: doc._id,
+        flags: {
+          ddbimporter: {
+            "-=defaultAdditionalActivities": null,
+          },
+        },
+      };
+    });
+
+  await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
+  logger.debug("Flag cleanup updates", toUpdate);
+};
+
 DDBCharacter.prototype.autoLinkConsumption = async function autoLinkConsumption() {
   let toUpdate = [];
 
@@ -239,4 +258,7 @@ DDBCharacter.prototype.autoLinkConsumption = async function autoLinkConsumption(
 
   const results = await this.currentActor.updateEmbeddedDocuments("Item", toUpdate);
   logger.debug("resource Update results", results);
+
+  await this._flagCleanup();
+
 };
