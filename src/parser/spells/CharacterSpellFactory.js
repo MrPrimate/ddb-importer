@@ -662,6 +662,8 @@ export default class CharacterSpellFactory {
 
     for (const spell of this.processed) {
       const lookup = spellCompendium.index.find((s) => {
+        if (!s.flags?.ddbimporter?.definitionId) return false;
+        if (!spell.flags?.ddbimporter?.definitionId) return false;
         return s.flags.ddbimporter.definitionId === spell.flags.ddbimporter.definitionId;
       });
 
