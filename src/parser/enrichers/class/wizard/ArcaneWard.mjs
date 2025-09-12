@@ -10,6 +10,7 @@ export default class ArcaneWard extends DDBEnricherData {
     return {
       name: "Create Ward",
       type: "utility",
+      activationType: "special",
       activationCondition: "When you cast an Abjuration spell with a spell slot",
       addItemConsume: true,
       addActivityConsume: true,
@@ -42,6 +43,7 @@ export default class ArcaneWard extends DDBEnricherData {
           img: "systems/dnd5e/icons/svg/activity/damage.svg",
         },
         overrides: {
+          activationType: "special",
           addItemConsume: true,
           addScalingMode: "amount",
           rangeSelf: true,
@@ -63,6 +65,7 @@ export default class ArcaneWard extends DDBEnricherData {
         overrides: {
           addItemConsume: true,
           addScalingMode: "amount",
+          activationType: "special",
           addConsumptionScalingMax: "9",
           activationCondition: "When you cast an Abjuration spell with a spell slot",
           rangeSelf: true,

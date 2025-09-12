@@ -1,5 +1,7 @@
 # Next Up
 
+- Zealot Barbarian 2024 Fixes.
+
 # 6.5.9
 
 - Hex fix
