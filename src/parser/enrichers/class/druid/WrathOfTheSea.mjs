@@ -8,14 +8,14 @@ export default class WrathOfTheSea extends DDBEnricherData {
 
   get activity() {
     return {
-      name: "Activate Emination/Aura",
+      name: "Activate Emanation/Aura",
       targetType: "self",
       activationType: "bonus",
       data: {
         target: {
           template: {
             type: "radius",
-            size: "10",
+            size: "@scale.sea.wrath-range",
             units: "ft",
           },
         },
@@ -54,6 +54,49 @@ export default class WrathOfTheSea extends DDBEnricherData {
             ability: ["con"],
             dc: { calculation: "spellcasting", formula: "" },
           },
+        },
+        overrides: {
+          noConsumeTargets: true,
+        },
+      },
+    ];
+  }
+
+  get effects() {
+    return [
+      {
+        name: "Ocean Spray",
+        options: {
+          durationSeconds: 600,
+        },
+        data: {
+          flags: {
+            ddbimporter: {
+              activityMatch: "Activate Emanation/Aura",
+            },
+            ActiveAuras: {
+              aura: "Enemy",
+              radius: "@scale.sea.wrath-range",
+              isAura: true,
+              ignoreSelf: true,
+              inactive: false,
+              hidden: false,
+              displayTemp: true,
+            },
+          },
+        },
+        auraeffects: {
+          applyToSelf: false,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: "@scale.sea.wrath-range",
+          disposition: -1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
         },
       },
     ];

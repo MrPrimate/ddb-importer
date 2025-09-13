@@ -75,5 +75,4 @@ export default class DDBSummonsInterface {
   static getFaithfulHound = getFaithfulHound;
 
   static getGuardianOfFaith = getGuardianOfFaith;
-
 }

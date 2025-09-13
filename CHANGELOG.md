@@ -2,6 +2,7 @@
 
 - Zealot Barbarian 2024 Fixes.
 - Bigsby's Hand 2024 had stopped generating summons actors.
+- Wrath of the Sea range corrections.
 
 # 6.5.9
 
