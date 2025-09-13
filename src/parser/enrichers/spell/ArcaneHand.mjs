@@ -46,7 +46,7 @@ export default class ArcaneHand extends DDBEnricherData {
         },
         "bonuses": {
           "ac": "",
-          "hp": "@attributes.hp.max",
+          "hp": "@attributes.hp.effectiveMax",
           "attackDamage": "",
           "saveDamage": "",
           "healing": "",

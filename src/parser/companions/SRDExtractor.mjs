@@ -5,16 +5,21 @@ import {
 export class SRDExtractor {
 
   static MONSTER_MAP = {
-    "Arcane Hand": "iHj5Tkm6HRgXuaWP",
-    "Arcane Sword": "Tac7eq0AXJco0nml",
-    "Dire Wolf": "EYiQZ3rFL25fEJY5",
-    "Unseen Servant": "BTQz2q4JJVQn8W5W",
+    "dnd5e.monsters": {
+      "Arcane Hand": "iHj5Tkm6HRgXuaWP",
+      "Arcane Sword": "Tac7eq0AXJco0nml",
+      "Dire Wolf": "EYiQZ3rFL25fEJY5",
+      "Unseen Servant": "BTQz2q4JJVQn8W5W",
+    },
+    "dnd5e.actors24": {
+      "Arcane Hand": "phbsplBigbysHand",
+    },
   };
 
   static async getCompendiumDocument({ pack = null, id = null, name = null }) {
     const compendium = pack ?? game.packs.get("dnd5e.monsters");
     if (!compendium) return undefined;
-    if (!id) id = SRDExtractor.MONSTER_MAP[name];
+    if (!id) id = SRDExtractor.MONSTER_MAP[compendium.metadata.id]?.[name];
     if (!id) return undefined;
     const doc = await compendium.getDocument(id);
     return doc;

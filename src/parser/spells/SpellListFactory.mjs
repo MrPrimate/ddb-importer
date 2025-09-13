@@ -240,7 +240,7 @@ export default class SpellListFactory {
   _sourceHasSpells(source, spellListName) {
     const spellNumber = this.uuidsBySourceAndSpellListName[source.acronym][spellListName].length;
     if (spellNumber > 0) return true;
-    logger.debug(`Found ${spellNumber} Spells found for source "${source.label}" and class "${spellListName}"`);
+    logger.verbose(`Found ${spellNumber} Spells found for source "${source.label}" and class "${spellListName}"`);
     return false;
   }
 
@@ -248,7 +248,7 @@ export default class SpellListFactory {
     if (!this.available) return;
     if (!this.sources) return;
     if (!this._sourceHasSpells(source, spellListName)) {
-      logger.debug(`No Spells found for source "${source.label}"`);
+      logger.verbose(`No Spells found for source "${source.label}"`);
       return;
     }
     const journal = await this._getSpellListJournal(source);

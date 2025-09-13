@@ -36,7 +36,7 @@ export async function getArcaneHands2014({
   const pack = game.packs.get("dnd5e.monsters");
   if (!pack) return results;
 
-  const arcaneHand = await SRDExtractor.getCompendiumDocument({ pack, name });
+  const arcaneHand = await SRDExtractor.getCompendiumDocument({ pack, name: "Arcane Hand" });
   if (!arcaneHand) return results;
 
 
