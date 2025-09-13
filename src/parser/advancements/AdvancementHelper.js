@@ -1,5 +1,5 @@
-import { DICTIONARY } from '../../config/_module.mjs';
-import { utils, logger } from '../../lib/_module.mjs';
+import { DICTIONARY, SETTINGS } from '../../config/_module.mjs';
+import { utils, logger, CompendiumHelper } from '../../lib/_module.mjs';
 import { AutoEffects } from '../enrichers/effects/_module.mjs';
 import { DDBModifiers } from '../lib/_module.mjs';
 
@@ -2197,5 +2197,164 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   // static getEquipmentAdvancement(parts) {
 
   // }
+
+  static async getCompendiumSpellUuidsFromNames(names, use2024Spells = false) {
+    const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
+    const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
+      use2024Spells: spellChoice === "FORCE_2024" || use2024Spells,
+    });
+
+    return spells;
+  }
+
+  static async getCantripChoiceAdvancement({
+    choices = [], abilities = [], hint = "", name, spellListChoice = null, spellLinks,
+    is2024,
+  } = {}) {
+    if (choices.length === 0 && !spellListChoice) return undefined;
+    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(choices, is2024);
+
+    spellLinks.push({
+      type: "choice",
+      advancementId: advancement._id,
+      choices,
+      uuids,
+      level: 0,
+    });
+
+    advancement.updateSource({
+      title: name,
+      hint,
+      configuration: {
+        allowDrops: false,
+        pool: uuids.map((s) => {
+          return { uuid: s.uuid };
+        }),
+        choices: {
+          "0": {
+            count: 1,
+            replacement: false,
+          },
+          replacement: {
+            count: null,
+            replacement: false,
+          },
+        },
+        restriction: {
+          level: "0",
+          type: "spell",
+        },
+        type: "spell",
+        spell: {
+          ability: abilities,
+          preparation: "",
+          uses: {
+            max: "",
+            per: "",
+            requireSlot: false,
+          },
+        },
+      },
+    });
+    if (uuids.length > 0 || spellListChoice) return advancement;
+
+    return undefined;
+  }
+
+  static async getCantripGrantAdvancement({
+    choices = [], abilities = [], hint = "", name, spellLinks, is2024,
+  } = {}) {
+    if (choices.length === 0) return undefined;
+    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(choices, is2024);
+
+    spellLinks.push({
+      type: "grant",
+      advancementId: advancement._id,
+      choices,
+      uuids,
+      level: 1,
+    });
+
+    advancement.updateSource({
+      title: name,
+      level: 1,
+      configuration: {
+        items: uuids.map((s) => {
+          return {
+            uuid: s.uuid,
+            optional: false,
+          };
+        }),
+        type: "spell",
+        spell: {
+          ability: abilities,
+          method: "spell",
+          prepared: CONFIG.DND5E.spellPreparationStates.always.value,
+          uses: {
+            max: "",
+            per: "",
+            requireSlot: false,
+          },
+        },
+      },
+      hint,
+    });
+    if (uuids.length > 0) return advancement;
+
+    return undefined;
+  }
+
+  static async getSpellGrantAdvancement({
+    spellGrants, spellGrant, abilities = [], hint = "", name, spellLinks, method = "innate",
+    requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
+    level, is2024,
+  } = {}) {
+    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames((spellGrants.map((g) => g.name) ?? [spellGrant.name]), is2024);
+
+    spellLinks.push({
+      type: "grant",
+      advancementId: advancement._id,
+      choices: spellGrants ?? [spellGrant],
+      uuids,
+      level: level ?? spellGrant.level,
+    });
+
+    advancement.updateSource({
+      title: name,
+      level: level ? parseInt(level) : parseInt(spellGrant.level),
+      configuration: {
+        items: uuids.map((s) => {
+          return {
+            uuid: s.uuid,
+            optional: false,
+          };
+        }),
+        type: "spell",
+        spell: {
+          ability: abilities,
+          method,
+          prepared,
+          uses: spellGrant
+            ? {
+              max: spellGrant.amount === "" ? "" : spellGrant.amount,
+              per: spellGrant.amount === "" ? "" : "lr",
+              requireSlot,
+            }
+            : {
+              max: "",
+              per: "",
+              requireSlot,
+            },
+        },
+      },
+      hint,
+    });
+
+    if (uuids.length > 0) return advancement;
+    return advancement;
+  }
 
 }

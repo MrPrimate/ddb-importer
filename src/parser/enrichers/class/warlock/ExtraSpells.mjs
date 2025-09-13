@@ -5,7 +5,7 @@ export default class ExtraSpells extends SpellListExtractorMixin {
 
   async customFunction(_options) {
     if (this.is2014) return;
-    this.USE_COLUMN_NUMBER = true;
+    this.spellListExtractor.USE_COLUMN_NUMBER = true;
     await this.generateSpellList("subclass");
   }
 

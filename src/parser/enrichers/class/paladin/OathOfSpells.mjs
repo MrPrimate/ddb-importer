@@ -5,7 +5,7 @@ export default class OathOfSpells extends SpellListExtractorMixin {
 
   async customFunction(_options) {
     if (this.is2014) return;
-    this.SPELL_COLUMN_HEADER = "Spells";
+    this.spellListExtractor.SPELL_COLUMN_HEADER = "Spells";
     await this.generateSpellList("subclass");
   }
 

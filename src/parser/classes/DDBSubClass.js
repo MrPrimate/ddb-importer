@@ -1,4 +1,6 @@
+import { logger } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
+import SpellListExtractor from "../enrichers/data/SpellListExtractor.mjs";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 import DDBClass from "./DDBClass.js";
 
@@ -41,6 +43,12 @@ export default class DDBSubClass extends DDBClass {
 
   static NOT_ADVANCEMENT_FOR_FEATURE = ["Soul Blades"];
 
+  static NOT_SPELL_LIST_ADVANCEMENTS = [
+    "Circle of the Land Spells",
+  ];
+
+  static FORCE_SPELL_LIST_ADVANCEMENTS = [];
+
   static NO_ADVANCEMENT_2014 = [];
 
   static NO_ADVANCEMENT_2024 = [];
@@ -82,6 +90,8 @@ export default class DDBSubClass extends DDBClass {
     this.NOT_ADVANCEMENT_FOR_FEATURE = DDBSubClass.NOT_ADVANCEMENT_FOR_FEATURE;
     this.NO_ADVANCEMENT_2014 = DDBSubClass.NO_ADVANCEMENT_2014;
     this.NO_ADVANCEMENT_2024 = DDBSubClass.NO_ADVANCEMENT_2024;
+    this.FORCE_SPELL_LIST_ADVANCEMENTS = DDBSubClass.FORCE_SPELL_LIST_ADVANCEMENTS;
+    this.NOT_SPELL_LIST_ADVANCEMENTS = DDBSubClass.NOT_SPELL_LIST_ADVANCEMENTS;
   }
 
   // eslint-disable-next-line complexity
@@ -358,11 +368,88 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
+  async _generateSpellListAdvancement(feature) {
+    const advancements = [];
+
+    const extractor = new SpellListExtractor({
+      name: feature.name,
+      description: feature.description,
+      is2014: this.is2014,
+      is2024: this.is2024,
+      sourceId: feature.sourceId,
+    });
+
+    const extractedSpells = extractor.extractSpells(true);
+
+    const name = feature.name.toLowerCase().includes("spell")
+      ? feature.name
+      : `${feature.name} (Spells)`;
+
+    logger.debug("Spell List Advancement Data", {
+      extractedSpells,
+      this: this,
+      trait: feature,
+      name,
+    });
+
+    for (const [key, spells] of Object.entries(extractedSpells)) {
+      logger.debug(`Extracted Spells for ${key}`, { spells });
+      const options = {
+        name,
+        spellLinks: this.spellLinks,
+        spellGrants: spells.map((name) => {
+          return {
+            name,
+            level: key,
+          };
+        }),
+        level: key,
+        requireSlot: true,
+        method: "spell",
+        is2024: this.is2024,
+        prepared: feature.description.includes("always have the listed spells prepared")
+          ? CONFIG.DND5E.spellPreparationStates.always.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value,
+      };
+      const grantAdvancement = await AdvancementHelper.getSpellGrantAdvancement(options);
+
+      if (grantAdvancement) {
+        advancements.push(grantAdvancement);
+      }
+    }
+
+    logger.debug("Spell Advancements", {
+      advancements,
+    });
+
+    advancements.forEach((advancement) => {
+      this.data.system.advancement.push(advancement.toObject());
+    });
+  }
+
+  async _generateSpellListAdvancements() {
+    const advancementFeatures = this.classFeatures
+      .filter((feature) => !this.NOT_SPELL_LIST_ADVANCEMENTS.includes(feature.name))
+      .filter((feature) => feature.name.toLowerCase().endsWith("spells")
+        || this.FORCE_SPELL_LIST_ADVANCEMENTS.includes(feature.name));
+
+    for (const feature of advancementFeatures) {
+      // console.warn("Generating spell list advancement for feature:", feature);
+      let advancement = await this._generateSpellListAdvancement(feature);
+      if (!advancement) continue;
+      if ((this.is2014 && !this.NO_ADVANCEMENT_2014.includes(advancement.configuration?.identifier))
+        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(advancement.configuration?.identifier)))
+        continue;
+      this.data.system.advancement.push(advancement);
+    }
+  }
+
   async generateFromCharacter(character) {
     await this._buildCompendiumIndex("features");
     this._fleshOutCommonDataStub();
     await this._generateCommonAdvancements();
     await this._generateDescriptionStub(character);
+    await this._generateSpellListAdvancements();
     this._fixes();
     await this._addToCompendium();
   }

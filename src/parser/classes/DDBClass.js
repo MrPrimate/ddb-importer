@@ -454,6 +454,8 @@ export default class DDBClass {
 
     this.isStartingClass = this.ddbClass.isStartingClass;
 
+    this.spellLinks = [];
+
   }
 
   // this excludes any class/sub class features
