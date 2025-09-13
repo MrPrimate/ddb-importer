@@ -474,7 +474,7 @@ export default class DDBRace {
 
     for (const spellGrant of htmlData.spellGrants) {
       const spellGrantAdvancement = await AdvancementHelper.getSpellGrantAdvancement({
-        spellGrant,
+        spellGrants: [spellGrant],
         abilities: abilityData.abilities,
         hint,
         name,

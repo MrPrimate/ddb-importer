@@ -2307,17 +2307,18 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   }
 
   static async getSpellGrantAdvancement({
-    spellGrants, spellGrant, abilities = [], hint = "", name, spellLinks, method = "innate",
+    spellGrants, abilities = [], hint = "", name, spellLinks, method = "innate",
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
     level, is2024,
   } = {}) {
     const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
-    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames((spellGrants.map((g) => g.name) ?? [spellGrant.name]), is2024);
+    const spellGrant = spellGrants[0];
+    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(spellGrants.map((g) => g.name), is2024);
 
     spellLinks.push({
       type: "grant",
       advancementId: advancement._id,
-      choices: spellGrants ?? [spellGrant],
+      choices: spellGrants,
       uuids,
       level: level ?? spellGrant.level,
     });
@@ -2337,7 +2338,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           ability: abilities,
           method,
           prepared,
-          uses: spellGrant
+          uses: spellGrant.amount
             ? {
               max: spellGrant.amount === "" ? "" : spellGrant.amount,
               per: spellGrant.amount === "" ? "" : "lr",

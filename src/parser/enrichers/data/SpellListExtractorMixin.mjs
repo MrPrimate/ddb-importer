@@ -14,12 +14,6 @@ export default class SpellListExtractorMixin extends DDBEnricherData {
     });
   }
 
-  extractSpells() {
-    const spells = this.spellListExtractor.extractSpells();
-
-    return spells;
-  }
-
   async generateSpellList(type = "class") {
     await this.spellListExtractor.generateSpellList(type);
   }

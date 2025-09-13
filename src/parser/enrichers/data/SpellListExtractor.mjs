@@ -3,9 +3,9 @@ import { logger, utils } from "../../../lib/_module.mjs";
 
 export default class SpellListExtractor {
 
-  USE_COLUMN_HEADER = true;
+  USE_COLUMN_HEADER = false;
 
-  USE_COLUMN_NUMBER = false;
+  USE_COLUMN_NUMBER = true;
 
   SPELL_COLUMN_NUMBER = 1;
 
@@ -29,7 +29,6 @@ export default class SpellListExtractor {
     this.is2014 = is2014;
     this.is2024 = is2024;
     this.sourceId = sourceId;
-
   }
 
   extractSpells(withLevel = false) {
@@ -53,7 +52,7 @@ export default class SpellListExtractor {
     });
 
     if (spellColumnIndex === -1) {
-      throw new Error(`Column "${this.SPELL_COLUMN_HEADER}" not found`);
+      throw new Error(`Unable to parse spell column header`);
     }
 
     const rows = table.querySelectorAll('tbody tr');

@@ -431,7 +431,8 @@ export default class DDBSubClass extends DDBClass {
     const advancementFeatures = this.classFeatures
       .filter((feature) => !this.NOT_SPELL_LIST_ADVANCEMENTS.includes(feature.name))
       .filter((feature) => feature.name.toLowerCase().endsWith("spells")
-        || this.FORCE_SPELL_LIST_ADVANCEMENTS.includes(feature.name));
+        || this.FORCE_SPELL_LIST_ADVANCEMENTS.includes(feature.name))
+      .filter((feature) => feature.description.includes("<table"));
 
     for (const feature of advancementFeatures) {
       // console.warn("Generating spell list advancement for feature:", feature);
