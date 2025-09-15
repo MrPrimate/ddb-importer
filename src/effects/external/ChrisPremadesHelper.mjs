@@ -203,6 +203,16 @@ export default class ChrisPremadesHelper {
     return target;
   }
 
+  removeDDBImplementationNotes() {
+    const description = foundry.utils.getProperty(this.document, "system.description.value");
+    if (!description || description.trim() === "") return;
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = description;
+    const notes = tempDiv.querySelectorAll('section.ddbSecret');
+    notes.forEach((note) => note.remove());
+    this.document.system.description.value = tempDiv.innerHTML;
+  }
+
   updateOriginalDocument() {
     ChrisPremadesHelper.DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
       delete this.document.flags[flagName];
@@ -235,6 +245,8 @@ export default class ChrisPremadesHelper {
       logger.debug(`Updating ${this.original.name} with a CPR correction properties`);
       this.document = foundry.utils.mergeObject(this.document, correctionProperties);
     }
+
+    this.removeDDBImplementationNotes();
 
     logger.debug(`Updated ${this.original.name} with a CPR effect`);
     delete this.document.folder;

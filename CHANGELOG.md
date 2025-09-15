@@ -1,5 +1,8 @@
 # Next Up
 
+- When importing with CPR, remove DDB Importer Implementation Details additions
+- 2014 battle master manoeuvres had an extra space in them
+
 # 6.5.10
 
 - Zealot Barbarian 2024 Fixes.

@@ -65,7 +65,7 @@ export default class Maneuver extends DDBEnricherData {
   get override() {
     return {
       data: {
-        name: this.data.name.replace("Maneuver Options:", "Maneuver:").replace("Maneuvers:", "Maneuver: "),
+        name: this.data.name.replace("Maneuver Options:", "Maneuver:").replace("Maneuvers:", "Maneuver:"),
         "flags.ddbimporter": {
           ignoredConsumptionActivities: this.ignoredConsumptionActivities,
         },
