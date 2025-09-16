@@ -335,10 +335,26 @@ function calculateACOptions(data, character, calculatedArmor) {
       effects.push(effect);
     }
     armorClassValues.push(acValue);
-    if (acValue.value > maxValue || (acValue.value === "Unarmored Defense" && acValue.value >= maxValue)) {
+    if (acValue.value > maxValue
+      || (acValue.type === "Unarmored Defense" && maxType !== "Natural" && acValue.value >= maxValue)
+      || (acValue.type === "Natural" && acValue.value >= maxValue)
+    ) {
+      logger.debug("New max AC found:", {
+        old: `${maxValue} ${maxType}`,
+        new: `${acValue.value} ${acValue.type}`,
+        oldMaxData: foundry.utils.deepClone(maxData),
+        newMaxData: foundry.utils.deepClone(acValue),
+      });
       maxType = acValue.type;
       maxValue = acValue.value;
       maxData = foundry.utils.deepClone(acValue);
+    } else {
+      logger.debug("Not updating max AC:", {
+        current: `${maxValue} ${maxType}`,
+        discarded: `${acValue.value} ${acValue.type}`,
+        currentMaxData: foundry.utils.deepClone(maxData),
+        discardedMaxData: foundry.utils.deepClone(acValue),
+      });
     }
   }
 
