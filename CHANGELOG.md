@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.5.11
+
 - When importing with CPR, remove DDB Importer Implementation Details additions
 - 2014 battle master manoeuvres had an extra space in them
 - Tortle Natural Armor was not implemented properly
