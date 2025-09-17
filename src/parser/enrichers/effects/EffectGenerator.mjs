@@ -4,6 +4,7 @@ import ChangeHelper from "./ChangeHelper.mjs";
 import MidiEffects from "./MidiEffects.mjs";
 import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module.mjs";
 import { DICTIONARY } from "../../../config/_module.mjs";
+import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 
 export default class EffectGenerator {
 
@@ -26,6 +27,7 @@ export default class EffectGenerator {
 
   constructor({
     ddb, character, ddbItem, document, isCompendiumItem, labelOverride, labelSuffix = "", type, description = "",
+    separateACEffects,
   } = {}) {
     this.ddb = ddb;
     this.type = type;
@@ -52,7 +54,7 @@ export default class EffectGenerator {
 
     this.noGenerate = !this.grantedModifiers || this.grantedModifiers.length === 0;
 
-    this.separateACEffects = game.settings.get("ddb-importer", "separate-ac-effects");
+    this.separateACEffects = separateACEffects ?? game.settings.get("ddb-importer", "separate-ac-effects");
 
     this._generateDataStub();
   }
@@ -986,6 +988,28 @@ export default class EffectGenerator {
         document: foundry.utils.duplicate(this.document),
       });
       foundry.utils.setProperty(this.document, "flags.ddbimporter.effectsApplied", true);
+
+      if (this.document.effects.every((e) =>
+        e.name === this.document.effects[0].name
+        && e.disabled === this.document.effects[0].disabled
+        && e.transfer === this.document.effects[0].transfer
+        && isEqual(e.duration, this.document.effects[0].duration))
+      ) {
+        const baseEffect = this.document.effects[0];
+        baseEffect.changes = this.document.effects.flatMap((e) => e.changes);
+        baseEffect.statuses = Array.from(new Set(this.document.effects.flatMap((e) => e.statuses)));
+        let flags = {};
+        this.document.effects.forEach((e) => {
+          foundry.utils.mergeObject(flags, e.flags, {
+            inplace: true,
+            insertValues: true,
+            insertKeys: true,
+            recursive: true,
+          });
+        });
+        baseEffect.flags = flags;
+        this.document.effects = [baseEffect];
+      }
     }
   }
 

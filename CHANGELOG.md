@@ -5,6 +5,7 @@
 - Tortle Natural Armor was not implemented properly
 - In v13 note drops were adding an undefined label
 - Incorrect movement values for Unarmed Monvement could be calculated.
+- Reduce the creation of additional effects for AC when an document already has an effect generated, e.g. Cloak of Protection would generate separate effect for AC and Saves.
 
 # 6.5.10
 
