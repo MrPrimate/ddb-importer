@@ -5,6 +5,7 @@ import AutoEffects from "../../effects/AutoEffects.mjs";
 export default class UnarmoredMovement extends DDBEnricherData {
 
   get effects() {
+    if (this.isAction) return [];
     const value = AutoEffects.effectModules().daeInstalled && this.isClass("Monk")
       ? "@scale.monk.unarmored-movement.value"
       : this.ddbParser.ddbData?.character?.modifiers && this.is2024
@@ -13,13 +14,15 @@ export default class UnarmoredMovement extends DDBEnricherData {
         : 10;
 
     return [{
-      noCreate: true,
-      changesOverwrite: true,
       changes: [
-        // can't use scale values here yet
         DDBEnricherData.ChangeHelper.unsignedAddChange(`${value}`, 20, "system.attributes.movement.walk"),
       ],
+      options: { transfer: true },
     }];
+  }
+
+  get clearAutoEffects() {
+    return true;
   }
 
 }

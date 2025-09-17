@@ -871,6 +871,24 @@ export default class EffectGenerator {
           priority: 15,
         },
       );
+
+      if (this.ddbItem.entityType === "racial-trait") {
+        this.effect.changes.push(
+          {
+            key: "system.attributes.ac.calc",
+            value: "natural",
+            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+            priority: 10,
+          },
+          {
+            key: "system.attributes.ac.flat",
+            value: formula,
+            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+            priority: 10,
+          },
+        );
+        foundry.utils.setProperty(this.effect, "flags.dae.disableCondition", "attributes?.ac?.equippedArmor");
+      }
     }
   }
 

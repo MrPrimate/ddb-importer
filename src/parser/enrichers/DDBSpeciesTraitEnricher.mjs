@@ -1,5 +1,6 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 import { SpeciesEnrichers, GenericEnrichers } from "./_module.mjs";
+import { utils } from "../../lib/_module.mjs";
 
 export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null } = {}) {
@@ -12,6 +13,35 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
       ddbActionType: "race",
     });
   }
+
+  get speciesGroupName() {
+    return this.ddbParser.species?.groupName;
+  }
+
+  _defaultClassLoader() {
+    if (this.speciesGroupName) {
+      const speciesGroupNameHint = utils.pascalCase(this.speciesGroupName);
+      const featName = utils.pascalCase(this.hintName);
+      if (!SpeciesEnrichers[speciesGroupNameHint]?.[featName]) {
+        return null;
+      }
+      return new SpeciesEnrichers[speciesGroupNameHint][featName]({
+        ddbEnricher: this,
+      });
+    } else {
+      return null;
+    }
+  }
+
+  _defaultNameLoader() {
+    if (!this.ENRICHERS[this.hintName]) {
+      return this._defaultClassLoader();
+    }
+    return new this.ENRICHERS[this.hintName]({
+      ddbEnricher: this,
+    });
+  }
+
 
   NAME_HINTS = {
     "Halfling Lucky": "Lucky",

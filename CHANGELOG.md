@@ -4,6 +4,7 @@
 - 2014 battle master manoeuvres had an extra space in them
 - Tortle Natural Armor was not implemented properly
 - In v13 note drops were adding an undefined label
+- Incorrect movement values for Unarmed Monvement could be calculated.
 
 # 6.5.10
 

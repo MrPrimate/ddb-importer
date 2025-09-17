@@ -970,7 +970,7 @@ const SETTINGS = {
             name: "ddb-importer.settings.munching-policy-download-images.name",
             hint: "ddb-importer.settings.munching-policy-download-images.hint",
             type: Boolean,
-            default: false,
+            default: true,
           },
           "munching-policy-use-chris-premades": {
             type: Boolean,

@@ -253,8 +253,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.resourceCharges = null;
     this.activityType = activityType;
 
-    this.klass = this.extraFlags.ddbimporter?.class;
-    this.subKlass = this.extraFlags.ddbimporter?.subClass;
+    this.klass = this.extraFlags.ddbimporter?.class ?? this.extraFlags.class;
+    this.subKlass = this.extraFlags.ddbimporter?.subClass ?? this.extraFlags.subClass;
+    this.species = this.extraFlags.ddbimporter?.species ?? this.extraFlags.species;
 
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 

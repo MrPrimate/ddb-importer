@@ -944,6 +944,7 @@ export default class DDBEnricherFactoryMixin {
         action,
         isAttack,
         manager: this.manager,
+        extraFlags: this.ddbParser.extraFlags,
       });
       return feature;
     }));
@@ -1228,6 +1229,7 @@ export default class DDBEnricherFactoryMixin {
         action,
         isAttack,
         manager: this.manager,
+        extraFlags: this.ddbParser.extraFlags,
       });
 
       const actionFeatureName = foundry.utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;

@@ -521,16 +521,23 @@ export default class CharacterFeatureFactory {
       logger.debug(`Checking ${feature.name} for AC effects`);
       for (const effect of (feature.effects ?? [])) {
         if (
-          !["Natural", "Unarmored Defense", "Custom", "Unarmored"].includes(this.ddbCharacter.armor.results.maxType)
+          !["Custom", "Unarmored"].includes(this.ddbCharacter.armor.results.maxType)
           && (
-            (effect.changes.length === 2
+            (effect.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length >= 2
             && effect.changes.some((change) => change.key === "system.attributes.ac.formula")
             && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
-            || (effect.changes.length === 1
+            || (effect.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length === 1
               && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
           )
         ) {
-          effect.disabled = true;
+          if ((feature.flags.ddbimporter.type === "race" && this.ddbCharacter.armor.results.maxType === "Natural")
+            || (feature.flags.ddbimporter.type === "class" && this.ddbCharacter.armor.results.maxType === "Unarmored Defense")
+          ) {
+            effect.disabled = false;
+          } else {
+            logger.debug(`Disabling AC effect on ${feature.name} as not applicable for armor type ${this.ddbCharacter.armor.results.maxType}`);
+            effect.disabled = true;
+          }
         }
       }
     }
@@ -547,7 +554,15 @@ export default class CharacterFeatureFactory {
       );
 
     for (const trait of traits) {
-      const features = await this.getFeaturesFromDefinition(trait, "race");
+      const features = await this.getFeaturesFromDefinition(trait, "race", {
+        species: {
+          fullRaceName: this.ddbCharacter._ddbRace.fullName,
+          baseName: this.ddbCharacter._ddbRace.baseName,
+          baseRaceName: this.ddbCharacter._ddbRace.baseRaceName,
+          groupName: this.ddbCharacter._ddbRace.groupName,
+          isLineage: this.ddbCharacter._ddbRace.isLineage,
+        },
+      });
       features.forEach((item) => {
         const existingFeature = CharacterFeatureFactory.getNameMatchedFeature(this.parsed[type], item);
         const duplicateFeature = CharacterFeatureFactory.isDuplicateFeature(this.parsed[type], item)

@@ -77,7 +77,13 @@ export default class DDBRace {
   #getFullName() {
     const baseName = this.race.fullName ?? this.race.name;
     const lineageName = this.lineageName;
-    if (lineageName) return lineageName;
+    if (lineageName) {
+      if (lineageName.includes(baseName)) {
+        return lineageName;
+      } else {
+        return `${baseName} (${lineageName})`;
+      }
+    }
     return baseName;
   }
 
