@@ -82,7 +82,7 @@ export function anchorInjection() {
 
     if (isExistingNote) {
       const closeHookId = Hooks.on("closeDocumentSheetV2", async (documentSheet) => {
-        if (!(documentSheet instanceof NoteConfig)) return;
+        if (!(documentSheet instanceof foundry.applications.sheets.NoteConfig)) return;
         if (noteConfig.document.id !== documentSheet.document.id) return;
         Hooks.off("closeDocumentSheetV2", closeHookId);
         const selectedSlug = documentSheet.document.getFlag("ddb", "slugLink");
@@ -90,6 +90,7 @@ export function anchorInjection() {
           const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
           await canvas.scene.updateEmbeddedDocuments("Note", [update]);
         }
+        game.canvas.notes.draw();
       });
     }
   });
@@ -103,16 +104,18 @@ export function anchorInjection() {
   });
 
   Hooks.on("dropCanvasData", (_, dropData) => {
-    if (dropData.type !== "JournalEntryPage" && !dropData.anchor?.slug) return;
+    if (dropData.type !== "JournalEntryPage" && !foundry.utils.hasProperty(dropData, "anchor.slug")) return;
 
     // when we create from the side bar we fill in the input label name to match
     // the anchor name and set the slug value to the anchor slug
     Hooks.once("renderNoteConfig", (noteConfig, form, app) => {
       const titleInput = form.querySelector("input[name='text']");
-      if (dropData.anchor.slug) {
+      if (dropData.anchor.slug && dropData.anchor.name) {
         titleInput.setAttribute('value', dropData.anchor.name);
         updateNotePage(noteConfig, dropData.anchor.slug);
-      } else {
+      } else if (app.document.pageId) {
+        titleInput.setAttribute('value', app.pages[app.document.pageId] ?? "");
+      } else if (app.label) {
         titleInput.setAttribute('value', app.label);
       }
     });

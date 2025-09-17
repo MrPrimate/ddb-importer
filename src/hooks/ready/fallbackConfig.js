@@ -5019,6 +5019,15 @@ export const fallbackDDBConfig = {
       sourceURL: "",
     },
     {
+      id: 199,
+      name: "HotB",
+      description: "Heroes of the Borderlands",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/51322/302/638924470222941154.jpeg",
+      sourceURL: "sources/dnd/hotb",
+    },
+    {
       id: 200,
       name: "CtbT",
       description: "Cthulhu by Torchlight",
