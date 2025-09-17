@@ -22,7 +22,7 @@ export default class UnarmoredDefense extends DDBEnricherData {
         data: {
           flags: {
             dae: {
-              disableCondition: "attributes?.ac?.equippedArmor",
+              // disableCondition: "attributes?.ac?.equippedArmor",
             },
           },
         },

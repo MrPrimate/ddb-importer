@@ -889,7 +889,7 @@ export default class EffectGenerator {
             priority: 10,
           },
         );
-        foundry.utils.setProperty(this.effect, "flags.dae.disableCondition", "attributes?.ac?.equippedArmor");
+        // foundry.utils.setProperty(this.effect, "flags.dae.disableCondition", "attributes?.ac?.equippedArmor");
       }
     }
   }
