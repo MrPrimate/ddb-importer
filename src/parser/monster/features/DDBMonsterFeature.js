@@ -1178,6 +1178,7 @@ ${this.data.system.description.value}
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: false,
       damageParts: this.actionData.saveParts,
+      onSave: this.halfDamage ? "half" : "none",
     }, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);

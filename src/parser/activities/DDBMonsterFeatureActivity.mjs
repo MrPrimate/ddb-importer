@@ -99,7 +99,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     return baseParts;
   }
 
-  _generateDamage({ parts = [], includeBase = true, allowCritical = null } = {}) {
+  _generateDamage({ parts = [], includeBase = true, allowCritical = null, onSave = "half" } = {}) {
     const companion = foundry.utils.getProperty(this.ddbParent.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
     let damageParts = parts.length > 0
@@ -117,6 +117,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       critical: {
         allow: allowCritical ?? (this.type === "attack" || this.foundryFeature.type === "weapon"),
       },
+      onSave,
       includeBase,
       parts: damageParts,
     };
@@ -271,7 +272,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     if (generateTarget) this._generateTarget();
 
     if (generateSave) this._generateSave({ saveOverride });
-    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, allowCritical });
+    if (generateDamage) this._generateDamage({ parts: damageParts, includeBase: includeBaseDamage, allowCritical, onSave });
     if (generateHealing) this._generateHealing({ part: healingPart });
 
     if (generateCheck) this._generateCheck({ checkOverride });
