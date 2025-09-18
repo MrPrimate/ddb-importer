@@ -14,6 +14,7 @@ export { default as DiamondSoul } from "./DiamondSoul.mjs";
 export { default as DisciplinedSurvivor } from "./DisciplinedSurvivor.mjs";
 export { default as ElementalAttunement } from "./ElementalAttunement.mjs";
 export { default as ElementalBurst } from "./ElementalBurst.mjs";
+export { default as ElementalDiscipline } from "./ElementalDiscipline.mjs";
 export { default as ElementalEpitome } from "./ElementalEpitome.mjs";
 export { default as EmpoweredStrikes } from "./EmpoweredStrikes.mjs";
 export { default as EmptyBody } from "./EmptyBody.mjs";

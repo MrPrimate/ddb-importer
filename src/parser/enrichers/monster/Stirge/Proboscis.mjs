@@ -39,7 +39,7 @@ export default class Proboscis extends DDBEnricherData {
         },
         overrides: {
           targetType: "creature",
-          activationType: "special",
+          activationType: "turnStart",
           activationCondition: "Start of the Stirge's turn",
           noTemplate: true,
           data: {
