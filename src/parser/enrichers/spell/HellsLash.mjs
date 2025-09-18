@@ -60,7 +60,7 @@ export default class HellsLash extends DDBEnricherData {
     return [
       {
         name: `${this.name}: Tethered`,
-        activityNameMatch: "Cast",
+        activityMatch: "Cast",
       },
     ];
   }

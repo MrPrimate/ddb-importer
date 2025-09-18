@@ -625,11 +625,11 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     },
   });
 
-  // this.raw.character.system.attributes.ac = {
-  //   flat,
-  //   calc,
-  //   formula,
-  // };
+  this.raw.character.system.attributes.ac = {
+    flat,
+    calc,
+    formula,
+  };
 
   this.raw.character.effects = this.raw.character.effects.concat(this.armor.bonusEffects);
 

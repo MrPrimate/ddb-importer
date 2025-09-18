@@ -54,7 +54,7 @@ export default class DeflectMissiles extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange(
             "[[1d10 + @abilities.dex.mod + @classes.monk.levels]]",
             20,
-            "flags.midi-qol.DR.rwak",
+            "system.traits.dm.midi.rwak",
           ),
         ],
         daeSpecialDurations: ["isDamaged"],

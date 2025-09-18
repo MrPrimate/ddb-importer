@@ -38,7 +38,7 @@ export default class HadozeeDodge extends DDBEnricherData {
         name: "Hadozee Dodge",
         daeSpecialDurations: ["1Reaction"],
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1d6 + @attributes.prof", 20, "flags.midi-qol.DR.all"),
+          DDBEnricherData.ChangeHelper.customChange("1d6 + @attributes.prof", 20, "system.traits.dm.midi.all"),
         ],
         data: {
           flags: {

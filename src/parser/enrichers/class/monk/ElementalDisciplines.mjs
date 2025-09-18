@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class ElementalDiscipline extends DDBEnricherData {
+export default class ElementalDisciplines extends DDBEnricherData {
 
   get type() {
     return this.isAction ? null : "none";
@@ -20,7 +20,7 @@ export default class ElementalDiscipline extends DDBEnricherData {
   }
 
   get builtFeaturesFromActionFilters() {
-    return [this.name];
+    return [this.name.replace("Elemental Disciplines:", "").trim()];
   }
 
 }

@@ -118,7 +118,15 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Horned King Spells": "Warlock Extra Spells",
     "Coven Spells": "Warlock Extra Spells",
     "First Vampire Spells": "Warlock Extra Spells",
-
+    // "Elemental Disciplines: Clench of the North Wind": "Elemental Disciplines",
+    // "Elemental Disciplines: Fangs of the Fire Snake": "Elemental Disciplines",
+    // "Elemental Disciplines: Fist of Four Thunders": "Elemental Disciplines",
+    // "Elemental Disciplines: Fist of Unbroken Air": "Elemental Disciplines",
+    // "Elemental Disciplines: Gong of the Summit": "Elemental Disciplines",
+    // "Elemental Disciplines: Rush of the Gale Spirits": "Elemental Disciplines",
+    // "Elemental Disciplines: Shape the Flowing River": "Elemental Disciplines",
+    // "Elemental Disciplines: Sweeping Cinder Strike": "Elemental Disciplines",
+    // "Elemental Disciplines: Water Whip": "Elemental Disciplines",
   };
 
   NAME_HINT_INCLUDES = {
@@ -126,6 +134,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Enchantments:": "EnchantmentsExtras",
     "Eldritch Invocations: Agonizing Blast": "Eldritch Invocations: Agonizing Blast",
     " Domain Spells": "Cleric Domain Spells",
+    "Elemental Disciplines: ": "Elemental Disciplines",
   };
 
   ENRICHERS = {
@@ -292,6 +301,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Ranger Spells": ClassEnrichers.Ranger.RangerSpells,
     "Sorcerer Extra Spells": ClassEnrichers.Sorcerer.ExtraSpells,
     "Warlock Extra Spells": ClassEnrichers.Warlock.ExtraSpells,
+    "Elemental Disciplines": ClassEnrichers.Monk.ElementalDisciplines,
   };
 
   FALLBACK_ENRICHERS = {

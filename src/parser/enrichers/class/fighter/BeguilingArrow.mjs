@@ -55,7 +55,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
     return [
       {
         name: "Charmed",
-        activityNameMatch: "Save vs Charmed",
+        activityMatch: "Save vs Charmed",
         statuses: ["Charmed"],
         options: {
           durationSeconds: 12,

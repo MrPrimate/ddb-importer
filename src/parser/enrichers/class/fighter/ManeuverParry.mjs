@@ -28,7 +28,7 @@ export default class ManeuverParry extends Maneuver {
       {
         midiOnly: true,
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "flags.midi-qol.DR.all"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.traits.dm.midi.all"),
         ],
         daeSpecialDurations: ["isDamaged"],
       },

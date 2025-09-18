@@ -121,6 +121,7 @@ export default class ElementalAttunement extends DDBEnricherData {
       : [
         {
           name: "Elemental Attunement",
+          activityMatch: "Activate Attunement",
           data: {
             flags: {
               activityMatch: "Activate Attunement",

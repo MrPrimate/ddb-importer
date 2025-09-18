@@ -22,7 +22,7 @@ export default class RageOfTheGods extends DDBEnricherData {
     return [
       {
         name: "Rage of the Gods",
-        activityNameMatch: "Rage of the Gods",
+        activityMatch: "Rage of the Gods",
         changes: [
           this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 20, "system.traits.dr.value"),

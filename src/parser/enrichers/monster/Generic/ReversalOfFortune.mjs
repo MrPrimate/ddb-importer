@@ -25,7 +25,7 @@ export default class ReversalOfFortune extends DDBEnricherData {
         },
         midiOnly: true,
         midiChanges: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.DR.all"),
+          DDBEnricherData.ChangeHelper.customChange("1", 20, "system.traits.dm.midi.all"),
         ],
         daeSpecialDurations: [
           "1Reaction",
