@@ -320,6 +320,7 @@ export default class DDBDataUtils {
       "path-of-the-", "path-of-",
       "warrior-of-the-", "warrior-of-",
       "oath-of-the-", "oath-of-",
+      "college-of-the-", "college-of-",
       "-domain",
       "-sorcery",
       "-patron",

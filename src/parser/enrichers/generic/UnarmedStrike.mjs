@@ -86,20 +86,26 @@ export default class UnarmedStrike extends DDBEnricherData {
   }
 
   get override() {
-    return this.ddbParser.isMartialArtist()
-      ? null
-      : {
-        data: {
-          system: {
-            damage: {
-              base: DDBEnricherData.basicDamagePart({
-                customFormula: "1 + @abilities.str.mod",
-                type: "bludgeoning",
-              }),
-            },
+    if (this.ddbParser.isMartialArtist()) return null;
+
+    const dazzlingFootwork = this.hasClassFeature({ featureName: "Dazzling Footwork", className: "Bard" });
+
+    const formula = dazzlingFootwork
+      ? "@scale.dance.dazzling-footwork + @abilities.dex.mod"
+      : "1 + @abilities.str.mod";
+
+    return {
+      data: {
+        system: {
+          damage: {
+            base: DDBEnricherData.basicDamagePart({
+              customFormula: formula,
+              type: "bludgeoning",
+            }),
           },
         },
-      };
+      },
+    };
   }
 
 }

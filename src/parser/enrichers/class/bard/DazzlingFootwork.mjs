@@ -23,6 +23,7 @@ export default class DazzlingFootwork extends DDBEnricherData {
   get effects() {
     return [
       {
+        name: "Unarmored Defense",
         options: {
           transfer: true,
         },
@@ -34,13 +35,14 @@ export default class DazzlingFootwork extends DDBEnricherData {
         },
       },
       {
+        name: "Bardic Damage",
         type: "enchant",
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Dazzling Footwork]`, 20, "name"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.damage.base.types"),
-          DDBEnricherData.ChangeHelper.overrideChange("dex", 20, "system.ability"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[attack].attack.ability"),
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.damage.base.custom.enabled"),
-          DDBEnricherData.ChangeHelper.overrideChange("@scale.dance.dazzling-footwork + @abilities.dex.mod", 20, "system.damage.base.custom.formula"),
+          DDBEnricherData.ChangeHelper.overrideChange("@scale.dance.dazzling-footwork + @mod", 20, "system.damage.base.custom.formula"),
         ],
         data: {
           "flags.ddbimporter.activityMatch": "Bardic Damage",

@@ -31,7 +31,7 @@ export default class MantleOfInspiration extends DDBEnricherData {
           prompt: false,
         },
         healing: DDBEnricherData.basicDamagePart({
-          customFormula: "2 * @scale.college-of-glamour.mantle-of-inspiration",
+          customFormula: "2 * @scale.glamour.mantle-of-inspiration",
           types: ["temphp"],
         }),
       },
