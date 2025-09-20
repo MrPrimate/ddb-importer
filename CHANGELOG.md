@@ -1,9 +1,11 @@
 # Next Up
 
+# 6.5.12
+
 - Elemental Monk 2014 improvements.
 - Improvements to detection of galf/npne damage on save for monster features.
 - Fix some deprecated midiqol effect generations.
-- Dazzling Footwork Unarmed Strike fixes.
+- Dazzling Footwork Unarmed Strike fixes. @oregonpinkrose
 
 # 6.5.11
 
