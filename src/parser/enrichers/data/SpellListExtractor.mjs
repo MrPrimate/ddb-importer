@@ -51,7 +51,12 @@ export default class SpellListExtractor {
       }
     });
 
+    if (headers.length === 0) {
+      spellColumnIndex = 1;
+    }
+
     if (spellColumnIndex === -1) {
+      logger.error(`Unable to find spell column in table headers`, { this: this, headers });
       throw new Error(`Unable to parse spell column header`);
     }
 
