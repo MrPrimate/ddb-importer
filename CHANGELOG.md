@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.5.13
+
+- Fix import errors for some homebrew spell lists. @ranaan
+
 # 6.5.12
 
 - Elemental Monk 2014 improvements.
