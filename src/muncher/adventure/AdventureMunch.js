@@ -424,18 +424,6 @@ export default class AdventureMunch {
     return undefined;
   }
 
-  /**
-   * Get the world actor, or actor that represents the world actor for adventure compendium build
-   *
-   * @param  {string} actorId Actor Id
-   * @returns {object} Actor
-   */
-  _getWorldActor(actorId) {
-    return this.addToAdventureCompendium
-      ? this.temporary.actors.find((a) => a._id === actorId)
-      : game.actors.get(actorId);
-  }
-
   // eslint-disable-next-line complexity
   async _getTokenUpdateData(worldActor, sceneToken) {
     const items = [];
@@ -553,7 +541,7 @@ export default class AdventureMunch {
       if (token.actorId && !token.actorLink) {
         const sceneToken = scene.flags.ddb.tokens.find((t) => t._id === foundry.utils.getProperty(token, "flags.ddbActorFlags.tokenLinkId"));
         delete sceneToken.scale;
-        const worldActor = this._getWorldActor(token.actorId);
+        const worldActor = game.actors.get(token.actorId);
         if (worldActor) {
           const updateData = await this._getTokenUpdateData(worldActor, sceneToken);
           tokenResults.push(updateData);
@@ -572,22 +560,19 @@ export default class AdventureMunch {
     return tokenResults;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   async _revisitScene(document) {
     let updatedData = {};
     const scene = foundry.utils.duplicate(document);
     // this is a scene we need to update links to all items
     logger.info(`Updating ${scene.name}, ${scene.tokens.length} tokens`);
 
-    if (!this.addToAdventureCompendium) {
-      // In 0.8.x the thumbs don't seem to be generated.
-      // This code would embed the thumbnail.
-      // Consider writing this out.
-      if (!document.thumb) {
-        const thumbData = await document.createThumbnail();
-        updatedData["thumb"] = thumbData.thumb;
-      }
-      await document.update(updatedData);
+    if (!document.thumb) {
+      const thumbData = await document.createThumbnail();
+      updatedData["thumb"] = thumbData.thumb;
     }
+    await document.update(updatedData);
+
   }
 
   /**
@@ -607,16 +592,18 @@ export default class AdventureMunch {
             this.close();
           }, 180000);
           try {
-            const document = this.addToAdventureCompendium
-              ? this.fetchTemporaryItem(itemUuid)
-              : await fromUuid(itemUuid);
-            // let rawData;
-            switch (document.documentName) {
-              case "Scene": {
-                await this._revisitScene(document);
-                break;
+            const loadedDocs = [await fromUuid(itemUuid)];
+            if (this.addToAdventureCompendium) {
+              loadedDocs.push(this.fetchTemporaryItem(itemUuid));
+            }
+            for (const document of loadedDocs) {
+              switch (document.documentName) {
+                case "Scene": {
+                  await this._revisitScene(document);
+                  break;
+                }
+                // no default
               }
-              // no default
             }
           } catch (err) {
             logger.warn(`Error updating references for object ${itemUuid}`, err);
@@ -837,12 +824,12 @@ export default class AdventureMunch {
       await this._checkForMissingData();
       this.lookups.adventureConfig = await generateAdventureConfig(true);
 
+      await this._importAdventureToWorld();
+
       if (this.addToAdventureCompendium) {
         const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Adventures");
         await createDDBCompendium(compData);
         await this._importAdventureToCompendium();
-      } else {
-        await this._importAdventureToWorld();
       }
       this._renderCompleteDialog();
     } catch (err) {
@@ -866,7 +853,7 @@ export default class AdventureMunch {
     const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
     const results = [];
     await utils.asyncForEach(neededActors, async (actor) => {
-      let worldActor = this._getWorldActor(actor.actorId);
+      let worldActor = game.actors.get(actor.actorId);
       if (!worldActor) {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
         try {
@@ -908,7 +895,7 @@ export default class AdventureMunch {
     logger.debug("Checking for the following actors in world", data);
     await utils.asyncForEach(data, async (actorData) => {
       logger.debug(`Checking for ${actorData.ddbId}`, actorData);
-      let worldActor = this._getWorldActor(actorData.actorId);
+      let worldActor = game.actors.get(actorData.actorId);
 
       if (worldActor) {
         logger.debug(`Actor found for ${actorData.actorId}, with name ${worldActor.name}`);
@@ -917,7 +904,7 @@ export default class AdventureMunch {
           monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId,
         );
         if (monsterHit) {
-          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id} (temporary? ${this.addToAdventureCompendium})`);
+          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id}`);
           try {
             const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
             const options = { keepId: true, keepEmbeddedIds: true };
@@ -1077,19 +1064,6 @@ export default class AdventureMunch {
     const itemData = await AdventureMunchHelpers.getDocuments("items", (this.adventure.required.items ?? []), {}, true);
     const spellData = await AdventureMunchHelpers.getDocuments("spells", (this.adventure.required.spells ?? []), {}, true);
 
-    logger.debug("Writing out Journals");
-    await this._importFile("journal");
-    logger.debug("Cartographer is working on Scenes");
-    await this._importFile("scene");
-    logger.debug("Performing some table calculations");
-    await this._importFile("table");
-    // await this._importFile("Macro", [], true);
-    // await this._importFile("Card", [], true);
-    // await this._importFile("Playlist", [], true);
-    // await this._importFile("Combat", [], true);
-    // await this._importFile("Actor", [], true);
-    // await this._importFile("Item", [], true);
-
     const ddbSource = CONFIG.DDB.sources.find((source) => source.description === this.adventure.name);
     const image = ddbSource?.avatarURL
       ? ddbSource.avatarURL
@@ -1227,7 +1201,6 @@ export default class AdventureMunch {
       this._itemsToRevisit.push(`Scene.${scene.id}`);
       if (this.addToAdventureCompendium) {
         this.temporary.scenes.push(scene);
-        scene.delete();
       }
     }
   }

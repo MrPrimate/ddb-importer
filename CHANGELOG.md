@@ -1,5 +1,7 @@
 # Next Up
 
+- Some tweaks to adventure importing when importing to compendiums.
+
 # 6.5.13
 
 - Fix import errors for some homebrew spell lists. @ranaan
