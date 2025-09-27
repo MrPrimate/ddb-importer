@@ -1,6 +1,9 @@
 # Next Up
 
+# 6.5.14
+
 - Some tweaks to adventure importing when importing to compendiums.
+- Prevent Homebrew items named the same as official items using enrichers to alter imported items.
 
 # 6.5.13
 
