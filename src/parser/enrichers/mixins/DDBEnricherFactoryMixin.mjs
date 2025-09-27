@@ -20,6 +20,7 @@ export default class DDBEnricherFactoryMixin {
 
 
   _loadEnricherData() {
+    if (this.ddbParser.ddbDefinition?.isHomebrew) return null;
     if (!this.ENRICHERS?.[this.hintName]) {
       if (utils.isFunction(this._defaultNameLoader)) return this._defaultNameLoader();
       return null;
