@@ -14,12 +14,11 @@ export default class HealingLight extends DDBEnricherData {
       data: {
         "consumption.scaling": {
           allowed: true,
-          max: "@item.uses.max - @item.uses.spent",
+          max: "clamp(@abilities.cha.mod, 1, @item.uses.value)",
         },
         healing: DDBEnricherData.basicDamagePart({
           number: 1,
           denomination: 6,
-          bonus: "3",
           types: ["healing"],
           scalingMode: "whole",
           scalingNumber: "1",

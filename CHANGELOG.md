@@ -1,5 +1,7 @@
 # Next Up
 
+- Celestial Warlock Healing Light Feature Has Erroneous Bonus Applied
+
 # 6.5.14
 
 - Some tweaks to adventure importing when importing to compendiums.
