@@ -7,3 +7,4 @@ export * as FilterModifiers from "./FilterModifiers.mjs";
 export { default as DDBModifiers } from "./DDBModifiers.mjs";
 export { default as DDBDataUtils } from "./DDBDataUtils.mjs";
 export { default as SystemHelpers } from "./SystemHelpers.mjs";
+export { default as DDBRuleJournalFactory } from "./DDBRuleJournalFactory.mjs";

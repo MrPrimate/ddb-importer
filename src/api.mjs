@@ -157,6 +157,7 @@ export function registerApi() {
         SpellListFactory,
         DDBSpellListFactory,
       },
+      RuleFactory: ParserLib.DDBRuleJournalFactory,
     },
     settings: {
       muncherSettings: lib.MuncherSettings.getMuncherSettings,
