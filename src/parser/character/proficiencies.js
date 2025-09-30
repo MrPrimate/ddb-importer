@@ -13,7 +13,7 @@ DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(includeIte
   return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((prof) => {
-      const weaponRegex = /(.*) \(([\w- ]+)\)$/ig;
+      const weaponRegex = /(.*) \(([\w-, ]+)\)$/ig;
       const masteryDetails = weaponRegex.exec(prof.friendlySubtypeName);
       const dnd5eNameArray = masteryDetails[2].trim().toLowerCase().split(",");
       const dnd5eName = dnd5eNameArray.length === 2
