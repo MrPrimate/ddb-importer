@@ -1,6 +1,8 @@
 # Next Up
 
 - Celestial Warlock Healing Light Feature Has Erroneous Bonus Applied
+- Improve patreon key on actor messaging when key has expired
+- Improve some parsing of Weapon Masteries from Grim Hollow
 
 # 6.5.14
 
