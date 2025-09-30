@@ -1,7 +1,9 @@
 <div>
   <fieldset id="munching-task-details">
   <legend>Import Details</legend>
-  <div class="task-name"></div>
+  <div class="task-name">
+    {{#if localPatreonValid}}{{else}}<p style="color: red">Local Patreon Key is set on this character in the advanced tab, but it is not valid, import will likely fail.</p>{{/if}}
+  </div>
   </fieldset>
 
 </div>

@@ -211,6 +211,10 @@ export default class DDBCharacterManager extends DDBAppV2 {
     this.playerSyncEnabled = characterId && useLocalPatreonKey;
     const syncEnabled = characterId && (this.importSettings.tiers.all || useLocalPatreonKey);
 
+    const localPatreonValid = useLocalPatreonKey
+      ? (await PatreonHelper.isValidKey(true, false))
+      : true;
+
     const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
     const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
     const syncOnly = trustedUsersOnly && allowAllSync && !game.user.isTrusted;
@@ -242,6 +246,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       resourceSelection,
       useLocalPatreonKey,
       useLocalPatreonKeyAndItemsMunched: useLocalPatreonKey && this.itemsMunched,
+      localPatreonValid,
     };
 
     let context = foundry.utils.mergeObject(this.importSettings, this.actorSettings);

@@ -14,10 +14,10 @@ async function setLocalStorage(key, value) {
 
 const PatreonHelper = {
 
-  isValidKey: async() => {
+  isValidKey: async(local = false, setKey = true) => {
     let validKey = false;
 
-    const key = PatreonHelper.getPatreonKey();
+    const key = PatreonHelper.getPatreonKey(local);
     if (key === "") {
       validKey = true;
     } else {
@@ -26,7 +26,12 @@ const PatreonHelper = {
         validKey = true;
       } else {
         validKey = false;
-        new DDBKeyChangeDialog({ callMuncher: true }).render(true);
+        if (setKey) {
+          new DDBKeyChangeDialog({
+            callMuncher: !local,
+            local,
+          }).render(true);
+        }
       }
     }
     return validKey;
