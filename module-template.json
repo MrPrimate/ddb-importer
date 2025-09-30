@@ -11,7 +11,7 @@
   "url": "https://github.com/mrprimate/ddb-importer",
   "compatibility": {
     "minimum": "13.346",
-    "verified": "13.346",
+    "verified": "13.348",
     "maximum": 13
   },
   "authors": [
