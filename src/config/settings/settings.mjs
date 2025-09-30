@@ -228,6 +228,12 @@ const SETTINGS = {
         default: false,
         requiresReload: true,
       },
+      "allowed-weapon-property-sources": {
+        config: false,
+        scope: "world",
+        type: Array,
+        default: [],
+      },
     },
     // ready settings
     READY: {
