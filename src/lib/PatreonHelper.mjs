@@ -14,10 +14,10 @@ async function setLocalStorage(key, value) {
 
 const PatreonHelper = {
 
-  isValidKey: async(local = false, setKey = true) => {
+  isValidKey: async(local = false, setKey = true, overrideKey = null) => {
     let validKey = false;
 
-    const key = PatreonHelper.getPatreonKey(local);
+    const key = overrideKey ?? PatreonHelper.getPatreonKey(local);
     if (key === "") {
       validKey = true;
     } else {
@@ -81,15 +81,15 @@ const PatreonHelper = {
   setPatreonTier: async (local = false) => {
     const tier = await PatreonHelper.fetchPatreonTier(local);
     if (local) {
-      setLocalStorage("ddb-patreon-tier", tier);
+      setLocalStorage("ddb-patreon-tier", tier.data);
     } else {
-      await game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier);
+      await game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", tier.data);
     }
   },
 
-  fetchPatreonTier: async (local = false) => {
+  fetchPatreonTier: async (local = false, overrideKey = null) => {
     if (DDBProxy.isCustom(true)) return { success: true, message: "custom proxy", data: "CUSTOM" };
-    const key = PatreonHelper.getPatreonKey(local);
+    const key = overrideKey ?? PatreonHelper.getPatreonKey(local);
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: key };
 
@@ -112,13 +112,14 @@ const PatreonHelper = {
           logger.debug("Fetched Patreon tier information", {
             user: data.email,
             tier: data.data,
+            data,
           });
           if (data.email !== currentEmail) {
             PatreonHelper.setPatreonUser(data.email, local).then(() => {
-              resolve(data.data);
+              resolve(data);
             });
           } else {
-            resolve(data.data);
+            resolve(data);
           }
         })
         .catch((error) => reject(error));
@@ -170,13 +171,13 @@ const PatreonHelper = {
     return tiers;
   },
 
-  checkPatreon: async (local = false) => {
-    const tier = await PatreonHelper.fetchPatreonTier(local);
-    const matrix = PatreonHelper.calculateAccessMatrix(tier);
+  checkPatreon: async (local = false, overrideKey = null) => {
+    const tier = await PatreonHelper.fetchPatreonTier(local, overrideKey);
+    const matrix = PatreonHelper.calculateAccessMatrix(tier.data);
     return matrix;
   },
 
-  linkToPatreon: async (element, callback) => {
+  linkToPatreon: async (callback) => {
 
     const proxy = DDBProxy.getProxy();
     const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
@@ -207,21 +208,10 @@ const PatreonHelper = {
       utils.renderPopup("web", `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${patreonId}&redirect_uri=${patreonAuthUrl}&state=${data.userHash}&scope=${patreonScopes}`);
     });
 
-    socket.on('auth', (data) => {
+    socket.on('auth', async (data) => {
       logger.debug(`Response from auth socket!`, data);
 
       CONFIG.DDBI.POPUPS["web"].close();
-
-      game.settings.set(SETTINGS.MODULE_ID, "beta-key", data.key);
-      game.settings.set(SETTINGS.MODULE_ID, "patreon-user", data.email);
-      game.settings.set(SETTINGS.MODULE_ID, "patreon-tier", data.tier);
-
-      if (element) {
-        element.querySelector("#ddb-patreon-user").textContent = data.email;
-        element.querySelector("#ddb-patreon-tier").textContent = data.tier;
-        element.querySelector("#ddb-patreon-valid").textContent = "True";
-        element.querySelector("#ddb-patreon-key").value = data.key;
-      }
 
       socket.disconnect();
 

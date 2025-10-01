@@ -37,6 +37,10 @@ export default class DDBSetup extends DDBAppV2 {
     this.closeOnSave = true; // close on save by default
     this.reloadApplication = false; // reload the application after saving
     this.isLocalCobalt = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+    this.patreonCheckMessage = "";
+    this.patreonKey = PatreonHelper.getPatreonKey();
+    this.patreonTier = PatreonHelper.getPatreonTier();
+    this.patreonUser = PatreonHelper.getPatreonUser();
 
     // LOCATIONS
     this.useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
@@ -108,6 +112,7 @@ export default class DDBSetup extends DDBAppV2 {
       connectToPatreonButton: DDBSetup.connectToPatreonButton,
       fetchCampaignsButton: DDBSetup.fetchCampaignsButton,
       checkCobaltButton: DDBSetup.checkCobaltButton,
+      checkPatreonButton: DDBSetup.checkPatreonButton,
       goToCobaltTab: DDBSetup.goToCobaltTab,
       goToCampaignTab: DDBSetup.goToCampaignTab,
       goToPatreonTab: DDBSetup.goToPatreonTab,
@@ -280,6 +285,7 @@ export default class DDBSetup extends DDBAppV2 {
       patreonUser: "",
       validKey: false,
       validCobalt: false,
+      patreonCheckMessage: this.patreonCheckMessage,
       failure: false,
       version: game.modules.get(SETTINGS.MODULE_ID)?.version ?? "unknown",
       // locations
@@ -314,15 +320,13 @@ export default class DDBSetup extends DDBAppV2 {
       return context;
     }, 10000);
 
-    const key = PatreonHelper.getPatreonKey();
-    context.setupConfig["patreon-key"] = key;
-    const hasKey = key !== "";
+    context.setupConfig["patreon-key"] = this.patreonKey;
+    const hasKey = this.patreonKey !== "";
     context.setupConfig["campaign-id"] = this.campaignId;
-    context.tier = PatreonHelper.getPatreonTier();
-    const patreonUser = game.settings.get(SETTINGS.MODULE_ID, "patreon-user");
-    context.patreonUser = patreonUser;
-    context.patreonLinked = patreonUser && patreonUser != "";
-    const validKeyObject = hasKey ? (await PatreonHelper.getPatreonValidity(key)) : false;
+    context.tier = this.patreonTier;
+    context.patreonUser = this.patreonUser;
+    context.patreonLinked = this.patreonUser && this.patreonUser != "";
+    const validKeyObject = hasKey ? (await PatreonHelper.getPatreonValidity(this.patreonKey)) : false;
     // eslint-disable-next-line require-atomic-updates
     context.validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
 
@@ -413,10 +417,19 @@ export default class DDBSetup extends DDBAppV2 {
     }
   }
 
+  async patreonRefresh() {
+    const tierData = await PatreonHelper.fetchPatreonTier(false, this.patreonKey);
+    this.patreonTier = tierData.data;
+    this.patreonUser = tierData.email;
+  }
+
   static async connectToPatreonButton(event) {
     event.preventDefault();
-    await PatreonHelper.linkToPatreon(this.element, () => {
+    await PatreonHelper.linkToPatreon(async (data) => {
       // Callback after linking to Patreon
+      this.patreonKey = data.key;
+      this.patreonTier = data.tier;
+      this.patreonUser = data.email;
       this.render();
     });
   }
@@ -458,6 +471,16 @@ export default class DDBSetup extends DDBAppV2 {
     } else {
       this.cobaltCheckMessage = " - Failure!";
     }
+  }
+
+  static async checkPatreonButton(event) {
+    event.preventDefault();
+    const key = this.element.querySelector("#ddb-patreon-key").value;
+    this.patreonKey = key;
+    const success = await PatreonHelper.isValidKey(false, false, key);
+    this.patreonCheckMessage = success ? " - Success!" : " - Failure!";
+    await this.patreonRefresh();
+    await this.render();
   }
 
   static goToCobaltTab(event) {
