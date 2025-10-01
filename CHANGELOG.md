@@ -6,7 +6,7 @@
 - Improve patreon key on actor messaging when key has expired
 - Improve some parsing of Weapon Masteries from Grim Hollow
 - Improve UI for Patreon Key checking, entry and detection
-- When you import items DDB Importer will now inject extra Mastery's from a few source books such as Grim Hollow Players Guide.
+- When you import items DDB Importer will now inject extra Masteries from a few source books such as Grim Hollow Players Guide.
 - When you import items DDB Importer will inject extra base weapons into the world config.
 - DDB Importer will create Journals when importing items for Weapon Masteries for Grim Hollow and Abomination Vaults.
 
