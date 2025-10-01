@@ -319,4 +319,18 @@ export default class DDBSources {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types", ids.map((id) => parseInt(id)));
   }
 
+  static async updateAllowedWeaponPropertySources() {
+    const allowedSourceIds = new Set(game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources").map((id) => parseInt(id)));
+
+    const selectedAllowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").map((id) => parseInt(id));
+    selectedAllowedSourceIds.forEach((id) => allowedSourceIds.add(id));
+
+    const sourcesNotExcluded = CONFIG.DDB.sources
+      .filter((s) => !DDBSources.getAllExcludedCategoryIds().includes(s.sourceCategoryId));
+
+    sourcesNotExcluded.forEach((s) => allowedSourceIds.add(s.id));
+
+    await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", Array.from(allowedSourceIds).map((id) => parseInt(id)));
+  }
+
 }

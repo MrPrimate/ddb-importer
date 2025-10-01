@@ -16,7 +16,7 @@ import { SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { ExternalAutomations } from "../effects/_module.mjs";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
-import { DDBReferenceLinker, SystemHelpers } from "../parser/lib/_module.mjs";
+import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module.mjs";
 
 function getCharacterInventory(items, extra = []) {
   return items.map((item) => {
@@ -264,6 +264,10 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   // to speed up file checking we pregenerate existing files now.
   logger.info("Checking for existing files...");
   await FileHelper.generateCurrentFiles(uploadDirectory);
+  await DDBSources.updateAllowedWeaponPropertySources();
+  DDBRuleJournalFactory.addGrimHollowAdvancedWeapons();
+  await DDBRuleJournalFactory.createWeaponMasteryJournals();
+
   logger.info("Check complete, getting ItemData.");
 
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
@@ -316,6 +320,8 @@ export async function parseItems({ useSourceFilter = true, ids = [], deleteBefor
   const updatePromiseResults = await Promise.all(updateResults);
 
   await DDBCompendiumFolders.cleanupCompendiumFolders("items", resolvedNotifier);
+
+  DDBRuleJournalFactory.registerWeaponIds();
 
   logger.debug("Final Item Import Data", { finalItems: itemHandler.documents, updateResults, updatePromiseResults });
   resolvedNotifier("");

@@ -294,6 +294,12 @@ export const ACTOR = {
     { name: "Heavy Crossbow", type: "Weapon", subType: "Martial Weapon", mastery: "push", ammunitionType: "crossbowBolt", foundryValue: "heavycrossbow", advancement: "mar", melee: false, ranged: true, properties: { amm: true, hvy: true, two: true, lod: true } },
     { name: "Ammunition", type: "Weapon", subType: "Simple Weapon", foundryValue: "", advancement: "" },
 
+    // AV
+    { name: "Repeating Hand Crossbow", type: "Weapon", subType: "Martial Weapon", mastery: "vex", ammunitionType: "crossbowBolt", foundryValue: "", advancement: "mar", melee: false, ranged: true, properties: { amm: true, lgt: true, repeating: true } },
+
+    // Grim Hollow Advanced Weapons
+    // { name: "Arbalest", type: "Weapon", }
+
     // Ammunition
     { name: "Crossbow Bolt", type: "Ammunition", ammunitionType: "crossbowBolt" },
     { name: "Crossbow", type: "Ammunition", ammunitionType: "crossbowBolt" },

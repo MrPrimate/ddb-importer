@@ -1,5 +1,6 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBSources, utils } from "../../lib/_module.mjs";
+import { DDBRuleJournalFactory } from "../../parser/lib/_module.mjs";
 import SpellListFactory from "../../parser/spells/SpellListFactory.mjs";
 
 function addLanguages() {
@@ -35,8 +36,11 @@ function addSpellLists() {
   spellListFactory.registerSpellLists();
 }
 
-export default function addDDBConfig() {
+export default async function addDDBConfig() {
   addLanguages();
   DDBSources.addSourcesHook();
   addSpellLists();
+  await DDBRuleJournalFactory.createWeaponMasteryJournals();
+  DDBRuleJournalFactory.addGrimHollowAdvancedWeapons();
+  await DDBRuleJournalFactory.registerWeaponIds();
 }

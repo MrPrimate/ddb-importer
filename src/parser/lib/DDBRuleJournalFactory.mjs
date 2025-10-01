@@ -32,7 +32,7 @@ const BASE_RULE_PAGE = {
 };
 
 const WEAPON_MASTERY = {
-  "phb-2024": [
+  "PHB 2024": [
     18, // cleave
     19, // graze
     20, // nick
@@ -42,7 +42,7 @@ const WEAPON_MASTERY = {
     24, // topple
     25, // vex
   ],
-  "ghpg": [ // grim hollow
+  "GHPG": [ // grim hollow
     50, // brutal
     55, // defending
     53, // disarming
@@ -53,7 +53,7 @@ const WEAPON_MASTERY = {
     44, // strong draw
     42, // swift
   ],
-  "tgc": [ // gunslinger
+  "TGC": [ // gunslinger
     37, // automatic
     36, // explode
     32, // scatter
@@ -61,7 +61,7 @@ const WEAPON_MASTERY = {
 };
 
 const WEAPON_PROPERTIES = {
-  "phb-2024": [
+  "PHB 2024": [
     1, // ammunition
     2, // finesse
     3, // heavy
@@ -74,7 +74,7 @@ const WEAPON_PROPERTIES = {
     11, // two-handed
     12, // versatile
   ],
-  "ghpg": [ // grim hollow
+  "GHPG": [ // grim hollow
     43, // armor piercing
     45, // black powder
     46, // cumbersome
@@ -85,11 +85,11 @@ const WEAPON_PROPERTIES = {
     41, // momentum
     48, // repeater
   ],
-  "tgc": [ // gunslinger
+  "TGC": [ // gunslinger
     33, // firearm
     34, // recoil
   ],
-  "av": [
+  "AV": [
     38, // repeating
   ],
 };
@@ -108,14 +108,11 @@ export default class DDBRuleJournalFactory {
 
   journalFolder = null;
 
-  uuidsBySource = {};
-
   available = false;
 
-
-  #buildSources() {
+  static getSources() {
     const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources");
-    if (!ddbSources) return;
+    if (!ddbSources) return [];
 
     const sources = ddbSources
       .filter((s) => s.isReleased)
@@ -132,6 +129,13 @@ export default class DDBRuleJournalFactory {
       acronym: "Homebrew",
       label: "Homebrew",
     });
+    return sources;
+  }
+
+  #buildSources() {
+    const sources = DDBRuleJournalFactory.getSources();
+
+    if (sources.length === 0) return;
 
     this.sources = sources;
     this.filteredSources = sources.filter((s) =>
@@ -147,10 +151,6 @@ export default class DDBRuleJournalFactory {
     this.flagTag = flagTag;
     this.journalCompendium = CompendiumHelper.getCompendiumType("journals");
     this.#buildSources();
-
-    for (const source of this.sources) {
-      this.uuidsBySource[source.acronym] = {};
-    }
 
     if (this.journalCompendium) {
       this.available = true;
@@ -177,10 +177,6 @@ export default class DDBRuleJournalFactory {
       flagTag: this.flagTag,
       entityType: "JournalEntry",
     });
-  }
-
-  _addRuleOutline(ruleName, sourceAcronym) {
-    this.uuidsBySource[sourceAcronym][ruleName] = [];
   }
 
   async _createRuleJournal(source) {
@@ -228,23 +224,17 @@ export default class DDBRuleJournalFactory {
 
   async _getJournalRulePage(journal, rulePageName, source) {
     const ruleIdentifier = DDBDataUtils.classIdentifierName(rulePageName);
-    const page = journal.pages.find((p) => p.system.identifier === ruleIdentifier);
+    const page = journal.pages.find((p) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
     if (page) return page;
 
     const pageData = foundry.utils.deepClone(BASE_RULE_PAGE);
     pageData.system.type = this.type;
-    pageData.system.identifier = ruleIdentifier;
     pageData.name = rulePageName;
     pageData._id = utils.namedIDStub(rulePageName, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") });
-    // console.warn(`Page Data`, {
-    //   journal,
-    //   pageData,
-    //   className,
-    //   source,
-    // });
+
     logger.debug(`Creating Rule Journal Page ${pageData.name}`);
     await journal.createEmbeddedDocuments("JournalEntryPage", [pageData], { keepId: true });
-    const newPage = journal.pages.find((p) => p.system.identifier === ruleIdentifier);
+    const newPage = journal.pages.find((p) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
     return newPage;
   }
 
@@ -254,39 +244,23 @@ export default class DDBRuleJournalFactory {
       logger.error(`Journal not found for ${source.label}`);
     }
 
-    if (this.uuidsBySource[source.acronym][ruleName].length === 0) return;
-    const rules = this.uuidsBySource[source.acronym][ruleName];
-
-    if (rules.length === 0) return;
     const page = await this._getJournalRulePage(journal, ruleName, source);
     const update = {
       _id: page._id,
-      system: {
-        text: {
-          content: ruleContent,
-        },
+      text: {
+        content: ruleContent,
       },
     };
 
-    logger.debug(`Updating Journal Page`, { update, page, rules });
+    logger.debug(`Updating Journal Page`, { update, page });
     await journal.updateEmbeddedDocuments("JournalEntryPage", [update]);
 
-  }
-
-  _sourceHasRule(source, ruleName) {
-    const ruleNumber = this.uuidsBySource[source.acronym][ruleName].length;
-    if (ruleNumber > 0) return true;
-    logger.verbose(`Found ${ruleNumber} Rules found for source "${source.label}" and rule "${ruleName}"`);
-    return false;
   }
 
   async buildRule(source, name, content) {
     if (!this.available) return;
     if (!this.sources) return;
-    if (!this._sourceHasRule(source, name)) {
-      logger.verbose(`No Rules found for source "${source.label}"`);
-      return;
-    }
+    logger.debug(`Building Rule Journal for ${name} from source ${source.label}`);
     const journal = await this._getRuleJournal(source);
     await this._generateJournalRulePage(journal, { ruleName: name, source, ruleContent: content });
   }
@@ -331,23 +305,82 @@ export default class DDBRuleJournalFactory {
     await factory.init();
 
     const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
-
     const allowedSources = factory.sources.filter((s) => allowedSourceIds.includes(s.id));
 
     for (const source of allowedSources) {
-      const ruleIds = WEAPON_MASTERY[source] ?? [];
+      logger.debug(`Processing Weapon Masteries for source ${source.label}`);
+      const ruleIds = WEAPON_MASTERY[source.acronym] ?? [];
 
       const sourceRules = CONFIG.DDB.weaponProperties.filter((rule) => ruleIds.includes(rule.id));
+      logger.debug(`Found ${sourceRules.length} rules for source ${source.label}`, { ruleIds, sourceRules });
       if (sourceRules.length === 0) continue;
 
       for (const rule of sourceRules) {
-        factory._addRuleOutline(rule.name, source.acronym);
         await factory.buildRule(source, rule.name, rule.description);
       }
     }
 
     await factory.registerRules();
 
+  }
+
+  static async registerWeaponIds() {
+    const addExtraBaseWeapons = game.settings.get(SETTINGS.MODULE_ID, "add-extra-base-weapons");
+    if (!addExtraBaseWeapons) return;
+    const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+    const sources = DDBRuleJournalFactory.getSources();
+    const allowedSources = sources.filter((s) => allowedSourceIds.includes(s.id));
+
+    const itemCompendium = CompendiumHelper.getCompendiumType("items");
+    await itemCompendium.getIndex({ fields: ["name", "type", "flags.ddbimporter", "system.source.book"] });
+    for (const weapon of CONFIG.DDB.weapons) {
+      logger.verbose(`Processing DDB weapon: ${weapon.name}`);
+      const handledCase = DICTIONARY.actor.proficiencies
+        .find((prof) =>
+          prof.type === "Weapon" && weapon.name.toLowerCase() === prof.name.toLowerCase(),
+        );
+      if (handledCase && handledCase?.foundryValue !== "") continue;
+      const dnd5eNameArray = weapon.name.trim().toLowerCase().split(",");
+      const dnd5eName = dnd5eNameArray.length === 2
+        ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`.replaceAll(" ", "")
+        : dnd5eNameArray[0].replaceAll(" ", "");
+      if (CONFIG.DND5E.weaponIds[dnd5eName]) continue;
+      const itemHit = itemCompendium.index.find((i) =>
+        i.type === "weapon"
+        && (i.name.toLowerCase() === weapon.name.toLowerCase()),
+      );
+      if (!itemHit) {
+        logger.info(`No item found in compendium for weapon ${weapon.name}`);
+        continue;
+      }
+      const itemSource = itemHit.system?.source?.book;
+      // console.warn({
+      //   itemHit,
+      //   allowedSources,
+      //   dnd5eName,
+      //   itemSource,
+      // });
+      if (!itemSource) continue;
+      if (!allowedSources.some((s) => s.acronym === itemSource)) {
+        logger.debug(`Not adding weapon ${weapon.name} as source ${itemSource} not allowed`);
+        continue;
+      }
+      logger.debug(`Adding weapon ${weapon.name} from ${itemSource} as ${dnd5eName} with UUID ${itemHit.uuid}`);
+      CONFIG.DND5E.weaponIds[dnd5eName] = itemHit.uuid;
+    }
+  }
+
+  static addGrimHollowAdvancedWeapons() {
+    const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+    if (!allowedSourceIds.includes(207)) return;
+    logger.debug("Adding Grim Hollow Advanced Weapons");
+    CONFIG.DND5E.weaponProficiencies["adv"] = "Advanced (Grim Hollow)";
+    CONFIG.DND5E.weaponProficienciesMap["advancedM"] = "adv";
+    CONFIG.DND5E.weaponProficienciesMap["advancedR"] = "adv";
+    CONFIG.DND5E.weaponTypeMap["advancedM"] = "melee";
+    CONFIG.DND5E.weaponTypeMap["advancedR"] = "ranged";
+    CONFIG.DND5E.weaponTypes["advancedM"] = "Advanced Melee (Grim Hollow)";
+    CONFIG.DND5E.weaponTypes["advancedR"] = "Advanced Ranged (Grim Hollow)";
   }
 
 }

@@ -39,6 +39,8 @@
       "Fin": "Once setup is complete, you won't see this message again."
     },
     "settings": {
+      "add-extra-base-weapons.name": "Add extra base weapons?",
+      "add-extra-base-weapons.hint": "After importing items, add new base weapons to the Foundry Base Weapon list?",
       "use-basic-rules.name": "When parsing sources, add the D&D Basic Rules source rather than SRD or PHB 2024?",
       "use-basic-rules.hint": "If unticked, the Importer will do its best to sort into the SRD 5.1 or PHB 2024 source instead. Please notes that this is a best guess as D&D Beyond does not have SRD Sources, but \"Basic Rules\" which cover a slightly different subset.",
       "disable-tattoo-type.name": "Disable Spellwrought Tattoo",

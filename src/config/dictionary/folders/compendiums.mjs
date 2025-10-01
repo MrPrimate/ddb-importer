@@ -111,6 +111,12 @@ export const COMPENDIUM_FOLDERS = {
           martialR: {
             folderName: "Martial Ranged",
           },
+          advancedM: {
+            folderName: "Advanced Melee",
+          },
+          advancedR: {
+            folderName: "Advanced Ranged",
+          },
         },
       },
       container: {

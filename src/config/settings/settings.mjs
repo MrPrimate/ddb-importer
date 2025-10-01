@@ -234,6 +234,14 @@ const SETTINGS = {
         type: Array,
         default: [],
       },
+      "add-extra-base-weapons": {
+        name: "ddb-importer.settings.add-extra-base-weapons.name",
+        hint: "ddb-importer.settings.add-extra-base-weapons.hint",
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: true,
+      },
     },
     // ready settings
     READY: {

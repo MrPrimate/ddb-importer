@@ -745,6 +745,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       (type) => type.attackType === this.ddbDefinition.attackType,
     );
 
+    const isAdvancedWeapon = (this.ddbDefinition.description ?? "").includes("Mastery of Advanced Weapons requires military training and skill");
+    if (isAdvancedWeapon) {
+      if (range) return `advanced${range.value}`;
+      else return "advancedM";
+    }
+
     if (type && range) {
       return `${type.value}${range.value}`;
     } else {
@@ -2307,6 +2313,17 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
     if (dictionaryWeapon?.mastery) {
       foundry.utils.setProperty(this.data, "system.mastery", dictionaryWeapon.mastery);
+    } else if (this.ddbDefinition.properties) {
+      const masteryKeys = Object.keys(CONFIG.DND5E.weaponMasteries);
+      const possibleMasteryPropertyKeys = this.ddbDefinition.properties.map((p) =>
+        p.name.toLowerCase().replaceAll(" ", "").replaceAll("-", ""),
+      );
+      const masteryPropertyKey = masteryKeys.find((key) =>
+        possibleMasteryPropertyKeys.includes(key.toLowerCase()),
+      );
+      if (masteryPropertyKey) {
+        foundry.utils.setProperty(this.data, "system.mastery", masteryPropertyKey);
+      }
     }
     if (dictionaryWeapon?.properties.fir && this.characterProficiencies.some((proficiency) => proficiency.name === "Firearms")) {
       this.data.system.proficient = 1;
