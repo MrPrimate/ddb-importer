@@ -60,39 +60,39 @@ const WEAPON_MASTERY = {
   ],
 };
 
-const WEAPON_PROPERTIES = {
-  "PHB 2024": [
-    1, // ammunition
-    2, // finesse
-    3, // heavy
-    4, // light
-    5, // loading
-    7, // range
-    8, // reach
-    9, // special
-    10, // thrown
-    11, // two-handed
-    12, // versatile
-  ],
-  "GHPG": [ // grim hollow
-    43, // armor piercing
-    45, // black powder
-    46, // cumbersome
-    54, // damage
-    51, // double
-    39, // hafted
-    47, // magazone
-    41, // momentum
-    48, // repeater
-  ],
-  "TGC": [ // gunslinger
-    33, // firearm
-    34, // recoil
-  ],
-  "AV": [
-    38, // repeating
-  ],
-};
+// const WEAPON_PROPERTIES = {
+//   "PHB 2024": [
+//     1, // ammunition
+//     2, // finesse
+//     3, // heavy
+//     4, // light
+//     5, // loading
+//     7, // range
+//     8, // reach
+//     9, // special
+//     10, // thrown
+//     11, // two-handed
+//     12, // versatile
+//   ],
+//   "GHPG": [ // grim hollow
+//     43, // armor piercing
+//     45, // black powder
+//     46, // cumbersome
+//     54, // damage
+//     51, // double
+//     39, // hafted
+//     47, // magazone
+//     41, // momentum
+//     48, // repeater
+//   ],
+//   "TGC": [ // gunslinger
+//     33, // firearm
+//     34, // recoil
+//   ],
+//   "AV": [
+//     38, // repeating
+//   ],
+// };
 
 export default class DDBRuleJournalFactory {
 
@@ -304,19 +304,21 @@ export default class DDBRuleJournalFactory {
 
     await factory.init();
 
-    const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
-    const allowedSources = factory.sources.filter((s) => allowedSourceIds.includes(s.id));
+    if (game.user.isGM) {
+      const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+      const allowedSources = factory.sources.filter((s) => allowedSourceIds.includes(s.id));
 
-    for (const source of allowedSources) {
-      logger.debug(`Processing Weapon Masteries for source ${source.label}`);
-      const ruleIds = WEAPON_MASTERY[source.acronym] ?? [];
+      for (const source of allowedSources) {
+        logger.debug(`Processing Weapon Masteries for source ${source.label}`);
+        const ruleIds = WEAPON_MASTERY[source.acronym] ?? [];
 
-      const sourceRules = CONFIG.DDB.weaponProperties.filter((rule) => ruleIds.includes(rule.id));
-      logger.debug(`Found ${sourceRules.length} rules for source ${source.label}`, { ruleIds, sourceRules });
-      if (sourceRules.length === 0) continue;
+        const sourceRules = CONFIG.DDB.weaponProperties.filter((rule) => ruleIds.includes(rule.id));
+        logger.debug(`Found ${sourceRules.length} rules for source ${source.label}`, { ruleIds, sourceRules });
+        if (sourceRules.length === 0) continue;
 
-      for (const rule of sourceRules) {
-        await factory.buildRule(source, rule.name, rule.description);
+        for (const rule of sourceRules) {
+          await factory.buildRule(source, rule.name, rule.description);
+        }
       }
     }
 

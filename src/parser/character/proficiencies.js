@@ -42,6 +42,11 @@ DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(
   this.proficienciesIncludingEffects = this._getCoreProficiencies(true).concat(customProficiencies);
   this.weaponMasteries = this._getCoreMasteries(false);
 
+  if (this.source.ddb.character.feats.some((f) => f.definition.name === "Advanced Weapon Proficiency")) {
+    this.proficiencies.push({ name: "Advanced Weapons", custom: false });
+    this.proficienciesIncludingEffects.push({ name: "Advanced Weapons", custom: false });
+  }
+
   this.raw.character.flags.ddbimporter.dndbeyond.proficiencies = this.proficiencies;
   this.raw.character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects = this.proficienciesIncludingEffects;
   this.raw.character.flags.ddbimporter.dndbeyond.weaponMasteries = this.weaponMasteries;

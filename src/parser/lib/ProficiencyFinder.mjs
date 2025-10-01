@@ -175,6 +175,8 @@ export default class ProficiencyFinder {
         values.add("sim");
       } else if (prof.name === "Martial Weapons") {
         values.add("mar");
+      } else if (prof.name === "Advanced Weapons") {
+        values.add("adv");
       } else {
         const systemWeaponIds = CONFIG.DND5E.weaponIds;
         const dnd5eNameArray = prof.name.toLowerCase().split(",");
