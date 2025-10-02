@@ -124,6 +124,10 @@ const WEAPON_PROPERTIES = {
 //   43, // armor piercing
 // ];
 
+function getAllowedSourceIds() {
+  return game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources").map((id) => parseInt(id));
+}
+
 export default class DDBRuleJournalFactory {
 
   journalCompendium = null;
@@ -245,9 +249,10 @@ export default class DDBRuleJournalFactory {
       && j.flags?.ddbimporter?.sourceCode === source.acronym,
     );
     if (journalHit) {
+      logger.debug(`Found existing Rule Journal for ${source.acronym} (${this.journalFlagName})`);
       return this.journalCompendium.getDocument(journalHit._id);
     }
-    logger.debug(`Creating Rule Journal for ${source.acronym}`);
+    logger.debug(`Creating Rule Journal for ${source.acronym} (${this.journalFlagName})`);
     const journal = await this._createRuleJournal(source);
     return journal;
   }
@@ -306,7 +311,7 @@ export default class DDBRuleJournalFactory {
     for (const journal of ruleJournals) {
       const journalEntry = await this.journalCompendium.getDocument(journal._id);
       const sourceId = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceId");
-      const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+      const allowedSourceIds = getAllowedSourceIds();
       if (!allowedSourceIds.includes(sourceId)) continue;
       const rulePages = journalEntry.pages.filter((p) => p.type === "rule");
       switch (this.flagTag) {
@@ -355,7 +360,7 @@ export default class DDBRuleJournalFactory {
     await factory.init();
 
     if (game.user.isGM) {
-      const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+      const allowedSourceIds = getAllowedSourceIds();
       const allowedSources = factory.sources.filter((s) => allowedSourceIds.includes(s.id));
 
       for (const source of allowedSources) {
@@ -387,7 +392,7 @@ export default class DDBRuleJournalFactory {
     await factory.init();
 
     if (game.user.isGM) {
-      const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+      const allowedSourceIds = getAllowedSourceIds();
       const allowedSources = factory.sources.filter((s) => allowedSourceIds.includes(s.id));
 
       for (const source of allowedSources) {
@@ -411,7 +416,7 @@ export default class DDBRuleJournalFactory {
   static async registerWeaponIds() {
     const addExtraBaseWeapons = game.settings.get(SETTINGS.MODULE_ID, "add-extra-base-weapons");
     if (!addExtraBaseWeapons) return;
-    const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+    const allowedSourceIds = getAllowedSourceIds();
     const sources = DDBRuleJournalFactory.getSources();
     const allowedSources = sources.filter((s) => allowedSourceIds.includes(s.id));
 
@@ -455,7 +460,7 @@ export default class DDBRuleJournalFactory {
   }
 
   static addGrimHollowAdvancedWeapons() {
-    const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+    const allowedSourceIds = getAllowedSourceIds();
     if (!allowedSourceIds.includes(207)) return;
     logger.debug("Adding Grim Hollow Advanced Weapons");
     CONFIG.DND5E.weaponProficiencies["adv"] = "Advanced (Grim Hollow)";

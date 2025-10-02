@@ -740,7 +740,8 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   async _saveEnhancements(formData) {
-    await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", formData.object['allowed-weapon-property-sources']);
+    const allowed = formData.object['allowed-weapon-property-sources'].map((id) => parseInt(id));
+    await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", allowed);
     for (const setting of this.enhancementConfig) {
       await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
     }
