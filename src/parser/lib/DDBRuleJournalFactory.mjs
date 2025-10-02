@@ -132,9 +132,9 @@ export default class DDBRuleJournalFactory {
 
   journalCompendium = null;
 
-  journalNameBit = "";
+  nameBit = "";
 
-  journalFlagName = "";
+  flagName = "";
 
   flagTag = "";
 
@@ -180,8 +180,8 @@ export default class DDBRuleJournalFactory {
   }
 
   constructor({ journalName, flagName, flagTag } = {}) {
-    this.journalNameBit = journalName;
-    this.journalFlagName = flagName;
+    this.nameBit = journalName;
+    this.flagName = flagName;
     this.flagTag = flagTag;
     this.journalCompendium = CompendiumHelper.getCompendiumType("journals");
     this.#buildSources();
@@ -207,7 +207,7 @@ export default class DDBRuleJournalFactory {
 
     this.journalFolder = await CompendiumHelper.createFolder({
       pack: this.journalCompendium,
-      name: this.journalNameBit,
+      name: this.nameBit,
       flagTag: this.flagTag,
       entityType: "JournalEntry",
     });
@@ -215,7 +215,7 @@ export default class DDBRuleJournalFactory {
 
   async _createRuleJournal(source) {
     const journalData = {
-      _id: utils.namedIDStub(source.label, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") }),
+      _id: utils.namedIDStub(this.flagTag, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") }),
       name: source.label,
       sort: source.id,
       ownership: {
@@ -223,7 +223,7 @@ export default class DDBRuleJournalFactory {
       },
       flags: {
         ddbimporter: {
-          type: this.journalFlagName,
+          type: this.flagName,
           sourceId: source.id,
           sourceCode: source.acronym,
           sourceName: source.label,
@@ -245,14 +245,14 @@ export default class DDBRuleJournalFactory {
 
   async _getRuleJournal(source) {
     const journalHit = this.journalCompendium.index.find((j) =>
-      j.flags?.ddbimporter?.type === this.journalFlagName
+      j.flags?.ddbimporter?.type === this.flagName
       && j.flags?.ddbimporter?.sourceCode === source.acronym,
     );
     if (journalHit) {
-      logger.debug(`Found existing Rule Journal for ${source.acronym} (${this.journalFlagName})`);
+      logger.debug(`Found existing Rule Journal for ${source.acronym} (${this.flagName})`);
       return this.journalCompendium.getDocument(journalHit._id);
     }
-    logger.debug(`Creating Rule Journal for ${source.acronym} (${this.journalFlagName})`);
+    logger.debug(`Creating Rule Journal for ${source.acronym} (${this.flagName})`);
     const journal = await this._createRuleJournal(source);
     return journal;
   }
@@ -305,7 +305,7 @@ export default class DDBRuleJournalFactory {
     await this.init();
 
     const ruleJournals = this.journalCompendium.index.filter((j) =>
-      j.flags?.ddbimporter?.type === this.journalFlagName,
+      j.flags?.ddbimporter?.type === this.flagName,
     );
 
     for (const journal of ruleJournals) {
