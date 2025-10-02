@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.5.16
+
 - Inject new Weapon properties from third-party books
 - New Enhancements options section to disable or remove books from enhancement injection.
 
