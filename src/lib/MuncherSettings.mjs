@@ -1119,6 +1119,34 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       // no default
     }
   },
+
+  getEnhancementSettings: () => {
+    const enhancementConfig = [
+      {
+        name: "allow-moon-druid-wildshape-enhancer",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "allow-moon-druid-wildshape-enhancer"),
+        enabled: true,
+        hint: "Applies Improved Circle Forms and BLight Shape effects when wildshaped",
+        label: "Allow Moon Druid Wildshape Enhancer?",
+      },
+      {
+        name: "allow-arcane-ward-enhancer",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "allow-arcane-ward-enhancer"),
+        enabled: true,
+        hint: "Removes damage from Arcane Ward when the caster takes damage, automates ward HP tracking",
+        label: "Allow Arcane Ward Automation?",
+      },
+      {
+        name: "allow-warding-bond-enhancer",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "allow-warding-bond-enhancer"),
+        enabled: true,
+        hint: "Automates Warding Bond damage sharing and tracking",
+        label: "Allow Warding Bond Automation?",
+      },
+    ];
+
+    return enhancementConfig;
+  },
 };
 
 export default MuncherSettings;

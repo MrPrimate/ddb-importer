@@ -1,5 +1,8 @@
 # Next Up
 
+- Inject new Weapon properties from third-party books
+- New Enhancements options section to disable or remove books from enhancement injection.
+
 # 6.5.15
 
 - Celestial Warlock Healing Light Feature Has Erroneous Bonus Applied

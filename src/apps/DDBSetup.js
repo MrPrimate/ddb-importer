@@ -7,6 +7,7 @@ import {
   Secrets,
   CompendiumHelper,
   DDBProxy,
+  MuncherSettings,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBAppV2 from "./DDBAppV2.js";
@@ -98,6 +99,9 @@ export default class DDBSetup extends DDBAppV2 {
     this.defaultAddress = SETTINGS.URLS.PROXY;
     this.proxyAddress = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
 
+    // enhancements
+    this.allowedWeaponPropertySources = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+    this.enhancementConfig = MuncherSettings.getEnhancementSettings();
   }
 
   static openDebug(_event, _target) {
@@ -121,7 +125,7 @@ export default class DDBSetup extends DDBAppV2 {
       openDebug: DDBSetup.openDebug,
     },
     position: {
-      width: "900",
+      width: "962",
       height: "auto",
     },
     tag: "form",
@@ -204,6 +208,9 @@ export default class DDBSetup extends DDBAppV2 {
     proxy: {
       template: "modules/ddb-importer/handlebars/settings/proxy.hbs",
     },
+    enhancements: {
+      template: "modules/ddb-importer/handlebars/settings/enhancements.hbs",
+    },
 
     footer: { template: "modules/ddb-importer/handlebars/settings/footer.hbs" },
   };
@@ -252,6 +259,9 @@ export default class DDBSetup extends DDBAppV2 {
       },
       proxy: {
         id: "proxy", group: "sheet", label: "Proxy", icon: "fas fa-ethernet",
+      },
+      enhancements: {
+        id: "enhancements", group: "sheet", label: "Enhancements", icon: "fas fa-magic",
       },
     });
     return tabs;
@@ -372,6 +382,26 @@ export default class DDBSetup extends DDBAppV2 {
     this.dynamicEnabled = tiers.experimentalMid;
     context.dynamicEnabled = this.dynamicEnabled;
 
+    logger.debug("Settings: _prepareDynamicContext", context);
+    return context;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async _prepareEnhancementsContext(context) {
+    const allowedSourceIds = this.allowedWeaponPropertySources;
+    const selectedSources = MuncherSettings.getSourcesLookups(allowedSourceIds).map((source) => {
+      const data = foundry.utils.deepClone(source);
+      if (source.selected) {
+        data.selected = "selected";
+      } else {
+        data.selected = "";
+      }
+      return data;
+    });
+    context.selectedWeaponPropertiesEnhancementsSources = selectedSources;
+    context.enhancementConfig = this.enhancementConfig;
+
+    logger.debug("Settings: _prepareEnhancementsContext", context);
     return context;
   }
 
@@ -385,6 +415,10 @@ export default class DDBSetup extends DDBAppV2 {
       }
       case "dynamic": {
         await this._prepareDynamicContext(context);
+        break;
+      }
+      case "enhancements": {
+        await this._prepareEnhancementsContext(context);
         break;
       }
       // no default
@@ -705,6 +739,13 @@ export default class DDBSetup extends DDBAppV2 {
     }
   }
 
+  async _saveEnhancements(formData) {
+    await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", formData.object['allowed-weapon-property-sources']);
+    for (const setting of this.enhancementConfig) {
+      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+    }
+  }
+
   /**
    * Process form submission for the sheet
    * @this {DDBLocationSetup}                      The handler is called with the application as its bound scope
@@ -720,6 +761,7 @@ export default class DDBSetup extends DDBAppV2 {
     await this._saveCore(formData);
     await this._saveLocations(formData);
     await this._saveCompendiums(formData);
+    await this._saveEnhancements(formData);
     if (this.dynamicEnabled) await this._saveDynamic(formData);
 
     if (this.closeOnSave) {

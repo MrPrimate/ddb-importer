@@ -40,7 +40,5 @@ export default async function addDDBConfig() {
   addLanguages();
   DDBSources.addSourcesHook();
   addSpellLists();
-  await DDBRuleJournalFactory.createWeaponMasteryJournals();
-  DDBRuleJournalFactory.addGrimHollowAdvancedWeapons();
-  await DDBRuleJournalFactory.registerWeaponIds();
+  await DDBRuleJournalFactory.registerAllWithWorld();
 }
