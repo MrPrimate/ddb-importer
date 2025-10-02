@@ -60,39 +60,69 @@ const WEAPON_MASTERY = {
   ],
 };
 
-// const WEAPON_PROPERTIES = {
-//   "PHB 2024": [
-//     1, // ammunition
-//     2, // finesse
-//     3, // heavy
-//     4, // light
-//     5, // loading
-//     7, // range
-//     8, // reach
-//     9, // special
-//     10, // thrown
-//     11, // two-handed
-//     12, // versatile
-//   ],
-//   "GHPG": [ // grim hollow
-//     43, // armor piercing
-//     45, // black powder
-//     46, // cumbersome
-//     54, // damage
-//     51, // double
-//     39, // hafted
-//     47, // magazone
-//     41, // momentum
-//     48, // repeater
-//   ],
-//   "TGC": [ // gunslinger
-//     33, // firearm
-//     34, // recoil
-//   ],
-//   "AV": [
-//     38, // repeating
-//   ],
-// };
+const WEAPON_PROPERTIES = {
+  "PHB 2024": [
+    1, // ammunition
+    2, // finesse
+    3, // heavy
+    4, // light
+    5, // loading
+    7, // range
+    8, // reach
+    9, // special
+    10, // thrown
+    11, // two-handed
+    12, // versatile
+  ],
+  "DMG 2024": [
+    14, // burst
+    15, // reload
+  ],
+  "GHPG": [ // grim hollow
+    43, // armor piercing
+    45, // black powder
+    46, // cumbersome
+    54, // damage
+    51, // double
+    39, // hafted
+    47, // magazine
+    41, // momentum
+    48, // repeater
+  ],
+  "TGC": [ // gunslinger
+    32, // scatter
+    33, // firearm
+    34, // recoil
+    35, // sighted
+  ],
+  "AV": [
+    38, // repeating
+  ],
+  "HGtMH1": [ // Heliana’s Guide to Monster Hunting: Part 1
+    31, // loud
+    30, // attached
+    15, // reload
+  ],
+  "CR": [ // critical role
+    15, // reload
+    16, // misfire
+    17, // explosive
+  ],
+  "EGtW": [ // critical role
+    15, // reload
+    16, // misfire
+    17, // explosive
+  ],
+  "TCSR": [ // critical role
+    15, // reload
+    16, // misfire
+    17, // explosive
+  ],
+};
+
+// const PHYSICAL_WEAPON_PROPERTIES = [
+//   43, // armor piercing
+// ];
 
 export default class DDBRuleJournalFactory {
 
@@ -275,6 +305,9 @@ export default class DDBRuleJournalFactory {
 
     for (const journal of ruleJournals) {
       const journalEntry = await this.journalCompendium.getDocument(journal._id);
+      const sourceId = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceId");
+      const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+      if (!allowedSourceIds.includes(sourceId)) continue;
       const rulePages = journalEntry.pages.filter((p) => p.type === "rule");
       switch (this.flagTag) {
         case "weapon-masteries": {
@@ -288,9 +321,58 @@ export default class DDBRuleJournalFactory {
           }
           break;
         }
+        case "weapon-properties": {
+          for (const page of rulePages) {
+            const propertyId = page.name.toLowerCase().replaceAll(" ", "").replaceAll("-", "");
+            const isPHBProperty = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceCode") === "PHB 2024";
+            if (!CONFIG.DND5E.itemProperties[propertyId] && !isPHBProperty) {
+              CONFIG.DND5E.itemProperties[propertyId] = {
+                label: page.name,
+                reference: page.uuid,
+              };
+              CONFIG.DND5E.validProperties["weapon"].add(propertyId);
+            } else if (CONFIG.DND5E.itemProperties[propertyId]
+                && !CONFIG.DND5E.itemProperties[propertyId].reference
+            ) {
+              CONFIG.DND5E.itemProperties[propertyId].reference = page.uuid;
+            }
+          }
+          break;
+        }
         // no default
       }
     }
+
+  }
+
+  static async createWeaponPropertyJournals() {
+    const factory = new DDBRuleJournalFactory({
+      journalName: "Weapon Properties",
+      flagName: "DDB Weapon Properties",
+      flagTag: "weapon-properties",
+    });
+
+    await factory.init();
+
+    if (game.user.isGM) {
+      const allowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+      const allowedSources = factory.sources.filter((s) => allowedSourceIds.includes(s.id));
+
+      for (const source of allowedSources) {
+        logger.debug(`Processing Weapon Properties for source ${source.label}`);
+        const ruleIds = WEAPON_PROPERTIES[source.acronym] ?? [];
+
+        const sourceRules = CONFIG.DDB.weaponProperties.filter((rule) => ruleIds.includes(rule.id));
+        logger.debug(`Found ${sourceRules.length} rules for source ${source.label}`, { ruleIds, sourceRules });
+        if (sourceRules.length === 0) continue;
+
+        for (const rule of sourceRules) {
+          await factory.buildRule(source, rule.name, rule.description);
+        }
+      }
+    }
+
+    await factory.registerRules();
 
   }
 
@@ -383,6 +465,13 @@ export default class DDBRuleJournalFactory {
     CONFIG.DND5E.weaponTypeMap["advancedR"] = "ranged";
     CONFIG.DND5E.weaponTypes["advancedM"] = "Advanced Melee (Grim Hollow)";
     CONFIG.DND5E.weaponTypes["advancedR"] = "Advanced Ranged (Grim Hollow)";
+  }
+
+  static async registerAllWithWorld() {
+    DDBRuleJournalFactory.addGrimHollowAdvancedWeapons();
+    await DDBRuleJournalFactory.createWeaponMasteryJournals();
+    await DDBRuleJournalFactory.createWeaponPropertyJournals();
+    await DDBRuleJournalFactory.registerWeaponIds();
   }
 
 }
