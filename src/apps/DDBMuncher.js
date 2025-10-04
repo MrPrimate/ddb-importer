@@ -60,6 +60,7 @@ export default class DDBMuncher extends DDBAppV2 {
       setPricesXanathar: DDBMuncher.addItemPrices,
       importEncounter: DDBMuncher.importEncounter,
       openDebug: DDBMuncher.openDebug,
+      regenerateStorage: DDBMuncher.regenerateStorage,
     },
     position: {
       width: "800",
@@ -718,6 +719,10 @@ export default class DDBMuncher extends DDBAppV2 {
 
   static openDebug(_event, _target) {
     new DDBDebugger({ actor: this.actor }).render(true);
+  }
+
+  static async regenerateStorage(_event, _target) {
+    await DDBImporter.createStorage();
   }
 
 }

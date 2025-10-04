@@ -35,4 +35,12 @@
           {{#if tiers.supporter}}enabled{{else}}disabled{{/if}}><i class="fas fa-universal-access"></i>{{#if tiers.supporter}}Token Frame Munch{{else}}Token Frames for Patreon Supporters{{/if}}</button>
       </div>
     </fieldset>
+    <fieldset>
+    <legend>Regenerate Storage</legend>
+      <div>
+        <p>DDB Importer stores things like the compendium banner images in local module storage. If this gets deleted you can redownload the needed files here.</p>
+        <button data-action="regenerateStorage" type="button" id="munch-regenerate-storage" class="munch-button"
+          <i class="fas fa-universal-access"></i>Regenerate Storage</button>
+      </div>
+    </fieldset>
 </section>
