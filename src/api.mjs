@@ -31,6 +31,7 @@ import { migrateJournalsToDDBSheet } from "./hooks/ready/migration/migration_5_6
 import { migration } from "./hooks/ready/migraton.js";
 import SpellListFactory from "./parser/spells/SpellListFactory.mjs";
 import DDBSpellListFactory from "./parser/spells/DDBSpellListFactory.mjs";
+import DDBMuleHandler from "./muncher/DDBMuleHandler.mjs";
 // import { libWrapper } from "../vendor/libwrapper/shim.js";
 
 function resetSecrets() {
@@ -158,6 +159,7 @@ export function registerApi() {
         DDBSpellListFactory,
       },
       RuleFactory: ParserLib.DDBRuleJournalFactory,
+      DDBMuleHandler,
     },
     settings: {
       muncherSettings: lib.MuncherSettings.getMuncherSettings,
