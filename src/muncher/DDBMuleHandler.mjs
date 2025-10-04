@@ -11,6 +11,8 @@ export default class DDBMuleHandler {
 
   proficiencyFinder = null;
 
+
+
   constructor({
     characterId,
     classId,
@@ -19,8 +21,13 @@ export default class DDBMuleHandler {
     this.classId = classId;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async init() {
+    await DDBReferenceLinker.importCacheLoad();
+  }
 
-  async fetchMuleData() {
+
+  async fetchCharacterClassMuleData() {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = game.settings.get("ddb-importer", "beta-key");
@@ -33,6 +40,8 @@ export default class DDBMuleHandler {
       campaignId: proxyCampaignId,
       filterModifiers: false,
       splitSpells: true,
+      sources: [1, 2], // TODO add source parser
+      includeHomebrew: false, // TODDO add homebrew option detection
     };
 
     try {
@@ -52,34 +61,64 @@ export default class DDBMuleHandler {
         source: this.source,
       });
 
-      if (!this.source.success) return;
-
-
-      // this.source.ddb = FilterModifiers.fixCharacterLevels(this.source.ddb);
-      // // update proficiency finder with a character based version
-      // this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source.ddb });
-
-      // load some required content
-      await DDBReferenceLinker.importCacheLoad();
-
-      // logger.debug("DDB Data to parse:", foundry.utils.duplicate(this.source.ddb));
-      // logger.debug("currentActorId", this.currentActorId);
-      // try {
-      //   // this parses the json and sets the results as this.data
-      //   await this._parseCharacter();
-      //   logger.debug("finalParsedData", foundry.utils.duplicate({ source: this.source, data: foundry.utils.deepClone(this.data) }));
-      // } catch (error) {
-      //   if (game.settings.get("ddb-importer", "debug-json")) {
-      //     FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
-      //   }
-      //   throw error;
-      // }
     } catch (error) {
-      logger.error("JSON Fetch and Parse Error");
+      logger.error("JSON Fetch Error");
       logger.error(error);
       logger.error(error.stack);
       throw error;
     }
   }
+
+  async _buildDDBStub() {
+    const stub = {
+      backgroundEquipment: { slots: [] },
+      character: foundry.utils.deepClone(this.source.emptyCharacter),
+      classOptions: [],
+      decorations: foundry.utils.deepClone(this.source.emptyCharacter.decorations),
+      infusions: {
+        known: [],
+        items: [],
+        infusions: []
+      },
+      name: foundry.utils.deepClone(this.source.emptyCharacter.name),
+      originOptions: [],
+      startingEquipment: {
+        slots: [],
+      },
+    };
+    return stub;
+  }
+
+  async handleClassMunch() {
+    // loop through each subclass and create a stub to import
+    for (const subclass of this.source.subclasses) {
+      const ddbStub = await this._buildDDBStub();
+      const subclassData = ddbStub.subClassData.find((sc) => sc.addData.classId === subclass.id);
+      if (!subclassData) {
+        logger.error(`Subclass data not found for subclass ID: ${subclass.id}`, {
+          subclass,
+          this: this,
+        });
+        continue;
+      }
+      foundry.utils.mergeObject(subclass, subclassData.data);
+
+      // for the subclass we now loop through each class choice
+
+    }
+  }
+
+  static async munchClass({ classId, characterId } = {}) {
+    const muleHandler = new DDBMuleHandler({ classId, characterId });
+    await muleHandler.init();
+    await muleHandler.fetchCharacterClassMuleData();
+    await muleHandler.handleClassMunch();
+  }
+
+  // TODO:
+  // Infusions
+  // Backgrounds
+  // Feats
+  // Species
 
 }

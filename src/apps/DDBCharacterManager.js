@@ -452,6 +452,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
       this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
       await this.ddbCharacter.getCharacterData(getOptions);
+      await this.ddbCharacter.process();
       logger.debug("import.js getCharacterData result", this.ddbCharacter);
       const debugJson = game.settings.get("ddb-importer", "debug-json");
       if (debugJson) {

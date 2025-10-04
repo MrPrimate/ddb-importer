@@ -1274,6 +1274,7 @@ export async function updateDDBCharacter(actor) {
   const activeUpdateState = ddbCharacter.getCurrentDynamicUpdateState();
   await ddbCharacter.disableDynamicUpdates();
   await ddbCharacter.getCharacterData(getOptions);
+  await ddbCharacter.process();
 
   if (!ddbCharacter.source.ddb.character.canEdit) {
     logger.debug("Update DDB", { ddbCharacter, source: ddbCharacter.source });

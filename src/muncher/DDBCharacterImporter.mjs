@@ -1050,6 +1050,7 @@ ${item.system.description.chat}
       };
       const ddbCharacter = new DDBCharacter(ddbCharacterOptions);
       await ddbCharacter.getCharacterData(getOptions);
+      await ddbCharacter.process();
 
       logger.debug("import.js importCharacter getCharacterData result", ddbCharacter.source);
       if (game.settings.get("ddb-importer", "debug-json")) {

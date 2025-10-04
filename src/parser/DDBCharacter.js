@@ -154,6 +154,19 @@ export default class DDBCharacter {
       this.source = await response.json();
       if (!this.source.success) return;
 
+      if (game.settings.get("ddb-importer", "debug-json")) {
+        FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
+      }
+    } catch (error) {
+      logger.error("JSON Fetch Error");
+      logger.error(error);
+      logger.error(error.stack);
+      throw error;
+    }
+  }
+
+  async process() {
+    try {
       this.source.ddb = FilterModifiers.fixCharacterLevels(this.source.ddb);
       // update proficiency finder with a character based version
       this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source.ddb });
@@ -163,18 +176,12 @@ export default class DDBCharacter {
 
       logger.debug("DDB Data to parse:", foundry.utils.duplicate(this.source.ddb));
       logger.debug("currentActorId", this.currentActorId);
-      try {
-        // this parses the json and sets the results as this.data
-        await this._parseCharacter();
-        logger.debug("finalParsedData", foundry.utils.duplicate({ source: this.source, data: foundry.utils.deepClone(this.data) }));
-      } catch (error) {
-        if (game.settings.get("ddb-importer", "debug-json")) {
-          FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
-        }
-        throw error;
-      }
+      // this parses the json and sets the results as this.data
+      await this._parseCharacter();
+      logger.debug("finalParsedData", foundry.utils.duplicate({ source: this.source, data: foundry.utils.deepClone(this.data) }));
+
     } catch (error) {
-      logger.error("JSON Fetch and Parse Error");
+      logger.error("Character Parse Error");
       logger.error(error);
       logger.error(error.stack);
       throw error;
