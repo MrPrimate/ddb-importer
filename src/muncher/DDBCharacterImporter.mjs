@@ -1003,6 +1003,7 @@ ${item.system.description.chat}
       }
       if (this.ddbCharacter.source?.success) {
         // begin parsing the character data
+        await this.ddbCharacter.process();
         await this.processCharacterData();
         this.notifier("Loading Character data", { message: "Done." });
         logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });

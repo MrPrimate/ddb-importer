@@ -20,7 +20,10 @@ import {
 } from "./lib/_module.mjs";
 
 export default class DDBCharacter {
-  constructor({ currentActor = null, characterId = null, selectResources = true, enableCompanions = false, enableSummons = false } = {}) {
+  constructor({
+    currentActor = null, characterId = null, selectResources = true, enableCompanions = false,
+    enableSummons = false, addToCompendiums = true,
+  } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
     this.currentActorId = currentActor?.id;
@@ -90,7 +93,7 @@ export default class DDBCharacter {
     this.matchedFeatures = [];
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
-    this.addToCompendiums = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums");
+    this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums");
     this._infusionFactory = null;
     this._classParser = null;
     this._characterFeatureFactory = null;
@@ -214,7 +217,7 @@ export default class DDBCharacter {
     this._characterFeatureFactory.filterActionFeatures();
     this.raw.features.push(...this._characterFeatureFactory.data.features);
     this.raw.actions.push(...this._characterFeatureFactory.data.actions);
-    await this._characterFeatureFactory.addToCompendiums();
+    if (this.addToCompendiums) await this._characterFeatureFactory.addToCompendiums();
   }
 
   async _generateInfusions() {
@@ -230,13 +233,6 @@ export default class DDBCharacter {
     this._spellParser = new CharacterSpellFactory(this);
     this.raw.spells.push(...await this._spellParser.getCharacterSpells());
     logger.debug("Character Spells parse complete");
-  }
-
-  async _addFeaturesToCompendium() {
-    if (!this.addToCompendiums) return;
-
-    logger.debug("Adding features to compendium");
-    // processing here
   }
 
   /**

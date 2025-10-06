@@ -829,9 +829,8 @@ export default class CharacterFeatureFactory {
 
   // compendium additions
 
-  async addToCompendiums() {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums")) return;
-    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+  async addToCompendiums(update = null) {
+    const updateFeatures = update ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const documents = [];
     documents.push(...this.data.features);
