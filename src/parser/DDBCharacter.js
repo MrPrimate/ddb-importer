@@ -22,7 +22,7 @@ import {
 export default class DDBCharacter {
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false,
-    enableSummons = false, addToCompendiums = true,
+    enableSummons = false, addToCompendiums = true, compendiumImportTypes = [], forceCompendiumUpdate,
   } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
@@ -94,6 +94,8 @@ export default class DDBCharacter {
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums");
+    this.compendiumImportTypes = compendiumImportTypes;
+    this.forceCompendiumUpdate = forceCompendiumUpdate;
     this._infusionFactory = null;
     this._classParser = null;
     this._characterFeatureFactory = null;
@@ -217,7 +219,7 @@ export default class DDBCharacter {
     this._characterFeatureFactory.filterActionFeatures();
     this.raw.features.push(...this._characterFeatureFactory.data.features);
     this.raw.actions.push(...this._characterFeatureFactory.data.actions);
-    if (this.addToCompendiums) await this._characterFeatureFactory.addToCompendiums();
+    if (this.addToCompendiums) await this._characterFeatureFactory.addToCompendiums(this.forceCompendiumUpdate, this.compendiumImportTypes);
   }
 
   async _generateInfusions() {
