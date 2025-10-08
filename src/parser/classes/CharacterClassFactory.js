@@ -1,10 +1,17 @@
 import DDBClass from "./DDBClass.js";
 import { logger } from '../../lib/_module.mjs';
 import DDBSubClass from "./DDBSubClass.js";
+import { SETTINGS } from "../../config/_module.mjs";
 
 export default class CharacterClassFactory {
 
-  constructor(ddbCharacter, { addToCompendium = false } = {}) {
+  addToCompendium = null;
+
+  compendiumImportTypes = ["classes", "subclasses"];
+
+  updateCompendiumItems = null;
+
+  constructor(ddbCharacter, { addToCompendium = false, compendiumImportTypes = null, updateCompendiumItems } = {}) {
     this.ddbCharacter = ddbCharacter;
     this.character = this.ddbCharacter.raw.character;
     this.source = this.ddbCharacter.source.ddb;
@@ -12,6 +19,8 @@ export default class CharacterClassFactory {
     };
     this.originalClass = null;
     this.addToCompendium = addToCompendium;
+    if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
+    this.updateCompendiumItems = updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
   }
 
   async processCharacter() {
@@ -19,6 +28,8 @@ export default class CharacterClassFactory {
     for (const characterClass of this.source.character.classes) {
       const ddbClass = new DDBClass(this.source, characterClass.definition.id, {
         addToCompendium: this.addToCompendium,
+        compendiumImportTypes: this.compendiumImportTypes,
+        updateCompendiumItems: this.updateCompendiumItems,
       });
       await ddbClass.generateFromCharacter(this.character);
       this.ddbClasses[ddbClass.data.name] = ddbClass;
@@ -27,6 +38,8 @@ export default class CharacterClassFactory {
       if (characterClass.subclassDefinition && characterClass.subclassDefinition.name) {
         const ddbSubClass = new DDBSubClass(this.source, characterClass.definition.id, {
           addToCompendium: this.addToCompendium,
+          compendiumImportTypes: this.compendiumImportTypes,
+          updateCompendiumItems: this.updateCompendiumItems,
         });
         await ddbSubClass.generateFromCharacter(this.character);
         this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;

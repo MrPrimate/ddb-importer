@@ -838,13 +838,16 @@ export default class CharacterFeatureFactory {
 
     const featTypeDocs = documents.filter((doc) => doc.type === "feat");
 
-    // console.warn(`Processing ${featTypeDocs.length} feats into the feat compendium`, {
-    //   featTypeDocs,
-    //   documents,
-    //   this: this,
-    //   data: foundry.utils.deepClone(this.data),
-    // });
-    if (compendiumImportTypes.some((c) => ["features", "class", "subclass"].includes(c))) {
+    console.warn(`Processing ${featTypeDocs.length} feats into the feat compendium`, {
+      featTypeDocs,
+      documents,
+      this: this,
+      // data: foundry.utils.deepClone(this.data),
+      updateFeatures,
+      update,
+      compendiumImportTypes,
+    });
+    if (compendiumImportTypes.some((c) => ["features"].includes(c))) {
 
       const featureCompendiumFolders = new DDBCompendiumFolders("features", {
         noCreateClassFolders: true,
@@ -900,7 +903,7 @@ export default class CharacterFeatureFactory {
       }
     }
 
-    if (compendiumImportTypes.some((c) => ["traits", "race", "species"].includes(c))) {
+    if (compendiumImportTypes.some((c) => ["traits", "species"].includes(c))) {
 
       const traitCompendiumFolders = new DDBCompendiumFolders("traits");
       await traitCompendiumFolders.loadCompendium("traits");

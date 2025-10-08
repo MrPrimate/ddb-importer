@@ -13,6 +13,12 @@ import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from '.
 
 export default class DDBClass {
 
+  addToCompendium = null;
+
+  compendiumImportTypes = ["classes", "subclasses"];
+
+  updateCompendiumItems = null;
+
   static SPECIAL_ADVANCEMENTS = {
     "Wild Shape": {
       fix: true,
@@ -370,7 +376,10 @@ export default class DDBClass {
     }
   }
 
-  constructor(ddbData, classId, { isGeneric = false, addToCompendium = null } = {}) {
+  constructor(ddbData, classId,
+    { isGeneric = false, addToCompendium = null, compendiumImportTypes = null,
+      updateCompendiumItems } = {},
+  ) {
     this._indexFilter = {
       features: {
         fields: [
@@ -395,6 +404,8 @@ export default class DDBClass {
     };
 
     this.addToCompendium = addToCompendium ?? false;
+    if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
+    this.updateCompendiumItems = updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     this.rules = "2014";
 
@@ -1550,11 +1561,12 @@ export default class DDBClass {
 
   async _addToCompendium() {
     if (!this.addToCompendium) return;
+    if (!this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t))) return;
 
     // only add full level 20 classes
     if (this.ddbClass.level !== 20) return;
 
-    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+    const updateFeatures = this.updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const type = this._isSubClass ? "subclass" : "class";
     const featureCompendiumFolders = new DDBCompendiumFolders(type, {
@@ -1575,6 +1587,7 @@ export default class DDBClass {
       deleteBeforeUpdate: false,
       useCompendiumFolders: true,
       notifier: null,
+      matchFlags: ["id", "is2014"],
     };
 
     const data = foundry.utils.deepClone(this.data);

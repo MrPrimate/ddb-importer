@@ -23,6 +23,7 @@ import { NUMBER_MATRIX } from "./generics/numbers.mjs";
 import { COMPANIONS } from "./parsing/companions.mjs";
 import { SCENE_IMG } from "./encounters.mjs";
 import { IDENTIFIER_ADJUSTMENTS } from "./parsing/identifiers.mjs";
+import { LOADING_MESSAGES } from "./messages/messages.mjs";
 
 const DICTIONARY = {
   source: SOURCE_DATA,
@@ -63,6 +64,9 @@ const DICTIONARY = {
   companions: COMPANIONS,
   encounters: {
     SCENE_IMG,
+  },
+  messages: {
+    loading: LOADING_MESSAGES,
   },
 };
 

@@ -20,9 +20,16 @@ import {
 } from "./lib/_module.mjs";
 
 export default class DDBCharacter {
+
+  compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
+
+  forceCompendiumUpdate;
+
+  addToCompendiums;
+
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false,
-    enableSummons = false, addToCompendiums = true, compendiumImportTypes = [], forceCompendiumUpdate,
+    enableSummons = false, addToCompendiums = true, compendiumImportTypes, forceCompendiumUpdate,
   } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
@@ -94,7 +101,7 @@ export default class DDBCharacter {
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums");
-    this.compendiumImportTypes = compendiumImportTypes;
+    if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.forceCompendiumUpdate = forceCompendiumUpdate;
     this._infusionFactory = null;
     this._classParser = null;
@@ -194,7 +201,11 @@ export default class DDBCharacter {
   }
 
   async _generateClass(addToCompendium = false) {
-    this._classParser = new CharacterClassFactory(this, { addToCompendium });
+    this._classParser = new CharacterClassFactory(this, {
+      addToCompendium,
+      compendiumImportTypes: this.compendiumImportTypes,
+      updateCompendiumItems: this.forceCompendiumUpdate,
+    });
     this.raw.classes = await this._classParser.processCharacter();
     logger.debug(`Classes parse complete (With Compendium: ${addToCompendium})`);
   }

@@ -5046,6 +5046,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/dnd/av",
     },
     {
+      id: 203,
+      name: "WtHC",
+      description: "Stranger Things: Welcome to the Hellfire Club",
+      sourceCategoryId: 1,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/51856/545/638947926379928149.jpeg",
+      sourceURL: "sources/dnd/wthc",
+    },
+    {
       id: 207,
       name: "GHPG",
       description: "Grim Hollow: Player’s Guide",
