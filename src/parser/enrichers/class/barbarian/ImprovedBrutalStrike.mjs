@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import { DICTIONARY } from "../../../../config/_module.mjs";
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class ImprovedBrutalStrike extends DDBEnricherData {
@@ -57,26 +58,30 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
   get effects() {
     return [
       {
-        name: "Staggered",
-        changes: [],
+        name: "Staggered: Opportunity Attacks",
         options: {
-          description: `Disadvantage on next saving throws and can't make opportunity attacks.`,
+          description: `Can't make opportunity attacks.`,
         },
+        activityMatch: "Staggering Blow",
+        daeSpecialDuration: ["turnStartSource"],
+      },
+      {
+        name: "Staggered: Saving Throws",
+        changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`)),
+        options: {
+          description: `Disadvantage on next saving throw.`,
+        },
+        daeSpecialDuration: ["turnStartSource", "isSave"],
         activityMatch: "Staggering Blow",
       },
       {
-        name: "Sundering Blow",
+        type: "enchant",
+        name: `Sundering Blow Bonus`,
+        options: {
+          description: `A plus 5 bonus to hit the creature.`,
+        },
         changes: [
-          {
-            type: "enchant",
-            name: `Sundering Blow Bonus`,
-            options: {
-              description: `A plus 5 bonus to hit the creature.`,
-            },
-            changes: [
-              DDBEnricherData.ChangeHelper.addChange("5", 20, "activities[attack].attack.bonus"),
-            ],
-          },
+          DDBEnricherData.ChangeHelper.addChange("5", 20, "activities[attack].attack.bonus"),
         ],
         activityMatch: "Sundering Blow",
       },

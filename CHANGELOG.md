@@ -1,5 +1,8 @@
 # Next Up
 
+- Improved Brutal Strike fixes.
+- Commanding Presence fixes.
+
 # 6.5.16
 
 - Inject new Weapon properties from third-party books
