@@ -1066,7 +1066,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   createCompanionFactory() {
-    const createOrUpdate = this.isGeneric || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions");
+    const createOrUpdate = this.isGeneric
+      || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")
+      || this.ddbCharacter.enableCompanions;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "feature",
       originDocument: this.data,

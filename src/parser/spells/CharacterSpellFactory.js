@@ -391,7 +391,7 @@ export default class CharacterSpellFactory {
           //   spell: deepClone(spell),
           //   parsedSpell: deepClone(parsedSpell),
           // });
-          this.handleGrantedSpells(spell, "class", {
+          await this.handleGrantedSpells(spell, "class", {
             forceCopy: true,
             flags: {
               lookup: "classFeature",
@@ -534,7 +534,7 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        this.handleGrantedSpells(spell, "race");
+        await this.handleGrantedSpells(spell, "race");
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
@@ -594,7 +594,7 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        this.handleGrantedSpells(spell, "feat");
+        await this.handleGrantedSpells(spell, "feat");
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
@@ -642,7 +642,7 @@ export default class CharacterSpellFactory {
       if (this.ddb.character.spells.background.filter((sp) => sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        this.handleGrantedSpells(spell, "background");
+        await this.handleGrantedSpells(spell, "background");
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {

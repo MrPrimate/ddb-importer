@@ -32,6 +32,7 @@ import { migration } from "./hooks/ready/migraton.js";
 import SpellListFactory from "./parser/spells/SpellListFactory.mjs";
 import DDBSpellListFactory from "./parser/spells/DDBSpellListFactory.mjs";
 import DDBMuleHandler from "./muncher/DDBMuleHandler.mjs";
+import DDBCharacter from "./parser/DDBCharacter.js";
 // import { libWrapper } from "../vendor/libwrapper/shim.js";
 
 function resetSecrets() {
@@ -130,6 +131,7 @@ export function registerApi() {
       DDBCampaigns: lib.DDBCampaigns,
       DDBCompanion2014,
       DDBCompanionFactory,
+      DDBCharacter: DDBCharacter,
       // Companions,
       DDBCompendiumFolders: lib.DDBCompendiumFolders,
       DDBSimpleMacro: lib.DDBSimpleMacro,

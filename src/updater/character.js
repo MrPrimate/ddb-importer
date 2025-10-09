@@ -1265,6 +1265,7 @@ export async function updateDDBCharacter(actor) {
     selectResources: false,
     enableCompanions: false,
     enableSummons: false,
+    addToCompendiums: false,
   };
   const getOptions = {
     syncId,

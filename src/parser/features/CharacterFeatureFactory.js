@@ -838,15 +838,15 @@ export default class CharacterFeatureFactory {
 
     const featTypeDocs = documents.filter((doc) => doc.type === "feat");
 
-    console.warn(`Processing ${featTypeDocs.length} feats into the feat compendium`, {
-      featTypeDocs,
-      documents,
-      this: this,
-      // data: foundry.utils.deepClone(this.data),
-      updateFeatures,
-      update,
-      compendiumImportTypes,
-    });
+    // console.warn(`Processing ${featTypeDocs.length} feats into the feat compendium`, {
+    //   featTypeDocs,
+    //   documents,
+    //   this: this,
+    //   // data: foundry.utils.deepClone(this.data),
+    //   updateFeatures,
+    //   update,
+    //   compendiumImportTypes,
+    // });
     if (compendiumImportTypes.some((c) => ["features"].includes(c))) {
 
       const featureCompendiumFolders = new DDBCompendiumFolders("features", {

@@ -92,7 +92,6 @@ export default class DDBMuleHandler {
         redirect: "follow", // manual, *follow, error
         body: JSON.stringify(body), // body data type must match "Content-Type" header
       });
-      console.warn("response", response);
 
       const jsonResponse = await response.json();
       if (jsonResponse.success) {
@@ -160,18 +159,19 @@ export default class DDBMuleHandler {
 
       const filteredSubClassChoices = this.source.subClassChoicesData.filter((c) => c.debug.subClassId === subClassData.debug.subClassId);
 
-      const total = filteredSubClassChoices.length + 1;
+      const total = filteredSubClassChoices.length;
       let current = 0;
       console.warn(`Processing ${total} subclass choices for subclass ${subClassData.debug.subclassName}`, { filteredSubClassChoices });
       for (const subClassChoiceData of filteredSubClassChoices) {
+        current++;
         this.notifier({
-          progress: { current: ++current, total },
-          message: `Processing subclass choice ${subClassChoiceData.debug.name} choice feature`,
+          progress: { current, total },
+          message: `Processing subclass choice set for ${subClassData.debug.subclassName} (${current} of ${total})`,
         });
         const newStub = foundry.utils.deepClone(ddbStub);
         foundry.utils.mergeObject(newStub.character, subClassChoiceData.data);
 
-        console.warn(`Processing subclass choice ${subClassChoiceData.debug.name} choice feature (${current + 1} of ${total})`, {
+        console.error(`Processing subclass choice set for ${subClassData.debug.subclassName} (${current} of ${total})`, {
           newStub,
           subClassChoiceData,
           current,
@@ -211,7 +211,7 @@ export default class DDBMuleHandler {
     const total = this.source.featOptions.reduce((acc, curr) => acc + curr.data.feats.length, 0);
     let current = 1;
     let count = 0;
-    console.warn(`Processing ${total} feats`, { feats: this.source.featOptions, this: this });
+    logger.debug(`Processing ${total} feats`, { feats: this.source.featOptions, this: this });
     for (const featData of this.source.featOptions) {
       count += featData.data.feats.length;
       this.notifier({
@@ -221,7 +221,7 @@ export default class DDBMuleHandler {
       const newStub = foundry.utils.deepClone(ddbStub);
       foundry.utils.mergeObject(newStub.character, featData.data);
 
-      console.warn(`Processing feats (${current} - ${count} of ${total})`, {
+      logger.debug(`Processing feats (${current} - ${count} of ${total})`, {
         newStub,
         featData,
         current,
@@ -338,7 +338,9 @@ export default class DDBMuleHandler {
   // TODO:
   // Infusions
   // Backgrounds
-  // Feats
   // Species
+
+  // Life domain parsing errors
+  // Light domain parsing errors
 
 }

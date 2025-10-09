@@ -2,6 +2,7 @@
 
 - Improved Brutal Strike fixes.
 - Commanding Presence fixes.
+- A large number of parsing tweaks.
 
 # 6.5.16
 

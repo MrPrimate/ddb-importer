@@ -136,6 +136,7 @@ export default class DDBMonsterImporter {
           render: false,
           keepId: true,
         });
+        // console.warn("UpdatedNPC", { updatedNPC: updatedNPC.toObject(), items });
         await updatedNPC.createEmbeddedDocuments("Item", items, { keepId: true });
 
         // await existingNPC.createEmbeddedDocuments("Item", items, { keepId: true });
