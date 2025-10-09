@@ -12,6 +12,8 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
     return {
       targetType: "creature",
       name: "Brutal Strike Damage",
+      itemConsumeTargetName: "Brutal Strike",
+      addItemConsume: true,
       data: {
         damage: {
           parts: [DDBEnricherData.basicDamagePart({ customFormula: "@scale.barbarian.brutal-strike" })],

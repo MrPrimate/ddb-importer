@@ -549,7 +549,11 @@ export default class DDBCompanionMixin {
 
     //  "History + 12, Perception +0 plus PB &times; 2"
     const skillsMaps = skillsString.split(",").filter((str) => str != '').map((str) => {
-      const skillMatch = str.trim().match(/(\w+ *\w* *\w*)(?: *)([+-])(?: *)(\d+) *(plus PB)? *(&times;|x|times)? *(\d*)?/);
+      const skillMatch = str
+        .replaceAll("[skill]", "")
+        .replaceAll("[/skill]", "")
+        .trim()
+        .match(/(\w+ *\w* *\w*)(?: *)([+-])(?: *)(\d+) *(plus PB)? *(&times;x|×|times)? *(\d*)?/);
       let result = {};
       if (skillMatch) {
         result = {

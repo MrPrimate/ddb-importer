@@ -11,6 +11,7 @@ export default class BlessedStrikes extends DDBEnricherData {
       targetType: "creature",
       noeffect: true,
       activationOverride: "special",
+      addItemConsume: true,
       data: {
         damage: {
           parts: [
@@ -41,5 +42,22 @@ export default class BlessedStrikes extends DDBEnricherData {
         }],
       },
     ];
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": {
+          "spent": 1,
+          "recovery": [
+            {
+              "period": "turnStart",
+              "type": "recoverAll",
+            },
+          ],
+          "max": "1",
+        },
+      },
+    };
   }
 }

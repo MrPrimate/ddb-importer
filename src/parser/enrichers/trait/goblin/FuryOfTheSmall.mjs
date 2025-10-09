@@ -18,12 +18,30 @@ export default class FuryOfTheSmall extends DDBEnricherData {
       name: "Bonus Damage",
       targetType: "creature",
       activationType: "special",
+      addItemConsume: true,
       data: {
         damage: {
           parts: [DDBEnricherData.basicDamagePart({
             customFormula: this.useProfDamage ? "@prof" : "@details.level",
             types: DDBEnricherData.allDamageTypes(),
           })],
+        },
+      },
+    };
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": {
+          "spent": 1,
+          "recovery": [
+            {
+              "period": "turnStart",
+              "type": "recoverAll",
+            },
+          ],
+          "max": "1",
         },
       },
     };

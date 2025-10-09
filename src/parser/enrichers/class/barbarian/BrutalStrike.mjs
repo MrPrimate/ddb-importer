@@ -10,6 +10,7 @@ export default class BrutalStrike extends DDBEnricherData {
   get activity() {
     return {
       targetType: "creature",
+      addItemConsume: true,
       noeffect: true,
       name: "Brutal Strike Damage",
       data: {
@@ -64,6 +65,24 @@ export default class BrutalStrike extends DDBEnricherData {
         },
       },
     ];
+  }
+
+
+  get override() {
+    return {
+      data: {
+        "system.uses": {
+          "spent": 1,
+          "recovery": [
+            {
+              "period": "turnStart",
+              "type": "recoverAll",
+            },
+          ],
+          "max": "1",
+        },
+      },
+    };
   }
 
 }

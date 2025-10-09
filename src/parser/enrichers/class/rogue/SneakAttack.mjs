@@ -12,6 +12,7 @@ export default class SneakAttack extends DDBEnricherData {
       targetType: "creature",
       activationType: "special",
       noeffect: true,
+      addItemConsume: true,
       noTemplate: true,
       data: {
         "range.units": "spec",
@@ -58,5 +59,22 @@ export default class SneakAttack extends DDBEnricherData {
         name: "sneakAttack.js",
       }
       : null;
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": {
+          "spent": 1,
+          "recovery": [
+            {
+              "period": "turn",
+              "type": "recoverAll",
+            },
+          ],
+          "max": "1",
+        },
+      },
+    };
   }
 }

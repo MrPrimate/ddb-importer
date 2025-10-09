@@ -654,7 +654,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.getValueFromModifiers(this.grantedModifiers, this.document.name, "attunement-slots", "set");
     if (bonus) {
       logger.debug(`Generating Attunement bonus for ${this.document.name}`, bonus);
-      this.effect.changes.push(ChangeHelper.upgradeChange(bonus, (10 + bonus), "system.attributes.attunement.max"));
+      this.effect.changes.push(ChangeHelper.upgradeChange(bonus, 11, "system.attributes.attunement.max"));
     }
   }
 

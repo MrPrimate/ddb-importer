@@ -255,6 +255,7 @@ export default class DDBCompanionFactory {
 
     const results = [];
 
+    // console.warn("Updating companions", { updateCompanions, existingCompanions, companions });
     for (const companion of updateCompanions) {
       const existingCompanion = await existingCompanions.find((exist) =>
         exist.flags?.ddbimporter?.id === companion.flags.ddbimporter.id

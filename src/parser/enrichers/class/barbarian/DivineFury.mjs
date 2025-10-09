@@ -11,6 +11,7 @@ export default class DivineFury extends DDBEnricherData {
     return {
       targetType: "creature",
       activationType: "special",
+      addItemConsume: true,
       data: {
         damage: {
           critical: {
@@ -29,4 +30,20 @@ export default class DivineFury extends DDBEnricherData {
     };
   }
 
+  get override() {
+    return {
+      data: {
+        "system.uses": {
+          "spent": 1,
+          "recovery": [
+            {
+              "period": "turnStart",
+              "type": "recoverAll",
+            },
+          ],
+          "max": "1",
+        },
+      },
+    };
+  }
 }
