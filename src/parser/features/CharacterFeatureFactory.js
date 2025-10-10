@@ -500,6 +500,7 @@ export default class CharacterFeatureFactory {
     // only background features get advancements for now
     if (type === "background") {
       ddbFeature.generateBackgroundAbilityScoreAdvancement();
+      // console.warn("Generating background advancements", ddbFeature);
       await ddbFeature.generateAdvancements();
       await ddbFeature.buildBackgroundFeatAdvancements();
     }
@@ -830,11 +831,12 @@ export default class CharacterFeatureFactory {
   // compendium additions
 
   async addToCompendiums(update = null, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"]) {
+    logger.verbose("Adding features to compendiums", { update, compendiumImportTypes, this: this });
     const updateFeatures = update ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const documents = [];
-    documents.push(...this.data.features);
-    documents.push(...this.data.actions);
+    documents.push(...foundry.utils.deepClone(this.data.features));
+    documents.push(...foundry.utils.deepClone(this.data.actions));
 
     const featTypeDocs = documents.filter((doc) => doc.type === "feat");
 

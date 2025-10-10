@@ -190,6 +190,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       // console.warn("ADVANCEMENT", {
       //   advancement,
       //   advancementData,
+      //   avClone: foundry.utils.deepClone(advancementData),
       //   choicebool: advancementData.configuration.choices.length !== 0,
       //   grantbool: advancementData.configuration.grants.length !== 0,
       //   valuebool: (advancementData.value && Object.keys(advancementData.value).length !== 0),
@@ -399,11 +400,11 @@ export default class DDBFeature extends DDBFeatureMixin {
       logger.debug(`Found ${this._choices.map((c) => c.label).join(",")}`);
 
       this._generateDescription({ forceFull: true });
-      this.data.system.description.value += `<h3>Proficiencies</h3><ul>`;
-      for (const choice of this._parentOnlyChoices) {
-        await this._addEffects(choice, this.type);
-        this.data.system.description.value += `<li>${choice.label}</li>`;
-      }
+      // this.data.system.description.value += `<h3>Proficiencies</h3><ul>`;
+      // for (const choice of this._parentOnlyChoices) {
+      //   await this._addEffects(choice, this.type);
+      //   this.data.system.description.value += `<li>${choice.label}</li>`;
+      // }
 
       this.data.system.description.value += `</ul>`;
       this.data.img = "icons/skills/trades/academics-book-study-purple.webp";

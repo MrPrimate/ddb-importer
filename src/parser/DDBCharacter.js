@@ -29,7 +29,7 @@ export default class DDBCharacter {
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false,
-    enableSummons = false, addToCompendiums = true, compendiumImportTypes, forceCompendiumUpdate,
+    enableSummons = false, addToCompendiums = null, compendiumImportTypes, forceCompendiumUpdate,
   } = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
