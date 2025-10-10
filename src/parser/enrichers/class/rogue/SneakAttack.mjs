@@ -65,7 +65,7 @@ export default class SneakAttack extends DDBEnricherData {
     return {
       data: {
         "system.uses": {
-          "spent": 1,
+          "spent": 0,
           "recovery": [
             {
               "period": "turn",

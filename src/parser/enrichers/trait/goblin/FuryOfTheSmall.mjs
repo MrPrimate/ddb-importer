@@ -34,7 +34,7 @@ export default class FuryOfTheSmall extends DDBEnricherData {
     return {
       data: {
         "system.uses": {
-          "spent": 1,
+          "spent": 0,
           "recovery": [
             {
               "period": "turnStart",

@@ -48,7 +48,7 @@ export default class BlessedStrikes extends DDBEnricherData {
     return {
       data: {
         "system.uses": {
-          "spent": 1,
+          "spent": 0,
           "recovery": [
             {
               "period": "turnStart",
