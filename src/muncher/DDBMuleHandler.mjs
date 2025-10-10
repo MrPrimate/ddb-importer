@@ -21,18 +21,37 @@ export default class DDBMuleHandler {
 
   type = null;
 
+  filterIds = [];
+
+  cleanup = true;
+
+  backgroundId = null;
+
   constructor({
     characterId,
     classId,
-    sources = null,
+    sources = [1, 2, 148, 145],
     homebrew = false,
     type = null,
+    filterIds = [],
+    cleanup = true,
+    backgroundId = null,
   } = {}) {
+    if (!characterId) {
+      throw new Error("characterId is required");
+    }
+    if (!type) {
+      throw new Error("type is required");
+    }
     this.characterId = characterId;
     this.classId = classId;
-    this.allowedSourceIds = sources ? sources : [1, 2, 148, 145];
+    this.allowedSourceIds = sources;
     this.allowedHomebrew = homebrew;
     this.type = type;
+    this.filterIds = filterIds;
+    this.cleanup = cleanup;
+    this.backgroundId = backgroundId;
+    foundry.utils.setProperty(CONFIG, `DDB.MULE.${this.type}`, this);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -81,6 +100,9 @@ export default class DDBMuleHandler {
       splitSpells: true,
       sources: this.allowedSourceIds,
       includeHomebrew: this.allowedHomebrew,
+      filterIds: this.filterIds,
+      cleanup: this.cleanup,
+      backgroundId: this.backgroundId,
     };
 
     try {
@@ -183,7 +205,7 @@ export default class DDBMuleHandler {
           selectResources: false,
           enableSummons: true,
           addToCompendiums: true,
-          compendiumImportTypes: ["classes", "features", "subclasses"],
+          compendiumImportTypes: ["classes", "features", "subclasses", "feats"],
         });
         ddbCharacter.source = { ddb: newStub };
         await ddbCharacter.process();
@@ -244,6 +266,66 @@ export default class DDBMuleHandler {
 
   }
 
+
+  async _handleBackgroundMunch() {
+    const ddbStub = await this._buildDDBStub();
+
+    this.notifier({
+      message: `Processing backgrounds`,
+    });
+
+    const options = {
+      temporary: true,
+      displaySheet: false,
+    };
+    const mockCharacter = new Actor.implementation({
+      name: "Background Muncher",
+      type: "character",
+    }, options);
+
+    const total = this.source.backgroundOptions.length;
+    let current = 1;
+
+    logger.debug(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
+    console.error(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
+    for (const backgroundData of this.source.backgroundOptions) {
+      this.notifier({
+        progress: { current, total },
+        message: `Processing backgrounds ${current} of ${total}`,
+      });
+      const newStub = foundry.utils.deepClone(ddbStub);
+      foundry.utils.mergeObject(newStub.character, backgroundData.backgroundResponse.data);
+      foundry.utils.mergeObject(newStub.character, (backgroundData.backgroundChoices.slice(-1)?.data ?? null));
+
+      console.warn(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
+        newStub,
+        backgroundData,
+        current,
+        total,
+      });
+      logger.debug(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
+        newStub,
+        backgroundData,
+        current,
+        total,
+      });
+
+
+      const ddbCharacter = new DDBCharacter({
+        currentActor: mockCharacter,
+        characterId: this.characterId,
+        selectResources: false,
+        enableSummons: true,
+        addToCompendiums: true,
+        compendiumImportTypes: ["backgrounds", "feats"],
+      });
+      ddbCharacter.source = { ddb: newStub };
+      await ddbCharacter.process();
+      current++;
+    }
+
+  }
+
   async process() {
     await this._init();
     switch (this.type) {
@@ -257,8 +339,8 @@ export default class DDBMuleHandler {
         // await this._handleInfusionMunch();
         throw new Error("Infusion munching not yet supported");
       case "background":
-        // await this._handleBackgroundMunch();
-        throw new Error("Background munching not yet supported");
+        await this._handleBackgroundMunch();
+        break;
       case "species":
         // await this._handleSpeciesMunch();
         throw new Error("Species munching not yet supported");
@@ -268,28 +350,85 @@ export default class DDBMuleHandler {
   }
 
 
-  static async munchFeats({ characterId, sources, homebrew } = {}) {
-    const muleHandler = new DDBMuleHandler({ characterId, sources, homebrew, type: "feat" });
+  static async munchFeats({ characterId, sources, homebrew, filterIds } = {}) {
+    const muleHandler = new DDBMuleHandler({ characterId, sources, homebrew, type: "feat", filterIds });
+    await muleHandler.process();
+
+    logger.debug("Munch Complete", {
+      characterId,
+      muleHandler,
+      filterIds,
+      sources,
+      homebrew,
+    });
+  }
+
+  static async munchBackgrounds({ characterId, sources, homebrew, filterIds } = {}) {
+    const muleHandler = new DDBMuleHandler({
+      characterId,
+      sources,
+      homebrew,
+      type: "background",
+      filterIds,
+      cleanup: false,
+    });
+
     await muleHandler.process();
 
     console.warn("Munch Complete", {
       characterId,
       muleHandler,
+      filterIds,
+      sources,
+      homebrew,
     });
   }
 
-  static async munchClass({ classId, characterId, sources, homebrew } = {}) {
-    const muleHandler = new DDBMuleHandler({ classId, characterId, sources, homebrew, type: "class" });
+
+  static async munchClass({ classId, characterId, sources, homebrew, filterIds } = {}) {
+    const muleHandler = new DDBMuleHandler({ classId, characterId, sources, homebrew, type: "class", filterIds });
     await muleHandler.process();
 
     console.warn("Munch Complete", {
       classId,
       characterId,
       muleHandler,
+      filterIds,
+      sources,
+      homebrew,
     });
   }
 
-  static async munchClasses({ characterId, classIds = [], sources, homebrew } = {}) {
+  static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds } = {}) {
+    const classList = await DDBMuleHandler.getList("class", sources);
+
+    for (const klass of classList) {
+      if (classIds.length > 0 && !classIds.includes(klass.id)) {
+        logger.debug(`Skipping class ${klass.name} (${klass.id})`);
+        continue;
+      }
+      logger.info(`Munching class ${klass.name} (${klass.id})`);
+      await DDBMuleHandler.munchClass({ classId: klass.id, characterId, sources, homebrew, filterIds });
+    }
+
+    logger.debug("Full Class Munch Complete", {
+      characterId,
+      sources,
+      homebrew,
+      classList,
+      filterIds,
+    });
+  }
+
+  // TODO:
+  // Infusions
+  // Backgrounds
+  // Species
+
+  // Life domain parsing errors
+  // Light domain parsing errors
+
+  static async getList(type, sources) {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -300,7 +439,28 @@ export default class DDBMuleHandler {
       sources: sources ?? [1, 2, 148, 145],
     };
 
-    const response = await fetch(`${parsingApi}/proxy/classes`, {
+    let urlPostfix;
+    switch (type) {
+      case "class":
+        urlPostfix = "/proxy/classes";
+        break;
+      case "feat":
+        urlPostfix = "/proxy/feats";
+        break;
+      case "infusion":
+        // urlPostfix = "/proxy/infusions";
+        break;
+      case "background":
+        urlPostfix = "/proxy/backgrounds";
+        break;
+      case "species":
+        // urlPostfix = "/proxy/species";
+        break;
+      default:
+        throw new Error(`Unknown mule type ${type}`);
+    }
+
+    const response = await fetch(`${parsingApi}${urlPostfix}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -309,38 +469,11 @@ export default class DDBMuleHandler {
     });
     const data = await response.json();
 
-
     if (!data.success) {
       logger.error(`Failure: ${data.message}`, { data});
       throw new Error(data.message);
     }
-
-
-    for (const klass of data.data) {
-      if (classIds.length > 0 && !classIds.includes(klass.id)) {
-        logger.debug(`Skipping class ${klass.name} (${klass.id})`);
-        continue;
-      }
-      console.error(`Munching class ${klass.name} (${klass.id})`);
-      logger.info(`Munching class ${klass.name} (${klass.id})`);
-      await DDBMuleHandler.munchClass({ classId: klass.id, characterId, sources, homebrew });
-    }
-
-    console.warn("Full Class Munch Complete", {
-      characterId,
-      sources,
-      homebrew,
-    });
-
-
+    return data.data;
   }
-
-  // TODO:
-  // Infusions
-  // Backgrounds
-  // Species
-
-  // Life domain parsing errors
-  // Light domain parsing errors
 
 }
