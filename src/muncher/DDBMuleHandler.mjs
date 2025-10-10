@@ -422,7 +422,9 @@ export default class DDBMuleHandler {
 
   // TODO:
   // Infusions
-  // Backgrounds
+  // Background feats
+  // Subclass features
+  // class granted spells
   // Species
 
   // Life domain parsing errors
