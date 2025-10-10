@@ -10,7 +10,6 @@ import DDBEncounterFactory from "./parser/DDBEncounterFactory.js";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
 import DDBCharacterManager from "./apps/DDBCharacterManager.js";
-import { getFeats } from "./muncher/feats/feats.js";
 import { External, DDBEffectHelper, AuraAutomations } from "./effects/_module.mjs";
 import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
@@ -189,7 +188,6 @@ export function registerApi() {
     parse: {
       monsters: parseCritters,
       vehicles: parseTransports,
-      feats: getFeats,
       items: parseItems,
       spells: parseSpells,
     },
