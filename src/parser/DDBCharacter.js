@@ -28,7 +28,7 @@ export default class DDBCharacter {
   addToCompendiums;
 
   constructor({
-    currentActor = null, characterId = null, selectResources = true, enableCompanions = false,
+    currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,
     enableSummons = false, addToCompendiums = null, compendiumImportTypes, forceCompendiumUpdate,
   } = {}) {
     // the actor the data will be imported into/currently exists
@@ -100,6 +100,7 @@ export default class DDBCharacter {
     this.matchedFeatures = [];
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
+    this.isMuncher = isMuncher;
     this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums");
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.forceCompendiumUpdate = forceCompendiumUpdate;

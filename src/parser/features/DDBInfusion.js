@@ -74,7 +74,7 @@ export class DDBInfusion {
     return undefined;
   }
 
-  constructor({ ddbData, ddbInfusion, documentType = "feat", rawCharacter = null, isGeneric = false, addToCompendium = true, nameIdPostfix = null } = {}) {
+  constructor({ ddbData, ddbInfusion, documentType = "feat", rawCharacter = null, isMuncher = false, addToCompendium = true, nameIdPostfix = null } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbInfusion = ddbInfusion;
@@ -88,7 +88,7 @@ export class DDBInfusion {
     this.actions = [];
     this.actionsToAddToCompendium = [];
     this.grantedItems = [];
-    this.isGeneric = isGeneric;
+    this.isMuncher = isMuncher;
     this.idNames = [];
     this.compendium = null;
     this.snippet = "";
@@ -349,7 +349,7 @@ export class DDBInfusion {
       character: this.rawCharacter,
       ddbItem: modifierItem,
       document: foundryItem,
-      isCompendiumItem: this.isGeneric,
+      isCompendiumItem: false, // isGeneric or isMuncher
       type: "infusion",
       description: this.snippet,
     });

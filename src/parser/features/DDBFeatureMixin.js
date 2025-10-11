@@ -207,11 +207,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   constructor({
-    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, isGeneric = false, activityType = null,
+    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, activityType = null,
     extraFlags = {}, enricher = null, ddbCharacter = null, fallbackEnricher = null, usesOnActivity = false,
+    isMuncher = false,
   } = {}) {
 
-    const addEffects = isGeneric
+    const addEffects = isMuncher
       ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
       : game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
 
@@ -246,7 +247,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.tagType = "other";
     this.activities = [];
     this.data = {};
-    this.isGeneric = isGeneric;
+    this.isMuncher = isMuncher || this.ddbCharacter.isMuncher;
     this._init();
     this.snippet = "";
     this.description = "";
@@ -1066,7 +1067,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   createCompanionFactory() {
-    const createOrUpdate = this.isGeneric
+    const createOrUpdate = this.isMuncher
       || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")
       || this.ddbCharacter.enableCompanions;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {

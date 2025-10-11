@@ -36,36 +36,30 @@ export default class DDBFeature extends DDBFeatureMixin {
       : DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
     logger.debug(`Init Feature ${this.ddbDefinition.name}`);
-    this._class = this.isGeneric
-      ? null
-      : this.ddbData.character.classes.find((klass) =>
-        (this.ddbDefinition.classId
-          && (klass.definition.id === this.ddbDefinition.classId || klass.subclassDefinition?.id === this.ddbDefinition.classId))
-        || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
-          && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
-            || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
-        ),
-      );
-    this._choices = this.isGeneric
-      ? []
-      : DDBDataUtils.getChoices({
-        ddb: this.ddbData,
-        type: this.type,
-        feat: this.ddbDefinition,
-        selectionOnly: false,
-      }).reduce((p, c) => {
-        if (c.parentChoiceId !== null) return p;
-        if (!p.some((e) => e.id === c.id)) p.push(c);
-        return p;
-      }, []);
-    this._chosen = this.isGeneric
-      ? []
-      : DDBDataUtils.getChoices({
-        ddb: this.ddbData,
-        type: this.type,
-        feat: this.ddbDefinition,
-        selectionOnly: true,
-      });
+    this._class = this.ddbData.character.classes.find((klass) =>
+      (this.ddbDefinition.classId
+        && (klass.definition.id === this.ddbDefinition.classId || klass.subclassDefinition?.id === this.ddbDefinition.classId))
+      || (this.ddbDefinition.className && klass.definition.name === this.ddbDefinition.className
+        && ((!this.ddbDefinition.subclassName || this.ddbDefinition.subclassName === "")
+          || (this.ddbDefinition.subclassName && klass.subclassDefinition?.name === this.ddbDefinition.subclassName))
+      ),
+    );
+    this._choices = DDBDataUtils.getChoices({
+      ddb: this.ddbData,
+      type: this.type,
+      feat: this.ddbDefinition,
+      selectionOnly: false,
+    }).reduce((p, c) => {
+      if (c.parentChoiceId !== null) return p;
+      if (!p.some((e) => e.id === c.id)) p.push(c);
+      return p;
+    }, []);
+    this._chosen = DDBDataUtils.getChoices({
+      ddb: this.ddbData,
+      type: this.type,
+      feat: this.ddbDefinition,
+      selectionOnly: true,
+    });
     this._parentOnlyChoices = DDBDataUtils.getChoices({
       ddb: this.ddbData,
       type: this.type,
@@ -87,7 +81,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: this.type,
-      noMods: this.isGeneric,
+      noMods: false,
     });
   }
 

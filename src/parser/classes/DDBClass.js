@@ -19,6 +19,12 @@ export default class DDBClass {
 
   updateCompendiumItems = null;
 
+  rules = "2014";
+
+  name;
+
+  className;
+
   static SPECIAL_ADVANCEMENTS = {
     "Wild Shape": {
       fix: true,
@@ -231,8 +237,8 @@ export default class DDBClass {
   }
 
   _fleshOutCommonDataStub() {
-    // this.data.system.identifier = utils.referenceNameString(`${this.ddbClassDefinition.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
-    this.data.system.identifier = DDBDataUtils.classIdentifierName(this.ddbClassDefinition.name);
+    // this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}${this.is2014 ? " - legacy" : ""}`);
+    this.data.system.identifier = DDBDataUtils.classIdentifierName(this.name);
     this._determineClassFeatures();
 
     this._proficiencyFeatureIds = this.classFeatures
@@ -295,12 +301,12 @@ export default class DDBClass {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: this.ddbClass.definition.name,
+      name: this.className,
       type: "class",
       system: SystemHelpers.getTemplate("class"),
       flags: {
         ddbimporter: {
-          class: this.ddbClass.definition.name,
+          class: this.className,
           id: this.ddbClass.id,
           definitionId: this.ddbClass.definition.id,
           entityTypeId: this.ddbClass.entityTypeId,
@@ -318,7 +324,7 @@ export default class DDBClass {
 
   _generateSpellCastingProgression() {
     if (this.ddbClassDefinition.canCastSpells) {
-      const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.ddbClass.definition.name);
+      const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
       const spellCastingAbility = getSpellCastingAbility(this.ddbClass, this._isSubClass, this._isSubClass);
       if (spellProgression) {
         this.data.system.spellcasting = {
@@ -376,8 +382,18 @@ export default class DDBClass {
     }
   }
 
+  _processSources() {
+    const sourceIds = this.ddbClassDefinition.sources.map((sm) => sm.sourceId);
+    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
+      sourceIds.includes(ddbSource.id)
+      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
+    );
+    this.is2014 = this.ddbClassDefinition.sources.every((s) => DDBSources.is2014Source(s));
+    this.is2024 = !this.is2014;
+  }
+
   constructor(ddbData, classId,
-    { isGeneric = false, addToCompendium = null, compendiumImportTypes = null,
+    { addToCompendium = null, compendiumImportTypes = null,
       updateCompendiumItems } = {},
   ) {
     this._indexFilter = {
@@ -407,20 +423,13 @@ export default class DDBClass {
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.updateCompendiumItems = updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
-    this.rules = "2014";
-
     // setup ddb source
     this.ddbData = ddbData;
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
     this.ddbClassDefinition = this.ddbClass.definition;
-
-    const sourceIds = this.ddbClassDefinition.sources.map((sm) => sm.sourceId);
-    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
-      sourceIds.includes(ddbSource.id)
-      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
-    );
-    this.is2014 = this.ddbClassDefinition.sources.every((s) => DDBSources.is2014Source(s));
-    this.is2024 = !this.is2014;
+    this.name = this.ddbClassDefinition.name;
+    this.className = this.ddbClass.definition.name;
+    this._processSources();
 
     // quick helpers
     this.classFeatureIds = this.ddbClass.definition.classFeatures.map((f) => f.id);
@@ -446,16 +455,12 @@ export default class DDBClass {
     this._isSubClass = false;
     this._generateDataStub();
 
-    this.options = {
-      isGeneric,
-    };
-
     this.dictionary = DICTIONARY.actor.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
 
     this.advancementHelper = new AdvancementHelper({
       ddbData,
       type: "class",
-      noMods: this.options.isGeneric,
+      noMods: false,
     });
 
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
@@ -533,10 +538,10 @@ export default class DDBClass {
       if (!nameMatch && !featureFlagNameMatch) return false;
 
       const featureClassMatch = !this._isSubClass
-        && matchFlags.class == this.ddbClassDefinition.name
+        && matchFlags.class == this.name
         && matchFlags.classId == this.ddbClassDefinition.id;
       const featureSubclassMatch = this._isSubClass
-        && matchFlags.subClass === this.ddbClassDefinition.name
+        && matchFlags.subClass === this.name
         && matchFlags.subClassId == this.ddbClassDefinition.id;
       return featureClassMatch || featureSubclassMatch;
     });
@@ -558,7 +563,7 @@ export default class DDBClass {
   }
 
   async _buildClassFeaturesDescription() {
-    logger.debug(`Parsing ${this.ddbClassDefinition.name} features`);
+    logger.debug(`Parsing ${this.name} features`);
     let description = "<h1>Class Features</h1>\n\n";
     let classFeatures = [];
 
@@ -658,7 +663,7 @@ export default class DDBClass {
   }
 
   async _generateFeatureAdvancements() {
-    logger.debug(`Parsing ${this.ddbClass.definition.name} features for advancement`);
+    logger.debug(`Parsing ${this.name} features for advancement`);
     this.featureAdvancements = [];
 
     const classFeatures = this.classFeatures.filter((feature) =>
@@ -848,10 +853,10 @@ export default class DDBClass {
   }
 
   _generateSaveAdvancements() {
-    if (this.options.isGeneric) {
-      this._generateHTMLSaveAdvancement();
-      return;
-    }
+    // if (this.options.isGeneric) {
+    //   this._generateHTMLSaveAdvancement();
+    //   return;
+    // }
     const advancements = [];
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
@@ -877,12 +882,12 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
-    const filterModOptions = { subType: `choose-a-${this.ddbClassDefinition.name.toLowerCase()}-skill` };
+    const filterModOptions = { subType: `choose-a-${this.name.toLowerCase()}-skill` };
     const skillChooseMods = DDBModifiers.filterModifiers(mods, "proficiency", filterModOptions);
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
@@ -922,7 +927,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
     return this.advancementHelper.getLanguageAdvancement(mods, feature, level);
   }
@@ -983,7 +988,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getToolAdvancement(mods, feature, level);
   }
 
@@ -1011,7 +1016,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getArmorAdvancement(mods, feature, availableToMulticlass, level);
   }
 
@@ -1042,7 +1047,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getWeaponAdvancement(mods, feature, level);
   }
 
@@ -1070,7 +1075,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenTypeModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenTypeModifiers(this.ddbData, modFilters);
     return this.advancementHelper.getWeaponMasteryAdvancement(mods, feature, level);
   }
 
@@ -1116,7 +1121,7 @@ export default class DDBClass {
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
-    const mods = this.options.isGeneric ? [] : DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
+    const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
     return this.advancementHelper.getConditionAdvancement(mods, feature, level);
   }
@@ -1175,7 +1180,7 @@ export default class DDBClass {
       if (!pack) continue;
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
-        k.name === this.ddbClassDefinition.name
+        k.name === this.name
         && k.type === "class",
       );
       if (!klassMatch) continue;
@@ -1277,7 +1282,7 @@ export default class DDBClass {
       if (!pack) continue;
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
-        k.name === this.ddbClassDefinition.name
+        k.name === this.name
         && k.type === "class",
       );
       if (!klassMatch) continue;
@@ -1575,9 +1580,9 @@ export default class DDBClass {
     await featureCompendiumFolders.loadCompendium(type);
 
     if (this._isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(this.ddbClassDefinition.name, this.ddbClass.definition.name);
+      await featureCompendiumFolders.createSubClassFeatureFolder(this.name, this.className);
     } else {
-      await featureCompendiumFolders.createClassFeatureFolder(this.ddbClassDefinition.name);
+      await featureCompendiumFolders.createClassFeatureFolder(this.name);
     }
 
     const handlerOptions = {

@@ -81,17 +81,25 @@ export default class DDBSubClass extends DDBClass {
     };
   }
 
+  subClassName;
+
   constructor(ddb, classId, options = {}) {
     super(ddb, classId, options);
 
+    // adjustments for subclass
     this.ddbClassDefinition = this.ddbClass.subclassDefinition;
     this._isSubClass = true;
+    this.name = this.ddbClass.subclassDefinition.name;
+    this.subClassName = this.ddbClass.subclassDefinition.name;
+    this._processSources();
+
     this.SPECIAL_ADVANCEMENTS = DDBSubClass.SPECIAL_ADVANCEMENTS;
     this.NOT_ADVANCEMENT_FOR_FEATURE = DDBSubClass.NOT_ADVANCEMENT_FOR_FEATURE;
     this.NO_ADVANCEMENT_2014 = DDBSubClass.NO_ADVANCEMENT_2014;
     this.NO_ADVANCEMENT_2024 = DDBSubClass.NO_ADVANCEMENT_2024;
     this.FORCE_SPELL_LIST_ADVANCEMENTS = DDBSubClass.FORCE_SPELL_LIST_ADVANCEMENTS;
     this.NOT_SPELL_LIST_ADVANCEMENTS = DDBSubClass.NOT_SPELL_LIST_ADVANCEMENTS;
+
   }
 
   // eslint-disable-next-line complexity

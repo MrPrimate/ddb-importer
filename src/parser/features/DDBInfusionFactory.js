@@ -45,6 +45,7 @@ export class DDBInfusionFactory {
         rawCharacter: this.rawCharacter,
         nameIdPostfix: infusionNum > 1 ? infusionNum : null,
         addToCompendium,
+        isMuncher: this.ddbCharacter.isMuncher,
       });
       await ddbInfusion.build();
       logger.debug(`DDBInfusion: ${ddbInfusion.ddbInfusion.name}`, {
