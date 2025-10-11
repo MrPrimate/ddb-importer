@@ -291,7 +291,7 @@ export default class DDBCharacter {
       });
 
       // regenerate classes now we have generated features in compendium
-      if (this.addToCompendiums) {
+      if (this.addToCompendiums && !this.isMuncher) {
         await this._generateRace(true);
         await this._generateClass(true);
       }

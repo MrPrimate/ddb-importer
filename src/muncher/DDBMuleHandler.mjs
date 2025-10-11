@@ -370,7 +370,7 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
     });
-    this.notifier({ message: `Munch Complete for Feats` });
+    // this.notifier({ message: `Munch Complete for Feats` });
   }
 
   static async munchBackgrounds({ characterId, sources, homebrew, filterIds } = {}) {
@@ -408,7 +408,7 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
     });
-    this.notifier({ message: `Munch Complete for Classes` });
+    // this.notifier({ message: `Munch Complete for Classes` });
   }
 
   static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds } = {}) {
@@ -430,7 +430,7 @@ export default class DDBMuleHandler {
       classList,
       filterIds,
     });
-    this.notifier({ message: `Munch Complete for Full Classes` });
+    // this.notifier({ message: `Munch Complete for Full Classes` });
   }
 
   // TODO:

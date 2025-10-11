@@ -669,7 +669,9 @@ export default class DDBClass {
     const classFeatures = this.classFeatures.filter((feature) =>
       !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)
       || (this.is2014 && DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(feature.name)));
+    // console.warn(this);
     for (const feature of classFeatures) {
+      // console.warn(feature);
       await this._generateFeatureAdvancementFromCompendiumMatch(feature);
     }
 
