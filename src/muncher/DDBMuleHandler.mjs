@@ -212,6 +212,7 @@ export default class DDBMuleHandler {
           enableSummons: true,
           addToCompendiums: true,
           compendiumImportTypes: ["classes", "features", "subclasses", "feats"],
+          isMuncher: true,
         });
         ddbCharacter.source = { ddb: newStub };
         await ddbCharacter.process();
@@ -264,6 +265,7 @@ export default class DDBMuleHandler {
         enableSummons: true,
         addToCompendiums: true,
         compendiumImportTypes: ["feats"],
+        isMuncher: true,
       });
       ddbCharacter.source = { ddb: newStub };
       await ddbCharacter.process();
@@ -324,6 +326,7 @@ export default class DDBMuleHandler {
         enableSummons: true,
         addToCompendiums: true,
         compendiumImportTypes: ["backgrounds", "feats"],
+        isMuncher: true,
       });
       ddbCharacter.source = { ddb: newStub };
       await ddbCharacter.process();
