@@ -352,21 +352,36 @@ export default class DDBFeature extends DDBFeatureMixin {
   async buildBackgroundFeatAdvancements(extraFeatIds = []) {
     const characterFeatIds = foundry.utils.getProperty(this.ddbData, "character.background.definition.featList.featIds") ?? [];
     const featIds = extraFeatIds.concat(characterFeatIds);
+
+    // console.warn("BACKGROUND FEAT", {
+    //   this: this,
+    //   extraFeatIds,
+    //   featIds,
+    // })
+
     if (featIds.length === 0) return;
 
     const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
     const indexFilter = {
       fields: [
         "name",
-        "flags.ddbimporter.featId",
+        "flags.ddbimporter.id",
       ],
     };
     const compendium = CompendiumHelper.getCompendiumType("feats", false);
     if (compendium) await compendium.getIndex(indexFilter);
 
     const feats = compendium
-      ? compendium.index.filter((f) => featIds.includes(foundry.utils.getProperty(f, "flags.ddbimporter.featId")))
+      ? compendium.index.filter((f) => featIds.includes(foundry.utils.getProperty(f, "flags.ddbimporter.id")))
       : [];
+
+    // console.warn("BACKGROUND FEAT", {
+    //   this: this,
+    //   extraFeatIds,
+    //   feats,
+    //   compendium,
+    //   featIds,
+    // });
 
     advancement.updateSource({
       configuration: {

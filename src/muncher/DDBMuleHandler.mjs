@@ -27,6 +27,8 @@ export default class DDBMuleHandler {
 
   backgroundId = null;
 
+  ddbMuncher = null;
+
   constructor({
     characterId,
     classId,
@@ -36,6 +38,7 @@ export default class DDBMuleHandler {
     filterIds = [],
     cleanup = true,
     backgroundId = null,
+    ddbMuncher = null,
   } = {}) {
     if (!characterId) {
       throw new Error("characterId is required");
@@ -52,6 +55,7 @@ export default class DDBMuleHandler {
     this.cleanup = cleanup;
     this.backgroundId = backgroundId;
     foundry.utils.setProperty(CONFIG, `DDB.MULE.${this.type}`, this);
+    this.ddbMuncher = ddbMuncher;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -63,10 +67,12 @@ export default class DDBMuleHandler {
   notifier({ progress, section, message } = { }) {
     // Notify the user about the import progress
     if (progress) {
-      logger.info(`${progress.current}/${progress.total} : ${message}`);
+      const builtMessage = `${progress.current}/${progress.total} : ${message}`;
+      logger.info(builtMessage);
     } else {
       logger.info(`${message}`);
     }
+    this.ddbMuncher?.notifierV2({ progress, section, message });
   }
 
   get URL() {
@@ -287,7 +293,7 @@ export default class DDBMuleHandler {
     let current = 1;
 
     logger.debug(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
-    console.error(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
+    // console.error(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
     for (const backgroundData of this.source.backgroundOptions) {
       this.notifier({
         progress: { current, total },
@@ -297,12 +303,12 @@ export default class DDBMuleHandler {
       foundry.utils.mergeObject(newStub.character, backgroundData.backgroundResponse.data);
       foundry.utils.mergeObject(newStub.character, (backgroundData.backgroundChoices.slice(-1)?.data ?? null));
 
-      console.warn(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
-        newStub,
-        backgroundData,
-        current,
-        total,
-      });
+      // console.warn(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
+      //   newStub,
+      //   backgroundData,
+      //   current,
+      //   total,
+      // });
       logger.debug(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
         newStub,
         backgroundData,
@@ -361,6 +367,7 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
     });
+    this.notifier({ message: `Munch Complete for Feats` });
   }
 
   static async munchBackgrounds({ characterId, sources, homebrew, filterIds } = {}) {
@@ -375,13 +382,14 @@ export default class DDBMuleHandler {
 
     await muleHandler.process();
 
-    console.warn("Munch Complete", {
+    logger.debug("Munch Complete", {
       characterId,
       muleHandler,
       filterIds,
       sources,
       homebrew,
     });
+    this.notifier({ message: `Munch Complete for Backgrounds` });
   }
 
 
@@ -389,7 +397,7 @@ export default class DDBMuleHandler {
     const muleHandler = new DDBMuleHandler({ classId, characterId, sources, homebrew, type: "class", filterIds });
     await muleHandler.process();
 
-    console.warn("Munch Complete", {
+    logger.debug("Munch Complete", {
       classId,
       characterId,
       muleHandler,
@@ -397,6 +405,7 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
     });
+    this.notifier({ message: `Munch Complete for Classes` });
   }
 
   static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds } = {}) {
@@ -418,11 +427,11 @@ export default class DDBMuleHandler {
       classList,
       filterIds,
     });
+    this.notifier({ message: `Munch Complete for Full Classes` });
   }
 
   // TODO:
   // Infusions
-  // Background feats
   // Subclass features
   // class granted spells
   // Species
