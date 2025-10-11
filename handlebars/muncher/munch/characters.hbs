@@ -6,17 +6,24 @@
 
   <fieldset>
     <legend>Character Options Import</legend>
-    <p>In previous versions of DDB Importer you could bulk import species, classes, feats and backgrounds. This will return.</p>
+    <p>Please import Feats before Backgrounds and Classes/Class Features.</p>
 
-    <p>DDB Importer works best (and always has) importing characters pre-built from DDB. If you really want to build your characters in Foundry, please see below. There is also the <a href="https://foundryvtt.com/packages/dnd-players-handbook">official foundry modules</a>.</p>
+    <p>Character Option is currently in Alpha Testing for God Tier Patreon Supporters. It will be coming to Undying Tier soon. For more details see the Patreon Post.</p>
 
-    <p>There is a new option in the Character Import Options settings to import to compendiums. This imports classes (level 20 characters only), features, feats, backgrounds, species and traits into the relevant DDB Importer compendiums. Please note, these will use a different structure to compendiums created in earlier versions of the software and D&D Systems. Classes, subclasses and features now go into the DDB Classes compendium. Species and Traits now go into the DDB Species compendium.</p>
+  </fieldset>
 
-    <p>You may need to tweak some of these, and it will generally only select chosen options on a character.</p>
+  <fieldset>
+    <button data-action="parseFeats" type="button" id="munch-feats-start" class="munch-button"
+      {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Feat Munch</button>
 
-    <p>Bulk Imports will return later in 2025. I'm unwilling to give a firm answer right now.For the latest information on this feature, please see the <a href="https://docs.ddb.mrprimate.co.uk/docs/faqs/ddb-importer-2024#how-long-till-i-can-import-backgrounds-features-species-and-classes-into-compendiums">FAQ?</a></p>
+    <button data-action="parseBackgrounds" type="button" id="munch-backgrounds-start" class="munch-button"
+      {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Background Munch</button>
 
-    <p><i>Why?</i> The 5e system made significant changes to the 5e system to coincide with the 2024 rules release. My efforts have been focused on ensuring that content imports correctly with the changes to both Foundry and D&D Beyond in this time. The previous offerings, were, not so good, mostly importing the feature text and no functionality, when they return it will be with much improved parsing.</p>
+    <button data-action="parseClasses" type="button" id="munch-classes-start" class="munch-button"
+      {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Class Munch</button>
+
+    <button data-action="parseSpecies" type="button" id="munch-species-start" class="munch-button"
+      disabled>Species Munch - Coming soon</button>
   </fieldset>
 
 </section>

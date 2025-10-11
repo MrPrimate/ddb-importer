@@ -22,6 +22,8 @@ import DDBAppV2 from "./DDBAppV2.js";
 import DDBEncounterFactory from "../parser/DDBEncounterFactory.js";
 import DDBDebugger from "./DDBDebugger.mjs";
 import { SETTINGS } from "../config/_module.mjs";
+import { parse } from "../parser/lib/DDBTemplateStrings.mjs";
+import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -61,6 +63,10 @@ export default class DDBMuncher extends DDBAppV2 {
       importEncounter: DDBMuncher.importEncounter,
       openDebug: DDBMuncher.openDebug,
       regenerateStorage: DDBMuncher.regenerateStorage,
+      parseFeats: DDBDebugger.parseFeats,
+      parseBackgrounds: DDBDebugger.parseBackgrounds,
+      parseClasses: DDBDebugger.parseClasses,
+      parseSpecies: DDBDebugger.parseSpecies,
     },
     position: {
       width: "800",
@@ -442,10 +448,10 @@ export default class DDBMuncher extends DDBAppV2 {
     }
     if (tiers.supporter) {
       buttonSelectors.push('button[id^="munch-frames-start"]');
-      // $('button[id^="munch-races-start"]').prop('disabled', false);
-      // $('button[id^="munch-feats-start"]').prop('disabled', false);
-      // $('button[id^="munch-classes-start"]').prop('disabled', false);
-      // $('button[id^="munch-backgrounds-start"]').prop('disabled', false);
+      // buttonSelectors.push('button[id^="munch-species-start"]');
+      buttonSelectors.push('button[id^="munch-feats-start"]');
+      buttonSelectors.push('button[id^="munch-classes-start"]');
+      buttonSelectors.push('button[id^="munch-backgrounds-start"]');
     }
     if (tiers.experimentalMid) {
       buttonSelectors.push('button[id^="munch-vehicles-start"]');
@@ -536,6 +542,83 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       const result = await DDBFrameImporter.parseFrames();
       this.notifier(`Finished importing ${result.length} frames!`, { nameField: true });
+      this.notifier("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  async parseWithMule(type) {
+
+    // get character id
+    // get homebrew
+    // determine source books per category
+    // filter by selected source book if needed
+    const sources = [1, 2, 148, 145];
+    const options = {
+      characterId: "",
+      homebrew: false,
+      sources,
+    };
+
+    // call DDMuleHandler
+
+  }
+
+  static async parseFeats(_event, _target) {
+    try {
+      logger.info("Munching feats!");
+      this._disableButtons();
+      const result = null;
+      this.notifier(`Finished importing ${result.length} feats!`, { nameField: true });
+      this.notifier("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  static async parseBackgrounds(_event, _target) {
+    try {
+      logger.info("Munching backgrounds!");
+      this._disableButtons();
+      const result = null;
+      this.notifier(`Finished importing ${result.length} backgrounds!`, { nameField: true });
+      this.notifier("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  static async parseClasses(_event, _target) {
+    try {
+      logger.info("Munching classes!");
+      this._disableButtons();
+      const result = null;
+      this.notifier(`Finished importing ${result.length} classes!`, { nameField: true });
+      this.notifier("");
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+    } finally {
+      this._enableButtons();
+    }
+  }
+
+  static async parseSpecies(_event, _target) {
+    try {
+      logger.info("Munching species!");
+      this._disableButtons();
+      const result = null;;
+      this.notifier(`Finished importing ${result.length} species!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);

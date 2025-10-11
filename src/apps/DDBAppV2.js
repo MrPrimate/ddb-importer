@@ -176,6 +176,49 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     logger.debug(`Munching: ${note}`, { message, isError, monsterNote, nameField });
   }
 
+  notifierV2({ progress, section = "note", message, suppress = false, isError = false,
+    clear = false } = {},
+  ) {
+    const builtMessage = progress ? `${progress.current}/${progress.total} : ${message}` : message;
+    if (!suppress) logger.info(builtMessage);
+    if (!this.element) {
+      logger.info("PreRenderNote:", { progress, section, message, suppress, isError });
+      return;
+    }
+
+    const importProgressElement = this.element.querySelector(".import-progress");
+    const ddbOverlayElement = this.element.querySelector(".ddb-overlay");
+    const progressElement = this.element.querySelector(".munching-progress-bar");
+
+    let messageClass;
+    switch (section) {
+      case "note":
+        messageClass = "munching-task-note";
+        break;
+      case "monster":
+        messageClass = "munching-task-monster";
+        break;
+      // no default
+    }
+
+    const messageElement = this.element.querySelector(`#${messageClass}`);
+    if (messageElement && message) {
+      messageElement.textContent = message;
+      messageElement.style.height = "auto";
+    }
+
+    if (progress) {
+      importProgressElement.classList.removeClass('munching-hidden');
+      ddbOverlayElement.classList.removeClass('munching-invalid');
+      progressElement.style.width = `${Math.trunc((progress.current / progress.total) * 100)}%`;
+    }
+
+    if (clear) {
+      // clear logic here
+      importProgressElement.classList.addClass('munching-hidden');
+      ddbOverlayElement.classList.addClass('munching-invalid');
+    }
+
+  }
 
 }
-
