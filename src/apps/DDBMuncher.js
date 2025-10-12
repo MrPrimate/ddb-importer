@@ -561,14 +561,26 @@ export default class DDBMuncher extends DDBAppV2 {
     // get homebrew
     // determine source books per category
     // filter by selected source book if needed
-    const sources = [1, 2, 148, 145];
-    const options = {
-      characterId: "",
+    const baseOptions = {
+      characterId: "65544243",
       homebrew: false,
-      sources,
+      type,
+      ddbMuncher: this,
     };
 
-    // call DDMuleHandler
+    const sourceIdArrays = [[1, 2], [148, 145]];
+
+    for (const sourceIdArray of sourceIdArrays) {
+      const options = foundry.utils.deepClone(baseOptions);
+      options.sources = sourceIdArray;
+      const muleHandler = new DDBMuleHandler(options);
+      await muleHandler.process();
+
+      logger.debug("Munch Complete", {
+        muleHandler,
+        options: foundry.utils.deepClone(options),
+      });
+    }
 
   }
 
