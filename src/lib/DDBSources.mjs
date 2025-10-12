@@ -293,6 +293,12 @@ export default class DDBSources {
       .map((source) => source.id);
   }
 
+  static getAllowedSourceCategoryIds() {
+    const sourceSet = new Set(DDBSources.getAllowedSources()
+      .map((source) => source.sourceCategoryId));
+    return Array.from(sourceSet);
+  }
+
   // sources to use in ui
   static getDisplaySources() {
     const excludedIds = [...DDBSources.AlwaysExcludedCategoryIds, ...DDBSources.AlwaysHiddenCategoryIds];
@@ -331,6 +337,16 @@ export default class DDBSources {
     sourcesNotExcluded.forEach((s) => allowedSourceIds.add(s.id));
 
     await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", Array.from(allowedSourceIds).map((id) => parseInt(id)));
+  }
+
+  static getBooksInCategories(categoryIds) {
+    const books = CONFIG.DDB.sources.filter((book) => categoryIds.includes(book.sourceCategoryId));
+    return books;
+  }
+
+  static getBookIdsInCategories(categories) {
+    const books = DDBSources.getBooksInCategories(categories);
+    return books.map((book) => book.id);
   }
 
 }

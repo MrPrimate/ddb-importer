@@ -290,7 +290,7 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     });
 
-    this.element.querySelector("input[name=dndbeyond-url]").addEventListener('input', async (event) => {
+    this.element.querySelector("input[name=muncher-character-url]").addEventListener('input', async (event) => {
       await this.#handleURLUpdate(event);
     });
 
@@ -566,19 +566,19 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   async parseWithMule(type) {
-
-    // get character id
-    // get homebrew
-    // determine source books per category
-    // filter by selected source book if needed
     const baseOptions = {
-      characterId: "65544243",
-      homebrew: false,
+      characterId: this.characterId,
+      homebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew"),
       type,
       ddbMuncher: this,
     };
 
-    const sourceIdArrays = [[1, 2], [148, 145]];
+    const sourceIdArrays = [];
+    const sourceCategoryIds = await DDBSources.getAllowedSourceCategoryIds();
+
+    for (const sourceCategoryId of sourceCategoryIds) {
+      sourceIdArrays.push(DDBSources.getBookIdsInCategories(sourceCategoryId));
+    }
 
     for (const sourceIdArray of sourceIdArrays) {
       const options = foundry.utils.deepClone(baseOptions);
