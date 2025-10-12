@@ -5,11 +5,37 @@
   </fieldset>
 
   <fieldset>
-    <legend>Character Options Import</legend>
+    <legend>Details</legend>
     <p>Please import Feats before Backgrounds and Classes/Class Features.</p>
 
     <p>Character Option is currently in Alpha Testing for God Tier Patreon Supporters. It will be coming to Undying Tier soon. For more details see the Patreon Post.</p>
 
+  </fieldset>
+
+  <fieldset>
+    <legend>Character URL</legend>
+    To import characters you need to sacrifice a character to the Old Gods.
+    This character will be adjusted wiped and left in an empty state. Please don't use a beloved character.
+
+    <div class="form-caption">
+      URL <span class="dndbeyond-url-status">{{#if muleURL}}<i
+          class="fas fa-check-circle" style="color: green"></i>{{else}}<i></i>{{/if}}</span>
+    </div>
+    <div class="form-content" style="display: flex">
+      <input type="text" name="dndbeyond-url" style="flex: 0 1 auto" ;
+        value="{{#if muleURL}}{{muleURL}}{{/if}}" />
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Options Character URL</legend>
+    <div class="form-group">
+      <label>Include Homebrew?</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="munching-policy-character-fetch-homebrew" id="munching-policy-character-fetch-homebrew"
+        {{#if this.useCharacterHomebrew}}checked{{/if}} data-section="munching-policy-character-fetch-homebrew" ></dnd5e-checkbox>
+      </div>
+    </div>
   </fieldset>
 
   <fieldset>

@@ -23,6 +23,7 @@ import DDBEncounterFactory from "../parser/DDBEncounterFactory.js";
 import DDBDebugger from "./DDBDebugger.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
+import DDBCharacter from "../parser/DDBCharacter.js";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -37,6 +38,8 @@ export default class DDBMuncher extends DDBAppV2 {
     this.searchTermMonster = "";
     this.searchTermItem = "";
     this.searchTermSpell = "";
+    this.muleURL = "";
+    this.characterId = null;
   }
 
 
@@ -287,6 +290,10 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     });
 
+    this.element.querySelector("input[name=dndbeyond-url]").addEventListener('input', async (event) => {
+      await this.#handleURLUpdate(event);
+    });
+
   }
 
 
@@ -386,6 +393,9 @@ export default class DDBMuncher extends DDBAppV2 {
     context.searchTermMonster = this.searchTermMonster;
     context.searchTermItem = this.searchTermItem;
     context.searchTermSpell = this.searchTermSpell;
+    context.muleURL = this.muleURL;
+    context.characterId = this.characterId;
+    context.useCharacterHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -585,6 +595,10 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async parseFeats(_event, _target) {
+    if (!this.characterId) {
+      ui.notifications.error("You must enter a valid D&D Beyond character URL to import feats.");
+      return;
+    }
     try {
       logger.info("Munching feats!");
       this._disableButtons();
@@ -600,6 +614,10 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async parseBackgrounds(_event, _target) {
+    if (!this.characterId) {
+      ui.notifications.error("You must enter a valid D&D Beyond character URL to import backgrounds.");
+      return;
+    }
     try {
       logger.info("Munching backgrounds!");
       this._disableButtons();
@@ -615,6 +633,10 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async parseClasses(_event, _target) {
+    if (!this.characterId) {
+      ui.notifications.error("You must enter a valid D&D Beyond character URL to import classes.");
+      return;
+    }
     try {
       logger.info("Munching classes!");
       this._disableButtons();
@@ -630,6 +652,10 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async parseSpecies(_event, _target) {
+    if (!this.characterId) {
+      ui.notifications.error("You must enter a valid D&D Beyond character URL to import species.");
+      return;
+    }
     try {
       logger.info("Munching species!");
       this._disableButtons();
@@ -822,6 +848,32 @@ export default class DDBMuncher extends DDBAppV2 {
 
   static async regenerateStorage(_event, _target) {
     await DDBImporter.createStorage();
+  }
+
+  async #handleURLUpdate(event) {
+    let URL = event.currentTarget.value;
+    const characterId = DDBCharacter.getCharacterId(URL);
+    this.muleURL = URL;
+    this.characterId = characterId;
+
+    const status = this.element.querySelector(".ddb-muncher .dndbeyond-url-status i");
+
+    if (URL === "") {
+      status.classList.remove("fa-exclamation-triangle");
+      status.classList.remove("fa-check-circle");
+      status.classList.remove("fas");
+      status.style.color = "";
+    } else if (characterId) {
+      status.classList.add("fas");
+      status.classList.remove("fa-exclamation-triangle");
+      status.classList.add("fa-check-circle");
+      status.style.color = "green";
+    } else {
+      this.showCurrentTask("URL format incorrect", { message: "That seems not to be the URL we expected...", isError: true });
+      status.classList.add("fa-exclamation-triangle");
+      status.classList.remove("fa-check-circle");
+      status.style.color = "red";
+    }
   }
 
 }
