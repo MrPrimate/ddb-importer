@@ -187,7 +187,6 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     }
 
     const importProgressElement = this.element.querySelector(".import-progress");
-    const ddbOverlayElement = this.element.querySelector(".ddb-overlay");
     const progressElement = this.element.querySelector(".munching-progress-bar");
 
     let messageClass;
@@ -209,14 +208,12 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
 
     if (progress) {
       importProgressElement.classList.removeClass('munching-hidden');
-      ddbOverlayElement.classList.removeClass('munching-invalid');
       progressElement.style.width = `${Math.trunc((progress.current / progress.total) * 100)}%`;
     }
 
     if (clear) {
       // clear logic here
       importProgressElement.classList.addClass('munching-hidden');
-      ddbOverlayElement.classList.addClass('munching-invalid');
     }
 
   }

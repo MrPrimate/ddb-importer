@@ -22,7 +22,6 @@ import DDBAppV2 from "./DDBAppV2.js";
 import DDBEncounterFactory from "../parser/DDBEncounterFactory.js";
 import DDBDebugger from "./DDBDebugger.mjs";
 import { SETTINGS } from "../config/_module.mjs";
-import { parse } from "../parser/lib/DDBTemplateStrings.mjs";
 import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
 
 
@@ -63,10 +62,10 @@ export default class DDBMuncher extends DDBAppV2 {
       importEncounter: DDBMuncher.importEncounter,
       openDebug: DDBMuncher.openDebug,
       regenerateStorage: DDBMuncher.regenerateStorage,
-      parseFeats: DDBDebugger.parseFeats,
-      parseBackgrounds: DDBDebugger.parseBackgrounds,
-      parseClasses: DDBDebugger.parseClasses,
-      parseSpecies: DDBDebugger.parseSpecies,
+      parseFeats: DDBMuncher.parseFeats,
+      parseBackgrounds: DDBMuncher.parseBackgrounds,
+      parseClasses: DDBMuncher.parseClasses,
+      parseSpecies: DDBMuncher.parseSpecies,
     },
     position: {
       width: "800",
@@ -419,6 +418,8 @@ export default class DDBMuncher extends DDBAppV2 {
         button.disabled = true;
       });
     });
+    const progressElement = this.element.querySelector(".ddb-overlay");
+    if (progressElement) progressElement.classList.remove("munching-invalid");
   }
 
   _enableButtons() {
@@ -463,6 +464,9 @@ export default class DDBMuncher extends DDBAppV2 {
         button.disabled = false;
       });
     });
+
+    const progressElement = this.element.querySelector(".ddb-overlay");
+    if (progressElement) progressElement.classList.add("munching-invalid");
   }
 
   static async parseMonsters(_event, _target) {
@@ -617,7 +621,7 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching species!");
       this._disableButtons();
-      const result = null;;
+      const result = null;
       this.notifier(`Finished importing ${result.length} species!`, { nameField: true });
       this.notifier("");
     } catch (error) {
@@ -641,11 +645,11 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async importAdventure(_event, _target) {
+    const progressElement = this.element.querySelector(".import-progress");
     try {
       logger.info("Generating adventure config!");
       this._disableButtons();
-      $(".import-progress").toggleClass("import-hidden");
-      $(".ddb-overlay").toggleClass("import-invalid");
+      if (progressElement) progressElement.classList.remove("muncher-hidden");
 
       const adventureMuncher = new AdventureMunch({
         importFile: this.element.querySelector(`#munch-adventure-file`).files[0],
@@ -658,7 +662,7 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.error(error);
       logger.error(error.stack);
     } finally {
-      $(".ddb-overlay").toggleClass("import-invalid");
+      if (progressElement) progressElement.classList.add("muncher-hidden");
       this._enableButtons();
     }
   }

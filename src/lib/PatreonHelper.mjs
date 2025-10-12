@@ -18,6 +18,7 @@ const PatreonHelper = {
     let validKey = false;
 
     const key = overrideKey ?? PatreonHelper.getPatreonKey(local);
+    // console.warn("Checking key validity", { key, local, overrideKey });
     if (key === "") {
       validKey = true;
     } else {
@@ -130,6 +131,8 @@ const PatreonHelper = {
     if (DDBProxy.isCustom(true)) return { success: true, message: "custom proxy", data: true };
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: betaKey };
+
+    // console.warn("Validating key", { betaKey, parsingApi });
 
     return new Promise((resolve, reject) => {
       fetch(`${parsingApi}/patreon/valid`, {
