@@ -88,6 +88,7 @@ export const PARSING_FEATURES = {
     "Rage",
     "Mantle of Majesty",
     "Unarmored Movement",
+    "Brand of Castigation",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",

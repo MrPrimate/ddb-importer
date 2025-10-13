@@ -1567,6 +1567,13 @@ export default class DDBClass {
   };
 
   async _addToCompendium() {
+    // console.warn("add to compendium", {
+    //   addToCompendium: this.addToCompendium,
+    //   compendiumImportTypes: this.compendiumImportTypes,
+    //   ddbClassLevel: this.ddbClass.level,
+    //   import: this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t)),
+    //   level20: this.ddbClass.level === 20,
+    // });
     if (!this.addToCompendium) return;
     if (!this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t))) return;
 

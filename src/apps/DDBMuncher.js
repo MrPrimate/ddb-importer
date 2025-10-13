@@ -7,6 +7,7 @@ import {
   DDBCompendiumFolders,
   DDBSources,
   DDBCampaigns,
+  utils,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
@@ -565,33 +566,94 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async parseWithMule(type) {
+
+  async _parseClassesWithMule() {
+    this.autoRotateMessage("class");
+    const baseOptions = {
+      characterId: this.characterId,
+      homebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew"),
+      type: "class",
+      ddbMuncher: this,
+    };
+    const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
+
+    try {
+      for (const sourceIdArray of sourceIdArrays) {
+        const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
+        const options = foundry.utils.deepClone(baseOptions);
+        options.sources = sourceIdArray.sourceIds;
+
+        const classList = await DDBMuleHandler.getList("class", options.sources);
+
+        for (const klass of classList) {
+          this.autoRotateMessage("class", klass.name.toLowerCase());
+          logger.info(`Munching class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`);
+          options.classId = klass.id;
+          const muleHandler = new DDBMuleHandler(options);
+          this.notifierV2({
+            section: "name",
+            message: `Munching for ${klass.name} from ${sourceIdArray.sourceIds.length} sources in ${category?.name ?? sourceIdArray.categoryId}...`,
+          });
+          await muleHandler.process();
+
+          logger.debug(`Munch Complete for class ${klass.name} in ${category?.name ?? sourceIdArray.categoryId}`, {
+            muleHandler,
+            sources: sourceIdArray,
+            options: foundry.utils.deepClone(options),
+          });
+        }
+      }
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+      this.notifier(`Error during munching: ${error.message}`, { nameField: true });
+    } finally {
+      this.stopAutoRotateMessage();
+    }
+  }
+
+  async _parseSpeciesWithMule() {
+    this.notifierV2({
+      section: "name",
+      message: `Munching species is not yet supported via the Mule. Please use the DDB Importer Character Importer instead.`,
+    });
+  }
+
+  async _parseWithMule(type) {
+    this.autoRotateMessage(type);
     const baseOptions = {
       characterId: this.characterId,
       homebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew"),
       type,
       ddbMuncher: this,
     };
+    const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
-    const sourceIdArrays = [];
-    const sourceCategoryIds = await DDBSources.getAllowedSourceCategoryIds();
+    try {
+      for (const sourceIdArray of sourceIdArrays) {
+        const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
+        const options = foundry.utils.deepClone(baseOptions);
+        options.sources = sourceIdArray.sourceIds;
+        const muleHandler = new DDBMuleHandler(options);
+        this.notifierV2({
+          section: "name",
+          message: `Munching from ${sourceIdArray.sourceIds.length} sources in ${category?.name ?? sourceIdArray.categoryId}...`,
+        });
+        await muleHandler.process();
 
-    for (const sourceCategoryId of sourceCategoryIds) {
-      sourceIdArrays.push(DDBSources.getBookIdsInCategories(sourceCategoryId));
+        logger.debug(`Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
+          muleHandler,
+          sources: sourceIdArray,
+          options: foundry.utils.deepClone(options),
+        });
+      }
+    } catch (error) {
+      logger.error(error);
+      logger.error(error.stack);
+      this.notifier(`Error during munching: ${error.message}`, { nameField: true });
+    } finally {
+      this.stopAutoRotateMessage();
     }
-
-    for (const sourceIdArray of sourceIdArrays) {
-      const options = foundry.utils.deepClone(baseOptions);
-      options.sources = sourceIdArray;
-      const muleHandler = new DDBMuleHandler(options);
-      await muleHandler.process();
-
-      logger.debug("Munch Complete", {
-        muleHandler,
-        options: foundry.utils.deepClone(options),
-      });
-    }
-
   }
 
   static async parseFeats(_event, _target) {
@@ -602,8 +664,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching feats!");
       this._disableButtons();
-      const result = null;
-      this.notifier(`Finished importing ${result.length} feats!`, { nameField: true });
+      await this._parseWithMule("feat");
+      this.notifier(`Finished importing feats!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);
@@ -621,8 +683,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching backgrounds!");
       this._disableButtons();
-      const result = null;
-      this.notifier(`Finished importing ${result.length} backgrounds!`, { nameField: true });
+      await this._parseWithMule("background");
+      this.notifier(`Finished importing backgrounds!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);
@@ -640,8 +702,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching classes!");
       this._disableButtons();
-      const result = null;
-      this.notifier(`Finished importing ${result.length} classes!`, { nameField: true });
+      await this._parseClassesWithMule();
+      this.notifier(`Finished importing classes!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);
@@ -659,8 +721,8 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching species!");
       this._disableButtons();
-      const result = null;
-      this.notifier(`Finished importing ${result.length} species!`, { nameField: true });
+      await this._parseSpeciesWithMule();
+      this.notifier(`Finished importing species!`, { nameField: true });
       this.notifier("");
     } catch (error) {
       logger.error(error);

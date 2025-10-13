@@ -1,3 +1,4 @@
+import { DICTIONARY } from "../config/_module.mjs";
 import {
   logger,
 } from "../lib/_module.mjs";
@@ -176,7 +177,28 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     logger.debug(`Munching: ${note}`, { message, isError, monsterNote, nameField });
   }
 
-  notifierV2({ progress, section = "note", message, suppress = false, isError = false,
+  // eslint-disable-next-line class-methods-use-this
+  getMessageClass(section) {
+    let messageClass;
+    switch (section) {
+      case "level3":
+      case "note":
+        messageClass = "munching-task-note";
+        break;
+      case "level2":
+      case "monster":
+        messageClass = "munching-task-monster";
+        break;
+      case "level1":
+      case "name":
+        messageClass = "munching-task-name";
+        break;
+      // no default
+    }
+    return messageClass;
+  }
+
+  notifierV2({ progress, section = "note", message = "", suppress = false, isError = false,
     clear = false } = {},
   ) {
     const builtMessage = progress ? `${progress.current}/${progress.total} : ${message}` : message;
@@ -186,36 +208,68 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
       return;
     }
 
-    const importProgressElement = this.element.querySelector(".import-progress");
-    const progressElement = this.element.querySelector(".munching-progress-bar");
-
-    let messageClass;
-    switch (section) {
-      case "note":
-        messageClass = "munching-task-note";
-        break;
-      case "monster":
-        messageClass = "munching-task-monster";
-        break;
-      // no default
-    }
+    const importProgressElement = this.element.querySelector(".munching-progress");
+    const barElement = this.element.querySelector(".munching-progress-bar");
+    const messageClass = this.getMessageClass(section);
 
     const messageElement = this.element.querySelector(`#${messageClass}`);
-    if (messageElement && message) {
-      messageElement.textContent = message;
+    if (messageElement) {
+      messageElement.textContent = builtMessage;
       messageElement.style.height = "auto";
     }
 
-    if (progress) {
-      importProgressElement.classList.removeClass('munching-hidden');
-      progressElement.style.width = `${Math.trunc((progress.current / progress.total) * 100)}%`;
+    if (progress && importProgressElement) {
+      importProgressElement.classList.remove('munching-hidden');
+      barElement.style.width = `${Math.trunc((progress.current / progress.total) * 100)}%`;
+
+      if (clear && barElement) {
+        // clear logic here
+        importProgressElement.classList.add('munching-hidden');
+      }
     }
 
-    if (clear) {
-      // clear logic here
-      importProgressElement.classList.addClass('munching-hidden');
+  }
+
+  intervalId = null;
+
+  autoRotateMessage(category, subcategory = null, intervalMs = 5000) {
+    if (this.intervalId) this.stopAutoRotateMessage();
+    let messages;
+
+    if (subcategory) {
+      messages = DICTIONARY.messages.loading[category][subcategory];
+    } else {
+      messages = DICTIONARY.messages.loading[category];
     }
 
+    this.notifierV2({
+      section: "level2",
+      message: "This is going to take a significant amount of time...",
+      suppress: true,
+    });
+
+    // Rotate messages at interval
+    const intervalId = setInterval(() => {
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      this.notifierV2({
+        section: "level2",
+        message: randomMessage,
+        suppress: true,
+      });
+    }, intervalMs);
+
+    // Return interval ID so you can stop it later
+    this.intervalId = intervalId;
+    return intervalId;
+  }
+
+  stopAutoRotateMessage() {
+    console.error("Stopping auto rotate message");
+    if (!this.intervalId) return;
+    clearInterval(this.intervalId);
+    console.error("Stopped auto rotate message");
+    this.notifierV2({ section: "level2", message: "", suppress: true, clear: true });
+    this.intervalId = null;
   }
 
 }

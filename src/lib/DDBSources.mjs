@@ -349,4 +349,20 @@ export default class DDBSources {
     return books.map((book) => book.id);
   }
 
+  static getChosenCategoriesAndBooks() {
+    const sourceIdArrays = [];
+    const sourceCategoryIds = DDBSources.getAllowedSourceCategoryIds();
+
+    for (const sourceCategoryId of sourceCategoryIds) {
+      const sourceIds = DDBSources.getBookIdsInCategories([sourceCategoryId]);
+      if (sourceIds.length === 0) continue;
+      sourceIdArrays.push({
+        categoryId: sourceCategoryId,
+        sourceIds,
+      });
+    }
+
+    return sourceIdArrays;
+  }
+
 }

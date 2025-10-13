@@ -269,7 +269,7 @@ export const LOADING_MESSAGES = {
       "Forked tongue: Speaking in binary to servers...",
     ],
   },
-  feats: [
+  feat: [
     "Parsing feat prerequisites...",
     "API call: Checking if you qualify for Great Weapon Master...",
     "Server says: 'Alert' feat grants +5 to initiative loading...",
@@ -291,7 +291,7 @@ export const LOADING_MESSAGES = {
     "Fetching Inspiring Leader data... temp HP for the server!",
     "Parsing Skulker feat: Hiding from timeout errors...",
   ],
-  backgrounds: [
+  background: [
     "Querying Acolyte background from temple database...",
     "Processing Criminal past... concealing request headers...",
     "Loading Folk Hero data: The servers tell tales of you...",

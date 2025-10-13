@@ -164,11 +164,12 @@ export default class DDBMuleHandler {
       foundry.utils.mergeObject(ddbStub.character, subClassData.data);
 
       // for the subclass we now loop through each class choice
-      console.warn(`Stub for subclass ${subClassData.debug.subClassId}:`, { ddbStub, subClassData });
+      // console.warn(`Stub for subclass ${subClassData.debug.subClassId}:`, { ddbStub, subClassData });
 
+      classCurrent++;
       this.notifier({
-        progress: { current: ++classCurrent, total: classTotal },
-        message: `Processing subclass ${subClassData.debug.subclassName}`,
+        // progress: { current: classCurrent, total: classTotal },
+        message: `Processing subclass ${subClassData.debug.subclassName} (${classCurrent} of ${classTotal})`,
       });
 
       const options = {
@@ -189,22 +190,22 @@ export default class DDBMuleHandler {
 
       const total = filteredSubClassChoices.length;
       let current = 0;
-      console.warn(`Processing ${total} subclass choices for subclass ${subClassData.debug.subclassName}`, { filteredSubClassChoices });
+      // console.warn(`Processing ${total} subclass choices for subclass ${subClassData.debug.subclassName}`, { filteredSubClassChoices });
       for (const subClassChoiceData of filteredSubClassChoices) {
         current++;
         this.notifier({
-          progress: { current, total },
+          // progress: { current, total },
           message: `Processing subclass choice set for ${subClassData.debug.subclassName} (${current} of ${total})`,
         });
         const newStub = foundry.utils.deepClone(ddbStub);
         foundry.utils.mergeObject(newStub.character, subClassChoiceData.data);
 
-        console.error(`Processing subclass choice set for ${subClassData.debug.subclassName} (${current} of ${total})`, {
-          newStub,
-          subClassChoiceData,
-          current,
-          total,
-        });
+        // console.error(`Processing subclass choice set for ${subClassData.debug.subclassName} (${current} of ${total})`, {
+        //   newStub,
+        //   subClassChoiceData,
+        //   current,
+        //   total,
+        // });
         const ddbCharacter = new DDBCharacter({
           currentActor: mockCharacter,
           characterId: this.characterId,
@@ -244,7 +245,7 @@ export default class DDBMuleHandler {
     for (const featData of this.source.featOptions) {
       count += featData.data.feats.length;
       this.notifier({
-        progress: { current: `${current} - ${count}`, total },
+        // progress: { current: `${current} - ${count}`, total },
         message: `Processing feats ${current} - ${count} of ${total}`,
       });
       const newStub = foundry.utils.deepClone(ddbStub);
@@ -298,7 +299,7 @@ export default class DDBMuleHandler {
     // console.error(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
     for (const backgroundData of this.source.backgroundOptions) {
       this.notifier({
-        progress: { current, total },
+        // progress: { current, total },
         message: `Processing backgrounds ${current} of ${total}`,
       });
       const newStub = foundry.utils.deepClone(ddbStub);
@@ -370,7 +371,6 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
     });
-    // this.notifier({ message: `Munch Complete for Feats` });
   }
 
   static async munchBackgrounds({ characterId, sources, homebrew, filterIds } = {}) {
@@ -392,7 +392,6 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
     });
-    this.notifier({ message: `Munch Complete for Backgrounds` });
   }
 
 
@@ -408,7 +407,6 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
     });
-    // this.notifier({ message: `Munch Complete for Classes` });
   }
 
   static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds } = {}) {
@@ -430,7 +428,6 @@ export default class DDBMuleHandler {
       classList,
       filterIds,
     });
-    // this.notifier({ message: `Munch Complete for Full Classes` });
   }
 
   // TODO:
@@ -451,6 +448,7 @@ export default class DDBMuleHandler {
       campaignId: proxyCampaignId,
       betaKey: PatreonHelper.getPatreonKey(),
       sources: sources ?? [1, 2, 148, 145],
+      includeEquipment: false,
     };
 
     let urlPostfix;
@@ -484,7 +482,7 @@ export default class DDBMuleHandler {
     const data = await response.json();
 
     if (!data.success) {
-      logger.error(`Failure: ${data.message}`, { data});
+      logger.error(`Failure: ${data.message}`, { data });
       throw new Error(data.message);
     }
     return data.data;
