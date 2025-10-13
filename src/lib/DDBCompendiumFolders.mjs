@@ -22,7 +22,7 @@ export class DDBCompendiumFolders {
     this.vehicleFolders = {};
   }
 
-  constructor(type, { packName = null, noCreateClassFolders = false } = {}) {
+  constructor(type, { packName = null } = {}) {
     this.type = type;
     this.packName = packName;
     this.resetFolderLookups();
@@ -37,8 +37,6 @@ export class DDBCompendiumFolders {
     this.compendiumFolderTypeMonster = game.settings.get("ddb-importer", "munching-selection-compendium-folders-monster");
     this.compendiumFolderTypeSpell = game.settings.get("ddb-importer", "munching-selection-compendium-folders-spell");
     this.compendiumFolderTypeItem = game.settings.get("ddb-importer", "munching-selection-compendium-folders-item");
-
-    this.noCreateClassFolders = noCreateClassFolders;
   }
 
   async addCompendiumFolderIds(documents) {
@@ -649,27 +647,29 @@ export class DDBCompendiumFolders {
     return newFolder;
   }
 
-  async createFeatureFolder(className, name, parentId, { tagPrefix = "features", color = "#222222" } = {}) {
-    const flagTag = `${tagPrefix}/${className}/${name}`;
+  async createFeatureFolder(className, name, parentId, version, { tagPrefix = "features", color = "#222222" } = {}) {
+    const flagTag = `${version}/${tagPrefix}/${className}/${name}`;
     const folder = this.getFolder(name, flagTag)
       ?? (await this.createCompendiumFolder({ name, parentId, color, flagTag }));
     this.validFolderIds.push(folder._id);
     return folder;
   }
 
-  async createClassFolder(className) {
-    const classFolder = this.getFolder(className)
-      ?? (await this.createCompendiumFolder({ name: className }));
-    this.classFolders[className] = classFolder._id;
+  async createClassFolder(className, version = "") {
+    const flagTag = `${version}/${className}`;
+    const resolvedClassName = DDBCompendiumFolders.resolveVersionedName(className, version);
+    const classFolder = this.getFolder(resolvedClassName, flagTag)
+      ?? (await this.createCompendiumFolder({ name: resolvedClassName, flagTag }));
+    this.classFolders[resolvedClassName] = classFolder._id;
     this.validFolderIds.push(classFolder._id);
     return classFolder;
   }
 
-  async createClassFeatureFolder(className) {
+  async createClassFeatureFolder(className, version) {
     logger.debug(`Checking for class folder '${className}'`);
     const classFolderId = this.classFolders[className]
-      ?? (await this.createClassFolder(className))._id;
-    const flagTag = `features/${className}`;
+      ?? (await this.createClassFolder(className, version))._id;
+    const flagTag = `${version}/features/${className}`;
     const classFeaturesFolder = this.getFolder("Class Features", flagTag)
       ?? (await this.createCompendiumFolder({
         name: "Class Features",
@@ -679,32 +679,20 @@ export class DDBCompendiumFolders {
       }));
     this.validFolderIds.push(classFeaturesFolder._id);
 
-    await this.createFeatureFolder(className, "Optional Features", classFolderId);
+    await this.createFeatureFolder(className, "Optional Features", classFolderId, version);
 
     if (className === "Artificer") {
-      await this.createFeatureFolder(className, "Infusions", classFolderId);
+      await this.createFeatureFolder(className, "Infusions", classFolderId, version);
     } else if (className === "Sorcerer") {
-      await this.createFeatureFolder(className, "Metamagic", classFolderId);
+      await this.createFeatureFolder(className, "Metamagic", classFolderId, version);
     } else if (className === "Warlock") {
-      await this.createFeatureFolder(className, "Invocations", classFolderId);
-      await this.createFeatureFolder(className, "Packs", classFolderId);
+      await this.createFeatureFolder(className, "Invocations", classFolderId, version);
+      await this.createFeatureFolder(className, "Packs", classFolderId, version);
     }
   }
 
-  async createClassFeatureFolders() {
-    if (this.noCreateClassFolders) return;
-
-    const classNames = CONFIG.DDB.classConfigurations
-      .filter((c) => !c.name.includes("archived") && !c.name.includes("(UA)"))
-      .map((c) => c.name);
-
-    for (const className of classNames) {
-      await this.createClassFeatureFolder(className);
-    }
-  }
-
-  async createClassFeaturesHolderFolder(parentClassName, parentId) {
-    const subClassFlag = `features/subclass/${parentClassName}`;
+  async createClassFeaturesHolderFolder(parentClassName, parentId, version) {
+    const subClassFlag = `${version}/features/subclass/${parentClassName}`;
     const subClassFolder = this.getFolder("Subclass Features", subClassFlag)
         ?? (await this.createCompendiumFolder({
           name: "Subclass Features",
@@ -712,22 +700,31 @@ export class DDBCompendiumFolders {
           color: "#222222",
           flagTag: subClassFlag,
         }));
-    this.subClassFeaturesFolder[parentClassName] = subClassFolder._id;
+    const resolvedClassName = DDBCompendiumFolders.resolveVersionedName(parentClassName, version);
+    this.subClassFeaturesFolder[resolvedClassName] = subClassFolder._id;
     this.validFolderIds.push(subClassFolder._id);
     return subClassFolder;
   }
 
-  async createSubClassFeatureFolder(subclassName, parentClassName) {
-    logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}'`);
+  static resolveVersionedName(name, version) {
+    if (!version || version === "") return name;
+    if (name.includes(version)) return name;
+    if (version === "2024") return name;
+    return `${name} (${version})`;
+  }
 
-    const classFolderId = this.classFolders[parentClassName]
-     ?? (await this.createClassFolder(parentClassName))._id;
-    await this.createClassFeatureFolder(parentClassName);
-    const subClassFolderId = this.subClassFeaturesFolder[parentClassName]
-      ?? (await this.createClassFeaturesHolderFolder(parentClassName, classFolderId))._id;
+  async createSubClassFeatureFolder(subclassName, parentClassName, version) {
+    logger.debug(`Checking for Subclass folder '${subclassName}' with Parent Class '${parentClassName}' (${version})`);
+
+    const resolvedClassName = DDBCompendiumFolders.resolveVersionedName(parentClassName, version);
+    const classFolderId = this.classFolders[resolvedClassName]
+     ?? (await this.createClassFolder(parentClassName, version))._id;
+    await this.createClassFeatureFolder(parentClassName, version);
+    const subClassFolderId = this.subClassFeaturesFolder[resolvedClassName]
+      ?? (await this.createClassFeaturesHolderFolder(parentClassName, classFolderId, version))._id;
 
     // create actual folder
-    const flagTag = `features/${subclassName}`;
+    const flagTag = `${version}/features/${subclassName}`;
     const folder = this.getFolder(subclassName, flagTag)
       ?? (await this.createCompendiumFolder({
         name: `${subclassName}`,
@@ -738,9 +735,9 @@ export class DDBCompendiumFolders {
     this.validFolderIds.push(folder._id);
 
     if (parentClassName === "Fighter" && subclassName === "Battle Master") {
-      await this.createFeatureFolder(subclassName, "Maneuver Options", classFolderId);
+      await this.createFeatureFolder(subclassName, "Maneuver Options", classFolderId, version);
     } else if (parentClassName === "Fighter" && subclassName === "Rune Knight") {
-      await this.createFeatureFolder(subclassName, "Runes", classFolderId);
+      await this.createFeatureFolder(subclassName, "Runes", classFolderId, version);
     }
   }
 
@@ -826,7 +823,7 @@ export class DDBCompendiumFolders {
       flagTag: details.flagTag,
     });
     this.validFolderIds.push(newFolder._id);
-    this.backgroundFolders[details.name] = newFolder;
+    this.vehicleFolders[details.name] = newFolder;
     return newFolder;
   }
 
@@ -910,12 +907,6 @@ export class DDBCompendiumFolders {
             break;
           // no default
         }
-        break;
-      }
-      case "subclass":
-      case "subclasses":
-      case "features": {
-        await this.createClassFeatureFolders();
         break;
       }
       // others are created as needed
@@ -1111,6 +1102,7 @@ export class DDBCompendiumFolders {
       name: undefined,
       flagTag: "",
     };
+    const version = foundry.utils.getProperty(document, "system.source.rules");
     const subClassName = foundry.utils.getProperty(document, "flags.ddbimporter.subClass");
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
     const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
@@ -1122,32 +1114,32 @@ export class DDBCompendiumFolders {
 
     if (infusion) {
       result.name = "Infusions";
-      result.flagTag = `features/${className}/Infusions`;
+      result.flagTag = `${version}/features/${className}/Infusions`;
     } else if (optional) {
       result.name = "Optional Features";
-      result.flagTag = `features/${className}/Optional Features`;
+      result.flagTag = `${version}/features/${className}/Optional Features`;
     // specialist folders
     } else if (subType === "metamagic" && className === "Sorcerer") {
       result.name = "Metamagic";
-      result.flagTag = `features/${className}/Metamagic`;
+      result.flagTag = `${version}/features/${className}/Metamagic`;
     } else if (subType === "pact" && className === "Warlock") {
       result.name = "Pacts";
-      result.flagTag = `features/${className}/Pacts`;
+      result.flagTag = `${version}/features/${className}/Pacts`;
     } else if (subType === "eldritchInvocation" && className === "Warlock") {
       result.name = "Invocations";
-      result.flagTag = `features/${className}/Invocations`;
+      result.flagTag = `${version}/features/${className}/Invocations`;
     } else if (subType === "maneuver" && className === "Fighter") {
       result.name = "Maneuver Options";
-      result.flagTag = `features/${subClassName}/Maneuver Options`;
+      result.flagTag = `${version}/features/${subClassName}/Maneuver Options`;
     } else if (subType === "rune" && className === "Fighter") {
       result.name = "Runes";
-      result.flagTag = `features/${subClassName}/Runes`;
+      result.flagTag = `${version}/features/${subClassName}/Runes`;
     } else if (validSubclass) {
       result.name = subClassName;
-      result.flagTag = `features/${subClassName}`;
+      result.flagTag = `${version}/features/${subClassName}`;
     } else if (validClass) {
       result.name = "Class Features";
-      result.flagTag = `features/${className}`;
+      result.flagTag = `${version}/features/${className}`;
     } else {
       result.name = "Unknown";
     }
@@ -1238,8 +1230,11 @@ export class DDBCompendiumFolders {
       flagTag: "",
     };
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
+    const version = foundry.utils.getProperty(document, "system.source.rules");
     if (className && className.trim() !== "") {
-      result.name = className;
+      const resolvedClassName = DDBCompendiumFolders.resolveVersionedName(className, version);
+      result.name = resolvedClassName;
+      result.flagTag = `${version}/${className}`;
     } else {
       result.name = "Unknown";
     }
@@ -1638,6 +1633,7 @@ export class DDBCompendiumFolders {
           "system.type.subtype",
           "system.source.book",
           "flags.ddbimporter.legacy",
+          "system.source.rules",
         ];
       }
       case "feat":
@@ -1665,6 +1661,7 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.isLineage",
           "system.source.book",
           "flags.ddbimporter.legacy",
+          "system.source.rules",
         ];
       }
       case "vehicle":

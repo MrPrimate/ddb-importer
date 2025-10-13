@@ -1583,15 +1583,15 @@ export default class DDBClass {
     const updateFeatures = this.updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const type = this._isSubClass ? "subclass" : "class";
-    const featureCompendiumFolders = new DDBCompendiumFolders(type, {
-      noCreateClassFolders: true,
-    });
+    const featureCompendiumFolders = new DDBCompendiumFolders(type);
     await featureCompendiumFolders.loadCompendium(type);
 
+    const versionStub = this.data.system.source.rules;
+
     if (this._isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(this.name, this.className);
+      await featureCompendiumFolders.createSubClassFeatureFolder(this.name, this.className, versionStub);
     } else {
-      await featureCompendiumFolders.createClassFeatureFolder(this.name);
+      await featureCompendiumFolders.createClassFeatureFolder(this.name, versionStub);
     }
 
     const handlerOptions = {

@@ -851,17 +851,21 @@ export default class CharacterFeatureFactory {
     // });
     if (compendiumImportTypes.some((c) => ["features"].includes(c))) {
 
-      const featureCompendiumFolders = new DDBCompendiumFolders("features", {
-        noCreateClassFolders: true,
-      });
+      const featureCompendiumFolders = new DDBCompendiumFolders("features");
       await featureCompendiumFolders.loadCompendium("features");
 
       const klassNames = [];
       for (const classDef of this.ddbData.character.classes) {
         klassNames.push(classDef.definition.name);
-        await featureCompendiumFolders.createClassFeatureFolder(classDef.definition.name);
+        const version = classDef.definition.sources.every((s) => DDBSources.is2014Source(s))
+          ? "2014"
+          : "2024";
+        await featureCompendiumFolders.createClassFeatureFolder(classDef.definition.name, version);
         if (classDef.subclassDefinition) {
-          await featureCompendiumFolders.createSubClassFeatureFolder(classDef.subclassDefinition.name, classDef.definition.name);
+          const version = classDef.subclassDefinition.sources.every((s) => DDBSources.is2014Source(s))
+            ? "2014"
+            : "2024";
+          await featureCompendiumFolders.createSubClassFeatureFolder(classDef.subclassDefinition.name, classDef.definition.name, version);
         }
       }
 
