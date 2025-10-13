@@ -592,7 +592,7 @@ export default class DDBMuncher extends DDBAppV2 {
           const muleHandler = new DDBMuleHandler(options);
           this.notifierV2({
             section: "name",
-            message: `Munching for ${klass.name} from ${sourceIdArray.sourceIds.length} sources in ${category?.name ?? sourceIdArray.categoryId}...`,
+            message: `Munching for ${klass.name} from ${sourceIdArray.sourceIds.length} sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
           });
           await muleHandler.process();
 
@@ -637,7 +637,7 @@ export default class DDBMuncher extends DDBAppV2 {
         const muleHandler = new DDBMuleHandler(options);
         this.notifierV2({
           section: "name",
-          message: `Munching from ${sourceIdArray.sourceIds.length} sources in ${category?.name ?? sourceIdArray.categoryId}...`,
+          message: `Munching from ${sourceIdArray.sourceIds.length} sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
         });
         await muleHandler.process();
 
