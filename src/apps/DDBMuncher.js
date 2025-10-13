@@ -7,7 +7,6 @@ import {
   DDBCompendiumFolders,
   DDBSources,
   DDBCampaigns,
-  utils,
 } from "../lib/_module.mjs";
 import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";

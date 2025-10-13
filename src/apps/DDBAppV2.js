@@ -264,10 +264,10 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   stopAutoRotateMessage() {
-    console.error("Stopping auto rotate message");
+    logger.debug("Stopping auto rotate message");
     if (!this.intervalId) return;
     clearInterval(this.intervalId);
-    console.error("Stopped auto rotate message");
+    logger.info("Stopped auto rotate message");
     this.notifierV2({ section: "level2", message: "", suppress: true, clear: true });
     this.intervalId = null;
   }
