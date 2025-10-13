@@ -111,7 +111,7 @@ export default class CharacterClassFactory {
     const feats = {};
 
     if (!aData || !advancement) {
-      logger.warn(`Advancement for ${klass.name} (idx ${advancementIndex}) missing required data for linking`, {
+      logger.debug(`Advancement for ${klass.name} (idx ${advancementIndex}) missing required data for linking ${advancement?.type}`, {
         advancement,
         aData,
         klass,
