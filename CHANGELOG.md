@@ -6,7 +6,7 @@
 - Commanding Presence fixes.
 - A large number of parsing tweaks.
 - Alchemist subclasses will now generate spell list journals.
-- Character Feature Parser returns. This is in ALPHA for GOD Tier Patreon Supporters. This is a limited release and will be coming to Undying Tier soon.
+- Character Feature Parser returns. This is in ALPHA for GOD Tier Patreon Supporters. This is a limited release and will be coming to Undying Tier soon. For more details see the [Patreon Post](https://www.patreon.com/posts/141219612).
 - Some tweaks to spell matching for items and spell lists.
 - Fixes for Vicious Net.
 
