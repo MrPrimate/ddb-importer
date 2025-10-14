@@ -712,7 +712,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
             });
             restrictions.push(mod.restriction);
           }
-          if (viciousWeapon) {
+          if (viciousWeapon && !this.name.includes("Net")) {
             this.activityOptions.criticalDamage = "7";
           }
         }
