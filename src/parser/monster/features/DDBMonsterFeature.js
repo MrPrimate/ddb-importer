@@ -1613,7 +1613,9 @@ ${this.data.system.description.value}
       const perUseRegex = /The (?:.*) must finish a (\w+) Rest before using this trait to cast that spell again/i;
       const perUseMatch = this.strippedHtml.match(perUseRegex);
 
-      const names = DDBDescriptions.splitStringByComma(matches.groups.spells.replace(", or ", ", ").replace(" or ", ", "));
+      const names = DDBDescriptions
+        .splitStringByComma(matches.groups.spells.replace(", or ", ", ").replace(" or ", ", "))
+        .filter((n) => n.trim() !== "");
       for (const name of names) {
         const spell = {
           name: name, // required
