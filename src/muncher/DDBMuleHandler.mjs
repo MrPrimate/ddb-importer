@@ -152,6 +152,9 @@ export default class DDBMuleHandler {
         slots: [],
       },
     };
+    if (this.source.infusions) {
+      stub.infusions = foundry.utils.deepClone(this.source.infusions);
+    }
     return stub;
   }
 
@@ -162,6 +165,9 @@ export default class DDBMuleHandler {
     for (const subClassData of Object.values(this.source.subClassData)) {
       const ddbStub = await this._buildDDBStub();
       foundry.utils.mergeObject(ddbStub.character, subClassData.data);
+      if (subClassData.infusions) {
+        ddbStub.infusions = foundry.utils.deepClone(subClassData.infusions);
+      }
 
       // for the subclass we now loop through each class choice
       // console.warn(`Stub for subclass ${subClassData.debug.subClassId}:`, { ddbStub, subClassData });
@@ -199,6 +205,9 @@ export default class DDBMuleHandler {
         });
         const newStub = foundry.utils.deepClone(ddbStub);
         foundry.utils.mergeObject(newStub.character, subClassChoiceData.data);
+        if (subClassData.infusions) {
+          newStub.infusions = foundry.utils.deepClone(subClassChoiceData.infusions);
+        }
 
         // console.error(`Processing subclass choice set for ${subClassData.debug.subclassName} (${current} of ${total})`, {
         //   newStub,
