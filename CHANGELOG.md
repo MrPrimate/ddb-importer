@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.0
+
 - Improved Brutal Strike fixes.
 - Commanding Presence fixes.
 - A large number of parsing tweaks.
