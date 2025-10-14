@@ -118,6 +118,10 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Horned King Spells": "Warlock Extra Spells",
     "Coven Spells": "Warlock Extra Spells",
     "First Vampire Spells": "Warlock Extra Spells",
+    "Alchemist Spells": "Artificer Spells",
+    "Armorer Spells": "Artificer Spells",
+    "Artillerist Spells": "Artificer Spells",
+    "Battle Smith Spells": "Artificer Spells",
     // "Elemental Disciplines: Clench of the North Wind": "Elemental Disciplines",
     // "Elemental Disciplines: Fangs of the Fire Snake": "Elemental Disciplines",
     // "Elemental Disciplines: Fist of Four Thunders": "Elemental Disciplines",
@@ -302,6 +306,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Sorcerer Extra Spells": ClassEnrichers.Sorcerer.ExtraSpells,
     "Warlock Extra Spells": ClassEnrichers.Warlock.ExtraSpells,
     "Elemental Disciplines": ClassEnrichers.Monk.ElementalDisciplines,
+    "Artificer Spells": ClassEnrichers.Artificer.ArtificerSpells,
   };
 
   FALLBACK_ENRICHERS = {

@@ -178,11 +178,9 @@ export class DDBInfusion {
   }
 
   async compendiumInit() {
-    this.compendiumFolders = new DDBCompendiumFolders("features", {
-      noCreateClassFolders: true,
-    });
+    this.compendiumFolders = new DDBCompendiumFolders("features");
     await this.compendiumFolders.loadCompendium("features");
-    await this.compendiumFolders.createClassFeatureFolder(this.originClass);
+    await this.compendiumFolders.createClassFeatureFolder(this.originClass, this.data.system.source.rules);
   }
 
   async addInfusionsToCompendium(documents) {
@@ -244,6 +242,7 @@ export class DDBInfusion {
           type: actionData.actionSource,
           enricher: this.enricher,
           usesOnActivity: true,
+          isMuncher: this.isMuncher,
         })
         : new DDBAction({
           ddbData: this.ddbData,
@@ -251,6 +250,7 @@ export class DDBInfusion {
           rawCharacter: this.rawCharacter,
           enricher: this.enricher,
           usesOnActivity: true,
+          isMuncher: this.isMuncher,
         });
       await action.loadEnricher();
       await action.build();

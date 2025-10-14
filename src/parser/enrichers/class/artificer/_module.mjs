@@ -7,4 +7,4 @@ export { default as EldritchCannonForceBallista } from "./EldritchCannonForceBal
 export { default as EldritchCannonProtector } from "./EldritchCannonProtector.mjs";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField.mjs";
 export { default as SteelDefender } from "./SteelDefender.mjs";
-
+export { default as ArtificerSpells } from "./ArtificerSpells.mjs";

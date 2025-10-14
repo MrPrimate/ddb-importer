@@ -3,6 +3,10 @@
 - Improved Brutal Strike fixes.
 - Commanding Presence fixes.
 - A large number of parsing tweaks.
+- Alchemist subclasses will now generate spell list journals.
+- Character Feature Parser returns. This is in ALPHA for GOD Tier Patreon Supporters. This is a limited release and will be coming to Undying Tier soon.
+- Some tweaks to spell matching for items and spell lists.
+- Fixes for Vicious Net.
 
 # 6.5.16
 
@@ -2408,7 +2412,7 @@ for (const [key, actor] of game.actors.entries()) {
 
 # 3.4.0
 
-* Viscous Mockery turn fix for effect expiry.
+* Vicious Mockery turn fix for effect expiry.
 * Correctly select token scale when importing SRD images for monsters.
 * Removal of scalevalue choices for damage and text as these can be evaluated within description text in 5e v2.1.x.
 * Now requires D&D 5e system 2.1.x or higher.
