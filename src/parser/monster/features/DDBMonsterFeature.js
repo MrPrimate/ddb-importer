@@ -1573,7 +1573,9 @@ ${this.data.system.description.value}
     const compendiumSpellsIndex = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
 
     for (const spell of spells) {
-      const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase());
+      const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()
+        || i.flags?.ddbimporter?.originalName.toLowerCase() === spell.name.toLowerCase(),
+      );
       if (!entry) {
         logger.error(`Unable to find spell ${spell.name} for ${this.ddbMonster.name} ${this.originalName}, have you munched spells?`, {
           spell,

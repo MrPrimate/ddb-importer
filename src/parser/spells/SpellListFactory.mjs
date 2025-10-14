@@ -102,7 +102,7 @@ export default class SpellListFactory {
 
   async _getIndexes() {
     await this.spellCompendium.getIndex({
-      fields: ["name", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.is2014", "flags.ddbimporter.is2024"],
+      fields: ["name", "flags.ddbimporter.originalName", "flags.ddbimporter.definitionId", "flags.ddbimporter.isLegacy", "flags.ddbimporter.is2014", "flags.ddbimporter.is2024"],
     });
     await this.journalCompendium.getIndex({
       fields: ["name", "flags.ddbimporter"],
@@ -128,7 +128,8 @@ export default class SpellListFactory {
 
     for (const spellName of spellNames) {
       const spell = this.spellCompendium.index.find((s) =>
-        s.name === spellName
+        (s.name.toLowerCase() === spellName.toLowerCase()
+          || s.flags?.ddbimporter?.originalName.toLowerCase() === spellName.toLowerCase())
         && trueFlags.every((flag) => s.flags?.ddbimporter?.[flag] === true),
       );
       if (!spell) {
