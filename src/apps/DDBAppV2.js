@@ -237,9 +237,12 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     let messages;
 
     if (subcategory) {
-      messages = DICTIONARY.messages.loading[category][subcategory];
+      messages = DICTIONARY.messages.loading[category]?.[subcategory];
     } else {
       messages = DICTIONARY.messages.loading[category];
+    }
+    if (!messages || !messages.length) {
+      messages = DICTIONARY.messages.loading["default"];
     }
 
     this.notifierV2({
