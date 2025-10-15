@@ -40,7 +40,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
 
   get effects() {
 
-    const activeType = this.ddbParser?._chosen.find((a) =>
+    const activeType = this.ddbParser?._chosen?.find((a) =>
       utils.nameString(a.label).endsWith(" Resistance"),
     )?.label?.split(" Resistance")[0].toLowerCase() ?? "";
 

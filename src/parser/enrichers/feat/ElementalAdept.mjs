@@ -8,7 +8,7 @@ export default class ElementalAdept extends DDBEnricherData {
 
     const types = ["Acid", "Cold", "Fire", "Lightning", "Necrotic", "Poison", "Psychic", "Radiant", "Thunder"];
 
-    const activeType = this.ddbParser?._chosen.find((a) =>
+    const activeType = this.ddbParser?._chosen?.find((a) =>
       types.includes(a.label),
     )?.label;
 
