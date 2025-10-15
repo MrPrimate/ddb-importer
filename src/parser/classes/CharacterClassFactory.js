@@ -30,6 +30,7 @@ export default class CharacterClassFactory {
         addToCompendium: this.addToCompendium,
         compendiumImportTypes: this.compendiumImportTypes,
         updateCompendiumItems: this.updateCompendiumItems,
+        isMuncher: this.ddbCharacter.isMuncher,
       });
       await ddbClass.generateFromCharacter(this.character);
       this.ddbClasses[ddbClass.data.name] = ddbClass;
@@ -40,6 +41,7 @@ export default class CharacterClassFactory {
           addToCompendium: this.addToCompendium,
           compendiumImportTypes: this.compendiumImportTypes,
           updateCompendiumItems: this.updateCompendiumItems,
+          isMuncher: this.ddbCharacter.isMuncher,
         });
         await ddbSubClass.generateFromCharacter(this.character);
         this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;

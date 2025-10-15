@@ -87,8 +87,9 @@ export default class DDBRace {
     return baseName;
   }
 
-  constructor(ddbData, race, compendiumRacialTraits) {
+  constructor({ ddbData, race, compendiumRacialTraits, isMuncher } = {}) {
     this.ddbData = ddbData;
+    this.isMuncher = isMuncher ?? false;
     this.race = race;
     this.is2014 = this.race.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
@@ -164,7 +165,7 @@ export default class DDBRace {
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: "race",
-      noMods: false,
+      isMuncher: this.isMuncher,
     });
 
     this.featLink = {

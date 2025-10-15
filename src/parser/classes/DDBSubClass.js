@@ -92,6 +92,7 @@ export default class DDBSubClass extends DDBClass {
     this.name = this.ddbClass.subclassDefinition.name;
     this.subClassName = this.ddbClass.subclassDefinition.name;
     this._processSources();
+    this.advancementHelper.isSubclass = true;
 
     this.SPECIAL_ADVANCEMENTS = DDBSubClass.SPECIAL_ADVANCEMENTS;
     this.NOT_ADVANCEMENT_FOR_FEATURE = DDBSubClass.NOT_ADVANCEMENT_FOR_FEATURE;

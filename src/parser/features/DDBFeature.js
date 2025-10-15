@@ -81,7 +81,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: this.type,
-      noMods: false,
+      isMuncher: this.ddbCharacter.isMuncher,
     });
   }
 

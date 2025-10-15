@@ -247,7 +247,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.tagType = "other";
     this.activities = [];
     this.data = {};
-    this.isMuncher = isMuncher || this.ddbCharacter.isMuncher;
+    this.isMuncher = isMuncher || this.isMuncher || this.ddbCharacter?.isMuncher;
     this._init();
     this.snippet = "";
     this.description = "";

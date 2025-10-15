@@ -125,6 +125,7 @@ export default class DDBMuleHandler {
       if (jsonResponse.success) {
         this.source = jsonResponse.data;
       } else {
+        logger.error(jsonResponse);
         throw new Error(`Mule fetch failed: ${jsonResponse.message}`);
       }
     } catch (error) {
@@ -440,11 +441,8 @@ export default class DDBMuleHandler {
   }
 
   // TODO:
-  // Infusions
-  // Subclass features
   // class granted spells
   // Species
-
   // Life domain parsing errors
   // Light domain parsing errors
 

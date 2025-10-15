@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.1
+
+- A number of small fixes to class parsing and Artificer import failures.
+
 # 6.6.0
 
 - Improved Brutal Strike fixes.

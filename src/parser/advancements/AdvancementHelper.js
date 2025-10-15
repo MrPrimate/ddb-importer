@@ -18,11 +18,12 @@ function htmlToText(html) {
 
 export default class AdvancementHelper {
 
-  constructor({ ddbData, type, dictionary = null, noMods = false }) {
+  constructor({ ddbData, type, dictionary = null, isMuncher = false, isSubclass = false }) {
     this.ddbData = ddbData;
     this.type = type;
-    this.noMods = noMods;
+    this.isMuncher = isMuncher;
     this.dictionary = dictionary;
+    this.isSubclass = isSubclass;
   }
 
   static stripDescription(description) {
@@ -285,7 +286,7 @@ export default class AdvancementHelper {
     }
   }
 
-  static getSaveAdvancement(mods, availableToMulticlass, level) {
+  getSaveAdvancement(mods, availableToMulticlass, level) {
     const updates = DICTIONARY.actor.abilities
       .filter((ability) => {
         return DDBModifiers.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
@@ -296,7 +297,9 @@ export default class AdvancementHelper {
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
     advancement.updateSource({
-      classRestriction: level > 1 ? "" : availableToMulticlass ? "secondary" : "primary",
+      classRestriction: (level > 1 || this.isSubclass)
+        ? ""
+        : availableToMulticlass ? "secondary" : "primary",
       configuration: {
         grants: updates,
         allowReplacements: false,
@@ -331,11 +334,9 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
-    const chosenSkills = this.noMods
-      ? { chosen: [], choices: [] }
-      : this.getSkillChoicesFromOptions(feature, level);
+    const chosenSkills = this.getSkillChoicesFromOptions(feature, level);
 
-    const count = this.noMods || parsedSkills.number > 0 || parsedSkills.grants.length > 0
+    const count = parsedSkills.number > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.number
       : baseProficiency && availableToMulticlass
         ? multiclassSkillCount
@@ -354,7 +355,7 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedSkills.grants.length === 0) return null;
 
-    const classRestriction = availableToMulticlass === undefined
+    const classRestriction = availableToMulticlass === undefined || this.isSubclass
       ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
@@ -371,11 +372,11 @@ export default class AdvancementHelper {
       level,
     });
 
-    const pool = this.noMods || parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
+    const pool = parsedSkills.choices.length > 0 || parsedSkills.grants.length > 0
       ? parsedSkills.choices.map((skill) => `skills:${skill}`)
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
-    const chosen = this.noMods || chosenSkills.chosen.length > 0
+    const chosen = this.isMuncher || chosenSkills.chosen.length > 0
       ? chosenSkills.chosen.map((choice) => `skills:${choice}`)
         .concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
       : skillsFromMods.map((choice) => `skills:${choice}`);
@@ -397,9 +398,7 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedLanguages = AdvancementHelper.parseHTMLLanguages(feature.description);
-    const chosenLanguages = this.noMods
-      ? { chosen: [], choices: [] }
-      : this.getLanguageChoicesFromOptions(feature, level);
+    const chosenLanguages = this.getLanguageChoicesFromOptions(feature, level);
 
     const languagesFromMods = languagesMods
       .filter((mod) => DICTIONARY.actor.languages.find((lang) => lang.name === mod.friendlySubtypeName))
@@ -408,7 +407,7 @@ export default class AdvancementHelper {
         return language.advancement ? `${language.advancement}:${language.value}` : language.value;
       });
 
-    const count = this.noMods || parsedLanguages.number > 0 || parsedLanguages.grants.length > 0
+    const count = parsedLanguages.number > 0 || parsedLanguages.grants.length > 0
       ? parsedLanguages.number !== 0
         ? parsedLanguages.number
         : 1
@@ -427,11 +426,11 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedLanguages.grants.length === 0) return null;
 
-    const pool = this.noMods || parsedLanguages.choices.length > 0 || parsedLanguages.grants.length > 0
+    const pool = parsedLanguages.choices.length > 0 || parsedLanguages.grants.length > 0
       ? parsedLanguages.choices.map((choice) => `languages:${choice}`)
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
-    const chosen = this.noMods || chosenLanguages.chosen.length > 0
+    const chosen = this.isMuncher || chosenLanguages.chosen.length > 0
       ? chosenLanguages.chosen.map((choice) => `languages:${choice}`)
         .concat(parsedLanguages.grants.map((grant) => `languages:${grant}`))
       : languagesFromMods.map((choice) => `languages:${choice}`);
@@ -467,9 +466,7 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
-    const chosenTools = this.noMods
-      ? { chosen: [], choices: [] }
-      : this.getToolChoicesFromOptions(feature, level);
+    const chosenTools = this.getToolChoicesFromOptions(feature, level);
 
     const toolsFromMods = toolMods.map((mod) => {
       const tool = DICTIONARY.actor.proficiencies
@@ -479,7 +476,7 @@ export default class AdvancementHelper {
         : `${tool.toolType}:${tool.baseTool}`;
     });
 
-    const count = this.noMods || parsedTools.number > 0 || parsedTools.grants.length > 0
+    const count = this.isMuncher || parsedTools.number > 0 || parsedTools.grants.length > 0
       ? parsedTools.number > 0
         ? parsedTools.number
         : 1
@@ -499,12 +496,11 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedTools.grants.length === 0) return null;
 
-    const pool = this.noMods || parsedTools.choices.length > 0 || parsedTools.grants.length > 0
+    const pool = parsedTools.choices.length > 0 || parsedTools.grants.length > 0
       ? parsedTools.choices.map((choice) => `tool:${choice}`)
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
-
-    const chosen = this.noMods || chosenTools.chosen.length > 0
+    const chosen = this.isMuncher || chosenTools.chosen.length > 0
       ? chosenTools.chosen.map((choice) => `tool:${choice}`)
         .concat(parsedTools.grants.map((grant) => `tool:${grant}`))
       : toolsFromMods.map((choice) => `tool:${choice}`);
@@ -547,9 +543,7 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
-    const chosenArmors = this.noMods
-      ? { chosen: [], choices: [] }
-      : this.getChoicesFromOptions(feature, "Armor", level);
+    const chosenArmors = this.getChoicesFromOptions(feature, "Armor", level);
 
     const armorsFromMods = armorMods.map((mod) => {
       const armor = DICTIONARY.actor.proficiencies
@@ -559,7 +553,7 @@ export default class AdvancementHelper {
         : `${armor.advancement}:${armor.foundryValue}`;
     });
 
-    const count = this.noMods || parsedArmors.number > 0 || parsedArmors.grants.length > 0
+    const count = this.isMuncher || parsedArmors.number > 0 || parsedArmors.grants.length > 0
       ? parsedArmors.number > 0
         ? parsedArmors.number
         : 1
@@ -579,15 +573,15 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedArmors.grants.length === 0) return null;
 
-    const classRestriction = availableToMulticlass === undefined
+    const classRestriction = availableToMulticlass === undefined || this.isSubclass
       ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
-    const pool = this.noMods || parsedArmors.choices.length > 0 || parsedArmors.grants.length > 0
+    const pool = parsedArmors.choices.length > 0 || parsedArmors.grants.length > 0
       ? parsedArmors.choices.map((choice) => `armor:${choice}`)
       : armorsFromMods.map((choice) => `armor:${choice}`);
 
-    const chosen = this.noMods || chosenArmors.chosen.length > 0
+    const chosen = this.isMuncher || chosenArmors.chosen.length > 0
       ? chosenArmors.chosen.map((choice) => `armor:${choice}`)
         .concat(parsedArmors.grants.map((grant) => `armor:${grant}`))
       : armorsFromMods.map((choice) => `armor:${choice}`);
@@ -631,9 +625,7 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponProficiencies(feature.description);
-    const chosenWeapons = this.noMods
-      ? { chosen: [], choices: [] }
-      : this.getChoicesFromOptions(feature, "Weapon", level);
+    const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
 
     const weaponsFromMods = weaponMods.map((mod) => {
       const weapon = DICTIONARY.actor.proficiencies
@@ -643,7 +635,7 @@ export default class AdvancementHelper {
         : `${weapon.advancement}:${weapon.foundryValue}`;
     });
 
-    const count = this.noMods || parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
+    const count = parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.number > 0
         ? parsedWeapons.number
         : 1
@@ -663,12 +655,12 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedWeapons.grants.length === 0) return null;
 
-    const pool = this.noMods || parsedWeapons.choices.length > 0 || parsedWeapons.grants.length > 0
+    const pool = parsedWeapons.choices.length > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.choices.map((choice) => `weapon:${choice}`)
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
 
-    const chosen = this.noMods || chosenWeapons.chosen.length > 0
+    const chosen = this.isMuncher || chosenWeapons.chosen.length > 0
       ? chosenWeapons.chosen.map((choice) => `weapon:${choice}`)
         .concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
@@ -742,9 +734,7 @@ export default class AdvancementHelper {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponMasteryProficiencies(feature.description);
-    const chosenWeapons = this.noMods
-      ? { chosen: [], choices: [] }
-      : this.getChoicesFromOptions(feature, "Weapon", level);
+    const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
 
     const weaponsFromMods = weaponMods.map((mod) => {
       const weapon = DICTIONARY.actor.proficiencies
@@ -759,7 +749,7 @@ export default class AdvancementHelper {
         : `${weapon.advancement}:${weapon.foundryValue}`;
     });
 
-    const count = this.noMods || parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
+    const count = parsedWeapons.number > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.number > 0
         ? parsedWeapons.number
         : 1
@@ -779,12 +769,12 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedWeapons.grants.length === 0) return null;
 
-    const pool = this.noMods || parsedWeapons.choices.length > 0 || parsedWeapons.grants.length > 0
+    const pool = parsedWeapons.choices.length > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.choices.map((choice) => `weapon:${choice}`)
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
 
-    const chosen = this.noMods || chosenWeapons.chosen.length > 0
+    const chosen = this.isMuncher || chosenWeapons.chosen.length > 0
       ? chosenWeapons.chosen.map((choice) => `weapon:${choice}`)
         .concat(parsedWeapons.grants.map((grant) => `weapon:${grant}`))
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
@@ -819,9 +809,7 @@ export default class AdvancementHelper {
 
   getExpertiseAdvancement(feature, level) {
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
-    const expertiseOptions = this.noMods
-      ? { chosen: [], choices: [] }
-      : this.getExpertiseChoicesFromOptions(feature, level);
+    const expertiseOptions = this.getExpertiseChoicesFromOptions(feature, level);
 
     // add HTML Parsing to improve this at a later date
 
@@ -893,7 +881,7 @@ export default class AdvancementHelper {
 
     const parsedConditions = AdvancementHelper.parseHTMLConditions(feature.description);
 
-    const count = this.noMods || parsedConditions.number > 0 || parsedConditions.grants.length > 0
+    const count = this.isMuncher || parsedConditions.number > 0 || parsedConditions.grants.length > 0
       ? parsedConditions.number > 0
         ? parsedConditions.number
         : 1
@@ -910,11 +898,11 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedConditions.grants.length === 0) return null;
 
-    const pool = this.noMods || parsedConditions.choices.length > 0 || parsedConditions.grants.length > 0
+    const pool = this.isMuncher || parsedConditions.choices.length > 0 || parsedConditions.grants.length > 0
       ? parsedConditions.choices.map((choice) => choice)
       : conditionsFromMods.map((choice) => choice);
 
-    const chosen = this.noMods
+    const chosen = this.isMuncher
       ? parsedConditions.grants.map((grant) => grant)
       : conditionsFromMods.map((choice) => choice);
 

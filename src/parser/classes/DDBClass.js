@@ -25,6 +25,8 @@ export default class DDBClass {
 
   className;
 
+  isMuncher = false;
+
   static SPECIAL_ADVANCEMENTS = {
     "Wild Shape": {
       fix: true,
@@ -148,6 +150,8 @@ export default class DDBClass {
     "Proficiencies",
     "Tools of the Trade",
     "Training in War and Song",
+    "Bonus Proficiency",
+    "Bonus Proficiencies",
   ];
 
   static WEAPON_FEATURES = [
@@ -166,6 +170,8 @@ export default class DDBClass {
     "Proficiencies",
     "Firearm Proficiency",
     "Training in War and Song",
+    "Bonus Proficiency",
+    "Bonus Proficiencies",
   ];
 
   static WEAPON_MASTERY_FEATURES = [
@@ -394,7 +400,7 @@ export default class DDBClass {
 
   constructor(ddbData, classId,
     { addToCompendium = null, compendiumImportTypes = null,
-      updateCompendiumItems } = {},
+      updateCompendiumItems, isMuncher } = {},
   ) {
     this._indexFilter = {
       features: {
@@ -424,6 +430,7 @@ export default class DDBClass {
     this.updateCompendiumItems = updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     // setup ddb source
+    this.isMuncher = isMuncher ?? this.isMuncher;
     this.ddbData = ddbData;
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
     this.ddbClassDefinition = this.ddbClass.definition;
@@ -460,7 +467,7 @@ export default class DDBClass {
     this.advancementHelper = new AdvancementHelper({
       ddbData,
       type: "class",
-      noMods: false,
+      isMuncher: this.isMuncher,
     });
 
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
@@ -850,7 +857,7 @@ export default class DDBClass {
     const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
 
-    return AdvancementHelper.getSaveAdvancement(mods, availableToMulticlass, level);
+    return this.advancementHelper.getSaveAdvancement(mods, availableToMulticlass, level);
 
   }
 
@@ -1026,16 +1033,17 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      [true, false].forEach((availableToMulticlass) => {
-        if ((!availableToMulticlass && i > 1)) return;
-        if (this._isSubClass && !availableToMulticlass) return;
+      for (const availableToMulticlass of [true, false]) {
+        // multiclass only profs only at level 1
+        if (!availableToMulticlass && i > 1) continue;
+        if (this._isSubClass && !availableToMulticlass) continue;
         const armorFeatures = this._armorFeatures.filter((f) => f.requiredLevel === i);
 
         for (const feature of armorFeatures) {
           const advancement = this._generateArmorAdvancement(feature, availableToMulticlass, i);
           if (advancement) advancements.push(advancement.toObject());
         }
-      });
+      }
     }
 
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
