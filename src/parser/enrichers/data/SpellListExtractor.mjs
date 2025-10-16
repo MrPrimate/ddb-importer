@@ -98,7 +98,7 @@ export default class SpellListExtractor {
 
     const source = spellListFactory.sources.find((s) => s.id === this.sourceId);
 
-    logger.debug(`Generating Spell List for ${type} "${name}" from source "${source.label}" with spells:`, { spells, this: this });
+    logger.debug(`Generating Spell List for ${type} "${name}" from source "${source.acronym}" with spells:`, { spells, this: this });
 
     spellListFactory.generateSpellUuidsForSourceAndSpellList(source.acronym, name, spells, [this.is2014 ? 'is2014' : 'is2024']);
 
