@@ -80,6 +80,16 @@ export default class HuntersPrey extends DDBEnricherData {
               value: null,
               units: "spec",
             },
+            uses: {
+              "spent": 0,
+              "recovery": [
+                {
+                  "period": "turn",
+                  "type": "recoverAll",
+                },
+              ],
+              "max": "1",
+            },
             damage: {
               parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: DDBEnricherData.allDamageTypes() })],
             },
