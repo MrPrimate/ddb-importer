@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.2
+
+- Add Class Filtering to Character Feature parsing.
+
 # 6.6.1
 
 - A number of small fixes to class parsing and Artificer import failures.
