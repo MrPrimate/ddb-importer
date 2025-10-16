@@ -3,6 +3,7 @@
 # 6.6.2
 
 - Add Class Filtering to Character Feature parsing.
+- Some features adjusted to once per turn.
 
 # 6.6.1
 
