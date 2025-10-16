@@ -243,6 +243,10 @@ export default class DDBMuncher extends DDBAppV2 {
       await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
     });
 
+    this.element.querySelector("#muncher-class-source-select")?.addEventListener("change", async (event) => {
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", Array.from(event.target._value).map((id) => parseInt(id)));
+    });
+
     this.element.querySelector("#monster-munch-filter")?.addEventListener("change", async (event) => {
       this.searchTermMonster = event.target.value ?? "";
     });
@@ -377,11 +381,19 @@ export default class DDBMuncher extends DDBAppV2 {
     return context;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async _prepareCharacterContext(context) {
+    const characterContext = await MuncherSettings.getCharacterMuncherSettings();
+    context = foundry.utils.mergeObject(context, characterContext);
+    return context;
+  }
+
   async _prepareContext(options) {
     let context = MuncherSettings.getMuncherSettings();
     context = foundry.utils.mergeObject(context, MuncherSettings.getCharacterImportSettings());
     context = foundry.utils.mergeObject(context, MuncherSettings.getEncounterSettings());
     context = await this._prepareEncounterContext(context);
+    context = await this._prepareCharacterContext(context);
 
     if (this.encounter) {
       context.encounterConfig = context.encounterConfig.map((setting) => {
@@ -576,14 +588,26 @@ export default class DDBMuncher extends DDBAppV2 {
     };
     const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
+    const allowedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter")
+      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes").map((id) => parseInt(id))
+      : [];
+
+    logger.debug("Allowed source IDs", { sourceIdArrays, allowedClassIds, baseOptions });
     try {
       for (const sourceIdArray of sourceIdArrays) {
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options = foundry.utils.deepClone(baseOptions);
         options.sources = sourceIdArray.sourceIds;
 
-        const classList = await DDBMuleHandler.getList("class", options.sources);
+        const classList = (await DDBMuleHandler.getList("class", options.sources))
+          .filter((c) => (allowedClassIds.length === 0 ? true : allowedClassIds.includes(parseInt(c.id))));
 
+        logger.debug(`Found ${classList.length} classes to munch in ${category?.name ?? sourceIdArray.categoryId}`, {
+          classList,
+          sourceIdArray,
+          options: foundry.utils.deepClone(options),
+          allowedClassIds,
+        });
         for (const klass of classList) {
           this.autoRotateMessage("class", klass.name.toLowerCase());
           logger.info(`Munching class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`);
@@ -597,8 +621,9 @@ export default class DDBMuncher extends DDBAppV2 {
 
           logger.debug(`Munch Complete for class ${klass.name} in ${category?.name ?? sourceIdArray.categoryId}`, {
             muleHandler,
-            sources: sourceIdArray,
+            sourceIdArray,
             options: foundry.utils.deepClone(options),
+            allowedClassIds,
           });
         }
       }

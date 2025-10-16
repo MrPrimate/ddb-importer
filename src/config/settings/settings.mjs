@@ -1147,6 +1147,14 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-character-use-class-filter": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-character-classes": {
+            type: Array,
+            default: [],
+          },
         },
         ENCOUNTER: {
           "encounter-import-policy-create-scene": {

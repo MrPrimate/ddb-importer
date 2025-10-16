@@ -9,6 +9,7 @@ import {
 } from "./_module.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { SystemHelpers } from "../parser/lib/_module.mjs";
+import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
 
 const MuncherSettings = {
 
@@ -1149,6 +1150,56 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     ];
 
     return enhancementConfig;
+  },
+
+  async getCharacterMuncherSettings() {
+    const tier = PatreonHelper.getPatreonTier();
+    const tiers = PatreonHelper.calculateAccessMatrix(tier);
+    const disableUse = (!tiers.supporter || tier !== "GOD");
+    const useClassFilter = disableUse
+      ? false
+      : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter");
+    const result = {
+      characterSourceConfig: [
+        {
+          name: "munching-policy-character-use-class-filter",
+          isChecked: useClassFilter,
+          label: "Use class filter?",
+          hint: "Restrict import to specific character class(es)?",
+          enabled: !disableUse,
+        },
+      ],
+      enableClassSources: useClassFilter,
+      selectedClasses: [],
+    };
+
+    if (disableUse) {
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter", false);
+      return result;
+    }
+
+    const classes = await DDBMuleHandler.getList("class", []);
+    const selectedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")
+      .map((id) => parseInt(id));
+
+    result.selectedClasses = classes
+      .map((klass) => {
+        const is2014 = klass.sources.some((s) => DDBSources.is2014Source(s));
+        const sourceId = klass.sources.find((s) => s.sourceType === 1)?.sourceId;
+        const source = CONFIG.DDB.sources.find((s) => s.id === sourceId);
+        const label = `${klass.name} (${source ? source.name : "Unknown Source"})`;
+
+        return {
+          id: klass.id,
+          label: is2014 ? `${label} - 2014` : label,
+          selected: selectedClassIds.includes(klass.id) ? "selected" : "",
+        };
+      })
+      .sort((a, b) => {
+        return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+      });
+
+    return result;
   },
 };
 

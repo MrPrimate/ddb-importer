@@ -447,6 +447,10 @@ export default class DDBMuleHandler {
   // Light domain parsing errors
 
   static async getList(type, sources) {
+    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`);
+    if (cacheHit) {
+      return cacheHit;
+    }
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -492,6 +496,8 @@ export default class DDBMuleHandler {
       logger.error(`Failure: ${data.message}`, { data });
       throw new Error(data.message);
     }
+
+    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`, data.data);
     return data.data;
   }
 

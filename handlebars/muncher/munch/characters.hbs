@@ -39,6 +39,30 @@
     </div>
   </fieldset>
 
+  {{#if characterMunch}}
+  <fieldset>
+    <legend>Filters</legend>
+    {{#each characterSourceConfig}}
+    <div class="form-group munching-character-source-config">
+      <label>{{ this.label }}</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="{{this.name}}" id="{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+      </div>
+      <p class="hint">{{{this.hint}}}</p>
+    </div>
+    {{/each}}
+
+    <div id="munch-source-div" {{#if enableClassSources}}{{else}}class="ddbimporter-hidden ddbimporter-none"{{/if}}>
+      <multi-select id="muncher-class-source-select" name="muncher-source-select">
+        {{#each selectedClasses}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+  </fieldset>
+  {{/if}}
+
   <fieldset>
     <button data-action="parseFeats" type="button" id="munch-feats-start" class="munch-button"
       {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Feat Munch</button>

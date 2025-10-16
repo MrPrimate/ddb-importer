@@ -2,7 +2,12 @@
 
     <fieldset>
     <legend>Choose Ingredients (Sourcebooks)</legend>
-    <p>If any books are selected here DDB Importer will filter content that is <i>only</i> in that book. Please note that sometimes DDB marks a book as from it's first source only, e.g. the SRD/Basic rules for some monsters.</p>
+    <p>If any books are selected here DDB Importer will filter content that is <i>only</i> in that book.
+Please note that sometimes DDB marks a book as from it's first source only, e.g. the SRD/Basic rules for some monsters.
+These interact with the Exclusion settings below.
+It is recommended you use Exclusion rules rather than filtering explicitly by source book
+This will ensure you get all the spells, items and monsters you are expecting.
+</p>
     {{#each sourceConfig}}
     <div class="form-group munching-source-config">
       <label>{{ this.label }}</label>
@@ -23,8 +28,13 @@
     </fieldset>
     <fieldset>
     <legend>Excluded Flavour Profiles (Categories)</legend>
-    <p>DDB Importer will exclude any content that belongs in any of the following source categories. Please adjust to taste.</p>
-    <p>Categories are used on D&D Beyond to filter content. These are groups of books. The 2024 PHB, MM and DMG are considered "Core Rules". Expanded content are books like XGtE.</p>
+    <p>By default DDB Importer <strong>excludes</strong> third party categories from being imported.</p>
+    <p>The following categories will be excluded. Please adjust to taste.</p>
+    <p>Categories are used on D&D Beyond to filter content.
+These are groups of books.
+The 2024 PHB, MM and DMG are considered "Core Rules".
+Expanded content are books like XGtE.
+Legacy/non-core are books that were replaced in the 2014 ruleset lifecycle like Mordenkainen’s Tome of Foes.</p>
     <div class="form-fields" id="munch-excluded-config">
       <multi-select id="muncher-excluded-source-categories" name="muncher-excluded-source-categories">
         {{#each excludedCategories}}
