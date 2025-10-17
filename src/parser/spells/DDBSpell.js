@@ -176,7 +176,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.isSummons = this.isCompanionSpell2014 || this.isCompanionSpell2024 || this.isCRSummonSpell2014 || this.isCRSummonSpell2024;
     this.generateSummons = this.isGeneric
       || (generateSummons ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"))
-      || this.ddbCharacter.enableSummons;
+      || this.ddbCharacter?.enableSummons;
     this.DDBCompanionFactory = null; // lazy init
 
     this.isCantrip = this.ddbDefinition.level === 0;
@@ -716,7 +716,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     if (!this.isSummons) return;
     const createOrUpdate = this.isGeneric
       || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")
-      || this.ddbCharacter.enableCompanions;
+      || this.ddbCharacter?.enableCompanions;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "spell",
       originDocument: this.data,

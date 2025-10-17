@@ -12,6 +12,7 @@ export default class EyeRays extends DDBEnricherData {
     const rayChoices = this.rayChoices;
     return {
       name: `Roll 1d${rayChoices.length}`,
+      noTemplate: true,
       data: {
         roll: {
           prompt: false,

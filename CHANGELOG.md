@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.3
+
+- Certain combinations of settings would cause a character import to fail for summon spells.
+
 # 6.6.2
 
 - Add Class Filtering to Character Feature parsing.
