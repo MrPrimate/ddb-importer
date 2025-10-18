@@ -1204,7 +1204,7 @@ export default class AdvancementHelper {
         if (complexMatch[1]) {
           const dictMatch = DICTIONARY.actor.languages.find((l) =>
             l.name.toLowerCase() === complexMatch[1].split(" ")[0].toLowerCase().trim()
-            || complexMatch[1].toLowerCase().includes(l.label.toLowerCase()),
+            || complexMatch[1].toLowerCase().includes(l.name.toLowerCase()),
           );
           if (dictMatch) {
             const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
@@ -1219,7 +1219,7 @@ export default class AdvancementHelper {
             languages.forEach((choice) => {
               const dictMatch = DICTIONARY.actor.languages.find((l) =>
                 l.name.toLowerCase() === choice.toLowerCase().split(" ")[0]
-                || choice.toLowerCase().includes(l.label.toLowerCase()),
+                || choice.toLowerCase().includes(l.name.toLowerCase()),
               );
               if (dictMatch) {
                 const language = dictMatch.advancement ? `${dictMatch.advancement}:${dictMatch.value}` : dictMatch.value;
@@ -1244,7 +1244,7 @@ export default class AdvancementHelper {
           languages.forEach((choice) => {
             const dictMatch = DICTIONARY.actor.languages.find((l) =>
               l.name.toLowerCase() === choice.toLowerCase().split(" ")[0]
-              || choice.toLowerCase().includes(l.label.toLowerCase()),
+              || choice.toLowerCase().includes(l.name.toLowerCase()),
             );
             // console.warn("lang check", {
             //   simple: simpleChoice[2],
