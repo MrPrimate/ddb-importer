@@ -37,7 +37,8 @@ export default class SpellListExtractor {
 
     const table = tempDiv.querySelector('table');
     if (!table) {
-      throw new Error('No table found in the HTML');
+      logger.error('No table found in the HTML', { this: this, description: this.description });
+      return withLevel ? {} : [];
     }
 
     const headers = table.querySelectorAll('thead th');
@@ -93,6 +94,11 @@ export default class SpellListExtractor {
     await spellListFactory.init();
 
     const spells = this.extractSpells();
+
+    if (spells.length === 0) {
+      logger.warn(`No spells found for ${type} "${this.name}"`, { this: this });
+      return;
+    }
 
     const name = this.name.replace(this.RENAME_REGEX, "");
 

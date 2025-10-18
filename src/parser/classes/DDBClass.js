@@ -314,6 +314,7 @@ export default class DDBClass {
         ddbimporter: {
           class: this.className,
           id: this.ddbClass.id,
+          classDefinitionId: this.ddbClass.definition.id,
           definitionId: this.ddbClass.definition.id,
           entityTypeId: this.ddbClass.entityTypeId,
           type: "class",
@@ -1609,7 +1610,7 @@ export default class DDBClass {
       deleteBeforeUpdate: false,
       useCompendiumFolders: true,
       notifier: null,
-      matchFlags: ["id", "is2014"],
+      matchFlags: ["definitionId", "is2014"],
     };
 
     const data = foundry.utils.deepClone(this.data);

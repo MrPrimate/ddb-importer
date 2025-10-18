@@ -69,8 +69,10 @@ export default class DDBSubClass extends DDBClass {
         ddbimporter: {
           class: this.ddbClass.definition.name,
           subclass: this.ddbClass.subclassDefinition.name,
-          subclassDefinitionId: this.ddbClass.id,
-          id: this.ddbClass.subclassDefinition.id,
+          id: this.ddbClass.id,
+          classDefinitionId: this.ddbClass.definition.id,
+          definitionId: this.ddbClass.subclassDefinition.id,
+          subclassDefinitionId: this.ddbClass.subclassDefinition.id,
           type: "class",
           ddbImg: this.ddbClass.subclassDefinition.portraitAvatarUrl ?? this.ddbClass.definition.portraitAvatarUrl,
           is2014: this.is2014,
