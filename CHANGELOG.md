@@ -1,6 +1,7 @@
 # Next Up
 
 - Class compendium matching tweaks, when munching duplicates maybe created due to new id matching schema.
+- 2024 Bolt was not detecting Ammunition type correctly.
 
 # 6.6.4
 

@@ -301,6 +301,7 @@ export const ACTOR = {
     // { name: "Arbalest", type: "Weapon", }
 
     // Ammunition
+    { name: "Bolt", type: "Ammunition", ammunitionType: "crossbowBolt" },
     { name: "Crossbow Bolt", type: "Ammunition", ammunitionType: "crossbowBolt" },
     { name: "Crossbow", type: "Ammunition", ammunitionType: "crossbowBolt" },
     { name: "Sling Bullets", type: "Ammunition", ammunitionType: "slingBullet" },

@@ -171,8 +171,6 @@ export default class DDBMuleHandler {
       }
 
       // for the subclass we now loop through each class choice
-      // console.warn(`Stub for subclass ${subClassData.debug.subClassId}:`, { ddbStub, subClassData });
-
       classCurrent++;
       this.notifier({
         // progress: { current: classCurrent, total: classTotal },
@@ -188,16 +186,10 @@ export default class DDBMuleHandler {
         type: "character",
       }, options);
 
-      // const classChoices = this.source.subClassChoicesData.filter((c) => c.addData.classId === this.source.class.id);
-      // if (classChoices.lengh > 0) {
-      //   logger.error(`Oh, the class ${this.source.class.name} has sub class choices for the class`);
-      // }
-
       const filteredSubClassChoices = this.source.subClassChoicesData.filter((c) => c.debug.subClassId === subClassData.debug.subClassId);
 
       const total = filteredSubClassChoices.length;
       let current = 0;
-      // console.warn(`Processing ${total} subclass choices for subclass ${subClassData.debug.subclassName}`, { filteredSubClassChoices });
       for (const subClassChoiceData of filteredSubClassChoices) {
         current++;
         this.notifier({
@@ -210,12 +202,6 @@ export default class DDBMuleHandler {
           newStub.infusions = foundry.utils.deepClone(subClassChoiceData.infusions);
         }
 
-        // console.error(`Processing subclass choice set for ${subClassData.debug.subclassName} (${current} of ${total})`, {
-        //   newStub,
-        //   subClassChoiceData,
-        //   current,
-        //   total,
-        // });
         const ddbCharacter = new DDBCharacter({
           currentActor: mockCharacter,
           characterId: this.characterId,
@@ -306,7 +292,6 @@ export default class DDBMuleHandler {
     let current = 1;
 
     logger.debug(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
-    // console.error(`Processing ${total} backgrounds`, { backgrounds: this.source.backgroundOptions, this: this });
     for (const backgroundData of this.source.backgroundOptions) {
       this.notifier({
         // progress: { current, total },
@@ -316,12 +301,6 @@ export default class DDBMuleHandler {
       foundry.utils.mergeObject(newStub.character, backgroundData.backgroundResponse.data);
       foundry.utils.mergeObject(newStub.character, (backgroundData.backgroundChoices.slice(-1)?.data ?? null));
 
-      // console.warn(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
-      //   newStub,
-      //   backgroundData,
-      //   current,
-      //   total,
-      // });
       logger.debug(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
         newStub,
         backgroundData,
@@ -337,6 +316,59 @@ export default class DDBMuleHandler {
         enableSummons: true,
         addToCompendiums: true,
         compendiumImportTypes: ["backgrounds", "feats"],
+        isMuncher: true,
+      });
+      ddbCharacter.source = { ddb: newStub };
+      await ddbCharacter.process();
+      current++;
+    }
+
+  }
+
+  async _handleSpeciesMunch() {
+    const ddbStub = await this._buildDDBStub();
+
+    this.notifier({
+      message: `Processing species`,
+    });
+
+    const options = {
+      temporary: true,
+      displaySheet: false,
+    };
+    const mockCharacter = new Actor.implementation({
+      name: "Species Muncher",
+      type: "character",
+    }, options);
+
+    const total = this.source.speciesOptions.length;
+    let current = 1;
+
+    logger.debug(`Processing ${total} species`, { species: this.source.speciesOptions, this: this });
+    for (const speciesData of this.source.speciesOptions) {
+      this.notifier({
+        // progress: { current, total },
+        message: `Processing species ${current} of ${total}`,
+      });
+      const newStub = foundry.utils.deepClone(ddbStub);
+      foundry.utils.mergeObject(newStub.character, speciesData.raceResponse.data);
+      foundry.utils.mergeObject(newStub.character, (speciesData.raceChoices.slice(-1)?.data ?? null));
+
+      logger.debug(`Processing species ${speciesData.raceResponse.data.race.fullName ?? speciesData.raceResponse.data.race.baseName} (${current} of ${total})`, {
+        newStub,
+        speciesData,
+        current,
+        total,
+      });
+
+
+      const ddbCharacter = new DDBCharacter({
+        currentActor: mockCharacter,
+        characterId: this.characterId,
+        selectResources: false,
+        enableSummons: true,
+        addToCompendiums: true,
+        compendiumImportTypes: ["species", "traits", "feats"],
         isMuncher: true,
       });
       ddbCharacter.source = { ddb: newStub };
@@ -362,8 +394,8 @@ export default class DDBMuleHandler {
         await this._handleBackgroundMunch();
         break;
       case "species":
-        // await this._handleSpeciesMunch();
-        throw new Error("Species munching not yet supported");
+        await this._handleSpeciesMunch();;
+        break;
       default:
         throw new Error(`Unknown munch type ${this.type}`);
     }
@@ -389,6 +421,27 @@ export default class DDBMuleHandler {
       sources,
       homebrew,
       type: "background",
+      filterIds,
+      cleanup: false,
+    });
+
+    await muleHandler.process();
+
+    logger.debug("Munch Complete", {
+      characterId,
+      muleHandler,
+      filterIds,
+      sources,
+      homebrew,
+    });
+  }
+
+  static async munchSpecies({ characterId, sources, homebrew, filterIds } = {}) {
+    const muleHandler = new DDBMuleHandler({
+      characterId,
+      sources,
+      homebrew,
+      type: "species",
       filterIds,
       cleanup: false,
     });
