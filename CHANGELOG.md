@@ -1,5 +1,7 @@
 # Next Up
 
+- Class compendium matching tweaks, when munching duplicates maybe created due to new id matching schema.
+
 # 6.6.4
 
 - Some language choices could break parsing.

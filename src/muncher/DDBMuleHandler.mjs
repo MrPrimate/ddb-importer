@@ -405,8 +405,8 @@ export default class DDBMuleHandler {
   }
 
 
-  static async munchClass({ classId, characterId, sources, homebrew, filterIds } = {}) {
-    const muleHandler = new DDBMuleHandler({ classId, characterId, sources, homebrew, type: "class", filterIds });
+  static async munchClass({ classId, characterId, sources, homebrew, filterIds, cleanup } = {}) {
+    const muleHandler = new DDBMuleHandler({ classId, characterId, sources, homebrew, type: "class", filterIds, cleanup });
     await muleHandler.process();
 
     logger.debug("Munch Complete", {
@@ -419,7 +419,7 @@ export default class DDBMuleHandler {
     });
   }
 
-  static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds } = {}) {
+  static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds, cleanup } = {}) {
     const classList = await DDBMuleHandler.getList("class", sources);
 
     for (const klass of classList) {
@@ -428,7 +428,7 @@ export default class DDBMuleHandler {
         continue;
       }
       logger.info(`Munching class ${klass.name} (${klass.id})`);
-      await DDBMuleHandler.munchClass({ classId: klass.id, characterId, sources, homebrew, filterIds });
+      await DDBMuleHandler.munchClass({ classId: klass.id, characterId, sources, homebrew, filterIds, cleanup });
     }
 
     logger.debug("Full Class Munch Complete", {
