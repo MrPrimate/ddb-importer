@@ -14,7 +14,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(addToCompend
   });
   await this._ddbRace.build();
   if (addToCompendium) {
-    await this._ddbRace.addToCompendium();
+    await this._ddbRace.addToCompendium(this.forceCompendiumUpdate, this.compendiumImportTypes);
   }
   this.raw.race = (this.updateItemIds([this._ddbRace.data]))[0];
   delete this.raw.race.sort;

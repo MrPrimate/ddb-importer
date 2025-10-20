@@ -495,7 +495,6 @@ export default class DDBMuleHandler {
 
   // TODO:
   // class granted spells
-  // Species
   // Life domain parsing errors
   // Light domain parsing errors
 

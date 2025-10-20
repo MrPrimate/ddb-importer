@@ -928,14 +928,8 @@ export default class CharacterFeatureFactory {
         traitFeatures,
       });
 
-      const groupName = this.ddbCharacter._ddbRace.groupName;
-      const fullName = this.ddbCharacter._ddbRace.fullName;
       const isLineage = this.ddbCharacter._ddbRace.isLineage;
-      if (isLineage) {
-        await traitCompendiumFolders.createSubTraitFolders(groupName, groupName);
-      } else {
-        await traitCompendiumFolders.createSubTraitFolders(groupName, fullName);
-      }
+      await traitCompendiumFolders.createSubTraitFolders(this.ddbCharacter.raw.race);
 
       const traitHandlerOptions = {
         chrisPremades: true,

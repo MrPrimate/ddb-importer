@@ -101,6 +101,11 @@ export default class DDBSources {
         sources = definition.sources.filter((source) => source.pageNumber !== null);
       }
 
+      // if just SRD on a source, lets add the PHB as well to avoid some _issues_
+      if (sources.length === 1 && sources.find((s) => s.sourceType === 1 && s.sourceId === 1)) {
+        sources.push({ "sourceId": 2, "sourceType": 1 });
+      }
+
       if (useBasicRules && coreRules.length > 0) {
         sources = coreRules;
       } else if (useBasicRules

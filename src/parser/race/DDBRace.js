@@ -152,10 +152,6 @@ export default class DDBRace {
     this.data.system.source = DDBSources.parseSource(this.race);
 
     if (this.race.isSubRace && this.race.baseRaceName) this.data.system.requirements = this.race.baseRaceName;
-    const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    if (legacyName && this.race.isLegacy) {
-      this.data.name += " (Legacy)";
-    }
 
     this.#addWeightSpeeds();
     this.#addSizeAdvancement();
@@ -941,9 +937,10 @@ export default class DDBRace {
     }
   }
 
-  async addToCompendium() {
+  async addToCompendium(update = null, compendiumImportTypes = ["species"]) {
+    if (!compendiumImportTypes.includes("species")) return;
     if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums")) return;
-    const updateFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+    const updateFeatures = update ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const traitHandlerOptions = {
       chrisPremades: true,
@@ -954,13 +951,7 @@ export default class DDBRace {
 
     const traitCompendiumFolders = new DDBCompendiumFolders("traits");
     await traitCompendiumFolders.loadCompendium("traits");
-
-    if (this.isLineage) {
-      await traitCompendiumFolders.createSubTraitFolders(this.groupName, this.groupName);
-    } else {
-      await traitCompendiumFolders.createSubTraitFolders(this.groupName, this.fullName);
-    }
-
+    await traitCompendiumFolders.createSubTraitFolders(this.data);
     const race = foundry.utils.deepClone(this.data);
 
     for (const advancement of race.system.advancement) {
