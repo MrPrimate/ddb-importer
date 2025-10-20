@@ -742,15 +742,19 @@ export class DDBCompendiumFolders {
   }
 
   async createSubTraitFolders(raceDocument) {
-    const parentSourceFolder = await this.#createSourceFolderFromDocument(raceDocument, "feat");
     const details = this.getRaceFolderName(raceDocument);
+    const categoryFolderData = DDBCompendiumFolders.getSourceCategoryFolderName({
+      type: "trait",
+      categoryId: details.categoryId,
+    });
+    const sourceFolder = await this._createSourceFolder(categoryFolderData.name, categoryFolderData.flagTag, categoryFolderData.color);
 
     logger.debug(`Checking for Species folder '${raceDocument.name}'`);
 
     const speciesBaseFolder = this.getFolder(details.name, details.flagTag)
       ?? (await this.createCompendiumFolder({
         name: details.name,
-        parentId: parentSourceFolder._id,
+        parentId: sourceFolder._id,
         color: "#222222",
         flagTag: details.flagTag,
       }));
@@ -1168,7 +1172,7 @@ export class DDBCompendiumFolders {
     const name = fullSpeciesName === groupName || isLineage
       ? "Traits"
       : `${fullSpeciesName} Traits`;
-    return DDBCompendiumFolders.getSourceFolderNameFromDocument({
+    return DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
       type: "trait",
       document,
       flagSuffix: `${groupName}/${tagName}`,
@@ -1182,7 +1186,7 @@ export class DDBCompendiumFolders {
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
     const name = groupName ?? speciesName;
 
-    return DDBCompendiumFolders.getSourceFolderNameFromDocument({
+    return DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
       type: "species",
       document,
       flagSuffix: utils.idString(name).toLowerCase(),

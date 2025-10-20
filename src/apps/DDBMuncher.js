@@ -471,7 +471,9 @@ export default class DDBMuncher extends DDBAppV2 {
     }
     if (tiers.supporter) {
       buttonSelectors.push('button[id^="munch-frames-start"]');
-      // buttonSelectors.push('button[id^="munch-species-start"]');
+    }
+    if (tiers.god) {
+      buttonSelectors.push('button[id^="munch-species-start"]');
       buttonSelectors.push('button[id^="munch-feats-start"]');
       buttonSelectors.push('button[id^="munch-classes-start"]');
       buttonSelectors.push('button[id^="munch-backgrounds-start"]');
@@ -636,13 +638,6 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async _parseSpeciesWithMule() {
-    this.notifierV2({
-      section: "name",
-      message: `Munching species is not yet supported via the Mule. Please use the DDB Importer Character Importer instead.`,
-    });
-  }
-
   async _parseWithMule(type) {
     this.autoRotateMessage(type);
     const baseOptions = {
@@ -745,7 +740,7 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching species!");
       this._disableButtons();
-      await this._parseSpeciesWithMule();
+      await this._parseWithMule("species");
       this.notifier(`Finished importing species!`, { nameField: true });
       this.notifier("");
     } catch (error) {

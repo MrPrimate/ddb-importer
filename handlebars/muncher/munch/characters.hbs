@@ -74,7 +74,7 @@
       {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Class Munch</button>
 
     <button data-action="parseSpecies" type="button" id="munch-species-start" class="munch-button"
-      disabled>Species Munch - Coming soon</button>
+      {{#if characterMunch}}enabled{{else}}disabled{{/if}}>Species Munch</button>
   </fieldset>
 
 </section>
