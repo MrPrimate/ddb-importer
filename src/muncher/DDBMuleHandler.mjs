@@ -344,17 +344,16 @@ export default class DDBMuleHandler {
     const total = this.source.speciesOptions.length;
     let current = 1;
 
-    logger.debug(`Processing ${total} species`, { species: this.source.speciesOptions, this: this });
+    logger.debug(`Processing ${total} species choices`, { species: this.source.speciesOptions, this: this });
     for (const speciesData of this.source.speciesOptions) {
       this.notifier({
         // progress: { current, total },
-        message: `Processing species ${current} of ${total}`,
+        message: `Processing species choice set ${current} of ${total}`,
       });
       const newStub = foundry.utils.deepClone(ddbStub);
-      foundry.utils.mergeObject(newStub.character, speciesData.raceResponse.data);
-      foundry.utils.mergeObject(newStub.character, (speciesData.raceChoices.slice(-1)?.data ?? null));
+      foundry.utils.mergeObject(newStub.character, speciesData.data);
 
-      logger.debug(`Processing species ${speciesData.raceResponse.data.race.fullName ?? speciesData.raceResponse.data.race.baseName} (${current} of ${total})`, {
+      logger.debug(`Processing species ${speciesData.data.race.fullName ?? speciesData.data.race.baseName} (${current} of ${total})`, {
         newStub,
         speciesData,
         current,
