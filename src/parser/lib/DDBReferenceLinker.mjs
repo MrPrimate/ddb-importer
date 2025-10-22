@@ -732,8 +732,8 @@ export async function replaceMonsterNameBadLinks(str, actor) {
     { lookup: "Aurumach Rilmani", linkWord: "aurumachs", hint: "monsters" },
     { lookup: "greater star spawn emissary", linkWord: "greater", hint: "monsters" },
     { lookup: "Swarm of Gremishkas", linkWord: "swarms", hint: "monsters" },
-    { lookup: "Magic", linkWord: "Cast a Spell", hunt: "rules" },
-    { lookup: "resistance", linkWord: "potion of resistance", hunt: "rules" },
+    { lookup: "Magic", linkWord: "Cast a Spell", hint: "rules" },
+    { lookup: "resistance", linkWord: "potion of resistance", hint: "rules" },
 
 
     // master of souls;Masters of Souls
