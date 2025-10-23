@@ -366,12 +366,15 @@ export default class DDBRace {
   }
 
   #generateAbilityAdvancement() {
+    // console.warn("Ability advancement", {
+    //   this: this,
+    // })
     if (!this.is2014) return;
-    this.race.racialTraits.forEach((t) => {
-      const trait = t.definition;
-      if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
-      this.#addAbilityScoreAdvancement(trait);
-    });
+    this.race.racialTraits
+      .filter((t) => ["Ability Score Increase", "Ability Score Increases"].includes(t.definition.name.trim()))
+      .forEach((t) => {
+        this.#addAbilityScoreAdvancement(t.definition);
+      });
     this.data.system.advancement.push(this.abilityAdvancement.toObject());
   }
 

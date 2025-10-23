@@ -1196,10 +1196,14 @@ export default class DDBClass {
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
-      const scaleAdvancements = foundryKlass.system.advancement.filter((foundryA) =>
-        foundryA.type === "ScaleValue"
-        && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === foundryA.configuration.identifier),
-      ).map((advancement) => {
+      const scaleAdvancements = foundryKlass.system.advancement.filter((foundryA) => {
+        let identifier = foundry.utils.getProperty(foundryA, "configuration.identifier");
+        if (!identifier || identifier === "") {
+          identifier = DDBDataUtils.classIdentifierName(foundryA.title);
+        }
+        return foundryA.type === "ScaleValue"
+          && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === identifier);
+      }).map((advancement) => {
         return advancement.toObject();
       });
       this.data.system.advancement.push(...scaleAdvancements);
