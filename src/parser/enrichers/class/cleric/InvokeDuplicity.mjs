@@ -4,11 +4,23 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 export default class InvokeDuplicity extends DDBEnricherData {
 
   get type() {
-    return "utility";
+    return "summon";
+  }
+
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getDuplicate;
+  }
+
+  get generateSummons() {
+    return true;
   }
 
   get activity() {
     return {
+      noTemplate: true,
+      profileKeys: [
+        { count: 1, name: "IllusionaryDuplicate" },
+      ],
       targetType: "self",
       activationType: "bonus",
       data: {
@@ -16,6 +28,7 @@ export default class InvokeDuplicity extends DDBEnricherData {
           value: "1",
           units: "minute",
         },
+        creatureSizes: ["sm", "med", "tiny"],
       },
     };
   }
