@@ -382,10 +382,8 @@ export default class DDBRace {
   #generateSkillAdvancement(trait) {
     // if (!["Skills"].includes(trait.name.trim())) return;
 
-    const mods = this.advancementHelper.noMods
-      ? []
-      : DDBModifiers.getModifiers(this.ddbData, "race")
-        .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
+    const mods = DDBModifiers.getModifiers(this.ddbData, "race")
+      .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
@@ -398,10 +396,8 @@ export default class DDBRace {
   #generateLanguageAdvancement(trait) {
     // if (!["Languages"].includes(trait.name.trim())) return;
 
-    const mods = this.advancementHelper.noMods
-      ? []
-      : DDBModifiers.getModifiers(this.ddbData, "race")
-        .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
+    const mods = DDBModifiers.getModifiers(this.ddbData, "race")
+      .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
     if (advancement) this.data.system.advancement.push(advancement.toObject());
@@ -410,10 +406,8 @@ export default class DDBRace {
   #generateToolAdvancement(trait) {
     // if (!["Tools"].includes(trait.name.trim())) return;
 
-    const mods = this.advancementHelper.noMods
-      ? []
-      : DDBModifiers.getModifiers(this.ddbData, "race")
-        .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
+    const mods = DDBModifiers.getModifiers(this.ddbData, "race")
+      .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getToolAdvancement(mods, trait, 0);
     if (advancement) this.data.system.advancement.push(advancement.toObject());
@@ -619,10 +613,8 @@ export default class DDBRace {
   }
 
   #generateConditionAdvancement(trait) {
-    const mods = this.advancementHelper.noMods
-      ? []
-      : DDBModifiers.getModifiers(this.ddbData, "race")
-        .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
+    const mods = DDBModifiers.getModifiers(this.ddbData, "race")
+      .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getConditionAdvancement(mods, trait, 0);
     if (advancement) this.data.system.advancement.push(advancement.toObject());
@@ -901,6 +893,10 @@ export default class DDBRace {
 
     for (const t of this.race.racialTraits) {
       const trait = t.definition;
+      logger.debug(`Processing trait: ${trait.name}`, {
+        trait,
+        this: this,
+      });
       this.#addFeatureDescription(trait);
       this.#typeCheck(trait);
       this.#flightCheck(trait);

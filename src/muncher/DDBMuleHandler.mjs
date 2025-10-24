@@ -351,7 +351,7 @@ export default class DDBMuleHandler {
         message: `Processing species choice set ${current} of ${total}`,
       });
       const newStub = foundry.utils.deepClone(ddbStub);
-      foundry.utils.mergeObject(newStub.character, speciesData.data);
+      newStub.character = speciesData.data;
 
       logger.debug(`Processing species ${speciesData.data.race.fullName ?? speciesData.data.race.baseName} (${current} of ${total})`, {
         newStub,
@@ -493,7 +493,6 @@ export default class DDBMuleHandler {
   }
 
   // TODO:
-  // class granted spells
   // Life domain parsing errors
   // Light domain parsing errors
 

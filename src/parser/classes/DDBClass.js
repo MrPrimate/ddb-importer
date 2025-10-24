@@ -1308,6 +1308,29 @@ export default class DDBClass {
     }
   }
 
+  _generateSubclassAdvancement() {
+    const subClassChoices = this.ddbData.character.choices.class.filter((c) => c.type === 7);
+    if (!subClassChoices) {
+      logger.warn(`No subclass choices found for ${this.name}`, {
+        this: this,
+      });
+      return;
+    }
+    const subClassFeature = this.classFeatures.find((f) =>
+      subClassChoices.some((c) => c.componentId === f.id));
+
+    if (!subClassFeature) {
+      logger.warn(`No subclass feature found for ${this.name}`, {
+        subClassChoices,
+        this: this,
+      });
+      return;
+    }
+    const advancement = new game.dnd5e.documents.advancement.SubclassAdvancement();
+    advancement.updateSource({ level: subClassFeature.requiredLevel });
+    this.data.system.advancement.push(advancement.toObject());
+  }
+
   async _generateCommonAdvancements() {
     this._generateScaleValueAdvancementsFromFeatures();
     await this._generateFeatureAdvancements();
@@ -1638,6 +1661,7 @@ export default class DDBClass {
     this._fleshOutCommonDataStub();
 
     // these are class specific
+    this._generateSubclassAdvancement();
     this._generateHPAdvancement(character);
     await this._generateCommonAdvancements();
     this._generateHitDice();

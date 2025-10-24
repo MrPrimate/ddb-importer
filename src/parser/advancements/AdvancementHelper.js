@@ -388,6 +388,10 @@ export default class AdvancementHelper {
       grants: parsedSkills.grants.map((grant) => `skills:${grant}`),
     });
 
+    // console.warn("Final skill advancement", {
+    //   advancement
+    // });
+
     return advancement;
   }
 
@@ -476,7 +480,7 @@ export default class AdvancementHelper {
         : `${tool.toolType}:${tool.baseTool}`;
     });
 
-    const count = this.isMuncher || parsedTools.number > 0 || parsedTools.grants.length > 0
+    const count = parsedTools.number > 0 || parsedTools.grants.length > 0
       ? parsedTools.number > 0
         ? parsedTools.number
         : 1
@@ -553,7 +557,7 @@ export default class AdvancementHelper {
         : `${armor.advancement}:${armor.foundryValue}`;
     });
 
-    const count = this.isMuncher || parsedArmors.number > 0 || parsedArmors.grants.length > 0
+    const count = parsedArmors.number > 0 || parsedArmors.grants.length > 0
       ? parsedArmors.number > 0
         ? parsedArmors.number
         : 1
@@ -849,6 +853,8 @@ export default class AdvancementHelper {
       grants,
     });
 
+    // console.warn("Generated expertise advancement", advancement)
+
     return advancement;
 
   }
@@ -881,7 +887,7 @@ export default class AdvancementHelper {
 
     const parsedConditions = AdvancementHelper.parseHTMLConditions(feature.description);
 
-    const count = this.isMuncher || parsedConditions.number > 0 || parsedConditions.grants.length > 0
+    const count = parsedConditions.number > 0 || parsedConditions.grants.length > 0
       ? parsedConditions.number > 0
         ? parsedConditions.number
         : 1
