@@ -1,7 +1,13 @@
 # Next Up
 
+# 6.6.5
+
 - Class compendium matching tweaks, when munching duplicates maybe created due to new id matching schema.
 - 2024 Bolt was not detecting Ammunition type correctly.
+- Class advancement improvements
+- Blindsight sense detection improvements for tokens.
+- Species Munch available to GOD tier patreons.
+- Invoke Duplicity now uses a summon activity.
 
 # 6.6.4
 
