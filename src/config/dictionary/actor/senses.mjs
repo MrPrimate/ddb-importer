@@ -22,7 +22,7 @@ export const SENSES = {
   },
   // CONFIG.Canvas.detectionModes
   detectionMap: {
-    blindsight: "senseAll",
+    blindsight: "blindsight",
     truesight: "seeAll",
     tremorsense: "feelTremor",
   },
