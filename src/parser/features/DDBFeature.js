@@ -94,6 +94,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       system: SystemHelpers.getTemplate(this.documentType),
       flags: {
         ddbimporter: {
+          isChoiceFeature: this.isChoiceFeature,
           id: this.ddbDefinition.id,
           type: this.tagType,
           entityTypeId: this.ddbDefinition.entityTypeId,

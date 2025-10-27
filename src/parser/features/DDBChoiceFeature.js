@@ -220,6 +220,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         summons: {
           folder: ddbFeature.originalName,
         },
+        isChoice: true,
       },
     };
 

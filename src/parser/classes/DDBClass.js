@@ -677,13 +677,38 @@ export default class DDBClass {
     const classFeatures = this.classFeatures.filter((feature) =>
       !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)
       || (this.is2014 && DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(feature.name)));
-    // console.warn(this);
     for (const feature of classFeatures) {
-      // console.warn(feature);
       await this._generateFeatureAdvancementFromCompendiumMatch(feature);
     }
 
     // TO DO: for choice features such as fighting styles:
+
+    // const type3Choices = this.ddbData.character.choices.class
+    //   .filter((choice) =>
+    //     choice.type === 3 // class choice feature
+    //     && (!def.defaultSubtypes || def.defaultSubtypes.length === 0) // this kind of feature grants a fixed thing
+    //   );
+    // const choiceFeatures = classFeatures.filter((f) => {
+    //   type3Choices.
+    // });
+
+    // for each feature with typ3 choices, build an item choice advancement
+    // then search for matching features from the choicedefintiions.
+
+    for (const feature of classFeatures) {
+      // console.warn(feature);
+      const choices = this.ddbData.character.choices.class
+        .filter((choice) =>
+          choice.type === 3 // class choice feature
+          && (!choice.defaultSubtypes || choice.defaultSubtypes.length === 0) // this kind of feature grants a fixed thing
+          && choice.componentId === feature.id,
+        );
+      if (choices.length === 0) continue;
+
+      // check choice.label for /level (d+) /i to get level
+      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}.choices.feature.${feature.name}`, choices);
+
+    }
 
     // {
     //   "type": "ItemChoice",

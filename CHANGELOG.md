@@ -1,5 +1,7 @@
 # Next Up
 
+- Blessing of the Raven Queen feature parsing improvements.
+
 # 6.6.5
 
 - Class compendium matching tweaks, when munching duplicates maybe created due to new id matching schema.
