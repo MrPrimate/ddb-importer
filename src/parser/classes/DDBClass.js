@@ -674,6 +674,8 @@ export default class DDBClass {
     logger.debug(`Parsing ${this.name} features for advancement`);
     this.featureAdvancements = [];
 
+    const version = this.is2014 ? "2014" : "2024";
+
     const classFeatures = this.classFeatures.filter((feature) =>
       !DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS.includes(feature.name)
       || (this.is2014 && DDBClass.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(feature.name)));
@@ -681,17 +683,7 @@ export default class DDBClass {
       await this._generateFeatureAdvancementFromCompendiumMatch(feature);
     }
 
-    // TO DO: for choice features such as fighting styles:
-
-    // const type3Choices = this.ddbData.character.choices.class
-    //   .filter((choice) =>
-    //     choice.type === 3 // class choice feature
-    //     && (!def.defaultSubtypes || def.defaultSubtypes.length === 0) // this kind of feature grants a fixed thing
-    //   );
-    // const choiceFeatures = classFeatures.filter((f) => {
-    //   type3Choices.
-    // });
-
+    // for choice features such as fighting styles:
     // for each feature with typ3 choices, build an item choice advancement
     // then search for matching features from the choicedefintiions.
 
@@ -705,12 +697,23 @@ export default class DDBClass {
         );
       if (choices.length === 0) continue;
 
-      // check choice.label for /level (d+) /i to get level
-      const version = this.is2014 ? "2014" : "2024";
-      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}`, choices);
-      const getExistingClassChoiceFeatures = foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.featuresWithChoices`) ?? [];
-      getExistingClassChoiceFeatures.push(feature.name);
-      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.featuresWithChoices`, getExistingClassChoiceFeatures);
+      if (choices.length === 1) {
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}`, choices);
+        const getExistingClassChoiceFeatures = new Set(foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithSingularChoice.${this.name}${version}`) ?? []);
+        getExistingClassChoiceFeatures.add(feature.name);
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithSingularChoice.${this.name}${version}`, Array.from(getExistingClassChoiceFeatures));
+      } else {
+        // check choice.label for /level (d+) /i to get level
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}`, choices);
+        const getExistingClassChoiceFeatures = new Set(foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithChoices.${this.name}${version}`) ?? []);
+        getExistingClassChoiceFeatures.add(feature.name);
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithChoices.${this.name}${version}`, Array.from(getExistingClassChoiceFeatures));
+
+        const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions.filter((cd) =>
+          choices.some((c) => `${c.componentTypeId}-${c.type}` === cd.id),
+        );
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}-definitions`, choiceDefinitions);
+      }
 
     }
 
