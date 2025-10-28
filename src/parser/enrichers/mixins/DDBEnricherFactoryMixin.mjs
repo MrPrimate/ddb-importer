@@ -525,6 +525,9 @@ export default class DDBEnricherFactoryMixin {
     if (overrideData.midiDamageReaction && AutoEffects.effectModules().midiQolInstalled)
       MidiEffects.reactionOnDamage(this.data);
 
+    if (overrideData.midiReactionCondition && AutoEffects.effectModules().midiQolInstalled)
+      MidiEffects.reactionCondition(this.data, overrideData.midiReactionCondition);
+
     if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
       foundry.utils.setProperty(activity, "attack.flat", true);

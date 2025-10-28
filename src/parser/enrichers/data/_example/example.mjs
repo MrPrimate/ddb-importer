@@ -54,6 +54,7 @@ export default class Example extends DDBEnricherData {
       profileKeys: [], // array of summon profile keys to use
       summons: {}, // data to merge to summon config
       splitDamage: true, // used by the spell parser to split damage
+      midiReactionCondition: `reaction == "isSaveFail"`,
     };
   }
 
