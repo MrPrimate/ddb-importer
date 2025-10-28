@@ -698,13 +698,13 @@ export default class DDBClass {
       if (choices.length === 0) continue;
 
       if (choices.length === 1) {
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}`, choices);
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choices`, choices);
         const getExistingClassChoiceFeatures = new Set(foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithSingularChoice.${this.name}${version}`) ?? []);
         getExistingClassChoiceFeatures.add(feature.name);
         foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithSingularChoice.${this.name}${version}`, Array.from(getExistingClassChoiceFeatures));
       } else {
         // check choice.label for /level (d+) /i to get level
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}`, choices);
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choices`, choices);
         const getExistingClassChoiceFeatures = new Set(foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithChoices.${this.name}${version}`) ?? []);
         getExistingClassChoiceFeatures.add(feature.name);
         foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithChoices.${this.name}${version}`, Array.from(getExistingClassChoiceFeatures));
@@ -712,7 +712,7 @@ export default class DDBClass {
         const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions.filter((cd) =>
           choices.some((c) => `${c.componentTypeId}-${c.type}` === cd.id),
         );
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}-definitions`, choiceDefinitions);
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choiceDefinitions`, choiceDefinitions);
       }
 
     }
