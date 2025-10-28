@@ -40,6 +40,9 @@ export default class Example extends DDBEnricherData {
       activationCondition: "A string", // activation condition
       overrideActivation: true, // add override activation
       midiManualReaction: true, // add midi manual reaction
+      midiUseCondition: `reaction == "isSaveFail"`,
+      midiSaveReaction: true, // add midi save reaction
+      midiHealingReaction: true, // add midi healing reaction
       flatAttack: "1", // flat attack value, sets flat attack for activity
       removeDamageParts: true, // remove existing damage parts
       damageParts: [], // adds damage parts
@@ -54,7 +57,6 @@ export default class Example extends DDBEnricherData {
       profileKeys: [], // array of summon profile keys to use
       summons: {}, // data to merge to summon config
       splitDamage: true, // used by the spell parser to split damage
-      midiReactionCondition: `reaction == "isSaveFail"`,
     };
   }
 

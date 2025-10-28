@@ -195,7 +195,9 @@ export default class DDBEnricherData {
    *   activationCondition: {string} Activation condition.
    *   overrideActivation: {boolean} Add override activation.
    *   midiManualReaction: {boolean} Add midi manual reaction.
-   *   midiReactionCondition: {string} Add midi condition.
+   *   midiUseCondition: {string} Add midi condition.
+   *   midiSaveReaction: {boolean} Add midi save reaction.
+   *   midiHealingReaction: {boolean} Add midi healing reaction.
    *   flatAttack: {string} Flat attack value, sets flat attack for activity.
    *   removeDamageParts: {boolean} remove existing damage parts
    *   damageParts: {object[]} Adds damage parts.

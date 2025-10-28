@@ -4,8 +4,8 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class DivineSmite extends DDBEnricherData {
   get activity() {
     return {
+      midiUseCondition: `!["fiend", "undead"].includes(raceOrType)`,
       data: {
-        useConditionText: `!["fiend", "undead"].includes(raceOrType)`,
         damage: {
           critical: {
             allow: true,
@@ -30,8 +30,8 @@ export default class DivineSmite extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "vs Fiends or Undead",
+          midiUseCondition: `!["fiend", "undead"].includes(raceOrType)`,
           data: {
-            useConditionText: `["fiend", "undead"].includes(raceOrType)`,
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({

@@ -16,14 +16,4 @@ export default class MidiEffects {
     return midiFlags;
   }
 
-  static forceManualReaction(document) {
-    foundry.utils.setProperty(document, "flags.midi-qol.reactionCondition", "false");
-    return document;
-  }
-
-  static reactionOnDamage(document) {
-    foundry.utils.setProperty(document, "flags.midi-qol.reactionCondition", "reaction == 'isDamaged'");
-    return document;
-  }
-
 }

@@ -12,8 +12,8 @@ export default class DivineSmite extends DDBEnricherData {
       targetType: "creature",
       activationType: "special",
       addConsumptionScalingMax: "5",
+      midiUseCondition: `!["fiend", "undead"].includes(raceOrType)`,
       data: {
-        useConditionText: `!["fiend", "undead"].includes(raceOrType)`,
         consumption: {
           targets: [
             {
@@ -50,8 +50,8 @@ export default class DivineSmite extends DDBEnricherData {
         duplicate: true,
         overrides: {
           name: "vs Fiends or Undead",
+          midiUseCondition: `!["fiend", "undead"].includes(raceOrType)`,
           data: {
-            useConditionText: `["fiend", "undead"].includes(raceOrType)`,
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({

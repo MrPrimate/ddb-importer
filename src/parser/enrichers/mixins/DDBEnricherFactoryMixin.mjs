@@ -2,7 +2,7 @@ import { SETTINGS } from "../../../config/_module.mjs";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module.mjs";
 import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module.mjs";
-import { AutoEffects, EnchantmentEffects, MidiEffects, ChangeHelper } from "../effects/_module.mjs";
+import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module.mjs";
 
 export default class DDBEnricherFactoryMixin {
 
@@ -520,13 +520,19 @@ export default class DDBEnricherFactoryMixin {
       foundry.utils.setProperty(activity, "activation.override", true);
 
     if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled)
-      MidiEffects.forceManualReaction(this.data);
+      activity.useConditionText = "false";
 
     if (overrideData.midiDamageReaction && AutoEffects.effectModules().midiQolInstalled)
-      MidiEffects.reactionOnDamage(this.data);
+      activity.useConditionText = `reaction == 'isDamaged'`;
 
-    if (overrideData.midiReactionCondition && AutoEffects.effectModules().midiQolInstalled)
-      MidiEffects.reactionCondition(this.data, overrideData.midiReactionCondition);
+    if (overrideData.midiHealingReaction && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = `reaction == 'isHealed'`;
+
+    if (overrideData.midiSaveReaction && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = `reaction == 'isSaveFail'`;
+
+    if (overrideData.midiUseCondition && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = overrideData.midiUseCondition;
 
     if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
       foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
