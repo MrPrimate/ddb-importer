@@ -706,7 +706,11 @@ export default class DDBClass {
       if (choices.length === 0) continue;
 
       // check choice.label for /level (d+) /i to get level
-      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}.choices.feature.${feature.name}`, choices);
+      const version = this.is2014 ? "2014" : "2024";
+      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.choices.${feature.name}`, choices);
+      const getExistingClassChoiceFeatures = foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.featuresWithChoices`) ?? [];
+      getExistingClassChoiceFeatures.push(feature.name);
+      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.featuresWithChoices`, getExistingClassChoiceFeatures);
 
     }
 

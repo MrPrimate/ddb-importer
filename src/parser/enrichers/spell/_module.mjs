@@ -131,6 +131,7 @@ export { default as MinorIllusion } from "./MinorIllusion.mjs";
 export { default as MirrorImage } from "./MirrorImage.mjs";
 export { default as Mislead } from "./Mislead.mjs";
 export { default as MistyStep } from "./MistyStep.mjs";
+export { default as OrrosMarkOfFate } from "./OrrosMarkOfFate.mjs";
 export { default as PassWithoutTrace } from "./PassWithoutTrace.mjs";
 export { default as PhantasmalKiller } from "./PhantasmalKiller.mjs";
 export { default as PhantomSteed } from "./PhantomSteed.mjs";
