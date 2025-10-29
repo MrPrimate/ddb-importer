@@ -67,6 +67,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     else if (classFeatureName === "Invocation") subType = "eldritchInvocation";
     else if (classFeatureName === "Fighting Style") subType = "fightingStyle";
     else if (classFeatureName === "Maneuver") subType = "maneuver";
+    else if (classFeatureName === "Maneuver Options") subType = "maneuver";
     else if (classFeatureName === "Battle Master Maneuver") subType = "maneuver";
     else if (classFeatureName === "Metamagic") subType = "metamagic";
     else if (classFeatureName.startsWith("Pact of the")) subType = "pact";

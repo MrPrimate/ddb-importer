@@ -564,6 +564,8 @@ export default class DDBClass {
       return null;
     }
 
+    console.warn("Searching for feature with flags:", flags);
+
     return this._compendiums.features.index.find((match) => {
       return Object.entries(flags).every(([key, value]) => {
         return foundry.utils.getProperty(match, `flags.ddbimporter.${key}`) === value;
@@ -715,9 +717,11 @@ export default class DDBClass {
 
       for (const choice of choices) {
         // build a list of options for each choice
-        const choiceLevel = // check choice.label for /level (d+) /i to get level
-        const key = `${choice.componentTypeId}-${choice.type}-${feature.requiredLevel ?? 0}-`;
-        const choiceDefinition = this.ddbData.character.choices.choiceDefinitions.find((def) => def.id === key);
+        const choiceRegex = /level (d+) /i;
+        const choiceLevel = choice.label.match(choiceRegex);
+        const level = choiceLevel && choiceLevel.length > 1 ? parseInt(choiceLevel[1]) : 0;
+        const key = `${choice.componentTypeId}-${choice.type}-${feature.requiredLevel ?? 0}-${level}`;
+        const choiceDefinition = this.ddbData.character.choices.choiceDefinitions.find((def) => def.id === `${choice.componentTypeId}-${choice.type}`);
         if (!choiceDefinition) {
           logger.warn(`Could not find choice definition for ${key}`);
           continue;
@@ -736,15 +740,22 @@ export default class DDBClass {
         // entityTypeId: "222216831"
         // id: "9414084"
 
-        for (const optionId of choiceOptions) {
+        const features = [];
+        for (const option of choiceOptions) {
+          console.warn(`Finding feature for choice option ${option.id} (${option.label}) for feature ${feature.name}`, option);
           const actionFeature = this.getCompendiumFeatureByFlags({
-            componentId: optionId,
+            componentId: option.id,
             is2014: this.is2014,
             is2024: this.is2024,
             classId: this.ddbClassDefinition.id,
           });
-          if (actionFeature) choiceFeatures.push(actionFeature);
+          if (actionFeature) features.push(actionFeature);
+          else console.warn(`Could not find feature for choice option id ${option.id} for feature ${feature.name}`);
         }
+
+        this.choiceMap.set(key, features);
+        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.compendiumChoices`, features);
+
 
       }
 
@@ -772,6 +783,8 @@ export default class DDBClass {
       }
 
     }
+
+    foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.choiceMap`, this.choiceMap);
 
     // {
     //   "type": "ItemChoice",
