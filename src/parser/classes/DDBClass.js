@@ -27,6 +27,8 @@ export default class DDBClass {
 
   isMuncher = false;
 
+  choiceMap = new Map();
+
   static SPECIAL_ADVANCEMENTS = {
     "Wild Shape": {
       fix: true,
@@ -70,6 +72,7 @@ export default class DDBClass {
     "Training in War and Song",
     "Blessings of Knowledge",
     "Elegant Courtier", // this is a you get a thing or otherwise choose from two others
+    "Blessings of Knowledge",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -132,6 +135,7 @@ export default class DDBClass {
     "Gunsmith",
     "Implements of Mercy",
     "Master of Intrigue",
+    "Blessings of Knowledge",
   ];
 
   static ARMOR_FEATURES = [
@@ -532,7 +536,7 @@ export default class DDBClass {
    */
   getFeatureCompendiumMatch(feature) {
     if (!this._compendiums.features) {
-      return [];
+      return null;
     }
     return this._compendiums.features.index.find((match) => {
       const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
@@ -552,6 +556,18 @@ export default class DDBClass {
         && matchFlags.subClass === this.name
         && matchFlags.subClassId == this.ddbClassDefinition.id;
       return featureClassMatch || featureSubclassMatch;
+    });
+  }
+
+  getCompendiumFeatureByFlags(flags) {
+    if (!this._compendiums.features) {
+      return null;
+    }
+
+    return this._compendiums.features.index.find((match) => {
+      return Object.entries(flags).every(([key, value]) => {
+        return foundry.utils.getProperty(match, `flags.ddbimporter.${key}`) === value;
+      });
     });
   }
 
@@ -697,6 +713,41 @@ export default class DDBClass {
         );
       if (choices.length === 0) continue;
 
+      for (const choice of choices) {
+        // build a list of options for each choice
+        const choiceLevel = // check choice.label for /level (d+) /i to get level
+        const key = `${choice.componentTypeId}-${choice.type}-${feature.requiredLevel ?? 0}-`;
+        const choiceDefinition = this.ddbData.character.choices.choiceDefinitions.find((def) => def.id === key);
+        if (!choiceDefinition) {
+          logger.warn(`Could not find choice definition for ${key}`);
+          continue;
+        }
+        const choiceOptions = choiceDefinition.options
+          .filter((o) => choice.optionIds.includes(o.id));
+
+        if (choiceOptions.length === 0) {
+          logger.warn(`Could not find choice options for ${key} with option Ids: ${choice.optionIds.join(", ")}`);
+          continue;
+        }
+
+        // classId: 2190884
+        // componentId: 4496863
+        // componentTypeId: 258900837
+        // entityTypeId: "222216831"
+        // id: "9414084"
+
+        for (const optionId of choiceOptions) {
+          const actionFeature = this.getCompendiumFeatureByFlags({
+            componentId: optionId,
+            is2014: this.is2014,
+            is2024: this.is2024,
+            classId: this.ddbClassDefinition.id,
+          });
+          if (actionFeature) choiceFeatures.push(actionFeature);
+        }
+
+      }
+
       if (choices.length === 1) {
         foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choices`, choices);
         const getExistingClassChoiceFeatures = new Set(foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithSingularChoice.${this.name}${version}`) ?? []);
@@ -709,10 +760,15 @@ export default class DDBClass {
         getExistingClassChoiceFeatures.add(feature.name);
         foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithChoices.${this.name}${version}`, Array.from(getExistingClassChoiceFeatures));
 
-        const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions.filter((cd) =>
+        const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions.find((cd) =>
           choices.some((c) => `${c.componentTypeId}-${c.type}` === cd.id),
-        );
+        ) ?? [];
         foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choiceDefinitions`, choiceDefinitions);
+        // const choiceOptions = choiceDefinitions.options
+        //   .filter((o) => feature.optionIds.includes(o.id));
+        // foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choiceOptions`, choiceOptions);
+
+
       }
 
     }

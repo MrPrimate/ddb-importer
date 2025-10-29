@@ -182,10 +182,16 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   _getActionParent() {
-    if (this.ddbDefinition.componentId)
-      return DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
-    else
-      return null;
+    let parent = null;
+    if (this.ddbDefinition.componentId) {
+      parent = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
+      if (parent) return parent;
+      const choiceElement = this.ddbData.character.choices[this.type]?.find((c) => c.optionValue === this.ddbDefinition.componentId);
+      if (choiceElement) {
+        parent = DDBDataUtils.findComponentByComponentId(this.ddbData, choiceElement.componentId);
+      }
+    }
+    return parent;
   }
 
   _checkSummons() {
@@ -204,6 +210,17 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       || this.isCompanionFeature2024
       || this.isCRSummonFeature2014
       || this.isCRSummonFeature2024;
+  }
+
+  _getRules() {
+    const sources = (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? []);
+    const sourceIds = sources.map((sm) => sm.sourceId);
+    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
+      sourceIds.includes(ddbSource.id)
+      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
+    );
+    this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
+    this.is2024 = !this.is2014;
   }
 
   constructor({
@@ -261,16 +278,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
     this._parent = this._getActionParent();
-
-    const sources = (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? []);
-    const sourceIds = sources.map((sm) => sm.sourceId);
-    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
-      sourceIds.includes(ddbSource.id)
-      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
-    );
-    this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
-    this.is2024 = !this.is2014;
-
+    this._getRules();
     this._generateDataStub();
 
     const intMatch = /^(\d+: )(.*)$/;

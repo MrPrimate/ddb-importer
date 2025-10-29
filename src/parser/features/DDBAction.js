@@ -20,7 +20,6 @@ export default class DDBAction extends DDBFeatureMixin {
     logger.debug(`Generating Action ${this.ddbDefinition.name}`);
   }
 
-
   displayAsAttack() {
     const customDisplay = this.rawCharacter
       ? DDBDataUtils.getCustomValueFromCharacter(this.ddbDefinition, this.rawCharacter, 16)
