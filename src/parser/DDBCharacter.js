@@ -294,6 +294,9 @@ export default class DDBCharacter {
       if (this.addToCompendiums) {
         await this._generateRace(true);
         await this._generateClass(true);
+
+        this.data.classes = this.raw.classes;
+        this.data.race = this.raw.race;
       }
 
       this._classParser.linkFeatures();

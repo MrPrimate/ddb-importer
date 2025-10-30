@@ -10,6 +10,7 @@ import { getSpellCastingAbility } from "../spells/ability.js";
 import AdvancementHelper from '../advancements/AdvancementHelper.js';
 import { SETTINGS, DICTIONARY } from '../../config/_module.mjs';
 import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from '../lib/_module.mjs';
+import DDBFeatureMixin from '../features/DDBFeatureMixin.js';
 
 export default class DDBClass {
 
@@ -417,6 +418,10 @@ export default class DDBClass {
           "flags.ddbimporter.parentClassId",
           "flags.ddbimporter.originalName",
           "flags.ddbimporter.featureMeta",
+          "flags.ddbimporter.dndbeyond.choice.optionId",
+          "flags.ddbimporter.isChoice",
+          "flags.ddbImporter.is2014",
+          "flags.ddbImporter.is2024",
         ],
       },
       feats: {
@@ -438,6 +443,7 @@ export default class DDBClass {
     this.isMuncher = isMuncher ?? this.isMuncher;
     this.ddbData = ddbData;
     this.ddbClass = ddbData.character.classes.find((c) => c.definition.id === classId);
+    this.ddbParentClassDefinition = this.ddbClass.definition;
     this.ddbClassDefinition = this.ddbClass.definition;
     this.name = this.ddbClassDefinition.name;
     this.className = this.ddbClass.definition.name;
@@ -563,8 +569,7 @@ export default class DDBClass {
     if (!this._compendiums.features) {
       return null;
     }
-
-    console.warn("Searching for feature with flags:", flags);
+    logger.verbose("Searching for feature with flags:", flags);
 
     return this._compendiums.features.index.find((match) => {
       return Object.entries(flags).every(([key, value]) => {
@@ -658,8 +663,12 @@ export default class DDBClass {
   featureAdvancements = [];
 
   async _generateFeatureAdvancementFromCompendiumMatch(feature) {
+    logger.debug(`Trying to generate advancement for feature: ${feature.name}`);
     const featureMatch = this.getFeatureCompendiumMatch(feature);
     if (!featureMatch) {
+      if (this.isMuncher && this.addToCompendium) {
+        logger.warn(`Could not find feature advancement match for feature ${feature.name}`);
+      }
       return;
     }
     const levelAdvancement = this.featureAdvancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
@@ -688,6 +697,88 @@ export default class DDBClass {
 
   }
 
+  async _generateFeatureAdvancement(feature, choices) {
+    const keys = new Set();
+    const version = this.is2014 ? "2014" : "2024";
+    const uuids = new Set();
+    const configChoices = {};
+
+    for (const choice of choices) {
+      // build a list of options for each choice
+      const choiceRegex = /level (\d+) /i;
+      const choiceLevel = choice.label.match(choiceRegex);
+      const level = choiceLevel && choiceLevel.length > 1 ? parseInt(choiceLevel[1]) : 0;
+      const currentCount = parseInt(configChoices[level]?.count ?? 0);
+      configChoices[level] = { count: currentCount + 1, replacement: false };
+
+      const key = `${choice.componentTypeId}-${choice.type}-${feature.requiredLevel ?? 0}-${level}`;
+      const choiceDefinition = this.ddbData.character.choices.choiceDefinitions.find((def) => def.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!choiceDefinition) {
+        logger.warn(`Could not find choice definition for ${key}`);
+        continue;
+      }
+      const choiceOptions = choiceDefinition.options
+        .filter((o) => choice.optionIds.includes(o.id));
+
+      if (choiceOptions.length === 0) {
+        logger.warn(`Could not find choice options for ${key} with option Ids: ${choice.optionIds.join(", ")}`);
+        continue;
+      }
+      keys.add(key);
+
+      const features = [];
+      for (const option of choiceOptions) {
+        logger.verbose(`Finding feature for choice option ${option.id} (${option.label}) for feature ${feature.name}`, option);
+        const compendiumFeature = this.getCompendiumFeatureByFlags({ // action feature
+          componentId: option.id,
+          is2014: this.is2014,
+          is2024: this.is2024,
+          classId: this.ddbParentClassDefinition.id,
+        })
+        ?? this.getCompendiumFeatureByFlags({ // choice feature
+          "isChoice": true,
+          classId: this.ddbParentClassDefinition.id,
+          "dndbeyond.choice.optionId": option.id,
+        });
+        if (compendiumFeature) {
+          features.push(compendiumFeature);
+          uuids.add(compendiumFeature.uuid);
+        } else if (this.isMuncher) {
+          logger.warn(`Could not find choice feature option id ${option.id} (${option.label}) for feature ${feature.name}`);
+        }
+      }
+
+      this.choiceMap.set(key, features);
+      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.compendiumChoices`, features);
+    }
+
+    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+
+    // TODO: handle replacements on configChoices e.g. eldritch invocations
+    advancement.updateSource({
+      title: feature.name,
+      hint: feature.snippet ?? feature.description ?? "",
+      configuration: {
+        restriction: {
+          type: "class",
+          subtype: DDBFeatureMixin.getFeatureSubtype(feature.name, "class", true),
+        },
+        choices: configChoices,
+        type: "feat",
+        pool: Array.from(uuids).map((f) => {
+          return { uuid: f };
+        }),
+        allowDrops: true,
+      },
+      icons: "icons/magic/symbols/cog-orange-red.webp",
+    });
+
+    // TODO: handle chosen advancements on non muncher classes
+
+    this.data.system.advancement.push(advancement.toObject());
+
+  }
+
   async _generateFeatureAdvancements() {
     logger.debug(`Parsing ${this.name} features for advancement`);
     this.featureAdvancements = [];
@@ -700,11 +791,16 @@ export default class DDBClass {
     for (const feature of classFeatures) {
       await this._generateFeatureAdvancementFromCompendiumMatch(feature);
     }
+    this.data.system.advancement = this.data.system.advancement.concat(this.featureAdvancements);
+
+    console.warn({
+      this: this,
+      featureAdvancements: foundry.utils.deepClone(this.featureAdvancements),
+    });
 
     // for choice features such as fighting styles:
     // for each feature with typ3 choices, build an item choice advancement
     // then search for matching features from the choicedefintiions.
-
     for (const feature of classFeatures) {
       // console.warn(feature);
       const choices = this.ddbData.character.choices.class
@@ -715,113 +811,13 @@ export default class DDBClass {
         );
       if (choices.length === 0) continue;
 
-      for (const choice of choices) {
-        // build a list of options for each choice
-        const choiceRegex = /level (d+) /i;
-        const choiceLevel = choice.label.match(choiceRegex);
-        const level = choiceLevel && choiceLevel.length > 1 ? parseInt(choiceLevel[1]) : 0;
-        const key = `${choice.componentTypeId}-${choice.type}-${feature.requiredLevel ?? 0}-${level}`;
-        const choiceDefinition = this.ddbData.character.choices.choiceDefinitions.find((def) => def.id === `${choice.componentTypeId}-${choice.type}`);
-        if (!choiceDefinition) {
-          logger.warn(`Could not find choice definition for ${key}`);
-          continue;
-        }
-        const choiceOptions = choiceDefinition.options
-          .filter((o) => choice.optionIds.includes(o.id));
-
-        if (choiceOptions.length === 0) {
-          logger.warn(`Could not find choice options for ${key} with option Ids: ${choice.optionIds.join(", ")}`);
-          continue;
-        }
-
-        // classId: 2190884
-        // componentId: 4496863
-        // componentTypeId: 258900837
-        // entityTypeId: "222216831"
-        // id: "9414084"
-
-        const features = [];
-        for (const option of choiceOptions) {
-          console.warn(`Finding feature for choice option ${option.id} (${option.label}) for feature ${feature.name}`, option);
-          const actionFeature = this.getCompendiumFeatureByFlags({
-            componentId: option.id,
-            is2014: this.is2014,
-            is2024: this.is2024,
-            classId: this.ddbClassDefinition.id,
-          });
-          if (actionFeature) features.push(actionFeature);
-          else console.warn(`Could not find feature for choice option id ${option.id} for feature ${feature.name}`);
-        }
-
-        this.choiceMap.set(key, features);
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.compendiumChoices`, features);
-
-
-      }
-
-      if (choices.length === 1) {
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choices`, choices);
-        const getExistingClassChoiceFeatures = new Set(foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithSingularChoice.${this.name}${version}`) ?? []);
-        getExistingClassChoiceFeatures.add(feature.name);
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithSingularChoice.${this.name}${version}`, Array.from(getExistingClassChoiceFeatures));
-      } else {
-        // check choice.label for /level (d+) /i to get level
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choices`, choices);
-        const getExistingClassChoiceFeatures = new Set(foundry.utils.getProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithChoices.${this.name}${version}`) ?? []);
-        getExistingClassChoiceFeatures.add(feature.name);
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.classFeaturesWithChoices.${this.name}${version}`, Array.from(getExistingClassChoiceFeatures));
-
-        const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions.find((cd) =>
-          choices.some((c) => `${c.componentTypeId}-${c.type}` === cd.id),
-        ) ?? [];
-        foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choiceDefinitions`, choiceDefinitions);
-        // const choiceOptions = choiceDefinitions.options
-        //   .filter((o) => feature.optionIds.includes(o.id));
-        // foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.choiceOptions`, choiceOptions);
-
-
-      }
-
+      // TODO: determine if different features at each level, if so, create multiple advancements
+      await this._generateFeatureAdvancement(feature, choices);
     }
 
     foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.choiceMap`, this.choiceMap);
 
-    // {
-    //   "type": "ItemChoice",
-    //   "configuration": {
-    //     "hint": "Choose one of the following options. You can’t take a Fighting Style option more than once, even if you later get to choose again.",
-    //     "choices": {
-    //       "2": 1
-    //     },
-    //     "allowDrops": true,
-    //     "type": "feat",
-    //     "pool": [
-    //       "Compendium.dnd5e.classfeatures.8YwPFv3UAPjWVDNf",
-    //       "Compendium.dnd5e.classfeatures.zSlV0O2rQMdoq6pB",
-    //       "Compendium.dnd5e.classfeatures.hCop9uJrWhF1QPb4",
-    //       "Compendium.dnd5e.classfeatures.mHcSjcHJ8oZu3hkb"
-    //     ],
-    //     "spell": {
-    //       "ability": "",
-    //       "preparation": "",
-    //       "uses": {
-    //         "max": "",
-    //         "per": ""
-    //       }
-    //     },
-    //     "restriction": {
-    //       "type": "class",
-    //       "subtype": "fightingStyle",
-    //       "level": ""
-    //     }
-    //   },
-    //   "value": {},
-    //   "title": "Fighting Style",
-    //   "icon": "systems/dnd5e/icons/svg/item-choice.svg",
-    //   "_id": "ih8WlydEZdg3rCPh"
-    // },
 
-    this.data.system.advancement = this.data.system.advancement.concat(this.featureAdvancements);
   }
 
   _generateScaleValueAdvancementsFromFeatures() {
@@ -1428,7 +1424,11 @@ export default class DDBClass {
       return;
     }
     const advancement = new game.dnd5e.documents.advancement.SubclassAdvancement();
-    advancement.updateSource({ level: subClassFeature.requiredLevel });
+    advancement.updateSource({
+      title: subClassFeature.name,
+      hint: subClassFeature.snippet ?? subClassFeature.description ?? "",
+      level: subClassFeature.requiredLevel,
+    });
     this.data.system.advancement.push(advancement.toObject());
   }
 

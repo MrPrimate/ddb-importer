@@ -2,6 +2,7 @@ import DDBFeature from "./DDBFeature.js";
 import { utils, logger } from "../../lib/_module.mjs";
 import { DICTIONARY } from "../../config/_module.mjs";
 import { DDBDataUtils } from "../lib/_module.mjs";
+import DDBFeatureMixin from "./DDBFeatureMixin.js";
 
 export default class DDBChoiceFeature extends DDBFeature {
 
@@ -55,30 +56,9 @@ export default class DDBChoiceFeature extends DDBFeature {
   _generateSystemSubType() {
     super._generateSystemSubType();
 
-    let subType = null;
-
     const classFeatureName = foundry.utils.getProperty(this, "_classFeatureComponent.definition.name");
-
     if (!classFeatureName) return;
-    if (classFeatureName === "Ki") subType = "Ki";
-    // many ki abilities do not start with ki
-    else if (classFeatureName === "Channel Divinity") subType = "channelDivinity";
-    else if (classFeatureName === "Artificer Infusion") subType = "artificerInfusion";
-    else if (classFeatureName === "Invocation") subType = "eldritchInvocation";
-    else if (classFeatureName === "Fighting Style") subType = "fightingStyle";
-    else if (classFeatureName === "Maneuver") subType = "maneuver";
-    else if (classFeatureName === "Maneuver Options") subType = "maneuver";
-    else if (classFeatureName === "Battle Master Maneuver") subType = "maneuver";
-    else if (classFeatureName === "Metamagic") subType = "metamagic";
-    else if (classFeatureName.startsWith("Pact of the")) subType = "pact";
-    else if (classFeatureName === "Rune Carver") subType = "rune";
-    else if (classFeatureName === "Psionic Power") subType = "psionicPower";
-    else if (classFeatureName === "Hunter's Prey") subType = "huntersPrey";
-    else if (classFeatureName === "Defensive Tactics") subType = "defensiveTactic";
-    else if (classFeatureName === "Superior Hunter's Defense") subType = "superiorHuntersDefense";
-    else if (classFeatureName === "Arcane Shot Options") subType = "arcaneShot";
-    else if (classFeatureName === "Elemental Disciplines") subType = "elementalDiscipline";
-
+    let subType = DDBFeatureMixin.getFeatureSubtype(classFeatureName, "class", true);
     if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
 
   }
@@ -154,6 +134,8 @@ export default class DDBChoiceFeature extends DDBFeature {
         wasOption: choice.wasOption,
         entityTypeId: choice.entityTypeId,
         type: choice.type,
+        optionId: choice.optionId,
+        optionComponentId: choice.optionComponentId,
       };
 
       this.data._id = foundry.utils.randomID();

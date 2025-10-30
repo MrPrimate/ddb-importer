@@ -419,6 +419,8 @@ export default class DDBDataUtils {
                 option.componentId = choice.componentId;
                 option.componentTypeId = choice.componentTypeId;
                 option.choiceId = choice.id;
+                option.optionId = option.id;
+                option.optionComponentId = option.componentId;
                 option.parentChoiceId = choice.parentChoiceId;
                 option.subType = choice.subType;
                 option.type = type;
@@ -446,6 +448,8 @@ export default class DDBDataUtils {
           let result = optionChoice.options
             .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
             .find((option) => option.id === choice.optionValue);
+          result.optionId = result.id;
+          result.optionComponentId = result.componentId;
           result.componentId = choice.componentId;
           result.componentTypeId = choice.componentTypeId;
           result.choiceId = choice.id;
@@ -494,6 +498,8 @@ export default class DDBDataUtils {
                 subType: `${type}-option`,
                 type: type,
                 wasOption: true,
+                optionId: option.definition.id,
+                optionComponentId: option.componentId,
               };
             });
 

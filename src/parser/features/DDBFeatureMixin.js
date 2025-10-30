@@ -861,44 +861,66 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   // eslint-disable-next-line complexity
-  _generateSystemSubType() {
-    let subType = null;
-
-    if (this.type === "class") {
-      if (this.data.name.startsWith("Ki:")) subType = "Ki";
+  static getFeatureSubtype(name, type, includePartial = true, categories = null) {
+    if (type === "class") {
+      if (name === "Ki") return "ki";
       // many ki abilities do not start with ki
-      else if (this.data.name.startsWith("Channel Divinity")) subType = "channelDivinity";
-      else if (this.data.name.startsWith("Artificer Infusion:")) subType = "artificerInfusion";
-      else if (this.data.name.startsWith("Invocation:")) subType = "eldritchInvocation";
-      else if (this.data.name.startsWith("Fighting Style:")) subType = "fightingStyle";
-      else if (this.data.name.startsWith("Maneuver:")) subType = "maneuver";
-      else if (this.data.name.startsWith("Maneuvers:")) subType = "maneuver";
-      else if (this.data.name.startsWith("Maneuver Options:")) subType = "maneuver";
-      else if (this.data.name.startsWith("Battle Master Maneuver:")) subType = "maneuver";
-      else if (["Metamagic:", "Metamagic - "].some((s) => this.data.name.startsWith(s))) subType = "metamagic";
-      else if (this.data.name.startsWith("Pact of the")) subType = "pact";
-      else if (this.data.name.startsWith("Rune Carver:")) subType = "rune";
-      else if (this.data.name.startsWith("Psionic Power")) subType = "psionicPower";
-      else if (this.data.name.startsWith("Hunter's Prey:")) subType = "huntersPrey";
-      else if (this.data.name.startsWith("Defensive Tactics:")) subType = "defensiveTactic";
-      else if (this.data.name.startsWith("Superior Hunter's Defense:")) subType = "superiorHuntersDefense";
-      else if (this.data.name.startsWith("Arcane Shot Options:")) subType = "arcaneShot";
-      else if (this.data.name.startsWith("Elemental Disciplines:")) subType = "elementalDiscipline";
-      // missing: Arcane Shot : arcaneShot
-      // missing: multiattack
+      else if (name === "Channel Divinity") return "channelDivinity";
+      else if (name === "Artificer Infusion") return "artificerInfusion";
+      else if (name === "Invocation") return "eldritchInvocation";
+      else if (name === "Fighting Style") return "fightingStyle";
+      else if (name === "Maneuver") return "maneuver";
+      else if (name === "Maneuver Options") return "maneuver";
+      else if (name === "Battle Master Maneuver") return "maneuver";
+      else if (name === "Metamagic") return "metamagic";
+      else if (name.startsWith("Pact of the")) return "pact";
+      else if (name === "Rune Carver") return "rune";
+      else if (name === "Psionic Power") return "psionicPower";
+      else if (name === "Hunter's Prey") return "huntersPrey";
+      else if (name === "Defensive Tactics") return "defensiveTactic";
+      else if (name === "Superior Hunter's Defense") return "superiorHuntersDefense";
+      else if (name === "Arcane Shot Options") return "arcaneShot";
+      else if (name === "Elemental Disciplines") return "elementalDiscipline";
+      else if (name === "Eldritch Invocations") return "eldritchInvocation";
 
-
-    } else if (this.type === "feat" && this.ddbDefinition.categories) {
-      if (this.ddbDefinition.categories.some((c) => c.tagName === "Origin"))
-        subType = "origin";
-      else if (this.ddbDefinition.categories.some((c) => c.tagName === "Fighting Style"))
-        subType = "fightingStyle";
-      else if (this.ddbDefinition.categories.some((c) => c.tagName === "Epic Boon"))
-        subType = "epicBoon";
+      if (includePartial) {
+        if (name.startsWith("Ki:")) return "ki";
+        // many ki abilities do not start with ki
+        else if (name.startsWith("Channel Divinity")) return "channelDivinity";
+        else if (name.startsWith("Artificer Infusion:")) return "artificerInfusion";
+        else if (name.startsWith("Invocation:")) return "eldritchInvocation";
+        else if (name.startsWith("Fighting Style:")) return "fightingStyle";
+        else if (name.startsWith("Maneuver:")) return "maneuver";
+        else if (name.startsWith("Maneuvers:")) return "maneuver";
+        else if (name.startsWith("Maneuver Options:")) return "maneuver";
+        else if (name.startsWith("Battle Master Maneuver:")) return "maneuver";
+        else if (["Metamagic:", "Metamagic - "].some((s) => name.startsWith(s))) return "metamagic";
+        else if (name.startsWith("Pact of the")) return "pact";
+        else if (name.startsWith("Rune Carver:")) return "rune";
+        else if (name.startsWith("Psionic Power")) return "psionicPower";
+        else if (name.startsWith("Hunter's Prey:")) return "huntersPrey";
+        else if (name.startsWith("Defensive Tactics:")) return "defensiveTactic";
+        else if (name.startsWith("Superior Hunter's Defense:")) return "superiorHuntersDefense";
+        else if (name.startsWith("Arcane Shot Options:")) return "arcaneShot";
+        else if (name.startsWith("Elemental Disciplines:")) return "elementalDiscipline";
+        else if (name.startsWith("Eldritch Invocations:")) return "eldritchInvocation";
+      }
+    } else if (type === "feat" && categories) {
+      if (categories.some((c) => c.tagName === "Origin"))
+        return "origin";
+      else if (categories.some((c) => c.tagName === "Fighting Style"))
+        return "fightingStyle";
+      else if (categories.some((c) => c.tagName === "Epic Boon"))
+        return "epicBoon";
       else
-        subType = "general";
+        return "general";
     }
+    return null;
+  }
 
+  // eslint-disable-next-line complexity
+  _generateSystemSubType() {
+    let subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, this.ddbDefinition.categories);
     if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
   }
 
