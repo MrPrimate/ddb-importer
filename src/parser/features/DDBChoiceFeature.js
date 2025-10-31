@@ -167,6 +167,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "Intelligence Score",
     "Wisdom Score",
     "Charisma Score",
+    "Fighting Style feat",
   ];
 
   static _copyFlags = [

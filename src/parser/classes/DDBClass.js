@@ -28,7 +28,41 @@ export default class DDBClass {
 
   isMuncher = false;
 
+  isSubClass = false;
+
   choiceMap = new Map();
+
+  spellLinks = [];
+
+  _indexFilter = {
+    features: {
+      fields: [
+        "name",
+        "flags.ddbimporter.classId",
+        "flags.ddbimporter.class",
+        "flags.ddbimporter.subClass",
+        "flags.ddbimporter.parentClassId",
+        "flags.ddbimporter.originalName",
+        "flags.ddbimporter.featureMeta",
+        "flags.ddbimporter.dndbeyond.choice.optionId",
+        "flags.ddbimporter.isChoice",
+        "flags.ddbimporter.is2014",
+        "flags.ddbimporter.is2024",
+      ],
+    },
+    feats: {
+      fields: [
+        "name",
+        // "flags.ddbimporter",
+        "flags.ddbimporter.is2014",
+        "flags.ddbimporter.is2024",
+        "flags.ddbimporter.featureMeta",
+        "flags.ddbimporter.subType",
+      ],
+    },
+    class: {},
+    subclasses: {},
+  };
 
   static SPECIAL_ADVANCEMENTS = {
     "Wild Shape": {
@@ -337,7 +371,7 @@ export default class DDBClass {
   _generateSpellCastingProgression() {
     if (this.ddbClassDefinition.canCastSpells) {
       const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
-      const spellCastingAbility = getSpellCastingAbility(this.ddbClass, this._isSubClass, this._isSubClass);
+      const spellCastingAbility = getSpellCastingAbility(this.ddbClass, this.isSubClass, this.isSubClass);
       if (spellProgression) {
         this.data.system.spellcasting = {
           progression: spellProgression.value,
@@ -367,19 +401,13 @@ export default class DDBClass {
     await this._compendiums[type].getIndex(this._indexFilter[type]);
   }
 
-  // async init() {
-  //   await this._buildCompendiumIndex("features");
-  //   // await this._buildCompendiumIndex("class");
-  //   // await this._buildCompendiumIndex("subclasses");
-  // }
-
   async _generateDescriptionStub(character) {
     this.data.system.description.value = "<h1>Description</h1>";
     this.data.system.description.value += this.ddbClass.definition.description;
     // this excludes the subclass features
     this.data.system.description.value += await this._buildClassFeaturesDescription();
     // not all classes have equipment descriptions
-    if (this.ddbClass.definition.equipmentDescription && !this._isSubClass && this.is2014) {
+    if (this.ddbClass.definition.equipmentDescription && !this.isSubClass && this.is2014) {
       // eslint-disable-next-line require-atomic-updates
       this.data.system.description.value += `<h1>Starting Equipment</h1>\n${this.ddbClass.definition.equipmentDescription}\n\n`;
     }
@@ -408,33 +436,6 @@ export default class DDBClass {
     { addToCompendium = null, compendiumImportTypes = null,
       updateCompendiumItems, isMuncher } = {},
   ) {
-    this._indexFilter = {
-      features: {
-        fields: [
-          "name",
-          "flags.ddbimporter.classId",
-          "flags.ddbimporter.class",
-          "flags.ddbimporter.subClass",
-          "flags.ddbimporter.parentClassId",
-          "flags.ddbimporter.originalName",
-          "flags.ddbimporter.featureMeta",
-          "flags.ddbimporter.dndbeyond.choice.optionId",
-          "flags.ddbimporter.isChoice",
-          "flags.ddbImporter.is2014",
-          "flags.ddbImporter.is2024",
-        ],
-      },
-      feats: {
-        fields: [
-          "name",
-          "flags.ddbimporter",
-          "flags.ddbimporter.featureMeta",
-        ],
-      },
-      class: {},
-      subclasses: {},
-    };
-
     this.addToCompendium = addToCompendium ?? false;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.updateCompendiumItems = updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
@@ -470,7 +471,6 @@ export default class DDBClass {
       features: {},
     };
 
-    this._isSubClass = false;
     this._generateDataStub();
 
     this.dictionary = DICTIONARY.actor.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
@@ -488,13 +488,11 @@ export default class DDBClass {
 
     this.isStartingClass = this.ddbClass.isStartingClass;
 
-    this.spellLinks = [];
-
   }
 
   // this excludes any class/sub class features
   _determineClassFeatures() {
-    this._excludedFeatureIds = this._isSubClass
+    this._excludedFeatureIds = this.isSubClass
       ? this.classFeatureIds
       : this.subClassFeatureIds;
 
@@ -555,27 +553,31 @@ export default class DDBClass {
         && match.name.trim().toLowerCase() == feature.name.trim().toLowerCase();
       if (!nameMatch && !featureFlagNameMatch) return false;
 
-      const featureClassMatch = !this._isSubClass
+      const featureClassMatch = !this.isSubClass
         && matchFlags.class == this.name
         && matchFlags.classId == this.ddbClassDefinition.id;
-      const featureSubclassMatch = this._isSubClass
+      const featureSubclassMatch = this.isSubClass
         && matchFlags.subClass === this.name
         && matchFlags.subClassId == this.ddbClassDefinition.id;
       return featureClassMatch || featureSubclassMatch;
     });
   }
 
-  getCompendiumFeatureByFlags(flags) {
-    if (!this._compendiums.features) {
-      return null;
-    }
-    logger.verbose("Searching for feature with flags:", flags);
+  getCompendiumIxByFlags(compendiums, flags) {
+    for (const compendium of compendiums) {
+      if (!this._compendiums[compendium]) {
+        continue;
+      }
+      logger.verbose(`Searching for feature with flags in ${compendium}:`, flags);
 
-    return this._compendiums.features.index.find((match) => {
-      return Object.entries(flags).every(([key, value]) => {
-        return foundry.utils.getProperty(match, `flags.ddbimporter.${key}`) === value;
+      const match = this._compendiums[compendium].index.find((i) => {
+        return Object.entries(flags).every(([key, value]) => {
+          return foundry.utils.getProperty(i, `flags.ddbimporter.${key}`) === value;
+        });
       });
-    });
+      if (match) return match;
+    }
+    return null;
   }
 
   getFeatCompendiumMatch(featName) {
@@ -651,6 +653,7 @@ export default class DDBClass {
     "Languages",
     "Hit Points",
     "Proficiencies",
+    "Fighting Style feat",
 
     // tashas
     "Martial Versatility",
@@ -698,6 +701,7 @@ export default class DDBClass {
   }
 
   async _generateFeatureAdvancement(feature, choices) {
+    console.warn(`Generating feature advancement for feature ${feature.name} with choices:`, choices);
     const keys = new Set();
     const version = this.is2014 ? "2014" : "2024";
     const uuids = new Set();
@@ -729,27 +733,38 @@ export default class DDBClass {
       const features = [];
       for (const option of choiceOptions) {
         logger.verbose(`Finding feature for choice option ${option.id} (${option.label}) for feature ${feature.name}`, option);
-        const compendiumFeature = this.getCompendiumFeatureByFlags({ // action feature
+        const compendiumFeature = this.getCompendiumIxByFlags(["features"], { // action feature
           componentId: option.id,
           is2014: this.is2014,
           is2024: this.is2024,
           classId: this.ddbParentClassDefinition.id,
         })
-        ?? this.getCompendiumFeatureByFlags({ // choice feature
+        ?? this.getCompendiumIxByFlags(["features"], { // choice feature
           "isChoice": true,
           classId: this.ddbParentClassDefinition.id,
           "dndbeyond.choice.optionId": option.id,
+        }) ?? this.getCompendiumIxByFlags(["feats"], { // feat choice
+          id: option.id,
         });
         if (compendiumFeature) {
           features.push(compendiumFeature);
           uuids.add(compendiumFeature.uuid);
-        } else if (this.isMuncher) {
-          logger.warn(`Could not find choice feature option id ${option.id} (${option.label}) for feature ${feature.name}`);
+        } else if (this.isMuncher && this.addToCompendium) {
+          logger.info(`Could not find choice feature option id ${option.id} (${option.label}) for feature ${feature.name}`);
         }
       }
 
       this.choiceMap.set(key, features);
       foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.class.${this.name}${version}.feature.${feature.name}.compendiumChoices`, features);
+    }
+
+    if (uuids.size === 0) {
+      logger.warn(`No valid features found for advancement of feature ${feature.name}, you can ignore this message unless you think this feature should offer an advancement choice.`);
+      return;
+    }
+    if (Object.keys(configChoices).length === 0) {
+      logger.warn(`No valid choices found for advancement of feature ${feature.name}, you can ignore this message unless you think this feature should offer an advancement choice.`);
+      return;
     }
 
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
@@ -1007,7 +1022,7 @@ export default class DDBClass {
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
         if ((!availableToMulticlass && i > 1)) return;
-        if (this._isSubClass && !availableToMulticlass) return;
+        if (this.isSubClass && !availableToMulticlass) return;
         const skillFeatures = this._proficiencyFeatures.filter((f) => f.requiredLevel === i);
 
         for (const feature of skillFeatures) {
@@ -1134,7 +1149,7 @@ export default class DDBClass {
       for (const availableToMulticlass of [true, false]) {
         // multiclass only profs only at level 1
         if (!availableToMulticlass && i > 1) continue;
-        if (this._isSubClass && !availableToMulticlass) continue;
+        if (this.isSubClass && !availableToMulticlass) continue;
         const armorFeatures = this._armorFeatures.filter((f) => f.requiredLevel === i);
 
         for (const feature of armorFeatures) {
@@ -1452,7 +1467,47 @@ export default class DDBClass {
 
   // fixes
 
-  _fixes() {
+  async _fightingStyleAdvancement() {
+    // TODO: come back to 2014
+    if (this.is2014) return;
+    for (let advancement of this.data.system.advancement) {
+      if (advancement.title !== "Fighting Style") continue;
+      const flags = {
+        "flags.ddbimporter.is2014": this.is2014,
+        "flags.ddbimporter.is2024": this.is2024,
+        "flags.ddbimporter.subType": "fightingStyle",
+      };
+      const feats = this._compendiums.feats.index.filter((i) => {
+        return Object.entries(flags).every(([key, value]) => {
+          return foundry.utils.getProperty(i, key) === value;
+        });
+      }).map((i) => i.uuid);
+      advancement.configuration.pool = feats.map((f) => {
+        return { uuid: f };
+      });
+
+      if (this.data.name === "Paladin") {
+        const special = this._compendiums.features.find((c) =>
+          c.name === "Blessed Warrior"
+          && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
+        );
+        if (special) {
+          advancement.configuration.pool.push({ uuid: special.uuid });
+        }
+      } else if (this.data.name === "Ranger") {
+        const special = this._compendiums.features.find((c) =>
+          c.name === "Druidic Warrior"
+          && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
+        );
+        if (special) {
+          advancement.configuration.pool.push({ uuid: special.uuid });
+        }
+      }
+    }
+  }
+
+  async _fixes() {
+    await this._fightingStyleAdvancement();
     if (this.data.name === "Druid") {
       for (let advancement of this.data.system.advancement) {
         if (advancement.title !== "Wild Shape CR") continue;
@@ -1719,13 +1774,13 @@ export default class DDBClass {
 
     const updateFeatures = this.updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
-    const type = this._isSubClass ? "subclass" : "class";
+    const type = this.isSubClass ? "subclass" : "class";
     const featureCompendiumFolders = new DDBCompendiumFolders(type);
     await featureCompendiumFolders.loadCompendium(type);
 
     const versionStub = this.data.system.source.rules;
 
-    if (this._isSubClass) {
+    if (this.isSubClass) {
       await featureCompendiumFolders.createSubClassFeatureFolder(this.name, this.className, versionStub);
     } else {
       await featureCompendiumFolders.createClassFeatureFolder(this.name, versionStub);
@@ -1757,6 +1812,7 @@ export default class DDBClass {
 
   async generateFromCharacter(character) {
     await this._buildCompendiumIndex("features");
+    await this._buildCompendiumIndex("feats");
     this._setClassLevel();
     this._generatePrimaryAbility();
     this._fleshOutCommonDataStub();
@@ -1773,7 +1829,7 @@ export default class DDBClass {
     // finally a description
     await this._generateDescriptionStub(character);
 
-    this._fixes();
+    await this._fixes();
 
     // FUTURE: choice options such as fighting styles, this requires improved feature parsing
     await this._addFoundryAdvancements();

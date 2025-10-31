@@ -921,7 +921,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   // eslint-disable-next-line complexity
   _generateSystemSubType() {
     let subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, this.ddbDefinition.categories);
-    if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
+    if (subType) {
+      foundry.utils.setProperty(this.data, "system.type.subtype", subType);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.subType", subType);
+    }
   }
 
   _generateWeaponType() {

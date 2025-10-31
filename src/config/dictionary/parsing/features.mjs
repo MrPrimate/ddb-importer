@@ -54,6 +54,7 @@ export const PARSING_FEATURES = {
     "Tool Proficiency",
     "Skillful",
     "The Crooked Moon: Dark Bargain",
+    "Fighting Style feat",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",
@@ -284,6 +285,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Eldritch Invocations",
   ],
   DISCARD_CHOICE_FEATURE: [
+    "Fighting Style feat",
   ],
 };
 

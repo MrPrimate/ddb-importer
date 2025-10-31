@@ -85,12 +85,14 @@ export default class DDBSubClass extends DDBClass {
 
   subClassName;
 
+  isSubClass = true;
+
   constructor(ddb, classId, options = {}) {
     super(ddb, classId, options);
 
     // adjustments for subclass
     this.ddbClassDefinition = this.ddbClass.subclassDefinition;
-    this._isSubClass = true;
+    this.isSubClass = true;
     this.name = this.ddbClass.subclassDefinition.name;
     this.subClassName = this.ddbClass.subclassDefinition.name;
     this._processSources();
@@ -458,6 +460,7 @@ export default class DDBSubClass extends DDBClass {
 
   async generateFromCharacter(character) {
     await this._buildCompendiumIndex("features");
+    await this._buildCompendiumIndex("feats");
     this._fleshOutCommonDataStub();
     await this._generateCommonAdvancements();
     await this._generateDescriptionStub(character);
