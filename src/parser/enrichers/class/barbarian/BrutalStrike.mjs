@@ -10,7 +10,6 @@ export default class BrutalStrike extends DDBEnricherData {
   get activity() {
     return {
       targetType: "creature",
-      addItemConsume: true,
       noeffect: true,
       name: "Brutal Strike Damage",
       data: {
