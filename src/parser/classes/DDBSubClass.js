@@ -146,44 +146,6 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(slotsScaleValue, levelScaleValue);
-    } else if (this.data.name.startsWith("Order of the Profane Soul")) {
-      this.data.name = "Order of the Profane Soul";
-      const slotsScaleValue = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `pact-slots`,
-          type: "number",
-          scale: {
-            3: { value: 1 },
-            6: { value: 2 },
-          },
-        },
-        value: {},
-        title: `Pact Slots`,
-        icon: null,
-      };
-
-      const levelScaleValue = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `pact-level`,
-          type: "number",
-          scale: {
-            3: { value: 1 },
-            7: { value: 2 },
-            13: { value: 3 },
-          },
-        },
-        value: {},
-        title: `Pact Level`,
-        icon: null,
-      };
-
-      this.data.system.advancement.push(slotsScaleValue, levelScaleValue);
     }
   }
 

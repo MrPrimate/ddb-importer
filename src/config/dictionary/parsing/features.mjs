@@ -132,6 +132,7 @@ export const PARSING_CHOICE_FEATURES = {
     // "Primal Companion",
     "The Third Eye",
     "Unbreakable Majesty",
+    "Full of Stars",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
@@ -193,6 +194,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Ritual Caster (Warlock)",
     "Ritual Caster (Wizard)",
     "Hunter's Prey",
+    "Full of Stars",
+    "Twinkling Constellations",
+    "Starry Form",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -216,6 +220,10 @@ export const PARSING_CHOICE_FEATURES = {
     "Arcane Shot Options",
     "Monster Grimoire",
     "Draconic Ancestry",
+    "Blessed Strikes",
+    "Full of Stars: Archer: Full of Stars",
+    "Archer: Full of Stars",
+    "Full of Stars",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
