@@ -546,14 +546,15 @@ export default class DDBClass {
       return null;
     }
     return this._compendiums.features.index.find((match) => {
+      const featureName = utils.nameString(feature.name);
       const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
         ?? foundry.utils.getProperty(match, "flags.ddbimporter");
       if (!matchFlags) return false;
       const featureFlagName = foundry.utils.getProperty(matchFlags, "originalName")?.trim().toLowerCase();
       const featureFlagNameMatch = featureFlagName
-        && featureFlagName == feature.name.trim().toLowerCase();
+        && featureFlagName == featureName.toLowerCase();
       const nameMatch = !featureFlagNameMatch
-        && match.name.trim().toLowerCase() == feature.name.trim().toLowerCase();
+        && match.name.trim().toLowerCase() == featureName.toLowerCase();
       if (!nameMatch && !featureFlagNameMatch) return false;
 
       const featureClassMatch = !this.isSubClass
@@ -704,7 +705,7 @@ export default class DDBClass {
   }
 
   async _generateFeatureAdvancement(feature, choices) {
-    console.warn(`Generating feature advancement for feature ${feature.name} with choices:`, choices);
+    logger.verbose(`Generating feature advancement for feature ${feature.name} with choices:`, choices);
     const keys = new Set();
     const version = this.is2014 ? "2014" : "2024";
     const uuids = new Set();
@@ -812,10 +813,10 @@ export default class DDBClass {
     }
     this.data.system.advancement = this.data.system.advancement.concat(this.featureAdvancements);
 
-    console.warn({
-      this: this,
-      featureAdvancements: foundry.utils.deepClone(this.featureAdvancements),
-    });
+    // console.warn({
+    //   this: this,
+    //   featureAdvancements: foundry.utils.deepClone(this.featureAdvancements),
+    // });
 
     // for choice features such as fighting styles:
     // for each feature with typ3 choices, build an item choice advancement
@@ -1473,6 +1474,7 @@ export default class DDBClass {
 
   async _fightingStyleAdvancement() {
     // TODO: come back to 2014
+    // todo: additional fighting style
     if (this.is2014) return;
     const advancementFound = this.data.system.advancement.some((a) => a.title === "Fighting Style");
     const needsAdvancement = this.ddbClass.classFeatures.some((f) => f.definition.name === "Fighting Style");
@@ -1494,7 +1496,7 @@ export default class DDBClass {
       });
       this.data.system.advancement.push(advancement.toObject());
     }
-    console.warn("Checking Fighting Style Advancements", { this: this, advancementFound, needsAdvancement });
+    // console.warn("Checking Fighting Style Advancements", { this: this, advancementFound, needsAdvancement });
     for (let advancement of this.data.system.advancement) {
       if (advancement.title !== "Fighting Style") continue;
       const flags = {
@@ -1512,11 +1514,9 @@ export default class DDBClass {
       });
       advancement.configuration.restriction.subType = "fightingStyle";
 
-      console.warn("Fight Style Feat Maps", {
-        advancement,
-        feats,
-        this: this,
-      })
+      if (Object.keys(advancement.configuration.choices).length === 0) {
+        advancement.configuration.choices = this.configChoices[advancement.title] ?? {};
+      }
 
       if (this.data.name === "Paladin") {
         const special = this._compendiums.features.find((c) =>
@@ -1538,236 +1538,260 @@ export default class DDBClass {
     }
   }
 
+  _druidFixes() {
+    if (this.data.name !== "Druid") return;
+    for (let advancement of this.data.system.advancement) {
+      if (advancement.title !== "Wild Shape CR") continue;
+      advancement.configuration.type = "cr";
+      advancement.configuration.scale = {
+        2: { value: 0.25 },
+        4: { value: 0.5 },
+        8: { value: 1 },
+      };
+    };
+    if (this.is2014) {
+      const wildshape = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "wild-shape-uses",
+          type: "number",
+          scale: {
+            2: { value: 2 },
+            20: { value: 99 },
+          },
+        },
+        value: {},
+        title: "Wild Shape Uses",
+        icon: null,
+      };
+      this.data.system.advancement.push(wildshape);
+    } else {
+      const wildshape = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "wild-shape-uses",
+          type: "number",
+          scale: {
+            2: { value: 2 },
+            6: { value: 3 },
+            17: { value: 4 },
+          },
+        },
+        value: {},
+        title: "Wild Shape Uses",
+        icon: null,
+      };
+      this.data.system.advancement.push(wildshape);
+      const elementalFury = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "elemental-fury",
+          type: "dice",
+          scale: {
+            7: { number: 1, faces: 8 },
+            18: { number: 2, faces: 8 },
+          },
+        },
+        value: {},
+        title: "Elemental Fury Damage",
+        icon: null,
+      };
+      this.data.system.advancement.push(elementalFury);
+      const knownForms = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "known-forms",
+          type: "number",
+          scale: {
+            2: { value: 4 },
+            4: { value: 6 },
+            8: { value: 8 },
+          },
+        },
+        value: {},
+        title: "Known Forms",
+        icon: null,
+      };
+      this.data.system.advancement.push(knownForms);
+    }
+  }
+
+  _monkFixes() {
+    if (this.data.name !== "Monk") return;
+    for (let advancement of this.data.system.advancement) {
+      if (advancement.configuration.identifier !== "martial-arts") continue;
+      const die = foundry.utils.deepClone(advancement);
+      die.title = "Martial Arts Die";
+      die._id = foundry.utils.randomID();
+      die.configuration.identifier = "die";
+      this.data.system.advancement.push(die);
+    }
+    const ki = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: this.is2014 ? "ki-points" : "focus-points",
+        type: "number",
+        scale: {},
+      },
+      value: {},
+      title: this.is2014 ? "Ki Points" : "Focus Points",
+      icon: null,
+    };
+    utils.arrayRange(19, 1, 2).forEach((i) => {
+      ki.configuration.scale[i] = {
+        value: i,
+      };
+    });
+    this.data.system.advancement.push(ki);
+  }
+
+  _rogueFixes() {
+    if (this.data.name !== "Rogue") return;
+    if (this.is2014) return;
+    const cunningStrike = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: "cunning-strike-uses",
+        type: "number",
+        scale: {
+          5: { value: 1 },
+          11: { value: 2 },
+        },
+      },
+      value: {},
+      title: "Cunning Strike Uses",
+      icon: null,
+    };
+    this.data.system.advancement.push(cunningStrike);
+    const sneakAttack = {
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: "sneak-attack",
+        type: "dice",
+        scale: {
+          1: { number: 1, faces: 6 },
+          3: { number: 2, faces: 6 },
+          5: { number: 3, faces: 6 },
+          7: { number: 4, faces: 6 },
+          9: { number: 5, faces: 6 },
+          11: { number: 6, faces: 6 },
+          13: { number: 7, faces: 6 },
+          15: { number: 8, faces: 6 },
+          17: { number: 9, faces: 6 },
+          19: { number: 10, faces: 6 },
+        },
+      },
+      value: {},
+      title: "Sneak Attack",
+      icon: null,
+    };
+    this.data.system.advancement.push(sneakAttack);
+  }
+
+  _barbarianFixes() {
+    if (this.data.name !== "Barbarian") return;
+    if (this.is2014) return;
+    for (let advancement of this.data.system.advancement) {
+      if (advancement.title !== "Brutal Strike") continue;
+      advancement.configuration.type = "dice";
+      advancement.configuration.scale = {
+        9: { number: 1, faces: 10 },
+        17: { number: 2, faces: 10 },
+      };
+    };
+
+    const damage = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: "rage-damage",
+        type: "number",
+        scale: {
+          1: { value: 2 },
+          9: { value: 3 },
+          16: { value: 4 },
+        },
+      },
+      value: {},
+      title: "Rage Damage",
+      icon: null,
+    };
+    this.data.system.advancement.push(damage);
+    for (let advancement of this.data.system.advancement) {
+      if (advancement.title !== "Rage") continue;
+      advancement.title = "Rages";
+      advancement.configuration.identifier = "rages";
+    };
+  }
+
+  _bardFixes() {
+    if (this.data.name !== "Bard") return;
+    const bardicInspiration = {
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: "bardic-inspiration",
+        type: "dice",
+        scale: {
+          1: { number: 1, faces: 6 },
+          5: { number: 1, faces: 8 },
+          10: { number: 1, faces: 10 },
+          15: { number: 1, faces: 12 },
+        },
+      },
+      value: {},
+      title: "Bardic Inspiration",
+      icon: null,
+    };
+    this.data.system.advancement.push(bardicInspiration);
+  }
+
+  _sorcererFixes() {
+    if (this.data.name !== "Sorcerer") return;
+    const points = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: "points",
+        type: "number",
+        scale: {},
+      },
+      value: {},
+      title: "Sorcery Points",
+      icon: null,
+    };
+    utils.arrayRange(20, 1, 2).forEach((i) => {
+      points.configuration.scale[i] = {
+        value: i,
+      };
+    });
+
+    this.data.system.advancement.push(points);
+  }
+
   async _fixes() {
     await this._fightingStyleAdvancement();
-    if (this.data.name === "Druid") {
-      for (let advancement of this.data.system.advancement) {
-        if (advancement.title !== "Wild Shape CR") continue;
-        advancement.configuration.type = "cr";
-        advancement.configuration.scale = {
-          2: { value: 0.25 },
-          4: { value: 0.5 },
-          8: { value: 1 },
-        };
-      };
-      if (this.is2014) {
-        const wildshape = {
-          _id: foundry.utils.randomID(),
-          type: "ScaleValue",
-          configuration: {
-            distance: { units: "" },
-            identifier: "wild-shape-uses",
-            type: "number",
-            scale: {
-              2: { value: 2 },
-              20: { value: 99 },
-            },
-          },
-          value: {},
-          title: "Wild Shape Uses",
-          icon: null,
-        };
-        this.data.system.advancement.push(wildshape);
-      } else {
-        const wildshape = {
-          _id: foundry.utils.randomID(),
-          type: "ScaleValue",
-          configuration: {
-            distance: { units: "" },
-            identifier: "wild-shape-uses",
-            type: "number",
-            scale: {
-              2: { value: 2 },
-              6: { value: 3 },
-              17: { value: 4 },
-            },
-          },
-          value: {},
-          title: "Wild Shape Uses",
-          icon: null,
-        };
-        this.data.system.advancement.push(wildshape);
-        const elementalFury = {
-          _id: foundry.utils.randomID(),
-          type: "ScaleValue",
-          configuration: {
-            distance: { units: "" },
-            identifier: "elemental-fury",
-            type: "dice",
-            scale: {
-              7: { number: 1, faces: 8 },
-              18: { number: 2, faces: 8 },
-            },
-          },
-          value: {},
-          title: "Elemental Fury Damage",
-          icon: null,
-        };
-        this.data.system.advancement.push(elementalFury);
-        const knownForms = {
-          _id: foundry.utils.randomID(),
-          type: "ScaleValue",
-          configuration: {
-            distance: { units: "" },
-            identifier: "known-forms",
-            type: "number",
-            scale: {
-              2: { value: 4 },
-              4: { value: 6 },
-              8: { value: 8 },
-            },
-          },
-          value: {},
-          title: "Known Forms",
-          icon: null,
-        };
-        this.data.system.advancement.push(knownForms);
-      }
-    } else if (this.data.name === "Monk") {
-      for (let advancement of this.data.system.advancement) {
-        if (advancement.configuration.identifier !== "martial-arts") continue;
-        const die = foundry.utils.deepClone(advancement);
-        die.title = "Martial Arts Die";
-        die._id = foundry.utils.randomID();
-        die.configuration.identifier = "die";
-        this.data.system.advancement.push(die);
-      }
-      const ki = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: this.is2014 ? "ki-points" : "focus-points",
-          type: "number",
-          scale: {},
-        },
-        value: {},
-        title: this.is2014 ? "Ki Points" : "Focus Points",
-        icon: null,
-      };
-      utils.arrayRange(19, 1, 2).forEach((i) => {
-        ki.configuration.scale[i] = {
-          value: i,
-        };
-      });
-      this.data.system.advancement.push(ki);
-    } else if (this.data.name === "Rogue" && !this.is2014) {
-      const cunningStrike = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "cunning-strike-uses",
-          type: "number",
-          scale: {
-            5: { value: 1 },
-            11: { value: 2 },
-          },
-        },
-        value: {},
-        title: "Cunning Strike Uses",
-        icon: null,
-      };
-      this.data.system.advancement.push(cunningStrike);
-      const sneakAttack = {
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "sneak-attack",
-          type: "dice",
-          scale: {
-            1: { number: 1, faces: 6 },
-            3: { number: 2, faces: 6 },
-            5: { number: 3, faces: 6 },
-            7: { number: 4, faces: 6 },
-            9: { number: 5, faces: 6 },
-            11: { number: 6, faces: 6 },
-            13: { number: 7, faces: 6 },
-            15: { number: 8, faces: 6 },
-            17: { number: 9, faces: 6 },
-            19: { number: 10, faces: 6 },
-          },
-        },
-        value: {},
-        title: "Sneak Attack",
-        icon: null,
-      };
-      this.data.system.advancement.push(sneakAttack);
-    } else if (this.data.name === "Barbarian" && !this.is2014) {
-      for (let advancement of this.data.system.advancement) {
-        if (advancement.title !== "Brutal Strike") continue;
-        advancement.configuration.type = "dice";
-        advancement.configuration.scale = {
-          9: { number: 1, faces: 10 },
-          17: { number: 2, faces: 10 },
-        };
-      };
-
-      const damage = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "rage-damage",
-          type: "number",
-          scale: {
-            1: { value: 2 },
-            9: { value: 3 },
-            16: { value: 4 },
-          },
-        },
-        value: {},
-        title: "Rage Damage",
-        icon: null,
-      };
-      this.data.system.advancement.push(damage);
-      for (let advancement of this.data.system.advancement) {
-        if (advancement.title !== "Rage") continue;
-        advancement.title = "Rages";
-        advancement.configuration.identifier = "rages";
-      };
-    } else if (this.data.name === "Bard") {
-      const bardicInspiration = {
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "bardic-inspiration",
-          type: "dice",
-          scale: {
-            1: { number: 1, faces: 6 },
-            5: { number: 1, faces: 8 },
-            10: { number: 1, faces: 10 },
-            15: { number: 1, faces: 12 },
-          },
-        },
-        value: {},
-        title: "Bardic Inspiration",
-        icon: null,
-      };
-      this.data.system.advancement.push(bardicInspiration);
-    } else if (this.data.name === "Sorcerer") {
-      const points = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: "points",
-          type: "number",
-          scale: {},
-        },
-        value: {},
-        title: "Sorcery Points",
-        icon: null,
-      };
-      utils.arrayRange(20, 1, 2).forEach((i) => {
-        points.configuration.scale[i] = {
-          value: i,
-        };
-      });
-
-      this.data.system.advancement.push(points);
-    }
-
+    this._druidFixes();
+    this._monkFixes();
+    this._rogueFixes();
+    this._barbarianFixes();
+    this._bardFixes();
+    this._sorcererFixes();
   }
 
   _generatePrimaryAbility() {
