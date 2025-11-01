@@ -34,6 +34,8 @@ export default class DDBClass {
 
   spellLinks = [];
 
+  configChoices = {};
+
   _indexFilter = {
     features: {
       fields: [
@@ -58,6 +60,7 @@ export default class DDBClass {
         "flags.ddbimporter.is2024",
         "flags.ddbimporter.featureMeta",
         "flags.ddbimporter.subType",
+        "system.type.subtype",
       ],
     },
     class: {},
@@ -767,6 +770,7 @@ export default class DDBClass {
       return;
     }
 
+    this.configChoices[feature.name] = configChoices;
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
     // TODO: handle replacements on configChoices e.g. eldritch invocations
@@ -1470,12 +1474,33 @@ export default class DDBClass {
   async _fightingStyleAdvancement() {
     // TODO: come back to 2014
     if (this.is2014) return;
+    const advancementFound = this.data.system.advancement.some((a) => a.title === "Fighting Style");
+    const needsAdvancement = this.ddbClass.classFeatures.some((f) => f.definition.name === "Fighting Style");
+    if (!advancementFound && needsAdvancement) {
+      const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+      advancement.updateSource({
+        title: "Fighting Style",
+        hint: "Choose a Fighting Style",
+        configuration: {
+          choices: this.configChoices["Fighting Style"] ?? {},
+          restriction: {
+            type: "class",
+            subtype: "fightingStyle",
+          },
+          type: "feat",
+          allowDrops: true,
+        },
+        icons: "icons/magic/symbols/cog-orange-red.webp",
+      });
+      this.data.system.advancement.push(advancement.toObject());
+    }
+    console.warn("Checking Fighting Style Advancements", { this: this, advancementFound, needsAdvancement });
     for (let advancement of this.data.system.advancement) {
       if (advancement.title !== "Fighting Style") continue;
       const flags = {
         "flags.ddbimporter.is2014": this.is2014,
         "flags.ddbimporter.is2024": this.is2024,
-        "flags.ddbimporter.subType": "fightingStyle",
+        "system.type.subtype": "fightingStyle",
       };
       const feats = this._compendiums.feats.index.filter((i) => {
         return Object.entries(flags).every(([key, value]) => {
@@ -1485,10 +1510,17 @@ export default class DDBClass {
       advancement.configuration.pool = feats.map((f) => {
         return { uuid: f };
       });
+      advancement.configuration.restriction.subType = "fightingStyle";
+
+      console.warn("Fight Style Feat Maps", {
+        advancement,
+        feats,
+        this: this,
+      })
 
       if (this.data.name === "Paladin") {
         const special = this._compendiums.features.find((c) =>
-          c.name === "Blessed Warrior"
+          c.name.includes("Blessed Warrior")
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
         if (special) {
@@ -1496,7 +1528,7 @@ export default class DDBClass {
         }
       } else if (this.data.name === "Ranger") {
         const special = this._compendiums.features.find((c) =>
-          c.name === "Druidic Warrior"
+          c.name.includes("Druidic Warrior")
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
         if (special) {
@@ -1826,12 +1858,8 @@ export default class DDBClass {
     this._generateWealth();
     this._copyFoundryEquipment();
 
-    // finally a description
     await this._generateDescriptionStub(character);
-
     await this._fixes();
-
-    // FUTURE: choice options such as fighting styles, this requires improved feature parsing
     await this._addFoundryAdvancements();
     await this._addToCompendium();
   }

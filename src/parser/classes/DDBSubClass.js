@@ -108,7 +108,7 @@ export default class DDBSubClass extends DDBClass {
   }
 
   // eslint-disable-next-line complexity
-  _fixes() {
+  async _fixes() {
     if (this.data.name.startsWith("Order of the Profane Soul")) {
       this.data.name = "Order of the Profane Soul";
       const slotsScaleValue = {
@@ -465,7 +465,7 @@ export default class DDBSubClass extends DDBClass {
     await this._generateCommonAdvancements();
     await this._generateDescriptionStub(character);
     await this._generateSpellListAdvancements();
-    this._fixes();
+    await this._fixes();
     await this._addToCompendium();
   }
 }
