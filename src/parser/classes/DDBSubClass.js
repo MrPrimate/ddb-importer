@@ -107,8 +107,7 @@ export default class DDBSubClass extends DDBClass {
 
   }
 
-  // eslint-disable-next-line complexity
-  async _fixes() {
+  _bloodHunterFixes() {
     if (this.data.name.startsWith("Order of the Profane Soul")) {
       this.data.name = "Order of the Profane Soul";
       const slotsScaleValue = {
@@ -147,7 +146,49 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(slotsScaleValue, levelScaleValue);
-    } else if (this.data.name.startsWith("Path of the Storm Herald")) {
+    } else if (this.data.name.startsWith("Order of the Profane Soul")) {
+      this.data.name = "Order of the Profane Soul";
+      const slotsScaleValue = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `pact-slots`,
+          type: "number",
+          scale: {
+            3: { value: 1 },
+            6: { value: 2 },
+          },
+        },
+        value: {},
+        title: `Pact Slots`,
+        icon: null,
+      };
+
+      const levelScaleValue = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `pact-level`,
+          type: "number",
+          scale: {
+            3: { value: 1 },
+            7: { value: 2 },
+            13: { value: 3 },
+          },
+        },
+        value: {},
+        title: `Pact Level`,
+        icon: null,
+      };
+
+      this.data.system.advancement.push(slotsScaleValue, levelScaleValue);
+    }
+  }
+
+  _barbarianFixes() {
+    if (this.data.name.startsWith("Path of the Storm Herald")) {
       const desert = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -208,7 +249,11 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(desert, sea, tundra);
-    } else if (this.data.name.startsWith("Circle of the Moon")) {
+    }
+  }
+
+  _druidFixes() {
+    if (this.data.name.startsWith("Circle of the Moon")) {
       const cr = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -293,7 +338,11 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
       this.data.system.advancement.push(form);
-    } else if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
+    }
+  }
+
+  _fighterFixes() {
+    if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
       for (let advancement of this.data.system.advancement) {
         if (advancement.title !== "Energy Die") continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
@@ -324,15 +373,6 @@ export default class DDBSubClass extends DDBClass {
       };
 
       this.data.system.advancement.push(number);
-    } else if (this.data.name.startsWith("Drake Warden")) {
-      for (let advancement of this.data.system.advancement) {
-        if (advancement.title !== "Drake Companion") continue;
-        advancement.configuration.type = "dice";
-        advancement.configuration.scale = {
-          7: { number: 1, faces: 6 },
-          15: { number: 2, faces: 6 },
-        };
-      }
     } else if (this.data.name.startsWith("Steel Hawk")) {
       for (let advancement of this.data.system.advancement) {
         if (advancement.title !== "Launch") continue;
@@ -344,7 +384,7 @@ export default class DDBSubClass extends DDBClass {
           18: { number: 5, faces: 12 },
         };
       }
-    } else if (this.data.name.startsWith("Arcane Archer")) {
+    } else if (this.data.name.startsWith("Arcane Archer") && this.is2014) {
       const secondary = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -379,6 +419,29 @@ export default class DDBSubClass extends DDBClass {
       };
       this.data.system.advancement.push(minor);
     }
+  }
+
+  _rangerFixes() {
+    if (this.data.name.startsWith("Drake Warden")) {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Drake Companion") continue;
+        advancement.configuration.type = "dice";
+        advancement.configuration.scale = {
+          7: { number: 1, faces: 6 },
+          15: { number: 2, faces: 6 },
+        };
+      }
+    }
+  }
+
+  // eslint-disable-next-line complexity
+  async _fixes() {
+    this._fightingStyleAdvancement();
+    this._bloodHunterFixes();
+    this._barbarianFixes();
+    this._druidFixes();
+    this._fighterFixes();
+    this._rangerFixes();
   }
 
   async _generateSpellListAdvancement(feature) {

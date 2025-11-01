@@ -87,6 +87,10 @@ export default class DDBClass {
     "Bardic Inspiration",
   ];
 
+  static FORCE_ADVANCEMENT_REPLACE = [
+    "Metamagic Options",
+  ];
+
   static PROFICIENCY_FEATURES = [
     "Core Barbarian Traits",
     "Core Bard Traits",
@@ -704,19 +708,25 @@ export default class DDBClass {
 
   }
 
+  // eslint-disable-next-line complexity
   async _generateFeatureAdvancement(feature, choices) {
     logger.verbose(`Generating feature advancement for feature ${feature.name} with choices:`, choices);
     const keys = new Set();
     const version = this.is2014 ? "2014" : "2024";
     const uuids = new Set();
     const configChoices = {};
+    let lowestLevel = 0;
 
     for (const choice of choices) {
       // build a list of options for each choice
       const choiceRegex = /level (\d+) /i;
-      const choiceLevel = choice.label.match(choiceRegex);
+      const choiceLevel = (choice.label ?? "").match(choiceRegex);
       const level = choiceLevel && choiceLevel.length > 1 ? parseInt(choiceLevel[1]) : 0;
       const currentCount = parseInt(configChoices[level]?.count ?? 0);
+
+      if (lowestLevel === 0) lowestLevel = level;
+      if (level < lowestLevel) lowestLevel = level;
+
       configChoices[level] = { count: currentCount + 1, replacement: false };
 
       const key = `${choice.componentTypeId}-${choice.type}-${feature.requiredLevel ?? 0}-${level}`;
@@ -771,12 +781,13 @@ export default class DDBClass {
       return;
     }
 
-    this.configChoices[feature.name] = configChoices;
+    const forceReplace = DDBClass.FORCE_ADVANCEMENT_REPLACE.includes(feature.name);
+    this.configChoices[feature.name] = AdvancementHelper.getChoiceReplacements(feature.description ?? feature.snippet ?? "", lowestLevel, configChoices, forceReplace);
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
     // TODO: handle replacements on configChoices e.g. eldritch invocations
     advancement.updateSource({
-      title: feature.name,
+      title: utils.nameString(feature.name),
       hint: feature.snippet ?? feature.description ?? "",
       configuration: {
         restriction: {
@@ -1472,19 +1483,22 @@ export default class DDBClass {
 
   // fixes
 
-  async _fightingStyleAdvancement() {
-    // TODO: come back to 2014
-    // todo: additional fighting style
-    if (this.is2014) return;
-    const advancementFound = this.data.system.advancement.some((a) => a.title === "Fighting Style");
-    const needsAdvancement = this.ddbClass.classFeatures.some((f) => f.definition.name === "Fighting Style");
-    if (!advancementFound && needsAdvancement) {
+  // eslint-disable-next-line complexity
+  async _fightingStyleAdvancement2024() {
+    const FIGHTING_STYLE_FEATURES = [
+      "Fighting Style",
+      "Additional Fighting Style",
+    ];
+    const advancementFound = this.data.system.advancement.some((a) => FIGHTING_STYLE_FEATURES.includes(a.title));
+    const feature = this.classFeatures.find((f) => FIGHTING_STYLE_FEATURES.includes(f.name));
+    if (!advancementFound && !feature) return;
+    if (!advancementFound && feature) {
       const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
       advancement.updateSource({
-        title: "Fighting Style",
-        hint: "Choose a Fighting Style",
+        title: feature.name,
+        hint: feature.snippet ?? feature.description ?? "",
         configuration: {
-          choices: this.configChoices["Fighting Style"] ?? {},
+          choices: this.configChoices[feature.name] ?? {},
           restriction: {
             type: "class",
             subtype: "fightingStyle",
@@ -1496,9 +1510,9 @@ export default class DDBClass {
       });
       this.data.system.advancement.push(advancement.toObject());
     }
-    // console.warn("Checking Fighting Style Advancements", { this: this, advancementFound, needsAdvancement });
+
     for (let advancement of this.data.system.advancement) {
-      if (advancement.title !== "Fighting Style") continue;
+      if (!FIGHTING_STYLE_FEATURES.includes(advancement.title)) continue;
       const flags = {
         "flags.ddbimporter.is2014": this.is2014,
         "flags.ddbimporter.is2024": this.is2024,
@@ -1514,9 +1528,16 @@ export default class DDBClass {
       });
       advancement.configuration.restriction.subType = "fightingStyle";
 
-      if (Object.keys(advancement.configuration.choices).length === 0) {
-        advancement.configuration.choices = this.configChoices[advancement.title] ?? {};
+      let lowestLevel = 1;
+      const description = feature.description ?? feature.snippet ?? "";
+
+      if (feature.name === "Fighting Style")
+        this.configChoices[advancement.title] ??= { 1: { count: 1, replacement: true } };
+      else if (feature.name === "Additional Fighting Style") {
+        lowestLevel = 7;
+        this.configChoices[advancement.title] ??= { 7: { count: 1, replacement: true } };
       }
+      advancement.configuration.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancement.title]);
 
       if (this.data.name === "Paladin") {
         const special = this._compendiums.features.find((c) =>
@@ -1536,6 +1557,13 @@ export default class DDBClass {
         }
       }
     }
+  }
+
+  async _fightingStyleAdvancement() {
+    if (this.is2024) {
+      await this._fightingStyleAdvancement2024();
+    }
+    // TODO: come back to 2014
   }
 
   _druidFixes() {

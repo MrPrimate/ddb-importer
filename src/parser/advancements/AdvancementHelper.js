@@ -36,6 +36,24 @@ export default class AdvancementHelper {
     // return utils.stripHtml(descriptionReplaced, true);
   }
 
+  static getChoiceReplacements(description, lowestLevel, choices = {}, forceReplace = false) {
+    const replaceRegex = /you can replace/i;
+    const replace = replaceRegex.test(description);
+
+    if (replace || forceReplace) {
+      for (const level of utils.arrayRange(20, 1, 1)) {
+        if (parseInt(level) < parseInt(lowestLevel)) continue;
+        foundry.utils.setProperty(choices, `${level}.replacement`, true);
+      }
+    } else {
+      for (const level of Object.keys(choices)) {
+        foundry.utils.setProperty(choices, `${level}.replacement`, false);
+      }
+    }
+
+    return choices;
+  }
+
 
   getSkillChoicesFromOptions(feature, level, proficiencyFeatures = []) {
     const skillsChosen = new Set();
