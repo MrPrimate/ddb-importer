@@ -5,10 +5,10 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 export default class ElementalAffinity extends DDBEnricherData {
 
   get type() {
-    return "damage";
+    return this.isAction ? "damage" : "none";
   }
 
-  damageTypes() {
+  get damageTypes() {
     return [
       "acid",
       "cold",
@@ -28,18 +28,31 @@ export default class ElementalAffinity extends DDBEnricherData {
       damageParts: [
         DDBEnricherData.basicDamagePart({
           bonus: "@abilities.cha.mod",
-          types: this.damageTypes(),
+          types: this.damageTypes,
         }),
       ],
     };
   }
 
-  get effects() {
-    const activeType = this.ddbParser?._chosen?.find((a) =>
+  get chosenDamageType() {
+    if (this.ddbParser.isMuncher) return "";
+    const activeType = this.ddbParser._chosen?.find((a) =>
       utils.nameString(a.label).endsWith("Damage"),
-    )?.label?.split(" Damage")[0].toLowerCase() ?? "";
+    )?.label?.split(" Damage")[0].toLowerCase();
 
-    return this.damageTypes().map((type) => {
+    if (activeType) return activeType;
+
+    const featureType = this.name.match(/\(([^)]+)\)/);
+    if (featureType && featureType.length > 1) {
+      return featureType[1].toLowerCase();
+    }
+    return "";
+  }
+
+  get effects() {
+    const activeType = this.chosenDamageType ?? "";
+
+    return this.damageTypes.map((type) => {
       return {
         name: `Elemental Affinity, Resistance: ${utils.capitalize(type)}`,
         options: {
@@ -55,6 +68,20 @@ export default class ElementalAffinity extends DDBEnricherData {
 
   get clearAutoEffects() {
     return true;
+  }
+
+  get override() {
+    const activeType = this.chosenDamageType;
+    const flags = {
+      ddbimporter: {
+        originalName: "Elemental Affinity",
+      },
+    };
+    const result = activeType !== ""
+      ? { data: { name: `Elemental Affinity (${utils.capitalize(activeType)})`, flags } }
+      : { data: { name: "Elemental Affinity", flags } };
+
+    return result;
   }
 
 }

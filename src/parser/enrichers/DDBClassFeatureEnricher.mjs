@@ -142,6 +142,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Agonizing Blast": "Eldritch Invocations: Agonizing Blast",
     " Domain Spells": "Cleric Domain Spells",
     "Elemental Disciplines: ": "Elemental Disciplines",
+    "Elemental Affinity (": "Elemental Affinity",
   };
 
   ENRICHERS = {
@@ -177,6 +178,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Lifedrinker": ClassEnrichers.Warlock.InvocationLifedrinker,
     "Eldritch Invocations: Pact of the Blade": ClassEnrichers.Warlock.InvocationPactOfTheBlade,
     "Eldritch Invocations: Pact of the Chain": ClassEnrichers.Warlock.PactOfTheChain,
+    "Elemental Affinity": ClassEnrichers.Sorcerer.ElementalAffinity,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
     "Flurry of Blows: Addle": ClassEnrichers.Monk.FlurryOfBlowsAdditional,
     "Flurry of Blows: Push": ClassEnrichers.Monk.FlurryOfBlowsAdditional,

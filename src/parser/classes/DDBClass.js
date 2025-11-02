@@ -43,7 +43,7 @@ export default class DDBClass {
         "flags.ddbimporter.classId",
         "flags.ddbimporter.class",
         "flags.ddbimporter.subClass",
-        "flags.ddbimporter.parentClassId",
+        "flags.ddbimporter.subClassId",
         "flags.ddbimporter.originalName",
         "flags.ddbimporter.featureMeta",
         "flags.ddbimporter.dndbeyond.choice.optionId",
@@ -549,23 +549,24 @@ export default class DDBClass {
     if (!this._compendiums.features) {
       return null;
     }
+    const featureName = utils.nameString(feature.name);
+
     return this._compendiums.features.index.find((match) => {
-      const featureName = utils.nameString(feature.name);
       const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
         ?? foundry.utils.getProperty(match, "flags.ddbimporter");
       if (!matchFlags) return false;
-      const featureFlagName = foundry.utils.getProperty(matchFlags, "originalName")?.trim().toLowerCase();
-      const featureFlagNameMatch = featureFlagName
-        && featureFlagName == featureName.toLowerCase();
-      const nameMatch = !featureFlagNameMatch
-        && match.name.trim().toLowerCase() == featureName.toLowerCase();
-      if (!nameMatch && !featureFlagNameMatch) return false;
+      const matchName = foundry.utils.getProperty(matchFlags, "originalName")?.trim()
+        ?? match.name.trim();
+      const nameMatch = featureName.toLowerCase() === matchName.toLowerCase();
+      if (!nameMatch) {
+        const containsMatch = featureName.toLowerCase().includes(matchName.toLowerCase());
+        const isIdMatch = feature.id === matchFlags.id;
+        if (!containsMatch || !isIdMatch) return false;
+      }
 
       const featureClassMatch = !this.isSubClass
-        && matchFlags.class == this.name
         && matchFlags.classId == this.ddbClassDefinition.id;
       const featureSubclassMatch = this.isSubClass
-        && matchFlags.subClass === this.name
         && matchFlags.subClassId == this.ddbClassDefinition.id;
       return featureClassMatch || featureSubclassMatch;
     });
@@ -679,6 +680,8 @@ export default class DDBClass {
     if (!featureMatch) {
       if (this.isMuncher && this.addToCompendium) {
         logger.warn(`Could not find feature advancement match for feature ${feature.name}`);
+      } else {
+        logger.debug(`No feature advancement match found for feature ${feature.name}, skipping.`);
       }
       return;
     }
@@ -774,6 +777,12 @@ export default class DDBClass {
 
     if (uuids.size === 0) {
       logger.warn(`No valid features found for advancement of feature ${feature.name}, you can ignore this message unless you think this feature should offer an advancement choice.`);
+      // console.warn({
+      //   this: this,
+      //   feature: feature,
+      //   choices: choices,
+      //   choiceMap: this.choiceMap,
+      // })
       return;
     }
     if (Object.keys(configChoices).length === 0) {
@@ -805,7 +814,6 @@ export default class DDBClass {
     });
 
     // TODO: handle chosen advancements on non muncher classes
-
     this.data.system.advancement.push(advancement.toObject());
 
   }

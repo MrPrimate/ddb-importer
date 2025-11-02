@@ -123,6 +123,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Aspect of the Beast",
     "Arcane Shot Options",
     "Dark Bargain",
+    "Elemental Affinity",
+    "Dragon Ancestor",
   ],
   KEEP_CHOICE_FEATURE_NAME: [
     "Defensive Tactics",
@@ -133,6 +135,7 @@ export const PARSING_CHOICE_FEATURES = {
     "The Third Eye",
     "Unbreakable Majesty",
     "Full of Stars",
+    "Dragon Ancestor",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
@@ -197,6 +200,13 @@ export const PARSING_CHOICE_FEATURES = {
     "Full of Stars",
     "Twinkling Constellations",
     "Starry Form",
+    "Elemental Affinity",
+    "Elemental Affinity (Fire)",
+    "Elemental Affinity (Cold)",
+    "Elemental Affinity (Lightning)",
+    "Elemental Affinity (Acid)",
+    "Elemental Affinity (Poison)",
+    "Dragon Ancestor",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -224,6 +234,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Full of Stars: Archer: Full of Stars",
     "Archer: Full of Stars",
     "Full of Stars",
+    "Dragon Ancestor",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -288,6 +299,11 @@ export const PARSING_CHOICE_FEATURES = {
     "Scholar",
     "Variable Trait",
     // "Maneuver Options",
+    "Blessed Strikes",
+    "Full of Stars: Archer: Full of Stars",
+    "Archer: Full of Stars",
+    "Full of Stars",
+    "Dragon Ancestor",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

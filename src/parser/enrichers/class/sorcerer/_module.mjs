@@ -2,6 +2,7 @@ export { default as BastionOfLaw } from "./BastionOfLaw.mjs";
 export { default as BendLuck } from "./BendLuck.mjs";
 export { default as ClockworkCavalcade } from "./ClockworkCavalcade.mjs";
 export { default as DraconicResilience } from "./DraconicResilience.mjs";
+export { default as DragonAncestor } from "./DragonAncestor.mjs";
 export { default as DragonWings } from "./DragonWings.mjs";
 export { default as ElementalAffinity } from "./ElementalAffinity.mjs";
 export { default as ExtraSpells } from "./ExtraSpells.mjs";
