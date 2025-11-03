@@ -874,6 +874,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       else if (name === "Battle Master Maneuver") return "maneuver";
       else if (name === "Metamagic") return "metamagic";
       else if (name.startsWith("Pact of the")) return "pact";
+      else if (name.startsWith("Pact Boon")) return "pact";
       else if (name === "Rune Carver") return "rune";
       else if (name === "Psionic Power") return "psionicPower";
       else if (name === "Hunter's Prey") return "huntersPrey";

@@ -1,6 +1,9 @@
 # Next Up
 
 - Blessing of the Raven Queen feature parsing improvements.
+- Huge number of small class feature parsing fixes.
+- Class import now adds choices for appropriate class choices. If you are updating you will need to remove and recreate entries.
+- Epic Boons added to class advancements.
 
 # 6.6.5
 

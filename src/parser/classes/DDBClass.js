@@ -91,6 +91,8 @@ export default class DDBClass {
     "Metamagic Options",
   ];
 
+  static IGNORE_FEATURE_MULTIP
+
   static PROFICIENCY_FEATURES = [
     "Core Barbarian Traits",
     "Core Bard Traits",
@@ -549,27 +551,69 @@ export default class DDBClass {
     if (!this._compendiums.features) {
       return null;
     }
-    const featureName = utils.nameString(feature.name);
 
-    return this._compendiums.features.index.find((match) => {
-      const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
-        ?? foundry.utils.getProperty(match, "flags.ddbimporter");
-      if (!matchFlags) return false;
-      const matchName = foundry.utils.getProperty(matchFlags, "originalName")?.trim()
-        ?? match.name.trim();
-      const nameMatch = featureName.toLowerCase() === matchName.toLowerCase();
-      if (!nameMatch) {
-        const containsMatch = featureName.toLowerCase().includes(matchName.toLowerCase());
+    const featureName = utils.nameString(feature.name);
+    const findFeatures = (excludeFlags = {}, looseMatch = true) => {
+      const results = this._compendiums.features.index.filter((match) => {
+        const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
+          ?? foundry.utils.getProperty(match, "flags.ddbimporter");
+        if (!matchFlags) return false;
+        const matchName = foundry.utils.getProperty(matchFlags, "originalName")?.trim()
+          ?? match.name.trim();
+        const nameMatch = featureName.toLowerCase() === matchName.toLowerCase();
         const isIdMatch = feature.id === matchFlags.id;
-        if (!containsMatch || !isIdMatch) return false;
+        if (!nameMatch && looseMatch) {
+          const containsMatch = featureName.toLowerCase().includes(matchName.toLowerCase());
+          if (!containsMatch || !isIdMatch) return false;
+        } else if (nameMatch && !looseMatch && !isIdMatch) {
+          return false;
+        }
+        for (const [key, value] of Object.entries(excludeFlags)) {
+          if (matchFlags[key] === value) return false;
+        }
+
+        const featureClassMatch = !this.isSubClass
+          && matchFlags.classId == this.ddbClassDefinition.id;
+        const featureSubclassMatch = this.isSubClass
+          && matchFlags.subClassId == this.ddbClassDefinition.id;
+        return featureClassMatch || featureSubclassMatch;
+      });
+      return results;
+    };
+
+    const exactMach = findFeatures.call(this, {}, false);
+    const firstPass = findFeatures.call(this);
+
+    if (firstPass.length === 1) {
+      return firstPass[0];
+    } else if (firstPass.length > 1) {
+      const secondPass = findFeatures.call(this, {
+        "isChoice": true,
+      });
+
+      if (secondPass.length === 1) {
+        return secondPass[0];
+      } else if (secondPass.length > 1 && exactMach.length === 1) {
+        return exactMach[0];
+      } else if (secondPass.length > 1) {
+        logger.error(`Multiple compendium feature matches found for feature ${feature.name}, even after filtering choices.`, {
+          firstPass,
+          secondPass,
+          feature,
+          this: this,
+        });
+      } else {
+        logger.warn(`No compendium feature matches found for feature ${feature.name}, using first match.`, {
+          firstPass,
+          secondPass,
+          feature,
+          this: this,
+        });
       }
 
-      const featureClassMatch = !this.isSubClass
-        && matchFlags.classId == this.ddbClassDefinition.id;
-      const featureSubclassMatch = this.isSubClass
-        && matchFlags.subClassId == this.ddbClassDefinition.id;
-      return featureClassMatch || featureSubclassMatch;
-    });
+
+    }
+    return null;
   }
 
   getCompendiumIxByFlags(compendiums, flags) {
@@ -713,7 +757,14 @@ export default class DDBClass {
 
   // eslint-disable-next-line complexity
   async _generateFeatureAdvancement(feature, choices) {
-    logger.verbose(`Generating feature advancement for feature ${feature.name} with choices:`, choices);
+    logger.debug(`Generating choice feature advancement for feature ${feature.name} with ${choices.length} choices`);
+    // console.warn({
+    //   this: this,
+    //   feature: feature,
+    //   choices: choices,
+    //   choiceMap: this.choiceMap,
+    // })
+    // logger.verbose(`Generating feature advancement for feature ${feature.name} with choices:`, choices);
     const keys = new Set();
     const version = this.is2014 ? "2014" : "2024";
     const uuids = new Set();
@@ -724,7 +775,9 @@ export default class DDBClass {
       // build a list of options for each choice
       const choiceRegex = /level (\d+) /i;
       const choiceLevel = (choice.label ?? "").match(choiceRegex);
-      const level = choiceLevel && choiceLevel.length > 1 ? parseInt(choiceLevel[1]) : 0;
+      const level = choiceLevel && choiceLevel.length > 1
+        ? parseInt(choiceLevel[1])
+        : (feature.requiredLevel ?? 0);
       const currentCount = parseInt(configChoices[level]?.count ?? 0);
 
       if (lowestLevel === 0) lowestLevel = level;
@@ -811,6 +864,14 @@ export default class DDBClass {
         allowDrops: true,
       },
       icons: "icons/magic/symbols/cog-orange-red.webp",
+    });
+
+    console.warn(`Generated choice advancement for feature ${feature.name}:`, {
+      advancement,
+      this: this,
+      feature,
+      choices,
+      uuids,
     });
 
     // TODO: handle chosen advancements on non muncher classes
@@ -1351,12 +1412,26 @@ export default class DDBClass {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const abilityAdvancementFeature = this.classFeatures.find((f) => f.name.includes("Ability Score Improvement") && f.requiredLevel === i);
+      const abilityAdvancementFeature = this.classFeatures.find((f) =>
+        (f.name.includes("Ability Score Improvement") || f.name === "Epic Boon")
+        && f.requiredLevel === i,
+      );
 
       // eslint-disable-next-line no-continue
       if (!abilityAdvancementFeature) continue;
       const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-      advancement.updateSource({ configuration: { points: 2 }, level: i, value: { type: "asi" } });
+      advancement.updateSource({
+        configuration: { points: 2 },
+        level: i,
+        value: { type: "asi" },
+      });
+
+      if (abilityAdvancementFeature.name === "Epic Boon") {
+        advancement.updateSource({
+          title: "Epic Boon",
+          hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
+        });
+      }
 
       // if advancement has taken ability improvements
       const modFilters = {

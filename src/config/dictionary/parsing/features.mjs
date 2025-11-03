@@ -125,6 +125,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dark Bargain",
     "Elemental Affinity",
     "Dragon Ancestor",
+    "Pact Boon",
   ],
   KEEP_CHOICE_FEATURE_NAME: [
     "Defensive Tactics",
@@ -145,6 +146,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Primal Companion",
     "Giant Ancestry",
     "Arcane Shot Options",
+    "Pact Boon",
   ],
   NO_CHOICE_BUILD: [
     "Aspect of the Wilds",
@@ -241,7 +243,7 @@ export const PARSING_CHOICE_FEATURES = {
   ],
   USE_CHOSEN_ONLY: [
     "Elven Lineage",
-    "Pact Boon",
+    // "Pact Boon",
     "Dark Bargain",
   ],
   NO_CHOICE_ACTIVITY: [
@@ -310,6 +312,9 @@ export const PARSING_CHOICE_FEATURES = {
   ],
   DISCARD_CHOICE_FEATURE: [
     "Fighting Style feat",
+  ],
+  DISCARD_FEATURE_AFTER_CHOICES: [
+    "Pact Boon",
   ],
 };
 

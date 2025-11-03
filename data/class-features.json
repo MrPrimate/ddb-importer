@@ -2563,6 +2563,13 @@
     "path": "icons/equipment/neck/pendant-faceted-silver-green.webp"
   },
   {
+    "name": "Pact of the Talisman",
+    "class_feature": "Pact of the Talisman",
+    "class": "Warlock",
+    "subclass": "",
+    "path": "icons/equipment/neck/necklace-eye-orange.webp"
+  },
+  {
     "name": "Eldritch Invocations: Rebuke of the Talisman",
     "class_feature": "Eldritch Invocations: Rebuke of the Talisman",
     "class": "Warlock",

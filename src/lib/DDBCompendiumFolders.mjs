@@ -687,7 +687,7 @@ export class DDBCompendiumFolders {
       await this.createFeatureFolder(className, "Metamagic", classFolderId, version);
     } else if (className === "Warlock") {
       await this.createFeatureFolder(className, "Invocations", classFolderId, version);
-      await this.createFeatureFolder(className, "Packs", classFolderId, version);
+      await this.createFeatureFolder(className, "Pacts", classFolderId, version);
     }
   }
 

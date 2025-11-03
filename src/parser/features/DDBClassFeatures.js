@@ -4,6 +4,7 @@ import DDBFeature from "./DDBFeature.js";
 import { DDBClassFeatureEnricher } from "../enrichers/_module.mjs";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import CharacterFeatureFactory from "./CharacterFeatureFactory.js";
+import { DICTIONARY } from "../../config/_module.mjs";
 
 export default class DDBClassFeatures {
 
@@ -17,6 +18,8 @@ export default class DDBClassFeatures {
   static EXCLUDED_FEATURES_2024 = [
     // "Rage",
   ];
+
+  static DISCARD_BASE_FEATURE = DICTIONARY.parsing.choiceFeatures.DISCARD_FEATURE_AFTER_CHOICES;
 
   deriveFeatures() {
     this.ddbData.character.classes.forEach((klass) => {
@@ -141,6 +144,9 @@ export default class DDBClassFeatures {
     const choiceFeatures = feature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(feature)
       : [];
+    if (DDBClassFeatures.DISCARD_BASE_FEATURE.includes(feature.originalName)) {
+      return choiceFeatures;
+    }
     return [feature.data].concat(choiceFeatures);
   }
 
