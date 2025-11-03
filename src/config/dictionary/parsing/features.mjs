@@ -121,6 +121,8 @@ export const PARSING_CHOICE_FEATURES = {
     "The Third Eye",
     "Unbreakable Majesty",
     "Aspect of the Beast",
+    "Totem Spirit",
+    "Totemic Attunement",
     "Arcane Shot Options",
     "Dark Bargain",
     "Elemental Affinity",
@@ -237,6 +239,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Archer: Full of Stars",
     "Full of Stars",
     "Dragon Ancestor",
+    "Totem Spirit",
+    "Totemic Attunement",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -245,6 +249,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Elven Lineage",
     // "Pact Boon",
     "Dark Bargain",
+    // "Totem Spirit",
+    // "Totemic Attunement",
   ],
   NO_CHOICE_ACTIVITY: [
     "Mystic Arcanum (",
