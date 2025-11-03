@@ -1,4 +1,4 @@
-# Next Up
+# 6.6.6
 
 - Blessing of the Raven Queen feature parsing improvements.
 - Huge number of small class feature parsing fixes.

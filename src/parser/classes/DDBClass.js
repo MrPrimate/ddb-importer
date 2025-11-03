@@ -91,8 +91,6 @@ export default class DDBClass {
     "Metamagic Options",
   ];
 
-  static IGNORE_FEATURE_MULTIP
-
   static PROFICIENCY_FEATURES = [
     "Core Barbarian Traits",
     "Core Bard Traits",
@@ -847,7 +845,6 @@ export default class DDBClass {
     this.configChoices[feature.name] = AdvancementHelper.getChoiceReplacements(feature.description ?? feature.snippet ?? "", lowestLevel, configChoices, forceReplace);
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
-    // TODO: handle replacements on configChoices e.g. eldritch invocations
     advancement.updateSource({
       title: utils.nameString(feature.name),
       hint: feature.snippet ?? feature.description ?? "",
@@ -866,13 +863,13 @@ export default class DDBClass {
       icons: "icons/magic/symbols/cog-orange-red.webp",
     });
 
-    console.warn(`Generated choice advancement for feature ${feature.name}:`, {
-      advancement,
-      this: this,
-      feature,
-      choices,
-      uuids,
-    });
+    // console.warn(`Generated choice advancement for feature ${feature.name}:`, {
+    //   advancement,
+    //   this: this,
+    //   feature,
+    //   choices,
+    //   uuids,
+    // });
 
     // TODO: handle chosen advancements on non muncher classes
     this.data.system.advancement.push(advancement.toObject());
