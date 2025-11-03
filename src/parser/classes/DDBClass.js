@@ -871,6 +871,7 @@ export default class DDBClass {
     //   uuids,
     // });
 
+    // eslint-disable-next-line no-warning-comments
     // TODO: handle chosen advancements on non muncher classes
     this.data.system.advancement.push(advancement.toObject());
 
@@ -908,6 +909,7 @@ export default class DDBClass {
         );
       if (choices.length === 0) continue;
 
+      // eslint-disable-next-line no-warning-comments
       // TODO: determine if different features at each level, if so, create multiple advancements
       await this._generateFeatureAdvancement(feature, choices);
     }
@@ -1643,6 +1645,7 @@ export default class DDBClass {
     if (this.is2024) {
       await this._fightingStyleAdvancement2024();
     }
+    // eslint-disable-next-line no-warning-comments
     // TODO: come back to 2014
   }
 
