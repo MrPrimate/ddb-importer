@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.7
+
 - Fix some firearm ammunition type links
 - Some weapon properties from third party books would be doubled on item sheets.
 
