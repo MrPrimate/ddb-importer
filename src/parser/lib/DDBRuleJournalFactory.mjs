@@ -329,18 +329,34 @@ export default class DDBRuleJournalFactory {
         case "weapon-properties": {
           for (const page of rulePages) {
             const propertyId = page.name.toLowerCase().replaceAll(" ", "").replaceAll("-", "");
-            const isPHBProperty = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceCode") === "PHB 2024";
-            if (!CONFIG.DND5E.itemProperties[propertyId] && !isPHBProperty) {
+            const shortId = propertyId.slice(0, 3);
+            const isPHBProperty = ["PHB 2024", "BR", "PHB", "SRD 5.1", "SRD 5.2"].includes(foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceCode"));
+
+            logger.verbose(`Adding ${page.name} as ${propertyId} (short: ${shortId}), isPHBProperty: ${isPHBProperty}`, {
+              isShort: foundry.utils.deepClone(CONFIG.DND5E.itemProperties[shortId]),
+              isFull: foundry.utils.deepClone(CONFIG.DND5E.itemProperties[propertyId]),
+              shortId,
+              propertyId,
+              isPHBProperty,
+            });
+            if (!CONFIG.DND5E.itemProperties[propertyId] && !CONFIG.DND5E.itemProperties[shortId] && !isPHBProperty) {
               CONFIG.DND5E.itemProperties[propertyId] = {
                 label: page.name,
                 reference: page.uuid,
               };
               CONFIG.DND5E.validProperties["weapon"].add(propertyId);
-            } else if (CONFIG.DND5E.itemProperties[propertyId]
-                && !CONFIG.DND5E.itemProperties[propertyId].reference
-            ) {
-              CONFIG.DND5E.itemProperties[propertyId].reference = page.uuid;
+            } else if (CONFIG.DND5E.itemProperties[shortId]) {
+              // eslint-disable-next-line max-depth
+              if (!CONFIG.DND5E.itemProperties[shortId].reference) {
+                CONFIG.DND5E.itemProperties[shortId].reference = page.uuid;
+              }
+            } else if (CONFIG.DND5E.itemProperties[propertyId]) {
+              // eslint-disable-next-line max-depth
+              if (!CONFIG.DND5E.itemProperties[propertyId].reference) {
+                CONFIG.DND5E.itemProperties[propertyId].reference = page.uuid;
+              }
             }
+
           }
           break;
         }

@@ -1,3 +1,8 @@
+# Next Up
+
+- Fix some firearm ammunition type links
+- Some weapon properties from third party books would be doubled on item sheets.
+
 # 6.6.6
 
 - Blessing of the Raven Queen feature parsing improvements.
