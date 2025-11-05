@@ -302,12 +302,16 @@ export const ACTOR = {
 
     // Ammunition
     { name: "Bolt", type: "Ammunition", ammunitionType: "crossbowBolt" },
+    { name: "Bolts", type: "Ammunition", ammunitionType: "crossbowBolt" },
     { name: "Crossbow Bolt", type: "Ammunition", ammunitionType: "crossbowBolt" },
+    { name: "Crossbow Bolts", type: "Ammunition", ammunitionType: "crossbowBolt" },
     { name: "Crossbow", type: "Ammunition", ammunitionType: "crossbowBolt" },
     { name: "Sling Bullets", type: "Ammunition", ammunitionType: "slingBullet" },
     { name: "Sling", type: "Ammunition", ammunitionType: "slingBullet" },
     { name: "Bullets", type: "Ammunition", ammunitionType: "firearmBullet" },
+    { name: "Firearm Bullets", type: "Ammunition", ammunitionType: "firearmBullet" },
     { name: "Blowgun Needles", type: "Ammunition", ammunitionType: "blowgunNeedle" },
+    { name: "Blowgun Needle", type: "Ammunition", ammunitionType: "blowgunNeedle" },
     { name: "Blowgun", type: "Ammunition", ammunitionType: "blowgunNeedle" },
     { name: "Needles", type: "Ammunition", ammunitionType: "blowgunNeedle" },
     { name: "Arrows", type: "Ammunition", ammunitionType: "arrow" },
