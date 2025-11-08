@@ -2231,7 +2231,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   static async getCantripChoiceAdvancement({
     choices = [], abilities = [], hint = "", name, spellListChoice = null, spellLinks,
-    is2024,
+    is2024, choiceLevel = 0,
   } = {}) {
     if (choices.length === 0 && !spellListChoice) return undefined;
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
@@ -2254,7 +2254,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           return { uuid: s.uuid };
         }),
         choices: {
-          "0": {
+          [choiceLevel]: {
             count: 1,
             replacement: false,
           },

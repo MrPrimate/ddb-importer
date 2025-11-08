@@ -212,6 +212,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Elemental Affinity (Poison)",
     "Dragon Ancestor",
     "Knightly Envoy",
+    "Primal Lore",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -314,6 +315,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Full of Stars",
     "Dragon Ancestor",
     "Knightly Envoy",
+    "Primal Lore",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

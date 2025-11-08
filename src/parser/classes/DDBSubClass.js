@@ -396,6 +396,33 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
+  async _bardFixes() {
+    if (this.data.name.startsWith("College of the Moon")) {
+      const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
+        choices: [],
+        abilities: ["cha"],
+        hint: "Pick a druid cantrip",
+        name: "Druidic Lore",
+        spellListChoice: "Druid",
+        spellLinks: this.spellLinks,
+        is2024: true,
+        choiceLevel: 3,
+      });
+      if (cantripChoiceAdvancement) {
+        cantripChoiceAdvancement.updateSource({
+          configuration: {
+            restriction: {
+              list: [
+                "class:druid",
+              ],
+            },
+          },
+        });
+        this.data.system.advancement.push(cantripChoiceAdvancement.toObject());
+      }
+    }
+  }
+
   // eslint-disable-next-line complexity
   async _fixes() {
     this._fightingStyleAdvancement();
@@ -404,6 +431,7 @@ export default class DDBSubClass extends DDBClass {
     this._druidFixes();
     this._fighterFixes();
     this._rangerFixes();
+    await this._bardFixes();
   }
 
   async _generateSpellListAdvancement(feature) {
