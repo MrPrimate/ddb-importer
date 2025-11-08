@@ -1895,6 +1895,19 @@ export default class DDBClass {
     this.data.system.advancement.push(points);
   }
 
+  _spellFixes() {
+    // only run on non-spellcasting classes
+    if (!["Fighter", "Rogue", "Barbarian", "Monk"].includes(this.data.name)) return;
+    const foundCantripsIndex = this.data.system.advancement.findIndex((a) => a.title === "Cantrips Known");
+    if (foundCantripsIndex !== -1) {
+      this.data.system.advancement.splice(foundCantripsIndex, 1);
+    }
+    const foundSpellsIndex = this.data.system.advancement.findIndex((a) => a.title === "Spells Known");
+    if (foundSpellsIndex !== -1) {
+      this.data.system.advancement.splice(foundSpellsIndex, 1);
+    }
+  }
+
   async _fixes() {
     await this._fightingStyleAdvancement();
     this._druidFixes();
@@ -1903,6 +1916,7 @@ export default class DDBClass {
     this._barbarianFixes();
     this._bardFixes();
     this._sorcererFixes();
+    this._spellFixes();
   }
 
   _generatePrimaryAbility() {

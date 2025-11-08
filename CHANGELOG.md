@@ -1,5 +1,7 @@
 # Next Up
 
+- Fighters no longer generate spells known/cantrips known advancements
+
 # 6.6.7
 
 - Fix some firearm ammunition type links
