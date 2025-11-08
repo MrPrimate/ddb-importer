@@ -1,6 +1,7 @@
 # Next Up
 
 - Fighters no longer generate spells known/cantrips known advancements
+- Expertise skill choices would default to 2 rather than appropriate choice number
 
 # 6.6.7
 
