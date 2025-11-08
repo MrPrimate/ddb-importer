@@ -938,7 +938,6 @@ export default class DDBRace {
 
   async addToCompendium(update = null, compendiumImportTypes = ["species"]) {
     if (!compendiumImportTypes.includes("species")) return;
-    if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums")) return;
     const updateFeatures = update ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
     const traitHandlerOptions = {

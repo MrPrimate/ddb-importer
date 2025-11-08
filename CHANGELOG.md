@@ -2,6 +2,7 @@
 
 - Fighters no longer generate spells known/cantrips known advancements
 - Expertise skill choices would default to 2 rather than appropriate choice number
+- Certain option combinations would prevent species importing in the muncher. @cschwarzburg9284
 
 # 6.6.7
 
