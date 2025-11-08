@@ -467,91 +467,15 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   // eslint-disable-next-line complexity
   _generateLimitedUse() {
-    let resetType = DICTIONARY.resets.find((type) => type.id === this.ddbDefinition.limitedUse?.resetType);
+    const uses = DDBDataUtils.getLimitedUses({
+      data: this.ddbDefinition.limitedUse,
+      description: this.ddbDefinition.description ?? "",
+      scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink ? this.scaleValueUsesLink : null,
+    });
 
-    if (!resetType) {
-      const resetTypeRegex = /(?:(Short) or )?(Long) Rest/ig;
-      const match = resetTypeRegex.exec(this.ddbDefinition.description);
-      if (match && match[1]) {
-        resetType = DICTIONARY.resets.find((type) => type.id === match[1]);
-      } else if (match && match[2]) {
-        resetType = DICTIONARY.resets.find((type) => type.id === match[2]);
-      }
-    }
-    if (
-      this.ddbDefinition.limitedUse
-      && (this.ddbDefinition.limitedUse.maxUses || this.ddbDefinition.limitedUse.statModifierUsesId || this.ddbDefinition.limitedUse.useProficiencyBonus)
-    ) {
-      let maxUses = (this.ddbDefinition.limitedUse.maxUses && this.ddbDefinition.limitedUse.maxUses !== -1) ? this.ddbDefinition.limitedUse.maxUses : 0;
-      const statModifierUsesId = foundry.utils.getProperty(this.ddbDefinition, "limitedUse.statModifierUsesId");
-      if (statModifierUsesId) {
-        const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId).value;
-
-        if (maxUses === 0) {
-          maxUses = `@abilities.${ability}.mod`;
-        } else {
-          switch (this.ddbDefinition.limitedUse.operator) {
-            case 2:
-              maxUses = `${maxUses} * @abilities.${ability}.mod`;
-              break;
-            case 1:
-            default:
-              maxUses = `${maxUses} + @abilities.${ability}.mod`;
-          }
-        }
-      }
-
-      const useProficiencyBonus = foundry.utils.getProperty(this.ddbDefinition, "limitedUse.useProficiencyBonus");
-      if (useProficiencyBonus) {
-        if (maxUses === 0) {
-          maxUses = `@prof`;
-        } else {
-          switch (this.ddbDefinition.limitedUse.proficiencyBonusOperator) {
-            case 2:
-              maxUses = `${maxUses} * @prof`;
-              break;
-            case 1:
-            default:
-              maxUses = `${maxUses} + @prof`;
-          }
-        }
-      }
-
-      if (this.useUsesScaleValueLink && this.scaleValueUsesLink) {
-        maxUses = this.scaleValueUsesLink;
-      }
-
-      const finalMaxUses = (maxUses)
-        ? Number.isInteger(maxUses)
-          ? parseInt(maxUses)
-          : maxUses
-        : null;
-
-      this.data.system.uses = {
-        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
-        max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
-        ],
-      };
-    } else if (this.useUsesScaleValueLink && this.scaleValueUsesLink) {
-      let maxUses = this.scaleValueUsesLink;
-
-      this.data.system.uses = {
-        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
-        max: (maxUses !== "") ? maxUses : null,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
-        ],
-      };
-    } else if (foundry.utils.hasProperty(this.ddbDefinition, "limitedUse.value")) {
-      this.data.system.uses = {
-        spent: this.ddbDefinition.limitedUse.numberUsed ?? null,
-        max: `${this.ddbDefinition.limitedUse.value}`,
-        recovery: [
-          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
-        ],
-      };
+    if (uses) {
+      this._generatedUses = uses;
+      this.data.system.uses = uses;
     } else if (this.enricher?.activityNameMatchFeature) {
       this.data.system.uses = foundry.utils.deepClone(this.enricher.activityNameMatchFeature.system.uses);
     } else if (this.enricher?.defaultActionFeatures && Object.keys(this.enricher.defaultActionFeatures).length > 0) {

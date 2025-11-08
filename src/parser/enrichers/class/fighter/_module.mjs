@@ -49,6 +49,7 @@ export { default as RemarkableAthlete } from "./RemarkableAthlete.mjs";
 export { default as SecondWind } from "./SecondWind.mjs";
 export { default as SeekingArrow } from "./SeekingArrow.mjs";
 export { default as ShadowArrow } from "./ShadowArrow.mjs";
+export { default as SharedResilience } from "./SharedResilience.mjs";
 export { default as StoneRune } from "./StoneRune.mjs";
 export { default as StormRune } from "./StormRune.mjs";
 export { default as SuperiorCritical } from "./SuperiorCritical.mjs";

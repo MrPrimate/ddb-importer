@@ -6,6 +6,8 @@ export default class TeamTactics extends DDBEnricherData {
   get activity() {
     return {
       addItemConsume: true,
+      activationCondition: "You use Group Recovery",
+      activationType: "special",
       targetType: "ally",
       targetCount: "max(1, @abilities.cha.mod)",
       data: {

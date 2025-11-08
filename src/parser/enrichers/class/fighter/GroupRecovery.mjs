@@ -11,6 +11,8 @@ export default class GroupRecovery extends DDBEnricherData {
     return {
       addItemConsume: true,
       targetType: "ally",
+      activationType: "special",
+      activationCondition: "You use Second Wind",
       targetCount: "max(1, @abilities.cha.mod)",
       data: {
         healing: DDBEnricherData.basicDamagePart({
@@ -35,11 +37,14 @@ export default class GroupRecovery extends DDBEnricherData {
   }
 
   get override() {
-    const result = {
+    const uses = this._getGeneratedUses({
+      name: "Second Wind: Group Recovery",
+      type: "class",
+    });
+    return {
       data: {
-        "system.uses.recovery": [],
+        "system.uses": uses,
       },
     };
-    return result;
   }
 }

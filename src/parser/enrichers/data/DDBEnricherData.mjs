@@ -65,6 +65,33 @@ export default class DDBEnricherData {
     return spent;
   }
 
+  _getMaxValue(type, name, matchSubClass = null) {
+    const max = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
+      a.name === name
+    && (matchSubClass === null
+      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+    )?.limitedUse?.maxUses ?? null;
+    return max;
+  }
+
+  _getGeneratedUses(type, name, matchSubClass = null, scaleLink = null) {
+    const action = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
+      a.name === name
+    && (matchSubClass === null
+      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+    );
+
+    const uses = DDBDataUtils.getLimitedUses({
+      data: action.limitedUse,
+      description: action.description,
+      scaleValue: scaleLink
+        ?? (this.ddbParser.useUsesScaleValueLink && this.ddbParser.scaleValueUsesLink
+          ? this.ddbParser.scaleValueUsesLink
+          : null),
+    });
+    return uses;
+  }
+
   _getUsesWithSpent({ type, name, max, period = "", formula = null, override = null, matchSubClass = null } = {}) {
     const uses = {
       spent: this._getSpentValue(type, name, matchSubClass),
@@ -75,6 +102,10 @@ export default class DDBEnricherData {
       uses.recovery = [{ period, type: "formula", formula }];
     } else if (period != "") {
       uses.recovery = [{ period, type: 'recoverAll', formula: undefined }];
+    }
+
+    if (!max) {
+      uses.max = this._getMaxValue(type, name, matchSubClass);
     }
 
     if (override) {

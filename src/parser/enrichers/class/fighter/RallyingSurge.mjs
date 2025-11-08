@@ -6,6 +6,8 @@ export default class RallyingSurge extends DDBEnricherData {
   get activity() {
     return {
       addItemConsume: true,
+      activationType: "special",
+      activationCondition: "You use Action Surge",
       targetType: "ally",
       targetCount: "max(1, @abilities.cha.mod)",
       data: {

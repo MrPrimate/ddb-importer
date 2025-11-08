@@ -1,4 +1,5 @@
 import { logger, utils } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../config/_module.mjs";
 import { SystemHelpers } from "./_module.mjs";
 
 export default class DDBDataUtils {
@@ -670,6 +671,98 @@ export default class DDBDataUtils {
 
       return ((simpleMatch || definitionIdMatch) && choiceMatch) || overrideMatch;
     });
+  }
+
+  // eslint-disable-next-line complexity
+  static getLimitedUses({ data, description = "", scaleValue = null } = {}) {
+    let resetType = DICTIONARY.resets.find((type) => type.id === data?.resetType);
+
+    if (!resetType) {
+      const resetTypeRegex = /(?:(Short) or )?(Long) Rest/ig;
+      const match = resetTypeRegex.exec(description);
+      if (match && match[1]) {
+        resetType = DICTIONARY.resets.find((type) => type.id === match[1]);
+      } else if (match && match[2]) {
+        resetType = DICTIONARY.resets.find((type) => type.id === match[2]);
+      }
+    }
+    if (
+      data
+      && (data.maxUses || data.statModifierUsesId || data.useProficiencyBonus)
+    ) {
+      let maxUses = (data.maxUses && data.maxUses !== -1) ? data.maxUses : 0;
+      const statModifierUsesId = foundry.utils.getProperty(data, "limitedUse.statModifierUsesId");
+      if (statModifierUsesId) {
+        const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId).value;
+
+        if (maxUses === 0) {
+          maxUses = `@abilities.${ability}.mod`;
+        } else {
+          switch (data.operator) {
+            case 2:
+              maxUses = `${maxUses} * @abilities.${ability}.mod`;
+              break;
+            case 1:
+            default:
+              maxUses = `${maxUses} + @abilities.${ability}.mod`;
+          }
+        }
+      }
+
+      const useProficiencyBonus = foundry.utils.getProperty(data, "limitedUse.useProficiencyBonus");
+      if (useProficiencyBonus) {
+        if (maxUses === 0) {
+          maxUses = `@prof`;
+        } else {
+          switch (data.proficiencyBonusOperator) {
+            case 2:
+              maxUses = `${maxUses} * @prof`;
+              break;
+            case 1:
+            default:
+              maxUses = `${maxUses} + @prof`;
+          }
+        }
+      }
+
+      if (scaleValue) {
+        maxUses = scaleValue;
+      }
+
+      const finalMaxUses = (maxUses)
+        ? Number.isInteger(maxUses)
+          ? parseInt(maxUses)
+          : maxUses
+        : null;
+
+      return {
+        spent: data.numberUsed ?? null,
+        max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
+      };
+    } else if (scaleValue) {
+      let maxUses = scaleValue;
+
+      return {
+        spent: data.numberUsed ?? null,
+        max: (maxUses !== "") ? maxUses : null,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
+      };
+    } else if (foundry.utils.hasProperty(data, "limitedUse.value")) {
+      return {
+        spent: data.numberUsed ?? null,
+        max: `${data.value}`,
+        recovery: [
+          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+        ],
+      };
+    }
+
+    return null;
   }
 
 }
