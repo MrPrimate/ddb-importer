@@ -41,9 +41,11 @@ export default class EldritchBlast extends DDBEnricherData {
   }
 
   eldritchBlastRangeAdjustments(initialRange) {
-    const eldritchBlastMods = this.ddbParser?.ddbData
-      ? this._getEldritchInvocations()
-      : null;
+    const eldritchBlastMods = this.ddbParser.isMuncher
+      ? null
+      : this.ddbParser.ddbData
+        ? this._getEldritchInvocations()
+        : null;
 
     if (eldritchBlastMods?.range && Number.parseInt(eldritchBlastMods.range)) {
       const range = Number.parseInt(initialRange) + Number.parseInt(eldritchBlastMods.range);
@@ -53,9 +55,11 @@ export default class EldritchBlast extends DDBEnricherData {
   }
 
   eldritchBlastDamageBonus() {
-    const eldritchBlastMods = this.ddbParser?.ddbData
-      ? this._getEldritchInvocations()
-      : null;
+    const eldritchBlastMods = this.ddbParser.isMuncher
+      ? null
+      : this.ddbParser.ddbData
+        ? this._getEldritchInvocations()
+        : null;
     const bonus = eldritchBlastMods?.damage
       ? `${eldritchBlastMods["damage"]}`
       : "";

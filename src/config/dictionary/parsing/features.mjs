@@ -211,6 +211,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Elemental Affinity (Acid)",
     "Elemental Affinity (Poison)",
     "Dragon Ancestor",
+    "Knightly Envoy",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -312,6 +313,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Archer: Full of Stars",
     "Full of Stars",
     "Dragon Ancestor",
+    "Knightly Envoy",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

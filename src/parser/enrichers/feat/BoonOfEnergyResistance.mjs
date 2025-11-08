@@ -17,9 +17,11 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
   }
 
   get effects() {
-    const activeType = this.ddbParser?._chosen?.find((a) =>
-      utils.nameString(a.label).startsWith("Boon of Energy Resistance"),
-    )?.label ?? "";
+    const activeType = this.ddbParser.isMuncher
+      ? ""
+      : (this.ddbParser._chosen?.find((a) =>
+        utils.nameString(a.label).startsWith("Boon of Energy Resistance"),
+      )?.label ?? "");
 
     const types = ["Acid", "Cold", "Fire", "Lightning", "Necrotic", "Poison", "Psychic", "Radiant", "Thunder"];
     const multiple = [];

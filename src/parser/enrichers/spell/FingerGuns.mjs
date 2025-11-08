@@ -12,7 +12,9 @@ export default class FingerGuns extends DDBEnricherData {
 
 
   getRange() {
-    const level = this.ddbParser?.rawCharacter?.flags?.ddbimporter?.dndbeyond?.totalLevels ?? 1;
+    const level = this.ddbParser.isMuncher
+      ? 1
+      : (this.ddbParser.rawCharacter?.flags?.ddbimporter?.dndbeyond?.totalLevels ?? 1);
     const rangeData = FingerGuns.RANGE_DATA.find((r) => level >= r.level && level <= (r.max ?? 20)) || FingerGuns.RANGE_DATA[0];
     return {
       value: rangeData.range,

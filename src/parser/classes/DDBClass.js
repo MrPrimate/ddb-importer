@@ -115,6 +115,7 @@ export default class DDBClass {
     "Blessings of Knowledge",
     "Elegant Courtier", // this is a you get a thing or otherwise choose from two others
     "Blessings of Knowledge",
+    "Knightly Envoy",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -150,6 +151,7 @@ export default class DDBClass {
     "Canny",
     "Draconic Gift",
     "Speech of the Woods",
+    "Knightly Envoy",
   ];
 
   // you gain proficiency in one of the following skills of your choice: Animal Handling, History, Insight, Performance, or Persuasion. Alternatively, you learn one language of your choice.

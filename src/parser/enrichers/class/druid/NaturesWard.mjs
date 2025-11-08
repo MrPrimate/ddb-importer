@@ -16,9 +16,11 @@ export default class NaturesWard extends DDBEnricherData {
         ],
       },
     ];
-    const activeType = this.ddbParser?._chosen?.find((a) =>
-      utils.nameString(a.label).startsWith("Nature's Ward"),
-    )?.label ?? "";
+    const activeType = this.ddbParser.isMuncher
+      ? ""
+      : (this.ddbParser._chosen?.find((a) =>
+        utils.nameString(a.label).startsWith("Nature's Ward"),
+      )?.label ?? "");
     [
       { type: "fire", origin: "Arid" },
       { type: "cold", origin: "Polar" },

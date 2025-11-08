@@ -23,6 +23,8 @@ export default class DDBFeature extends DDBFeatureMixin {
     "Improved Critical",
     "Unarmored Movement",
     "Metamagic",
+    "Group Recovery",
+    "Rallying Surge",
   ];
 
   static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [
