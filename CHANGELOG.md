@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.9
+
+- Limited use parsing was broken in 6.6.8.
+
 # 6.6.8
 
 - Fighters no longer generate spells known/cantrips known advancements

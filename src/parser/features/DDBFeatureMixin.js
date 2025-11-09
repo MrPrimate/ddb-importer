@@ -470,7 +470,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const uses = DDBDataUtils.getLimitedUses({
       data: this.ddbDefinition.limitedUse,
       description: this.ddbDefinition.description ?? "",
-      scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink ? this.scaleValueUsesLink : null,
+      scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink
+        ? this.scaleValueUsesLink
+        : null,
     });
 
     if (uses) {

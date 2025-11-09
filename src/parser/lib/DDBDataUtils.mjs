@@ -686,12 +686,13 @@ export default class DDBDataUtils {
         resetType = DICTIONARY.resets.find((type) => type.id === match[2]);
       }
     }
+
     if (
       data
       && (data.maxUses || data.statModifierUsesId || data.useProficiencyBonus)
     ) {
       let maxUses = (data.maxUses && data.maxUses !== -1) ? data.maxUses : 0;
-      const statModifierUsesId = foundry.utils.getProperty(data, "limitedUse.statModifierUsesId");
+      const statModifierUsesId = foundry.utils.getProperty(data, "statModifierUsesId");
       if (statModifierUsesId) {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId).value;
 
@@ -709,7 +710,7 @@ export default class DDBDataUtils {
         }
       }
 
-      const useProficiencyBonus = foundry.utils.getProperty(data, "limitedUse.useProficiencyBonus");
+      const useProficiencyBonus = foundry.utils.getProperty(data, "useProficiencyBonus");
       if (useProficiencyBonus) {
         if (maxUses === 0) {
           maxUses = `@prof`;
@@ -729,7 +730,7 @@ export default class DDBDataUtils {
         maxUses = scaleValue;
       }
 
-      const finalMaxUses = (maxUses)
+      const finalMaxUses = maxUses
         ? Number.isInteger(maxUses)
           ? parseInt(maxUses)
           : maxUses
@@ -752,7 +753,7 @@ export default class DDBDataUtils {
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
         ],
       };
-    } else if (foundry.utils.hasProperty(data, "limitedUse.value")) {
+    } else if (foundry.utils.hasProperty(data, "value")) {
       return {
         spent: data.numberUsed ?? null,
         max: `${data.value}`,
