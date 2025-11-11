@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.10
+
 - Spell advancement generation could choke on homebrew tables @empire_tr00per
 - Consumption linking now uses identifiers rather than UUIDS.
 - Minimum 5e system is 5.1.10
