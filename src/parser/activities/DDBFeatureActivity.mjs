@@ -331,10 +331,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
       const type = DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value ?? "";
+      const size = type === "line" ? this.ddbDefinition.range.range : this.ddbDefinition.range.aoeSize;
       data = foundry.utils.mergeObject(data, {
         template: {
           type,
-          size: type === "line" ? `${this.ddbDefinition.range.range}` : `${this.ddbDefinition.range.aoeSize}`,
+          size: size ? `${size}` : "",
           width: type === "line" ? `${this.ddbDefinition.range.aoeSize}` : "",
         },
       });
