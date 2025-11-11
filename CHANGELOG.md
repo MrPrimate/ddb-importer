@@ -1,5 +1,7 @@
 # Next Up
 
+- Spell advancement generation could choke on homebrew tables @empire_tr00per
+
 # 6.6.9
 
 - Limited use parsing was broken in 6.6.8.
