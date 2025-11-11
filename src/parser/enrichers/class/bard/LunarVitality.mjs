@@ -24,4 +24,10 @@ export default class LunarVitality extends DDBEnricherData {
     };
   }
 
+  get override() {
+    return {
+      replaceActivityUses: true,
+    };
+  }
+
 }

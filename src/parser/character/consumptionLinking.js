@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { logger } from "../../lib/_module.mjs";
+import { logger, utils } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 
 const notReplace = {
@@ -58,7 +58,7 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
           if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
             targets.push(
               {
-                target: parent._id,
+                target: `${parent.type}:${parent.system.identifier}`,
                 value: `${cost}`,
                 type: "itemUses",
               },
@@ -66,7 +66,7 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
             foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
           } else {
             foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, [{
-              target: parent._id,
+              target: `${parent.type}:${parent.system.identifier}`,
               value: `${cost}`,
               type: "itemUses",
             }]);
@@ -107,11 +107,11 @@ function _generateChildUpdate({ child, parent } = {}) {
       targets.push({
         type: "itemUses",
         value,
-        target: `${parent._id}`,
+        target: `${parent.type}:${parent.system.identifier}`,
       });
       foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
     } else if (targets.length > 0) {
-      targets[0].target = parent._id;
+      targets[0].target = `${parent.type}:${parent.system.identifier}`;
       foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);
     } else {
       foundry.utils.setProperty(update, `system.activities.${id}.consumption`, {
@@ -119,7 +119,7 @@ function _generateChildUpdate({ child, parent } = {}) {
         targets: [{
           type: "itemUses",
           value,
-          target: `${parent._id}`,
+          target: `${parent.type}:${parent.system.identifier}`,
         }],
       });
     }
@@ -209,9 +209,9 @@ DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getA
           return name === target.target;
         });
         if (parent) {
-          target.target = parent._id;
+          target.target = `${parent.type}:${parent.system.identifier}`;
         } else {
-          target.target = "";
+          target.target = utils.referenceNameString(target.target).toLowerCase();
         }
       }
       foundry.utils.setProperty(update, `system.activities.${id}.consumption.targets`, targets);

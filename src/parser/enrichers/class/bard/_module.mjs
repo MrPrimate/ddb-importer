@@ -12,6 +12,7 @@ export { default as LunarVitality } from "./LunarVitality.mjs";
 export { default as MantleOfInspiration } from "./MantleOfInspiration.mjs";
 export { default as MantleOfMajesty } from "./MantleOfMajesty.mjs";
 export { default as MobileFlourish } from "./MobileFlourish.mjs";
+export { default as MoonsInspiration } from "./MoonsInspiration.mjs";
 export { default as RegainBardicInspiration } from "./RegainBardicInspiration.mjs";
 export { default as SlashingFlourish } from "./SlashingFlourish.mjs";
 export { default as SongOfRest } from "./SongOfRest.mjs";

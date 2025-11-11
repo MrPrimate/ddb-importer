@@ -1,6 +1,9 @@
 # Next Up
 
 - Spell advancement generation could choke on homebrew tables @empire_tr00per
+- Consumption linking now uses identifiers rather than UUIDS.
+- Minimum 5e system is 5.1.10
+- Bard College of the Moon Parsing
 
 # 6.6.9
 
