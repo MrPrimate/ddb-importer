@@ -3,7 +3,7 @@ const onSubmit = async (tokens, doc) => {
   const updates = tokens.map((token) => {
     const update = {
       _id: token.id,
-      actorData: {
+      delta: {
         name: newName,
       },
       name: newName,

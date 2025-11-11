@@ -688,111 +688,422 @@ export const fallbackDDBConfig = {
     },
   ],
   languages: [
-    { id: 1, name: "Common" },
-    { id: 2, name: "Dwarvish" },
-    { id: 3, name: "Elvish" },
-    { id: 4, name: "Giant" },
-    { id: 5, name: "Gnomish" },
-    { id: 6, name: "Goblin" },
-    { id: 7, name: "Halfling" },
-    { id: 8, name: "Orc" },
-    { id: 9, name: "Abyssal" },
-    { id: 10, name: "Celestial" },
-    { id: 11, name: "Draconic" },
-    { id: 12, name: "Deep Speech" },
-    { id: 13, name: "Infernal" },
-    { id: 14, name: "Primordial" },
-    { id: 15, name: "Sylvan" },
-    { id: 16, name: "Undercommon" },
-    { id: 18, name: "Telepathy" },
-    { id: 19, name: "Aquan" },
-    { id: 20, name: "Auran" },
-    { id: 21, name: "Ignan" },
-    { id: 22, name: "Terran" },
-    { id: 23, name: "Druidic" },
-    { id: 24, name: "Giant Eagle" },
-    { id: 25, name: "Giant Elk" },
-    { id: 26, name: "Giant Owl" },
-    { id: 27, name: "Gnoll" },
-    { id: 28, name: "Otyugh" },
-    { id: 29, name: "Sahuagin" },
-    { id: 30, name: "Sphinx" },
-    { id: 31, name: "Winter Wolf" },
-    { id: 32, name: "Worg" },
-    { id: 33, name: "Blink Dog" },
-    { id: 34, name: "Yeti" },
-    { id: 35, name: "All" },
-    { id: 36, name: "Aarakocra" },
-    { id: 37, name: "Slaad" },
-    { id: 38, name: "Bullywug" },
-    { id: 39, name: "Gith" },
-    { id: 40, name: "Grell" },
-    { id: 41, name: "Hook Horror" },
-    { id: 42, name: "Modron" },
-    { id: 43, name: "Thri-kreen" },
-    { id: 44, name: "Troglodyte" },
-    { id: 45, name: "Umber Hulk" },
-    { id: 46, name: "Thieves' Cant" },
-    { id: 47, name: "Grung" },
-    { id: 48, name: "Tlincalli" },
-    { id: 49, name: "Vegepygmy" },
-    { id: 50, name: "Yikaria" },
-    { id: 51, name: "Bothii" },
-    { id: 52, name: "Ixitxachitl" },
-    { id: 53, name: "Thayan" },
-    { id: 54, name: "Netherese" },
-    { id: 55, name: "Ice Toad" },
-    { id: 56, name: "Olman" },
-    { id: 57, name: "Quori" },
-    { id: 58, name: "Minotaur" },
-    { id: 59, name: "Loxodon" },
-    { id: 60, name: "Kraul" },
-    { id: 61, name: "Vedalken" },
-    { id: 62, name: "Daelkyr" },
-    { id: 64, name: "Riedran" },
-    { id: 66, name: "Zemnian" },
-    { id: 67, name: "Marquesian" },
-    { id: 68, name: "Naush" },
-    { id: 69, name: "Leonin" },
-    { id: 70, name: "Grippli" },
-    { id: 71, name: "Skitterwidget" },
-    { id: 72, name: "Ziklight" },
-    { id: 73, name: "Kruthik" },
-    { id: 74, name: "Citlanés" },
-    { id: 75, name: "Djaynaian" },
-    { id: 76, name: "Godstongue" },
-    { id: 77, name: "Halri" },
-    { id: 78, name: "Maynah" },
-    { id: 79, name: "N’warian" },
-    { id: 80, name: "Quirapu" },
-    { id: 81, name: "Sensan" },
-    { id: 82, name: "Shankhi" },
-    { id: 83, name: "Tletlahtolli" },
-    { id: 84, name: "Xingyu" },
-    { id: 85, name: "Zabaani" },
-    { id: 86, name: "Dohwar" },
-    { id: 87, name: "Hadozee" },
-    { id: 88, name: "Aartuk" },
-    { id: 89, name: "Abanasinian" },
-    { id: 90, name: "Ergot" },
-    { id: 91, name: "Istarian" },
-    { id: 92, name: "Kenderspeak" },
-    { id: 93, name: "Kharolian" },
-    { id: 94, name: "Khur" },
-    { id: 95, name: "Kothian" },
-    { id: 96, name: "Nerakese" },
-    { id: 97, name: "Nordmaarian" },
-    { id: 98, name: "Ogre" },
-    { id: 99, name: "Solamnic" },
-    { id: 100, name: "Thieves’ Cant" },
-    { id: 101, name: "Demodand" },
-    { id: 102, name: "Birdfolk" },
-    { id: 103, name: "Cervan" },
-    { id: 104, name: "Feather Speech" },
-    { id: 105, name: "Hedge" },
-    { id: 106, name: "Jerbeen" },
-    { id: 107, name: "Mapach" },
-    { id: 108, name: "Vulpin" },
+    {
+      id: 1,
+      name: "Common",
+    },
+    {
+      id: 2,
+      name: "Dwarvish",
+    },
+    {
+      id: 3,
+      name: "Elvish",
+    },
+    {
+      id: 4,
+      name: "Giant",
+    },
+    {
+      id: 5,
+      name: "Gnomish",
+    },
+    {
+      id: 6,
+      name: "Goblin",
+    },
+    {
+      id: 7,
+      name: "Halfling",
+    },
+    {
+      id: 8,
+      name: "Orc",
+    },
+    {
+      id: 9,
+      name: "Abyssal",
+    },
+    {
+      id: 10,
+      name: "Celestial",
+    },
+    {
+      id: 11,
+      name: "Draconic",
+    },
+    {
+      id: 12,
+      name: "Deep Speech",
+    },
+    {
+      id: 13,
+      name: "Infernal",
+    },
+    {
+      id: 14,
+      name: "Primordial",
+    },
+    {
+      id: 15,
+      name: "Sylvan",
+    },
+    {
+      id: 16,
+      name: "Undercommon",
+    },
+    {
+      id: 18,
+      name: "Telepathy",
+    },
+    {
+      id: 19,
+      name: "Aquan",
+    },
+    {
+      id: 20,
+      name: "Auran",
+    },
+    {
+      id: 21,
+      name: "Ignan",
+    },
+    {
+      id: 22,
+      name: "Terran",
+    },
+    {
+      id: 23,
+      name: "Druidic",
+    },
+    {
+      id: 24,
+      name: "Giant Eagle",
+    },
+    {
+      id: 25,
+      name: "Giant Elk",
+    },
+    {
+      id: 26,
+      name: "Giant Owl",
+    },
+    {
+      id: 27,
+      name: "Gnoll",
+    },
+    {
+      id: 28,
+      name: "Otyugh",
+    },
+    {
+      id: 29,
+      name: "Sahuagin",
+    },
+    {
+      id: 30,
+      name: "Sphinx",
+    },
+    {
+      id: 31,
+      name: "Winter Wolf",
+    },
+    {
+      id: 32,
+      name: "Worg",
+    },
+    {
+      id: 33,
+      name: "Blink Dog",
+    },
+    {
+      id: 34,
+      name: "Yeti",
+    },
+    {
+      id: 35,
+      name: "All",
+    },
+    {
+      id: 36,
+      name: "Aarakocra",
+    },
+    {
+      id: 37,
+      name: "Slaad",
+    },
+    {
+      id: 38,
+      name: "Bullywug",
+    },
+    {
+      id: 39,
+      name: "Gith",
+    },
+    {
+      id: 40,
+      name: "Grell",
+    },
+    {
+      id: 41,
+      name: "Hook Horror",
+    },
+    {
+      id: 42,
+      name: "Modron",
+    },
+    {
+      id: 43,
+      name: "Thri-kreen",
+    },
+    {
+      id: 44,
+      name: "Troglodyte",
+    },
+    {
+      id: 45,
+      name: "Umber Hulk",
+    },
+    {
+      id: 46,
+      name: "Thieves' Cant",
+    },
+    {
+      id: 47,
+      name: "Grung",
+    },
+    {
+      id: 48,
+      name: "Tlincalli",
+    },
+    {
+      id: 49,
+      name: "Vegepygmy",
+    },
+    {
+      id: 50,
+      name: "Yikaria",
+    },
+    {
+      id: 51,
+      name: "Bothii",
+    },
+    {
+      id: 52,
+      name: "Ixitxachitl",
+    },
+    {
+      id: 53,
+      name: "Thayan",
+    },
+    {
+      id: 54,
+      name: "Netherese",
+    },
+    {
+      id: 55,
+      name: "Ice Toad",
+    },
+    {
+      id: 56,
+      name: "Olman",
+    },
+    {
+      id: 57,
+      name: "Quori",
+    },
+    {
+      id: 58,
+      name: "Minotaur",
+    },
+    {
+      id: 59,
+      name: "Loxodon",
+    },
+    {
+      id: 60,
+      name: "Kraul",
+    },
+    {
+      id: 61,
+      name: "Vedalken",
+    },
+    {
+      id: 62,
+      name: "Daelkyr",
+    },
+    {
+      id: 64,
+      name: "Riedran",
+    },
+    {
+      id: 66,
+      name: "Zemnian",
+    },
+    {
+      id: 67,
+      name: "Marquesian",
+    },
+    {
+      id: 68,
+      name: "Naush",
+    },
+    {
+      id: 69,
+      name: "Leonin",
+    },
+    {
+      id: 70,
+      name: "Grippli",
+    },
+    {
+      id: 71,
+      name: "Skitterwidget",
+    },
+    {
+      id: 72,
+      name: "Ziklight",
+    },
+    {
+      id: 73,
+      name: "Kruthik",
+    },
+    {
+      id: 74,
+      name: "Citlanés",
+    },
+    {
+      id: 75,
+      name: "Djaynaian",
+    },
+    {
+      id: 76,
+      name: "Godstongue",
+    },
+    {
+      id: 77,
+      name: "Halri",
+    },
+    {
+      id: 78,
+      name: "Maynah",
+    },
+    {
+      id: 79,
+      name: "N'warian",
+    },
+    {
+      id: 80,
+      name: "Quirapu",
+    },
+    {
+      id: 81,
+      name: "Sensan",
+    },
+    {
+      id: 82,
+      name: "Shankhi",
+    },
+    {
+      id: 83,
+      name: "Tletlahtolli",
+    },
+    {
+      id: 84,
+      name: "Xingyu",
+    },
+    {
+      id: 85,
+      name: "Zabaani",
+    },
+    {
+      id: 86,
+      name: "Dohwar",
+    },
+    {
+      id: 87,
+      name: "Hadozee",
+    },
+    {
+      id: 88,
+      name: "Aartuk",
+    },
+    {
+      id: 89,
+      name: "Abanasinian",
+    },
+    {
+      id: 90,
+      name: "Ergot",
+    },
+    {
+      id: 91,
+      name: "Istarian",
+    },
+    {
+      id: 92,
+      name: "Kenderspeak",
+    },
+    {
+      id: 93,
+      name: "Kharolian",
+    },
+    {
+      id: 94,
+      name: "Khur",
+    },
+    {
+      id: 95,
+      name: "Kothian",
+    },
+    {
+      id: 96,
+      name: "Nerakese",
+    },
+    {
+      id: 97,
+      name: "Nordmaarian",
+    },
+    {
+      id: 98,
+      name: "Ogre",
+    },
+    {
+      id: 99,
+      name: "Solamnic",
+    },
+    {
+      id: 101,
+      name: "Demodand",
+    },
+    {
+      id: 102,
+      name: "Birdfolk",
+    },
+    {
+      id: 103,
+      name: "Cervan",
+    },
+    {
+      id: 104,
+      name: "Feather Speech",
+    },
+    {
+      id: 105,
+      name: "Hedge",
+    },
+    {
+      id: 106,
+      name: "Jerbeen",
+    },
+    {
+      id: 107,
+      name: "Mapach",
+    },
+    {
+      id: 108,
+      name: "Vulpin",
+    },
     {
       id: 109,
       name: "Darakhul",
@@ -815,7 +1126,7 @@ export const fallbackDDBConfig = {
     },
     {
       id: 114,
-      name: " Loxodan",
+      name: "Loxodan",
     },
     {
       id: 115,
@@ -847,7 +1158,7 @@ export const fallbackDDBConfig = {
     },
     {
       id: 122,
-      name: "Kuran’zoi",
+      name: "Kuran'zoi",
     },
     {
       id: 123,
@@ -940,6 +1251,82 @@ export const fallbackDDBConfig = {
     {
       id: 145,
       name: "Torum",
+    },
+    {
+      id: 146,
+      name: "Aklo",
+    },
+    {
+      id: 147,
+      name: "Caligni",
+    },
+    {
+      id: 148,
+      name: "Daemonic",
+    },
+    {
+      id: 149,
+      name: "Necril",
+    },
+    {
+      id: 150,
+      name: "Varisian",
+    },
+    {
+      id: 151,
+      name: "Aglarondan",
+    },
+    {
+      id: 152,
+      name: "Alzhedo",
+    },
+    {
+      id: 153,
+      name: "Chessentan",
+    },
+    {
+      id: 154,
+      name: "Chondathan",
+    },
+    {
+      id: 155,
+      name: "Damaran",
+    },
+    {
+      id: 156,
+      name: "Iluskan",
+    },
+    {
+      id: 157,
+      name: "Lantanese",
+    },
+    {
+      id: 158,
+      name: "Midani",
+    },
+    {
+      id: 159,
+      name: "Mulhorandi",
+    },
+    {
+      id: 160,
+      name: "Rashemi",
+    },
+    {
+      id: 161,
+      name: "Reghedjic",
+    },
+    {
+      id: 162,
+      name: "Sespech",
+    },
+    {
+      id: 163,
+      name: "Turmic",
+    },
+    {
+      id: 164,
+      name: "Untheric",
     },
   ],
   restoreTypes: [
@@ -5163,6 +5550,24 @@ export const fallbackDDBConfig = {
       sourceURL: "",
     },
     {
+      id: 216,
+      name: "NF",
+      description: "Netheril’s Fall",
+      sourceCategoryId: 38,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/52041/664/638956184000661571.jpeg",
+      sourceURL: "sources/dnd/nf",
+    },
+    {
+      id: 217,
+      name: "ABoH",
+      description: "Astarion's Book of Hungers",
+      sourceCategoryId: 38,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/52637/468/638981487305001378.jpeg",
+      sourceURL: "sources/dnd/aboh",
+    },
+    {
       id: 218,
       name: "FRTTS",
       description: "Forgotten Realms: The Tenebrous Stone",
@@ -7977,7 +8382,7 @@ export const fallbackDDBConfig = {
       id: 3,
       name: "Playtest",
       description:
-        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS&nbsp;PLAYTEST MATERIAL</strong></span></p>\n<p>The material here is presented for playtesting and to spark your imagination. These game mechanics are in draft form, usable in your campaign but not refined by&nbsp;full game design and editing. They aren’t officially part of the game and aren’t permitted in D&D Adventurers League events.</p>\n<p>If this material is made official, it will be refined based on your feedback, and then it will appear in a D&D product that you can unlock on DDB.</p>\n<p>If this material is not made official, it will be removed from D&D Beyond following the playtest period and you will need to replace it with another option.</p>",
+        '<p><span style="color: rgba(255, 0, 0, 1)"><strong>THIS IS&nbsp;PLAYTEST MATERIAL</strong></span></p>\n<p>The material here is presented for playtesting and to spark your imagination. These game mechanics are in draft form, usable in your campaign but not refined by&nbsp;full game design and editing. They aren’t officially part of the game and aren’t permitted in D&D Adventurers League events.</p>\n<p>If this material is made official, it will be refined based on your feedback, and then it will appear in a D&D product that you can unlock on DDB.</p>\n<p>If this material is not made official, it will be removed from D&D Beyond following the playtest period and you will need to replace it with another option.</p>',
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -8032,7 +8437,7 @@ export const fallbackDDBConfig = {
       id: 11,
       name: "Runeterra",
       description:
-        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS UNOFFICIAL MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing. They aren’t officially part of the Dungeons & Dragons game and aren’t permitted in D&D Adventurers League events unless otherwise stated.</p>",
+        '<p><span style="color: rgba(255, 0, 0, 1)"><strong>THIS IS UNOFFICIAL MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing. They aren’t officially part of the Dungeons & Dragons game and aren’t permitted in D&D Adventurers League events unless otherwise stated.</p>',
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -8042,7 +8447,7 @@ export const fallbackDDBConfig = {
       id: 12,
       name: "Noncore D&D",
       description:
-        "<p><span style=\"color: rgba(255, 0, 0, 1)\"><strong>THIS IS NONCORE D&D MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing.</p>",
+        '<p><span style="color: rgba(255, 0, 0, 1)"><strong>THIS IS NONCORE D&D MATERIAL</strong></span></p>\n<p>These game mechanics are usable in your campaign if your DM allows them but not refined by final game design and editing.</p>',
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
@@ -8228,7 +8633,7 @@ export const fallbackDDBConfig = {
       id: 32,
       name: "Mage Hand Press",
       description:
-        "<p><span style=\"color: rgba(58, 70, 72, 1); font-family: &quot;Helvetica Neue&quot;, Arial, Helvetica, sans-serif; font-size: 12.012px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0; text-transform: none; display: inline !important; float: none\">This contains content from Mage Hand Press.</span></p>",
+        '<p><span style="color: rgba(58, 70, 72, 1); font-family: &quot;Helvetica Neue&quot;, Arial, Helvetica, sans-serif; font-size: 12.012px; font-style: normal; font-weight: 400; text-align: left; text-indent: 0; text-transform: none; display: inline !important; float: none">This contains content from Mage Hand Press.</span></p>',
       isHideable: true,
       isEnabledByDefault: true,
       isToggleable: true,
