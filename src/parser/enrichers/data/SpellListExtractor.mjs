@@ -32,6 +32,7 @@ export default class SpellListExtractor {
   }
 
   extractSpells(withLevel = false) {
+    const levelRegex = /(\d+)/;
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = this.description;
 
@@ -72,11 +73,11 @@ export default class SpellListExtractor {
 
         if (spellsText) {
           const spellsInCell = spellsText.split(',').map((spell) => utils.nameString(spell));
-          if (withLevel) {
-            const level = `${cells[0].textContent.trim()}`;
-            spells[level] = spells[level] ?? [];
-            spells[level].push(...spellsInCell);
-          } else {
+          const level = `${cells[0].textContent.trim()}`.match(levelRegex);
+          if (withLevel && level) {
+            spells[level[0]] = spells[level[0]] ?? [];
+            spells[level[0]].push(...spellsInCell);
+          } else if (!withLevel) {
             spells.push(...spellsInCell);
           }
         }
