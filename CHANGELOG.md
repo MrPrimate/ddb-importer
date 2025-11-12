@@ -1,5 +1,7 @@
 # Next Up
 
+- CSS adjustments for FR books.
+
 # 6.6.10
 
 - Spell advancement generation could choke on homebrew tables @empire_tr00per
