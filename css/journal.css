@@ -1,3 +1,95 @@
+@font-face {
+  font-family: "TT Jenevers";
+  src: url("https://fonts.dndbeyond.com/TTJeneversRegular-5632637.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "TT Jenevers";
+  src: url("https://fonts.dndbeyond.com/TTJeneversItalic-5632639.otf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "TT Jenevers";
+  src: url("https://fonts.dndbeyond.com/TTJeneversMedium-5632641.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "TT Jenevers";
+  src: url("https://fonts.dndbeyond.com/TTJeneversBold-5632645.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "TT Jenevers";
+  src: url("https://fonts.dndbeyond.com/TTJeneversBoldItalic-5632647.otf");
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Wolpe Pegasus";
+  src: url("https://fonts.dndbeyond.com/WolpePegasusRegular-5521351.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Wolpe Pegasus";
+  src: url("https://fonts.dndbeyond.com/WolpePegasusBold-5521342.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Dai Vernon Misdirect";
+  src: url("https://fonts.dndbeyond.com/DaiVernonMisdirect-fc7096cb-80db-4a29-a122-f49877400f5b.otf_v.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+/* Scala Sans Offc */
+@font-face {
+  font-family: "Scala Sans Offc";
+  src: url("https://fonts.dndbeyond.com/ScalaSansOffc-f34f269d-8464-48b4-b0e6-c0c2937ddb84.ttf_v.ttf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Scala Sans Offc";
+  src: url("https://fonts.dndbeyond.com/ScalaSansOffcItalic-528aad9e-fdbf-4cca-8c7e-094ca41d88dc.ttf_v.ttf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Scala Sans Offc";
+  src: url("https://fonts.dndbeyond.com/ScalaSansOffcBold-077eb635-4f4b-49cd-b62e-545088246eee.ttf_v.ttf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Scala Sans Offc";
+  src: url("https://fonts.dndbeyond.com/ScalaSansOffcBoldItalic-4ffee848-75be-4b5f-9c02-7d644be2e718.ttf_v.ttf");
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Scala Sans SC Offc";
+  src: url("https://fonts.dndbeyond.com/ScalaSansSCOffcBold-25813ff8-4562-40b4-a92a-32fce25e8eb5.TTF_v.TTF");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Scala Sans SC Offc";
+  src: url("https://fonts.dndbeyond.com/ScalaSansSCOffc-f6a98972-664f-45f8-a117-04a500ae5f10.TTF_v.TTF");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Harbour";
+  src: url("https://fonts.dndbeyond.com/HarbourMedium-6668989.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
 .sheet.dnd5e2-journal.application div.ddbimporter-image-container,
 div.journal-sheet div.ddbimporter-image-container {
   position: relative;
@@ -86,6 +178,121 @@ div.ddbimporter-image-popout img {
   object-fit: contain;
   width: 90%;
   height: 90%;
+}
+
+.ddb a.sourcebook {
+    font-style: italic
+}
+
+
+.ddb ul {
+    padding-top: 4px !important
+}
+
+.ddb .image-float-clear {
+    clear: both
+}
+
+.ddb .hidden {
+    display: none
+}
+
+.ddb .Move-Behind {
+    z-index: -1
+}
+
+.ddb .Text-Indent {
+    text-indent: 32px
+}
+
+.ddb .NoMarginTop {
+    margin-top: 0 !important
+}
+
+.ddb .compendium-image, .ddb .compendium-art {
+    margin: 10px 0
+}
+
+.ddb .flexible-double-column {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    margin: 0 -10px !important
+}
+
+.ddb .flexible-double-column > * {
+    flex-grow: 100;
+    margin-left: 10px !important;
+    margin-right: 10px !important
+}
+
+.ddb .flexible-double-column__column-width-45pct {
+    flex-basis: 324px;
+    flex-grow: 82
+}
+
+.ddb .flexible-double-column__column-width-40pct {
+    flex-basis: 289px;
+    flex-grow: 67
+}
+
+.ddb .flexible-double-column__column-width-35pct {
+    flex-basis: 252px;
+    flex-grow: 54
+}
+
+.ddb .flexible-double-column__column-width-30pct {
+    flex-basis: 217px;
+    flex-grow: 43
+}
+
+.ddb .flexible-double-column__column-width-25pct {
+    flex-basis: 183px;
+    flex-grow: 34
+}
+
+.ddb .flexible-double-column__column-width-20pct {
+    flex-basis: 144px;
+    flex-grow: 25
+}
+
+.ddb .flexible-triple-column {
+    max-width: 850px;
+    margin: 0 auto;
+    column-width: 250px
+}
+
+.ddb .flexible-triple-column *:last-child,
+.ddb .flexible-double-column *:last-child {
+    margin-bottom: revert;
+}
+
+.ddb .flexible-triple-column > *:last-child *:last-child,
+.ddb .flexible-double-column > *:last-child *:last-child {
+    margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    .ddb .flexible-double-column,
+    .ddb .flexible-triple-column {
+        flex-direction: row;
+    }
+    .ddb .flexible-triple-column  *:last-child,
+    .ddb .flexible-double-column  *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.ddb div.compendium-toc-full-text > ul > h4 {
+    display: block;
+}
+
+.ddb .header_one {
+    display: none;
+}
+
+.ddb .grid--centered-text * {
+    text-align: center !important;
 }
 
 .ddb aside.block-torn-paper, .ddb aside.epigraph, .ddb aside.epigraph--with-author, .ddb aside.epigraph-with-author {
@@ -197,13 +404,16 @@ div.ddbimporter-image-popout img {
   font-weight: bold;
 }
 
-.ddb .compendium-image-subtitle, .ddb .compendium-image > figcaption {
+.ddb .compendium-image-subtitle,
+.ddb .compendium-art > figcaption,
+.ddb .compendium-image > figcaption {
   text-align: center;
   font-size: 14px;
   font-weight: 700;
   font-style: italic;
   text-transform: uppercase;
   margin: 10px 0;
+  text-wrap: balance;
 }
 
 .ddb p.Table-Styles_Table-Title {
@@ -1149,7 +1359,25 @@ div.ddbimporter-image-popout img {
 
 
 
-:root .ddb {
+:root .ddb.fraif, :root .ddb.frhof {
+  --wheat-1-dark-blue: #3c5167;
+  --wheat-2-light-grey: #4F5663;
+  --wheat-2-dark-grey: #545869;
+  --wheat-3-light-blue: #bad0da;
+  --wheat-4-light-gold: #ecd487;
+  --wheat-4-light-gold-secondary: #f3e1a2;
+  --wheat-5-gold: #cfa754;
+  --wheat-6-dark-green: #708c5e;
+  --wheat-7-light-green: #99b153;
+  --wheat-8-dark-brown: #81452f;
+  --wheat-8-dark-brown-light: #BA998D;
+  --wheat-9-light-brown: #977163;
+  --wheat-10-fraif-red: #79241e;
+  --wheat-11-lavendar: #8b6faa;
+  --wheat-11-lavendar-light: #eee9f2;
+  --wheat-set-1: #5C8090;
+  --wheat-core-shadow:#938c86;
+  --wheat-core-h-red: #4A0E0B;
   --wheat-core-ch-title-outline: #C9D3CA;
   --wheat-core-beige: #C3B272;
   --wheat-ui-secondary: rgba(238, 246, 236, 1);
@@ -1199,7 +1427,7 @@ div.ddbimporter-image-popout img {
   --compendium-button-hover-bg: rgb(29.6, 5.6, 4.4);
   --compendium-link-contrast: #024687;
   --gazetteer-quote-image: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/fraif-mag-quote-attribution-brown.png");
-  --gazetteer-quote-color: var(--wheat-core-ch-title-outline);
+  --gazetteer-quote-color: var(--wheat-9-light-brown);
   --fraif-deity-banner-image: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/fraif-level-banner-brown.png");
 }
 
@@ -1281,7 +1509,7 @@ div.ddbimporter-image-popout img {
   margin-bottom: 0 !important;
 }
 
-.ddb .underline-filigree {
+.ddb.fraif .underline-filigree, .ddb.frhof .underline-filigree {
   /* Defaults (override globally, per-theme, or per-element) */
   --uf-image-default: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/frhof-chapter-title-block-footer-filigree.png");
   --uf-image: var(--uf-image-default);
@@ -1293,8 +1521,9 @@ div.ddbimporter-image-popout img {
     display: block;
 }
 
+
 /* The ornament lives in ::after so it won’t interfere with element styling */
-.ddb .underline-filigree::after {
+.ddb.fraif .underline-filigree::after {
   content: "";
   display: block;
   height: var(--uf-height) !important;
@@ -1309,7 +1538,7 @@ div.ddbimporter-image-popout img {
   background-size: 100% 100%;
 }
 
-.ddb .inline-filigree {
+.ddb.fraif .inline-filigree, .ddb.frhof .inline-filigree {
   --fg-left-default: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/frhof-chapter-title-block-header-filigree-l.png");
   --fg-right-default: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/frhof-chapter-title-block-header-filigree-r.png");
   --fg-left: var(--fg-left-default);
@@ -1426,7 +1655,7 @@ div.ddbimporter-image-popout img {
 }
 
 /* filigree art layer */
-.ddb .gazetteer-quote p:last-of-type::before {
+.ddb.friaf .gazetteer-quote p:last-of-type::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1448,7 +1677,7 @@ div.ddbimporter-image-popout img {
  font-size: var(--attribition-font-size-mobile);
 }
 
-.ddb .aside--nine-slice {
+.ddb.fraif .aside-nine-slice, .ddb.frhof .aside-nine-slice {
   --ns-default: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/bestiary-quote-box.png");
   --ns-image: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/bestiary-quote-box.png");
   /* slice insets from the image’s edges (px) */
@@ -1482,7 +1711,7 @@ div.ddbimporter-image-popout img {
   background: transparent;
 }
 
-.ddb .aside--bestiary-quote {
+.ddb .aside-bestiary-quote {
   padding: 1.625rem;
   max-width: 100%;
   position: relative;
@@ -1490,7 +1719,7 @@ div.ddbimporter-image-popout img {
   margin-bottom: 1.5rem;
 }
 
-.ddb .aside--bestiary-quote.aside--nine-slice {
+.ddb.fraif .aside-bestiary-quote.aside-nine-slice {
   --ns-image: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/bestiary-quote-box.png");
   --ns-slice-top: 16;
   --ns-slice-right: 16;
@@ -1502,7 +1731,7 @@ div.ddbimporter-image-popout img {
   --ns-b-left: 0.25rem;
 }
 
-.ddb .aside--bestiary-quote::after {
+.ddb .aside-bestiary-quote::after {
   content: "";
   position: absolute;
   inset: 0.2813rem 0.375rem;
@@ -1519,7 +1748,7 @@ z-index: -2;
    height: 90%;
 }
 
-.ddb .aside--bestiary-quote p {
+.ddb .aside-bestiary-quote p {
   z-index: 2;
   position: relative;
   font-family: "Dai Vernon Misdirect" !important;
@@ -1530,14 +1759,14 @@ z-index: -2;
   color: #49505B !important;
 }
 
-.ddb .aside--bestiary-quote p:last-of-type {
+.ddb .aside-bestiary-quote p:last-of-type {
   margin-top: 0.75rem !important;
   text-align: right;
   padding-right: 1.125rem;
   transform: translateY(-0.375rem);
 }
 
-.ddb .location-banner {
+.ddb.fraif .location-banner {
   --location-banner-shape-color: var(--dalelands-primary);
   --location-banner-secondary-color: var(--dalelands-secondary);
   --location-filigree-left: var(--location-filigree-left-green);
@@ -1550,7 +1779,7 @@ z-index: -2;
   z-index: 0;
 }
 
-.ddb h3.location-banner {
+.ddb.fraif h3.location-banner {
   color: white !important; /* text color */
   line-height: 2.25rem;
   font-size: 2.25rem !important;
@@ -1561,7 +1790,7 @@ z-index: -2;
   text-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.35);
 }
 
-.ddb h3.location-banner::before {
+.ddb.fraif h3.location-banner::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1579,7 +1808,7 @@ z-index: -2;
   z-index: -1;
 }
 
-.ddb .body-page .p-article-a .p-article-content h3.location-banner::after {
+.ddb.fraif h3.location-banner::after {
   position: absolute;
   left: 0;
   top: 0;
@@ -1736,11 +1965,11 @@ z-index: -2;
   padding: 64px 24px 3rem 24px !important;
   border-color: transparent;
   --fraif-dropcap-fill: var(--gazetteer-sidebar-accent, var(--dalelands-secondary));
-  z-index: -1;
+  z-index: 0;
   position: relative;
 }
 
-.ddb .gazetteer-sidebar.aside--nine-slice {
+.ddb.fraif .gazetteer-sidebar.aside-nine-slice {
   box-sizing: content-box;
   --ns-image: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/fraif-gazetteer-border-green.png");
   --ns-slice-top: 8;
@@ -1862,4 +2091,16 @@ z-index: -2;
 .ddb #BaldursGateChapterNumber {
   --fg-left: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/frhof-chapter-title-block-header-filigree-l-red.png");
   --fg-right: url("https://media-stg.dndbeyond.com/compendium-images/fraif/ui/frhof-chapter-title-block-header-filigree-r-red.png");
+}
+
+.ddb span.visually-hidden {
+  visibility: hidden;
+}
+
+.ddb .gazetteer-sidebar.aside-nine-slice {
+    --ns-image: none;
+}
+
+.ddb .chapter-number {
+    color: var(--wheat-core-shadow);
 }
