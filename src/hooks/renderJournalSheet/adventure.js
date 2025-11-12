@@ -26,6 +26,8 @@ export function adventureFlags(app, html, data) {
   if (!app.document.flags.ddb) return;
   let journalContent = html.querySelector('section.journal-page-content');
   journalContent.classList.add('ddb');
+  const bookCode = foundry.utils.getProperty(data, "document.flags.ddb.bookCode");
+  if (bookCode) journalContent.classList.add(bookCode.toLowerCase());
 
   if (!game.user.isGM) return;
 
