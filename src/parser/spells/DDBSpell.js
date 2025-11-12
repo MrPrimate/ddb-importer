@@ -226,10 +226,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   _generateClassPreparationMode() {
-    const classPrepMode = utils.findByProperty(
-      DICTIONARY.spell.preparationModes,
-      "name",
-      this.spellClass,
+    const classPrepMode = DICTIONARY.spell.preparationModes.find((p) =>
+      p.name === this.spellClass
+      && (!p.version || p.version === (this.is2014 ? "2014" : "2024")),
     );
 
     if (this.spellData.restriction === "As Ritual Only"
