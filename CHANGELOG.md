@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.11
+
 - CSS adjustments for FR books.
 - Martial Adept feat fixes. @cookienick
 - 2014 Ranger spells came in as unprepared @cookienick
