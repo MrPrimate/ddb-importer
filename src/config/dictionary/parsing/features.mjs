@@ -149,6 +149,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Giant Ancestry",
     "Arcane Shot Options",
     "Pact Boon",
+    // "Martial Adept",
   ],
   NO_CHOICE_BUILD: [
     "Aspect of the Wilds",

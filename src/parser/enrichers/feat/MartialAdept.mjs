@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class MetamagicAdept extends DDBEnricherData {
+export default class MartialAdept extends DDBEnricherData {
 
 
   get override() {
@@ -10,7 +10,7 @@ export default class MetamagicAdept extends DDBEnricherData {
         "flags.ddbimporter.dndbeyond": {
           retainResourceConsumption: true,
         },
-        "system.uses": this.hasClassFeature({ featureName: "Font of Magic", className: "Sorcerer" })
+        "system.uses": this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })
           ? {
             spent: null,
             max: null,
@@ -18,9 +18,9 @@ export default class MetamagicAdept extends DDBEnricherData {
           }
           : this._getUsesWithSpent({
             type: "feat",
-            name: "Sorcery Points (Metamagic Adept)",
-            max: "2",
-            period: "lr",
+            name: "Superiority Dice (Martial Adept)",
+            max: "1",
+            period: "sr",
           }),
       },
     };
@@ -29,12 +29,13 @@ export default class MetamagicAdept extends DDBEnricherData {
   get effects() {
     return [
       {
-        name: "Metamagic Adept",
+        name: "Martial Adept",
         options: {
           transfer: true,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("2", 20, "system.scale.sorcerer.points.value"),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, "system.scale.battle-master.combat-superiority-uses.value"),
+          DDBEnricherData.ChangeHelper.addChange("1", 20, "system.scale.battle-master.combat-superiority.number"),
         ],
       },
     ];

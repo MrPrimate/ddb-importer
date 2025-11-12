@@ -11,8 +11,9 @@ export const CONSUMPTION_LINKS = {
     "Nature's Wrath", "Vow of Enmity", "Preserve Life",
     // "Sear Undead",
   ],
-  "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:", "Maneuver Options:"],
-  "Combat Superiority": ["Manoeuvres:", "Maneuvers:", "Maneuver:", "Maneuver Options:"],
+  "Martial Adept": ["Martial Adept:"],
+  "Superiority Dice": ["Manoeuvres:", "Maneuvers:", "Maneuver:", "Maneuver Options:", "Martial Adept:"],
+  "Combat Superiority": ["Manoeuvres:", "Maneuvers:", "Maneuver:", "Maneuver Options:", "Martial Adept:"],
   "Sorcery Points": ["Metamagic - ", "Metamagic:", "Hound of Ill Omen", "Magical Guidance"],
   "Font of Magic: Sorcery Points": [
     "Metamagic - ", "Metamagic:", "Hound of Ill Omen", "Sorcerous Restoration",

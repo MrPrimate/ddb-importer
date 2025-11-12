@@ -21,6 +21,7 @@ export { default as Healer } from "./Healer.mjs";
 export { default as HeavyArmorMaster } from "./HeavyArmorMaster.mjs";
 export { default as InspiringLeader } from "./InspiringLeader.mjs";
 export { default as MageSlayer } from "./MageSlayer.mjs";
+export { default as MartialAdept } from "./MartialAdept.mjs";
 export { default as MetamagicAdept } from "./MetamagicAdept.mjs";
 export { default as Observant } from "./Observant.mjs";
 export { default as Piercer } from "./Piercer.mjs";

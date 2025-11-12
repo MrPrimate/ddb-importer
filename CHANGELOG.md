@@ -1,6 +1,7 @@
 # Next Up
 
 - CSS adjustments for FR books.
+- Martial Adept feat fixes. @cookienick
 
 # 6.6.10
 

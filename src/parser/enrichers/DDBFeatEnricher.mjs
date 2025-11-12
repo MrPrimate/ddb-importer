@@ -1,5 +1,5 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
-import { FeatEnrichers, GenericEnrichers } from "./_module.mjs";
+import { ClassEnrichers, FeatEnrichers, GenericEnrichers } from "./_module.mjs";
 import { utils } from "../../lib/_module.mjs";
 
 export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
@@ -47,6 +47,36 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Metamagic Adept": FeatEnrichers.MetamagicAdept,
     "Ritual Caster": FeatEnrichers.RitualCaster,
     "Strike of the Giants": FeatEnrichers.StrikeOfTheGiants,
+    "Martial Adept: Ambush": ClassEnrichers.Fighter.ManeuverAmbush,
+    "Martial Adept: Bait and Switch": ClassEnrichers.Fighter.ManeuverBaitAndSwitch,
+    "Martial Adept: Brace": ClassEnrichers.Fighter.ManeuverBrace,
+    "Martial Adept: Commander's Strike": ClassEnrichers.Fighter.ManeuverCommandersStrike,
+    "Martial Adept: Commanding Presence": ClassEnrichers.Fighter.ManeuverCommandingPresence,
+    "Martial Adept: Disarming Attack (Str.)": ClassEnrichers.Fighter.ManeuverDisarmingAttack,
+    "Martial Adept: Disarming Attack": ClassEnrichers.Fighter.ManeuverDisarmingAttack,
+    "Martial Adept: Distracting Strike": ClassEnrichers.Fighter.ManeuverDistractingStrike,
+    "Martial Adept: Evasive Footwork": ClassEnrichers.Fighter.ManeuverEvasiveFootwork,
+    "Martial Adept: Feinting Attack": ClassEnrichers.Fighter.ManeuverFeintingAttack,
+    "Martial Adept: Goading Attack (Str.)": ClassEnrichers.Fighter.ManeuverGoadingAttack,
+    "Martial Adept: Goading Attack": ClassEnrichers.Fighter.ManeuverGoadingAttack,
+    "Martial Adept: Grappling Strike": ClassEnrichers.Fighter.ManeuverGrapplingStrike,
+    "Martial Adept: Lunging Attack": ClassEnrichers.Fighter.ManeuverLungingAttack,
+    "Martial Adept: Lunging Dash": ClassEnrichers.Fighter.ManeuverLungingAttack,
+    "Martial Adept: Maneuvering Attack": ClassEnrichers.Fighter.ManeuverManeuveringAttack,
+    "Martial Adept: Menacing Attack (Str.)": ClassEnrichers.Fighter.ManeuverMenacingAttack,
+    "Martial Adept: Menacing Attack": ClassEnrichers.Fighter.ManeuverMenacingAttack,
+    "Martial Adept: Parry (Str.)": ClassEnrichers.Fighter.ManeuverParry,
+    "Martial Adept: Parry": ClassEnrichers.Fighter.ManeuverParry,
+    "Martial Adept: Precision Attack": ClassEnrichers.Fighter.ManeuverPrecisionAttack,
+    "Martial Adept: Pushing Attack (Str.)": ClassEnrichers.Fighter.ManeuverPushingAttack,
+    "Martial Adept: Pushing Attack": ClassEnrichers.Fighter.ManeuverPushingAttack,
+    "Martial Adept: Quick Toss": ClassEnrichers.Fighter.ManeuverQuickToss,
+    "Martial Adept: Rally": ClassEnrichers.Fighter.ManeuverRally,
+    "Martial Adept: Riposte": ClassEnrichers.Fighter.ManeuverRiposte,
+    "Martial Adept: Sweeping Attack": ClassEnrichers.Fighter.ManeuverSweepingAttack,
+    "Martial Adept: Tactical Assessment": ClassEnrichers.Fighter.ManeuverTacticalAssessment,
+    "Martial Adept: Trip Attack (Str.)": ClassEnrichers.Fighter.ManeuverTripAttack,
+    "Martial Adept: Trip Attack": ClassEnrichers.Fighter.ManeuverTripAttack,
   };
 
   FALLBACK_ENRICHERS = {
