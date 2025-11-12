@@ -555,10 +555,12 @@ export default class Utils {
   }
 
   /**
-   * Display information when Munching
-   * @param {*} note
-   * @param {*} nameField
-   * @param {*} monsterNote
+   * Updates the text content of the appropriate HTML element:
+   *   - `#munching-task-name` if `options.nameField` is true
+   *   - `#munching-task-monster` if `options.monsterNote` is true
+   *   - `#munching-task-notes` otherwise
+   * @param {string} note The text content to set
+   * @param {{ nameField: boolean, monsterNote: boolean }} [options] Optional
    */
   static munchNote(note, { nameField = false, monsterNote = false } = {}) {
     if (nameField) {
