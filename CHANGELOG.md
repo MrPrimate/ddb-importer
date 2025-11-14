@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.13
+
+- Some tweaks to reduce errors during species munch.
+
 # 6.6.12
 
 - Some settings combinations could prevent subclasses importing during a class munch.

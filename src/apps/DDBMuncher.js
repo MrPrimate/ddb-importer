@@ -657,19 +657,30 @@ export default class DDBMuncher extends DDBAppV2 {
       for (const sourceIdArray of sourceIdArrays) {
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options = foundry.utils.deepClone(baseOptions);
-        options.sources = sourceIdArray.sourceIds;
-        const muleHandler = new DDBMuleHandler(options);
-        this.notifierV2({
-          section: "name",
-          message: `Munching from ${sourceIdArray.sourceIds.length} sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
-        });
-        await muleHandler.process();
+
+        for (let i = 0; i < sourceIdArray.sourceIds.length; i += 10) {
+          const chunkedIds = sourceIdArray.sourceIds.slice(i, i + 10);
+
+          options.sources = chunkedIds;
+          const muleHandler = new DDBMuleHandler(options);
+          this.notifierV2({
+            section: "name",
+            message: `Munching from ${i}-${i + chunkedIds.length} (of ${sourceIdArray.sourceIds.length}) sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
+          });
+          await muleHandler.process();
+
+          logger.debug(`Partial Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
+            muleHandler,
+            sources: chunkedIds,
+            options: foundry.utils.deepClone(options),
+          });
+        }
 
         logger.debug(`Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
-          muleHandler,
-          sources: sourceIdArray,
+          sourceIdArray,
           options: foundry.utils.deepClone(options),
         });
+
       }
     } catch (error) {
       logger.error(error);
