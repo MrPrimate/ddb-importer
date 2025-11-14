@@ -393,7 +393,7 @@ export default class DDBMuleHandler {
         await this._handleBackgroundMunch();
         break;
       case "species":
-        await this._handleSpeciesMunch();;
+        await this._handleSpeciesMunch();
         break;
       default:
         throw new Error(`Unknown munch type ${this.type}`);

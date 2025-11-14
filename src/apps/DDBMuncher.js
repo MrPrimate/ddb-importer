@@ -594,22 +594,27 @@ export default class DDBMuncher extends DDBAppV2 {
       ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes").map((id) => parseInt(id))
       : [];
 
-    logger.debug("Allowed source IDs", { sourceIdArrays, allowedClassIds, baseOptions });
+    const allSourceIds = sourceIdArrays.reduce((acc, curr) => {
+      acc.push(...curr.sourceIds);
+      return acc;
+    }, []);
+
+    const classList = (await DDBMuleHandler.getList("class", allSourceIds))
+      .filter((c) => (allowedClassIds.length === 0 ? true : allowedClassIds.includes(parseInt(c.id))));
+
+    logger.info(`Found ${classList.length} classes to munch`, {
+      classList,
+      allSourceIds,
+      allowedClassIds,
+      baseOptions,
+    });
+
     try {
       for (const sourceIdArray of sourceIdArrays) {
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options = foundry.utils.deepClone(baseOptions);
         options.sources = sourceIdArray.sourceIds;
 
-        const classList = (await DDBMuleHandler.getList("class", options.sources))
-          .filter((c) => (allowedClassIds.length === 0 ? true : allowedClassIds.includes(parseInt(c.id))));
-
-        logger.debug(`Found ${classList.length} classes to munch in ${category?.name ?? sourceIdArray.categoryId}`, {
-          classList,
-          sourceIdArray,
-          options: foundry.utils.deepClone(options),
-          allowedClassIds,
-        });
         for (const klass of classList) {
           this.autoRotateMessage("class", klass.name.toLowerCase());
           logger.info(`Munching class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`);

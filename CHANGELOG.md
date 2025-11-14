@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.12
+
+- Some settings combinations could prevent subclasses importing during a class munch.
+
 # 6.6.11
 
 - CSS adjustments for FR books.
