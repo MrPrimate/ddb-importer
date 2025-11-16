@@ -540,10 +540,6 @@
     "path": "icons/tools/instruments/harp-lap-brown.webp"
   },
   {
-    "name": "Crossbow Expert",
-    "path": "icons/weapons/crossbows/crossbow-blue.webp"
-  },
-  {
     "name": "Fey-Touched",
     "path": "icons/creatures/magical/fae-fairy-winged-glowing-green.webp"
   },
@@ -622,5 +618,113 @@
   {
     "name": "Draconic Senses",
     "path": "icons/creatures/reptiles/dragon-horned-blue.webp"
+  },
+  {
+    "name": "Boon of Bloodshed",
+    "path": "icons/skills/wounds/injury-triple-slash-bleed.webp"
+  },
+  {
+    "name": "Boon of Bountiful Health",
+    "path": "icons/magic/life/cross-explosion-burst-green.webp"
+  },
+  {
+    "name": "Boon of Communication",
+    "path": "icons/magic/sonic/explosion-shock-sound-wave.webp"
+  },
+  {
+    "name": "Boon of Desperate Resilience",
+    "path": "icons/skills/wounds/injury-eyes-blood-red-pink.webp"
+  },
+  {
+    "name": "Boon of Exquisite Radiance",
+    "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
+  },
+  {
+    "name": "Boon of Fluid Forms",
+    "path": "icons/magic/control/silhouette-hold-change-blue.webp"
+  },
+  {
+    "name": "Boon of Fortune’s Favor",
+    "path": "icons/magic/control/buff-luck-fortune-green.webp"
+  },
+  {
+    "name": "Boon of Poison Mastery",
+    "path": "icons/consumables/potions/potion-bottle-labeled-medicine-capped-red-black.webp"
+  },
+  {
+    "name": "Boon of Revelry",
+    "path": "icons/magic/control/control-influence-puppet.webp"
+  },
+  {
+    "name": "Boon of Terror",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Boon of the Bright Sun",
+    "path": "icons/magic/light/explosion-star-glow-orange.webp"
+  },
+  {
+    "name": "Boon of the Furious Storm",
+    "path": "icons/magic/lightning/barrier-shield-orb-pink.webp"
+  },
+  {
+    "name": "Boon of the Soul Drinker",
+    "path": "icons/magic/death/skull-flames-white-blue.webp"
+  },
+  {
+    "name": "Cold Caster",
+    "path": "icons/magic/water/tendrils-ice-growth.webp"
+  },
+  {
+    "name": "Dragonscarred",
+    "path": "icons/skills/melee/blood-slash-foam-red.webp"
+  },
+  {
+    "name": "Enclave Magic",
+    "path": "icons/magic/light/hand-sparks-glow-yellow.webp"
+  },
+  {
+    "name": "Fairy Trickster",
+    "path": "icons/creatures/magical/fae-fairy-winged-glowing-green.webp"
+  },
+  {
+    "name": "Genie Magic",
+    "path": "icons/creatures/magical/spirit-fear-energy-pink.webp"
+  },
+  {
+    "name": "Harper Teamwork",
+    "path": "icons/skills/social/diplomacy-handshake.webp"
+  },
+  {
+    "name": "Lordly Resolve",
+    "path": "icons/magic/control/control-influence-crown-yellow.webp"
+  },
+  {
+    "name": "Mythal Touched",
+    "path": "icons/magic/defensive/barrier-shield-dome-deflect-teal.webp"
+  },
+  {
+    "name": "Order’s Resilience",
+    "path": "icons/magic/control/buff-strength-muscle-damage-red.webp"
+  },
+  {
+    "name": "Purple Dragon Commandant",
+    "path": "icons/magic/control/control-influence-rally-purple.webp"
+  },
+  {
+    "name": "Spellfire Adept",
+    "path": "icons/magic/light/orbs-firefly-hand-yellow.webp"
+  },
+  {
+    "name": "Spellfire Spark",
+    "path": "icons/magic/light/projectile-flare-expliosion-yellow.webp"
+  },
+  {
+    "name": "Street Justice",
+    "path": "icons/skills/social/trading-justice-scale-yellow.webp"
+  },
+  {
+    "name": "Zhentarim Tactics",
+    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
   }
 ]

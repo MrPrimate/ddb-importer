@@ -11414,5 +11414,9 @@
   {
     "name": "Wolfskin Cloak",
     "path": "icons/equipment/back/cape-layered-simple-brown.webp"
+  },
+  {
+    "name": "Thayan Spell Tattoo",
+    "path": "icons/commodities/materials/feather-red-.webp"
   }
 ]

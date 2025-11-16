@@ -2625,5 +2625,81 @@
   {
     "name": "Drayfn's Curse of Incompetence",
     "path": "icons/magic/symbols/star-inverted-yellow.webp"
+  },
+  {
+    "name": "Alustriel's Mooncloak",
+    "path": "icons/equipment/back/cloak-collared-teal.webp"
+  },
+  {
+    "name": "Backlash",
+    "path": "icons/magic/sonic/explosion-shock-wave-teal.webp"
+  },
+  {
+    "name": "Blade of Disaster",
+    "path": "icons/skills/melee/sword-stuck-glowing-pink.webp"
+  },
+  {
+    "name": "Cacophonic Shield",
+    "path": "icons/magic/sonic/explosion-impact-shock-wave.webp"
+  },
+  {
+    "name": "Conjure Constructs",
+    "path": "icons/creatures/magical/construct-stone-earth-gray.webp"
+  },
+  {
+    "name": "Death Armor",
+    "path": "icons/magic/death/skull-horned-worn-fire-blue.webp"
+  },
+  {
+    "name": "Deryan's Helpful Homunculi",
+    "path": "icons/skills/trades/construction-carpentry-hammer-gray.webp"
+  },
+  {
+    "name": "Dirge",
+    "path": "icons/skills/trades/music-singing-voice-blue.webp"
+  },
+  {
+    "name": "Doomtide",
+    "path": "icons/magic/unholy/orb-swirling-teal.webp"
+  },
+  {
+    "name": "Elminster's Effulgent Spheres",
+    "path": "icons/magic/unholy/silhouette-light-fire-blue.webp"
+  },
+  {
+    "name": "Elminster's Elusion",
+    "path": "icons/magic/defensive/shield-barrier-blades-teal.webp"
+  },
+  {
+    "name": "Holy Star of Mystra",
+    "path": "icons/magic/light/explosion-star-glow-blue.webp"
+  },
+  {
+    "name": "Laeral's Silver Lance",
+    "path": "icons/skills/melee/strike-weapon-polearm-ice-blue.webp"
+  },
+  {
+    "name": "Simbul's Synostodweomer",
+    "path": "icons/magic/life/cross-explosion-burst-green.webp"
+  },
+  {
+    "name": "Songal's Elemental Suffusion",
+    "path": "icons/magic/air/wind-vortex-swirl-blue-purple.webp"
+  },
+  {
+    "name": "Spellfire Flare",
+    "path": "icons/magic/light/projectile-smoke-pink.webp"
+  },
+  {
+    "name": "Spellfire Storm",
+    "path": "icons/magic/fire/explosion-flame-blue.webp"
+  },
+  {
+    "name": "Syluné's Viper",
+    "path": "icons/creatures/reptiles/serpent-horned-green.webp"
+  },
+  {
+    "name": "Wardaway",
+    "path": "icons/magic/unholy/projectile-helix-blood-red.webp"
   }
 ]

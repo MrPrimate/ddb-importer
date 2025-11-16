@@ -28,13 +28,6 @@
     "path": "icons/skills/social/intimidation-impressing.webp"
   },
   {
-    "name": "Action Surge",
-    "class_feature": "Action Surge",
-    "class": "Fighter",
-    "subclass": "",
-    "path": "icons/skills/social/intimidation-impressing.webp"
-  },
-  {
     "name": "Additional Bard Spells",
     "class_feature": "Additional Bard Spells",
     "class": "Bard",
@@ -266,13 +259,6 @@
     "path": "icons/magic/earth/explosion-lava-stone-green.webp"
   },
   {
-    "name": "Arcane Recovery",
-    "class_feature": "Arcane Recovery",
-    "class": "Wizard",
-    "subclass": "",
-    "path": "icons/magic/earth/explosion-lava-stone-green.webp"
-  },
-  {
     "name": "Arcane Shot",
     "class_feature": "Arcane Shot",
     "class": "Fighter",
@@ -294,13 +280,6 @@
     "path": "icons/magic/water/orb-ice-glow.webp"
   },
   {
-    "name": "Arcane Tradition",
-    "class_feature": "Arcane Tradition",
-    "class": "Wizard",
-    "subclass": "",
-    "path": "icons/magic/water/orb-ice-glow.webp"
-  },
-  {
     "name": "Arcane Ward",
     "class_feature": "Arcane Ward",
     "class": "Wizard",
@@ -312,13 +291,6 @@
     "class_feature": "Archdruid",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/magic/nature/beam-hand-leaves-green.webp"
-  },
-  {
-    "name": "Archdruid",
-    "class_feature": "Archdruid",
-    "class": "Druid",
-    "subclass": "",
     "path": "icons/magic/nature/beam-hand-leaves-green.webp"
   },
   {
@@ -364,24 +336,10 @@
     "path": "icons/commodities/stone/ore-pile-purple.webp"
   },
   {
-    "name": "Artificer Infusions",
-    "class_feature": "Artificer Infusions",
-    "class": "Artificer",
-    "subclass": "",
-    "path": "icons/commodities/stone/ore-pile-purple.webp"
-  },
-  {
     "name": "Artificer Specialist",
     "class_feature": "Artificer Specialist",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/commodities/tech/claw-mechanical.webp"
-  },
-  {
-    "name": "Artificer Specialist",
-    "class_feature": "Artificer Specialist",
-    "class": "Artificer",
-    "subclass": "",
     "path": "icons/commodities/tech/claw-mechanical.webp"
   },
   {
@@ -427,13 +385,6 @@
     "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
-    "name": "Aura Improvements",
-    "class_feature": "Aura Improvements",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/magic/light/explosion-star-blue.webp"
-  },
-  {
     "name": "Aura of Alacrity",
     "class_feature": "Aura of Alacrity",
     "class": "Paladin",
@@ -452,13 +403,6 @@
     "class_feature": "Aura of Courage",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
-  },
-  {
-    "name": "Aura of Courage",
-    "class_feature": "Aura of Courage",
-    "class": "Paladin",
-    "subclass": "",
     "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
   },
   {
@@ -491,13 +435,6 @@
     "class_feature": "Aura of Protection",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
-  },
-  {
-    "name": "Aura of Protection",
-    "class_feature": "Aura of Protection",
-    "class": "Paladin",
-    "subclass": "",
     "path": "icons/magic/defensive/shield-barrier-glowing-blue.webp"
   },
   {
@@ -578,24 +515,10 @@
     "path": "icons/environment/settlement/house-manor.webp"
   },
   {
-    "name": "Bard College",
-    "class_feature": "Bard College",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/environment/settlement/house-manor.webp"
-  },
-  {
     "name": "Bardic Inspiration",
     "class_feature": "Bardic Inspiration",
     "class": "Bard",
     "subclass": "College of Lore",
-    "path": "icons/magic/control/buff-flight-wings-runes-blue.webp"
-  },
-  {
-    "name": "Bardic Inspiration",
-    "class_feature": "Bardic Inspiration",
-    "class": "Bard",
-    "subclass": "",
     "path": "icons/magic/control/buff-flight-wings-runes-blue.webp"
   },
   {
@@ -652,13 +575,6 @@
     "class_feature": "Beast Spells",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/creatures/abilities/stinger-poison-green.webp"
-  },
-  {
-    "name": "Beast Spells",
-    "class_feature": "Beast Spells",
-    "class": "Druid",
-    "subclass": "",
     "path": "icons/creatures/abilities/stinger-poison-green.webp"
   },
   {
@@ -774,13 +690,6 @@
     "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
   },
   {
-    "name": "Blindsense",
-    "class_feature": "Blindsense",
-    "class": "Rogue",
-    "subclass": "",
-    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
-  },
-  {
     "name": "Blood Curse of Binding",
     "class_feature": "Blood Curse of Binding",
     "class": "Blood Hunter",
@@ -865,13 +774,6 @@
     "path": "icons/skills/wounds/blood-drip-droplet-red.webp"
   },
   {
-    "name": "Blood Curses",
-    "class_feature": "Blood Curses",
-    "class": "Blood Hunter",
-    "subclass": "",
-    "path": "icons/skills/wounds/blood-drip-droplet-red.webp"
-  },
-  {
     "name": "Blood Hunter Order",
     "class_feature": "Blood Hunter Order",
     "class": "Blood Hunter",
@@ -879,24 +781,10 @@
     "path": "icons/magic/lightning/strike-arrow-spear-red.webp"
   },
   {
-    "name": "Blood Hunter Order",
-    "class_feature": "Blood Hunter Order",
-    "class": "Blood Hunter",
-    "subclass": "",
-    "path": "icons/magic/lightning/strike-arrow-spear-red.webp"
-  },
-  {
     "name": "Blood Maledict",
     "class_feature": "Blood Maledict",
     "class": "Blood Hunter",
     "subclass": "Order of the Ghostslayer",
-    "path": "icons/skills/wounds/blood-spurt-spray-red.webp"
-  },
-  {
-    "name": "Blood Maledict",
-    "class_feature": "Blood Maledict",
-    "class": "Blood Hunter",
-    "subclass": "",
     "path": "icons/skills/wounds/blood-spurt-spray-red.webp"
   },
   {
@@ -949,13 +837,6 @@
     "path": "icons/magic/life/heart-shadow-red.webp"
   },
   {
-    "name": "Brand of Castigation",
-    "class_feature": "Brand of Castigation",
-    "class": "Blood Hunter",
-    "subclass": "",
-    "path": "icons/magic/life/heart-shadow-red.webp"
-  },
-  {
     "name": "Brand of Sundering",
     "class_feature": "Brand of Sundering",
     "class": "Blood Hunter",
@@ -967,13 +848,6 @@
     "class_feature": "Brand of Tethering",
     "class": "Blood Hunter",
     "subclass": "Order of the Ghostslayer",
-    "path": "icons/sundries/survival/rope-noose-brown.webp"
-  },
-  {
-    "name": "Brand of Tethering",
-    "class_feature": "Brand of Tethering",
-    "class": "Blood Hunter",
-    "subclass": "",
     "path": "icons/sundries/survival/rope-noose-brown.webp"
   },
   {
@@ -1009,13 +883,6 @@
     "class_feature": "Brutal Critical",
     "class": "Barbarian",
     "subclass": "Path of the Berserker",
-    "path": "icons/skills/melee/strike-axe-blood-red.webp"
-  },
-  {
-    "name": "Brutal Critical",
-    "class_feature": "Brutal Critical",
-    "class": "Barbarian",
-    "subclass": "",
     "path": "icons/skills/melee/strike-axe-blood-red.webp"
   },
   {
@@ -1068,13 +935,6 @@
     "path": "icons/magic/water/projectile-needles-salvo-blue.webp"
   },
   {
-    "name": "Cantrip Versatility",
-    "class_feature": "Cantrip Versatility",
-    "class": "Druid",
-    "subclass": "",
-    "path": "icons/magic/water/projectile-needles-salvo-blue.webp"
-  },
-  {
     "name": "Cauterizing Flames",
     "class_feature": "Cauterizing Flames",
     "class": "Druid",
@@ -1093,181 +953,6 @@
     "class_feature": "Channel Divinity",
     "class": "Cleric",
     "subclass": "Arcana Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Death Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Forge Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Grave Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Knowledge Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Life Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Light Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Nature Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Order Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Peace Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Tempest Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Time Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Trickery Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "Twilight Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "War Domain",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Cleric",
-    "subclass": "",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of Conquest",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of Devotion",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of Glory",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of Redemption",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of the Ancients",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of the Crown",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of the Open Sea",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of the Watchers",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oath of Vengeance",
-    "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
-  },
-  {
-    "name": "Channel Divinity",
-    "class_feature": "Channel Divinity",
-    "class": "Paladin",
-    "subclass": "Oathbreaker",
     "path": "icons/magic/holy/barrier-shield-winged-blue.webp"
   },
   {
@@ -1374,13 +1059,6 @@
     "class": "Cleric",
     "subclass": "War Domain",
     "path": "icons/skills/melee/strike-axe-blood-red.webp"
-  },
-  {
-    "name": "Channel Divinity: Guided Strike",
-    "class_feature": "Channel Divinity: Guided Strike",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/skills/melee/sword-winged-holy-orange.webp"
   },
   {
     "name": "Channel Divinity: Inspiring Smite",
@@ -1590,76 +1268,6 @@
     "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
   },
   {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Coast)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Desert)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Forest)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Grassland)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Mountain)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Swamp)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Underdark)",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
-    "name": "Circle Spells",
-    "class_feature": "Circle Spells",
-    "class": "Druid",
-    "subclass": "Circle of Wildfire",
-    "path": "icons/sundries/books/book-symbol-tree-silver-green.webp"
-  },
-  {
     "name": "City Dress",
     "class_feature": "City Dress",
     "class": "Warlock",
@@ -1678,13 +1286,6 @@
     "class_feature": "Cleansing Touch",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/hand-sparks-smoke-teal.webp"
-  },
-  {
-    "name": "Cleansing Touch",
-    "class_feature": "Cleansing Touch",
-    "class": "Paladin",
-    "subclass": "",
     "path": "icons/magic/light/hand-sparks-smoke-teal.webp"
   },
   {
@@ -1821,13 +1422,6 @@
     "path": "icons/magic/air/air-burst-spiral-pink.webp"
   },
   {
-    "name": "Countercharm",
-    "class_feature": "Countercharm",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/magic/air/air-burst-spiral-pink.webp"
-  },
-  {
     "name": "Create Thrall",
     "class_feature": "Create Thrall",
     "class": "Warlock",
@@ -1849,24 +1443,10 @@
     "path": "icons/skills/melee/strike-sword-blood-red.webp"
   },
   {
-    "name": "Crimson Rite",
-    "class_feature": "Crimson Rite",
-    "class": "Blood Hunter",
-    "subclass": "",
-    "path": "icons/skills/melee/strike-sword-blood-red.webp"
-  },
-  {
     "name": "Cunning Action",
     "class_feature": "Cunning Action",
     "class": "Rogue",
     "subclass": "Thief",
-    "path": "icons/magic/control/hypnosis-mesmerism-watch.webp"
-  },
-  {
-    "name": "Cunning Action",
-    "class_feature": "Cunning Action",
-    "class": "Rogue",
-    "subclass": "",
     "path": "icons/magic/control/hypnosis-mesmerism-watch.webp"
   },
   {
@@ -1912,24 +1492,10 @@
     "path": "icons/magic/perception/eye-ringed-glow-angry-red.webp"
   },
   {
-    "name": "Danger Sense",
-    "class_feature": "Danger Sense",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/magic/perception/eye-ringed-glow-angry-red.webp"
-  },
-  {
     "name": "Dark Augmentation",
     "class_feature": "Dark Augmentation",
     "class": "Blood Hunter",
     "subclass": "Order of the Ghostslayer",
-    "path": "icons/magic/control/buff-flight-wings-runes-red-yellow.webp"
-  },
-  {
-    "name": "Dark Augmentation",
-    "class_feature": "Dark Augmentation",
-    "class": "Blood Hunter",
-    "subclass": "",
     "path": "icons/magic/control/buff-flight-wings-runes-red-yellow.webp"
   },
   {
@@ -2010,13 +1576,6 @@
     "path": "icons/skills/ranged/arrow-flying-white-blue.webp"
   },
   {
-    "name": "Deflect Missiles",
-    "class_feature": "Deflect Missiles",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/skills/ranged/arrow-flying-white-blue.webp"
-  },
-  {
     "name": "Deflect Missiles Attack",
     "class_feature": "Deflect Missiles Attack",
     "class": "Monk",
@@ -2052,13 +1611,6 @@
     "path": "icons/magic/death/skull-horned-worn-fire-blue.webp"
   },
   {
-    "name": "Destroy Undead",
-    "class_feature": "Destroy Undead",
-    "class": "Cleric",
-    "subclass": "",
-    "path": "icons/magic/death/skull-horned-worn-fire-blue.webp"
-  },
-  {
     "name": "Detect Portal",
     "class_feature": "Detect Portal",
     "class": "Ranger",
@@ -2070,13 +1622,6 @@
     "class_feature": "Diamond Soul",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/commodities/gems/gem-faceted-cushion-teal-black.webp"
-  },
-  {
-    "name": "Diamond Soul",
-    "class_feature": "Diamond Soul",
-    "class": "Monk",
-    "subclass": "",
     "path": "icons/commodities/gems/gem-faceted-cushion-teal-black.webp"
   },
   {
@@ -2129,13 +1674,6 @@
     "path": "icons/magic/nature/tree-spirit-blue.webp"
   },
   {
-    "name": "Divine Domain",
-    "class_feature": "Divine Domain",
-    "class": "Cleric",
-    "subclass": "",
-    "path": "icons/magic/nature/tree-spirit-blue.webp"
-  },
-  {
     "name": "Divine Fury",
     "class_feature": "Divine Fury",
     "class": "Barbarian",
@@ -2150,24 +1688,10 @@
     "path": "icons/magic/life/cross-worn-green.webp"
   },
   {
-    "name": "Divine Health",
-    "class_feature": "Divine Health",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/magic/life/cross-worn-green.webp"
-  },
-  {
     "name": "Divine Intervention",
     "class_feature": "Divine Intervention",
     "class": "Cleric",
     "subclass": "Life Domain",
-    "path": "icons/magic/light/explosion-star-glow-blue-purple.webp"
-  },
-  {
-    "name": "Divine Intervention",
-    "class_feature": "Divine Intervention",
-    "class": "Cleric",
-    "subclass": "",
     "path": "icons/magic/light/explosion-star-glow-blue-purple.webp"
   },
   {
@@ -2185,13 +1709,6 @@
     "path": "icons/creatures/eyes/human-single-blue.webp"
   },
   {
-    "name": "Divine Sense",
-    "class_feature": "Divine Sense",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/creatures/eyes/human-single-blue.webp"
-  },
-  {
     "name": "Divine Smite",
     "class_feature": "Divine Smite",
     "class": "Paladin",
@@ -2199,73 +1716,10 @@
     "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
   },
   {
-    "name": "Divine Smite",
-    "class_feature": "Divine Smite",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
     "name": "Divine Strike",
     "class_feature": "Divine Strike",
     "class": "Cleric",
     "subclass": "Death Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "Forge Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "Life Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "Nature Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "Order Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "Tempest Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "Trickery Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "Twilight Domain",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
-    "name": "Divine Strike",
-    "class_feature": "Divine Strike",
-    "class": "Cleric",
-    "subclass": "War Domain",
     "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
   },
   {
@@ -2367,24 +1821,10 @@
     "path": "icons/magic/nature/tree-roots-glow-yellow.webp"
   },
   {
-    "name": "Druid Circle",
-    "class_feature": "Druid Circle",
-    "class": "Druid",
-    "subclass": "",
-    "path": "icons/magic/nature/tree-roots-glow-yellow.webp"
-  },
-  {
     "name": "Druidic",
     "class_feature": "Druidic",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/commodities/treasure/token-runed-circle-green.webp"
-  },
-  {
-    "name": "Druidic",
-    "class_feature": "Druidic",
-    "class": "Druid",
-    "subclass": "",
     "path": "icons/commodities/treasure/token-runed-circle-green.webp"
   },
   {
@@ -2619,13 +2059,6 @@
     "path": "icons/magic/lightning/orb-ball-purple.webp"
   },
   {
-    "name": "Eldritch Master",
-    "class_feature": "Eldritch Master",
-    "class": "Warlock",
-    "subclass": "",
-    "path": "icons/magic/lightning/orb-ball-purple.webp"
-  },
-  {
     "name": "Eldritch Strike",
     "class_feature": "Eldritch Strike",
     "class": "Fighter",
@@ -2696,13 +2129,6 @@
     "path": "icons/creatures/slimes/slime-movement-swirling-blue.webp"
   },
   {
-    "name": "Elusive",
-    "class_feature": "Elusive",
-    "class": "Rogue",
-    "subclass": "",
-    "path": "icons/creatures/slimes/slime-movement-swirling-blue.webp"
-  },
-  {
     "name": "Embodiment of the Law",
     "class_feature": "Embodiment of the Law",
     "class": "Cleric",
@@ -2742,13 +2168,6 @@
     "class_feature": "Empty Body",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/magic/unholy/orb-swirling-teal.webp"
-  },
-  {
-    "name": "Empty Body",
-    "class_feature": "Empty Body",
-    "class": "Monk",
-    "subclass": "",
     "path": "icons/magic/unholy/orb-swirling-teal.webp"
   },
   {
@@ -2801,171 +2220,10 @@
     "path": "icons/magic/control/debuff-energy-hold-teal-blue.webp"
   },
   {
-    "name": "Ethereal Step",
-    "class_feature": "Ethereal Step",
-    "class": "Ranger",
-    "subclass": "Horizon Walker",
-    "path": "icons/magic/control/debuff-energy-snare-purple-pink.webp"
-  },
-  {
     "name": "Evasion",
     "class_feature": "Evasion",
     "class": "Monk",
     "subclass": "Way of Mercy",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of Shadow",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Ascendant Dragon (UA)",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Astral Self",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Cobalt Soul",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Cobalt Soul",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Drunken Master",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Four Elements",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Kensei",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Long Death",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Open Hand",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "Way of the Sun Soul",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Arcane Trickster",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Assassin",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Inquisitive",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Mastermind",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Phantom",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Scout",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Swashbuckler",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "Thief",
-    "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
-  },
-  {
-    "name": "Evasion",
-    "class_feature": "Evasion",
-    "class": "Rogue",
-    "subclass": "",
     "path": "icons/magic/earth/projectiles-magma-stone-orange.webp"
   },
   {
@@ -3018,69 +2276,6 @@
     "path": "icons/sundries/books/book-eye-pink.webp"
   },
   {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Celestial",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The City",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Fathomless",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Fiend",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Genie",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Great Old One",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Hexblade",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Undead (UA)",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
-    "name": "Expanded Spell List",
-    "class_feature": "Expanded Spell List",
-    "class": "Warlock",
-    "subclass": "The Undying",
-    "path": "icons/sundries/books/book-eye-pink.webp"
-  },
-  {
     "name": "Expansive Bond",
     "class_feature": "Expansive Bond",
     "class": "Cleric",
@@ -3106,265 +2301,6 @@
     "class_feature": "Expertise",
     "class": "Bard",
     "subclass": "College of Creation",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Creation",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Eloquence",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Eloquence",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Glamour",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Glamour",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Lore",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Lore",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Spirits (UA)",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Spirits (UA)",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Swords",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Swords",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Valor",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Valor",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Whispers",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "College of Whispers",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Arcane Trickster",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Arcane Trickster",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Assassin",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Assassin",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Inquisitive",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Inquisitive",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Mastermind",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Mastermind",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Phantom",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Phantom",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Scout",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Scout",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Swashbuckler",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Swashbuckler",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Thief",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "Thief",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "",
-    "path": "icons/sundries/books/book-red-exclamation.webp"
-  },
-  {
-    "name": "Expertise",
-    "class_feature": "Expertise",
-    "class": "Rogue",
-    "subclass": "",
     "path": "icons/sundries/books/book-red-exclamation.webp"
   },
   {
@@ -3466,13 +2402,6 @@
     "path": "icons/skills/movement/feet-winged-boots-brown.webp"
   },
   {
-    "name": "Fast Movement",
-    "class_feature": "Fast Movement",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/skills/movement/feet-winged-boots-brown.webp"
-  },
-  {
     "name": "Fathomless Plunge",
     "class_feature": "Fathomless Plunge",
     "class": "Warlock",
@@ -3494,13 +2423,6 @@
     "path": "icons/magic/acid/dissolve-bone-skull.webp"
   },
   {
-    "name": "Favored Enemy",
-    "class_feature": "Favored Enemy",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/magic/perception/eye-ringed-glow-angry-small-red.webp"
-  },
-  {
     "name": "Favored Foe",
     "class_feature": "Favored Foe",
     "class": "Ranger",
@@ -3515,24 +2437,10 @@
     "path": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
   },
   {
-    "name": "Feral Instinct",
-    "class_feature": "Feral Instinct",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
-  },
-  {
     "name": "Feral Senses",
     "class_feature": "Feral Senses",
     "class": "Ranger",
     "subclass": "Hunter",
-    "path": "icons/magic/life/heart-shadow-red.webp"
-  },
-  {
-    "name": "Feral Senses",
-    "class_feature": "Feral Senses",
-    "class": "Ranger",
-    "subclass": "",
     "path": "icons/magic/life/heart-shadow-red.webp"
   },
   {
@@ -3585,289 +2493,9 @@
     "path": "icons/skills/melee/strike-weapons-orange.webp"
   },
   {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Blood Hunter",
-    "subclass": "Order of the Ghostslayer",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Blood Hunter",
-    "subclass": "Order of the Lycan",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Blood Hunter",
-    "subclass": "Order of the Mutant",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Blood Hunter",
-    "subclass": "Order of the Profane Soul",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Blood Hunter",
-    "subclass": "",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Arcane Archer",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Battle Master",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Cavalier",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Champion",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "COPY_OF_Renegade (Partnered)",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Echo Knight",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Eldritch Knight",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Gunslinger",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Psi Warrior",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Purple Dragon Knight",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Rune Knight",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "Samurai",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Fighter",
-    "subclass": "",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of Conquest",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of Devotion",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of Glory",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of Redemption",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of the Ancients",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of the Crown",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of the Open Sea",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of the Watchers",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oath of Vengeance",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "Oathbreaker",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Beast Master",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Drakewarden (UA)",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Fey Wanderer",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Gloom Stalker",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Horizon Walker",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Hunter",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Monster Slayer",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "Swarmkeeper",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
-    "name": "Fighting Style",
-    "class_feature": "Fighting Style",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/skills/melee/strike-weapons-orange.webp"
-  },
-  {
     "name": "Fighting Style Options",
     "class_feature": "Fighting Style Options",
     "class": "Fighter",
-    "subclass": "",
-    "path": "icons/skills/melee/spear-tips-quintuple-orange.webp"
-  },
-  {
-    "name": "Fighting Style Options",
-    "class_feature": "Fighting Style Options",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/skills/melee/spear-tips-quintuple-orange.webp"
-  },
-  {
-    "name": "Fighting Style Options",
-    "class_feature": "Fighting Style Options",
-    "class": "Ranger",
     "subclass": "",
     "path": "icons/skills/melee/spear-tips-quintuple-orange.webp"
   },
@@ -3914,13 +2542,6 @@
     "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
-    "name": "Flash of Genius",
-    "class_feature": "Flash of Genius",
-    "class": "Artificer",
-    "subclass": "",
-    "path": "icons/magic/light/explosion-star-blue.webp"
-  },
-  {
     "name": "Flurry of Blows",
     "class_feature": "Flurry of Blows",
     "class": "Monk",
@@ -3956,13 +2577,6 @@
     "path": "icons/magic/fire/projectile-arrow-fire-red-yellow.webp"
   },
   {
-    "name": "Foe Slayer",
-    "class_feature": "Foe Slayer",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/magic/fire/projectile-arrow-fire-red-yellow.webp"
-  },
-  {
     "name": "Font of Inspiration",
     "class_feature": "Font of Inspiration",
     "class": "Bard",
@@ -3970,24 +2584,10 @@
     "path": "icons/magic/fire/projectile-meteor-salvo-heavy-teal.webp"
   },
   {
-    "name": "Font of Inspiration",
-    "class_feature": "Font of Inspiration",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/magic/fire/projectile-meteor-salvo-heavy-teal.webp"
-  },
-  {
     "name": "Font of Magic",
     "class_feature": "Font of Magic",
     "class": "Sorcerer",
     "subclass": "Draconic Bloodline",
-    "path": "icons/magic/fire/projectile-meteor-salvo-heavy-pink.webp"
-  },
-  {
-    "name": "Font of Magic",
-    "class_feature": "Font of Magic",
-    "class": "Sorcerer",
-    "subclass": "",
     "path": "icons/magic/fire/projectile-meteor-salvo-heavy-pink.webp"
   },
   {
@@ -4187,13 +2787,6 @@
     "path": "icons/magic/death/skull-humanoid-worn-teal.webp"
   },
   {
-    "name": "Grim Psychometry",
-    "class_feature": "Grim Psychometry",
-    "class": "Blood Hunter",
-    "subclass": "",
-    "path": "icons/magic/death/skull-humanoid-worn-teal.webp"
-  },
-  {
     "name": "Grin and Bear It",
     "class_feature": "Grin and Bear It",
     "class": "Fighter",
@@ -4278,25 +2871,11 @@
     "path": "icons/magic/water/orb-water-bubbles.webp"
   },
   {
-    "name": "Hardened Soul",
-    "class_feature": "Hardened Soul",
-    "class": "Blood Hunter",
-    "subclass": "",
-    "path": "icons/magic/water/orb-water-bubbles.webp"
-  },
-  {
     "name": "Harness Divine Power",
     "class_feature": "Harness Divine Power",
     "class": "Cleric",
     "subclass": "",
     "path": "icons/environment/settlement/gazebo.webp"
-  },
-  {
-    "name": "Harness Divine Power",
-    "class_feature": "Harness Divine Power",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/magic/water/projectile-beams-salvo-blue.webp"
   },
   {
     "name": "Healing Light",
@@ -4362,13 +2941,6 @@
     "path": "icons/magic/nature/stealth-hide-eyes-green.webp"
   },
   {
-    "name": "Hide in Plain Sight",
-    "class_feature": "Hide in Plain Sight",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/magic/nature/stealth-hide-eyes-green.webp"
-  },
-  {
     "name": "Hill Rune",
     "class_feature": "Hill Rune",
     "class": "Fighter",
@@ -4379,97 +2951,6 @@
     "name": "Hit Points",
     "class_feature": "Hit Points",
     "class": "Artificer",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Cleric",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Druid",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Fighter",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Rogue",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Sorcerer",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Warlock",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Wizard",
-    "subclass": "",
-    "path": "icons/equipment/neck/amulet-heart.webp"
-  },
-  {
-    "name": "Hit Points",
-    "class_feature": "Hit Points",
-    "class": "Blood Hunter",
     "subclass": "",
     "path": "icons/equipment/neck/amulet-heart.webp"
   },
@@ -4513,13 +2994,6 @@
     "class_feature": "Hunter's Bane",
     "class": "Blood Hunter",
     "subclass": "Order of the Ghostslayer",
-    "path": "icons/skills/melee/strike-slashes-red.webp"
-  },
-  {
-    "name": "Hunter's Bane",
-    "class_feature": "Hunter's Bane",
-    "class": "Blood Hunter",
-    "subclass": "",
     "path": "icons/skills/melee/strike-slashes-red.webp"
   },
   {
@@ -4649,13 +3123,6 @@
     "path": "icons/magic/symbols/cog-shield-white-blue.webp"
   },
   {
-    "name": "Improved Divine Smite",
-    "class_feature": "Improved Divine Smite",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/magic/symbols/cog-shield-white-blue.webp"
-  },
-  {
     "name": "Improved Duplicity",
     "class_feature": "Improved Duplicity",
     "class": "Cleric",
@@ -4705,24 +3172,10 @@
     "path": "icons/magic/fire/flame-burning-fist-strike.webp"
   },
   {
-    "name": "Indomitable",
-    "class_feature": "Indomitable",
-    "class": "Fighter",
-    "subclass": "",
-    "path": "icons/magic/fire/flame-burning-fist-strike.webp"
-  },
-  {
     "name": "Indomitable Might",
     "class_feature": "Indomitable Might",
     "class": "Barbarian",
     "subclass": "Path of the Berserker",
-    "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
-  },
-  {
-    "name": "Indomitable Might",
-    "class_feature": "Indomitable Might",
-    "class": "Barbarian",
-    "subclass": "",
     "path": "icons/skills/melee/unarmed-punch-fist-yellow-red.webp"
   },
   {
@@ -4758,13 +3211,6 @@
     "class_feature": "Infuse Item",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/weapons/swords/sword-guard-flanged-purple.webp"
-  },
-  {
-    "name": "Infuse Item",
-    "class_feature": "Infuse Item",
-    "class": "Artificer",
-    "subclass": "",
     "path": "icons/weapons/swords/sword-guard-flanged-purple.webp"
   },
   {
@@ -4845,13 +3291,6 @@
     "path": "icons/commodities/tech/cog-steel.webp"
   },
   {
-    "name": "Jack of All Trades",
-    "class_feature": "Jack of All Trades",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/commodities/tech/cog-steel.webp"
-  },
-  {
     "name": "Keeper of Souls",
     "class_feature": "Keeper of Souls",
     "class": "Cleric",
@@ -4873,24 +3312,10 @@
     "path": "icons/magic/symbols/runes-star-pentagon-blue.webp"
   },
   {
-    "name": "Ki",
-    "class_feature": "Ki",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/symbols/runes-star-pentagon-blue.webp"
-  },
-  {
     "name": "Ki-Empowered Strikes",
     "class_feature": "Ki-Empowered Strikes",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/magic/symbols/runes-star-pentagon-orange.webp"
-  },
-  {
-    "name": "Ki-Empowered Strikes",
-    "class_feature": "Ki-Empowered Strikes",
-    "class": "Monk",
-    "subclass": "",
     "path": "icons/magic/symbols/runes-star-pentagon-orange.webp"
   },
   {
@@ -4915,31 +3340,10 @@
     "path": "icons/magic/nature/leaf-glow-triple-green.webp"
   },
   {
-    "name": "Land's Stride",
-    "class_feature": "Land's Stride",
-    "class": "Ranger",
-    "subclass": "Hunter",
-    "path": "icons/magic/nature/leaf-glow-triple-green.webp"
-  },
-  {
-    "name": "Land's Stride",
-    "class_feature": "Land's Stride",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/magic/nature/leaf-glow-triple-green.webp"
-  },
-  {
     "name": "Lay on Hands",
     "class_feature": "Lay on Hands",
     "class": "Paladin",
     "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/orbs-hand-gray.webp"
-  },
-  {
-    "name": "Lay on Hands",
-    "class_feature": "Lay on Hands",
-    "class": "Paladin",
-    "subclass": "",
     "path": "icons/magic/light/orbs-hand-gray.webp"
   },
   {
@@ -5020,13 +3424,6 @@
     "path": "icons/commodities/treasure/case-red-silver.webp"
   },
   {
-    "name": "Magic Item Adept",
-    "class_feature": "Magic Item Adept",
-    "class": "Artificer",
-    "subclass": "",
-    "path": "icons/commodities/treasure/case-red-silver.webp"
-  },
-  {
     "name": "Magic Item Master",
     "class_feature": "Magic Item Master",
     "class": "Artificer",
@@ -5034,24 +3431,10 @@
     "path": "icons/commodities/tech/glass-electrode.webp"
   },
   {
-    "name": "Magic Item Master",
-    "class_feature": "Magic Item Master",
-    "class": "Artificer",
-    "subclass": "",
-    "path": "icons/commodities/tech/glass-electrode.webp"
-  },
-  {
     "name": "Magic Item Savant",
     "class_feature": "Magic Item Savant",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/equipment/neck/amulet-geometric-gold-green.webp"
-  },
-  {
-    "name": "Magic Item Savant",
-    "class_feature": "Magic Item Savant",
-    "class": "Artificer",
-    "subclass": "",
     "path": "icons/equipment/neck/amulet-geometric-gold-green.webp"
   },
   {
@@ -5090,24 +3473,10 @@
     "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
   },
   {
-    "name": "Magical Secrets",
-    "class_feature": "Magical Secrets",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
-  },
-  {
     "name": "Magical Tinkering",
     "class_feature": "Magical Tinkering",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/commodities/treasure/crown-blue-gold.webp"
-  },
-  {
-    "name": "Magical Tinkering",
-    "class_feature": "Magical Tinkering",
-    "class": "Artificer",
-    "subclass": "",
     "path": "icons/commodities/treasure/crown-blue-gold.webp"
   },
   {
@@ -5174,13 +3543,6 @@
     "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
   },
   {
-    "name": "Martial Archetype",
-    "class_feature": "Martial Archetype",
-    "class": "Fighter",
-    "subclass": "",
-    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
-  },
-  {
     "name": "Martial Arts",
     "class_feature": "Martial Arts",
     "class": "Monk",
@@ -5188,30 +3550,9 @@
     "path": "icons/magic/defensive/shield-barrier-blades-teal.webp"
   },
   {
-    "name": "Martial Arts",
-    "class_feature": "Martial Arts",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/defensive/shield-barrier-blades-teal.webp"
-  },
-  {
     "name": "Martial Versatility",
     "class_feature": "Martial Versatility",
     "class": "Fighter",
-    "subclass": "",
-    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-blue.webp"
-  },
-  {
-    "name": "Martial Versatility",
-    "class_feature": "Martial Versatility",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-blue.webp"
-  },
-  {
-    "name": "Martial Versatility",
-    "class_feature": "Martial Versatility",
-    "class": "Ranger",
     "subclass": "",
     "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-blue.webp"
   },
@@ -5290,13 +3631,6 @@
     "class_feature": "Metamagic",
     "class": "Sorcerer",
     "subclass": "Draconic Bloodline",
-    "path": "icons/magic/symbols/runes-star-blue.webp"
-  },
-  {
-    "name": "Metamagic",
-    "class_feature": "Metamagic",
-    "class": "Sorcerer",
-    "subclass": "",
     "path": "icons/magic/symbols/runes-star-blue.webp"
   },
   {
@@ -5412,13 +3746,6 @@
     "path": "icons/commodities/currency/coin-yingyang.webp"
   },
   {
-    "name": "Monastic Tradition",
-    "class_feature": "Monastic Tradition",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/commodities/currency/coin-yingyang.webp"
-  },
-  {
     "name": "Monster Slayer Magic",
     "class_feature": "Monster Slayer Magic",
     "class": "Ranger",
@@ -5475,24 +3802,10 @@
     "path": "icons/magic/nature/leaf-rune-glow-green.webp"
   },
   {
-    "name": "Mystic Arcanum (6th level)",
-    "class_feature": "Mystic Arcanum (6th level)",
-    "class": "Warlock",
-    "subclass": "",
-    "path": "icons/magic/nature/leaf-rune-glow-green.webp"
-  },
-  {
     "name": "Mystic Arcanum (7th level)",
     "class_feature": "Mystic Arcanum (7th level)",
     "class": "Warlock",
     "subclass": "The Fiend",
-    "path": "icons/magic/nature/leaf-rune-glow-green.webp"
-  },
-  {
-    "name": "Mystic Arcanum (7th level)",
-    "class_feature": "Mystic Arcanum (7th level)",
-    "class": "Warlock",
-    "subclass": "",
     "path": "icons/magic/nature/leaf-rune-glow-green.webp"
   },
   {
@@ -5503,24 +3816,10 @@
     "path": "icons/magic/nature/leaf-rune-glow-green.webp"
   },
   {
-    "name": "Mystic Arcanum (8th level)",
-    "class_feature": "Mystic Arcanum (8th level)",
-    "class": "Warlock",
-    "subclass": "",
-    "path": "icons/magic/nature/leaf-rune-glow-green.webp"
-  },
-  {
     "name": "Mystic Arcanum (9th level)",
     "class_feature": "Mystic Arcanum (9th level)",
     "class": "Warlock",
     "subclass": "The Fiend",
-    "path": "icons/magic/nature/leaf-rune-glow-green.webp"
-  },
-  {
-    "name": "Mystic Arcanum (9th level)",
-    "class_feature": "Mystic Arcanum (9th level)",
-    "class": "Warlock",
-    "subclass": "",
     "path": "icons/magic/nature/leaf-rune-glow-green.webp"
   },
   {
@@ -5580,13 +3879,6 @@
     "path": "icons/tools/navigation/map-simple-tree.webp"
   },
   {
-    "name": "Natural Explorer",
-    "class_feature": "Natural Explorer",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/tools/navigation/map-simple-tree.webp"
-  },
-  {
     "name": "Natural Recovery",
     "class_feature": "Natural Recovery",
     "class": "Druid",
@@ -5627,62 +3919,6 @@
     "class": "Paladin",
     "subclass": "Oath of Conquest",
     "path": "icons/sundries/books/symbol-axe-gold-grey.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of Devotion",
-    "path": "icons/sundries/books/book-red-square.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of Glory",
-    "path": "icons/sundries/books/book-purple-cross.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of Redemption",
-    "path": "icons/sundries/books/book-embossed-jewel-gold-purple.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of the Ancients",
-    "path": "icons/sundries/books/book-symbol-link-brown.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of the Crown",
-    "path": "icons/sundries/books/book-embossed-clasp-gold-brown.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of the Open Sea",
-    "path": "icons/sundries/books/book-symbol-anchor.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of the Watchers",
-    "path": "icons/sundries/books/book-symbol-triangle-silver-brown.webp"
-  },
-  {
-    "name": "Oath Spells",
-    "class_feature": "Oath Spells",
-    "class": "Paladin",
-    "subclass": "Oath of Vengeance",
-    "path": "icons/sundries/books/book-rounded-teal.webp"
   },
   {
     "name": "Oathbreaker Spells",
@@ -5748,83 +3984,6 @@
     "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
   },
   {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Archfey",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Celestial",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The City",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Fathomless",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Fiend",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Genie",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Great Old One",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Hexblade",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Undead (UA)",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "The Undying",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
-    "name": "Otherworldly Patron",
-    "class_feature": "Otherworldly Patron",
-    "class": "Warlock",
-    "subclass": "",
-    "path": "icons/creatures/mammals/bat-giant-tattered-purple.webp"
-  },
-  {
     "name": "Otherworldly Wings",
     "class_feature": "Otherworldly Wings",
     "class": "Sorcerer",
@@ -5853,13 +4012,6 @@
     "path": "icons/containers/chest/chest-reinforced-steel-cherry.webp"
   },
   {
-    "name": "Pact Boon",
-    "class_feature": "Pact Boon",
-    "class": "Warlock",
-    "subclass": "",
-    "path": "icons/containers/chest/chest-reinforced-steel-cherry.webp"
-  },
-  {
     "name": "Pact Boon Option",
     "class_feature": "Pact Boon Option",
     "class": "Warlock",
@@ -5871,83 +4023,6 @@
     "class_feature": "Pact Magic",
     "class": "Blood Hunter",
     "subclass": "Order of the Profane Soul",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Archfey",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Celestial",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The City",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Fathomless",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Fiend",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Genie",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Great Old One",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Hexblade",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Undead (UA)",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "The Undying",
-    "path": "icons/sundries/books/book-face-blue.webp"
-  },
-  {
-    "name": "Pact Magic",
-    "class_feature": "Pact Magic",
-    "class": "Warlock",
-    "subclass": "",
     "path": "icons/sundries/books/book-face-blue.webp"
   },
   {
@@ -5993,13 +4068,6 @@
     "path": "icons/magic/perception/third-eye-blue-red.webp"
   },
   {
-    "name": "Perfect Self",
-    "class_feature": "Perfect Self",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/perception/third-eye-blue-red.webp"
-  },
-  {
     "name": "Perfected Armor",
     "class_feature": "Perfected Armor",
     "class": "Artificer",
@@ -6025,13 +4093,6 @@
     "class_feature": "Persistent Rage",
     "class": "Barbarian",
     "subclass": "Path of the Berserker",
-    "path": "icons/skills/wounds/injury-face-impact-orange.webp"
-  },
-  {
-    "name": "Persistent Rage",
-    "class_feature": "Persistent Rage",
-    "class": "Barbarian",
-    "subclass": "",
     "path": "icons/skills/wounds/injury-face-impact-orange.webp"
   },
   {
@@ -6084,41 +4145,6 @@
     "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
   },
   {
-    "name": "Potent Spellcasting",
-    "class_feature": "Potent Spellcasting",
-    "class": "Cleric",
-    "subclass": "Grave Domain",
-    "path": "icons/magic/control/debuff-energy-snare-purple-pink.webp"
-  },
-  {
-    "name": "Potent Spellcasting",
-    "class_feature": "Potent Spellcasting",
-    "class": "Cleric",
-    "subclass": "Knowledge Domain",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Potent Spellcasting",
-    "class_feature": "Potent Spellcasting",
-    "class": "Cleric",
-    "subclass": "Light Domain",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Potent Spellcasting",
-    "class_feature": "Potent Spellcasting",
-    "class": "Cleric",
-    "subclass": "Peace Domain",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Potent Spellcasting",
-    "class_feature": "Potent Spellcasting",
-    "class": "Cleric",
-    "subclass": "Time Domain",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
     "name": "Power Surge",
     "class_feature": "Power Surge",
     "class": "Wizard",
@@ -6147,13 +4173,6 @@
     "path": "icons/magic/defensive/shield-barrier-blades-teal.webp"
   },
   {
-    "name": "Primal Champion",
-    "class_feature": "Primal Champion",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/magic/defensive/shield-barrier-blades-teal.webp"
-  },
-  {
     "name": "Primal Companion",
     "class_feature": "Primal Companion",
     "class": "Druid",
@@ -6175,13 +4194,6 @@
     "path": "icons/magic/air/air-wave-gust-smoke-yellow.webp"
   },
   {
-    "name": "Primal Path",
-    "class_feature": "Primal Path",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/magic/air/air-wave-gust-smoke-yellow.webp"
-  },
-  {
     "name": "Primal Strike",
     "class_feature": "Primal Strike",
     "class": "Druid",
@@ -6193,13 +4205,6 @@
     "class_feature": "Primeval Awareness",
     "class": "Ranger",
     "subclass": "Hunter",
-    "path": "icons/creatures/eyes/lizard-single-slit-blue.webp"
-  },
-  {
-    "name": "Primeval Awareness",
-    "class_feature": "Primeval Awareness",
-    "class": "Ranger",
-    "subclass": "",
     "path": "icons/creatures/eyes/lizard-single-slit-blue.webp"
   },
   {
@@ -6238,39 +4243,11 @@
     "path": "icons/sundries/gaming/dice-runed-tan.webp"
   },
   {
-    "name": "Psionic Energy",
-    "class_feature": "Psionic Energy",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/sundries/gaming/dice-runed-brown.webp"
-  },
-  {
     "name": "Psionic Power",
     "class_feature": "Psionic Power",
     "class": "Fighter",
     "subclass": "Psi Warrior",
     "path": "icons/magic/perception/third-eye-blue-red.webp"
-  },
-  {
-    "name": "Psionic Power",
-    "class_feature": "Psionic Power",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/magic/air/air-burst-spiral-large-yellow.webp"
-  },
-  {
-    "name": "Psionic Power",
-    "class_feature": "Psionic Power",
-    "class": "Fighter",
-    "subclass": "Psi Warrior",
-    "path": "icons/sundries/gaming/dice-runed-brown.webp"
-  },
-  {
-    "name": "Psionic Power",
-    "class_feature": "Psionic Power",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/sundries/gaming/dice-runed-brown.webp"
   },
   {
     "name": "Psionic Power: Attack (DEX)",
@@ -6329,13 +4306,6 @@
     "path": "icons/sundries/gaming/dice-runed-tan.webp"
   },
   {
-    "name": "Psionic Power: Psionic Energy",
-    "class_feature": "Psionic Power: Psionic Energy",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/sundries/gaming/dice-runed-brown.webp"
-  },
-  {
     "name": "Psionic Power: Psionic Strike",
     "class_feature": "Psionic Power: Psionic Strike",
     "class": "Fighter",
@@ -6361,13 +4331,6 @@
     "class_feature": "Psionic Power: Recovery",
     "class": "Fighter",
     "subclass": "Psi Warrior",
-    "path": "icons/sundries/gaming/dice-pair-white-green.webp"
-  },
-  {
-    "name": "Psionic Power: Recovery",
-    "class_feature": "Psionic Power: Recovery",
-    "class": "Rogue",
-    "subclass": "Soulknife",
     "path": "icons/sundries/gaming/dice-pair-white-green.webp"
   },
   {
@@ -6399,13 +4362,6 @@
     "path": "icons/skills/melee/blade-tips-double-blue.webp"
   },
   {
-    "name": "Psychic Blades",
-    "class_feature": "Psychic Blades",
-    "class": "Rogue",
-    "subclass": "Soulknife",
-    "path": "icons/skills/melee/blade-tips-double-blue.webp"
-  },
-  {
     "name": "Psychic Defenses",
     "class_feature": "Psychic Defenses",
     "class": "Sorcerer",
@@ -6431,13 +4387,6 @@
     "class_feature": "Purity of Body",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/magic/light/explosion-star-blue.webp"
-  },
-  {
-    "name": "Purity of Body",
-    "class_feature": "Purity of Body",
-    "class": "Monk",
-    "subclass": "",
     "path": "icons/magic/light/explosion-star-blue.webp"
   },
   {
@@ -6490,13 +4439,6 @@
     "path": "icons/creatures/abilities/mouth-teeth-human.webp"
   },
   {
-    "name": "Rage",
-    "class_feature": "Rage",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/creatures/abilities/mouth-teeth-human.webp"
-  },
-  {
     "name": "Rage beyond Death",
     "class_feature": "Rage beyond Death",
     "class": "Barbarian",
@@ -6529,13 +4471,6 @@
     "class_feature": "Ranger Archetype",
     "class": "Ranger",
     "subclass": "Hunter",
-    "path": "icons/magic/nature/root-vine-hand-strike.webp"
-  },
-  {
-    "name": "Ranger Archetype",
-    "class_feature": "Ranger Archetype",
-    "class": "Ranger",
-    "subclass": "",
     "path": "icons/magic/nature/root-vine-hand-strike.webp"
   },
   {
@@ -6581,13 +4516,6 @@
     "path": "icons/skills/melee/strike-axe-blood-red.webp"
   },
   {
-    "name": "Reckless Attack",
-    "class_feature": "Reckless Attack",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/skills/melee/strike-axe-blood-red.webp"
-  },
-  {
     "name": "Reclaim Potential",
     "class_feature": "Reclaim Potential",
     "class": "Fighter",
@@ -6616,24 +4544,10 @@
     "path": "icons/magic/control/debuff-chains-shackles-movement-blue.webp"
   },
   {
-    "name": "Relentless Rage",
-    "class_feature": "Relentless Rage",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/magic/control/debuff-chains-shackles-movement-blue.webp"
-  },
-  {
     "name": "Reliable Talent",
     "class_feature": "Reliable Talent",
     "class": "Rogue",
     "subclass": "Thief",
-    "path": "icons/magic/symbols/runes-star-magenta.webp"
-  },
-  {
-    "name": "Reliable Talent",
-    "class_feature": "Reliable Talent",
-    "class": "Rogue",
-    "subclass": "",
     "path": "icons/magic/symbols/runes-star-magenta.webp"
   },
   {
@@ -6749,13 +4663,6 @@
     "path": "icons/equipment/head/hood-purple-mask.webp"
   },
   {
-    "name": "Roguish Archetype",
-    "class_feature": "Roguish Archetype",
-    "class": "Rogue",
-    "subclass": "",
-    "path": "icons/equipment/head/hood-purple-mask.webp"
-  },
-  {
     "name": "Royal Envoy",
     "class_feature": "Royal Envoy",
     "class": "Fighter",
@@ -6798,13 +4705,6 @@
     "path": "icons/sundries/documents/document-sealed-red-yellow.webp"
   },
   {
-    "name": "Sacred Oath",
-    "class_feature": "Sacred Oath",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/sundries/documents/document-sealed-red-yellow.webp"
-  },
-  {
     "name": "Saint of Forge and Fire",
     "class_feature": "Saint of Forge and Fire",
     "class": "Cleric",
@@ -6823,13 +4723,6 @@
     "class_feature": "Sanguine Mastery",
     "class": "Blood Hunter",
     "subclass": "Order of the Ghostslayer",
-    "path": "icons/magic/death/undead-skeleton-deformed-red.webp"
-  },
-  {
-    "name": "Sanguine Mastery",
-    "class_feature": "Sanguine Mastery",
-    "class": "Blood Hunter",
-    "subclass": "",
     "path": "icons/magic/death/undead-skeleton-deformed-red.webp"
   },
   {
@@ -6879,13 +4772,6 @@
     "class_feature": "Second Wind",
     "class": "Fighter",
     "subclass": "Battle Master",
-    "path": "icons/magic/life/heart-glowing-red.webp"
-  },
-  {
-    "name": "Second Wind",
-    "class_feature": "Second Wind",
-    "class": "Fighter",
-    "subclass": "",
     "path": "icons/magic/life/heart-glowing-red.webp"
   },
   {
@@ -7001,13 +4887,6 @@
     "path": "icons/sundries/books/book-eye-purple.webp"
   },
   {
-    "name": "Signature Spells",
-    "class_feature": "Signature Spells",
-    "class": "Wizard",
-    "subclass": "",
-    "path": "icons/sundries/books/book-embossed-jewel-gold-purple.webp"
-  },
-  {
     "name": "Silver Tongue",
     "class_feature": "Silver Tongue",
     "class": "Bard",
@@ -7043,13 +4922,6 @@
     "path": "icons/magic/air/fog-gas-smoke-dense-pink.webp"
   },
   {
-    "name": "Slippery Mind",
-    "class_feature": "Slippery Mind",
-    "class": "Rogue",
-    "subclass": "",
-    "path": "icons/magic/air/fog-gas-smoke-dense-pink.webp"
-  },
-  {
     "name": "Slow Fall",
     "class_feature": "Slow Fall",
     "class": "Monk",
@@ -7057,24 +4929,10 @@
     "path": "icons/equipment/finger/ring-winged-gold-blue.webp"
   },
   {
-    "name": "Slow Fall",
-    "class_feature": "Slow Fall",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/equipment/finger/ring-winged-gold-blue.webp"
-  },
-  {
     "name": "Sneak Attack",
     "class_feature": "Sneak Attack",
     "class": "Rogue",
     "subclass": "Thief",
-    "path": "icons/skills/melee/strike-dagger-arcane-pink.webp"
-  },
-  {
-    "name": "Sneak Attack",
-    "class_feature": "Sneak Attack",
-    "class": "Rogue",
-    "subclass": "",
     "path": "icons/skills/melee/strike-dagger-arcane-pink.webp"
   },
   {
@@ -7092,13 +4950,6 @@
     "path": "icons/magic/nature/leaf-glow-triple-teal.webp"
   },
   {
-    "name": "Song of Rest",
-    "class_feature": "Song of Rest",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/magic/nature/leaf-glow-triple-teal.webp"
-  },
-  {
     "name": "Song of Victory",
     "class_feature": "Song of Victory",
     "class": "Wizard",
@@ -7113,24 +4964,10 @@
     "path": "icons/magic/fire/beam-jet-stream-yellow.webp"
   },
   {
-    "name": "Sorcerous Origin",
-    "class_feature": "Sorcerous Origin",
-    "class": "Sorcerer",
-    "subclass": "",
-    "path": "icons/magic/fire/beam-jet-stream-yellow.webp"
-  },
-  {
     "name": "Sorcerous Restoration",
     "class_feature": "Sorcerous Restoration",
     "class": "Sorcerer",
     "subclass": "Draconic Bloodline",
-    "path": "icons/magic/water/orb-water-ice-pink.webp"
-  },
-  {
-    "name": "Sorcerous Restoration",
-    "class_feature": "Sorcerous Restoration",
-    "class": "Sorcerer",
-    "subclass": "",
     "path": "icons/magic/water/orb-water-ice-pink.webp"
   },
   {
@@ -7159,13 +4996,6 @@
     "class_feature": "Soul of Artifice",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/commodities/gems/pearl-blue-gold.webp"
-  },
-  {
-    "name": "Soul of Artifice",
-    "class_feature": "Soul of Artifice",
-    "class": "Artificer",
-    "subclass": "",
     "path": "icons/commodities/gems/pearl-blue-gold.webp"
   },
   {
@@ -7225,13 +5055,6 @@
     "path": "icons/magic/unholy/beam-impact-purple.webp"
   },
   {
-    "name": "Spell Mastery",
-    "class_feature": "Spell Mastery",
-    "class": "Wizard",
-    "subclass": "",
-    "path": "icons/magic/unholy/beam-impact-purple.webp"
-  },
-  {
     "name": "Spell Resistance",
     "class_feature": "Spell Resistance",
     "class": "Wizard",
@@ -7253,641 +5076,11 @@
     "path": "icons/commodities/tech/bearing-steel-green.webp"
   },
   {
-    "name": "Spell-Storing Item",
-    "class_feature": "Spell-Storing Item",
-    "class": "Artificer",
-    "subclass": "",
-    "path": "icons/commodities/tech/bearing-steel-green.webp"
-  },
-  {
     "name": "Spellcasting",
     "class_feature": "Spellcasting",
     "class": "Artificer",
     "subclass": "Alchemist",
     "path": "icons/magic/light/beam-rays-orange-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Artificer",
-    "subclass": "Armorer",
-    "path": "icons/magic/light/beam-rays-orange-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Artificer",
-    "subclass": "Artillerist",
-    "path": "icons/magic/light/beam-rays-orange-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Artificer",
-    "subclass": "Battle Smith",
-    "path": "icons/magic/light/beam-rays-orange-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Artificer",
-    "subclass": "",
-    "path": "icons/magic/light/beam-rays-orange-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Creation",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Eloquence",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Glamour",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Lore",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Spirits (UA)",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Swords",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Valor",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "College of Whispers",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Bard",
-    "subclass": "",
-    "path": "icons/magic/light/beam-rays-teal-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Arcana Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Death Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Forge Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Grave Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Knowledge Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Life Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Light Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Nature Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Order Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Peace Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Tempest Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Time Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Trickery Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "Twilight Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "War Domain",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Cleric",
-    "subclass": "",
-    "path": "icons/magic/light/beam-rays-yellow-blue-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of Dreams",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of Spores",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of Stars",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Coast)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Desert)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Forest)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Grassland)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Mountain)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Swamp)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Underdark)",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Moon",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of the Shepherd",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "Circle of Wildfire",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Druid",
-    "subclass": "",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Fighter",
-    "subclass": "Eldritch Knight",
-    "path": "icons/magic/light/beam-rays-teal-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of Conquest",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of Devotion",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of Glory",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of Redemption",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of the Ancients",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of the Crown",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of the Open Sea",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of the Watchers",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oath of Vengeance",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "Oathbreaker",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Paladin",
-    "subclass": "",
-    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Beast Master",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Drakewarden (UA)",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Fey Wanderer",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Gloom Stalker",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Horizon Walker",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Hunter",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Monster Slayer",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "Swarmkeeper",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Ranger",
-    "subclass": "",
-    "path": "icons/magic/light/beam-rays-green-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Rogue",
-    "subclass": "Arcane Trickster",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "Aberrant Mind",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "Clockwork Soul",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "Divine Soul",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "Draconic Bloodline",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "Shadow Magic",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "Storm Sorcery",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "Wild Magic",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Sorcerer",
-    "subclass": "",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "Bladesinging",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "Chronurgy Magic",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "Graviturgy Magic",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "Order of Scribes",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Abjuration",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Conjuration",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Divination",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Enchantment",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Evocation",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Illusion",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Necromancy",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "School of Transmutation",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "War Magic",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
-  },
-  {
-    "name": "Spellcasting",
-    "class_feature": "Spellcasting",
-    "class": "Wizard",
-    "subclass": "",
-    "path": "icons/magic/light/beam-rays-magenta-large.webp"
   },
   {
     "name": "Spellcasting Focus",
@@ -8037,13 +5230,6 @@
     "path": "icons/magic/water/orb-water-transparent.webp"
   },
   {
-    "name": "Stillness of Mind",
-    "class_feature": "Stillness of Mind",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/water/orb-water-transparent.webp"
-  },
-  {
     "name": "Stone Rune",
     "class_feature": "Stone Rune",
     "class": "Fighter",
@@ -8128,13 +5314,6 @@
     "path": "icons/commodities/flowers/clover.webp"
   },
   {
-    "name": "Stroke of Luck",
-    "class_feature": "Stroke of Luck",
-    "class": "Rogue",
-    "subclass": "",
-    "path": "icons/commodities/flowers/clover.webp"
-  },
-  {
     "name": "Student of War",
     "class_feature": "Student of War",
     "class": "Fighter",
@@ -8146,13 +5325,6 @@
     "class_feature": "Stunning Strike",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/skills/melee/unarmed-punch-fist.webp"
-  },
-  {
-    "name": "Stunning Strike",
-    "class_feature": "Stunning Strike",
-    "class": "Monk",
-    "subclass": "",
     "path": "icons/skills/melee/unarmed-punch-fist.webp"
   },
   {
@@ -8195,13 +5367,6 @@
     "class_feature": "Superior Inspiration",
     "class": "Bard",
     "subclass": "College of Lore",
-    "path": "icons/magic/earth/explosion-lava-stone-green.webp"
-  },
-  {
-    "name": "Superior Inspiration",
-    "class_feature": "Superior Inspiration",
-    "class": "Bard",
-    "subclass": "",
     "path": "icons/magic/earth/explosion-lava-stone-green.webp"
   },
   {
@@ -8359,13 +5524,6 @@
     "path": "icons/tools/fasteners/screw-flat-steel-brown.webp"
   },
   {
-    "name": "The Right Tool for the Job",
-    "class_feature": "The Right Tool for the Job",
-    "class": "Artificer",
-    "subclass": "",
-    "path": "icons/tools/fasteners/screw-flat-steel-brown.webp"
-  },
-  {
     "name": "The Third Eye",
     "class_feature": "The Third Eye",
     "class": "Wizard",
@@ -8384,13 +5542,6 @@
     "class_feature": "Thieves' Cant",
     "class": "Rogue",
     "subclass": "Thief",
-    "path": "icons/commodities/treasure/token-runed-sigel-brown.webp"
-  },
-  {
-    "name": "Thieves' Cant",
-    "class_feature": "Thieves' Cant",
-    "class": "Rogue",
-    "subclass": "",
     "path": "icons/commodities/treasure/token-runed-sigel-brown.webp"
   },
   {
@@ -8436,202 +5587,6 @@
     "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
   },
   {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of Spores",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of Stars",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Coast)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Desert)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Forest)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Grassland)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Mountain)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Swamp)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Land (Underdark)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Moon",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of the Shepherd",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "Circle of Wildfire",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Druid",
-    "subclass": "",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of Mercy",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of Shadow",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Ascendant Dragon (UA)",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Astral Self",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Cobalt Soul",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Cobalt Soul",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Drunken Master",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Four Elements",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Kensei",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Long Death",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Open Hand",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "Way of the Sun Soul",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
-    "name": "Timeless Body",
-    "class_feature": "Timeless Body",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/control/encase-creature-humanoid-hold.webp"
-  },
-  {
     "name": "Tipsy Sway",
     "class_feature": "Tipsy Sway",
     "class": "Monk",
@@ -8660,24 +5615,10 @@
     "path": "icons/magic/time/day-night-sunset-sunrise.webp"
   },
   {
-    "name": "Tongue of the Sun and Moon",
-    "class_feature": "Tongue of the Sun and Moon",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/time/day-night-sunset-sunrise.webp"
-  },
-  {
     "name": "Tool Expertise",
     "class_feature": "Tool Expertise",
     "class": "Artificer",
     "subclass": "Alchemist",
-    "path": "icons/tools/hand/lockpicks-steel-grey.webp"
-  },
-  {
-    "name": "Tool Expertise",
-    "class_feature": "Tool Expertise",
-    "class": "Artificer",
-    "subclass": "",
     "path": "icons/tools/hand/lockpicks-steel-grey.webp"
   },
   {
@@ -8800,153 +5741,6 @@
     "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
   },
   {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "Path of the Battlerager",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "Path of the Beast",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "Path of the Berserker",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "Path of the Storm Herald",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "Path of the Totem Warrior",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "Path of the Zealot",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "Path of Wild Magic",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Barbarian",
-    "subclass": "",
-    "path": "icons/magic/control/buff-flight-wings-runes-red.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of Mercy",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of Shadow",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Ascendant Dragon (UA)",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Astral Self",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Cobalt Soul",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Cobalt Soul",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Drunken Master",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Four Elements",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Kensei",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Long Death",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Open Hand",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "Way of the Sun Soul",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
-    "name": "Unarmored Defense",
-    "class_feature": "Unarmored Defense",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/control/debuff-energy-hold-yellow.webp"
-  },
-  {
     "name": "Unarmored Movement",
     "class_feature": "Unarmored Movement",
     "class": "Monk",
@@ -8954,24 +5748,10 @@
     "path": "icons/magic/control/debuff-energy-snare-brown.webp"
   },
   {
-    "name": "Unarmored Movement",
-    "class_feature": "Unarmored Movement",
-    "class": "Monk",
-    "subclass": "",
-    "path": "icons/magic/nature/root-vine-entangle-foot-green.webp"
-  },
-  {
     "name": "Unarmored Movement Improvement",
     "class_feature": "Unarmored Movement Improvement",
     "class": "Monk",
     "subclass": "Way of the Open Hand",
-    "path": "icons/magic/air/wind-swirl-gray-blue.webp"
-  },
-  {
-    "name": "Unarmored Movement Improvement",
-    "class_feature": "Unarmored Movement Improvement",
-    "class": "Monk",
-    "subclass": "",
     "path": "icons/magic/air/wind-swirl-gray-blue.webp"
   },
   {
@@ -8986,13 +5766,6 @@
     "class_feature": "Uncanny Dodge",
     "class": "Rogue",
     "subclass": "Thief",
-    "path": "icons/skills/movement/feet-winged-boots-brown.webp"
-  },
-  {
-    "name": "Uncanny Dodge",
-    "class_feature": "Uncanny Dodge",
-    "class": "Rogue",
-    "subclass": "",
     "path": "icons/skills/movement/feet-winged-boots-brown.webp"
   },
   {
@@ -9105,13 +5878,6 @@
     "class_feature": "Vanish",
     "class": "Ranger",
     "subclass": "Hunter",
-    "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
-  },
-  {
-    "name": "Vanish",
-    "class_feature": "Vanish",
-    "class": "Ranger",
-    "subclass": "",
     "path": "icons/magic/perception/silhouette-stealth-shadow.webp"
   },
   {
@@ -9311,24 +6077,10 @@
     "path": "icons/creatures/mammals/elk-moose-marked-green.webp"
   },
   {
-    "name": "Wild Shape",
-    "class_feature": "Wild Shape",
-    "class": "Druid",
-    "subclass": "",
-    "path": "icons/creatures/mammals/elk-moose-marked-green.webp"
-  },
-  {
     "name": "Wild Shape Improvement",
     "class_feature": "Wild Shape Improvement",
     "class": "Druid",
     "subclass": "Circle of the Land (Arctic)",
-    "path": "icons/creatures/birds/corvid-flying-wings-purple.webp"
-  },
-  {
-    "name": "Wild Shape Improvement",
-    "class_feature": "Wild Shape Improvement",
-    "class": "Druid",
-    "subclass": "",
     "path": "icons/creatures/birds/corvid-flying-wings-purple.webp"
   },
   {
@@ -9618,10 +6370,6 @@
     "path": "icons/magic/control/debuff-energy-snare-blue.webp"
   },
   {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
-  },
-  {
     "name": "Inspiring Movement",
     "path": "icons/skills/movement/feet-winged-boots-brown.webp"
   },
@@ -9644,10 +6392,6 @@
   {
     "name": "Divine Order",
     "path": "icons/magic/light/explosion-star-glow-blue-purple.webp"
-  },
-  {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
   },
   {
     "name": "Greater Divine Intervention",
@@ -9714,10 +6458,6 @@
     "path": "icons/magic/symbols/elements-air-earth-fire-water.webp"
   },
   {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
-  },
-  {
     "name": "Improved Circle Forms",
     "path": "icons/creatures/abilities/wolf-howl-moon-purple.webp"
   },
@@ -9766,10 +6506,6 @@
     "path": "icons/magic/water/barrier-ice-wall-snow.webp"
   },
   {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
-  },
-  {
     "name": "Heroic Warrior",
     "path": "icons/skills/melee/unarmed-punch-fist.webp"
   },
@@ -9780,10 +6516,6 @@
   {
     "name": "War Bond",
     "path": "icons/weapons/bows/shortbow-recurve-yellow.webp"
-  },
-  {
-    "name": "Weapon Mastery",
-    "path": "icons/skills/ranged/arrow-flying-spiral-blue.webp"
   },
   {
     "name": "Agonizing Blast",
@@ -9970,10 +6702,6 @@
     "path": "icons/magic/control/buff-strength-muscle-damage-orange.webp"
   },
   {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
-  },
-  {
     "name": "Fleet Step",
     "path": "icons/skills/movement/feet-winged-boots-brown.webp"
   },
@@ -10110,10 +6838,6 @@
     "path": "icons/magic/symbols/circled-gem-pink.webp"
   },
   {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
-  },
-  {
     "name": "Oath of Glory Spells",
     "path": "icons/magic/symbols/rune-sigil-rough-white-teal.webp"
   },
@@ -10150,10 +6874,6 @@
     "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
   },
   {
-    "name": "Weapon Mastery",
-    "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  },
-  {
     "name": "Assasinate",
     "path": "icons/skills/melee/blade-tip-chipped-blood-red.webp"
   },
@@ -10168,18 +6888,6 @@
   {
     "name": "Envenom Weapons",
     "path": "icons/skills/ranged/arrow-barbed-flying-poisoned-green.webp"
-  },
-  {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
-  },
-  {
-    "name": "Weapon Mastery",
-    "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
-  },
-  {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
   },
   {
     "name": "Fey Wanderer Spells",
@@ -10210,10 +6918,6 @@
     "path": "icons/magic/life/cross-worn-green.webp"
   },
   {
-    "name": "Weapon Mastery",
-    "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
-  },
-  {
     "name": "Arcane Apotheosis",
     "path": "icons/magic/symbols/circled-gem-pink.webp"
   },
@@ -10226,20 +6930,12 @@
     "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
   },
   {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
-  },
-  {
     "name": "Sorcery Incarnate",
     "path": "icons/magic/life/cross-area-circle-green-white.webp"
   },
   {
     "name": "Clockwork Spells",
     "path": "icons/magic/symbols/cog-orange-red.webp"
-  },
-  {
-    "name": "Tamed Surge",
-    "path": "icons/magic/control/sihouette-hold-beam-green.webp"
   },
   {
     "name": "Archfey Spells",
@@ -10264,10 +6960,6 @@
   {
     "name": "Eldritch Hex",
     "path": "icons/magic/symbols/star-yellow.webp"
-  },
-  {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
   },
   {
     "name": "Fiend Spells",
@@ -10300,10 +6992,6 @@
   {
     "name": "Steps of the Fey",
     "path": "icons/magic/nature/root-vine-entangle-foot-green.webp"
-  },
-  {
-    "name": "Epic Boon",
-    "path": "icons/magic/control/debuff-energy-hold-green.webp"
   },
   {
     "name": "Improved Illusions",
@@ -10428,5 +7116,153 @@
   {
     "name": "Bird Caller",
     "path": "icons/creatures/birds/corvid-call-sound-blue.webp"
+  },
+  {
+    "name": "Extra Attack",
+    "path": "icons/skills/melee/swords-triple-orange.webp"
+  },
+  {
+    "name": "Blessing of Moonlight",
+    "path": "icons/magic/nature/symbol-moon-stars-white.webp"
+  },
+  {
+    "name": "Eventide's Splendor",
+    "path": "icons/magic/time/day-night-sunset-sunrise.webp"
+  },
+  {
+    "name": "Moon's Inspiration",
+    "path": "icons/magic/nature/moon-crescent.webp"
+  },
+  {
+    "name": "Primal Lore",
+    "path": "icons/magic/nature/plant-glowing-white-purple.webp"
+  },
+  {
+    "name": "Divine Foreknowledge",
+    "path": "icons/magic/holy/meditation-chi-focus-blue.webp"
+  },
+  {
+    "name": "Mind Magic",
+    "path": "icons/magic/holy/saint-glass-portrait-halo.webp"
+  },
+  {
+    "name": "Knowledge Domain Spells",
+    "path": "icons/skills/trades/academics-book-study-purple.webp"
+  },
+  {
+    "name": "Unfettered Mind",
+    "path": "icons/magic/control/silhouette-aura-energy.webp"
+  },
+  {
+    "name": "Aura of Elemental Shielding",
+    "path": "icons/magic/symbols/elements-air-earth-fire-water.webp"
+  },
+  {
+    "name": "Elemental Rebuke",
+    "path": "icons/magic/defensive/barrier-shield-dome-deflect-teal.webp"
+  },
+  {
+    "name": "Elemental Smite",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  },
+  {
+    "name": "Genie Spells",
+    "path": "icons/magic/symbols/fleur-de-lis-yellow.webp"
+  },
+  {
+    "name": "Genie's Splendor",
+    "path": "icons/magic/control/control-influence-crown-yellow.webp"
+  },
+  {
+    "name": "Noble Scion",
+    "path": "icons/magic/holy/barrier-shield-winged-cross.webp"
+  },
+  {
+    "name": "Group Recovery",
+    "path": "icons/skills/social/diplomacy-unity-alliance.webp"
+  },
+  {
+    "name": "Inspiring Commander",
+    "path": "icons/equipment/head/helm-barbute-horned-gold-purple.webp"
+  },
+  {
+    "name": "Knightly Envoy",
+    "path": "icons/skills/social/diplomacy-peace-alliance.webp"
+  },
+  {
+    "name": "Rallying Surge",
+    "path": "icons/environment/people/charge.webp"
+  },
+  {
+    "name": "Shared Resilience",
+    "path": "icons/sundries/flags/banner-standard-moon.webp"
+  },
+  {
+    "name": "Team Tactics",
+    "path": "icons/environment/people/infantry-army.webp"
+  },
+  {
+    "name": "Aura of Malevolence",
+    "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
+  },
+  {
+    "name": "Bloodthirst",
+    "path": "icons/skills/wounds/blood-drip-droplet-red.webp"
+  },
+  {
+    "name": "Dread Allegiance",
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
+  },
+  {
+    "name": "Dread Incarnate",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Strike Fear",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Absorb Spells",
+    "path": "icons/magic/light/hand-sparks-smoke-teal.webp"
+  },
+  {
+    "name": "Crown of Spellfire",
+    "path": "icons/magic/unholy/barrier-fire-pink.webp"
+  },
+  {
+    "name": "Honed Spellfire",
+    "path": "icons/magic/fire/projectile-fireball-purple.webp"
+  },
+  {
+    "name": "Spellfire Burst",
+    "path": "icons/magic/light/explosion-impact-purple.webp"
+  },
+  {
+    "name": "Spellfire Spells",
+    "path": "icons/magic/symbols/mask-yellow-orange.webp"
+  },
+  {
+    "name": "Chilling Retribution",
+    "path": "icons/magic/water/projectiles-ice-explosion.webp"
+  },
+  {
+    "name": "Fortifying Soul",
+    "path": "icons/magic/water/heart-ice-freeze.webp"
+  },
+  {
+    "name": "Frigid Explorer",
+    "path": "icons/magic/water/ice-snowman.webp"
+  },
+  {
+    "name": "Frozen Haunt",
+    "path": "icons/magic/water/water-elemental-blue-teeth.webp"
+  },
+  {
+    "name": "Hunter's Rime",
+    "path": "icons/magic/water/ice-crystal-white.webp"
+  },
+  {
+    "name": "Winter Walker Spells",
+    "path": "icons/magic/water/projectile-arrow-water-ice-blue.webp"
   }
 ]
