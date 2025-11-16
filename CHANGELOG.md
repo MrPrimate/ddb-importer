@@ -1,5 +1,7 @@
 # Next Up
 
+- Numerous icon updates for FR Player Features.
+
 # 6.6.13
 
 - Some tweaks to reduce errors during species munch.

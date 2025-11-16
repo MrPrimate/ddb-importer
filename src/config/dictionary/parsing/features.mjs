@@ -214,6 +214,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dragon Ancestor",
     "Knightly Envoy",
     "Primal Lore",
+    "Blessings of Knowledge",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
