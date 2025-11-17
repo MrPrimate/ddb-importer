@@ -215,6 +215,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Knightly Envoy",
     "Primal Lore",
     "Blessings of Knowledge",
+    "Unfettered Mind",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -318,6 +319,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dragon Ancestor",
     "Knightly Envoy",
     "Primal Lore",
+    "Unfettered Mind",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

@@ -116,6 +116,7 @@ export default class DDBClass {
     "Elegant Courtier", // this is a you get a thing or otherwise choose from two others
     "Blessings of Knowledge",
     "Knightly Envoy",
+    "Unfettered Mind",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -152,6 +153,7 @@ export default class DDBClass {
     "Draconic Gift",
     "Speech of the Woods",
     "Knightly Envoy",
+    "Unfettered Mind",
   ];
 
   // you gain proficiency in one of the following skills of your choice: Animal Handling, History, Insight, Performance, or Persuasion. Alternatively, you learn one language of your choice.
@@ -1054,10 +1056,7 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
-
-
-    return this.advancementHelper.getSaveAdvancement(mods, availableToMulticlass, level);
-
+    return this.advancementHelper.getSaveAdvancement(feature, mods, availableToMulticlass, level);
   }
 
   _generateSaveAdvancements() {

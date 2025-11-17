@@ -304,7 +304,7 @@ export default class AdvancementHelper {
     }
   }
 
-  getSaveAdvancement(mods, availableToMulticlass, level) {
+  getSaveAdvancement(feature, mods, availableToMulticlass, level) {
     const updates = DICTIONARY.actor.abilities
       .filter((ability) => {
         return DDBModifiers.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
@@ -313,6 +313,11 @@ export default class AdvancementHelper {
 
     if (updates.length === 0) return null;
 
+    const allowReplacements = [
+      "you instead gain saving throw proficiency with one ability in which",
+    ]
+      .some((text) => feature.description.includes(text));
+
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
     advancement.updateSource({
       classRestriction: (level > 1 || this.isSubclass)
@@ -320,7 +325,7 @@ export default class AdvancementHelper {
         : availableToMulticlass ? "secondary" : "primary",
       configuration: {
         grants: updates,
-        allowReplacements: false,
+        allowReplacements,
       },
       level: level,
     });
