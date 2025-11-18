@@ -5586,6 +5586,15 @@ export const fallbackDDBConfig = {
       sourceURL: "",
     },
     {
+      id: 220,
+      name: "LFL",
+      description: "Lorwyn: First Light",
+      sourceCategoryId: 38,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/52347/650/638969165222381014.jpeg",
+      sourceURL: "sources/dnd/lfl",
+    },
+    {
       id: 221,
       name: "FRDOAM",
       description: "Forgotten Realms: Dallabad Oasis Animated Map",
