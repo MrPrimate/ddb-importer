@@ -7,6 +7,7 @@ export { default as ChannelDivinityPreserveLife } from "./ChannelDivinityPreserv
 export { default as ChannelDivinityRadianceOfTheDawn } from "./ChannelDivinityRadianceOfTheDawn.mjs";
 export { default as CoronaOfLight } from "./CoronaOfLight.mjs";
 export { default as DiscipleOfLife } from "./DiscipleOfLife.mjs";
+export { default as DivineForeknowledge } from "./DivineForeknowledge.mjs";
 export { default as DivineIntervention } from "./DivineIntervention.mjs";
 export { default as DivineOrderThaumaturge } from "./DivineOrderThaumaturge.mjs";
 export { default as DomainSpells } from "./DomainSpells.mjs";

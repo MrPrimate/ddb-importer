@@ -94,6 +94,7 @@ export const PARSING_FEATURES = {
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
     "Trance of Order",
+    "Divine Foreknowledge",
   ],
   FORCE_FEATURE_CLASS_MATCH: [
     "Psionic Power",

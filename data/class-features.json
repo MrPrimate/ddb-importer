@@ -7264,5 +7264,9 @@
   {
     "name": "Winter Walker Spells",
     "path": "icons/magic/water/projectile-arrow-water-ice-blue.webp"
+  },
+  {
+    "name": "Elemental Strike",
+    "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
   }
 ]
