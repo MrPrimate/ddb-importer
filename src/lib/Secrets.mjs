@@ -97,3 +97,33 @@ export async function checkCobalt(keyPostfix = "", alternativeKey = null) {
       });
   });
 }
+
+export async function getUserData(keyPostfix = "", alternativeKey = null) {
+  const cobaltCookie = alternativeKey
+    ? isJSON(alternativeKey)
+      ? JSON.parse(alternativeKey).cbt
+      : alternativeKey
+    : getCobalt(keyPostfix);
+  const parsingApi = DDBProxy.getProxy();
+  const betaKey = PatreonHelper.getPatreonKey();
+  const body = { cobalt: cobaltCookie, betaKey: betaKey };
+
+  return new Promise((resolve, reject) => {
+    fetch(`${parsingApi}/proxy/user-data`, {
+      method: "POST",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((data) => resolve(data))
+      .catch((error) => {
+        logger.error(`Cobalt cookie check error`);
+        logger.error(error);
+        logger.error(error.stack);
+        reject(error);
+      });
+  });
+}

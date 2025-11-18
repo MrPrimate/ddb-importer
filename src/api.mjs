@@ -167,9 +167,9 @@ export function registerApi() {
       characterSettings: lib.MuncherSettings.getCharacterImportSettings,
     },
 
-    // base64Check: base64Check,
     checkCobalt: lib.Secrets.checkCobalt,
     resetProxy: lib.DDBProxy.resetProxy,
+    getDDBUserData: lib.Secrets.getUserData,
     resetSecrets,
 
     generateAdventureConfig,
