@@ -93,7 +93,7 @@ export default class DDBMuleHandler {
 
   }
 
-  async _fetchMuleData() {
+  async #fetchMuleData() {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -133,6 +133,20 @@ export default class DDBMuleHandler {
       logger.error(error);
       logger.error(error.stack);
       throw error;
+    }
+  }
+
+  async _fetchMuleData() {
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        await this.#fetchMuleData();
+        break; // If successful, exit the loop
+      } catch (error) {
+        logger.error(`Attempt ${attempt} failed: ${error.message}`);
+        if (attempt === 5) {
+          throw error; // Rethrow after 5 attempts
+        }
+      }
     }
   }
 
