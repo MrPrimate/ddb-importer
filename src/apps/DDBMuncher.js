@@ -609,6 +609,8 @@ export default class DDBMuncher extends DDBAppV2 {
       baseOptions,
     });
 
+    const processErrors = [];
+
     try {
       for (const sourceIdArray of sourceIdArrays) {
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
@@ -624,14 +626,26 @@ export default class DDBMuncher extends DDBAppV2 {
             section: "name",
             message: `Munching for ${klass.name} from ${sourceIdArray.sourceIds.length} sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
           });
-          await muleHandler.process();
+          try {
+            await muleHandler.process();
 
-          logger.debug(`Munch Complete for class ${klass.name} in ${category?.name ?? sourceIdArray.categoryId}`, {
-            muleHandler,
-            sourceIdArray,
-            options: foundry.utils.deepClone(options),
-            allowedClassIds,
-          });
+            logger.debug(`Munch Complete for class ${klass.name} in ${category?.name ?? sourceIdArray.categoryId}`, {
+              muleHandler,
+              sourceIdArray,
+              options: foundry.utils.deepClone(options),
+              allowedClassIds,
+            });
+          } catch (error) {
+            logger.error(error);
+            logger.error(error.stack);
+            processErrors.push({
+              className: klass.name,
+              classId: klass.id,
+              category: category?.name ?? sourceIdArray.categoryId,
+              error: error.message,
+              message: `Class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`,
+            });
+          }
         }
       }
     } catch (error) {
@@ -640,6 +654,11 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier(`Error during munching: ${error.message}`, { nameField: true });
     } finally {
       this.stopAutoRotateMessage();
+      if (processErrors.length > 0) {
+        this.notifier(`Errors during munching: ${processErrors.length}`, { nameField: true });
+        this.notifier(processErrors.map((e) => e.message).join(" & "), { message: true });
+        logger.error("Process Errors:", processErrors);
+      }
     }
   }
 
@@ -653,13 +672,16 @@ export default class DDBMuncher extends DDBAppV2 {
     };
     const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
+    const processErrors = [];
+
     try {
       for (const sourceIdArray of sourceIdArrays) {
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options = foundry.utils.deepClone(baseOptions);
 
-        for (let i = 0; i < sourceIdArray.sourceIds.length; i += 10) {
-          const chunkedIds = sourceIdArray.sourceIds.slice(i, i + 10);
+        const sliceSize = type === "species" ? 5 : 10;
+        for (let i = 0; i < sourceIdArray.sourceIds.length; i += sliceSize) {
+          const chunkedIds = sourceIdArray.sourceIds.slice(i, i + sliceSize);
 
           options.sources = chunkedIds;
           const muleHandler = new DDBMuleHandler(options);
@@ -667,13 +689,25 @@ export default class DDBMuncher extends DDBAppV2 {
             section: "name",
             message: `Munching from ${i}-${i + chunkedIds.length} (of ${sourceIdArray.sourceIds.length}) sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
           });
-          await muleHandler.process();
+          try {
+            await muleHandler.process();
 
-          logger.debug(`Partial Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
-            muleHandler,
-            sources: chunkedIds,
-            options: foundry.utils.deepClone(options),
-          });
+            logger.debug(`Partial Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
+              muleHandler,
+              sources: chunkedIds,
+              options: foundry.utils.deepClone(options),
+            });
+          } catch (error) {
+            logger.error(error);
+            logger.error(error.stack);
+            processErrors.push({
+              type,
+              category: category?.name ?? sourceIdArray.categoryId,
+              error: error.message,
+              chunkedIds,
+              message: `${type} in ${category?.name ?? sourceIdArray.categoryId}, with sourceIds ${chunkedIds.join(", ")}`,
+            });
+          }
         }
 
         logger.debug(`Munch Complete for ${type} in ${category?.name ?? sourceIdArray.categoryId}`, {
@@ -688,6 +722,11 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier(`Error during munching: ${error.message}`, { nameField: true });
     } finally {
       this.stopAutoRotateMessage();
+      if (processErrors.length > 0) {
+        this.notifier(`Errors during munching: ${processErrors.length}`, { nameField: true });
+        this.notifier(processErrors.map((e) => e.message).join(" & "), { message: true });
+        logger.error("Process Errors:", processErrors);
+      }
     }
   }
 
