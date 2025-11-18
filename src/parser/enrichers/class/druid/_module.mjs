@@ -1,5 +1,6 @@
 export { default as Archdruid } from "./Archdruid.mjs";
 export { default as BlightedShape } from "./BlightedShape.mjs";
+export { default as CallOfTheShadowseeds } from "./CallOfTheShadowseeds.mjs";
 export { default as CircleForms } from "./CircleForms.mjs";
 export { default as CircleOfTheSpells } from "./CircleOfTheSpells.mjs";
 export { default as CosmicOmen } from "./CosmicOmen.mjs";

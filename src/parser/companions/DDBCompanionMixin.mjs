@@ -370,6 +370,7 @@ export default class DDBCompanionMixin {
 
     // class level
     const klassMultiMatch = hpString.match(/(?:\+|plus) (\w+)?( times? )?your (\w+) level/);
+    const twiceLevelMatch = hpString.match(/(?:twice|double) your (\w+) level/);
     if (klassMultiMatch) {
       const klass = klassMultiMatch[3].trim().toLowerCase();
       const multiplier = klassMultiMatch[1]
@@ -377,6 +378,9 @@ export default class DDBCompanionMixin {
         : null;
       const multiplierString = multiplier ? ` * ${multiplier}` : "";
       hpAdjustments.push(`@classes.${klass}.levels${multiplierString}`);
+    } else if (twiceLevelMatch) {
+      const klass = twiceLevelMatch[1].trim().toLowerCase();
+      hpAdjustments.push(`2 * @classes.${klass}.levels`);
     }
 
     // spell level

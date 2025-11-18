@@ -72,6 +72,7 @@ const COMPANION_FEATURES = [
   "Beast of the Land",
   "Beast of the Sea",
   "Beast of the Sky",
+  "Call of the Shadowseeds",
 ];
 
 const COMPANION_OPTIONS = {
