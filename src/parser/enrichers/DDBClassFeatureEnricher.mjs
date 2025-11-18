@@ -146,9 +146,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   };
 
   ENRICHERS = {
-    Paladin: {
-      "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
-    },
+    // Paladin: {
+    //   "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
+    // },
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
