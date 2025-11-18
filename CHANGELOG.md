@@ -1,9 +1,12 @@
 # Next Up
 
+# 6.6.14
+
 - Numerous icon updates for FR Player Features.
 - Call of the Shadowseeds/Blighted Sapling Summon. @sayshal
 - Fix some summoning monster stat blocks having light fonts in dark mode. @sayshal
 - Parsing improvements to Knowledge Domain Cleric 2024.
+- Some fallback and parsing improvements for failures during character feature munching. @cschwarzburg9284
 
 # 6.6.13
 
