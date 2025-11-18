@@ -387,12 +387,17 @@ div.ddbimporter-image-popout img {
 
 
 .ddb .stat-block-background {
+  color: var(--theme-page-fg-color,var(--theme-page-header-color,var(--theme-page-h5-color,#222)));
   background-repeat: no-repeat;
   -webkit-box-shadow: 0px 5px 8px 0px #aaa;
   -moz-box-shadow: 0px 5px 8px 0px #aaa;
   box-shadow: 0px 5px 8px 0px #aaa;
   background-position: top center !important;
   background-image: url(https://media.dndbeyond.com/compendium-images/tcoe/0gqawlEa2tjXGxpc/mm_statbg_sm.jpg) !important;
+}
+
+.ddb .stat-block-background .reference-link a.content-link {
+  color: rgb(25, 24, 19) !important;
 }
 
 .ddb h2.compendium-hr,
@@ -626,7 +631,7 @@ div.ddbimporter-image-popout img {
 
 
  /* for stat blocks appearing in spells details */
-.Basic-Text-Frame {
+.ddb .Basic-Text-Frame {
   column-count: 1;
 
   .stat-block-ability-scores-modifier {
