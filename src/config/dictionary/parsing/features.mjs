@@ -219,6 +219,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Blessings of Knowledge",
     "Unfettered Mind",
     "Genie's Splendor",
+    "Aura of Elemental Shielding",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -324,6 +325,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Primal Lore",
     "Unfettered Mind",
     "Genie's Splendor",
+    "Aura of Elemental Shielding",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

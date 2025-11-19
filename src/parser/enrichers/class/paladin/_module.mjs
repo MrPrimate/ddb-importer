@@ -1,9 +1,11 @@
 export { default as AbjureFoes } from "./AbjureFoes.mjs";
+export { default as AuraOfElementalShielding } from "./AuraOfElementalShielding.mjs";
 export { default as AuraOfHate } from "./AuraOfHate.mjs";
 export { default as AvengingAngel } from "./AvengingAngel.mjs";
 export { default as ChannelDivinityTurnTheUnholy } from "./ChannelDivinityTurnTheUnholy.mjs";
 export { default as DivineSmite } from "./DivineSmite.mjs";
 export { default as ElderChampion } from "./ElderChampion.mjs";
+export { default as ElementalSmite } from "./ElementalSmite.mjs";
 export { default as EmbodyLegends } from "./EmbodyLegends.mjs";
 export { default as GloriousDefense } from "./GloriousDefense.mjs";
 export { default as HolyNimbus } from "./HolyNimbus.mjs";
@@ -21,4 +23,4 @@ export { default as SmiteOfProtection } from "./SmiteOfProtection.mjs";
 export { default as SoulOfVengeance } from "./SoulOfVengeance.mjs";
 export { default as UndyingSentinel } from "./UndyingSentinel.mjs";
 export { default as VowOfEnmity } from "./VowOfEnmity.mjs";
-export { default as ElementalSmite } from "./ElementalSmite.mjs";
+

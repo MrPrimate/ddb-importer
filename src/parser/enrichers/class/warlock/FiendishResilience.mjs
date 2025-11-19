@@ -36,9 +36,11 @@ export default class FiendishResilience extends DDBEnricherData {
   }
 
   get effects() {
-    const activeType = this.ddbParser?._chosen?.find((a) =>
-      this.damageTypes().includes(a.label.toLowerCase()),
-    )?.label.toLowerCase() ?? "";
+    const activeType = this.ddbParser.isMuncher
+      ? null
+      : this.ddbParser._chosen?.find((a) =>
+        this.damageTypes().includes(a.label.toLowerCase()),
+      )?.label.toLowerCase() ?? "";
 
     const effects = this.damageTypes().map((type) => {
       return {

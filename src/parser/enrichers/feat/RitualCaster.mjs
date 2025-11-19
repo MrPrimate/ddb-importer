@@ -26,6 +26,8 @@ export default class RitualCaster extends DDBEnricherData {
   get additionalActivities() {
     const results = [];
 
+    if (this.ddbParser.isMuncher) return results;
+
     const chosenAbilities = DICTIONARY.actor.abilities.map((a) => a.long.toLowerCase());
     const ability = this.ddbEnricher.ddbParser._chosen.find((c) => chosenAbilities.includes(c.label));
     const spells = this.ddbEnricher.ddbParser._chosen.filter((c) => !chosenAbilities.includes(c.label.toLowerCase()));
