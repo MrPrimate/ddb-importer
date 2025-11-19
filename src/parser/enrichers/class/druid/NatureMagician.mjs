@@ -12,7 +12,7 @@ export default class NatureMagician extends DDBEnricherData {
       name: "Nature Magician",
       noConsumeTargets: true,
       targetType: "self",
-      rangeSelf: "self",
+      rangeSelf: true,
       addItemConsume: true,
       addScalingMode: "formula",
       addActivityConsume: true,

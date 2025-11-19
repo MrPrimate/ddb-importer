@@ -21,4 +21,4 @@ export { default as SmiteOfProtection } from "./SmiteOfProtection.mjs";
 export { default as SoulOfVengeance } from "./SoulOfVengeance.mjs";
 export { default as UndyingSentinel } from "./UndyingSentinel.mjs";
 export { default as VowOfEnmity } from "./VowOfEnmity.mjs";
-
+export { default as ElementalSmite } from "./ElementalSmite.mjs";
