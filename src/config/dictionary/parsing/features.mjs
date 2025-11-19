@@ -90,6 +90,7 @@ export const PARSING_FEATURES = {
     "Mantle of Majesty",
     "Unarmored Movement",
     "Brand of Castigation",
+    "Noble Scion",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
@@ -217,6 +218,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Primal Lore",
     "Blessings of Knowledge",
     "Unfettered Mind",
+    "Genie's Splendor",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -321,6 +323,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Knightly Envoy",
     "Primal Lore",
     "Unfettered Mind",
+    "Genie's Splendor",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
