@@ -81,9 +81,4 @@ export default class CircleForms extends DDBEnricherData {
     ];
   }
 
-  get override() {
-    return {
-      replaceActivityUses: true,
-    };
-  }
 }

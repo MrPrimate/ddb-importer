@@ -32,13 +32,6 @@ export default class BastionOfLaw extends DDBEnricherData {
 
   }
 
-
-  get override() {
-    return {
-      replaceActivityUses: true,
-    };
-  }
-
   get effects() {
     return [{
       name: "Bastion of Law",

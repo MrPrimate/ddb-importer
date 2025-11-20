@@ -22,12 +22,6 @@ export default class RevelationInFlesh extends DDBEnricherData {
     };
   }
 
-  get override() {
-    return {
-      replaceActivityUses: true,
-    };
-  }
-
   get effects() {
     return [
       {

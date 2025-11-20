@@ -34,10 +34,4 @@ export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData {
     };
   }
 
-  get override() {
-    return {
-      replaceActivityUses: true,
-    };
-  }
-
 }

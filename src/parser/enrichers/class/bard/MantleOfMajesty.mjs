@@ -70,6 +70,7 @@ export default class MantleOfMajesty extends DDBEnricherData {
               condition: "",
             },
             consumptionOverride: {
+              scaling: { allowed: true, max: "7" },
               targets: [
                 {
                   type: "itemUses",

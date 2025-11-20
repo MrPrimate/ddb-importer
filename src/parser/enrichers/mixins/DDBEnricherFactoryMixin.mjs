@@ -397,6 +397,9 @@ export default class DDBEnricherFactoryMixin {
           formula: overrideData.addScalingFormula ?? "",
         },
       });
+      if (overrideData.itemConsumeTargetName && overrideData.itemConsumeTargetName !== "") {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+      }
     }
     if (overrideData.addActivityConsume) {
       if (!foundry.utils.getProperty(activity, "consumption.targets"))
@@ -1026,6 +1029,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  // eslint-disable-next-line complexity
   _addDefaultActionMatchedActivities() {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities", {
       enabled: true,
@@ -1095,6 +1099,7 @@ export default class DDBEnricherFactoryMixin {
         if (activityData.effects) {
           this.data.effects.push(...activityData.effects);
         }
+
         this.data.effects = this.data.effects.filter((v, i, a) => {
           if (v.name.startsWith("Status:")) {
             return a.findIndex((t) =>
@@ -1106,6 +1111,17 @@ export default class DDBEnricherFactoryMixin {
           return true;
         });
         y++;
+
+        for (const effect of activityData.effects) {
+          logger.debug(`Adding default additional activity effect for ${name}`, {
+            effect,
+            this: this,
+          });
+          const existingEffect = this.data.effects.find((e) => e.name === effect.name && e.name.startsWith("Status:"));
+          if (existingEffect && effect._id && !existingEffect._id) {
+            existingEffect._id = effect._id;
+          }
+        }
 
         foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities.data", {
           featureName,

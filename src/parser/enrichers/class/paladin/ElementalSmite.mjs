@@ -36,6 +36,8 @@ export default class ElementalSmite extends DDBEnricherData {
           generateRange: true,
         },
         overrides: {
+          itemConsumeTargetName: "Channel Divinity",
+          addItemConsume: true,
           activationType: "special",
           targetType: "self",
           activationCondition: "You use Divine Smite",
@@ -60,6 +62,8 @@ export default class ElementalSmite extends DDBEnricherData {
           generateRange: true,
         },
         overrides: {
+          itemConsumeTargetName: "Channel Divinity",
+          addItemConsume: true,
           targetType: "enemy",
           activationType: "special",
           activationCondition: "You use Divine Smite",
@@ -93,6 +97,8 @@ export default class ElementalSmite extends DDBEnricherData {
           generateUtility: true,
         },
         overrides: {
+          itemConsumeTargetName: "Channel Divinity",
+          addItemConsume: true,
           activationType: "special",
           targetType: "creature",
           activationCondition: "You use Divine Smite",

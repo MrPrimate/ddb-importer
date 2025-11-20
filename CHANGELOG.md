@@ -1,5 +1,11 @@
 # Next Up
 
+- Character feature munch in now available to Undying tier patron supporters.
+- Some auto generated effects on features were not correctly linked on some features where activities are built without hints.
+- Oath of Genies parsing improvements.
+- Winter Walker parsing improvements.
+- Some improvements to matching automatic consumption linking.
+
 # 6.6.14
 
 - Numerous icon updates for FR Player Features.
