@@ -1155,7 +1155,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
   async getCharacterMuncherSettings() {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
-    const disableUse = (!tiers.supporter || tier !== "GOD");
+    const disableUse = !tiers.experimentalMid;
     const useClassFilter = disableUse
       ? false
       : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter");

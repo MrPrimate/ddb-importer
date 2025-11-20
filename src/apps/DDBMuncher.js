@@ -472,14 +472,12 @@ export default class DDBMuncher extends DDBAppV2 {
     if (tiers.supporter) {
       buttonSelectors.push('button[id^="munch-frames-start"]');
     }
-    if (tiers.god) {
+    if (tiers.experimentalMid) {
+      buttonSelectors.push('button[id^="munch-vehicles-start"]');
       buttonSelectors.push('button[id^="munch-species-start"]');
       buttonSelectors.push('button[id^="munch-feats-start"]');
       buttonSelectors.push('button[id^="munch-classes-start"]');
       buttonSelectors.push('button[id^="munch-backgrounds-start"]');
-    }
-    if (tiers.experimentalMid) {
-      buttonSelectors.push('button[id^="munch-vehicles-start"]');
     }
 
     buttonSelectors.forEach((selector) => {
