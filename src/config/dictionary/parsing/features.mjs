@@ -91,6 +91,7 @@ export const PARSING_FEATURES = {
     "Unarmored Movement",
     "Brand of Castigation",
     "Noble Scion",
+    "Frozen Haunt",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
