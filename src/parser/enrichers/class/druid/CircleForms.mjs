@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import DDBDataUtils from "../../../lib/DDBDataUtils.mjs";
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class CircleForms extends DDBEnricherData {
@@ -27,7 +28,7 @@ export default class CircleForms extends DDBEnricherData {
         },
         profiles: [
           {
-            cr: "max(1/4, @subclasses.moon.levels / 3)",
+            cr: `max(1/4, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
             name: "Circle Form",
             uuid: null,
             sizes: [],
@@ -39,7 +40,7 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: "max(1/2, @subclasses.moon.levels / 3)",
+            cr: `max(1/2, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
             name: "Circle Form",
             uuid: null,
             sizes: [],
@@ -51,7 +52,7 @@ export default class CircleForms extends DDBEnricherData {
             },
           },
           {
-            cr: "max(1, @subclasses.moon.levels / 3)",
+            cr: `max(1, @subclasses.${DDBDataUtils.classIdentifierName(this.ddbParser.subKlass)}.levels / 3)`,
             name: "Circle Form",
             uuid: null,
             sizes: [],

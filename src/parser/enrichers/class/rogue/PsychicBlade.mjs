@@ -3,7 +3,36 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class PsychicBlade extends DDBEnricherData {
 
+  get bardActivities() {
+    return [
+      {
+        constructor: {
+          name: "Damage",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          includeBase: false,
+          damageParts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: "@scale.whispers.psychic-blades",
+              type: "psychic",
+            }),
+          ],
+        },
+        overrides: {
+          activationType: "special",
+          activationCondition: "Hit the target with a weapon",
+          addItemConsume: true,
+          itemConsumeTargetName: "Bardic Inspiration",
+        },
+      },
+    ];
+  }
+
   get additionalActivities() {
+    if (this.isClass("Bard")) return this.bardActivities;
     if (!this.isAction) return [];
     if (!this.isClass("Rogue")) return [];
     return [

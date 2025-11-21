@@ -56,27 +56,27 @@ export default class DDBEnricherData {
     );
   }
 
-  _getSpentValue(type, name, matchSubClass = null) {
+  _getSpentValue(type, name, matchSubClass = null, includesName = false) {
     const spent = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
-      a.name === name
+      (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
       || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
     )?.limitedUse?.numberUsed ?? null;
     return spent;
   }
 
-  _getMaxValue(type, name, matchSubClass = null) {
+  _getMaxValue(type, name, matchSubClass = null, includesName = false) {
     const max = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
-      a.name === name
+      (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
       || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
     )?.limitedUse?.maxUses ?? null;
     return max;
   }
 
-  _getGeneratedUses(type, name, matchSubClass = null, scaleLink = null) {
+  _getGeneratedUses(type, name, matchSubClass = null, scaleLink = null, includesName = false) {
     const action = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
-      a.name === name
+      (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
       || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
     );
@@ -92,9 +92,9 @@ export default class DDBEnricherData {
     return uses;
   }
 
-  _getUsesWithSpent({ type, name, max, period = "", formula = null, override = null, matchSubClass = null } = {}) {
+  _getUsesWithSpent({ type, name, max, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false } = {}) {
     const uses = {
-      spent: this._getSpentValue(type, name, matchSubClass),
+      spent: this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent,
       max,
     };
 
@@ -105,7 +105,7 @@ export default class DDBEnricherData {
     }
 
     if (!max) {
-      uses.max = this._getMaxValue(type, name, matchSubClass);
+      uses.max = this._getMaxValue(type, name, matchSubClass, includesName);
     }
 
     if (override) {

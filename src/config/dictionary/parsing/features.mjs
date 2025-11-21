@@ -92,6 +92,7 @@ export const PARSING_FEATURES = {
     "Brand of Castigation",
     "Noble Scion",
     "Frozen Haunt",
+    "Circle Forms",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
@@ -115,7 +116,6 @@ export const PARSING_CHOICE_FEATURES = {
     "Defensive Tactics",
     "Divine Order",
     "Elemental Fury",
-    "Fighting Style",
     "Genie's Vessel",
     "Hunter's Prey",
     "Mantle of Majesty",
@@ -131,6 +131,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Elemental Affinity",
     "Dragon Ancestor",
     "Pact Boon",
+    "Fighting Style",
+    "Additional Fighting Style",
   ],
   KEEP_CHOICE_FEATURE_NAME: [
     "Defensive Tactics",
@@ -153,6 +155,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Arcane Shot Options",
     "Pact Boon",
     // "Martial Adept",
+    // "Fighting Style",
+    // "Additional Fighting Style",
   ],
   NO_CHOICE_BUILD: [
     "Aspect of the Wilds",
@@ -222,6 +226,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Genie's Splendor",
     "Aura of Elemental Shielding",
     "Noble Scion",
+    "Mutate Shape",
+    "Dread Allegiance",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -329,6 +335,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Genie's Splendor",
     "Aura of Elemental Shielding",
     "Noble Scion",
+    "Mutate Shape",
+    "Dread Allegiance",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -337,6 +345,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Fighting Style feat",
   ],
   DISCARD_FEATURE_AFTER_CHOICES: [
+    "Fighting Style",
+    "Additional Fighting Style",
     "Pact Boon",
   ],
 };

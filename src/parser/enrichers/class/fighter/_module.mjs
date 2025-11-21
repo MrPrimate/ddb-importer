@@ -40,6 +40,7 @@ export { default as ManeuverRiposte } from "./ManeuverRiposte.mjs";
 export { default as ManeuverSweepingAttack } from "./ManeuverSweepingAttack.mjs";
 export { default as ManeuverTacticalAssessment } from "./ManeuverTacticalAssessment.mjs";
 export { default as ManeuverTripAttack } from "./ManeuverTripAttack.mjs";
+export { default as Maneuvers } from "./Maneuvers.mjs";
 export { default as PiercingArrow } from "./PiercingArrow.mjs";
 export { default as PsiPoweredLeap } from "./PsiPoweredLeap.mjs";
 export { default as PsionicStrike } from "./PsionicStrike.mjs";

@@ -1,5 +1,5 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
-import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module.mjs";
+import { ClassEnrichers, FeatEnrichers, GenericEnrichers, ItemEnrichers } from "./_module.mjs";
 import { utils } from "../../lib/_module.mjs";
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
@@ -143,6 +143,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     " Domain Spells": "Cleric Domain Spells",
     "Elemental Disciplines: ": "Elemental Disciplines",
     "Elemental Affinity (": "Elemental Affinity",
+    // "Additional Fighting Style:": "Additional Fighting Style Base",
   };
 
   ENRICHERS = {
@@ -152,6 +153,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
+    "Additional Fighting Style Base": FeatEnrichers.AdditionalFightingStyleBase,
     "Shove": ClassEnrichers.Generic.Shove,
     "Grapple": ClassEnrichers.Generic.Grapple,
     "Arcane Armor - Create Armor": ClassEnrichers.Artificer.ArcaneArmorCreateArmor,

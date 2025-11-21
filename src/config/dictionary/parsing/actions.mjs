@@ -1,6 +1,6 @@
 export const PARSING_ACTIONS = {
   KEEP_ACTIONS: [
-    "Psychic Blades",
+    // "Psychic Blades",
     "Psychic Blades: Attack (DEX)",
     "Sorcery Points",
     "Font of Magic: Sorcery Points",
@@ -8,6 +8,9 @@ export const PARSING_ACTIONS = {
     "Form of the Beast: Claws",
     "Form of the Beast: Tail",
     "Cat's Claws",
+  ],
+  KEEP_ACTIONS_2024: [
+    "Psychic Blades",
   ],
   KEEP_ACTIONS_STARTSWITH: [
     "Metamagic:",

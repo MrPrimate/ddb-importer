@@ -13,6 +13,7 @@ export { default as ImprovedCircleForms } from "./ImprovedCircleForms.mjs";
 export { default as LandsAid } from "./LandsAid.mjs";
 export { default as LunarForm } from "./LunarForm.mjs";
 export { default as MoonlightStep } from "./MoonlightStep.mjs";
+export { default as MutateShape } from "./MutateShape.mjs";
 export { default as NaturalRecovery } from "./NaturalRecovery.mjs";
 export { default as NatureMagician } from "./NatureMagician.mjs";
 export { default as NaturesWard } from "./NaturesWard.mjs";
