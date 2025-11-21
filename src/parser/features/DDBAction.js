@@ -9,6 +9,8 @@ export default class DDBAction extends DDBFeatureMixin {
 
   static KEEP_ACTIONS_STARTSWITH = DICTIONARY.parsing.actions.KEEP_ACTIONS_STARTSWITH;
 
+  static KEEP_ACTIONS_2024 = DICTIONARY.parsing.actions.KEEP_ACTIONS_2024;
+
   static SKIPPED_2014_ONLY_ACTIONS = DICTIONARY.parsing.actions.SKIPPED_2014_ONLY_ACTIONS;
 
   static SKIPPED_2024_ONLY_ACTIONS = DICTIONARY.parsing.actions.SKIPPED_2024_ONLY_ACTIONS;

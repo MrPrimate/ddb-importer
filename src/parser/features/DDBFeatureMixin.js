@@ -795,6 +795,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       else if (name === "Artificer Infusion") return "artificerInfusion";
       else if (name === "Invocation") return "eldritchInvocation";
       else if (name === "Fighting Style") return "fightingStyle";
+      else if (name === "Additional Fighting Style") return "fightingStyle";
       else if (name === "Maneuver") return "maneuver";
       else if (name === "Maneuver Options") return "maneuver";
       else if (name === "Battle Master Maneuver") return "maneuver";
@@ -817,6 +818,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
         else if (name.startsWith("Artificer Infusion:")) return "artificerInfusion";
         else if (name.startsWith("Invocation:")) return "eldritchInvocation";
         else if (name.startsWith("Fighting Style:")) return "fightingStyle";
+        else if (name.startsWith("Additional Fighting Style:")) return "fightingStyle";
         else if (name.startsWith("Maneuver:")) return "maneuver";
         else if (name.startsWith("Maneuvers:")) return "maneuver";
         else if (name.startsWith("Maneuver Options:")) return "maneuver";

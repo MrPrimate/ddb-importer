@@ -215,6 +215,10 @@ export default class CharacterFeatureFactory {
       .filter((action) => action.name && action.name !== ""
         && (action.isCustomAction
         || DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
+        || DDBAction.KEEP_ACTIONS_2024.some((a) => utils.nameString(action.name) === a
+          && !this.isAction2014(action)
+          && action.activation?.activationType !== 3, // hardcoded to avoid bonus actions here
+        )
         || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter));
@@ -263,6 +267,11 @@ export default class CharacterFeatureFactory {
     return feature;
   }
 
+  isAction2014(action) {
+    const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, action.componentId);
+    return klass.definition.sources.every((s) => DDBSources.is2014Source(s));
+  }
+
   async _generateOtherActions() {
     // do class options here have a class id, needed for optional class features
     const classActions = this.ddbData.character.actions.class.filter((action) =>
@@ -291,6 +300,10 @@ export default class CharacterFeatureFactory {
       .filter((action) => action.name && action.name !== ""
         && (action.isCustomAction
         || DDBAction.KEEP_ACTIONS.some((a) => utils.nameString(action.name) === a)
+        || DDBAction.KEEP_ACTIONS_2024.some((a) => utils.nameString(action.name) === a
+          && !this.isAction2014(action)
+          && action.activation?.activationType !== 3, // hardcoded to avoid bonus actions here
+        )
         || DDBAction.KEEP_ACTIONS_STARTSWITH.some((a) => utils.nameString(action.name).startsWith(a))),
       )
       .filter((action) => {
@@ -998,13 +1011,11 @@ export default class CharacterFeatureFactory {
 
 
   filterActionFeatures() {
-    // game.settings.get("ddb-importer", "character-update-policy-use-action-and-feature");
     const alwaysUseFeatureDescription = true;
 
     // eslint-disable-next-line complexity
     this.data.actions = this.processed.actions.map((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
-      // if (DDBAction.KEEP_ACTIONS.includes(originalActionName)) return action;
       const featureMatch = this.processed.features.find((feature) => {
         const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
         const featureNamePrefix = originalFeatureName.split(":")[0].trim();
@@ -1120,15 +1131,19 @@ export default class CharacterFeatureFactory {
     });
 
     this.data.features = this.processed.features
-      .filter((feature) =>
-        DDBAction.KEEP_ACTIONS.includes(foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name)
-        || !this.data.actions.some((action) =>
-          ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name).trim().toLowerCase() === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name).trim().toLowerCase()
-          || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name))
+      .filter((feature) => {
+        const originalName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+
+        if (DDBAction.KEEP_ACTIONS.includes(originalName)) return true;
+        const is2024 = foundry.utils.getProperty(feature, "flags.ddbimporter.is2024");
+        if (DDBAction.KEEP_ACTIONS_2024.includes(originalName) && is2024) return true;
+        return !this.data.actions.some((action) =>
+          ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name).trim().toLowerCase() === originalName.trim().toLowerCase()
+          || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === originalName)
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
           && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"),
-        ),
-      );
+        );
+      });
 
   }
 
