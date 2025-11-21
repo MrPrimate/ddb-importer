@@ -5,6 +5,11 @@
 - Oath of Genies parsing improvements.
 - Winter Walker parsing improvements.
 - Some improvements to matching automatic consumption linking.
+- Some tweaks to help improve Circle Forms for the Mutation Druid order. @oathbreakerbehatin
+- Fixes for some 2014 Fighter imports. @zeroomega007
+- Whispers Bard fixes
+- A multitude small parsing tweaks for class features.
+- Fix for Wizards Scholar expertise when doing muncher import.
 
 # 6.6.14
 

@@ -851,11 +851,11 @@ export default class AdvancementHelper {
       : [];
 
     const expertiseOptionCount = expertiseOptions.skills.chosen.length + expertiseOptions.tools.chosen.length;
-    const count = feature.name === "Survivalist"
-      ? 0
-      : expertiseOptionCount > 0
-        ? expertiseOptionCount
-        : 2;
+    let count = 2;
+
+    if (feature.name === "Survivalist") count = 0;
+    else if (feature.name === "Scholar") count = 1;
+    else if (expertiseOptionCount > 0) count = expertiseOptionCount;
 
     advancement.updateSource({
       title: feature.name === "Survivalist" ? `${feature.name} (Expertise)` : `${feature.name}`,
