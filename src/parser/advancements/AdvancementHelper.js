@@ -624,11 +624,11 @@ export default class AdvancementHelper {
       level: level,
     });
 
-    // console.warn("tools", {
+    // console.warn("armor", {
     //   pool,
     //   chosen,
     //   count,
-    //   grants: parsedTools.grants.map((grant) => `tool:${grant}`),
+    //   grants: parsedArmors.grants.map((grant) => `armor:${grant}`),
     // });
 
     AdvancementHelper.advancementUpdate(advancement, {
@@ -673,10 +673,10 @@ export default class AdvancementHelper {
     //   feature,
     //   mods,
     //   proficiencyMods,
-    //   armorMods: weaponMods,
-    //   parsedArmors: parsedWeapons,
-    //   chosenArmors: chosenWeapons,
-    //   armorsFromMods: weaponsFromMods,
+    //   weaponMods,
+    //   parsedWeapons,
+    //   chosenWeapons,
+    //   weaponsFromMods,
     //   count,
     // });
 
@@ -1105,6 +1105,30 @@ export default class AdvancementHelper {
     return results;
   }
 
+  /**
+   * Parses an HTML table and retrieves the td value for a given th key
+   * @param {string} html The HTML string containing the table
+   * @param {string} key The th value to look up
+   * @returns {string|null} The corresponding td value, or null if not found
+   */
+  static getTableValue(html, key) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const rows = doc.querySelectorAll('tr');
+
+    for (const row of rows) {
+      const th = row.querySelector('th');
+      const td = row.querySelector('td');
+
+      if (th && td && th.textContent.trim() === key) {
+        return td.textContent.trim();
+      }
+    }
+
+    return null;
+  }
+
   static parseHTMLSkills(description) {
     const parsedSkills = {
       choices: [],
@@ -1112,6 +1136,40 @@ export default class AdvancementHelper {
       number: 0,
       allowReplacements: true,
     };
+
+    const tableAdvancements = AdvancementHelper.getTableValue(description, "Skill Proficiencies");
+    if (tableAdvancements) {
+      const anyChoiceRegex = /choose any (\d+) /i;
+      const anyChoiceMatch = tableAdvancements.match(anyChoiceRegex);
+      if (anyChoiceMatch) {
+        parsedSkills.choices = ["*"];
+        parsedSkills.number = parseInt(anyChoiceMatch[1]);
+        return parsedSkills;
+      }
+
+      const chooseRegex = /Choose (\d+)(?:[ :])/i;
+      const chooseMatch = tableAdvancements.match(chooseRegex);
+      if (chooseMatch) {
+        parsedSkills.number = parseInt(chooseMatch[1]);
+      }
+
+      const skillNames = tableAdvancements.split(':').pop()
+        .replaceAll(' and ', ',')
+        .replaceAll(' or ', ',')
+        .split(',')
+        .map((name) => name.trim());
+
+      const skills = skillNames
+        .filter((name) => DICTIONARY.actor.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
+        .map((name) => {
+          const dictSkill = DICTIONARY.actor.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
+          return dictSkill.name;
+        });
+      parsedSkills.choices = skills;
+
+      return parsedSkills;
+    }
+
     const textDescription = AdvancementHelper.stripDescription(description).replace(/\s/g, " ");
 
     // Choose any three e.g. bard
@@ -1414,6 +1472,58 @@ export default class AdvancementHelper {
       number: 0,
     };
 
+    const tableAdvancements = AdvancementHelper.getTableValue(description, "Tool Proficiencies");
+    if (tableAdvancements) {
+      const anyChoiceRegex = /choose any (\d+) /i;
+      const anyChoiceMatch = tableAdvancements.match(anyChoiceRegex);
+      if (anyChoiceMatch) {
+        parsedTools.choices = ["*"];
+        parsedTools.number = parseInt(anyChoiceMatch[1]);
+        return parsedTools;
+      }
+
+      const proficiencies = new Set();
+
+      const toolNames = tableAdvancements
+        .split("(")[0]
+        .split(':').pop()
+        .replaceAll(' and ', ',')
+        .replaceAll(' or ', ',')
+        .split(',')
+        .map((name) => name.trim());
+
+      const toolChoiceRegex = /choose (\d+) (.*)($|\.:)/i;
+      for (const toolString of toolNames) {
+        const toolChoiceMatch = toolString.match(toolChoiceRegex);
+        if (toolChoiceMatch) {
+          const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural);
+          parsedTools.number = numberTools ? numberTools.num : 1;
+          toolChoiceMatch[2].split(" or ").forEach((toolGroupMatch) => {
+            const toolGroup = AdvancementHelper.getToolGroup(toolGroupMatch.trim());
+            if (toolGroup) {
+              proficiencies.add(`${toolGroup}:*`);
+            }
+          });
+        } else {
+          const stub = AdvancementHelper.getToolAdvancementValue(toolString);
+          if (stub) {
+            proficiencies.add(stub);
+          }
+        }
+      }
+
+      const chooseRegex = /Choose (\d+)(?:[ :])/i;
+      const chooseMatch = tableAdvancements.match(chooseRegex);
+      if (chooseMatch) {
+        parsedTools.number = parseInt(chooseMatch[1]);
+        parsedTools.choices = Array.from(proficiencies);
+      } else {
+        parsedTools.grants = Array.from(proficiencies);
+      }
+
+      return parsedTools;
+    }
+
     const textDescription = AdvancementHelper.stripDescription(description);
 
     // Tools: None
@@ -1575,6 +1685,25 @@ export default class AdvancementHelper {
       grants: [],
       number: 0,
     };
+
+    const tableAdvancements = AdvancementHelper.getTableValue(description, "Armor Training");
+    if (tableAdvancements) {
+      const names = tableAdvancements.split(':').pop()
+        .replaceAll(' and ', ',')
+        .replaceAll(' or ', ',')
+        .split(',')
+        .map((name) => name.trim());
+
+      names.forEach((name) => {
+        const stub = AdvancementHelper.getArmorAdvancementValue(name);
+        if (stub) {
+          parsedArmorProficiencies.grants.push(stub);
+        }
+      });
+
+      return parsedArmorProficiencies;
+    }
+
     const textDescription = AdvancementHelper.stripDescription(description);
 
     // Armor: None
@@ -1640,6 +1769,13 @@ export default class AdvancementHelper {
     return null;
   }
 
+  static getStrictWeaponGroup(text) {
+    for (const [key, value] of Object.entries(AdvancementHelper.WEAPON_GROUPS)) {
+      if (utils.nameString(text).toLowerCase() === utils.nameString(key).toLowerCase()) return value;
+    }
+    return null;
+  }
+
   static getDictionaryWeapon(name) {
     const match = DICTIONARY.actor.proficiencies.find((prof) =>
       prof.type === "Weapon"
@@ -1685,6 +1821,73 @@ export default class AdvancementHelper {
       number: 0,
     };
 
+    const tableAdvancements = AdvancementHelper.getTableValue(description, "Weapon Proficiencies");
+    if (tableAdvancements) {
+      const nameString = tableAdvancements.split(':').pop();
+      const names = nameString
+        .replaceAll(' and ', ',')
+        .replaceAll(' or ', ',')
+        .split(',')
+        .map((name) => name.trim());
+
+      const proficiencies = new Set();
+
+      for (const name of names) {
+        const weaponGroup = AdvancementHelper.getStrictWeaponGroup(name);
+        if (weaponGroup) {
+          proficiencies.add(`${weaponGroup}`);
+        } else if (nameString.toLowerCase().includes("martial weapons that have the")) {
+          const propertyRegex = /martial weapons that have the (.*) property/i;
+          const propertyMatch = nameString.match(propertyRegex);
+          if (!propertyMatch) continue;
+
+          const properties = propertyMatch[1]
+            .replace(" and ", ",")
+            .replace(" or ", ",")
+            .split(",")
+            .map((prop) => prop.trim())
+            .map((prop) => {
+              const dictProp = DICTIONARY.weapon.properties
+                .find((p) => p.name.toLowerCase() === prop.toLowerCase());
+              return dictProp ? dictProp.value : null;
+            })
+            .filter((prop) => prop !== null);
+
+          const weapons = DICTIONARY.actor.proficiencies.filter((prof) => {
+            const basic = prof.type === "Weapon"
+              && prof.subType === "Martial Weapon"
+              && foundry.utils.getProperty(prof, "foundryValue") !== "";
+            if (!basic) return false;
+            for (const prop of properties) {
+              if (foundry.utils.getProperty(prof, `properties.${prop}`)) return true;
+            }
+            return false;
+          }).map((prof) => {
+            const stub = prof.advancement === ""
+              ? prof.foundryValue
+              : `${prof.advancement}:${prof.foundryValue}`;
+            return stub;
+          });
+          for (const weapon of weapons) {
+            proficiencies.add(weapon);
+          }
+        } else {
+          logger.warn(`unknown weapon group choices ${name}`);
+        }
+      }
+
+      const chooseRegex = /Choose (\d+)(?:[ :])/i;
+      const chooseMatch = tableAdvancements.match(chooseRegex);
+
+      if (chooseMatch) {
+        parsedWeaponsProficiencies.number = parseInt(chooseMatch[1]);
+        parsedWeaponsProficiencies.choices = Array.from(proficiencies);
+      } else {
+        parsedWeaponsProficiencies.grants = Array.from(proficiencies);
+      }
+      return parsedWeaponsProficiencies;
+    }
+
 
     const textDescription = AdvancementHelper.stripDescription(description);
 
@@ -1700,8 +1903,8 @@ export default class AdvancementHelper {
     const weaponChoiceRegex = /(\w+) type of (.*)($|\.|\w+:)/i;
     if (weaponGrantsMatch) {
       const grantsArray = weaponGrantsMatch[1].split(",").map((grant) => grant.trim());
-      for (const toolString of grantsArray) {
-        const weaponChoiceMatch = toolString.match(weaponChoiceRegex);
+      for (const weaponString of grantsArray) {
+        const weaponChoiceMatch = weaponString.match(weaponChoiceRegex);
         if (weaponChoiceMatch) {
           const number = DICTIONARY.numbers.find((num) => weaponChoiceMatch[1].toLowerCase() === num.natural);
           parsedWeaponsProficiencies.number = number ? number.num : 1;
@@ -1710,7 +1913,7 @@ export default class AdvancementHelper {
             parsedWeaponsProficiencies.choices.push(`${group}:*`);
           }
         } else {
-          const stub = AdvancementHelper.getWeaponAdvancementValue(toolString);
+          const stub = AdvancementHelper.getWeaponAdvancementValue(weaponString);
           if (stub) {
             parsedWeaponsProficiencies.grants.push(stub);
           }
@@ -1733,14 +1936,14 @@ export default class AdvancementHelper {
     if (additionalMatch) {
       const additionalMatches = additionalMatch[2].replace(" and ", ",").split(",").map((skill) => skill.trim());
       for (const match of additionalMatches) {
-        const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
-        const choiceMatch = textDescription.match(toolChoiceRegex);
+        const weaponChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
+        const choiceMatch = textDescription.match(weaponChoiceRegex);
         if (choiceMatch) {
-          const numberTools = DICTIONARY.numbers.find((num) => choiceMatch[1].toLowerCase() === num.natural);
-          parsedWeaponsProficiencies.number = numberTools ? numberTools.num : 1;
-          const toolGroup = AdvancementHelper.getWeaponGroup(choiceMatch[2]);
-          if (toolGroup) {
-            parsedWeaponsProficiencies.choices.push(`${toolGroup}:*`);
+          const numberWeapons = DICTIONARY.numbers.find((num) => choiceMatch[1].toLowerCase() === num.natural);
+          parsedWeaponsProficiencies.number = numberWeapons ? numberWeapons.num : 1;
+          const weaponGroup = AdvancementHelper.getWeaponGroup(choiceMatch[2]);
+          if (weaponGroup) {
+            parsedWeaponsProficiencies.choices.push(`${weaponGroup}:*`);
             // eslint-disable-next-line max-depth
           } else if (choiceMatch[2].toLowerCase().includes("one-handed melee weapon")) {
             const weapons = DICTIONARY.actor.proficiencies.filter((prof) =>

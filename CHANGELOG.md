@@ -2,6 +2,7 @@
 
 - Character feature munch in now available to Undying tier patron supporters.
 - Some auto generated effects on features were not correctly linked on some features where activities are built without hints.
+- Improvements to parsing proficiencies, etc on 2024 classes when using the class muncher.
 - Oath of Genies parsing improvements.
 - Winter Walker parsing improvements.
 - Some improvements to matching automatic consumption linking.

@@ -214,6 +214,9 @@ export const ACTOR = {
     { name: "Light Armor", type: "Armor", subType: "Light Armor", foundryValue: "lgt", advancement: "" },
     { name: "Medium Armor", type: "Armor", subType: "Medium Armor", foundryValue: "med", advancement: "" },
     { name: "Heavy Armor", type: "Armor", subType: "Heavy Armor", foundryValue: "hvy", advancement: "" },
+    { name: "Light", type: "Armor", subType: "Light Armor", foundryValue: "lgt", advancement: "" },
+    { name: "Medium", type: "Armor", subType: "Medium Armor", foundryValue: "med", advancement: "" },
+    { name: "Heavy", type: "Armor", subType: "Heavy Armor", foundryValue: "hvy", advancement: "" },
     { name: "Shields", type: "Armor", subType: "Shield", foundryValue: "shl", advancement: "" },
     { name: "Studded Leather", type: "Armor", subType: "Light Armor", foundryValue: "studded", advancement: "lgt" },
     { name: "Scale Mail", type: "Armor", subType: "Medium Armor", foundryValue: "scalemail", advancement: "med" },
@@ -233,6 +236,8 @@ export const ACTOR = {
     // Weapon Groups
     { name: "Simple Weapons", type: "Weapon", subType: "Simple Weapons", foundryValue: "sim", advancement: "" },
     { name: "Martial Weapons", type: "Weapon", subType: "Martial Weapons", foundryValue: "mar", advancement: "" },
+    { name: "Simple", type: "Weapon", subType: "Simple Weapons", foundryValue: "sim", advancement: "" },
+    { name: "Martial", type: "Weapon", subType: "Martial Weapons", foundryValue: "mar", advancement: "" },
     // Simple Weapons
     { name: "Boomerang", type: "Weapon", subType: "Simple Weapon", foundryValue: "", advancement: "sim", melee: false, ranged: true, properties: { ret: true } },
     { name: "Club", type: "Weapon", subType: "Simple Weapon", mastery: "slow", foundryValue: "club", advancement: "sim", melee: true, ranged: false, properties: { lgt: true } },
