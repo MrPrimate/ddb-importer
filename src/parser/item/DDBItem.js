@@ -2578,6 +2578,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       generateUses: generateActivityUses,
       usesOverride,
       consumptionOverride,
+      generateActivation: false,
+      generateTarget: false,
+      generateDuration: false,
+      generateRange: false,
     };
 
     const activity = this._getCastActivity({ name: spell.name }, options);

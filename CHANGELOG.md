@@ -11,6 +11,7 @@
 - Whispers Bard fixes
 - A multitude small parsing tweaks for class features.
 - Fix for Wizards Scholar expertise when doing muncher import.
+- Magic Item spells would erroneously have a number of overrides set.
 
 # 6.6.14
 
