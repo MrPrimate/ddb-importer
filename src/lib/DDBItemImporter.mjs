@@ -65,9 +65,8 @@ export default class DDBItemImporter {
   }
 
   #flagMatch(item1, item2) {
-    // console.warn("flagMatch", {item1, item2, matchFlags});
     if (this.matchFlags.length === 0) return true;
-    const matched = this.matchFlags.some((flag) => {
+    const matched = this.matchFlags.every((flag) => {
       // assume 2014 rule if this is the flag request
       const defaultFlagValue = flag === "is2014" ? true : undefined;
       const flagValue1 = foundry.utils.getProperty(item1, `flags.ddbimporter.${flag}`) ?? defaultFlagValue;
@@ -76,6 +75,7 @@ export default class DDBItemImporter {
       if (!flagValue2) return false;
       return flagValue1 === flagValue2;
     });
+    // console.warn("flagMatch", {item1, item2, matched });
     return matched;
   }
 
@@ -391,7 +391,6 @@ export default class DDBItemImporter {
       })).values()]
       : this.documents;
 
-    // v11 compendium folders - just add to doc before creation/update
     const inputItems = (await this.addCompendiumFolderIds(filterItems)).map((item) => {
       if (foundry.utils.hasProperty(item, "system.description.value")) {
         item.system.description.value = `<div class="ddb">
@@ -639,6 +638,11 @@ ${item.system.description.chat}
     }
     if (notifier) notifier(`Importing ${handler.documents.length} ${type} documents!`, { nameField: true });
     logger.debug(`Importing ${handler.documents.length} ${type} documents!`, foundry.utils.deepClone(documents));
+    // logger.warn("data", {
+    //   handler,
+    //   index: foundry.utils.deepClone(handler.compendiumIndex),
+    //   compendiumIndex: handler.compendiumIndex,
+    // })
     await handler.updateCompendium(updateBool, filterDuplicates);
     await handler.buildIndex();
     return handler;

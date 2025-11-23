@@ -942,7 +942,7 @@ export default class DDBRace {
 
     const traitHandlerOptions = {
       chrisPremades: true,
-      matchFlags: ["fullRaceName", "groupName", "isLineage", "is2014", "entityRaceId", "baseRaceId"],
+      matchFlags: ["fullRaceName", "groupName", "isLineage", "is2014"],
       useCompendiumFolders: true,
       deleteBeforeUpdate: false,
       indexFilter: {
@@ -954,8 +954,6 @@ export default class DDBRace {
           "flags.ddbimporter.fullRaceName",
           "flags.ddbimporter.groupName",
           "flags.ddbimporter.isLineage",
-          "flags.ddbimporter.entityRaceId",
-          "flags.ddbimporter.baseRaceId",
         ],
       },
     };
