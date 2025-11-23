@@ -1564,6 +1564,7 @@ export class DDBCompendiumFolders {
           "system.school",
           "system.source.book",
           "flags.ddbimporter.legacy",
+          "flags.ddbimporter.is2014",
         ];
       }
       case "inventory":
@@ -1574,6 +1575,7 @@ export class DDBCompendiumFolders {
           "type",
           "flags.ddbimporter.dndbeyond.type",
           "flags.ddbimporter.dndbeyond.tags",
+          "flags.ddbimporter.is2014",
           "system.source.book",
           "flags.ddbimporter.legacy",
           "system.armor.type",
@@ -1593,6 +1595,7 @@ export class DDBCompendiumFolders {
           "system.details.cr",
           "system.source.book",
           "flags.ddbimporter.legacy",
+          "flags.ddbimporter.is2014",
         ];
       }
       case "summon":
@@ -1605,6 +1608,7 @@ export class DDBCompendiumFolders {
           "system.source.book",
           "system.source.rules",
           "flags.ddbimporter.legacy",
+          "flags.ddbimporter.is2014",
         ];
       }
       case "class":
@@ -1619,6 +1623,7 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.optionalFeature",
           "flags.ddbimporter.infusionFeature",
+          "flags.ddbimporter.is2014",
           "system.type.subtype",
           "system.source.book",
           "flags.ddbimporter.legacy",
@@ -1632,6 +1637,7 @@ export class DDBCompendiumFolders {
           "system.type.subtype",
           "system.source.book",
           "flags.ddbimporter.legacy",
+          "flags.ddbimporter.is2014",
         ];
       }
       case "trait":
@@ -1648,6 +1654,8 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.fullRaceName",
           "flags.ddbimporter.groupName",
           "flags.ddbimporter.isLineage",
+          "flags.ddbimporter.is2014",
+          "flags.ddbimporter.entityRaceId",
           "system.source.book",
           "flags.ddbimporter.legacy",
           "system.source.rules",
@@ -1661,6 +1669,7 @@ export class DDBCompendiumFolders {
           "name",
           "system.source.book",
           "flags.ddbimporter.legacy",
+          "flags.ddbimporter.is2014",
         ];
       }
       default:
@@ -1669,6 +1678,7 @@ export class DDBCompendiumFolders {
           "system.type.subtype",
           "system.source.book",
           "flags.ddbimporter.legacy",
+          "flags.ddbimporter.is2014",
         ];
     }
   }

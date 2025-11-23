@@ -12,6 +12,7 @@
 - A multitude small parsing tweaks for class features.
 - Fix for Wizards Scholar expertise when doing muncher import.
 - Magic Item spells would erroneously have a number of overrides set.
+- Species compendium import would not always import species into the correct ruleset, a complete remunch of species is recommended.
 
 # 6.6.14
 

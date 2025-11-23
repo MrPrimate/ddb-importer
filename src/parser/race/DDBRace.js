@@ -942,9 +942,22 @@ export default class DDBRace {
 
     const traitHandlerOptions = {
       chrisPremades: true,
-      matchFlags: ["fullRaceName", "groupName", "isLineage"],
+      matchFlags: ["fullRaceName", "groupName", "isLineage", "is2014", "entityRaceId", "baseRaceId"],
       useCompendiumFolders: true,
       deleteBeforeUpdate: false,
+      indexFilter: {
+        fields: [
+          "name",
+          "flags.ddbimporter.is2014",
+          "flags.ddbimporter.is2024",
+          "flags.ddbimporter.dndbeyond.alternativeNames",
+          "flags.ddbimporter.fullRaceName",
+          "flags.ddbimporter.groupName",
+          "flags.ddbimporter.isLineage",
+          "flags.ddbimporter.entityRaceId",
+          "flags.ddbimporter.baseRaceId",
+        ],
+      },
     };
 
     const traitCompendiumFolders = new DDBCompendiumFolders("traits");

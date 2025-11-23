@@ -10,17 +10,19 @@ import { ExternalAutomations } from "../effects/_module.mjs";
 
 export default class DDBItemImporter {
 
+  static DEFAULT_INDEX_FILTER = {
+    fields: [
+      "name",
+      "flags.ddbimporter.is2014",
+      "flags.ddbimporter.is2024",
+      "flags.ddbimporter.dndbeyond.alternativeNames",
+    ],
+  };
+
   constructor(type, documents, {
     matchFlags = [],
     deleteBeforeUpdate = null,
-    indexFilter = {
-      fields: [
-        "name",
-        "flags.ddbimporter.is2014",
-        "flags.ddbimporter.is2024",
-        "flags.ddbimporter.dndbeyond.alternativeNames",
-      ],
-    },
+    indexFilter = null,
     useCompendiumFolders = null,
     notifier = null,
   } = {}) {
@@ -32,7 +34,7 @@ export default class DDBItemImporter {
     this.compendium = CompendiumHelper.getCompendiumType(this.type);
     this.compendium.configure({ locked: false });
     this.compendiumIndex = null;
-    this.indexFilter = indexFilter;
+    this.indexFilter = indexFilter ?? DDBItemImporter.DEFAULT_INDEX_FILTER;
 
     this.results = [];
 
@@ -620,10 +622,10 @@ ${item.system.description.chat}
   }
 
   static async buildHandler(type, documents, updateBool,
-    { srdFidding = true, removeSRDDuplicates = true, ids = null, chrisPremades = false, matchFlags = [],
+    { srdFidding = true, removeSRDDuplicates = true, ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null } = {},
   ) {
-    const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders, notifier });
+    const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders, notifier, indexFilter });
     await handler.init();
     if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
     if (updateIcons) await handler.iconAdditions();
