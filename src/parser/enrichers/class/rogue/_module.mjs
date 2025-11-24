@@ -1,8 +1,11 @@
+export { default as AuraOfMalevolence } from "./AuraOfMalevolence.mjs";
+export { default as Bloodthirst } from "./Bloodthirst.mjs";
 export { default as CunningAction } from "./CunningAction.mjs";
 export { default as CunningStrike } from "./CunningStrike.mjs";
 export { default as DeathStrike } from "./DeathStrike.mjs";
 export { default as DeviousStrikes } from "./DeviousStrikes.mjs";
 export { default as DreadAllegiance } from "./DreadAllegiance.mjs";
+export { default as DreadIncarnate } from "./DreadIncarnate.mjs";
 export { default as Enchantments } from "./Enchantments.mjs";
 export { default as EnchantmentsExtras } from "./EnchantmentsExtras.mjs";
 export { default as EnvenomWeapons } from "./EnvenomWeapons.mjs";

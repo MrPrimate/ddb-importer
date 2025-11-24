@@ -5,6 +5,7 @@
 - Improvements to parsing proficiencies, etc on 2024 classes when using the class muncher.
 - Oath of Genies parsing improvements.
 - Winter Walker parsing improvements.
+- Scion of the Three parsing improvements.
 - Some improvements to matching automatic consumption linking.
 - Some tweaks to help improve Circle Forms for the Mutation Druid order. @oathbreakerbehatin
 - Fixes for some 2014 Fighter imports. @zeroomega007

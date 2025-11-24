@@ -228,6 +228,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Noble Scion",
     "Mutate Shape",
     "Dread Allegiance",
+    "Aura of Malevolence",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -337,6 +338,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Noble Scion",
     "Mutate Shape",
     "Dread Allegiance",
+    "Aura of Malevolence",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
