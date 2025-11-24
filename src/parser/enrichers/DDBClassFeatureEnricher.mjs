@@ -153,7 +153,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
-    "Additional Fighting Style Base": FeatEnrichers.AdditionalFightingStyleBase,
+    // "Additional Fighting Style Base": FeatEnrichers.AdditionalFightingStyleBase,
     "Shove": ClassEnrichers.Generic.Shove,
     "Grapple": ClassEnrichers.Generic.Grapple,
     "Arcane Armor - Create Armor": ClassEnrichers.Artificer.ArcaneArmorCreateArmor,
