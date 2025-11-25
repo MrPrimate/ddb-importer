@@ -8,6 +8,7 @@ export { default as IllusorySelf } from "./IllusorySelf.mjs";
 export { default as MomentaryStasis } from "./MomentaryStasis.mjs";
 export { default as Overchannel } from "./Overchannel.mjs";
 export { default as SculptSpells } from "./SculptSpells.mjs";
+export { default as SongOfDefense } from "./SongOfDefense.mjs";
 export { default as SongOfVictory } from "./SongOfVictory.mjs";
 export { default as TheThirdEye } from "./TheThirdEye.mjs";
 

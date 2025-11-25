@@ -1922,6 +1922,25 @@ export default class AdvancementHelper {
       return parsedWeaponsProficiencies;
     }
 
+    const bladeSingerRegex = /You gain proficiency with all Melee Martial weapons that don’t have the Two-Handed or Heavy property./i;
+    if (bladeSingerRegex.test(textDescription)) {
+      const weapons = DICTIONARY.actor.proficiencies.filter((prof) =>
+        prof.type === "Weapon"
+        && foundry.utils.getProperty(prof, "foundryValue") !== ""
+        && foundry.utils.getProperty(prof, "subType") === "Martial Weapon"
+        && foundry.utils.getProperty(prof, "melee") === true
+        && foundry.utils.getProperty(prof, "properties.two") !== true
+        && foundry.utils.getProperty(prof, "properties.hvy") !== true,
+      ).map((prof) => {
+        const stub = prof.advancement === ""
+          ? prof.foundryValue
+          : `${prof.advancement}:${prof.foundryValue}`;
+        return stub;
+      });
+      parsedWeaponsProficiencies.grants.push(...weapons);
+      return parsedWeaponsProficiencies;
+    }
+
     // no more matches, return.
     if (!textDescription.includes("proficiency")) return parsedWeaponsProficiencies;
 
