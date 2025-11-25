@@ -5361,6 +5361,15 @@ export const fallbackDDBConfig = {
       sourceURL: "sources/dnd/oswfst",
     },
     {
+      id: 191,
+      name: "EFotA",
+      description: "Eberron: Forge of the Artificer",
+      sourceCategoryId: 38,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/52984/257/638995467851050782.jpeg",
+      sourceURL: "sources/dnd/efota",
+    },
+    {
       id: 193,
       name: "TCMP1",
       description: "The Crooked Moon Part One: Player Options & Campaign Setting",
