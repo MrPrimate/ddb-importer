@@ -423,6 +423,28 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
+  _sorcererFixes() {
+    if (this.data.name.startsWith("Spellfire Sorcery")) {
+      const dice = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `spellfire-burst-damage-dice`,
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 4 },
+            14: { number: 1, faces: 8 },
+          },
+        },
+        value: {},
+        title: `Spellfire Burst Damage Dice`,
+        icon: null,
+      };
+      this.data.system.advancement.push(dice);
+    }
+  }
+
   // eslint-disable-next-line complexity
   async _fixes() {
     this._fightingStyleAdvancement();
@@ -431,6 +453,7 @@ export default class DDBSubClass extends DDBClass {
     this._druidFixes();
     this._fighterFixes();
     this._rangerFixes();
+    this._sorcererFixes();
     await this._bardFixes();
   }
 

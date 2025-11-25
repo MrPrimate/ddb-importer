@@ -690,7 +690,11 @@ export default class CharacterFeatureFactory {
   }
 
   _setLevelScales(type = "features") {
-    this.parsed[type].forEach((feature) => {
+    for (const feature of this.parsed[type]) {
+      if (foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) continue;
+
+      if (DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS.includes(feature.name)) continue;
+
       const featureName = utils.referenceNameString(feature.name).toLowerCase();
       const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
         klass.system.advancement
@@ -698,37 +702,25 @@ export default class CharacterFeatureFactory {
             && advancement.configuration.identifier === featureName,
           ));
 
-      // KNOWN_ISSUE_4_0: fix level scales for activities
-      if (scaleKlass && !foundry.utils.hasProperty(feature, "flags.ddbimporter.skipScale")) {
-        const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
-        const damage = SystemHelpers.buildDamagePart({
-          damageString: `@scale.${identifier}.${featureName}`,
-        });
-        if (foundry.utils.hasProperty(feature, "system.damage.base")) {
-          feature.system.damage.base.custom = damage.custom;
-        } else if (foundry.utils.hasProperty(feature, "system.activities")) {
-          for (const [key, activity] of Object.entries(feature.system.activities)) {
-            if (activity.damage && activity.damage.parts.length === 0) {
-              // console.warn(`adding scale for ${feature.name} ${key}`, {
-              //   feature,
-              //   activity: deepClone(activity),
-              //   damage,
-              // });
-              activity.damage.parts = [damage];
-            } else if (activity.damage && activity.damage.parts.length > 0) {
-              // console.warn(`Replacing scale for ${feature.name} ${key}`, {
-              //   feature,
-              //   activity: deepClone(activity),
-              //   damage,
-              // });
-              activity.damage.parts[0].custom = damage.custom;
-            }
-            feature.system.activities[key] = activity;
-          }
+      if (!scaleKlass) continue;
 
+      const identifier = utils.referenceNameString(scaleKlass.system.identifier).toLowerCase();
+      const damage = SystemHelpers.buildDamagePart({
+        damageString: `@scale.${identifier}.${featureName}`,
+      });
+      if (foundry.utils.hasProperty(feature, "system.damage.base")) {
+        feature.system.damage.base.custom = damage.custom;
+      } else if (foundry.utils.hasProperty(feature, "system.activities")) {
+        for (const [key, activity] of Object.entries(feature.system.activities)) {
+          if (activity.damage && activity.damage.parts.length === 0) {
+            activity.damage.parts = [damage];
+          } else if (activity.damage && activity.damage.parts.length > 0) {
+            activity.damage.parts[0].custom = damage.custom;
+          }
+          feature.system.activities[key] = activity;
         }
       }
-    });
+    }
   }
 
 

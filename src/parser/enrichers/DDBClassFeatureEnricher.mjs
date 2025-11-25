@@ -1,5 +1,5 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
-import { ClassEnrichers, FeatEnrichers, GenericEnrichers, ItemEnrichers } from "./_module.mjs";
+import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module.mjs";
 import { utils } from "../../lib/_module.mjs";
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {

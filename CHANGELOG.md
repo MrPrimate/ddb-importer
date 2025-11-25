@@ -1,5 +1,9 @@
 # Next Up
 
+- If HoF module was enabled, language selection was broken if DDB injected languages was enabled.
+- Some combinations of settings would not unlock the character muncher.
+- Some improvements for the Spellfire Sorcery subclass parsing.
+
 # 6.6.15
 
 - Character feature munch in now in BETA available to Undying tier patron supporters.
