@@ -1,8 +1,11 @@
 # Next Up
 
+# 6.6.16
+
 - If HoF module was enabled, language selection was broken if DDB injected languages was enabled.
 - Some combinations of settings would not unlock the character muncher.
 - Some improvements for the Spellfire Sorcery subclass parsing.
+- 2024 FR Bladesinger parsing improvements.
 
 # 6.6.15
 
