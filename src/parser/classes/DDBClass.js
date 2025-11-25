@@ -117,6 +117,7 @@ export default class DDBClass {
     "Blessings of Knowledge",
     "Knightly Envoy",
     "Unfettered Mind",
+    "Training In War and Song",
   ];
 
   static EXPERTISE_FEATURES = [
@@ -222,6 +223,7 @@ export default class DDBClass {
     "Training in War and Song",
     "Bonus Proficiency",
     "Bonus Proficiencies",
+    "Training In War and Song",
   ];
 
   static WEAPON_MASTERY_FEATURES = [

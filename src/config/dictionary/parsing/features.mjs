@@ -282,6 +282,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Mutate Shape",
     "Dread Allegiance",
     "Aura of Malevolence",
+    "Training In War and Song",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -392,6 +393,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Mutate Shape",
     "Dread Allegiance",
     "Aura of Malevolence",
+    "Training In War and Song",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
