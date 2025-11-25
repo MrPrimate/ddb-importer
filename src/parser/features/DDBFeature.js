@@ -25,6 +25,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     "Metamagic",
     "Group Recovery",
     "Rallying Surge",
+    "Spellfire Burst",
   ];
 
   static LEVEL_SCALE_EXCLUSION_USES_STARTS_WITH = [

@@ -1,3 +1,55 @@
+export const LEVEL_SCALE = {
+  LEVEL_SCALE_EXCLUSIONS: [
+    "Fire Rune",
+    "Cloud Rune",
+    "Stone Rune",
+    "Frost Rune",
+    "Hill Rune",
+    "Storm Rune",
+    "Drake Companion: Summon",
+    "Drake Companion: Command",
+    "Drake Companion",
+    "Launch",
+    "Grapple",
+    "Shove",
+    "Spellfire Burst",
+    "Spellfire Burst: Radiant Fire (Fire)",
+    "Spellfire Burst: Radiant Fire (Radiant)",
+    "Spellfire Burst: Bolstering Flames",
+  ],
+
+  LEVEL_SCALE_INFUSIONS: [
+    "Unarmed Strike",
+    "Arms of the Astral Self (WIS)",
+    "Arms of the Astral Self (DEX)",
+    "Arms of the Astral Self (DEX/STR)",
+    "Arms of the Astral Self",
+    "Body of the Astral Self",
+    "Starry Form: Archer",
+    "Sneak Attack",
+  ],
+
+  NATURAL_WEAPONS: [
+    "Bite",
+    "Claw",
+    "Claws",
+    "Cat's Claws",
+    "Fangs",
+    "Gore",
+    "Sting",
+    "Talon",
+    "Talons",
+    "Trunk",
+  ],
+
+  SPECIAL_ADVANCEMENTS: {},
+
+  UTILITY_FEATURES: [
+    "Channel Divinity:",
+    "Maneuver:",
+  ],
+};
+
 export const PARSING_FEATURES = {
   LEGACY_SKIPPED_FEATURES: [
     "Hit Points",
@@ -93,6 +145,7 @@ export const PARSING_FEATURES = {
     "Noble Scion",
     "Frozen Haunt",
     "Circle Forms",
+    "Crown of Spellfire",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",

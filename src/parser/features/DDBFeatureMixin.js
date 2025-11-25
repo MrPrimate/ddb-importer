@@ -3,69 +3,47 @@ import { utils, logger, DDBSources, DDBSimpleMacro } from "../../lib/_module.mjs
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 import DDBSummonsManager from "../companions/DDBSummonsManager.mjs";
-import { DDBGenericEnricher, mixins, Effects, DDBFeatEnricher, DDBSpeciesTraitEnricher, DDBClassFeatureEnricher, DDBBackgroundEnricher } from "../enrichers/_module.mjs";
-import { DDBDataUtils, DDBDescriptions, DDBModifiers, DDBTable, DDBTemplateStrings, SystemHelpers } from "../lib/_module.mjs";
+import {
+  DDBGenericEnricher,
+  mixins,
+  Effects,
+  DDBFeatEnricher,
+  DDBSpeciesTraitEnricher,
+  DDBClassFeatureEnricher,
+  DDBBackgroundEnricher,
+} from "../enrichers/_module.mjs";
+import {
+  DDBDataUtils,
+  DDBDescriptions,
+  DDBModifiers,
+  DDBTable,
+  DDBTemplateStrings,
+  SystemHelpers,
+} from "../lib/_module.mjs";
 
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
-  static LEVEL_SCALE_EXCLUSION = [
-    "Fire Rune",
-    "Cloud Rune",
-    "Stone Rune",
-    "Frost Rune",
-    "Hill Rune",
-    "Storm Rune",
-    "Drake Companion: Summon",
-    "Drake Companion: Command",
-    "Drake Companion",
-    "Launch",
-    "Grapple",
-    "Shove",
-  ];
+  static LEVEL_SCALE_EXCLUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS;
 
-  static LEVEL_SCALE_INFUSIONS = [
-    "Unarmed Strike",
-    "Arms of the Astral Self (WIS)",
-    "Arms of the Astral Self (DEX)",
-    "Arms of the Astral Self (DEX/STR)",
-    "Arms of the Astral Self",
-    "Body of the Astral Self",
-    "Starry Form: Archer",
-    "Sneak Attack",
-  ];
+  static LEVEL_SCALE_INFUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_INFUSIONS;
 
-  static NATURAL_WEAPONS = [
-    "Bite",
-    "Claw",
-    "Claws",
-    "Cat's Claws",
-    "Fangs",
-    "Gore",
-    "Sting",
-    "Talon",
-    "Talons",
-    "Trunk",
-  ];
+  static NATURAL_WEAPONS = DICTIONARY.parsing.levelScale.NATURAL_WEAPONS;
 
-  static SPECIAL_ADVANCEMENTS = {};
+  static SPECIAL_ADVANCEMENTS = DICTIONARY.parsing.levelScale.SPECIAL_ADVANCEMENTS;
 
-  static UTILITY_FEATURES = [
-    "Channel Divinity:",
-    "Maneuver:",
-  ];
+  static UTILITY_FEATURES = DICTIONARY.parsing.levelScale.UTILITY_FEATURES;
 
   DDB_TYPE_ENRICHERS = {
-    "class": DDBClassFeatureEnricher,
-    "race": DDBSpeciesTraitEnricher,
-    "feat": DDBFeatEnricher,
-    "other": DDBGenericEnricher,
-    "background": DDBBackgroundEnricher,
+    class: DDBClassFeatureEnricher,
+    race: DDBSpeciesTraitEnricher,
+    feat: DDBFeatEnricher,
+    other: DDBGenericEnricher,
+    background: DDBBackgroundEnricher,
   };
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
-
 
   _generateDataStub() {
     this.data = {
@@ -97,14 +75,15 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   _generateLevelScale() {
-    this.excludedScale = DDBFeatureMixin.LEVEL_SCALE_EXCLUSION.includes(this.ddbDefinition.name)
-      || DDBFeatureMixin.LEVEL_SCALE_EXCLUSION.includes(this.data.name);
-    this.levelScaleInfusion = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
+    this.excludedScale
+      = DDBFeatureMixin.LEVEL_SCALE_EXCLUSIONS.includes(this.ddbDefinition.name)
+      || DDBFeatureMixin.LEVEL_SCALE_EXCLUSIONS.includes(this.data.name);
+    this.levelScaleInfusion
+      = DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.ddbDefinition.name)
       || DDBFeatureMixin.LEVEL_SCALE_INFUSIONS.includes(this.data.name);
     this.scaleValueLink = DDBDataUtils.getScaleValueString(this.ddbData, this.ddbDefinition).value;
-    this.useScaleValueLink = !this.excludedScale
-      && this.scaleValueLink
-      && this.scaleValueLink !== "{{scalevalue-unknown}}";
+    this.useScaleValueLink
+      = !this.excludedScale && this.scaleValueLink && this.scaleValueLink !== "{{scalevalue-unknown}}";
   }
 
   _generateFlagHints() {
@@ -130,17 +109,26 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }
 
     // scaling details
-    const klassActionComponent = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
+    const klassActionComponent
+      = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
       ?? DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
     if (klassActionComponent) {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScales", klassActionComponent.definition?.levelScales);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.limitedUse", klassActionComponent.definition?.limitedUse);
+      foundry.utils.setProperty(
+        this.data.flags,
+        "ddbimporter.dndbeyond.levelScales",
+        klassActionComponent.definition?.levelScales,
+      );
+      foundry.utils.setProperty(
+        this.data.flags,
+        "ddbimporter.dndbeyond.limitedUse",
+        klassActionComponent.definition?.limitedUse,
+      );
     }
   }
 
   _generateSaveFromDescription() {
-    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
+    const description = this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "";
     const textMatch = DDBDescriptions.dcParser({ text: description });
     if (textMatch.match) {
       this._descriptionSave = textMatch.save;
@@ -158,16 +146,14 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
           return name === this.data.name;
         }),
-      race: this.ddbData.character.actions.race
-        .some((ddbAction) => {
-          const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
-          return name === this.data.name;
-        }),
-      feat: this.ddbData.character.actions.feat
-        .some((ddbAction) => {
-          const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
-          return name === this.data.name;
-        }),
+      race: this.ddbData.character.actions.race.some((ddbAction) => {
+        const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
+        return name === this.data.name;
+      }),
+      feat: this.ddbData.character.actions.feat.some((ddbAction) => {
+        const name = DDBDataUtils.getName(this.ddbData, ddbAction, this.rawCharacter);
+        return name === this.data.name;
+      }),
     };
   }
 
@@ -186,7 +172,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     if (this.ddbDefinition.componentId) {
       parent = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
       if (parent) return parent;
-      const choiceElement = this.ddbData.character.choices[this.type]?.find((c) => c.optionValue === this.ddbDefinition.componentId);
+      const choiceElement = this.ddbData.character.choices[this.type]?.find(
+        (c) => c.optionValue === this.ddbDefinition.componentId,
+      );
       if (choiceElement) {
         parent = DDBDataUtils.findComponentByComponentId(this.ddbData, choiceElement.componentId);
       }
@@ -198,37 +186,47 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.isCompanionFeature = this._isCompanionFeature();
     this.isCompanionFeatureOption = this._isCompanionFeatureOption();
 
-    const isCompanionFeature = (this.isCompanionFeature || this.isCompanionFeatureOption);
+    const isCompanionFeature = this.isCompanionFeature || this.isCompanionFeatureOption;
     this.isCompanionFeature2014 = this.is2014 && isCompanionFeature;
     this.isCompanionFeature2024 = !this.is2014 && isCompanionFeature;
-    this.isCRSummonFeature2014 = this.is2014
-      && DICTIONARY.companions.CR_SUMMONING_FEATURES_2014.includes(this.originalName);
-    this.isCRSummonFeature2024 = !this.is2014
-      && DICTIONARY.companions.CR_SUMMONING_FEATURES_2024.includes(this.originalName);
+    this.isCRSummonFeature2014
+      = this.is2014 && DICTIONARY.companions.CR_SUMMONING_FEATURES_2014.includes(this.originalName);
+    this.isCRSummonFeature2024
+      = !this.is2014 && DICTIONARY.companions.CR_SUMMONING_FEATURES_2024.includes(this.originalName);
 
-    this.isSummons = this.isCompanionFeature2014
+    this.isSummons
+      = this.isCompanionFeature2014
       || this.isCompanionFeature2024
       || this.isCRSummonFeature2014
       || this.isCRSummonFeature2024;
   }
 
   _getRules() {
-    const sources = (this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? []);
+    const sources = this.ddbDefinition.sources ?? this._parent?.definition?.sources ?? [];
     const sourceIds = sources.map((sm) => sm.sourceId);
-    this.legacy = CONFIG.DDB.sources.some((ddbSource) =>
-      sourceIds.includes(ddbSource.id)
-      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
+    this.legacy = CONFIG.DDB.sources.some(
+      (ddbSource) =>
+        sourceIds.includes(ddbSource.id) && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
     this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
   }
 
   constructor({
-    ddbData, ddbDefinition, type, source, documentType = "feat", rawCharacter = null, activityType = null,
-    extraFlags = {}, enricher = null, ddbCharacter = null, fallbackEnricher = null, usesOnActivity = false,
+    ddbData,
+    ddbDefinition,
+    type,
+    source,
+    documentType = "feat",
+    rawCharacter = null,
+    activityType = null,
+    extraFlags = {},
+    enricher = null,
+    ddbCharacter = null,
+    fallbackEnricher = null,
+    usesOnActivity = false,
     isMuncher = false,
   } = {}) {
-
     const addEffects = isMuncher
       ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
       : game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
@@ -302,19 +300,20 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     this._checkSummons();
 
-    const localSource = this.source && utils.isObject(this.source)
-      ? this.source
-      : DDBSources.parseSource(this.ddbDefinition);
+    const localSource
+      = this.source && utils.isObject(this.source) ? this.source : DDBSources.parseSource(this.ddbDefinition);
 
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     this.fallbackEnricher = fallbackEnricher;
 
-    this.enricher = enricher ?? new this.DDB_TYPE_ENRICHERS[type]({
-      activityGenerator: DDBFeatureActivity,
-      fallbackEnricher: this.fallbackEnricher,
-    });
+    this.enricher
+      = enricher
+      ?? new this.DDB_TYPE_ENRICHERS[type]({
+        activityGenerator: DDBFeatureActivity,
+        fallbackEnricher: this.fallbackEnricher,
+      });
   }
 
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
@@ -331,23 +330,26 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const componentId = this.ddbDefinition.componentId;
     const componentTypeId = this.ddbDefinition.componentTypeId;
 
-    const findFeatureKlass = this.ddbData.character.classes
-      .find((cls) => cls.classFeatures.find((feature) =>
-        feature.definition.id == componentId
-        && feature.definition.entityTypeId == componentTypeId,
-      ));
+    const findFeatureKlass = this.ddbData.character.classes.find((cls) =>
+      cls.classFeatures.find(
+        (feature) => feature.definition.id == componentId && feature.definition.entityTypeId == componentTypeId,
+      ),
+    );
 
     if (findFeatureKlass) {
-      const feature = findFeatureKlass.classFeatures
-        .find((feature) =>
+      const feature = findFeatureKlass.classFeatures.find(
+        (feature) =>
           feature.definition.id == componentId
           && feature.definition.entityTypeId == componentTypeId
-          && (!nameMatch
-            || (nameMatch && feature.definition.name == this.originalName)
-          ),
-        );
+          && (!nameMatch || (nameMatch && feature.definition.name == this.originalName)),
+      );
       if (feature) {
-        return DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
+        return DDBTemplateStrings.parse(
+          this.ddbData,
+          this.rawCharacter,
+          feature.definition.description,
+          this.ddbFeature,
+        ).text;
       }
     }
     return "";
@@ -357,33 +359,32 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const componentId = this.ddbDefinition.componentId;
     const componentTypeId = this.ddbDefinition.componentTypeId;
 
-    const feature = this.ddbData.character.race.racialTraits
-      .find((trait) =>
-        trait.definition.id == componentId
-        && trait.definition.entityTypeId == componentTypeId,
-      );
+    const feature = this.ddbData.character.race.racialTraits.find(
+      (trait) => trait.definition.id == componentId && trait.definition.entityTypeId == componentTypeId,
+    );
 
     if (feature) {
-      return DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature).text;
+      return DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, feature.definition.description, this.ddbFeature)
+        .text;
     }
     return "";
-
   }
 
   getParsedActionType() {
-    const description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? this.ddbDefinition.description
-      : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-        ? this.ddbDefinition.snippet
-        : null;
+    const description
+      = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+        ? this.ddbDefinition.description
+        : this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+          ? this.ddbDefinition.snippet
+          : null;
 
     if (!description) return undefined;
     // pcs don't have mythic
-    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
+    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/gi);
     if (actionAction) return "action";
-    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
+    const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/gi);
     if (bonusAction) return "bonus";
-    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/ig);
+    const reAction = description.match(/(?:as|use|spend) (?:a|an|your) reaction/gi);
     if (reAction) return "reaction";
 
     return undefined;
@@ -417,24 +418,26 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const useCombinedSetting = game.settings.get("ddb-importer", "character-update-policy-use-combined-description");
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
-    this.snippet = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
-      ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
-      : "";
-    const rawSnippet = this.ddbDefinition.snippet
-      ? this.snippet
-      : "";
-
-    this.description = this.ddbDefinition.description && this.ddbDefinition.description !== ""
-      ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature).text
-      : !useCombinedSetting || forceFull
-        ? this.type === "race"
-          ? this._getRaceFeatureDescription()
-          : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
+    this.snippet
+      = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""
+        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.snippet, this.ddbFeature).text
         : "";
+    const rawSnippet = this.ddbDefinition.snippet ? this.snippet : "";
 
-    const extraDescription = extra && extra !== ""
-      ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
-      : "";
+    this.description
+      = this.ddbDefinition.description && this.ddbDefinition.description !== ""
+        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbDefinition.description, this.ddbFeature)
+          .text
+        : !useCombinedSetting || forceFull
+          ? this.type === "race"
+            ? this._getRaceFeatureDescription()
+            : this._getClassFeatureDescription(!(useCombinedSetting || forceFull))
+          : "";
+
+    const extraDescription
+      = extra && extra !== ""
+        ? DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, extra, this.ddbFeature).text
+        : "";
 
     const macroHelper = DDBSimpleMacro.getDescriptionAddition(this.originalName, "feat");
     if (!chatAdd) {
@@ -470,9 +473,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     const uses = DDBDataUtils.getLimitedUses({
       data: this.ddbDefinition.limitedUse,
       description: this.ddbDefinition.description ?? "",
-      scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink
-        ? this.scaleValueUsesLink
-        : null,
+      scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink ? this.scaleValueUsesLink : null,
     });
 
     if (uses) {
@@ -516,9 +517,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     if (klass) {
       return klass.classFeatures.some((feature) => feature.definition.name === "Martial Arts");
     } else {
-      return this.ddbData.character.classes.some((k) => k.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
+      return this.ddbData.character.classes.some((k) =>
+        k.classFeatures.some((feature) => feature.definition.name === "Martial Arts"),
+      );
     }
-
   }
 
   getDamageType() {
@@ -565,12 +567,13 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       if (this.useScaleValueLink) {
         SystemHelpers.parseBasicDamageFormula(damage, `${this.scaleValueLink}${bonusString}${fixedBonus}`);
       } else if (die.diceString) {
-        const profBonus = CONFIG.DDB.levelProficiencyBonuses.find((b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0))?.bonus;
-        const replaceProf = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
+        const profBonus = CONFIG.DDB.levelProficiencyBonuses.find(
+          (b) => b.level === this.ddbData.character.classes.reduce((p, c) => p + c.level, 0),
+        )?.bonus;
+        const replaceProf
+          = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
           && Number.parseInt(die.fixedValue) === Number.parseInt(profBonus);
-        const diceString = replaceProf
-          ? die.diceString.replace(`+ ${profBonus}`, "")
-          : die.diceString;
+        const diceString = replaceProf ? die.diceString.replace(`+ ${profBonus}`, "") : die.diceString;
         const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
         const damageString = utils.parseDiceString(diceString, mods).diceString;
         SystemHelpers.parseBasicDamageFormula(damage, damageString);
@@ -580,7 +583,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }
 
     return damage;
-
   }
 
   _generateDamage() {
@@ -632,9 +634,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
           if (levelScaleDie?.diceString) {
             const scaleValueLink = DDBDataUtils.getScaleValueLink(this.ddbData, feature);
-            const scaleString = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}"
-              ? scaleValueLink
-              : levelScaleDie.diceString;
+            const scaleString
+              = scaleValueLink && scaleValueLink !== "{{scalevalue-unknown}}" ? scaleValueLink : levelScaleDie.diceString;
             if (actionDie?.diceValue > levelScaleDie.diceValue) {
               return actionDie.diceString;
             }
@@ -781,7 +782,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this._activityEffectLinking();
   }
 
-
   _addCustomValues() {
     DDBDataUtils.addCustomValues(this.ddbData, this.data);
   }
@@ -835,14 +835,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
         else if (name.startsWith("Eldritch Invocations:")) return "eldritchInvocation";
       }
     } else if (type === "feat" && categories) {
-      if (categories.some((c) => c.tagName === "Origin"))
-        return "origin";
-      else if (categories.some((c) => c.tagName === "Fighting Style"))
-        return "fightingStyle";
-      else if (categories.some((c) => c.tagName === "Epic Boon"))
-        return "epicBoon";
-      else
-        return "general";
+      if (categories.some((c) => c.tagName === "Origin")) return "origin";
+      else if (categories.some((c) => c.tagName === "Fighting Style")) return "fightingStyle";
+      else if (categories.some((c) => c.tagName === "Epic Boon")) return "epicBoon";
+      else return "general";
     }
     return null;
   }
@@ -863,11 +859,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       ? "natural"
       : DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype)?.value;
     const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
-    this.data.system.type.value = entry
-      ? entry
-      : range
-        ? `simple${range.value}`
-        : "simpleM";
+    this.data.system.type.value = entry ? entry : range ? `simple${range.value}` : "simpleM";
   }
 
   _generateSystemType() {
@@ -879,17 +871,17 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   _isCompanionFeature() {
-    return DICTIONARY.companions.COMPANION_FEATURES.includes(this.originalName)
+    return (
+      DICTIONARY.companions.COMPANION_FEATURES.includes(this.originalName)
       // only run this on class features
-      && this.ddbData.character.classes
-        .some((k) => k.classFeatures.some((f) => f.definition.name == this.originalName));
+      && this.ddbData.character.classes.some((k) => k.classFeatures.some((f) => f.definition.name == this.originalName))
+    );
   }
 
   _isCompanionFeatureOption() {
     for (const [parentFeature, childNames] of Object.entries(DICTIONARY.companions.COMPANION_OPTIONS)) {
       for (const childName of childNames) {
-        if (this.originalName === parentFeature
-          || this.originalName === `${parentFeature}: ${childName}`) {
+        if (this.originalName === parentFeature || this.originalName === `${parentFeature}: ${childName}`) {
           this.companionFeatureOption = {
             parentFeature,
             childName,
@@ -903,7 +895,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   _getFullSummonsDescription() {
     if (this.isCompanionFeatureOption) {
-      const ddbOption = this.ddbData.character.options.class.find((o) => o.definition.name == this.companionFeatureOption.childName);
+      const ddbOption = this.ddbData.character.options.class.find(
+        (o) => o.definition.name == this.companionFeatureOption.childName,
+      );
       if (!ddbOption) return null;
       return ddbOption.definition.description;
     } else {
@@ -921,13 +915,13 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   targetsCreature() {
-    const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
-    const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
-    const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
+    const description = this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "";
+    const creature
+      = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
+    const creaturesRange
+      = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
     const targets = /attack against the target|at a target in range/gi;
-    return description.match(creature)
-      || description.match(creaturesRange)
-      || description.match(targets);
+    return description.match(creature) || description.match(creaturesRange) || description.match(targets);
   }
 
   /** @override */
@@ -949,14 +943,17 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
-  async _generateActivity({ hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null,
-    typeOverride = null } = {}, optionsOverride = {},
+  async _generateActivity(
+    { hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null, typeOverride = null } = {},
+    optionsOverride = {},
   ) {
-
     if (this.enricher.activity?.type === "none") return undefined;
 
     if (statusEffects) {
-      const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
+      const statusEffect = Effects.AutoEffects.getStatusEffect({
+        ddbDefinition: this.ddbDefinition,
+        foundryItem: this.data,
+      });
       if (statusEffect) this.data.effects.push(statusEffect);
     }
 
@@ -967,13 +964,15 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       return undefined;
     }
 
-    const activity = await super._generateActivity({
-      hintsOnly,
-      name,
-      nameIdPostfix,
-      typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type ?? this.activityType,
-    }, optionsOverride);
-
+    const activity = await super._generateActivity(
+      {
+        hintsOnly,
+        name,
+        nameIdPostfix,
+        typeOverride: typeOverride ?? this.enricher.type ?? this.enricher.activity?.type ?? this.activityType,
+      },
+      optionsOverride,
+    );
 
     await this.enricher.customFunction({
       name,
@@ -1030,7 +1029,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   createCompanionFactory() {
-    const createOrUpdate = this.isMuncher
+    const createOrUpdate
+      = this.isMuncher
       || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")
       || this.ddbCharacter.enableCompanions;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
@@ -1062,5 +1062,4 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       parsed: this.ddbCompanionFactory.companions,
     });
   }
-
 }
