@@ -878,7 +878,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-use2024-monsters", false);
     }
 
-    const characterMunch = tiers.god && cobalt;
+    const characterMunch = (tiers.god || tiers.undying || tiers.experimentalMid) && cobalt;
 
     const resultData = {
       characterMunch,
