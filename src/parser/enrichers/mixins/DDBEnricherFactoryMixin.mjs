@@ -419,7 +419,7 @@ export default class DDBEnricherFactoryMixin {
         foundry.utils.setProperty(activity, "consumption.targets", []);
       activity.consumption.targets.push({
         type: "spellSlots",
-        target: "",
+        target: overrideData.spellSlotConsumeTarget ?? "",
         value: overrideData.spellSlotConsumeValue ?? "1",
         scaling: {
           mode: overrideData.addSpellSlotScalingMode ?? "",
