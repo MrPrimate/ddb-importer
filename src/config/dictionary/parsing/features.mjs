@@ -88,6 +88,7 @@ export const PARSING_FEATURES = {
     "Core Warlock Traits",
     "Core Wizard Traits",
     "Core Monster Hunter Traits",
+    "Core Artificer Traits",
     "Weapon Mastery",
     // "Maneuver Options",
     // "Lay On Hands", // 2024
@@ -395,6 +396,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dread Allegiance",
     "Aura of Malevolence",
     "Training In War and Song",
+    "Magic Item Plans",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -406,6 +408,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Fighting Style",
     "Additional Fighting Style",
     "Pact Boon",
+    "Magic Item Plans",
   ],
 };
 

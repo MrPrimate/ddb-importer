@@ -5612,6 +5612,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/",
       sourceURL: "",
     },
+    {
+      id: 222,
+      name: "FFotR",
+      description: "Fated Flight of the Recluse",
+      sourceCategoryId: 38,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/53004/840/638996385206175334.jpeg",
+      sourceURL: "sources/dnd/ffotr",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },

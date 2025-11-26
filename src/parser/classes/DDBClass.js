@@ -97,6 +97,7 @@ export default class DDBClass {
     "Core Cleric Traits",
     "Core Druid Traits",
     "Core Fighter Traits",
+    "Core Artificer Traits",
     "Core Monk Traits",
     "Core Paladin Traits",
     "Core Ranger Traits",
@@ -168,6 +169,7 @@ export default class DDBClass {
     "Core Cleric Traits",
     "Core Druid Traits",
     "Core Fighter Traits",
+    "Core Artificer Traits",
     "Core Monk Traits",
     "Core Paladin Traits",
     "Core Ranger Traits",
@@ -203,6 +205,7 @@ export default class DDBClass {
     "Training in War and Song",
     "Bonus Proficiency",
     "Bonus Proficiencies",
+    "Core Artificer Traits",
   ];
 
   static WEAPON_FEATURES = [
@@ -224,6 +227,7 @@ export default class DDBClass {
     "Bonus Proficiency",
     "Bonus Proficiencies",
     "Training In War and Song",
+    "Core Artificer Traits",
   ];
 
   static WEAPON_MASTERY_FEATURES = [

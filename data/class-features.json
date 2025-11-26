@@ -7268,5 +7268,16 @@
   {
     "name": "Elemental Strike",
     "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
+  }, {
+    "name": "Magic Item Plans",
+    "path": "icons/commodities/tech/blueprint.webp"
+  },
+  {
+    "name": "Magic Item Tinker",
+    "path": "icons/commodities/tech/tube-chamber-lightning.webp"
+  },
+  {
+    "name": "Replicate Magic Item",
+    "path": "icons/commodities/tech/glass-electrode.webp"
   }
 ]
