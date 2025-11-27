@@ -1,8 +1,11 @@
 # Next Up
 
+# 6.6.17
+
 - CRITICAL: If update existing was not checked DDB Importer was creating duplicate entries in compendiums since 6.6.15.
 - Some initial implementation of the Artificer 2024. Not yet ready for use.
 - The Spell-Storing Item now has a DDB Macro function to allow you to pick the spell and create an enchantment.
+- Support the 5.2.x D&D versions. Currently Vehicle import will not work on this version due to huge changes.
 
 # 6.6.16
 
