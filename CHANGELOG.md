@@ -1,5 +1,9 @@
 # Next Up
 
+- CRITICAL: If update existing was not checked DDB Importer was creating duplicate entries in compendiums since 6.6.15.
+- Some initial implementation of the Artificer 2024. Not yet ready for use.
+- The Spell-Storing Item now has a DDB Macro function to allow you to pick the spell and create an enchantment.
+
 # 6.6.16
 
 - If HoF module was enabled, language selection was broken if DDB injected languages was enabled.
