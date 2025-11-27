@@ -56,7 +56,12 @@ export default class DDBItemImporter {
   }
 
   async buildIndex(indexFilter = {}) {
+    const flagSet = new Set(indexFilter.fields ?? []);
+    for (const flagMatch of this.matchFlags) {
+      flagSet.add(`flags.ddbimporter.${flagMatch}`);
+    }
     this.indexFilter = indexFilter;
+    this.indexFilter.fields = Array.from(flagSet);
     this.compendiumIndex = await this.compendium.getIndex(this.indexFilter);
   }
 
@@ -70,9 +75,9 @@ export default class DDBItemImporter {
       // assume 2014 rule if this is the flag request
       const defaultFlagValue = flag === "is2014" ? true : undefined;
       const flagValue1 = foundry.utils.getProperty(item1, `flags.ddbimporter.${flag}`) ?? defaultFlagValue;
-      if (!flagValue1) return false;
+      if (flagValue1 === undefined) return false;
       const flagValue2 = foundry.utils.getProperty(item2, `flags.ddbimporter.${flag}`) ?? defaultFlagValue;
-      if (!flagValue2) return false;
+      if (flagValue2 === undefined) return false;
       return flagValue1 === flagValue2;
     });
     // console.warn("flagMatch", {item1, item2, matched });
@@ -245,15 +250,10 @@ export default class DDBItemImporter {
     }
   }
 
-  async getFilteredItems(item) {
+  async getFilteredItemIndexes(item) {
     const indexEntries = this.compendiumIndex.filter((idx) => idx.name === item.name);
 
-    const mapped = await Promise.all(indexEntries.map((idx) => {
-      const entry = this.compendium.getDocument(idx._id).then((doc) => doc);
-      return entry;
-    }));
-
-    const flagFiltered = mapped.filter((idx) => {
+    const flagFiltered = indexEntries.filter((idx) => {
       const nameMatch = idx.name === item.name;
       const flagMatched = this.#flagMatch(idx, item);
       return nameMatch && flagMatched;
@@ -262,6 +262,14 @@ export default class DDBItemImporter {
     return flagFiltered;
   }
 
+  async getFilteredItemDocuments(item) {
+    const indexEntries = await this.getFilteredItemIndexes(item);
+    const mapped = await Promise.all(indexEntries.map((idx) => {
+      const entry = this.compendium.getDocument(idx._id).then((doc) => doc);
+      return entry;
+    }));
+    return mapped;
+  }
 
   /**
    * Asynchronously creates a new item to be added to a compendium based on its type.
@@ -331,7 +339,7 @@ export default class DDBItemImporter {
   async updateCompendiumItems(inputItems) {
     let results = [];
     for (const item of inputItems) {
-      const existingItems = await this.getFilteredItems(item);
+      const existingItems = await this.getFilteredItemDocuments(item);
       // we have a match, update first match
       if (existingItems.length >= 1) {
         const existingItem = existingItems[0];
@@ -358,8 +366,8 @@ export default class DDBItemImporter {
     let results = [];
     for (const item of inputItems) {
       try {
-        const existingItems = await this.getFilteredItems(item);
-        // we have a single match
+        const existingItems = await this.getFilteredItemIndexes(item);
+        // we have no matching items, create new
         if (existingItems.length === 0) {
           let newItem = await this.createCompendiumItem(item);
           results.push(newItem);
