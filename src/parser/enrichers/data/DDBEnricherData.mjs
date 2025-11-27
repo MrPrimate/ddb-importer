@@ -74,7 +74,7 @@ export default class DDBEnricherData {
     return max;
   }
 
-  _getGeneratedUses(type, name, matchSubClass = null, scaleLink = null, includesName = false) {
+  _getGeneratedUses({ type, name, matchSubClass = null, scaleLink = null, includesName = false } = {}) {
     const action = this.ddbParser?.ddbData?.character.actions[type].find((a) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null

@@ -1,5 +1,6 @@
 import { utils, logger } from "../../../lib/_module.mjs";
 import { SystemHelpers } from "../../lib/_module.mjs";
+import { Effects } from "../_module.mjs";
 
 export default class DDBBasicActivity {
 
@@ -502,9 +503,9 @@ export default class DDBBasicActivity {
     if (generateSpell) this._generateSpell({ spellOverride });
 
     if (noeffect) {
-      const ids = foundry.utils.getProperty(this.ddbParent.data, "flags.ddbimporter.noeffect") ?? [];
+      const ids = foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.noeffect") ?? [];
       ids.push(this.data._id);
-      foundry.utils.setProperty(this.ddbParent.data, "flags.ddbimporter.noEffectIds", ids);
+      foundry.utils.setProperty(this.foundryFeature, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
     }
     if (img) foundry.utils.setProperty(this.data, "img", img);
@@ -536,6 +537,115 @@ export default class DDBBasicActivity {
 
   static buildDamagePart({ dice = null, damageString = "", type, stripMod = false } = {}) {
     return SystemHelpers.buildDamagePart({ dice, damageString, type, stripMod });
+  }
+
+  static async addQuickCastActivity({ uuid, actor, document, spellOverride = null, consumptionTargetOverrides = null, activityData = {} } = {}) {
+    const foundryData = document.toObject();
+    const spellData = await fromUuid(uuid);
+
+    if (!spellData) {
+      ui.notifications.error(`Could not find spell with UUID: ${uuid}`);
+      return null;
+    }
+
+    const ddbActivityId = await DDBBasicActivity.createActivity(
+      {
+        type: "cast",
+        character: actor,
+        document: foundryData,
+        name: `Cast ${spellData.name}`,
+      },
+      {
+        generateActivation: false,
+        generateTarget: false,
+        generateDuration: false,
+        generateRange: false,
+        generateUses: false,
+        generateSpell: true,
+        spellOverride: spellOverride ?? {
+          uuid,
+          properties: ["vocal", "somatic", "material"],
+          level: null,
+          challenge: {
+            attack: null,
+            save: null,
+            override: false,
+          },
+          spellbook: true,
+        },
+        consumeItem: true,
+        generateConsumption: true,
+        consumptionTargetOverrides: consumptionTargetOverrides ?? [
+          {
+            type: "itemUses",
+            target: "", // adjusted later
+            value: 1,
+            scaling: {
+              mode: "",
+              formula: "",
+            },
+          },
+        ],
+      },
+    );
+
+    foundry.utils.mergeObject(foundryData.system.activities[ddbActivityId], activityData);
+    await document.update(foundryData);
+    return ddbActivityId;
+
+  }
+
+  static async addQuickEnchantmentActivity({
+    actor, document, activityData = {}, riderActionIds = [], riderEffectIds = [],
+    label, changes = [],
+  } = {}) {
+    const foundryData = document.toObject();
+
+    const activity = new DDBBasicActivity({
+      type: "enchant",
+      actor,
+      foundryFeature: foundryData,
+    });
+
+    activity.data.restrictions = {
+      type: "",
+      allowMagical: true,
+    };
+
+    const enchantmentEffect = Effects.EnchantmentEffects.EnchantmentEffect(foundryData, label, {
+      origin: document.uuid,
+    });
+    enchantmentEffect.changes.push(...changes);
+    foundry.utils.mergeObject(activity.data, activityData);
+
+    const effectLink = {
+      _id: enchantmentEffect._id,
+      level: {
+        min: null,
+        max: null,
+      },
+      riders: {
+        activity: riderActionIds,
+        effect: riderEffectIds,
+        item: [],
+      },
+    };
+    activity.data.effects.push(effectLink);
+
+    let effects = [enchantmentEffect];
+
+    foundryData.effects.push(...effects);
+    foundry.utils.setProperty(foundryData, `system.activities.${activity.data._id}`, activity.data);
+
+    const riderFlags = foundry.utils.getProperty(foundryData, "flags.dnd5e.riders") ?? { activity: [], effect: [] };
+
+    riderFlags.activity.push(...riderActionIds);
+    riderFlags.effect.push(...riderEffectIds);
+
+    foundry.utils.setProperty(foundryData, "flags.dnd5e.riders", riderFlags);
+    await document.update(foundryData);
+    return activity.data._id;
+
   }
 
 }

@@ -1,3 +1,4 @@
+export { default as AdvancedArtifice } from "./AdvancedArtifice.mjs";
 export { default as ArcaneArmorCreateArmor } from "./ArcaneArmorCreateArmor.mjs";
 export { default as ArcanePropulsionArmorGauntlet } from "./ArcanePropulsionArmorGauntlet.mjs";
 export { default as ArmorModel } from "./ArmorModel.mjs";
@@ -10,6 +11,8 @@ export { default as EldritchCannonProtector } from "./EldritchCannonProtector.mj
 export { default as FlashOfGenius } from "./FlashOfGenius.mjs";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField.mjs";
 export { default as MagicItemTinker } from "./MagicItemTinker.mjs";
+export { default as SpellStoringItem } from "./SpellStoringItem.mjs";
+export { default as SpellStoringItemStoreSpell } from "./SpellStoringItemStoreSpell.mjs";
 export { default as SteelDefender } from "./SteelDefender.mjs";
 export { default as TransmuteMagicItem } from "./TransmuteMagicItem.mjs";
 
