@@ -445,6 +445,36 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
+  _artificerFixes() {
+    if (this.data.name.startsWith("Alchemist")) {
+      if (this.is2024) {
+        const elixir = {
+          type: "ScaleValue",
+          configuration: {
+            identifier: "experimental-elixir",
+            type: "number",
+            scale: {
+              "3": {
+                "value": 2,
+              },
+              "5": {
+                "value": 3,
+              },
+              "9": {
+                "value": 4,
+              },
+              "15": {
+                "value": 5,
+              },
+            },
+          },
+          title: "Experimental Elixir",
+        };
+        this.data.system.advancement.push(elixir);
+      }
+    }
+  }
+
   // eslint-disable-next-line complexity
   async _fixes() {
     this._fightingStyleAdvancement();
@@ -454,6 +484,7 @@ export default class DDBSubClass extends DDBClass {
     this._fighterFixes();
     this._rangerFixes();
     this._sorcererFixes();
+    this._artificerFixes();
     await this._bardFixes();
   }
 

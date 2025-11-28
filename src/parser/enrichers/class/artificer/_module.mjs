@@ -4,6 +4,7 @@ export { default as ArcanePropulsionArmorGauntlet } from "./ArcanePropulsionArmo
 export { default as ArmorModel } from "./ArmorModel.mjs";
 export { default as ArtificerSpells } from "./ArtificerSpells.mjs";
 export { default as ChargeMagicItem } from "./ChargeMagicItem.mjs";
+export { default as CheatDeath } from "./CheatDeath.mjs";
 export { default as EldritchCannon } from "./EldritchCannon.mjs";
 export { default as EldritchCannonFlamethrower } from "./EldritchCannonFlamethrower.mjs";
 export { default as EldritchCannonForceBallista } from "./EldritchCannonForceBallista.mjs";

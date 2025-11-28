@@ -122,7 +122,7 @@ if (scopeParameters.action === "store-spell") {
     },
   });
 
-  const enchantId =await DDBImporter.lib.Enrichers.mixins.DDBBasicActivity.addQuickEnchantmentActivity({
+  const enchantId = await DDBImporter.lib.Enrichers.mixins.DDBBasicActivity.addQuickEnchantmentActivity({
     riderActionIds: [castActivityId],
     actor: parentActor,
     document: sourceItem,

@@ -131,6 +131,20 @@ export default class DDBEnricherData {
       .filter((d) => !exclude.includes(d));
   }
 
+  /**
+   * Creates a basic damage part with the given parameters.
+   * @param {object} [opts] An object containing the parameters.
+   * @param {number} [opts.number] The number of dice to roll.
+   * @param {number} [opts.denomination] The denomination of the dice.
+   * @param {string} [opts.type] The type of damage.
+   * @param {string[]} [opts.types] The types of damage.
+   * @param {string} [opts.bonus] The bonus to apply to the damage.
+   * @param {string} [opts.scalingMode] The scaling mode to apply to the damage.
+   * @param {number} [opts.scalingNumber] The scaling number to apply to the damage.
+   * @param {string} [opts.scalingFormula] The scaling formula to apply to the damage.
+   * @param {string} [opts.customFormula] The custom formula to apply to the damage.
+   * @returns {object} - The created damage part.
+   */
   static basicDamagePart({
     number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
     scalingNumber = 1, scalingFormula = "", customFormula = null,

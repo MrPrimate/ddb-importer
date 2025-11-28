@@ -2018,6 +2018,7 @@ export default class DDBClass {
     await this._fixes();
     await this._addFoundryAdvancements();
     await this._addToCompendium();
+
   }
 
 }

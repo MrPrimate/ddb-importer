@@ -917,14 +917,14 @@ export default class AdvancementHelper {
         : 1
       : conditionsFromMods.length;
 
-    // console.warn(`Conditions`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   conditionsFromMods,
-    //   parsedConditions,
-    //   count,
-    // });
+    console.warn(`Conditions`, {
+      level,
+      feature,
+      mods,
+      conditionsFromMods,
+      parsedConditions,
+      count,
+    });
 
     if (count === 0 && parsedConditions.grants.length === 0) return null;
 
@@ -947,12 +947,12 @@ export default class AdvancementHelper {
       level: level,
     });
 
-    // console.warn("conditions", {
-    //   pool,
-    //   chosen,
-    //   count,
-    //   grants: parsedConditions.grants.map((grant) => grant),
-    // });
+    console.warn("conditions", {
+      pool,
+      chosen,
+      count,
+      grants: parsedConditions.grants.map((grant) => grant),
+    });
 
     AdvancementHelper.advancementUpdate(advancement, {
       pool,
@@ -1598,12 +1598,16 @@ export default class AdvancementHelper {
     // you gain proficiency with the disguise kit and the poisoner’s kit.
     // you gain proficiency with the disguise kit, the forgery kit, and one gaming set of your choice.
     // you gain proficiency with Tinker’s Tools
+    // You gain proficiency with Alchemist’s Supplies and the Herbalism Kit.
 
     const additionalMatchRegex = /You gain proficiency with (.*?)($|\.|\w+:)/im;
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
-      const additionalMatches = additionalMatch[2].replace(" and ", ",").split(",").map((skill) => skill.trim());
+      const additionalMatches = additionalMatch[1]
+        .replace(" and the ", ",")
+        .replace(" and ", ",")
+        .split(",").map((skill) => skill.trim());
       for (const match of additionalMatches) {
         const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
         const choiceMatch = textDescription.match(toolChoiceRegex);
@@ -2266,38 +2270,46 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       // You also have resistance to poison damage.
       // You are immune to poison damage and the poisoned condition.
       // You have resistance to acid and poison damage, and you have advantage on saving throws against being poisoned.
-      const damageRegex = /(?:you|the paladin) (?:also have|have|gains*|are) ([^advantage].*) to (.*?)($|\.|and you have advantage|\w+:)/im;
-      const damageMatch = adjustedText.match(damageRegex);
-      if (damageMatch) {
-        const additionalMatches = damageMatch[2]
-          .replace(" and ", ",").split(",")
-          .map((dmg) => dmg.trim().toLowerCase());
-        for (const match of additionalMatches) {
-          const conditionKind = damageMatch[1].toLowerCase().trim();
-          const damageMapping = DICTIONARY.actor.damageAdjustments.find((a) =>
-            a.kind === conditionKind // only match the kind
-            && a.type !== 4 // don't include conditions
-            && match === a.name.toLowerCase(),
-          );
-          if (damageMapping) {
-            const type = AdvancementHelper.CONDITION_MAPPING[conditionKind];
-            const valueData = foundry.utils.hasProperty(damageMapping, "foundryValues")
-              ? foundry.utils.getProperty(damageMapping, "foundryValues")
-              : foundry.utils.hasProperty(damageMapping, "foundryValue")
-                ? { value: damageMapping.foundryValue }
-                : undefined;
-            // eslint-disable-next-line max-depth, no-continue
-            if (!valueData) continue;
-            const midiValues = game.modules.get("midi-qol")?.active && valueData.midiValues
-              ? valueData.midiValues
-              : [];
-            const mappingValueArray = midiValues.concat(valueData.value).map((value) => value.toLowerCase());
-            mappingValueArray.forEach((value) => {
-              if (type) grants.add(`${type}:${value}`);
-              if (type === "di" && value === "poison") {
-                grants.add("ci:poisoned");
-              }
-            });
+      const damageRegexs = [
+        /(?:you|the paladin) (?:also have|have|gains*|are) ([^advantage].*) to (.*?)($|\.|and you have advantage|\w+:)/im,
+        /(?:you gain) (.*?) to (.*?)($|\.|\w+:)/im,
+      ];
+      for (const damageRegex of damageRegexs) {
+        const damageMatch = adjustedText.match(damageRegex);
+        if (damageMatch) {
+          const additionalMatches = damageMatch[2]
+            .replaceAll(" and ", ",")
+            .split(",")
+            .map((dmg) => dmg.toLowerCase().replace(" damage", "").trim());
+          for (const match of additionalMatches) {
+            const conditionKind = damageMatch[1].toLowerCase().trim();
+            const damageMapping = DICTIONARY.actor.damageAdjustments.find((a) =>
+              a.kind === conditionKind // only match the kind
+              && a.type !== 4 // don't include conditions
+              && match === a.name.toLowerCase(),
+            );
+            // eslint-disable-next-line max-depth
+            if (damageMapping) {
+              const type = AdvancementHelper.CONDITION_MAPPING[conditionKind];
+              const valueData = foundry.utils.hasProperty(damageMapping, "foundryValues")
+                ? foundry.utils.getProperty(damageMapping, "foundryValues")
+                : foundry.utils.hasProperty(damageMapping, "foundryValue")
+                  ? { value: damageMapping.foundryValue }
+                  : undefined;
+              // eslint-disable-next-line max-depth, no-continue
+              if (!valueData) continue;
+              const midiValues = game.modules.get("midi-qol")?.active && valueData.midiValues
+                ? valueData.midiValues
+                : [];
+              const mappingValueArray = midiValues.concat(valueData.value).map((value) => value.toLowerCase());
+              // eslint-disable-next-line no-loop-func
+              mappingValueArray.forEach((value) => {
+                if (type) grants.add(`${type}:${value}`);
+                if (type === "di" && value === "poison") {
+                  grants.add("ci:poisoned");
+                }
+              });
+            }
           }
         }
       }
@@ -2312,7 +2324,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     // You are immune to poison damage and the poisoned condition.
     // You are immune to disease.
     if (isImmunity) {
-      const immuneRegex = /(?:you have|and|you are|makes you) (?:immune|immunity) to (.*?)($|\.|and you have advantage|\w+:)/im;
+      const immuneRegex = /(?:you have|and|you are|makes you|you (?:also )gain) (?:immune|immunity) to (?:the )?(.*?)($|\.|and you have advantage|\w+:)/im;
       const immuneMatch = textDescription.match(immuneRegex);
       if (immuneMatch) {
         let addPoisonDI = false;
@@ -2320,7 +2332,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           .replace(" and ", ",")
           .split(",")
           .map((dmg) => {
-            const result = dmg.trim().toLowerCase();
+            const result = dmg.toLowerCase().replace(" condition", "").trim();
             if (dmg === "poison") {
               addPoisonDI = true;
               return "poisoned";
