@@ -917,14 +917,14 @@ export default class AdvancementHelper {
         : 1
       : conditionsFromMods.length;
 
-    console.warn(`Conditions`, {
-      level,
-      feature,
-      mods,
-      conditionsFromMods,
-      parsedConditions,
-      count,
-    });
+    // console.warn(`Conditions`, {
+    //   level,
+    //   feature,
+    //   mods,
+    //   conditionsFromMods,
+    //   parsedConditions,
+    //   count,
+    // });
 
     if (count === 0 && parsedConditions.grants.length === 0) return null;
 
@@ -947,12 +947,12 @@ export default class AdvancementHelper {
       level: level,
     });
 
-    console.warn("conditions", {
-      pool,
-      chosen,
-      count,
-      grants: parsedConditions.grants.map((grant) => grant),
-    });
+    // console.warn("conditions", {
+    //   pool,
+    //   chosen,
+    //   count,
+    //   grants: parsedConditions.grants.map((grant) => grant),
+    // });
 
     AdvancementHelper.advancementUpdate(advancement, {
       pool,
