@@ -78,6 +78,9 @@
   "plugins": [
     "jsdoc"
   ],
+  "ignorePatterns": [
+    "foundry/**/*"
+  ],
   "parserOptions": {
     "ecmaVersion": 2022,
     "sourceType": "module"

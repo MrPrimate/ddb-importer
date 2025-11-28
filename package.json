@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run clear; webpack",
     "clear": "rm -rf dist/*",
+    "createSymlinks": "node ./tools/create-symlinks.mjs",
     "link": "cd src/parser/enrichers && node _linkBuilder.js"
   },
   "devDependencies": {

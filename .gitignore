@@ -9,3 +9,10 @@ yarn.lock
 module.json
 
 .DS_Store
+
+
+# Foundry
+foundry-config.yaml
+foundry
+dnd5e
+
