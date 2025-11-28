@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { utils } from "../../../../lib/_module.mjs";
+import { CompendiumHelper, utils } from "../../../../lib/_module.mjs";
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class ExperimentalElixir extends DDBEnricherData {
@@ -21,7 +21,6 @@ export default class ExperimentalElixir extends DDBEnricherData {
     };
   }
 
-
   get override() {
     if (this.is2014) return null;
     return {
@@ -39,7 +38,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     };
   }
 
-  get experimentalExlixirDetails() {
+  get experimentalElixirDetails() {
     const dom = utils.htmlToDocumentFragment(this.ddbParser?.ddbDefinition?.description ?? "");
 
     // Find all rows in the tbody
@@ -170,8 +169,21 @@ export default class ExperimentalElixir extends DDBEnricherData {
         value: 10,
       };
       options.generateSpell = true;
+
+      const compcompendiumSpellsIndex = CompendiumHelper.retrieveCompendiumSpellReferences(["Alter Self"], {
+        use2024Spells: this.is2024,
+      });
+
       options.spellOverride = {
-        //TODO : get spell data here
+        uuid: compcompendiumSpellsIndex[0].uuid ?? "",
+        properties: [],
+        level: null,
+        challenge: {
+          attack: null,
+          save: null,
+          override: false,
+        },
+        spellbook: false,
       };
     }
 
@@ -194,9 +206,14 @@ export default class ExperimentalElixir extends DDBEnricherData {
     }
   }
 
+  async importItem(item) {
+
+  }
+
   async customFunction(options = {}) {
-    for (const row of this.experimentalExlixirDetails) {
+    for (const row of this.experimentalElixirDetails) {
       const item = await this.buildItem(row);
+      await this.importItem(item);
     }
   }
 
