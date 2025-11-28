@@ -57,8 +57,10 @@ export default class DDBItemImporter {
 
   async buildIndex(indexFilter = {}) {
     const flagSet = new Set(indexFilter.fields ?? []);
-    for (const flagMatch of this.matchFlags) {
-      flagSet.add(`flags.ddbimporter.${flagMatch}`);
+    if (!flagSet.has("flags.ddbimporter")) {
+      for (const flagMatch of this.matchFlags) {
+        flagSet.add(`flags.ddbimporter.${flagMatch}`);
+      }
     }
     this.indexFilter = indexFilter;
     this.indexFilter.fields = Array.from(flagSet);

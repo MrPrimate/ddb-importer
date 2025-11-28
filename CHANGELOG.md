@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.18
+
+- Class import could fail, as could character import if Import to Compendium was selected.
+
 # 6.6.17
 
 - CRITICAL: If update existing was not checked DDB Importer was creating duplicate entries in compendiums since 6.6.15.
