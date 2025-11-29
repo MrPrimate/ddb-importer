@@ -248,6 +248,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         generateActivation: true,
         generateConsumption: true,
         consumeItem: true,
+        noeffects: true,
         activationOverride: {
           type: "bonus",
           value: 1,
@@ -255,6 +256,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         },
       },
       overrides: {
+        noTemplate: true,
         id: utils.namedIDStub(name, {
           postfix: 1,
           prefix: "eea",
@@ -524,6 +526,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
           type: "enchant",
         },
         overrides: {
+          noTemplate: true,
+          noeffects: true,
           activationType: "action",
           addItemConsume: true,
           targetType: "self",
@@ -543,6 +547,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
           activationType: "action",
           addItemConsume: true,
           targetType: "self",
+          noTemplate: true,
+          noeffects: true,
           data: {
             restrictions: {
               type: "consumable",
