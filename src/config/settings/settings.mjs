@@ -696,7 +696,7 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
-          "character-update-policy-add-features-to-compendiums": {
+          "character-update-policy-add-features-to-compendiums-dev": {
             type: Boolean,
             default: false,
           },

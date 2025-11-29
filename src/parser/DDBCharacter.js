@@ -101,7 +101,7 @@ export default class DDBCharacter {
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.isMuncher = isMuncher;
-    this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums");
+    this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums-debug");
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.forceCompendiumUpdate = forceCompendiumUpdate;
     this._infusionFactory = null;

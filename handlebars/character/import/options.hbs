@@ -28,10 +28,12 @@
     </div>
   </fieldset>
 
+  {{#if devMode}}
   <fieldset>
-  <legend>Experimental Options</legend>
+  <legend>Developer Mode Options</legend>
+    <p>Congrats, you have unlocked DEV mode, please note that these break characters and should not be enabled when importing characters for play.</p>
     <div class="import-policy-group-experimental">
-      {{#each experimentalConfig}}
+      {{#each devConfig}}
       <div class="form-group character-import-policy-experimental">
         <label class="ddbimporter-long">{{ this.label }}</label>
         <div class="form-fields">
@@ -43,5 +45,6 @@
       {{/each}}
     </div>
   </fieldset>
+  {{/if}}
 
 </section>

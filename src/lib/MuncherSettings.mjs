@@ -276,10 +276,10 @@ const MuncherSettings = {
       },
     ];
 
-    const experimentalConfig = [
+    const devConfig = [
       {
-        name: "character-update-policy-add-features-to-compendiums",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums"),
+        name: "character-update-policy-add-features-to-compendiums-dev",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums-dev"),
         label: "[EXPERIMENTAL] Import features to compendiums?",
         hint:
           "Adds classes (if level20), class features, backgrounds, species, species traits, and feats to your DDB Importer compendiums.",
@@ -400,7 +400,8 @@ const MuncherSettings = {
       importConfig,
       extrasConfig,
       sourcesConfig,
-      experimentalConfig,
+      devMode: CONFIG.DDBI.DEV.enabled,
+      devConfig,
       effectImportConfig,
       compendiumSourcesConfig,
       dataDirSet,
