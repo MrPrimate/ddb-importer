@@ -3,7 +3,7 @@ import { lib, config } from "./_module.mjs";
 import DDBMonster from "./parser/DDBMonster.js";
 import DDBMonsterFactory from "./parser/DDBMonsterFactory.js";
 import { parseSpells } from "./muncher/spells.js";
-import { parseItems } from "./muncher/items.js";
+import DDBItemsImporter from "./muncher/DDBItemsImporter.mjs";
 import { parseTransports } from "./muncher/vehicles.js";
 import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "./muncher/tools.js";
 import DDBEncounterFactory from "./parser/DDBEncounterFactory.js";
@@ -188,7 +188,7 @@ export function registerApi() {
     parse: {
       monsters: parseCritters,
       vehicles: parseTransports,
-      items: parseItems,
+      items: DDBItemsImporter.fetchAndImportItems,
       spells: parseSpells,
     },
 

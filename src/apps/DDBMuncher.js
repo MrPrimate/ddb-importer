@@ -8,7 +8,6 @@ import {
   DDBSources,
   DDBCampaigns,
 } from "../lib/_module.mjs";
-import { parseItems } from "../muncher/items.js";
 import { parseSpells } from "../muncher/spells.js";
 import DDBFrameImporter from "../muncher/DDBFrameImporter.js";
 import { downloadAdventureConfig } from "../muncher/adventure.js";
@@ -24,6 +23,7 @@ import DDBDebugger from "./DDBDebugger.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
+import DDBItemsImporter from "../muncher/DDBItemsImporter.mjs";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -547,7 +547,7 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching items!");
       this._disableButtons();
-      await parseItems({
+      await DDBItemsImporter.fetchAndImportItems({
         notifier: this.notifier.bind(this),
         searchFilter: this.searchTermItem,
       });

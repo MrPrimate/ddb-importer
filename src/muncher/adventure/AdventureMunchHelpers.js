@@ -1,6 +1,6 @@
 import { logger, CompendiumHelper, PatreonHelper, utils, FileHelper } from "../../lib/_module.mjs";
 import { parseSpells } from "../spells.js";
-import { parseItems } from "../items.js";
+import DDBItemsImporter from "../DDBItemsImporter.mjs";
 import AdventureMunch from "./AdventureMunch.js";
 import { SETTINGS } from "../../config/_module.mjs";
 import DDBMonsterFactory from "../../parser/DDBMonsterFactory.js";
@@ -81,7 +81,7 @@ export default class AdventureMunchHelpers {
           case "item":
             logger.debug(`Importing missing ${type}s from DDB`, docIds);
             AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
-            resolve(parseItems({ useSourceFilter: false, ids: docIds, deleteBeforeUpdate: false }));
+            resolve(DDBItemsImporter.fetchAndImportItems({ useSourceFilter: false, ids: docIds, deleteBeforeUpdate: false }));
             break;
           case "monster": {
             try {

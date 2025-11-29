@@ -19,7 +19,7 @@ import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
 import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module.mjs";
 
 
-export default class DDBItems {
+export default class DDBItemsImporter {
 
   source = {
     items: [],
@@ -27,11 +27,13 @@ export default class DDBItems {
     spells: [],
   };
 
-  parsed = null;
+  synthetic = null;
 
   mock = null;
 
   data = [];
+
+  updateResults = null;
 
   notifier = utils.munchNote();
 
@@ -49,6 +51,8 @@ export default class DDBItems {
 
   searchFilter = null;
 
+  itemHandler = null;
+
   constructor({
     source = [],
     notifier = null,
@@ -65,8 +69,6 @@ export default class DDBItems {
     this.searchFilter = searchFilter;
     this.updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
     this.uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-
-
   }
 
   async init() {
@@ -84,6 +86,8 @@ export default class DDBItems {
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
+
+    await Iconizer.preFetchDDBIconImages();
 
     this.ready = true;
   }
@@ -251,12 +255,10 @@ export default class DDBItems {
     });
   }
 
-  async _generateImportItems() {
+  async _processDDBItemData() {
     if (!this.ready) {
       throw new Error("DDBItems not initialized. Please run init() before generating import items.");
     }
-
-    const items = DDBItems.getCharacterInventory(this.source.items, this.source.extra);
 
     const mockCharacter = {
       system: SystemHelpers.getTemplate("character"),
@@ -282,7 +284,7 @@ export default class DDBItems {
           racialTraits: [],
         },
         characterValues: [],
-        inventory: items,
+        inventory: DDBItemsImporter.getCharacterInventory(this.source.items, this.source.extra),
         customItems: null,
         options: {
           class: [],
@@ -290,7 +292,7 @@ export default class DDBItems {
           feat: [],
         },
         spells: {
-          item: itemSpells,
+          item: this.source.spells,
         },
         modifiers: {
           race: [],
@@ -315,18 +317,13 @@ export default class DDBItems {
     });
     ddbCharacter.raw.itemSpells = spells;
 
-    // console.warn("spells", {
-    //   spells,
-    //   itemSpells,
-    // });
-
     const inventory = await ddbCharacter.getInventory(this.notifier);
     const results = {
       items: inventory,
       spells: ddbCharacter.raw.itemSpells, // this needs to be a list of spells to find
     };
     // console.warn(results);
-    this.parsed = results
+    this.synthetic = results;
   }
 
 
@@ -339,16 +336,88 @@ export default class DDBItems {
 
     // disable source filter if ids provided
     const sourceFilter = (this.ids === null || this.ids.length === 0) && this.useSourceFilter;
-    this.source = await DDBItems._getItemData({
+    this.source = await DDBItemsImporter._getItemData({
       useSourceFilter: sourceFilter,
       ids: this.ids,
       searchFilter: this.searchFilter,
     });
   }
 
+  async _importSyntheticItems() {
+    if (!this.ready) {
+      throw new Error("DDBItems not initialized. Please run init() before enriching synthetic items.");
+    }
+
+    this.notifier("Analysing generated items...", { nameField: true });
+    this.itemHandler = new DDBItemImporter("items", this.synthetic.items, {
+      deleteBeforeUpdate: this.deleteBeforeUpdate,
+      matchFlags: ["is2014", "is2024"],
+      notifier: this.notifier,
+    });
+    await this.itemHandler.init();
+    await this.itemHandler.srdFiddling();
+    this.notifier(`Imps are creating iconographs for ${this.itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
+    await this.itemHandler.iconAdditions();
+    this.data = (this.ids !== null && this.ids.length > 0)
+      ? this.itemHandler.documents.filter((s) =>
+        s.flags?.ddbimporter?.definitionId
+        && this.ids.includes(String(s.flags.ddbimporter.definitionId)),
+      )
+      : this.itemHandler.documents;
+    this.itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({
+      documents: this.data,
+      compendiumItem: true,
+    });
+
+    const finalCount = this.itemHandler.documents.length;
+    this.notifier(`Preparing to import ${finalCount} items!`, { nameField: true });
+    logger.time("Item Import Time");
+
+    await this.itemHandler.compendiumFolders.loadCompendium("items", true);
+    await this.itemHandler.compendiumFolders.createItemFoldersForDocuments({ documents: this.itemHandler.documents });
+
+    this.updateResults = await this.itemHandler.updateCompendium(this.updateBool);
+    const updatePromiseResults = await Promise.all(this.updateResults);
+
+    await DDBCompendiumFolders.cleanupCompendiumFolders("items", this.notifier);
+
+    DDBRuleJournalFactory.registerWeaponIds();
+
+    logger.debug("Final Item Import Data", {
+      finalItems: this.itemHandler.documents,
+      updateResults: this.updateResults,
+      updatePromiseResults,
+    });
+    this.notifier("");
+    logger.timeEnd("Item Import Time");
+    return this.updateResults;
+
+  }
+
+
   async process() {
     await this.init();
     await this._getDDBItems();
-    await this._generateImportItems();
+    await this._processDDBItemData();
+    await this._importSyntheticItems();
+  }
+
+
+  static async fetchAndImportItems({
+    useSourceFilter = true,
+    ids = [],
+    deleteBeforeUpdate = null,
+    notifier = null,
+    searchFilter = null,
+  } = {}) {
+    const ddbItems = new DDBItemsImporter({
+      useSourceFilter,
+      ids,
+      deleteBeforeUpdate,
+      notifier,
+      searchFilter,
+    });
+    await ddbItems.process();
+    return ddbItems.updateResults;
   }
 }
