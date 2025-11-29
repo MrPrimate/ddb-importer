@@ -1,7 +1,10 @@
 # Next Up
 
+- Requires the 5.2.0 or higher of the D&D5e system.
 - A number of internal changes to support the Alchemist Experimental Elixir in item importing, compendium folders and a few other elements.
 - The experimental option to import features on 20th level characters has been disabled due to conflicts with the Munching tool, and breaking features on imported characters.
+- Experimental Elixir implementation for Alchemist.
+- Alchemist subclass parsing improvements.
 
 # 6.6.18
 

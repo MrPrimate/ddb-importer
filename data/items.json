@@ -11418,5 +11418,9 @@
   {
     "name": "Thayan Spell Tattoo",
     "path": "icons/commodities/materials/feather-red-.webp"
+  },
+  {
+    "name": "Flask",
+    "path": "icons/consumables/potions/bottle-corked-empty.webp"
   }
 ]

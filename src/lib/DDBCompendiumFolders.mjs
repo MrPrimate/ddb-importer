@@ -738,6 +738,8 @@ export class DDBCompendiumFolders {
       await this.createFeatureFolder(subclassName, "Maneuver Options", classFolderId, version);
     } else if (parentClassName === "Fighter" && subclassName === "Rune Knight") {
       await this.createFeatureFolder(subclassName, "Runes", classFolderId, version);
+    } else if (parentClassName === "Artificer" && subclassName === "Alchemist") {
+      await this.createFeatureFolder(subclassName, "Experimental Elixirs", classFolderId, version);
     }
   }
 
@@ -1098,6 +1100,7 @@ export class DDBCompendiumFolders {
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
     const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
     const infusion = foundry.utils.getProperty(document, "flags.ddbimporter.infusionFeature");
+    const elixir = foundry.utils.getProperty(document, "flags.ddbimporter.experimentalElixir");
     const subType = foundry.utils.getProperty(document, "system.type.subtype");
 
     const validSubclass = subClassName && subClassName.trim() !== "";
@@ -1110,6 +1113,9 @@ export class DDBCompendiumFolders {
       result.name = "Optional Features";
       result.flagTag = `${version}/features/${className}/Optional Features`;
     // specialist folders
+    } else if (elixir) {
+      result.name = "Experimental Elixirs";
+      result.flagTag = `${version}/features/${subClassName}/Experimental Elixirs`;
     } else if (subType === "metamagic" && className === "Sorcerer") {
       result.name = "Metamagic";
       result.flagTag = `${version}/features/${className}/Metamagic`;
@@ -1623,6 +1629,7 @@ export class DDBCompendiumFolders {
           "flags.ddbimporter.subClass",
           "flags.ddbimporter.optionalFeature",
           "flags.ddbimporter.infusionFeature",
+          "flags.ddbimporter.experimentalElixir",
           "flags.ddbimporter.is2014",
           "system.type.subtype",
           "system.source.book",

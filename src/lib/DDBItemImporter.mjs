@@ -27,7 +27,7 @@ export default class DDBItemImporter {
     notifier = null,
   } = {}) {
     this.type = type;
-    this.documents = documents;
+    this._documents = documents;
     this.useCompendiumFolders = useCompendiumFolders ?? true;
     this.matchFlags = matchFlags;
 
@@ -47,12 +47,21 @@ export default class DDBItemImporter {
         logger.info(note, { nameField, monsterNote });
       };
     }
-    this.totalDocuments = this.documents?.length ?? 0;
+    this.totalDocuments = this._documents?.length ?? 0;
     this.currentDocumentCount = 0;
 
     this.compendiumFolders = new DDBCompendiumFolders(this.type, {
       noCreateClassFolders: true,
     });
+  }
+
+  get documents() {
+    return this._documents;
+  }
+
+  set documents(docs) {
+    this._documents = docs;
+    this.totalDocuments = this._documents?.length ?? 0;
   }
 
   async buildIndex(indexFilter = {}) {
@@ -307,7 +316,7 @@ export default class DDBItemImporter {
     this.currentDocumentCount++;
     this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
     logger.debug(`Pushing ${item.name} to compendium (${this.currentDocumentCount}/${this.totalDocuments})`);
-    return this.compendium.importDocument(newItem);
+    return this.compendium.importDocument(newItem, { keepId: true });
   }
 
   async updateCompendiumItem(updateItem, existingItem) {
@@ -633,8 +642,16 @@ ${item.system.description.chat}
   static async buildHandler(type, documents, updateBool,
     { srdFidding = true, removeSRDDuplicates = true, ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null } = {},
+    overrideHandler = null,
   ) {
-    const handler = new DDBItemImporter(type, documents, { matchFlags, deleteBeforeUpdate, useCompendiumFolders, notifier, indexFilter });
+    const handler = overrideHandler ?? new DDBItemImporter(type, documents, {
+      matchFlags,
+      deleteBeforeUpdate,
+      useCompendiumFolders,
+      notifier,
+      indexFilter,
+    });
+    if (overrideHandler) handler.documents = documents;
     await handler.init();
     if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
     if (updateIcons) await handler.iconAdditions();

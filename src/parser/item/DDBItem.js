@@ -129,6 +129,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Fish Sauce Soda",
     "Canister of Vreyval's Soothing Tea",
     "Eyedrops of Clarity",
+    "Flask",
   ];
 
   static AMMUNITION = [
