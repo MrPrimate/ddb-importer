@@ -118,21 +118,21 @@ export default class DreadAllegiance extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("psychic", 1, "system.traits.dr.value"),
         ],
-        activityNameMatch: "Choose Bane",
+        activityMatch: "Choose Bane",
       },
       {
         name: "Dread Allegiance to Bhaal (Poison)",
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("poison", 1, "system.traits.dr.value"),
         ],
-        activityNameMatch: "Choose Bhaal",
+        activityMatch: "Choose Bhaal",
       },
       {
         name: "Dread Allegiance to Myrkul (Necrotic)",
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 1, "system.traits.dr.value"),
         ],
-        activityNameMatch: "Choose Myrkul",
+        activityMatch: "Choose Myrkul",
       },
     ];
   }

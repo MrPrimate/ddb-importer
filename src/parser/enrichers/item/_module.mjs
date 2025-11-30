@@ -58,6 +58,7 @@ export { default as TomeOfClearThought } from "./TomeOfClearThought.mjs";
 export { default as TomeOfLeadershipAndInfluence } from "./TomeOfLeadershipAndInfluence.mjs";
 export { default as TomeOfUnderstanding } from "./TomeOfUnderstanding.mjs";
 export { default as Torch } from "./Torch.mjs";
+export { default as Vial } from "./Vial.mjs";
 export { default as WandOfFireballs } from "./WandOfFireballs.mjs";
 export { default as WandOfMagicMissiles } from "./WandOfMagicMissiles.mjs";
 export { default as WandOfOrcus } from "./WandOfOrcus.mjs";

@@ -137,10 +137,10 @@ export default class ExperimentalElixir extends DDBEnricherData {
           { bonus: "10", min: null, max: null },
         ],
         "Resilience": [
-          { duration: "10", min: null, max: null },
+          { duration: "600", min: null, max: null },
         ],
         "Boldness": [
-          { duration: "10", min: null, max: null },
+          { duration: "69", min: null, max: null },
         ],
         "Flight": [
           { bonus: "10", min: null, max: null },
@@ -161,14 +161,14 @@ export default class ExperimentalElixir extends DDBEnricherData {
           { bonus: "20", min: 15, max: null },
         ],
         "Resilience": [
-          { duration: "10", min: null, max: 8 },
-          { duration: "600", min: 9, max: 14 },
-          { duration: "3600", min: 15, max: null },
+          { duration: "600", minutes: "10", min: null, max: 8 },
+          { duration: "3600", minutes: "60", min: 9, max: 14 },
+          { duration: "28800", minutes: "480", min: 15, max: null },
         ],
         "Boldness": [
-          { duration: "10", min: null, max: 8 },
-          { duration: "600", min: 9, max: 14 },
-          { duration: "3600", min: 15, max: null },
+          { duration: "60", minutes: "1", min: null, max: 8 },
+          { duration: "600", minutes: "10", min: 9, max: 14 },
+          { duration: "3600", minutes: "60", min: 15, max: null },
         ],
         "Flight": [
           { bonus: "10", min: null, max: 8 },
@@ -196,6 +196,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
       case "Healing":
         result.push(
           DDBEnricherData.ChangeHelper.overrideChange("icons/consumables/potions/bottle-round-label-cork-red.webp", 20, "img"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[heal].visibility.level.min"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[heal].visibility.level.max"),
         );
         break;
       case "Swiftness":
@@ -203,6 +205,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("icons/consumables/potions/bottle-round-label-cork-green.webp", 20, "img"),
           DDBEnricherData.ChangeHelper.overrideChange("60", 20, "system.duration.value"),
           DDBEnricherData.ChangeHelper.overrideChange("minute", 20, "system.duration.units"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.min"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.max"),
         );
         break;
       case "Resilience":
@@ -210,6 +214,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("icons/consumables/potions/bottle-round-label-cork-purple.webp", 20, "img"),
           DDBEnricherData.ChangeHelper.overrideChange("10", 20, "system.duration.value"),
           DDBEnricherData.ChangeHelper.overrideChange("minute", 20, "system.duration.units"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.min"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.max"),
         );
         break;
       case "Boldness":
@@ -217,6 +223,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("icons/consumables/potions/bottle-round-label-cork-yellow.webp", 20, "img"),
           DDBEnricherData.ChangeHelper.overrideChange("1", 20, "system.duration.value"),
           DDBEnricherData.ChangeHelper.overrideChange("minute", 20, "system.duration.units"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.min"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.max"),
         );
         break;
       case "Flight":
@@ -224,11 +232,15 @@ export default class ExperimentalElixir extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("icons/consumables/potions/bottle-ornate-bat-teal.webp", 20, "img"),
           DDBEnricherData.ChangeHelper.overrideChange("10", 20, "system.duration.value"),
           DDBEnricherData.ChangeHelper.overrideChange("minute", 20, "system.duration.units"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.min"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[utility].visibility.level.max"),
         );
         break;
       case "Transformation":
         result.push(
           DDBEnricherData.ChangeHelper.overrideChange("icons/consumables/potions/bottle-round-label-cork-blue.webp", 20, "img"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[cast].visibility.level.min"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[cast].visibility.level.max"),
         );
         break;
     // no default
@@ -238,118 +250,109 @@ export default class ExperimentalElixir extends DDBEnricherData {
   }
 
   generateElixirAdditionalActivity(name) {
-    const results = [];
-    const result = {
-      constructor: {
-        name: `Use ${name}`,
-        type: "utility",
-      },
-      build: {
-        generateActivation: true,
-        generateConsumption: true,
-        consumeItem: true,
-        noeffects: true,
-        activationOverride: {
-          type: "bonus",
-          value: 1,
-          condition: "",
+    const results = this.activityMap[name].map((a, i) => {
+      const result = {
+        constructor: {
+          name: `Use ${name}`,
+          type: "utility",
         },
-      },
-      overrides: {
-        noTemplate: true,
-        id: utils.namedIDStub(name, {
-          postfix: 1,
-          prefix: "eea",
-        }),
-      },
-    };
+        build: {
+          generateActivation: true,
+          generateConsumption: true,
+          consumeItem: true,
+          noeffects: true,
+          activationOverride: {
+            type: "bonus",
+            value: 1,
+            condition: "",
+          },
+        },
+        overrides: {
+          noTemplate: true,
+          id: utils.namedIDStub(name, {
+            postfix: i,
+            prefix: "eea",
+          }),
+          data: {
+          },
+        },
+      };
 
-    if (name === "Healing") {
-      this.activityMap[name].forEach((a, i) => {
-        const temp = foundry.utils.deepClone(result);
-        temp.constructor.type = "heal";
-        temp.build.generateHealing = true;
-        temp.build.healingPart = {
+      if (a.min || a.max) {
+        result.overrides.data.visibility = {
+          "level": {
+            "min": a.min,
+            "max": a.max,
+          },
+          "requireAttunement": false,
+          "requireIdentification": false,
+          "requireMagic": false,
+          "identifier": "artificer",
+        };
+      }
+
+      if (name === "Healing") {
+        result.constructor.type = "heal";
+        result.build.generateHealing = true;
+        result.build.healingPart = {
           number: a.number,
           denomination: a.denomination,
           bonus: a.bonus,
           types: ["healing"],
         };
-        temp.overrides = {
-          data: {
-            id: utils.namedIDStub(name, {
-              postfix: i,
-              prefix: "eea",
-            }),
-            visibility: {
-              "level": {
-                "min": a.min,
-                "max": a.max,
-              },
-              "requireAttunement": false,
-              "requireIdentification": false,
-              "requireMagic": false,
-              "identifier": "artificer",
-            },
-          },
+
+      } else if (name === "Swiftness") {
+        result.build.generateDuration = true;
+        result.build.durationOverride = {
+          units: "hour",
+          value: 1,
         };
-        results.push(temp);
-      });
-    } else if (name === "Swiftness") {
-      result.build.generateDuration = true;
-      result.build.durationOverride = {
-        units: "hour",
-        value: 1,
-      };
-      results.push(result);
-    } else if (name === "Resilience") {
-      result.build.generateDuration = true;
-      result.build.durationOverride = {
-        units: "minute",
-        value: 10,
-      };
-      results.push(result);
-    } else if (name === "Boldness") {
-      result.build.generateRoll = true;
-      result.build.roll = {
-        formula: "1d4",
-        name: "Boldness Roll",
-      };
-      result.build.generateDuration = true;
-      result.build.durationOverride = {
-        units: "minute",
-        value: 1,
-      };
-      results.push(result);
-    } else if (name === "Flight") {
-      result.build.generateDuration = true;
-      result.build.durationOverride = {
-        units: "minute",
-        value: 10,
-      };
-      results.push(result);
-    } else if (name === "Transformation") {
-      result.constructor.type = "cast";
-      result.build.generateDuration = true;
-      result.build.durationOverride = {
-        units: "minute",
-        value: 10,
-      };
-      result.build.generateSpell = true;
-      result.overrides.addSpellUuid = "Alter Self";
-      result.build.spellOverride = {
-        uuid: "",
-        properties: [],
-        level: null,
-        challenge: {
-          attack: null,
-          save: null,
-          override: false,
-        },
-        spellbook: false,
-      };
-      results.push(result);
-    }
+      } else if (name === "Resilience") {
+        result.build.generateDuration = true;
+        result.build.durationOverride = {
+          units: "minute",
+          value: a.minutes ?? 10,
+        };
+      } else if (name === "Boldness") {
+        result.build.generateRoll = true;
+        result.build.roll = {
+          formula: "1d4",
+          name: "Boldness Roll",
+        };
+        result.build.generateDuration = true;
+        result.build.durationOverride = {
+          units: "minute",
+          value: a.minutes ?? 1,
+        };
+      } else if (name === "Flight") {
+        result.build.generateDuration = true;
+        result.build.durationOverride = {
+          units: "minute",
+          value: 10,
+        };
+      } else if (name === "Transformation") {
+        result.constructor.type = "cast";
+        result.build.generateDuration = true;
+        result.build.durationOverride = {
+          units: "minute",
+          value: 10,
+        };
+        result.build.generateSpell = true;
+        result.overrides.addSpellUuid = "Alter Self";
+        result.build.spellOverride = {
+          uuid: "",
+          properties: [],
+          level: null,
+          challenge: {
+            attack: null,
+            save: null,
+            override: false,
+          },
+          spellbook: false,
+        };
+      }
+      return result;
+    });
 
     return results;
   }
@@ -357,7 +360,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   generateElixirEffect(name) {
     const effects = [];
     if (name === "Swiftness") {
-      effects.push(...this.activityMap[name].map((data) => {
+      const results = this.activityMap[name].map((data, i) => {
         return {
           name: `Experimental Elixir: ${name}`,
           activityMatch: `Use ${name}`,
@@ -370,7 +373,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           ],
           data: {
             "_id": utils.namedIDStub(name, {
-              postfix: data.bonus,
+              postfix: i,
               prefix: "ef",
             }),
             "flags.ddbimporter.effectIdLevel": {
@@ -379,9 +382,10 @@ export default class ExperimentalElixir extends DDBEnricherData {
             },
           },
         };
-      }));
+      });
+      effects.push(...results);
     } else if (name === "Resilience") {
-      effects.push(...this.activityMap[name].map((data) => {
+      effects.push(...this.activityMap[name].map((data, i) => {
         return {
           name: `Experimental Elixir: ${name}`,
           activityMatch: `Use ${name}`,
@@ -395,7 +399,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           ],
           data: {
             "_id": utils.namedIDStub(name, {
-              postfix: data.bonus,
+              postfix: i,
               prefix: "ef",
             }),
             "flags.ddbimporter.effectIdLevel": {
@@ -406,7 +410,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         };
       }));
     } else if (name === "Boldness") {
-      effects.push(...this.activityMap[name].map((data) => {
+      effects.push(...this.activityMap[name].map((data, i) => {
         return {
           name: `Experimental Elixir: ${name}`,
           activityMatch: `Use ${name}`,
@@ -424,7 +428,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           ],
           data: {
             "_id": utils.namedIDStub(name, {
-              postfix: data.bonus,
+              postfix: i,
               prefix: "ef",
             }),
             "flags.ddbimporter.effectIdLevel": {
@@ -435,7 +439,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         };
       }));
     } else if (name === "Flight") {
-      effects.push(...this.activityMap[name].map((data) => {
+      effects.push(...this.activityMap[name].map((data, i) => {
         return {
           name: `Experimental Elixir: ${name}`,
           activityMatch: `Use ${name}`,
@@ -448,7 +452,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           ],
           data: {
             "_id": utils.namedIDStub(name, {
-              postfix: data.bonus,
+              postfix: i,
               prefix: "ef",
             }),
             "flags.ddbimporter.effectIdLevel": {
@@ -481,20 +485,18 @@ export default class ExperimentalElixir extends DDBEnricherData {
   getElixirAdditionalEnchantActivityEffects(name) {
     const results = [];
     this.activityMap[name].forEach((m, i) => {
-      // const activityRiderIds = [];
-      // m.forEach((data, i) => {
-      //   activityRiderIds.push(utils.namedIDStub(name, {
-      //     postfix: i,
-      //     prefix: "eea",
-      //   }));
-      // });
       results.push({
         name,
         type: "enchant",
         changes: this.enchantChangeMap(name),
+        activitiesMatch: ["Create Elixir", "Create Elixir With Spell Slot"],
         data: {
           flags: {
             ddbimporter: {
+              effectIdLevel: {
+                min: m.min ?? null,
+                max: m.max ?? null,
+              },
               activityRiders: [utils.namedIDStub(name, {
                 postfix: i,
                 prefix: "eea",
@@ -522,12 +524,11 @@ export default class ExperimentalElixir extends DDBEnricherData {
     const base = [
       {
         constructor: {
-          name: "Crate Elixir",
+          name: "Create Elixir",
           type: "enchant",
         },
         overrides: {
           noTemplate: true,
-          noeffects: true,
           activationType: "action",
           addItemConsume: true,
           targetType: "self",
@@ -540,7 +541,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       },
       {
         constructor: {
-          name: "Crate Elixir With Spell Slot",
+          name: "Create Elixir With Spell Slot",
           type: "enchant",
         },
         overrides: {
@@ -548,7 +549,6 @@ export default class ExperimentalElixir extends DDBEnricherData {
           addItemConsume: true,
           targetType: "self",
           noTemplate: true,
-          noeffects: true,
           data: {
             restrictions: {
               type: "consumable",
