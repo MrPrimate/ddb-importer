@@ -607,15 +607,6 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   async buildItem(row) {
     const itemData = this.getSkeletonItem(row);
-
-
-    console.warn("Experimental Elixir - Adding additional activities and effects", {
-      itemData,
-      row,
-      this: this,
-      data: foundry.utils.deepClone(this.data),
-    });
-
     for (const [key, value] of Object.entries(this.data.system.activities)) {
       if (!foundry.utils.getProperty(value, "flags.ddbimporter.isElixirAdditionalActivity")) continue;
       if (!value.name.endsWith(row.name)) continue;
