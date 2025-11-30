@@ -482,7 +482,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  getToolAdvancement(mods, feature, level) {
+  getToolAdvancement(mods, feature, availableToMulticlass, level) {
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const toolMods = proficiencyMods
       .filter((mod) =>
@@ -508,6 +508,10 @@ export default class AdvancementHelper {
         ? parsedTools.number
         : 1
       : toolMods.length;
+
+    const classRestriction = availableToMulticlass === undefined || this.isSubclass
+      ? undefined
+      : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
     // console.warn(`Tools`, {
     //   level,
@@ -536,6 +540,7 @@ export default class AdvancementHelper {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
         : "Tool Proficiencies",
+      classRestriction,
       configuration: {
         allowReplacements: true,
       },

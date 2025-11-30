@@ -490,7 +490,10 @@ export default class DDBClass {
 
     this._generateDataStub();
 
-    this.dictionary = DICTIONARY.actor.class.find((c) => c.name === this.ddbClassDefinition.name) ?? { multiclassSkill: 0 };
+    this.dictionary = DICTIONARY.actor.class[this.is2014 ? "2014" : "2024"].find((c) => c.name === this.ddbClassDefinition.name) ?? {
+      multiclassSkill: 0,
+      multiclassTool: 0,
+    };
 
     this.advancementHelper = new AdvancementHelper({
       ddbData,
@@ -1193,27 +1196,33 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-  _generateToolAdvancement(feature, level) {
+  _generateToolAdvancement(feature, availableToMulticlass, level) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
       exactLevel: level,
+      availableToMulticlass: availableToMulticlass === false ? null : true,
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
     const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
-    return this.advancementHelper.getToolAdvancement(mods, feature, level);
+    return this.advancementHelper.getToolAdvancement(mods, feature, availableToMulticlass, level);
   }
 
   _generateToolAdvancements() {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const toolFeatures = this._toolFeatures.filter((f) => f.requiredLevel === i);
+      for (const availableToMulticlass of [true, false]) {
+        // multiclass only profs only at level 1
+        if (!availableToMulticlass && i > 1) continue;
+        if (this.isSubClass && !availableToMulticlass) continue;
+        const toolFeatures = this._toolFeatures.filter((f) => f.requiredLevel === i);
 
-      for (const feature of toolFeatures) {
-        const advancement = this._generateToolAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject());
+        for (const feature of toolFeatures) {
+          const advancement = this._generateToolAdvancement(feature, availableToMulticlass, i);
+          if (advancement) advancements.push(advancement.toObject());
+        }
       }
     }
 
