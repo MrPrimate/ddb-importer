@@ -145,6 +145,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       await this._addEffects(choice, this.type);
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
 
+      await this.enricher.cleanup();
+
     } catch (err) {
       logger.warn(
         `Unable to Generate Choice Action: ${this.name}, please log a bug report. Err: ${err.message}`,

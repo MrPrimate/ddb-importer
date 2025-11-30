@@ -1,4 +1,5 @@
 export { default as AdvancedArtifice } from "./AdvancedArtifice.mjs";
+export { default as AlchemicalSavant } from "./AlchemicalSavant.mjs";
 export { default as ArcaneArmorCreateArmor } from "./ArcaneArmorCreateArmor.mjs";
 export { default as ArcanePropulsionArmorGauntlet } from "./ArcanePropulsionArmorGauntlet.mjs";
 export { default as ArmorModel } from "./ArmorModel.mjs";

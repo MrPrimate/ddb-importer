@@ -10,7 +10,6 @@ export default class ExperimentalElixir extends DDBEnricherData {
   }
 
   get activity() {
-    if (!this.isAction) return {};
     return {
       name: "Roll for Experimental Elixir",
       noConsumeTargets: true,
@@ -199,6 +198,9 @@ export default class ExperimentalElixir extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[heal].visibility.level.min"),
           DDBEnricherData.ChangeHelper.overrideChange("", 20, "activities[heal].visibility.level.max"),
         );
+        // if (game.modules.get("dae")?.active) {
+        //   result.push(DDBEnricherData.ChangeHelper.overrideChange("##abilities.int.mod", 90, "activities[heal].healing.bonus"));
+        // };
         break;
       case "Swiftness":
         result.push(
@@ -274,6 +276,11 @@ export default class ExperimentalElixir extends DDBEnricherData {
             prefix: "eea",
           }),
           data: {
+            flags: {
+              ddbimporter: {
+                isElixirAdditionalActivity: true,
+              },
+            },
           },
         },
       };
@@ -600,8 +607,26 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   async buildItem(row) {
     const itemData = this.getSkeletonItem(row);
-    // itemData.system.activities = this.elixirActivities[row.name] ?? [];
-    // itemData.effects = this.elixirEffects[row.name] ?? [];
+
+
+    console.warn("Experimental Elixir - Adding additional activities and effects", {
+      itemData,
+      row,
+      this: this,
+      data: foundry.utils.deepClone(this.data),
+    });
+
+    for (const [key, value] of Object.entries(this.data.system.activities)) {
+      if (!foundry.utils.getProperty(value, "flags.ddbimporter.isElixirAdditionalActivity")) continue;
+      if (!value.name.endsWith(row.name)) continue;
+      foundry.utils.setProperty(itemData, `system.activities.${key}`, value);
+    }
+
+    for (const effect of this.data.effects) {
+      if (effect.name.startsWith(`Experimental Elixir: ${row.name}`)) {
+        itemData.effects.push(effect);
+      }
+    }
 
     return itemData;
   }
@@ -691,7 +716,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   }
 
-  async customFunction() {
+  async cleanup() {
     this.handler = new DDBItemImporter("features", [], ExperimentalElixir.featureHandlerOptions);
     if (game.user.isGM) await this.generateElixirs();
     this.linkUpItemUUIDs();

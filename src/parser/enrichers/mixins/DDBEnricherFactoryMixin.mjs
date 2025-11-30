@@ -1328,4 +1328,8 @@ export default class DDBEnricherFactoryMixin {
     await this.loadedEnricher?.customFunction(options);
   }
 
+  async cleanup(options = {}) {
+    await this.loadedEnricher?.cleanup(options);
+  }
+
 }

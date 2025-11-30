@@ -969,6 +969,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       identifier = DICTIONARY.identifierAdjustments[identifier];
     }
     this.data.system.identifier = identifier;
+
+    await this.enricher.cleanup();
   }
 
   static async parseSpell(data, character,

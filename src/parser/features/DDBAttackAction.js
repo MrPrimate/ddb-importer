@@ -55,6 +55,8 @@ export default class DDBAttackAction extends DDBAction {
       this._addCustomValues();
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
 
+      await this.enricher.cleanup();
+
     } catch (err) {
       logger.warn(
         `Unable to Generate Attack Action: ${this.name}, please log a bug report. Err: ${err.message}`,

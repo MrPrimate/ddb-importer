@@ -2957,6 +2957,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
       this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
 
+      await this.enricher.cleanup();
+
     } catch (err) {
       logger.warn(
         `Unable to parse item: ${this.ddbDefinition.name}, ${this.ddbDefinition.type}/${this.ddbDefinition.filterType}. ${err.message}`,

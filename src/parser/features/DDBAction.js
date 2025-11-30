@@ -162,6 +162,8 @@ export default class DDBAction extends DDBFeatureMixin {
 
       this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
 
+      await this.enricher.cleanup();
+
     } catch (err) {
       logger.warn(
         `Unable to Generate Action: ${this.name}, please log a bug report. Err: ${err.message}`,

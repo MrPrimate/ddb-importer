@@ -169,6 +169,8 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.cleanup();
     await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
+
+    await this.enricher.cleanup();
   }
 
   async _generateFeatureAdvancements() {

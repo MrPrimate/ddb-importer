@@ -1752,6 +1752,8 @@ ${this.data.system.description.value}
 
     this.flagCleanup();
 
+    await this.enricher.cleanup();
+
     logger.debug(`Parsed Feature ${this.name} for ${this.ddbMonster.name}`, { feature: this });
 
   }
