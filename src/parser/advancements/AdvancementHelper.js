@@ -492,7 +492,9 @@ export default class AdvancementHelper {
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-    const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
+    const parsedTools = this.isMuncher && availableToMulticlass
+      ? { number: 0, choices: [], grants: [] }
+      : AdvancementHelper.parseHTMLTools(feature.description);
     const chosenTools = this.getToolChoicesFromOptions(feature, level);
 
     const toolsFromMods = toolMods.map((mod) => {
@@ -574,7 +576,9 @@ export default class AdvancementHelper {
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-    const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
+    const parsedArmors = this.isMuncher && availableToMulticlass
+      ? { number: 0, choices: [], grants: [] }
+      : AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
     const chosenArmors = this.getChoicesFromOptions(feature, "Armor", level);
 
     const armorsFromMods = armorMods.map((mod) => {
@@ -646,7 +650,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  getWeaponAdvancement(mods, feature, level) {
+  getWeaponAdvancement(mods, feature, availableToMulticlass, level) {
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const weaponMods = proficiencyMods
       .filter((mod) =>
@@ -656,7 +660,9 @@ export default class AdvancementHelper {
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-    const parsedWeapons = AdvancementHelper.parseHTMLWeaponProficiencies(feature.description);
+    const parsedWeapons = this.isMuncher && availableToMulticlass
+      ? { number: 0, choices: [], grants: [] }
+      : AdvancementHelper.parseHTMLWeaponProficiencies(feature.description);
     const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
 
     const weaponsFromMods = weaponMods.map((mod) => {
@@ -687,6 +693,10 @@ export default class AdvancementHelper {
 
     if (count === 0 && parsedWeapons.grants.length === 0) return null;
 
+    const classRestriction = availableToMulticlass === undefined || this.isSubclass
+      ? undefined
+      : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
+
     const pool = parsedWeapons.choices.length > 0 || parsedWeapons.grants.length > 0
       ? parsedWeapons.choices.map((choice) => `weapon:${choice}`)
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
@@ -701,6 +711,7 @@ export default class AdvancementHelper {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
         : "Weapon Proficiencies",
+      classRestriction,
       configuration: {
         mode: "default",
         allowReplacements: false,
@@ -1497,11 +1508,16 @@ export default class AdvancementHelper {
         .split(',')
         .map((name) => name.trim());
 
-      const toolChoiceRegex = /choose (\d+) (.*)($|\.:)/i;
+      let isChoice = false;
+
+      const toolTypeOfRegex = /choose (\w+|\d+) type of (.*)($|\.:)/i;
+      const toolChoiceRegex = /choose (\d+|\w+) (.*)($|\.:)/i;
       for (const toolString of toolNames) {
-        const toolChoiceMatch = toolString.match(toolChoiceRegex);
+        const toolChoiceMatch = toolString.match(toolTypeOfRegex) ?? toolString.match(toolChoiceRegex);
         if (toolChoiceMatch) {
-          const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural);
+          isChoice = true;
+          const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural)
+            ?? parseInt(toolChoiceMatch[1]);
           parsedTools.number = numberTools ? numberTools.num : 1;
           toolChoiceMatch[2].split(" or ").forEach((toolGroupMatch) => {
             const toolGroup = AdvancementHelper.getToolGroup(toolGroupMatch.trim());
@@ -1513,14 +1529,20 @@ export default class AdvancementHelper {
           const stub = AdvancementHelper.getToolAdvancementValue(toolString);
           if (stub) {
             proficiencies.add(stub);
+          } else {
+            const toolGroup = AdvancementHelper.getToolGroup(toolString.trim());
+            // eslint-disable-next-line max-depth
+            if (toolGroup) {
+              proficiencies.add(`${toolGroup}:*`);
+            }
           }
         }
       }
 
       const chooseRegex = /Choose (\d+)(?:[ :])/i;
       const chooseMatch = tableAdvancements.match(chooseRegex);
-      if (chooseMatch) {
-        parsedTools.number = parseInt(chooseMatch[1]);
+      if (isChoice || chooseMatch) {
+        if (chooseMatch) parsedTools.number = parseInt(chooseMatch[1]);
         parsedTools.choices = Array.from(proficiencies);
       } else {
         parsedTools.grants = Array.from(proficiencies);

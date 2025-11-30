@@ -1262,27 +1262,33 @@ export default class DDBClass {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
-  _generateWeaponAdvancement(feature, level) {
+  _generateWeaponAdvancement(feature, availableToMulticlass, level) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
+      availableToMulticlass: availableToMulticlass === false ? null : true,
       exactLevel: level,
       useUnfilteredModifiers: true,
       filterOnFeatureIds: [feature.id],
     };
     const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
-    return this.advancementHelper.getWeaponAdvancement(mods, feature, level);
+    return this.advancementHelper.getWeaponAdvancement(mods, feature, availableToMulticlass, level);
   }
 
   _generateWeaponAdvancements() {
     const advancements = [];
 
     for (let i = 0; i <= 20; i++) {
-      const weaponFeatures = this._weaponFeatures.filter((f) => f.requiredLevel === i);
+      for (const availableToMulticlass of [true, false]) {
+        // multiclass only profs only at level 1
+        if (!availableToMulticlass && i > 1) continue;
+        if (this.isSubClass && !availableToMulticlass) continue;
+        const weaponFeatures = this._weaponFeatures.filter((f) => f.requiredLevel === i);
 
-      for (const feature of weaponFeatures) {
-        const advancement = this._generateWeaponAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject());
+        for (const feature of weaponFeatures) {
+          const advancement = this._generateWeaponAdvancement(feature, availableToMulticlass, i);
+          if (advancement) advancements.push(advancement.toObject());
+        }
       }
     }
 
