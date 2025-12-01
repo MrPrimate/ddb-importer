@@ -116,10 +116,16 @@ const CompendiumHelper = {
       const existingNPC = await compendium.getDocument(foundryActor._id);
 
       const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-      if (!updateImages && existingNPC.system.img !== CONST.DEFAULT_TOKEN) {
+      if (!updateImages
+        && existingNPC.system.img !== CONST.DEFAULT_TOKEN
+        && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(existingNPC.system.img)
+      ) {
         foundryActor.img = existingNPC.system.img;
       }
-      if (!updateImages && foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN) {
+      if (!updateImages
+        && foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src") !== CONST.DEFAULT_TOKEN
+        && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src"))
+      ) {
         const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken);
         delete oldValues.name;
         delete oldValues.sight;

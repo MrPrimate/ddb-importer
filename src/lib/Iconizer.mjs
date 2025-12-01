@@ -241,7 +241,10 @@ export default class Iconizer {
       // logger.debug(item.name);
       // logger.debug(item.flags.ddbimporter.dndbeyond);
       if (DICTIONARY.types.inventory.includes(item.type)) {
-        if (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN) {
+        if (!item.img || item.img == ""
+          || item.img == CONST.DEFAULT_TOKEN
+          || Object.values(CONFIG.DND5E.defaultArtwork.Item).includes(item.img)
+        ) {
           const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
           if (imageMatch && imageMatch.img) {
             item.img = imageMatch.img;
@@ -630,7 +633,11 @@ export default class Iconizer {
         } else if (item.flags.ddbimporter.dndbeyond.type) {
           generic = genericLoots.find((i) => i.name === item.flags.ddbimporter.dndbeyond.type);
         }
-        if (generic && (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN)) {
+        if (generic && (!item.img
+          || item.img == ""
+          || item.img == CONST.DEFAULT_TOKEN
+          || Object.values(CONFIG.DND5E.defaultArtwork.Item).includes(item.img))
+        ) {
           item.img = generic.img;
         }
       }
@@ -666,7 +673,11 @@ export default class Iconizer {
       // logger.debug(item.flags.ddbimporter.dndbeyond);
       if (item.type == "spell") {
         const school = schools.find((school) => school.id === item.system.school);
-        if (school && (!item.img || item.img == "" || item.img == CONST.DEFAULT_TOKEN)) {
+        if (school && (!item.img
+          || item.img == ""
+          || item.img == CONST.DEFAULT_TOKEN
+          || Object.values(CONFIG.DND5E.defaultArtwork.Item).includes(item.img)
+        )) {
           item.img = school.img;
         }
       }
@@ -687,7 +698,11 @@ export default class Iconizer {
     this.documents.forEach((item) => {
       if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN))) {
         item.effects.forEach((effect) => {
-          if (!effect.img || effect.img === "" || effect.img === CONST.DEFAULT_TOKEN) {
+          if (!effect.img
+            || effect.img === ""
+            || effect.img === CONST.DEFAULT_TOKEN
+            || Object.values(CONFIG.DND5E.defaultArtwork.Item).includes(effect.img)
+          ) {
             effect.img = item.img;
           }
         });

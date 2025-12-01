@@ -575,6 +575,7 @@ ${item.system.description.chat}
     const srdImageLibrary = await Iconizer.getSRDImageLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 
+    // eslint-disable-next-line complexity
     this.documents.forEach((monster) => {
       logger.debug(`Checking ${monster.name} for srd images`);
       const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
@@ -585,10 +586,16 @@ ${item.system.description.chat}
         logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
         monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
         monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
-        if (moduleArt?.actor && nameMatch.actor !== "" && !moduleArt.actor.includes("mystery-man")) {
+        if (moduleArt?.actor && nameMatch.actor !== ""
+          && !moduleArt.actor.includes("mystery-man")
+          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(moduleArt.actor)
+        ) {
           monster.img = moduleArt.actor;
           foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
-        } else if (nameMatch.img && nameMatch.img !== "" && !nameMatch.img.includes("mystery-man")) {
+        } else if (nameMatch.img && nameMatch.img !== ""
+          && !nameMatch.img.includes("mystery-man")
+          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(nameMatch.img)
+        ) {
           monster.img = nameMatch.img;
           foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
         }
@@ -597,6 +604,7 @@ ${item.system.description.chat}
         } else if (moduleArt?.token?.texture?.src
           && moduleArt.token.texture.src !== ""
           && !moduleArt.token.texture.src.includes("mystery-man")
+          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(moduleArt.token.texture.src)
         ) {
           monster.prototypeToken.texture.src = moduleArt.token.texture.src;
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
@@ -606,6 +614,7 @@ ${item.system.description.chat}
         } else if (nameMatch.prototypeToken?.texture?.src
           && nameMatch.prototypeToken.texture.src !== ""
           && !nameMatch.prototypeToken.texture.src.includes("mystery-man")
+          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(nameMatch.prototypeToken.texture.src)
         ) {
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;

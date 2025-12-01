@@ -178,7 +178,12 @@ export default class DDBMonsterImporter {
     }
 
     const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
-    if (!forceUpdate && !updateImages && this.monster.img !== CONST.DEFAULT_TOKEN) {
+    if (!forceUpdate && !updateImages
+      && this.monster.img !== CONST.DEFAULT_TOKEN
+      && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(this.monster.img)
+      && !this.monster.img.includes("systems/dnd5e/icons/svg/actors/npc.svg")
+      && !this.monster.img.includes("systems/dnd5e/icons/svg/actors/vehicle.svg")
+    ) {
       return this.monster;
     }
 
@@ -286,9 +291,9 @@ export default class DDBMonsterImporter {
 
     // final check if image comes back as null
     // eslint-disable-next-line require-atomic-updates
-    if (this.monster.img === null) this.monster.img = CONST.DEFAULT_TOKEN;
+    if (this.monster.img === null) this.monster.img = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
     // eslint-disable-next-line require-atomic-updates
-    if (monsterTokenImgPath === null) this.monster.prototypeToken.texture.src = CONST.DEFAULT_TOKEN;
+    if (monsterTokenImgPath === null) this.monster.prototypeToken.texture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
 
     // do we now want to tokenize that?
     // we don't tokenize if this path was already looked up, as it will already be done
