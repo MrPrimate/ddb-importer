@@ -1,5 +1,6 @@
 # Next Up
 
+# 6.6.19
 
 - Requires the 5.2.0 or higher of the D&D5e system.
 - A number of internal changes to support the Alchemist Experimental Elixir in item importing, compendium folders and a few other elements.
