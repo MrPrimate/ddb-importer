@@ -2,7 +2,6 @@ import { DICTIONARY, SETTINGS } from '../../config/_module.mjs';
 import { utils, logger, CompendiumHelper } from '../../lib/_module.mjs';
 import { AutoEffects } from '../enrichers/effects/_module.mjs';
 import { DDBModifiers } from '../lib/_module.mjs';
-import { parse } from '../lib/DDBTemplateStrings.mjs';
 
 function htmlToText(html) {
   // keep html brakes and tabs
