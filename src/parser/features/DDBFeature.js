@@ -314,7 +314,11 @@ export default class DDBFeature extends DDBFeatureMixin {
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
-    const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, this.ddbDefinition, undefined, 0);
+    const advancement = this.advancementHelper.getSkillAdvancement({
+      mods: skillExplicitMods,
+      feature: this.ddbDefinition,
+      level: 0,
+    });
     this._addAdvancement(advancement);
   }
 
@@ -331,7 +335,11 @@ export default class DDBFeature extends DDBFeatureMixin {
     const mods = this.advancementHelper.noMods
       ? []
       : DDBModifiers.getModifiers(this.ddbData, this.type);
-    const advancement = this.advancementHelper.getToolAdvancement(mods, this.ddbDefinition, 0);
+    const advancement = this.advancementHelper.getToolAdvancement({
+      mods: mods,
+      feature: this.ddbDefinition,
+      level: 0,
+    });
     this._addAdvancement(advancement);
   }
 

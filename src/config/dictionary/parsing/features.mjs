@@ -285,6 +285,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dread Allegiance",
     "Aura of Malevolence",
     "Training In War and Song",
+    "Tools of the Trade",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -397,6 +398,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Aura of Malevolence",
     "Training In War and Song",
     "Magic Item Plans",
+    "Tools of the Trade",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

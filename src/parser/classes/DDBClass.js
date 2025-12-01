@@ -499,6 +499,7 @@ export default class DDBClass {
       ddbData,
       type: "class",
       isMuncher: this.isMuncher,
+      dictionary: this.dictionary,
     });
 
     this.SPECIAL_ADVANCEMENTS = DDBClass.SPECIAL_ADVANCEMENTS;
@@ -1107,7 +1108,12 @@ export default class DDBClass {
     const skillChooseMods = DDBModifiers.filterModifiers(mods, "proficiency", filterModOptions);
     const skillMods = skillChooseMods.concat(skillExplicitMods);
 
-    return this.advancementHelper.getSkillAdvancement(skillMods, feature, availableToMulticlass, i, this.dictionary.multiclassSkill);
+    return this.advancementHelper.getSkillAdvancement({
+      mods: skillMods,
+      feature,
+      availableToMulticlass,
+      level: i,
+    });
   }
 
   _generateSkillAdvancements() {
@@ -1120,7 +1126,7 @@ export default class DDBClass {
         const skillFeatures = this._proficiencyFeatures.filter((f) => f.requiredLevel === i);
 
         for (const feature of skillFeatures) {
-          const baseProficiency = feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
+          const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
           if (availableToMulticlass
             && baseProficiency
             && this.dictionary.multiclassSkill === 0
@@ -1206,7 +1212,12 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
-    return this.advancementHelper.getToolAdvancement(mods, feature, availableToMulticlass, level);
+    return this.advancementHelper.getToolAdvancement({
+      mods: mods,
+      feature,
+      availableToMulticlass,
+      level,
+    });
   }
 
   _generateToolAdvancements() {

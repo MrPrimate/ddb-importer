@@ -388,7 +388,11 @@ export default class DDBRace {
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
     );
-    const advancement = this.advancementHelper.getSkillAdvancement(skillExplicitMods, trait, undefined, 0);
+    const advancement = this.advancementHelper.getSkillAdvancement({
+      mods: skillExplicitMods,
+      feature: trait,
+      level: 0,
+    });
 
     if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
@@ -409,7 +413,11 @@ export default class DDBRace {
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
-    const advancement = this.advancementHelper.getToolAdvancement(mods, trait, 0);
+    const advancement = this.advancementHelper.getToolAdvancement({
+      mods: mods,
+      feature: trait,
+      level: 0,
+    });
     if (advancement) this.data.system.advancement.push(advancement.toObject());
   }
 

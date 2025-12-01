@@ -2,6 +2,7 @@ import { DICTIONARY, SETTINGS } from '../../config/_module.mjs';
 import { utils, logger, CompendiumHelper } from '../../lib/_module.mjs';
 import { AutoEffects } from '../enrichers/effects/_module.mjs';
 import { DDBModifiers } from '../lib/_module.mjs';
+import { parse } from '../lib/DDBTemplateStrings.mjs';
 
 function htmlToText(html) {
   // keep html brakes and tabs
@@ -22,7 +23,10 @@ export default class AdvancementHelper {
     this.ddbData = ddbData;
     this.type = type;
     this.isMuncher = isMuncher;
-    this.dictionary = dictionary;
+    this.dictionary = dictionary ?? {
+      multiclassSkill: 0,
+      multiclassTool: 0,
+    };
     this.isSubclass = isSubclass;
   }
 
@@ -343,9 +347,13 @@ export default class AdvancementHelper {
 
   }
 
+  static isBaseProficiency(feature) {
+    return feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
+  }
+
   // eslint-disable-next-line complexity
-  getSkillAdvancement(mods, feature, availableToMulticlass, level, multiclassSkillCount = 0) {
-    const baseProficiency = feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
+  getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level } = {}) {
+    const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const skillsFromMods = mods
       .filter((mod) =>
         DICTIONARY.actor.skills.find((s) => s.label === mod.friendlySubtypeName),
@@ -359,11 +367,13 @@ export default class AdvancementHelper {
     const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
     const chosenSkills = this.getSkillChoicesFromOptions(feature, level);
 
-    const count = parsedSkills.number > 0 || parsedSkills.grants.length > 0
-      ? parsedSkills.number
-      : baseProficiency && availableToMulticlass
-        ? multiclassSkillCount
-        : mods.length;
+    const count = this.isMuncher && availableToMulticlass && baseProficiency
+      ? this.dictionary.multiclassSkill
+      : (parsedSkills.number > 0 || parsedSkills.grants.length > 0)
+        ? parsedSkills.number
+        : baseProficiency && availableToMulticlass
+          ? this.dictionary.multiclassSkill
+          : mods.length;
 
     // console.warn(`Parsing skill advancement for level ${level}`, {
     //   availableToMulticlass,
@@ -404,11 +414,28 @@ export default class AdvancementHelper {
         .concat(parsedSkills.grants.map((grant) => `skills:${grant}`))
       : skillsFromMods.map((choice) => `skills:${choice}`);
 
+    const grants = [];
+    if (this.isMuncher && availableToMulticlass && baseProficiency && pool.length > 0) {
+      grants.push(...skillsFromMods.map((choice) => `skills:${choice}`));
+    } else {
+      grants.push(...parsedSkills.grants.map((grant) => `skills:${grant}`));
+    }
+
+    // console.warn(`Skills`, {
+    //   level,
+    //   feature,
+    //   mods,
+    //   skillsFromMods,
+    //   parsedSkills,
+    //   chosenSkills,
+    //   count,
+    // });
+
     AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,
-      grants: parsedSkills.grants.map((grant) => `skills:${grant}`),
+      grants,
     });
 
     // console.warn("Final skill advancement", {
@@ -482,7 +509,9 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  getToolAdvancement(mods, feature, availableToMulticlass, level) {
+  // eslint-disable-next-line complexity
+  getToolAdvancement({ mods, feature, availableToMulticlass = undefined, level } = {}) {
+    const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const toolMods = proficiencyMods
       .filter((mod) =>
@@ -492,9 +521,7 @@ export default class AdvancementHelper {
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-    const parsedTools = this.isMuncher && availableToMulticlass
-      ? { number: 0, choices: [], grants: [] }
-      : AdvancementHelper.parseHTMLTools(feature.description);
+    const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
     const chosenTools = this.getToolChoicesFromOptions(feature, level);
 
     const toolsFromMods = toolMods.map((mod) => {
@@ -505,11 +532,13 @@ export default class AdvancementHelper {
         : `${tool.toolType}:${tool.baseTool}`;
     });
 
-    const count = parsedTools.number > 0 || parsedTools.grants.length > 0
-      ? parsedTools.number > 0
-        ? parsedTools.number
-        : 1
-      : toolMods.length;
+    const count = this.isMuncher && availableToMulticlass && baseProficiency
+      ? this.dictionary.multiclassTools
+      : parsedTools.number > 0 || parsedTools.grants.length > 0
+        ? parsedTools.number > 0
+          ? parsedTools.number
+          : 1
+        : toolMods.length;
 
     const classRestriction = availableToMulticlass === undefined || this.isSubclass
       ? undefined
@@ -538,6 +567,13 @@ export default class AdvancementHelper {
         .concat(parsedTools.grants.map((grant) => `tool:${grant}`))
       : toolsFromMods.map((choice) => `tool:${choice}`);
 
+    const grants = [];
+    if (this.isMuncher && availableToMulticlass && baseProficiency && pool.length > 0) {
+      grants.push(...toolsFromMods.map((choice) => `tool:${choice}`));
+    } else {
+      grants.push(...parsedTools.grants.map((grant) => `tool:${grant}`));
+    }
+
     advancement.updateSource({
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
@@ -560,13 +596,15 @@ export default class AdvancementHelper {
       pool,
       chosen,
       count,
-      grants: parsedTools.grants.map((grant) => `tool:${grant}`),
+      grants,
     });
 
     return advancement;
   }
 
+  // eslint-disable-next-line complexity
   getArmorAdvancement(mods, feature, availableToMulticlass, level) {
+    const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const armorMods = proficiencyMods
       .filter((mod) =>
@@ -576,9 +614,7 @@ export default class AdvancementHelper {
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
 
-    const parsedArmors = this.isMuncher && availableToMulticlass
-      ? { number: 0, choices: [], grants: [] }
-      : AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
+    const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
     const chosenArmors = this.getChoicesFromOptions(feature, "Armor", level);
 
     const armorsFromMods = armorMods.map((mod) => {
@@ -622,6 +658,13 @@ export default class AdvancementHelper {
         .concat(parsedArmors.grants.map((grant) => `armor:${grant}`))
       : armorsFromMods.map((choice) => `armor:${choice}`);
 
+    const grants = [];
+    if (this.isMuncher && availableToMulticlass && baseProficiency && pool.length > 0) {
+      grants.push(...armorsFromMods.map((choice) => `armor:${choice}`));
+    } else {
+      grants.push(...parsedArmors.grants.map((grant) => `armor:${grant}`));
+    }
+
     advancement.updateSource({
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
         ? feature.name
@@ -637,20 +680,22 @@ export default class AdvancementHelper {
     //   pool,
     //   chosen,
     //   count,
-    //   grants: parsedArmors.grants.map((grant) => `armor:${grant}`),
+    //   grants,
     // });
 
     AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,
-      grants: parsedArmors.grants.map((grant) => `armor:${grant}`),
+      grants,
     });
 
     return advancement;
   }
 
+  // eslint-disable-next-line complexity
   getWeaponAdvancement(mods, feature, availableToMulticlass, level) {
+    const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const weaponMods = proficiencyMods
       .filter((mod) =>
@@ -726,11 +771,18 @@ export default class AdvancementHelper {
     //   grants: parsedWeapons.grants.map((grant) => `weapon:${grant}`),
     // });
 
+    const grants = [];
+    if (this.isMuncher && availableToMulticlass && baseProficiency && pool.length > 0) {
+      grants.push(...weaponsFromMods.map((choice) => `weapon:${choice}`));
+    } else {
+      grants.push(...parsedWeapons.grants.map((grant) => `weapon:${grant}`));
+    }
+
     AdvancementHelper.advancementUpdate(advancement, {
       pool,
       chosen,
       count,
-      grants: parsedWeapons.grants.map((grant) => `weapon:${grant}`),
+      grants,
     });
 
     return advancement;

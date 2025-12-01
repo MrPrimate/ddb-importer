@@ -203,7 +203,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
           "character": this.raw.character.name,
           "img": this.source.ddb.character.decorations?.avatarUrl
             ? this.source.ddb.character.decorations.avatarUrl
-            : CONST.DEFAULT_TOKEN,
+            : CONFIG.DND5E.defaultArtwork.Actor.character,
           "cssClass": "character-resource-selection sheet",
         },
         buttons: {
