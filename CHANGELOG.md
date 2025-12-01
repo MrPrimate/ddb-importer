@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.20
+
+- Typo prevented 2014 characters importing.
+
 # 6.6.19
 
 - Requires the 5.2.0 or higher of the D&D5e system.

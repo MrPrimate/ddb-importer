@@ -1,6 +1,6 @@
 export const ACTOR = {
   class: {
-    "2104": [
+    "2014": [
       { name: "Artificer", multiclassSkill: 0, multiclassTool: 0 },
       { name: "Bard", multiclassSkill: 1, multiclassTool: 0 },
       { name: "Ranger", multiclassSkill: 1, multiclassTool: 0 },
