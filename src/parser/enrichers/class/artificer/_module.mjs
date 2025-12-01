@@ -12,6 +12,7 @@ export { default as EldritchCannonForceBallista } from "./EldritchCannonForceBal
 export { default as EldritchCannonProtector } from "./EldritchCannonProtector.mjs";
 export { default as ExperimentalElixir } from "./ExperimentalElixir.mjs";
 export { default as FlashOfGenius } from "./FlashOfGenius.mjs";
+export { default as ForceDemolisher } from "./ForceDemolisher.mjs";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField.mjs";
 export { default as MagicItemTinker } from "./MagicItemTinker.mjs";
 export { default as SpellStoringItem } from "./SpellStoringItem.mjs";

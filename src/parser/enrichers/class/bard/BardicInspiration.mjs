@@ -17,7 +17,7 @@ export default class BardicInspiration extends DDBEnricherData {
         },
         duration: {
           value: "10",
-          units: "minutes",
+          units: "minute",
         },
         range: {
           value: 60,

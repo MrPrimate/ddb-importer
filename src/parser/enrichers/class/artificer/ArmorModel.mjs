@@ -7,14 +7,14 @@ export default class ArmorModel extends DDBEnricherData {
     return "none";
   }
 
-  get additionalActivities() {
+  get _guardianActivities() {
     const defensiveFieldUses = this._getUsesWithSpent({
       type: "class",
       name: "Defensive Field",
       max: "@prof",
       period: "lr",
     });
-    return [
+    const results = [
       {
         constructor: {
           name: "Guardian",
@@ -49,6 +49,79 @@ export default class ArmorModel extends DDBEnricherData {
           },
         },
       },
+      {
+        constructor: {
+          name: "Guardian: Thunder Gauntlet",
+          type: "attack",
+        },
+        build: {
+          generateTarget: true,
+          generateRange: true,
+          generateAttack: true,
+          generateDamage: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "attack",
+          },
+        },
+        overrides: {
+          id: "ddbThunderGauntl",
+          targetType: "creature",
+          data: {
+            attack: {
+              ability: "",
+              bonus: "max(@abilities.str.mod, @abilities.int.mod)",
+            },
+            img: "icons/magic/lightning/bolt-forked-large-blue.webp",
+            range: {
+              value: 5,
+              long: null,
+              units: "ft",
+            },
+            damage: {
+              parts: [
+                DDBEnricherData.basicDamagePart({
+                  customFormula: this.is2014 ? null : "@scale.armorer.thunder-pulse + max(@abilities.str.mod, @abilities.int.mod)",
+                  number: this.is2014 ? 1 : null,
+                  denomination: this.is2014 ? 8 : null,
+                  bonus: this.is2014 ? "max(@abilities.str.mod, @abilities.int.mod)" : null,
+                  type: "thunder",
+                }),
+              ],
+            },
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Guardian: Defensive Field",
+          type: "heal",
+        },
+        build: {
+          generateTarget: true,
+          generateConsumption: true,
+        },
+        overrides: {
+          id: "ddbDefensivField",
+          targetType: "self",
+          addActivityConsume: true,
+          data: {
+            img: "icons/magic/control/debuff-chains-ropes-net-white.webp",
+            healing: DDBEnricherData.basicDamagePart({
+              bonus: "@classes.artificer.levels",
+              types: ["temphp"],
+            }),
+            uses: defensiveFieldUses,
+          },
+        },
+      },
+    ];
+
+    return results;
+  }
+
+  get _infiltratorActivities() {
+    const results = [
       {
         constructor: {
           name: "Infiltrator",
@@ -118,9 +191,10 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  number: 1,
-                  denomination: 6,
-                  bonus: "max(@abilities.str.mod, @abilities.int.mod)",
+                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher + max(@abilities.str.mod, @abilities.int.mod)",
+                  number: this.is2014 ? 1 : null,
+                  denomination: this.is2014 ? 6 : null,
+                  bonus: this.is2014 ? "max(@abilities.str.mod, @abilities.int.mod)" : null,
                   type: "lightning",
                 }),
               ],
@@ -157,8 +231,9 @@ export default class ArmorModel extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  number: 1,
-                  denomination: 6,
+                  customFormula: this.is2014 ? null : "@scale.armorer.lightning-launcher",
+                  number: this.is2014 ? 1 : null,
+                  denomination: this.is2014 ? 6 : null,
                   type: "lightning",
                 }),
               ],
@@ -166,42 +241,66 @@ export default class ArmorModel extends DDBEnricherData {
           },
         },
       },
+    ];
+
+    return results;
+  }
+
+  get _dreadnaughtActivities() {
+    const results = [
       {
         constructor: {
-          name: "Guardian: Thunder Gauntlet",
-          type: "attack",
+          name: "Dreadnaught",
+          type: "enchant",
         },
         build: {
           generateTarget: true,
-          generateRange: true,
-          generateAttack: true,
-          generateDamage: true,
           generateActivation: true,
           activationOverride: {
-            type: "attack",
+            type: "special",
+          },
+          targetOverride: {
+            affects: {
+              type: "object",
+            },
           },
         },
         overrides: {
-          id: "ddbThunderGauntl",
+          data: {
+            midiProperties: {
+              triggeredActivityId: "none",
+              triggeredActivityTargets: "targets",
+              triggeredActivityRollAs: "self",
+              forceDialog: false,
+              confirmTargets: "never",
+            },
+            restrictions: {
+              type: "equipment",
+              categories: ["heavy", "light", "medium"],
+              allowMagical: true,
+            },
+          },
+        },
+      },
+      {
+        action: { name: "Force Demolisher", type: "class" },
+        overrides: {
+          id: "ddbForceDemolish",
           targetType: "creature",
           data: {
             attack: {
               ability: "",
-              bonus: "max(@abilities.str.mod, @abilities.int.mod)",
+              bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
+              type: {
+                value: "melee",
+              },
             },
-            img: "icons/magic/lightning/bolt-forked-large-blue.webp",
-            range: {
-              value: 5,
-              long: null,
-              units: "ft",
-            },
+            img: "icons/weapons/hammers/hammer-double-glowing-yellow.webp",
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  number: 1,
-                  denomination: 8,
-                  bonus: "max(@abilities.str.mod, @abilities.int.mod)",
-                  type: "thunder",
+                  customFormula: "@scale.armorer.force-demolisher + max(@abilities.str.mod, @abilities.int.mod)",
+                  type: "force",
                 }),
               ],
             },
@@ -210,31 +309,130 @@ export default class ArmorModel extends DDBEnricherData {
       },
       {
         constructor: {
-          name: "Guardian: Defensive Field",
-          type: "heal",
+          name: "Giant Statue (Large)",
+          type: "enchant",
         },
         build: {
           generateTarget: true,
-          generateConsumption: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "bonus",
+          },
+          targetOverride: {
+            affects: {
+              type: "object",
+            },
+          },
         },
         overrides: {
-          id: "ddbDefensivField",
-          targetType: "self",
-          addActivityConsume: true,
+          id: "ddbGiantStatue00",
           data: {
-            img: "icons/magic/control/debuff-chains-ropes-net-white.webp",
-            healing: DDBEnricherData.basicDamagePart({
-              bonus: "@classes.artificer.levels",
-              types: ["temphp"],
-            }),
-            uses: defensiveFieldUses,
+            midiProperties: {
+              triggeredActivityId: "none",
+              triggeredActivityTargets: "targets",
+              triggeredActivityRollAs: "self",
+              forceDialog: false,
+              confirmTargets: "never",
+            },
+            enchant: {
+              self: true,
+            },
+            restrictions: {
+              type: "equipment",
+              categories: ["heavy", "light", "medium"],
+              allowMagical: true,
+            },
+            duration: {
+              units: "seconds",
+              value: "60",
+            },
+            effects: [
+              {
+                "_id": "ddbGiantStatue01",
+                riders: {
+                  activity: [],
+                  effect: ["ddbGiantStatue03"],
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        constructor: {
+          name: "Giant Statue (Huge)",
+          type: "enchant",
+        },
+        build: {
+          generateTarget: true,
+          generateActivation: true,
+          activationOverride: {
+            type: "bonus",
+          },
+          targetOverride: {
+            affects: {
+              type: "object",
+            },
+          },
+        },
+        overrides: {
+          id: "ddbGiantStatue01",
+          data: {
+            midiProperties: {
+              triggeredActivityId: "none",
+              triggeredActivityTargets: "targets",
+              triggeredActivityRollAs: "self",
+              forceDialog: false,
+              confirmTargets: "never",
+            },
+            enchant: {
+              self: true,
+            },
+            restrictions: {
+              type: "equipment",
+              categories: ["heavy", "light", "medium"],
+              allowMagical: true,
+            },
+            duration: {
+              units: "seconds",
+              value: "60",
+            },
+            effects: [
+              {
+                "_id": "ddbGiantStatue02",
+                "level": {
+                  "min": 15,
+                  "max": null,
+                },
+                riders: {
+                  activity: [],
+                  effect: ["ddbGiantStatue04"],
+                },
+              },
+            ],
           },
         },
       },
     ];
+
+    return results;
   }
 
-  get effects() {
+  get additionalActivities() {
+
+    const results = [
+      ...this._guardianActivities,
+      ...this._infiltratorActivities,
+    ];
+
+    if (this.is2024) {
+      results.push(...this._dreadnaughtActivities);
+    }
+
+    return results;
+  }
+
+  get _guardianEffects() {
     return [
       {
         name: "Guardian",
@@ -248,9 +446,6 @@ export default class ArmorModel extends DDBEnricherData {
         ],
         data: {
           flags: {
-            dae: {
-              specialDuration: "",
-            },
             ddbimporter: {
               activityRiders: ["ddbThunderGauntl", "ddbDefensivField"],
             },
@@ -279,6 +474,11 @@ export default class ArmorModel extends DDBEnricherData {
           },
         },
       },
+    ];
+  }
+
+  get _infiltratorEffects() {
+    return [
       {
         name: "Infiltrator Armor",
         activityMatch: "None",
@@ -297,7 +497,7 @@ export default class ArmorModel extends DDBEnricherData {
             data: {
               label: "Use Lightning Launcher extra damage?",
               count: "turn",
-              "damage.all": "1d6[lightning]",
+              "damage.all": this.is2014 ? "1d6[lightning]" : "@scale.armorer.lightning-launcher[lightning]",
               activation: `"@workflow.activity.name" == "Infiltrator: Lightning Launcher"`,
             },
           },
@@ -307,11 +507,6 @@ export default class ArmorModel extends DDBEnricherData {
           duration: {
             seconds: null,
             rounds: null,
-          },
-          flags: {
-            dae: {
-              specialDuration: "",
-            },
           },
         },
       },
@@ -330,9 +525,6 @@ export default class ArmorModel extends DDBEnricherData {
             rounds: null,
           },
           flags: {
-            dae: {
-              specialDuration: "",
-            },
             ddbimporter: {
               activityRiders: ["ddbInfiltratLigh", "ddbLightingExtra"],
               effectRiders: ["ddbInfiltratorEf"],
@@ -341,6 +533,135 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
     ];
+  }
+
+  get _dreadnaughtEffects() {
+    return [
+      {
+        name: "Dreadnaught",
+        activityMatch: "Dreadnaught",
+        type: "enchant",
+        descriptionHint: true,
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange(`{} [Dreadnaught]`, 20, "name"),
+          DDBEnricherData.ChangeHelper.overrideChange("", 20, "system.strength"),
+          DDBEnricherData.ChangeHelper.addChange("foc", 20, "system.properties"),
+        ],
+        data: {
+          flags: {
+            ddbimporter: {
+              activityRiders: ["ddbForceDemolish", "ddbGiantStatue00", "ddbGiantStatue01"],
+              effectRiders: ["ddbGiantStatue03", "ddbGiantStatue04"],
+            },
+          },
+          duration: {
+            seconds: null,
+            rounds: null,
+          },
+        },
+      },
+      {
+        name: "Giant Stature (Large)",
+        activityMatch: "Giant Stature (Large)",
+        type: "enchant",
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange(`{} [Giant Statue]`, 25, "name"),
+        ],
+        data: {
+          _id: "ddbGiantStatue01",
+          duration: {
+            seconds: 60,
+            rounds: 10,
+          },
+        },
+        "flags.ddbimporter": {
+          activityRiders: [],
+          effectRiders: ["ddbGiantStatue03"],
+        },
+      },
+      {
+        name: "Giant Stature (Large)",
+        activityMatch: "Giant Stature (Large)",
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("lg", 20, "system.traits.size"),
+          // DDBEnricherData.ChangeHelper.addChange("", 20, "system.range"),
+        ],
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.upgradeChange(2, 10, "ATL.width"),
+          DDBEnricherData.ChangeHelper.upgradeChange(2, 10, "ATL.height"),
+        ],
+        options: {
+          transfer: true,
+        },
+        data: {
+          _id: "ddbGiantStatue03",
+          duration: {
+            seconds: 60,
+            rounds: 10,
+          },
+        },
+      },
+
+      {
+        name: "Giant Stature (Huge)",
+        activityMatch: "Giant Stature (Huge)",
+        type: "enchant",
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange(`{} [Giant Statue]`, 25, "name"),
+        ],
+        data: {
+          _id: "ddbGiantStatue02",
+          "flags.ddbimporter": {
+            activityRiders: [],
+            effectRiders: ["ddbGiantStatue04"],
+            effectIdLevel: {
+              min: "15",
+              max: null,
+            },
+          },
+          duration: {
+            seconds: 60,
+            rounds: 10,
+          },
+        },
+      },
+      {
+        name: "Giant Stature (Huge)",
+        activityMatch: "Giant Stature (Huge)",
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("hg", 20, "system.traits.size"),
+          // DDBEnricherData.ChangeHelper.addChange("", 20, "system.range"),
+        ],
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.upgradeChange(3, 15, "ATL.width"),
+          DDBEnricherData.ChangeHelper.upgradeChange(3, 15, "ATL.height"),
+        ],
+        options: {
+          transfer: true,
+        },
+        data: {
+          _id: "ddbGiantStatue04",
+          duration: {
+            seconds: 60,
+            rounds: 10,
+          },
+        },
+      },
+    ];
+  }
+
+  get effects() {
+    const results = [
+      ...this._guardianEffects,
+      ...this._infiltratorEffects,
+    ];
+
+    if (this.is2024) {
+      results.push(...this._dreadnaughtEffects);
+    }
+
+    return results;
+
   }
 
 }

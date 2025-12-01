@@ -472,6 +472,46 @@ export default class DDBSubClass extends DDBClass {
         };
         this.data.system.advancement.push(elixir);
       }
+    } else if (this.data.name.startsWith("Armorer") && this.is2024) {
+      const forceDemolisher = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "force-demolisher",
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 10 },
+            14: { number: 2, faces: 6 },
+          },
+        },
+        title: "Force Demolisher",
+      };
+      this.data.system.advancement.push(forceDemolisher);
+      const lightningLauncher = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "lightning-launcher",
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 8 },
+            14: { number: 1, faces: 10 },
+          },
+        },
+        title: "Lightning Launcher",
+      };
+      this.data.system.advancement.push(lightningLauncher);
+      const thunderPulse = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "thunder-pulse",
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 6 },
+            14: { number: 2, faces: 6 },
+          },
+        },
+        title: "Thunder Pulse",
+      };
+      this.data.system.advancement.push(thunderPulse);
     }
   }
 
