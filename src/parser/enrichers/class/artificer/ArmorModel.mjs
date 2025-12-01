@@ -310,7 +310,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         constructor: {
           name: "Giant Statue (Large)",
-          type: "enchant",
+          type: "utility",
         },
         build: {
           generateTarget: true,
@@ -326,6 +326,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
         overrides: {
           id: "ddbGiantStatue00",
+          targetType: "self",
           data: {
             midiProperties: {
               triggeredActivityId: "none",
@@ -334,24 +335,16 @@ export default class ArmorModel extends DDBEnricherData {
               forceDialog: false,
               confirmTargets: "never",
             },
-            enchant: {
-              self: true,
-            },
-            restrictions: {
-              type: "equipment",
-              categories: ["heavy", "light", "medium"],
-              allowMagical: true,
-            },
             duration: {
               units: "seconds",
               value: "60",
             },
             effects: [
               {
-                "_id": "ddbGiantStatue01",
+                "_id": "ddbGiantStatue03",
                 riders: {
                   activity: [],
-                  effect: ["ddbGiantStatue03"],
+                  effect: [],
                 },
               },
             ],
@@ -361,7 +354,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         constructor: {
           name: "Giant Statue (Huge)",
-          type: "enchant",
+          type: "utility",
         },
         build: {
           generateTarget: true,
@@ -377,6 +370,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
         overrides: {
           id: "ddbGiantStatue01",
+          targetType: "self",
           data: {
             midiProperties: {
               triggeredActivityId: "none",
@@ -385,28 +379,30 @@ export default class ArmorModel extends DDBEnricherData {
               forceDialog: false,
               confirmTargets: "never",
             },
-            enchant: {
-              self: true,
-            },
-            restrictions: {
-              type: "equipment",
-              categories: ["heavy", "light", "medium"],
-              allowMagical: true,
-            },
             duration: {
               units: "seconds",
               value: "60",
             },
+            visibility: {
+              "level": {
+                "min": 15,
+                "max": null,
+              },
+              "requireAttunement": false,
+              "requireIdentification": false,
+              "requireMagic": false,
+              "identifier": "artificer",
+            },
             effects: [
               {
-                "_id": "ddbGiantStatue02",
+                "_id": "ddbGiantStatue04",
                 "level": {
                   "min": 15,
                   "max": null,
                 },
                 riders: {
                   activity: [],
-                  effect: ["ddbGiantStatue04"],
+                  effect: [],
                 },
               },
             ],
@@ -551,32 +547,13 @@ export default class ArmorModel extends DDBEnricherData {
           flags: {
             ddbimporter: {
               activityRiders: ["ddbForceDemolish", "ddbGiantStatue00", "ddbGiantStatue01"],
-              effectRiders: ["ddbGiantStatue03", "ddbGiantStatue04"],
+              // effectRiders: ["ddbGiantStatue03", "ddbGiantStatue04"],
             },
           },
           duration: {
             seconds: null,
             rounds: null,
           },
-        },
-      },
-      {
-        name: "Giant Stature (Large)",
-        activityMatch: "Giant Stature (Large)",
-        type: "enchant",
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(`{} [Giant Statue]`, 25, "name"),
-        ],
-        data: {
-          _id: "ddbGiantStatue01",
-          duration: {
-            seconds: 60,
-            rounds: 10,
-          },
-        },
-        "flags.ddbimporter": {
-          activityRiders: [],
-          effectRiders: ["ddbGiantStatue03"],
         },
       },
       {
@@ -590,35 +567,8 @@ export default class ArmorModel extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.upgradeChange(2, 10, "ATL.width"),
           DDBEnricherData.ChangeHelper.upgradeChange(2, 10, "ATL.height"),
         ],
-        options: {
-          transfer: true,
-        },
         data: {
           _id: "ddbGiantStatue03",
-          duration: {
-            seconds: 60,
-            rounds: 10,
-          },
-        },
-      },
-
-      {
-        name: "Giant Stature (Huge)",
-        activityMatch: "Giant Stature (Huge)",
-        type: "enchant",
-        changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(`{} [Giant Statue]`, 25, "name"),
-        ],
-        data: {
-          _id: "ddbGiantStatue02",
-          "flags.ddbimporter": {
-            activityRiders: [],
-            effectRiders: ["ddbGiantStatue04"],
-            effectIdLevel: {
-              min: "15",
-              max: null,
-            },
-          },
           duration: {
             seconds: 60,
             rounds: 10,
@@ -636,9 +586,6 @@ export default class ArmorModel extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.upgradeChange(3, 15, "ATL.width"),
           DDBEnricherData.ChangeHelper.upgradeChange(3, 15, "ATL.height"),
         ],
-        options: {
-          transfer: true,
-        },
         data: {
           _id: "ddbGiantStatue04",
           duration: {
