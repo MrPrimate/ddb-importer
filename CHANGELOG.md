@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.22
+
 - Some icon fixes
 - Some more parsing improvements to the Artificer Armorer
 - Armor items will no longer generate a use activity if they don't have an ability to use.
