@@ -1908,5 +1908,9 @@
   {
     "name": "Fiendish Legacy",
     "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Bestial Instincts",
+    "path": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
   }
 ]
