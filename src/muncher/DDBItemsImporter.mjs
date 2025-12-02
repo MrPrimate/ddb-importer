@@ -35,7 +35,7 @@ export default class DDBItemsImporter {
 
   updateResults = null;
 
-  notifier = utils.munchNote();
+  notifier = utils.munchNote;
 
   updateBool = false;
 

@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.21
+
+- Some invocations of Adventure Muncher would render adventure muncher unable to import adventures.
+
 # 6.6.20
 
 - Typo prevented 2014 characters importing.
