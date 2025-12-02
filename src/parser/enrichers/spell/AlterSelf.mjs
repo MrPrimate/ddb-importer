@@ -90,7 +90,7 @@ export default class AlterSelf extends DDBEnricherData {
         name: "Aquatic Adaptation",
         activityMatch: "Aquatic Adaptation",
         changes: [
-          this.movementChange("@attributes.movement.walk", 5, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 5, "system.attributes.movement.swim"),
         ],
       },
     );

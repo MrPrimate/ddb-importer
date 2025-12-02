@@ -24,7 +24,7 @@ export default class RageOfTheGods extends DDBEnricherData {
         name: "Rage of the Gods",
         activityMatch: "Rage of the Gods",
         changes: [
-          this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("necrotic", 20, "system.traits.dr.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("psychic", 20, "system.traits.dr.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.traits.dr.value"),

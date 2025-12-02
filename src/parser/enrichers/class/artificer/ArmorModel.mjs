@@ -60,8 +60,12 @@ export default class ArmorModel extends DDBEnricherData {
           generateAttack: true,
           generateDamage: true,
           generateActivation: true,
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+          },
           activationOverride: {
-            type: "attack",
+            type: "action",
           },
         },
         overrides: {
@@ -117,6 +121,57 @@ export default class ArmorModel extends DDBEnricherData {
       },
     ];
 
+    if (this.is2024) {
+      results.push({
+        constructor: {
+          name: "Guardian: Pull Creature",
+          type: "save",
+        },
+        build: {
+          generateTarget: true,
+          generateRange: true,
+          generateActivation: true,
+          activationCondition: "A creature ends it's turn within 30 feet of you",
+          activationOverride: {
+            type: "reaction",
+          },
+        },
+        overrides: {
+          id: "ddbPullCreature1",
+          targetType: "creature",
+          addActivityConsume: true,
+          data: {
+            save: {
+              ability: ["str"],
+              dc: {
+                calculation: "int",
+                formula: "",
+              },
+            },
+            range: {
+              value: "30",
+              units: "ft",
+            },
+            visibility: {
+              "level": {
+                "min": 15,
+                "max": null,
+              },
+              "requireAttunement": false,
+              "requireIdentification": false,
+              "requireMagic": false,
+              "identifier": "artificer",
+            },
+            uses: {
+              spent: 0,
+              max: "min(1, @abilities.int.mod)",
+              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+            },
+          },
+        },
+      });
+    }
+
     return results;
   }
 
@@ -167,8 +222,12 @@ export default class ArmorModel extends DDBEnricherData {
           generateAttack: true,
           generateDamage: true,
           generateActivation: true,
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+          },
           activationOverride: {
-            type: "attack",
+            type: "action",
           },
         },
         overrides: {
@@ -213,6 +272,10 @@ export default class ArmorModel extends DDBEnricherData {
           generateAttack: true,
           generateDamage: true,
           generateActivation: true,
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+          },
           activationOverride: {
             type: "special",
           },
@@ -242,6 +305,45 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
     ];
+
+    if (this.is2024) {
+      results.push({
+        constructor: {
+          name: "Infiltrator: Fly",
+          type: "utility",
+        },
+        build: {
+          generateTarget: true,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "bonus",
+          },
+        },
+        overrides: {
+          id: "ddbInfiltratoFly",
+          addActivityConsume: true,
+          targetType: "self",
+          data: {
+            visibility: {
+              "level": {
+                "min": 15,
+                "max": null,
+              },
+              "requireAttunement": false,
+              "requireIdentification": false,
+              "requireMagic": false,
+              "identifier": "artificer",
+            },
+            uses: {
+              spent: 0,
+              max: "min(1, @abilities.int.mod)",
+              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+            },
+          },
+        },
+      });
+    }
 
     return results;
   }
@@ -283,7 +385,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
       {
-        action: { name: "Force Demolisher", type: "class" },
+        action: { name: "Dreadnaught: Force Demolisher", type: "class" },
         overrides: {
           id: "ddbForceDemolish",
           targetType: "creature",
@@ -309,7 +411,7 @@ export default class ArmorModel extends DDBEnricherData {
       },
       {
         constructor: {
-          name: "Giant Statue (Large)",
+          name: "Dreadnaught: Giant Statue (Large)",
           type: "utility",
         },
         build: {
@@ -353,7 +455,7 @@ export default class ArmorModel extends DDBEnricherData {
       },
       {
         constructor: {
-          name: "Giant Statue (Huge)",
+          name: "Dreadnaught: Giant Statue (Huge)",
           type: "utility",
         },
         build: {
@@ -434,7 +536,6 @@ export default class ArmorModel extends DDBEnricherData {
         name: "Guardian",
         activityMatch: "Guardian",
         type: "enchant",
-        descriptionHint: true,
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Guardian]`, 20, "name"),
           DDBEnricherData.ChangeHelper.overrideChange("", 20, "system.strength"),
@@ -443,7 +544,9 @@ export default class ArmorModel extends DDBEnricherData {
         data: {
           flags: {
             ddbimporter: {
-              activityRiders: ["ddbThunderGauntl", "ddbDefensivField"],
+              activityRiders: this.is2014
+                ? ["ddbThunderGauntl", "ddbDefensivField"]
+                : ["ddbThunderGauntl", "ddbDefensivField", "ddbPullCreature1"],
             },
           },
           duration: {
@@ -522,9 +625,28 @@ export default class ArmorModel extends DDBEnricherData {
           },
           flags: {
             ddbimporter: {
-              activityRiders: ["ddbInfiltratLigh", "ddbLightingExtra"],
+              activityRiders: this.is2014
+                ? ["ddbInfiltratLigh", "ddbLightingExtra"]
+                : ["ddbInfiltratLigh", "ddbLightingExtra", "ddbInfiltratoFly"],
               effectRiders: ["ddbInfiltratorEf"],
             },
+          },
+        },
+      },
+      {
+        name: "Infiltrator: Flight",
+        activityMatch: "Infiltrator: Fly",
+        options: {
+          durationSeconds: 6,
+          description: `You gain flight equal to twice your speed until the end of your turn`,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("(2 * @attributes.movement.walk)", 20, "system.attributes.movement.fly"),
+        ],
+        daeSpecialDurations: ["turnEndSource", "turnEnd"],
+        data: {
+          duration: {
+            seconds: 6,
           },
         },
       },
@@ -537,7 +659,6 @@ export default class ArmorModel extends DDBEnricherData {
         name: "Dreadnaught",
         activityMatch: "Dreadnaught",
         type: "enchant",
-        descriptionHint: true,
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Dreadnaught]`, 20, "name"),
           DDBEnricherData.ChangeHelper.overrideChange("", 20, "system.strength"),
@@ -611,4 +732,19 @@ export default class ArmorModel extends DDBEnricherData {
 
   }
 
+  get override() {
+    return {
+      descriptionSuffix: this.is2014
+        ? `
+<section class="secret ddbSecret" id="secret-ddbArmorModel">
+<p><strong>Implementation Details</strong></p>
+<p>Use the Enchantments to select your armor model.</p>
+</section>`
+        : `
+<section class="secret ddbSecret" id="secret-ddbArmorModel">
+<p><strong>Implementation Details</strong></p>
+<p>Use the Enchantments to select your armor model. The bonuses from Improved Armorer and Perfected Armor will be applied as you level.</p>
+</section>`,
+    };
+  }
 }

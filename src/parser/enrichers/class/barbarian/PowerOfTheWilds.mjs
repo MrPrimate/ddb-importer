@@ -66,7 +66,7 @@ export default class PowerOfTheWilds extends DDBEnricherData {
           "flags.ddbimporter.activityMatch": "Falcoln",
         },
         changes: [
-          this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
         ],
       },
       {

@@ -53,11 +53,8 @@ export default class RadiantSoul extends DDBEnricherData {
           durationRounds: 10,
         },
         changes: [
-          this.movementChange("30", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "system.attributes.movement.fly"),
         ],
-        // daeChanges: [
-        //   this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-        // ],
         midiOptionalChanges: [
           {
             name: "radiantSoul",

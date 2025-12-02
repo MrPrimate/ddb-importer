@@ -166,12 +166,6 @@ export default class DDBEnricherData {
     };
   }
 
-  get movementChange() {
-    return AutoEffects.effectModules().daeInstalled
-      ? ChangeHelper.upgradeChange
-      : ChangeHelper.customChange;
-  }
-
   get useMidiAutomations() {
     if (!DDBEnricherData.AutoEffects.effectModules().midiQolInstalled) return false;
     return this.ddbParser.useMidiAutomations ?? false;

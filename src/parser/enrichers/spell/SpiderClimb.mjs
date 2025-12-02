@@ -6,7 +6,7 @@ export default class SpiderClimb extends DDBEnricherData {
   get effects() {
     return [{
       changes: [
-        this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
+        DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
       ],
     }];
   }

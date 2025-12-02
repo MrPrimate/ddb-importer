@@ -30,7 +30,7 @@ export default class RevelationInFlesh extends DDBEnricherData {
           durationSeconds: 600,
         },
         changes: [
-          this.movementChange("2 * @attributes.movement.walk", 20, "system.attributes.movement.swim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("2 * @attributes.movement.walk", 20, "system.attributes.movement.swim"),
         ],
       },
       {
@@ -39,7 +39,7 @@ export default class RevelationInFlesh extends DDBEnricherData {
           durationSeconds: 600,
         },
         changes: [
-          this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
           DDBEnricherData.ChangeHelper.customChange("true", 20, "system.attributes.movement.hover"),
         ],
       },

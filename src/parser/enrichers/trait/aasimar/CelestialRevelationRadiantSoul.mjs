@@ -51,11 +51,8 @@ export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
         ],
-        // daeChanges: [
-        //   this.movementChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
-        // ],
         midiOptionalChanges: [
           {
             name: "radiantSoul",
