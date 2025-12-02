@@ -74,7 +74,7 @@ export default class DDBBasicActivity {
     const description = this.foundryFeature?.system?.description?.value;
     if (!description) return undefined;
     // pcs don't have mythic
-    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your) action/ig);
+    const actionAction = description.match(/(?:as|spend|use) (?:a|an|your|a magic) action/ig);
     if (actionAction) return "action";
     const bonusAction = description.match(/(?:as|use|spend) (?:a|an|your) bonus action/ig);
     if (bonusAction) return "bonus";

@@ -1,5 +1,9 @@
 # Next Up
 
+- Some icon fixes
+- Some more parsing improvements to the Artificer Armorer
+- Armor items will no longer generate a use activity if they don't have an ability to use.
+
 # 6.6.21
 
 - Some invocations of Adventure Muncher would render adventure muncher unable to import adventures.

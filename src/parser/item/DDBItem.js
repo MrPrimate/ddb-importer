@@ -434,11 +434,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #generateActivityActivation() {
     // default
-    this.actionData.activation = { type: "action", value: 1, condition: "" };
+    this.actionData.activation = ["armor"].includes(this.parsingType)
+      ? { type: "", value: 1, condition: "" }
+      : { type: "action", value: 1, condition: "" };
 
-    if (this.parsingType === "wonderous") {
-      let action = "special";
-      const actionRegex = /(bonus) action|(reaction)|as (?:an|a) (action)/i;
+    if (["wonderous", "armor"].includes(this.parsingType)) {
+      let action = ["wonderous"].includes(this.parsingType) ? "special" : "";
+      const actionRegex = /(bonus) action|(reaction)|as (?:an|a|a magic) (action)/i;
 
       const match = (this.ddbDefinition.description ?? "").match(actionRegex);
       if (match) {
@@ -3152,6 +3154,15 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   /** @override */
   // eslint-disable-next-line complexity
   _getActivitiesType() {
+    // console.warn(`Determining activity type for ${this.name}`, {
+    //   actionData: this.actionData,
+    //   damageParts: this.damageParts,
+    //   healingParts: this.healingParts,
+    //   parsingType: this.parsingType,
+    //   systemType: this.systemType,
+    //   data: this.data,
+    //   this: this,
+    // });
     if (this.documentType === "container") return null;
     if (this.parsingType === "tool") return "check";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
@@ -3179,7 +3190,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (this.actionData.activation?.type
       && !this.healingAction
       && !["wand", "scroll"].includes(this.systemType.value)
+      && this.parsingType !== "armor"
     ) return "utility";
+    if (this.parsingType === "armor" && this.actionData.activation?.type && this.actionData.activation.type !== "") return "utility";
     if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value)) return "utility";
     if (this.data.effects.length > 0) return "utility";
     if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionData.target?.template?.type)) return "utility";
