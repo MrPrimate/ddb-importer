@@ -588,7 +588,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("5", 20, "system.attributes.movement.walk"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.stl.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode"),
         ],
         midiOptionalChanges: [
           {
