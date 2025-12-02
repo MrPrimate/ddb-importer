@@ -354,16 +354,19 @@ export default class DDBSources {
     return books.map((book) => book.id);
   }
 
-  static getChosenCategoriesAndBooks() {
+  static getChosenCategoriesAndBooks(useOverride = true) {
     const sourceIdArrays = [];
     const sourceCategoryIds = DDBSources.getAllowedSourceCategoryIds();
+    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+    const overrideSources = useOverride && enableSources ? DDBSources.getSelectedSourceIds() : [];
 
     for (const sourceCategoryId of sourceCategoryIds) {
       const sourceIds = DDBSources.getBookIdsInCategories([sourceCategoryId]);
-      if (sourceIds.length === 0) continue;
+      const filteredSourceIds = sourceIds.filter((id) => overrideSources.length === 0 || overrideSources.includes(id));
+      if (filteredSourceIds.length === 0) continue;
       sourceIdArrays.push({
         categoryId: sourceCategoryId,
-        sourceIds,
+        sourceIds: filteredSourceIds,
       });
     }
 

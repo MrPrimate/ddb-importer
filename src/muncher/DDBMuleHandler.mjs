@@ -565,4 +565,34 @@ export default class DDBMuleHandler {
     return data.data;
   }
 
+  static async getSubclasses(className, rulesVersion = "2024") {
+    const cobaltCookie = Secrets.getCobalt();
+    const campaignId = DDBCampaigns.getCampaignId();
+    const parsingApi = DDBProxy.getProxy();
+    const betaKey = PatreonHelper.getPatreonKey();
+    const body = {
+      cobalt: cobaltCookie,
+      campaignId,
+      betaKey,
+      className,
+      rulesVersion,
+    };
+
+    const response = await fetch(`${parsingApi}/proxy/subclass`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      logger.error(`Failure: ${data.message}`);
+      throw new Error(data.message);
+    }
+    return data.data;
+
+  }
+
 }

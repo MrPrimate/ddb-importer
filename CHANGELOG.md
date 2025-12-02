@@ -3,6 +3,7 @@
 - Some icon fixes
 - Some more parsing improvements to the Artificer Armorer
 - Armor items will no longer generate a use activity if they don't have an ability to use.
+- Feature muncher did not respect the source book setting.
 
 # 6.6.21
 

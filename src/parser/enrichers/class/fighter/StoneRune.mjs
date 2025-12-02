@@ -44,8 +44,8 @@ export default class StoneRune extends DDBEnricherData {
           description: "You have advantage on Wisdom (Insight) checks",
         },
         atlChanges: [
-          DDBEnricherData.ChangeHelper.generateATLChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
-          DDBEnricherData.ChangeHelper.generateATLChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
         ],
       },
       {
