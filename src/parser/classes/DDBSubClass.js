@@ -473,6 +473,10 @@ export default class DDBSubClass extends DDBClass {
         this.data.system.advancement.push(elixir);
       }
     } else if (this.data.name.startsWith("Armorer") && this.is2024) {
+      for (let advancement of this.data.system.advancement) {
+        if (advancement.title !== "Improved Armorer") continue;
+        advancement.configuration.scale[3] = { value: 0 };
+      }
       const forceDemolisher = {
         type: "ScaleValue",
         configuration: {
