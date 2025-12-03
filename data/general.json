@@ -230,5 +230,9 @@
   {
     "name": "Hero's Journey Boon",
     "path": "icons/environment/wilderness/mine-interior-dungeon-door.webp"
+  },
+  {
+    "name": "Steel Bond",
+    "path": "icons/commodities/metal/mail-chain-steel.webp"
   }
 ]

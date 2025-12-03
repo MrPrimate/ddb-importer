@@ -190,7 +190,11 @@ export default class DDBChoiceFeature extends DDBFeature {
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
     const parseAllFeatures = ddbFeature.enricher.parseAllChoiceFeatures || allFeatures;
     const choices = (parseAllFeatures ? ddbFeature._parentOnlyChoices : ddbFeature._parentOnlyChosen)
-      .filter((c) => !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)); ;
+      .filter((c) =>
+        !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
+        && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
+        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.label).includes(utils.nameString(c.label)),
+      );
     logger.debug(`Processing Choice Features ${choices.map((c) => c.label).join(",")}`, {
       _choices: ddbFeature._choices,
       _parentOnlyChoices: ddbFeature._parentOnlyChoices,

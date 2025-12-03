@@ -3,6 +3,7 @@
 - Improve speed of class muncher by pre-filtering sources for subclasses.
 - Character feature muncher will now remember your mule URL.
 - Artillerist 2024 parsing fixes.
+- Battlesmith 2024 parsing improvements.
 
 # 6.6.22
 

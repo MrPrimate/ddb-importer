@@ -34,6 +34,7 @@ export default class DDBCompanionMixin {
         proficiency: false,
         attacks: false,
         saves: false,
+        disposition: true,
       },
       creatureSizes: [],
       creatureTypes: [],
