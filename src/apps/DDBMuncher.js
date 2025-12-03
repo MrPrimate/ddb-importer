@@ -38,7 +38,7 @@ export default class DDBMuncher extends DDBAppV2 {
     this.searchTermMonster = "";
     this.searchTermItem = "";
     this.searchTermSpell = "";
-    this.muleURL = "";
+    this.muleURL = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-url");
     this.characterId = null;
   }
 
