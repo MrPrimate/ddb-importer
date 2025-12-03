@@ -1160,6 +1160,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const useClassFilter = disableUse
       ? false
       : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter");
+
+    const muleURL = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-url");
     const result = {
       characterSourceConfig: [
         {
@@ -1172,12 +1174,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       ],
       enableClassSources: useClassFilter,
       selectedClasses: [],
+      muleURL,
     };
-
-    if (disableUse) {
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter", false);
-      return result;
-    }
 
     const classes = await DDBMuleHandler.getList("class", []);
     const selectedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")

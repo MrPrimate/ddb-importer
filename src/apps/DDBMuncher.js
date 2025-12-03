@@ -613,12 +613,31 @@ export default class DDBMuncher extends DDBAppV2 {
       for (const sourceIdArray of sourceIdArrays) {
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options = foundry.utils.deepClone(baseOptions);
-        options.sources = sourceIdArray.sourceIds;
 
         for (const klass of classList) {
           this.autoRotateMessage("class", klass.name.toLowerCase());
           logger.info(`Munching class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`);
           options.classId = klass.id;
+
+          const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
+
+          const subClasses = await DDBMuleHandler.getSubclasses(klass.name, version);
+          const subClassSources = new Set(subClasses.map((subKlass) => subKlass.sources.map((s) => s.sourceId)).flat());
+          const sources = foundry.utils.deepClone(sourceIdArray.sourceIds)
+            .filter((sourceId) => subClassSources.has(sourceId));
+
+          if (sources.length === 0) {
+            logger.info(`No subclasses in selected sources for class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}, skipping`, {
+              sources,
+              subClassSources,
+              klass,
+              originalSources: sourceIdArray.sourceIds,
+            });
+            continue;
+          }
+
+          options.sources = sources;
+
           const muleHandler = new DDBMuleHandler(options);
           this.notifierV2({
             section: "name",
@@ -1002,6 +1021,7 @@ export default class DDBMuncher extends DDBAppV2 {
       status.classList.remove("fa-exclamation-triangle");
       status.classList.add("fa-check-circle");
       status.style.color = "green";
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-url", URL);
     } else {
       this.showCurrentTask("URL format incorrect", { message: "That seems not to be the URL we expected...", isError: true });
       status.classList.add("fa-exclamation-triangle");

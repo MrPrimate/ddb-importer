@@ -1150,7 +1150,11 @@ const SETTINGS = {
           },
           "munching-policy-character-use-class-filter": {
             type: Boolean,
-            default: false,
+            default: true,
+          },
+          "munching-policy-character-url": {
+            type: String,
+            default: "",
           },
           "munching-policy-character-classes": {
             type: Array,

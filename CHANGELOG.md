@@ -1,5 +1,8 @@
 # Next Up
 
+- Improve speed of class muncher by pre-filtering sources for subclasses.
+- Character feature muncher will now remember your mule URL.
+
 # 6.6.22
 
 - Some icon fixes
