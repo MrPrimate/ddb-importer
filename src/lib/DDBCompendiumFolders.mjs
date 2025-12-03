@@ -681,13 +681,13 @@ export class DDBCompendiumFolders {
 
     await this.createFeatureFolder(className, "Optional Features", classFolderId, version);
 
-    if (className === "Artificer") {
+    if (className === "Artificer" && version === "2014") {
       await this.createFeatureFolder(className, "Infusions", classFolderId, version);
     } else if (className === "Sorcerer") {
       await this.createFeatureFolder(className, "Metamagic", classFolderId, version);
     } else if (className === "Warlock") {
       await this.createFeatureFolder(className, "Invocations", classFolderId, version);
-      await this.createFeatureFolder(className, "Pacts", classFolderId, version);
+      if (version === "2014") await this.createFeatureFolder(className, "Pacts", classFolderId, version);
     }
   }
 
