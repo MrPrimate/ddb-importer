@@ -11,7 +11,9 @@ export default class EldritchCannon extends DDBEnricherData {
   }
 
   get summonsFunction() {
-    return DDBImporter.lib.DDBSummonsInterface.getEldritchCannons;
+    return this.is2014
+      ? DDBImporter.lib.DDBSummonsInterface.getEldritchCannons2014
+      : DDBImporter.lib.DDBSummonsInterface.getEldritchCannons2024;
   }
 
   get activity() {
@@ -36,7 +38,7 @@ export default class EldritchCannon extends DDBEnricherData {
           hp: "@classes.artificer.levels*5",
           attackDamage: "@scale.artillerist.eldritch-cannon",
           saveDamage: "@scale.artillerist.eldritch-cannon",
-          healing: "@abilities.int.mod",
+          healing: this.is2014 ? "@abilities.int.mod" : "@scale.artillerist.healing-dice + @abilities.int.mod",
         },
       },
       data: {

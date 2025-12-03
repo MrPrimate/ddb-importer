@@ -11,9 +11,10 @@ export default class EldritchCannonProtector extends DDBEnricherData {
       targetType: "creature",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          number: 1,
-          denomination: 8,
-          bonus: "@abilities.int.mod",
+          number: this.is2014 ? 1 : null,
+          denomination: this.is2014 ? 8 : null,
+          bonus: this.is2014 ? "@abilities.int.mod" : null,
+          customFormula: this.is2014 ? null : "@scale.artillerist.healing-dice + @abilities.int.mod",
           types: ["temphp"],
         }),
         target: {

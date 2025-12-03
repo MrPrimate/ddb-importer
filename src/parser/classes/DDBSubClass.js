@@ -516,6 +516,33 @@ export default class DDBSubClass extends DDBClass {
         title: "Thunder Pulse",
       };
       this.data.system.advancement.push(thunderPulse);
+    } else if (this.data.name.startsWith("Artillerist") && this.is2024) {
+      const damage = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "eldritch-cannon",
+          type: "dice",
+          scale: {
+            3: { number: 2, faces: 8 },
+            9: { number: 3, faces: 8 },
+          },
+        },
+        title: "Eldritch Cannon Damage Dice",
+      };
+      this.data.system.advancement.push(damage);
+      const healing = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "healing-dice",
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 8 },
+            9: { number: 2, faces: 8 },
+          },
+        },
+        title: "Protector Healing Dice",
+      };
+      this.data.system.advancement.push(healing);
     }
   }
 

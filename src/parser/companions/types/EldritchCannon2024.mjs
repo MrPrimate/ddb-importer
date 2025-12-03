@@ -31,7 +31,48 @@ const ELRITCH_CANNON_ABILITY_STUB = {
   componentTypeId: 0,
 };
 
-export async function getEldritchCannons({
+
+function extractEldritchCannonAbilities(html) {
+  // Create a DOM parser
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // Get all paragraph elements
+  const paragraphs = doc.querySelectorAll('p');
+
+  const abilities = [];
+
+  paragraphs.forEach((p) => {
+    // Look for paragraphs with <strong> tags that contain ability names
+    const strongTags = p.querySelectorAll('strong');
+
+    strongTags.forEach((strong) => {
+      const text = strong.textContent.replace(".", "").trim();
+
+      // Check if this is one of our target abilities (ends with a period)
+      if (['Flamethrower', 'Force Ballista', 'Protector'].includes(text)) {
+        // Get the ability name without the period
+        const abilityName = text.slice(0, -1);
+
+        // Get the full paragraph text
+        const fullText = p.textContent.trim();
+
+        // Extract the description (everything after the ability name and period)
+        const descriptionStart = fullText.indexOf(text) + text.length;
+        const description = fullText.substring(descriptionStart).trim();
+
+        abilities.push({
+          name: abilityName,
+          content: description,
+        });
+      }
+    });
+  });
+
+  return abilities;
+}
+
+export async function getEldritchCannons2024({
   ddbParser, // this,
   document, // this.data,
   raw, // this.ddbDefinition.description,
@@ -106,7 +147,6 @@ export async function getEldritchCannons({
     },
   });
 
-  const version = ddbParser.is2014 ? "2014" : "2024";
   const results = {};
 
   const cannons = [
@@ -118,18 +158,7 @@ export async function getEldritchCannons({
     // { name: "Explosive Protector", min: 9, max: null },
   ];
 
-  const doc = utils.htmlToDoc(raw);
-
-  const cannonTable = doc.querySelectorAll("tbody")[0];
-
-  const actionData = [];
-  const rows = cannonTable.querySelectorAll("tr");
-  rows.forEach((row) => {
-    const cells = row.querySelectorAll("td");
-    const name = cells[0].textContent.trim();
-    const content = cells[1].textContent.trim();
-    actionData.push({ name, content });
-  });
+  const actionData = extractEldritchCannonAbilities(raw);
 
   for (const cannon of cannons) {
     let stub = foundry.utils.deepClone(cannonStub);
@@ -139,21 +168,21 @@ export async function getEldritchCannons({
 
     const actionText = actionData.find((a) => cannon.name.includes(a.name))?.content ?? "";
     const description = `<p><em><strong>${cannon.name}.</strong></em> ${actionText}`;
-    const manager = new DDBCompanionMixin(description, { forceRulesVersion: version }, { addMonsterEffects: true });
+    const manager = new DDBCompanionMixin(description, { forceRulesVersion: "2024" }, { addMonsterEffects: true });
     manager.npc = stub;
     const features = await manager.getFeature(description, "special");
     stub.items = features;
     stub = await DDBCompanionMixin.addEnrichedImageData(stub);
     const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
-    results[`EldritchCannon${utils.idString(cannon.name)}${version}`] = {
+    results[`EldritchCannon${utils.idString(cannon.name)}2024`] = {
       name: cannon.name,
       version: enriched ? "2" : "1",
       required: null,
       isJB2A: false,
       needsJB2A: false,
       needsJB2APatreon: false,
-      folderName: "Eldritch Cannon",
+      folderName: "Eldritch Cannon (2024)",
       data: stub,
     };
   }

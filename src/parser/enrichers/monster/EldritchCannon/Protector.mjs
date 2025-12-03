@@ -28,8 +28,9 @@ export default class Protector extends DDBEnricherData {
           },
         },
         healing: DDBEnricherData.basicDamagePart({
-          number: 1,
-          denomination: 8,
+          number: this.is2014 ? 1 : null,
+          denomination: this.is2014 ? 8 : null,
+          bonus: "",
           type: "temphp",
         }),
       },

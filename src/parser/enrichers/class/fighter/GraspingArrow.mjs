@@ -30,7 +30,7 @@ export default class GraspingArrow extends ArcaneShotOption {
 
 
   get additionalActivities() {
-    return this.action
+    return this.isAction
       ? []
       : [
         {
