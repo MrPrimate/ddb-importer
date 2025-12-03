@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.23
+
 - Improve speed of class muncher by pre-filtering sources for subclasses.
 - Character feature muncher will now remember your mule URL.
 - Artillerist 2024 parsing fixes.
