@@ -4,9 +4,13 @@ import SpellListExtractorMixin from "../../data/SpellListExtractorMixin.mjs";
 export default class CircleOfTheSpells extends SpellListExtractorMixin {
 
   async customFunction(_options) {
-    const name = this.name === "Circle Spells"
-      ? `${this.ddbParser.subKlass} Circle Spells`
-      : null;
+    let name = null;
+    if (this.name === "Circle Spells") {
+      name = `${this.ddbParser.subKlass} Circle Spells`;
+    } else if (this.name === "Additional Druid Spells") {
+      name = `${this.ddbParser.klass} Additional Spells`;
+    }
+
     await this.generateSpellList("subclass", name);
   }
 
