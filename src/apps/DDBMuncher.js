@@ -38,8 +38,11 @@ export default class DDBMuncher extends DDBAppV2 {
     this.searchTermMonster = "";
     this.searchTermItem = "";
     this.searchTermSpell = "";
-    this.muleURL = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-url");
+    this.muleURL = "";
     this.characterId = null;
+
+    const URL = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-url");
+    this.getCharacterId(URL);
   }
 
 
@@ -1003,11 +1006,15 @@ export default class DDBMuncher extends DDBAppV2 {
     await DDBImporter.createStorage();
   }
 
-  async #handleURLUpdate(event) {
-    let URL = event.currentTarget.value;
+  getCharacterId(URL) {
     const characterId = DDBCharacter.getCharacterId(URL);
     this.muleURL = URL;
     this.characterId = characterId;
+  }
+
+  async #handleURLUpdate(event) {
+    let URL = event.currentTarget.value;
+    this.getCharacterId(URL);
 
     const status = this.element.querySelector(".ddb-muncher .dndbeyond-url-status i");
 
@@ -1016,7 +1023,7 @@ export default class DDBMuncher extends DDBAppV2 {
       status.classList.remove("fa-check-circle");
       status.classList.remove("fas");
       status.style.color = "";
-    } else if (characterId) {
+    } else if (this.characterId) {
       status.classList.add("fas");
       status.classList.remove("fa-exclamation-triangle");
       status.classList.add("fa-check-circle");

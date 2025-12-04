@@ -1,7 +1,10 @@
 # Next Up
 
+# 6.6.24
+
 - Cartographer 2024 parsing
 - Homunculus Servant spell parsing fixes
+- Changeling 2024 fixes.
 
 # 6.6.23
 
