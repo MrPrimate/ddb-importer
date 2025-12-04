@@ -10986,5 +10986,9 @@
   {
     "name": "Chow Time",
     "path": "icons/magic/nature/plant-venus-flytrap-blood.webp"
+  },
+  {
+    "name": "Magic Bond",
+    "path": "icons/magic/symbols/cog-shield-white-blue.webp"
   }
 ]

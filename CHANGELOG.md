@@ -1,6 +1,7 @@
 # Next Up
 
-
+- Cartographer 2024 parsing
+- Homunculus Servant spell parsing fixes
 
 # 6.6.23
 

@@ -28,3 +28,4 @@ export * as BeastOfTheLand from "./BeastOfTheLand/_module.mjs";
 export * as BeastOfTheSea from "./BeastOfTheSea/_module.mjs";
 export * as BeastOfTheSky from "./BeastOfTheSky/_module.mjs";
 export * as SteelDefender from "./SteelDefender/_module.mjs";
+export * as HomunculusServant from "./HomunculusServant/_module.mjs";

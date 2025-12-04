@@ -362,6 +362,7 @@ export default class DDBCompanionMixin {
     // 20 (Air only) or 30 (Land and Water only) + 5 for each spell level above 2nd
     // 50 (Demon only) or 40 (Devil only) or 60 (Yugoloth only) + 15 for each spell level above 6th
     // 30 (Ghostly and Putrid only) or 20 (Skeletal only) + 10 for each spell level above 3rd
+    // 5 + 5 per spell level
 
     // additional summon points
     const hpAdjustments = [];
@@ -386,8 +387,11 @@ export default class DDBCompanionMixin {
 
     // spell level
     const spellLevelMatch = hpString.match(/\+ (\d+) for each spell level above (\d)/);
+    const basicSpellLevelMatch = hpString.match(/\+ (\d+) per spell level/);
     if (spellLevelMatch) {
       hpAdjustments.push(`${spellLevelMatch[1]} * (@item.level - ${spellLevelMatch[2]})`);
+    } else if (basicSpellLevelMatch) {
+      hpAdjustments.push(`${basicSpellLevelMatch[1]} * @item.level`);
     }
 
     if (hpAdjustments.length > 0) {
@@ -407,6 +411,12 @@ export default class DDBCompanionMixin {
         "value": `(@classes.${hitDice[2]}.levels)[d${hitDice[1]}]`,
       };
       this.npc.flags.ddbimporter.summons.changes.push(hitDiceAdjustment);
+    }
+
+    const spellHitDice = hpString.match(/number of Hit Dice \[d(\d+)s\] equal to the spell's level/i);
+    if (spellHitDice) {
+      this.npc.system.attributes.hp.formula = `0d${spellHitDice[1]}`;
+      this.summons.bonuses.hd = "@item.level";
     }
   }
 
