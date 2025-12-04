@@ -325,9 +325,7 @@ export default class DDBCompanionFactory {
     }
 
     this.itemHandler.documents = companionData;
-    await this.itemHandler.srdFiddling();
     await this.itemHandler.iconAdditions();
-
     await this.itemHandler.generateIconMap();
 
     if (this.updateCompanions) {

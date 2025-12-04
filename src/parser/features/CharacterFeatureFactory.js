@@ -876,7 +876,6 @@ export default class CharacterFeatureFactory {
 
       const featureHandlerOptions = {
         chrisPremades: true,
-        removeSRDDuplicates: false,
         filterDuplicates: false,
         deleteBeforeUpdate: false,
         matchFlags: ["id"],

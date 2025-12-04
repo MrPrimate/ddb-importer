@@ -275,8 +275,7 @@ export default class Iconizer {
     }
 
     // check for SRD icons
-    // eslint-disable-next-line require-atomic-updates
-    if (this.settings.srd && this.srdIconUpdate) {
+    if (this.settings.srdIcons && this.srdIconUpdate) {
       logger.debug("SRD Icon Matching");
       await this._copySRDIcons();
     }

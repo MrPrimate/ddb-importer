@@ -190,7 +190,6 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
     notifier: resolvedNotifier,
   });
   await itemHandler.init();
-  await itemHandler.srdFiddling();
   await itemHandler.iconAdditions();
   const filteredSpells = (ids !== null && ids.length > 0)
     ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))

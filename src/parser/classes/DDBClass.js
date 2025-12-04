@@ -2002,7 +2002,6 @@ export default class DDBClass {
 
     const handlerOptions = {
       chrisPremades: false,
-      removeSRDDuplicates: false,
       filterDuplicates: false,
       deleteBeforeUpdate: false,
       useCompendiumFolders: true,

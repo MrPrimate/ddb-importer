@@ -626,7 +626,6 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   static featureHandlerOptions = {
     chrisPremades: true,
-    removeSRDDuplicates: false,
     filterDuplicates: false,
     deleteBeforeUpdate: false,
     matchFlags: ["is2014", "is2024"],

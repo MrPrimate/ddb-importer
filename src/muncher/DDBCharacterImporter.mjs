@@ -292,7 +292,7 @@ export default class DDBCharacterImporter {
       items = await Iconizer.updateIcons({
         settings: iconizerSettings,
         documents: items,
-        srdIconUpdate: !game.settings.get("ddb-importer", "character-update-policy-use-srd"),
+        srdIconUpdate: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons"),
       });
     }
 
@@ -539,7 +539,6 @@ ${item.system.description.chat}
 
   async processCharacterItems(items) {
     let compendiumItems = [];
-    let srdCompendiumItems = [];
     let overrideCompendiumItems = [];
     let individualCompendiumItems = [];
 
@@ -566,32 +565,6 @@ ${item.system.description.chat}
       overrideCompendiumItems = compendiumOverrideItems;
       // remove existing items from those to be imported
       items = await DDBCharacterImporter.removeItems(items, overrideCompendiumItems);
-    }
-
-    /**
-     * If SRD is selected, we prefer this
-     */
-    if (this.settings.useSRDCompendiumItems) {
-      logger.info("Removing compendium items");
-      const featureManager = new DDBItemImporter("features", items);
-      const inventoryManager = new DDBItemImporter("inventory", items);
-      const spellManager = new DDBItemImporter("spells", items);
-
-      await featureManager.init();
-      await inventoryManager.init();
-      await spellManager.init();
-
-      const compendiumFeatureItems = await featureManager.getSRDCompendiumItems();
-      const compendiumInventoryItems = await inventoryManager.getSRDCompendiumItems();
-      const compendiumSpellItems = await spellManager.getSRDCompendiumItems();
-
-      srdCompendiumItems = compendiumItems.concat(
-        compendiumInventoryItems,
-        compendiumSpellItems,
-        compendiumFeatureItems,
-      );
-      // remove existing items from those to be imported
-      items = await DDBCharacterImporter.removeItems(items, srdCompendiumItems);
     }
 
     if (this.settings.useExistingCompendiumItems) {
@@ -632,12 +605,6 @@ ${item.system.description.chat}
       this.notifier("Adding DDB compendium items");
       logger.info("Adding DDB compendium items:", compendiumItems);
       await this.createCharacterItems(compendiumItems, false);
-    }
-
-    if (this.settings.useSRDCompendiumItems) {
-      this.notifier("Adding SRD compendium items");
-      logger.info("Adding SRD compendium items:", srdCompendiumItems);
-      await this.createCharacterItems(srdCompendiumItems, false);
     }
 
     if (this.settings.useOverrideCompendiumItems) {
@@ -802,8 +769,7 @@ ${item.system.description.chat}
       activeEffectCopy: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
       addCharacterEffects: game.settings.get("ddb-importer", "character-update-policy-add-midi-effects"),
       ignoreNonDDBItems: game.settings.get("ddb-importer", "character-update-policy-ignore-non-ddb-items"),
-      useExistingCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-existing"),
-      useSRDCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-srd"),
+      useExistingCompendiumItems: false, // game.settings.get("ddb-importer", "character-update-policy-use-existing"),
       useOverrideCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-override"),
       useChrisPremades: game.settings.get("ddb-importer", "character-update-policy-use-chris-premades")
         && (game.modules.get("chris-premades")?.active ?? false),

@@ -121,7 +121,6 @@ export async function getClasses(data) {
   const featureHandlerOptions = {
     chrisPremades: true,
     deleteBeforeUpdate: false,
-    removeSRDDuplicates: false,
     filterDuplicates: false,
     matchFlags: ["featureId"],
     useCompendiumFolders: true,

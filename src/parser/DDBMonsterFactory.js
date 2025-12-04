@@ -303,8 +303,6 @@ export default class DDBMonsterFactory {
       }
     }
     this.notifier("");
-    this.notifier(`Fiddling with the SRD data...`, { nameField: true });
-    await itemHandler.srdFiddling();
     await itemHandler.iconAdditions();
     this.notifier(`Generating Icon Map..`, { nameField: true });
     await itemHandler.generateIconMap();

@@ -144,8 +144,6 @@ export async function parseTransports(ids = null, { notifier = null } = {}) {
     }
   }
   resolvedNotifier("");
-  resolvedNotifier(`Fiddling with the SRD data...`, { nameField: true });
-  await vehicleHandler.srdFiddling();
   await vehicleHandler.iconAdditions();
 
   resolvedNotifier(`Generating Icon Map..`, { nameField: true });

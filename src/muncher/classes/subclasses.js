@@ -104,7 +104,6 @@ export async function getSubClasses(subClassData, klassData) {
 
   const featureHandlerOptions = {
     chrisPremades: true,
-    removeSRDDuplicates: false,
     filterDuplicates: false,
     deleteBeforeUpdate: false,
     matchFlags: ["featureId"],

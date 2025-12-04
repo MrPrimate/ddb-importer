@@ -187,7 +187,6 @@ export class DDBInfusion {
     const handlerOptions = {
       chrisPremades: false,
       deleteBeforeUpdate: false,
-      removeSRDDuplicates: false,
       filterDuplicates: false,
       matchFlags: ["infusionId"],
       useCompendiumFolders: true,

@@ -551,17 +551,6 @@ ${item.system.description.chat}
     return results;
   }
 
-  async srdFiddling(removeDuplicates = true, matchDDBId = false) {
-    const useSrd = false; // game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd");
-
-    if (useSrd) {
-      logger.debug("Replacing SRD compendium items");
-      const srdItems = await this.getSRDCompendiumItems();
-      if (removeDuplicates) this.removeItems(srdItems, matchDDBId);
-      this.documents = this.documents.concat(srdItems);
-    }
-  }
-
   async iconAdditions() {
     this.documents = await Iconizer.updateIcons({
       documents: this.documents,
@@ -649,7 +638,7 @@ ${item.system.description.chat}
   }
 
   static async buildHandler(type, documents, updateBool,
-    { srdFidding = true, removeSRDDuplicates = true, ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
+    { ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null } = {},
     overrideHandler = null,
   ) {
@@ -662,7 +651,6 @@ ${item.system.description.chat}
     });
     if (overrideHandler) handler.documents = documents;
     await handler.init();
-    if (srdFidding) await handler.srdFiddling(removeSRDDuplicates);
     if (updateIcons) await handler.iconAdditions();
     const filteredItems = (ids !== null && ids.length > 0)
       ? handler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))

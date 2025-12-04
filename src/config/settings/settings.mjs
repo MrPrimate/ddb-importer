@@ -73,7 +73,6 @@ const URLS = {
 
 const MUNCH_DEFAULTS = [
   { name: "munching-policy-update-existing", needed: true },
-  { name: "munching-policy-use-srd", needed: false },
   { name: "munching-policy-use-inbuilt-icons", needed: true },
   { name: "munching-policy-use-srd-icons", needed: false },
   { name: "munching-policy-use-srd-monster-images", needed: false },
@@ -546,11 +545,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "character-update-policy-use-srd": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
           "character-update-policy-name": {
             scope: "player",
             type: Boolean,
@@ -931,11 +925,11 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
-          "munching-policy-use-srd": {
-            scope: "player",
-            type: Boolean,
-            default: false,
-          },
+          // "munching-policy-use-srd": {
+          //   scope: "player",
+          //   type: Boolean,
+          //   default: false,
+          // },
           "munching-policy-legacy-postfix": {
             type: Boolean,
             default: false,

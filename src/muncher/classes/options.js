@@ -28,7 +28,6 @@ export async function getClassOptions(data, className) {
   const options = {
     chrisPremades: true,
     deleteBeforeUpdate: false,
-    removeSRDDuplicates: false,
     filterDuplicates: false,
     matchFlags: ["featureId"],
     notifier: utils.munchNote,

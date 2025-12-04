@@ -258,22 +258,14 @@ const MuncherSettings = {
           "Use existing items from <i>ddb-import Override compendium</i>, rather than parsing from DDB. This is useful if you want to place customised items into the compendium for use by characters.",
         enabled: true,
       },
-      {
-        name: "character-update-policy-use-existing",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-existing"),
-        label: "[Caution] Replace Items using ddb-importer compendiums",
-        hint:
-          "Use existing items from <i>ddb-import compendiums</i>, rather than parsing from DDB. This is useful if you have customised the items in the compendium, although you will lose any custom effects applied by this module e.g. Improved Divine Smite. Please consider marking the item you wish to keep as ignored by import instead.",
-        enabled: true,
-      },
-      {
-        name: "character-update-policy-use-srd",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd"),
-        label: "[Caution] Replace Items using SRD compendiums",
-        hint:
-          "Use the <i>SRD compendiums</i>, rather than DDB. Importing using SRD will not include features like fighting style and divine smite in damage calculations. Please consider marking the item you wish to keep as ignored by import instead.",
-        enabled: true,
-      },
+      // {
+      //   name: "character-update-policy-use-existing",
+      //   isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-existing"),
+      //   label: "[Caution] Replace Items using ddb-importer compendiums",
+      //   hint:
+      //     "Use existing items from <i>ddb-import compendiums</i>, rather than parsing from DDB. This is useful if you have customised the items in the compendium, although you will lose any custom effects applied by this module e.g. Improved Divine Smite. Please consider marking the item you wish to keep as ignored by import instead.",
+      //   enabled: true,
+      // },
     ];
 
     const devConfig = [

@@ -355,7 +355,6 @@ export default class DDBItemsImporter {
       notifier: this.notifier,
     });
     await this.itemHandler.init();
-    await this.itemHandler.srdFiddling();
     this.notifier(`Imps are creating iconographs for ${this.itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
     await this.itemHandler.iconAdditions();
     this.data = (this.ids !== null && this.ids.length > 0)
