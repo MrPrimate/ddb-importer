@@ -1,4 +1,5 @@
 export { default as AdvancedArtifice } from "./AdvancedArtifice.mjs";
+export { default as AdventurersAtlas } from "./AdventurersAtlas.mjs";
 export { default as AlchemicalSavant } from "./AlchemicalSavant.mjs";
 export { default as ArcaneArmorCreateArmor } from "./ArcaneArmorCreateArmor.mjs";
 export { default as ArcanePropulsionArmorGauntlet } from "./ArcanePropulsionArmorGauntlet.mjs";
@@ -11,9 +12,11 @@ export { default as EldritchCannonFlamethrower } from "./EldritchCannonFlamethro
 export { default as EldritchCannonForceBallista } from "./EldritchCannonForceBallista.mjs";
 export { default as EldritchCannonProtector } from "./EldritchCannonProtector.mjs";
 export { default as ExperimentalElixir } from "./ExperimentalElixir.mjs";
+export { default as ExplosiveCannon } from "./ExplosiveCannon.mjs";
 export { default as FlashOfGenius } from "./FlashOfGenius.mjs";
 export { default as ForceDemolisher } from "./ForceDemolisher.mjs";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField.mjs";
+export { default as GuidedPrecision } from "./GuidedPrecision.mjs";
 export { default as MagicItemTinker } from "./MagicItemTinker.mjs";
 export { default as SpellStoringItem } from "./SpellStoringItem.mjs";
 export { default as SpellStoringItemStoreSpell } from "./SpellStoringItemStoreSpell.mjs";

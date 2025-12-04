@@ -563,10 +563,6 @@ export default class DDBEnricherFactoryMixin {
       this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
     }
 
-    if (overrideData.addSpellUuid) {
-      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
-    }
-
     if (overrideData.allowCritical) {
       foundry.utils.setProperty(activity, "damage.critical.allow", true);
     }
@@ -576,6 +572,10 @@ export default class DDBEnricherFactoryMixin {
         ? overrideData.data()
         : overrideData.data;
       activity = foundry.utils.mergeObject(activity, data);
+    }
+
+    if (overrideData.addSpellUuid) {
+      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
     }
 
     if (overrideData.allowMagical) {
@@ -774,12 +774,12 @@ export default class DDBEnricherFactoryMixin {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", effectHint.activityMatch);
       }
 
-      if (effectHint.ignoreTransfer) {
-        foundry.utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
-      }
-
       if (effectHint.activitiesMatch) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
+      }
+
+      if (effectHint.ignoreTransfer) {
+        foundry.utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
       }
 
       if (effectHint.macroChanges && applyMidiOnlyEffects) {

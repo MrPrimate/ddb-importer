@@ -346,15 +346,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         };
         result.build.generateSpell = true;
         result.overrides.addSpellUuid = "Alter Self";
-        result.build.spellOverride = {
-          uuid: "",
-          properties: [],
-          level: null,
-          challenge: {
-            attack: null,
-            save: null,
-            override: false,
-          },
+        result.overrides.data.spell = {
           spellbook: false,
         };
       }
