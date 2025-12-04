@@ -20,3 +20,4 @@ export * as Eladrin from "./eladrin/_module.mjs";
 export * as Wulven from "./wulven/_module.mjs";
 export * as Tortle from "./tortle/_module.mjs";
 export * as Shadarkai from "./shadar-kai/_module.mjs";
+export * as Changeling from "./changeling/_module.mjs";
