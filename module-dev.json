@@ -11,7 +11,7 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
     "minimum": "13.346",
-    "verified": "13.346",
+    "verified": "13.351",
     "maximum": 13
   },
   "authors": [
@@ -36,8 +36,8 @@
         "id": "dnd5e",
         "type": "system",
         "compatibility": {
-          "minimum": "5.1.10",
-          "verified": "5.1.10"
+          "minimum": "5.2.0",
+          "verified": "5.2.2"
         }
       }
     ],
