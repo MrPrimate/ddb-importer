@@ -1,5 +1,11 @@
 # Next Up
 
+# 6.6.26
+
+- A handful of features such as Mantle of Majesty would end up in the class rather than subclass folders when munching. This also resolves an issue with Channel Divinity on 2014 subclasses. @crimsonedge
+- When importing subclasses from sources such as Griffons Saddlebag where there are 2014 and 2024 versions of the subclasses, both would be imported as 2014 versions, creating confusion and discord. @crimsonedge
+- Improve source selection not allowing a class munch unless the core rules were selected.
+
 # 6.6.25
 
 - Fixes to Haste 2024 expiring at turn end if using midi
