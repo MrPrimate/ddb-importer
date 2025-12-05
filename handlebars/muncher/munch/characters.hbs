@@ -8,10 +8,11 @@
     <legend>Details</legend>
     <p>Please import Feats before Backgrounds and Classes/Class Features.</p>
 
-    <p>Character Option is available for Undying and God Tier Patreon Supporters.</p>
+    <p>Character Options/Features Import is available for {{#if characterMunch}}{{else}}<strong>{{/if}}Undying and God Tier Patreon Supporters{{#if characterMunch}}{{else}}</strong>{{/if}}.</p>
 
   </fieldset>
 
+  {{#if characterMunch}}
   <fieldset>
     <legend>Character URL</legend>
     To import character features and classes you need to sacrifice a character to the Old Gods.<br />
@@ -39,7 +40,6 @@
     </div>
   </fieldset>
 
-  {{#if characterMunch}}
   <fieldset>
     <legend>Filters</legend>
     {{#each characterSourceConfig}}

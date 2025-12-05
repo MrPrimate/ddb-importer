@@ -1169,6 +1169,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       muleURL,
     };
 
+    if (disableUse) return result;
+
     const classes = await DDBMuleHandler.getList("class", []);
     const selectedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")
       .map((id) => parseInt(id));

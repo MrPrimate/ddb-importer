@@ -3,6 +3,7 @@
 - Fixes to Haste 2024 expiring at turn end if using midi
 - Hunters Mark automation effect would expire after an hour rather than persisting.
 - Kalashtar, Khoravar parsing fixes
+- Some combinations of settings could cause the muncher screen to fail to open, if you were no longer a patreon supporter.
 
 # 6.6.24
 
