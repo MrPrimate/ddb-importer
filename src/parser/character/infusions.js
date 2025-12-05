@@ -1,5 +1,49 @@
 import { logger } from "../../lib/_module.mjs";
 
+async function linkSelectedEnchantment(item, effect, activity, featureName) {
+  const effectData = effect.toObject();
+  effectData.origin = activity.uuid;
+
+  const applied = await ActiveEffect.create(effectData, {
+    parent: item,
+    keepOrigin: true,
+    dnd5e: {
+      enchantmentProfile: effectData._id,
+      activityId: activity._id,
+    },
+  });
+  logger.debug(`Applied enchantment effect from ${featureName.name} to ${item.name}`, {
+    effect: effectData,
+    applied,
+  });
+}
+
+export async function linkSelectedEnchantments(actor) {
+  const items = actor.getEmbeddedCollection("Item");
+
+  for (const item of items) {
+    const enchantmentFlag = foundry.utils.getProperty(item, "flags.ddbimporter.transferEnchantment");
+    if (!enchantmentFlag) continue;
+
+    const effect = item.getEmbeddedCollection("ActiveEffect")
+      .find((e) => e._id === enchantmentFlag.effectId);
+
+    if (!effect) continue;
+    const activity = item.system.activities.getByType("enchant")
+      .find((a) => a._id === enchantmentFlag.activityId);
+
+    if (!activity) continue;
+
+    const targetItem = enchantmentFlag.targetItemId === "self"
+      ? item
+      : items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
+        i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId);
+    if (!targetItem) continue;
+
+    await linkSelectedEnchantment(targetItem, effect, activity, item.name);
+  }
+}
+
 export async function createInfusedItems(ddb, actor) {
   if (!ddb.infusions?.item || !ddb.infusions?.infusions?.definitionData) return;
 
@@ -38,21 +82,7 @@ export async function createInfusedItems(ddb, actor) {
       if (infusionEffects.length === 0) continue;
 
       for (const infusionEffect of infusionEffects) {
-        const effectData = infusionEffect.toObject();
-        effectData.origin = activity.uuid;
-
-        const applied = await ActiveEffect.create(effectData, {
-          parent: item,
-          keepOrigin: true,
-          dnd5e: {
-            enchantmentProfile: effectData._id,
-            activityId: activity._id,
-          },
-        });
-        logger.debug(`Applied infusion effect from ${infusionFeature.name} to ${item.name}`, {
-          effect: effectData,
-          applied,
-        });
+        await linkSelectedEnchantment(item, infusionEffect, activity, infusionFeature.name);
       }
     }
   }

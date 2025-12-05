@@ -11,7 +11,7 @@ import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import { DDBDataUtils } from "../parser/lib/_module.mjs";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
-import { createInfusedItems } from "../parser/character/infusions.js";
+import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions.js";
 import { setConditions } from "../parser/character/conditions.js";
 import { ExternalAutomations } from "../effects/_module.mjs";
 
@@ -926,6 +926,7 @@ ${item.system.description.chat}
 
       // add infusions to actors items
       await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
+      await linkSelectedEnchantments(this.actor);
 
       if (this.settings.useChrisPremades) {
         this.notifier(`Applying CPR...`);
