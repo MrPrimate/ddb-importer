@@ -295,7 +295,8 @@ export default class DDBClass {
   _generateSource() {
     const classSource = DDBSources.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
-    this.data.system.source.rules = this.is2014 ? "2014" : "2024";
+    this.parentIs2014 = this.ddbParentClassDefinition.sources.every((s) => DDBSources.is2014Source(s));
+    this.data.system.source.rules = this.parentIs2014 ? "2014" : "2024";
   }
 
   _fleshOutCommonDataStub() {

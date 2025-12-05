@@ -222,8 +222,8 @@ export default class DDBClassFeatures {
           "ddbimporter": {
             class: klass.definition.name,
             classId: klass.definition.id,
-            subClass: subClass?.name,
-            subClassId: subClass?.id,
+            subClass: subClass.name,
+            subClassId: subClass.id,
           },
         },
       });

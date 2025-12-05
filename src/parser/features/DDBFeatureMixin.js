@@ -62,7 +62,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           originalName: this.originalName,
           type: this.tagType,
           isCustomAction: this.ddbDefinition.isCustomAction,
-          is2014: this.is2014,
+          is2014: this.type === "class" && this._class ? this.isClass2014 : this.is2014,
           is2024: !this.is2014,
           legacy: this.legacy,
         },
@@ -98,8 +98,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       const subKlass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
       this.subKlass = subKlass?.definition.name;
       const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass?.name);
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass?.id);
+      if (subClass) {
+        foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass.name);
+        foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass.id);
+      }
     } else if (this._actionType.race) {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "race");
       foundry.utils.setProperty(this.data, "flags.ddbimporter.fullRaceName", this.ddbCharacter?._ddbRace.fullName);
@@ -210,6 +212,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     );
     this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
+
+    this.isClass2014 = this.type === "class" && this._class && this._class.definition?.sources.every((s) => DDBSources.is2014Source(s));
   }
 
   constructor({
@@ -300,11 +304,15 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     this._checkSummons();
 
-    const localSource
-      = this.source && utils.isObject(this.source) ? this.source : DDBSources.parseSource(this.ddbDefinition);
+    const localSource = this.source && utils.isObject(this.source)
+      ? this.source
+      : DDBSources.parseSource(this.ddbDefinition);
 
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
+    if (this.type === "class" && this._class) {
+      this.data.system.source.rules = this.isClass2014 ? "2014" : "2024";
+    }
 
     this.fallbackEnricher = fallbackEnricher;
 

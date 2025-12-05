@@ -596,11 +596,13 @@ export default class DDBMuncher extends DDBAppV2 {
       : [];
 
     const allSourceIds = sourceIdArrays.reduce((acc, curr) => {
-      acc.push(...curr.sourceIds);
+      for (const sourceId of curr.sourceIds) {
+        acc.add(sourceId);
+      }
       return acc;
-    }, []);
+    }, new Set([1, 2, 148, 145]));
 
-    const classList = (await DDBMuleHandler.getList("class", allSourceIds))
+    const classList = (await DDBMuleHandler.getList("class", Array.from(allSourceIds)))
       .filter((c) => (allowedClassIds.length === 0 ? true : allowedClassIds.includes(parseInt(c.id))));
 
     logger.info(`Found ${classList.length} classes to munch`, {
