@@ -103,7 +103,7 @@ export default class SpellListExtractor {
 
     const name = this.name.replace(this.RENAME_REGEX, "");
 
-    const source = spellListFactory.sources.find((s) => s.id === this.sourceId);
+    const source = spellListFactory.sources.find((s) => s.id === this.sourceId) ?? spellListFactory.sources.find((s) => s.id === 9999999);
 
     logger.debug(`Generating Spell List for ${type} "${name}" from source "${source.acronym}" with spells:`, { spells, this: this });
 

@@ -85,6 +85,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Circle of the Old Ways Spells": "Circle of the Spells",
     "Circle of the Symbiote Spells": "Circle of the Spells",
     "Circle of Wicker Spells": "Circle of the Spells",
+    "Circle of the Shepherd Spells": "Circle of the Spells",
     "Oath of Devotion Spells": "Paladin Oath Spells",
     "Oath of Glory Spells": "Paladin Oath Spells",
     "Oath of the Ancients Spells": "Paladin Oath Spells",
