@@ -1,5 +1,9 @@
 # Next Up
 
+- Fixes to Haste 2024 expiring at turn end if using midi
+- Hunters Mark automation effect would expire after an hour rather than persisting.
+- Kalashtar parsing fixes
+
 # 6.6.24
 
 - Cartographer 2024 parsing

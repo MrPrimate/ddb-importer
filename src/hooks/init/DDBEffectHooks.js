@@ -30,6 +30,13 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
     case "system.traits.languages.all":
       foundry.utils.setProperty(actor, "system.traits.languages.value", ["standard:*", "exotic:*", "ddb:*"]);
       return true;
+    case "system.traits.languages.communication.telepathy.value": {
+      const rollData = actor.getRollData();
+      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: 0, warn: false });
+      const evaluated = Roll.safeEval(formula);
+      foundry.utils.setProperty(actor, change.key, evaluated);
+      return true;
+    }
     case "system.attributes.movement.all": {
       const movement = actor.system.attributes.movement;
       let op = "";
