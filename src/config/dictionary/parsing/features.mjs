@@ -288,6 +288,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Tools of the Trade",
     "Bestial Instincts",
     "Purple Dragon Rook",
+    "Fey Gift",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
