@@ -644,7 +644,7 @@ export default class DDBMuncher extends DDBAppV2 {
           const muleHandler = new DDBMuleHandler(options);
           this.notifierV2({
             section: "name",
-            message: `Munching for ${klass.name} from ${sourceIdArray.sourceIds.length} sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
+            message: `Munching for ${klass.name} from ${sources.length} sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
           });
           try {
             await muleHandler.process();
