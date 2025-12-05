@@ -16,6 +16,8 @@ export default class Haste extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("*2", 30, "system.attributes.movement.all"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.dex.save.roll.mode`),
         ],
+        // 2024 has wording that picks up special expiry incorrectly
+        daeSpecialDurations: [],
       },
     ];
   }
