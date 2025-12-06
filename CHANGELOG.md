@@ -6,6 +6,7 @@
 - Some under the hood refactoring.
 - Feats no longer generate additional "choice features" for things like spell selections.
 - Aberrant Dragonmark feat parsing improvements.
+- Add some status/condition detection for Eberon wording syntax.
 
 # 6.6.26
 

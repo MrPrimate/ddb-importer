@@ -240,6 +240,11 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
+      const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC 8 plus your (?<modifier>\w+) modifier and Proficiency Bonus\) or (?:have the) (?<condition>\w+) condition until /ig;
+      match = successSearch.exec(parserText);
+    }
+
+    if (!match) {
       const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check)(?: \(DC equal to 8 \+ your proficiency bonus \+ your (?<modifier>\w+) modifier\))? or (?:be|become) (?<condition>\w+) (of you )?until /ig;
       match = successSearch.exec(parserText);
     }
