@@ -7,28 +7,28 @@ export function effectModules() {
 
 export function baseEffect(foundryItem, name,
   { transfer = true, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null } = {},
+    durationRounds = null, durationTurns = null, showIcon = null } = {},
 ) {
   return AutoEffects.BaseEffect(foundryItem, name, {
-    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
   });
 }
 
 export function baseItemEffect(foundryItem, name,
   { transfer = true, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null } = {},
+    durationRounds = null, durationTurns = null, showIcon = null } = {},
 ) {
   return AutoEffects.BaseEffect(foundryItem, name, {
-    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
   });
 }
 
 export function baseFeatEffect(document, label,
   { transfer = false, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null } = {},
+    durationRounds = null, durationTurns = null, showIcon = null } = {},
 ) {
   return AutoEffects.BaseEffect(document, label, {
-    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
   });
 }
 

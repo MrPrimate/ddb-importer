@@ -22,10 +22,10 @@ import { vitriolicSphereEffect } from "./spells/vitriolicSphere.js";
 
 export function baseSpellEffect(document, label,
   { transfer = false, disabled = false, description = null, durationSeconds = null,
-    durationRounds = null, durationTurns = null } = {},
+    durationRounds = null, durationTurns = null, showIcon = null } = {},
 ) {
   return AutoEffects.BaseEffect(document, label, {
-    transfer, disabled, description, durationSeconds, durationRounds, durationTurns,
+    transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon,
   });
 }
 

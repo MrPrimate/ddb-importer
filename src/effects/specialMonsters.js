@@ -1,7 +1,7 @@
 /* eslint-disable require-atomic-updates */
 import { addStatusEffectChange, forceItemEffect } from "./effects.js";
 
-import { generateTauntEffect } from "./monsterFeatures/taunt.js";
+// import { generateTauntEffect } from "./monsterFeatures/taunt.js";
 import { skeletalJuggernautEffects } from "./monsterFeatures/skeletalJuggernautEffects.js";
 import { venomTrollEffects } from "./monsterFeatures/venomTroll.js";
 import { quasitEffects } from "./monsterFeatures/quasit.js";
@@ -13,9 +13,9 @@ import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
 
 export function baseMonsterFeatureEffect(document, label,
-  { transfer = false, disabled = false } = {},
+  { transfer = false, disabled = false, showIcon = null } = {},
 ) {
-  return AutoEffects.MonsterFeatureEffect(document, label, { transfer, disabled });
+  return AutoEffects.MonsterFeatureEffect(document, label, { transfer, disabled, showIcon });
 }
 
 // eslint-disable-next-line complexity
@@ -27,14 +27,14 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
   if (!addMidiEffects) return npc;
 
   switch (npc.name) {
-    case "Bard": {
-      npc.items.forEach((item) => {
-        if (item.name === "Taunt") {
-          item = generateTauntEffect(item);
-        }
-      });
-      break;
-    }
+    // case "Bard": {
+    //   npc.items.forEach((item) => {
+    //     if (item.name === "Taunt") {
+    //       item = generateTauntEffect(item);
+    //     }
+    //   });
+    //   break;
+    // }
     // case "Beholder": {
     //   for (let [index, item] of npc.items.entries()) {
     //     if (item.name === "Eye Rays") {

@@ -65,7 +65,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
           description: `Can't make opportunity attacks.`,
         },
         activityMatch: "Staggering Blow",
-        daeSpecialDuration: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource"],
       },
       {
         name: "Staggered: Saving Throws",
@@ -73,7 +73,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
         options: {
           description: `Disadvantage on next saving throw.`,
         },
-        daeSpecialDuration: ["turnStartSource", "isSave"],
+        daeSpecialDurations: ["turnStartSource", "isSave"],
         activityMatch: "Staggering Blow",
       },
       {

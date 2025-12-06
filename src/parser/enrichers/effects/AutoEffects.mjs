@@ -42,7 +42,7 @@ export default class AutoEffects {
 
   static BaseEffect(document, name,
     { transfer = true, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null } = {},
+      durationRounds = null, durationTurns = null, showIcon = false } = {},
   ) {
     let effect = {
       img: document.img,
@@ -64,6 +64,7 @@ export default class AutoEffects {
       // origin: origin,
       flags: {
         dae: {
+          showIcon,
           transfer,
           stackable: "noneNameOnly",
           // armorEffect: true
@@ -87,31 +88,31 @@ export default class AutoEffects {
 
   static SpellEffect(document, label,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null } = {},
+      durationRounds = null, durationTurns = null, showIcon = null } = {},
   ) {
-    const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns };
+    const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon };
     return AutoEffects.BaseEffect(document, label, options);
   }
 
   static FeatEffect(document, label,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null } = {},
+      durationRounds = null, durationTurns = null, showIcon = null } = {},
   ) {
-    return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+    return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
   }
 
   static MonsterFeatureEffect(document, label,
-    { transfer = false, disabled = false } = {},
+    { transfer = false, disabled = false, showIcon = null } = {},
   ) {
-    return AutoEffects.BaseEffect(document, label, { transfer, disabled });
+    return AutoEffects.BaseEffect(document, label, { transfer, disabled, showIcon });
   }
 
 
   static ItemEffect(document, label,
     { transfer = true, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null } = {},
+      durationRounds = null, durationTurns = null, showIcon = null } = {},
   ) {
-    const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+    const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
     return effect;
   }
 
