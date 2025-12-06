@@ -4,10 +4,18 @@ import { logger, utils } from "../../lib/_module.mjs";
 
 export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
 
+  _splitNameLoader() {
+    this.name = this.name.split("(")[0].trim();
+    return this._loadEnricherData();
+  }
+
   _defaultNameLoader() {
     const monsterHintName = utils.pascalCase(this.monsterHintName ?? this.monsterName);
     const featName = utils.pascalCase(this.name);
     if (!MonsterEnrichers[monsterHintName]?.[featName]) {
+      if (this.name.includes("(")) {
+        return this._splitNameLoader();
+      }
       return null;
     }
     this.hints = {
