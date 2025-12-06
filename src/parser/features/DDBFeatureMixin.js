@@ -940,7 +940,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     if (this.ddbDefinition.actionType === 1) return "attack";
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) return "attack";
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";
-    if (this.isAction && this.getDamageDie()) return "damage";
+    if (this.isAction && this.getDamageDie()) {
+      if (this.getDamageType()) return "damage";
+      else return "roll";
+    }
     if (this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
     if (this.data.effects.length > 0 || this.enricher.effects?.length > 0) return "utility";
     if (DDBFeatureMixin.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";

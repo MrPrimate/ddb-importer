@@ -1,3 +1,5 @@
+export { default as AberrantDragonmark } from "./AbberantDragonmark.mjs";
+export { default as AberrantFortitude } from "./AberrantFortitude.mjs";
 export { default as Alert } from "./Alert.mjs";
 export { default as BolsteringPerformance } from "./BolsteringPerformance.mjs";
 export { default as BoonOfEnergyResistance } from "./BoonOfEnergyResistance.mjs";

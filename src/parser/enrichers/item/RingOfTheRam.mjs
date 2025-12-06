@@ -15,7 +15,7 @@ export default class RingOfTheRam extends DDBEnricherData {
           generateActivation: true,
           generateRoll: true,
           generateConsumption: true,
-          roll: {
+          rollOverride: {
             name: "Strength Check",
             formula: "1d20 + @scaling * 5",
           },

@@ -322,9 +322,9 @@ export default class DDBBasicActivity {
 
   }
 
-  _generateRoll({ roll = null } = {}) {
-    if (roll) {
-      this.data.roll = roll;
+  _generateRoll({ rollOverride = null } = {}) {
+    if (rollOverride) {
+      this.data.roll = rollOverride;
     }
   }
 
@@ -463,7 +463,7 @@ export default class DDBBasicActivity {
     onSave = null,
     partialDamageParts = null,
     rangeOverride = null,
-    roll = null,
+    rollOverride = null,
     saveOverride = null,
     targetOverride = null,
     usesOverride = null,
@@ -498,7 +498,7 @@ export default class DDBBasicActivity {
     if (generateDuration) this._generateDuration({ durationOverride });
     if (generateDDBMacro) this._generateDDBMacro({ ddbMacroOverride });
     if (generateUses) this._generateUses({ usesOverride });
-    if (generateRoll) this._generateRoll({ roll });
+    if (generateRoll) this._generateRoll({ rollOverride });
     if (generateCheck) this._generateCheck({ checkOverride });
     if (generateSpell) this._generateSpell({ spellOverride });
 

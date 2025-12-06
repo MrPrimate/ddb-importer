@@ -110,6 +110,24 @@ export default class DDBActivityFactoryMixin {
     return activity;
   }
 
+  _getRollActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+    const activity = new this.activityGenerator({
+      name,
+      type: "utility",
+      ddbParent: this,
+      nameIdPrefix: "roll",
+      nameIdPostfix: nameIdPostfix ?? this.type,
+    });
+
+    activity.build(foundry.utils.mergeObject({
+      generateRoll: true,
+      generateDamage: false,
+      generateRange: !["spell", "weapon"].includes(this.documentType),
+    }, options));
+
+    return activity;
+  }
+
   _getForwardActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const activity = new this.activityGenerator({
       name,
@@ -323,6 +341,8 @@ export default class DDBActivityFactoryMixin {
         return this._getCastActivity(data, options);
       case "transform":
         return this._getTransformActivity(data, options);
+      case "roll":
+        return this._getRollActivity(data, options);
       case "teleport":
       default:
         if (typeFallback) return this.getActivity({ typeOverride: typeFallback, name, nameIdPostfix }, options);

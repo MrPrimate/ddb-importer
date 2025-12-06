@@ -493,6 +493,51 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
+  _generateRoll({ name = null, rollOverride = null, damageParts = null, includeBase = false } = {}) {
+    if (rollOverride) {
+      this.data.roll = rollOverride;
+      return;
+    }
+    this._generateDamage({ parts: damageParts, includeBase });
+
+    if (this.data.damage && this.data.damage.parts.length > 0) {
+      // {
+      //   number: null,
+      //   denomination: null,
+      //   bonus: "",
+      //   types: damageType ? [damageType] : [],
+      //   custom: {
+      //     enabled: false,
+      //     formula: "",
+      //   },
+      //   scaling: {
+      //     mode: "whole",
+      //     number: null,
+      //     formula: "",
+      //   },
+      // };
+      let formulaParts = [];
+      for (const part of this.data.damage.parts) {
+        if (part.custom.enabled && part.custom.formula) {
+          formulaParts.push(`(${part.custom.formula})`);
+        } else if (part.number && part.denomination) {
+          let formulaPart = `${part.number}d${part.denomination}`;
+          if (part.bonus && part.bonus !== "") {
+            formulaPart += ` + ${part.bonus}`;
+          }
+          formulaParts.push(`(${formulaPart})`);
+        }
+      }
+      if (formulaParts.length === 0) return;
+      this.data.roll = {
+        name: name ?? "Roll",
+        formula: formulaParts.join(" + "),
+      };
+    }
+    delete this.data.damage;
+
+  }
+
   build({
     activationOverride = null,
     additionalTargets = null,
@@ -536,11 +581,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     noTemplate = null,
     onSave = null,
     rangeOverride = null,
-    roll = null,
     saveOverride = null,
     targetOverride = null,
     targetSelf = null,
     usesOverride = null,
+    rollOverride = null,
+    rollOverrideName = null,
   } = {}) {
 
     if (generateActivation) this._generateActivation({ activationOverride });
@@ -552,6 +598,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     if (generateHealing) this._generateHealing({ part: healingPart });
     if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride, targetSelf, noTemplate });
+    if (generateRoll) this._generateRoll({ rollOverride, damageParts, includeBase, name: rollOverrideName });
 
     super.build({
       generateActivation: false,
@@ -569,13 +616,13 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       generateTarget: false,
       generateDDBMacro,
       generateEnchant,
-      generateRoll,
+      generateRoll: false,
       generateSummon,
       generateUses,
       chatFlavor,
       onSave,
       noeffect,
-      roll,
+      rollOverride,
       targetOverride,
       checkOverride,
       spellOverride,

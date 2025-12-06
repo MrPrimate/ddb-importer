@@ -1256,6 +1256,8 @@ export default class DDBEnricherFactoryMixin {
         isAttack,
         manager: this.manager,
         extraFlags: this.ddbParser.extraFlags,
+        // usesOnActivity: true,
+        // usesOnActivity: action.length > 1,
       });
 
       const actionFeatureName = foundry.utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;

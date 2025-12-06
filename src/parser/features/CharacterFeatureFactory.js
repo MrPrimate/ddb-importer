@@ -789,7 +789,7 @@ export default class CharacterFeatureFactory {
 
   // helpers
 
-  async getFeatureFromAction({ action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null }) {
+  async getFeatureFromAction({ action, type, isAttack = null, manager = null, extraFlags = {}, enricher = null, usesOnActivity = undefined }) {
     const isAttackAction = isAttack ?? DDBDataUtils.displayAsAttack(this.ddbData, action, this.rawCharacter);
     const ddbAction = isAttackAction
       ? new DDBAttackAction({
@@ -800,6 +800,7 @@ export default class CharacterFeatureFactory {
         type: type ?? action.actionSource,
         extraFlags,
         enricher,
+        usesOnActivity,
       })
       : new DDBAction({
         ddbCharacter: this.ddbCharacter,
@@ -809,6 +810,7 @@ export default class CharacterFeatureFactory {
         type: type ?? action.actionSource,
         extraFlags,
         enricher,
+        usesOnActivity,
       });
     if (manager) ddbAction.enricher.manager = manager;
     logger.debug(`Building Action ${action.name}`, { ddbAction, isAttackAction });

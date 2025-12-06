@@ -1,5 +1,12 @@
 # Next Up
 
+- Some activities will now parse rolls for Use/Utility activities more accurately
+- Taunt effect fixes
+- Fix some activity generation where smart quotes are present.
+- Some under the hood refactoring.
+- Feats no longer generate additional "choice features" for things like spell selections.
+- Aberrant Dragonmark feat parsing improvements.
+
 # 6.6.26
 
 - A handful of features such as Mantle of Majesty would end up in the class rather than subclass folders when munching. This also resolves an issue with Channel Divinity on 2014 subclasses. @crimsonedge

@@ -322,7 +322,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         };
       } else if (name === "Boldness") {
         result.build.generateRoll = true;
-        result.build.roll = {
+        result.build.rollOverride = {
           formula: "1d4",
           name: "Boldness Roll",
         };

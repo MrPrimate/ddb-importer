@@ -219,7 +219,6 @@ export class DDBInfusion {
   }
 
   async _buildActions() {
-    // KNOWN_ISSUE_4_0: I suspect (some of?) these actions can be moved to activities now?
     // build actions for this.ddbInfusion.actions
     // for example radiant weapon reaction
     if (!this.ddbInfusion.actions) return;
