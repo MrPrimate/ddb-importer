@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.27
+
 - Some activities will now parse rolls for Use/Utility activities more accurately
 - Taunt effect fixes
 - Fix some activity generation where smart quotes are present.
