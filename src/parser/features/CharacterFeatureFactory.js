@@ -818,7 +818,7 @@ export default class CharacterFeatureFactory {
   }
 
   getActions({ name, type }) {
-    const nameMatchedActions = this.ddbData.character.actions[type].filter((a) => utils.nameString(a.name) === name);
+    const nameMatchedActions = this.ddbData.character.actions[type].filter((a) => utils.nameString(a.name) === utils.nameString(name));
     const levelAdjustedActions = nameMatchedActions.length > 1
       ? nameMatchedActions.filter((a) =>
         type !== "class"
