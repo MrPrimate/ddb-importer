@@ -77,3 +77,43 @@ for (const directory of directories) {
   console.log(`Writing ${outfilePath}`);
   fs.writeFileSync(outfilePath, contents.join('\n'));
 }
+
+// loop through all directories under monster
+// add to _module.mjs in each directory for each file, using the file name as the class name
+const monsterBasePath = 'monster';
+const monsterDirectories = fs.readdirSync(monsterBasePath);
+
+for (const directory of monsterDirectories) {
+  const fullDirPath = path.join(monsterBasePath, directory);
+  if (fs.lstatSync(fullDirPath).isDirectory()) {
+    const contents = [];
+    const files = fs.readdirSync(fullDirPath);
+
+    files.forEach((file) => {
+      const filePath = path.join(fullDirPath, file);
+      const fileExtension = path.extname(file);
+
+      if (['.js', '.mjs'].includes(fileExtension)) {
+        const content = fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' });
+
+        const className = content.match(/class\s+([a-zA-Z_$][\w$]*)/);
+        if (className) {
+          if (className[1] === "Empty") {
+            console.warn(`Error parsing ${filePath}: class name is Empty`);
+          }
+          if (!file.includes(className[1])) {
+            console.warn(`Error parsing ${filePath}: class name is not included in file name`);
+          }
+          const exportLine = `export { default as ${className[1]} } from "./${file}";`
+          contents.push(exportLine);
+          // console.log(exportLine);
+        }
+      }
+    });
+
+    contents.push('\n')
+    const outfilePath = path.join(fullDirPath, "_module.mjs");
+    console.log(`Writing ${outfilePath}`);
+    fs.writeFileSync(outfilePath, contents.join('\n'));
+  }
+}

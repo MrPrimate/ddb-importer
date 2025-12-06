@@ -192,10 +192,10 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
   ENRICHERS = {
     Generic: this.GENERIC_ENRICHERS,
     "Conjured Animals": { "Pack Damage": MonsterEnrichers.ConjuredAnimals.PackDamage },
-    "Conjured Air Elemental": { "Air Element": MonsterEnrichers.ConjuredElemental.AirElement },
-    "Conjured Earth Elemental": { "Earth Element": MonsterEnrichers.ConjuredElemental.EarthElement },
-    "Conjured Fire Elemental": { "Fire Element": MonsterEnrichers.ConjuredElemental.FireElement },
-    "Conjured Water Elemental": { "Water Element": MonsterEnrichers.ConjuredElemental.WaterElement },
+    "Conjured Air Elemental": { "Air Element": MonsterEnrichers.ConjuredElemental.ElementDamage },
+    "Conjured Earth Elemental": { "Earth Element": MonsterEnrichers.ConjuredElemental.ElementDamage },
+    "Conjured Fire Elemental": { "Fire Element": MonsterEnrichers.ConjuredElemental.ElementDamage },
+    "Conjured Water Elemental": { "Water Element": MonsterEnrichers.ConjuredElemental.ElementDamage },
     "Conjured Fey": { "Psychic Attack": MonsterEnrichers.ConjuredFey.PsychicAttack },
     "Construct Spirit (Stone)": {
       "Stony Lethargy (Stone Only)": MonsterEnrichers.SummonConstruct.StonyLethargy,
@@ -221,6 +221,13 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     },
     "Spectator": {
       "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
+    "Dullahan": {
+      "Headless Wail (Costs 2 Actions)": MonsterEnrichers.Dullahan.HeadlessWail,
+      "Headless Summoning (Recharges After A Short Or Long Rest)": MonsterEnrichers.Dullahan.HeadlessSummoning,
+    },
+    "Spiritual Weapon": {
+      "Move and Attack": MonsterEnrichers.SpiritualWeapon.Attack,
     },
   };
 

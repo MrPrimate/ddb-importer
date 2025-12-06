@@ -1,1 +1,2 @@
-export { default as MoveAndAttack } from "./Attack.mjs";
+export { default as Attack } from "./Attack.mjs";
+
