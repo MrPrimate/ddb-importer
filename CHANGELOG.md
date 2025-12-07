@@ -1,5 +1,7 @@
 # Next Up
 
+- Some activities would erroneously parse a template on monster features or items such as Bard Taunt or Wand of Paralysis.
+
 # 6.6.27
 
 - Some activities will now parse rolls for Use/Utility activities more accurately
