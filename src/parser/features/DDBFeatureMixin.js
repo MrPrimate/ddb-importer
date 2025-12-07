@@ -63,7 +63,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
           type: this.tagType,
           isCustomAction: this.ddbDefinition.isCustomAction,
           is2014: this.type === "class" && this._class ? this.isClass2014 : this.is2014,
-          is2024: !this.is2014,
+          is2024: this.type === "class" && this._class ? !this.isClass2014 : !this.is2014,
           legacy: this.legacy,
         },
         infusions: { infused: false },

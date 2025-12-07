@@ -62,7 +62,7 @@ export default class DDBSubClass extends DDBClass {
   _generateDataStub() {
     this.data = {
       _id: foundry.utils.randomID(),
-      name: this.ddbClass.subclassDefinition.name,
+      name: this.ddbClass.subclassDefinition.name.replace("(2014)", "").trim(),
       type: "subclass",
       system: SystemHelpers.getTemplate("subclass"),
       flags: {

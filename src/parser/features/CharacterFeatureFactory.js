@@ -869,10 +869,7 @@ export default class CharacterFeatureFactory {
           : "2024";
         await featureCompendiumFolders.createClassFeatureFolder(classDef.definition.name, version);
         if (classDef.subclassDefinition) {
-          const version = classDef.subclassDefinition.sources.every((s) => DDBSources.is2014Source(s))
-            ? "2014"
-            : "2024";
-          await featureCompendiumFolders.createSubClassFeatureFolder(classDef.subclassDefinition.name, classDef.definition.name, version);
+          await featureCompendiumFolders.createSubClassFeatureFolder(classDef.subclassDefinition.name.replace("(2014)", "").trim(), classDef.definition.name, version);
         }
       }
 
@@ -880,7 +877,7 @@ export default class CharacterFeatureFactory {
         chrisPremades: true,
         filterDuplicates: false,
         deleteBeforeUpdate: false,
-        matchFlags: ["id"],
+        matchFlags: ["id", "is2014"],
         useCompendiumFolders: true,
         indexFilter: {
           fields: [

@@ -1096,7 +1096,7 @@ export class DDBCompendiumFolders {
       flagTag: "",
     };
     const version = foundry.utils.getProperty(document, "system.source.rules");
-    const subClassName = foundry.utils.getProperty(document, "flags.ddbimporter.subClass");
+    const subClassName = foundry.utils.getProperty(document, "flags.ddbimporter.subClass")?.replace("(2014)", "").trim();
     const className = foundry.utils.getProperty(document, "flags.ddbimporter.class");
     const optional = foundry.utils.getProperty(document, "flags.ddbimporter.optionalFeature");
     const infusion = foundry.utils.getProperty(document, "flags.ddbimporter.infusionFeature");

@@ -3,6 +3,8 @@
 - Some activities would erroneously parse a template on monster features or items such as Bard Taunt or Wand of Paralysis.
 - Small change to activity generation from DDB Actions where sometimes activities could come in without names.
 - Some classes could generate feature grant advancements for the same feature multiple times. e.g. College of Glamour
+- Some subclasses from third party publishers, such as Philosophy from Crooked Moon, would dump their features into the root directory rather than the appropriate subclass folder. @crimsonedge
+- Subclasses that had "(2014)" appended to their name in DDB will have it stripped out when importing to the DDB Compendiums.
 
 # 6.6.27
 
