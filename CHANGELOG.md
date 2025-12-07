@@ -2,6 +2,7 @@
 
 - Some activities would erroneously parse a template on monster features or items such as Bard Taunt or Wand of Paralysis.
 - Small change to activity generation from DDB Actions where sometimes activities could come in without names.
+- Some classes could generate feature grant advancements for the same feature multiple times. e.g. College of Glamour
 
 # 6.6.27
 

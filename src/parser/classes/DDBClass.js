@@ -32,6 +32,8 @@ export default class DDBClass {
 
   choiceMap = new Map();
 
+  featureAdvancementUuids = new Set();
+
   spellLinks = [];
 
   configChoices = {};
@@ -742,6 +744,8 @@ export default class DDBClass {
       }
       return;
     }
+    if (this.featureAdvancementUuids.has(featureMatch.uuid)) return;
+    this.featureAdvancementUuids.add(featureMatch.uuid);
     const levelAdvancement = this.featureAdvancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
 
     if (levelAdvancement == -1) {
