@@ -56,7 +56,8 @@ export default class DDBBasicActivity {
     if (!this.activityType) {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
-    this.name = name;
+    const actionName = this.ddbParent?.isAction ? this.ddbParent.name : null;
+    this.name = name ?? actionName;
     this.ddbParent = ddbParent;
     this.actor = actor;
     this.foundryFeature = foundryFeature ?? ddbParent.data;

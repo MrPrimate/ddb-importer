@@ -972,6 +972,11 @@ export default class DDBEnricherFactoryMixin {
         result.activities[newKey]._id = `${newKey}`;
         if (rename) {
           foundry.utils.setProperty(result.activities[newKey], "name", (rename[i] ?? ""));
+        } else if (!result.activities[newKey].name) {
+          const activityName = name.includes(`:`)
+            ? name.split(`:`).pop().trim()
+            : name;
+          result.activities[newKey].name = activityName;
         }
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
