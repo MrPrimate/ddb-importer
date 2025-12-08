@@ -178,12 +178,7 @@ export default class DDBMonsterImporter {
     }
 
     const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
-    if (!forceUpdate && !updateImages
-      && this.monster.img !== CONST.DEFAULT_TOKEN
-      && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(this.monster.img)
-      && !this.monster.img.includes("systems/dnd5e/icons/svg/actors/npc.svg")
-      && !this.monster.img.includes("systems/dnd5e/icons/svg/actors/vehicle.svg")
-    ) {
+    if (!forceUpdate && !updateImages && !utils.isDefaultOrPlaceholderImage(this.monster.img)) {
       return this.monster;
     }
 

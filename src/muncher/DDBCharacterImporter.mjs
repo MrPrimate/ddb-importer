@@ -232,10 +232,8 @@ export default class DDBCharacterImporter {
       && decorations?.avatarUrl
       && decorations.avatarUrl !== ""
       && (!imagePath
-        || imagePath.includes("mystery-man")
         || this.settings.updatePolicyImage
-        || Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(imagePath)
-        || imagePath.includes("systems/dnd5e/icons/svg/actors/character.svg"))
+        || utils.isDefaultOrPlaceholderImage(imagePath))
     ) {
       this.notifier("Uploading avatar image");
       const filename = utils.referenceNameString(`${data.character.id}-${data.character.name}`);
@@ -251,10 +249,7 @@ export default class DDBCharacterImporter {
       this.result.character.img = this.actor.img;
     }
 
-    if (this.actorOriginal.prototypeToken.texture.src.includes("mystery-man")
-      || Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(this.actorOriginal.prototypeToken.texture.src)
-      || imagePath.includes("systems/dnd5e/icons/svg/actors/character.svg")
-    ) {
+    if (utils.isDefaultOrPlaceholderImage(this.actorOriginal.prototypeToken.texture.src)) {
       foundry.utils.setProperty(this.result.character, "prototypeToken.texture.src", this.result.character.img);
     } else if (foundry.utils.hasProperty(this.actorOriginal, "prototypeToken.texture.src")) {
       // we only adjust the prototype token if we have an original

@@ -964,7 +964,7 @@ const SETTINGS = {
           },
           "munching-policy-remote-images": {
             type: Boolean,
-            default: true,
+            default: false,
           },
           "munching-policy-add-midi-effects": {
             type: Boolean,

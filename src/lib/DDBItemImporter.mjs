@@ -4,6 +4,7 @@ import {
   Iconizer,
   DDBCompendiumFolders,
   NameMatcher,
+  utils,
 } from "./_module.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { ExternalAutomations } from "../effects/_module.mjs";
@@ -575,36 +576,23 @@ ${item.system.description.chat}
         logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
         monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
         monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
-        if (moduleArt?.actor && nameMatch.actor !== ""
-          && !moduleArt.actor.includes("mystery-man")
-          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(moduleArt.actor)
+        if (moduleArt?.actor && !utils.isDefaultOrPlaceholderImage(moduleArt.actor)
         ) {
           monster.img = moduleArt.actor;
           foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
-        } else if (nameMatch.img && nameMatch.img !== ""
-          && !nameMatch.img.includes("mystery-man")
-          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(nameMatch.img)
-        ) {
+        } else if (!utils.isDefaultOrPlaceholderImage(nameMatch.img)) {
           monster.img = nameMatch.img;
           foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
         }
         if (moduleArt?.token && !foundry.utils.hasProperty(moduleArt, "token.texture.src")) {
           monster.prototypeToken.texture.src = moduleArt.token;
-        } else if (moduleArt?.token?.texture?.src
-          && moduleArt.token.texture.src !== ""
-          && !moduleArt.token.texture.src.includes("mystery-man")
-          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(moduleArt.token.texture.src)
-        ) {
+        } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(moduleArt, "token.texture.src"))) {
           monster.prototypeToken.texture.src = moduleArt.token.texture.src;
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
           if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
           if (moduleArt.token.ring) monster.prototypeToken.ring = moduleArt.token.ring;
-        } else if (nameMatch.prototypeToken?.texture?.src
-          && nameMatch.prototypeToken.texture.src !== ""
-          && !nameMatch.prototypeToken.texture.src.includes("mystery-man")
-          && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(nameMatch.prototypeToken.texture.src)
-        ) {
+        } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(nameMatch, "prototypeToken.texture.src"))) {
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;
         }
