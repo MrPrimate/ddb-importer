@@ -9,6 +9,7 @@ export default class Haste extends DDBEnricherData {
         data: {
           duration: {
             seconds: 60,
+            rounds: 10,
           },
         },
         changes: [
