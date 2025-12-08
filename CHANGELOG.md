@@ -1,5 +1,11 @@
 # Next Up
 
+# 6.6.29
+
+- Haste 2024 midi effect duration adjustment
+- Some muncher configurations could cause the import of monsters to fail when generating token images @morthallion @lily.slvr
+ @trekari
+
 # 6.6.28
 
 - Some activities would erroneously parse a template on monster features or items such as Bard Taunt or Wand of Paralysis.
