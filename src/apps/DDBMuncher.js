@@ -297,7 +297,7 @@ export default class DDBMuncher extends DDBAppV2 {
       });
     });
 
-    this.element.querySelector("input[name=muncher-character-url]").addEventListener('input', async (event) => {
+    this.element.querySelector("input[name=muncher-character-url]")?.addEventListener('input', async (event) => {
       await this.#handleURLUpdate(event);
     });
 

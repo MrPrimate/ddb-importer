@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.30
+
+- DDBMuncher screen could log a (harmless) error if not connected to patreon.
+
 # 6.6.29
 
 - Haste 2024 midi effect duration adjustment
