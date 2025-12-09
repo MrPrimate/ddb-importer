@@ -29,7 +29,10 @@ foundry.utils.setProperty(CONFIG, "DDBI", {
   ICONS: {},
   TABLES: {},
   SRD_LOAD: {
-    mapLoaded: false,
+    mapLoaded: {
+      "2014": false,
+      "2024": false,
+    },
     iconMap: {},
     packsLoaded: {},
     packs: {},

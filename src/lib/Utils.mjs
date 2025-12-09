@@ -600,15 +600,15 @@ export default class Utils {
   }
 
   static isDefaultOrPlaceholderImage(img) {
-    return img !== null
-      && img !== undefined
-      && img !== ""
-      && img !== CONST.DEFAULT_TOKEN
-      && !Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(img)
-      && !Object.values(CONFIG.DND5E.defaultArtwork.Item).includes(img)
-      && !img.includes("systems/dnd5e/icons/svg/actors/npc.svg")
-      && !img.includes("systems/dnd5e/icons/svg/actors/character.svg")
-      && !img.includes("systems/dnd5e/icons/svg/actors/vehicle.svg");
+    return img === null
+      || img === undefined
+      || img === ""
+      || img === CONST.DEFAULT_TOKEN
+      || Object.values(CONFIG.DND5E.defaultArtwork.Actor).includes(img)
+      || Object.values(CONFIG.DND5E.defaultArtwork.Item).includes(img)
+      || img.includes("systems/dnd5e/icons/svg/actors/npc.svg")
+      || img.includes("systems/dnd5e/icons/svg/actors/character.svg")
+      || img.includes("systems/dnd5e/icons/svg/actors/vehicle.svg");
   }
 
 }

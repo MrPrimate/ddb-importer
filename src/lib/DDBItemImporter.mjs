@@ -81,6 +81,11 @@ export default class DDBItemImporter {
     await this.buildIndex(this.indexFilter);
   }
 
+  async _buildSRDLibrary() {
+    if (!this.srdImageLibrary2014) this.srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
+    if (!this.srdImageLibrary2024) this.srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
+  }
+
   #flagMatch(item1, item2) {
     if (this.matchFlags.length === 0) return true;
     const matched = this.matchFlags.every((flag) => {
@@ -208,49 +213,6 @@ export default class DDBItemImporter {
     );
   }
 
-
-  async getSRDCompendiumItems(looseMatch = false, keepId = false, monster = false) {
-    const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == this.type).name;
-    const srdPack = CompendiumHelper.getCompendium(compendiumName);
-    const srdIndices = ["name", "type", "flags.ddbimporter.dndbeyond.alternativeNames"];
-    const index = await srdPack.getIndex({ fields: srdIndices });
-
-    const matchedIds = index.filter((i) =>
-      index.some((orig) => {
-        const extraNames = foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
-        if (looseMatch) {
-          const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
-          return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
-        } else {
-          return i.name === orig.name || extraNames.includes(i.name);
-        }
-      }),
-    ).map((i) => i._id);
-
-    const loadedItems = (await srdPack.getDocuments(matchedIds))
-      .map((i) => {
-        const item = i.toObject();
-        delete i.folder;
-        if (item.flags.ddbimporter) {
-          item.flags.ddbimporter["pack"] = compendiumName;
-        } else {
-          item.flags.ddbimporter = { pack: compendiumName };
-        }
-        return item;
-      });
-    // logger.debug(`SRD ${type} loaded items:`, loadedItems);
-
-    const matchingOptions = {
-      looseMatch,
-      monster,
-      keepId,
-    };
-
-    const results = DDBItemImporter.updateMatchingItems(this.documents, loadedItems, matchingOptions);
-    logger.debug(`SRD ${this.type} result items:`, results);
-
-    return results;
-  }
 
   async addCompendiumFolderIds(documents) {
     if (this.useCompendiumFolders) {
@@ -559,20 +521,21 @@ ${item.system.description.chat}
     });
   }
 
+  // eslint-disable-next-line complexity
   async useSRDMonsterImages() {
-    // eslint-disable-next-line require-atomic-updates
     if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
-    const srdImageLibrary = await Iconizer.getSRDImageLibrary();
+    await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 
     // eslint-disable-next-line complexity
-    this.documents.forEach((monster) => {
+    for (const monster of this.documents) {
       logger.debug(`Checking ${monster.name} for srd images`);
+      const srdImageLibrary = foundry.utils.getProperty(monster, "flags.ddbimporter.is2014") ? this.srdImageLibrary2014 : this.srdImageLibrary2024;
       const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
       if (nameMatch) {
         logger.debug(`Updating monster ${monster.name} to srd images`, nameMatch);
-        const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == "monsters").name;
-        const moduleArt = game.dnd5e.moduleArt.map.get(`Compendium.${compendiumName}.${nameMatch._id}`);
+        const compendiumName = SETTINGS.SRD_COMPENDIUMS[monster.system?.source?.rules ?? "2024"].find((c) => c.type == "monsters").name;
+        const moduleArt = game.compendiumArt.get(nameMatch.uuid ?? `Compendium.${compendiumName}.Actor.${nameMatch._id}`);
         logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
         monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
         monster.prototypeToken.texture.scaleX = nameMatch.prototypeToken.texture.scaleX;
@@ -584,20 +547,28 @@ ${item.system.description.chat}
           monster.img = nameMatch.img;
           foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
         }
-        if (moduleArt?.token && !foundry.utils.hasProperty(moduleArt, "token.texture.src")) {
+
+        const tokenSrcTexture = foundry.utils.getProperty(moduleArt, "token.texture.src");
+
+        if (moduleArt?.token && !tokenSrcTexture) {
           monster.prototypeToken.texture.src = moduleArt.token;
-        } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(moduleArt, "token.texture.src"))) {
-          monster.prototypeToken.texture.src = moduleArt.token.texture.src;
+        } else if (moduleArt?.token
+          && tokenSrcTexture
+          && !utils.isDefaultOrPlaceholderImage(tokenSrcTexture)
+        ) {
+          monster.prototypeToken.texture.src = tokenSrcTexture;
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
           if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
           if (moduleArt.token.ring) monster.prototypeToken.ring = moduleArt.token.ring;
-        } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(nameMatch, "prototypeToken.texture.src"))) {
+        } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(nameMatch, "prototypeToken.texture.src"))
+          && foundry.utils.hasProperty(nameMatch, "prototypeToken.texture.src")
+        ) {
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           monster.prototypeToken.texture.src = nameMatch.prototypeToken.texture.src;
         }
       }
-    });
+    }
 
     return this.documents;
   }
@@ -608,12 +579,14 @@ ${item.system.description.chat}
     const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
     // eslint-disable-next-line require-atomic-updates
     if (srdIcons) {
-      const srdImageLibrary = await Iconizer.getSRDImageLibrary();
+      const srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
+      const srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
       this.notifier(`Updating SRD Icons`, { nameField: true });
       let itemMap = [];
 
       this.documents.forEach((monster) => {
         this.notifier(`Processing ${monster.name}`);
+        const srdImageLibrary = foundry.utils.getProperty(monster, "flags.ddbimporter.is2014") ? srdImageLibrary2014 : srdImageLibrary2024;
         promises.push(
           Iconizer.copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
             monster.items = items;

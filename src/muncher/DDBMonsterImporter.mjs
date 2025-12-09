@@ -240,7 +240,8 @@ export default class DDBMonsterImporter {
 
     let monsterTokenImgPath = null;
     let tokenName = null;
-    if (ddbTokenUrl && foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImgSet") !== true) {
+    const tokenImgSet = foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImgSet");
+    if (ddbTokenUrl && tokenImgSet !== true) {
       if (hasTokenProcessedAlready) {
         this.monster.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
         if (useWildcard && this.monster.prototypeToken.texture.src.includes('*')) this.monster.prototypeToken.randomImg = true;
@@ -288,7 +289,7 @@ export default class DDBMonsterImporter {
     // eslint-disable-next-line require-atomic-updates
     if (this.monster.img === null) this.monster.img = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
     // eslint-disable-next-line require-atomic-updates
-    if (monsterTokenImgPath === null) this.monster.prototypeToken.texture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
+    if (monsterTokenImgPath === null && tokenImgSet !== true) this.monster.prototypeToken.texture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
 
     // do we now want to tokenize that?
     // we don't tokenize if this path was already looked up, as it will already be done
@@ -335,7 +336,7 @@ export default class DDBMonsterImporter {
     // eslint-disable-next-line require-atomic-updates
     this.monster.items = await Iconizer.updateIcons({
       documents: this.monster.items,
-      srdIconUpdate: false,
+      srdIconUpdate: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"), // "munching-policy-use-srd-monster-images"
       monster: true,
       monsterName: this.monster.name,
     });

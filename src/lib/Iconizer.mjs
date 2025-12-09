@@ -362,8 +362,8 @@ export default class Iconizer {
     });
   }
 
-  static async getSRDIconMatch(type) {
-    const compendiumName = SETTINGS.SRD_COMPENDIUMS.find((c) => c.type == type).name;
+  static async getSRDIconMatch(type, version = "2014") {
+    const compendiumName = SETTINGS.SRD_COMPENDIUMS[version].find((c) => c.type == type).name;
     const srdPack = CompendiumHelper.getCompendium(compendiumName, false);
     if (!srdPack) return [];
     const srdIndices = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
@@ -386,8 +386,9 @@ export default class Iconizer {
     return Array.from(new Set(indexes));
   }
 
-  static async getSRDImageLibrary() {
-    if (CONFIG.DDBI.SRD_LOAD.mapLoaded) return CONFIG.DDBI.SRD_LOAD.iconMap;
+  static async getSRDImageLibrary(version = "2014") {
+    const mapLoaded = foundry.utils.getProperty(CONFIG.DDBI, `SRD_LOAD.mapLoaded.${version}`);
+    if (mapLoaded) return CONFIG.DDBI.SRD_LOAD.iconMap[version];
     const officialFeatureItems = await Iconizer.getOfficialIconMatch("features");
     const officialOriginItems = await Iconizer.getOfficialIconMatch("backgrounds");
     const officialFeatItems = await Iconizer.getOfficialIconMatch("feats");
@@ -396,14 +397,14 @@ export default class Iconizer {
     const officialMonsterFeatures = await Iconizer.getOfficialIconMatch("monsterfeatures");
     const officialMonsters = await Iconizer.getOfficialIconMatch("monsters");
 
-    const srdFeatureItems = await Iconizer.getSRDIconMatch("features");
-    const srdInventoryItems = await Iconizer.getSRDIconMatch("inventory");
-    const srdSpellItems = await Iconizer.getSRDIconMatch("spells");
-    const srdMonsterFeatures = await Iconizer.getSRDIconMatch("monsterfeatures");
-    const srdMonsters = await Iconizer.getSRDIconMatch("monsters");
+    const srdFeatureItems = await Iconizer.getSRDIconMatch("features", version);
+    const srdInventoryItems = await Iconizer.getSRDIconMatch("inventory", version);
+    const srdSpellItems = await Iconizer.getSRDIconMatch("spells", version);
+    const srdMonsterFeatures = await Iconizer.getSRDIconMatch("monsterfeatures", version);
+    const srdMonsters = await Iconizer.getSRDIconMatch("monsters", version);
 
     // eslint-disable-next-line require-atomic-updates
-    CONFIG.DDBI.SRD_LOAD.iconMap = [
+    foundry.utils.setProperty(CONFIG.DDBI, `SRD_LOAD.iconMap.${version}`, [
       ...officialFeatureItems,
       ...officialOriginItems,
       ...officialFeatItems,
@@ -416,8 +417,9 @@ export default class Iconizer {
       ...srdFeatureItems,
       ...srdMonsterFeatures,
       ...srdMonsters,
-    ];
-    return CONFIG.DDBI.SRD_LOAD.iconMap;
+    ]);
+    foundry.utils.setProperty(CONFIG.DDBI, `SRD_LOAD.mapLoaded.${version}`, true);
+    return CONFIG.DDBI.SRD_LOAD.iconMap[version];
   }
 
   async _copySRDIcons(srdImageLibrary = null, nameMatchList = []) {
@@ -425,8 +427,10 @@ export default class Iconizer {
   }
 
   static async copySRDIcons(items, srdImageLibrary = null, nameMatchList = []) {
-    // eslint-disable-next-line require-atomic-updates
-    if (!srdImageLibrary) srdImageLibrary = await Iconizer.getSRDImageLibrary();
+    let srdImageLibrary2014 = null;
+    if (!srdImageLibrary) srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
+    let srdImageLibrary2024 = null;
+    if (!srdImageLibrary) srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
 
     const srdItems = items.map((item) => {
       logger.debug(`Matching ${item.name}`);
@@ -434,9 +438,9 @@ export default class Iconizer {
       if (nameMatch) {
         item.img = nameMatch.img;
       } else {
-        const match = NameMatcher.looseItemNameMatch(item, srdImageLibrary, true);
+        const localLibrary = srdImageLibrary || (item.system.source?.rules === "2014" ? srdImageLibrary2014 : srdImageLibrary2024);
+        const match = NameMatcher.looseItemNameMatch(item, localLibrary, true);
         if (match) {
-          srdImageLibrary.push({ name: item.name, img: match.img });
           item.img = match.img;
         }
       }

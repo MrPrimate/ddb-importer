@@ -1,5 +1,11 @@
 # Next Up
 
+# 6.6.31
+
+- Item and spell icon fallback logic would not result in SRD or DDB dictionary icons being used, if certain icon options were selected.
+- SRD art would not load for monsters is D&D 5.2.x
+- SRD art checking will now use the compendiums that match the monster/item/spell version.
+
 # 6.6.30
 
 - DDBMuncher screen could log a (harmless) error if not connected to patreon.

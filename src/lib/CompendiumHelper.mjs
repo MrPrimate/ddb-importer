@@ -116,7 +116,7 @@ const CompendiumHelper = {
       const existingNPC = await compendium.getDocument(foundryActor._id);
 
       const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
-      if (!updateImages && !utils.isDefaultOrPlaceholderImage(existingNPC.system.img)) {
+      if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img"))) {
         foundryActor.img = existingNPC.system.img;
       }
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src"))) {

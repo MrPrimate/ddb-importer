@@ -925,11 +925,6 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
-          // "munching-policy-use-srd": {
-          //   scope: "player",
-          //   type: Boolean,
-          //   default: false,
-          // },
           "munching-policy-legacy-postfix": {
             type: Boolean,
             default: false,
