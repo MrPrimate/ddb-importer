@@ -1,5 +1,8 @@
 # Next Up
 
+- Some improvements to Forgotten Realms spell parsing
+- Some effects that provided cover statuses, did not parse the cover status
+
 # 6.6.31
 
 - Item and spell icon fallback logic would not result in SRD or DDB dictionary icons being used, if certain icon options were selected.

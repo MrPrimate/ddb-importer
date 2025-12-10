@@ -3,6 +3,7 @@ export { default as AccelerateDecelerate } from "./AccelerateDecelerate.mjs";
 export { default as AcidArrow } from "./AcidArrow.mjs";
 export { default as Aid } from "./Aid.mjs";
 export { default as AlterSelf } from "./AlterSelf.mjs";
+export { default as AlustrielsMooncloak } from "./AlustrielsMooncloak.mjs";
 export { default as AnimalFriendship } from "./AnimalFriendship.mjs";
 export { default as AnimalMessenger } from "./AnimalMessenger.mjs";
 export { default as AnimateDead } from "./AnimateDead.mjs";

@@ -156,7 +156,7 @@ export default class ChangeHelper {
       } else if (effect.description && effect.description.startsWith("You have the &Reference[")) {
         effect.description += `<br> You have the &Reference[${statusName.toLowerCase()}] status condition.`;
       }
-      effect.statuses.push(statusName.toLowerCase());
+      effect.statuses.push(utils.camelCase(statusName));
       if (level) foundry.utils.setProperty(effect, `flags.dnd5e.${statusName.toLowerCase().trim()}Level`, level);
     }
     return effect;

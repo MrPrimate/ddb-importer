@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import Generic from "./Generic.mjs";
 
-export default class AberrantDragonmark extends Generic {
+export default class AbberantDragonmark extends Generic {
   get additionalActivities() {
     const hd = this.ddbParser.isMunche
       ? [4, 6, 8, 10, 12]
