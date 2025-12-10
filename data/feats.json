@@ -726,7 +726,8 @@
   {
     "name": "Zhentarim Tactics",
     "path": "icons/skills/melee/weapons-crossed-swords-yellow-teal.webp"
-  }, {
+  },
+  {
     "name": "Forest Sage",
     "path": "icons/magic/nature/leaf-glow-green.webp"
   }

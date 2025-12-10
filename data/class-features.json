@@ -7268,7 +7268,8 @@
   {
     "name": "Elemental Strike",
     "path": "icons/magic/lightning/bolt-strike-explosion-yellow.webp"
-  }, {
+  },
+  {
     "name": "Magic Item Plans",
     "path": "icons/commodities/tech/blueprint.webp"
   },
