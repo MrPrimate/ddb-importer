@@ -4,6 +4,8 @@ export * as Bard from "./bard/_module.mjs";
 export * as Cleric from "./cleric/_module.mjs";
 export * as Druid from "./druid/_module.mjs";
 export * as Fighter from "./fighter/_module.mjs";
+export * as Gunslinger from "./gunslinger/_module.mjs";
+export * as Illriger from "./illriger/_module.mjs";
 export * as Monk from "./monk/_module.mjs";
 export * as Monsterhunter from "./monster-hunter/_module.mjs";
 export * as Paladin from "./paladin/_module.mjs";

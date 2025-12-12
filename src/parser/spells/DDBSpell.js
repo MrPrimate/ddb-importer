@@ -518,6 +518,22 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       }
     }
 
+    if (this.enricher.type === "summon") {
+      target = {
+        "template": {
+          "contiguous": false,
+          "units": "ft",
+          "type": "",
+        },
+        "affects": {
+          "choice": false,
+          "type": "space",
+          "count": "1",
+          "special": "unoccupied",
+        },
+      };
+    }
+
     this.data.system.target = target;
   }
 

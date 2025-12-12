@@ -240,6 +240,11 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
+      const saveSearch = /On a failed save, (?:a|the) creature takes (\d+)?d(\d+) (\w+) damage and has the (?<condition>\w+) condition until the (?<specialDuration>\w+) of your next turn/ig;
+      match = saveSearch.exec(parserText);
+    }
+
+    if (!match) {
       const successSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC 8 plus your (?<modifier>\w+) modifier and Proficiency Bonus\) or (?:have the) (?<condition>\w+) condition until /ig;
       match = successSearch.exec(parserText);
     }

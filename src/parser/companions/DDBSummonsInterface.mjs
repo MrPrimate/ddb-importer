@@ -25,7 +25,8 @@ import { getPhantomSteed } from "./types/PhantomSteed.mjs";
 import { getFaithfulHound } from "./types/FaithfulHound.mjs";
 import { getGuardianOfFaith } from "./types/GuardianOfFaith.mjs";
 import { getDuplicate } from "./types/Duplicate.mjs";
-
+import { getBladeOfDisaster } from "./types/BladeOfDisaster.mjs";
+import { getConjureConstructs2024 } from "./types/ConjureConstructs.mjs";
 export default class DDBSummonsInterface {
 
   static getArcaneEyes = getArcaneEyes;
@@ -81,4 +82,9 @@ export default class DDBSummonsInterface {
   static getGuardianOfFaith = getGuardianOfFaith;
 
   static getDuplicate = getDuplicate;
+
+  static getBladeOfDisaster = getBladeOfDisaster;
+
+  static getConjureConstructs2024 = getConjureConstructs2024;
+
 }

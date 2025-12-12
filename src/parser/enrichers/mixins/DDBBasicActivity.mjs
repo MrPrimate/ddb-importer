@@ -492,7 +492,26 @@ export default class DDBBasicActivity {
       allowCritical,
     });
     if (generateEnchant) this._generateEnchant();
-    if (generateSummon) this._generateSummon();
+    if (generateSummon) {
+      this._generateSummon();
+      if (!generateTarget) {
+        this._generateTarget({
+          targetOverride: {
+            "template": {
+              "contiguous": false,
+              "units": "ft",
+              "type": "",
+            },
+            "affects": {
+              "choice": false,
+              "type": "space",
+              "count": "1",
+              "special": "unoccupied",
+            },
+          },
+        });
+      }
+    }
     if (generateHealing) this._generateHealing({ healingPart, healingChatFlavor });
     if (generateRange) this._generateRange({ rangeOverride });
     if (generateTarget) this._generateTarget({ targetOverride });

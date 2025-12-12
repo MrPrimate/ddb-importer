@@ -1,7 +1,8 @@
 # Next Up
 
-- Some improvements to Forgotten Realms spell parsing
+- Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor.
 - Some effects that provided cover statuses, did not parse the cover status
+- Icon updates for Eberron.
 
 # 6.6.31
 
