@@ -1249,10 +1249,11 @@ export default class DDBEnricherFactoryMixin {
 
   }
 
-  async _buildFeaturesFromAction({ name, type, isAttack = null } = {}) {
+  async _buildFeaturesFromAction({ name, type, isAttack = null, id = null } = {}) {
     if (!this.ddbParser?.ddbCharacter) return [];
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type })
-      .filter((action) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name));
+      .filter((action) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name))
+      .filter((action) => !id || action.id === id);
     logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions, this: this });
     if (actions.length === 0) return [];
     const actionFeatures = await Promise.all(actions.map(async (action) => {
@@ -1296,6 +1297,7 @@ export default class DDBEnricherFactoryMixin {
         action: {
           name: action.name,
           type: derivedType,
+          id: action.id,
         },
       };
     });

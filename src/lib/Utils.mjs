@@ -74,7 +74,7 @@ export default class Utils {
 
   static namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
     const nameSplit = name.split(" ").map((n) => Utils.idString(n));
-    const remainingN = length - (prefix ? `${prefix}`.length : 0) - (postfix ? `${postfix}`.length : 0);
+    const remainingN = length - `${prefix ?? ""}`.length - `${postfix ?? ""}`.length;
     const quotient = Math.floor(remainingN / nameSplit.length);
     let remainder = remainingN % nameSplit.length;
     let result = `${prefix ?? ""}`;
@@ -95,6 +95,18 @@ export default class Utils {
     if (padding > 0) {
       result += "I".repeat(padding);
     }
+    // if (result.length > length) {
+    //   console.warn(`Generated ID stub for ${name} exceeded max length of ${length}: ${result}`, {
+    //     prefix,
+    //     postfix,
+    //     length,
+    //     nameSplit,
+    //     quotient,
+    //     remainder,
+    //     result,
+    //     padding,
+    //   });
+    // }
 
     return result;
   }
