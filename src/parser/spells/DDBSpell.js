@@ -100,6 +100,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
     generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null, unPreparedCantrip = null,
+    noSpellcasting = false,
   } = {}) {
 
     const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic");
@@ -186,6 +187,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     const boostHeal = healingBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.healingBoost");
     this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
+    this.noSpellcasting = noSpellcasting;
 
   }
 
@@ -258,6 +260,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   // eslint-disable-next-line complexity
   _generateSpellPreparationMode() {
     // default values
+    if (this.noSpellcasting) {
+      this.data.system.method = "";
+      return;
+    }
     this.data.system.method = "spell";
     if (this.isCantrip || this.spellData.alwaysPrepared) {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
@@ -992,7 +998,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   static async parseSpell(data, character,
     {
       namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null,
-      unPreparedCantrip = null,
+      unPreparedCantrip = null, noSpellcasting = false,
     } = {},
   ) {
     const spell = new DDBSpell({
@@ -1005,6 +1011,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       generateSummons,
       notifier,
       unPreparedCantrip,
+      noSpellcasting,
     });
     await spell.init();
     await spell.parse();

@@ -3,6 +3,8 @@
 - Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor.
 - Some effects that provided cover statuses, did not parse the cover status
 - Icon updates for Eberron.
+- Dragonmark feats will now import as the Dragonmark feat subtype.
+- Spells imported into the compendium will now have their spellcasting type cleared.
 
 # 6.6.31
 

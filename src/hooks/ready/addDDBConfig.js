@@ -70,9 +70,14 @@ function addSpellLists() {
   spellListFactory.registerSpellLists();
 }
 
+function addFeatTypes() {
+  CONFIG.DND5E.featureTypes.feat.subtypes.dragonmark = "Dragonmark Feat";
+}
+
 export default async function addDDBConfig() {
   addLanguages();
   DDBSources.addSourcesHook();
   addSpellLists();
+  addFeatTypes();
   await DDBRuleJournalFactory.registerAllWithWorld();
 }

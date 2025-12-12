@@ -818,6 +818,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       else if (name === "Arcane Shot Options") return "arcaneShot";
       else if (name === "Elemental Disciplines") return "elementalDiscipline";
       else if (name === "Eldritch Invocations") return "eldritchInvocation";
+      else if (name.startsWith("Mark of ")) return "dragonmark";
+      else if (name.startsWith("Greater Mark of ")) return "dragonmark";
+      else if (name.includes("Dragonmark")) return "dragonmark";
 
       if (includePartial) {
         if (name.startsWith("Ki:")) return "ki";
