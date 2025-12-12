@@ -882,12 +882,13 @@ export default class EffectGenerator {
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
             priority: 10,
           },
-          {
-            key: "system.attributes.ac.flat",
-            value: formula,
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            priority: 10,
-          },
+          // this now only works with DAE installed
+          // {
+          //   key: "system.attributes.ac.flat",
+          //   value: formula,
+          //   mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          //   priority: 10,
+          // },
         );
         // foundry.utils.setProperty(this.effect, "flags.dae.disableCondition", "attributes?.ac?.equippedArmor");
       }
