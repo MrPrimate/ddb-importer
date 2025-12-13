@@ -280,8 +280,11 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
     this._parent = this._getActionParent();
+
+    this.identifier = utils.referenceNameString(`${this.name.toLowerCase()}`);
     this._getRules();
     this._generateDataStub();
+    this._generatePrerequisites();
 
     const intMatch = /^(\d+: )(.*)$/;
     const intNameMatch = intMatch.exec(this.data.name);
@@ -474,6 +477,34 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     if (repeatableRegex.test(this.data.system.description.value)) {
       this.data.system.prerequisites.repeatable = true;
     }
+  }
+
+  _generatePrerequisites() {
+    if (this.ddbDefinition.isRepeatable) {
+      foundry.utils.setProperty(this.data, "system.prerequisites.repeatable", true);
+    }
+
+    const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel");
+    if (Number.isInteger(Number.parseInt(requiredLevel))) {
+      foundry.utils.setProperty(this.data, "system.prerequisites.level", Number.parseInt(requiredLevel));
+    } else if (this.ddbDefinition.prerequisites) {
+      for (const prereq of this.ddbDefinition.prerequisites) {
+        for (const mapping of prereq.prerequisiteMappings.filter((m) => m.type === "level")) {
+          foundry.utils.setProperty(this.data, "system.prerequisites.level", mapping.value);
+          break;
+        }
+      }
+    }
+
+    if (this.ddbDefinition.prerequisites) {
+      for (const prereq of this.ddbDefinition.prerequisites) {
+        for (const mapping of prereq.prerequisiteMappings.filter((m) => m.type === "feat")) {
+          if (mapping.shouldExclude) continue;
+          this.data.system.prerequisites.items.push(utils.referenceNameString(mapping.friendlySubTypeName.toLowerCase()));
+        }
+      }
+    }
+
   }
 
   // eslint-disable-next-line complexity
@@ -1075,5 +1106,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       factory: this.ddbCompanionFactory,
       parsed: this.ddbCompanionFactory.companions,
     });
+  }
+
+  async _final() {
+    this.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`);
+    this.data.system.identifier = this.identifier;
   }
 }

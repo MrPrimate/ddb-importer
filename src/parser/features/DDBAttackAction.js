@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module.mjs";
-import { utils, logger } from "../../lib/_module.mjs";
+import { logger } from "../../lib/_module.mjs";
 import DDBAction from "./DDBAction.js";
 
 
@@ -53,8 +53,7 @@ export default class DDBAttackAction extends DDBAction {
       await this._addEffects(undefined, this.type);
 
       this._addCustomValues();
-      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
-
+      this._final();
       await this.enricher.cleanup();
 
     } catch (err) {

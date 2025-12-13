@@ -6,6 +6,7 @@
 - Dragonmark feats will now import as the Dragonmark feat subtype.
 - Spells imported into the compendium will now have their spellcasting type cleared.
 For feats such as Dragonmarks, it was possible if a character had nore than one for the incorrect actions to be generated for each feat (duplicated across dragonmarks).
+- Feats will now add pre-requisite feat identifiers.
 
 # 6.6.31
 

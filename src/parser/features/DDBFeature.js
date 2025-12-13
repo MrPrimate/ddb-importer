@@ -119,20 +119,6 @@ export default class DDBFeature extends DDBFeatureMixin {
         },
       },
     };
-
-    const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel");
-    if (Number.isInteger(Number.parseInt(requiredLevel))) {
-      foundry.utils.setProperty(this.data, "system.prerequisites.level", Number.parseInt(requiredLevel));
-    } else if (this.ddbDefinition.prerequisites) {
-      for (const prereq of this.ddbDefinition.prerequisites) {
-        for (const mapping of prereq.prerequisiteMappings.filter((m) => m.type === "level")) {
-          foundry.utils.setProperty(this.data, "system.prerequisites.level", mapping.value);
-          break;
-        }
-      }
-    }
-
-    this.data.system.identifier = this.identifier;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -168,8 +154,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     this.cleanup();
     await this.enricher.addDocumentOverride();
-    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
-
+    this._final();
     await this.enricher.cleanup();
   }
 
@@ -434,7 +419,8 @@ export default class DDBFeature extends DDBFeatureMixin {
       this.data.name = this.data.name.split("Background: ").pop();
 
       await this.enricher.addDocumentOverride();
-      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
+      this._final();
+      await this.enricher.cleanup();
     } catch (err) {
       logger.warn(
         `Unable to Generate Background Feature: ${this.name}, please log a bug report. Err: ${err.message}`,
@@ -509,7 +495,7 @@ ${description}`;
     // this._addCustomValues();
 
     await this.enricher.addDocumentOverride();
-    this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
+    this._final();
   }
 
 

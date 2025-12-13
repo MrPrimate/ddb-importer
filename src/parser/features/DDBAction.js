@@ -160,8 +160,7 @@ export default class DDBAction extends DDBFeatureMixin {
       await this._addEffects(undefined, this.type);
       this._addCustomValues();
 
-      this.data.system.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);
-
+      this._final();
       await this.enricher.cleanup();
 
     } catch (err) {
