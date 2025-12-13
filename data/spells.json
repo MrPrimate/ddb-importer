@@ -736,6 +736,10 @@
     "path": "icons/creatures/mammals/spirit-deer-herd-blue.webp"
   },
   {
+    "name": "Homunculus Servant",
+    "path": "icons/commodities/gems/gem-cut-faceted-princess-purple.webp"
+  },
+  {
     "name": "Find Greater Steed",
     "path": "icons/environment/creatures/horse-white.webp"
   },

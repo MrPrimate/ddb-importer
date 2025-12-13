@@ -45,6 +45,7 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           generateDamage: false,
           generateHealing: true,
           generateRange: true,
+          noSpellslot: true,
           generateConsumption: true,
           healingPart: DDBEnricherData.basicDamagePart({
             number: 4,

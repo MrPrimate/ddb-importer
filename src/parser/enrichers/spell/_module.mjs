@@ -69,6 +69,7 @@ export { default as DelayedBlastFireball } from "./DelayedBlastFireball.mjs";
 export { default as DisguiseSelf } from "./DisguiseSelf.mjs";
 export { default as DivineFavor } from "./DivineFavor.mjs";
 export { default as DivineSmite } from "./DivineSmite.mjs";
+export { default as Doomtide } from "./Doomtide.mjs";
 export { default as DragonsBreath } from "./DragonsBreath.mjs";
 export { default as Earthquake } from "./Earthquake.mjs";
 export { default as EldritchBlast } from "./EldritchBlast.mjs";

@@ -1,12 +1,13 @@
 # Next Up
 
-- Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor.
+- Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor, Doomtide.
 - Some effects that provided cover statuses, did not parse the cover status
 - Icon updates for Eberron.
 - Dragonmark feats will now import as the Dragonmark feat subtype.
 - Spells imported into the compendium will now have their spellcasting type cleared.
 For feats such as Dragonmarks, it was possible if a character had nore than one for the incorrect actions to be generated for each feat (duplicated across dragonmarks).
 - Feats will now add pre-requisite feat identifiers.
+- Improved detection of targeting types for spells.
 
 # 6.6.31
 

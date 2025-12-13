@@ -380,7 +380,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   targetsCreature() {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
-    const targets = /spell attack against the target|at a target in range/gi;
+    const targets = /spell attack against the target|at a target in range|each creature within|each creature in the/gi;
     return this.ddbDefinition.description.match(creature)
       || this.ddbDefinition.description.match(creaturesRange)
       || this.ddbDefinition.description.match(targets);
@@ -444,17 +444,20 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       target.template.height = parseInt(heightMatch[1]);
     }
 
+    const targetsCreatures = this.targetsCreature();
+
     // if spell is an AOE effect get some details
     if (this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeValue) {
       const type = this.ddbDefinition.range.aoeType.toLowerCase();
       target.template.size = parseInt(this.ddbDefinition.range.aoeValue);
       target.template.type = type === "emanation" ? "radius" : type;
+      if (targetsCreatures) {
+        target.affects.type = "creature";
+      }
       this.data.system.target = target;
       return;
     }
 
-    // does the spell target a creature?
-    const targetsCreatures = this.targetsCreature();
 
     if (targetsCreatures) {
       const count = this._getTargetValue();
