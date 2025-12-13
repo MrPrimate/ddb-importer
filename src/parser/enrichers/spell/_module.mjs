@@ -74,6 +74,7 @@ export { default as DragonsBreath } from "./DragonsBreath.mjs";
 export { default as Earthquake } from "./Earthquake.mjs";
 export { default as EldritchBlast } from "./EldritchBlast.mjs";
 export { default as ElementalWeapon } from "./ElementalWeapon.mjs";
+export { default as ElminstersEffulgentSpheres } from "./ElminstersEffulgentSpheres.mjs";
 export { default as EnhanceAbility } from "./EnhanceAbility.mjs";
 export { default as EnlargeReduce } from "./EnlargeReduce.mjs";
 export { default as EnsnaringStrike } from "./EnsnaringStrike.mjs";
