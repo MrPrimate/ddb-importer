@@ -4,7 +4,7 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 export default class ElminstersEffulgentSpheres extends DDBEnricherData {
 
   get type() {
-    return "utility";
+    return "enchant";
   }
 
   get activity() {
@@ -13,6 +13,9 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
       targetSelf: true,
       data: {
         sort: 1,
+        enchant: {
+          self: true,
+        },
       },
     };
   }
@@ -31,13 +34,14 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
         build: {
           generateAttack: false,
           onsave: false,
-          noeffect: true,
         },
         overrides: {
           activationType: "reaction",
           overrideActivation: true,
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
+          addItemConsume: true,
+          id: "AbsorbEnergySphe",
           data: {
             img: "systems/dnd5e/icons/svg/rosa-shield.svg",
             sort: 2,
@@ -73,6 +77,8 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
           activationType: "bonus",
+          addItemConsume: true,
+          id: "EnergyBlastSpher",
           data: {
             sort: 3,
           },
@@ -82,12 +88,19 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
   }
 
   get effects() {
-    const absorb = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
+    const absorb = [
+      { type: "Acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
+      { type: "Cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
+      { type: "Fire", img: "icons/magic/fire/barrier-wall-flame-ring-yellow.webp" },
+      { type: "Lightning", img: "icons/magic/lightning/bolt-strike-blue.webp" },
+      { type: "Thunder", img: "icons/magic/sonic/explosion-shock-wave-teal.webp" },
+    ].map((element) => {
       return {
-        name: `Absorb Energy Sphere: ${element}`,
+        name: `Absorb Energy Sphere: ${element.type}`,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(element.type.toLowerCase(), 1, "system.traits.dr.value"),
         ],
+        img: element.img,
         activityMatch: "Absorb Energy",
         options: {
           durationSeconds: 6,
@@ -96,6 +109,25 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
         daeSpecialDurations: ["turnStartSource"],
       };
     });
+
+    const enchant = {
+      name: "Elminster's Effulgent Spheres",
+      type: "enchant",
+      changes: [
+        DDBEnricherData.ChangeHelper.overrideChange("@item.level", 20, "system.uses.max"),
+        DDBEnricherData.ChangeHelper.overrideChange("charges", 20, "system.uses.per"),
+      ],
+      activitiesMatch: ["Cast"],
+      data: {
+        flags: {
+          ddbimporter: {
+            activityRiders: ["AbsorbEnergySphe", "EnergyBlastSpher"],
+            effectRiders: [],
+          },
+        },
+      },
+    };
+    absorb.push(enchant);
     return absorb;
   }
 
