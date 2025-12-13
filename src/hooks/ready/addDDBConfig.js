@@ -71,6 +71,7 @@ function addSpellLists() {
 }
 
 function addFeatTypes() {
+  if (foundry.utils.getProperty(CONFIG.DND5E, "featureTypes.feat.subtypes.dragonmark")) return;
   CONFIG.DND5E.featureTypes.feat.subtypes.dragonmark = "Dragonmark Feat";
 }
 

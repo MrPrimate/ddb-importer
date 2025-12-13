@@ -730,5 +730,85 @@
   {
     "name": "Forest Sage",
     "path": "icons/magic/nature/leaf-glow-green.webp"
+  },
+  {
+    "name": "Boon of Siberys",
+    "path": "icons/magic/symbols/mask-yellow-orange.webp"
+  },
+  {
+    "name": "Greater Aberrant Mark",
+    "path": "icons/magic/symbols/rune-sigil-green-purple.webp"
+  },
+  {
+    "name": "Greater Mark of Handling",
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+  },
+  {
+    "name": "Greater Mark of Healing",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Greater Mark of Hospitality",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Greater Mark of Passage",
+    "path": "icons/magic/symbols/cross-circle-blue.webp"
+  },
+  {
+    "name": "Greater Mark of Scribing",
+    "path": "icons/magic/symbols/rune-sigil-red-orange.webp"
+  },
+  {
+    "name": "Greater Mark of Sentinel",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Greater Mark of Storm",
+    "path": "icons/magic/symbols/rune-sigil-rough-white-teal.webp"
+  },
+  {
+    "name": "Greater Mark of Warding",
+    "path": "icons/magic/symbols/cog-shield-white-blue.webp"
+  },
+  {
+    "name": "Mark of Handling",
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+  },
+  {
+    "name": "Mark of Healing",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Mark of Hospitality",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Mark of Passage",
+    "path": "icons/magic/symbols/cross-circle-blue.webp"
+  },
+  {
+    "name": "Mark of Scribing",
+    "path": "icons/magic/symbols/rune-sigil-red-orange.webp"
+  },
+  {
+    "name": "Mark of Sentinel",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Mark of Storm",
+    "path": "icons/magic/symbols/rune-sigil-rough-white-teal.webp"
+  },
+  {
+    "name": "Mark of Warding",
+    "path": "icons/magic/symbols/cog-shield-white-blue.webp"
+  },
+  {
+    "name": "Potent Dragonmark",
+    "path": "icons/magic/symbols/rune-sigil-horned-blue.webp"
+  },
+  {
+    "name": "Martial Weapon Training",
+    "path": "icons/weapons/axes/axe-battle-heavy-jagged.webp"
   }
 ]

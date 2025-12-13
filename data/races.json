@@ -28,13 +28,6 @@
     "path": "icons/magic/acid/dissolve-arm-flesh.webp"
   },
   {
-    "name": "Amphibious",
-    "racial_trait": "Amphibious",
-    "race": "Genasi",
-    "subrace": "Water Genasi",
-    "path": "icons/magic/acid/dissolve-arm-flesh.webp"
-  },
-  {
     "name": "Ancestral Legacy",
     "racial_trait": "Ancestral Legacy",
     "race": "",
@@ -119,20 +112,6 @@
     "path": "icons/creatures/abilities/dragon-fire-breath-orange.webp"
   },
   {
-    "name": "Breath Weapon",
-    "racial_trait": "Breath Weapon",
-    "race": "Dragonborn",
-    "subrace": "Draconblood Dragonborn",
-    "path": "icons/magic/acid/projectile-smoke-glowing.webp"
-  },
-  {
-    "name": "Breath Weapon",
-    "racial_trait": "Breath Weapon",
-    "race": "Dragonborn",
-    "subrace": "Ravenite Dragonborn",
-    "path": "icons/creatures/abilities/dragon-ice-breath-blue.webp"
-  },
-  {
     "name": "Breath Weapon (Acid)",
     "racial_trait": "Metallic Breath Weapon",
     "race": "Dragonborn",
@@ -151,13 +130,6 @@
     "racial_trait": "Cantrip",
     "race": "",
     "subrace": "",
-    "path": "icons/sundries/documents/document-symbol-eye.webp"
-  },
-  {
-    "name": "Cantrip",
-    "racial_trait": "Cantrip",
-    "race": "Elf",
-    "subrace": "Aereni High Elf",
     "path": "icons/sundries/documents/document-symbol-eye.webp"
   },
   {
@@ -679,13 +651,6 @@
     "path": "icons/commodities/biological/organ-stomach.webp"
   },
   {
-    "name": "Hold Breath",
-    "racial_trait": "Hold Breath",
-    "race": "Tortle",
-    "subrace": "Tortle",
-    "path": "icons/commodities/biological/organ-stomach.webp"
-  },
-  {
     "name": "Hooves",
     "racial_trait": "Hooves",
     "race": "Centaur",
@@ -721,13 +686,6 @@
     "path": "icons/environment/traps/trap-jaw-steel.webp"
   },
   {
-    "name": "Hunter's Intuition",
-    "racial_trait": "Hunter's Intuition",
-    "race": "Half-Orc",
-    "subrace": "Mark of Finding Half-Orc",
-    "path": "icons/environment/traps/trap-jaw-steel.webp"
-  },
-  {
     "name": "Hunter's Lore",
     "racial_trait": "Hunter's Lore",
     "race": "Lizardfolk",
@@ -753,13 +711,6 @@
     "racial_trait": "Infernal Legacy",
     "race": "Feral Tiefling",
     "subrace": "Feral Tiefling",
-    "path": "icons/sundries/scrolls/scroll-symbol-triangle-brown.webp"
-  },
-  {
-    "name": "Infernal Legacy",
-    "racial_trait": "Infernal Legacy",
-    "race": "Tiefling",
-    "subrace": "Tiefling",
     "path": "icons/sundries/scrolls/scroll-symbol-triangle-brown.webp"
   },
   {
@@ -795,90 +746,6 @@
     "racial_trait": "Keen Senses",
     "race": "Elf",
     "subrace": "High Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Wood Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Dark Elf (Drow)",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Sea Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Eladrin",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Aereni Wood Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Valenar Wood Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Pallid Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Valenar High Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Mark of Shadow Elf",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Eladrin (Variant)",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Shadar-kai",
-    "subrace": "Shadar-kai",
-    "path": "icons/commodities/biological/eye-blue.webp"
-  },
-  {
-    "name": "Keen Senses",
-    "racial_trait": "Keen Senses",
-    "race": "Elf",
-    "subrace": "Aereni High Elf",
     "path": "icons/commodities/biological/eye-blue.webp"
   },
   {
@@ -1912,5 +1779,45 @@
   {
     "name": "Bestial Instincts",
     "path": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+  },
+  {
+    "name": "Beasthide",
+    "path": "icons/creatures/mammals/bull-horns-eyes-glowin-orange.webp"
+  },
+  {
+    "name": "Construct Resilience",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-acid.webp"
+  },
+  {
+    "name": "Fey Gift",
+    "path": "icons/skills/social/diplomacy-unity-alliance.webp"
+  },
+  {
+    "name": "Lethargy Resilience",
+    "path": "icons/magic/control/sleep-bubble-purple.webp"
+  },
+  {
+    "name": "Longtooth",
+    "path": "icons/creatures/abilities/bear-roar-bite-brown-green.webp"
+  },
+  {
+    "name": "Shape-Shifter",
+    "path": "icons/magic/control/silhouette-hold-change-blue.webp"
+  },
+  {
+    "name": "Specialized Design",
+    "path": "icons/magic/symbols/cog-shield-white-blue.webp"
+  },
+  {
+    "name": "Swiftstride",
+    "path": "icons/magic/nature/wolf-paw-glow-large-green.webp"
+  },
+  {
+    "name": "Tireless",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Wildhunt",
+    "path": "icons/creatures/mammals/elk-moose-marked-green.webp"
   }
 ]

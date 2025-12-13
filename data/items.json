@@ -215,7 +215,7 @@
     "name": "Adamantine Shortsword",
     "path": "icons/weapons/swords/shortsword-winged.webp"
   },
- {
+  {
     "name": "Adamantine Sickle",
     "path": "icons/weapons/sickles/sickle-hooked-worn.webp"
   },
@@ -1127,55 +1127,55 @@
     "name": "Armor of Vulnerability (Slashing)",
     "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Breastplate",
     "path": "icons/equipment/chest/breastplate-collared-steel-grey.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Chain Mail",
     "path": "icons/commodities/metal/mail-chain-steel.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Chain Shirt",
     "path": "icons/commodities/metal/mail-chain-steel.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Half Plate",
     "path": "icons/equipment/chest/breastplate-cuirass-steel-grey.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Hide",
     "path": "icons/equipment/chest/vest-cloth-tattered-orange.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Leather",
     "path": "icons/equipment/chest/coat-collared-red-gold.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Padded",
     "path": "icons/equipment/chest/breastplate-quilted-brown.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Plate",
     "path": "icons/equipment/chest/breastplate-layered-gilded-black.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Ring Mail",
     "path": "icons/commodities/leather/ring-leather.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Scale Mail",
     "path": "icons/equipment/chest/breastplate-scale-grey.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Spiked Armor",
     "path": "icons/weapons/fist/glove-spiked.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Splint",
     "path": "icons/equipment/chest/breastplate-banded-leather-brown.webp"
   },
- {
+  {
     "name": "Armor of Weightlessness, Studded Leather",
     "path": "icons/equipment/chest/breastplate-layered-leather-studded-brown.webp"
   },
@@ -5707,7 +5707,7 @@
     "name": "Mess Kit",
     "path": "icons/containers/kitchenware/bowl-clay-brown.webp"
   },
- {
+  {
     "name": "Messenger Owl Seed",
     "path": "icons/commodities/gems/pearl-purple-rough.webp"
   },
@@ -10732,10 +10732,6 @@
     "path": "icons/weapons/polearms/glaive-simple-hooked.webp"
   },
   {
-    "name": "Lunar Glaive",
-    "path": "icons/weapons/polearms/glaive-simple-hooked.webp"
-  },
-  {
     "name": "Lunar Greataxe",
     "path": "icons/weapons/axes/axe-double-blue.webp"
   },
@@ -10746,10 +10742,6 @@
   {
     "name": "Lunar Greatsword",
     "path": "icons/weapons/swords/greatsword-guard-gold-worn.webp"
-  },
-  {
-    "name": "Lunar Halberd",
-    "path": "icons/weapons/polearms/halberd-crescent-glowing.webp"
   },
   {
     "name": "Lunar Halberd",
@@ -10774,10 +10766,6 @@
   {
     "name": "Lunar Javelin",
     "path": "icons/weapons/polearms/spear-barbed-silver.webp"
-  },
-  {
-    "name": "Lunar Lance",
-    "path": "icons/weapons/polearms/spear-hooked-brown.webp"
   },
   {
     "name": "Lunar Lance",
@@ -10828,10 +10816,6 @@
     "path": "icons/weapons/staves/staff-simple-gold.webp"
   },
   {
-    "name": "Lunar Quarterstaff",
-    "path": "icons/weapons/staves/staff-simple.webp"
-  },
-  {
     "name": "Lunar Rapier",
     "path": "icons/weapons/swords/greatsword-crossguard-steel.webp"
   },
@@ -10870,10 +10854,6 @@
   {
     "name": "Lunar Spear",
     "path": "icons/weapons/polearms/pike-flared-red.webp"
-  },
-  {
-    "name": "Lunar Spear",
-    "path": "icons/weapons/polearms/spear-flared-gray.webp"
   },
   {
     "name": "Lunar Tapper Sack",
@@ -11422,5 +11402,309 @@
   {
     "name": "Flask",
     "path": "icons/consumables/potions/bottle-corked-empty.webp"
+  },
+  {
+    "name": "Dreadnaught: Force Demolisher",
+    "path": "icons/weapons/hammers/hammer-double-glowing-yellow.webp"
+  },
+  {
+    "name": "Boldness Elixir",
+    "path": "icons/consumables/potions/bottle-round-label-cork-red.webp"
+  },
+  {
+    "name": "Flight Elixir",
+    "path": "icons/consumables/potions/bottle-round-label-cork-blue.webp"
+  },
+  {
+    "name": "Healing Elixir",
+    "path": "icons/consumables/potions/bottle-round-label-cork-green.webp"
+  },
+  {
+    "name": "Resilience Elixir",
+    "path": "icons/consumables/potions/bottle-round-label-cork-purple.webp"
+  },
+  {
+    "name": "Swiftness Elixir",
+    "path": "icons/consumables/potions/bottle-round-label-cork-yellow.webp"
+  },
+  {
+    "name": "Infiltrator: Lightning Launcher",
+    "path": "icons/magic/lightning/bolt-strike-beam-yellow.webp"
+  },
+  {
+    "name": "Guardian: Thunder Pulse",
+    "path": "icons/magic/sonic/projectile-sound-rings-wave.webp"
+  },
+  {
+    "name": "Tow Cable",
+    "path": "icons/sundries/survival/rope-coiled-tan.webp"
+  },
+  {
+    "name": "Lightning Turret",
+    "path": "icons/magic/lightning/bolt-beam-strike-blue.webp"
+  },
+  {
+    "name": "Shield Station",
+    "path": "icons/magic/defensive/barrier-shield-dome-deflect-teal.webp"
+  },
+  {
+    "name": "Armor Class Upgrade",
+    "path": "icons/magic/symbols/cross-circle-blue.webp"
+  },
+  {
+    "name": "Elemental Thrusters",
+    "path": "icons/commodities/tech/cylinder-blue.webp"
+  },
+  {
+    "name": "Hit Points Upgrade",
+    "path": "icons/magic/symbols/clover-luck-white-green.webp"
+  },
+  {
+    "name": "Repair Clamps",
+    "path": "icons/commodities/tech/metal-jaws.webp"
+  },
+  {
+    "name": "Sky Veil",
+    "path": "icons/commodities/tech/metal-blue.webp"
+  },
+  {
+    "name": "Boots of the Winding Path",
+    "path": "icons/equipment/feet/boots-collared-blue-gold.webp"
+  },
+  {
+    "name": "Dazzling Weapon",
+    "path": "icons/weapons/swords/sword-runed-glowing.webp"
+  },
+  {
+    "name": "Giant's Gold Ring",
+    "path": "icons/equipment/finger/ring-band-engraved-spirals-gold.webp"
+  },
+  {
+    "name": "Helm of Awareness",
+    "path": "icons/equipment/head/helm-barbute-rounded-gold.webp"
+  },
+  {
+    "name": "Iridescent Conch Shell",
+    "path": "icons/commodities/biological/shell-conch-gray.webp"
+  },
+  {
+    "name": "Manifold Tool",
+    "path": "icons/tools/hand/wrench-iron-grey.webp"
+  },
+  {
+    "name": "Mind Sharpener",
+    "path": "icons/equipment/finger/ring-ball-thorns-bronze.webp"
+  },
+  {
+    "name": "Repeating Shot",
+    "path": "icons/weapons/ammunition/bullets-cartridge-shell-gray.webp"
+  },
+  {
+    "name": "Repulsion Shield",
+    "path": "icons/equipment/shield/heater-steel-engraved-lance-rest.webp"
+  },
+  {
+    "name": "Returning Weapon",
+    "path": "icons/skills/melee/hand-grip-staff-teal.webp"
+  },
+  {
+    "name": "Spell-Refueling Ring",
+    "path": "icons/equipment/finger/ring-band-engraved-teal.webp"
+  },
+  {
+    "name": "Spell Scroll: Tasha's Hideous Laughter",
+    "path": "icons/sundries/scrolls/scroll-bound-black-tan.webp"
+  },
+  {
+    "name": "Arcane Launcher",
+    "path": "icons/skills/ranged/bullets-triple-ball-ice-blue.webp"
+  },
+  {
+    "name": "Psychic Blade",
+    "path": "icons/skills/melee/blade-tips-double-blue.webp"
+  },
+  {
+    "name": "Book of Shadows",
+    "path": "icons/sundries/books/book-black-grey.webp"
+  },
+  {
+    "name": "Water (Pint)",
+    "path": "icons/magic/water/water-drop-swirl-blue.webp"
+  },
+  {
+    "name": "Rope",
+    "path": "icons/sundries/survival/rope-wrapped-brown.webp"
+  },
+  {
+    "name": "Rations",
+    "path": "icons/consumables/food/berries-ration-round-red.webp"
+  },
+  {
+    "name": "Oil",
+    "path": "icons/consumables/potions/bottle-bulb-empty-glass.webp"
+  },
+  {
+    "name": "Parchment",
+    "path": "icons/sundries/scrolls/scroll-plain-tan.webp"
+  },
+  {
+    "name": "Hooded Lantern",
+    "path": "icons/sundries/lights/lantern-iron-yellow.webp"
+  },
+  {
+    "name": "Bullseye Lantern",
+    "path": "icons/sundries/lights/lantern-iron-yellow.webp"
+  },
+  {
+    "name": "Ball Bearings",
+    "path": "icons/weapons/ammunition/shot-round-brown.webp"
+  },
+  {
+    "name": "Mirror",
+    "path": "icons/sundries/survival/mirror-plain.webp"
+  },
+  {
+    "name": "Ink",
+    "path": "icons/tools/scribal/ink-quill-red.webp"
+  },
+  {
+    "name": "Caltrops",
+    "path": "icons/weapons/thrown/bomb-spiked-purple.webp"
+  },
+  {
+    "name": "Holy Water",
+    "path": "icons/consumables/potions/bottle-round-empty-glass.webp"
+  },
+  {
+    "name": "Costume",
+    "path": "icons/equipment/head/hood-purple-mask.webp"
+  },
+  {
+    "name": "Improvised Weapon",
+    "path": "icons/skills/melee/strike-stake-gray.webp"
+  },
+  {
+    "name": "Ebony-bound Atlas",
+    "path": "icons/sundries/books/book-symbol-yellow-grey.webp"
+  },
+  {
+    "name": "Engraved Crystal",
+    "path": "icons/commodities/gems/pearl-water.webp"
+  },
+  {
+    "name": "Etched Glass Disk",
+    "path": "icons/commodities/gems/pearl-swirl-teal.webp"
+  },
+  {
+    "name": "Tooled Owlbear Hide",
+    "path": "icons/sundries/scrolls/scroll-runed-worn-tan.webp"
+  },
+  {
+    "name": "Constellations Scroll",
+    "path": "icons/sundries/scrolls/scroll-symbol-eye-brown.webp"
+  },
+  {
+    "name": "Stone Tablet",
+    "path": "icons/commodities/stone/engraved-symbol-water-grey.webp"
+  },
+  {
+    "name": "Acid",
+    "path": "icons/consumables/potions/bottle-round-corked-green.webp"
+  },
+  {
+    "name": "Alchemist's Fire",
+    "path": "icons/consumables/potions/bottle-round-label-cork-yellow.webp"
+  },
+  {
+    "name": "Ammunition (Varies)",
+    "path": "icons/weapons/ammunition/bullets-cartridge-shell-gray.webp"
+  },
+  {
+    "name": "Arcane Focus (Varies)",
+    "path": "icons/commodities/gems/gem-faceted-large-green.webp"
+  },
+  {
+    "name": "Spell Scroll, Cantrip",
+    "path": "icons/sundries/scrolls/scroll-bound-orange-tan.webp"
+  },
+  {
+    "name": "Druidic Focus (Varies)",
+    "path": "icons/consumables/plants/fern-lady-green.webp"
+  },
+  {
+    "name": "Holy Symbol (Varies)",
+    "path": "icons/sundries/flags/banner-symbol-sun-gold-red.webp"
+  },
+  {
+    "name": "Ladder",
+    "path": "icons/sundries/misc/ladder-improvised.webp"
+  },
+  {
+    "name": "Map",
+    "path": "icons/tools/navigation/map-chart-tan.webp"
+  },
+  {
+    "name": "Paper",
+    "path": "icons/sundries/documents/paper-plain-white.webp"
+  },
+  {
+    "name": "Poison, Basic",
+    "path": "icons/consumables/potions/potion-bottle-skull-label-poison-teal.webp"
+  },
+  {
+    "name": "Pole",
+    "path": "icons/commodities/wood/wood-pole.webp"
+  },
+  {
+    "name": "Spell Scroll, Level 1",
+    "path": "icons/sundries/scrolls/scroll-bound-blue-white.webp"
+  },
+  {
+    "name": "Spikes, Iron",
+    "path": "icons/tools/fasteners/nails-steel-brown.webp"
+  },
+  {
+    "name": "Tent",
+    "path": "icons/environment/settlement/tent.webp"
+  },
+  {
+    "name": "Bolts",
+    "path": "icons/weapons/ammunition/arrow-broadhead-white.webp"
+  },
+  {
+    "name": "Bullets, Firearm",
+    "path": "icons/containers/ammunition/bullets-belt.webp"
+  },
+  {
+    "name": "Bullets, Sling",
+    "path": "icons/weapons/ammunition/shot-round-blue.webp"
+  },
+  {
+    "name": "Sprig of mistletoe",
+    "path": "icons/consumables/plants/fern-lady-green.webp"
+  },
+  {
+    "name": "Wooden staff",
+    "path": "icons/weapons/staves/staff-nature-spiral.webp"
+  },
+  {
+    "name": "Yew wand",
+    "path": "icons/weapons/staves/staff-ornate-wood.webp"
+  },
+  {
+    "name": "Dice",
+    "path": "icons/sundries/gaming/dice-runed-brown.webp"
+  },
+  {
+    "name": "Dragonchess",
+    "path": "icons/sundries/gaming/chess-knight-white.webp"
+  },
+  {
+    "name": "Playing Cards",
+    "path": "icons/sundries/gaming/playing-cards.webp"
+  },
+  {
+    "name": "Three-dragon ante",
+    "path": "icons/sundries/gaming/playing-cards-brown.webp"
   }
 ]
