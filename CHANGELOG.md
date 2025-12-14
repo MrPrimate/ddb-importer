@@ -1,6 +1,6 @@
 # Next Up
 
-- Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor, Doomtide, Elminster's Effulgent Spheres.
+- Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor, Doomtide, Elminster's Effulgent Spheres, Holy Star of Mystra, Songals Elemental Suffusion.
 - Some effects that provided cover statuses, did not parse the cover status
 - Icon updates for Eberron.
 - Dragonmark feats will now import as the Dragonmark feat subtype.
