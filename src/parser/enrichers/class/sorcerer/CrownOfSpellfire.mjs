@@ -140,6 +140,16 @@ export default class CrownOfSpellfire extends DDBEnricherData {
   get effects() {
     return [
       {
+        name: "Crown of Spellfire (Flight)",
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.fly"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
+        ],
+        data: {
+          _id: "CrownOfSpellfire",
+        },
+      },
+      {
         name: "Crown of Spellfire",
         activityMatch: "Activate Crown of Spellfire",
         type: "enchant",
@@ -147,12 +157,11 @@ export default class CrownOfSpellfire extends DDBEnricherData {
           flags: {
             ddbimporter: {
               activityRiders: this.hdActivities.map((r) => r.overrides.id).concat(["ddbSpellAvoidanc"]),
+              effectRiders: ["CrownOfSpellfire"],
             },
           },
         },
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.fly"),
-          DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
           DDBEnricherData.ChangeHelper.overrideChange("{} (Active)", 90, "name"),
           DDBEnricherData.ChangeHelper.overrideChange("Disable Crown of Spellfire", 90, "activities[enchant].name"),
           DDBEnricherData.ChangeHelper.overrideChange("[]", 90, "activities[enchant].consumption.targets"),

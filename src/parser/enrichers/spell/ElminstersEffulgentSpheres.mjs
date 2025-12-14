@@ -11,6 +11,8 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     return {
       name: "Cast",
       targetSelf: true,
+      addItemConsume: true,
+      itemConsumeValue: "-@item.uses.max",
       data: {
         sort: 1,
         enchant: {
@@ -116,6 +118,9 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
       changes: [
         DDBEnricherData.ChangeHelper.overrideChange("@item.level", 20, "system.uses.max"),
         DDBEnricherData.ChangeHelper.overrideChange("charges", 20, "system.uses.per"),
+        DDBEnricherData.ChangeHelper.overrideChange("{} (Active)", 90, "name"),
+        DDBEnricherData.ChangeHelper.overrideChange("Disable Effulgent Spheres", 90, "activities[enchant].name"),
+        DDBEnricherData.ChangeHelper.overrideChange("[]", 90, "activities[enchant].consumption.targets"),
       ],
       activitiesMatch: ["Cast"],
       data: {
