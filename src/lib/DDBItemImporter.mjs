@@ -88,6 +88,7 @@ export default class DDBItemImporter {
 
   #flagMatch(item1, item2) {
     if (this.matchFlags.length === 0) return true;
+    // let fs = {};
     const matched = this.matchFlags.every((flag) => {
       // assume 2014 rule if this is the flag request
       const defaultFlagValue = flag === "is2014" ? true : undefined;
@@ -95,9 +96,17 @@ export default class DDBItemImporter {
       if (flagValue1 === undefined) return false;
       const flagValue2 = foundry.utils.getProperty(item2, `flags.ddbimporter.${flag}`) ?? defaultFlagValue;
       if (flagValue2 === undefined) return false;
+      // fs[flag] = { item1: flagValue1, item2: flagValue2, bool: flagValue1 === flagValue2 };
       return flagValue1 === flagValue2;
     });
-    // console.warn("flagMatch", {item1, item2, matched });
+    // if (item1.name === "Fey Ancestry") {
+    //   console.warn("flagMatch", {
+    //     item1,
+    //     item2,
+    //     matched,
+    //     fs,
+    //   });
+    // }
     return matched;
   }
 
@@ -229,8 +238,9 @@ export default class DDBItemImporter {
 
     const flagFiltered = indexEntries.filter((idx) => {
       const nameMatch = idx.name === item.name;
+      if (!nameMatch) return false;
       const flagMatched = this.#flagMatch(idx, item);
-      return nameMatch && flagMatched;
+      return flagMatched;
     });
 
     return flagFiltered;

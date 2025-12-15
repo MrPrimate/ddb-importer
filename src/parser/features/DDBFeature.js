@@ -103,6 +103,7 @@ export default class DDBFeature extends DDBFeatureMixin {
           entityTypeId: this.ddbDefinition.entityTypeId,
           is2014: this.type === "class" && this._class ? this.isClass2014 : this.is2014,
           is2024: this.type === "class" && this._class ? !this.isClass2014 : !this.is2014,
+          legacy: this.legacy,
           componentId: this.ddbDefinition.componentId,
           componentTypeId: this.ddbDefinition.componentTypeId,
           originalName: this.originalName,

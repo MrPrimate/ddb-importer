@@ -743,15 +743,15 @@ export class DDBCompendiumFolders {
     }
   }
 
-  async createSubTraitFolders(raceDocument) {
-    const details = this.getRaceFolderName(raceDocument);
+  async createSubTraitFolders(doc) {
+    const details = this.getRaceFolderName(doc);
     const categoryFolderData = DDBCompendiumFolders.getSourceCategoryFolderName({
       type: "trait",
       categoryId: details.categoryId,
     });
     const sourceFolder = await this._createSourceFolder(categoryFolderData.name, categoryFolderData.flagTag, categoryFolderData.color);
 
-    logger.debug(`Checking for Species folder '${raceDocument.name}'`);
+    logger.debug(`Checking for Species folder for '${doc.name}'`);
 
     const speciesBaseFolder = this.getFolder(details.name, details.flagTag)
       ?? (await this.createCompendiumFolder({
@@ -762,7 +762,7 @@ export class DDBCompendiumFolders {
       }));
     this.validFolderIds.push(speciesBaseFolder._id);
 
-    const traitDetails = this.getRaceTraitFolderName(raceDocument);
+    const traitDetails = this.getRaceTraitFolderName(doc);
 
     const folder = this.getFolder(traitDetails.name, traitDetails.flagTag)
       ?? (await this.createCompendiumFolder({
@@ -1167,36 +1167,43 @@ export class DDBCompendiumFolders {
     // const baseRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.baseRaceName");
     // const baseName = foundry.utils.getProperty(document, "flags.ddbimporter.baseName");
     // const subRaceShortName = foundry.utils.getProperty(document, "flags.ddbimporter.subRaceShortName");
-    const fullSpeciesName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
-    // const name = document.name;
-    // const lowercaseName = name.toLowerCase();
-
+    const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
     const isLineage = foundry.utils.getProperty(document, "flags.ddbimporter.isLineage");
-    const tagName = isLineage ? groupName : fullSpeciesName;
 
-    const name = fullSpeciesName === groupName || isLineage
+    const source = foundry.utils.getProperty(document, "system.source.book") ?? "Unknown";
+    const ddbCode = DDBSources.getDDBSourceBook(source);
+    const bookData = CONFIG.DDB.sources.find((b) => b.name === ddbCode);
+    const resolvedCategoryId = bookData?.sourceCategoryId ?? undefined;
+
+    const nameSuffix = fullRaceName === groupName
+      || isLineage
+      || [26, 24, 35].includes(resolvedCategoryId)
       ? "Traits"
-      : `${fullSpeciesName} Traits`;
+      : `${fullRaceName} Traits`;
+
+    const flagStr = `${groupName ?? fullRaceName}/${nameSuffix}`;
+    const flagName = utils.idString(flagStr).toLowerCase();
+
     return DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
       type: "trait",
       document,
-      flagSuffix: `${groupName}/${tagName}`,
-      nameSuffix: name,
+      flagSuffix: flagName,
+      nameSuffix,
     });
   }
 
   // eslint-disable-next-line class-methods-use-this
   getRaceFolderName(document) {
-    const speciesName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
+    const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
-    const name = groupName ?? speciesName;
+    const nameSuffix = groupName ?? fullRaceName;
 
     return DDBCompendiumFolders.getSourceCategoryFolderNameFromDocument({
       type: "species",
       document,
-      flagSuffix: utils.idString(name).toLowerCase(),
-      nameSuffix: name,
+      flagSuffix: utils.idString(nameSuffix).toLowerCase(),
+      nameSuffix,
     });
   }
 

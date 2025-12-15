@@ -931,15 +931,39 @@ export default class CharacterFeatureFactory {
         traitFeatures,
       });
 
-      const isLineage = this.ddbCharacter._ddbRace.isLineage;
+      // const isLineageOld = this.ddbCharacter._ddbRace.isLineage;
+      // const isLineage = foundry.utils.getProperty(this.ddbCharacter, "raw.race.flags.ddbimporter.isLineage") ?? false;
       await traitCompendiumFolders.createSubTraitFolders(this.ddbCharacter.raw.race);
+
+      for (const feature of traitFeatures) {
+        await traitCompendiumFolders.createSubTraitFolders(feature);
+      }
 
       const traitHandlerOptions = {
         chrisPremades: true,
-        matchFlags: isLineage ? ["groupName", "isLineage", "is2014", "legacy"] : ["fullRaceName", "groupName", "isLineage", "is2014", "legacy"],
+        matchFlags: ["id", "groupName", "isLineage", "is2014"],
+
+        // isLineage ||
+        //   ? ["id", "groupName", "isLineage", "is2014"]
+        //   : ["id", "fullRaceName", "groupName", "isLineage", "is2014"],
         useCompendiumFolders: true,
         deleteBeforeUpdate: false,
+        filterDuplicates: false,
+        indexFilter: {
+          fields: [
+            "name",
+            "flags.ddbimporter",
+          ],
+        },
       };
+
+      // console.warn(`Processing ${traitFeatures.length} traits into the trait compendium`, {
+      //   rawRace: this.ddbCharacter.raw.race,
+      //   this: this,
+      //   isLineage,
+      //   isLineageOld,
+      //   traitHandlerOptions,
+      // });
 
       const traitHandler = await DDBItemImporter.buildHandler("trait", traitFeatures, updateFeatures, traitHandlerOptions);
       await traitHandler.buildIndex(traitHandlerOptions.indexFilter);

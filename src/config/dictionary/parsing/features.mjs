@@ -320,6 +320,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dragon Ancestor",
     "Totem Spirit",
     "Totemic Attunement",
+    "Variant Tiefling",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -328,6 +329,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Elven Lineage",
     // "Pact Boon",
     "Dark Bargain",
+    // "Variant Tiefling",
     // "Totem Spirit",
     // "Totemic Attunement",
   ],
@@ -405,6 +407,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Tools of the Trade",
     "Bestial Instincts",
     "Purple Dragon Rook",
+    "Variant Tiefling",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
