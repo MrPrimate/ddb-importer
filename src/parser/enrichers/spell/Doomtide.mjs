@@ -16,6 +16,7 @@ export default class Doomtide extends DDBEnricherData {
         id: "ddbDoomTideAdSa1",
         overrides: {
           name: "Ongoing Save",
+          activationType: "special",
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
           noTemplate: true,

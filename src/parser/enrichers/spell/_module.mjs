@@ -181,6 +181,8 @@ export { default as Sleep } from "./Sleep.mjs";
 export { default as Slow } from "./Slow.mjs";
 export { default as SongalsElementalSuffusion } from "./SongalsElementalSuffusion.mjs";
 export { default as SorcerousBurst } from "./SorcerousBurst.mjs";
+export { default as SpellfireFlare } from "./SpellfireFlare.mjs";
+export { default as SpellfireStorm } from "./SpellfireStorm.mjs";
 export { default as SpiderClimb } from "./SpiderClimb.mjs";
 export { default as SpikeGrowth } from "./SpikeGrowth.mjs";
 export { default as SpiritGuardians } from "./SpiritGuardians.mjs";
