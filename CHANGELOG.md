@@ -10,6 +10,7 @@ For feats such as Dragonmarks, it was possible if a character had nore than one 
 - Feats will now add pre-requisite feat identifiers.
 - Improved detection of targeting types for spells.
 - If importing a full spell list for a 2024 ranger, spells would get added as always prepared, if those were 2014 spells from 2014 Extended Sources.
+- Artificer Tool Proficiency advancment was incorrectly parsed.
 
 # 6.6.31
 

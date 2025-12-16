@@ -391,7 +391,7 @@ export default class AdvancementHelper {
       ? undefined
       : level > 1 ? "" : availableToMulticlass ? "secondary" : "primary";
 
-    const title = !baseProficiency && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
+    const title = !baseProficiency && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
       ? feature.name
       : "Skill Proficiencies";
 
@@ -489,7 +489,7 @@ export default class AdvancementHelper {
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Languages",
       configuration: {
@@ -574,7 +574,7 @@ export default class AdvancementHelper {
     }
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Tool Proficiencies",
       classRestriction,
@@ -665,7 +665,7 @@ export default class AdvancementHelper {
     }
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Armor Training",
       classRestriction,
@@ -752,7 +752,7 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Weapon Proficiencies",
       classRestriction,
@@ -874,7 +874,7 @@ export default class AdvancementHelper {
       : weaponsFromMods.map((choice) => `weapon:${choice}`);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Weapon Masteries",
       configuration: {
@@ -1004,7 +1004,7 @@ export default class AdvancementHelper {
       : conditionsFromMods.map((choice) => choice);
 
     advancement.updateSource({
-      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ")
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "",
       configuration: {
@@ -1563,8 +1563,11 @@ export default class AdvancementHelper {
 
       const toolTypeOfRegex = /choose (\w+|\d+) type of (.*)($|\.:)/i;
       const toolChoiceRegex = /choose (\d+|\w+) (.*)($|\.:)/i;
+      const finalChoiceRegex = /(\d+|\w+) (.*) of your choice($|\.:)/i;
       for (const toolString of toolNames) {
-        const toolChoiceMatch = toolString.match(toolTypeOfRegex) ?? toolString.match(toolChoiceRegex);
+        const toolChoiceMatch = toolString.match(toolTypeOfRegex)
+          ?? toolString.match(toolChoiceRegex)
+          ?? toolString.match(finalChoiceRegex);
         if (toolChoiceMatch) {
           isChoice = true;
           const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural)

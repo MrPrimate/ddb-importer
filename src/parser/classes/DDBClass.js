@@ -1946,6 +1946,37 @@ export default class DDBClass {
     }
   }
 
+  _artificerFixes() {
+    if (this.data.name !== "Artificer") return;
+    for (let advancement of this.data.system.advancement) {
+      if (advancement.title !== "Tool Proficiencies") continue;
+      advancement.configuration = {
+        "allowReplacements": true,
+        "choices": [{
+          "count": 1,
+          "pool": [
+            "tool:art:*",
+          ],
+        }],
+        "grants": [
+          "tool:art:tinker",
+          "tool:thief",
+        ],
+        "mode": "default",
+      };
+      // const chosen = new Set(advancement.value?.chosen || []);
+      // if (chosen.size !== 3) {
+      //   chosen.add("tool:art:tinker");
+      //   chosen.add("tool:thief");
+      // }
+
+      // advancement.value = {
+      //   chosen: Array.from(chosen),
+      // };
+      break;
+    }
+  }
+
   async _fixes() {
     await this._fightingStyleAdvancement();
     this._druidFixes();
@@ -1955,6 +1986,7 @@ export default class DDBClass {
     this._bardFixes();
     this._sorcererFixes();
     this._spellFixes();
+    this._artificerFixes();
   }
 
   _generatePrimaryAbility() {
