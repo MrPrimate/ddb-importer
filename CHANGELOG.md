@@ -1,7 +1,7 @@
 # Next Up
 
 - Species munching has been updated to reduce duplication of features and species traits placed in the root. You will need to remove or clear your existing compendium.
-- Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor, Doomtide, Elminster's Effulgent Spheres, Holy Star of Mystra, Songals Elemental Suffusion, Spellfire Storm.
+- Some improvements to Forgotten Realms spell parsing. Alustriel's Mooncloak, Backlash, Cacophonic Shield, Conjure Constructs, Blade of Disaster, Death Armor, Doomtide, Elminster's Effulgent Spheres, Holy Star of Mystra, Songals Elemental Suffusion, Spellfire Storm., Syluné's Viper, Wardaway.
 - Some effects that provided cover statuses, did not parse the cover status
 - Icon updates for Eberron.
 - Dragonmark feats will now import as the Dragonmark feat subtype.

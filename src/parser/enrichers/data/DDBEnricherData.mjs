@@ -283,6 +283,7 @@ export default class DDBEnricherData {
    *     - options: {object} Configuration options passed to the DDB effect generator, including descriptions and durations.
    *     - magicalBonus: {object} Includes details for adding a magical bonus.
    *     - statuses: {Array} Status effects to add.
+   *     - riderStatuses: {Array} Rider status effects to add.
    *     - atlChanges: {Array} ATL changes, if ATL is active.
    *     - tokenMagicChanges: {Array} Token magic changes.
    *     - daeStackable: {string} set stackable dae value
