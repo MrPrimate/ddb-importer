@@ -100,7 +100,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
     generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null, unPreparedCantrip = null,
-    noSpellcasting = false,
+    noSpellcasting = false, is2014Class = null,
   } = {}) {
 
     const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic");
@@ -147,6 +147,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.forceMaterial");
     this.forcePact = foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.forcePact");
     this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
+    this.is2014Class = is2014Class ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.is2014Class");
     this.lookup = lookup ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookup");
     this.lookupName = lookupName ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookupName");
     this.ability = ability ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.ability");
@@ -230,7 +231,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   _generateClassPreparationMode() {
     const classPrepMode = DICTIONARY.spell.preparationModes.find((p) =>
       p.name === this.spellClass
-      && (!p.version || p.version === (this.is2014 ? "2014" : "2024")),
+      && (!p.version || p.version === (this.is2014Class ? "2014" : "2024")),
     );
 
     if (this.spellData.restriction === "As Ritual Only"

@@ -60,6 +60,7 @@ export default class CharacterSpellFactory {
         dndbeyond: {
           lookup: "classSpell",
           class: classInfo.definition.name,
+          is2014Class: classInfo.is2014Class,
           level: classInfo.level,
           characterClassId: playerClass.characterClassId,
           spellLevel: spell.definition.level,
@@ -153,6 +154,7 @@ export default class CharacterSpellFactory {
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
       const is2014Class = classInfo.definition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
+      classInfo.is2014Class = is2014Class;
       const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
       if (!is2014Class && is2024NewKnownCaster) {
         playerClass.spells = playerClass.spells.map((spell) => {

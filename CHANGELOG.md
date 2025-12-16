@@ -9,6 +9,7 @@
 For feats such as Dragonmarks, it was possible if a character had nore than one for the incorrect actions to be generated for each feat (duplicated across dragonmarks).
 - Feats will now add pre-requisite feat identifiers.
 - Improved detection of targeting types for spells.
+- If importing a full spell list for a 2024 ranger, spells would get added as always prepared, if those were 2014 spells from 2014 Extended Sources.
 
 # 6.6.31
 
