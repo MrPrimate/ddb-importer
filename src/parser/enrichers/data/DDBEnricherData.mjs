@@ -15,6 +15,12 @@ export default class DDBEnricherData {
     return this.ddbEnricher.getFeatureActionsName({ type });
   }
 
+  get parentIdentifier() {
+    const parent = this.ddbEnricher.findActionParent("feat");
+    const parentName = parent ? parent.definition.name : this.name;
+    return DDBDataUtils.classIdentifierName(parentName);
+  }
+
   hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
     if (!this.ddbParser?.ddbData) return false;
 

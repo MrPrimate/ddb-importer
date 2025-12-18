@@ -941,6 +941,7 @@ export default class DDBEnricherFactoryMixin {
         [activity.data._id]: activity.data,
       },
       effects: [],
+      advancements: [],
     };
   }
 
@@ -948,6 +949,7 @@ export default class DDBEnricherFactoryMixin {
     const result = {
       activities: {},
       effects: [],
+      advancements: [],
     };
     if (!this.ddbParser?.ddbCharacter) return result;
     const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
@@ -980,6 +982,7 @@ export default class DDBEnricherFactoryMixin {
         }
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
+      result.advancements.push(...(foundry.utils.deepClone(feature.system.advancement)));
     });
     this.customActionFeatures[name] = actionFeatures;
     logger.debug(`Additional Activities from Action ${name}`, { result });
@@ -1001,6 +1004,7 @@ export default class DDBEnricherFactoryMixin {
       const activityData = {
         activities: {},
         effects: [],
+        advancements: [],
       };
 
       if (duplicate) {
@@ -1013,10 +1017,12 @@ export default class DDBEnricherFactoryMixin {
         const result = await this._getActivityDataFromAction(actionActivity, i);
         activityData.activities = result.activities;
         activityData.effects = result.effects;
+        activityData.advancements = result.advancements;
       } else {
         const result = this._getActivityDataFromDDBParent(activityHint, i, ddbParent);
         activityData.activities = result.activities;
         activityData.effects = result.effects;
+        activityData.advancements = result.advancements;
       }
 
       for (let activity of Object.values(activityData.activities)) {
@@ -1030,6 +1036,12 @@ export default class DDBEnricherFactoryMixin {
       }
       if (activityData.effects) {
         this.data.effects.push(...activityData.effects);
+      }
+      if (activityData.advancements) {
+        if (!Array.isArray(this.data.system.advancement)) {
+          this.data.system.advancement = [];
+        }
+        this.data.system.advancement.push(...activityData.advancements);
       }
     }
   }
@@ -1047,6 +1059,7 @@ export default class DDBEnricherFactoryMixin {
         const activityData = {
           activities: {},
           effects: [],
+          advancements: [],
           nameData: {},
         };
 
@@ -1091,7 +1104,11 @@ export default class DDBEnricherFactoryMixin {
           }
           activityData.nameData[newKey] = Array.from(new Set([featureName, activityData.activities[newKey].name]));
         }
-        activityData.effects.push(...(foundry.utils.deepClone(feature.effects)));
+        activityData.effects.push(...foundry.utils.deepClone(feature.effects));
+
+        if (feature.system.advancement) {
+          activityData.advancements.push(...foundry.utils.deepClone(feature.system.advancement));
+        }
 
         // console.warn(`Final activity map`,{
         //   activityData
@@ -1103,6 +1120,12 @@ export default class DDBEnricherFactoryMixin {
         }
         if (activityData.effects) {
           this.data.effects.push(...activityData.effects);
+        }
+        if (activityData.advancements) {
+          if (!Array.isArray(this.data.system.advancement)) {
+            this.data.system.advancement = [];
+          }
+          this.data.system.advancement.push(...activityData.advancements);
         }
 
         this.data.effects = this.data.effects.filter((v, i, a) => {
@@ -1163,6 +1186,30 @@ export default class DDBEnricherFactoryMixin {
       logger.debug(`Adding custom additional activities for ${this.ddbParser.originalName}`);
       await this._addActivityHintAdditionalActivities(ddbParent);
     }
+  }
+
+  findActionParentFromFeat() {
+    if (this.isCustomAction) return null;
+    if (!this.ddbParser.isAction) return null;
+
+    const componentId = this.ddbParser.ddbDefinition.componentId;
+    const componentTypeId = this.ddbParser.ddbDefinition.componentTypeId;
+
+    const feats = this.ddbParser.ddbCharacter.source.ddb.character.feats;
+
+    let feat = feats.find((f) =>
+      f.definition.id === componentId
+      && f.definition.entityTypeId === componentTypeId,
+    );
+
+    if (feat) return feat;
+
+    return null;
+  }
+
+  findActionParent(type) {
+    if (type === "feat" || this.enricherType === "feat") return this.findActionParentFromFeat();
+    return null;
   }
 
   getFeatureActionsName({ type = null } = {}) {
