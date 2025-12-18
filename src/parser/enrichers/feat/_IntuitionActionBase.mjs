@@ -3,6 +3,17 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class _IntuitionActionBase extends DDBEnricherData {
 
+  get activity() {
+    return {
+      data: {
+        roll: {
+          name: "Roll bonus",
+          formula: `@scale.${this.parentIdentifier}.die`,
+        },
+      },
+    };
+  }
+
   get effects() {
     return [
       {
