@@ -33,11 +33,14 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
     "Ritual Caster (": "Ritual Caster",
     "Strike of the Giants (": "Strike of the Giants",
     "Strike of the Giants:": "Strike of the Giants",
+    "Greater Mark of ": "Greater Mark of",
   };
 
   ENRICHERS = {
     None: GenericEnrichers.None,
     Generic: FeatEnrichers.Generic,
+    "Greater Mark of": FeatEnrichers._GreaterMarkOf,
+    "Greater Aberrant Mark": FeatEnrichers._GreaterMarkOf,
     "Epic Boon: Choose an Epic Boon feat": FeatEnrichers.EpicBoon,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
     "Interception": GenericEnrichers.FightingStyleInterception,

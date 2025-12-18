@@ -11,6 +11,7 @@ export { default as Charger } from "./Charger.mjs";
 export { default as Chef } from "./Chef.mjs";
 export { default as CrossbowExpert } from "./CrossbowExpert.mjs";
 export { default as Crusher } from "./Crusher.mjs";
+export { default as CunningIntuition } from "./CunningIntuition.mjs";
 export { default as DeductiveIntuition } from "./DeductiveIntuition.mjs";
 export { default as DefensiveDuelist } from "./DefensiveDuelist.mjs";
 export { default as DualWielder } from "./DualWielder.mjs";
@@ -53,5 +54,6 @@ export { default as WarCaster } from "./WarCaster.mjs";
 export { default as WardersIntuition } from "./WardersIntuition.mjs";
 export { default as WildIntuition } from "./WildIntuition.mjs";
 export { default as WindwrightsIntuition } from "./WindwrightsIntuition.mjs";
+export { default as _GreaterMarkOf } from "./_GreaterMarkOf.mjs";
 export { default as _IntuitionActionBase } from "./_IntuitionActionBase.mjs";
 
