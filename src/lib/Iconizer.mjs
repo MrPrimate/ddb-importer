@@ -213,6 +213,7 @@ export default class Iconizer {
       srdIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"),
       ddbSpell: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons"),
       ddbGenericItem: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons"),
+      excludeCheck: true,
     };
   }
 
@@ -240,6 +241,7 @@ export default class Iconizer {
     this.documents = await Promise.all(this.documents.map((item) => {
       // logger.debug(item.name);
       // logger.debug(item.flags.ddbimporter.dndbeyond);
+      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") === true) return item;
       if (DICTIONARY.types.inventory.includes(item.type)) {
         if (utils.isDefaultOrPlaceholderImage(item.img)) {
           const imageMatch = itemImages.find((m) => m.name == item.name && m.type == item.type);
@@ -336,26 +338,25 @@ export default class Iconizer {
     await loadIconMaps(itemTypes);
 
     this.documents = this.documents.map((item) => {
-      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") !== true) {
-        // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
-        // if we have a monster lets check the monster dict first
-        if (this.isMonster && !["spell"].includes(item.type)) {
-          const monsterPath = getIconPath(item, "monster", this.monsterName);
-          if (monsterPath) {
-            item.img = monsterPath;
-            return item;
-          }
+      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") === true) return item;
+      // logger.debug(`Inbuilt icon match started for ${item.name} [${item.type}]`);
+      // if we have a monster lets check the monster dict first
+      if (this.isMonster && !["spell"].includes(item.type)) {
+        const monsterPath = getIconPath(item, "monster", this.monsterName);
+        if (monsterPath) {
+          item.img = monsterPath;
+          return item;
         }
-        const pathMatched = getIconPath(item, item.type);
-        if (pathMatched) {
-          item.img = pathMatched;
-          if (item.effects) {
-            item.effects.forEach((effect) => {
-              if (!effect.img || effect.img === "") {
-                effect.img = pathMatched;
-              }
-            });
-          }
+      }
+      const pathMatched = getIconPath(item, item.type);
+      if (pathMatched) {
+        item.img = pathMatched;
+        if (item.effects) {
+          item.effects.forEach((effect) => {
+            if (!effect.img || effect.img === "") {
+              effect.img = pathMatched;
+            }
+          });
         }
       }
       return item;
@@ -451,7 +452,7 @@ export default class Iconizer {
 
   _retainExistingIcons() {
     this.documents.map((item) => {
-      if (item.flags.ddbimporter?.ignoreIcon) {
+      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") && foundry.utils.hasProperty(item, "flags.ddbimporter.matchedImg")) {
         logger.debug(`Retaining icon for ${item.name} to ${item.flags.ddbimporter.matchedImg}`);
         item.img = item.flags.ddbimporter.matchedImg;
       }

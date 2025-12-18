@@ -77,15 +77,28 @@ export default class DDBRace {
   #getFullName() {
     const baseName = this.race.fullName ?? this.race.name;
     const lineageName = this.lineageName;
+    const legacyName = this.isMuncher && this.isLegacy && this.data.system.source.book
+      ? ` (${this.data.system.source.book})`
+      : "";
     if (lineageName) {
       if (lineageName.includes(baseName)) {
-        return lineageName;
+        return `${lineageName}${legacyName}`;
       } else {
-        return `${baseName} (${lineageName})`;
+        return `${baseName} (${lineageName})${legacyName}`;
       }
     }
-    return baseName;
+    return `${baseName}${legacyName}`;
   }
+
+  isLineage = false;
+
+  spellLinks = [];
+
+  featLink = {
+    advancementId: null,
+    name: null,
+    uuid: null,
+  };
 
   constructor({ ddbData, race, compendiumRacialTraits, isMuncher } = {}) {
     this.ddbData = ddbData;
@@ -98,17 +111,16 @@ export default class DDBRace {
     this.#fixups();
     this.compendiumRacialTraits = compendiumRacialTraits;
     this._generateDataStub();
+    this.data.system.source = DDBSources.parseSource(this.race);
+
     this.type = "humanoid";
     this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");
 
-    this.isLineage = false;
     this.lineageTrait = this.#getLineageTrait();
     this.fullName = this.#getFullName();
-
     this.data.name = utils.nameString(this.fullName);
     this.data.system.description.value += `${this.race.description}\n\n`;
 
-    this.isLegacy = this.race.isLegacy;
     this.baseRaceName = this.race.baseRaceName;
     this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
     this.isSubRace = this.race.isSubRace || this.groupName !== this.fullName;
@@ -118,7 +130,6 @@ export default class DDBRace {
       sourceIds.includes(ddbSource.id)
       && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
     );
-
 
     this.data.flags.ddbimporter = {
       type: "race",
@@ -149,8 +160,6 @@ export default class DDBRace {
       this.data.flags.ddbimporter['moreDetailsUrl'] = this.race.moreDetailsUrl;
     }
 
-    this.data.system.source = DDBSources.parseSource(this.race);
-
     if (this.race.isSubRace && this.race.baseRaceName) this.data.system.requirements = this.race.baseRaceName;
 
     this.#addWeightSpeeds();
@@ -163,14 +172,6 @@ export default class DDBRace {
       type: "race",
       isMuncher: this.isMuncher,
     });
-
-    this.featLink = {
-      advancementId: null,
-      name: null,
-      uuid: null,
-    };
-
-    this.spellLinks = [];
 
     // compendium
     this._compendiums = {
@@ -246,6 +247,10 @@ export default class DDBRace {
       if (!this.data.img) {
         this.data.img = largeAvatarUrl;
       }
+    }
+
+    if (this.data.img) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.keepIcon", true);
     }
 
     const image = (avatarUrl) ? `<img src="${avatarUrl}">\n\n` : (largeAvatarUrl) ? `<img src="${largeAvatarUrl}">\n\n` : "";
@@ -664,6 +669,8 @@ export default class DDBRace {
 
   traitAdvancements = [];
 
+  traitAdvancementUuids = new Set();
+
   async #generateTraitAdvancementFromCompendiumMatch(trait) {
     const traitMatch = this.#getTraitCompendiumMatch(trait);
 
@@ -672,6 +679,10 @@ export default class DDBRace {
     const shouldInclude = !DDBRace.EXCLUDED_FEATURE_ADVANCEMENTS.includes(trait.name)
       || (this.is2014 && DDBRace.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(trait.name));
     if (!shouldInclude) return;
+
+    if (this.traitAdvancementUuids.has(traitMatch.uuid)) return;
+    this.traitAdvancementUuids.add(traitMatch.uuid);
+
     const requiredLevel = trait.requiredLevel ?? 0;
     const levelAdvancement = this.traitAdvancements.findIndex((advancement) => advancement.level === requiredLevel);
 
@@ -950,18 +961,13 @@ export default class DDBRace {
 
     const traitHandlerOptions = {
       chrisPremades: true,
-      matchFlags: ["fullRaceName", "groupName", "isLineage", "is2014"],
+      matchFlags: ["baseRaceId", "fullRaceName", "groupName", "isLineage", "is2014", "isLegacy"],
       useCompendiumFolders: true,
       deleteBeforeUpdate: false,
       indexFilter: {
         fields: [
           "name",
-          "flags.ddbimporter.is2014",
-          "flags.ddbimporter.is2024",
-          "flags.ddbimporter.dndbeyond.alternativeNames",
-          "flags.ddbimporter.fullRaceName",
-          "flags.ddbimporter.groupName",
-          "flags.ddbimporter.isLineage",
+          "flags.ddbimporter",
         ],
       },
     };

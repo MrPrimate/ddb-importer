@@ -282,6 +282,7 @@ export default class DDBCharacterImporter {
         srdIcons: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons"),
         ddbSpell: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-spell-icons"),
         ddbGenericItem: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-generic-item-icons"),
+        excludeCheck: true,
       };
 
       items = await Iconizer.updateIcons({

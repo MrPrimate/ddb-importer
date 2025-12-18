@@ -1,5 +1,9 @@
 # Next Up
 
+- In the Expanded Rules there are legacy and non-legacy versions of species such as Aarakocra. Both will now be imported. Legacy versions will have their book code added to their name.
+- Species could get double advancements.
+- Some species such as Changling would have their art over ridden.
+
 # 6.6.32
 
 - Species munching has been updated to reduce duplication of features and species traits placed in the root. You will need to remove or clear your existing compendium.

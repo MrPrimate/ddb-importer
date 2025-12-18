@@ -408,6 +408,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Bestial Instincts",
     "Purple Dragon Rook",
     "Variant Tiefling",
+    "Lorwyn-Shadowmoor Origin",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
