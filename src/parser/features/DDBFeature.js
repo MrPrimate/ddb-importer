@@ -267,7 +267,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     // }
 
     const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
-      feats.some((f) => m.componentTypeId == f.definition.entityTypeId),
+      feats.some((f) => m.componentId == f.definition.id && m.componentTypeId == f.definition.entityTypeId),
     );
 
     if (modifiers.length === 0) return;
@@ -293,49 +293,47 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
 
+  _addFeatAbilityScoreAdvancement(update, advancement) {
+    advancement.updateSource(update);
+    if (!this.isMuncher) {
+      const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
+        m.componentId == this.ddbDefinition.id
+        && m.componentTypeId == this.ddbDefinition.entityTypeId,
+      );
+
+      if (modifiers.length > 0) {
+        const assignments = {};
+        DICTIONARY.actor.abilities.forEach((ability) => {
+          const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+          if (count > 0) assignments[ability.value] = count;
+        });
+
+        advancement.updateSource({
+          value: {
+            assignments,
+          },
+        });
+      }
+    }
+
+    this.data.system.advancement.push(advancement.toObject());
+  }
+
+
   generateFeatAbilityScoreAdvancement() {
-    // const advancements = [];
-    // const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
-    //   m.componentTypeId == this.ddbDefinition.entityTypeId
-    //   && m.subType
-    //   && m.subType.endsWith("intelligence-score")
-    //   && m.type === "bonus",
-    // );
-
-    // if (modifiers.length === 0) return;
-
-    // // KNOWN_ISSUE_4_0: revist this to use the race/species advancement detection.
-    // const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-    // advancement.updateSource({ configuration: { points: 3 }, level: 0, value: { type: "asi" } });
-
-    // const assignments = {};
-    // DICTIONARY.actor.abilities.forEach((ability) => {
-    //   const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
-    //   if (count > 0) assignments[ability.value] = count;
-    // });
-
-    // advancement.updateSource({
-    //   value: {
-    //     assignments,
-    //   },
-    // });
-    // advancements.push(advancement.toObject());
-
-    // this.data.system.advancement = this.data.system.advancement.concat(advancements);
-
     const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-    const update = advancement.configuration.toObject();
-    update.points = 1;
-    update.cap = 1;
-    update.level = 0;
-    update.value = { type: "asi" };
+    const configuration = advancement.configuration.toObject();
+    configuration.points = 1;
+    configuration.cap = 1;
+    configuration.level = 0;
+    configuration.value = { type: "asi" };
 
     const maxRegex = /to a maximum of (\d{2})/i;
     const maxMatch = this.ddbDefinition.description.match(maxRegex);
     if (maxMatch) {
       const capValue = parseInt(maxMatch[1]);
       if (Number.isInteger(capValue)) {
-        update.max = capValue;
+        configuration.max = capValue;
       }
     }
 
@@ -356,8 +354,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     const anyMatch = this.ddbDefinition.description.match(anyRegex);
 
     if (anyMatch) {
-      advancement.updateSource({ configuration: update, hint });
-      this.data.system.advancement.push(advancement.toObject());
+      this._addFeatAbilityScoreAdvancement({ configuration, hint }, advancement);
       return;
     }
 
@@ -378,7 +375,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       hasMatch = true;
       const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].toLowerCase());
       if (ability) {
-        update.fixed[ability.value] = parseInt(fixedMatch[2]);
+        configuration.fixed[ability.value] = parseInt(fixedMatch[2]);
       }
     }
 
@@ -398,17 +395,13 @@ export default class DDBFeature extends DDBFeatureMixin {
       for (const split of splits) {
         const ability = DICTIONARY.actor.abilities.find((a) => a.long === split.toLowerCase());
         if (ability) {
-          update.fixed[ability.value] = 1;
+          configuration.fixed[ability.value] = 1;
         }
       }
     }
 
-    // TO DO - add chosen ability
-
-    if (hasMatch) {
-      advancement.updateSource({ configuration: update, hint });
-      this.data.system.advancement.push(advancement.toObject());
-    }
+    if (!hasMatch) return;
+    this._addFeatAbilityScoreAdvancement({ configuration, hint }, advancement);
 
   }
 
