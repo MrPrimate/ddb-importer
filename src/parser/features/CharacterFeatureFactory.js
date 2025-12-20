@@ -516,6 +516,8 @@ export default class CharacterFeatureFactory {
       // console.warn("Generating background advancements", ddbFeature);
       await ddbFeature.generateAdvancements();
       await ddbFeature.buildBackgroundFeatAdvancements();
+    } else if (type === "feat") {
+      ddbFeature.generateFeatAbilityScoreAdvancement();
     }
     const choiceFeatures = ddbFeature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)

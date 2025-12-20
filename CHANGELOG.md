@@ -4,6 +4,7 @@
 - Species could get double advancements.
 - Some species such as Changling would have their art over ridden.
 - Dragonmark feat parsing improvements.
+- Feats now generate ability score advancements.
 
 # 6.6.32
 

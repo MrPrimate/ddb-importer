@@ -292,6 +292,126 @@ export default class DDBFeature extends DDBFeatureMixin {
     this.data.system.advancement = this.data.system.advancement.concat(advancements);
   }
 
+
+  generateFeatAbilityScoreAdvancement() {
+    // const advancements = [];
+    // const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
+    //   m.componentTypeId == this.ddbDefinition.entityTypeId
+    //   && m.subType
+    //   && m.subType.endsWith("intelligence-score")
+    //   && m.type === "bonus",
+    // );
+
+    // if (modifiers.length === 0) return;
+
+    // // KNOWN_ISSUE_4_0: revist this to use the race/species advancement detection.
+    // const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+    // advancement.updateSource({ configuration: { points: 3 }, level: 0, value: { type: "asi" } });
+
+    // const assignments = {};
+    // DICTIONARY.actor.abilities.forEach((ability) => {
+    //   const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+    //   if (count > 0) assignments[ability.value] = count;
+    // });
+
+    // advancement.updateSource({
+    //   value: {
+    //     assignments,
+    //   },
+    // });
+    // advancements.push(advancement.toObject());
+
+    // this.data.system.advancement = this.data.system.advancement.concat(advancements);
+
+    const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+    const update = advancement.configuration.toObject();
+    update.points = 1;
+    update.cap = 1;
+    update.level = 0;
+    update.value = { type: "asi" };
+
+    const maxRegex = /to a maximum of (\d{2})/i;
+    const maxMatch = this.ddbDefinition.description.match(maxRegex);
+    if (maxMatch) {
+      const capValue = parseInt(maxMatch[1]);
+      if (Number.isInteger(capValue)) {
+        update.max = capValue;
+      }
+    }
+
+    let hint = "";
+    const hintRegex = /(?:Increase|Choose| Increase the) (\w+) ability (.+?) to a maximum of (\d{2})\./i;
+    const hintMatch = this.ddbDefinition.description.match(hintRegex);
+    if (hintMatch) {
+      hint = hintMatch[0];
+    }
+    // ANY matches
+    // Ability Score Increase. Choose one ability in which you lack saving throw proficiency. Increase the chosen ability score by 1, to a maximum of 20.
+    // Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 20.
+    // Choose one ability score. You gain the following benefits:
+    //   Increase the chosen ability score by 1, to a maximum of 20.
+    // Ability Score Increase. Increase an ability score of your choice by 1, to a maximum of 20.
+
+    const anyRegex = /choose one ability|increase (one|a|an) ability score of your choice/i;
+    const anyMatch = this.ddbDefinition.description.match(anyRegex);
+
+    if (anyMatch) {
+      advancement.updateSource({ configuration: update, hint });
+      this.data.system.advancement.push(advancement.toObject());
+      return;
+    }
+
+    let hasMatch = false;
+
+    const hint2Regex = /(?:Increase your) (.+?) to a maximum of (\d{2})\./i;
+    const hint2Match = this.ddbDefinition.description.match(hint2Regex);
+    if (hint2Match) {
+      hint = hint2Match[0];
+    }
+
+    // Ability Score Increase. Increase your Charisma score by 1, to a maximum of 20.
+    // Increase your Charisma score by 1, to a maximum of 20.
+
+    const fixedRegex = /Increase your (\w+) score by (\d)/i;
+    const fixedMatch = this.ddbDefinition.description.match(fixedRegex);
+    if (fixedMatch) {
+      hasMatch = true;
+      const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].toLowerCase());
+      if (ability) {
+        update.fixed[ability.value] = parseInt(fixedMatch[2]);
+      }
+    }
+
+    // locked
+    // 2024
+    // Ability Score Increase. Increase your Intelligence, Wisdom, or Charisma score by 1, to a maximum of 20.
+    // Ability Score Increase. Increase your Constitution or Strength score by 1, to a maximum of 20.
+    // 2014
+    // Increase your Strength or Dexterity score by 1, to a maximum of 20.
+    // Increase your Strength, Constitution, or Charisma score by 1, to a maximum of 20.
+
+    const lockedRegex = /increase your (.*?) score/i;
+    const lockedMatches = this.ddbDefinition.description.match(lockedRegex);
+    if (lockedMatches) {
+      const splits = lockedMatches[1].replaceAll(" or ", ", ").split(", ");
+      hasMatch = true;
+      for (const split of splits) {
+        const ability = DICTIONARY.actor.abilities.find((a) => a.long === split.toLowerCase());
+        if (ability) {
+          update.fixed[ability.value] = 1;
+        }
+      }
+    }
+
+    // TO DO - add chosen ability
+
+    if (hasMatch) {
+      advancement.updateSource({ configuration: update, hint });
+      this.data.system.advancement.push(advancement.toObject());
+    }
+
+  }
+
   _generateSkillAdvancements() {
     const mods = this.advancementHelper.noMods
       ? []
