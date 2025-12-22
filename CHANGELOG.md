@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.33
+
 _Species Special!_
 
 - In the Expanded Rules there are legacy and non-legacy versions of species such as Aarakocra. Both will now be imported. Legacy versions will have their book code added to their name.
