@@ -1338,6 +1338,16 @@ export default class AdvancementHelper {
     const languagesRegex = /Languages:\s(.*?)($|\.$|\w+:)/im;
     const languagesMatch = textDescription.match(languagesRegex);
 
+    // Your character knows at least three languages: Common plus two languages you roll or choose from the Standard Languages table
+    const standardLanguagesRegex = /Your character knows at least three languages:\sCommon plus two languages you roll or choose from the Standard Languages table/im;
+    const standardLanguagesMatch = textDescription.match(standardLanguagesRegex);
+    if (standardLanguagesMatch) {
+      parsedLanguages.grants = ["languages:standard:common"];
+      parsedLanguages.number = 2;
+      parsedLanguages.choices = ["standard:*"];
+      return parsedLanguages;
+    }
+
     // Languages: Giant and one other language of your choice
     // Languages: Any one of your choice
     // Languages: one of your choice

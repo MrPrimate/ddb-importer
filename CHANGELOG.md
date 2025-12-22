@@ -1,5 +1,7 @@
 # Next Up
 
+_Species Special!_
+
 - In the Expanded Rules there are legacy and non-legacy versions of species such as Aarakocra. Both will now be imported. Legacy versions will have their book code added to their name.
 - Species could get double advancements.
 - Some species such as Changling would have their art over ridden.
@@ -7,6 +9,7 @@
 - Feats now generate ability score advancements.
 - Species will now generate choice advancement for species like Dragonborn and Goliaths.
 - Some features like those on homebrew species would come in as an Unknown rather than Homebrew source.
+- 2024 Species imported via the muncher would not have their language selection set correctly.
 
 # 6.6.32
 
