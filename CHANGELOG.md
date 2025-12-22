@@ -6,6 +6,7 @@
 - Dragonmark feat parsing improvements.
 - Feats now generate ability score advancements.
 - Species will now generate choice advancement for species like Dragonborn and Goliaths.
+- Some features like those on homebrew species would come in as an Unknown rather than Homebrew source.
 
 # 6.6.32
 

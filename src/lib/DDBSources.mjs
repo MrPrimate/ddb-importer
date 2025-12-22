@@ -187,7 +187,7 @@ export default class DDBSources {
       : null;
 
     if (!latestSource) return {
-      book: "",
+      book: "Homebrew",
       page: "",
       license: "",
       custom: "",
