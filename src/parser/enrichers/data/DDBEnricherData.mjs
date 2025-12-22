@@ -434,4 +434,8 @@ export default class DDBEnricherData {
     return false;
   }
 
+  get choiceComponentFeatureName() {
+    return null;
+  }
+
 }

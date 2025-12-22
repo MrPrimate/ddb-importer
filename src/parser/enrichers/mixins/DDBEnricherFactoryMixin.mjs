@@ -243,6 +243,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get choiceComponentFeatureName() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.choiceComponentFeatureName;
+    } else {
+      return null;
+    }
+  }
+
   get ddbMacroDescription() {
     const data = this.ddbMacroDescriptionData;
     if (!data) return "";

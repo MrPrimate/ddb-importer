@@ -5,6 +5,7 @@
 - Some species such as Changling would have their art over ridden.
 - Dragonmark feat parsing improvements.
 - Feats now generate ability score advancements.
+- Species will now generate choice advancement for species like Dragonborn and Goliaths.
 
 # 6.6.32
 

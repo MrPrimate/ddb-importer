@@ -920,8 +920,8 @@ export default class CharacterFeatureFactory {
       await traitCompendiumFolders.loadCompendium("traits");
 
       const traitFeatures = featTypeDocs.filter((doc) =>
-        ["race", "trait", "species"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
-        && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
+        ["race", "trait", "species"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type")),
+        // && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
       ).map((doc) => {
         if (!doc.system.advancement) return doc;
         for (const advancement of doc.system.advancement) {

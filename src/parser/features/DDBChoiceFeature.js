@@ -237,15 +237,20 @@ export default class DDBChoiceFeature extends DDBFeature {
         choiceFeature,
         choice,
         ddbFeature,
+        choices,
       });
       // console.warn(`Choice generation ${choiceFeature.data.name}`, {
       //   data: deepClone(choiceFeature.data),
       // });
-      if (DDBChoiceFeature.DISCARD_CHOICE_FEATURE.includes(ddbFeature.originalName)) continue;
+      if (DDBChoiceFeature.DISCARD_CHOICE_FEATURE.includes(ddbFeature.originalName)) {
+        logger.debug(`Discarding Choice Feature ${choiceFeature.data.name} for ${ddbFeature.originalName}`);
+        continue;
+      }
 
       if (choices.length === 1
         && !DDBChoiceFeature.KEEP_CHOICE_FEATURE.includes(ddbFeature.originalName)
       ) {
+        logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into parent feature ${ddbFeature.originalName}`);
         ddbFeature.data.name = choiceFeature.data.name;
         if ((Object.keys(ddbFeature.data.system.activities).length === 0
           && !DDBChoiceFeature.NO_CHOICE_ACTIVITY.some((a) => ddbFeature.originalName.startsWith(a)))
@@ -263,7 +268,11 @@ export default class DDBChoiceFeature extends DDBFeature {
         ) {
           ddbFeature.data.system.uses = choiceFeature.data.system.uses;
         }
+        if (foundry.utils.hasProperty(choiceFeature.data, "flags.ddbimporter.dndbeyond.choice")) {
+          ddbFeature.data.flags.ddbimporter.dndbeyond.choice = choiceFeature.data.flags.ddbimporter.dndbeyond.choice;
+        }
       } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {
+        logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into companion parent feature ${ddbFeature.originalName}`);
         // eslint-disable-next-line no-unused-vars
         for (const [key, activity] of Object.entries(ddbFeature.data.system.activities)) {
           if (activity.type !== "summon") continue;

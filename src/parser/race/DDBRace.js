@@ -12,6 +12,8 @@ export default class DDBRace {
 
   static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [];
 
+  static FORCE_ADVANCEMENT_REPLACE = [];
+
   static FORCE_SUBRACE_2024 = [
     "Elf",
     "Gnome",
@@ -100,12 +102,21 @@ export default class DDBRace {
     uuid: null,
   };
 
+  choiceMap = new Map();
+
+  configChoices = {};
+
+  traitAdvancements = [];
+
+  traitAdvancementUuids = new Set();
+
   constructor({ ddbData, race, compendiumRacialTraits, isMuncher } = {}) {
     this.ddbData = ddbData;
     this.isMuncher = isMuncher ?? false;
     this.race = race;
     this.is2014 = this.race.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
+    this.version = this.is2014 ? "2014" : "2024";
 
     this.isLegacy = this.race.isLegacy;
     this.#fixups();
@@ -181,12 +192,7 @@ export default class DDBRace {
       traits: {
         fields: [
           "name",
-          "flags.ddbimporter.fullRaceName",
-          "flags.ddbimporter.groupName",
-          "flags.ddbimporter.isLineage",
-          "flags.ddbimporter.featureMeta",
-          "flags.ddbimporter.baseName",
-          "flags.ddbimporter.entityRaceId",
+          "flags.ddbimporter",
         ],
       },
     };
@@ -195,6 +201,26 @@ export default class DDBRace {
       traits: {},
     };
 
+  }
+
+  getCompendiumIxByFlags(compendiums, flags, findAll = false) {
+    for (const compendium of compendiums) {
+      if (!this._compendiums[compendium]) {
+        continue;
+      }
+      logger.verbose(`Searching for trait with flags in ${compendium}:`, flags);
+
+      const filterFunction = ((i) => {
+        return Object.entries(flags).every(([key, value]) => {
+          return foundry.utils.getProperty(i, `flags.ddbimporter.${key}`) === value;
+        });
+      });
+      const match = findAll
+        ? this._compendiums[compendium].index.filter(filterFunction)
+        : this._compendiums[compendium].index.find(filterFunction);
+      if (match) return match;
+    }
+    return null;
   }
 
   async _buildCompendiumIndex(type, indexFilter = {}) {
@@ -625,7 +651,300 @@ export default class DDBRace {
     // advancement.updateSource(update);
   }
 
+  // eslint-disable-next-line complexity
+  async #generateTraitChoiceAdvancement(trait, choices) {
+    logger.debug(`Generating choice trait advancement for trait ${trait.name} with ${choices.length} choices`);
+    const keys = new Set();
+    const uuids = new Set();
+    const configChoices = {};
+    let lowestLevel = 0;
+
+    for (const choice of choices) {
+      // build a list of options for each choice
+      const choiceRegex = /level (\d+) /i;
+      const choiceLevel = (choice.label ?? "").match(choiceRegex);
+      const level = choiceLevel && choiceLevel.length > 1
+        ? parseInt(choiceLevel[1])
+        : (trait.requiredLevel ?? 0);
+      const currentCount = parseInt(configChoices[level]?.count ?? 0);
+
+      if (lowestLevel === 0) lowestLevel = level;
+      if (level < lowestLevel) lowestLevel = level;
+
+      configChoices[level] = { count: currentCount + 1, replacement: false };
+
+      const key = `${choice.componentTypeId}-${choice.type}-${trait.requiredLevel ?? 0}-${level}`;
+      const choiceDefinition = this.ddbData.character.choices.choiceDefinitions.find((def) => def.id === `${choice.componentTypeId}-${choice.type}`);
+      if (!choiceDefinition) {
+        logger.warn(`Could not find choice definition for ${key}`);
+        continue;
+      }
+      const choiceOptions = choiceDefinition.options
+        .filter((o) => choice.optionIds.includes(o.id));
+
+      if (choiceOptions.length === 0) {
+        logger.warn(`Could not find choice options for ${key} with option Ids: ${choice.optionIds.join(", ")}`, {
+          this: this, trait,
+          choice,
+          choiceDefinition,
+          key,
+        });
+        continue;
+      }
+      keys.add(key);
+
+      const traits = [];
+
+      for (const option of choiceOptions) {
+
+        const compendiumFeature = this.getCompendiumIxByFlags(["traits"], { // action feature
+          componentId: option.id,
+          is2014: this.is2014,
+          is2024: this.is2024,
+          "dndbeyond.entityRaceId": this.race.entityRaceId,
+          // classId: this.ddbParentClassDefinition.id,
+        })
+        ?? this.getCompendiumIxByFlags(["traits"], { // choice feature
+          "id": option.optionComponentId,
+          "isChoiceFeature": true,
+          "dndbeyond.entityRaceId": this.race.entityRaceId,
+          "dndbeyond.choice.optionId": option.id,
+        }) ?? this.getCompendiumIxByFlags(["feats"], { // feat choice
+          id: option.id,
+        });
+
+        if (compendiumFeature) {
+          traits.push(compendiumFeature);
+          uuids.add(compendiumFeature.uuid);
+        } else if (this.isMuncher && this.addToCompendium) {
+          logger.info(`Could not find choice trait option id ${option.id} (${option.label}) for trait ${trait.name}`, {
+            this: this,
+            trait,
+            option,
+          });
+        }
+      }
+
+      this.choiceMap.set(key, traits);
+      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.race.${this.name}${this.version}.trait.${trait.name}.compendiumChoices`, traits);
+    }
+
+    if (uuids.size === 0) {
+      logger.warn(`No valid traits found for advancement of trait ${trait.name}, you can ignore this message unless you think this trait should offer an advancement choice.`);
+      return;
+    }
+    if (Object.keys(configChoices).length === 0) {
+      logger.warn(`No valid choices found for advancement of trait ${trait.name}, you can ignore this message unless you think this trait should offer an advancement choice.`);
+      return;
+    }
+
+    const forceReplace = DDBRace.FORCE_ADVANCEMENT_REPLACE.includes(trait.name);
+    this.configChoices[trait.name] = AdvancementHelper.getChoiceReplacements(trait.description ?? trait.snippet ?? "", lowestLevel, configChoices, forceReplace);
+    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+
+    advancement.updateSource({
+      title: utils.nameString(trait.name),
+      hint: trait.snippet ?? trait.description ?? "",
+      configuration: {
+        restriction: {
+          type: "race",
+        },
+        choices: configChoices,
+        type: "feat",
+        pool: Array.from(uuids).map((f) => {
+          return { uuid: f };
+        }),
+        allowDrops: true,
+      },
+      icons: "icons/magic/symbols/cog-orange-red.webp",
+    });
+
+    // console.warn(`Generated choice advancement for feature ${feature.name}:`, {
+    //   advancement,
+    //   this: this,
+    //   feature,
+    //   choices,
+    //   uuids,
+    // });
+
+    // eslint-disable-next-line no-warning-comments
+    // TODO: handle chosen advancements on non muncher races
+    this.data.system.advancement.push(advancement.toObject());
+
+  }
+
+  // eslint-disable-next-line complexity
+  async #generateTraitOptionAdvancement(trait, options) {
+    logger.debug(`Generating choice trait option advancement for trait ${trait.name} with ${options.length} options`);
+
+    const uuids = new Set();
+    const configChoices = {};
+    let lowestLevel = 0;
+
+    for (const option of options) {
+      // {
+      //   "componentId": 13856091,
+      //   "componentTypeId": 1960452172,
+      //   "definition": {
+      //     "id": 3727501,
+      //     "entityTypeId": 306912077,
+      //     "name": "Breath Weapon (Cold)",
+      //     "description": "<p>When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy in either a 15-foot Cone or a 30-foot Line that is 5 feet wide (choose the shape each time). Each creature in that area must make a Dexterity saving throw (DC 8 plus your Constitution modifier and Proficiency Bonus). On a failed save, a creature takes 1d10 Cold damage. On a successful save, a creature takes half as much damage. This damage increases by 1d10 when you reach character levels 5 (2d10), 11 (3d10), and 17 (4d10).</p>\r\n<p>You can use this Breath Weapon a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.</p>",
+      //     "snippet": "When you take the Attack action on your turn, you can replace one attack with a breath weapon that is a 15-ft. Cone or a 30-ft. Line that’s 5 ft. wide (choose the shape each time). Each creature must make a DC {{savedc:con}} Dex. saving throw taking {{1+((1+characterlevel)/6)@rounddown}}<strong>d10</strong> Cold damage on a failed save or half as much damage on a success.",
+      //     "activation": null,
+      //     "sourceId": null,
+      //     "sourcePageNumber": 187,
+      //     "creatureRules": [],
+      //     "spellListIds": []
+      //   }
+      // },
+      const traits = [];
+
+      const matchFlags = {
+        "id": option.componentId,
+        "isChoiceFeature": true,
+        "dndbeyond.entityRaceId": this.race.entityRaceId,
+        "dndbeyond.choice.parentName": trait.name,
+        "entityTypeId": option.componentTypeId,
+        "dndbeyond.choice.entityTypeId": option.definition.entityTypeId,
+      };
+
+      const compendiumFeatures = this.getCompendiumIxByFlags(["traits"], matchFlags, true);
+
+      if (compendiumFeatures) {
+        traits.push(...compendiumFeatures);
+        for (const compendiumFeature of compendiumFeatures) {
+          uuids.add(compendiumFeature.uuid);
+        }
+      } else if (this.isMuncher && this.addToCompendium) {
+        logger.verbose(`Could not find choice trait compendium options for trait ${trait.name}`, {
+          this: this,
+          trait,
+          option,
+        });
+      }
+
+      // build a list of options for each choice
+      const level = trait.requiredLevel ?? 0;
+      configChoices[level] = { count: 1, replacement: false };
+
+      this.choiceMap.set(`${option.componentId}-${option.componentTypeId}`, traits);
+      foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.race.${this.name}${this.version}.trait.${trait.name}.compendiumOptions`, traits);
+    }
+
+    if (uuids.size === 0) {
+      logger.warn(`No valid traits options found for advancement of trait ${trait.name}, you can ignore this message unless you think this trait should offer an advancement choice.`);
+      return;
+    }
+    if (Object.keys(configChoices).length === 0) {
+      logger.warn(`No valid options found for advancement of trait ${trait.name}, you can ignore this message unless you think this trait should offer an advancement choice.`);
+      return;
+    }
+
+    const forceReplace = DDBRace.FORCE_ADVANCEMENT_REPLACE.includes(trait.name);
+    this.configChoices[trait.name] = AdvancementHelper.getChoiceReplacements(trait.description ?? trait.snippet ?? "", lowestLevel, configChoices, forceReplace);
+    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+
+    advancement.updateSource({
+      title: utils.nameString(trait.name),
+      hint: trait.snippet ?? trait.description ?? "",
+      configuration: {
+        restriction: {
+          type: "race",
+        },
+        choices: configChoices,
+        type: "feat",
+        pool: Array.from(uuids).map((f) => {
+          return { uuid: f };
+        }),
+        allowDrops: true,
+      },
+      icons: "icons/magic/symbols/cog-orange-red.webp",
+    });
+
+    // console.warn(`Generated choice advancement for feature ${feature.name}:`, {
+    //   advancement,
+    //   this: this,
+    //   feature,
+    //   choices,
+    //   uuids,
+    // });
+
+    // eslint-disable-next-line no-warning-comments
+    // TODO: handle chosen advancements on non muncher races
+    this.data.system.advancement.push(advancement.toObject());
+
+  }
+
+  async #generateTraitAdvancementChoicesIfOption(trait) {
+    logger.verbose(`Attempting to generate choice advancement for trait ${trait.name} without explicit choices`);
+    const optionMatches = this.ddbData.character.options["race"]
+      .filter(
+        (option) =>
+          trait.entityTypeId == option.componentTypeId
+          && trait.id == option.componentId,
+      );
+    if (optionMatches.length === 0) return;
+    await this.#generateTraitOptionAdvancement(trait, optionMatches);
+  }
+
+  async #generateTraitAdvancementChoices(raceTraits) {
+    // for choice traits such as fighting styles:
+    // for each trait with typ3 choices, build an item choice advancement
+    // then search for matching traits from the choicedefintiions.
+    for (const trait of raceTraits) {
+      // ensure we have fleshed out choice data
+      DDBDataUtils.getChoices({
+        ddb: this.ddbData,
+        type: "race",
+        feat: trait,
+        selectionOnly: false,
+      });
+
+      const choices = this.ddbData.character.choices.race
+        .filter((choice) =>
+          [3, 8].includes(choice.type) // choice feature
+          && (!choice.defaultSubtypes || choice.defaultSubtypes.length === 0) // this kind of feature grants a fixed thing
+          && choice.componentId === trait.id,
+        );
+
+      logger.verbose(`Checking trait for choices: ${trait.name}`, { trait, this: this, choices });
+      if (choices.length === 0) {
+        await this.#generateTraitAdvancementChoicesIfOption(trait);
+        continue;
+      }
+
+      // eslint-disable-next-line no-warning-comments
+      // TODO: determine if different traits at each level, if so, create multiple advancements
+      await this.#generateTraitChoiceAdvancement(trait, choices);
+    }
+  }
+
+  async #generateTraitAdvancements() {
+    logger.debug(`Parsing ${this.name} traits for advancement`);
+    this.featureAdvancements = [];
+    const raceTraits = this.race.racialTraits
+      .map((t) => t.definition)
+      .filter((trait) =>
+        !DDBRace.EXCLUDED_FEATURE_ADVANCEMENTS.includes(trait.name)
+        || (this.is2014 && DDBRace.EXCLUDED_FEATURE_ADVANCEMENTS_2014.includes(trait.name)));
+    for (const trait of raceTraits) {
+      await this.#generateTraitAdvancementFromCompendiumMatch(trait);
+    }
+    this.data.system.advancement = this.data.system.advancement.concat(this.featureAdvancements);
+
+    // for choice traits such as fighting styles:
+    // for each trait with typ3 choices, build an item choice advancement
+    // then search for matching traits from the choicedefintiions.
+    await this.#generateTraitAdvancementChoices(raceTraits);
+
+    foundry.utils.setProperty(CONFIG.DDBI, `muncher.debug.race.${this.name}${this.version}.choiceMap`, this.choiceMap);
+
+
+  }
+
   #generateConditionAdvancement(trait) {
+    // TO DO: Dragonborn Resistance choice advancement
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
@@ -641,35 +960,73 @@ export default class DDBRace {
    */
   #getTraitCompendiumMatch(trait) {
     if (!this._compendiums.traits) {
-      return [];
+      return null;
     }
     logger.debug(`Getting trait match for ${trait.name}`);
-    return this._compendiums.traits.index.find((match) => {
-      const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
-        ?? foundry.utils.getProperty(match, "flags.ddbimporter");
-      if (!matchFlags) return false;
-      const featureFlagName = foundry.utils.getProperty(matchFlags, "originalName")?.trim().toLowerCase();
-      const featureFlagNameMatch = featureFlagName
-        && featureFlagName == trait.name.trim().toLowerCase();
-      const nameMatch = !featureFlagNameMatch
-        && match.name.trim().toLowerCase() == trait.name.trim().toLowerCase();
+    const traitName = utils.nameString(trait.name);
 
-      if (!nameMatch && !featureFlagNameMatch) {
-        logger.verbose(`Unable to find ${trait.name} in compendium`, { trait, matchFlags, match });
-        return false;
+    const findTraits = (excludeFlags = {}, looseMatch = true) => {
+      const results = this._compendiums.traits.index.filter((match) => {
+        const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
+          ?? foundry.utils.getProperty(match, "flags.ddbimporter");
+        if (!matchFlags) return false;
+        const matchName = foundry.utils.getProperty(matchFlags, "originalName")?.trim()
+          ?? match.name.trim();
+        const nameMatch = traitName.toLowerCase() === matchName.toLowerCase();
+        const isIdMatch = trait.id === matchFlags.id;
+        if (!nameMatch && looseMatch) {
+          const containsMatch = traitName.toLowerCase().includes(matchName);
+          if (!containsMatch || !isIdMatch) return false;
+        } else if (nameMatch && !looseMatch && !isIdMatch) {
+          return false;
+        }
+        for (const [key, value] of Object.entries(excludeFlags)) {
+          if (matchFlags[key] === value) return false;
+        }
+
+        const traitMatch
+          = matchFlags.fullRaceName == this.race.fullName
+            || (matchFlags.groupName == this.groupName
+              && matchFlags.isLineage == this.isLineage);
+        return traitMatch;
+      });
+      return results;
+    };
+
+    const exactMach = findTraits.call(this, {}, false);
+    const firstPass = findTraits.call(this);
+
+    if (firstPass.length === 1) {
+      return firstPass[0];
+    } else if (firstPass.length > 1) {
+      const secondPass = findTraits.call(this, {
+        "isChoice": true,
+      });
+      if (secondPass.length === 1) {
+        return secondPass[0];
+      } else if (secondPass.length > 1 && exactMach.length === 1) {
+        return exactMach[0];
+      } else if (secondPass.length > 1) {
+        logger.warn(`Multiple compendium trait matches found for trait ${trait.name}, even after filtering choices. This is likely okay and a choice feature will be generated`, {
+          firstPass,
+          secondPass,
+          trait,
+          this: this,
+        });
+      } else {
+        logger.warn(`Unable to find match found for trait ${trait.name}.`, {
+          firstPass,
+          secondPass,
+          trait,
+          this: this,
+        });
       }
 
-      const traitMatch
-        = matchFlags.fullRaceName == this.race.fullName
-          || (matchFlags.groupName == this.groupName
-            && matchFlags.isLineage == this.isLineage);
-      return traitMatch;
-    });
+
+    }
+    return null;
   }
 
-  traitAdvancements = [];
-
-  traitAdvancementUuids = new Set();
 
   async #generateTraitAdvancementFromCompendiumMatch(trait) {
     const traitMatch = this.#getTraitCompendiumMatch(trait);
@@ -926,10 +1283,9 @@ export default class DDBRace {
       this.#generateFeatAdvancement(trait);
       this.#generateConditionAdvancement(trait);
       await this.#generateSpellAdvancement(trait);
-
-      this.#generateTraitAdvancementFromCompendiumMatch(trait);
     }
 
+    await this.#generateTraitAdvancements();
     this.#generateAbilityAdvancement();
     this.#advancementFixes();
     this.#generateSenses();

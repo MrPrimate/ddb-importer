@@ -40,7 +40,7 @@ export default class AdvancementHelper {
   }
 
   static getChoiceReplacements(description, lowestLevel, choices = {}, forceReplace = false) {
-    const replaceRegex = /you can replace/i;
+    const replaceRegex = /you can replace(?! one of your attacks)/i;
     const replace = replaceRegex.test(description);
 
     if (replace || forceReplace) {
@@ -983,15 +983,6 @@ export default class AdvancementHelper {
         ? parsedConditions.number
         : 1
       : conditionsFromMods.length;
-
-    // console.warn(`Conditions`, {
-    //   level,
-    //   feature,
-    //   mods,
-    //   conditionsFromMods,
-    //   parsedConditions,
-    //   count,
-    // });
 
     if (count === 0 && parsedConditions.grants.length === 0) return null;
 

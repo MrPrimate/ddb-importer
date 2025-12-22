@@ -188,6 +188,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Pact Boon",
     "Fighting Style",
     "Additional Fighting Style",
+    // "Draconic Ancestry",
   ],
   KEEP_CHOICE_FEATURE_NAME: [
     "Defensive Tactics",
@@ -199,6 +200,7 @@ export const PARSING_CHOICE_FEATURES = {
     // "Unbreakable Majesty",
     "Full of Stars",
     "Dragon Ancestor",
+    // "Draconic Ancestry",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
@@ -274,6 +276,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Elemental Affinity (Acid)",
     "Elemental Affinity (Poison)",
     "Dragon Ancestor",
+    // "Draconic Ancestry",
     "Knightly Envoy",
     "Primal Lore",
     "Blessings of Knowledge",
@@ -290,6 +293,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Purple Dragon Rook",
     "Fey Gift",
     "Shifting",
+    "Large Form",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -318,6 +322,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Archer: Full of Stars",
     "Full of Stars",
     "Dragon Ancestor",
+    "Draconic Ancestry",
     "Totem Spirit",
     "Totemic Attunement",
     "Variant Tiefling",
@@ -409,6 +414,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Purple Dragon Rook",
     "Variant Tiefling",
     "Lorwyn-Shadowmoor Origin",
+    "Draconic Ancestry",
+    "Large Form",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
