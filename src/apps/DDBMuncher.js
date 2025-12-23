@@ -1032,7 +1032,7 @@ export default class DDBMuncher extends DDBAppV2 {
       status.style.color = "green";
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-url", URL);
     } else {
-      this.showCurrentTask("URL format incorrect", { message: "That seems not to be the URL we expected...", isError: true });
+      this.notifier("URL format incorrect", { message: "That seems not to be the URL we expected...", isError: true });
       status.classList.add("fa-exclamation-triangle");
       status.classList.remove("fa-check-circle");
       status.style.color = "red";

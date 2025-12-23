@@ -57,6 +57,7 @@ export default class DDBClass {
     feats: {
       fields: [
         "name",
+        "flags.ddbimporter.id",
         // "flags.ddbimporter",
         "flags.ddbimporter.is2014",
         "flags.ddbimporter.is2024",
@@ -67,6 +68,17 @@ export default class DDBClass {
     },
     class: {},
     subclasses: {},
+  };
+
+  _advancementMatches = {
+    features: {},
+  };
+
+  _compendiums = {
+    features: CompendiumHelper.getCompendiumType("classfeatures", false),
+    feats: CompendiumHelper.getCompendiumType("feats", false),
+    class: CompendiumHelper.getCompendiumType("class", false),
+    subclasses: CompendiumHelper.getCompendiumType("subclasses", false),
   };
 
   static SPECIAL_ADVANCEMENTS = {
@@ -477,19 +489,6 @@ export default class DDBClass {
         .filter((f) => f.definition.classId === this.ddbClass.subclassDefinition.id)
         .map((f) => f.definition.id)
       : [];
-
-    // compendium
-    this._compendiums = {
-      features: CompendiumHelper.getCompendiumType("classfeatures", false),
-      feats: CompendiumHelper.getCompendiumType("feats", false),
-      class: CompendiumHelper.getCompendiumType("class", false),
-      subclasses: CompendiumHelper.getCompendiumType("subclasses", false),
-    };
-    // this._compendiumFeaturesLabel = CompendiumHelper.getCompendiumLabel("features");
-
-    this._advancementMatches = {
-      features: {},
-    };
 
     this._generateDataStub();
 

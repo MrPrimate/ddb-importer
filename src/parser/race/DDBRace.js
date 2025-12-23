@@ -110,10 +110,44 @@ export default class DDBRace {
 
   traitAdvancementUuids = new Set();
 
-  constructor({ ddbData, race, compendiumRacialTraits, isMuncher } = {}) {
-    this.ddbData = ddbData;
-    this.isMuncher = isMuncher ?? false;
-    this.race = race;
+  _indexFilter = {
+    traits: {
+      fields: [
+        "name",
+        "flags.ddbimporter",
+      ],
+    },
+    feats: {
+      fields: [
+        "name",
+        "flags.ddbimporter.id",
+        // "flags.ddbimporter",
+        "flags.ddbimporter.is2014",
+        "flags.ddbimporter.is2024",
+        "flags.ddbimporter.featureMeta",
+        "flags.ddbimporter.subType",
+        "system.type.subtype",
+        "system.prerequisites.level",
+      ],
+    },
+  };
+
+  _advancementMatches = {
+    traits: {},
+  };
+
+  _compendiums = {
+    traits: CompendiumHelper.getCompendiumType("traits", false),
+    feats: CompendiumHelper.getCompendiumType("feats", false),
+  };
+
+  abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+
+  constructor({ ddbCharacter, compendiumRacialTraits } = {}) {
+    this.ddbCharacter = ddbCharacter;
+    this.ddbData = ddbCharacter.source.ddb;
+    this.isMuncher = ddbCharacter.isMuncher ?? false;
+    this.race = ddbCharacter.source.ddb.character.race;
     this.is2014 = this.race.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
     this.version = this.is2014 ? "2014" : "2024";
@@ -176,30 +210,11 @@ export default class DDBRace {
     this.#addWeightSpeeds();
     this.#addSizeAdvancement();
 
-    this.abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-
     this.advancementHelper = new AdvancementHelper({
       ddbData: this.ddbData,
       type: "race",
       isMuncher: this.isMuncher,
     });
-
-    // compendium
-    this._compendiums = {
-      traits: CompendiumHelper.getCompendiumType("traits", false),
-    };
-    this._indexFilter = {
-      traits: {
-        fields: [
-          "name",
-          "flags.ddbimporter",
-        ],
-      },
-    };
-
-    this._advancementMatches = {
-      traits: {},
-    };
 
   }
 
@@ -595,23 +610,44 @@ export default class DDBRace {
   }
 
   async #generateFeatAdvancement(trait) {
-    if (!["Feats", "Feat"].includes(trait.name.trim())) return;
+    if (!["Feats", "Feat", "Versatile"].includes(trait.name.trim())) return;
 
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
-    const compendium = CompendiumHelper.getCompendiumType("feats", false);
-    const index = compendium ? await compendium.getIndex() : [];
+    const uuids = this._compendiums.feats.index
+      .filter((i) => {
+        const prerequisite = foundry.utils.getProperty(i, "system.prerequisites.level");
+        if (prerequisite && prerequisite !== "") {
+          if (parseInt(prerequisite) > 1) return false;
+        }
+        if (this.is2014) {
+          if (foundry.utils.getProperty(i, "flags.ddbimporter.is2024")) return false;
+        } else if (this.is2024) {
+          if (foundry.utils.getProperty(i, "flags.ddbimporter.is2014")) return false;
+          if (foundry.utils.getProperty(i, "system.type.subtype") === "origin") return false;
+        }
+        return true;
+      })
+      .map((i) => i.uuid);
 
     advancement.updateSource({
-      title: "Feat",
+      title: trait.name,
+      hint: trait.snippet ?? trait.description ?? undefined,
       configuration: {
         allowDrops: true,
-        pool: index.map((i) => i.uuid),
+        pool: Array.from(uuids).map((f) => {
+          return { uuid: f };
+        }),
         choices: {
-          "0": 1,
+          "0": {
+            count: 1,
+            replacement: false,
+          },
         },
+        type: "feat",
         restriction: {
           type: "feat",
+          subtype: this.is2014 ? undefined : "origin",
         },
       },
     });
@@ -626,7 +662,10 @@ export default class DDBRace {
       logger.warn(`Unable to link advancement to feat`, { advancement, trait, this: this });
       return;
     };
-    const featMatch = index.find((i) => i.name === feat.definition.name);
+    const featMatch = this._compendiums.feats.index.find((i) =>
+      i.name === feat.definition.name
+      && foundry.utils.getProperty(i, "flags.ddbimporter.id") === feat.definition.id,
+    );
     if (!featMatch) {
       logger.warn(`Unable to link advancement to feat ${feat.definition.name}, this is probably because the feats have not been munched to the compendium`, { feat });
       return;
@@ -635,6 +674,16 @@ export default class DDBRace {
     this.featLink.advancementId = advancement._id;
     this.featLink.name = feat.definition.name;
     this.featLink.uuid = featMatch.uuid;
+
+    // console.warn("Generated feat advancement link", {
+    //   this: this,
+    //   trait,
+    //   feat,
+    //   featMatch,
+    //   featLink: this.featLink,
+    //   advancement,
+    //   toObject: advancement.toObject(),
+    // });
 
     // this update is done later, once everything is built
     // we just add the hints to the feat here
@@ -1120,18 +1169,82 @@ export default class DDBRace {
 
   }
 
-  linkFeatures(ddbCharacter) {
+  // #itemGrantLink(advancementIndex) {
+  //   // "added": {
+  //   //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
+  //   //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
+  //   // }
+  //   const advancement = this.ddbCharacter.data.race.system.advancement[advancementIndex];
+  //   const aData = this._advancementMatches.traits[advancement._id];
+  //   const added = {};
+
+  //   if (!aData || !advancement) {
+  //     logger.warn(`Advancement for ${this.data.name} (idx ${advancementIndex}) missing required data for linking`, {
+  //       advancement,
+  //       aData,
+  //       species: this,
+  //     });
+  //     return;
+  //   }
+  //   for (const [advancementFeatName, uuid] of Object.entries(aData)) {
+  //     logger.debug(`Advancement ${advancement._id} searching for Feat ${advancementFeatName} (${uuid})`, {
+  //       a: advancement,
+  //       advancementFeatName,
+  //       uuid,
+  //     });
+
+  //     const characterFeature = this.ddbCharacter.getDataFeat(advancementFeatName);
+  //     if (characterFeature) {
+  //       logger.debug(`Advancement ${advancement._id} found Feat ${advancementFeatName} (${uuid})`);
+  //       added[characterFeature._id] = uuid;
+  //       foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+  //       foundry.utils.setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${this.data._id}.${advancement._id}`);
+  //     }
+  //   }
+
+  //   console.warn("Post feat match for advancement", {
+  //     added,
+  //     advancementIndex,
+  //     advancement,
+  //   });
+
+  //   if (Object.keys(added).length > 0) {
+  //     advancement.value = {
+  //       added,
+  //     };
+  //     this.ddbCharacter.data.race.system.advancement[advancementIndex] = advancement;
+  //   }
+  // }
+
+  linkFeatures() {
     logger.debug("Linking Advancements to Feats for Race", {
       DDBRace: this,
-      ddbCharacter,
+      ddbCharacter: this.ddbCharacter,
     });
 
-    ddbCharacter.data.race.system.advancement.forEach((a, idx, advancements) => {
-      if (a.type === "ItemChoice") {
+    // for (let idx = 0; idx < this.ddbCharacter.data.race.system.advancement.length; idx++) {
+    //   const a = this.ddbCharacter.data.race.system.advancement[idx];
+
+    //   console.warn({
+    //     a,
+    //     idx,
+    //     bool: a.type === "ItemGrant" && (!a.level || a.level <= this.ddbCharacter.totalLevels),
+    //     bool1: a.type === "ItemGrant",
+    //     bool2: !a.level || a.level <= this.ddbCharacter.totalLevels,
+    //     totalLevels: this.ddbCharacter.totalLevels,
+    //   })
+
+    //   if (["ItemChoice", "ItemGrant"].includes(a.type) && (!a.level || a.level <= this.ddbCharacter.totalLevels)) {
+    //     this.#itemGrantLink(idx);
+    //   }
+    // }
+
+    this.ddbCharacter.data.race.system.advancement.forEach((a, idx, advancements) => {
+      if (["ItemChoice", "ItemGrant"].includes(a.type) && (!a.level || a.level <= this.ddbCharacter.totalLevels)) {
         const addedFeats = {};
 
-        for (const type of ["actions", "features"]) {
-          for (const feat of ddbCharacter.data[type]) {
+        for (const type of ["features"]) {
+          for (const feat of this.ddbCharacter.data[type]) {
             const isMatch = feat.type === "feat"
               && feat.system.type.value === "feat"
               && feat.flags.ddbimporter.type === "feat"
@@ -1146,6 +1259,9 @@ export default class DDBRace {
             foundry.utils.setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
           }
 
+          // console.warn("Post feat match for advancement", {
+          //   addedFeats,
+          // });
 
           if (Object.keys(addedFeats).length > 0) {
             const added = {
@@ -1162,8 +1278,10 @@ export default class DDBRace {
           }
         }
       }
+      // console.warn("advancements post link", {advancements, deep: foundry.utils.deepClone(advancements)});
     });
-    logger.debug("Processed race advancements", ddbCharacter.data.race.system.advancement);
+    logger.debug("Processed race advancements", this.ddbCharacter.data.race.system.advancement);
+    // console.warn(foundry.utils.deepClone(this.ddbCharacter.data.race.system.advancement));
   }
 
   #generateHTMLSenses() {
@@ -1266,6 +1384,7 @@ export default class DDBRace {
     }
 
     await this._buildCompendiumIndex("traits", this._indexFilter.traits);
+    await this._buildCompendiumIndex("feats", this._indexFilter.feats);
 
     for (const t of this.race.racialTraits) {
       const trait = t.definition;

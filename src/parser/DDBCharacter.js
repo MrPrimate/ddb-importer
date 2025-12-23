@@ -300,7 +300,7 @@ export default class DDBCharacter {
       }
 
       this._classParser.linkFeatures();
-      this._ddbRace.linkFeatures(this);
+      this._ddbRace.linkFeatures();
       this._ddbRace.linkSpells(this);
       this._characterFeatureFactory.linkFeatures();
 
@@ -329,6 +329,29 @@ export default class DDBCharacter {
       });
       if (index !== -1) {
         logger.debug(`Found ${featureType} : ${featureName}`);
+        return this.data[featureType][index];
+      }
+    }
+    return undefined;
+  }
+
+  getDataFeats(featName, { featureTypes = ["actions", "features"], hints = [] } = {}) {
+    for (const featureType of featureTypes) {
+      const index = this.data[featureType].findIndex((f) => {
+        const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
+        if (isCustomAction) return false;
+        if (f.type !== "feat") return false;
+        if (f.system.type.value !== "feat") return false;
+        if (f.flags.ddbimporter.type !== "feat") return false;
+
+        const name = f.flags.ddbimporter?.originalName ?? f.name;
+        for (const hint of hints) {
+          if (utils.nameString(`${name} (${hint})`) === utils.nameString(featName)) return true;
+        }
+        return utils.nameString(name) === utils.nameString(featName);
+      });
+      if (index !== -1) {
+        logger.debug(`Found ${featureType} : ${featName}`);
         return this.data[featureType][index];
       }
     }

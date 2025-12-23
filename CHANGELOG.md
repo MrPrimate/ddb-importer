@@ -1,5 +1,8 @@
 # Next Up
 
+- Fixes for Feat trait not generating properly on Variant Humans.
+- API driven import could error. @carolxs
+
 # 6.6.33
 
 _Species Special!_

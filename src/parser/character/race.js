@@ -7,10 +7,8 @@ DDBCharacter.prototype._generateRace = async function _generateRace(addToCompend
   const traits = this.source.ddb.character.race.racialTraits.map((r) => r.definition);
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
   this._ddbRace = new DDBRace({
-    ddbData: this.source.ddb,
-    race: this.source.ddb.character.race,
-    compendiumRacialTraits: compendiumRacialTraits,
-    isMuncher: this.isMuncher,
+    ddbCharacter: this,
+    compendiumRacialTraits,
   });
   await this._ddbRace.build();
   if (addToCompendium) {

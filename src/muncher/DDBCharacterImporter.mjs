@@ -1037,7 +1037,7 @@ ${item.system.description.chat}
         });
 
         await importer.processCharacterData();
-        importer.showCurrentTask("Loading Character data", { message: "Done." });
+        importer.notifier("Loading Character data", { message: "Done." });
         logger.info("Loading Character data");
         return true;
       } else {
