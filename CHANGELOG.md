@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.34
+
 - Fixes for Feat trait not generating properly on Variant Humans.
 - API driven import could error. @carolxs
 
