@@ -323,7 +323,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   generateFeatAbilityScoreAdvancement() {
     const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
     const configuration = advancement.configuration.toObject();
-    configuration.points = 1;
+    configuration.points = 0;
     configuration.cap = 1;
     configuration.level = 0;
     configuration.value = { type: "asi" };
@@ -354,16 +354,19 @@ export default class DDBFeature extends DDBFeatureMixin {
     const anyMatch = this.ddbDefinition.description.match(anyRegex);
 
     if (anyMatch) {
+      configuration.points = 1;
       this._addFeatAbilityScoreAdvancement({ configuration, hint }, advancement);
       return;
     }
 
     let hasMatch = false;
 
-    const hint2Regex = /(?:Increase your) (.+?) to a maximum of (\d{2})\./i;
-    const hint2Match = this.ddbDefinition.description.match(hint2Regex);
-    if (hint2Match) {
-      hint = hint2Match[0];
+    if (hint === "") {
+      const hint2Regex = /(?:Increase your) (.+?) to a maximum of (\d{2})\./i;
+      const hint2Match = this.ddbDefinition.description.match(hint2Regex);
+      if (hint2Match) {
+        hint = hint2Match[0];
+      }
     }
 
     // Ability Score Increase. Increase your Charisma score by 1, to a maximum of 20.
@@ -373,10 +376,12 @@ export default class DDBFeature extends DDBFeatureMixin {
     const fixedMatch = this.ddbDefinition.description.match(fixedRegex);
     if (fixedMatch) {
       hasMatch = true;
-      const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].toLowerCase());
+      const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].trim().toLowerCase());
       if (ability) {
         configuration.fixed[ability.value] = parseInt(fixedMatch[2]);
       }
+      this._addFeatAbilityScoreAdvancement({ configuration, hint }, advancement);
+      return;
     }
 
     // locked
@@ -390,14 +395,17 @@ export default class DDBFeature extends DDBFeatureMixin {
     const lockedRegex = /increase your (.*?) score/i;
     const lockedMatches = this.ddbDefinition.description.match(lockedRegex);
     if (lockedMatches) {
-      const splits = lockedMatches[1].replaceAll(" or ", ", ").split(", ");
+      const splits = lockedMatches[1].replaceAll(", or ", ", ").replaceAll(" or ", ", ").split(",");
       hasMatch = true;
+      configuration.points = 1;
+      let locked = new Set(DICTIONARY.actor.abilities.map((a) => a.value));
       for (const split of splits) {
-        const ability = DICTIONARY.actor.abilities.find((a) => a.long === split.toLowerCase());
+        const ability = DICTIONARY.actor.abilities.find((a) => a.long === split.trim().toLowerCase());
         if (ability) {
-          configuration.fixed[ability.value] = 1;
+          locked.delete(ability.value);
         }
       }
+      configuration.locked = Array.from(locked);
     }
 
     if (!hasMatch) return;

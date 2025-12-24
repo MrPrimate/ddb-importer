@@ -1,5 +1,8 @@
 # Next Up
 
+- Feat ASI Advancements would not always be correctly configured, sometimes offering fixes as well as choice advancements.
+
+
 # 6.6.34
 
 - Fixes for Feat trait not generating properly on Variant Humans.
