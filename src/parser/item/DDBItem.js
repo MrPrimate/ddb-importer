@@ -1553,7 +1553,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       return `${maxCharges}`;
     }
 
-    let chargeMatchFormula = /regains (\dd\d* \+ \d) expended charges/i;
+    let chargeMatchFormula = /regains (\dd\d*(?: \+ \d)?) expended charges/i;
     let chargeMatchFixed = /regains (\d*) /i;
     let chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
     let chargeNextDawn = /can't be used this way again until the next/i;
