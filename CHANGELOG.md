@@ -1,7 +1,7 @@
 # Next Up
 
 - Feat ASI Advancements would not always be correctly configured, sometimes offering fixes as well as choice advancements.
-
+- Fixes to some feats such as 2024 Elemental Adept and Skilful which would come in as duplicates when feat munching.
 
 # 6.6.34
 

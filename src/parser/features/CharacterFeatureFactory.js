@@ -640,6 +640,9 @@ export default class CharacterFeatureFactory {
 
       return true;
     });
+    logger.debug(`Valid feats`, {
+      validFeats,
+    });
     for (const feat of validFeats) {
       const feats = await this.getFeaturesFromDefinition(feat, "feat");
       this.parsed[type].push(...feats);
