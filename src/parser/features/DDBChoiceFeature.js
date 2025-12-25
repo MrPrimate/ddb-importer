@@ -22,6 +22,8 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static DISCARD_CHOICE_FEATURE = DICTIONARY.parsing.choiceFeatures.DISCARD_CHOICE_FEATURE;
 
+  static FORCE_FEAT_CHOICES = DICTIONARY.parsing.choiceFeatures.FORCE_FEAT_CHOICES;
+
   _prepare() {
     this._levelScale = null;
     this._levelScales = null;
@@ -187,7 +189,7 @@ export default class DDBChoiceFeature extends DDBFeature {
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const features = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
-    if (ddbFeature.type === "feat") return features;
+    if (ddbFeature.type === "feat" && !DDBChoiceFeature.FORCE_FEAT_CHOICES.includes(ddbFeature.ddbDefinition.name)) return features;
     const parseAllFeatures = ddbFeature.enricher.parseAllChoiceFeatures || allFeatures;
     const choices = (parseAllFeatures ? ddbFeature._parentOnlyChoices : ddbFeature._parentOnlyChosen)
       .filter((c) =>

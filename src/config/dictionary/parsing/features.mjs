@@ -429,6 +429,9 @@ export const PARSING_CHOICE_FEATURES = {
     "Pact Boon",
     "Magic Item Plans",
   ],
+  FORCE_FEAT_CHOICES: [
+    "Dark Bargain",
+  ],
 };
 
 export const FEATURE_SPELLS_IGNORE = [
