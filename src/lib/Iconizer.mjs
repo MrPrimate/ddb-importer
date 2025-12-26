@@ -267,8 +267,8 @@ export default class Iconizer {
     }
 
     if (this.settings.inBuilt) {
-      await this._addDDBHintImages("class");
-      await this._addDDBHintImages("subclass");
+      for (const type of DICTIONARY.types.full)
+        await this._addDDBHintImages(type);
       logger.debug(`Inbuilt icon matching (Monster? ${this.isMonster ? this.monsterName : this.isMonster})`);
       await this._copyInbuiltIcons();
     }

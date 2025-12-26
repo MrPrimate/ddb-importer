@@ -1111,5 +1111,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   async _final() {
     this.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`);
     this.data.system.identifier = this.identifier;
+
+    if (this.ddbDefinition.hintImage) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.ddbImg", this.ddbDefinition.hintImage.split('?')[0]);
+    }
   }
 }
