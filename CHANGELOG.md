@@ -1,10 +1,13 @@
 # Next Up
 
+# 6.6.35
+
 - Feat ASI Advancements would not always be correctly configured, sometimes offering fixes as well as choice advancements.
 - Fixes to some feats such as 2024 Elemental Adept and Skilful which would come in as duplicates when feat munching.
 - Dark Bargin Feat/Feature would not import. @agceyx
 - Items such as the Enspelled items did not parse charge recovery correctly.
 - Many FR Feat parsing fixes.
+- Dhampir tweak.
 
 # 6.6.34
 
