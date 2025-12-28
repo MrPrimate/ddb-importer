@@ -1,6 +1,7 @@
 export * as Aasimar from "./aasimar/_module.mjs";
 export * as Bugbear from "./bugbear/_module.mjs";
 export * as Changeling from "./changeling/_module.mjs";
+export * as Dhampir from "./dhampir/_module.mjs";
 export * as Dragonborn from "./dragonborn/_module.mjs";
 export * as Dwarf from "./dwarf/_module.mjs";
 export * as Eladrin from "./eladrin/_module.mjs";
