@@ -228,6 +228,11 @@ const applyConstraint = (value, constraint) => {
       result = Math.floor(result);
       break;
     }
+    case "unsigned":
+    case "signed": {
+      // no op
+      break;
+    }
     default: {
       logger.debug(`Missed match is ${match}`);
       logger.warn(`ddb-importer does not know about template constraint {{@${constraint}}}. Please log a bug.`, { value, constraint });
@@ -289,6 +294,11 @@ const addConstraintEvaluations = (value, constraintList) => {
       case "rounddown":
       case "roundown": {
         result = `floor(${result})`;
+        break;
+      }
+      case "unsigned":
+      case "signed": {
+        // no op
         break;
       }
       default: {
