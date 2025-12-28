@@ -14,6 +14,7 @@ export { default as Crusher } from "./Crusher.mjs";
 export { default as CunningIntuition } from "./CunningIntuition.mjs";
 export { default as DeductiveIntuition } from "./DeductiveIntuition.mjs";
 export { default as DefensiveDuelist } from "./DefensiveDuelist.mjs";
+export { default as Dragonscarred } from "./Dragonscarred.mjs";
 export { default as DualWielder } from "./DualWielder.mjs";
 export { default as Durable } from "./Durable.mjs";
 export { default as ElementalAdept } from "./ElementalAdept.mjs";
