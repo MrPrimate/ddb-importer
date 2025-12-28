@@ -23,6 +23,7 @@ export { default as EncourageAlly } from "./EncourageAlly.mjs";
 export { default as EnergyRedirection } from "./EnergyRedirection.mjs";
 export { default as EpicBoon } from "./EpicBoon.mjs";
 export { default as EverHospitable } from "./EverHospitable.mjs";
+export { default as FlusteringStrike } from "./FlusteringStrike.mjs";
 export { default as Generic } from "./Generic.mjs";
 export { default as GiftedScribe } from "./GiftedScribe.mjs";
 export { default as GreatWeaponMaster } from "./GreatWeaponMaster.mjs";

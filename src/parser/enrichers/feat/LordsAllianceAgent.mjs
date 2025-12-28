@@ -8,6 +8,11 @@ export default class LordsAllianceAgent extends DDBEnricherData {
       name: "Reassert Honor",
       activationType: "special",
       targetType: "enemy",
+      data: {
+        range: {
+          units: "spec",
+        },
+      },
     };
   }
 
