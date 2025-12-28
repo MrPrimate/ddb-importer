@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.36
+
+- 6 monsters from Expanded Rules 2024 would fail to parse.
+
 # 6.6.35
 
 - Feat ASI Advancements would not always be correctly configured, sometimes offering fixes as well as choice advancements.

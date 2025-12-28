@@ -553,7 +553,7 @@ function replaceHREFLookupLinks(doc, actor) {
         logger.warn(`Unable to load compendium for ${lookupKey}`);
       }
 
-      if (lookupValue) {
+      if (lookupValue && lookupMatch) {
         const name = lookupMatch[2].split("-").join(" ");
         const lookupEntry = lookupValue.find((e) =>
           e.name.split(" ").map((n) => utils.normalizeString(n)).join(" ").toLowerCase() == name.toLowerCase()
