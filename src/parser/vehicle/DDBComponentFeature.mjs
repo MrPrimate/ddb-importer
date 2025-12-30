@@ -33,10 +33,11 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     if (action?.name) this.name += `: ${action.name}`;
     this.originalName = `${this.name}`;
     this.ddbVehicle = ddbVehicle;
+    this.count = component.count ?? 1;
     this.component = component;
     this.action = action;
     this.is2014 = ddbVehicle.is2014;
-    this.is2024 = !this.is2014;
+    this.is2024 = ddbVehicle.is2024;
     let description = "";
     if (component.description) description = `${component.description}`;
     if (action.description) description += `\n${action.description}`;
@@ -54,8 +55,8 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     this.prepare();
 
     // copy source details from parent
-    if (this.ddbVehicle?.vehicle?.system.details?.source)
-      this.data.system.source = this.ddbVehicle.vehicle.system.details.source;
+    if (this.ddbVehicle.data.system.details?.source)
+      this.data.system.source = this.ddbVehicle.data.system.details.source;
 
     this.#generateActionDataStub();
 
@@ -80,7 +81,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
 
   createBaseFeature() {
     this.data = {
-      _id: foundry.utils.randomID(),
+      _id: utils.namedIDStub(this.name, { postfix: this.count }),
       name: this.name,
       type: this.templateType,
       system: SystemHelpers.getTemplate(this.templateType),
@@ -397,7 +398,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     await this.enricher.init();
     await this.enricher.load({
       ddbParser: this,
-      monster: this.ddbVehicle.vehicle,
+      monster: this.ddbVehicle.data,
       name: this.name,
     });
   }
@@ -563,15 +564,15 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     // if (this.originalName === "Multiattack") {
     //   description = this.#processMultiAttack(description);
     // }
-    description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbVehicle.vehicle);
+    description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbVehicle.data);
 
-    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.vehicle });
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data, actor: this.ddbVehicle.vehicle });
+    description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.data });
+    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data, actor: this.ddbVehicle.data });
     description = DDBReferenceLinker.parseTags(description);
-    description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbVehicle.vehicle);
+    description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbVehicle.data);
 
     this.data.system.description.value = await DDBTable.generateTable({
-      parentName: this.ddbVehicle.vehicle.name,
+      parentName: this.ddbVehicle.data.name,
       html: description,
       updateExisting: this.updateExisting,
       notifier: this.notifier,
@@ -594,7 +595,7 @@ ${this.data.system.description.value}
 
     const overtimeGenerator = new Effects.MidiOverTimeEffect({
       document: this.data,
-      actor: this.ddbVehicle.vehicle,
+      actor: this.ddbVehicle.data,
       otherDescription: html,
       flags,
       addToMonster,
@@ -623,6 +624,17 @@ ${this.data.system.description.value}
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 
+  #generateCost() {
+    for (const cost of this.component.definition.costs ?? []) {
+      if (!cost.value) continue;
+      this.data.system.price = {
+        "value": cost.value,
+        "denomination": "gp",
+      };
+      break; // only first cost
+    }
+  }
+
   // eslint-disable-next-line complexity
   async parse() {
 
@@ -631,7 +643,11 @@ ${this.data.system.description.value}
     this.#generateActionData();
     this.data.system.uses = this.getLimitedUse();
 
-    this.data.system.quantity = this.component.count;
+    if (this.data.type === "equipment") {
+      this.data.system.type.value = "vehicle";
+    }
+
+    // this.data.system.quantity = this.component.count;
 
     this.data.system.hp = {
       value: null,
@@ -713,6 +729,7 @@ ${this.data.system.description.value}
       this.data.system.range = this.actionData.data.range;
     }
 
+    this.#generateCost();
 
     await this._generateActivity();
 

@@ -14,7 +14,6 @@ import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
-import { parseTransports } from "../muncher/vehicles.js";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
 import { updateItemPrices } from "../muncher/prices.js";
 import DDBAppV2 from "./DDBAppV2.js";
@@ -24,6 +23,7 @@ import { SETTINGS } from "../config/_module.mjs";
 import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import DDBItemsImporter from "../muncher/DDBItemsImporter.mjs";
+import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -516,7 +516,10 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching vehicles!");
       this._disableButtons();
-      const result = await parseTransports();
+      const vehicleFactory = new DDBVehicleFactory({
+        notifier: this.notifier.bind(this),
+      });
+      const result = await vehicleFactory.processIntoCompendium(null, this.searchTermMonster);
       this.notifier(`Finished importing ${result} vehicles!`, { nameField: true });
       this.notifier("");
     } catch (error) {

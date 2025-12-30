@@ -6,6 +6,7 @@ import {
   utils,
 } from "../lib/_module.mjs";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
 import DDBMonsterImporter from "./DDBMonsterImporter.mjs";
 
 let totalTargets = 0;
@@ -128,4 +129,10 @@ export async function parseCritters(ids = null) {
   const monsterFactory = new DDBMonsterFactory();
   const parsedExtras = await monsterFactory.processIntoCompendium(ids);
   return parsedExtras;
+}
+
+export async function parseTransports(ids = null) {
+  const vehicleFactory = new DDBVehicleFactory();
+  const parsedVehicles = await vehicleFactory.processIntoCompendium(ids);
+  return parsedVehicles;
 }

@@ -820,6 +820,12 @@ export class DDBCompendiumFolders {
     return newFolder;
   }
 
+  async createVehicleFoldersForDocuments({ documents = [] }) {
+    for (const doc of documents) {
+      await this.createVehicleFolder(doc);
+    }
+  }
+
   // async createSummonsSubFolder(type, subFolderName) {
   //   const flagTag = `summons/${type}/${subFolderName}`;
   //   logger.debug(`Checking for Summons folder '${subFolderName}' with Base Folder '${subFolderName}'`);

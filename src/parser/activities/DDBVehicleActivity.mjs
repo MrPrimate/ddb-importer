@@ -15,7 +15,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
       foundryFeature: ddbParent.data,
       nameIdPrefix,
       nameIdPostfix,
-      actor: ddbParent.ddbVehicle.vehicle,
+      actor: ddbParent.ddbVehicle.data,
       id,
     });
 

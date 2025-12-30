@@ -10990,5 +10990,9 @@
   {
     "name": "Magic Bond",
     "path": "icons/magic/symbols/cog-shield-white-blue.webp"
+  },
+  {
+    "name": "Helm",
+    "path": "icons/tools/nautical/steering-wheel.webp"
   }
 ]

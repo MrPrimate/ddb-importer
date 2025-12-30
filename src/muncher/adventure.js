@@ -5,7 +5,7 @@ import {
   CompendiumHelper,
   DDBProxy,
 } from "../lib/_module.mjs";
-import { getVehicleData } from "./vehicles.js";
+import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
 
 
 async function getMonsterMap () {
@@ -140,9 +140,9 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
 
   // vehicles
   if (!DDBProxy.isCustom(true) && cobalt) {
-    const vehicleData = await getVehicleData();
-
-    result.lookups.vehicles = vehicleData.map((v) => {
+    const vehicleFactory = new DDBVehicleFactory();
+    await vehicleFactory.fetchDDBVehicleSourceData();
+    result.lookups.vehicles = vehicleFactory.source.map((v) => {
       return {
         id: v.id,
         url: v.url,

@@ -4,8 +4,7 @@ import DDBMonster from "./parser/DDBMonster.js";
 import DDBMonsterFactory from "./parser/DDBMonsterFactory.js";
 import { parseSpells } from "./muncher/spells.js";
 import DDBItemsImporter from "./muncher/DDBItemsImporter.mjs";
-import { parseTransports } from "./muncher/vehicles.js";
-import { updateWorldMonsters, resetCompendiumActorImages, parseCritters } from "./muncher/tools.js";
+import { updateWorldMonsters, resetCompendiumActorImages, parseCritters, parseTransports } from "./muncher/tools.js";
 import DDBEncounterFactory from "./parser/DDBEncounterFactory.js";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure.js";
 import { updateDDBCharacter } from "./updater/character.js";
@@ -32,6 +31,8 @@ import SpellListFactory from "./parser/spells/SpellListFactory.mjs";
 import DDBSpellListFactory from "./parser/spells/DDBSpellListFactory.mjs";
 import DDBMuleHandler from "./muncher/DDBMuleHandler.mjs";
 import DDBCharacter from "./parser/DDBCharacter.js";
+import DDBVehicle from "./parser/DDBVehicle.js";
+import DDBVehicleFactory from "./parser/DDBVehicleFactory.mjs";
 // import { libWrapper } from "../vendor/libwrapper/shim.js";
 
 function resetSecrets() {
@@ -141,6 +142,8 @@ export function registerApi() {
       DDBMacros: lib.DDBMacros,
       DDBMonster,
       DDBMonsterFactory,
+      DDBVehicle,
+      DDBVehicleFactory,
       DDBMonsterFeature,
       DDBMonsterDamage,
       DDBProxy: lib.DDBProxy,
