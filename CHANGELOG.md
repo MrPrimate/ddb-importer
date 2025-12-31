@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.37
+
+- Vehicle Parsing is now supported again for the 5.2.x D&D system.
+
 # 6.6.36
 
 - 6 monsters from Expanded Rules 2024 would fail to parse.
