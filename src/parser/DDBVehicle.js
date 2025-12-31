@@ -123,6 +123,14 @@ const MOVEMENT_DICT = {
   "magical": "Magical",
 };
 
+const MOVEMENT_ID = {
+  1: "walk",
+  2: "burrowing",
+  3: null,
+  4: "fly", // or magical?
+  5: "swim",
+};
+
 export default class DDBVehicle {
 
   static ACTION_THRESHOLDS = ACTION_THRESHOLDS;
@@ -258,6 +266,7 @@ export default class DDBVehicle {
   }
 
   #generateAbilities() {
+    if (this.source.stats.length === 0) return;
     DICTIONARY.actor.abilities.forEach((ability) => {
       const value = this.source.stats.find((stat) => stat.id === ability.id)?.value || 10;
       const mod = value === 0
@@ -269,6 +278,8 @@ export default class DDBVehicle {
       this.data.system.abilities[ability.value]['mod'] = mod;
 
     });
+
+    foundry.utils.setProperty(this.data, "flags.dnd5e.showVehicleAbilities", true);
   }
 
   getAbilityMods() {
@@ -396,48 +407,89 @@ export default class DDBVehicle {
     if (this.configurations.ST === "weight") {
       this.data.system.traits.dimensions = `(${this.source.weight} lb.)`;
     }
+
+    if (this.source.width) this.data.system.traits.beam.value = this.source.width;
+    if (this.source.length) this.data.system.traits.keel.value = this.source.length;
   }
 
   #generateMovement() {
 
     const movement = foundry.utils.duplicate(this.data.system.attributes.movement);
+    const travel = foundry.utils.duplicate(this.data.system.attributes.travel);
 
     // is it travel pace?
     if (this.configurations.ETP) {
-      movement["units"] = "mi";
-      const travelPaceMilesPerHour = this.source.travelPace / 5280;
+      travel["units"] = "mph";
+      const travelPaceMilesPerDay = this.source.travelPace / 660; // / 220;
+      // const travelPaceMilesPerHour = this.source.travelPace / 5280;
+      const travelPaceMilesPerHour = travelPaceMilesPerDay / 24;
       if (DDBVehicle.FLIGHT_IDS.includes(this.source.id)
         || this.configurations.DT === "spelljammer"
         || this.configurations.DT === "elemental-airship"
       ) {
-        movement["fly"] = travelPaceMilesPerHour;
+        travel.speeds["air"] = travelPaceMilesPerHour;
+        travel.paces["air"] = travelPaceMilesPerDay;
       } else {
-        movement["swim"] = travelPaceMilesPerHour;
+        travel.speeds["water"] = travelPaceMilesPerHour;
+        travel.paces["water"] = travelPaceMilesPerDay;
       }
-    } else if (this.primaryComponent
-        && this.primaryComponent.definition.speeds
-        && this.primaryComponent.definition.speeds.length > 0
-    ) {
-      const mode = this.primaryComponent.definition.speeds[0].modes[0];
+
+      // this.data.system.attributes.travel = {
+      //     "paces": {
+      //         "land": "",
+      //         "water": "5000",
+      //         "air": ""
+      //     },
+      //     "speeds": {
+      //         "land": "",
+      //         "water": "50",
+      //         "air": ""
+      //     },
+      //     "time": 24,
+      //     "units": "mph"
+      // };
+    }
+    const speedsChecked = new Set();
+    for (const comp of this.source.components) {
+      if (!comp.definition.speeds) continue;
+      if (comp.definition.speeds.length === 0) continue;
+
+      const hasHover = comp.definition.speeds[0].modes.some((m) => (m.restrictionsText ?? "").toLowerCase().includes("hover"));
+      if (hasHover) {
+        movement["hover"] = true;
+      }
+
+      const mode = comp.definition.speeds[0].modes[0];
       movement["units"] = "ft";
-      let speedType = this.primaryComponent.definition.speeds[0].type;
+      let speedType = comp.definition.speeds[0].type;
+
+      const movementModes = comp.definition.speeds[0].modes.some((m) => Number.isInteger(m.movementId));
+
       if (speedType) {
         const type = DDBVehicle.MOVEMENT_DICT[speedType];
+        if (!type || speedsChecked.has(type)) continue;
+        speedsChecked.add(type);
         movement[type] = mode.value;
+      } else if (movementModes) {
+        for (const m of comp.definition.speeds[0].modes) {
+          const modeMovementType = MOVEMENT_ID[m.movementId];
+          if (!modeMovementType || speedsChecked.has(modeMovementType)) continue;
+          speedsChecked.add(modeMovementType);
+          if (modeMovementType) movement[modeMovementType] = m.value;
+        }
       } else if (mode.restrictionsText) {
+        if (speedsChecked.has("fly")) continue;
         const restrictionRegex = /Fly Speed (\d+) ft/i;
         const restrictionMatch = mode.restrictionsText.match(restrictionRegex);
         if (restrictionMatch) {
           movement["fly"] = parseInt(restrictionMatch[1]);
+          speedsChecked.add("fly");
         }
-      }
-
-      if ((mode.restrictionsText ?? "").toLowerCase().includes("hover")) {
-        movement["hover"] = true;
       }
     }
 
     this.data.system.attributes.movement = movement;
+    this.data.system.attributes.travel = travel;
   }
 
   #generateHitPoints() {
@@ -520,6 +572,7 @@ export default class DDBVehicle {
       ? component.definition.actions
       : [{}];
 
+    let actionFeature;
     for (const action of actions) {
       const ddbFeature = new DDBComponentFeature(
         {
@@ -532,8 +585,29 @@ export default class DDBVehicle {
       await ddbFeature.loadEnricher();
       await ddbFeature.parse();
 
-      logger.debug("built component", ddbFeature);
-      results.push(ddbFeature.data);
+      logger.debug("vehicle component build", ddbFeature);
+
+      if (actionFeature) {
+        for (const key of Object.keys(ddbFeature.data.system.activities)) {
+          actionFeature.data.system.activities[key] = ddbFeature.data.system.activities[key];
+          actionFeature.data.system.activities[key].name = ddbFeature.data.name;
+          actionFeature.data.system.description.value += `<br>
+<h3>${ddbFeature.data.name}</h3>\n
+<p>${ddbFeature.data.system.description.value}</p>`;
+          if (ddbFeature.data.system.activities[key] && ddbFeature.data.system.activities[key].effects?.length === 0) {
+            actionFeature.data.system.activities[key].effects = ddbFeature.data.system.activities[key].effects;
+
+            const effects = ddbFeature.data.effects.filter((e) => ddbFeature.data.system.activities[key].effects.includes(e._id));
+            actionFeature.data.effects.push(...effects);
+          }
+        }
+      } else {
+        actionFeature = ddbFeature;
+      }
+
+    }
+    if (actionFeature) {
+      results.push(actionFeature.data);
     }
 
     return results;

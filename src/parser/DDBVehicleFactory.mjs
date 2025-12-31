@@ -262,7 +262,9 @@ export default class DDBVehicleFactory {
     for (const doc of documents) {
       this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${doc.name} to compendium`, { monsterNote: true });
       logger.debug(`Preparing ${doc.name} data for import`);
-      const munched = await DDBMonsterImporter.addNPC(doc, "vehicle");
+      const munched = await DDBMonsterImporter.addNPC(doc, "vehicle", {}, {
+        fullWipe: true,
+      });
       if (munched) this.vehiclesParsed.push(munched);
       this.currentDocument += 1;
     }

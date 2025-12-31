@@ -10,9 +10,10 @@ import { SETTINGS } from "../config/_module.mjs";
 
 export default class DDBMonsterImporter {
 
-  constructor({ monster, type, updateExisting, notifier } = {}) {
+  constructor({ monster, type, updateExisting, notifier, fullWipe = false } = {}) {
     this.monster = monster;
     this.type = type;
+    this.fullWipe = fullWipe;
     this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
 
     this.compendiumActor = null;
@@ -121,7 +122,12 @@ export default class DDBMonsterImporter {
           foundry.utils.setProperty(this.monster.prototypeToken, "flags.levels-3d-preview.model3d", existing3dModel);
         }
 
-        await this.existingItemRetentionCheck(false);
+        if (this.fullWipe) {
+          logger.debug("Performing full wipe of existing items/effects");
+        } else {
+          await this.existingItemRetentionCheck(false);
+        }
+
 
         logger.debug("NPC Update Data", foundry.utils.duplicate(this.monster));
         await this.compendiumActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
@@ -365,12 +371,13 @@ export default class DDBMonsterImporter {
   }
 
 
-  static async addNPC(data, type, buildOptions = {}, { updateExisting = null } = {}) {
+  static async addNPC(data, type, buildOptions = {}, { updateExisting = null, fullWipe = null } = {}) {
     try {
       const monsterImporter = new DDBMonsterImporter({
         monster: data,
         type,
         updateExisting,
+        fullWipe,
       });
       await monsterImporter.build(buildOptions);
       logger.info(`Processing ${type} ${monsterImporter.monster.name} for the compendium`);
