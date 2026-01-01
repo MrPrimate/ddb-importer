@@ -1,5 +1,9 @@
 # Next Up
 
+# 6.6.38
+
+- Adventure Muncher config would not generate in 6.6.37
+
 # 6.6.37
 
 - Vehicle Parsing is now supported again for the 5.2.x D&D system.

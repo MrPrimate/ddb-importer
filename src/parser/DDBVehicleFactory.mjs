@@ -92,7 +92,7 @@ export default class DDBVehicleFactory {
    * @returns {Promise<object[]>} a promise that resolves with an array of vehicles
    */
   async fetchDDBVehicleSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false },
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false } = {},
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
