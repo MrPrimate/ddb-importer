@@ -1,5 +1,7 @@
 # Next Up
 
+- When using a combination of auto tokenize, "Wildcard images and folders per monster name?" and s3 buckets, the created token would not be uploaded to the S3 bucket. @paprikacc @onetruedoge
+
 # 6.6.38
 
 - Adventure Muncher config would not generate in 6.6.37

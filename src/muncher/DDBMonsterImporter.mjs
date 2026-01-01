@@ -266,7 +266,8 @@ export default class DDBMonsterImporter {
         // Token images always have to be downloaded.
         const downloadOptions = {
           type: nameType,
-          name, download: true,
+          name,
+          download: true,
           remoteImages: false,
           force: forceUpdate || updateImages,
           imageNamePrefix,
@@ -306,18 +307,30 @@ export default class DDBMonsterImporter {
         : this.monster.name;
 
       const lastSlashIndex = monsterTokenImgPath.lastIndexOf('/');
+      let targetTokenizerFolder = null;
+      const wildcardPath = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + `${tokenName}/`;
+      if (useWildcard) {
+        const parsed = FileHelper.parseDirectory(targetDirectory);
+        if (parsed.activeSource === "s3") {
+          const parsedS3Url = foundry.utils.parseS3URL(wildcardPath);
+          targetTokenizerFolder = `${targetDirectory}/${parsedS3Url.keyPrefix.replace(parsed.current, "")}`;
+        } else {
+          targetTokenizerFolder = wildcardPath;
+        }
+      }
+
       const autoOptions = {
         name: tokenizerName,
         nameSuffix: `-${bookRuleStub}${compendiumLabel}`,
         updateActor: false,
         isWildCard: false,
-        targetFolder: useWildcard ? monsterTokenImgPath.substring(0, lastSlashIndex + 1) + `${tokenName}/` : undefined,
+        targetFolder: targetTokenizerFolder,
       };
       // eslint-disable-next-line require-atomic-updates
       const tokenizerResult = await window.Tokenizer.autoToken(this.monster, autoOptions);
       this.monster.prototypeToken.texture.src = tokenizerResult;
       if (useWildcard) {
-        this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + `${tokenName}/*`;
+        this.monster.prototypeToken.texture.src = `${wildcardPath}*`;
         this.monster.prototypeToken.randomImg = true;
       }
       logger.debug(`Generated tokenizer image at ${tokenizerResult}`);

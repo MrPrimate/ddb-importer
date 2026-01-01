@@ -48,6 +48,7 @@ export default class DDBSpellListFactory extends SpellListFactory {
     "2014": DDBSpellListFactory.CLASS_NAMES.concat(DDBSpellListFactory.SUBCLASS_NAMES),
     "2024": [
       "Wizard",
+      "Artificer",
     ],
   };
 
