@@ -329,7 +329,7 @@ ${item.system.description.chat}
     }
     if (nonKlassItems.length > 0) {
       logger.debug(`Adding the following non-class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(nonKlassItems) });
-      if (CONFIG.DDBI.DEV.enabled) {
+      if (CONFIG.DDBI.DEV.enabled && CONFIG.DDBI.DEV.itemImportSingle) {
         for (const nonKlassItem of nonKlassItems) {
           logger.info(`Importing ${nonKlassItem.name}`, nonKlassItem);
           await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
@@ -769,6 +769,9 @@ ${item.system.description.chat}
       useOverrideCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-override"),
       useChrisPremades: game.settings.get("ddb-importer", "character-update-policy-use-chris-premades")
         && (game.modules.get("chris-premades")?.active ?? false),
+      midiConfig: game.modules.get("midi-qol")?.active
+        ? foundry.utils.deepClone(game.settings.get("midi-qol", "ConfigSettings"))
+        : null,
     };
   }
 
@@ -788,12 +791,29 @@ ${item.system.description.chat}
     });
   }
 
+  async setSafeMidiQolConfig() {
+    if (this.settings.midiConfig) {
+      const newConfig = foundry.utils.deepClone(this.settings.midiConfig);
+      newConfig.midiDeadCondition = "none";
+      newConfig.midiUnconsciousCondition = "none";
+      newConfig.addDead = "none";
+      await game.settings.set("midi-qol", "ConfigSettings", newConfig);
+    }
+  }
+
+  async restoreMidiQolConfig() {
+    if (this.settings.midiConfig) {
+      await game.settings.set("midi-qol", "ConfigSettings", this.settings.midiConfig);
+    }
+  }
+
   async processCharacterData() {
     this.getSettings();
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
+    this.setSafeMidiQolConfig();
     this.result = foundry.utils.deepClone(this.ddbCharacter.data);
 
     // disable active sync
@@ -941,6 +961,7 @@ ${item.system.description.chat}
       throw new Error("ImportFailure");
     } finally {
       await this.ddbCharacter.updateDynamicUpdates(activeUpdateState);
+      await this.restoreMidiQolConfig();
       this.actor.render();
     }
 
