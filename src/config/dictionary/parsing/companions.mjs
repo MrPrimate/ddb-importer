@@ -98,6 +98,7 @@ const CR_SUMMONING_SPELLS_2014 = [
   "Infernal Calling",
   "Summon Lesser Demons",
   "Find Familiar",
+  "Flock of Familiars",
 ];
 
 const CR_SUMMONING_SPELLS_2024 = [
@@ -121,11 +122,16 @@ const CR_SUMMONING_FEATURES_2024 = [
 
 const FIND_FAMILIAR_MATCHES = [
   "Find Familiar",
+  "Flock of Familiars",
   "Pact of the Chain",
   "Pact Boon: Pact of the Chain",
   "Invocation: Pact of the Chain",
   "Eldritch Invocations: Pact of the Chain",
 ];
+
+const FAMILIAR_COUNTS = {
+  "Flock of Familiars": "3",
+};
 
 
 export const COMPANIONS = {
@@ -140,4 +146,5 @@ export const COMPANIONS = {
   MULTI_COMPANIONS_2014,
   MULTI_COMPANIONS_2024,
   FIND_FAMILIAR_MATCHES,
+  FAMILIAR_COUNTS,
 };
