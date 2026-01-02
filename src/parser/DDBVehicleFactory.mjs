@@ -66,6 +66,7 @@ export default class DDBVehicleFactory {
     //   ? false
     //   : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only");
     const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match");
+    const excludedCategories = DDBSources.getAllExcludedCategoryIds();
 
     const options = {
       ids,
@@ -74,6 +75,8 @@ export default class DDBVehicleFactory {
       homebrew,
       homebrewOnly,
       exactMatch,
+      excludedCategories,
+      excludeLegacy: false,
     };
     logger.debug("Generated vehicles fetch options", options);
     return options;
@@ -89,10 +92,11 @@ export default class DDBVehicleFactory {
    * @param {boolean} [options.homebrewOnly=false] only search homebrew vehicles
    * @param {boolean} [options.exactMatch=false] search for exact vehicle name
    * @param {boolean} [options.excludeLegacy=false] exclude legacy content
+   * @param {number[]} [options.excludedCategories] excluded category IDs
    * @returns {Promise<object[]>} a promise that resolves with an array of vehicles
    */
   async fetchDDBVehicleSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false } = {},
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [] } = {},
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
@@ -121,7 +125,7 @@ export default class DDBVehicleFactory {
       body.searchTerm = encodeURIComponent(searchTerm);
       body.exactMatch = exactMatch;
       body.excludeLegacy = excludeLegacy;
-      body.excludedCategories = DDBSources.getAllExcludedCategoryIds();
+      body.excludedCategories = excludedCategories;
     }
 
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
@@ -163,8 +167,9 @@ export default class DDBVehicleFactory {
             this.source = data;
             resolve(this.source);
           } else {
-            logger.debug("Processing categories");
+            logger.debug("Processing categories", { data });
             const categoryVehicles = data
+              .filter((vehicle) => vehicle.sources)
               .map((vehicle) => {
                 vehicle.sources = vehicle.sources.filter((source) =>
                   source.sourceType === 1

@@ -35,6 +35,8 @@ export default class DDBMonsterFactory {
       ? false
       : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only");
     const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match");
+    const excludedCategories = DDBSources.getAllExcludedCategoryIds();
+    const monsterTypes = DDBSources.getSelectedMonsterTypeIds();
 
     const options = {
       ids,
@@ -43,6 +45,9 @@ export default class DDBMonsterFactory {
       homebrew,
       homebrewOnly,
       exactMatch,
+      excludedCategories,
+      monsterTypes,
+      excludeLegacy: false,
     };
     logger.debug("Generated monster fetch options", options);
     return options;
@@ -89,10 +94,12 @@ export default class DDBMonsterFactory {
    * @param {boolean} [options.homebrewOnly=false] only search homebrew monsters
    * @param {boolean} [options.exactMatch=false] search for exact monster name
    * @param {boolean} [options.excludeLegacy=false] exclude legacy content
+   * @param {number[]} [options.excludedCategories] excluded category IDs
+   * @param {number[]} [options.monsterTypes] monster type IDs to include
    * @returns {Promise<object[]>} a promise that resolves with an array of monsters
    */
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false },
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] } = {},
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
@@ -119,8 +126,8 @@ export default class DDBMonsterFactory {
       body.searchTerm = encodeURIComponent(searchTerm);
       body.exactMatch = exactMatch;
       body.excludeLegacy = excludeLegacy;
-      body.excludedCategories = DDBSources.getAllExcludedCategoryIds();
-      body.monsterTypes = DDBSources.getSelectedMonsterTypeIds();
+      body.excludedCategories = excludedCategories;
+      body.monsterTypes = monsterTypes;
     }
 
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");

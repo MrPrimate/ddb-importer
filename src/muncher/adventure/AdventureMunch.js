@@ -822,7 +822,7 @@ export default class AdventureMunch {
       await this._updateMonsterData();
 
       await this._checkForMissingData();
-      this.lookups.adventureConfig = await generateAdventureConfig(true);
+      this.lookups.adventureConfig = await generateAdventureConfig({ full: true });
 
       await this._importAdventureToWorld();
 

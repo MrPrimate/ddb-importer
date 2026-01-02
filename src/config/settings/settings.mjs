@@ -1275,10 +1275,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "adventure-muncher-full-config": {
-          type: Boolean,
-          default: false,
-        },
       },
     },
   },

@@ -606,7 +606,7 @@ export default class ThirdPartyMunch extends FormApplication {
 
       logger.debug("tokenAdjustedScenes", tokenAdjustedScenes);
 
-      CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig(true);
+      CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups = await generateAdventureConfig({ full: true });
       logger.debug("Lookups loaded", CONFIG.DDBI.ADVENTURE.TEMPORARY.lookups.lookups);
 
       const scenes = await this._updateScenes(tokenAdjustedScenes);

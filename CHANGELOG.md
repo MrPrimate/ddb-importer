@@ -1,6 +1,8 @@
 # Next Up
 
 - When using a combination of auto tokenize, "Wildcard images and folders per monster name?" and s3 buckets, the created token would not be uploaded to the S3 bucket. @paprikacc @onetruedoge
+- Flock of Familiars will now summon familiars
+- When using midi-qol prevent auto effects on 0hp interfering with character imports/updates
 
 # 6.6.38
 

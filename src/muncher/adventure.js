@@ -4,6 +4,7 @@ import {
   FileHelper,
   CompendiumHelper,
   DDBProxy,
+  logger,
 } from "../lib/_module.mjs";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
 
@@ -104,7 +105,10 @@ const ATTACK_ACTION_MAP = {
   },
 };
 
-export async function generateAdventureConfig(full = false, cobalt = true, fullPageMap = false, legacy = false) {
+export async function generateAdventureConfig({ full = false, cobalt = true, fullPageMap = false, legacy = false } = {}) {
+  const getVehicles = !DDBProxy.isCustom(true) && cobalt;
+
+  logger.info("Generating adventure config", { full, cobalt, getVehicles, fullPageMap, legacy });
   const result = {
     schemaVersion: CONFIG.DDBI.schemaVersion,
     debug: false,
@@ -139,7 +143,7 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
   }
 
   // vehicles
-  if (!DDBProxy.isCustom(true) && cobalt) {
+  if (getVehicles) {
     const vehicleFactory = new DDBVehicleFactory();
     await vehicleFactory.fetchDDBVehicleSourceData();
     result.lookups.vehicles = vehicleFactory.source.map((v) => {
@@ -282,9 +286,8 @@ export async function generateAdventureConfig(full = false, cobalt = true, fullP
 
 }
 
-export async function downloadAdventureConfig() {
-  const fullConfig = game.settings.get("ddb-importer", "adventure-muncher-full-config");
-  const result = await generateAdventureConfig(fullConfig);
+export async function downloadAdventureConfig({ fullConfig = false } = {}) {
+  const result = await generateAdventureConfig({ full: fullConfig });
   FileHelper.download(JSON.stringify(result, null, 4), `adventure-config.json`, "application/json");
   return result;
 }
