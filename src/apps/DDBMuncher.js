@@ -28,18 +28,32 @@ import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
 
 export default class DDBMuncher extends DDBAppV2 {
 
+  processErrors = [];
+
+  subClassMap = {};
+
+  homebrewClasses = new Set();
+
+  encounterId = null;
+
+  encounter = null;
+
+  searchTermMonster = "";
+
+  searchTermItem = "";
+
+  searchTermSpell = "";
+
+  muleURL = "";
+
+  characterId = null;
+
+
   constructor() {
     super();
     this.encounterFactory = new DDBEncounterFactory({
       notifier: this.notifier.bind(this),
     });
-    this.encounterId = null;
-    this.encounter = null;
-    this.searchTermMonster = "";
-    this.searchTermItem = "";
-    this.searchTermSpell = "";
-    this.muleURL = "";
-    this.characterId = null;
 
     const URL = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-url");
     this.getCharacterId(URL);
@@ -583,12 +597,34 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
+  async #processClassMunching(options) {
+    const muleHandler = new DDBMuleHandler(options);
 
+    try {
+      await muleHandler.process();
+
+      logger.debug(`Mule processed`, {
+        muleHandler,
+        options: foundry.utils.deepClone(options),
+      });
+    } catch (error) {
+      this.processErrors.push({
+        error: error.message,
+        isHomebrew: options.homebrew,
+        classId: options.classId,
+        message: `Class Mule failure see error messages for details`,
+      });
+      throw error;
+    }
+  }
+
+  // eslint-disable-next-line complexity
   async _parseClassesWithMule() {
     this.autoRotateMessage("class");
+    const allowHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
     const baseOptions = {
       characterId: this.characterId,
-      homebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew"),
+      homebrew: false,
       type: "class",
       ddbMuncher: this,
     };
@@ -615,7 +651,9 @@ export default class DDBMuncher extends DDBAppV2 {
       baseOptions,
     });
 
-    const processErrors = [];
+    this.processErrors = [];
+    // reset homebrew classes to process
+    this.homebrewClasses = new Set();
 
     try {
       for (const sourceIdArray of sourceIdArrays) {
@@ -629,7 +667,15 @@ export default class DDBMuncher extends DDBAppV2 {
 
           const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
 
-          const subClasses = await DDBMuleHandler.getSubclasses(klass.name, version);
+          if (!this.subClassMap[`${klass.name}-${version}`]) {
+            const subClasses = await DDBMuleHandler.getSubclasses(klass.name, version, true);
+            this.subClassMap[`${klass.name}-${version}`] = subClasses;
+            // eslint-disable-next-line max-depth
+            if (subClasses.some((subKlass) => subKlass.isHomebrew)) {
+              this.homebrewClasses.add(klass.id);
+            }
+          }
+          const subClasses = this.subClassMap[`${klass.name}-${version}`];
           const subClassSources = new Set(subClasses.map((subKlass) => subKlass.sources.map((s) => s.sourceId)).flat());
           const sources = foundry.utils.deepClone(sourceIdArray.sourceIds)
             .filter((sourceId) => subClassSources.has(sourceId));
@@ -638,6 +684,10 @@ export default class DDBMuncher extends DDBAppV2 {
             logger.info(`No subclasses in selected sources for class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}, skipping`, {
               sources,
               subClassSources,
+              allowHomebrew,
+              homebrewClasses: this.homebrewClasses,
+              subClasses,
+              subClassMap: this.subClassMap,
               klass,
               originalSources: sourceIdArray.sourceIds,
             });
@@ -646,16 +696,13 @@ export default class DDBMuncher extends DDBAppV2 {
 
           options.sources = sources;
 
-          const muleHandler = new DDBMuleHandler(options);
           this.notifierV2({
             section: "name",
             message: `Munching for ${klass.name} from ${sources.length} sources in the ${category?.name ?? sourceIdArray.categoryId} category...`,
           });
           try {
-            await muleHandler.process();
-
+            await this.#processClassMunching(options);
             logger.debug(`Munch Complete for class ${klass.name} in ${category?.name ?? sourceIdArray.categoryId}`, {
-              muleHandler,
               sourceIdArray,
               options: foundry.utils.deepClone(options),
               allowedClassIds,
@@ -663,12 +710,53 @@ export default class DDBMuncher extends DDBAppV2 {
           } catch (error) {
             logger.error(error);
             logger.error(error.stack);
-            processErrors.push({
+            this.processErrors.push({
               className: klass.name,
               classId: klass.id,
               category: category?.name ?? sourceIdArray.categoryId,
               error: error.message,
               message: `Class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`,
+            });
+          }
+        }
+      }
+
+      if (allowHomebrew && this.homebrewClasses.size > 0) {
+        logger.info(`Re-processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
+          homebrewClasses: Array.from(this.homebrewClasses),
+        });
+        const options = foundry.utils.deepClone(baseOptions);
+        for (const classId of this.homebrewClasses) {
+          const klass = classList.find((c) => c.id === classId);
+          logger.debug("Munching homebrew subclasses for class", {
+            classId,
+            klass,
+            homebrewClasses: Array.from(this.homebrewClasses),
+            classList,
+          });
+          options.homebrew = true;
+          options.classId = klass.id;
+          this.autoRotateMessage("class", klass.name.toLowerCase());
+          logger.info(`Munching class ${klass.name} (${klass.id}) Homebrew subclasses`);
+
+          this.notifierV2({
+            section: "name",
+            message: `Munching for ${klass.name} homebrew subclasses...`,
+          });
+          try {
+            await this.#processClassMunching(options);
+            logger.debug(`Munch Complete for class ${klass.name} for homebrew`, {
+              options: foundry.utils.deepClone(options),
+            });
+          } catch (error) {
+            logger.error(error);
+            logger.error(error.stack);
+            this.processErrors.push({
+              className: klass.name,
+              classId: klass.id,
+              category: "Homebrew",
+              error: error.message,
+              message: `Class ${klass.name} (${klass.id}) for homebrew subclasses`,
             });
           }
         }
@@ -679,10 +767,13 @@ export default class DDBMuncher extends DDBAppV2 {
       this.notifier(`Error during munching: ${error.message}`, { nameField: true });
     } finally {
       this.stopAutoRotateMessage();
-      if (processErrors.length > 0) {
-        this.notifier(`Errors during munching: ${processErrors.length}`, { nameField: true });
-        this.notifier(processErrors.map((e) => e.message).join(" & "), { message: true });
-        logger.error("Process Errors:", processErrors);
+      if (this.processErrors.length > 0) {
+        this.notifier(`Errors during munching: ${this.processErrors.length}`, { nameField: true });
+        this.notifier(this.processErrors.map((e) => e.message).join(" & "), { message: true });
+        logger.error("Process Errors:", {
+          processErrors: this.processErrors,
+          this: this,
+        });
       }
     }
   }

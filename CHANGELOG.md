@@ -1,5 +1,7 @@
 # Next Up
 
+- Homebrew subclasses would not import when doing class munch.
+
 # 6.6.39
 
 - When using a combination of auto tokenize, "Wildcard images and folders per monster name?" and s3 buckets, the created token would not be uploaded to the S3 bucket. @paprikacc @onetruedoge

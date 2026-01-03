@@ -565,7 +565,7 @@ export default class DDBMuleHandler {
     return data.data;
   }
 
-  static async getSubclasses(className, rulesVersion = "2024") {
+  static async getSubclasses(className, rulesVersion = "2024", includeHomebrew = false) {
     const cobaltCookie = Secrets.getCobalt();
     const campaignId = DDBCampaigns.getCampaignId();
     const parsingApi = DDBProxy.getProxy();
@@ -576,6 +576,7 @@ export default class DDBMuleHandler {
       betaKey,
       className,
       rulesVersion,
+      includeHomebrew,
     };
 
     const response = await fetch(`${parsingApi}/proxy/subclass`, {
