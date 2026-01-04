@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.40
+
 - Homebrew subclasses would not import when doing class munch.
 
 # 6.6.39
