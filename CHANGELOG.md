@@ -1,5 +1,7 @@
 # Next Up
 
+- Form of the Beast in the Predator Class would pick up some hints from the Barbarian version.
+
 # 6.6.40
 
 - Homebrew subclasses would not import when doing class munch.

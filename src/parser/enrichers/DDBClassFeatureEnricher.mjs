@@ -1,6 +1,7 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module.mjs";
 import { utils } from "../../lib/_module.mjs";
+import { Barbarian } from "./class/_module.mjs";
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null } = {}) {
@@ -151,6 +152,13 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     Paladin: {
       "Elemental Strike": ClassEnrichers.Paladin.ElementalSmite,
     },
+    Barbarian: {
+      "Form of the Beast: Bite": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
+      "Form of the Beast: Claw": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
+      "Form of the Beast: Tail (reaction)": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
+      "Form of the Beast: Tail": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
+      "Form of the Beast": ClassEnrichers.Barbarian.FormOfTheBeast,
+    },
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
@@ -192,11 +200,6 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Flurry of Healing and Harm": ClassEnrichers.Monk.FlurryOfHealingAndHarm,
     "Font of Magic: Sorcery Points": ClassEnrichers.Sorcerer.FontOfMagicSorceryPoints,
     "Font of Magic": ClassEnrichers.Sorcerer.FontOfMagic,
-    "Form of the Beast: Bite": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
-    "Form of the Beast: Claw": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
-    "Form of the Beast: Tail (reaction)": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
-    "Form of the Beast: Tail": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
-    "Form of the Beast": ClassEnrichers.Barbarian.FormOfTheBeast,
     "Genie's Vessel: Genie's Wrath (Dao)": ClassEnrichers.Warlock.GeniesVessel,
     "Genie's Vessel: Genie's Wrath (Djinni)": ClassEnrichers.Warlock.GeniesVessel,
     "Genie's Vessel: Genie's Wrath (Efreeti)": ClassEnrichers.Warlock.GeniesVessel,
