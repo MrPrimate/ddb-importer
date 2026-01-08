@@ -283,7 +283,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     let result;
     const diceParse = utils.parseDiceString(text, null);
     if (this.actionData.baseAbility) {
-      const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
+      const baseAbilityMod = this.ddbVehicle.abilities[this.actionData.baseAbility].mod;
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
@@ -302,14 +302,14 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       : `${this.strippedHtml}`.replace(this.fullName, "").trim();
     hit = hit.replace(/[–-–−]/g, "-");
 
-    this.ddbMonsterDamage = new DDBMonsterDamage(hit, { ddbMonsterFeature: this, splitSaves: true });
+    this.ddbVehicleDamage = new DDBMonsterDamage(hit, { ddbMonsterFeature: this, splitSaves: true });
 
-    this.ddbMonsterDamage.generateDamage();
-    this.ddbMonsterDamage.generateRegain();
+    this.ddbVehicleDamage.generateDamage();
+    this.ddbVehicleDamage.generateRegain();
 
-    this.actionData.damageParts = this.ddbMonsterDamage.damageParts;
-    this.actionData.versatileParts = this.ddbMonsterDamage.versatileParts;
-    this.actionData.saveParts = this.ddbMonsterDamage.saveParts;
+    this.actionData.damageParts = this.ddbVehicleDamage.damageParts;
+    this.actionData.versatileParts = this.ddbVehicleDamage.versatileParts;
+    this.actionData.saveParts = this.ddbVehicleDamage.saveParts;
 
     this._generateEscapeCheck(hit);
 
@@ -602,7 +602,7 @@ ${this.data.system.description.value}
     });
 
     const deps = Effects.AutoEffects.effectModules();
-    if (!deps.hasCore || !this.ddbMonster.addMonsterEffects) {
+    if (!deps.hasCore || !this.ddbVehicle.addMonsterEffects) {
       logger.debug(`Adding Condition Effects to ${this.name}`);
       overtimeGenerator.generateConditionOnlyEffect();
     } else if (this.ddbVehicle.addMonsterEffects) {

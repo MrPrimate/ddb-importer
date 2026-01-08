@@ -1,6 +1,7 @@
 # Next Up
 
 - Form of the Beast in the Predator Class would pick up some hints from the Barbarian version.
+- Vehicles would not import if using midi-qol effects @agceyx
 
 # 6.6.40
 
