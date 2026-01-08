@@ -624,7 +624,7 @@ export default class DDBRace {
           if (foundry.utils.getProperty(i, "flags.ddbimporter.is2024")) return false;
         } else if (this.is2024) {
           if (foundry.utils.getProperty(i, "flags.ddbimporter.is2014")) return false;
-          if (foundry.utils.getProperty(i, "system.type.subtype") === "origin") return false;
+          if (foundry.utils.getProperty(i, "system.type.subtype") !== "origin") return false;
         }
         return true;
       })
