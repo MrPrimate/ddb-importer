@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.41
+
 - Form of the Beast in the Predator subclass would pick up some hints from the Barbarian version.
 - Vehicles would not import if using midi-qol effects @agceyx
 - Human 2024 would not add Origin feats to the Versatile advancement @crimsonedge @hezith
