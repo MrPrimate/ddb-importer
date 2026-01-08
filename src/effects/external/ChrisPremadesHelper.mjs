@@ -4,6 +4,7 @@
 import { DICTIONARY } from "../../config/_module.mjs";
 import {
   logger,
+  utils,
 } from "../../lib/_module.mjs";
 
 
@@ -239,6 +240,10 @@ export default class ChrisPremadesHelper {
     foundry.utils.setProperty(this.document, "flags.ddbimporter.effectsApplied", true);
     foundry.utils.setProperty(this.document, "flags.ddbimporter.chrisEffectsApplied", true);
     foundry.utils.setProperty(this.document, "flags.ddbimporter.chrisPreEffectName", this.ddbName);
+
+    if (utils.isDefaultOrPlaceholderImage(this.document.img)) {
+      this.document.img = this.chrisDoc.img;
+    }
 
     const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${this.chrisName}`);
     if (correctionProperties) {

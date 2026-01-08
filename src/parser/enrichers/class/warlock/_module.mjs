@@ -8,6 +8,7 @@ export { default as EldritchInvocationsAgonizingBlast } from "./EldritchInvocati
 export { default as EldritchMaster } from "./EldritchMaster.mjs";
 export { default as ExtraSpells } from "./ExtraSpells.mjs";
 export { default as FiendishResilience } from "./FiendishResilience.mjs";
+export { default as FormOfTheBeast } from "./FormOfTheBeast.mjs";
 export { default as GeniesVessel } from "./GeniesVessel.mjs";
 export { default as GhostlyGaze } from "./GhostlyGaze.mjs";
 export { default as HealingLight } from "./HealingLight.mjs";
@@ -20,4 +21,5 @@ export { default as PactOfTheChain } from "./PactOfTheChain.mjs";
 export { default as RadiantSoul } from "./RadiantSoul.mjs";
 export { default as SearingVengeance } from "./SearingVengeance.mjs";
 export { default as StepsOfTheFey } from "./StepsOfTheFey.mjs";
+export { default as ThrillOfTheHunt } from "./ThrillOfTheHunt.mjs";
 

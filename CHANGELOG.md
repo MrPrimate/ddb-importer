@@ -1,8 +1,10 @@
 # Next Up
 
-- Form of the Beast in the Predator Class would pick up some hints from the Barbarian version.
+- Form of the Beast in the Predator subclass would pick up some hints from the Barbarian version.
 - Vehicles would not import if using midi-qol effects @agceyx
 - Human 2024 would not add Origin feats to the Versatile advancement @crimsonedge @hezith
+- When using CPR, if CPR has an image for a document and DDB Importer does not have, DDB Importer will use the CPR icon.
+- Tweaks to Predator subclass.
 
 # 6.6.40
 
