@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.42
+
 -Starry Form activities did not add modifier correctly.
 
 # 6.6.41
