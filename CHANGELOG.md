@@ -1,5 +1,7 @@
 # Next Up
 
+-Starry Form activities did not add modifier correctly.
+
 # 6.6.41
 
 - Form of the Beast in the Predator subclass would pick up some hints from the Barbarian version.
