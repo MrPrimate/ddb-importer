@@ -485,12 +485,22 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       range.units = "ft";
     } else if (reachMatch) {
       const value = parseInt(reachMatch[1]);
-      if (value > 5) this.actionData.properties.rch = true;
-      range.reach = value;
+      if (this.templateType === "weapon") {
+        if (value > 5) this.actionData.properties.rch = true;
+        range.reach = value;
+      } else {
+        range.value = value;
+      }
       range.units = "ft";
     } else if (withinMatch) {
       range.value = parseInt(withinMatch[1]);
       range.units = "ft";
+    } else {
+      // eslint-disable-next-line no-lonely-if
+      if (this.meleeAttack) {
+        range.value = 5;
+        range.units = "ft";
+      }
     }
 
     return range;
@@ -768,6 +778,11 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (targetsCreature || creatureTargetCount) {
       target.affects.count = creatureTargetCount && ["one", "a", "the"].includes(creatureTargetCount[1]) ? "1" : "";
       target.affects.type = creatureTargetCount && creatureTargetCount[2] ? "creatureOrObject" : "creature";
+    }
+
+    if (target.affects.type === "" && this.meleeAttack) {
+      target.affects.type = "creature";
+      target.affects.count = "1";
     }
 
     return target;

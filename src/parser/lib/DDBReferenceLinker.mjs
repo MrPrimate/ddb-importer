@@ -455,7 +455,7 @@ export function parseToHitRoll({ text, document } = {}) {
 
   const matches = utils.stripHtml(`${text}`).trim().match(
     // /(?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*Attack:\s*([+-]\d+|your (?:\w+\s*)*)(?:,)?\s+(plus PB\s|\+ PB\s)?to\s+hit/i,
-    /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<toHitString>(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit,|,|\(|\.))/i,
+    /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<toHitString>(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit,|,|\(|\.))(?: reach \d+ ft)?/i,
   );
 
   const toHit = matches && Number.isInteger(parseInt(matches.groups?.bonus));
@@ -467,7 +467,7 @@ export function parseToHitRoll({ text, document } = {}) {
   if (useExtendedAttackEnricher) {
     const htmlReplace = /<em>\s*((?:Melee|Ranged|Melee\s+or\s+Ranged)\s+(?:|Weapon|Spell)\s*(?:Attack|Attack Roll):\s*)<\/em>/i;
     text = text.replace(htmlReplace, "$1");
-    text = text.replace(matches[0], "[[/attack extended]],");
+    text = text.replace(matches[0], "[[/attack extended]],").replace(",.", ".");
 
     return text;
   }
