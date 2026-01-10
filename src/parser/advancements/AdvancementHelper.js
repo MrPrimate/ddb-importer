@@ -2258,6 +2258,30 @@ export default class AdvancementHelper {
 
     // When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table
 
+    // When you reach character levels 3 and 5, you learn the Ice Knife spell and the Flame Blade spell, respectively.
+    const levelPairRegex = /levels?\s+(\d+)\s+and\s+(\d+)[^.]*?the\s+(.+?)\s+spell\s+and\s+the\s+(.+?)\s+spell/gi;
+    const levelPairMatches = strippedDescription.matchAll(levelPairRegex);
+    for (const match of levelPairMatches) {
+      if (!spellsAdded.has(match[3].toLowerCase())) {
+        const spell = match[3].toLowerCase().trim();
+        spellsAdded.add(spell);
+        result.spellGrants.push({
+          level: parseInt(match[1]),
+          name: spell,
+          amount: "1",
+        });
+      }
+      if (!spellsAdded.has(match[4].toLowerCase())) {
+        const spell = match[4].toLowerCase().trim();
+        spellsAdded.add(spell);
+        result.spellGrants.push({
+          level: parseInt(match[2]),
+          name: spell,
+          amount: "1",
+        });
+      }
+    }
+
     return result;
   }
 

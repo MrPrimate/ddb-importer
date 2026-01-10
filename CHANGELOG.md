@@ -1,8 +1,12 @@
 # Next Up
 
+- Tweaks to Secret choice text generation on features to avoid generating unwanted or excessive secret descriptions.
+- Support syntax for species spells for FR species like the Rimekin.
+
+
 # 6.6.42
 
--Starry Form activities did not add modifier correctly.
+- Starry Form activities did not add modifier correctly.
 
 # 6.6.41
 

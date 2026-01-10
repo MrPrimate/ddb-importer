@@ -1118,51 +1118,51 @@ export default class DDBRace {
   }
 
   linkSpells(ddbCharacter) {
-    logger.debug("Linking Spells to Race", {
+    logger.warn("Linking Spells to Race", {
       DDBRace: this,
       ddbCharacter,
     });
 
+    const validSpells = ddbCharacter.data.spells.filter((spell) => {
+      return spell.flags.ddbimporter.dndbeyond.lookup === "race"
+        && !spell.flags.ddbimporter.dndbeyond.usesSpellSlot;
+    });
+
     ddbCharacter.data.race.system.advancement
-      .filter((a) => foundry.utils.hasProperty(a, "configuration.spell"))
+      .filter((a) =>
+        foundry.utils.hasProperty(a, "configuration.spell")
+        && this.spellLinks.some((l) => l.advancementId === a._id),
+      )
       .forEach((a, idx, advancements) => {
         const addedSpells = {};
         let ability;
+        const spellLinkMatch = this.spellLinks.find((l) => l.advancementId === a._id);
 
-        for (const spell of ddbCharacter.data.spells) {
-          const valid = spell.flags.ddbimporter.dndbeyond.lookup === "race"
-            && !spell.flags.ddbimporter.dndbeyond.usesSpellSlot;
-          if (!valid) continue;
-
-          const spellLinkMatch = this.spellLinks.find((l) => l.advancementId === a._id);
-          if (!spellLinkMatch) continue;
-
+        for (const spell of validSpells) {
           const spellUuidMatch = spellLinkMatch.uuids.find((l) =>
             l.name.toLowerCase() === spell.flags.ddbimporter.originalName.toLowerCase(),
           );
           if (!spellUuidMatch) continue;
 
           if (spell.flags.ddbimporter.dndbeyond.ability) ability = spell.flags.ddbimporter.dndbeyond.ability;
-
           logger.debug(`Advancement Race ${a._id} found Spell ${spell.name} (${spellUuidMatch.uuid})`);
-          addedSpells[spell._id] = spellUuidMatch.uuid;
+
+          if (a.type === "ItemChoice") {
+            if (!foundry.utils.hasProperty(addedSpells, "0")) {
+              addedSpells["0"] = {};
+            }
+            addedSpells["0"][spell._id] = spellUuidMatch.uuid;
+          } else {
+            addedSpells[spell._id] = spellUuidMatch.uuid;
+          }
           foundry.utils.setProperty(spell, "flags.dnd5e.sourceId", spellUuidMatch.uuid);
           foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
         }
 
-        if (a.type === "ItemChoice") {
-          a.value = {
-            ability,
-            added: {
-              "0": addedSpells,
-            },
-          };
-        } else {
-          a.value = {
-            ability,
-            added: addedSpells,
-          };
-        }
+        a.value = {
+          ability,
+          added: addedSpells,
+        };
 
         advancements[idx] = a;
       });
