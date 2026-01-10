@@ -3,6 +3,7 @@ import { utils, logger, CompendiumHelper } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
 import { DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 import DDBAttackAction from "./DDBAttackAction.js";
+import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBFeatureMixin from "./DDBFeatureMixin.js";
 
 export default class DDBFeature extends DDBFeatureMixin {
@@ -575,6 +576,11 @@ export default class DDBFeature extends DDBFeatureMixin {
         : this._parentOnlyChoices;
 
     const choiceText = choices
+      .filter((c) =>
+        !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
+        && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
+        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.label).includes(utils.nameString(c.label)),
+      )
       .sort((a, b) => ((a.label < b.label) ? -1 : (a.label > b.label) ? 1 : 0))
       .reduce((p, c) => {
         if (!p.some((e) => e.label === c.label)) p.push(c);
@@ -603,6 +609,7 @@ ${description}`;
 
     const secretText = DDBFeature.CHOICE_DEFS.NO_CHOICE_DESCRIPTION_ADDITION.includes(this.originalName)
       || ["feat"].includes(this.type) // don't add choice options for feats
+      || joinedText.trim() === ""
       ? ""
       : DDBFeature.CHOICE_DEFS.NO_CHOICE_BUILD.includes(this.originalName)
         || DDBFeature.CHOICE_DEFS.NO_CHOICE_SECRET.includes(this.originalName)
