@@ -736,6 +736,56 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return "";
   }
 
+  _filterModForChoice(mod, choice, type) {
+    if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId)
+      return true;
+    if (choice && this.ddbData.character.options[type]?.length > 0) {
+      // if it is a choice option, try and see if the mod matches
+      const choiceMatch = this.ddbData.character.options[type].some(
+        (option) =>
+          // id match
+          choice.componentId == option.componentId // the choice id matches the option componentID
+          && option.definition.id == mod.componentId // option id and mod id match
+          && (choice.componentTypeId == option.componentTypeId // either the choice componenttype and optiontype match or
+            || choice.componentTypeId == option.definition.entityTypeId) // the choice componentID matches the option definition entitytypeid
+          && option.definition.entityTypeId == mod.componentTypeId // mod componentId matches option entity type id
+          && choice.id == mod.componentId, // choice id and mod id match
+      );
+      // console.log(`choiceMatch ${choiceMatch}`);
+      if (choiceMatch) return true;
+    } else if (choice) {
+      // && choice.parentChoiceId
+      const choiceIdSplit = choice.choiceId.split("-").pop();
+      if (mod.id == choiceIdSplit) return true;
+    }
+
+    if (mod.componentId === this.ddbDefinition.id) {
+      if (type === "class") {
+        // logger.log("Class check - feature effect parsing");
+        const classFeatureMatch = this.ddbData.character.classes.some((klass) =>
+          klass.classFeatures.some(
+            (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
+          ),
+        );
+        if (classFeatureMatch) return true;
+      } else if (type === "feat") {
+        const featMatch = this.ddbData.character.feats.some(
+          (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
+        );
+        if (featMatch) return true;
+      } else if (type === "race") {
+        const traitMatch = this.ddbData.character.race.racialTraits.some(
+          (t) =>
+            t.definition.entityTypeId == mod.componentTypeId
+            && t.definition.id == mod.componentId
+            && t.definition.id == this.ddbDefinition.id,
+        );
+        if (traitMatch) return true;
+      }
+    }
+    return false;
+  }
+
   _getFeatModifierItem(choice, type) {
     if (this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
     let modifierItem = foundry.utils.duplicate(this.ddbDefinition);
@@ -747,55 +797,21 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     ].flat();
 
     if (!modifierItem.definition) modifierItem.definition = {};
-    modifierItem.definition.grantedModifiers = modifiers.filter((mod) => {
-      if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId)
-        return true;
-      if (choice && this.ddbData.character.options[type]?.length > 0) {
-        // if it is a choice option, try and see if the mod matches
-        const choiceMatch = this.ddbData.character.options[type].some(
-          (option) =>
-            // id match
-            choice.componentId == option.componentId // the choice id matches the option componentID
-            && option.definition.id == mod.componentId // option id and mod id match
-            && (choice.componentTypeId == option.componentTypeId // either the choice componenttype and optiontype match or
-              || choice.componentTypeId == option.definition.entityTypeId) // the choice componentID matches the option definition entitytypeid
-            && option.definition.entityTypeId == mod.componentTypeId // mod componentId matches option entity type id
-            && choice.id == mod.componentId, // choice id and mod id match
-        );
-        // console.log(`choiceMatch ${choiceMatch}`);
-        if (choiceMatch) return true;
-      } else if (choice) {
-        // && choice.parentChoiceId
-        const choiceIdSplit = choice.choiceId.split("-").pop();
-        if (mod.id == choiceIdSplit) return true;
-      }
+    modifierItem.definition.grantedModifiers = modifiers.filter((mod) => this._filterModForChoice(mod, choice, type));
 
-      if (mod.componentId === this.ddbDefinition.id) {
-        if (type === "class") {
-          // logger.log("Class check - feature effect parsing");
-          const classFeatureMatch = this.ddbData.character.classes.some((klass) =>
-            klass.classFeatures.some(
-              (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
-            ),
-          );
-          if (classFeatureMatch) return true;
-        } else if (type === "feat") {
-          const featMatch = this.ddbData.character.feats.some(
-            (f) => f.definition.entityTypeId == mod.componentTypeId && f.definition.id == this.ddbDefinition.id,
-          );
-          if (featMatch) return true;
-        } else if (type === "race") {
-          const traitMatch = this.ddbData.character.race.racialTraits.some(
-            (t) =>
-              t.definition.entityTypeId == mod.componentTypeId
-              && t.definition.id == mod.componentId
-              && t.definition.id == this.ddbDefinition.id,
-          );
-          if (traitMatch) return true;
-        }
-      }
-      return false;
-    });
+    if (type === "race") {
+      // we add choice modifiers back in for senses that are granted as part of a choice feature,
+      // such as for the Faerie 2024
+      const mods = DDBModifiers.getModifiers(this.ddbData, "race", true, false)
+        .filter((mod) =>
+          ["sense", "set-base"].includes(mod.type)
+          && this.ddbData.character.choices.choiceDefinitions.some((def) =>
+            def.options.some((opt) => opt.id === mod.componentId),
+          )
+          && this._filterModForChoice(mod, choice, type),
+        );
+      modifierItem.definition.grantedModifiers.push(...mods);
+    }
 
     return modifierItem;
   }

@@ -30,11 +30,18 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
   // Base senses
   for (const senseName in senses) {
     const basicOptions = { subType: senseName, includeExcludedEffects: includeEffects };
-    DDBModifiers.filterBaseModifiers(this.source.ddb, "set-base", basicOptions).forEach((sense) => {
-      if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
-        senses[senseName] = parseInt(sense.value);
-      }
-    });
+    DDBModifiers
+      .filterBaseModifiers(this.source.ddb, "set-base", basicOptions)
+      .filter((mod) =>
+        !this.source.ddb.character.choices.choiceDefinitions.some((def) =>
+          def.options.some((opt) => opt.id === mod.componentId),
+        ),
+      )
+      .forEach((sense) => {
+        if (Number.isInteger(sense.value) && sense.value > senses[senseName]) {
+          senses[senseName] = parseInt(sense.value);
+        }
+      });
   }
 
   // Devils Sight gives bright light to 120 foot instead of normal darkvision
@@ -62,6 +69,11 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
   };
   DDBModifiers
     .filterBaseModifiers(this.source.ddb, "sense", magicalBonusFilters)
+    .filter((mod) =>
+      !this.source.ddb.character.choices.choiceDefinitions.some((def) =>
+        def.options.some((opt) => opt.id === mod.componentId),
+      ),
+    )
     .forEach((mod) => {
       const hasSense = mod.subType in senses;
       if (hasSense && mod.value && Number.isInteger(mod.value)) {

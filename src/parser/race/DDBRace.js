@@ -1298,24 +1298,27 @@ export default class DDBRace {
   }
 
   #generateSenses() {
-    // if (this.isGeneric) {
-    //   this.#generateHTMLSenses();
-    //   return;
-    // }
     for (const senseName in this.data.system.senses) {
       const basicOptions = {
         subType: senseName,
       };
-      DDBModifiers.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "sense", basicOptions).forEach((sense) => {
-        if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
-          this.data.system.senses[senseName] = parseInt(sense.value);
-        }
-      });
-      DDBModifiers.filterModifiers((this.ddbData?.character?.modifiers?.race ?? []), "set-base", basicOptions).forEach((sense) => {
-        if (Number.isInteger(sense.value) && sense.value > this.data.system.senses[senseName]) {
-          this.data.system.senses[senseName] = parseInt(sense.value);
-        }
-      });
+      const senseModifiers = [
+        ...DDBModifiers.filterModifiers((this.ddbData.character?.modifiers?.race ?? []), "sense", basicOptions),
+        ...DDBModifiers.filterModifiers((this.ddbData.character?.modifiers?.race ?? []), "set-base", basicOptions),
+      ];
+      senseModifiers
+        .filter((mod) => {
+          // we remove senses that are granted as part of a choice feature for the species
+          const isChoiceModifier = this.ddbData.character.choices.choiceDefinitions.some((def) =>
+            def.options.some((opt) => opt.id === mod.componentId),
+          );
+          return !isChoiceModifier;
+        })
+        .forEach((mod) => {
+          if (Number.isInteger(mod.value) && mod.value > this.data.system.senses[senseName]) {
+            this.data.system.senses[senseName] = parseInt(mod.value);
+          }
+        });
     }
   }
 
