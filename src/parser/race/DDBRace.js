@@ -1341,41 +1341,57 @@ export default class DDBRace {
   //   }
   // }
 
-  #advancementFixes() {
-    if (this.is2014) return;
-    if (this.data.name.startsWith("Dragonborn")) {
-      const breathWeapon = {
-        _id: foundry.utils.randomID(),
-        type: "ScaleValue",
-        configuration: {
-          distance: { units: "" },
-          identifier: `breath-weapon`,
-          type: "dice",
-          scale: {
-            1: {
-              number: 1,
-              faces: 10,
-            },
-            5: {
-              number: 2,
-              faces: 10,
-            },
-            11: {
-              number: 3,
-              faces: 10,
-            },
-            17: {
-              number: 4,
-              faces: 10,
-            },
+  #fix2024DragonBorn() {
+    if (!this.data.name.startsWith("Dragonborn")) return;
+    const breathWeapon = {
+      _id: foundry.utils.randomID(),
+      type: "ScaleValue",
+      configuration: {
+        distance: { units: "" },
+        identifier: `breath-weapon`,
+        type: "dice",
+        scale: {
+          1: {
+            number: 1,
+            faces: 10,
+          },
+          5: {
+            number: 2,
+            faces: 10,
+          },
+          11: {
+            number: 3,
+            faces: 10,
+          },
+          17: {
+            number: 4,
+            faces: 10,
           },
         },
-        value: {},
-        title: `Breath Weapon Dice`,
-        icon: null,
-      };
-      this.data.system.advancement.push(breathWeapon);
+      },
+      value: {},
+      title: `Breath Weapon Dice`,
+      icon: null,
+    };
+    this.data.system.advancement.push(breathWeapon);
+  }
+
+  #fix2024Aasimar() {
+    if (!this.data.name.startsWith("Aasimar")) return;
+    for (let advancement of this.data.system.advancement) {
+      if (advancement.title !== "Celestial Revelation") continue;
+      advancement.type = "ItemGrant";
+      advancement.configuration.items = foundry.utils.deepClone(advancement.configuration.pool);
+      delete advancement.configuration.pool;
+      delete advancement.configuration.choices;
+      delete advancement.configuration.allowDrops;
     }
+  }
+
+  #advancementFixes() {
+    if (this.is2014) return;
+    this.#fix2024DragonBorn();
+    this.#fix2024Aasimar();
 
   }
 

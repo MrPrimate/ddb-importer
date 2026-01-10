@@ -281,6 +281,47 @@ export const COMPENDIUM_FOLDERS = {
       folderName: "Internal",
       color: "",
     },
+    29: {
+      name: "1985 Games",
+      folderName: "1985 Games",
+      color: "",
+    },
+    30: {
+      folderName: "Road to Ithaka Press",
+      color: "",
+    },
+    31: {
+      folderName: "Loot Tavern",
+      color: "",
+    },
+    32: {
+      folderName: "Mage Hand Press",
+      color: "",
+    },
+    33: {
+      folderName: "Roll & Play Press",
+      color: "",
+    },
+    34: {
+      folderName: "Avantris Entertainment",
+      color: "",
+    },
+    35: {
+      folderName: "Core Rules",
+      color: "6f0006",
+    },
+    36: {
+      folderName: "Chaosium",
+      color: "",
+    },
+    37: {
+      folderName: "Paizo",
+      color: "",
+    },
+    38: {
+      folderName: "Expanded Rules",
+      color: "3d0000",
+    },
     9999999: {
       folderName: "Homebrew",
       color: "",

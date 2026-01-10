@@ -3,6 +3,7 @@
 - Tweaks to Secret choice text generation on features to avoid generating unwanted or excessive secret descriptions.
 - Support syntax for species spells for FR species like the Rimekin.
 - For species like the Faerie in Lorwyn, adjust the import so that the darkvision is granted by the feature rather than from the species.
+- Aasimar 2024 Celestial Revelation advancement fixes when importing.
 
 # 6.6.42
 

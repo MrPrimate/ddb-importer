@@ -294,6 +294,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Fey Gift",
     "Shifting",
     "Large Form",
+    "Celestial Revelation",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
