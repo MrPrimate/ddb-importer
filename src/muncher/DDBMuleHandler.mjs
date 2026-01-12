@@ -19,6 +19,8 @@ export default class DDBMuleHandler {
 
   allowedHomebrew = false;
 
+  onlyHomebrew = false;
+
   type = null;
 
   filterIds = [];
@@ -34,6 +36,7 @@ export default class DDBMuleHandler {
     classId,
     sources = [1, 2, 148, 145],
     homebrew = false,
+    onlyHomebrew,
     type = null,
     filterIds = [],
     cleanup = true,
@@ -50,6 +53,7 @@ export default class DDBMuleHandler {
     this.classId = classId;
     this.allowedSourceIds = sources;
     this.allowedHomebrew = homebrew;
+    this.onlyHomebrew = onlyHomebrew ?? this.allowedHomebrew;
     this.type = type;
     this.filterIds = filterIds;
     this.cleanup = cleanup;
@@ -106,6 +110,7 @@ export default class DDBMuleHandler {
       splitSpells: true,
       sources: this.allowedSourceIds,
       includeHomebrew: this.allowedHomebrew,
+      onlyHomebrew: this.onlyHomebrew,
       filterIds: this.filterIds,
       cleanup: this.cleanup,
       backgroundId: this.backgroundId,
@@ -565,14 +570,14 @@ export default class DDBMuleHandler {
     return data.data;
   }
 
-  static async getSubclasses(className, rulesVersion = "2024", includeHomebrew = false) {
+  static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null } = {}) {
     const cobaltCookie = Secrets.getCobalt();
-    const campaignId = DDBCampaigns.getCampaignId();
+    const resolvedCampaignId = campaignId ?? DDBCampaigns.getCampaignId();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
     const body = {
       cobalt: cobaltCookie,
-      campaignId,
+      campaignId: resolvedCampaignId,
       betaKey,
       className,
       rulesVersion,
@@ -594,6 +599,32 @@ export default class DDBMuleHandler {
     }
     return data.data;
 
+  }
+
+  static async getSlimCharacters(ids = []) {
+    const cobaltCookie = Secrets.getCobalt();
+    const parsingApi = DDBProxy.getProxy();
+    const betaKey = PatreonHelper.getPatreonKey();
+    const body = {
+      cobalt: cobaltCookie,
+      betaKey,
+      characterIds: ids,
+    };
+
+    const response = await fetch(`${parsingApi}/proxy/character/check`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      logger.error(`Failure: ${data.message}`);
+      throw new Error(data.message);
+    }
+    return data.data;
   }
 
 }

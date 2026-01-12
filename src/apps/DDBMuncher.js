@@ -425,6 +425,7 @@ export default class DDBMuncher extends DDBAppV2 {
     context.muleURL = this.muleURL;
     context.characterId = this.characterId;
     context.useCharacterHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
+    context.onlyCharacterHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew");
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -622,13 +623,18 @@ export default class DDBMuncher extends DDBAppV2 {
   async _parseClassesWithMule() {
     this.autoRotateMessage("class");
     const allowHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
+    const onlyHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew");
     const baseOptions = {
       characterId: this.characterId,
       homebrew: false,
+      onlyHomebrew: false,
       type: "class",
       ddbMuncher: this,
     };
     const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
+
+    const slimData = await DDBMuleHandler.getSlimCharacters([this.characterId]);
+    const campaignId = slimData && slimData.length > 0 ? slimData[0]?.campaign?.id : null;
 
     const allowedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter")
       ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes").map((id) => parseInt(id))
@@ -656,7 +662,27 @@ export default class DDBMuncher extends DDBAppV2 {
     this.homebrewClasses = new Set();
 
     try {
+      for (const klass of classList) {
+        const version = klass.sources.every((s) => DDBSources.is2014Source(s))
+          ? "2014"
+          : "2024";
+        if (!this.subClassMap[`${klass.name}-${version}`]) {
+          const subClasses = await DDBMuleHandler.getSubclasses({
+            className: klass.name,
+            rulesVersion: version,
+            includeHomebrew: true,
+            campaignId,
+          });
+          this.subClassMap[`${klass.name}-${version}`] = subClasses;
+          if (subClasses.some((subKlass) => subKlass.isHomebrew)) {
+            this.homebrewClasses.add(klass.id);
+          }
+        }
+      }
+
+
       for (const sourceIdArray of sourceIdArrays) {
+        if (onlyHomebrew) continue;
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options = foundry.utils.deepClone(baseOptions);
 
@@ -666,15 +692,6 @@ export default class DDBMuncher extends DDBAppV2 {
           options.classId = klass.id;
 
           const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
-
-          if (!this.subClassMap[`${klass.name}-${version}`]) {
-            const subClasses = await DDBMuleHandler.getSubclasses(klass.name, version, true);
-            this.subClassMap[`${klass.name}-${version}`] = subClasses;
-            // eslint-disable-next-line max-depth
-            if (subClasses.some((subKlass) => subKlass.isHomebrew)) {
-              this.homebrewClasses.add(klass.id);
-            }
-          }
           const subClasses = this.subClassMap[`${klass.name}-${version}`];
           const subClassSources = new Set(subClasses.map((subKlass) => subKlass.sources.map((s) => s.sourceId)).flat());
           const sources = foundry.utils.deepClone(sourceIdArray.sourceIds)
@@ -735,6 +752,7 @@ export default class DDBMuncher extends DDBAppV2 {
             classList,
           });
           options.homebrew = true;
+          options.onlyHomebrew = onlyHomebrew;
           options.classId = klass.id;
           this.autoRotateMessage("class", klass.name.toLowerCase());
           logger.info(`Munching class ${klass.name} (${klass.id}) Homebrew subclasses`);
@@ -783,6 +801,7 @@ export default class DDBMuncher extends DDBAppV2 {
     const baseOptions = {
       characterId: this.characterId,
       homebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew"),
+      onlyHomebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew"),
       type,
       ddbMuncher: this,
     };

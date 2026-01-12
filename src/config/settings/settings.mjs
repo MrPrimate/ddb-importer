@@ -1137,6 +1137,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-character-only-homebrew": {
+            type: Boolean,
+            default: false,
+          },
           "munching-policy-character-use-class-filter": {
             type: Boolean,
             default: true,

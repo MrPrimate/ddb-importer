@@ -33,10 +33,19 @@
   <fieldset>
     <legend>Options</legend>
     <div class="form-group">
-      <label>Include Homebrew?</label>
-      <div class="form-fields">
-        <dnd5e-checkbox name="munching-policy-character-fetch-homebrew" id="munching-policy-character-fetch-homebrew"
-        {{#if this.useCharacterHomebrew}}checked{{/if}} data-section="munching-policy-character-fetch-homebrew" ></dnd5e-checkbox>
+      <div class="character-homebrew-options">
+        <label>Include Homebrew?</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="munching-policy-character-fetch-homebrew" id="munching-policy-character-fetch-homebrew"
+          {{#if this.useCharacterHomebrew}}checked{{/if}} data-section="munching-policy-character-fetch-homebrew" ></dnd5e-checkbox>
+        </div>
+      </div>
+      <div class="character-homebrew-options">
+        <label>Homebrew only?</label>
+        <div class="form-fields">
+          <dnd5e-checkbox name="munching-policy-character-only-homebrew" id="munching-policy-character-only-homebrew"
+          {{#if this.onlyCharacterHomebrew}}checked{{/if}} data-section="munching-policy-character-only-homebrew" ></dnd5e-checkbox>
+        </div>
       </div>
     </div>
   </fieldset>
