@@ -317,6 +317,14 @@ export default class DDBMonsterImporter {
         } else {
           targetTokenizerFolder = wildcardPath;
         }
+        parsed.fullPath = parsed.fullPath.replace(parsed.current, targetTokenizerFolder);
+        parsed.current = targetTokenizerFolder;
+        logger.verbose(`Verifying wildcard tokenizer folder at ${targetTokenizerFolder}`, {
+          targetDirectory,
+          wildcardPath,
+          parsed,
+        });
+        await FileHelper.verifyDirectory(parsed);
       }
 
       const autoOptions = {
@@ -327,6 +335,7 @@ export default class DDBMonsterImporter {
         targetFolder: targetTokenizerFolder,
       };
       // eslint-disable-next-line require-atomic-updates
+      logger.debug("Tokenizing monster image", { monster: this.monster.name, autoOptions });
       const tokenizerResult = await window.Tokenizer.autoToken(this.monster, autoOptions);
       this.monster.prototypeToken.texture.src = tokenizerResult;
       if (useWildcard) {
