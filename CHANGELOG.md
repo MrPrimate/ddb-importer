@@ -1,5 +1,10 @@
 # Next Up
 
+# 6.6.44
+
+- Certain combination of settings would cause tokenized monster image uploads to fail. @tea.main
+- When importing character options you can now import homebrew only. This currently only works for classes, but as proxy changes are made in the coming days will start working for species, feats and backgrounds as well.
+
 # 6.6.43
 
 - Tweaks to Secret choice text generation on features to avoid generating unwanted or excessive secret descriptions.
