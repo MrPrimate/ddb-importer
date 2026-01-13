@@ -798,10 +798,12 @@ export default class DDBMuncher extends DDBAppV2 {
 
   async _parseWithMule(type) {
     this.autoRotateMessage(type);
+    const homebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
+    const onlyHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew");
     const baseOptions = {
       characterId: this.characterId,
-      homebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew"),
-      onlyHomebrew: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew"),
+      homebrew: false,
+      onlyHomebrew: false,
       type,
       ddbMuncher: this,
     };
@@ -811,6 +813,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
     try {
       for (const sourceIdArray of sourceIdArrays) {
+        if (onlyHomebrew) continue;
         const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
         const options = foundry.utils.deepClone(baseOptions);
 
@@ -850,6 +853,36 @@ export default class DDBMuncher extends DDBAppV2 {
           options: foundry.utils.deepClone(options),
         });
 
+      }
+
+      if (homebrew || onlyHomebrew) {
+        const options = foundry.utils.deepClone(baseOptions);
+        options.homebrew = true;
+        options.onlyHomebrew = onlyHomebrew;
+        const muleHandler = new DDBMuleHandler(options);
+        this.notifierV2({
+          section: "name",
+          message: `Munching from Homebrew category for ${type}...`,
+        });
+        try {
+          await muleHandler.process();
+
+          logger.debug(`Munch Complete for ${type} in Homebrew`, {
+            muleHandler,
+            homebrew,
+            onlyHomebrew,
+            options: foundry.utils.deepClone(options),
+          });
+        } catch (error) {
+          logger.error(error);
+          logger.error(error.stack);
+          processErrors.push({
+            type,
+            category: "Homebrew",
+            error: error.message,
+            message: `${type} in Homebrew`,
+          });
+        }
       }
     } catch (error) {
       logger.error(error);

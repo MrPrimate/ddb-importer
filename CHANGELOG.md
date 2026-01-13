@@ -1,5 +1,7 @@
 # Next Up
 
+- Improve Homebrew Only parsing performance, and hangs with some setting combinations, for Feats, Backgrounds and Species.
+
 # 6.6.44
 
 - Certain combination of settings would cause tokenized monster image uploads to fail. @tea.main
