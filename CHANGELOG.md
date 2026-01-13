@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.45
+
 - Improve Homebrew Only parsing performance, and hangs with some setting combinations, for Feats, Backgrounds and Species.
 
 # 6.6.44
