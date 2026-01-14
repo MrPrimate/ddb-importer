@@ -618,62 +618,70 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
+    const artDisabled = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-disable-monster-art");
     const artMonsterConfig = [
+      {
+        name: "munching-policy-disable-monster-art",
+        isChecked: artDisabled,
+        label: "Disable monster art?",
+        hint: "Disables all monster art fetching and setting.",
+        enabled: true,
+      },
       {
         name: "munching-policy-use-full-token-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image"),
         label: "Portrait Image for Token",
         hint: "Use portrait image for token rather than token image (i.e. full art).",
-        enabled: true,
+        enabled: !artDisabled,
       },
       {
         name: "munching-policy-use-token-avatar-image",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image"),
         label: "Token for Portrait Image",
         hint: "Use token image for portrait rather than the portrait image (i.e. close up).",
-        enabled: true,
+        enabled: !artDisabled,
       },
       {
         name: "munching-policy-use-srd-monster-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images"),
         label: "Use SRD images?",
         hint: "Use images from the SRD compendiums.",
-        enabled: true,
+        enabled: !artDisabled,
       },
       {
         name: "munching-policy-update-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images"),
         label: "[CAUTION] Update Monster images on existing npcs?",
         hint: "Update Monster images on existing npcs? (This will dramatically slow down re-munching).",
-        enabled: true,
+        enabled: !artDisabled,
       },
       {
         name: "munching-policy-download-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images"),
         label: "Download D&D Beyond monster images?",
         hint: "Download D&D Beyond monster images (takes longer and needs space). Otherwise uses DDB CDN images. (Token images are always downloaded).",
-        enabled: true,
+        enabled: !artDisabled,
       },
       {
         name: "munching-policy-remote-images",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images"),
         label: "Use D&D Beyond remote images?",
         hint: "Use D&D Beyond remote monster images (a lot quicker). (Token images are always downloaded).",
-        enabled: true,
+        enabled: !artDisabled,
       },
       {
         name: "munching-policy-monster-wildcard",
         label: "Wildcard images and folder per monster name?",
         hint: "Creates a folder for each monster and set the path to use wildcard images from that folder, as well as setting the tokens wildcard image. If using tokenize option below, only the tokenized image will be placed in the monster folder, the untokenized artwork will be kept at the level higher.",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-wildcard"),
-        enabled: true,
+        enabled: !artDisabled,
       },
       {
         name: "munching-policy-monster-tokenize",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize"),
         label: "Auto-Tokenize monsters?",
         hint: "Adds Tokenizer default token ring using the Tokenizer module to monster tokens.",
-        enabled: tokenizerReady,
+        enabled: tokenizerReady && !artDisabled,
       },
     ];
 
@@ -1110,6 +1118,26 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       case "munching-policy-monster-wildcard": {
         if (checked) {
           await game.settings.set(SETTINGS.MODULE_ID, "use-deep-file-paths", true);
+        }
+        break;
+      }
+      case "munching-policy-disable-monster-art": {
+        for (const setting of Object.keys(SETTINGS.DEFAULT_SETTINGS.READY.MUNCHER.MUNCH_ART)) {
+          $(`#${setting}`).prop("disabled", checked);
+        }
+        break;
+      }
+      case "munching-policy-character-only-homebrew": {
+        if (checked) {
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew", true);
+          $("#munching-policy-character-homebrew").prop("checked", true);
+        }
+        break;
+      }
+      case "munching-policy-character-fetch-homebrew": {
+        if (!checked) {
+          await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew", false);
+          $("#munching-policy-character-only-homebrew").prop("checked", false);
         }
         break;
       }

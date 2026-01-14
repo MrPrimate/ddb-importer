@@ -620,7 +620,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   async #parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew } = {}) {
-    logger.info(`Re-processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
+    logger.info(`Processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
       homebrewClasses: Array.from(this.homebrewClasses),
     });
     const options = foundry.utils.deepClone(baseOptions);
@@ -643,7 +643,7 @@ export default class DDBMuncher extends DDBAppV2 {
       const subClasses = this.subClassMap[klass.id]
         .filter((subKlass) => subKlass.isHomebrew);
 
-      const sliceSize = 5;
+      const sliceSize = 3;
       for (let i = 0; i < subClasses.length; i += sliceSize) {
         const filterIds = subClasses.slice(i, i + sliceSize).map((sc) => sc.id);
         options.filterIds = filterIds;

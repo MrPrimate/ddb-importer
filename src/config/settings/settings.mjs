@@ -949,18 +949,6 @@ const SETTINGS = {
             type: Boolean,
             default: true,
           },
-          "munching-policy-use-full-token-image": {
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-use-token-avatar-image": {
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-remote-images": {
-            type: Boolean,
-            default: false,
-          },
           "munching-policy-add-midi-effects": {
             type: Boolean,
             default: true,
@@ -969,12 +957,7 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "munching-policy-download-images": {
-            name: "ddb-importer.settings.munching-policy-download-images.name",
-            hint: "ddb-importer.settings.munching-policy-download-images.hint",
-            type: Boolean,
-            default: true,
-          },
+
           "munching-policy-use-chris-premades": {
             type: Boolean,
             default: false,
@@ -1032,24 +1015,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "munching-policy-monster-tokenize": {
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-monster-wildcard": {
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-use-srd-monster-images": {
-            type: Boolean,
-            default: false,
-          },
-          "munching-policy-update-images": {
-            name: "ddb-importer.settings.munching-policy-update-images.name",
-            hint: "ddb-importer.settings.munching-policy-update-images.hint",
-            type: Boolean,
-            default: true,
-          },
           "munching-policy-monster-exact-match": {
             name: "ddb-importer.settings.munching-policy-monster-match.name",
             hint: "ddb-importer.settings.munching-policy-monster-match.hint",
@@ -1090,10 +1055,6 @@ const SETTINGS = {
             default: false,
           },
           "munching-policy-monster-set-legendary-resource-bar": {
-            type: Boolean,
-            default: true,
-          },
-          "munching-policy-update-world-monster-update-images": {
             type: Boolean,
             default: true,
           },
@@ -1152,6 +1113,52 @@ const SETTINGS = {
           "munching-policy-character-classes": {
             type: Array,
             default: [],
+          },
+          "munching-policy-disable-monster-art": {
+            type: Boolean,
+            default: false,
+          },
+        },
+        MUNCH_ART: {
+          "munching-policy-use-full-token-image": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-use-token-avatar-image": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-remote-images": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-download-images": {
+            name: "ddb-importer.settings.munching-policy-download-images.name",
+            hint: "ddb-importer.settings.munching-policy-download-images.hint",
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-monster-tokenize": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-monster-wildcard": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-use-srd-monster-images": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-update-images": {
+            name: "ddb-importer.settings.munching-policy-update-images.name",
+            hint: "ddb-importer.settings.munching-policy-update-images.hint",
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-update-world-monster-update-images": {
+            type: Boolean,
+            default: true,
           },
         },
         ENCOUNTER: {
@@ -1317,6 +1324,7 @@ const SETTINGS = {
         ...clone.READY.MUNCHER.COMPENDIUM_FOLDERS,
         ...clone.READY.MUNCHER.ADVENTURE,
         ...clone.READY.MUNCHER.MUNCH,
+        ...clone.READY.MUNCHER.MUNCH_ART,
         ...clone.READY.MUNCHER.ENCOUNTER,
       };
 

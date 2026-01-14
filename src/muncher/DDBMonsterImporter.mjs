@@ -173,8 +173,15 @@ export default class DDBMonsterImporter {
   async getNPCImage({
     forceUpdate = false, forceUseFullToken = false,
     forceUseTokenAvatar = false, disableAutoTokenizeOverride = false,
+    ignoreDisableArtSetting = false,
   } = {},
   ) {
+    if (!ignoreDisableArtSetting
+      && game.settings.get(SETTINGS.MODULE_ID, "munching-policy-disable-monster-art")
+    ) {
+      logger.debug(`Monster art disabled by setting, skipping image processing for ${this.monster.name}`);
+      return this.monster;
+    }
     logger.verbose("getNPCImage", {
       name: this.monster.name,
     });
