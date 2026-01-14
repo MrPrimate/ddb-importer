@@ -2,7 +2,7 @@
 
 - Homebrew subclasses are now processed in chunks to avoid issues when trying to parse huge numbers together. @crimsonedge
 - New setting to disable all monster art imports. @harrywraith
-- Bardic Inspiration was no longer importing uses (unknown source DDB change or parser breakage).
+- Bardic Inspiration, and some other features were no longer importing uses (since 6.6.32). @finnegan3545
 
 # 6.6.45
 

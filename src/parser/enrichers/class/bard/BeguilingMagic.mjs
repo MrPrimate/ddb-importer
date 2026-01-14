@@ -6,6 +6,8 @@ export default class BeguilingMagic extends DDBEnricherData {
   get activity() {
     return {
       name: "Save",
+      addItemConsume: true,
+      activationType: "special",
     };
   }
 
@@ -37,6 +39,12 @@ export default class BeguilingMagic extends DDBEnricherData {
   get override() {
     return {
       data: {
+        "system.uses": this._getUsesWithSpent({
+          type: "class",
+          name: "Beguiling Magic",
+          max: "1",
+          period: "lr",
+        }),
         "flags.ddbimporter": {
           ignoredConsumptionActivities: ["Save"],
           retainOriginalConsumption: true,

@@ -69,10 +69,10 @@ export default class BardicInspiration extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "system.uses": this._getGeneratedUses({
-          type: "class",
-          name: "Bardic Inspiration",
-        }),
+        // "system.uses": this._getGeneratedUses({
+        //   type: "class",
+        //   name: "Bardic Inspiration",
+        // }),
         "mid-qol": {
           effectActivation: false,
         },
