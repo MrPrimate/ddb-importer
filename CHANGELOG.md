@@ -1,5 +1,7 @@
 # Next Up
 
+- Homebrew subclasses are now processed in chunks to avoid issues when trying to parse huge numbers together. @crimsonedge
+
 # 6.6.45
 
 - Improve Homebrew Only parsing performance, and hangs with some setting combinations, for Feats, Backgrounds and Species.
