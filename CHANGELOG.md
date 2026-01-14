@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.46
+
 - Homebrew subclasses are now processed in chunks to avoid issues when trying to parse huge numbers together. @crimsonedge
 - New setting to disable all monster art imports. @harrywraith
 - Bardic Inspiration, and some other features were no longer importing uses (since 6.6.32). @finnegan3545
