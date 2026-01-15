@@ -709,16 +709,17 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   async _saveDynamic(formData) {
-    if (this.dynamicEnabled !== formData.object["dynamic-sync"]) {
-      this.reloadApplication = true; // reload the application after saving
-      logger.warn("Dynamic Sync setting changed, reloading application!");
-    }
-
     if (!this.dynamicEnabled) {
       game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync", false);
       return;
     }
     for (const setting of this.dynamicEnabledSettings) {
+      if (setting.name === "dynamic-sync"
+        && game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync") !== formData.object[setting.name]
+      ) {
+        this.reloadApplication = true; // reload the application after saving
+        logger.warn("Dynamic Sync setting changed, reloading application!");
+      }
       logger.debug(`Saving setting ${setting.name} with value ${formData.object[setting.name]}`);
       await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
     }
