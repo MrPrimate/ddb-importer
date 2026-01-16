@@ -295,6 +295,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Shifting",
     "Large Form",
     "Celestial Revelation",
+    "Illusion Savant",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -417,6 +418,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Lorwyn-Shadowmoor Origin",
     "Draconic Ancestry",
     "Large Form",
+    "Illusion Savant",
+    "Fiendish Legacy",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
