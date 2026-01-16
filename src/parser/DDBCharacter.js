@@ -132,6 +132,15 @@ export default class DDBCharacter {
     return this.characterId !== null ? `https://character-service.dndbeyond.com/character/v5/character/${this.characterId}` : null;
   }
 
+  #sourceFixes() {
+    this.source.ddb.character.choices?.choiceDefinitions.forEach((choiceDef) => {
+      choiceDef.options?.forEach((option) => {
+        if (option.label.includes("Cthonic")) {
+          option.label = option.label.replace("Cthonic", "Chthonic");
+        }
+      });
+    });
+  }
 
   /**
    * Loads and parses character in the proxy
@@ -166,6 +175,8 @@ export default class DDBCharacter {
       });
       this.source = await response.json();
       if (!this.source.success) return;
+
+      this.#sourceFixes();
 
       if (game.settings.get("ddb-importer", "debug-json")) {
         FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
