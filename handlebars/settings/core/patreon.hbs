@@ -9,7 +9,8 @@
   <p>Tier: <i id=ddb-patreon-tier>{{#if this.tier}}{{this.tier}}{{else}}{{/if}}</i></p>
   <p>Valid: <i id=ddb-patreon-valid>{{#if this.tier}}{{validKey}}{{else}}{{/if}}</i></p>
   <p>If you have been provided a Key, enter it here instead:</p>
-  <input id="ddb-patreon-key" class="setup-config" type="password" name="patreon-key" style="flex: 0 1 auto" ;
+  <input hidden type="text" autocomplete="username" value="WARNING_DO_NOT_USE" />
+  <input id="ddb-patreon-key" class="setup-config" type="password" autocomplete="new-password" name="patreon-key" style="flex: 0 1 auto" ;
     value="{{setupConfig.patreon-key}}" />
     <p><i>Note: this will be auto filled when you connect to patreon, you may need to occasionally refresh this key.</i></p>
 
