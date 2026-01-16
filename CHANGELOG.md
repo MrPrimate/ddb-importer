@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.47
+
 - DDB Setup could incorrectly restart the session when settings were saved.
 - Improvements to species choice advancements for lineage species such as Tieflings during option import.
 - Some species such as Tieflings 2024 would not get spell advancements granted correctly during option import.
