@@ -1,5 +1,9 @@
 # Next Up
 
+- DDB Setup could incorrectly restart the session when settings were saved.
+- Improvements to species choice advancements for lineage species such as Tieflings during option import.
+- Some species such as Tieflings 2024 would not get spell advancements granted correctly during option import.
+
 # 6.6.46
 
 - Homebrew subclasses are now processed in chunks to avoid issues when trying to parse huge numbers together. @crimsonedge

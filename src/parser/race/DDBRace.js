@@ -20,6 +20,13 @@ export default class DDBRace {
     "Tiefling",
   ];
 
+  static FORCE_TRAIT_GRANT = [
+    // "Infernal Legacy",
+    // "Fiendish Legacy",
+    // "Elven Lineage",
+    // "Gnomish Lineage",
+  ];
+
   static getGroupName(ids, baseRaceName) {
     const ddbGroup = CONFIG.DDB.raceGroups.find((r) => ids.includes(r.id));
     if (ddbGroup) {
@@ -64,14 +71,18 @@ export default class DDBRace {
     return this.lineageTrait.label.replace(" Lineage", "").replace(" Legacy", "").trim();
   }
 
+  #getTraitChoice(trait) {
+    const choice = DDBDataUtils.getChoices({ ddb: this.ddbData, type: "race", feat: trait, selectionOnly: true });
+    return choice[0];
+  }
+
   #getLineageTrait() {
     if (this.is2014) return null;
     if (DDBRace.FORCE_SUBRACE_2024.includes(this.race.baseRaceName)) {
       const lineageTrait = this.race.racialTraits.find((r) => r.definition.name.includes("Lineage") || r.definition.name.includes("Fiendish Legacy"));
       if (!lineageTrait) return null;
-      const choice = DDBDataUtils.getChoices({ ddb: this.ddbData, type: "race", feat: lineageTrait, selectionOnly: true });
       this.isLineage = true;
-      return choice[0];
+      return this.#getTraitChoice(lineageTrait);
     }
     return null;
   }
@@ -490,7 +501,7 @@ export default class DDBRace {
 
     const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
 
-    logger.debug("Spell Advancement Data", {
+    logger.debug(`Spell Advancement Data from ${trait.name}`, {
       htmlData,
       this: this,
       trait,
@@ -950,6 +961,12 @@ export default class DDBRace {
         selectionOnly: false,
       });
 
+      if ((this.isLineage && this.lineageTrait.componentId === trait.id)
+        || (DDBRace.FORCE_TRAIT_GRANT.includes(trait.name))) {
+        logger.debug(`Skipping trait for choice advancement: ${trait.name}`);
+        continue;
+      }
+
       const choices = this.ddbData.character.choices.race
         .filter((choice) =>
           [3, 8].includes(choice.type) // choice feature
@@ -1014,7 +1031,7 @@ export default class DDBRace {
     logger.debug(`Getting trait match for ${trait.name}`);
     const traitName = utils.nameString(trait.name);
 
-    const findTraits = (excludeFlags = {}, looseMatch = true) => {
+    const findTraits = (excludeFlags = {}, looseMatch = true, choiceMatch = false) => {
       const results = this._compendiums.traits.index.filter((match) => {
         const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
           ?? foundry.utils.getProperty(match, "flags.ddbimporter");
@@ -1037,6 +1054,13 @@ export default class DDBRace {
           = matchFlags.fullRaceName == this.race.fullName
             || (matchFlags.groupName == this.groupName
               && matchFlags.isLineage == this.isLineage);
+
+        if (choiceMatch && traitMatch) {
+          const choice = this.#getTraitChoice(trait);
+          if (!choice) return false;
+          const choiceOptionMatch = foundry.utils.getProperty(matchFlags, "dndbeyond.choice.optionId") === choice.id;
+          if (!choiceOptionMatch) return false;
+        }
         return traitMatch;
       });
       return results;
@@ -1044,6 +1068,28 @@ export default class DDBRace {
 
     const exactMach = findTraits.call(this, {}, false);
     const firstPass = findTraits.call(this);
+
+    if (this.isLineage && this.lineageTrait.componentId === trait.id) {
+      const lineageMatch = findTraits.call(this, {}, false, true);
+      if (lineageMatch.length === 0) {
+        logger.warn(`No compendium trait match found for lineage trait ${trait.name}`, {
+          trait,
+          lineageMatch,
+          this: this,
+          exactMach,
+          firstPass,
+        });
+        return null;
+      } else if (lineageMatch.length > 1) {
+        logger.warn(`Multiple compendium trait matches found for lineage trait ${trait.name}`, {
+          trait,
+          lineageMatch,
+          this: this,
+        });
+        return null;
+      }
+      return lineageMatch[0];
+    }
 
     if (firstPass.length === 1) {
       return firstPass[0];
@@ -1059,6 +1105,7 @@ export default class DDBRace {
         logger.warn(`Multiple compendium trait matches found for trait ${trait.name}, even after filtering choices. This is likely okay and a choice feature will be generated`, {
           firstPass,
           secondPass,
+          exactMach,
           trait,
           this: this,
         });
@@ -1066,6 +1113,7 @@ export default class DDBRace {
         logger.warn(`Unable to find match found for trait ${trait.name}.`, {
           firstPass,
           secondPass,
+          exactMach,
           trait,
           this: this,
         });

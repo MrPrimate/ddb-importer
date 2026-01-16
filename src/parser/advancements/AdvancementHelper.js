@@ -2322,7 +2322,8 @@ export default class AdvancementHelper {
       }
     });
 
-    const lineageMatch = lineages.find((l) => l.name.toLowerCase() === species.toLowerCase());
+    const lineageMatch = lineages.find((l) => l.name.toLowerCase() === species.toLowerCase())
+      ?? lineages.find((l) => species.toLowerCase().includes(l.name.toLowerCase()));
 
     if (!lineageMatch) return AdvancementHelper.parseHTMLSpellAdvancementData(description);
 
@@ -2678,9 +2679,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
     level, is2024,
   } = {}) {
-    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
     const spellGrant = spellGrants[0];
     const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(spellGrants.map((g) => g.name), is2024);
+
+    if (uuids.length === 0) return null;
+    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
 
     spellLinks.push({
       type: "grant",
@@ -2721,7 +2724,6 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       hint,
     });
 
-    if (uuids.length > 0) return advancement;
     return advancement;
   }
 
