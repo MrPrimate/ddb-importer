@@ -24,6 +24,7 @@ import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
 import DDBCharacter from "../parser/DDBCharacter.js";
 import DDBItemsImporter from "../muncher/DDBItemsImporter.mjs";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
+import DDBSetup from "./DDBSetup.js";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -86,6 +87,7 @@ export default class DDBMuncher extends DDBAppV2 {
       parseBackgrounds: DDBMuncher.parseBackgrounds,
       parseClasses: DDBMuncher.parseClasses,
       parseSpecies: DDBMuncher.parseSpecies,
+      openCoreSetup: DDBMuncher.openCoreSetup,
     },
     position: {
       width: "800",
@@ -103,12 +105,8 @@ export default class DDBMuncher extends DDBAppV2 {
   static PARTS = {
     header: { template: "modules/ddb-importer/handlebars/muncher/header.hbs" },
     tabs: { template: "templates/generic/tab-navigation.hbs" },
-    info: {
-      template: "modules/ddb-importer/handlebars/muncher/info.hbs",
-      templates: [
-        "modules/ddb-importer/handlebars/muncher/info/intro.hbs",
-        "modules/ddb-importer/handlebars/muncher/info/help.hbs",
-      ],
+    intro: {
+      template: "modules/ddb-importer/handlebars/muncher/info/intro.hbs",
     },
     settings: {
       template: "modules/ddb-importer/handlebars/muncher/settings.hbs",
@@ -139,14 +137,14 @@ export default class DDBMuncher extends DDBAppV2 {
         "modules/ddb-importer/handlebars/muncher/tools/compendiums.hbs",
       ],
     },
+    help: { template: "modules/ddb-importer/handlebars/muncher/info/help.hbs" },
     details: { template: "modules/ddb-importer/handlebars/muncher/details.hbs" },
     footer: { template: "modules/ddb-importer/handlebars/muncher/footer.hbs" },
   };
 
   /** @override */
   tabGroups = {
-    sheet: "info",
-    info: "intro",
+    sheet: "intro",
     settings: "general",
     munch: "spells",
     tools: "tools",
@@ -156,16 +154,8 @@ export default class DDBMuncher extends DDBAppV2 {
   /** @override */
   _getTabs() {
     const tabs = this._markTabs({
-      info: {
-        id: "info", group: "sheet", label: "Info", icon: "fas fa-info",
-        tabs: {
-          intro: {
-            id: "intro", group: "info", label: "Intro", icon: "fas fa-info",
-          },
-          help: {
-            id: "help", group: "info", label: "Help", icon: "fas fa-question",
-          },
-        },
+      intro: {
+        id: "intro", group: "sheet", label: "Intro", icon: "fas fa-info",
       },
       settings: {
         id: "settings", group: "sheet", label: "Settings", icon: "fas fa-cogs",
@@ -222,6 +212,9 @@ export default class DDBMuncher extends DDBAppV2 {
             id: "compendiums", group: "tools", label: "Compendiums", icon: "fas fa-atlas",
           },
         },
+      },
+      help: {
+        id: "help", group: "sheet", label: "Help", icon: "fas fa-question",
       },
     });
     return tabs;
@@ -433,19 +426,15 @@ export default class DDBMuncher extends DDBAppV2 {
   /** @override */
   // eslint-disable-next-line class-methods-use-this
   async _preparePartContext(partId, context) {
-    // console.warn("Muncher: _preparePartContext", partId, context);
     switch (partId) {
-      case "info":
-      case "settings":
-      case "munch":
-      case "tools": {
+      default: {
         context.tab = context.tabs[partId];
         break;
       }
-      // no default
     };
     return context;
   }
+
 
   _disableButtons() {
     const buttonSelectors = [
@@ -1185,6 +1174,10 @@ export default class DDBMuncher extends DDBAppV2 {
 
   static openDebug(_event, _target) {
     new DDBDebugger({ actor: this.actor }).render(true);
+  }
+
+  static openCoreSetup(_event, _target) {
+    new DDBSetup({ callMuncher: true }).render(true);
   }
 
   static async regenerateStorage(_event, _target) {
