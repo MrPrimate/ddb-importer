@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
-export default class Polymorph extends DDBEnricherData {
+export default class TruePolymorph extends DDBEnricherData {
 
 
   get additionalActivities() {
@@ -19,6 +19,21 @@ export default class Polymorph extends DDBEnricherData {
               "customize": false,
               "mode": "cr",
               "preset": "polymorph",
+            },
+            settings: {
+              "effects": [
+                "origin",
+                "otherOrigin",
+                "spell",
+              ],
+              "keep": [],
+              "tempFormula": "@source.attributes.hp.max",
+              "preset": "polymorph",
+              "merge": [],
+              "other": [],
+              "spellLists": [],
+              "transformTokens": true,
+              "minimumAC": "",
             },
             profiles: [
               {

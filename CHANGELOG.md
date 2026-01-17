@@ -1,5 +1,7 @@
 # Next Up
 
+- More spells now use Transform activites.
+
 # 6.6.47
 
 - DDB Setup could incorrectly restart the session when settings were saved.
