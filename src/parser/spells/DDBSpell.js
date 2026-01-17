@@ -234,6 +234,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       && (!p.version || p.version === (this.is2014Class ? "2014" : "2024")),
     );
 
+    // Savant spells are markes as always prepared for wizards
+    // const notAlways = this.lookupName?.endsWith("Savant") && this.spellClass === "Wizard";
+
     if (this.spellData.restriction === "As Ritual Only"
       || this.spellData.castOnlyAsRitual
       || (this.spellData.ritualCastingType !== null && this.spellClass !== "Warlock" && !this.is2014)
