@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.48
+
 - More spells now use Transform activites.
 - A foundry bug would cause items that were updated with the Faster Updates option checked to loose their ID. This would have breaking changes where items are linked by UUID elsewhere.
 
