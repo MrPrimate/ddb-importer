@@ -159,6 +159,7 @@ export default class DDBCharacter {
       campaignId: proxyCampaignId,
       filterModifiers: false,
       splitSpells: true,
+      devMode: foundry.utils.getProperty(CONFIG, "DDBI.DEV.enabled") ?? false,
     };
     if (syncId) {
       body["updateId"] = syncId;

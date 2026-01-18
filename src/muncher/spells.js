@@ -206,7 +206,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   const updateResults = await itemHandler.updateCompendium(updateBool);
   const updatePromiseResults = await Promise.all(updateResults);
 
-  logger.debug({ finalSpells: itemHandler.documents, updateResults, updatePromiseResults });
+  logger.debug(`Spell Import Complete`, { finalSpells: itemHandler.documents, updateResults, updatePromiseResults });
   resolvedNotifier("");
   logger.timeEnd("Spell Import Time");
 
