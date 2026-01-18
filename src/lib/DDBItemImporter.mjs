@@ -289,7 +289,10 @@ export default class DDBItemImporter {
     this.currentDocumentCount++;
     this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
     logger.debug(`Pushing ${item.name} to compendium (${this.currentDocumentCount}/${this.totalDocuments})`);
-    return this.compendium.importDocument(newItem, { keepId: true });
+    // import document no longer retains the id
+    // return this.compendium.importDocument(newItem, { keepId: true });
+    const data = newItem.toCompendium(this.compendium, { keepId: true });
+    return newItem.constructor.create(data, { pack: this.compendium.collection, keepId: true });
   }
 
   async updateCompendiumItem(updateItem, existingItem) {
@@ -326,6 +329,12 @@ export default class DDBItemImporter {
       const existingItems = await this.getFilteredItemDocuments(item);
       // we have a match, update first match
       if (existingItems.length >= 1) {
+        if (existingItems.length > 1) {
+          logger.warn(`Item ${item.name} has multiple matches in compendium. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`, {
+            item,
+            existingItems,
+          });
+        }
         const existingItem = existingItems[0];
         // eslint-disable-next-line require-atomic-updates
         item._id = existingItem._id;

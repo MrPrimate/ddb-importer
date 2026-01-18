@@ -218,6 +218,7 @@ export default class SpellListFactory {
     if (!spellListName && !source) return;
     if (!journal) {
       logger.error(`Journal not found for ${source.label}`);
+      return;
     }
 
     if (this.uuidsBySourceAndSpellListName[source.acronym][spellListName].length === 0) return;
