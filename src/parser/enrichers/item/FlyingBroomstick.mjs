@@ -6,10 +6,10 @@ export default class FlyingBroomstick extends DDBEnricherData {
   get documentStub() {
     return {
       documentType: "equipment",
-      parsingType: "wonderous",
+      parsingType: "wondrous",
       replaceDefaultActivity: false,
       systemType: {
-        value: "trinket",
+        value: "wondrous",
       },
     };
   }

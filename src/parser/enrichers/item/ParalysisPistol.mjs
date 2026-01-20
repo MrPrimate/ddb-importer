@@ -36,9 +36,9 @@ export default class ParalysisPistol extends DDBEnricherData {
   get documentStub() {
     return {
       documentType: "consumable",
-      parsingType: "wonderous",
+      parsingType: "wondrous",
       systemType: {
-        value: "trinket",
+        value: "wondrous",
       },
     };
   }

@@ -1,5 +1,7 @@
 # Next Up
 
+- Most magical consumable items will now be parsed as Wondrous item type rather than Trinket (added in 5.2).
+
 # 6.6.48
 
 - More spells now use Transform activites.

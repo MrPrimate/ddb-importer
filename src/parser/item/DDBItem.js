@@ -84,6 +84,10 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Flying Broomstick",
   ];
 
+  static CONSUMABLE_WONDROUS_ITEMS = [
+
+  ];
+
   static CONSUMABLE_TRINKETS = [
     "Perfume of Bewitching",
     "Ale Seed",
@@ -202,7 +206,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       || this.ddbDefinition.tags.includes('Food')
       || this.originalName.startsWith("Magnetite Curry");
     this.isConsumable = DDBItem.CONSUMABLE_TRINKETS.includes(this.originalName)
-      || DDBItem.CONSUMABLE_TRINKETS.some((t) => this.originalName.startsWith(t));
+      || DDBItem.CONSUMABLE_TRINKETS.some((t) => this.originalName.startsWith(t))
+      || DDBItem.CONSUMABLE_WONDROUS_ITEMS.includes(this.originalName)
+      || DDBItem.CONSUMABLE_WONDROUS_ITEMS.some((t) => this.originalName.startsWith(t));
     this.isPotion = this.ddbDefinition.tags.includes('Potion')
       || DDBItem.POTIONS.includes(this.originalName);
     // this.ddbDefinition.isConsumable; // this adds too many
@@ -438,8 +444,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       ? { type: "", value: 1, condition: "" }
       : { type: "action", value: 1, condition: "" };
 
-    if (["wonderous", "armor"].includes(this.parsingType)) {
-      let action = ["wonderous"].includes(this.parsingType) ? "special" : "";
+    if (["wondrous", "armor"].includes(this.parsingType)) {
+      let action = ["wondrous"].includes(this.parsingType) ? "special" : "";
       const actionRegex = /(bonus) action|(reaction)|as (?:an|a|a magic) (action)/i;
 
       const match = (this.ddbDefinition.description ?? "").match(actionRegex);
@@ -820,7 +826,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       case "Holy Symbol":
       case "Druidic Focus":
         this.documentType = "equipment";
-        this.parsingType = "wonderous";
+        this.parsingType = "wondrous";
         this.overrides.ddbType = this.ddbDefinition.subType;
         this.overrides.earlyProperties.add("foc");
         if (this.ddbDefinition.name.toLowerCase().includes("wand")) {
@@ -857,13 +863,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         ) {
           this.documentType = "equipment";
           this.systemType.value = "clothing";
-          this.parsingType = "wonderous";
+          this.parsingType = "wondrous";
           this.overrides.ddbType = "Clothing";
           this.overrides.armorType = "clothing"; // might not need this anymore
         } else if (DDBItem.EQUIPMENT_TRINKET.includes(this.ddbDefinition.name)) {
           this.documentType = "equipment";
           this.systemType.value = "trinket";
-          this.parsingType = "wonderous";
+          this.parsingType = "wondrous";
           this.overrides.ddbType = this.ddbDefinition.subType;
         } else {
           this.#getLootType(this.ddbDefinition.subType);
@@ -932,6 +938,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           this.systemType.value = "potion";
         } else if (this.ddbDefinition.name.startsWith("Ration")) {
           this.systemType.value = "food";
+        } else if (this.ddbDefinition.magic) {
+          this.systemType.value = "wondrous";
         } else {
           this.systemType.value = "trinket";
         }
@@ -957,7 +965,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       this.documentType = "equipment";
       this.systemType.value = "ring";
       this.overrides.armorType = "ring";
-      this.parsingType = "wonderous";
+      this.parsingType = "wondrous";
       this.overrides.ddbType = "Ring";
     } else if (this.ddbDefinition.subType) {
       this.#getLootType(this.ddbDefinition.subType);
@@ -1047,7 +1055,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         this.documentType = "equipment";
         this.systemType.value = "ring";
         this.overrides.armorType = "ring";
-        this.parsingType = "wonderous";
+        this.parsingType = "wondrous";
         break;
       }
       case "Wondrous item": {
@@ -1057,7 +1065,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           "elemental gem",
         ].some((consumablePrefix) => this.ddbDefinition.name.toLowerCase().startsWith(consumablePrefix.toLowerCase()))) {
           this.documentType = "consumable";
-          this.systemType.value = "trinket";
+          this.systemType.value = "wondrous";
           this.parsingType = "consumable";
           this.overrides.ddbType = this.ddbDefinition.type;
         } else if (this.isTattoo) {
@@ -1068,7 +1076,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
               ? "container"
               : this.isSpellwrought ? "consumable" : "equipment";
           this.documentType = type;
-          this.parsingType = "wonderous";
+          this.parsingType = "wondrous";
           if (this.isSpellwrought) {
             this.systemType.value = "tattoo";
             this.addMagical = true;
@@ -1081,7 +1089,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
           }
         } else if (this.isContainer) {
           this.documentType = "container";
-          this.parsingType = "wonderous";
+          this.parsingType = "wondrous";
         } else if (this.isMealTag) {
           this.documentType = "consumable";
           this.systemType.value = "food";
@@ -1089,7 +1097,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         } else if (this.isConsumable) {
           // console.error(`Consumable: ${this.ddbDefinition.name}`);
           this.documentType = "consumable";
-          this.systemType.value = "trinket";
+          this.systemType.value = "wondrous";
           this.parsingType = "consumable";
           this.overrides.ddbType = this.ddbDefinition.type;
         } else if (this.isPotion) {
@@ -1100,7 +1108,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         } else {
           this.documentType = "equipment";
           this.systemType.value = "trinket";
-          this.parsingType = "wonderous";
+          this.parsingType = "wondrous";
         }
         break;
       }
@@ -1705,7 +1713,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         autoUse: false,
       };
     }
-    this.data.system.uses.autoDestroy = !["wand", "trinket", "ring"].includes(this.systemType.value)
+    this.data.system.uses.autoDestroy = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value)
       || this.isSpellwrought;
   }
 
@@ -2334,7 +2342,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   }
 
-  #generateWonderousSpecifics() {
+  #generateWondrousSpecifics() {
     if (this.isContainer) {
       this.#generateCurrency();
       this.#generateWeightless();
@@ -2419,8 +2427,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         this.#generateWeaponSpecifics();
         break;
       }
-      case "wonderous": {
-        this.#generateWonderousSpecifics();
+      case "wondrous": {
+        this.#generateWondrousSpecifics();
         break;
       }
       case "wand":
