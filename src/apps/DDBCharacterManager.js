@@ -32,6 +32,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       ddbCharacter: this.ddbCharacter,
       notifier: this.showCurrentTask.bind(this),
     });
+    this._debugContext = {};
   }
 
   static renderPopup(type, url) {
@@ -199,6 +200,26 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
   }
 
+  get debugContext() {
+    return this._debugContext;
+  }
+
+  set debugContext(value) {
+    const clone = foundry.utils.duplicate(value);
+    delete clone.actor;
+    delete clone.syncConfig;
+    delete clone.importConfig;
+    delete clone.effectImportConfig;
+    delete clone.importPolicies;
+    delete clone.sourcesConfig;
+    delete clone.installedModulesText;
+    delete clone.compendiumSourcesConfig;
+    delete clone.extrasConfig;
+    delete clone.devConfig;
+    delete clone.tabs;
+    this._debugContext = clone;
+  }
+
   /** @override */
   async _prepareContext(options) {
 
@@ -253,6 +274,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     const parentContext = await super._prepareContext(options);
     context = foundry.utils.mergeObject(parentContext, context, { inplace: false });
     logger.debug("DDBCharacterManager: _prepareContext", context);
+    this.debugContext = foundry.utils.duplicate(context);
     return context;
   }
 
@@ -525,7 +547,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   static openDebug(_event, _target) {
-    new DDBDebugger({ actor: this.actor }).render(true);
+    new DDBDebugger({ actor: this.actor, extra: this.debugContext }).render(true);
   }
 
 }

@@ -7,11 +7,11 @@ import DDBAppV2 from "./DDBAppV2.js";
 
 export default class DDBDebugger extends DDBAppV2 {
 
-  constructor({ actor } = {}) {
+  constructor({ actor, extra } = {}) {
     super();
     this.actor = actor ?? null;
 
-    this.debug = new DDBDebug({ actor });
+    this.debug = new DDBDebug({ actor, extra });
   }
 
 

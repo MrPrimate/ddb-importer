@@ -8,13 +8,14 @@ export default class DDBDebug {
     "ATL",
     "ActiveAuras",
     "auraeffects",
-    "chris-premades",
     "dae",
     "ddb-importer",
     "dnd-dungeon-masters-guide",
     "dnd-monster-manual",
     "dnd-players-handbook",
     "dnd-tashas-cauldron",
+    "dnd-heroes-faerun",
+    "dnd-forge-artificer",
     "lib-wrapper",
     "midi-qol",
     "socketlib",
@@ -26,9 +27,10 @@ export default class DDBDebug {
     "forge-vtt",
     "find-the-culprit",
     "dice-so-nice",
+    "notelicker",
   ];
 
-  static fixCircularReferences(o) {
+  static fixCircularReferences(obj) {
 
     const weirdTypes = [
       Int8Array,
@@ -50,7 +52,7 @@ export default class DDBDebug {
 
     const defs = new Map();
     return (k, v) => {
-      if (k && v == o) return '[' + k + ' is the same as original object]';
+      if (k && v == obj) return '[' + k + ' is the same as original object]';
       if (v === undefined) return undefined;
       if (v === null) return null;
       const weirdType = weirdTypes.find((t) => v instanceof t);
@@ -127,24 +129,23 @@ export default class DDBDebug {
 
     this.secrets = null;
 
-    this.extra = extra;
+    this.extra = foundry.utils.duplicate(extra);
   }
 
   get data() {
     return {
       secrets: this.secrets,
-      // sources: this.sources,
-      // monsterTypes: this.monsterTypes,
-      // muncherSettings: this.muncherSettings,
-      // ddbSettings: this.ddbSettings,
       ddbChangedSettings: this.ddbChangedSettings,
       versions: this.versions,
       modules: this.modules,
-      capturedErrors: foundry.utils.deepClone(CONFIG.DDBI.CAPTURED_ERRORS),
-      actor: {
-        id: this.actor?.id,
-        characterId: foundry.utils.getProperty(this.actor, "flags.ddbimporter.dndbeyond.characterId"),
-      },
+      capturedErrors: foundry.utils.duplicate(CONFIG.DDBI.CAPTURED_ERRORS),
+      actor: this.actor
+        ? {
+          id: `${this.actor.id}`,
+          characterId: foundry.utils.getProperty(this.actor, "flags.ddbimporter.dndbeyond.characterId"),
+        }
+        : undefined,
+      extra: this.extra,
     };
   }
 
@@ -153,7 +154,7 @@ export default class DDBDebug {
   }
 
   async fetch() {
-    this.secrets = {
+    this.secrets = foundry.utils.duplicate({
       cobalt: await Secrets.checkCobalt(this.actor?.id),
       ddbUser: await Secrets.getUserData(this.actor?.id),
       proxy: {
@@ -164,11 +165,17 @@ export default class DDBDebug {
         tier: await PatreonHelper.checkPatreon(),
         tierLocal: await PatreonHelper.checkPatreon(true),
       },
-    };
+    });
+    if (this.secrets.ddbUser?.data) {
+      delete this.secrets.ddbUser.data.firstName;
+      delete this.secrets.ddbUser.data.lastName;
+      delete this.secrets.ddbUser.data.email;
+      delete this.secrets.ddbUser.data.twitchUserName;
+    }
   }
 
-  static async generateDebug() {
-    const debug = new DDBDebug();
+  static async generateDebug({ actor, extra } = {}) {
+    const debug = new DDBDebug({ actor, extra });
     await debug.fetch();
     return debug.data;
   }
