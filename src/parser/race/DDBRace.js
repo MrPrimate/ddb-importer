@@ -312,7 +312,7 @@ export default class DDBRace {
 
   #typeCheck(trait) {
     if (trait.name.trim() !== "Creature Type") return;
-    const typeRegex = /You are an? (\S*)\./i;
+    const typeRegex = /(?:You are|You're) an? (\S*)\./i;
     const typeMatch = trait.description.match(typeRegex);
     if (typeMatch) {
       logger.debug(`Explicit type detected: ${typeMatch[1]}`, typeMatch);
