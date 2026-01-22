@@ -156,6 +156,7 @@ export default class DDBDebug {
   async fetch() {
     this.secrets = foundry.utils.duplicate({
       cobalt: await Secrets.checkCobalt(this.actor?.id),
+      isLocalCobalt: Secrets.isLocalCobalt(this.actor?.id),
       ddbUser: await Secrets.getUserData(this.actor?.id),
       proxy: {
         isCustom: await DDBProxy.isCustom(),

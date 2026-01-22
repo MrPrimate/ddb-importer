@@ -1,5 +1,7 @@
 # Next Up
 
+- Kalashtar 2024 did not parse as an aberration @hansmeier
+
 # 6.6.49
 
 - Most magical consumable items will now be parsed as Wondrous item type rather than Trinket (added in 5.2).

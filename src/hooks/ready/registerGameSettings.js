@@ -115,8 +115,13 @@ export default async function () {
     game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
   }
 
-  if (game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user") === "" && game.user.isGM) {
-    game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", game.user.id);
+  const currentDynamicSyncUser = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user");
+  if (currentDynamicSyncUser !== "" && !game.users.some((i) => i.isGM && i.id === currentDynamicSyncUser)) {
+    if (game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync")) {
+      await game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", game.user.id);
+    } else {
+      await game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", "");
+    }
   }
 
   if (game.settings.get(SETTINGS.MODULE_ID, "developer-mode")) {

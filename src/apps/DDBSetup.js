@@ -713,6 +713,9 @@ export default class DDBSetup extends DDBAppV2 {
       game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync", false);
       return;
     }
+
+    game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", formData.object['dynamic-sync-user']);
+
     for (const setting of this.dynamicEnabledSettings) {
       if (setting.name === "dynamic-sync"
         && game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync") !== formData.object[setting.name]
