@@ -7,7 +7,7 @@ export default class Archdruid extends DDBEnricherData {
     return {
       type: "utility",
       name: "Regain A Wild Shape Use",
-      activationType: "special",
+      activationType: "encounter",
       activationCondition: "When you roll initiative and have no Wild Shape uses remaining",
       additionalConsumptionTargets: [
         {

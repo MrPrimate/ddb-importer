@@ -28,7 +28,7 @@ export default class ElderChampion extends DDBEnricherData {
         overrides: {
           data: {
             targetType: "self",
-            activationType: "special",
+            activationType: "turnStart",
             condition: "Start of your turn",
           },
         },

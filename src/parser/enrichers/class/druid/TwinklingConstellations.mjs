@@ -12,7 +12,7 @@ export default class TwinklingConstellations extends DDBEnricherData {
       targetType: "self",
       noConsumeTargets: true,
       noeffect: true,
-      activationType: "special",
+      activationType: "turnStart",
       activationCondition: "Start of each turn",
     };
   }

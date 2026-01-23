@@ -40,7 +40,7 @@ export default class VitalityOfTheTree extends DDBEnricherData {
             units: "ft",
           },
           activationOverride: {
-            type: "special",
+            type: "turnStart",
             value: 1,
             condition: "At the start of each of your turns (whilst raging)",
           },

@@ -12,7 +12,7 @@ export default class SuperiorInspiration extends DDBEnricherData {
       name: "Regain 1 Use",
       addItemConsume: true,
       itemConsumeValue: "-1",
-      activationType: "special",
+      activationType: "encounter",
     };
   }
 
