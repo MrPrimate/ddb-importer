@@ -810,5 +810,9 @@
   {
     "name": "Martial Weapon Training",
     "path": "icons/weapons/axes/axe-battle-heavy-jagged.webp"
+  },
+  {
+    "name": "Field Medic",
+    "path": "icons/magic/life/heart-hand-gold-green.webp"
   }
 ]

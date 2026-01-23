@@ -9520,5 +9520,13 @@
   {
     "name": "The Third Eye",
     "path": "icons/magic/perception/third-eye-blue-red.webp"
+  },
+  {
+    "name": "Magic Coin",
+    "path": "icons/commodities/currency/coin-inset-compass-silver.webp"
+  },
+  {
+    "name": "Coin Flip",
+    "path": "icons/commodities/currency/coin-engraved-tail-gold.webp"
   }
 ]
