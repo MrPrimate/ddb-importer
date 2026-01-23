@@ -1,6 +1,9 @@
 # Next Up
 
 - Kalashtar 2024 did not parse as an aberration @hansmeier
+- Improvements to some features generating max uses as a dice roll, such as Magic Coin. @motomoto0295
+- Some icon additions from @motomoto0295
+
 
 # 6.6.49
 

@@ -261,15 +261,15 @@ export default class DDBDataUtils {
     }
   }
 
-  static getScaleValueLink(ddb, feature, flatOnly = false) {
+  static getScaleValueLink(ddb, feature, noDice = false) {
     const featDefinition = feature.definition ? feature.definition : feature;
 
     const klass = ddb.character.classes.find((cls) =>
       (cls.definition.id === featDefinition.classId
       || cls.subclassDefinition?.id === featDefinition.classId)
       && featDefinition.levelScales?.length > 0
-      && (!flatOnly
-        || (flatOnly && featDefinition.levelScales.every((s) => s.fixedValue !== null))),
+      && (!noDice
+        || (noDice && !featDefinition.levelScales.every((s) => s.dice !== null && s.dice !== undefined))),
     );
 
     if (klass) {
@@ -733,7 +733,7 @@ export default class DDBDataUtils {
       const finalMaxUses = maxUses
         ? Number.isInteger(maxUses)
           ? parseInt(maxUses)
-          : maxUses
+          : maxUses.toString().trim().replace(/^\+/, "").trim()
         : null;
 
       return {

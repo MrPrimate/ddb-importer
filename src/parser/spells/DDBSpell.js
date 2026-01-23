@@ -669,6 +669,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         }
       }
 
+      maxUses = maxUses.toString().trim().replace(/^\+/, "").trim();
+
       const finalMaxUses = (maxUses !== "") ? maxUses : null;
 
       this.data.system.uses = {
