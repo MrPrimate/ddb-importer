@@ -3,7 +3,7 @@
 - Kalashtar 2024 did not parse as an aberration @hansmeier
 - Improvements to some features generating max uses as a dice roll, such as Magic Coin. @motomoto0295
 - Some icon additions from @motomoto0295
-
+- Weapon properties were sometimes not removed from 2014 items, and sometimes always removed from 2024 descriptions.
 
 # 6.6.49
 
