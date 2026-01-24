@@ -166,6 +166,9 @@ export default class DDBDebug {
         tier: await PatreonHelper.checkPatreon(),
         tierLocal: await PatreonHelper.checkPatreon(true),
       },
+      dnd5e: {
+        version: game.settings.get("dnd5e", "rulesVersion"),
+      },
     });
     if (this.secrets.ddbUser?.data) {
       delete this.secrets.ddbUser.data.firstName;
