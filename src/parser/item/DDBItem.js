@@ -1862,7 +1862,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #removeMasteryContainer(text) {
-    if (this.removeWeaponMasteryDescription) return text;
+    if (!this.removeWeaponMasteryDescription) return text;
     if (this.documentType !== "weapon") return text;
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, 'text/html');
