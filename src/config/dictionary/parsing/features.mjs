@@ -434,6 +434,12 @@ export const PARSING_CHOICE_FEATURES = {
     "Necromancy Savant",
     "Sangromancy Savant",
     "Fiendish Legacy",
+    "Mystic Arcanum",
+    "Mystic Arcanum (Level 6 Spell)",
+    "Mystic Arcanum (Level 7 Spell)",
+    "Mystic Arcanum (Level 8 Spell)",
+    "Mystic Arcanum (Level 9 Spell)",
+    "Fiendish Resilience",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

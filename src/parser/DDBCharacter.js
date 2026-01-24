@@ -257,7 +257,7 @@ export default class DDBCharacter {
 
   async _generateSpells() {
     this._spellParser = new CharacterSpellFactory(this);
-    this.raw.spells.push(...await this._spellParser.getCharacterSpells());
+    this.raw.spells.push(...await this._spellParser.generateCharacterSpells());
     logger.debug("Character Spells parse complete");
   }
 

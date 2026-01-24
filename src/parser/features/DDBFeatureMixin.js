@@ -41,6 +41,36 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     background: DDBBackgroundEnricher,
   };
 
+  spellLinks = [];
+
+  isAction = false;
+
+  excludedScale = false;
+
+  levelScaleInfusion = false;
+
+  scaleValueLink = "";
+
+  useScaleValueLink = false;
+
+  excludedScaleUses = false;
+
+  scaleValueUsesLink = "";
+
+  useUsesScaleValueLink = false;
+
+  tagType = "other";
+
+  activities = [];
+
+  data = {};
+
+  snippet = "";
+
+  description = "";
+
+  resourceCharges = null;
+
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
@@ -255,29 +285,13 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       : utils.nameString(this.ddbDefinition.name);
     this.type = type;
     this.source = source;
-    this.isAction = false;
-    this.excludedScale = false;
-    this.levelScaleInfusion = false;
-    this.scaleValueLink = "";
-    this.useScaleValueLink = false;
-    this.excludedScaleUses = false;
-    this.scaleValueUsesLink = "";
-    this.useUsesScaleValueLink = false;
-    this.tagType = "other";
-    this.activities = [];
-    this.data = {};
     this.isMuncher = isMuncher || this.isMuncher || this.ddbCharacter?.isMuncher;
     this._init();
-    this.snippet = "";
-    this.description = "";
-    this.resourceCharges = null;
     this.activityType = activityType;
 
     this.klass = this.extraFlags.ddbimporter?.class ?? this.extraFlags.class;
     this.subKlass = this.extraFlags.ddbimporter?.subClass ?? this.extraFlags.subClass;
     this.species = this.extraFlags.ddbimporter?.species ?? this.extraFlags.species;
-
-    // this._attacksAsFeatures = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-actions-as-features");
 
     this._parent = this._getActionParent();
 
