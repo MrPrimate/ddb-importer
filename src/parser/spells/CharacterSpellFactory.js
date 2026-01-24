@@ -10,25 +10,30 @@ import { DDBDataUtils, DDBModifiers } from "../lib/_module.mjs";
 
 export default class CharacterSpellFactory {
 
+  processed = [];
+
+  spellCounts = {};
+
+  _generated = {
+    class: [],
+    feat: [],
+    race: [],
+    background: [],
+    other: [],
+  };
+
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddb = ddbCharacter.source.ddb;
     this.character = ddbCharacter.raw.character;
-
-    this.processed = [];
-
     this.proficiencyModifier = this.character.system.attributes.prof;
     this.lookups = getLookups(this.ddb);
 
     logger.debug("Character spell lookups", this.lookups);
     this.characterAbilities = this.character.flags.ddbimporter.dndbeyond.effectAbilities;
-
-    this.healingBoost = DDBModifiers.filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" }).reduce((a, b) => a + b.value, 0);
-
-    this.spellCounts = {
-
-    };
-
+    this.healingBoost = DDBModifiers
+      .filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" })
+      .reduce((a, b) => a + b.value, 0);
     this.slots = foundry.utils.getProperty(this.character, "system.spells");
     this.levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
@@ -100,24 +105,25 @@ export default class CharacterSpellFactory {
       unPreparedCantrip,
     });
     foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
-    const duplicateSpell = this.processed.findIndex(
+    const duplicateSpell = this._generated.class.findIndex(
       (existingSpell) => {
-        const existingName = (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name);
-        const parsedName = (parsedSpell.flags.ddbimporter.originalName ? parsedSpell.flags.ddbimporter.originalName : parsedSpell.name);
+        const existingName = (existingSpell.flags.ddbimporter.originalName ?? existingSpell.name);
+        const parsedName = (parsedSpell.flags.ddbimporter.originalName ?? parsedSpell.name);
         // some spells come from different classes but end up having the same ddb id
-        const classIdMatch = (classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class || spell.id === existingSpell.flags.ddbimporter.dndbeyond.id);
+        const classIdMatch = classInfo.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class;
+        const spellIdMatch = spell.id === existingSpell.flags.ddbimporter.dndbeyond.id;
         const legacyMatch = (parsedSpell.flags.ddbimporter.is2014 ?? true) === (existingSpell.flags.ddbimporter.is2014 ?? true)
           || (parsedSpell.flags.ddbimporter.is2024 ?? false) === (existingSpell.flags.ddbimporter.is2024 ?? false);
-        return existingName === parsedName && classIdMatch && legacyMatch;
+        return existingName === parsedName && (classIdMatch || spellIdMatch) && legacyMatch;
       });
-    const duplicateItem = this.processed[duplicateSpell];
+    const duplicateItem = this._generated.class[duplicateSpell];
     if (!duplicateItem) {
-      this.processed.push(parsedSpell);
+      this._generated.class.push(parsedSpell);
     } else if (spell.alwaysPrepared || parsedSpell.system.method === "always"
       || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.method === duplicateItem.system.method && parsedSpell.prepared && !duplicateItem.prepared)) {
       // if our new spell is always known we overwrite!
       // it's probably domain
-      this.processed[duplicateSpell] = parsedSpell;
+      this._generated.class[duplicateSpell] = parsedSpell;
     } else {
       // we'll emit a console message if it doesn't match this case for future debugging
       logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.definition.name}.`);
@@ -147,7 +153,7 @@ export default class CharacterSpellFactory {
     });
   }
 
-  async getClassSpells() {
+  async generateClassSpells() {
     for (const playerClass of this.ddb.character.classSpells) {
       const classInfo = this.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
       const spellCastingAbility = getSpellCastingAbility(classInfo);
@@ -208,10 +214,9 @@ export default class CharacterSpellFactory {
         });
       }
     }
-
   }
 
-  async getUnpreparedCantrips() {
+  async generateUnpreparedCantrips() {
     for (const playerClass of this.ddb.character.classSpells) {
       if (!playerClass.cantrips) continue;
       if (playerClass.cantrips.length === 0) continue;
@@ -276,7 +281,7 @@ export default class CharacterSpellFactory {
   }
 
   // eslint-disable-next-line complexity
-  async getSpecialClassSpells() {
+  async generateSpecialClassSpells() {
     for (const spell of this.ddb.character.spells.class) {
       if (!spell.definition) continue;
       // If the spell has an ability attached, use that
@@ -363,36 +368,26 @@ export default class CharacterSpellFactory {
       // Check for duplicate spells, normally domain ones
       // We will import spells from a different class that are the same though
       // as they may come from with different spell casting mods
-      const duplicateSpell = this.processed.findIndex(
-        (existingSpell) =>
-          (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-          && klass
+      const duplicateSpell = klass
+        ? this._generated.class.findIndex((existingSpell) =>
+          (existingSpell.flags.ddbimporter.originalName ?? existingSpell.name) === spell.definition.name
           && klass.definition.name === existingSpell.flags.ddbimporter.dndbeyond.class
           && spell.usesSpellSlot && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
-      );
-      if (!this.processed[duplicateSpell]) {
+        )
+        : -1;
+      if (!this._generated.class[duplicateSpell]) {
         const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
           ddbData: this.ddb,
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
         });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
-        this.processed.push(parsedSpell);
+        this._generated.class.push(parsedSpell);
 
-        // console.warn({
-        //   spell,
-        //   parsedSpell,
-        //   bool: parsedSpell.flags.ddbimporter.is2024
-        //   && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName),
-        // });
         // check for class granted spells here
         if (parsedSpell.flags.ddbimporter.is2024
           && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName)
         ) {
-          // console.warn(`Adding non duplicate spell, ${parsedSpell.flags.ddbimporter.originalName} to class granted spells`, {
-          //   spell: deepClone(spell),
-          //   parsedSpell: deepClone(parsedSpell),
-          // });
           await this.handleGrantedSpells(spell, "class", {
             forceCopy: true,
             flags: {
@@ -409,12 +404,8 @@ export default class CharacterSpellFactory {
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
         });
-        // console.warn(`Overwriting duplicate spell, ${parsedSpell.flags.ddbimporter.originalName} to class granted spells`, {
-        //   spell,
-        //   parsedSpell,
-        // });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
-        this.processed[duplicateSpell] = parsedSpell;
+        this._generated.class[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
@@ -447,14 +438,23 @@ export default class CharacterSpellFactory {
 
     if (!levelSlots && !this.pactSlots) return;
 
-    const dups = this.ddb.character.spells[type].filter((otherSpell) => otherSpell.definition && otherSpell.definition.name === spell.definition.name).length > 1;
-    const duplicateSpell = this.processed.findIndex(
-      (existingSpell) =>
-        (existingSpell.flags.ddbimporter.originalName ? existingSpell.flags.ddbimporter.originalName : existingSpell.name) === spell.definition.name
-        && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
-    );
+    const dups = this.ddb.character.spells[type].filter((otherSpell) =>
+      otherSpell.definition
+      && otherSpell.definition.name === spell.definition.name).length > 1;
 
-    if (dups && this.processed[duplicateSpell]) return;
+    if (dups) {
+      for (const spells of Object.values(this._generated)) {
+        const duplicateSpell = spells.some(
+          (existingSpell) =>
+            (existingSpell.flags.ddbimporter.originalName ?? existingSpell.name) === spell.definition.name
+            && existingSpell.flags.ddbimporter.dndbeyond.usesSpellSlot,
+        );
+        if (duplicateSpell) {
+          logger.debug(`Skipping duplicate granted spell ${spell.definition.name} as multiple instances exist`);
+          return;
+        }
+      }
+    }
 
     // also parse spell as non-limited use
     let unlimitedSpell = foundry.utils.duplicate(spell);
@@ -484,10 +484,10 @@ export default class CharacterSpellFactory {
       logger.debug(`Ignoring 2014 granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter.originalName}`);
       return;
     }
-    this.processed.push(parsedSpell);
+    this._generated[type].push(parsedSpell);
   }
 
-  async getRaceSpells() {
+  async generateRaceSpells() {
     for (const spell of this.ddb.character.spells.race) {
       if (!spell.definition) continue;
       // for race spells the spell spellCastingAbilityId is on the spell
@@ -544,11 +544,11 @@ export default class CharacterSpellFactory {
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
       });
-      this.processed.push(parsedSpell);
+      this._generated.race.push(parsedSpell);
     }
   }
 
-  async getFeatSpells() {
+  async generateFeatSpells() {
     for (const spell of this.ddb.character.spells.feat) {
       if (!spell.definition) continue;
       // If the spell has an ability attached, use that
@@ -604,11 +604,11 @@ export default class CharacterSpellFactory {
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
       });
-      this.processed.push(parsedSpell);
+      this._generated.feat.push(parsedSpell);
     }
   }
 
-  async getBackgroundSpells() {
+  async generateBackgroundSpells() {
     if (!this.ddb.character.spells.background) this.ddb.character.spells.background = [];
     for (const spell of this.ddb.character.spells.background) {
       if (!spell.definition) continue;
@@ -652,17 +652,18 @@ export default class CharacterSpellFactory {
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
       });
-      this.processed.push(parsedSpell);
+      this._generated.background.push(parsedSpell);
     }
   }
 
-  async _getCompendiumSource() {
+  async _setCompendiumSource() {
     const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
     await CompendiumHelper.loadCompendiumIndex("spells", {
       fields: ["name", "flags.ddbimporter.definitionId"],
     });
 
-    for (const spell of this.processed) {
+
+    function setLink(spell) {
       const lookup = spellCompendium.index.find((s) => {
         if (!s.flags?.ddbimporter?.definitionId) return false;
         if (!spell.flags?.ddbimporter?.definitionId) return false;
@@ -674,29 +675,38 @@ export default class CharacterSpellFactory {
         logger.warn(`Spell ${spell.name} not found in compendium for spell list linking`);
       }
     }
+
+    for (const [key, spells] of Object.entries(this._generated)) {
+      for (const spell of spells) {
+        setLink(spell);
+      }
+      this._generated[key] = spells;
+    }
   }
 
-  async getCharacterSpells() {
+  async generateCharacterSpells() {
     // each class has an entry here, each entry has spells
     // we loop through each class and process
-    await this.getClassSpells();
+    await this.generateClassSpells();
 
     // Parse any spells granted by class features, such as Barbarian Totem
-    await this.getSpecialClassSpells();
-
-    // Race spells are handled slightly differently
-    await this.getRaceSpells();
-
-    // feat spells are handled slightly differently
-    await this.getFeatSpells();
-
-    // background spells are handled slightly differently
-    await this.getBackgroundSpells();
+    await this.generateSpecialClassSpells();
 
     // unprepared cantrips
-    await this.getUnpreparedCantrips();
+    await this.generateUnpreparedCantrips();
 
-    await this._getCompendiumSource();
+    // Race spells are handled slightly differently
+    await this.generateRaceSpells();
+
+    // feat spells are handled slightly differently
+    await this.generateFeatSpells();
+
+    // background spells are handled slightly differently
+    await this.generateBackgroundSpells();
+
+    await this._setCompendiumSource();
+
+    this.processed = Object.values(this._generated).flat();
 
     return this.processed.sort((a, b) => a.name.localeCompare(b.name));
   }
