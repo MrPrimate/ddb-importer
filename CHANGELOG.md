@@ -4,6 +4,9 @@
 - Improvements to some features generating max uses as a dice roll, such as Magic Coin. @motomoto0295
 - Some icon additions from @motomoto0295
 - Weapon properties were sometimes not removed from 2014 items, and sometimes always removed from 2024 descriptions.
+- Sacred Weapon enchantment had stopped adding attack bonus.
+- Path of the Totem Warrior 2014 fixes.
+
 
 # 6.6.49
 
