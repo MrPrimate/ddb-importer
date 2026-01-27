@@ -28,6 +28,29 @@ export default class CelestialRevelation extends DDBEnricherData {
           generateDamage: true,
           generateConsumption: false,
           noeffect: true,
+          noTemplate: true,
+        },
+        overrides: {
+          activationType: "special",
+          activationCondition: "1/turn",
+          targetType: "creature",
+          damageParts: [
+            DDBEnricherData.basicDamagePart({
+              bonus: "@prof",
+              types: ["radiant", "necrotic"],
+            }),
+          ],
+        },
+      },
+      {
+        constructor: {
+          name: "Inner Radiance Save",
+          type: "damage",
+        },
+        build: {
+          generateDamage: true,
+          generateConsumption: false,
+          noeffect: true,
         },
         overrides: {
           activationType: "special",
