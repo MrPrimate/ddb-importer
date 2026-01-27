@@ -6,7 +6,7 @@
 - Weapon properties were sometimes not removed from 2014 items, and sometimes always removed from 2024 descriptions.
 - Sacred Weapon enchantment had stopped adding attack bonus.
 - Path of the Totem Warrior 2014 fixes.
-
+- Ancestral Guardian 2014 fixes
 
 # 6.6.49
 
