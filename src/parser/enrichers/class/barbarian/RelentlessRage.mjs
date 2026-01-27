@@ -44,7 +44,7 @@ export default class RelentlessRage extends DDBEnricherData {
             condition: "",
           },
           healingPart: DDBEnricherData.basicDamagePart({
-            customFormula: "@classes.barbarian.levels * 2",
+            customFormula: this.is2014 ? "1" : "@classes.barbarian.levels * 2",
             type: "healing",
           }),
         },
@@ -60,7 +60,7 @@ export default class RelentlessRage extends DDBEnricherData {
           max: "30",
           recovery: [
             {
-              period: "lr",
+              period: this.is2014 ? "sr" : "lr",
               type: "recoverAll",
             },
           ],

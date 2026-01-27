@@ -95,7 +95,7 @@ export default class SacredWeapon extends DDBEnricherData {
             makeMagical: true,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.overrideChange("@abilities.cha.mod", 20, "attack.bonus"),
+            DDBEnricherData.ChangeHelper.addChange("(max(1,@abilities.cha.mod))", 20, "activities[attack].attack.bonus"),
           ].concat(descriptionChanges),
           options: {
             name: "Sacred Weapon",
@@ -121,7 +121,7 @@ export default class SacredWeapon extends DDBEnricherData {
             makeMagical: true,
           },
           changes: [
-            DDBEnricherData.ChangeHelper.overrideChange("@abilities.cha.mod", 20, "attack.bonus"),
+            DDBEnricherData.ChangeHelper.addChange("(max(1,@abilities.cha.mod))", 20, "activities[attack].attack.bonus"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.damage.base.types"),
           ].concat(descriptionChanges),
           options: {
