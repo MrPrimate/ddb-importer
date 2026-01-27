@@ -148,6 +148,7 @@ export const PARSING_FEATURES = {
     "Circle Forms",
     "Crown of Spellfire",
     "Bladesong",
+    "Brutal Critical",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",

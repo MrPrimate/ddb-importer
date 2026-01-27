@@ -28,6 +28,7 @@ export { default as RagingStormTundra } from "./RagingStormTundra.mjs";
 export { default as RelentlessRage } from "./RelentlessRage.mjs";
 export { default as Retaliation } from "./Retaliation.mjs";
 export { default as ShieldingStorm } from "./ShieldingStorm.mjs";
+export { default as FlashOfGenius } from "./SpiritShield.mjs";
 export { default as StormAuraDesert } from "./StormAuraDesert.mjs";
 export { default as StormAuraSea } from "./StormAuraSea.mjs";
 export { default as StormAuraTundra } from "./StormAuraTundra.mjs";
