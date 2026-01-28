@@ -304,6 +304,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Evocation Savant",
     "Necromancy Savant",
     "Sangromancy Savant",
+    "Saint of Forge and Fire",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -441,6 +442,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Mystic Arcanum (Level 8 Spell)",
     "Mystic Arcanum (Level 9 Spell)",
     "Fiendish Resilience",
+    "Saint of Forge and Fire",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
