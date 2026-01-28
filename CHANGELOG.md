@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.50
+
 - Kalashtar 2024 did not parse as an aberration @hansmeier
 - Improvements to some features generating max uses as a dice roll, such as Magic Coin. @motomoto0295
 - Some icon additions from @motomoto0295
@@ -7,7 +9,7 @@
 - Sacred Weapon enchantment had stopped adding attack bonus.
 - Path of the Totem Warrior 2014 fixes.
 - Ancestral Guardian, Path of the Zealot 2014 fixes
-- Forge Cleric fixes.
+- Forge and Grave Cleric fixes.
 
 # 6.6.49
 
