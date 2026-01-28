@@ -69,7 +69,7 @@ export default class DDBDebug {
     };
   }
 
-  constructor({ actor, extra } = {}) {
+  constructor({ actor, extra = {} } = {}) {
     this.debug = true;
     this.sources = MuncherSettings.getSourcesLookups();
     this.monsterTypes = MuncherSettings.getMonsterTypeLookups();
