@@ -1,6 +1,7 @@
 export { default as BlessedHealer } from "./BlessedHealer.mjs";
 export { default as BlessedStrikes } from "./BlessedStrikes.mjs";
 export { default as BlessedStrikesDivineStrike } from "./BlessedStrikesDivineStrike.mjs";
+export { default as BlessingOfTheForge } from "./BlessingOfTheForge.mjs";
 export { default as BlessingOfTheTrickster } from "./BlessingOfTheTrickster.mjs";
 export { default as ChannelDivinityCloakOfShadows } from "./ChannelDivinityCloakOfShadows.mjs";
 export { default as ChannelDivinityPreserveLife } from "./ChannelDivinityPreserveLife.mjs";
@@ -19,6 +20,7 @@ export { default as ImprovedDuplicity } from "./ImprovedDuplicity.mjs";
 export { default as ImprovedShadowStep } from "./ImprovedShadowStep.mjs";
 export { default as ImprovedWardingFlare } from "./ImprovedWardingFlare.mjs";
 export { default as InvokeDuplicity } from "./InvokeDuplicity.mjs";
+export { default as SaintOfForgeAndFire } from "./SaintOfForgeAndFire.mjs";
 export { default as SearUndead } from "./SearUndead.mjs";
 export { default as StepsOfNight } from "./StepsOfNight.mjs";
 export { default as VigilantBlessing } from "./VigilantBlessing.mjs";

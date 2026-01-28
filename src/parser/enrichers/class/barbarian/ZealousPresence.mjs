@@ -24,7 +24,7 @@ export default class ZealousPresence extends DDBEnricherData {
   }
 
   get additionalActivities() {
-    if (this.isAction) return [];
+    if (this.isAction || this.is2014) return [];
     return [
       {
         constructor: {

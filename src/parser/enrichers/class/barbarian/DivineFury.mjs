@@ -14,16 +14,16 @@ export default class DivineFury extends DDBEnricherData {
       addItemConsume: true,
       data: {
         damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              bonus: "(floor(@classes.barbarian.levels / 2))",
+              number: 1,
+              denomination: 6,
+              types: ["necrotic", "radiant"],
+            }),
+          ],
           critical: {
             allow: true,
-            parts: [
-              DDBEnricherData.basicDamagePart({
-                bonus: "(floor(@classes.barbarian.levels / 2))",
-                number: 1,
-                denomination: 6,
-                types: ["necrotic", "radiant"],
-              }),
-            ],
           },
         },
       },

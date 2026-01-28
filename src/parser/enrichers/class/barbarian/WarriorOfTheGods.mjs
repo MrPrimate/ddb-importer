@@ -3,10 +3,11 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class WarriorOfTheGods extends DDBEnricherData {
   get type() {
-    return "heal";
+    return this.is2014 ? "none" : "heal";
   }
 
   get activity() {
+    if (this.is2014) return {};
     return {
       name: "Heal",
       targetType: "self",
@@ -25,14 +26,16 @@ export default class WarriorOfTheGods extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Warrior of the Gods: Expend Dice",
-          max: "@scale.zealot.warrior-of-the-gods.number",
-          period: "lr",
-        }),
-      },
+      data: this.is2014
+        ? {}
+        : {
+          "system.uses": this._getUsesWithSpent({
+            type: "class",
+            name: "Warrior of the Gods: Expend Dice",
+            max: "@scale.zealot.warrior-of-the-gods.number",
+            period: "lr",
+          }),
+        },
     };
   }
 

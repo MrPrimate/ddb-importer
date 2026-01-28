@@ -1,7 +1,6 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin.mjs";
 import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module.mjs";
 import { utils } from "../../lib/_module.mjs";
-import { Barbarian } from "./class/_module.mjs";
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null } = {}) {
@@ -87,6 +86,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Circle of the Symbiote Spells": "Circle of the Spells",
     "Circle of Wicker Spells": "Circle of the Spells",
     "Circle of the Shepherd Spells": "Circle of the Spells",
+    "Circle of the Forged Spells": "Circle of the Spells",
     "Oath of Devotion Spells": "Paladin Oath Spells",
     "Oath of Glory Spells": "Paladin Oath Spells",
     "Oath of the Ancients Spells": "Paladin Oath Spells",
@@ -127,6 +127,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Armorer Spells": "Artificer Spells",
     "Artillerist Spells": "Artificer Spells",
     "Battle Smith Spells": "Artificer Spells",
+    "Forge Adept Spells": "Artificer Spells",
     // "Elemental Disciplines: Clench of the North Wind": "Elemental Disciplines",
     // "Elemental Disciplines: Fangs of the Fire Snake": "Elemental Disciplines",
     // "Elemental Disciplines: Fist of Four Thunders": "Elemental Disciplines",
