@@ -4,6 +4,7 @@ export { default as BlessedStrikesDivineStrike } from "./BlessedStrikesDivineStr
 export { default as BlessingOfTheForge } from "./BlessingOfTheForge.mjs";
 export { default as BlessingOfTheTrickster } from "./BlessingOfTheTrickster.mjs";
 export { default as ChannelDivinityCloakOfShadows } from "./ChannelDivinityCloakOfShadows.mjs";
+export { default as ChannelDivinityPathToTheGrave } from "./ChannelDivinityPathToTheGrave.mjs";
 export { default as ChannelDivinityPreserveLife } from "./ChannelDivinityPreserveLife.mjs";
 export { default as ChannelDivinityRadianceOfTheDawn } from "./ChannelDivinityRadianceOfTheDawn.mjs";
 export { default as CoronaOfLight } from "./CoronaOfLight.mjs";
