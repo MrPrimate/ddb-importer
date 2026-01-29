@@ -1,5 +1,9 @@
 # Next Up
 
+- A large number of updates for features with ability advantage/disadvantage effects.
+- 2014 Swashbuckler parsing improvements.
+- Tool grants for class advancements in 2014 were not always generated correctly.
+
 # 6.6.50
 
 - Kalashtar 2024 did not parse as an aberration @hansmeier

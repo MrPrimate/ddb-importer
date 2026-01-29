@@ -77,7 +77,7 @@ export default class ProficiencyFinder {
 
     // lookup the characters's proficiencies in the DICT
     const allToolProficiencies = DICTIONARY.actor.proficiencies
-      .filter((prof) => prof.type === "Tool");
+      .filter((prof) => prof.type === "Tool" && prof.baseTool);
 
     const mods = this.ddb
       ? DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true })
