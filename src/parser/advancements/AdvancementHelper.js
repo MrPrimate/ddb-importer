@@ -2131,6 +2131,7 @@ export default class AdvancementHelper {
       abilities: [],
     };
 
+    // Wisdom is your spellcasting ability for these spells.
     // Intelligence, Wisdom, or Charisma is your spellcasting ability for it
     // Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait
     // Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells when you cast them with this trait
@@ -2154,6 +2155,70 @@ export default class AdvancementHelper {
       }
     }
 
+
+    return result;
+  }
+
+  static parseHTMLSpellAdvancementDataForTraits(description) {
+    const result = {
+      spellListCantripChoice: null,
+      cantripChoices: [],
+      cantripGrants: [],
+      spellGrants: [],
+      spellChoices: [],
+      hint: "",
+    };
+    const spellsAdded = new Set();
+    const strippedDescription = AdvancementHelper.stripDescription(description).replace("*", "");
+
+    // You also know the Poison Spray cantrip.
+    // You know the shocking grasp cantrip.
+    // You know the druidcraft cantrip.
+    // You know the mage hand cantrip, and the hand is invisible when you cast the cantrip with this trait.
+    // You learn the mend plants* and shillelagh cantrips.
+    // You learn the spare the dying cantrip and can cast it as a bonus action.
+    const cantripGrantKnowRegex = /You (?:also )?(?:learn|know) the ([\w /]+) cantrip/ig;
+    const cantripKnowGrants = strippedDescription.matchAll(cantripGrantKnowRegex);
+    for (const match of cantripKnowGrants) {
+      const cantrips = match[1]
+        .replace(" and ", ",")
+        .replaceAll(",,", ",")
+        .split(",")
+        .map((cantrip) => cantrip.toLowerCase().trim());
+      for (const cantrip of cantrips) {
+        if (spellsAdded.has(cantrip)) continue;
+        result.cantripGrants.push(cantrip);
+        spellsAdded.add(cantrip);
+      }
+    }
+
+    // You can cast either the barkskin or spike growth spell once, and you must complete a long rest before you can cast either spell again
+    // You gain the ability to cast the spell cure wounds without using a spell slot, up to a number of times equal to half your proficiency bonus
+    const canCastRegex = /you (?:can|gain the ability to) (?:also )?cast (?:the |either the )?(.+?)(?: spells?,?)? (once|an unlimited number of times|on yourself|as a \d+(?:st|nd|rd|th)[- ]level spell once|without using a spell slot, up to a number of times equal to half your proficiency bonus)/ig;
+    const canCastMatches = strippedDescription.matchAll(canCastRegex);
+
+    for (const match of canCastMatches) {
+      const spells = match[1]
+        .replace("spell", "")
+        .replaceAll(" or ", " and ")
+        .split(" and ")
+        .map((s) => s.toLowerCase().trim());
+      const unlimited = match[2] && match[2].includes("unlimited");
+      const halfProficiency = match[2] && match[2].includes("half your proficiency bonus");
+      for (const spell of spells) {
+        if (spellsAdded.has(spell)) continue;
+        spellsAdded.add(spell);
+        result.spellGrants.push({
+          level: 1,
+          name: spell,
+          amount: unlimited
+            ? ""
+            : halfProficiency
+              ? "@prof / 2"
+              : "1",
+        });
+      }
+    }
 
     return result;
   }

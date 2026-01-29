@@ -15,6 +15,7 @@ import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBFeature from "./DDBFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
+import AdvancementHelper from "../advancements/AdvancementHelper.js";
 
 export default class CharacterFeatureFactory {
 
@@ -64,6 +65,8 @@ export default class CharacterFeatureFactory {
       actions: [],
       features: [],
     };
+
+    this.spellLinks = [];
 
     this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
       .filter((f) => f.affectedRacialTraitId)
@@ -1164,6 +1167,88 @@ export default class CharacterFeatureFactory {
         );
       });
 
+  }
+
+  async addSpellAdvancement({ feature, type } = {}) {
+    const advancements = [];
+
+    const htmlData = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(feature.system.description.value);
+
+    const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(feature.system.description.value);
+    const name = feature.name.toLowerCase().includes("spell")
+      ? feature.name
+      : `${feature.name} (Spells)`;
+
+    const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
+
+    logger.debug(`Spell Advancement Data from ${feature.name}`, {
+      htmlData,
+      this: this,
+      feature,
+      abilityData,
+      name,
+      hint,
+      type,
+    });
+
+    const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
+      choices: htmlData.cantripChoices,
+      abilities: abilityData.abilities,
+      hint,
+      name,
+      spellListChoice: htmlData.spellListCantripChoice,
+      spellLinks: this.spellLinks,
+      is2024: this.is2024,
+    });
+    if (cantripChoiceAdvancement) {
+      advancements.push(cantripChoiceAdvancement);
+    }
+
+    const cantripGrantAdvancement = await AdvancementHelper.getCantripGrantAdvancement({
+      choices: htmlData.cantripGrants,
+      abilities: abilityData.abilities,
+      hint,
+      name,
+      spellLinks: this.spellLinks,
+      is2024: this.is2024,
+    });
+    if (cantripGrantAdvancement) {
+      advancements.push(cantripGrantAdvancement);
+    }
+
+    for (const spellGrant of htmlData.spellGrants) {
+      const spellGrantAdvancement = await AdvancementHelper.getSpellGrantAdvancement({
+        spellGrants: [spellGrant],
+        abilities: abilityData.abilities,
+        hint,
+        name,
+        spellLinks: this.spellLinks,
+        is2024: this.is2024,
+      });
+      if (spellGrantAdvancement) {
+        advancements.push(spellGrantAdvancement);
+      }
+      // TO DO: add cast via slot
+    }
+
+    logger.debug("Spell Advancements", {
+      advancements,
+      feature,
+    });
+
+    advancements.forEach((advancement) => {
+      feature.system.advancement.push(advancement.toObject());
+    });
+  }
+
+  async addSpellAdvancements(types = []) {
+    logger.debug("Adding Spell Advancements from Feature Factory", { types, this: this });
+    for (const type of types) {
+      for (const feature of this.processed.features) {
+        if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
+        await this.addSpellAdvancement({ feature, type });
+      }
+    }
   }
 
 }

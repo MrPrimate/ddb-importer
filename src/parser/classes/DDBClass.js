@@ -162,7 +162,6 @@ export default class DDBClass {
     "Draconic Disciple",
     "Tongue of Dragons",
     "Wind Speaker",
-    "Master of Intrigue",
     "Favored Enemy",
     "Deft Explorer",
     "Canny",

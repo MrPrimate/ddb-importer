@@ -227,7 +227,6 @@ export default class DDBCharacter {
     if (!this._characterFeatureFactory)
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
     await this._characterFeatureFactory.processFeatures();
-    // this.raw.features.push(...this._characterFeatureFactory.processed.features);
     logger.debug("Feature parse complete");
   }
 
@@ -235,8 +234,14 @@ export default class DDBCharacter {
     if (!this._characterFeatureFactory)
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
     await this._characterFeatureFactory.processActions();
-    // this.raw.actions.push(...this._characterFeatureFactory.processed.actions);
     logger.debug("Action parse complete");
+  }
+
+  async _generateFeatureSpellAdvancements({ types = ["background", "feat"] } = {}) {
+    if (!this._characterFeatureFactory)
+      this._characterFeatureFactory = new CharacterFeatureFactory(this);
+    await this._characterFeatureFactory.addSpellAdvancements(types);
+    logger.debug("Feature Spell Advancement parse complete");
   }
 
   async _addFeatureFactoryDocuments() {
@@ -288,6 +293,8 @@ export default class DDBCharacter {
       await this._generateActions();
       await this._generateInventory();
       logger.debug("Inventory generation complete");
+
+      await this._generateFeatureSpellAdvancements();
       await this._addFeatureFactoryDocuments();
 
       // generate data stub to link

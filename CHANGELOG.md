@@ -3,6 +3,7 @@
 - A large number of updates for features with ability advantage/disadvantage effects.
 - 2014 Swashbuckler parsing improvements.
 - Tool grants for class advancements in 2014 were not always generated correctly.
+- First pass background and feat spell advancement detection.
 
 # 6.6.50
 

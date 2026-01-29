@@ -444,6 +444,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Mystic Arcanum (Level 9 Spell)",
     "Fiendish Resilience",
     "Saint of Forge and Fire",
+    "Master of Intrigue",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
