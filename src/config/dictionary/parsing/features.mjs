@@ -305,6 +305,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Necromancy Savant",
     "Sangromancy Savant",
     "Saint of Forge and Fire",
+    "Master of Intrigue",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
