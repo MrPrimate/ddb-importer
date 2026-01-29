@@ -111,7 +111,11 @@ export default class AdvancementHelper {
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
       if (!option) return;
-      const smallChosen = DICTIONARY.actor.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label);
+      const smallChosen = DICTIONARY.actor.proficiencies.find((prof) =>
+        prof.type === "Tool"
+        && prof.name === option.label
+        && prof.baseTool,
+      );
       if (smallChosen) {
         const toolStub = smallChosen.toolType === ""
           ? smallChosen.baseTool
@@ -120,7 +124,7 @@ export default class AdvancementHelper {
       }
       const optionNames = optionChoice.options
         .filter((option) =>
-          DICTIONARY.actor.proficiencies.some((prof) => prof.type === "Tool" && prof.name === option.label)
+          DICTIONARY.actor.proficiencies.some((prof) => prof.type === "Tool" && prof.name === option.label && prof.baseTool)
           && choice.optionIds.includes(option.id),
         )
         .map((option) =>
@@ -525,11 +529,12 @@ export default class AdvancementHelper {
 
     const toolsFromMods = toolMods.map((mod) => {
       const tool = DICTIONARY.actor.proficiencies
-        .find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName);
+        .find((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName && prof.baseTool);
+      if (!tool) return null;
       return tool.toolType === ""
         ? tool.baseTool
         : `${tool.toolType}:${tool.baseTool}`;
-    });
+    }).filter((t) => t !== null);
 
     const count = this.isMuncher && availableToMulticlass && baseProficiency
       ? this.dictionary.multiclassTools
@@ -1682,17 +1687,17 @@ export default class AdvancementHelper {
     // you gain proficiency with Tinker’s Tools
     // You gain proficiency with Alchemist’s Supplies and the Herbalism Kit.
 
-    const additionalMatchRegex = /You gain proficiency with (.*?)($|\.|\w+:)/im;
+    const additionalMatchRegex = /You gain proficiency with (.*?)(?:$|\.|\w+:)/im;
     const additionalMatch = textDescription.match(additionalMatchRegex);
 
     if (additionalMatch) {
       const additionalMatches = additionalMatch[1]
         .replace(" and the ", ",")
         .replace(" and ", ",")
-        .split(",").map((skill) => skill.trim());
+        .split(",").map((skill) => skill.trim().replace(/^the /i, ''));
       for (const match of additionalMatches) {
         const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
-        const choiceMatch = textDescription.match(toolChoiceRegex);
+        const choiceMatch = match.match(toolChoiceRegex);
         if (choiceMatch) {
           const numberTools = DICTIONARY.numbers.find((num) => choiceMatch[1].toLowerCase() === num.natural);
           parsedTools.number = numberTools ? numberTools.num : 1;
