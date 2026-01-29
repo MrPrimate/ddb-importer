@@ -1463,8 +1463,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         });
 
       const baseTool = toolProficiencies.find((allProf) => allProf.name.toLowerCase() === this.ddbDefinition.name.toLowerCase());
-      if (baseTool && baseTool.baseTool) {
-        baseItem = baseTool.baseTool;
+      if (baseTool) {
+        baseItem = baseTool.baseTool ?? utils.idString(this.ddbDefinition.name.toLowerCase());
         toolType = baseTool.toolType;
       }
     } else if (this.ddbDefinition.filterType === "Staff") {

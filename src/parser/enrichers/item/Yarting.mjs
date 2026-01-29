@@ -9,7 +9,7 @@ export default class Yarting extends DDBEnricherData {
       parsingType: "tool",
       systemType: {
         value: "music",
-        baseItem: "",
+        baseItem: "yarting",
       },
     };
   }
