@@ -49,7 +49,6 @@ export default class GiantsMight extends DDBEnricherData {
       {
         options: {
           durationSeconds: 60,
-          description: "You also gain advantage on Strength checks and saving throws.",
         },
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),

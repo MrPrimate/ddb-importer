@@ -6,9 +6,9 @@ export default class BlessingOfTheTrickster extends DDBEnricherData {
   get effects() {
     return [
       {
-        options: {
-          description: "Advantage on Dexterity (Stealth) checks.",
-        },
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode"),
+        ],
       },
     ];
   }

@@ -25,10 +25,15 @@ export default class StepsOfTheFey extends DDBEnricherData {
     return [
       {
         options: {
+          durationSeconds: 6,
           description:
             "Disadvantage on attack rolls against creatures other than caster until the start of the casters next turn",
         },
         name: "Taunted",
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
+        ],
+        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

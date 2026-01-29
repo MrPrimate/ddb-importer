@@ -28,8 +28,11 @@ export default class FrostRune extends DDBEnricherData {
         name: "Frost Rune: Passive Bonuses",
         options: {
           transfer: true,
-          description: `You have advantage on Wisdom (Animal Handling) checks and Charisma (Intimidation) checks.`,
         },
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ani.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.itm.roll.mode"),
+        ],
       },
       {
         activityMatch: "Invoke Rune",

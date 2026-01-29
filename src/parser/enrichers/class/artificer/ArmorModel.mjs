@@ -584,7 +584,6 @@ export default class ArmorModel extends DDBEnricherData {
         options: {
           // disabled: true,
           transfer: true,
-          description: `You have advantage on Dexterity (Stealth) checks`,
         },
         changes: [
           DDBEnricherData.ChangeHelper.addChange("5", 20, "system.attributes.movement.walk"),

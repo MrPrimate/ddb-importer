@@ -40,9 +40,9 @@ export default class StoneRune extends DDBEnricherData {
       {
         noCreate: true,
         name: "Stone Rune: Passive Bonuses",
-        options: {
-          description: "You have advantage on Wisdom (Insight) checks",
-        },
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ins.roll.mode"),
+        ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),
           DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),

@@ -20,8 +20,11 @@ export default class CloudRune extends DDBEnricherData {
         name: "Cloud Rune: Passive Bonuses",
         options: {
           transfer: true,
-          description: `You have advantage on Dexterity (Sleight of Hand) checks and Charisma (Deception) checks.`,
         },
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.slt.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.dec.roll.mode"),
+        ],
       },
     ];
   }

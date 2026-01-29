@@ -27,7 +27,9 @@ export default class VowOfEnmity extends DDBEnricherData {
         description: "You gain advantage on attack rolls against the creature",
         durationSeconds: 60,
       },
-      midiChanges: [],
+      // midiChanges: [
+      //   DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+      // ],
     }];
   }
 

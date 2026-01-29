@@ -26,7 +26,12 @@ export default class MoonlightStep extends DDBEnricherData {
         name: "Moonlight Step: Advantage on Next Attack",
         options: {
           description: "You have Advantage on the next attack roll you make before the end of this turn.",
+          durationTurns: 1,
         },
+        daeSpecialDurations: ["1Attack"],
+        midiChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
+        ],
       },
     ];
   }

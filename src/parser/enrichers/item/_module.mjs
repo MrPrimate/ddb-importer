@@ -64,4 +64,5 @@ export { default as WandOfMagicMissiles } from "./WandOfMagicMissiles.mjs";
 export { default as WandOfOrcus } from "./WandOfOrcus.mjs";
 export { default as WarriorsPasskey } from "./WarriorsPasskey.mjs";
 export { default as Waterskin } from "./Waterskin.mjs";
+export { default as Yarting } from "./Yarting.mjs";
 
