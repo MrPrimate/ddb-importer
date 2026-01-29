@@ -8,10 +8,11 @@
     "lint": "npx eslint src/",
     "lint-fix": "npx eslint src/ --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run clear; webpack",
+    "build": "npm run clear; npm run link; webpack",
     "clear": "rm -rf dist/*",
     "createSymlinks": "node ./tools/create-symlinks.mjs",
-    "link": "cd src/parser/enrichers && node _linkBuilder.js"
+    "link": "cd src/parser/enrichers && node _linkBuilder.js",
+    "dev-link": "node ./tools/foundry-dev-link.mjs"
   },
   "devDependencies": {
     "node-fetch": "^3.2.10",
@@ -19,6 +20,7 @@
     "eslint-config-prettier": "^9.1.0",
     "prettier": "3.1.0",
     "prettier-eslint": "^16.3.0",
+    "prompts": "^2.4.2",
     "terser": "^5.10.0",
     "terser-webpack-plugin": "^5.3.0",
     "webpack": "^5.76.0",
