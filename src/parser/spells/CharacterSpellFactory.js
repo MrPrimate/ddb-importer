@@ -2,11 +2,16 @@
 import { utils, logger, CompendiumHelper } from "../../lib/_module.mjs";
 
 // Import parsing functions
-import { getLookups } from "./metadata.js";
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module.mjs";
+
+const SPELLIST_ADDITION_MATCHES = [
+  "using any spell slots you have of the appropriate level",
+  "using spell slots you have of the appropriate level",
+  "using any spell slots you have",
+];
 
 export default class CharacterSpellFactory {
 
@@ -22,14 +27,18 @@ export default class CharacterSpellFactory {
     other: [],
   };
 
+  _granted = {
+    class: [],
+    feat: [],
+    race: [],
+    background: [],
+  };
+
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddb = ddbCharacter.source.ddb;
     this.character = ddbCharacter.raw.character;
     this.proficiencyModifier = this.character.system.attributes.prof;
-    this.lookups = getLookups(this.ddb);
-
-    logger.debug("Character spell lookups", this.lookups);
     this.characterAbilities = this.character.flags.ddbimporter.dndbeyond.effectAbilities;
     this.healingBoost = DDBModifiers
       .filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" })
@@ -42,6 +51,148 @@ export default class CharacterSpellFactory {
     this.hasSlots = this.levelSlots || this.pactSlots;
     this.generateSummons = ddbCharacter.generateSummons;
   }
+
+  // eslint-disable-next-line complexity
+  getLookup(type, id) {
+    const character = this.ddb.character;
+
+    let lookup;
+
+    switch (type) {
+      case "race": {
+        const match = character.race.racialTraits.find((t) => {
+          return t.definition.id === id;
+        });
+        if (match) {
+          lookup = {
+            id: match.definition.id,
+            name: match.definition.name,
+            data: match,
+          };
+        }
+        break;
+      }
+      case "feat": {
+        const match = character.feats.find((f) => {
+          return f.definition.id === id;
+        });
+        if (match) {
+          lookup = {
+            id: match.definition.id,
+            name: match.definition.name,
+            componentId: match.componentId,
+            data: match,
+          };
+        }
+        break;
+      }
+      case "class": {
+        const match1 = character.classes.find((c) => {
+          return c.definition.id === id;
+        });
+        if (match1) {
+          lookup = {
+            id: match1.definition.id,
+            name: match1.definition.name,
+            data: match1,
+          };
+          break;
+        }
+        const match2 = character.classes.find((c) => {
+          return c.subclassDefinition && c.subclassDefinition.id === id;
+        });
+        if (match2) {
+          lookup = {
+            id: match2.subclassDefinition.id,
+            name: match2.subclassDefinition.name,
+            data: match2.subclassDefinition,
+          };
+          break;
+        }
+        break;
+      }
+      case "classFeature": {
+        for (const c of character.classes) {
+          if (c.subclassDefinition && c.subclassDefinition.id === id) {
+            for (const option of this.ddb.classOptions) {
+              // eslint-disable-next-line max-depth
+              if (option.classId === c.subclassDefinition.id) {
+                lookup = {
+                  id: option.id,
+                  name: option.name,
+                  classId: c.subclassDefinition.id,
+                  data: option,
+                };
+                break;
+              }
+            }
+          }
+          if (lookup) break;
+
+          const match1 = c.classFeatures.find((f) => {
+            return f.definition.id === id;
+          });
+          if (match1) {
+            lookup = {
+              id: match1.definition.id,
+              name: match1.definition.name,
+              classId: match1.definition.classId,
+              componentId: match1.definition.componentId,
+              data: match1,
+            };
+            break;
+          }
+
+          for (const option of this.ddb.classOptions) {
+            if (option.classId === c.definition.id && option.id === id) {
+              lookup = {
+                id: option.id,
+                name: option.name,
+                classId: c.definition.id,
+                data: option,
+              };
+              break;
+            }
+          }
+        }
+        if (lookup) break;
+        const optionMatch = character.options.class.find((o) => {
+          return o.definition.id === id;
+        });
+        if (optionMatch) {
+          lookup = {
+            id: optionMatch.definition.id,
+            name: optionMatch.definition.name,
+            componentId: optionMatch.componentId,
+            data: optionMatch,
+          };
+        }
+        break;
+      }
+      case "item": {
+        const match = character.inventory.find((i) => {
+          return i.definition.id === id;
+        });
+        if (match) {
+          lookup = {
+            id: match.definition.id,
+            name: match.definition.name,
+            limitedUse: match.limitedUse,
+            equipped: match.equipped,
+            isAttuned: match.isAttuned,
+            canAttune: match.definition.canAttune,
+            canEquip: match.definition.canEquip,
+            data: match,
+          };
+        }
+        break;
+      }
+      // no default
+    }
+
+    return lookup;
+  }
+
 
   _getSpellCount(name) {
     if (!this.spellCounts[name]) {
@@ -287,7 +438,7 @@ export default class CharacterSpellFactory {
       // If the spell has an ability attached, use that
       let spellCastingAbility = undefined;
       const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, spell.componentId);
-      const classInfo = this.lookups.classFeature.find((clsFeature) => clsFeature.id == featureId);
+      const classInfo = this.getLookup("classFeature", featureId);
 
       logger.debug("Class spell parsing, class info", classInfo);
       // Sometimes there are spells here which don't have an class Info
@@ -429,7 +580,8 @@ export default class CharacterSpellFactory {
   }
 
   async handleGrantedSpells(spell, type, { forceCopy = false, flags = {} } = {}) {
-    if (!forceCopy && (!spell.limitedUse || spell.definition.level === 0)) return;
+    if (spell.definition.level === 0) return;
+    if (!forceCopy && !spell.limitedUse) return;
     if (!forceCopy && !this.slots) return;
     const levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       if (spell.definition.level > i) return false;
@@ -472,11 +624,6 @@ export default class CharacterSpellFactory {
       namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}`,
       generateSummons: this.generateSummons,
     });
-    // console.warn(`Granted Spell`, {
-    //   spell: deepClone(spell),
-    //   parsedSpell: deepClone(parsedSpell),
-    //   unlimitedSpell: deepClone(unlimitedSpell),
-    // });
 
     if (parsedSpell.system.source.rules === "2014"
       && DICTIONARY.parsing.spellListGrantsIgnore["2014"].some((i) => spell.flags.ddbimporter.dndbeyond.lookupName.includes(i))
@@ -499,7 +646,7 @@ export default class CharacterSpellFactory {
 
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
-      let raceInfo = this.lookups.race.find((rc) => rc.id === spell.componentId);
+      let raceInfo = this.getLookup("race", spell.componentId);
 
       if (!raceInfo) {
         // for some reason we haven't matched the race option id with the spell
@@ -560,7 +707,7 @@ export default class CharacterSpellFactory {
 
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
-      let featInfo = this.lookups.feat.find((ft) => ft.id === spell.componentId);
+      let featInfo = this.getLookup("feat", spell.componentId);
 
       if (!featInfo) {
         // for some reason we haven't matched the feat option id with the spell
@@ -596,7 +743,12 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        await this.handleGrantedSpells(spell, "feat");
+        const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data.definition.description ?? "").toLowerCase().includes(t));
+        if (forceCopy) {
+          await this.handleGrantedSpells(spell, "feat", {
+            forceCopy,
+          });
+        }
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
@@ -604,7 +756,11 @@ export default class CharacterSpellFactory {
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
       });
-      this._generated.feat.push(parsedSpell);
+      if (spell.definition.level === 0) {
+        this._generated.feat.push(parsedSpell);
+      } else {
+        this._granted.feat.push(parsedSpell);
+      }
     }
   }
 

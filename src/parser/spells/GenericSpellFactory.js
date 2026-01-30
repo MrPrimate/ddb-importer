@@ -1,59 +1,8 @@
 import { utils } from "../../lib/_module.mjs";
-import { getLookups } from "./metadata.js";
 import { hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability.js";
 import DDBSpell from "./DDBSpell.js";
 
 export default class GenericSpellFactory {
-
-  static async getGenericItemSpells(itemList, itemSpells, generateSummons = null) {
-    let items = [];
-
-    // feat spells are handled slightly differently
-    for (const spell of itemSpells.filter((s) => s.definition)) {
-      const itemInfo = itemList.find((it) => it.definition.id === spell.componentId);
-      // eslint-disable-next-line no-continue
-      if (!itemInfo) continue;
-
-      const active
-        = (!itemInfo.definition.canEquip && !itemInfo.definition.canAttune) // if item just gives a thing
-        || itemInfo.isAttuned // if it is attuned (assume equipped)
-        || (!itemInfo.definition.canAttune && itemInfo.equipped); // can't attune but is equipped
-      // for item spells the spell dc is often on the item spell
-      let spellDC = null;
-      if (spell.overrideSaveDc) {
-        spellDC = spell.overrideSaveDc;
-      }
-
-      // add some data for the parsing of the spells into the data structure
-      spell.flags = {
-        ddbimporter: {
-          dndbeyond: {
-            lookup: "item",
-            lookupName: itemInfo.definition.name,
-            lookupId: itemInfo.definition.id,
-            level: spell.castAtLevel,
-            dc: spellDC,
-            limitedUse: itemInfo.limitedUse,
-            nameOverride: `${spell.definition.name} (${itemInfo.definition.name})`,
-            overrideDC: !!spell.overrideSaveDc,
-            spellLimitedUse: spell.limitedUse,
-            castAtLevel: spell.castAtLevel,
-            active: active,
-            homebrew: spell.definition.isHomebrew,
-          },
-        },
-      };
-      const namePostfix = utils.namedIDStub(itemInfo.definition.name, { prefix: "", length: 5 });
-      const parsedSpell = await DDBSpell.parseSpell(spell, null, {
-        namePostfix: namePostfix,
-        generateSummons,
-      });
-
-      items.push(parsedSpell);
-    }
-
-    return items;
-  }
 
   static async getSpells(spells, notifier = null, generateSummons = null) {
     const results = [];
@@ -105,8 +54,6 @@ export default class GenericSpellFactory {
 
     let items = [];
     const proficiencyModifier = character.system.attributes.prof;
-    const lookups = getLookups(ddb);
-
     const spellCountDict = {};
 
     // feat spells are handled slightly differently
@@ -115,13 +62,13 @@ export default class GenericSpellFactory {
     for (const spell of spells) {
       if (!spell.definition) continue;
 
-      const itemInfo = lookups.item.find((item) => item.id === spell.componentId);
+      const itemInfo = ddb.character.inventory.find((item) => item.definition.id === spell.componentId);
       if (!itemInfo) continue;
 
       const active
-        = (!itemInfo.canEquip && !itemInfo.canAttune) // if item just gives a thing
+        = (!itemInfo.definition.canEquip && !itemInfo.definition.canAttune) // if item just gives a thing
         || itemInfo.isAttuned // if it is attuned (assume equipped)
-        || (!itemInfo.canAttune && itemInfo.equipped); // can't attune but is equipped
+        || (!itemInfo.definition.canAttune && itemInfo.equipped); // can't attune but is equipped
       // for item spells the spell dc is often on the item spell
       let spellDC = 8;
       if (spell.overrideSaveDc) {
@@ -145,12 +92,12 @@ export default class GenericSpellFactory {
         ddbimporter: {
           dndbeyond: {
             lookup: "item",
-            lookupName: itemInfo.name,
-            lookupId: itemInfo.id,
+            lookupName: itemInfo.definition.name,
+            lookupId: itemInfo.definition.id,
             level: spell.castAtLevel,
             dc: spellDC,
             limitedUse: itemInfo.limitedUse,
-            nameOverride: `${spell.definition.name} (${itemInfo.name})`,
+            nameOverride: `${spell.definition.name} (${itemInfo.definition.name})`,
             overrideDC: !!spell.overrideSaveDc,
             spellLimitedUse: spell.limitedUse,
             castAtLevel: spell.castAtLevel,

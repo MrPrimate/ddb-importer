@@ -2147,7 +2147,7 @@ export default class AdvancementHelper {
       );
     } else {
       // the spell uses the same spellcasting ability
-      const otherTraitRegex = /When you cast it with this trait, the spell uses the same spellcasting ability./i;
+      const otherTraitRegex = /When you cast it with this trait, the spell uses the same spellcasting ability.|The spell’s spellcasting ability is the ability increased by this feat./i;
       const otherTraitMatch = description.match(otherTraitRegex);
       if (otherTraitMatch) {
         result.hint = otherTraitMatch[0];
@@ -2159,6 +2159,7 @@ export default class AdvancementHelper {
     return result;
   }
 
+  // eslint-disable-next-line complexity
   static parseHTMLSpellAdvancementDataForTraits(description) {
     const result = {
       spellListCantripChoice: null,
@@ -2186,9 +2187,35 @@ export default class AdvancementHelper {
         .split(",")
         .map((cantrip) => cantrip.toLowerCase().trim());
       for (const cantrip of cantrips) {
+        if (["it"].includes(cantrip)) continue;
         if (spellsAdded.has(cantrip)) continue;
         result.cantripGrants.push(cantrip);
         spellsAdded.add(cantrip);
+      }
+    }
+
+    // You know one cantrip of your choice from the Sorcerer spell list.
+    const spellListRegex = /You know one cantrip of your choice from the (\w+) spell list/i;
+    const spellListMatch = strippedDescription.match(spellListRegex);
+
+    if (spellListMatch) {
+      result.hint = `You know one cantrip of your choice from the ${spellListMatch[1]} spell list.`;
+      result.spellListCantripChoice = spellListMatch[1].toLowerCase();
+    }
+
+    // You know one of the following cantrips of your choice: dancing lights, light, or sacred flame.
+    if (strippedDescription.includes("one of the following cantrips of your choice")) {
+      const choices = strippedDescription.split("one of the following cantrips of your choice:")
+        .slice(1)[0]
+        .split(".")[0]
+        .replace(" or ", ",")
+        .replaceAll(",,", ",")
+        .split(",")
+        .map((cantrip) => cantrip.toLowerCase().trim());
+      for (const choice of choices) {
+        if (spellsAdded.has(choice)) continue;
+        result.cantripChoices.push(choice);
+        spellsAdded.add(choice);
       }
     }
 
@@ -2206,6 +2233,7 @@ export default class AdvancementHelper {
       const unlimited = match[2] && match[2].includes("unlimited");
       const halfProficiency = match[2] && match[2].includes("half your proficiency bonus");
       for (const spell of spells) {
+        if (["it"].includes(spell)) continue;
         if (spellsAdded.has(spell)) continue;
         spellsAdded.add(spell);
         result.spellGrants.push({
@@ -2217,6 +2245,33 @@ export default class AdvancementHelper {
               ? "@prof / 2"
               : "1",
         });
+      }
+    }
+
+    // from the Sorcerer spell list. Also, choose a level 1 spell from that spell list. You always have that spell prepared. You can cast it once without a spell slot,
+    const spellListSpellRegex = /from the (\w+) spell list.*?choose a level (\d+) spell from that spell list/i;
+    const spellListSpellMatch = strippedDescription.match(spellListSpellRegex);
+    if (spellListSpellMatch) {
+      const level = parseInt(spellListSpellMatch[2]);
+      result.spellChoices.push({
+        level: level,
+        spellList: spellListSpellMatch[1].toLowerCase(),
+        amount: "1",
+      });
+    }
+
+    // You always have the Otto’s Irresistible Dance spell prepared. You can cast it once without a spell slot,
+    const alwaysPreparedRegex = /You always have the (.+?) spell prepared\. You can cast it once without a spell slot|cast (.+?) without expending a spell slot/i;
+    const alwaysPreparedMatch = strippedDescription.match(alwaysPreparedRegex);
+    if (alwaysPreparedMatch) {
+      const spell = (alwaysPreparedMatch[1] ?? alwaysPreparedMatch[2]).toLowerCase().trim();
+      if (!spellsAdded.has(spell)) {
+        result.spellGrants.push({
+          level: 1,
+          name: spell,
+          amount: "1",
+        });
+        spellsAdded.add(spell);
       }
     }
 
@@ -2665,7 +2720,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       title: name,
       hint,
       configuration: {
-        allowDrops: false,
+        allowDrops: true,
         pool: uuids.map((s) => {
           return { uuid: s.uuid };
         }),
@@ -2682,6 +2737,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         restriction: {
           level: "0",
           type: "spell",
+          list: spellListChoice ? [`class:${spellListChoice}`] : [],
         },
         type: "spell",
         spell: {
@@ -2698,6 +2754,71 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     if (uuids.length > 0 || spellListChoice) return advancement;
 
     return undefined;
+  }
+
+  static async getSpellChoiceAdvancement({
+    spellChoice, abilities = [], hint = "", name, spellLinks, method = "innate",
+    requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
+    level, choiceLevel = 0, choices = [], is2024,
+  } = {}) {
+    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const spellListChoice = spellChoice.spellList || null;
+
+    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(choices, is2024);
+
+    spellLinks.push({
+      type: "choice",
+      advancementId: advancement._id,
+      choices: spellChoice,
+      level: level ?? spellChoice.level,
+    });
+
+    advancement.updateSource({
+      title: name,
+      level: level ? parseInt(level) : parseInt(spellChoice.level),
+      configuration: {
+        allowDrops: true,
+        pool: uuids.map((s) => {
+          return { uuid: s.uuid };
+        }),
+        choices: {
+          [choiceLevel]: {
+            count: 1,
+            replacement: false,
+          },
+          replacement: {
+            count: null,
+            replacement: false,
+            list: spellListChoice ? [`class:${spellListChoice}`] : [],
+          },
+        },
+        restriction: {
+          level: level ? parseInt(level) : (parseInt(spellChoice.level) ?? null),
+          type: "spell",
+          list: spellListChoice ? [`class:${spellListChoice}`] : [],
+        },
+        type: "spell",
+        spell: {
+          ability: abilities,
+          method,
+          prepared,
+          uses: spellChoice.amount
+            ? {
+              max: spellChoice.amount === "" ? "" : spellChoice.amount,
+              per: spellChoice.amount === "" ? "" : "lr",
+              requireSlot,
+            }
+            : {
+              max: "",
+              per: "",
+              requireSlot,
+            },
+        },
+      },
+      hint,
+    });
+
+    return advancement;
   }
 
   static async getCantripGrantAdvancement({
@@ -2747,7 +2868,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   static async getSpellGrantAdvancement({
     spellGrants, abilities = [], hint = "", name, spellLinks, method = "innate",
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
-    level, is2024,
+    level, is2024, forceNoAmount = false,
   } = {}) {
     const spellGrant = spellGrants[0];
     const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(spellGrants.map((g) => g.name), is2024);
@@ -2778,7 +2899,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           ability: abilities,
           method,
           prepared,
-          uses: spellGrant.amount
+          uses: spellGrant.amount && !forceNoAmount
             ? {
               max: spellGrant.amount === "" ? "" : spellGrant.amount,
               per: spellGrant.amount === "" ? "" : "lr",

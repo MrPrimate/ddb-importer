@@ -237,7 +237,7 @@ export default class DDBCharacter {
     logger.debug("Action parse complete");
   }
 
-  async _generateFeatureSpellAdvancements({ types = ["background", "feat"] } = {}) {
+  async _generateFeatureSpellAdvancements({ types = ["feat"] } = {}) {
     if (!this._characterFeatureFactory)
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
     await this._characterFeatureFactory.addSpellAdvancements(types);

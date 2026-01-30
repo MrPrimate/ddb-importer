@@ -466,6 +466,8 @@ export const PARSING_CHOICE_FEATURES = {
 export const FEATURE_SPELLS_IGNORE = [
   // "Mantle of Majesty",
   "Activate Mantle of Majesty",
+  "Gaseous Form",
+  "Otto's Irresistible Dance",
 ];
 
 export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [

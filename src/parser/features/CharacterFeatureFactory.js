@@ -16,6 +16,8 @@ import DDBFeature from "./DDBFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
+import DDBBasicActivity from "../enrichers/mixins/DDBBasicActivity.mjs";
+import DDBEnricherFactoryMixin from "../enrichers/mixins/DDBEnricherFactoryMixin.mjs";
 
 export default class CharacterFeatureFactory {
 
@@ -67,6 +69,8 @@ export default class CharacterFeatureFactory {
     };
 
     this.spellLinks = [];
+
+    this.spellsGranted = {};
 
     this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
       .filter((f) => f.affectedRacialTraitId)
@@ -1178,6 +1182,9 @@ export default class CharacterFeatureFactory {
     const name = feature.name.toLowerCase().includes("spell")
       ? feature.name
       : `${feature.name} (Spells)`;
+    const cantripName = feature.name.toLowerCase().includes("cantrip")
+      ? feature.name
+      : `${feature.name} (Cantrips)`;
 
     const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
 
@@ -1195,7 +1202,7 @@ export default class CharacterFeatureFactory {
       choices: htmlData.cantripChoices,
       abilities: abilityData.abilities,
       hint,
-      name,
+      name: cantripName,
       spellListChoice: htmlData.spellListCantripChoice,
       spellLinks: this.spellLinks,
       is2024: this.is2024,
@@ -1208,13 +1215,19 @@ export default class CharacterFeatureFactory {
       choices: htmlData.cantripGrants,
       abilities: abilityData.abilities,
       hint,
-      name,
+      name: cantripName,
       spellLinks: this.spellLinks,
       is2024: this.is2024,
     });
     if (cantripGrantAdvancement) {
       advancements.push(cantripGrantAdvancement);
+      this.spellsGranted[type].push(...htmlData.cantripGrants);
     }
+
+    const isItemConsume = !feature.system.uses.max
+      || feature.system.uses.max === ""
+      || feature.system.uses.max === 0
+      || feature.system.uses.max === "0";
 
     for (const spellGrant of htmlData.spellGrants) {
       const spellGrantAdvancement = await AdvancementHelper.getSpellGrantAdvancement({
@@ -1224,11 +1237,80 @@ export default class CharacterFeatureFactory {
         name,
         spellLinks: this.spellLinks,
         is2024: this.is2024,
+        requireSlot: true,
+        forceNoAmount: true,
+        method: "spell",
       });
       if (spellGrantAdvancement) {
         advancements.push(spellGrantAdvancement);
+        if (Object.values(feature.system.activities).some((a) => a.name === spellGrant.name && a.type === "cast")) {
+          continue;
+        }
+
+        const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spellGrant.name]);
+        if (!spellIndex || spellIndex.length === 0) {
+          logger.warn(`No compendium spell found for ${spellGrant.name}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
+          continue;
+        }
+
+        const uuid = spellIndex[0].uuid;
+
+        if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid === uuid)) {
+          logger.debug(`Spell activity for ${spellGrant.name} already exists on feature ${feature.name}, skipping`);
+          continue;
+        }
+
+        const activity = new DDBBasicActivity({
+          nameIdPrefix: utils.idString(spellGrant.name),
+          type: "cast",
+          foundryFeature: feature,
+        });
+        activity.build({
+          generateSpell: true,
+          generateConsumption: true,
+          consumeActivity: !isItemConsume,
+          consumeItem: isItemConsume,
+          spellOverride: {
+            spellbook: true,
+            uuid,
+          },
+        });
+
+        const uses = {
+          spent: 0,
+          max: "1",
+          recovery: [{ period: "lr", type: "recoverAll" }],
+        };
+
+        if (isItemConsume) {
+          // eslint-disable-next-line require-atomic-updates
+          feature.system.uses = uses;
+        } else {
+          activity.data.uses = uses;
+        }
+
+        // eslint-disable-next-line require-atomic-updates
+        feature.system.activities[activity.data._id] = activity.data;
+
+        this.spellsGranted[type].push(spellGrant.name);
+
+        logger.warn(`Added spell activity for ${spellGrant.name} to feature ${feature.name}`);
+
       }
-      // TO DO: add cast via slot
+    }
+
+    for (const spellChoice of htmlData.spellChoices) {
+      const spellChoiceAdvancement = await AdvancementHelper.getSpellChoiceAdvancement({
+        spellChoice,
+        abilities: abilityData.abilities,
+        hint,
+        name,
+        spellLinks: this.spellLinks,
+        is2024: this.is2024,
+      });
+      if (spellChoiceAdvancement) {
+        advancements.push(spellChoiceAdvancement);
+      }
     }
 
     logger.debug("Spell Advancements", {
@@ -1244,9 +1326,19 @@ export default class CharacterFeatureFactory {
   async addSpellAdvancements(types = []) {
     logger.debug("Adding Spell Advancements from Feature Factory", { types, this: this });
     for (const type of types) {
+      this.spellsGranted[type] = [];
       for (const feature of this.processed.features) {
         if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
         await this.addSpellAdvancement({ feature, type });
+      }
+
+      for (const spell of this.ddbCharacter._spellParser._granted[type]) {
+        if (this.spellsGranted[type].includes(spell.name.toLowerCase())) {
+          logger.debug(`Spell ${spell.name} already granted via feature, skipping`);
+          continue;
+        }
+        logger.debug(`Adding spell ${spell.name} directly as not granted via feature`);
+        this.ddbCharacter.raw.spells.push(spell);
       }
     }
   }
