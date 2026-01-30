@@ -814,5 +814,9 @@
   {
     "name": "Field Medic",
     "path": "icons/magic/life/heart-hand-gold-green.webp"
+  },
+  {
+    "name": "Plantmender",
+    "path": "icons/magic/nature/root-vine-caduceus-healing.webp"
   }
 ]
