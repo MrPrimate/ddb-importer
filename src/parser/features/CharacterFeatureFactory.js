@@ -1261,7 +1261,10 @@ export default class CharacterFeatureFactory {
         }
 
         const activity = new DDBBasicActivity({
-          nameIdPrefix: utils.idString(spellGrant.name),
+          nameIdPrefix: utils.namedIDStub(spellGrant.name, {
+            prefix: "gr",
+            length: 12,
+          }),
           type: "cast",
           foundryFeature: feature,
         });
