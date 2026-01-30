@@ -3,7 +3,6 @@ import DDBEnricherData from "../data/DDBEnricherData.mjs";
 
 export default class Polymorph extends DDBEnricherData {
 
-
   get additionalActivities() {
     return [
       {
