@@ -1245,7 +1245,7 @@ async function actionUseStatus(actor, ddbCharacter) {
   return actionChanges;
 }
 
-export async function updateDDBCharacter(actor) {
+async function _updateDDBCharacter(actor) {
   const cobaltCheck = await Secrets.checkCobalt(actor.id);
 
   if (cobaltCheck.success) {
@@ -1339,6 +1339,26 @@ export async function updateDDBCharacter(actor) {
   await ddbCharacter.updateDynamicUpdates(activeUpdateState);
 
   return results;
+}
+
+export async function updateDDBCharacter(actor) {
+  try {
+    CONFIG.DDBI.ignoreEnrichedImages = true;
+    CONFIG.DDBI.keyPostfix = actor.id;
+    CONFIG.DDBI.useLocal = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+    const results = await _updateDDBCharacter(actor);
+    delete CONFIG.DDBI.ignoreEnrichedImages;
+    delete CONFIG.DDBI.keyPostfix;
+    delete CONFIG.DDBI.useLocal;
+    return results;
+  } catch (err) {
+    logger.error("Unable to update DDB character:", err);
+    throw err;
+  } finally {
+    delete CONFIG.DDBI.ignoreEnrichedImages;
+    delete CONFIG.DDBI.keyPostfix;
+    delete CONFIG.DDBI.useLocal;
+  }
 }
 
 // Called when characters are updated

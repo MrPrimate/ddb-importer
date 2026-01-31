@@ -187,7 +187,7 @@ export async function getFindFamiliarActivityData(activity, options) {
 
   const mapInUse = isPactActivity && (isPactSpell || isPactFeature) ? packMap : baseMap;
 
-  await monsterFactory.processIntoCompendium(mapInUse.map((i) => i.id));
+  if (game.user.isGM) await monsterFactory.processIntoCompendium(mapInUse.map((i) => i.id));
 
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
   await ddbCompendium?.getIndex({ fields: ["name", "system.source.rules"] });

@@ -45,13 +45,10 @@ export async function getAnimateDead({
 
   const result = {};
 
-
+  const ids = animated.map((m) => parseInt(m.ddbId));
   const monsterFactory = new DDBMonsterFactory();
-  const ids = animated
-    .map((m) => parseInt(m.ddbId));
   await monsterFactory.fetchDDBMonsterSourceData({ ids });
   const monsterResults = await monsterFactory.parse();
-
 
   for (const data of animated) {
 

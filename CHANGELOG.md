@@ -5,6 +5,7 @@
 - Tool grants for class advancements in 2014 were not always generated correctly.
 - First pass background and feat spell advancement detection.
 - Boon of Misty Escape parsing.
+- Character update improvements for improving speed and reducing parsing failures when players are updating back to DDB.
 
 # 6.6.50
 

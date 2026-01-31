@@ -82,8 +82,10 @@ export default class DDBCompanionMixin {
   }
 
   static async addEnrichedImageData(document) {
-    const data = await DDBCompanionMixin.getEnrichedImageData(document);
+    if (!game.user.isGM && !CONFIG.DDBI.keyPostfix) return document;
+    if (CONFIG.DDBI.ignoreEnrichedImages) return document;
 
+    const data = await DDBCompanionMixin.getEnrichedImageData(document);
     if (!data) return document;
 
     foundry.utils.setProperty(document, "flags.monsterMunch.enrichedImages", true);
