@@ -614,24 +614,21 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.#specialRange();
   }
 
-  _generateUses() {
-    this.data.system.uses = {
+  static getUses(limitedUse) {
+    let uses = {
       spent: null,
       max: "",
       recovery: [],
     };
 
-    // we check this, as things like items have useage attached to the item, not spell
-    const limitedUse = this.limitedUse ?? this.spellData.limitedUse;
-
-    if (!limitedUse) return;
+    if (!limitedUse) return uses;
     const resetType = DICTIONARY.resets.find((reset) => reset.id == limitedUse.resetType);
     if (!resetType) {
       logger.warn("Unknown reset type", {
         resetType: limitedUse.resetType,
         spell: this,
       });
-      return;
+      return uses;
     }
 
     if (limitedUse.maxUses || limitedUse.statModifierUsesId || limitedUse.useProficiencyBonus) {
@@ -673,7 +670,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
       const finalMaxUses = (maxUses !== "") ? maxUses : null;
 
-      this.data.system.uses = {
+      uses = {
         spent: limitedUse.numberUsed ?? null,
         max: `${finalMaxUses}`,
         recovery: resetType
@@ -684,7 +681,17 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
           }]
           : [],
       };
+
+      return uses;
     }
+
+    return uses;
+  }
+
+  _generateUses() {
+    // we check this, as things like items have useage attached to the item, not spell
+    const limitedUse = this.limitedUse ?? this.spellData.limitedUse;
+    this.data.system.uses = DDBSpell.getUses(limitedUse);
   }
 
   #generateHealingParts() {
@@ -994,6 +1001,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }
 
     this.cleanup();
+    await this.enricher.addDocumentAdvancements();
     await this.enricher.addDocumentOverride();
     let identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`);
     if (DICTIONARY.identifierAdjustments[identifier]) {

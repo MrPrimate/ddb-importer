@@ -426,6 +426,10 @@ export default class DDBClass {
     }
   }
 
+  _addAdvancement(...advancements) {
+    this.data.system.advancement.push(...advancements.flat());
+  }
+
   async _buildCompendiumIndex(type, indexFilter = {}) {
     if (Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
     if (!this._compendiums[type]) return;
@@ -890,7 +894,7 @@ export default class DDBClass {
 
     // eslint-disable-next-line no-warning-comments
     // TODO: handle chosen advancements on non muncher classes
-    this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement.toObject());
 
   }
 
@@ -906,7 +910,7 @@ export default class DDBClass {
     for (const feature of classFeatures) {
       await this._generateFeatureAdvancementFromCompendiumMatch(feature);
     }
-    this.data.system.advancement = this.data.system.advancement.concat(this.featureAdvancements);
+    this._addAdvancement(this.featureAdvancements);
 
     // console.warn({
     //   this: this,
@@ -963,7 +967,7 @@ export default class DDBClass {
         || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(a.configuration?.identifier)),
       );
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements, specialFeatures);
+    this._addAdvancement(...advancements, ...specialFeatures);
   }
 
   _generateScaleValueSpellAdvancements() {
@@ -995,7 +999,7 @@ export default class DDBClass {
           value,
         };
       }
-      this.data.system.advancement.push(advancement);
+      this._addAdvancement(advancement);
     }
 
     // cantrips-known
@@ -1022,7 +1026,7 @@ export default class DDBClass {
           value,
         };
       }
-      this.data.system.advancement.push(advancement);
+      this._addAdvancement(advancement);
     }
 
     // spells-known
@@ -1049,14 +1053,14 @@ export default class DDBClass {
           value,
         };
       }
-      this.data.system.advancement.push(advancement);
+      this._addAdvancement(advancement);
     }
   }
 
   _generateHTMLSaveAdvancement() {
     const advancements = [];
     // FUTURE ENHANCEMENT FOR BULK: Add what to do if no mods supplied
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateSaveAdvancement(feature, availableToMulticlass, level) {
@@ -1090,7 +1094,7 @@ export default class DDBClass {
       });
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateSkillAdvancement(feature, availableToMulticlass, i) {
@@ -1141,7 +1145,7 @@ export default class DDBClass {
       });
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateLanguageAdvancement(feature, level) {
@@ -1169,7 +1173,7 @@ export default class DDBClass {
       }
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateSkillOrLanguageAdvancements() {
@@ -1202,7 +1206,7 @@ export default class DDBClass {
       }
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateToolAdvancement(feature, availableToMulticlass, level) {
@@ -1240,7 +1244,7 @@ export default class DDBClass {
       }
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateArmorAdvancement(feature, availableToMulticlass, level) {
@@ -1273,7 +1277,7 @@ export default class DDBClass {
       }
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateWeaponAdvancement(feature, availableToMulticlass, level) {
@@ -1306,7 +1310,7 @@ export default class DDBClass {
       }
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateWeaponMasteryAdvancement(feature, level) {
@@ -1338,7 +1342,7 @@ export default class DDBClass {
       }
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateExpertiseAdvancements() {
@@ -1353,7 +1357,7 @@ export default class DDBClass {
       if (advancement) advancements.push(advancement.toObject());
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateConditionAdvancement(feature, level) {
@@ -1380,7 +1384,7 @@ export default class DDBClass {
       }
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateHPAdvancement(character) {
@@ -1410,7 +1414,7 @@ export default class DDBClass {
 
     const advancement = new game.dnd5e.documents.advancement.HitPointsAdvancement();
     advancement.updateSource({ value });
-    this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement.toObject());
   }
 
 
@@ -1438,7 +1442,7 @@ export default class DDBClass {
       }).map((advancement) => {
         return advancement.toObject();
       });
-      this.data.system.advancement.push(...scaleAdvancements);
+      this._addAdvancement(scaleAdvancements);
       return;
     }
   }
@@ -1522,7 +1526,7 @@ export default class DDBClass {
       advancements.push(advancement.toObject());
     }
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    this._addAdvancement(advancements);
   }
 
   _generateWealth() {
@@ -1578,7 +1582,7 @@ export default class DDBClass {
       hint: subClassFeature.snippet ?? subClassFeature.description ?? "",
       level: subClassFeature.requiredLevel,
     });
-    this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement.toObject());
   }
 
   async _generateCommonAdvancements() {
@@ -1626,7 +1630,7 @@ export default class DDBClass {
         },
         icons: "icons/magic/symbols/cog-orange-red.webp",
       });
-      this.data.system.advancement.push(advancement.toObject());
+      this._addAdvancement(advancement.toObject());
     }
 
     for (let advancement of this.data.system.advancement) {
@@ -1713,7 +1717,7 @@ export default class DDBClass {
         title: "Wild Shape Uses",
         icon: null,
       };
-      this.data.system.advancement.push(wildshape);
+      this._addAdvancement(wildshape);
     } else {
       const wildshape = {
         _id: foundry.utils.randomID(),
@@ -1732,7 +1736,7 @@ export default class DDBClass {
         title: "Wild Shape Uses",
         icon: null,
       };
-      this.data.system.advancement.push(wildshape);
+      this._addAdvancement(wildshape);
       const elementalFury = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -1749,7 +1753,7 @@ export default class DDBClass {
         title: "Elemental Fury Damage",
         icon: null,
       };
-      this.data.system.advancement.push(elementalFury);
+      this._addAdvancement(elementalFury);
       const knownForms = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -1767,7 +1771,7 @@ export default class DDBClass {
         title: "Known Forms",
         icon: null,
       };
-      this.data.system.advancement.push(knownForms);
+      this._addAdvancement(knownForms);
     }
   }
 
@@ -1779,7 +1783,7 @@ export default class DDBClass {
       die.title = "Martial Arts Die";
       die._id = foundry.utils.randomID();
       die.configuration.identifier = "die";
-      this.data.system.advancement.push(die);
+      this._addAdvancement(die);
     }
     const ki = {
       _id: foundry.utils.randomID(),
@@ -1799,7 +1803,7 @@ export default class DDBClass {
         value: i,
       };
     });
-    this.data.system.advancement.push(ki);
+    this._addAdvancement(ki);
   }
 
   _rogueFixes() {
@@ -1821,7 +1825,7 @@ export default class DDBClass {
       title: "Cunning Strike Uses",
       icon: null,
     };
-    this.data.system.advancement.push(cunningStrike);
+    this._addAdvancement(cunningStrike);
     const sneakAttack = {
       type: "ScaleValue",
       configuration: {
@@ -1845,7 +1849,7 @@ export default class DDBClass {
       title: "Sneak Attack",
       icon: null,
     };
-    this.data.system.advancement.push(sneakAttack);
+    this._addAdvancement(sneakAttack);
   }
 
   _barbarianFixes() {
@@ -1877,7 +1881,7 @@ export default class DDBClass {
       title: "Rage Damage",
       icon: null,
     };
-    this.data.system.advancement.push(damage);
+    this._addAdvancement(damage);
     for (let advancement of this.data.system.advancement) {
       if (advancement.title !== "Rage") continue;
       advancement.title = "Rages";
@@ -1904,7 +1908,7 @@ export default class DDBClass {
       title: "Bardic Inspiration",
       icon: null,
     };
-    this.data.system.advancement.push(bardicInspiration);
+    this._addAdvancement(bardicInspiration);
   }
 
   _sorcererFixes() {
@@ -1928,7 +1932,7 @@ export default class DDBClass {
       };
     });
 
-    this.data.system.advancement.push(points);
+    this._addAdvancement(points);
   }
 
   _spellFixes() {

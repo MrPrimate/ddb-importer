@@ -1762,6 +1762,7 @@ ${this.data.system.description.value}
       foundry.utils.setProperty(this.data, "flags.ddbimporter.profBonus", true);
     await this.#generateDescription();
 
+    await this.enricher.addDocumentAdvancements();
     await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(this.data.name.toLowerCase());
 

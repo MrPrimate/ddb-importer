@@ -229,6 +229,10 @@ export default class DDBRace {
 
   }
 
+  _addAdvancement(...advancements) {
+    this.data.system.advancement.push(...advancements.flat());
+  }
+
   getCompendiumIxByFlags(compendiums, flags, findAll = false) {
     for (const compendium of compendiums) {
       if (!this._compendiums[compendium]) {
@@ -360,7 +364,7 @@ export default class DDBRace {
       advancement.updateSource({ configuration: { sizes: [size.value] } });
     }
 
-    this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement.toObject());
   }
 
   #flightCheck(trait) {
@@ -432,7 +436,7 @@ export default class DDBRace {
       .forEach((t) => {
         this.#addAbilityScoreAdvancement(t.definition);
       });
-    this.data.system.advancement.push(this.abilityAdvancement.toObject());
+    this._addAdvancement(this.abilityAdvancement.toObject());
   }
 
   // skills, e.g. variant human
@@ -451,7 +455,7 @@ export default class DDBRace {
       level: 0,
     });
 
-    if (advancement) this.data.system.advancement.push(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject());
   }
 
   #generateLanguageAdvancement(trait) {
@@ -461,7 +465,7 @@ export default class DDBRace {
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
-    if (advancement) this.data.system.advancement.push(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject());
   }
 
   #generateToolAdvancement(trait) {
@@ -475,7 +479,7 @@ export default class DDBRace {
       feature: trait,
       level: 0,
     });
-    if (advancement) this.data.system.advancement.push(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject());
   }
 
   async #generateSpellAdvancement(trait) {
@@ -615,7 +619,7 @@ export default class DDBRace {
     });
 
     advancements.forEach((advancement) => {
-      this.data.system.advancement.push(advancement.toObject());
+      this._addAdvancement(advancement.toObject());
     });
 
   }
@@ -663,7 +667,7 @@ export default class DDBRace {
       },
     });
 
-    this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement.toObject());
 
     const feat = this.ddbData?.character?.feats?.find((f) =>
       f.componentId === trait.id
@@ -829,7 +833,7 @@ export default class DDBRace {
 
     // eslint-disable-next-line no-warning-comments
     // TODO: handle chosen advancements on non muncher races
-    this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement.toObject());
 
   }
 
@@ -932,7 +936,7 @@ export default class DDBRace {
 
     // eslint-disable-next-line no-warning-comments
     // TODO: handle chosen advancements on non muncher races
-    this.data.system.advancement.push(advancement.toObject());
+    this._addAdvancement(advancement.toObject());
 
   }
 
@@ -1015,7 +1019,7 @@ export default class DDBRace {
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getConditionAdvancement(mods, trait, 0);
-    if (advancement) this.data.system.advancement.push(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject());
   }
 
   /**
@@ -1158,7 +1162,7 @@ export default class DDBRace {
       advancement.updateSource(update);
       const obj = advancement.toObject();
       this.traitAdvancements.push(obj);
-      this.data.system.advancement.push(obj);
+      this._addAdvancement(obj);
     } else {
       this.traitAdvancements[levelAdvancement].configuration.items.push({ uuid: traitMatch.uuid, optional: false });
       this._advancementMatches.traits[this.traitAdvancements[levelAdvancement]._id][traitMatch.name] = traitMatch.uuid;
@@ -1217,75 +1221,12 @@ export default class DDBRace {
 
   }
 
-  // #itemGrantLink(advancementIndex) {
-  //   // "added": {
-  //   //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
-  //   //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
-  //   // }
-  //   const advancement = this.ddbCharacter.data.race.system.advancement[advancementIndex];
-  //   const aData = this._advancementMatches.traits[advancement._id];
-  //   const added = {};
-
-  //   if (!aData || !advancement) {
-  //     logger.warn(`Advancement for ${this.data.name} (idx ${advancementIndex}) missing required data for linking`, {
-  //       advancement,
-  //       aData,
-  //       species: this,
-  //     });
-  //     return;
-  //   }
-  //   for (const [advancementFeatName, uuid] of Object.entries(aData)) {
-  //     logger.debug(`Advancement ${advancement._id} searching for Feat ${advancementFeatName} (${uuid})`, {
-  //       a: advancement,
-  //       advancementFeatName,
-  //       uuid,
-  //     });
-
-  //     const characterFeature = this.ddbCharacter.getDataFeat(advancementFeatName);
-  //     if (characterFeature) {
-  //       logger.debug(`Advancement ${advancement._id} found Feat ${advancementFeatName} (${uuid})`);
-  //       added[characterFeature._id] = uuid;
-  //       foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
-  //       foundry.utils.setProperty(characterFeature, "flags.dnd5e.advancementOrigin", `${this.data._id}.${advancement._id}`);
-  //     }
-  //   }
-
-  //   console.warn("Post feat match for advancement", {
-  //     added,
-  //     advancementIndex,
-  //     advancement,
-  //   });
-
-  //   if (Object.keys(added).length > 0) {
-  //     advancement.value = {
-  //       added,
-  //     };
-  //     this.ddbCharacter.data.race.system.advancement[advancementIndex] = advancement;
-  //   }
-  // }
-
   linkFeatures() {
     logger.debug("Linking Advancements to Feats for Race", {
       DDBRace: this,
       ddbCharacter: this.ddbCharacter,
     });
 
-    // for (let idx = 0; idx < this.ddbCharacter.data.race.system.advancement.length; idx++) {
-    //   const a = this.ddbCharacter.data.race.system.advancement[idx];
-
-    //   console.warn({
-    //     a,
-    //     idx,
-    //     bool: a.type === "ItemGrant" && (!a.level || a.level <= this.ddbCharacter.totalLevels),
-    //     bool1: a.type === "ItemGrant",
-    //     bool2: !a.level || a.level <= this.ddbCharacter.totalLevels,
-    //     totalLevels: this.ddbCharacter.totalLevels,
-    //   })
-
-    //   if (["ItemChoice", "ItemGrant"].includes(a.type) && (!a.level || a.level <= this.ddbCharacter.totalLevels)) {
-    //     this.#itemGrantLink(idx);
-    //   }
-    // }
 
     this.ddbCharacter.data.race.system.advancement.forEach((a, idx, advancements) => {
       if (["ItemChoice", "ItemGrant"].includes(a.type) && (!a.level || a.level <= this.ddbCharacter.totalLevels)) {
@@ -1326,10 +1267,8 @@ export default class DDBRace {
           }
         }
       }
-      // console.warn("advancements post link", {advancements, deep: foundry.utils.deepClone(advancements)});
     });
     logger.debug("Processed race advancements", this.ddbCharacter.data.race.system.advancement);
-    // console.warn(foundry.utils.deepClone(this.ddbCharacter.data.race.system.advancement));
   }
 
   #generateHTMLSenses() {
@@ -1370,25 +1309,6 @@ export default class DDBRace {
     }
   }
 
-  // #generateScaleValueAdvancements() {
-  //   for (const trait of this.race.racialTraits) {
-  //     continue;
-  //     let specialFeatures = [];
-  //     let advancement = AdvancementHelper.generateScaleValueAdvancement(trait);
-  //     const specialLookup = DDBRace.SPECIAL_ADVANCEMENTS[advancement.title];
-  //     if (specialLookup) {
-  //       if (specialLookup.additionalAdvancements) {
-  //         specialLookup.additionalFunctions.forEach((fn) => {
-  //           specialFeatures.push(fn(advancement));
-  //         });
-  //       }
-  //       if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
-  //     }
-  //     this.data.system.advancement.push(advancement);
-  //     this.data.system.advancement.push(...specialFeatures);
-  //   }
-  // }
-
   #fix2024DragonBorn() {
     if (!this.data.name.startsWith("Dragonborn")) return;
     const breathWeapon = {
@@ -1421,7 +1341,7 @@ export default class DDBRace {
       title: `Breath Weapon Dice`,
       icon: null,
     };
-    this.data.system.advancement.push(breathWeapon);
+    this._addAdvancement(breathWeapon);
   }
 
   #fix2024Aasimar() {

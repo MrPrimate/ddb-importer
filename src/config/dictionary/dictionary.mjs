@@ -10,7 +10,7 @@ import { MAGIC_ITEMS } from "./items/magicItems.mjs";
 import { SENSES } from "./actor/senses.mjs";
 import { SPELL } from "./spell/spell.mjs";
 import { PARSING_ACTIONS, PARSING_ATTACK_ACTIONS } from "./parsing/actions.mjs";
-import { FEATURE_SPELLS_IGNORE, LEVEL_SCALE, NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES, PARSING_CHOICE_FEATURES, PARSING_FEATURES } from "./parsing/features.mjs";
+import { FEATURE_SPELLS_IGNORE, IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES, IGNORE_SPELLS_GRANTED_BY_FEATS, LEVEL_SCALE, NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES, PARSING_CHOICE_FEATURES, PARSING_FEATURES } from "./parsing/features.mjs";
 import { EXCLUDED_EFFECT_MODIFIERS } from "./effects/excluded.mjs";
 import { VISION_5E_EFFECTS } from "./effects/vision5e.mjs";
 import { RESETS } from "./actor/resets.mjs";
@@ -52,6 +52,8 @@ const DICTIONARY = {
     features: PARSING_FEATURES,
     choiceFeatures: PARSING_CHOICE_FEATURES,
     featureSpellsIgnore: FEATURE_SPELLS_IGNORE,
+    ignoreSpellsGrantedByClassFeatures: IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES,
+    ignoreSpellsGrantedByFeats: IGNORE_SPELLS_GRANTED_BY_FEATS,
     spellListGrantsIgnore: {
       "2014": NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES,
     },

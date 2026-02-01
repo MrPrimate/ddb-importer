@@ -741,6 +741,7 @@ ${this.data.system.description.value}
 
     await this.#generateDescription();
 
+    await this.enricher.addDocumentAdvancements();
     await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(this.data.name.toLowerCase());
 

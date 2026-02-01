@@ -155,6 +155,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     await this._addEffects(undefined, this.type);
 
     this.cleanup();
+    await this.enricher.addDocumentAdvancements();
     await this.enricher.addDocumentOverride();
     this._final();
     await this.enricher.cleanup();
@@ -173,15 +174,6 @@ export default class DDBFeature extends DDBFeatureMixin {
       || advancementData.configuration.grants.length !== 0
       || (advancementData.value && Object.keys(advancementData.value).length !== 0)
     ) {
-      // console.warn(advancementData)
-      // console.warn("ADVANCEMENT", {
-      //   advancement,
-      //   advancementData,
-      //   avClone: foundry.utils.deepClone(advancementData),
-      //   choicebool: advancementData.configuration.choices.length !== 0,
-      //   grantbool: advancementData.configuration.grants.length !== 0,
-      //   valuebool: (advancementData.value && Object.keys(advancementData.value).length !== 0),
-      // });
       this.data.system.advancement.push(advancementData);
     }
   }

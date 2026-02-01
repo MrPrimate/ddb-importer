@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 /* eslint-disable no-continue */
 import { utils, logger, CompendiumHelper } from "../../lib/_module.mjs";
 
@@ -52,15 +53,12 @@ export default class CharacterSpellFactory {
     this.generateSummons = ddbCharacter.generateSummons;
   }
 
-  // eslint-disable-next-line complexity
-  getLookup(type, id) {
-    const character = this.ddb.character;
-
+  static getDDBSpellLookup(ddb, type, id) {
     let lookup;
 
     switch (type) {
       case "race": {
-        const match = character.race.racialTraits.find((t) => {
+        const match = ddb.character.race.racialTraits.find((t) => {
           return t.definition.id === id;
         });
         if (match) {
@@ -73,7 +71,7 @@ export default class CharacterSpellFactory {
         break;
       }
       case "feat": {
-        const match = character.feats.find((f) => {
+        const match = ddb.character.feats.find((f) => {
           return f.definition.id === id;
         });
         if (match) {
@@ -87,7 +85,7 @@ export default class CharacterSpellFactory {
         break;
       }
       case "class": {
-        const match1 = character.classes.find((c) => {
+        const match1 = ddb.character.classes.find((c) => {
           return c.definition.id === id;
         });
         if (match1) {
@@ -98,7 +96,7 @@ export default class CharacterSpellFactory {
           };
           break;
         }
-        const match2 = character.classes.find((c) => {
+        const match2 = ddb.character.classes.find((c) => {
           return c.subclassDefinition && c.subclassDefinition.id === id;
         });
         if (match2) {
@@ -112,9 +110,9 @@ export default class CharacterSpellFactory {
         break;
       }
       case "classFeature": {
-        for (const c of character.classes) {
+        for (const c of ddb.character.classes) {
           if (c.subclassDefinition && c.subclassDefinition.id === id) {
-            for (const option of this.ddb.classOptions) {
+            for (const option of ddb.classOptions) {
               // eslint-disable-next-line max-depth
               if (option.classId === c.subclassDefinition.id) {
                 lookup = {
@@ -143,7 +141,7 @@ export default class CharacterSpellFactory {
             break;
           }
 
-          for (const option of this.ddb.classOptions) {
+          for (const option of ddb.classOptions) {
             if (option.classId === c.definition.id && option.id === id) {
               lookup = {
                 id: option.id,
@@ -156,7 +154,7 @@ export default class CharacterSpellFactory {
           }
         }
         if (lookup) break;
-        const optionMatch = character.options.class.find((o) => {
+        const optionMatch = ddb.character.options.class.find((o) => {
           return o.definition.id === id;
         });
         if (optionMatch) {
@@ -170,7 +168,7 @@ export default class CharacterSpellFactory {
         break;
       }
       case "item": {
-        const match = character.inventory.find((i) => {
+        const match = ddb.character.inventory.find((i) => {
           return i.definition.id === id;
         });
         if (match) {
@@ -191,6 +189,11 @@ export default class CharacterSpellFactory {
     }
 
     return lookup;
+  }
+
+  // eslint-disable-next-line complexity
+  getLookup(type, id) {
+    return CharacterSpellFactory.getDDBSpellLookup(this.ddb, type, id);
   }
 
 
@@ -460,6 +463,15 @@ export default class CharacterSpellFactory {
         continue;
       }
 
+      const featureName = classInfo.data?.definition?.name ?? classInfo.data?.name;
+      if (featureName && DICTIONARY.parsing.ignoreSpellsGrantedByClassFeatures.includes(featureName)) {
+        logger.debug(`Skipping ${spell.definition.name} for ${classInfo.name} as included in feature ignore list`, {
+          featureName,
+          classInfo,
+        });
+        continue;
+      }
+
       if (hasSpellCastingAbility(spell.spellCastingAbilityId)) {
         spellCastingAbility = convertSpellCastingAbilityId(spell.spellCastingAbilityId);
       } else if (klass) {
@@ -716,6 +728,15 @@ export default class CharacterSpellFactory {
           name: "Feat option spell",
           id: spell.componentId,
         };
+      }
+
+      const featName = featInfo.data?.definition?.name ?? featInfo.data?.name;
+      if (featName && DICTIONARY.parsing.ignoreSpellsGrantedByFeats.includes(featName)) {
+        logger.debug(`Skipping ${spell.definition.name} for ${featInfo.name} as included in feature ignore list`, {
+          featName,
+          featInfo,
+        });
+        continue;
       }
 
       // add some data for the parsing of the spells into the data structure

@@ -2963,6 +2963,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       await this._addEffects();
 
       this.cleanup();
+      await this.enricher.addDocumentAdvancements();
       await this.enricher.addDocumentOverride();
 
       this.data.system.identifier = utils.referenceNameString(`${this.name.toLowerCase()}`); // ${this.is2014 ? " - legacy" : ""}`);

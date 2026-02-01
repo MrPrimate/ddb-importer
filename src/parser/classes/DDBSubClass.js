@@ -145,7 +145,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      this.data.system.advancement.push(slotsScaleValue, levelScaleValue);
+      this._addAdvancement(slotsScaleValue, levelScaleValue);
     }
   }
 
@@ -210,7 +210,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      this.data.system.advancement.push(desert, sea, tundra);
+      this._addAdvancement(desert, sea, tundra);
     }
   }
 
@@ -244,7 +244,7 @@ export default class DDBSubClass extends DDBClass {
           value: 1,
         };
       }
-      this.data.system.advancement.push(cr);
+      this._addAdvancement(cr);
     } else if (this.data.name.startsWith("Circle of the Land") && !this.is2014) {
       const aid = {
         _id: foundry.utils.randomID(),
@@ -263,7 +263,7 @@ export default class DDBSubClass extends DDBClass {
         title: `Lands Aid Dice`,
         icon: null,
       };
-      this.data.system.advancement.push(aid);
+      this._addAdvancement(aid);
     } else if (this.data.name.startsWith("Circle of the Stars") && !this.is2014) {
       const form = {
         _id: foundry.utils.randomID(),
@@ -281,7 +281,7 @@ export default class DDBSubClass extends DDBClass {
         title: `Starry Form Dice`,
         icon: null,
       };
-      this.data.system.advancement.push(form);
+      this._addAdvancement(form);
     } else if ((this.data.name.startsWith("Circle of the Sea"))) {
       const form = {
         _id: foundry.utils.randomID(),
@@ -299,7 +299,7 @@ export default class DDBSubClass extends DDBClass {
         title: `Wrath Range`,
         icon: null,
       };
-      this.data.system.advancement.push(form);
+      this._addAdvancement(form);
     }
   }
 
@@ -334,7 +334,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      this.data.system.advancement.push(number);
+      this._addAdvancement(number);
     } else if (this.data.name.startsWith("Steel Hawk")) {
       for (let advancement of this.data.system.advancement) {
         if (advancement.title !== "Launch") continue;
@@ -362,7 +362,7 @@ export default class DDBSubClass extends DDBClass {
         title: `Secondary Damage Dice`,
         icon: null,
       };
-      this.data.system.advancement.push(secondary);
+      this._addAdvancement(secondary);
       const minor = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
@@ -379,7 +379,7 @@ export default class DDBSubClass extends DDBClass {
         title: `Minor Damage Dice`,
         icon: null,
       };
-      this.data.system.advancement.push(minor);
+      this._addAdvancement(minor);
     }
   }
 
@@ -418,7 +418,7 @@ export default class DDBSubClass extends DDBClass {
             },
           },
         });
-        this.data.system.advancement.push(cantripChoiceAdvancement.toObject());
+        this._addAdvancement(cantripChoiceAdvancement.toObject());
       }
     }
   }
@@ -441,7 +441,7 @@ export default class DDBSubClass extends DDBClass {
         title: `Spellfire Burst Damage Dice`,
         icon: null,
       };
-      this.data.system.advancement.push(dice);
+      this._addAdvancement(dice);
     }
   }
 
@@ -470,7 +470,7 @@ export default class DDBSubClass extends DDBClass {
           },
           title: "Experimental Elixir",
         };
-        this.data.system.advancement.push(elixir);
+        this._addAdvancement(elixir);
       }
     } else if (this.data.name.startsWith("Armorer") && this.is2024) {
       for (let advancement of this.data.system.advancement) {
@@ -489,7 +489,7 @@ export default class DDBSubClass extends DDBClass {
         },
         title: "Force Demolisher",
       };
-      this.data.system.advancement.push(forceDemolisher);
+      this._addAdvancement(forceDemolisher);
       const lightningLauncher = {
         type: "ScaleValue",
         configuration: {
@@ -502,7 +502,7 @@ export default class DDBSubClass extends DDBClass {
         },
         title: "Lightning Launcher",
       };
-      this.data.system.advancement.push(lightningLauncher);
+      this._addAdvancement(lightningLauncher);
       const thunderPulse = {
         type: "ScaleValue",
         configuration: {
@@ -515,7 +515,7 @@ export default class DDBSubClass extends DDBClass {
         },
         title: "Thunder Pulse",
       };
-      this.data.system.advancement.push(thunderPulse);
+      this._addAdvancement(thunderPulse);
     } else if (this.data.name.startsWith("Artillerist") && this.is2024) {
       const damage = {
         type: "ScaleValue",
@@ -529,7 +529,7 @@ export default class DDBSubClass extends DDBClass {
         },
         title: "Eldritch Cannon Damage Dice",
       };
-      this.data.system.advancement.push(damage);
+      this._addAdvancement(damage);
       const healing = {
         type: "ScaleValue",
         configuration: {
@@ -542,7 +542,7 @@ export default class DDBSubClass extends DDBClass {
         },
         title: "Protector Healing Dice",
       };
-      this.data.system.advancement.push(healing);
+      this._addAdvancement(healing);
     }
   }
 
@@ -614,7 +614,7 @@ export default class DDBSubClass extends DDBClass {
     });
 
     advancements.forEach((advancement) => {
-      this.data.system.advancement.push(advancement.toObject());
+      this._addAdvancement(advancement.toObject());
     });
   }
 
@@ -632,7 +632,7 @@ export default class DDBSubClass extends DDBClass {
       if ((this.is2014 && !this.NO_ADVANCEMENT_2014.includes(advancement.configuration?.identifier))
         || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(advancement.configuration?.identifier)))
         continue;
-      this.data.system.advancement.push(advancement);
+      this._addAdvancement(advancement);
     }
   }
 

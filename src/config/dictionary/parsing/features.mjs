@@ -468,6 +468,15 @@ export const FEATURE_SPELLS_IGNORE = [
   "Activate Mantle of Majesty",
   "Gaseous Form",
   "Otto's Irresistible Dance",
+
+];
+
+export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
+  "Faithful Summons",
+];
+
+export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
+  "Spellfire Spark",
 ];
 
 export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [

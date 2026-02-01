@@ -49,6 +49,7 @@ export default class DDBAttackAction extends DDBAction {
 
       this._generateResourceFlags();
       this.cleanup();
+      await this.enricher.addDocumentAdvancements();
       await this.enricher.addDocumentOverride();
       await this._addEffects(undefined, this.type);
 
