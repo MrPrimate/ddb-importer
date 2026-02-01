@@ -3,6 +3,7 @@ import WildShape from "./ClassFeatures/Druid/Wildshape.mjs";
 import GreatWeaponMaster from "./Feats/GreatWeaponMaster.mjs";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard.mjs";
 import WardingBond from "./Spells/WardingBond.mjs";
+import MightySummoner from "./ClassFeatures/Druid/MightySummoner.mjs";
 import { logger } from "../../lib/_module.mjs";
 
 // DDB Enhancers adds built in light touch automation effects
@@ -50,19 +51,30 @@ export default class DDBEnhancers {
       });
   }
 
+  static _dispositionMatch(activity, tokenData) {
+    const dispositionFlag = foundry.utils.getProperty(activity, "item.flags.ddbimporter.disposition");
+    if (!dispositionFlag) return true;
+    if (dispositionFlag.match) {
+      const token = activity.actor.token ?? activity.actor.prototypeToken;
+      if (!token) return true;
+      tokenData.disposition = token.disposition;
+    }
+    return true;
+  }
+
   static _summonHooks() {
-    // if (game.settings.get(SETTINGS.MODULE_ID, "allow-summon-enhancer")) {
     Hooks.on("dnd5e.summonToken", (activity, _profile, tokenData, _options) => {
-      const dispositionFlag = foundry.utils.getProperty(activity, "item.flags.ddbimporter.disposition");
-      if (!dispositionFlag) return true;
-      if (dispositionFlag.match) {
-        const token = activity.actor.token ?? activity.actor.prototypeToken;
-        if (!token) return true;
-        tokenData.disposition = token.disposition;
-      }
+      DDBEnhancers._dispositionMatch(activity, tokenData);
+
       return true;
     });
-    // }
+
+    if (game.settings.get(SETTINGS.MODULE_ID, "allow-mighty-summoner-enhancer")) {
+      Hooks.on("dnd5e.preSummonToken", (activity, profile, tokenUpdateData, options) => {
+        MightySummoner.dnd5ePreSummonTokenHook(activity, profile, tokenUpdateData, options);
+        return true;
+      });
+    }
   }
 
   // Loads enhancer functions into appropriate system hooks.

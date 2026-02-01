@@ -1162,6 +1162,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         label: "Allow Arcane Ward Automation?",
       },
       {
+        name: "allow-mighty-summoner-enhancer",
+        isChecked: game.settings.get(SETTINGS.MODULE_ID, "allow-mighty-summoner-enhancer"),
+        enabled: true,
+        hint: "Enhances summoned creatures with additional HP",
+        label: "Allow Mighty Summoner Enhancer?",
+      },
+      {
         name: "allow-warding-bond-enhancer",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "allow-warding-bond-enhancer"),
         enabled: true,

@@ -496,6 +496,13 @@ const SETTINGS = {
             config: false,
             requiresReload: true,
           },
+          "allow-mighty-summoner-enhancer": {
+            type: Boolean,
+            scope: "world",
+            default: true,
+            config: false,
+            requiresReload: true,
+          },
           "allow-great-weapon-master-enhancer": {
             type: Boolean,
             scope: "world",
