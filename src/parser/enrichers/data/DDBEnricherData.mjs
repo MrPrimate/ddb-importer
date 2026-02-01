@@ -1,5 +1,8 @@
 import { DICTIONARY } from "../../../config/_module.mjs";
+import { logger } from "../../../lib/_module.mjs";
 import { DDBDataUtils } from "../../lib/_module.mjs";
+import CharacterSpellFactory from "../../spells/CharacterSpellFactory.js";
+import DDBSpell from "../../spells/DDBSpell.js";
 import { AutoEffects, ChangeHelper } from "../effects/_module.mjs";
 
 /* eslint-disable class-methods-use-this */
@@ -112,6 +115,45 @@ export default class DDBEnricherData {
 
     if (!max) {
       uses.max = this._getMaxValue(type, name, matchSubClass, includesName);
+    }
+
+    if (override) {
+      uses.override = true;
+    }
+
+    return uses;
+  }
+
+  _getSpellsForFeature({ type, name, onlyLimitedUse = true } = {}) {
+    const spells = this.ddbParser.ddbData.character.spells[type].filter((s) => {
+      if (onlyLimitedUse && !s.limitedUse) return false;
+      const id = type === "classFeature"
+        ? DDBDataUtils.determineActualFeatureId(this.ddb, s.componentId)
+        : s.componentId;
+      const lookup = CharacterSpellFactory.getDDBSpellLookup(this.ddbParser.ddbData, type, id);
+      if (lookup.name === name) return true;
+      return false;
+    });
+    return spells;
+  }
+
+  _getSpellUsesWithSpent({ type, name, max, defaultSpent = null, period = "", formula = null, override = null } = {}) {
+    const spells = this._getSpellsForFeature({ type, name });
+
+    if (spells.length === 0) {
+      logger.error(`No spells found for feature ${name} of type ${type}`);
+      return {
+        spent: defaultSpent,
+        max,
+      };
+    }
+
+    const uses = DDBSpell.getUses(spells[0].limitedUse);
+
+    if (formula) {
+      uses.recovery = [{ period, type: "formula", formula }];
+    } else if (period != "") {
+      uses.recovery = [{ period, type: 'recoverAll', formula: undefined }];
     }
 
     if (override) {
@@ -348,6 +390,14 @@ export default class DDBEnricherData {
    */
   get additionalActivities() {
     return null;
+  }
+
+  /**
+   * Gets additional advancements to be added to the document.
+   * @returns {object[]} An array of advancements.
+   */
+  get additionalAdvancements() {
+    return [];
   }
 
   /**

@@ -124,6 +124,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get additionalAdvancements() {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.additionalAdvancements;
+    } else {
+      return [];
+    }
+  }
+
   get useDefaultAdditionalActivities() {
     if (this.loadedEnricher) {
       return this.loadedEnricher.useDefaultAdditionalActivities;
@@ -865,6 +873,18 @@ export default class DDBEnricherFactoryMixin {
     return effects;
   }
 
+  async addDocumentAdvancements(advancementsOverride = null) {
+    const additionalAdvancements = advancementsOverride ?? this.additionalAdvancements;
+
+    if (!additionalAdvancements) return this.data;
+    if (!Array.isArray(this.data.system.advancement)) {
+      this.data.system.advancement = [];
+    }
+
+    this.data.system.advancement.push(...(additionalAdvancements).flat());
+    return this.data;
+  }
+
   async addDocumentOverride() {
     const override = this.override;
 
@@ -1046,10 +1066,7 @@ export default class DDBEnricherFactoryMixin {
         this.data.effects.push(...activityData.effects);
       }
       if (activityData.advancements) {
-        if (!Array.isArray(this.data.system.advancement)) {
-          this.data.system.advancement = [];
-        }
-        this.data.system.advancement.push(...activityData.advancements);
+        this.addDocumentAdvancements(...activityData.advancements);
       }
     }
   }
@@ -1130,10 +1147,7 @@ export default class DDBEnricherFactoryMixin {
           this.data.effects.push(...activityData.effects);
         }
         if (activityData.advancements) {
-          if (!Array.isArray(this.data.system.advancement)) {
-            this.data.system.advancement = [];
-          }
-          this.data.system.advancement.push(...activityData.advancements);
+          this.addDocumentAdvancements(activityData.advancements);
         }
 
         this.data.effects = this.data.effects.filter((v, i, a) => {

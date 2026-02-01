@@ -55,6 +55,7 @@ export { default as Sharpshooter } from "./Sharpshooter.mjs";
 export { default as Slasher } from "./Slasher.mjs";
 export { default as SpeedyRecovery } from "./SpeedyRecovery.mjs";
 export { default as SpellSniper } from "./SpellSniper.mjs";
+export { default as SpellfireSpark } from "./SpellfireSpark.mjs";
 export { default as SquireOfSolamniaPreciseStrike } from "./SquireOfSolamniaPreciseStrike.mjs";
 export { default as StandardBearer } from "./StandardBearer.mjs";
 export { default as StrikeOfTheGiants } from "./StrikeOfTheGiants.mjs";
