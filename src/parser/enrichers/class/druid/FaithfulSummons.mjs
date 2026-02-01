@@ -46,13 +46,9 @@ export default class FaithfulSummons extends DDBEnricherData {
 
   get override() {
     const uses = this._getSpellUsesWithSpent({
-      type: "classFeature",
+      type: "class",
       name: "Faithful Summons",
     });
-    console.warn("uses", {
-      uses,
-      this: this,
-    })
     return {
       data: {
         system: {

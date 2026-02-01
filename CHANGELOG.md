@@ -4,9 +4,10 @@
 - 2014 Swashbuckler, Inquisitive, Cricle of Dreams, Circle of the Shepherd parsing improvements.
 - A Mighty Summoner enhancer, can be disabled in core settings (adds bonus hp when summoning with Mighty Summoner)
 - Tool grants for class advancements in 2014 were not always generated correctly.
-- First pass background and feat spell advancement detection.
 - Boon of Misty Escape parsing.
 - Character update improvements for improving speed and reducing parsing failures when players are updating back to DDB. @deadhawkfhs.
+- First pass background and feat spell advancement detection. Many feats that grant spells (rather than a choice of spells), will now grant advancements, as well as adding cast activities to the feat for those spells.
+- Improvements to handling some spells granted by features and feats such as Spellfire Spark and Faithful summons.
 
 # 6.6.50
 

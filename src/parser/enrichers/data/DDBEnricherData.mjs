@@ -127,10 +127,11 @@ export default class DDBEnricherData {
   _getSpellsForFeature({ type, name, onlyLimitedUse = true } = {}) {
     const spells = this.ddbParser.ddbData.character.spells[type].filter((s) => {
       if (onlyLimitedUse && !s.limitedUse) return false;
-      const id = type === "classFeature"
-        ? DDBDataUtils.determineActualFeatureId(this.ddb, s.componentId)
+      const id = type === "class"
+        ? DDBDataUtils.determineActualFeatureId(this.ddbParser.ddbData, s.componentId)
         : s.componentId;
-      const lookup = CharacterSpellFactory.getDDBSpellLookup(this.ddbParser.ddbData, type, id);
+      const lookupType = type === "class" ? "classFeature" : type;
+      const lookup = CharacterSpellFactory.getDDBSpellLookup(this.ddbParser.ddbData, lookupType, id);
       if (lookup.name === name) return true;
       return false;
     });
