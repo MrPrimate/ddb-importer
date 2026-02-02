@@ -44,7 +44,7 @@ for (const directory of flatDirectories) {
   const contents = getContentsOfDirectory(directory);
   contents.push('\n')
   const outfilePath = path.join(directory, "_module.mjs");
-  console.log(`Writing ${outfilePath}`);
+  // console.log(`Writing ${outfilePath}`);
   fs.writeFileSync(outfilePath, contents.join('\n'));
 }
 
@@ -82,7 +82,7 @@ for (const directory of nestedDirs) {
 
     contents.push('\n')
     const outfilePath = path.join(basePath, "_module.mjs");
-    console.log(`Writing ${outfilePath}`);
+    // console.log(`Writing ${outfilePath}`);
     fs.writeFileSync(outfilePath, contents.join('\n'));
   }
 
@@ -94,7 +94,7 @@ for (const directory of nestedDirs) {
 
       contents.push('\n')
       const outfilePath = path.join(fullDirPath, "_module.mjs");
-      console.log(`Writing ${outfilePath}`);
+      // console.log(`Writing ${outfilePath}`);
       fs.writeFileSync(outfilePath, contents.join('\n'));
     }
   }
