@@ -60,6 +60,8 @@ export const PARSING_FEATURES = {
     "Skills",
     "Feat",
     "Creature Type",
+    "Age",
+    "Alignment",
   ],
   SKIPPED_FEATURES_2014: [
     "Primal Knowledge",

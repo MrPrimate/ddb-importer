@@ -2,6 +2,7 @@
 
 - A large number of updates for features with ability advantage/disadvantage effects.
 - 2014 Swashbuckler, Inquisitive, Cricle of Dreams, Circle of the Shepherd, Circle of Spores parsing improvements.
+- Circle of Stars now uses Enchantments for Forms and applies appropriate effects at appropriate levels.
 - A Mighty Summoner enhancer, can be disabled in core settings (adds bonus hp when summoning with Mighty Summoner)
 - Tool grants for class advancements in 2014 were not always generated correctly.
 - Boon of Misty Escape parsing.

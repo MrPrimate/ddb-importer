@@ -8,7 +8,10 @@ export default class DDBRace {
 
   static SPECIAL_ADVANCEMENTS = {};
 
-  static EXCLUDED_FEATURE_ADVANCEMENTS = [];
+  static EXCLUDED_FEATURE_ADVANCEMENTS = [
+    // "Age",
+    // "Alignment",
+  ];
 
   static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [];
 
