@@ -1,7 +1,9 @@
 export { default as Archdruid } from "./Archdruid.mjs";
 export { default as BalmOfTheSummerCourt } from "./BalmOfTheSummerCourt.mjs";
+export { default as BlazingRevival } from "./BlazingRevival.mjs";
 export { default as BlightedShape } from "./BlightedShape.mjs";
 export { default as CallOfTheShadowseeds } from "./CallOfTheShadowseeds.mjs";
+export { default as CauterizingFlames } from "./CauterizingFlames.mjs";
 export { default as CircleForms } from "./CircleForms.mjs";
 export { default as CircleOfTheSpells } from "./CircleOfTheSpells.mjs";
 export { default as CosmicOmen } from "./CosmicOmen.mjs";
@@ -9,6 +11,7 @@ export { default as DefileGround } from "./DefileGround.mjs";
 export { default as DefileGroundMoveCorruption } from "./DefileGroundMoveCorruption.mjs";
 export { default as ElementalFuryPotentSpellcasting } from "./ElementalFuryPotentSpellcasting.mjs";
 export { default as ElementalFuryPrimalStrike } from "./ElementalFuryPrimalStrike.mjs";
+export { default as EnhancedBond } from "./EnhancedBond.mjs";
 export { default as FaithfulSummons } from "./FaithfulSummons.mjs";
 export { default as FullOfStars } from "./FullOfStars.mjs";
 export { default as FungalInfestation } from "./FungalInfestation.mjs";
