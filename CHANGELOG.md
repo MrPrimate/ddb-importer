@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.51
+
 - A large number of updates for features with ability advantage/disadvantage effects.
 - 2014 Subclasses update: Swashbuckler, Inquisitive, Cricle of Dreams, Circle of the Shepherd, Circle of Spores, Circle of Wildfire, Cavalier parsing improvements.
 - Circle of Stars now uses Enchantments for Forms and applies appropriate effects at appropriate levels.
