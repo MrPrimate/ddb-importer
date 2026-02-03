@@ -1,9 +1,10 @@
 /* eslint-disable class-methods-use-this */
+import { utils } from "../../../../lib/_module.mjs";
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class StarryForm extends DDBEnricherData {
   get type() {
-    return "utility";
+    return "enchant";
   }
 
   get activity() {
@@ -11,15 +12,39 @@ export default class StarryForm extends DDBEnricherData {
       noTemplate: true,
       targetType: "self",
       activationType: "bonus",
-      name: "Activate Starry Form",
+      name: "Assume Starry Form",
+      id: utils.namedIDStub("assume", { prefix: "starry", postfix: "core" }),
+      data: {
+        enchant: {
+          self: true,
+        },
+        duration: { value: "10", units: "minutes" },
+      },
     };
   }
 
-  get additionalActivities() {
+  get starForms() {
+    return ["Archer", "Chalice", "Dragon"];
+  }
+
+  formActivityName(formType) {
+    if (formType === "Archer") {
+      return "Archer Attack";
+    }
+    if (formType === "Chalice") {
+      return "Chalice Healing";
+    }
+    if (formType === "Dragon") {
+      return "Dragon Constitution";
+    }
+    return "Unknown";
+  }
+
+  get formActivities() {
     return [
       {
         constructor: {
-          name: "Archer Attack",
+          name: this.formActivityName("Archer"),
           type: "attack",
         },
         build: {
@@ -56,10 +81,13 @@ export default class StarryForm extends DDBEnricherData {
             condition: "",
           },
         },
+        overrides: {
+          id: utils.namedIDStub("Archer", { prefix: "form", postfix: "" }),
+        },
       },
       {
         constructor: {
-          name: "Chalice Healing",
+          name: this.formActivityName("Chalice"),
           type: "heal",
         },
         build: {
@@ -88,18 +116,16 @@ export default class StarryForm extends DDBEnricherData {
             condition: "",
           },
         },
+        overrides: {
+          id: utils.namedIDStub("Chalice", { prefix: "form", postfix: "" }),
+        },
       },
       {
         constructor: {
-          name: "Dragon Constitution",
-          type: "utility",
+          name: "Twinkling Constellations (Change Form)",
+          type: "forward",
         },
         build: {
-          generateAttack: false,
-          generateConsumption: false,
-          generateTarget: true,
-          generateDamage: false,
-          generateHealing: false,
           targetOverride: {
             affects: {
               count: "1",
@@ -110,16 +136,102 @@ export default class StarryForm extends DDBEnricherData {
             units: "self",
           },
           activationOverride: {
-            type: "bonus",
+            type: "turnStart",
             value: 1,
-            condition: "",
+            condition: "Start of each turn",
+          },
+        },
+        overrides: {
+          noTemplate: true,
+          targetType: "self",
+          noConsumeTargets: true,
+          id: utils.namedIDStub("Twinkling", { prefix: "act", postfix: "" }),
+          data: {
+            activity: {
+              id: utils.namedIDStub("assume", { prefix: "starry", postfix: "core" }),
+            },
+            midiProperties: {
+              confirmTargets: "default",
+            },
           },
         },
       },
+
     ];
   }
 
-  get effects() {
+  get additionalActivities() {
+    return [
+      ...this.formActivities,
+    ];
+  }
+
+  get enchantEffects() {
+    const results = [];
+
+    for (const formType of this.starForms) {
+      [
+        { min: null, max: 9 },
+        { min: 10, max: 13 },
+        { min: 14, max: null },
+      ].forEach((data) => {
+        let activityRiders = [];
+        if (formType === "Archer") {
+          activityRiders = [
+            utils.namedIDStub("Archer", { prefix: "form", postfix: "" }),
+          ];
+        }
+        if (formType === "Chalice") {
+          activityRiders = [
+            utils.namedIDStub("Chalice", { prefix: "form", postfix: "" }),
+          ];
+        }
+        if (data.min && data.min >= 10) {
+          activityRiders.push(
+            utils.namedIDStub("Twinkling", { prefix: "act", postfix: "" }),
+          );
+        }
+        const effect = {
+          // name: `Type: ${formType} (${data.min !== null ? data.min : "1"}-${data.max !== null ? data.max : "20"})`,
+          name: formType,
+          type: "enchant",
+          changes: [
+            DDBEnricherData.ChangeHelper.overrideChange(`Active: ${formType}`, 20, "activities[enchant].name"),
+          ],
+          activityMatch: "Assume Starry Form",
+          data: {
+            _id: utils.namedIDStub(formType, { prefix: "choice", postfix: `ef${data.min !== null ? data.min : "1"}` }),
+            duration: {
+              "seconds": 600,
+              "startTime": null,
+              "rounds": 100,
+              "turns": null,
+              "startRound": null,
+              "startTurn": null,
+              "combat": null,
+            },
+            flags: {
+              ddbimporter: {
+                activityRiders,
+                effectRiders: [utils.namedIDStub(formType, { prefix: "ef", postfix: `${data.min !== null ? data.min : "1"}` })],
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
+            },
+          },
+        };
+        results.push(effect);
+      });
+    }
+    return results;
+  }
+
+  get formEffects() {
+    const results = [];
+
+
     const atlChanges = [
       DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "20"),
       DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
@@ -131,48 +243,81 @@ export default class StarryForm extends DDBEnricherData {
         '{"type": ""starlight"", "speed": 5,"intensity": 5}',
       ),
     ];
-    return [
-      {
-        activityMatch: "Activate Starry Form",
-        name: "Starry Form: Archer",
-        atlChanges,
-      },
-      {
-        activityMatch: "Activate Starry Form",
-        name: "Starry Form: Chalice",
-        atlChanges,
-      },
-      {
-        activityMatch: "Activate Starry Form",
-        name: "Starry Form: Dragon",
-        changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("10", 10, "system.attributes.concentration.roll.min"),
-        ],
-        atlChanges,
-      },
-      {
-        activityMatch: "Activate Starry Form",
-        name: "Twinkling Constellations (Level 10)",
-        changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
-        ],
-      },
-      {
-        activityMatch: "Activate Starry Form",
-        name: "Full of Stars (Level 14)",
-        changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
-        ],
-      },
+
+    for (const formType of this.starForms) {
+      [
+        { min: null, max: 9 },
+        { min: 10, max: 13 },
+        { min: 14, max: null },
+      ].forEach((data) => {
+        const changes = [];
+        if (formType === "Dragon") {
+          changes.push(
+            DDBEnricherData.ChangeHelper.upgradeChange("10", 10, "system.attributes.concentration.roll.min"),
+          );
+        }
+        if (data.min && data.min >= 10 && formType === "Dragon") {
+          changes.push(
+            DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "system.attributes.movement.fly"),
+            DDBEnricherData.ChangeHelper.upgradeChange("true", 20, "system.attributes.movement.hover"),
+          );
+        }
+        if (data.min && data.min >= 14) {
+          changes.push(
+            DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
+          );
+        }
+        const effect = {
+          name: `Starry Form: ${formType} (Level ${data.min !== null ? data.min : "1"}-${data.max !== null ? data.max : "20"})`,
+          options: {
+            durationSeconds: 600,
+            transfer: true,
+          },
+          activityMatch: this.formActivityName(formType),
+          changes,
+          atlChanges,
+          data: {
+            _id: utils.namedIDStub(formType, { prefix: "ef", postfix: `${data.min !== null ? data.min : "1"}` }),
+            flags: {
+              dae: {
+                selfTarget: true,
+                selfTargetAlways: true,
+              },
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
+            },
+          },
+        };
+
+        results.push(effect);
+      });
+
+    }
+
+    return results;
+  }
+
+
+  get effects() {
+    const results = [
+      ...this.enchantEffects,
+      ...this.formEffects,
     ];
+
+
+    return results;
   }
 
   get override() {
     return {
       data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Archer Attack", "Chalice Healing", "Dragon Constitution"],
+        "flags.ddbimporter.ignoredConsumptionActivities": ["Archer Attack", "Chalice Healing", "Dragon Constitution", "Twinkling Constellations (Change Form)"],
       },
     };
   }

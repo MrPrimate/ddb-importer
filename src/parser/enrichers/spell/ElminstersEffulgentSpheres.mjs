@@ -136,4 +136,17 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     return absorb;
   }
 
+  get override() {
+    return {
+      data: {
+        system: {
+          uses: {
+            spent: 0,
+            max: "@item.level",
+          },
+        },
+      },
+    };
+  }
+
 }
