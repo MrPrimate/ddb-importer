@@ -295,6 +295,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
 
   showCurrentTask(title, { message = null, isError = false } = {}) {
+    logger.debug("DDBCharacterManager: showCurrentTask", { title, message, isError });
     let element = $(this.element).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
     $(this.element).parent().parent().css("height", "auto");

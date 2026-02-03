@@ -813,31 +813,38 @@ ${item.system.description.chat}
       // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
-    this.setSafeMidiQolConfig();
+    await this.setSafeMidiQolConfig();
     this.result = foundry.utils.deepClone(this.ddbCharacter.data);
 
     // disable active sync
+    logger.debug("Disabling dynamic updates for character import");
     const activeUpdateState = this.ddbCharacter.getCurrentDynamicUpdateState();
     await this.ddbCharacter.disableDynamicUpdates();
 
     try {
       this.importId = foundry.utils.randomID();
       foundry.utils.setProperty(this.result.character, "flags.ddbimporter.importId", this.importId);
+      logger.debug(`Set import ID to ${this.importId} to items`);
       await this.addImportIdToItems();
 
       // handle active effects
       this.notifier("Calculating Active Effect Changes");
+      logger.debug("Calculating Active Effect Changes");
       this.fixUpCharacterEffects();
       await this.preActiveEffects();
       // we need to process the items first to find out if we are ignoring any effects
+      logger.debug("Fetching character items for import");
       let items = await this.fetchCharacterItems();
+      logger.debug("Processing active effects for import");
       await this.processActiveEffects();
 
       // update image
+      logger.debug("Updating character image if required");
       await this.updateImage();
 
       // manage updates of basic character data more intelligently
       // revert some data if update not wanted
+      logger.debug("Processing character data updates based on user settings");
       if (!this.settings.updatePolicyName) {
         this.result.character.name = this.actorOriginal.name;
         this.result.character.prototypeToken.name = this.actorOriginal.prototypeToken.name;
@@ -910,13 +917,16 @@ ${item.system.description.chat}
       logger.debug("Character data importing: ", this.result.character);
       await this.actor.update(this.result.character);
 
-      // copy existing journal notes
+      // copy existing journal
+      logger.debug("Copying existing journal notes");
       this.copyExistingJournalNotes();
 
       // items import
+      logger.debug("Processing character items");
       await this.processCharacterItems(items);
 
       if (this.settings.activeEffectCopy) {
+        logger.debug("Checking existing effects to copy");
         // find effects with a matching name that existed on previous actor
         // and that have a different active state and activate them
         const targetEffects = this.actor.effects.filter((ae) => {
@@ -938,19 +948,24 @@ ${item.system.description.chat}
       }
 
       this.notifier(`Consumption linking...`);
+      logger.debug("Linking consumptions...");
       await this.ddbCharacter.autoLinkConsumption();
 
       // add infusions to actors items
+      logger.debug("Creating infused items...");
       await createInfusedItems(this.ddbCharacter.source.ddb, this.actor);
       await linkSelectedEnchantments(this.actor);
 
       if (this.settings.useChrisPremades) {
         this.notifier(`Applying CPR...`);
+        logger.debug("Applying CPR effects...");
         await ExternalAutomations.addChrisEffectsToActorDocuments(this.actor);
       }
       this.notifier(`Updating conditions...`);
+      logger.debug("Updating conditions...");
       await setConditions(this.actor, this.ddbCharacter.source.ddb, this.settings.activeEffectCopy);
 
+      logger.debug("Final hit point adjustments");
       this.resetHitPoints();
 
     } catch (error) {
