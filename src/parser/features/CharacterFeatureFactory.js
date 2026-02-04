@@ -1173,6 +1173,7 @@ export default class CharacterFeatureFactory {
 
   }
 
+  // eslint-disable-next-line complexity
   async addSpellAdvancement({ feature, type } = {}) {
     const advancements = [];
 
@@ -1187,6 +1188,8 @@ export default class CharacterFeatureFactory {
       : `${feature.name} (Cantrips)`;
 
     const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
+    const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
+    const use2024Spells = spellChoice === "FORCE_2024" || feature.system.source.rules === "2024";
 
     logger.debug(`Spell Advancement Data from ${feature.name}`, {
       htmlData,
@@ -1247,7 +1250,9 @@ export default class CharacterFeatureFactory {
           continue;
         }
 
-        const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spellGrant.name]);
+        const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spellGrant.name], {
+          use2024Spells,
+        });
         if (!spellIndex || spellIndex.length === 0) {
           logger.warn(`No compendium spell found for ${spellGrant.name}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
           continue;
@@ -1268,15 +1273,19 @@ export default class CharacterFeatureFactory {
           type: "cast",
           foundryFeature: feature,
         });
+
+        const spellOverride = {
+          uuid,
+          properties: abilityData.properties ?? [],
+          spellbook: true,
+        };
+
         activity.build({
           generateSpell: true,
           generateConsumption: true,
           consumeActivity: !isItemConsume,
           consumeItem: isItemConsume,
-          spellOverride: {
-            spellbook: true,
-            uuid,
-          },
+          spellOverride,
         });
 
         const uses = {

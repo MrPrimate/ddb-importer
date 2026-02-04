@@ -359,10 +359,11 @@ export default class DDBEnricherFactoryMixin {
     return this.ddbParser.isAction ?? false;
   }
 
-  static async getCompendiumSpellUuidsFromNames(names) {
+  static async getCompendiumSpellUuidsFromNames(names, { use2024Spells, getDocuments = false } = {}) {
     const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
     const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
-      use2024Spells: spellChoice === "FORCE_2024",
+      use2024Spells: (use2024Spells ?? spellChoice === "FORCE_2024"),
+      getDocuments,
     });
 
     return spells;
@@ -370,8 +371,8 @@ export default class DDBEnricherFactoryMixin {
 
 
   // eslint-disable-next-line class-methods-use-this
-  async _addCompendiumSpellToCastActivity(spell, activity) {
-    const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spell]);
+  async _addCompendiumSpellToCastActivity(spell, activity, { use2024Spells = false } = {}) {
+    const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spell], { use2024Spells });
     if (!spellIndex || spellIndex.length === 0) {
       logger.warn(`No compendium spell found for ${spell}`);
       return activity;

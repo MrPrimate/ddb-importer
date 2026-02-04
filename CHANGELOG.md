@@ -1,5 +1,9 @@
 # Next Up
 
+- Spells granted via cast activities could have spell components ignored incorrectly.
+- Some characters have items in their inventory which don't show up on DDB, but do get imported. They are now ignored by default. @sirantulas
+- Not all feats from 2014 would import since 6.6.51
+
 # 6.6.51
 
 - A large number of updates for features with ability advantage/disadvantage effects.

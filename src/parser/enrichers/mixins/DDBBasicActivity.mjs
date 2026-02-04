@@ -233,7 +233,11 @@ export default class DDBBasicActivity {
   _generateSpell({ spellOverride = null } = {}) {
     if (spellOverride) {
       this.data.spell = spellOverride;
-    };
+    } else {
+      this.data.spell = {
+        properties: [],
+      };
+    }
   }
 
   _generateDamage({
@@ -584,7 +588,7 @@ export default class DDBBasicActivity {
         generateSpell: true,
         spellOverride: spellOverride ?? {
           uuid,
-          properties: ["vocal", "somatic", "material"],
+          properties: [],
           level: null,
           challenge: {
             attack: null,

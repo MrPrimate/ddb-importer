@@ -2129,7 +2129,11 @@ export default class AdvancementHelper {
     const result = {
       hint: "",
       abilities: [],
+      properties: [],
+      concentration: true,
     };
+
+    const properties = new Set();
 
     // Wisdom is your spellcasting ability for these spells.
     // Intelligence, Wisdom, or Charisma is your spellcasting ability for it
@@ -2155,6 +2159,27 @@ export default class AdvancementHelper {
       }
     }
 
+    const noComponentsRegex = /None of these spells require spell components|no component|no spell components/i;
+    if (noComponentsRegex.test(description)) {
+      properties.add("material");
+      properties.add("vocal");
+      properties.add("somatic");
+    }
+
+    const noMaterialSearch = new RegExp(/no material component|without requiring material component/);
+    const noMaterialMatch = noMaterialSearch.test(this.strippedHtml);
+    if (noMaterialMatch) {
+      properties.add("material");
+    }
+
+    const noConcentrationSearch = new RegExp(/no concentration|no material components or concentration|no spell components or concentration/);
+    const noConcentrationMatch = noConcentrationSearch.test(this.strippedHtml);
+    if (noConcentrationMatch) {
+      result.concentration = false;
+      properties.add("concentration");
+    }
+
+    result.properties = Array.from(properties);
 
     return result;
   }

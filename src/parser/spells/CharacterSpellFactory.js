@@ -764,7 +764,7 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data.definition.description ?? "").toLowerCase().includes(t));
+        const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data?.definition.description ?? "").toLowerCase().includes(t));
         if (forceCopy) {
           await this.handleGrantedSpells(spell, "feat", {
             forceCopy,
