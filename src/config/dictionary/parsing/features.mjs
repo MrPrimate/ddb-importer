@@ -447,6 +447,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Fiendish Resilience",
     "Saint of Forge and Fire",
     "Master of Intrigue",
+    "Astral Knowledge",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
