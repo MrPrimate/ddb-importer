@@ -498,13 +498,13 @@ const CompendiumHelper = {
     return newFolder;
   },
 
-  async retrieveCompendiumSpellReferences(spellNames, { use2024Spells = false } = {}) {
+  async retrieveCompendiumSpellReferences(spellNames, { use2024Spells = false, getDocuments = false } = {}) {
     const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
 
     const results = await CompendiumHelper.queryCompendiumEntries({
       compendiumName,
       documentNames: spellNames,
-      getDocuments: false,
+      getDocuments,
       matchedProperties: {
         "system.source.rules": use2024Spells ? "2024" : "2014",
       },
