@@ -710,6 +710,11 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "character-import-policy-ignore-items-with-non-existing-containers": {
+            scope: "player",
+            type: Boolean,
+            default: true,
+          },
         },
         SYNC: {
           "sync-policy-currency": {
