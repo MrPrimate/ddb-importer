@@ -1077,10 +1077,6 @@ export default class DDBClass {
   }
 
   _generateSaveAdvancements() {
-    // if (this.options.isGeneric) {
-    //   this._generateHTMLSaveAdvancement();
-    //   return;
-    // }
     const advancements = [];
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {

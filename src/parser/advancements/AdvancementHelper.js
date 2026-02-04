@@ -322,6 +322,7 @@ export default class AdvancementHelper {
 
     const allowReplacements = [
       "you instead gain saving throw proficiency with one ability in which",
+      "instead gain proficiency in",
     ]
       .some((text) => feature.description.includes(text));
 

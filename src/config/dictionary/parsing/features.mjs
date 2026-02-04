@@ -204,6 +204,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Full of Stars",
     "Dragon Ancestor",
     // "Draconic Ancestry",
+    "Elegant Courtier",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
@@ -448,6 +449,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Saint of Forge and Fire",
     "Master of Intrigue",
     "Astral Knowledge",
+    "Elegant Courtier",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
