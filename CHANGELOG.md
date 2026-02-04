@@ -1,8 +1,11 @@
 # Next Up
 
+# 6.6.52
+
 - Spells granted via cast activities could have spell components ignored incorrectly.
 - Some characters have items in their inventory which don't show up on DDB, but do get imported. They are now ignored by default. @sirantulas
 - Not all feats from 2014 would import since 6.6.51
+- 2014 Samurai parsing improvements.
 
 # 6.6.51
 
