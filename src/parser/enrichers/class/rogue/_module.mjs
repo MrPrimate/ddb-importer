@@ -24,6 +24,7 @@ export { default as PsychicWhispers } from "./PsychicWhispers.mjs";
 export { default as ReliableTalent } from "./ReliableTalent.mjs";
 export { default as RendMind } from "./RendMind.mjs";
 export { default as SneakAttack } from "./SneakAttack.mjs";
+export { default as SneakAttackAssassinate } from "./SneakAttackAssassinate.mjs";
 export { default as SneakAttackPoisonEnvenom } from "./SneakAttackPoisonEnvenom.mjs";
 export { default as SneakAttackSupremeSneak } from "./SneakAttackSupremeSneak.mjs";
 export { default as SoulBlades } from "./SoulBlades.mjs";
