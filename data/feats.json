@@ -818,5 +818,9 @@
   {
     "name": "Plantmender",
     "path": "icons/magic/nature/root-vine-caduceus-healing.webp"
+  },
+  {
+    "name": "Memory Starved",
+    "path": "icons/magic/control/silhouette-aura-energy.webp"
   }
 ]

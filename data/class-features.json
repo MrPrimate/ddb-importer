@@ -9528,5 +9528,33 @@
   {
     "name": "Coin Flip",
     "path": "icons/commodities/currency/coin-engraved-tail-gold.webp"
+  },
+  {
+    "name": "Giant's Havoc",
+    "path": "icons/skills/melee/strike-hammer-destructive-orange.webp"
+  },
+  {
+    "name": "Giant's Power",
+    "path": "icons/skills/melee/hand-grip-staff-teal.webp"
+  },
+  {
+    "name": "Eyes in the Dark",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-small-teal.webp"
+  },
+  {
+    "name": "Shadow Bind",
+    "path": "icons/magic/control/debuff-energy-snare-purple-pink.webp"
+  },
+  {
+    "name": "Natural Diviner",
+    "path": "icons/magic/perception/hand-eye-fire-blue.webp"
+  },
+  {
+    "name": "Prescience",
+    "path": "icons/magic/perception/eye-slit-orange.webp"
+  },
+  {
+    "name": "Circle Magic Casting",
+    "path": "icons/magic/symbols/runes-star-pentagon-blue.webp"
   }
 ]
