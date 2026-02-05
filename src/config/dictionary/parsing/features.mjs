@@ -473,7 +473,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Activate Mantle of Majesty",
   "Gaseous Form",
   "Otto's Irresistible Dance",
-
+  "Empty Body",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [

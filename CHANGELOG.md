@@ -1,12 +1,11 @@
 # Next Up
 
-- Purple Dragon Knight parsing tweaks.
-- 2014 Psi Warrior parsing fixes.
+- 2014 Purple Dragon Knight, Psi Warrior, Drunken Monk parsing fixes.
 - Assasinate for Rogue Assassin did not have a damage activity.
 - Huge number of icon updates from @crimsonedge
 - Summon Elemental 2024 did not add spell level to damage.
 - Summon Plant and Summon Sea Spirit now parse/generate summons.
-
+- Innate Sorcery was not consuming resources.
 
 # 6.6.52
 
