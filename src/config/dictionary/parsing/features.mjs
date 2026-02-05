@@ -151,6 +151,7 @@ export const PARSING_FEATURES = {
     "Crown of Spellfire",
     "Bladesong",
     "Brutal Critical",
+    "Kensei Weapon",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
@@ -309,6 +310,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Sangromancy Savant",
     "Saint of Forge and Fire",
     "Master of Intrigue",
+    "Path of the Kensei",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -450,6 +452,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Master of Intrigue",
     "Astral Knowledge",
     "Elegant Courtier",
+    "Path of the Kensei",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

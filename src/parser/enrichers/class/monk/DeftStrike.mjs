@@ -3,6 +3,21 @@ import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
 export default class DeftStrike extends DDBEnricherData {
 
+  get type() {
+    return "damage";
+  }
+
+  get activity() {
+    return {
+      data: {
+        damage: DDBEnricherData.basicDamagePart({
+          customFormula: "@scale.monk.martial-arts",
+          types: DDBEnricherData.allDamageTypes(),
+        }),
+      },
+    };
+  }
+
   get effects() {
     return [
       {
