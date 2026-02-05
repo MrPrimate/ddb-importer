@@ -113,6 +113,7 @@ export default class DDBMuncher extends DDBAppV2 {
       templates: [
         "modules/ddb-importer/handlebars/muncher/settings/general.hbs",
         "modules/ddb-importer/handlebars/muncher/settings/sources.hbs",
+        "modules/ddb-importer/handlebars/muncher/settings/deprecated.hbs",
       ],
     },
     munch: {
@@ -165,6 +166,9 @@ export default class DDBMuncher extends DDBAppV2 {
           },
           sources: {
             id: "sources", group: "settings", label: "Sources", icon: "fas fa-book",
+          },
+          deprecated: {
+            id: "sourcesDeprecated", group: "settings", label: "Deprecated", icon: "fas fa-scroll-old",
           },
         },
       },

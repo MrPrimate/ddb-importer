@@ -1,0 +1,32 @@
+<section id="ddb-importer-muncher-sources-deprecated" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+
+    <fieldset>
+    <legend>Choose Ingredients (Sourcebooks)</legend>
+    <p style="color: red">Filtering by book is NOT recommended, please use Source Categories (Sources tab).</p>
+    <p>
+Please note that DDB marks a book as from it's first source only, e.g. the SRD/Basic rules for some things.
+It is recommended you use Source Categories Exclusion rules rather than filtering explicitly by source book.
+This will ensure you get all the spells, items and monsters you are expecting.
+</p>
+<p>If any books are selected here DDB Importer will filter content that is <i>only</i> in that book. These interact with the Category Exclusion settings.
+</p>
+    {{#each sourceConfig}}
+    <div class="form-group munching-source-config">
+      <label>{{ this.label }}</label>
+      <div class="form-fields">
+        <dnd5e-checkbox name="{{this.name}}" id="munching-source-policy-{{this.name}}" {{#if this.isChecked}}checked{{/if}}
+        data-section="{{this.name}}" {{#if this.enabled}}enabled{{else}}disabled{{/if}}></dnd5e-checkbox>
+      </div>
+      <p class="hint">{{{this.hint}}}</p>
+    </div>
+    {{/each}}
+    <div id="munch-source-div" {{#if enableSources}}{{else}}class="ddbimporter-hidden"{{/if}}>
+      <multi-select id="muncher-source-select" name="muncher-source-select">
+        {{#each selectedSources}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+    </fieldset>
+
+</section>
