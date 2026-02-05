@@ -45,6 +45,8 @@ const COMPANION_SPELLS_2024 = [
   "Find Steed",
   "Summon Dragon",
   "Homunculus Servant",
+  "Summon Plant",
+  "Summon Sea Spirit",
 ];
 
 const MULTI_COMPANIONS_2024 = {
@@ -60,6 +62,8 @@ const MULTI_COMPANIONS_2024 = {
   "Animated Object": ["Tiny", "Small", "Medium", "Large", "Huge"],
   "Giant Insect": ["Centipede", "Spider", "Wasp"],
   "Otherworldly Steed": ["Celestial", "Fey", "Fiend"],
+  "Plant Spirit": ["Blooming", "Oaken", "Thorny"],
+  "Sea Serpent Spirit": ["Enormous Mouth", "Glowing Lantern", "Scaled Wings"],
 };
 
 const COMPANION_FEATURES = [

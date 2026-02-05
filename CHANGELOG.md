@@ -8,7 +8,6 @@
 - Summon Plant and Summon Sea Spirit now parse/generate summons.
 
 
-
 # 6.6.52
 
 - Spells granted via cast activities could have spell components ignored incorrectly.

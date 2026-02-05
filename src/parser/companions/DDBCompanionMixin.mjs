@@ -288,7 +288,7 @@ export default class DDBCompanionMixin {
 
     if (!name) return;
     this.name = name;
-    logger.debug(`Beginning companion parse for ${name}`, { name, block: this.block });
+    logger.debug(`Beginning companion parse for ${name}`, { name, block: this.block, this: this });
 
     const actorName = `${name} ${namePostfix}`.trim();
     this.npc = newNPC(actorName);
@@ -330,7 +330,7 @@ export default class DDBCompanionMixin {
       const testString = utils.nameString(acString);
       if (testString.includes("plus PB") || acString.includes("+ PB")) {
         this.summons.bonuses.ac = "@prof";
-      } else if (testString.includes("+ the level of the spell") || testString.includes("the spell's level")) {
+      } else if (testString.includes("+ the level of the spell") || testString.includes("spell's level")) {
         this.summons.bonuses.ac = "@item.level";
       } else {
         const modMatch = acString.match(/(?:\+|plus) your (\w+) modifier/i);
@@ -343,7 +343,7 @@ export default class DDBCompanionMixin {
     const hpPrepared = hpString.toLowerCase().replaceAll(", ", " or ");
     const subType = this.subType?.toLowerCase();
     const baseString = subType && hpString.includes(" or ") && hpPrepared.includes(subType)
-      ? hpPrepared.split("or").find((s) => s.includes(subType))
+      ? hpPrepared.split(" or ").find((s) => s.includes(subType))
       : hpPrepared.trim();
 
     const hpFind = baseString.trim().match(/(\d*)/);
@@ -423,7 +423,12 @@ export default class DDBCompanionMixin {
   }
 
   _handleSize(sizeString) {
-    const size = sizeString.split(" ")[0];
+    const subType = this.subType?.toLowerCase();
+    const baseString = subType && sizeString.toLowerCase().includes(subType)
+      ? sizeString.toLowerCase().replaceAll(" (", " or ").split(" or ").find((s) => s.includes(subType))
+      : sizeString.toLowerCase();
+
+    const size = baseString.split(" ")[0];
     const nameSize = this.subType
       ? DICTIONARY.sizes.find((s) => this.subType.toLowerCase() == s.name.toLowerCase())
       : null;

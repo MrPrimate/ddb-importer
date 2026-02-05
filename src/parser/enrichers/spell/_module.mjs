@@ -194,6 +194,7 @@ export { default as SpiritualWeapon } from "./SpiritualWeapon.mjs";
 export { default as Stoneskin } from "./Stoneskin.mjs";
 export { default as StormSphere } from "./StormSphere.mjs";
 export { default as Suggestion } from "./Suggestion.mjs";
+export { default as SummonElemental } from "./SummonElemental.mjs";
 export { default as Swarm } from "./Swarm.mjs";
 export { default as SwordBurst } from "./SwordBurst.mjs";
 export { default as SylunsViper } from "./SylunsViper.mjs";
