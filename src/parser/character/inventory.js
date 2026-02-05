@@ -2,7 +2,7 @@
 import DDBCharacter from "../DDBCharacter.js";
 import { logger, CompendiumHelper } from "../../lib/_module.mjs";
 import GenericSpellFactory from "../spells/GenericSpellFactory.js";
-import { DICTIONARY } from "../../config/_module.mjs";
+import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import DDBItem from "../item/DDBItem.js";
 
 // eslint-disable-next-line complexity
@@ -25,11 +25,13 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
   // now parse all items
   const isCompendiumItem = foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") ?? false;
   const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
+
+  const discardMissingContainerItems = game.settings.get(SETTINGS.MODULE_ID, "character-import-policy-ignore-items-with-non-existing-containers");
   await DDBItem.prepareSpellCompendiumIndex();
   let i = 0;
   const length = this.source.ddb.character.inventory.length;
   for (let ddbItem of this.source.ddb.character.inventory) {
-    if (this.source.ddb.character.inventory.some((i) => i.id === ddbItem.containerEntityId && i.definition.isContainer === false)
+    if (discardMissingContainerItems && this.source.ddb.character.inventory.some((i) => i.id === ddbItem.containerEntityId && i.definition.isContainer === false)
     ) {
       logger.error(`Skipping item ${ddbItem.definition.name} as it is in a container we don't have`, {
         ddbItem,
