@@ -49,6 +49,7 @@ export { default as Maneuvers } from "./Maneuvers.mjs";
 export { default as PiercingArrow } from "./PiercingArrow.mjs";
 export { default as PsiPoweredLeap } from "./PsiPoweredLeap.mjs";
 export { default as PsionicStrike } from "./PsionicStrike.mjs";
+export { default as RallyingCry } from "./RallyingCry.mjs";
 export { default as RallyingSurge } from "./RallyingSurge.mjs";
 export { default as Relentless } from "./Relentless.mjs";
 export { default as RemarkableAthlete } from "./RemarkableAthlete.mjs";

@@ -1,5 +1,7 @@
 # Next Up
 
+- Purple Dragon Knight parsing tweaks.
+
 # 6.6.52
 
 - Spells granted via cast activities could have spell components ignored incorrectly.
