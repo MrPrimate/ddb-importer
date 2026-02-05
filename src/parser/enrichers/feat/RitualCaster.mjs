@@ -49,7 +49,7 @@ export default class RitualCaster extends DDBEnricherData {
           generateActivation: true,
           spellOverride: {
             uuid: null,
-            properties: ["ritual"],
+            properties: [],
             challenge: {
               attack: null,
               save: null,
