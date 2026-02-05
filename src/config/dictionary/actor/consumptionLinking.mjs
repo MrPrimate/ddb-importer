@@ -40,7 +40,7 @@ export const CONSUMPTION_LINKS = {
   ],
   "Psionic Power": [
     "Soul Blades", "Psychic Blades: Psychic Teleportation", "Soul Blades: Psychic Teleportation",
-    "Psychic Teleportation", "Telekinetic Adept", "Telekinetic Master",
+    "Psychic Teleportation", "Telekinetic Adept", "Telekinetic Master", "Guarded Mind",
   ],
   "Psionic Power: Psionic Energy": [
     "Psionic Power: Psionic Strike", "Psionic Power: Protective Field", "Guarded Mind",

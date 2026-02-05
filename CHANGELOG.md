@@ -1,6 +1,7 @@
 # Next Up
 
 - Purple Dragon Knight parsing tweaks.
+- 2014 Psi Warrior parsing fixes.
 
 # 6.6.52
 
