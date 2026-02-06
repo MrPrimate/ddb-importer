@@ -264,28 +264,6 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     };
   }
 
-  // #extraFeatures() {
-  // if (this.name === "Drake Companion") {
-  //   this.npc.flags["arbron-summoner"].config.actorChanges.push(
-  //     {
-  //       "key": "system.traits.size",
-  //       "value": `@classes.ranger.levels > 6 ? "med" : "${sizeData.value}"`,
-  //     },
-  //     {
-  //       "key": "prototypeToken.width",
-  //       "value": `@classes.ranger.levels > 6 ? 1 : ${this.npc.prototypeToken.width}`,
-  //     },
-  //     {
-  //       "key": "prototypeToken.height",
-  //       "value": `@classes.ranger.levels > 6 ? 1 : ${this.npc.prototypeToken.height}`,
-  //     },
-  //     {
-  //       "key": "prototypeToken.scale",
-  //       "value": `@classes.ranger.levels > 6 ? 1 : ${this.npc.prototypeToken.scale}`,
-  //     },
-  //   );
-  // }
-  // }
 
   async _generate() {
     this.#generateSize();
