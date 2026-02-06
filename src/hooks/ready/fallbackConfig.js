@@ -5648,6 +5648,15 @@ export const fallbackDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/53489/209/639016786618170338.png",
       sourceURL: "sources/dnd/winap",
     },
+    {
+      id: 228,
+      name: "TPC",
+      description: "The Pugilist Class (2024)",
+      sourceCategoryId: 40,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/54296/216/639046483090649923.jpeg",
+      sourceURL: "sources/dnd/tpc",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
@@ -8761,8 +8770,8 @@ export const fallbackDDBConfig = {
       name: "Sterling Vermin",
       description: "<p>This contains content from Sterling Vermin.</p>",
       isHideable: false,
-      isEnabledByDefault: false,
-      isToggleable: false,
+      isEnabledByDefault: true,
+      isToggleable: true,
       avatarUrl: "",
     },
     {

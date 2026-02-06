@@ -946,7 +946,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return (
       DICTIONARY.companions.COMPANION_FEATURES.includes(this.originalName)
       // only run this on class features
-      && this.ddbData.character.classes.some((k) => k.classFeatures.some((f) => f.definition.name == this.originalName))
+      && this.ddbData.character.classes.some((k) => k.classFeatures.some((f) => utils.nameString(f.definition.name) == this.originalName))
     );
   }
 

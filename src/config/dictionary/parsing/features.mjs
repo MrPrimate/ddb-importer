@@ -91,6 +91,7 @@ export const PARSING_FEATURES = {
     "Core Wizard Traits",
     "Core Monster Hunter Traits",
     "Core Artificer Traits",
+    "Core Pugilist Traits",
     "Weapon Mastery",
     // "Maneuver Options",
     // "Lay On Hands", // 2024
