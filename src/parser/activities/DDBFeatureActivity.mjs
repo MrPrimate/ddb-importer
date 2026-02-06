@@ -348,6 +348,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       data.affects.type = "self";
     }
 
+    if (data.affects.type === "" && ["save", "attack", "damage"].includes(this.type)) {
+      data.affects.type = "creature";
+    }
+
     if (noTemplate) {
       data.template = {
         count: "",
@@ -454,6 +458,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
         ? "spell"
         : "weapon"; // unarmed, weapon, spell
 
+    if (this.ddbDefinition.actionType === 2) {
+      classification = "spell";
+    }
+
     if (this.ddbDefinition.actionType === 1) {
       if (this.ddbDefinition.attackTypeRange === 2) {
         type = "ranged";
@@ -463,6 +471,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) {
       type = "melee";
     } else if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) {
+      type = "ranged";
+    } else if (this.ddbDefinition.range?.range) {
       type = "ranged";
     }
 

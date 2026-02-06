@@ -478,10 +478,12 @@ export const FEATURE_SPELLS_IGNORE = [
   "Gaseous Form",
   "Otto's Irresistible Dance",
   "Empty Body",
+  "Searing Arc Strike",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
   "Faithful Summons",
+  "Searing Arc Strike",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_FEATS = [

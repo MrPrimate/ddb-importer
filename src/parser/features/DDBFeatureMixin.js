@@ -997,11 +997,13 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
+  // eslint-disable-next-line complexity
   _getActivitiesType() {
     if (this.isSummons) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
     if (typeof this.ddbDefinition.saveStatId === "number" || this._descriptionSave) return "save";
-    if (this.ddbDefinition.actionType === 1) return "attack";
+    if (this.ddbDefinition.actionType === 1) return "attack"; // attack action (3 is general)
+    if (this.ddbDefinition.actionType === 2 && this.ddbDefinition.abilityModifierStatId) return "attack"; // spell action
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) return "attack";
     if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";
     if (this.isAction && this.getDamageDie()) {
