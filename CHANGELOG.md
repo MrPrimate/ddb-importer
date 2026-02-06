@@ -3,7 +3,7 @@
 # 6.6.53
 
 - 2014 Purple Dragon Knight, Psi Warrior, Drunken Monk, Kensei parsing fixes.
-- Assasinate for Rogue Assassin did not have a damage activity.
+- Assassinate for Rogue Assassin did not have a damage activity.
 - Huge number of icon updates from @crimsonedge
 - Summon Elemental 2024 did not add spell level to damage.
 - Summon Plant and Summon Sea Spirit now parse/generate summons.
