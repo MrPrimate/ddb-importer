@@ -1,5 +1,7 @@
 # Next Up
 
+# 6.6.53
+
 - 2014 Purple Dragon Knight, Psi Warrior, Drunken Monk, Kensei parsing fixes.
 - Assasinate for Rogue Assassin did not have a damage activity.
 - Huge number of icon updates from @crimsonedge
