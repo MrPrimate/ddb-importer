@@ -312,6 +312,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Saint of Forge and Fire",
     "Master of Intrigue",
     "Path of the Kensei",
+    "Black Magic",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -454,6 +455,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Astral Knowledge",
     "Elegant Courtier",
     "Path of the Kensei",
+    "Black Magic",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
