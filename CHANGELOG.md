@@ -1,6 +1,6 @@
 # Next Up
 
-- 2014 Sun Soul parsing fixes.
+- 2014 Sun Soul, Oath of Conquest parsing fixes.
 - More Pugilist fixes
 
 # 6.6.53
