@@ -1,5 +1,8 @@
 # Next Up
 
+- 2014 Sun Soul parsing fixes.
+- More Pugilist fixes
+
 # 6.6.53
 
 - 2014 Purple Dragon Knight, Psi Warrior, Drunken Monk, Kensei parsing fixes.

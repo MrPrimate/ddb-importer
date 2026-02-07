@@ -46,6 +46,7 @@ export { default as SlowFall } from "./SlowFall.mjs";
 export { default as StepOfTheWind } from "./StepOfTheWind.mjs";
 export { default as StrideOfTheElements } from "./StrideOfTheElements.mjs";
 export { default as StunningStrike } from "./StunningStrike.mjs";
+export { default as SunShield } from "./SunShield.mjs";
 export { default as SuperiorDefense } from "./SuperiorDefense.mjs";
 export { default as TongueOfTheSunAndMoon } from "./TongueOfTheSunAndMoon.mjs";
 export { default as UncannyMetabolism } from "./UncannyMetabolism.mjs";

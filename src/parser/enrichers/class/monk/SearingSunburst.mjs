@@ -32,4 +32,12 @@ export default class SearingSunburst extends Generic {
     };
   }
 
+  get override() {
+    return {
+      data: {
+        "flags.ddbimporter.replaceActivityUses": true,
+      },
+    };
+  }
+
 }
