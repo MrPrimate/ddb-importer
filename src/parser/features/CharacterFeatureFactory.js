@@ -16,8 +16,6 @@ import DDBFeature from "./DDBFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
-import DDBBasicActivity from "../enrichers/mixins/DDBBasicActivity.mjs";
-import DDBEnricherFactoryMixin from "../enrichers/mixins/DDBEnricherFactoryMixin.mjs";
 
 export default class CharacterFeatureFactory {
 
@@ -1175,163 +1173,10 @@ export default class CharacterFeatureFactory {
 
   // eslint-disable-next-line complexity
   async addSpellAdvancement({ feature, type } = {}) {
-    const advancements = [];
-
-    const htmlData = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(feature.system.description.value);
-
-    const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(feature.system.description.value);
-    const name = feature.name.toLowerCase().includes("spell")
-      ? feature.name
-      : `${feature.name} (Spells)`;
-    const cantripName = feature.name.toLowerCase().includes("cantrip")
-      ? feature.name
-      : `${feature.name} (Cantrips)`;
-
-    const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
-    const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
-    const use2024Spells = spellChoice === "FORCE_2024" || feature.system.source.rules === "2024";
-
-    logger.debug(`Spell Advancement Data from ${feature.name}`, {
-      htmlData,
-      this: this,
+    await AdvancementHelper.addSpellAdvancement({
+      ddbParser: this,
       feature,
-      abilityData,
-      name,
-      hint,
       type,
-    });
-
-    const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
-      choices: htmlData.cantripChoices,
-      abilities: abilityData.abilities,
-      hint,
-      name: cantripName,
-      spellListChoice: htmlData.spellListCantripChoice,
-      spellLinks: this.spellLinks,
-      is2024: this.is2024,
-    });
-    if (cantripChoiceAdvancement) {
-      advancements.push(cantripChoiceAdvancement);
-    }
-
-    const cantripGrantAdvancement = await AdvancementHelper.getCantripGrantAdvancement({
-      choices: htmlData.cantripGrants,
-      abilities: abilityData.abilities,
-      hint,
-      name: cantripName,
-      spellLinks: this.spellLinks,
-      is2024: this.is2024,
-    });
-    if (cantripGrantAdvancement) {
-      advancements.push(cantripGrantAdvancement);
-      this.spellsGranted[type].push(...htmlData.cantripGrants);
-    }
-
-    const isItemConsume = !feature.system.uses.max
-      || feature.system.uses.max === ""
-      || feature.system.uses.max === 0
-      || feature.system.uses.max === "0";
-
-    for (const spellGrant of htmlData.spellGrants) {
-      const spellGrantAdvancement = await AdvancementHelper.getSpellGrantAdvancement({
-        spellGrants: [spellGrant],
-        abilities: abilityData.abilities,
-        hint,
-        name,
-        spellLinks: this.spellLinks,
-        is2024: this.is2024,
-        requireSlot: true,
-        forceNoAmount: true,
-        method: "spell",
-      });
-      if (spellGrantAdvancement) {
-        advancements.push(spellGrantAdvancement);
-        if (Object.values(feature.system.activities).some((a) => a.name === spellGrant.name && a.type === "cast")) {
-          continue;
-        }
-
-        const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spellGrant.name], {
-          use2024Spells,
-        });
-        if (!spellIndex || spellIndex.length === 0) {
-          logger.warn(`No compendium spell found for ${spellGrant.name}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
-          continue;
-        }
-
-        const uuid = spellIndex[0].uuid;
-
-        if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid === uuid)) {
-          logger.debug(`Spell activity for ${spellGrant.name} already exists on feature ${feature.name}, skipping`);
-          continue;
-        }
-
-        const activity = new DDBBasicActivity({
-          nameIdPrefix: utils.namedIDStub(spellGrant.name, {
-            prefix: "gr",
-            length: 12,
-          }),
-          type: "cast",
-          foundryFeature: feature,
-        });
-
-        const spellOverride = {
-          uuid,
-          properties: abilityData.properties ?? [],
-          spellbook: true,
-        };
-
-        activity.build({
-          generateSpell: true,
-          generateConsumption: true,
-          consumeActivity: !isItemConsume,
-          consumeItem: isItemConsume,
-          spellOverride,
-        });
-
-        const uses = {
-          spent: 0,
-          max: "1",
-          recovery: [{ period: "lr", type: "recoverAll" }],
-        };
-
-        if (isItemConsume) {
-          // eslint-disable-next-line require-atomic-updates
-          feature.system.uses = uses;
-        } else {
-          activity.data.uses = uses;
-        }
-
-        // eslint-disable-next-line require-atomic-updates
-        feature.system.activities[activity.data._id] = activity.data;
-
-        this.spellsGranted[type].push(spellGrant.name);
-
-        logger.warn(`Added spell activity for ${spellGrant.name} to feature ${feature.name}`);
-
-      }
-    }
-
-    for (const spellChoice of htmlData.spellChoices) {
-      const spellChoiceAdvancement = await AdvancementHelper.getSpellChoiceAdvancement({
-        spellChoice,
-        abilities: abilityData.abilities,
-        hint,
-        name,
-        spellLinks: this.spellLinks,
-        is2024: this.is2024,
-      });
-      if (spellChoiceAdvancement) {
-        advancements.push(spellChoiceAdvancement);
-      }
-    }
-
-    logger.debug("Spell Advancements", {
-      advancements,
-      feature,
-    });
-
-    advancements.forEach((advancement) => {
-      feature.system.advancement.push(advancement.toObject());
     });
   }
 
