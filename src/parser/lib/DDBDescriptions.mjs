@@ -264,6 +264,11 @@ export default class DDBDescriptions {
       match = spellcasterSearch.exec(parserText);
     }
 
+    if (!match) {
+      const paladinMatch = /a (?<ability>\w+) (?<type>saving throw|check). On a failed save, a creature becomes (?<condition>\w+)(?: of|.| )/ig;
+      match = paladinMatch.exec(parserText);
+    }
+
     if (match) {
       if (match.groups.type === "check") results.check = true;
       results.save = {
