@@ -421,9 +421,10 @@ export default class DDBActivityFactoryMixin {
   }
 
   async _generateAdditionalActivities() {
-    if (!this.enricher.addAutoAdditionalActivities) return;
-    if (this.additionalActivities.length === 0) return;
+    if (!this.enricher.addAutoAdditionalActivities) return [];
+    if (this.additionalActivities.length === 0) return [];
     let i = 0;
+    const ids = [];
     for (const activityData of this.additionalActivities) {
       const id = await this._generateActivity({
         hintsOnly: false,
@@ -436,8 +437,10 @@ export default class DDBActivityFactoryMixin {
         activityData,
         id,
       });
+      if (id) ids.push(id);
       i++;
     }
+    return ids;
   }
 
 

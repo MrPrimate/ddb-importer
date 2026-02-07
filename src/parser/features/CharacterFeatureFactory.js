@@ -70,6 +70,13 @@ export default class CharacterFeatureFactory {
 
     this.spellsGranted = {};
 
+    this.spellAdvancementsForce = {
+      class: [],
+      background: [],
+      race: [],
+      feat: [], // these are now always processed.
+    };
+
     this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
       .filter((f) => f.affectedRacialTraitId)
       .map((f) => f.affectedRacialTraitId);
@@ -1180,22 +1187,53 @@ export default class CharacterFeatureFactory {
     });
   }
 
+  async _addSpellAdvancementTypeWithFilter(type, filters = []) {
+    logger.debug(`Adding spell advancements for type ${type} with filters`, { type, filters, this: this });
+    if (!this.spellsGranted[type]) this.spellsGranted[type] = [];
+    const featuresToCheck = [];
+    for (const feature of this.processed.features) {
+      if (filters.length > 0) {
+        const featureName = utils.referenceNameString(feature.name).toLowerCase();
+        const filterMatch = filters.some((f) => featureName.includes(utils.referenceNameString(f).toLowerCase()));
+        if (!filterMatch) {
+          logger.verbose(`Feature ${feature.name} does not match any filters, skipping`, { feature, filters });
+          continue;
+        }
+      }
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
+      await this.addSpellAdvancement({ feature, type });
+      featuresToCheck.push(feature.name);
+    }
+
+    for (const spell of this.ddbCharacter._spellParser._granted[type]) {
+      if (this.spellsGranted[type].some((sg) => featuresToCheck.includes(sg.feature) && sg.spells.includes(spell.name.toLowerCase()))) {
+        logger.debug(`Spell ${spell.name} already granted via feature, skipping`);
+        continue;
+      }
+      logger.debug(`Adding spell ${spell.name} directly as not granted via feature`);
+      this.ddbCharacter.raw.spells.push(spell);
+    }
+  }
+
   async addSpellAdvancements(types = []) {
     logger.debug("Adding Spell Advancements from Feature Factory", { types, this: this });
     for (const type of types) {
       this.spellsGranted[type] = [];
-      for (const feature of this.processed.features) {
-        if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
-        await this.addSpellAdvancement({ feature, type });
-      }
+      await this._addSpellAdvancementTypeWithFilter(type);
+    }
 
-      for (const spell of this.ddbCharacter._spellParser._granted[type]) {
-        if (this.spellsGranted[type].includes(spell.name.toLowerCase())) {
-          logger.debug(`Spell ${spell.name} already granted via feature, skipping`);
-          continue;
-        }
-        logger.debug(`Adding spell ${spell.name} directly as not granted via feature`);
-        this.ddbCharacter.raw.spells.push(spell);
+    for (const feature of this.processed.features) {
+      const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
+      const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement");
+      if (featureType && forceSpellAdvancement) {
+        if (!this.spellAdvancementsForce[featureType]) this.spellAdvancementsForce[featureType] = [];
+        this.spellAdvancementsForce[featureType].push(feature.name);
+      }
+    }
+
+    for (const [type, filters] of Object.entries(this.spellAdvancementsForce)) {
+      if (filters.length > 0) {
+        await this._addSpellAdvancementTypeWithFilter(type, filters);
       }
     }
   }

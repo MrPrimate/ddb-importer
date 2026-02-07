@@ -1024,7 +1024,12 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     { hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null, typeOverride = null } = {},
     optionsOverride = {},
   ) {
-    if (this.enricher.activity?.type === "none") return undefined;
+    if (this.enricher.activity?.type === "none") {
+      await this.enricher.customFunction({
+        name,
+      });
+      return undefined;
+    }
 
     if (statusEffects) {
       const statusEffect = Effects.AutoEffects.getStatusEffect({

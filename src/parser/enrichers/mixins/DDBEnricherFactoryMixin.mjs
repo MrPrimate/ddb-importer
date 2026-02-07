@@ -932,6 +932,10 @@ export default class DDBEnricherFactoryMixin {
       });
     }
 
+    if (override.forceSpellAdvancement) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.forceSpellAdvancement", true);
+    }
+
     if (override.data) this.data = foundry.utils.mergeObject(this.data, override.data);
 
     if (override.descriptionSuffix) {

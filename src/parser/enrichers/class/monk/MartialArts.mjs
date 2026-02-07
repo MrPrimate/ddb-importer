@@ -49,9 +49,9 @@ export default class MartialArts extends DDBEnricherData {
         name: "Martial Arts",
         type: "enchant",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("fin", true, "system.properties"),
-          DDBEnricherData.ChangeHelper.overrideChange("true", true, "system.damage.base.custom.enabled"),
-          DDBEnricherData.ChangeHelper.overrideChange("@scale.monk.martial-arts.die + @mod", true, "system.damage.base.custom.formula"),
+          DDBEnricherData.ChangeHelper.addChange("fin", 10, "system.properties"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 10, "system.damage.base.custom.enabled"),
+          DDBEnricherData.ChangeHelper.overrideChange("@scale.monk.martial-arts.die + @mod", 10, "system.damage.base.custom.formula"),
         ],
         // data: {
         //   flags: {
