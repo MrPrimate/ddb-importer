@@ -546,6 +546,17 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
+  async _pugilistFixes() {
+    if (this.data.name.startsWith("")) {
+      // add spell advancement 2 cantrips from warlock list
+      // add spell advancement 1 spell from warlock list
+      // Two Cantrips. You learn two cantrips of your choice from the Warlock spell list. Constitution is your spellcasting ability for your Black Magic spells.
+      // Level 1 Spell. Choose a level 1 spell from the Warlock spell list. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have.
+      // Spell Change. Whenever you gain a new level, you can replace one of the spells you chose with this feature with a different spell of the same level from the Warlock spell list.
+
+    }
+  }
+
   // eslint-disable-next-line complexity
   async _fixes() {
     this._fightingStyleAdvancement();
