@@ -1,7 +1,8 @@
 # Next Up
 
-- 2014 Sun Soul, Oath of Conquest parsing fixes.
+- 2014 subclass parsing fixes for: Way of the Sun Soul, Oath of Conquest, Oath of Redemption, Gloom Stalker.
 - More Pugilist fixes
+- A number of small feature parsing improvements.
 
 # 6.6.53
 

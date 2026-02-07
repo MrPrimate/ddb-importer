@@ -100,6 +100,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Genie Spells": "Paladin Oath Spells",
     "Fey Wanderer Spells": "Ranger Spells",
     "Gloom Stalker Spells": "Ranger Spells",
+    "Gloom Stalker Magic": "Ranger Spells",
     "Green Reaper Spells": "Ranger Spells",
     "Primordial Archer Spells": "Ranger Spells",
     "Winter Walker Spells": "Ranger Spells",

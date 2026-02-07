@@ -255,8 +255,8 @@ export default class DDBDescriptions {
     }
 
     if (!match) {
-      const snipetSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig;
-      match = snipetSearch.exec(parserText);
+      const snippetSearch = /succeed on a (?<ability>\w+) (?<type>saving throw|check) \(DC {{savedc:(?<modifier>\w+)}}\)? or be (?<condition>\w+) until/ig;
+      match = snippetSearch.exec(parserText);
     }
 
     if (!match) {
@@ -269,6 +269,11 @@ export default class DDBDescriptions {
       match = paladinMatch.exec(parserText);
     }
 
+    if (!match) {
+      const paladinMatch2 = /a (?<ability>\w+) (?<type>saving throw|check). On a failed save, the attacker/ig;
+      match = paladinMatch2.exec(parserText);
+    }
+
     if (match) {
       if (match.groups.type === "check") results.check = true;
       results.save = {
@@ -278,6 +283,11 @@ export default class DDBDescriptions {
         },
         ability: match.groups["ability"]?.toLowerCase().substr(0, 3) ?? "",
       };
+      if (results.save.dc.calculation === "" && results.save.dc.formulas === "") {
+        if (parserText.toLowerCase().includes("channel divinity)")) {
+          results.save.dc.calculation = "spellcasting";
+        }
+      }
     }
 
     if (match && match.groups["condition"]) {

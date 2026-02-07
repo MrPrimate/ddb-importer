@@ -73,7 +73,7 @@ export default class ElementalSmite extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 2,
                   denomination: 4,
-                  damageType: "fire",
+                  type: "fire",
                 }),
               ],
             },
