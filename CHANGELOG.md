@@ -1,6 +1,6 @@
 # Next Up
 
-- 2014 subclass parsing fixes for: Way of the Sun Soul, Oath of Conquest, Oath of Redemption, Gloom Stalker, Monster Slayer.
+- 2014 subclass parsing fixes for: Way of the Sun Soul, Oath of Conquest, Oath of Redemption, Gloom Stalker, Monster Slayer, Divine Soul, Shadow Magic.
 - Artificer 2024 Artillerist summon did not work
 - More Pugilist fixes
 - A number of small feature parsing improvements.

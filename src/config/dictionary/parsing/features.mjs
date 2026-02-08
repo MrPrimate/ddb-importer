@@ -457,6 +457,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Path of the Kensei",
     "Black Magic",
     "Iron Mind",
+    "Divine Magic",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

@@ -152,6 +152,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     " Domain Spells": "Cleric Domain Spells",
     "Elemental Disciplines: ": "Elemental Disciplines",
     "Elemental Affinity (": "Elemental Affinity",
+    "Divine Magic: ": "_DivineMagic",
     // "Additional Fighting Style:": "Additional Fighting Style Base",
   };
 
@@ -169,6 +170,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
+    "_DivineMagic": ClassEnrichers.Sorcerer._DivineMagic,
     // "Additional Fighting Style Base": FeatEnrichers.AdditionalFightingStyleBase,
     "Shove": ClassEnrichers.Generic.Shove,
     "Grapple": ClassEnrichers.Generic.Grapple,

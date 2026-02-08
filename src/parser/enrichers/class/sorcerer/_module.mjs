@@ -22,7 +22,11 @@ export { default as SorceryPoints } from "./SorceryPoints.mjs";
 export { default as SpellfireBurst } from "./SpellfireBurst.mjs";
 export { default as SpellfireBurstBolsteringFlames } from "./SpellfireBurstBolsteringFlames.mjs";
 export { default as SpellfireBurstRadiantFireFire } from "./SpellfireBurstRadiantFireFire.mjs";
+export { default as StrengthOfTheGrave } from "./StrengthOfTheGrave.mjs";
 export { default as TranceOfOrder } from "./TranceOfOrder.mjs";
+export { default as UmbralForm } from "./UmbralForm.mjs";
+export { default as UnearthlyRecovery } from "./UnearthlyRecovery.mjs";
 export { default as WarpingImplosion } from "./WarpingImplosion.mjs";
 export { default as WildMagicSurge } from "./WildMagicSurge.mjs";
+export { default as _DivineMagic } from "./_DivineMagic.mjs";
 
