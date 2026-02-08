@@ -318,7 +318,11 @@ export default class EffectGenerator {
         const innate = subType.split("-").slice(-1)[0];
         const speedType = DICTIONARY.actor.speeds.find((s) => s.innate === innate).type;
         // current assumption if no speed provided, set to walking speed
-        const speed = bonus.value ? bonus.value : "@attributes.movement.walk";
+        const speed = bonus.value
+          ? bonus.value
+          : game.modules.get("dae")?.active
+            ? "##attributes.movement.walk"
+            : "@attributes.movement.walk";
         this.effect.changes.push(ChangeHelper.upgradeChange(speed, 5, `system.attributes.movement.${speedType}`));
       });
     }
