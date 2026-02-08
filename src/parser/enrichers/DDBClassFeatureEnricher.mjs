@@ -102,6 +102,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Fey Wanderer Magic": "Ranger Spells",
     "Gloom Stalker Spells": "Ranger Spells",
     "Gloom Stalker Magic": "Ranger Spells",
+    "Monster Slayer Spells": "Ranger Spells",
+    "Monster Slayer Magic": "Ranger Spells",
     "Green Reaper Spells": "Ranger Spells",
     "Horizon Walker Spells": "Ranger Spells",
     "Horizon Walker Magic": "Ranger Spells",
