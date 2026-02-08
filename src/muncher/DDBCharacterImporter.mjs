@@ -791,6 +791,15 @@ ${item.system.description.chat}
     });
   }
 
+  async setAtLeastOneHP() {
+    const hp = this.actor.system.attributes.hp;
+
+    hp.bonuses.overall = "1";
+    await this.actor.update({
+      "system.attributes.hp": hp,
+    });
+  }
+
   async setSafeMidiQolConfig() {
     if (this.settings.midiConfig) {
       const newConfig = foundry.utils.deepClone(this.settings.midiConfig);
@@ -820,6 +829,7 @@ ${item.system.description.chat}
     logger.debug("Disabling dynamic updates for character import");
     const activeUpdateState = this.ddbCharacter.getCurrentDynamicUpdateState();
     await this.ddbCharacter.disableDynamicUpdates();
+    await this.setAtLeastOneHP();
 
     try {
       this.importId = foundry.utils.randomID();
@@ -833,7 +843,7 @@ ${item.system.description.chat}
       this.fixUpCharacterEffects();
       await this.preActiveEffects();
       // we need to process the items first to find out if we are ignoring any effects
-      logger.debug("Fetching character items for import");
+      logger.debug("Fetching character items for import and clearing current character");
       let items = await this.fetchCharacterItems();
       logger.debug("Processing active effects for import");
       await this.processActiveEffects();
