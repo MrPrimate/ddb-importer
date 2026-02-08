@@ -3,9 +3,12 @@
 # 6.6.54
 
 - 2014 subclass parsing fixes for: Way of the Sun Soul, Oath of Conquest, Oath of Redemption, Gloom Stalker, Monster Slayer, Divine Soul, Shadow Magic, Storm Sorcery.
-- Artificer 2024 Artillerist summon did not work
+- Artificer 2024 Artillerist summon did not work @crimsonedge
 - More Pugilist fixes
 - A number of small feature parsing improvements.
+- If using DAE some items like Potion of Climbing will use a slightly different syntax to defer evaluation to allow the effect to be applied to others correctly. @motomoto0295
+- Characters will temporarily be given a single bonus hitpoint during import to attempt to reduce midi-qol phantom incapacitated and similar effects. @motomoto0295
+- Fixes to ensure `-legacy` is not appended to identifiers. @razvani
 
 # 6.6.53
 
