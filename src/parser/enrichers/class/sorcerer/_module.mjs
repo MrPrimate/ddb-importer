@@ -10,6 +10,7 @@ export { default as ElementalAffinity } from "./ElementalAffinity.mjs";
 export { default as ExtraSpells } from "./ExtraSpells.mjs";
 export { default as FontOfMagic } from "./FontOfMagic.mjs";
 export { default as FontOfMagicSorceryPoints } from "./FontOfMagicSorceryPoints.mjs";
+export { default as HeartOfTheStorm } from "./HeartOfTheStorm.mjs";
 export { default as HonedSpellfire } from "./HonedSpellfire.mjs";
 export { default as HoundOfIllOmen } from "./HoundOfIllOmen.mjs";
 export { default as InnateSorcery } from "./InnateSorcery.mjs";
