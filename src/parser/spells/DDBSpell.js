@@ -1003,7 +1003,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.cleanup();
     await this.enricher.addDocumentAdvancements();
     await this.enricher.addDocumentOverride();
-    let identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`);
+    let identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     if (DICTIONARY.identifierAdjustments[identifier]) {
       identifier = DICTIONARY.identifierAdjustments[identifier];
     }

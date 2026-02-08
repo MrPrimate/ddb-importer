@@ -295,7 +295,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
     this._parent = this._getActionParent();
 
-    this.identifier = utils.referenceNameString(`${this.name.toLowerCase()}`);
+    this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this._getRules();
     this._generateDataStub();
     this._generatePrerequisites();
@@ -1146,7 +1146,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   async _final() {
-    this.identifier = utils.referenceNameString(`${this.data.name.toLowerCase()}`);
+    this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this.data.system.identifier = this.identifier;
 
     if (this.ddbDefinition.hintImage) {
