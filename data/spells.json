@@ -2820,5 +2820,69 @@
   { "name": "Intaglio", "path": "icons/sundries/documents/document-symbol-eye.webp" },
   { "name": "Neutralize Aura", "path": "icons/magic/control/silhouette-hold-change-blue.webp" },
   { "name": "Fiend Flesh", "path": "icons/creatures/reptiles/lizard-mouth-glowing-red.webp" },
-  { "name": "Polychomatic Bubble", "path": "icons/magic/defensive/barrier-shield-dome-blue-purple.webp" }
+  { "name": "Polychomatic Bubble", "path": "icons/magic/defensive/barrier-shield-dome-blue-purple.webp" },
+  {
+    "name": "Aundair's Silent Sanctum",
+    "path": "icons/magic/sonic/explosion-shock-sound-wave.webp"
+  },
+  {
+    "name": "Bacterial Barrage",
+    "path": "icons/creatures/slimes/slime-blob-pseudopods-green.webp"
+  },
+  {
+    "name": "Blood Bolt",
+    "path": "icons/magic/unholy/projectile-helix-blood-red.webp"
+  },
+  {
+    "name": "Calling Card",
+    "path": "icons/sundries/gaming/rune-card.webp"
+  },
+  {
+    "name": "Can'trip",
+    "path": "icons/magic/control/debuff-energy-snare-brown.webp"
+  },
+  {
+    "name": "Cat's Spring",
+    "path": "icons/creatures/abilities/paw-glowing-yellow.webp"
+  },
+  {
+    "name": "Chant of Thoth",
+    "path": "icons/creatures/unholy/demons-horned-glowing-pink.webp"
+  },
+  {
+    "name": "Concussion",
+    "path": "icons/magic/air/air-pressure-shield-blue.webp"
+  },
+  {
+    "name": "Confounding Shadows",
+    "path": "icons/magic/unholy/orb-swirling-teal.webp"
+  },
+  {
+    "name": "Dissolution",
+    "path": "icons/skills/melee/sword-damaged-broken-red.webp"
+  },
+  {
+    "name": "Eye Burn",
+    "path": "icons/magic/fire/flame-burning-eye.webp"
+  },
+  {
+    "name": "Frightful Start",
+    "path": "icons/magic/control/fear-fright-monster-purple-blue.webp"
+  },
+  {
+    "name": "Magecraft",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "Magnetobolt",
+    "path": "icons/magic/control/energy-stream-link-large-blue.webp"
+  },
+  {
+    "name": "Pins and Needles",
+    "path": "icons/magic/control/voodoo-doll-pain-damage-yellow.webp"
+  },
+  {
+    "name": "Water Whip",
+    "path": "icons/magic/water/pseudopod-swirl-blue.webp"
+  }
 ]
