@@ -3,6 +3,8 @@
 - 2024 Wizard cantrips came in as always prepared.
 - 2024 Artificers will now also mark cantrips as prepared, and import all cantrips if relevant source option is selected.
 - Searing Smite Save Adjustments
+- More spell icons from crimsonedge
+- Characters will temporarily be given a single bonus hitpoint during import to attempt to reduce midi-qol phantom incapacitated and similar effects. Take 2. @motomoto0295
 
 # 6.6.54
 
