@@ -218,9 +218,9 @@ const MuncherSettings = {
       {
         name: "character-update-policy-import-all-cantrips",
         isChecked: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-all-cantrips"),
-        label: "Import all cantrips for 2024 Wizard?",
+        label: "Import all cantrips for 2024 Wizard/Artificer?",
         hint:
-          "2024 Wizards can change a cantrip per long rest, import all available cantrips (respects other source settings on this page). Unavailabe in self hosted proxy.",
+          "2024 Wizards and Artificers can change a cantrip per long rest, import all available cantrips (respects other source settings on this page). Unavailabe in self hosted proxy.",
         enabled: !DDBProxy.isCustom(true),
       },
       {

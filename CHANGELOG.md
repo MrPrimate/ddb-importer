@@ -1,5 +1,9 @@
 # Next Up
 
+- 2024 Wizard cantrips came in as always prepared.
+- 2024 Artificers will now also mark cantrips as prepared, and import all cantrips if relevant source option is selected.
+- Searing Smite Save Adjustments
+
 # 6.6.54
 
 - 2014 subclass parsing fixes for: Way of the Sun Soul, Oath of Conquest, Oath of Redemption, Gloom Stalker, Monster Slayer, Divine Soul, Shadow Magic, Storm Sorcery.

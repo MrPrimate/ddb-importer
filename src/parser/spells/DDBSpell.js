@@ -190,6 +190,11 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
     this.noSpellcasting = noSpellcasting;
 
+    this.classPrepMode = DICTIONARY.spell.preparationModes.find((p) =>
+      p.name === this.spellClass
+      && (!p.version || p.version === (this.is2014Class ? "2014" : "2024")),
+    );
+
   }
 
 
@@ -229,11 +234,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   _generateClassPreparationMode() {
-    const classPrepMode = DICTIONARY.spell.preparationModes.find((p) =>
-      p.name === this.spellClass
-      && (!p.version || p.version === (this.is2014Class ? "2014" : "2024")),
-    );
-
     // Savant spells are markes as always prepared for wizards
     // const notAlways = this.lookupName?.endsWith("Savant") && this.spellClass === "Wizard";
 
@@ -243,18 +243,20 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     ) {
       this.data.system.method = "ritual";
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } else if (!this.spellData.usesSpellSlot && this.ddbDefinition.level !== 0) {
+    } else if (!this.spellData.usesSpellSlot && !this.isCantrip) {
       // some class features such as druid circle of stars grants x uses of a spell
       // at the lowest level. for these we add as an innate.
       this.data.system.method = "innate";
     } else if (this.spellData.alwaysPrepared) {
       this.data.system.method = this.forcePact ? "pact" : "spell";
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
-    } else if (this.data.system.method && this.data.system.method !== "" && classPrepMode) {
-      this.data.system.method = classPrepMode.method;
+    } else if (this.data.system.method && this.data.system.method !== "" && this.classPrepMode) {
+      this.data.system.method = this.classPrepMode.method;
       this.data.system.prepared = this.isCantrip && !this.unPreparedCantrip
-        ? CONFIG.DND5E.spellPreparationStates.always.value
-        : classPrepMode.preparation(this.spellData.prepared);
+        ? this.classPrepMode?.cantripsPrepared
+          ? this.classPrepMode.cantripsPrepared()
+          : CONFIG.DND5E.spellPreparationStates.always.value
+        : this.classPrepMode.preparation(this.spellData.prepared);
     }
     if (this.data.system.method === "pact" && this.pactSpellsPrepared) {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
@@ -269,17 +271,22 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       return;
     }
     this.data.system.method = "spell";
-    if (this.isCantrip || this.spellData.alwaysPrepared) {
+
+    const featureClass = this.lookup === "classFeature"
+      && this.spellClass;
+    if (this.isCantrip) {
+      if (this.lookup === "classSpell" && this.classPrepMode?.cantripsPrepared) {
+        this.data.system.prepared = this.classPrepMode.cantripsPrepared();
+      } else {
+        this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
+      }
+    } else if (this.spellData.alwaysPrepared) {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
     } else if (this.spellData.prepared) {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.prepared.value;
     } else {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
     }
-
-    // handle classSpells
-    const featureClass = this.lookup === "classFeature"
-      && this.spellClass;
 
     if (this.lookup === "classSpell" || featureClass) {
       this._generateClassPreparationMode();
@@ -297,12 +304,12 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       // these have limited uses (set with getUses())
       this.data.system.method = "pact";
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
-    } else if (this.lookup === "item " && this.ddbDefinition.level !== 0) {
+    } else if (this.lookup === "item " && !this.isCantrip) {
       this.data.system.method = "atwill";
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
     } else {
       // If spell doesn't use a spell slot and is not a cantrip, mark as always preped
-      let always = !this.spellData.usesSpellSlot && this.ddbDefinition.level !== 0;
+      let always = !this.spellData.usesSpellSlot && !this.isCantrip;
       let ritualOnly = this.spellData.ritualCastingType !== null || this.spellData.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
       if (always && ritualOnly) {
         // in this case we want the spell to appear in the spell list unprepared

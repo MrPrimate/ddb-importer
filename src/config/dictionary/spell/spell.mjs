@@ -1,13 +1,45 @@
 export const SPELL = {
   schools: [
-    { id: "abj", name: "abjuration", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/abjuration.png" },
-    { id: "con", name: "conjuration", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/conjuration.png" },
-    { id: "div", name: "divination", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/divination.png" },
-    { id: "enc", name: "enchantment", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/enchantment.png" },
-    { id: "evo", name: "evocation", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/evocation.png" },
-    { id: "ill", name: "illusion", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/illusion.png" },
-    { id: "nec", name: "necromancy", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/necromancy.png" },
-    { id: "trs", name: "transmutation", img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/transmutation.png" },
+    {
+      id: "abj",
+      name: "abjuration",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/abjuration.png",
+    },
+    {
+      id: "con",
+      name: "conjuration",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/conjuration.png",
+    },
+    {
+      id: "div",
+      name: "divination",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/divination.png",
+    },
+    {
+      id: "enc",
+      name: "enchantment",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/enchantment.png",
+    },
+    {
+      id: "evo",
+      name: "evocation",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/evocation.png",
+    },
+    {
+      id: "ill",
+      name: "illusion",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/illusion.png",
+    },
+    {
+      id: "nec",
+      name: "necromancy",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/necromancy.png",
+    },
+    {
+      id: "trs",
+      name: "transmutation",
+      img: "https://www.dndbeyond.com/content/1-0-1337-0/skins/waterdeep/images/spell-schools/35/transmutation.png",
+    },
   ],
   progression: [
     { name: "Artificer", value: "artificer" },
@@ -29,41 +61,157 @@ export const SPELL = {
     { name: "Monk", value: "none" },
   ],
   preparationModes: [
-    { name: "Artificer", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
+    {
+      name: "Artificer",
+      version: "2014",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Artificer",
+      version: "2024",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.prepared.value,
+    },
     { name: "Bard", method: "spell", preparation: () => CONFIG.DND5E.spellPreparationStates.always.value },
-    { name: "Blood Hunter", method: "pact", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Cleric", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Druid", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Fighter", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Hunter", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Paladin", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Ranger", version: "2024", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Ranger", version: "2014", method: "spell", preparation: () => CONFIG.DND5E.spellPreparationStates.always.value },
-    { name: "Rogue", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Sorcerer", method: "spell", preparation: () => CONFIG.DND5E.spellPreparationStates.always.value },
-    { name: "Warlock", method: "pact", preparation: () => CONFIG.DND5E.spellPreparationStates.always.value },
-    { name: "Wizard", method: "spell", preparation: (prepared) => {
-      return prepared ? CONFIG.DND5E.spellPreparationStates.prepared.value : CONFIG.DND5E.spellPreparationStates.unprepared.value;
-    } },
-    { name: "Monk", method: "atwill", preparation: () => CONFIG.DND5E.spellPreparationStates.always.value },
+    {
+      name: "Blood Hunter",
+      method: "pact",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Cleric",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Druid",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Fighter",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Hunter",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Paladin",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Ranger",
+      version: "2024",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Ranger",
+      version: "2014",
+      method: "spell",
+      preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Rogue",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Sorcerer",
+      method: "spell",
+      preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Warlock",
+      method: "pact",
+      preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Wizard",
+      version: "2014",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Wizard",
+      version: "2024",
+      method: "spell",
+      preparation: (prepared) => {
+        return prepared
+          ? CONFIG.DND5E.spellPreparationStates.prepared.value
+          : CONFIG.DND5E.spellPreparationStates.unprepared.value;
+      },
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.prepared.value,
+    },
+    {
+      name: "Monk",
+      method: "atwill",
+      preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
   ],
   activationTypes: [
     { activationType: 0, value: "none", name: "No Action" }, // doesn't exist an more
