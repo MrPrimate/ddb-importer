@@ -27,7 +27,10 @@ import { getMageHands } from "./types/MageHand.mjs";
 import { getPhantomSteed } from "./types/PhantomSteed.mjs";
 import { getSpiritualWeapons } from "./types/SpiritualWeapon.mjs";
 import { getUnseenServant } from "./types/UnseenServant.mjs";
+import { getAccursedSpecter } from "./types/AccursedSpecter.mjs";
 export default class DDBSummonsInterface {
+
+  static getAccursedSpecter = getAccursedSpecter;
 
   static getAnimateDead = getAnimateDead;
 

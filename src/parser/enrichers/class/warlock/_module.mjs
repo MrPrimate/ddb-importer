@@ -1,3 +1,5 @@
+export { default as AccursedSpecter } from "./AccursedSpecter.mjs";
+export { default as ArmorOfHexes } from "./ArmorOfHexes.mjs";
 export { default as BonusCantrips } from "./BonusCantrips.mjs";
 export { default as CelestialResilience } from "./CelestialResilience.mjs";
 export { default as ClairvoyantCombatant } from "./ClairvoyantCombatant.mjs";
