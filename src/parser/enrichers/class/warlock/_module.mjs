@@ -1,3 +1,4 @@
+export { default as BonusCantrips } from "./BonusCantrips.mjs";
 export { default as CelestialResilience } from "./CelestialResilience.mjs";
 export { default as ClairvoyantCombatant } from "./ClairvoyantCombatant.mjs";
 export { default as CreateThrall } from "./CreateThrall.mjs";
@@ -12,6 +13,7 @@ export { default as FormOfTheBeast } from "./FormOfTheBeast.mjs";
 export { default as GeniesVessel } from "./GeniesVessel.mjs";
 export { default as GhostlyGaze } from "./GhostlyGaze.mjs";
 export { default as HealingLight } from "./HealingLight.mjs";
+export { default as HexWarrior } from "./HexWarrior.mjs";
 export { default as HurlThroughHell } from "./HurlThroughHell.mjs";
 export { default as InvocationLifedrinker } from "./InvocationLifedrinker.mjs";
 export { default as InvocationPactOfTheBlade } from "./InvocationPactOfTheBlade.mjs";

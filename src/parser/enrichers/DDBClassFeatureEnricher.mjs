@@ -167,6 +167,9 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
       "Form of the Beast: Tail": ClassEnrichers.Barbarian.FormOfTheBeastWeapons,
       "Form of the Beast": ClassEnrichers.Barbarian.FormOfTheBeast,
     },
+    Warlock: {
+      "Expanded Spell List": ClassEnrichers.Warlock.ExtraSpells,
+    },
     None: GenericEnrichers.None,
     Generic: ClassEnrichers.Generic,
     MetamagicGeneric: ClassEnrichers.Sorcerer.MetamagicGeneric,
