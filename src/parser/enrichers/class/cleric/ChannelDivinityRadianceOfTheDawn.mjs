@@ -21,7 +21,7 @@ export default class ChannelDivinityRadianceOfTheDawn extends DDBEnricherData {
         },
         target: {
           template: {
-            value: "30",
+            size: "30",
             units: "ft",
             type: "radius",
           },

@@ -5,6 +5,7 @@
 - Searing Smite Save Adjustments
 - More spell icons from crimsonedge
 - Characters will temporarily be given a single bonus hitpoint during import to attempt to reduce midi-qol phantom incapacitated and similar effects. Take 2. @motomoto0295
+- 2014 Subclasss parsing improvements for: Twilight Cleric,
 
 # 6.6.54
 

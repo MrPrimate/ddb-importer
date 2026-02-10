@@ -7,12 +7,14 @@ export { default as ChannelDivinityCloakOfShadows } from "./ChannelDivinityCloak
 export { default as ChannelDivinityPathToTheGrave } from "./ChannelDivinityPathToTheGrave.mjs";
 export { default as ChannelDivinityPreserveLife } from "./ChannelDivinityPreserveLife.mjs";
 export { default as ChannelDivinityRadianceOfTheDawn } from "./ChannelDivinityRadianceOfTheDawn.mjs";
+export { default as ChannelDivinityTwilightSanctuary } from "./ChannelDivinityTwilightSanctuary.mjs";
 export { default as CoronaOfLight } from "./CoronaOfLight.mjs";
 export { default as DiscipleOfLife } from "./DiscipleOfLife.mjs";
 export { default as DivineForeknowledge } from "./DivineForeknowledge.mjs";
 export { default as DivineIntervention } from "./DivineIntervention.mjs";
 export { default as DivineOrderThaumaturge } from "./DivineOrderThaumaturge.mjs";
 export { default as DomainSpells } from "./DomainSpells.mjs";
+export { default as EyesOfNight } from "./EyesOfNight.mjs";
 export { default as GreaterDivineIntervention } from "./GreaterDivineIntervention.mjs";
 export { default as GuidedStrike } from "./GuidedStrike.mjs";
 export { default as HarnessDivinePower } from "./HarnessDivinePower.mjs";

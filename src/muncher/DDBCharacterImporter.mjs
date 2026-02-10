@@ -794,7 +794,7 @@ ${item.system.description.chat}
   async setAtLeastOneHP() {
     const hp = this.actor.system.attributes.hp;
 
-    hp.bonuses.overall = `${hp.bonuses.overall} + 1`;
+    hp.bonuses.overall = `${hp.bonuses.overall ?? 0} + 1`;
     hp.value += 1;
     await this.actor.update({
       "system.attributes.hp": hp,

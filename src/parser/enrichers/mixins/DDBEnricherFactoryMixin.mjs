@@ -465,9 +465,15 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.targetType) {
-      if (activity.target?.affects)
+      if (activity.target?.affects) {
         foundry.utils.setProperty(activity, "target.affects.type", overrideData.targetType);
-      else {
+        if (overrideData.targetCount) {
+          foundry.utils.setProperty(activity, "target.affects.count", overrideData.targetCount);
+        }
+        if (overrideData.targetChoice) {
+          foundry.utils.setProperty(activity, "target.affects.choice", overrideData.targetChoice);
+        }
+      } else {
         foundry.utils.setProperty(activity, "target", {
           template: {
             count: "",
@@ -481,7 +487,7 @@ export default class DDBEnricherFactoryMixin {
           affects: {
             count: overrideData.targetCount ?? "",
             type: overrideData.targetType,
-            choice: false,
+            choice: overrideData.targetChoice ?? false,
             special: "",
           },
           prompt: true,
@@ -494,6 +500,14 @@ export default class DDBEnricherFactoryMixin {
           special: "",
         });
       }
+    }
+
+    if (overrideData.rangeType) {
+      foundry.utils.setProperty(activity, "range", {
+        value: overrideData.rangeValue ?? null,
+        units: overrideData.rangeType,
+        special: overrideData.rangeSpecial ?? "",
+      });
     }
 
     if (overrideData.rangeSelf) {
