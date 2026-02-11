@@ -313,6 +313,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Master of Intrigue",
     "Path of the Kensei",
     "Black Magic",
+    "Giant's Power",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -458,6 +459,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Black Magic",
     "Iron Mind",
     "Divine Magic",
+    "Giant's Power",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

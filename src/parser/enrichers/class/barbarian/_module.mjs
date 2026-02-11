@@ -15,6 +15,7 @@ export { default as Frenzy } from "./Frenzy.mjs";
 export { default as GiantsHavoc } from "./GiantsHavoc.mjs";
 export { default as GiantsHavocCrushingThrow } from "./GiantsHavocCrushingThrow.mjs";
 export { default as GiantsHavocGiantStature } from "./GiantsHavocGiantStature.mjs";
+export { default as GiantsPower } from "./GiantsPower.mjs";
 export { default as ImprovedBrutalStrike } from "./ImprovedBrutalStrike.mjs";
 export { default as IntimidatingPresence } from "./IntimidatingPresence.mjs";
 export { default as MindlessRage } from "./MindlessRage.mjs";

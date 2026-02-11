@@ -2251,6 +2251,22 @@ export default class AdvancementHelper {
       }
     }
 
+    // learn a cantrip of your choice: either druidcraft or thaumaturgy.
+    if (strippedDescription.includes("learn a cantrip of your choice")) {
+      const choices = strippedDescription.split("learn a cantrip of your choice:")[1]
+        .split(".")[0]
+        .replace(" either ", "")
+        .replace(" or ", ",")
+        .replaceAll(",,", ",")
+        .split(",")
+        .map((cantrip) => cantrip.toLowerCase().trim());
+      for (const choice of choices) {
+        if (spellsAdded.has(choice)) continue;
+        result.cantripChoices.push(choice);
+        spellsAdded.add(choice);
+      }
+    }
+
     // You can cast either the barkskin or spike growth spell once, and you must complete a long rest before you can cast either spell again
     // You gain the ability to cast the spell cure wounds without using a spell slot, up to a number of times equal to half your proficiency bonus
     const canCastRegex = /you (?:can|gain the ability to) (?:also )?cast (?:the |either the )?(.+?)(?: spells?,?)? (once|an unlimited number of times|on yourself|as a \d+(?:st|nd|rd|th)[- ]level spell once|without using a spell slot, up to a number of times equal to half your proficiency bonus)/ig;
