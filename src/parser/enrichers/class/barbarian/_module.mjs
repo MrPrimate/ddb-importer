@@ -2,6 +2,7 @@ export { default as AncestralProtectors } from "./AncestralProtectors.mjs";
 export { default as AspectOfTheBeastBear } from "./AspectOfTheBeastBear.mjs";
 export { default as AspectOfTheWilds } from "./AspectOfTheWilds.mjs";
 export { default as BatteringRoots } from "./BatteringRoots.mjs";
+export { default as BolsteringMagic } from "./BolsteringMagic.mjs";
 export { default as BranchesOfTheTree } from "./BranchesOfTheTree.mjs";
 export { default as BrutalCritical } from "./BrutalCritical.mjs";
 export { default as BrutalStrike } from "./BrutalStrike.mjs";
@@ -47,5 +48,6 @@ export { default as TotemicAttunementWolf } from "./TotemicAttunementWolf.mjs";
 export { default as TravelAlongTheTree } from "./TravelAlongTheTree.mjs";
 export { default as VitalityOfTheTree } from "./VitalityOfTheTree.mjs";
 export { default as WarriorOfTheGods } from "./WarriorOfTheGods.mjs";
+export { default as WildSurge } from "./WildSurge.mjs";
 export { default as ZealousPresence } from "./ZealousPresence.mjs";
 
