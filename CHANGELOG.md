@@ -6,6 +6,7 @@
 - More spell icons from crimsonedge
 - Characters will temporarily be given a single bonus hitpoint during import to attempt to reduce midi-qol phantom incapacitated and similar effects. Take 2. @motomoto0295
 - 2014 Subclasss parsing improvements for: Twilight Cleric, Hexblade Warlock, Wizard War Mage, Barbarian Wild Magic, Battlerager, Path of the Giant.
+- Character Options import: The importer would not generate weapons that are generated as part of feature parsing, such as Psychic Blades.
 
 # 6.6.54
 

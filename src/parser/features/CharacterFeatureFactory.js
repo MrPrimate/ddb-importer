@@ -862,7 +862,7 @@ export default class CharacterFeatureFactory {
     documents.push(...foundry.utils.deepClone(this.data.features));
     documents.push(...foundry.utils.deepClone(this.data.actions));
 
-    const featTypeDocs = documents.filter((doc) => doc.type === "feat");
+    const featTypeDocs = documents.filter((doc) => ["feat", "weapon"].includes(doc.type));
 
     // console.warn(`Processing ${featTypeDocs.length} feats into the feat compendium`, {
     //   featTypeDocs,
