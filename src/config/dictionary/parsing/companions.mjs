@@ -79,6 +79,7 @@ const COMPANION_FEATURES = [
   "Beast of the Sky",
   "Call of the Shadowseeds",
   "Brawler's Best Friend",
+  "Animating Performance",
 ];
 
 const COMPANION_OPTIONS = {

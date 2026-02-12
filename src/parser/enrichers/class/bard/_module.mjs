@@ -1,3 +1,4 @@
+export { default as AnimatingPerformance } from "./AnimatingPerformance.mjs";
 export { default as BardicInspiration } from "./BardicInspiration.mjs";
 export { default as BeguilingMagic } from "./BeguilingMagic.mjs";
 export { default as BlessedMoonbeam } from "./BlessedMoonbeam.mjs";
