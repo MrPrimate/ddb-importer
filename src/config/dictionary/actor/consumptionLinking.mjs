@@ -20,7 +20,7 @@ export const CONSUMPTION_LINKS = {
     "Bend Luck", "Magical Guidance",
   ],
   "Bardic Inspiration": [
-    "Mote of Potential", "Unsettling Words", "Mantle of Inspiration",
+    "Unsettling Words", "Mantle of Inspiration",
     "Cutting Words", "Peerless Skill", "Tales from Beyond", "Blade Flourish",
     "Defensive Flourish", "Slashing Flourish", "Mobile Flourish",
     "Psychic Blades", "Superior Inspiration", "Regain Bardic Inspiration",

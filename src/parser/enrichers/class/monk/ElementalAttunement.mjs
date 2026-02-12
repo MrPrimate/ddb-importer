@@ -42,7 +42,7 @@ export default class ElementalAttunement extends DDBEnricherData {
             generateConsumption: false,
             damageParts: [
               DDBEnricherData.basicDamagePart({
-                customFormula: "@scale.monk.martial-arts.die + @mod",
+                customFormula: "@scale.monk.die.die + @mod",
                 types: ["bludgeoning", "acid", "cold", "fire", "lightning", "thunder"],
               }),
             ],

@@ -16,7 +16,7 @@ export default class DefensiveFlourish extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.bardic-inspiration",
+              customFormula: "@scale.bard.inspiration",
               types: DDBEnricherData.allDamageTypes(),
             }),
           ],

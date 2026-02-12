@@ -14,7 +14,7 @@ export default class CombatInspiration extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: true,
-          formula: "@scale.bard.bardic-inspiration",
+          formula: "@scale.bard.inspiration",
           name: "Inspiration Roll",
         },
       },
@@ -32,7 +32,7 @@ export default class CombatInspiration extends DDBEnricherData {
           generateDamage: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.bard.bardic-inspiration",
+              customFormula: "@scale.bard.inspiration",
             }),
           ],
         },

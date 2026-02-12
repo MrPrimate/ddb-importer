@@ -14,7 +14,7 @@ export default class TandemFootwork extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.bard.bardic-inspiration",
+          formula: "@scale.bard.inspiration",
           name: "Initiative bonus",
         },
       },

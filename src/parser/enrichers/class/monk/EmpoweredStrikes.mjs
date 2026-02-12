@@ -24,7 +24,7 @@ export default class EmpoweredStrikes extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.martial-arts.die + @mod",
+              customFormula: "@scale.monk.die.die + @mod",
               types: ["bludgeoning", "force"],
             }),
           ],

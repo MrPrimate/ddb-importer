@@ -1,6 +1,8 @@
 import { logger, utils } from "../../lib/_module.mjs";
 import { DICTIONARY } from "../../config/_module.mjs";
 import { SystemHelpers } from "./_module.mjs";
+import DDBClass from "../classes/DDBClass.js";
+import DDBSubClass from "../classes/DDBSubClass.js";
 
 export default class DDBDataUtils {
 
@@ -273,7 +275,17 @@ export default class DDBDataUtils {
     );
 
     if (klass) {
-      const featureName = utils.referenceNameString(featDefinition.name);
+      let featureName = utils.referenceNameString(featDefinition.name);
+
+      const special = DDBClass.SPECIAL_ADVANCEMENTS[featDefinition.name]
+        ?? DDBSubClass.SPECIAL_ADVANCEMENTS[featDefinition.name];
+
+      if (special && special.fixFunction?.name === "rename") {
+        if (special.functionArgs.identifier) {
+          featureName = special.functionArgs.identifier;
+        }
+      }
+
       const klassName = klass.subclassDefinition?.id === featDefinition.classId
         ? DDBDataUtils.classIdentifierName(klass.subclassDefinition.name)
         : DDBDataUtils.classIdentifierName(klass.definition.name);

@@ -14,7 +14,7 @@ export default class CuttingWords extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.bard.bardic-inspiration",
+          formula: "@scale.bard.inspiration",
           name: "Subtraction Roll",
         },
         range: {

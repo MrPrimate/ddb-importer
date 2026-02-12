@@ -15,7 +15,7 @@ export default class HandOfHarm extends DDBEnricherData {
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
-              customFormula: "@scale.monk.martial-arts.die + @abilities.wis.mod",
+              customFormula: "@scale.monk.die.die + @abilities.wis.mod",
               type: "necrotic",
             }),
           ],

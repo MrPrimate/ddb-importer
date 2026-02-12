@@ -89,6 +89,27 @@ export default class DDBClass {
       additionalAdvancements: false,
       additionalFunctions: [],
     },
+    "Bardic Inspiration": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Bardic Inspiration", identifier: "inspiration" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Rage": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Rages", identifier: "rages" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
+    "Martial Arts": {
+      fix: true,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Martial Arts Die", identifier: "die" },
+      additionalAdvancements: false,
+      additionalFunctions: [],
+    },
   };
 
   static NO_ADVANCEMENT_2014 = [
@@ -954,7 +975,9 @@ export default class DDBClass {
               specialFeatures.push(fn(advancement));
             });
           }
-          if (specialLookup.fixFunction) advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
+          if (specialLookup.fixFunction) {
+            advancement = specialLookup.fixFunction(advancement, specialLookup.functionArgs);
+          }
           if (specialLookup.fixFunctions) {
             specialLookup.fixFunctions.forEach((fn) => {
               advancement = fn.fn(advancement, fn.args);
@@ -1773,14 +1796,6 @@ export default class DDBClass {
 
   _monkFixes() {
     if (this.data.name !== "Monk") return;
-    for (let advancement of this.data.system.advancement) {
-      if (advancement.configuration.identifier !== "martial-arts") continue;
-      const die = foundry.utils.deepClone(advancement);
-      die.title = "Martial Arts Die";
-      die._id = foundry.utils.randomID();
-      die.configuration.identifier = "die";
-      this._addAdvancement(die);
-    }
     const ki = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
@@ -1850,6 +1865,28 @@ export default class DDBClass {
 
   _barbarianFixes() {
     if (this.data.name !== "Barbarian") return;
+
+    if (!this.data.system.advancement.some((a) => a.configuration.identifier === "rage-damage")) {
+      const damage = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "rage-damage",
+          type: "number",
+          scale: {
+            1: { value: 2 },
+            9: { value: 3 },
+            16: { value: 4 },
+          },
+        },
+        value: {},
+        title: "Rage Damage",
+        icon: null,
+      };
+      this._addAdvancement(damage);
+    }
+
     if (this.is2014) return;
     for (let advancement of this.data.system.advancement) {
       if (advancement.title !== "Brutal Strike") continue;
@@ -1860,51 +1897,30 @@ export default class DDBClass {
       };
     };
 
-    const damage = {
-      _id: foundry.utils.randomID(),
-      type: "ScaleValue",
-      configuration: {
-        distance: { units: "" },
-        identifier: "rage-damage",
-        type: "number",
-        scale: {
-          1: { value: 2 },
-          9: { value: 3 },
-          16: { value: 4 },
-        },
-      },
-      value: {},
-      title: "Rage Damage",
-      icon: null,
-    };
-    this._addAdvancement(damage);
-    for (let advancement of this.data.system.advancement) {
-      if (advancement.title !== "Rage") continue;
-      advancement.title = "Rages";
-      advancement.configuration.identifier = "rages";
-    };
   }
 
   _bardFixes() {
     if (this.data.name !== "Bard") return;
-    const bardicInspiration = {
-      type: "ScaleValue",
-      configuration: {
-        distance: { units: "" },
-        identifier: "bardic-inspiration",
-        type: "dice",
-        scale: {
-          1: { number: 1, faces: 6 },
-          5: { number: 1, faces: 8 },
-          10: { number: 1, faces: 10 },
-          15: { number: 1, faces: 12 },
+    if (!this.data.system.advancement.some((a) => a.configuration.identifier === "inspiration")) {
+      const bardicInspiration = {
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: "inspiration",
+          type: "dice",
+          scale: {
+            1: { number: 1, faces: 6 },
+            5: { number: 1, faces: 8 },
+            10: { number: 1, faces: 10 },
+            15: { number: 1, faces: 12 },
+          },
         },
-      },
-      value: {},
-      title: "Bardic Inspiration",
-      icon: null,
-    };
-    this._addAdvancement(bardicInspiration);
+        value: {},
+        title: "Bardic Inspiration",
+        icon: null,
+      };
+      this._addAdvancement(bardicInspiration);
+    }
   }
 
   _sorcererFixes() {
@@ -1933,7 +1949,7 @@ export default class DDBClass {
 
   _spellFixes() {
     // only run on non-spellcasting classes
-    if (!["Fighter", "Rogue", "Barbarian", "Monk"].includes(this.data.name)) return;
+    if (!["Fighter", "Rogue", "Barbarian", "Monk", "Gunslinger", "Monster Hunter", "Pugilist", "Illrigger", "Blood Hunter"].includes(this.data.name)) return;
     const foundCantripsIndex = this.data.system.advancement.findIndex((a) => a.title === "Cantrips Known");
     if (foundCantripsIndex !== -1) {
       this.data.system.advancement.splice(foundCantripsIndex, 1);

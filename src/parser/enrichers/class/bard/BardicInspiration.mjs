@@ -12,7 +12,7 @@ export default class BardicInspiration extends DDBEnricherData {
         roll: {
           prompt: false,
           visible: false,
-          formula: "@scale.bard.bardic-inspiration",
+          formula: "@scale.bard.inspiration",
           name: "Inspiration Roll",
         },
         duration: {
@@ -29,7 +29,7 @@ export default class BardicInspiration extends DDBEnricherData {
   }
 
   get effects() {
-    const diceString = "@scale.bard.bardic-inspiration";
+    const diceString = "@scale.bard.inspiration";
     const midiOptionalChange = {
       name: "bardicInspiration",
       priortiy: 20,
@@ -41,7 +41,7 @@ export default class BardicInspiration extends DDBEnricherData {
         "skill.all": diceString,
       },
     };
-    if (this.hasSubclass("College of Valor")) {
+    if (!this.ddbParser.isMuncher && this.hasSubclass("College of Valor")) {
       midiOptionalChange.data["damage.all"] = diceString;
       midiOptionalChange.data["ac.all"] = diceString;
     }

@@ -36,7 +36,7 @@ export default class DefileGround extends DDBEnricherData {
           ],
         },
         overrides: {
-          notemplate: true,
+          noTemplate: true,
           targetType: "creature",
           activationType: "special",
         },

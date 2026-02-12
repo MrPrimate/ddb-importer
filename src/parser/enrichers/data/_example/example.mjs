@@ -158,7 +158,7 @@ export default class Example extends DDBEnricherData {
           data: {
             label: `${document.name} Additional Damage`,
             count: "turn",
-            "damage.all": "@scale.monk.martial-arts",
+            "damage.all": "@scale.monk.die",
             countAlt: "ItemUses.Ki",
             criticalDamage: "1",
           },
