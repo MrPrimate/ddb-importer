@@ -192,7 +192,7 @@ export default class DDBEnricherData {
    * @param {number} [opts.scalingNumber] The scaling number to apply to the damage.
    * @param {string} [opts.scalingFormula] The scaling formula to apply to the damage.
    * @param {string} [opts.customFormula] The custom formula to apply to the damage.
-   * @returns {object} - The created damage part.
+   * @returns {DDBDamagePart} The created damage part.
    */
   static basicDamagePart({
     number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
@@ -253,53 +253,7 @@ export default class DDBEnricherData {
 
   /**
    * This is the activity property that is used to make adjustments to the activity.
-   * @returns {object} An object with the following properties:
-   *   name: {string} The name of the activity. If not type default.
-   *   type: {string} The type of the activity. If not type default, set to none.
-   *   parent: {string} The name of the lookup parent if only applies to certain types.
-   *   noConsumeTargets: {boolean} Remove any auto generated consumption targets.
-   *   addItemConsume: {boolean} Add item consume.
-   *   itemConsumeTargetName: "Item Name", // item consume target name
-   *   itemConsumeValue: {number} The item consume value if not 1.
-   *   addScalingMode: {string} Add scaling mode to item consume.
-   *   addScalingFormula: {string} Add scaling formula to item consume.
-   *   addActivityConsume: {boolean} Add activity consume.
-   *   activityConsumeValue: {number} The activity consume value if not 1.
-   *   addActivityScalingMode: {string} Add scaling mode to activity consume.
-   *   addActivityScalingFormula: {string} Add scaling formula to activity consume.
-   *   addSpellSlotConsume: {boolean} Add spell slot consume. (as a consumption target)
-   *   removeSpellSlotConsume: {boolean} Remove spell slot consume (for spells)
-   *   spellSlotConsumeValue: {number} The spell slot consume value if not 1.
-   *   addSpellSlotScalingMode: {string} Add scaling mode to spell slot consume.
-   *   addSpellSlotScalingFormula: {string} Add scaling formula to spell slot consume.
-   *   additionalConsumptionTargets: {object[]} Add additional consumption targets.
-   *   addConsumptionScalingMax: {string} Enable consumption scaling and add max.
-   *   targetType: {string} Target type override.
-   *   rangeSelf: {boolean} Set range self.
-   *   noTemplate: {boolean} Remove target template.
-   *   overrideTemplate: {boolean} Add override target template.
-   *   overrideRange: {boolean} Add override range.
-   *   activationType: {string} Activation type.
-   *   activationCondition: {string} Activation condition.
-   *   overrideActivation: {boolean} Add override activation.
-   *   midiManualReaction: {boolean} Add midi manual reaction.
-   *   midiUseCondition: {string} Add midi condition.
-   *   midiSaveReaction: {boolean} Add midi save reaction.
-   *   midiHealingReaction: {boolean} Add midi healing reaction.
-   *   flatAttack: {string} Flat attack value, sets flat attack for activity.
-   *   removeDamageParts: {boolean} remove existing damage parts
-   *   damageParts: {object[]} Adds damage parts.
-   *   data: {object} Merge this with activity data.
-   *   func: {function} Run this function passing in the activity as the only variable.
-   *   allowMagical: {boolean} Allow magical restrictions.
-   *   addSingleFreeUse: {boolean} Duplicates activity and adds single free use consumption activity.
-   *   addSingleFreeRecoveryPeriod: {string} Single free use recovery period.
-   *   additionalDamageIncludeBase: {boolean} Add additional damage include base.
-   *   stopHealSpellActivity: {boolean} in spells prevents healing activity auto generation
-   *   profileKeys: {Array} array of summon profile keys to use
-   *   summons: {object} data to merge to summon config
-   *   splitDamage: {boolean} used by the spell parser to split damage
-   *   addSpellUuid: {boolean} add spell uuid to activity
+   * @returns {DDBActivityData | null}
    */
   get activity() {
     return null;
@@ -362,6 +316,7 @@ export default class DDBEnricherData {
    *     - auraeffectsOnly: {boolean} only add effect if aura effects is active
    *     - auraeffectsNever: {boolean} never add effect if aura effects is active
    *     - auraeffects: {object} aura effects data
+   * @returns {DDBEffectHint[]}
    */
   get effects() {
     return [];
@@ -375,6 +330,7 @@ export default class DDBEnricherData {
    *   descriptionSuffix: {string} A suffix to be appended to the document description.
    *   replaceActivityUses: {boolean} If true, replaces activity uses with matched parent in target
    *   func: {function} Run this function passing in the enricher as a variable in teh params object
+   * @returns {DDBOverrideData | null}
    */
   get override() {
     return null;
@@ -388,6 +344,7 @@ export default class DDBEnricherData {
    *   action: {object} An object representing the activity to be duplicated.
    *   overrides: {object} An object with overrides for the activity.
    *   duplicate: {boolean} Duplicate the items first activity
+   * @returns {DDBAdditionalActivity[] | null}
    */
   get additionalActivities() {
     return null;
@@ -406,6 +363,7 @@ export default class DDBEnricherData {
    * @returns {object} An object with the following properties:
    *   stopDefaultActivity: {boolean} If true, prevents the call to generate activity.
    *   data: {object} Data to be merged with the document data.
+   * @returns {DDBDocumentStub | null}
    */
   get documentStub() {
     return null;
@@ -444,11 +402,15 @@ export default class DDBEnricherData {
     return false;
   }
 
-  // Add item macro using DDBMacros.setItemMacroFlag
+  /**
+   * Add item macro using DDBMacros.setItemMacroFlag.
+   * @returns {DDBItemMacro | null}
+   */
   get itemMacro() {
     return null;
   }
 
+  /** @returns {DDBSetMidiOnUseMacroFlag | null} */
   get setMidiOnUseMacroFlag() {
     return null;
   }
@@ -471,12 +433,7 @@ export default class DDBEnricherData {
     // noop
   }
 
-  // return {
-  //   name: "fontOfMagic",
-  //   label: "Font of Magic Macro",
-  //   type: "spell",
-  //   parameters: "",
-  // };
+  /** @returns {DDBMacroDescriptionData | null} */
   get ddbMacroDescriptionData() {
     return null;
   }

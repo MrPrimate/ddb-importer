@@ -14,6 +14,7 @@
     "foundry/client/global.d.mts",
     "foundry/common/primitives/global.d.mts",
     ".d.ts",
+    "src/parser/enrichers/data/DDBEnricherData.d.ts",
     "foundry/dnd5e/dnd5e.mjs"
   ],
   "typeAcquisition": {
