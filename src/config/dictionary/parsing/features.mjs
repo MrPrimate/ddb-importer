@@ -16,6 +16,7 @@ export const LEVEL_SCALE = {
     "Spellfire Burst: Radiant Fire (Fire)",
     "Spellfire Burst: Radiant Fire (Radiant)",
     "Spellfire Burst: Bolstering Flames",
+    "Channel Divinity: Arcane Abjuration",
   ],
 
   LEVEL_SCALE_INFUSIONS: [
