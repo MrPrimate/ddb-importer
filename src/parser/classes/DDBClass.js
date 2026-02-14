@@ -143,6 +143,7 @@ export default class DDBClass {
     "Proficiencies",
     "Primal Knowledge",
     "Master of Intrigue",
+    "Implement of Peace",
     "Implements of Mercy",
     "Bonus Proficiencies",
     "Otherworldly Glamour",
