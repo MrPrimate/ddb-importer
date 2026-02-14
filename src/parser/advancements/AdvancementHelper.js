@@ -2,7 +2,6 @@ import { DICTIONARY, SETTINGS } from '../../config/_module.mjs';
 import { utils, logger, CompendiumHelper } from '../../lib/_module.mjs';
 import { AutoEffects } from '../enrichers/effects/_module.mjs';
 import DDBBasicActivity from '../enrichers/mixins/DDBBasicActivity.mjs';
-import DDBEnricherFactoryMixin from '../enrichers/mixins/DDBEnricherFactoryMixin.mjs';
 import { DDBModifiers } from '../lib/_module.mjs';
 
 function htmlToText(html) {
@@ -2291,7 +2290,7 @@ export default class AdvancementHelper {
           amount: unlimited
             ? ""
             : halfProficiency
-              ? "@prof / 2"
+              ? "floor(@prof / 2)"
               : "1",
         });
       }
@@ -2754,7 +2753,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   // }
 
-  static async getCompendiumSpellUuidsFromNames(names, use2024Spells = false) {
+  static async getCompendiumSpellUuidsFromNames(names, { use2024Spells = false } = {}) {
     const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
     const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
       use2024Spells: spellChoice === "FORCE_2024" || use2024Spells,
@@ -2763,13 +2762,38 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return spells;
   }
 
+  static async _getSpellUuidsFromFeatureSpellData(names, spellData, is2024) {
+    const lookupSpellNames = [];
+    const uuids = [];
+    for (const spell of names) {
+      const spellDataMatch = spellData.find((s) => {
+        const spellName = foundry.utils.getProperty(s, "flags.ddbimporter.originalName") || s.name;
+        return spellName.toLowerCase() === spell.toLowerCase() && foundry.utils.hasProperty(s, "_stats.compendiumSource");
+      });
+      if (spellDataMatch) {
+        const spellName = foundry.utils.getProperty(spellDataMatch, "flags.ddbimporter.originalName") || spellDataMatch.name;
+        uuids.push({
+          name: spellName,
+          uuid: spellDataMatch._stats.compendiumSource,
+        });
+      } else {
+        lookupSpellNames.push(spell);
+      }
+    }
+    if (lookupSpellNames.length > 0) {
+      const remainingUuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(lookupSpellNames, { use2024Spells: is2024 });
+      uuids.push(...remainingUuids);
+    }
+    return uuids;
+  }
+
   static async getCantripChoiceAdvancement({
     choices = [], abilities = [], hint = "", name, spellListChoice = null, spellLinks,
-    is2024, choiceLevel = 0, count = 1, allowReplacements = false,
+    is2024, choiceLevel = 0, count = 1, allowReplacements = false, spellData = [],
   } = {}) {
     if (choices.length === 0 && !spellListChoice) return undefined;
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
-    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(choices, is2024);
+    const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
 
     spellLinks.push({
       type: "choice",
@@ -2831,12 +2855,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   static async getSpellChoiceAdvancement({
     spellChoice, abilities = [], hint = "", name, spellLinks, method = "innate",
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
-    level, choiceLevel = 0, choices = [], is2024, allowReplacements = false, count = 1,
+    level, choiceLevel = 0, choices = [], is2024, allowReplacements = false, count = 1, spellData = [],
   } = {}) {
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
     const spellListChoice = spellChoice.spellList || null;
 
-    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(choices, is2024);
+    const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
 
     spellLinks.push({
       type: "choice",
@@ -2903,11 +2927,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   }
 
   static async getCantripGrantAdvancement({
-    choices = [], abilities = [], hint = "", name, spellLinks, is2024,
+    choices = [], abilities = [], hint = "", name, spellLinks, is2024, spellData = [],
   } = {}) {
     if (choices.length === 0) return undefined;
     const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
-    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(choices, is2024);
+    const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
 
     spellLinks.push({
       type: "grant",
@@ -2949,10 +2973,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   static async getSpellGrantAdvancement({
     spellGrants, abilities = [], hint = "", name, spellLinks, method = "innate",
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
-    level, is2024, forceNoAmount = false,
+    level, is2024, forceNoAmount = false, spellData = [],
   } = {}) {
     const spellGrant = spellGrants[0];
-    const uuids = await AdvancementHelper.getCompendiumSpellUuidsFromNames(spellGrants.map((g) => g.name), is2024);
+    const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(spellGrants.map((g) => g.name), spellData, is2024);
 
     if (uuids.length === 0) return null;
     const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
@@ -3017,6 +3041,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
     const use2024Spells = spellChoice === "FORCE_2024" || feature.system.source.rules === "2024";
 
+    const spellData = ddbParser.ddbCharacter._spellParser._granted[type]
+      .filter((s) =>
+        s.flags.ddbimporter?.dndbeyond?.lookupName === (foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name)
+        && s.flags.ddbimporter?.dndbeyond?.lookup?.startsWith(type),
+      );
+
     logger.debug(`Spell Advancement Data from ${feature.name}`, {
       htmlData,
       ddbParser,
@@ -3025,6 +3055,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       name,
       hint,
       type,
+      spellData,
     });
 
     const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
@@ -3037,6 +3068,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       is2024: ddbParser.is2024,
       count: htmlData.spellListCantripChoiceNum ?? 1,
       allowReplacements: htmlData.spellListChoiceReplace,
+      spellData,
     });
     if (cantripChoiceAdvancement) {
       advancements.push(cantripChoiceAdvancement);
@@ -3049,55 +3081,54 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       name: cantripName,
       spellLinks: ddbParser.spellLinks,
       is2024: ddbParser.is2024,
+      spellData,
     });
     if (cantripGrantAdvancement) {
       advancements.push(cantripGrantAdvancement);
-      ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [htmlData.cantripGrants] });
-      for (const cantripGrant of htmlData.cantripGrants) {
-        if (Object.values(feature.system.activities).some((a) => a.name.toLowerCase() === cantripGrant.toLowerCase() && a.type === "cast")) {
-          continue;
-        }
+      // ddbParser.spellsGranted[type].push({ feature: feature.name, spells: htmlData.cantripGrants, use2024Spells });
+      // for (const cantripGrant of htmlData.cantripGrants) {
+      //   if (Object.values(feature.system.activities).some((a) => a.name.toLowerCase() === cantripGrant.toLowerCase() && a.type === "cast")) {
+      //     continue;
+      //   }
 
-        const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([cantripGrant], {
-          use2024Spells,
-        });
-        if (!spellIndex || spellIndex.length === 0) {
-          logger.warn(`No compendium spell found for ${cantripGrant}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
-          continue;
-        }
+      //   const spellIndex = await AdvancementHelper._getSpellUuidsFromFeatureSpellData([cantripGrant], spellData, use2024Spells);
+      //   if (!spellIndex || spellIndex.length === 0) {
+      //     logger.warn(`No compendium spell found for ${cantripGrant}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
+      //     continue;
+      //   }
 
-        const uuid = spellIndex[0].uuid;
+      //   const uuid = spellIndex[0].uuid;
 
-        if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid === uuid)) {
-          logger.debug(`Spell activity for ${cantripGrant} already exists on feature ${feature.name}, skipping`);
-          continue;
-        }
+      //   if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid === uuid)) {
+      //     logger.debug(`Spell activity for ${cantripGrant} already exists on feature ${feature.name}, skipping`);
+      //     continue;
+      //   }
 
-        const activity = new DDBBasicActivity({
-          nameIdPrefix: utils.namedIDStub(cantripGrant, {
-            prefix: "gr",
-            length: 12,
-          }),
-          type: "cast",
-          foundryFeature: feature,
-        });
+      //   const activity = new DDBBasicActivity({
+      //     nameIdPrefix: utils.namedIDStub(cantripGrant, {
+      //       prefix: "gr",
+      //       length: 12,
+      //     }),
+      //     type: "cast",
+      //     foundryFeature: feature,
+      //   });
 
-        const spellOverride = {
-          uuid,
-          properties: abilityData.properties ?? [],
-          spellbook: true,
-        };
+      //   const spellOverride = {
+      //     uuid,
+      //     properties: abilityData.properties ?? [],
+      //     spellbook: true,
+      //   };
 
-        activity.build({
-          generateSpell: true,
-          generateConsumption: true,
-          noConsumeTargets: true,
-          spellOverride,
-        });
+      //   activity.build({
+      //     generateSpell: true,
+      //     generateConsumption: true,
+      //     noConsumeTargets: true,
+      //     spellOverride,
+      //   });
 
-        // eslint-disable-next-line require-atomic-updates
-        feature.system.activities[activity.data._id] = activity.data;
-      }
+      //   // eslint-disable-next-line require-atomic-updates
+      //   feature.system.activities[activity.data._id] = activity.data;
+      // }
     }
 
     const isItemConsume = !feature.system.uses.max
@@ -3116,6 +3147,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         requireSlot: true,
         forceNoAmount: true,
         method: "spell",
+        spellData,
       });
       if (spellGrantAdvancement) {
         advancements.push(spellGrantAdvancement);
@@ -3123,9 +3155,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           continue;
         }
 
-        const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spellGrant.name], {
-          use2024Spells,
-        });
+        const spellIndex = await AdvancementHelper._getSpellUuidsFromFeatureSpellData([spellGrant.name], spellData, use2024Spells);
         if (!spellIndex || spellIndex.length === 0) {
           logger.warn(`No compendium spell found for ${spellGrant.name}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
           continue;
@@ -3163,8 +3193,8 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
         const uses = {
           spent: 0,
-          max: "1",
-          recovery: [{ period: "lr", type: "recoverAll" }],
+          max: spellGrant.amount,
+          recovery: spellGrant.amount === "" ? [] : [{ period: "lr", type: "recoverAll" }],
         };
 
         if (isItemConsume) {
@@ -3177,7 +3207,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         // eslint-disable-next-line require-atomic-updates
         feature.system.activities[activity.data._id] = activity.data;
 
-        ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [spellGrant.name] });
+        ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [spellGrant.name], use2024Spells });
 
         logger.warn(`Added spell activity for ${spellGrant.name} to feature ${feature.name}`);
 
@@ -3193,6 +3223,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         spellLinks: ddbParser.spellLinks,
         is2024: ddbParser.is2024,
         allowReplacements: htmlData.spellListChoiceReplace,
+        spellData,
       });
       if (spellChoiceAdvancement) {
         advancements.push(spellChoiceAdvancement);

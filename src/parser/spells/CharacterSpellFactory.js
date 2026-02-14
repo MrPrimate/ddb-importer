@@ -545,7 +545,7 @@ export default class CharacterSpellFactory {
           generateSummons: this.generateSummons,
         });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
-        this._generated.class.push(parsedSpell);
+        this._granted.class.push(parsedSpell);
 
         // check for class granted spells here
         if (parsedSpell.flags.ddbimporter.is2024
@@ -568,7 +568,7 @@ export default class CharacterSpellFactory {
           generateSummons: this.generateSummons,
         });
         if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
-        this._generated.class[duplicateSpell] = parsedSpell;
+        this._granted.class[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);
@@ -703,7 +703,8 @@ export default class CharacterSpellFactory {
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
       });
-      this._generated.race.push(parsedSpell);
+      // this._generated.race.push(parsedSpell);
+      this._granted.race.push(parsedSpell);
     }
   }
 
@@ -777,11 +778,12 @@ export default class CharacterSpellFactory {
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
       });
-      if (spell.definition.level === 0) {
-        this._generated.feat.push(parsedSpell);
-      } else {
-        this._granted.feat.push(parsedSpell);
-      }
+      // if (spell.definition.level === 0) {
+      //   this._generated.feat.push(parsedSpell);
+      // } else {
+      //   this._granted.feat.push(parsedSpell);
+      // }
+      this._granted.feat.push(parsedSpell);
     }
   }
 
@@ -858,6 +860,13 @@ export default class CharacterSpellFactory {
         setLink(spell);
       }
       this._generated[key] = spells;
+    }
+
+    for (const [key, spells] of Object.entries(this._granted)) {
+      for (const spell of spells) {
+        setLink(spell);
+      }
+      this._granted[key] = spells;
     }
   }
 

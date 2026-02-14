@@ -1192,6 +1192,7 @@ export default class CharacterFeatureFactory {
     if (!this.spellsGranted[type]) this.spellsGranted[type] = [];
     const featuresToCheck = [];
     for (const feature of this.processed.features) {
+      if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
       if (filters.length > 0) {
         const featureName = utils.referenceNameString(feature.name).toLowerCase();
         const filterMatch = filters.some((f) => featureName.includes(utils.referenceNameString(f).toLowerCase()));
@@ -1200,13 +1201,28 @@ export default class CharacterFeatureFactory {
           continue;
         }
       }
-      if (foundry.utils.getProperty(feature, "flags.ddbimporter.type") !== type) continue;
+
       await this.addSpellAdvancement({ feature, type });
-      featuresToCheck.push(feature.name);
+      featuresToCheck.push({
+        feature,
+        type,
+        version: feature.system.source?.rules ?? (game.settings.get("dnd5e", "rulesVersion") === 'modern' ? "2024" : "2014"),
+      });
     }
 
     for (const spell of this.ddbCharacter._spellParser._granted[type]) {
-      if (this.spellsGranted[type].some((sg) => featuresToCheck.includes(sg.feature) && sg.spells.includes(spell.name.toLowerCase()))) {
+      const spellName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") ?? spell.name;
+
+      if (this.spellsGranted[type].some((sg) =>
+        featuresToCheck.some((f) => {
+          return spell.flags.ddbimporter?.dndbeyond?.lookupName === (foundry.utils.getProperty(f.feature, "flags.ddbimporter.originalName") ?? f.feature.name)
+          && spell.flags.ddbimporter?.dndbeyond?.lookup?.startsWith(type)
+          && f.feature.name === sg.feature;
+          // if (f.feature.name !== sg.feature) return false;
+          // return sg.use2024Spells ? spell.system.source.rules === "2024" : spell.system.source.rules === "2014";
+        })
+        && sg.spells.includes(spellName.toLowerCase()))
+      ) {
         logger.debug(`Spell ${spell.name} already granted via feature, skipping`);
         continue;
       }

@@ -8,6 +8,7 @@
 - 2014 Subclasss parsing improvements for: Twilight Cleric, Hexblade Warlock, Wizard War Mage, Barbarian Wild Magic, Battlerager, Path of the Giant, Creation Bard, Eloquence Bard, Spirits Bard.
 - Character Options import: The importer would not generate weapons that are generated as part of feature parsing, such as Psychic Blades.
 - Some improvements to auto generated advancement identifiers for class scale features, to reduce duplication of SRD identifiers with alternative names.
+- Some improvements to spell activities and advancements and detection of appropriate spells to place here for feats.
 
 # 6.6.54
 
