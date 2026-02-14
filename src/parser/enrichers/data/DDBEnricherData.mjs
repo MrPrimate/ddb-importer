@@ -192,7 +192,7 @@ export default class DDBEnricherData {
    * @param {number} [opts.scalingNumber] The scaling number to apply to the damage.
    * @param {string} [opts.scalingFormula] The scaling formula to apply to the damage.
    * @param {string} [opts.customFormula] The custom formula to apply to the damage.
-   * @returns {DDBDamagePart} The created damage part.
+   * @returns {import("./DDBEnricherData.d.ts").DDBDamagePart} The created damage part.
    */
   static basicDamagePart({
     number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
@@ -253,7 +253,7 @@ export default class DDBEnricherData {
 
   /**
    * This is the activity property that is used to make adjustments to the activity.
-   * @returns {DDBActivityData | null}
+   * @returns {import("./DDBEnricherData.d.ts").DDBActivityData | null}
    */
   get activity() {
     return null;
@@ -275,48 +275,7 @@ export default class DDBEnricherData {
    * Additional options include magical bonuses, status effects, and integration with
    * external systems like ATL or MIDI. Some effects are only generated if certain
    * conditions, such as having MIDI-QOL installed, are met.
-   *
-   * @returns {object} An object containing:
-   *   - effects: {Array} A list of effect objects with the following properties:
-   *     - noCreate: {boolean} If true, prevents the creation of the effect, using an auto-generated one instead.
-   *     - type: {string} Specifies the type of effect, e.g., "enchant".
-   *     - name: {string} Overrides the auto-generated name for the effect.
-   *     - data: {object} Data to merge with the effect's data.
-   *     - changes: {Array} Modifications to merge with the effect's changes.
-   *     - options: {object} Configuration options passed to the DDB effect generator, including descriptions and durations.
-   *     - magicalBonus: {object} Includes details for adding a magical bonus.
-   *     - statuses: {Array} Status effects to add.
-   *     - riderStatuses: {Array} Rider status effects to add.
-   *     - atlChanges: {Array} ATL changes, if ATL is active.
-   *     - tokenMagicChanges: {Array} Token magic changes.
-   *     - daeStackable: {string} set stackable dae value
-   *     - daeSpecialDurations: {Array} adds dae special durations
-   *     - midiChanges: {Array} MIDI changes.
-   *     - midiProperties: {object} MIDI properties.
-   *     - daeChanges: {Array} DAE changes.
-   *     - func: {function} A function executed with the activity as the sole argument.
-   *     - descriptionHint: {string} A hint for the enchantment description.
-   *     - activeAurasOnly: {boolean} Indicates that the effect is generated only if ActiveAuras is installed.
-   *     - activityMatch: {string} Match to this activity only
-   *     - activitiesMatch: {Array} Match to only these activities
-   *     - macroChanges: {Array} Add macro changes using DDBMacros.generateMacroChange
-   *     - targetUpdateMacroChanges:  {Array} onTargetUpdate macro changes
-   *     - onUseMacroChanges: {Array} onUse macro changes
-   *     - damageBonusMacroChanges: {Array} damage bonus macro changes
-   *     - midiOptionalChanges: {Array} object of name and data (key/value) for midi optional changes
-   *     - optionalMacroChanges: {Array} optional macro changes for midi optional macros.
-   *     - daeOnly: {boolean} only add effect if dae is active
-   *     - atlOnly: {boolean} only add effect if atl is active
-   *     - midiOnly: {boolean} only add effect if MIDI-QOL is installed.
-   *     - activeAurasOnly: {boolean} only add effect if ActiveAuras is installed.
-   *     - daeNever: {boolean} never add effect if dae is active
-   *     - atlNever: {boolean} never add effect if atl is active
-   *     - midiNever: {boolean} never add effect if MIDI-QOL is installed.
-   *     - activeAurasNever: {boolean} never add effect if ActiveAuras is installed.
-   *     - auraeffectsOnly: {boolean} only add effect if aura effects is active
-   *     - auraeffectsNever: {boolean} never add effect if aura effects is active
-   *     - auraeffects: {object} aura effects data
-   * @returns {DDBEffectHint[]}
+   * @returns {import("./DDBEnricherData.d.ts").DDBEffectHint[]}
    */
   get effects() {
     return [];
@@ -324,13 +283,7 @@ export default class DDBEnricherData {
 
   /**
    * Provides an override configuration for the document.
-   * @returns {object} An object with the following properties:
-   *   noTemplate: {boolean} If true, removes the document template.
-   *   data: {object} Data to be merged with the document data.
-   *   descriptionSuffix: {string} A suffix to be appended to the document description.
-   *   replaceActivityUses: {boolean} If true, replaces activity uses with matched parent in target
-   *   func: {function} Run this function passing in the enricher as a variable in teh params object
-   * @returns {DDBOverrideData | null}
+   * @returns {import("./DDBEnricherData.d.ts").DDBOverrideData | null}
    */
   get override() {
     return null;
@@ -340,11 +293,7 @@ export default class DDBEnricherData {
    * Gets additional activities to be added to the document. This is generally
    * used to add additional abilities that are not directly related to the
    * document.
-   * @returns {object[]} An array of objects with the following properties:
-   *   action: {object} An object representing the activity to be duplicated.
-   *   overrides: {object} An object with overrides for the activity.
-   *   duplicate: {boolean} Duplicate the items first activity
-   * @returns {DDBAdditionalActivity[] | null}
+   * @returns {import("./DDBEnricherData.d.ts").DDBAdditionalActivity[] | null}
    */
   get additionalActivities() {
     return null;
@@ -360,10 +309,7 @@ export default class DDBEnricherData {
 
   /**
    * Provides an override configuration for the document.
-   * @returns {object} An object with the following properties:
-   *   stopDefaultActivity: {boolean} If true, prevents the call to generate activity.
-   *   data: {object} Data to be merged with the document data.
-   * @returns {DDBDocumentStub | null}
+   * @returns {import("./DDBEnricherData.d.ts").DDBDocumentStub | null}
    */
   get documentStub() {
     return null;
@@ -404,13 +350,16 @@ export default class DDBEnricherData {
 
   /**
    * Add item macro using DDBMacros.setItemMacroFlag.
-   * @returns {DDBItemMacro | null}
+   * @returns {import("./DDBEnricherData.d.ts").DDBItemMacro | null}
    */
   get itemMacro() {
     return null;
   }
 
-  /** @returns {DDBSetMidiOnUseMacroFlag | null} */
+  /**
+   * Sets the midi on use macro flag using DDBMacros.setMidiOnUseMacroFlag.
+   * @returns {import("./DDBEnricherData.d.ts").DDBSetMidiOnUseMacroFlag | null}
+   */
   get setMidiOnUseMacroFlag() {
     return null;
   }
@@ -433,7 +382,10 @@ export default class DDBEnricherData {
     // noop
   }
 
-  /** @returns {DDBMacroDescriptionData | null} */
+  /**
+   * Adds a description about the DDBMacro
+   * @returns {import("./DDBEnricherData.d.ts").DDBMacroDescriptionData | null}
+   */
   get ddbMacroDescriptionData() {
     return null;
   }
