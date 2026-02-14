@@ -2225,7 +2225,8 @@ export default class AdvancementHelper {
     }
 
     // You know one cantrip of your choice from the Sorcerer spell list.
-    const spellListRegex = /You (?:know|learn) (\w+) cantrip(?:s)? of your choice from the (\w+) spell list/i;
+    // you gain two cantrips of your choice from the wizard spell list
+    const spellListRegex = /You (?:know|learn|gain) (\w+) cantrip(?:s)? of your choice from the (\w+) spell list/i;
     const spellListMatch = strippedDescription.match(spellListRegex);
 
     if (spellListMatch) {

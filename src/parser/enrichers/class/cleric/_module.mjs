@@ -1,3 +1,4 @@
+export { default as ArcaneInitiate } from "./ArcaneInitiate.mjs";
 export { default as BlessedHealer } from "./BlessedHealer.mjs";
 export { default as BlessedStrikes } from "./BlessedStrikes.mjs";
 export { default as BlessedStrikesDivineStrike } from "./BlessedStrikesDivineStrike.mjs";
