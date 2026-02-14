@@ -54,6 +54,7 @@ export { default as RallyingCry } from "./RallyingCry.mjs";
 export { default as RallyingSurge } from "./RallyingSurge.mjs";
 export { default as Relentless } from "./Relentless.mjs";
 export { default as RemarkableAthlete } from "./RemarkableAthlete.mjs";
+export { default as RuneCarver } from "./RuneCarver.mjs";
 export { default as SecondWind } from "./SecondWind.mjs";
 export { default as SeekingArrow } from "./SeekingArrow.mjs";
 export { default as ShadowArrow } from "./ShadowArrow.mjs";

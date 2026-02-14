@@ -15,7 +15,8 @@ export default class DDBSubClass extends DDBClass {
     },
     "Rune Carver": {
       fix: true,
-      fixFunction: AdvancementHelper.renameTotal,
+      fixFunction: AdvancementHelper.rename,
+      functionArgs: { newName: "Known Runes", identifier: "rune" },
       additionalAdvancements: false,
       additionalFunctions: [],
     },

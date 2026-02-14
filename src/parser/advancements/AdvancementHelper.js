@@ -2208,6 +2208,7 @@ export default class AdvancementHelper {
     // You know the mage hand cantrip, and the hand is invisible when you cast the cantrip with this trait.
     // You learn the mend plants* and shillelagh cantrips.
     // You learn the spare the dying cantrip and can cast it as a bonus action.
+    // You learn the guidance cantrip, which doesn’t
     const cantripGrantKnowRegex = /You (?:also )?(?:learn|know) the ([\w /]+) cantrip/ig;
     const cantripKnowGrants = strippedDescription.matchAll(cantripGrantKnowRegex);
     for (const match of cantripKnowGrants) {
@@ -3052,6 +3053,51 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     if (cantripGrantAdvancement) {
       advancements.push(cantripGrantAdvancement);
       ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [htmlData.cantripGrants] });
+      for (const cantripGrant of htmlData.cantripGrants) {
+        if (Object.values(feature.system.activities).some((a) => a.name.toLowerCase() === cantripGrant.toLowerCase() && a.type === "cast")) {
+          continue;
+        }
+
+        const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([cantripGrant], {
+          use2024Spells,
+        });
+        if (!spellIndex || spellIndex.length === 0) {
+          logger.warn(`No compendium spell found for ${cantripGrant}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
+          continue;
+        }
+
+        const uuid = spellIndex[0].uuid;
+
+        if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid === uuid)) {
+          logger.debug(`Spell activity for ${cantripGrant} already exists on feature ${feature.name}, skipping`);
+          continue;
+        }
+
+        const activity = new DDBBasicActivity({
+          nameIdPrefix: utils.namedIDStub(cantripGrant, {
+            prefix: "gr",
+            length: 12,
+          }),
+          type: "cast",
+          foundryFeature: feature,
+        });
+
+        const spellOverride = {
+          uuid,
+          properties: abilityData.properties ?? [],
+          spellbook: true,
+        };
+
+        activity.build({
+          generateSpell: true,
+          generateConsumption: true,
+          noConsumeTargets: true,
+          spellOverride,
+        });
+
+        // eslint-disable-next-line require-atomic-updates
+        feature.system.activities[activity.data._id] = activity.data;
+      }
     }
 
     const isItemConsume = !feature.system.uses.max
