@@ -192,7 +192,7 @@ export default class DDBEnricherData {
    * @param {number} [opts.scalingNumber] The scaling number to apply to the damage.
    * @param {string} [opts.scalingFormula] The scaling formula to apply to the damage.
    * @param {string} [opts.customFormula] The custom formula to apply to the damage.
-   * @returns {import("./DDBEnricherData.d.ts").DDBDamagePart} The created damage part.
+   * @returns {DDBDamagePart} The created damage part.
    */
   static basicDamagePart({
     number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
@@ -253,7 +253,7 @@ export default class DDBEnricherData {
 
   /**
    * This is the activity property that is used to make adjustments to the activity.
-   * @returns {import("./DDBEnricherData.d.ts").DDBActivityData | null}
+   * @returns {DDBActivityData | null}
    */
   get activity() {
     return null;
@@ -275,7 +275,7 @@ export default class DDBEnricherData {
    * Additional options include magical bonuses, status effects, and integration with
    * external systems like ATL or MIDI. Some effects are only generated if certain
    * conditions, such as having MIDI-QOL installed, are met.
-   * @returns {import("./DDBEnricherData.d.ts").DDBEffectHint[]}
+   * @returns {DDBEffectHint[]}
    */
   get effects() {
     return [];
@@ -283,7 +283,7 @@ export default class DDBEnricherData {
 
   /**
    * Provides an override configuration for the document.
-   * @returns {import("./DDBEnricherData.d.ts").DDBOverrideData | null}
+   * @returns {DDBOverrideData | null}
    */
   get override() {
     return null;
@@ -293,7 +293,7 @@ export default class DDBEnricherData {
    * Gets additional activities to be added to the document. This is generally
    * used to add additional abilities that are not directly related to the
    * document.
-   * @returns {import("./DDBEnricherData.d.ts").DDBAdditionalActivity[] | null}
+   * @returns {DDBAdditionalActivity[] | null}
    */
   get additionalActivities() {
     return null;
@@ -309,7 +309,7 @@ export default class DDBEnricherData {
 
   /**
    * Provides an override configuration for the document.
-   * @returns {import("./DDBEnricherData.d.ts").DDBDocumentStub | null}
+   * @returns {DDBDocumentStub | null}
    */
   get documentStub() {
     return null;
@@ -350,7 +350,7 @@ export default class DDBEnricherData {
 
   /**
    * Add item macro using DDBMacros.setItemMacroFlag.
-   * @returns {import("./DDBEnricherData.d.ts").DDBItemMacro | null}
+   * @returns {DDBItemMacro | null}
    */
   get itemMacro() {
     return null;
@@ -358,7 +358,7 @@ export default class DDBEnricherData {
 
   /**
    * Sets the midi on use macro flag using DDBMacros.setMidiOnUseMacroFlag.
-   * @returns {import("./DDBEnricherData.d.ts").DDBSetMidiOnUseMacroFlag | null}
+   * @returns {DDBSetMidiOnUseMacroFlag | null}
    */
   get setMidiOnUseMacroFlag() {
     return null;
@@ -384,7 +384,7 @@ export default class DDBEnricherData {
 
   /**
    * Adds a description about the DDBMacro
-   * @returns {import("./DDBEnricherData.d.ts").DDBMacroDescriptionData | null}
+   * @returns {DDBMacroDescriptionData | null}
    */
   get ddbMacroDescriptionData() {
     return null;
