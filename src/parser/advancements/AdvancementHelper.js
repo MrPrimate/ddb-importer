@@ -2324,6 +2324,20 @@ export default class AdvancementHelper {
       }
     }
 
+    const learnTheSpellRegex = /you learn (?:the )?(.+?)(?: spell)\./i;
+    const learnTheSpellMatch = strippedDescription.match(learnTheSpellRegex);
+    if (learnTheSpellMatch) {
+      const spell = learnTheSpellMatch[1].toLowerCase().trim();
+      if (!spellsAdded.has(spell)) {
+        result.spellGrants.push({
+          level: 1,
+          name: spell,
+          amount: "1",
+        });
+        spellsAdded.add(spell);
+      }
+    }
+
     const chooseSpellListRegex2 = /Choose a level (\d) spell from the (\w+) spell list. You always have that spell prepared. You can cast it once without a spell slo/i;
     const chooseSpellListMatch2 = strippedDescription.match(chooseSpellListRegex2);
     if (chooseSpellListMatch2) {
