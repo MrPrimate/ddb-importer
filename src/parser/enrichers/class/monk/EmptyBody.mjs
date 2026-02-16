@@ -15,7 +15,7 @@ export default class EmptyBody extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
-        activityNameMatch: "Go Invisible",
+        activityMatch: "Go Invisible",
         statuses: ["invisible"],
         changes: DDBEnricherData.allDamageTypes(["force"]).map((element) =>
           DDBEnricherData.ChangeHelper.unsignedAddChange(element, 20, "system.traits.dr.value"),

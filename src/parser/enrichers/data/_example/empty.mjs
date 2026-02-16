@@ -1,5 +1,10 @@
+/* eslint-disable jsdoc/require-description */
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBActivityData} DDBActivityData */
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBAdditionalActivity} DDBAdditionalActivity */
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBEffectHint} DDBEffectHint */
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBOverrideData} DDBOverrideData */
 
 export default class Empty extends DDBEnricherData {
 
@@ -7,18 +12,30 @@ export default class Empty extends DDBEnricherData {
     return null;
   }
 
+  /**
+   * @returns {DDBActivityData | null}
+   */
   get activity() {
     return null;
   }
 
+  /**
+   * @returns {DDBEffectHint[]}
+   */
   get effects() {
     return [];
   }
 
+  /**
+   * @returns {DDBAdditionalActivity[]}
+   */
   get additionalActivities() {
     return [];
   }
 
+  /**
+   * @returns {DDBOverrideData | null}
+   */
   get override() {
     return null;
   }

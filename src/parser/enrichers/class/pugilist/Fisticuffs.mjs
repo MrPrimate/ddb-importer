@@ -31,7 +31,7 @@ export default class Fisticuffs extends Generic {
     return [
       {
         name: "Fisticuffs",
-        activityNameMatch: "Fisticuffs Enchantment",
+        activityMatch: "Fisticuffs Enchantment",
         type: "enchant",
         changes: [
           Generic.ChangeHelper.overrideChange(`{} [Fisticuffs]`, 10, "name"),

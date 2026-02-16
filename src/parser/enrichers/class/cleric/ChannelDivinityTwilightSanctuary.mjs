@@ -99,7 +99,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
     return [
       {
         name: "Twilight Emanation",
-        activityNameMatch: "Activate",
+        activityMatch: "Activate",
         options: {
           durationSeconds: 60,
         },

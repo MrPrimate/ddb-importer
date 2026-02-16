@@ -56,7 +56,7 @@ export default class BolsteringMagic extends Generic {
       ? [
         {
           name: "Bolstering Magic",
-          activityNameMatch: "Bolstering Magic",
+          activityMatch: "Bolstering Magic",
           changes: [
             Generic.ChangeHelper.addChange("1d3", 20, "system.bonuses.abilities.check"),
             Generic.ChangeHelper.addChange("1d3", 20, "system.bonuses.msak.attack"),

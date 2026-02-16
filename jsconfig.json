@@ -10,12 +10,12 @@
   "exclude": ["node_modules", "**/node_modules/*"],
   "include": [
     "src/index.mjs",
+    "src/parser/enrichers/data/DDBEnricherData.d.ts",
     "foundry/client/client.mjs",
     "foundry/client/global.d.mts",
     "foundry/common/primitives/global.d.mts",
-    ".d.ts",
-    "src/parser/enrichers/data/DDBEnricherData.d.ts",
-    "foundry/dnd5e/dnd5e.mjs"
+    "foundry/dnd5e/dnd5e.mjs",
+    ".d.ts"
   ],
   "typeAcquisition": {
     "include": ["jquery"]

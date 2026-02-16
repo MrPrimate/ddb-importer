@@ -73,7 +73,7 @@ export default class EyesOfNight extends DDBEnricherData {
     return [
       {
         name: "Eyes of Night - Darkvision",
-        activityNameMatch: "Activate",
+        activityMatch: "Activate",
         img: "icons/magic/perception/silhouette-stealth-shadow.webp",
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("300", 20, "system.attributes.senses.darkvision"),

@@ -1,6 +1,12 @@
 /* eslint-disable no-empty-function */
+/* eslint-disable jsdoc/require-description */
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../data/DDBEnricherData.mjs";
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBActivityData} DDBActivityData */
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBAdditionalActivity} DDBAdditionalActivity */
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBEffectHint} DDBEffectHint */
+/** @typedef {import('../../data/DDBEnricherData.mjs').DDBOverrideData} DDBOverrideData */
+
 
 export default class Example extends DDBEnricherData {
 
@@ -8,6 +14,9 @@ export default class Example extends DDBEnricherData {
     return "utility"; // activity type - if type is none, activity hit will be generally undefined
   }
 
+  /**
+   * @returns {DDBActivityData | null}
+   */
   get activity() {
     return {
       // THESE ARE ACTIvITY ADJUSTMENTS RAN EVERYWHERE
@@ -60,6 +69,9 @@ export default class Example extends DDBEnricherData {
     };
   }
 
+  /**
+   * @returns {DDBAdditionalActivity[]}
+   */
   get additionalActivities() {
     return [
       // use a duplicate
@@ -87,6 +99,9 @@ export default class Example extends DDBEnricherData {
     ];
   }
 
+  /**
+   * @returns {DDBOverrideData | null}
+   */
   get override() {
     return {
       noTemplate: true, // remove document template
@@ -105,6 +120,9 @@ export default class Example extends DDBEnricherData {
     };
   }
 
+  /**
+   * @returns {DDBEffectHint[]}
+   */
   get effects() {
     return [
       {
