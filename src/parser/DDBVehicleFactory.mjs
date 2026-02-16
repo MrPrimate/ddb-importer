@@ -200,7 +200,7 @@ export default class DDBVehicleFactory {
     await FileHelper.generateCurrentFiles(this.uploadDirectory);
     await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
 
-    if (game.canvas3D?.CONFIG?.UI) {
+    if (game.canvas3D?.CONFIG?.UI?.TokenBrowser) {
       // generate 3d model cache
       await game.canvas3D.CONFIG.UI.TokenBrowser.preloadData();
     }
