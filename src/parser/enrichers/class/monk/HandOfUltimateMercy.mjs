@@ -16,6 +16,20 @@ export default class HandOfUltimateMercy extends DDBEnricherData {
       name: "Hand of Ultimate Mercy",
       activationType: "special",
       targetType: "creature",
+      addItemConsume: true,
+      itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
+      itemConsumeValue: 5,
+      additionalConsumptionTargets: [
+        {
+          type: "itemUses",
+          target: "",
+          value: "1",
+          scaling: {
+            mode: "",
+            formula: "",
+          },
+        },
+      ],
       data: {
         "range.units": "touch",
         healing: DDBEnricherData.basicDamagePart({

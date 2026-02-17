@@ -27,6 +27,7 @@ export { default as FlurryOfBlowsAdditional } from "./FlurryOfBlowsAdditional.mj
 export { default as FlurryOfHealingAndHarm } from "./FlurryOfHealingAndHarm.mjs";
 export { default as HandOfHarm } from "./HandOfHarm.mjs";
 export { default as HandOfHealing } from "./HandOfHealing.mjs";
+export { default as HandOfUltimateMercy } from "./HandOfUltimateMercy.mjs";
 export { default as HeightenedFocus } from "./HeightenedFocus.mjs";
 export { default as KenseisShot } from "./KenseisShot.mjs";
 export { default as Ki } from "./Ki.mjs";

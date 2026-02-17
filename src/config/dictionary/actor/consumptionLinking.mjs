@@ -66,7 +66,7 @@ export const CONSUMPTION_LINKS = {
     "Flames of the Phoenix", "Gong of the Summit", "Mist Stance",
     "Ride the Wind", "River of Hungry Flame", "Rush of the Gale Spirits",
     "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
-    "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
+    "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm",
     "Awakened Astral Self", "Deflect Missiles",
   ],
   "Monk's Focus": [
@@ -82,7 +82,7 @@ export const CONSUMPTION_LINKS = {
     "Flames of the Phoenix", "Gong of the Summit", "Mist Stance",
     "Ride the Wind", "River of Hungry Flame", "Rush of the Gale Spirits",
     "Shape the Flowing River", "Sweeping Cinder Strike", "Water Whip",
-    "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm", "Hand of Ultimate Mercy",
+    "Wave of Rolling Earth", "Hand of Healing", "Hand of Harm",
     "Awakened Astral Self", "Uncanny Metabolism", "Superior Defense",
     "Deflect Attacks", "Deflect Energy", "Disciplined Survivor",
     "Cloak of Shadows", "Improved Shadow Step", "Elemental Burst", "Elemental Attunement",
