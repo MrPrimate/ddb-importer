@@ -7,7 +7,7 @@ export default class ProtectionFromPoison extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("poison", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("poison"),
         ],
       },
     ];

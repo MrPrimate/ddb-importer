@@ -21,7 +21,7 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
         daeStackable: "noneNameOnly",
         name: `Aura of Elemental Shielding: ${element}`,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element.toLowerCase(), 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(element.toLowerCase()),
         ],
         options: {
           transfer: true,

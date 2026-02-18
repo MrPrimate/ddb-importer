@@ -38,7 +38,7 @@ export default class ElementalAbsorption extends DDBEnricherData {
           transfer: false,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(type, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(type),
         ],
       };
     });

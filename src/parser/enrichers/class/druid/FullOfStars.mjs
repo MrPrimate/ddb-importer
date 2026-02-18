@@ -19,9 +19,9 @@ export default class FullOfStars extends DDBEnricherData {
   //     {
   //       name: "Full of Stars (Level 14)",
   //       changes: [
-  //         DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
-  //         DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
-  //         DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
+  //         DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
+  //         DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
+  //         DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
   //       ],
   //     },
   //   ];

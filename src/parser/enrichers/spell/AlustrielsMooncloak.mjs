@@ -71,9 +71,9 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
           durationRounds: 10,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("cold", 20, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.addChange("lightning", 20, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.addChange("radiant", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("cold"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("lightning"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
         ],
         statuses: ["coverHalf"],
         data: {

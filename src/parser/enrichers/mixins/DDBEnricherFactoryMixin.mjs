@@ -992,7 +992,7 @@ export default class DDBEnricherFactoryMixin {
     };
   }
 
-  async _getActivityDataFromAction({ name, type, isAttack = null, rename = null, id = null }, y) {
+  async _getActivityDataFromAction({ name, type, isAttack = null, rename = null, id = null, activityKeysLimited = [] }, y) {
     const result = {
       activities: {},
       effects: [],
@@ -1013,6 +1013,7 @@ export default class DDBEnricherFactoryMixin {
 
     actionFeatures.forEach((feature, i) => {
       for (const activityKey of (Object.keys(feature.system.activities))) {
+        if (activityKeysLimited.length > 0 && !activityKeysLimited.includes(activityKey)) continue;
         let newKey = id ?? `${activityKey.slice(0, -3)}Ne${y + i}`;
         while (result.activities[newKey] || this.data.system.activities[newKey]) {
           newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;

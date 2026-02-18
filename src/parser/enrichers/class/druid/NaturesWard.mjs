@@ -34,7 +34,7 @@ export default class NaturesWard extends DDBEnricherData {
           disabled: !activeType.includes(effect.origin),
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(effect.type, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(effect.type),
         ],
       });
     });

@@ -57,7 +57,7 @@ export default class ElementalEpitome extends DDBEnricherData {
       return {
         name: `${utils.capitalize(element)} Resistance`,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(element),
         ],
         activityMatch: "Elemental Attunement Effects",
       };

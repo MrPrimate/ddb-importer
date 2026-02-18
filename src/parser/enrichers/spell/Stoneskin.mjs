@@ -7,9 +7,9 @@ export default class Stoneskin extends DDBEnricherData {
     return [
       {
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 0, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 0, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 0, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning", 0),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("piercing", 0),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("slashing", 0),
           // {
           //   key: "system.traits.dr.bypass",
           //   value: "mgc",

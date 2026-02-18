@@ -23,7 +23,7 @@ export default class SuperiorHuntersDefense extends DDBEnricherData {
           durationSeconds: 6,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(damage, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(damage),
         ],
       };
     });

@@ -82,7 +82,7 @@ export default class FountOfMoonlight extends DDBEnricherData {
           durationRounds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
         ],

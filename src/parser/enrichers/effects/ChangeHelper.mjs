@@ -103,6 +103,15 @@ export default class ChangeHelper {
     };
   }
 
+  static damageResistanceChange(damageType, priority = 20) {
+    return {
+      key: "system.traits.dr.value",
+      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      value: damageType.toLowerCase(),
+      priority,
+    };
+  }
+
   // this can now be removed once changes refactored
   static atlChange(atlKey, mode, value, priority = 20) {
     let key = atlKey;

@@ -152,9 +152,9 @@ export default class ElementalSmite extends DDBEnricherData {
         daeSpecialDurations: ["turnEndSource"],
         activityMatch: "Djinni's Escape",
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
-          DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("grappled", 20, "system.traits.ci.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("restrained", 20, "system.traits.ci.value"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("prone", 20, "system.traits.ci.value"),

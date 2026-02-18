@@ -8,7 +8,7 @@ export default class UmbralForm extends DDBEnricherData {
       {
         name: "Umbral Form",
         changes: DDBEnricherData.allDamageTypes(["force", "radiant"]).map((t) => {
-          return DDBEnricherData.ChangeHelper.addChange(t, 20, "system.traits.dr.value");
+          return DDBEnricherData.ChangeHelper.damageResistanceChange(t);
         }),
       },
     ];

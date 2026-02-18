@@ -208,6 +208,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Dragon Ancestor",
     // "Draconic Ancestry",
     "Elegant Courtier",
+    "Draconic Disciple",
   ],
   KEEP_CHOICE_FEATURE_NAME_STARTSWITH: [
     "Boon of ",
@@ -461,6 +462,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Iron Mind",
     "Divine Magic",
     "Giant's Power",
+    "Draconic Disciple",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

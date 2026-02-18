@@ -100,7 +100,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
       return {
         name: `Absorb Energy Sphere: ${element.type}`,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element.type.toLowerCase(), 1, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(element.type, 1),
         ],
         img: element.img,
         activityMatch: "Absorb Energy",

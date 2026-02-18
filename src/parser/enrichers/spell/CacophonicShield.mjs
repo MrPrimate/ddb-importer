@@ -59,7 +59,7 @@ export default class CacophonicShield extends DDBEnricherData {
           durationRounds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("thunder", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("thunder"),
         ],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.rwak"),

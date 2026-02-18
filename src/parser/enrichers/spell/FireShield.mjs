@@ -59,7 +59,7 @@ export default class FireShield extends DDBEnricherData {
         name: data.name,
         activityMatch: data.name,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(data.damageType, 0, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(data.damageType, 0),
         ],
         options: {
           durationSeconds: 600,

@@ -88,7 +88,7 @@ export default class ShieldingStorm extends DDBEnricherData {
           overrideName: "",
           script: "",
         },
-        changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("fire", 20, "system.traits.dr.value")],
+        changes: [DDBEnricherData.ChangeHelper.damageResistanceChange("fire")],
       },
       {
         name: "Shielding Storm: Sea",
@@ -122,7 +122,7 @@ export default class ShieldingStorm extends DDBEnricherData {
           overrideName: "",
           script: "",
         },
-        changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("lightning", 20, "system.traits.dr.value")],
+        changes: [DDBEnricherData.ChangeHelper.damageResistanceChange("lightning")],
       },
       {
         name: "Shielding Storm: Tundra",
@@ -156,7 +156,7 @@ export default class ShieldingStorm extends DDBEnricherData {
           overrideName: "",
           script: "",
         },
-        changes: [DDBEnricherData.ChangeHelper.unsignedAddChange("cold", 20, "system.traits.dr.value")],
+        changes: [DDBEnricherData.ChangeHelper.damageResistanceChange("cold")],
       },
     ];
   }

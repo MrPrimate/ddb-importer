@@ -48,7 +48,7 @@ export default class AbsorbElements extends DDBEnricherData {
         midiNever: true,
         name: `Absorb ${element}`,
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element.toLowerCase(), 1, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(element, 1),
         ],
         activityMatch: `${this.data.name} Effect`,
       };
@@ -73,7 +73,7 @@ export default class AbsorbElements extends DDBEnricherData {
         name: `${this.data.name}: Resistance`,
         midiOnly: true,
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(""),
         ],
         daeSpecialDurations: ["turnStartSource"],
         data: {

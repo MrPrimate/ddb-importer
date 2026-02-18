@@ -31,7 +31,7 @@ export default class TotemSpiritBear extends DDBEnricherData {
         },
         activityMatch: "Activate",
         changes: DDBEnricherData.allDamageTypes(["psychic"]).map((damage) => {
-          return DDBEnricherData.ChangeHelper.unsignedAddChange(damage, 20, "system.traits.dr.value");
+          return DDBEnricherData.ChangeHelper.damageResistanceChange(damage);
         }),
       },
     ];

@@ -48,9 +48,9 @@ export default class Rage extends DDBEnricherData {
       },
       changes: [
         DDBEnricherData.ChangeHelper.unsignedAddChange("@scale.barbarian.rage-damage", 20, "system.bonuses.mwak.damage"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
-        DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+        DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
+        DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
+        DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
         DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
         DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
       ],

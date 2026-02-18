@@ -547,6 +547,49 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
+  _monkFixes() {
+    if (this.data.name.startsWith("Way of the Ascendant Dragon")) {
+      // for (let advancement of this.data.system.advancement) {
+      //   if (advancement.title !== "Breath of the Dragon") continue;
+      //   advancement.configuration.scale['17'] = { number: 4, faces: 10 };
+      // }
+      // const breathConeSize = {
+      //   type: "ScaleValue",
+      //   configuration: {
+      //     identifier: "breath-cone-size",
+      //     type: "number",
+      //     scale: {
+      //       "3": {
+      //         "value": 20,
+      //       },
+      //       "17": {
+      //         "value": 60,
+      //       },
+      //     },
+      //   },
+      //   title: "Breath Weapon Cone Size",
+      // };
+      // this._addAdvancement(breathConeSize);
+      // const breathLineSize = {
+      //   type: "ScaleValue",
+      //   configuration: {
+      //     identifier: "breath-line-size",
+      //     type: "number",
+      //     scale: {
+      //       "3": {
+      //         "value": 30,
+      //       },
+      //       "17": {
+      //         "value": 90,
+      //       },
+      //     },
+      //   },
+      //   title: "Breath Weapon Line Size",
+      // };
+      // this._addAdvancement(breathLineSize);
+    }
+  }
+
   async _pugilistFixes() {
     if (this.data.name.startsWith("")) {
       // add spell advancement 2 cantrips from warlock list
@@ -568,6 +611,7 @@ export default class DDBSubClass extends DDBClass {
     this._rangerFixes();
     this._sorcererFixes();
     this._artificerFixes();
+    this._monkFixes();
     await this._bardFixes();
   }
 

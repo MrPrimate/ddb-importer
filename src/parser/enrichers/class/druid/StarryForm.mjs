@@ -264,9 +264,9 @@ export default class StarryForm extends DDBEnricherData {
         }
         if (data.min && data.min >= 14) {
           changes.push(
-            DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
+            DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
+            DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
           );
         }
         const effect = {

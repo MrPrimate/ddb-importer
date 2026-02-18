@@ -22,7 +22,7 @@ export default class ShadowArmor extends DDBEnricherData {
           durationSeconds: 6,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("radiant"),
         ],
         daeSpecialDurations: ["turnStart"],
       },

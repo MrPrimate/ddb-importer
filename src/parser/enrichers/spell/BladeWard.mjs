@@ -8,9 +8,9 @@ export default class BladeWard extends DDBEnricherData {
       return [
         {
           changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 10, "system.traits.dr.value"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 10, "system.traits.dr.value"),
-            DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 10, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning", 10),
+            DDBEnricherData.ChangeHelper.damageResistanceChange("slashing", 10),
+            DDBEnricherData.ChangeHelper.damageResistanceChange("piercing", 10),
           ],
           data: {
             "flags.dae.specialDuration": ["turnEnd"],

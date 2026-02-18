@@ -10,7 +10,7 @@ export default class SuperiorDefense extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: DDBEnricherData.allDamageTypes(["force"]).map((element) =>
-          DDBEnricherData.ChangeHelper.unsignedAddChange(element, 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(element),
         ),
       },
     ];

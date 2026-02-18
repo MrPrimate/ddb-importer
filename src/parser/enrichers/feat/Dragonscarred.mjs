@@ -72,7 +72,7 @@ export default class Dragonscarred extends DDBEnricherData {
           disabled: !activeType.includes(type),
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(type.toLowerCase(), 20, "system.traits.dr.value"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange(type),
         ],
       });
     });

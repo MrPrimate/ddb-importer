@@ -5,7 +5,7 @@ export default class InvincibleConqueror extends Generic {
 
   get effects() {
     const damageChanges = Generic.allDamageTypes().map((damage) => {
-      return Generic.ChangeHelper.unsignedAddChange(damage, 20, "system.traits.dr.value");
+      return Generic.ChangeHelper.damageResistanceChange(damage);
     });
     return [
       {
