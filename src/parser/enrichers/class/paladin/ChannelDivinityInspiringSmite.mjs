@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class InspiringSmite extends DDBEnricherData {
+export default class ChannelDivinityInspiringSmite extends DDBEnricherData {
 
   get type() {
     return "heal";

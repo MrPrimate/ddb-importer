@@ -1,9 +1,12 @@
 export { default as AbjureFoes } from "./AbjureFoes.mjs";
+export { default as AuraOfAlacrity } from "./AuraOfAlacrity.mjs";
 export { default as AuraOfConquest } from "./AuraOfConquest.mjs";
 export { default as AuraOfElementalShielding } from "./AuraOfElementalShielding.mjs";
 export { default as AuraOfHate } from "./AuraOfHate.mjs";
 export { default as AuraOfTheGuardian } from "./AuraOfTheGuardian.mjs";
 export { default as AvengingAngel } from "./AvengingAngel.mjs";
+export { default as ChannelDivinityInspiringSmite } from "./ChannelDivinityInspiringSmite.mjs";
+export { default as ChannelDivinityPeerlessAthlete } from "./ChannelDivinityPeerlessAthlete.mjs";
 export { default as ChannelDivinityTurnTheUnholy } from "./ChannelDivinityTurnTheUnholy.mjs";
 export { default as DivineSmite } from "./DivineSmite.mjs";
 export { default as ElderChampion } from "./ElderChampion.mjs";

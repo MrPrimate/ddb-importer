@@ -31,6 +31,9 @@ export default class LivingLegend extends DDBEnricherData {
   get effects() {
     return [{
       name: "Living Legend",
+      changes: [
+        DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.cha.check.roll.mode"),
+      ],
       data: {
         "flags.ddbimporter.activitiesMatch": ["Activate Living Legend"],
       },

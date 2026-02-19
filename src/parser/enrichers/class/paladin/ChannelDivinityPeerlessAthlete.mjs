@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class PeerlessAthlete extends DDBEnricherData {
+export default class ChannelDivinityPeerlessAthlete extends DDBEnricherData {
 
   get activity() {
     return {
@@ -10,8 +10,8 @@ export default class PeerlessAthlete extends DDBEnricherData {
       addItemConsume: true,
       data: {
         duration: {
-          units: "hour",
-          value: "1",
+          units: "minute",
+          value: "10",
         },
       },
     };
