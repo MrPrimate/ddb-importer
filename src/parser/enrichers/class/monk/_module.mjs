@@ -6,6 +6,7 @@ export { default as ArmsOfTheAstralSelfWisAttack } from "./ArmsOfTheAstralSelfWi
 export { default as AscendantAspect } from "./AscendantAspect.mjs";
 export { default as AspectOfTheWyrm } from "./AspectOfTheWyrm.mjs";
 export { default as AwakenedAstralSelf } from "./AwakenedAstralSelf.mjs";
+export { default as BodyOfTheAstralSelf } from "./BodyOfTheAstralSelf.mjs";
 export { default as BreathOfTheDragon } from "./BreathOfTheDragon.mjs";
 export { default as DeflectAttack } from "./DeflectAttack.mjs";
 export { default as DeflectAttackRedirectAttack } from "./DeflectAttackRedirectAttack.mjs";

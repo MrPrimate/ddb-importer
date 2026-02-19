@@ -7,6 +7,10 @@ export default class AwakenedAstralSelf extends DDBEnricherData {
     return true;
   }
 
+  get clearAutoEffects() {
+    return true;
+  }
+
   get effects() {
     return [
       {

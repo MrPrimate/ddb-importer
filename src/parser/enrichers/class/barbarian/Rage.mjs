@@ -42,8 +42,8 @@ export default class Rage extends DDBEnricherData {
     return [{
       name: "Rage",
       options: {
-        // transfer: true,
-        // disabled: true,
+        transfer: true,
+        disabled: true,
         durationSeconds: this.is2014 ? 60 : 600,
       },
       changes: [
