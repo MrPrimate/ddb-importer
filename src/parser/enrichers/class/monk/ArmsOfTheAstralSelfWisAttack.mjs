@@ -7,7 +7,7 @@ export default class ArmsOfTheAstralSelfWisAttack extends DDBEnricherData {
       noConsumeTargets: true,
       noeffect: true,
       data: {
-        "attack.ability": "",
+        "attack.ability": "wis",
         "damage.parts": [DDBEnricherData.basicDamagePart({
           customFormula: "@scale.monk.die.die + @mod",
           types: ["force"],

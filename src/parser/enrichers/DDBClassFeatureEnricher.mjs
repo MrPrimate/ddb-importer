@@ -182,6 +182,8 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Arcane Shot Option": ClassEnrichers.Fighter.ArcaneShotOption,
     "Arms of the Astral Self (DEX/STR)": ClassEnrichers.Monk.ArmsOfTheAstralSelfPhysicalAttack,
     "Arms of the Astral Self (WIS)": ClassEnrichers.Monk.ArmsOfTheAstralSelfWisAttack,
+    "Arms of the Astral Self (Wis.)": ClassEnrichers.Monk.ArmsOfTheAstralSelfWisAttack,
+    "Arms of the Astral Self (Wis)": ClassEnrichers.Monk.ArmsOfTheAstralSelfWisAttack,
     "Aura of Alacrity": GenericEnrichers.AuraOf,
     "Aura of Courage": GenericEnrichers.AuraOf,
     "Aura Of Courage": GenericEnrichers.AuraOf,
