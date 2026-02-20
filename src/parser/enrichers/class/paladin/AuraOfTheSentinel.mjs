@@ -7,18 +7,28 @@
 
 import DDBEnricherData from "../../data/DDBEnricherData.mjs";
 
-export default class AuraOfAlacrity extends DDBEnricherData {
+export default class AuraOfTheSentinel extends DDBEnricherData {
 
+  get type() {
+    return "none";
+  }
+
+  /**
+   * @returns {DDBEffectHint[]}
+   */
   get effects() {
     return [
       {
+        options: {
+          transfer: true,
+        },
         noCreate: true,
         daeStackable: "noneNameOnly",
         data: {
           flags: {
             ActiveAuras: {
               aura: "Allies",
-              radius: `@scale.glory.aura-of-alacrity`,
+              radius: `@scale.watchers.aura-of-the-sentinel`,
               isAura: true,
               inactive: false,
               hidden: false,
@@ -33,7 +43,7 @@ export default class AuraOfAlacrity extends DDBEnricherData {
           collisionTypes: ["move"],
           combatOnly: false,
           disableOnHidden: true,
-          distanceFormula: `@scale.glory.aura-of-alacrity`,
+          distanceFormula: `@scale.watchers.aura-of-the-sentinel`,
           disposition: 1,
           evaluatePreApply: true,
           overrideName: "",

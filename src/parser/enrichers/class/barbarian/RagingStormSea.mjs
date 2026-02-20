@@ -9,7 +9,6 @@ export default class RagingStormSea extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "save",
       activationType: "reaction",
       targetType: "creature",
       rangeSelf: true,

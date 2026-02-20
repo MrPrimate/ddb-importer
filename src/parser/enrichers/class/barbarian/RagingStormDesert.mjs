@@ -8,7 +8,6 @@ export default class RagingStormDesert extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "save",
       activationType: "reaction",
       targetType: "creature",
       rangeSelf: true,

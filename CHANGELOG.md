@@ -5,7 +5,7 @@
 - Searing Smite Save Adjustments
 - More spell icons from @crimsonedge
 - Characters will temporarily be given a single bonus hitpoint during import to attempt to reduce midi-qol phantom incapacitated and similar effects. Take 2. @motomoto0295
-- 2014 Subclasss parsing improvements for: Twilight Domain, Hexblade Warlock, Wizard War Mage, Barbarian Wild Magic, Battlerager, Path of the Giant, Creation Bard, Eloquence Bard, Spirits Bard, Arcana Domain, Order Domain, Peace Domain, Ascendant Dragon Monk, Astral Monk, Long Death Monk, Glory Paladin, Crown Paladin.
+- 2014 Subclasss parsing improvements for: Twilight Domain, Hexblade Warlock, Wizard War Mage, Barbarian Wild Magic, Battlerager, Path of the Giant, Creation Bard, Eloquence Bard, Spirits Bard, Arcana Domain, Order Domain, Peace Domain, Ascendant Dragon Monk, Astral Monk, Long Death Monk, Glory Paladin, Crown Paladin, Watchers Paladin.
 - Character Options import: The importer would not generate weapons that are generated as part of feature parsing, such as Psychic Blades.
 - DDB Changed the implementation of Arms of the Astral self, DDB Importer has been fixed to import this feature correctly again.
 - Some improvements to auto generated advancement identifiers for class scale features, to reduce duplication of SRD identifiers with alternative names.
