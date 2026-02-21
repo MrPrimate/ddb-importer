@@ -1,6 +1,6 @@
-import { DICTIONARY } from "../../../config/_module.mjs";
-import { logger, utils } from "../../../lib/_module.mjs";
-import { DDBDescriptions, DDBModifiers, SystemHelpers } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../../config/_module";
+import { logger, utils } from "../../../lib/_module";
+import { DDBDescriptions, DDBModifiers, SystemHelpers } from "../../lib/_module";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
 

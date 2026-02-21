@@ -1,5 +1,5 @@
-import { logger } from "../../../lib/_module.mjs";
-import { DDBModifiers } from "../../lib/_module.mjs";
+import { logger } from "../../../lib/_module";
+import { DDBModifiers } from "../../lib/_module";
 import ChangeHelper from "./ChangeHelper";
 
 export default class ACBonusEffects {

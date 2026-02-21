@@ -1,4 +1,4 @@
-import { utils } from "../../lib/_module.mjs";
+import { utils } from "../../lib/_module";
 import { SpellEnrichers } from "./_module";
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 

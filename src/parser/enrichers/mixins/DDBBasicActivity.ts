@@ -1,5 +1,5 @@
-import { utils, logger } from "../../../lib/_module.mjs";
-import { SystemHelpers } from "../../lib/_module.mjs";
+import { utils, logger } from "../../../lib/_module";
+import { SystemHelpers } from "../../lib/_module";
 import { Effects } from "../_module";
 
 export default class DDBBasicActivity {

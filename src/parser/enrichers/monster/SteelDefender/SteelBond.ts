@@ -1,5 +1,5 @@
-// import { utils } from "../../../../lib/_module.mjs";
-// import { DICTIONARY } from "../../../../config/_module.mjs";
+// import { utils } from "../../../../lib/_module";
+// import { DICTIONARY } from "../../../../config/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SteelBond extends DDBEnricherData {

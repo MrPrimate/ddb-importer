@@ -12,6 +12,7 @@ const buildOptions = {
   sourcemap: true,
   minify: false,
   keepNames: true,
+  resolveExtensions: [".ts", ".mjs", ".js", ".json"],
 };
 
 if (watch) {

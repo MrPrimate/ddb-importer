@@ -1,5 +1,5 @@
 import { logger } from "../lib/_module.mjs";
-import { DDBModifiers } from "../parser/lib/_module.mjs";
+import { DDBModifiers } from "../parser/lib/_module";
 import { addAddBonusChanges } from "./effects.js";
 
 // // ac -

@@ -1,6 +1,6 @@
-import { DICTIONARY } from "../../../config/_module.mjs";
-import { logger } from "../../../lib/_module.mjs";
-import { DDBModifiers } from "../../lib/_module.mjs";
+import { DICTIONARY } from "../../../config/_module";
+import { logger } from "../../../lib/_module";
+import { DDBModifiers } from "../../lib/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class EldritchBlast extends DDBEnricherData {

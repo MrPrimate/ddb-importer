@@ -1,4 +1,4 @@
-import { logger, utils } from "../../../lib/_module.mjs";
+import { logger, utils } from "../../../lib/_module";
 
 export default class SpellListExtractor {
 

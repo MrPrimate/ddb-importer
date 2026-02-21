@@ -1,4 +1,4 @@
-import { DICTIONARY } from "../../../config/_module.mjs";
+import { DICTIONARY } from "../../../config/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FlusteringStrike extends DDBEnricherData {

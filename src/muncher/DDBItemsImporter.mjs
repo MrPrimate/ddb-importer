@@ -13,10 +13,10 @@ import {
   DDBSources,
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
-import DDBCharacter from "../parser/DDBCharacter.js";
+import DDBCharacter from "../parser/DDBCharacter";
 import { ExternalAutomations } from "../effects/_module.mjs";
-import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
-import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module.mjs";
+import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
+import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module";
 
 
 export default class DDBItemsImporter {

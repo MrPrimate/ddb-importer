@@ -14,16 +14,16 @@ import { downloadAdventureConfig } from "../muncher/adventure.js";
 import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
-import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
+import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import { updateItemPrices } from "../muncher/prices.js";
 import DDBAppV2 from "./DDBAppV2.js";
-import DDBEncounterFactory from "../parser/DDBEncounterFactory.js";
+import DDBEncounterFactory from "../parser/DDBEncounterFactory";
 import DDBDebugger from "./DDBDebugger.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
-import DDBCharacter from "../parser/DDBCharacter.js";
+import DDBCharacter from "../parser/DDBCharacter";
 import DDBItemsImporter from "../muncher/DDBItemsImporter.mjs";
-import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
+import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBSetup from "./DDBSetup.js";
 
 

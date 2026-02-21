@@ -3,7 +3,7 @@ import { parseSpells } from "../spells.js";
 import DDBItemsImporter from "../DDBItemsImporter.mjs";
 import AdventureMunch from "./AdventureMunch.js";
 import { SETTINGS } from "../../config/_module.mjs";
-import DDBMonsterFactory from "../../parser/DDBMonsterFactory.js";
+import DDBMonsterFactory from "../../parser/DDBMonsterFactory";
 
 export default class AdventureMunchHelpers {
 

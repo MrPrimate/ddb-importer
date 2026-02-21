@@ -1,4 +1,4 @@
-import { DICTIONARY } from "../../../config/_module.mjs";
+import { DICTIONARY } from "../../../config/_module";
 import _IntuitionActionBase from "./_IntuitionActionBase";
 
 export default class ArtisansIntuition extends _IntuitionActionBase {

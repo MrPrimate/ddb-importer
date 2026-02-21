@@ -3,7 +3,7 @@ import {
   logger,
 } from "../lib/_module.mjs";
 
-import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
+import { DDBReferenceLinker } from "../parser/lib/_module";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 

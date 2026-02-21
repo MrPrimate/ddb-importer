@@ -1,1 +1,1 @@
-import "../../parser/extendParsers.js";
+import "../../parser/extendParsers";

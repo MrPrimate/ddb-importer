@@ -8,7 +8,7 @@ import {
   DDBProxy,
 } from "./_module.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
-import { SystemHelpers } from "../parser/lib/_module.mjs";
+import { SystemHelpers } from "../parser/lib/_module";
 import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
 
 const MuncherSettings = {

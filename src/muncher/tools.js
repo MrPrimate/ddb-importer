@@ -5,8 +5,8 @@ import {
   DDBItemImporter,
   utils,
 } from "../lib/_module.mjs";
-import DDBMonsterFactory from "../parser/DDBMonsterFactory.js";
-import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
+import DDBMonsterFactory from "../parser/DDBMonsterFactory";
+import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBMonsterImporter from "./DDBMonsterImporter.mjs";
 
 let totalTargets = 0;

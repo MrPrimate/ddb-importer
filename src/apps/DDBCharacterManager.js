@@ -6,9 +6,9 @@ import {
   PatreonHelper,
   Secrets,
 } from "../lib/_module.mjs";
-import DDBCharacter from "../parser/DDBCharacter.js";
+import DDBCharacter from "../parser/DDBCharacter";
 import { updateDDBCharacter } from "../updater/character.js";
-import { generateCharacterExtras } from "../parser/DDBExtras.js";
+import { generateCharacterExtras } from "../parser/DDBExtras";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCookie from "../apps/DDBCookie.js";
 import DDBAppV2 from "./DDBAppV2.js";

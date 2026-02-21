@@ -1,7 +1,7 @@
-import { SETTINGS } from "../../../config/_module.mjs";
-import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module.mjs";
-import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
-import { DDBDataUtils, DDBDescriptions } from "../../lib/_module.mjs";
+import { SETTINGS } from "../../../config/_module";
+import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
+import DDBSummonsManager from "../../companions/DDBSummonsManager";
+import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 
 export default class DDBEnricherFactoryMixin {

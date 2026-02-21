@@ -1,8 +1,8 @@
-import { DICTIONARY } from "../../../config/_module.mjs";
-import { logger } from "../../../lib/_module.mjs";
-import { DDBDataUtils } from "../../lib/_module.mjs";
-import CharacterSpellFactory from "../../spells/CharacterSpellFactory.js";
-import DDBSpell from "../../spells/DDBSpell.js";
+import { DICTIONARY } from "../../../config/_module";
+import { logger } from "../../../lib/_module";
+import { DDBDataUtils } from "../../lib/_module";
+import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
+import DDBSpell from "../../spells/DDBSpell";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
 import type {

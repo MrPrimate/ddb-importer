@@ -1,6 +1,6 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { ItemEnrichers } from "./_module";
-import { utils } from "../../lib/_module.mjs";
+import { utils } from "../../lib/_module";
 
 export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null }: { activityGenerator: any; notifier?: any } = {} as any) {

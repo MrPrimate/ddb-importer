@@ -8,11 +8,11 @@ import {
   DDBMacros,
 } from "../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
-import DDBCharacter from "../parser/DDBCharacter.js";
-import { DDBDataUtils } from "../parser/lib/_module.mjs";
+import DDBCharacter from "../parser/DDBCharacter";
+import { DDBDataUtils } from "../parser/lib/_module";
 import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
-import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions.js";
-import { setConditions } from "../parser/character/conditions.js";
+import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions";
+import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module.mjs";
 
 export default class DDBCharacterImporter {

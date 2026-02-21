@@ -1,5 +1,5 @@
-import { SETTINGS } from "../../../../config/_module.mjs";
-import { DDBCompendiumFolders, DDBItemImporter, utils } from "../../../../lib/_module.mjs";
+import { SETTINGS } from "../../../../config/_module";
+import { DDBCompendiumFolders, DDBItemImporter, utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ExperimentalElixir extends DDBEnricherData {

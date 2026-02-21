@@ -3,7 +3,7 @@ import { logger, utils, FileHelper, CompendiumHelper } from "../../lib/_module.m
 import { generateAdventureConfig } from "../adventure.js";
 import { SETTINGS } from "../../config/_module.mjs";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
-import { DDBReferenceLinker } from "../../parser/lib/_module.mjs";
+import { DDBReferenceLinker } from "../../parser/lib/_module";
 import MonsterReplacer from "../../apps/MonsterReplacer.js";
 
 export default class AdventureMunch {

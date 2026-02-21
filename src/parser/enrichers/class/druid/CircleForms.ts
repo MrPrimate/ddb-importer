@@ -1,4 +1,4 @@
-import DDBDataUtils from "../../../lib/DDBDataUtils.mjs";
+import DDBDataUtils from "../../../lib/DDBDataUtils";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class CircleForms extends DDBEnricherData {

@@ -1,7 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { DDBSources, utils } from "../../lib/_module.mjs";
-import { DDBRuleJournalFactory } from "../../parser/lib/_module.mjs";
-import SpellListFactory from "../../parser/spells/SpellListFactory.mjs";
+import { DDBRuleJournalFactory } from "../../parser/lib/_module";
+import SpellListFactory from "../../parser/spells/SpellListFactory";
 
 function filterLanguages(languages) {
   const result = new Set();

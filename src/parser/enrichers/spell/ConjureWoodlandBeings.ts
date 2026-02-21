@@ -1,4 +1,4 @@
-import { utils } from "../../../lib/_module.mjs";
+import { utils } from "../../../lib/_module";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ConjureWoodlandBeings extends DDBEnricherData {

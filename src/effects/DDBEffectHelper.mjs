@@ -6,8 +6,8 @@ import {
   FolderHelper,
 } from "../lib/_module.mjs";
 import { DICTIONARY } from "../config/_module.mjs";
-import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature.js";
-import { DDBDescriptions } from "../parser/lib/_module.mjs";
+import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature";
+import { DDBDescriptions } from "../parser/lib/_module";
 import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module";
 
 export default class DDBEffectHelper {

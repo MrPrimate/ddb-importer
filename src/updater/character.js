@@ -1,8 +1,8 @@
 import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, PatreonHelper, NameMatcher } from "../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { isEqual } from "../../vendor/lowdash/_module.mjs";
-import { getActorConditionStates, getCondition } from "../parser/character/conditions.js";
-import DDBCharacter from "../parser/DDBCharacter.js";
+import { getActorConditionStates, getCondition } from "../parser/character/conditions";
+import DDBCharacter from "../parser/DDBCharacter";
 
 function getContainerItems(actor) {
   return actor.items

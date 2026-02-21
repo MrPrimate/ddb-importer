@@ -6,7 +6,7 @@ import {
   DDBProxy,
   logger,
 } from "../lib/_module.mjs";
-import DDBVehicleFactory from "../parser/DDBVehicleFactory.mjs";
+import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 
 
 async function getMonsterMap () {

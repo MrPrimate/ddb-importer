@@ -1,7 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { DDBCampaigns, DDBProxy, logger, PatreonHelper, Secrets } from "../lib/_module.mjs";
-import DDBCharacter from "../parser/DDBCharacter.js";
-import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
+import DDBCharacter from "../parser/DDBCharacter";
+import { DDBReferenceLinker } from "../parser/lib/_module";
 
 export default class DDBMuleHandler {
 

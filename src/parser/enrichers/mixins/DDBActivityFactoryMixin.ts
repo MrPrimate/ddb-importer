@@ -1,5 +1,5 @@
-import { logger } from "../../../lib/_module.mjs";
-import SystemHelpers from "../../lib/SystemHelpers.mjs";
+import { logger } from "../../../lib/_module";
+import SystemHelpers from "../../lib/SystemHelpers";
 
 export default class DDBActivityFactoryMixin {
 

@@ -15,9 +15,9 @@ import {
 } from "../lib/_module.mjs";
 import { SETTINGS } from "../config/_module.mjs";
 import { ExternalAutomations } from "../effects/_module.mjs";
-import GenericSpellFactory from "../parser/spells/GenericSpellFactory.js";
-import { DDBReferenceLinker } from "../parser/lib/_module.mjs";
-import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory.mjs";
+import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
+import { DDBReferenceLinker } from "../parser/lib/_module";
+import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory";
 
 function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, searchFilter } = {}) {
   const cobaltCookie = Secrets.getCobalt();

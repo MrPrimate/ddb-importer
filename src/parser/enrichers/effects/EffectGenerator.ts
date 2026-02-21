@@ -1,10 +1,10 @@
-import { logger, utils } from "../../../lib/_module.mjs";
+import { logger, utils } from "../../../lib/_module";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
-import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module.mjs";
-import { DICTIONARY } from "../../../config/_module.mjs";
-import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
+import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module";
+import { DICTIONARY } from "../../../config/_module";
+import { isEqual } from "../../../../vendor/lowdash/_module";
 
 export default class EffectGenerator {
 
