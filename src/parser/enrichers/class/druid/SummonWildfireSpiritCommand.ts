@@ -1,0 +1,32 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class SummonWildfireSpiritCommand extends DDBEnricherData {
+
+  get type() {
+    return null;
+  }
+
+  get activity() {
+    return null;
+  }
+
+  get effects() {
+    return [];
+  }
+
+  get additionalActivities() {
+    return [];
+  }
+
+  get override() {
+    return {
+      data: {
+        "system.uses": {
+          spent: null,
+          max: "",
+        },
+      },
+    };
+  }
+
+}

@@ -1,0 +1,36 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData {
+
+  get activity() {
+    return {
+      noConsumeTargets: true,
+      addItemConsume: true,
+      itemConsumeTargetName: "Ki",
+      rangeSelf: true,
+      data: {
+        target: {
+          affects: {
+            type: "enemy",
+          },
+          template: {
+            contiguous: false,
+            type: "radius",
+            size: "10",
+            units: "ft",
+          },
+        },
+        damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: "2@scale.monk.die.die",
+              type: "force",
+            }),
+          ],
+          onSave: "none",
+        },
+      },
+    };
+  }
+
+}

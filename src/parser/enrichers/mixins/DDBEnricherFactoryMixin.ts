@@ -1,0 +1,1470 @@
+import { SETTINGS } from "../../../config/_module.mjs";
+import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module.mjs";
+import DDBSummonsManager from "../../companions/DDBSummonsManager.mjs";
+import { DDBDataUtils, DDBDescriptions } from "../../lib/_module.mjs";
+import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
+
+export default class DDBEnricherFactoryMixin {
+
+  NAME_HINTS_2014: Record<string, string> = {};
+
+  NAME_HINT_2014_INCLUDES: Record<string, string> = {};
+
+  NAME_HINTS: Record<string, string> = {};
+
+  NAME_HINT_INCLUDES: Record<string, string> = {};
+
+  ENRICHERS: Record<string, any> = {};
+
+  FALLBACK_ENRICHERS: Record<string, any> = {};
+
+  ddbParser: any;
+  document: any;
+  name: string | null;
+  isCustomAction: any;
+  activityGenerator: any;
+  is2014: boolean | null;
+  is2024: boolean | null;
+  useLookupName: boolean;
+  effectType: string;
+  enricherType: string;
+  fallbackEnricher: string | null;
+  manager: any;
+  loadedEnricher: any;
+  _originalActivity: any;
+  notifier: any;
+  hintName: string | null;
+  defaultActionFeatures: Record<string, any>;
+  customActionFeatures: Record<string, any>;
+  ddbActionType: string | null;
+  activityNameMatchFeature: any;
+
+  _loadEnricherData(): any {
+    if (this.ddbParser.ddbDefinition?.isHomebrew) return null;
+    if (!this.ENRICHERS?.[this.hintName!]) {
+      if (utils.isFunction((this as any)._defaultNameLoader)) return (this as any)._defaultNameLoader();
+      return null;
+    }
+    return new this.ENRICHERS[this.hintName!]({
+      ddbEnricher: this,
+    });
+  }
+
+  _loadFallbackEnricherData(): void {
+    if (!this.fallbackEnricher) return;
+    if (!this.FALLBACK_ENRICHERS[this.fallbackEnricher]) return;
+    const loadedEnricher = new this.FALLBACK_ENRICHERS[this.fallbackEnricher]({
+      ddbEnricher: this,
+    });
+    this.loadedEnricher = loadedEnricher;
+  }
+
+  _getEnricherMatches(): void {
+    const loadedEnricher = this._loadEnricherData();
+    if (!loadedEnricher) {
+      this._loadFallbackEnricherData();
+      return;
+    }
+    this.loadedEnricher = loadedEnricher;
+  }
+
+  _getNameHint(): void {
+    if (this.isCustomAction) return;
+    const fullHint = (this.is2014 ? this.NAME_HINTS_2014[this.name!] : null)
+      ?? this.NAME_HINTS[this.name!];
+    if (fullHint) {
+      this.hintName = fullHint;
+      return;
+    }
+
+    if (this.is2014) {
+      const keys = Object.keys(this.NAME_HINT_2014_INCLUDES);
+      const hint = keys.find((key) => this.name!.includes(key));
+      if (hint) {
+        this.hintName = this.NAME_HINT_2014_INCLUDES[hint];
+        return;
+      }
+    }
+
+    const keys = Object.keys(this.NAME_HINT_INCLUDES);
+    const hint = keys.find((key) => this.name!.includes(key));
+    if (hint) {
+      this.hintName = this.NAME_HINT_INCLUDES[hint];
+      return;
+    }
+
+    this.hintName = this.name;
+  }
+
+  async _prepare(): Promise<void> {
+    this._getNameHint();
+    this._getEnricherMatches();
+    if (!this.ddbParser.isAction && !this.ddbParser.forceDefaultActionBuild) {
+      await this._buildDefaultActionFeatures();
+    }
+  }
+
+  get type(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.type;
+    } else {
+      return null;
+    }
+  }
+
+  get activity(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.activity;
+    } else {
+      return null;
+    }
+  }
+
+  get effects(): any[] {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.effects;
+    } else {
+      return [];
+    }
+  }
+
+  get override(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.override;
+    } else {
+      return null;
+    }
+  }
+
+  get additionalActivities(): any[] {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.additionalActivities;
+    } else {
+      return [];
+    }
+  }
+
+  get additionalAdvancements(): any[] {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.additionalAdvancements;
+    } else {
+      return [];
+    }
+  }
+
+  get useDefaultAdditionalActivities(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.useDefaultAdditionalActivities;
+    }
+    if (this.isAction) return false;
+    return true;
+  }
+
+  get usesOnActivity(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.usesOnActivity;
+    }
+    return false;
+  }
+
+  get documentStub(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.documentStub;
+    } else {
+      return null;
+    }
+  }
+
+  get clearAutoEffects(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.clearAutoEffects;
+    } else {
+      return false;
+    }
+  }
+
+  get addAutoAdditionalActivities(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.addAutoAdditionalActivities;
+    } else {
+      return true;
+    }
+  }
+
+  get addToDefaultAdditionalActivities(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.addToDefaultAdditionalActivities;
+    } else {
+      return false;
+    }
+  }
+
+  get builtFeaturesFromActionFilters(): any[] {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.builtFeaturesFromActionFilters;
+    } else {
+      return [];
+    }
+  }
+
+  get itemMacro(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.itemMacro;
+    } else {
+      return null;
+    }
+  }
+
+  get setMidiOnUseMacroFlag(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.setMidiOnUseMacroFlag;
+    } else {
+      return null;
+    }
+  }
+
+  get stopDefaultActivity(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.stopDefaultActivity;
+    } else {
+      return false;
+    }
+  }
+
+  get parseAllChoiceFeatures(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.parseAllChoiceFeatures;
+    } else {
+      return false;
+    }
+  }
+
+  get ddbMacroDescriptionData(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.ddbMacroDescriptionData;
+    } else {
+      return null;
+    }
+  }
+
+  get summonsFunction(): any {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.summonsFunction;
+    } else {
+      return null;
+    }
+  }
+
+  get generateSummons(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.generateSummons;
+    } else {
+      return false;
+    }
+  }
+
+  get noVersatile(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.noVersatile;
+    } else {
+      return false;
+    }
+  }
+
+  get choiceComponentFeatureName(): string | null {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.choiceComponentFeatureName;
+    } else {
+      return null;
+    }
+  }
+
+  get ddbMacroDescription(): string {
+    const data = this.ddbMacroDescriptionData;
+    if (!data) return "";
+
+    //   name: "fontOfMagic",
+    //   label: "Font of Magic Macro", // optional
+    //   type: "spell",
+    //   parameters: "", // optional
+    // };
+
+    const parameters = data.parameters
+      ? ` functionParams="${data.parameters}`
+      : "";
+    const label = data.label
+      ? `{${data.label}}`
+      : "";
+
+    return `<hr><div class="ddb-macros-container"><p>[[/ddbifunc functionName="${data.name}" functionType="${data.type}"${parameters}]]${label}</div></p></div>`;
+  }
+
+  get combineGrantedDamageModifiers(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.combineGrantedDamageModifiers;
+    } else {
+      return false;
+    }
+  }
+
+  get combineDamageTypes(): boolean {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.combineDamageTypes;
+    } else {
+      return false;
+    }
+  }
+
+  constructor({
+    activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
+    ddbActionType = null,
+  }: {
+    activityGenerator?: any;
+    effectType?: string;
+    enricherType?: string;
+    notifier?: any;
+    fallbackEnricher?: string | null;
+    ddbActionType?: string | null;
+  } = {}) {
+    this.ddbParser = null;
+    this.document = null;
+    this.name = null;
+    this.isCustomAction = null;
+    this.activityGenerator = activityGenerator;
+    this.is2014 = null;
+    this.is2024 = null;
+    this.useLookupName = false;
+    this.effectType = effectType;
+    this.enricherType = enricherType;
+    this.fallbackEnricher = fallbackEnricher;
+    this.manager = null;
+    this.loadedEnricher = null;
+    this._originalActivity = null;
+    this.notifier = notifier;
+    this.hintName = null;
+    this.defaultActionFeatures = {};
+    this.customActionFeatures = {};
+    this.ddbActionType = ddbActionType;
+    this.activityNameMatchFeature = null;
+  }
+
+  async load({ ddbParser, document, name = null, is2014 = null, fallbackEnricher = null }: { ddbParser?: any; document?: any; name?: string | null; is2014?: boolean | null; fallbackEnricher?: string | null } = {}): Promise<void> {
+    if (fallbackEnricher) this.fallbackEnricher = fallbackEnricher;
+    this.ddbParser = ddbParser;
+    this.document = ddbParser?.data ?? document;
+    this.name = ddbParser?.originalName ?? name ?? document.flags?.ddbimporter?.originalName ?? document.name;
+    this.isCustomAction = this.document.flags?.ddbimporter?.isCustomAction;
+    this.is2014 = is2014 ?? this.ddbParser?.is2014 ?? this.document.flags?.ddbimporter?.is2014 ?? false;
+    this.is2024 = !this.is2014;
+    this.useLookupName = false;
+    await this._prepare();
+  }
+
+  async init(): Promise<void> {
+    this.manager = new DDBSummonsManager({ notifier: this.notifier });
+    await this.manager.init();
+  }
+
+  get data(): any {
+    return this.ddbParser?.data ?? this.document;
+  }
+
+  set data(data: any) {
+    if (this.ddbParser?.data) this.ddbParser.data = data;
+    else if (this.document) this.document = data;
+  }
+
+  get originalActivity(): any {
+    return this._originalActivity;
+  }
+
+  set originalActivity(activity: any) {
+    this._originalActivity = activity;
+  }
+
+  get isAction(): boolean {
+    return this.ddbParser.isAction ?? false;
+  }
+
+  static async getCompendiumSpellUuidsFromNames(names: string[], { use2024Spells, getDocuments = false }: { use2024Spells?: boolean; getDocuments?: boolean } = {}): Promise<any[]> {
+    const spellChoice = (game as any).settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
+    const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
+      use2024Spells: (use2024Spells ?? spellChoice === "FORCE_2024"),
+      getDocuments,
+    });
+
+    return spells;
+  }
+
+
+  async _addCompendiumSpellToCastActivity(spell: string, activity: any, { use2024Spells = false }: { use2024Spells?: boolean } = {}): Promise<any> {
+    const spellIndex = await DDBEnricherFactoryMixin.getCompendiumSpellUuidsFromNames([spell], { use2024Spells });
+    if (!spellIndex || spellIndex.length === 0) {
+      logger.warn(`No compendium spell found for ${spell}`);
+      return activity;
+    }
+
+    activity.spell.uuid = spellIndex[0].uuid;
+
+    return activity;
+
+  }
+
+  async _applyActivityDataOverride(activity: any, overrideData: any): Promise<any> {
+    if (overrideData.name) activity.name = overrideData.name;
+    if (overrideData.id) activity._id = overrideData.id;
+
+    if (overrideData.parent) {
+      for (const parent of overrideData.parent) {
+        const lookupName = (foundry as any).utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.lookupName");
+        if (lookupName !== parent.lookupName) continue;
+
+        const base = (foundry as any).utils.deepClone(overrideData);
+        delete base.parent;
+        overrideData = (foundry as any).utils.mergeObject(base, parent);
+      }
+    }
+
+    if (overrideData.noConsumeTargets) {
+      (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+    }
+    if (overrideData.addItemConsume) {
+      (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+      activity.consumption.targets.push({
+        type: "itemUses",
+        target: overrideData.itemConsumeTargetName ?? "",
+        value: overrideData.itemConsumeValue ?? "1",
+        scaling: {
+          mode: overrideData.addScalingMode ?? "",
+          formula: overrideData.addScalingFormula ?? "",
+        },
+      });
+      if (overrideData.itemConsumeTargetName && overrideData.itemConsumeTargetName !== "") {
+        (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+      }
+    }
+    if (overrideData.addActivityConsume) {
+      if (!(foundry as any).utils.getProperty(activity, "consumption.targets"))
+        (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+      activity.consumption.targets.push({
+        type: "activityUses",
+        target: "",
+        value: overrideData.activityConsumeValue ?? "1",
+        scaling: {
+          mode: overrideData.addActivityScalingMode ?? "",
+          formula: overrideData.addActivityScalingFormula ?? "",
+        },
+      });
+    }
+    if (overrideData.addSpellSlotConsume) {
+      if (!(foundry as any).utils.getProperty(activity, "consumption.targets"))
+        (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+      activity.consumption.targets.push({
+        type: "spellSlots",
+        target: overrideData.spellSlotConsumeTarget ?? "",
+        value: overrideData.spellSlotConsumeValue ?? "1",
+        scaling: {
+          mode: overrideData.addSpellSlotScalingMode ?? "",
+          formula: overrideData.addSpellSlotScalingFormula ?? "",
+        },
+      });
+    }
+
+    if (overrideData.additionalConsumptionTargets) {
+      activity.consumption.targets.push(...overrideData.additionalConsumptionTargets);
+    }
+
+    if (overrideData.addConsumptionScalingMax !== undefined) {
+      (foundry as any).utils.setProperty(activity, "consumption.scaling", {
+        allowed: true,
+        max: overrideData.addConsumptionScalingMax,
+      });
+    }
+
+    if (overrideData.removeSpellSlotConsume || overrideData.noSpellslot) {
+      (foundry as any).utils.setProperty(activity, "consumption.spellSlot", false);
+    }
+
+    if (overrideData.targetSelf) {
+      (foundry as any).utils.setProperty(activity, "target.affects.type", "self");
+    }
+
+    if (overrideData.targetType) {
+      if (activity.target?.affects) {
+        (foundry as any).utils.setProperty(activity, "target.affects.type", overrideData.targetType);
+        if (overrideData.targetCount) {
+          (foundry as any).utils.setProperty(activity, "target.affects.count", overrideData.targetCount);
+        }
+        if (overrideData.targetChoice) {
+          (foundry as any).utils.setProperty(activity, "target.affects.choice", overrideData.targetChoice);
+        }
+      } else {
+        (foundry as any).utils.setProperty(activity, "target", {
+          template: {
+            count: "",
+            contiguous: false,
+            type: "",
+            size: "",
+            width: "",
+            height: "",
+            units: "ft",
+          },
+          affects: {
+            count: overrideData.targetCount ?? "",
+            type: overrideData.targetType,
+            choice: overrideData.targetChoice ?? false,
+            special: "",
+          },
+          prompt: true,
+        });
+      }
+      if ([undefined, null, ""].includes((foundry as any).utils.getProperty(activity, "range.units"))) {
+        (foundry as any).utils.setProperty(activity, "range", {
+          value: null,
+          units: "self",
+          special: "",
+        });
+      }
+    }
+
+    if (overrideData.rangeType) {
+      (foundry as any).utils.setProperty(activity, "range", {
+        value: overrideData.rangeValue ?? null,
+        units: overrideData.rangeType,
+        special: overrideData.rangeSpecial ?? "",
+      });
+    }
+
+    if (overrideData.rangeSelf) {
+      (foundry as any).utils.setProperty(activity, "range", {
+        value: null,
+        units: "self",
+        special: "",
+      });
+    }
+
+    if (overrideData.noTemplate) {
+      (foundry as any).utils.setProperty(activity, "target.template", {
+        count: "",
+        contiguous: false,
+        type: "",
+        size: "",
+        width: "",
+        height: "",
+        units: "ft",
+      });
+      activity.target.prompt = false;
+    }
+
+    if (overrideData.overrideTemplate || overrideData.overrideTarget)
+      (foundry as any).utils.setProperty(activity, "target.override", true);
+
+    if (overrideData.overrideRange)
+      (foundry as any).utils.setProperty(activity, "range.override", true);
+
+    if (overrideData.activationType) {
+      activity.activation = {
+        type: overrideData.activationType,
+        value: overrideData.activationValue ?? activity.activation?.value ?? 1,
+        condition: overrideData.activationCondition ?? activity.activation?.condition ?? "",
+      };
+    } else if (overrideData.activationValue) {
+      (foundry as any).utils.setProperty(activity, "activation.value", overrideData.activationValue);
+    }
+    if (overrideData.activationCondition) {
+      (foundry as any).utils.setProperty(activity, "activation.condition", overrideData.activationCondition);
+    }
+
+    if (overrideData.overrideActivation)
+      (foundry as any).utils.setProperty(activity, "activation.override", true);
+
+    if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = "false";
+
+    if (overrideData.midiDamageReaction && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = `reaction == 'isDamaged'`;
+
+    if (overrideData.midiHealingReaction && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = `reaction == 'isHealed'`;
+
+    if (overrideData.midiSaveReaction && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = `reaction == 'isSaveFail'`;
+
+    if (overrideData.midiUseCondition && AutoEffects.effectModules().midiQolInstalled)
+      activity.useConditionText = overrideData.midiUseCondition;
+
+    if ((foundry as any).utils.hasProperty(overrideData, "flatAttack")) {
+      (foundry as any).utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
+      (foundry as any).utils.setProperty(activity, "attack.flat", true);
+    }
+
+    if (overrideData.removeDamageParts) {
+      activity.damage.parts = [];
+    }
+
+    if (overrideData.damageParts) {
+      activity.damage.parts = activity.damage.parts.concat(overrideData.damageParts);
+    }
+
+    const isSummon = activity.type === "summon" || overrideData.type === "summon";
+
+    if (isSummon) {
+      (foundry as any).utils.setProperty(activity, "midiProperties", {
+        autoTargetAction: "none",
+        confirmTargets: "never",
+      });
+    }
+
+    if (overrideData.profileKeys && isSummon && this.manager) {
+      this.manager.addProfilesToActivity(activity, overrideData.profileKeys, overrideData.summons);
+    }
+
+    if (overrideData.allowCritical) {
+      (foundry as any).utils.setProperty(activity, "damage.critical.allow", true);
+    }
+
+    if (overrideData.data) {
+      const data = utils.isFunction(overrideData.data)
+        ? overrideData.data()
+        : overrideData.data;
+      activity = (foundry as any).utils.mergeObject(activity, data);
+    }
+
+    if (overrideData.addSpellUuid) {
+      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
+    }
+
+    if (overrideData.allowMagical) {
+      activity.restrictions.allowMagical = true;
+    }
+
+    if (overrideData.noeffect) {
+      const ids = (foundry as any).utils.getProperty(this.data, "flags.ddbimporter.noeffect") ?? [];
+      ids.push(this.data._id);
+      (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.noEffectIds", ids);
+      (foundry as any).utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
+    }
+
+    if (overrideData.func) {
+      await overrideData.func({ activity });
+    }
+
+    return activity;
+  }
+
+  async applyActivityOverride(activityData: any): Promise<any> {
+    this.originalActivity = activityData;
+    const activity = this.activity;
+    if (!activity) return activityData;
+
+    const result = await this._applyActivityDataOverride(activityData, activity);
+
+    return result;
+  }
+
+  createDefaultEffects(): void {
+    this.data = AutoEffects.forceDocumentEffect(this.data);
+    if ((game as any).modules.get("vision-5e")?.active ?? false)
+      this.data = AutoEffects.addVision5eStub(this.data);
+  }
+
+  get _canApplyMidiEffects(): boolean {
+    const addAutomationEffects = this.loadedEnricher?.useMidiAutomations ?? false;
+    return addAutomationEffects;
+  }
+
+  async createEffects(): Promise<any[]> {
+    const effectHints = this.effects;
+    const effects: any[] = [];
+
+    const applyMidiOnlyEffects = this._canApplyMidiEffects;
+
+    // always set item macros and on use macro flags
+    const itemMacro = this.itemMacro;
+    if (itemMacro && applyMidiOnlyEffects) {
+      const type = itemMacro.type ?? itemMacro.macroType;
+      const name = itemMacro.name ?? itemMacro.macroName;
+      await DDBMacros.setItemMacroFlag(this.data, type, name);
+    }
+
+    const setMidiOnUseMacroFlag = this.setMidiOnUseMacroFlag;
+    if (setMidiOnUseMacroFlag && applyMidiOnlyEffects) {
+      DDBMacros.setMidiOnUseMacroFlagV2({
+        document: this.data,
+        macroType: setMidiOnUseMacroFlag.macroType ?? setMidiOnUseMacroFlag.type,
+        macroName: setMidiOnUseMacroFlag.macroName ?? setMidiOnUseMacroFlag.name,
+        triggerPoints: setMidiOnUseMacroFlag.triggerPoints,
+        functionCall: setMidiOnUseMacroFlag.functionCall,
+      });
+    }
+
+    if (!effectHints || effectHints?.length === 0) return effects;
+
+    for (const effectHintFunction of effectHints) {
+      const effectHint = utils.isFunction(effectHintFunction)
+        ? effectHintFunction()
+        : effectHintFunction;
+      if (!effectHint) continue;
+      if (effectHint.daeNever && AutoEffects.effectModules().daeInstalled) continue;
+      if (effectHint.daeOnly && !AutoEffects.effectModules().daeInstalled) continue;
+      if (effectHint.midiNever && AutoEffects.effectModules().midiQolInstalled) continue;
+      if (effectHint.midiOnly && !applyMidiOnlyEffects) continue;
+      if (effectHint.activeAurasNever && AutoEffects.effectModules().activeAurasInstalled) continue;
+      if (effectHint.activeAurasOnly && !AutoEffects.effectModules().activeAurasInstalled) continue;
+      if (effectHint.auraeffectsNever && AutoEffects.effectModules().auraeffectsInstalled) continue;
+      if (effectHint.auraeffectsOnly && !AutoEffects.effectModules().auraeffectsInstalled) continue;
+      if (effectHint.aurasNever && (AutoEffects.effectModules().auraeffectsInstalled || AutoEffects.effectModules().activeAurasInstalled)) continue;
+      if (effectHint.aurasOnly && !AutoEffects.effectModules().auraeffectsInstalled && !AutoEffects.effectModules().activeAurasInstalled) continue;
+      if (effectHint.atlNever && AutoEffects.effectModules().atlInstalled) continue;
+      if (effectHint.atlOnly && !AutoEffects.effectModules().atlInstalled) continue;
+      let name = effectHint.name ?? this.name;
+      let effectOptions = effectHint.options ?? {};
+
+      let effect: any;
+      let useExistingEffect = false;
+      if (effectHint.noCreate && this.data.effects.length > 0) {
+        effect = this.data.effects[0];
+        if (effectHint.name) effect.name = effectHint.name;
+        if (effectOptions.description) effect.description = effectOptions.description;
+        useExistingEffect = true;
+      } else if (effectHint.noCreate && effects.length > 0) {
+        effect = effects[effects.length - 1];
+        useExistingEffect = true;
+      } else if (effectHint.raw) {
+        effect = (foundry as any).utils.deepClone(effectHint.raw);
+        if (effectHint.name) effect.name = effectHint.name;
+        if (effectOptions.description) effect.description = effectOptions.description;
+      } else {
+        switch (effectHint.type ?? this.effectType) {
+          case "enchant":
+            effect = EnchantmentEffects.EnchantmentEffect(this.data, name, effectOptions);
+            if (effectHint.magicalBonus) {
+              EnchantmentEffects.addMagicalBonus({
+                effect,
+                nameAddition: effectHint.magicalBonus.name,
+                bonus: effectHint.magicalBonus.bonus,
+                bonusMode: effectHint.magicalBonus.mode,
+                makeMagical: effectHint.magicalBonus.makeMagical,
+              });
+            }
+            break;
+          case "feat":
+            effect = AutoEffects.FeatEffect(this.data, name, effectOptions);
+            break;
+          case "spell":
+            effect = AutoEffects.SpellEffect(this.data, name, effectOptions);
+            break;
+          case "monster":
+            effect = AutoEffects.MonsterFeatureEffect(this.data, name, effectOptions);
+            break;
+          case "item":
+            effect = AutoEffects.ItemEffect(this.data, name, effectOptions);
+            break;
+          case "basic":
+          default:
+            effect = AutoEffects.BaseEffect(this.data, name, effectOptions);
+        }
+
+        if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
+          const duration = DDBDescriptions.getDuration(this.data.system.description.value, false);
+          if (duration.type) {
+            (foundry as any).utils.setProperty(effect, "duration.seconds", duration.second);
+            (foundry as any).utils.setProperty(effect, "duration.rounds", duration.round);
+          }
+          const specialDurations = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []);
+          (foundry as any).utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
+        }
+
+      }
+
+      if (effectHint.statuses) {
+        for (const status of effectHint.statuses) {
+          const splitStatus = status.split(":");
+          ChangeHelper.addStatusEffectChange({
+            effect,
+            statusName: splitStatus[0],
+            level: splitStatus.length > 1 ? splitStatus[1] : null,
+          });
+        }
+      }
+
+      if (effectHint.changes) {
+        const changes = utils.isFunction(effectHint.changes)
+          ? effectHint.changes(this.data)
+          : effectHint.changes;
+        if (effectHint.changesOverwrite) effect.changes = changes;
+        else effect.changes.push(...changes);
+      }
+
+      if (effectHint.atlChanges && AutoEffects.effectModules().atlInstalled) {
+        effect.changes.push(...effectHint.atlChanges);
+      }
+
+      if (effectHint.tokenMagicChanges && AutoEffects.effectModules().tokenMagicInstalled) {
+        effect.changes.push(...effectHint.tokenMagicChanges);
+      }
+
+      if (effectHint.midiChanges && applyMidiOnlyEffects) {
+        effect.changes.push(...effectHint.midiChanges);
+      }
+
+      if (effectHint.daeChanges && AutoEffects.effectModules().daeInstalled) {
+        effect.changes.push(...effectHint.daeChanges);
+      }
+
+      if (effectHint.daeStackable && AutoEffects.effectModules().daeInstalled) {
+        (foundry as any).utils.setProperty(effect, "flags.dae.stackable", effectHint.daeStackable);
+      }
+
+      if (effectHint.daeSpecialDurations && AutoEffects.effectModules().daeInstalled) {
+        (foundry as any).utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
+      }
+
+      if (effectHint.midiProperties && applyMidiOnlyEffects) {
+        (foundry as any).utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
+      }
+
+      if (effectHint.activityMatch) {
+        (foundry as any).utils.setProperty(effect, "flags.ddbimporter.activityMatch", effectHint.activityMatch);
+      }
+
+      if (effectHint.activitiesMatch) {
+        (foundry as any).utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
+      }
+
+      if (effectHint.ignoreTransfer) {
+        (foundry as any).utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
+      }
+
+      if (effectHint.macroChanges && applyMidiOnlyEffects) {
+        for (const macroChange of effectHint.macroChanges) {
+          effect.changes.push(DDBMacros.generateMacroChange(macroChange));
+        }
+      }
+
+      if (effectHint.onUseMacroChanges && applyMidiOnlyEffects) {
+        for (const macroChange of effectHint.onUseMacroChanges) {
+          effect.changes.push(DDBMacros.generateOnUseMacroChange(macroChange));
+        }
+      }
+
+      if (effectHint.targetUpdateMacroChanges && applyMidiOnlyEffects) {
+        for (const macroChange of effectHint.targetUpdateMacroChanges) {
+          effect.changes.push(DDBMacros.generateTargetUpdateMacroChange(macroChange));
+        }
+      }
+
+      if (effectHint.damageBonusMacroChanges && applyMidiOnlyEffects) {
+        for (const macroChange of effectHint.damageBonusMacroChanges) {
+          effect.changes.push(DDBMacros.generateDamageBonusMacroChange(macroChange));
+        }
+      }
+
+      if (effectHint.optionalMacroChanges && applyMidiOnlyEffects) {
+        for (const macroChange of effectHint.optionalMacroChanges) {
+          effect.changes.push(DDBMacros.generateOptionalMacroChange(macroChange));
+        }
+      }
+
+      if (effectHint.midiOptionalChanges && applyMidiOnlyEffects) {
+        for (const midiChange of effectHint.midiOptionalChanges) {
+          for (const [key, value] of Object.entries(midiChange.data)) {
+            effect.changes.push(
+              ChangeHelper.customChange(value, midiChange.priority ?? 5, `flags.midi-qol.optional.${midiChange.name}.${key}`),
+            );
+          }
+        }
+      }
+
+      if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
+        (foundry as any).utils.setProperty(effect, "system", effectHint.auraeffects);
+        effect.type = "auraeffects.aura";
+      }
+
+      if (effectHint.data) {
+        effect = (foundry as any).utils.mergeObject(effect, effectHint.data);
+      }
+
+      if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
+        if ((foundry as any).utils.hasProperty(effect, "flags.ActiveAuras")) {
+          delete effect.flags.ActiveAuras;
+        }
+      }
+
+      if (effectHint?.func) {
+        await effectHint.func({ effect });
+      }
+
+      if (effectHint.descriptionHint && effectHint.type === "enchant") {
+        this.data.system.description.value = `${this.data.system.description.value}
+  <br>
+  <section class="secret">
+  <i>This feature provides an enchantment to help provide it's functionality.</i>
+  </section>`;
+      }
+
+      if (!useExistingEffect) effects.push(effect);
+    }
+
+    AutoEffects.forceDocumentEffect(this.data);
+
+    return effects;
+  }
+
+  async addDocumentAdvancements(advancementsOverride: any = null): Promise<any> {
+    const additionalAdvancements = advancementsOverride ?? this.additionalAdvancements;
+
+    if (!additionalAdvancements) return this.data;
+    if (!Array.isArray(this.data.system.advancement)) {
+      this.data.system.advancement = [];
+    }
+
+    this.data.system.advancement.push(...(additionalAdvancements).flat());
+    return this.data;
+  }
+
+  async addDocumentOverride(): Promise<any> {
+    const override = this.override;
+
+    if (!override) return this.data;
+    if (override.removeDamage) {
+      this.data.system.damage = {
+        number: null,
+        denomination: null,
+        bonus: "",
+        types: [],
+        custom: {
+          enabled: false,
+          formula: "",
+        },
+        scaling: {
+          mode: "whole",
+          number: null,
+          formula: "",
+        },
+      };
+    }
+
+    if (override.replaceActivityUses) {
+      (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+    }
+
+    if (override.rangeSelf) {
+      (foundry as any).utils.setProperty(this.data.system, "range", {
+        value: null,
+        units: "self",
+        special: "",
+      });
+    }
+
+    if (override.noTemplate) {
+      (foundry as any).utils.setProperty(this.data.system, "target.template", {
+        count: "",
+        contiguous: false,
+        type: "",
+        size: "",
+        width: "",
+        height: "",
+        units: "ft",
+      });
+    }
+
+    if (override.forceSpellAdvancement) {
+      (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.forceSpellAdvancement", true);
+    }
+
+    if (override.data) this.data = (foundry as any).utils.mergeObject(this.data, override.data);
+
+    if (override.descriptionSuffix) {
+      this.data.system.description.value += override.descriptionSuffix;
+      if (this.data.system.description.chat !== "") this.data.system.description.chat += override.descriptionSuffix;
+    }
+
+    if (override.ddbMacroDescription) {
+      const description = this.ddbMacroDescription;
+      this.data.system.description.value += description;
+      if (this.data.system.description.chat !== "") this.data.system.description.chat += description;
+    }
+
+    if (override?.func) {
+      await override.func({
+        enricher: this,
+      });
+    }
+
+    return this.data;
+  }
+
+  _getActivityDataFromDDBParent(activityHint: any, i: number, ddbParent: any): any {
+    const activationData = (foundry as any).utils.mergeObject({
+      nameIdPrefix: "add",
+      nameIdPostfix: `${i}`,
+    }, activityHint.constructor);
+    activationData.ddbParent = ddbParent;
+    const activity = new this.activityGenerator(activationData);
+    activity.build(activityHint.build);
+
+    if (activityHint.id) activity.data._id = activityHint.id;
+
+    return {
+      activities: {
+        [activity.data._id]: activity.data,
+      },
+      effects: [],
+      advancements: [],
+    };
+  }
+
+  async _getActivityDataFromAction({ name, type, isAttack = null, rename = null, id = null, activityKeysLimited = [] }: { name: string; type: string; isAttack?: boolean | null; rename?: string[] | null; id?: string | null; activityKeysLimited?: string[] }, y: number): Promise<any> {
+    const result: any = {
+      activities: {},
+      effects: [],
+      advancements: [],
+    };
+    if (!this.ddbParser?.ddbCharacter) return result;
+    const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
+    if (actions.length === 0) return result;
+    const actionFeatures = await Promise.all(actions.map(async (action: any) => {
+      const feature = await this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
+        action,
+        isAttack,
+        manager: this.manager,
+        extraFlags: this.ddbParser.extraFlags,
+      });
+      return feature;
+    }));
+
+    actionFeatures.forEach((feature: any, i: number) => {
+      for (const activityKey of (Object.keys(feature.system.activities))) {
+        if (activityKeysLimited.length > 0 && !activityKeysLimited.includes(activityKey)) continue;
+        let newKey = id ?? `${activityKey.slice(0, -3)}Ne${y + i}`;
+        while (result.activities[newKey] || this.data.system.activities[newKey]) {
+          newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+        }
+        result.activities[newKey] = (foundry as any).utils.deepClone(feature.system.activities[activityKey]);
+        result.activities[newKey]._id = `${newKey}`;
+        if (rename) {
+          (foundry as any).utils.setProperty(result.activities[newKey], "name", (rename[i] ?? ""));
+        } else if (!result.activities[newKey].name) {
+          const activityName = name.includes(`:`)
+            ? name.split(`:`).pop()!.trim()
+            : name;
+          result.activities[newKey].name = activityName;
+        }
+      }
+      result.effects.push(...((foundry as any).utils.deepClone(feature.effects)));
+      result.advancements.push(...((foundry as any).utils.deepClone(feature.system.advancement)));
+    });
+    this.customActionFeatures[name] = actionFeatures;
+    logger.debug(`Additional Activities from Action ${name}`, { result });
+    return result;
+
+  }
+
+  async _addActivityHintAdditionalActivities(ddbParent: any): Promise<void> {
+    const additionalActivityHints = this.additionalActivities;
+
+    if (!additionalActivityHints) return;
+    if (!this.activityGenerator) return;
+
+    let i = Object.keys(this.data.system.activities).length ?? 0 + 1;
+    for (const activityHint of additionalActivityHints) {
+      const actionActivity = (foundry as any).utils.getProperty(activityHint, "action");
+      const duplicate = (foundry as any).utils.getProperty(activityHint, "duplicate");
+      const _id = (foundry as any).utils.getProperty(activityHint, "id");
+      const activityData: any = {
+        activities: {},
+        effects: [],
+        advancements: [],
+      };
+
+      if (duplicate) {
+        const key = Object.keys(this.data.system.activities)[0];
+        const activityClone = (foundry as any).utils.deepClone(this.data.system.activities[key]);
+        activityClone._id = _id ?? `${activityClone._id.slice(0, -3)}clo`;
+        activityData.activities = [activityClone];
+      } else if (actionActivity) {
+        logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
+        const result = await this._getActivityDataFromAction(actionActivity, i);
+        activityData.activities = result.activities;
+        activityData.effects = result.effects;
+        activityData.advancements = result.advancements;
+      } else {
+        const result = this._getActivityDataFromDDBParent(activityHint, i, ddbParent);
+        activityData.activities = result.activities;
+        activityData.effects = result.effects;
+        activityData.advancements = result.advancements;
+      }
+
+      for (let activity of Object.values(activityData.activities) as any[]) {
+        if (activityHint.overrides) {
+          this.originalActivity = activity;
+          activity = await this._applyActivityDataOverride(activity, activityHint.overrides);
+        }
+
+        this.data.system.activities[(activity as any)._id] = activity;
+        i++;
+      }
+      if (activityData.effects) {
+        this.data.effects.push(...activityData.effects);
+      }
+      if (activityData.advancements) {
+        this.addDocumentAdvancements(...activityData.advancements);
+      }
+    }
+  }
+
+  _addDefaultActionMatchedActivities(): void {
+    (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities", {
+      enabled: true,
+      data: {},
+    });
+    let i = 0;
+    for (const [name, features] of Object.entries(this.defaultActionFeatures) as [string, any[]][]) {
+      let y = 0;
+      for (const feature of features) {
+        const activityData: any = {
+          activities: {},
+          effects: [],
+          advancements: [],
+          nameData: {},
+        };
+
+        const activityKeys = Object.keys(feature.system.activities);
+        const activityCount = activityKeys.length;
+        const featureName = (foundry as any).utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+
+        logger.debug(`Processing out ${activityCount} default additional activities for ${name}`, {
+          feature,
+          i,
+          y,
+          name,
+          activityKeys,
+          featureName,
+        });
+
+        if (feature.type === "weapon" && this.data.type === "weapon"
+          && !this.data.system.damage.base.bonus
+          && !this.data.system.damage.base.number
+          && !this.data.system.damage.base.denomination
+          && !this.data.system.damage.base.custom.enabled
+        ) {
+          this.data.system.damage.base = (foundry as any).utils.deepClone(feature.system.damage.base);
+        }
+
+        for (const activityKey of activityKeys) {
+          let newKey = `${activityKey.slice(0, -3)}Ne${y + i}`;
+          while (activityData.activities[newKey] || this.data.system.activities[newKey]) {
+            newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
+          }
+          activityData.activities[newKey] = (foundry as any).utils.deepClone(feature.system.activities[activityKey]);
+          activityData.activities[newKey]._id = `${newKey}`;
+
+          const activityName = activityData.activities[newKey].name;
+          if (!activityName || activityName === "") {
+            if (activityCount === 1) {
+              activityData.activities[newKey].name = featureName;
+            } else {
+              activityData.activities[newKey].name = `${featureName} (${utils.capitalize(activityData.activities[newKey].type)})`;
+            }
+          }
+          activityData.nameData[newKey] = Array.from(new Set([featureName, activityData.activities[newKey].name]));
+        }
+        activityData.effects.push(...(foundry as any).utils.deepClone(feature.effects));
+
+        if (feature.system.advancement) {
+          activityData.advancements.push(...(foundry as any).utils.deepClone(feature.system.advancement));
+        }
+
+        // console.warn(`Final activity map`,{
+        //   activityData
+        // })
+
+        for (const activity of Object.values(activityData.activities) as any[]) {
+          this.data.system.activities[activity._id] = activity;
+          i++;
+        }
+        if (activityData.effects) {
+          this.data.effects.push(...activityData.effects);
+        }
+        if (activityData.advancements) {
+          this.addDocumentAdvancements(activityData.advancements);
+        }
+
+        this.data.effects = this.data.effects.filter((v: any, i: number, a: any[]) => {
+          if (v.name.startsWith("Status:")) {
+            return a.findIndex((t: any) =>
+              t.name.startsWith("Status:")
+              && t.name === v.name
+              && !t.flags?.ddbimporter?.activitiesMatch
+              && !t.flags?.ddbimporter?.activityMatch) === i;
+          }
+          return true;
+        });
+        y++;
+
+        for (const effect of activityData.effects) {
+          logger.debug(`Adding default additional activity effect for ${name}`, {
+            effect,
+            this: this,
+          });
+          const existingEffect = this.data.effects.find((e: any) => e.name === effect.name && e.name.startsWith("Status:"));
+          if (existingEffect && effect._id && !existingEffect._id) {
+            existingEffect._id = effect._id;
+          }
+        }
+
+        (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities.data", {
+          featureName,
+          activityCount,
+          activityKeys: Object.keys(activityData.activities),
+          nameMap: activityData.nameData,
+        });
+
+      }
+    }
+  }
+
+  async addAdditionalActivities(ddbParent: any): Promise<void> {
+    const useDefaultActivities = this.useDefaultAdditionalActivities;
+    const addToDefaultAdditionalActivities = this.addToDefaultAdditionalActivities;
+
+    logger.debug(`Starting additional activities add for ${this.ddbParser.originalName}`, {
+      useDefaultActivities,
+      addToDefaultAdditionalActivities,
+      this: this,
+      ddbParent,
+    });
+
+    if (useDefaultActivities) {
+      logger.debug(`Adding default additional activities for ${this.ddbParser.originalName}`);
+      this._addDefaultActionMatchedActivities();
+      logger.debug(`Complete adding default additional activities for ${this.ddbParser.originalName}`, {
+        this: this,
+        data: (foundry as any).utils.deepClone(this.data),
+      });
+    }
+
+    if (!useDefaultActivities || addToDefaultAdditionalActivities) {
+      logger.debug(`Adding custom additional activities for ${this.ddbParser.originalName}`);
+      await this._addActivityHintAdditionalActivities(ddbParent);
+    }
+  }
+
+  findActionParentFromFeat(): any {
+    if (this.isCustomAction) return null;
+    if (!this.ddbParser.isAction) return null;
+
+    const componentId = this.ddbParser.ddbDefinition.componentId;
+    const componentTypeId = this.ddbParser.ddbDefinition.componentTypeId;
+
+    const feats = this.ddbParser.ddbCharacter.source.ddb.character.feats;
+
+    let feat = feats.find((f: any) =>
+      f.definition.id === componentId
+      && f.definition.entityTypeId === componentTypeId,
+    );
+
+    if (feat) return feat;
+
+    return null;
+  }
+
+  findActionParent(type: string): any {
+    if (type === "feat" || this.enricherType === "feat") return this.findActionParentFromFeat();
+    return null;
+  }
+
+  getFeatureActionsName({ type = null }: { type?: string | null } = {}): any {
+    const results: any = {
+      all: [],
+      name: [],
+      id: [],
+      options: [],
+      choices: [],
+    };
+
+    if (!this.ddbParser?.ddbDefinition) return results;
+
+    const name = this.ddbParser.ddbDefinition.name;
+    const id = this.ddbParser.ddbDefinition.id;
+    const entityTypeId = this.ddbParser.ddbDefinition.entityTypeId;
+    const derivedType = type ?? this.ddbActionType ?? this.enricherType;
+
+    if (!this.ddbParser?.ddbData?.character?.actions?.[derivedType]) return results;
+
+    const nameMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action: any) =>
+      action.name === name
+      && action.componentId === id
+      && action.componentTypeId === entityTypeId,
+    );
+
+    results.name = nameMatches;
+
+    const idMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action: any) =>
+      !nameMatches.some((m: any) => m.id === action.id)
+      && action.componentId === id
+      && action.componentTypeId === entityTypeId,
+    );
+    results.id = idMatches;
+
+    const optionMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action: any) => {
+      const actionComponentId = (foundry as any).utils.getProperty(action, "flags.ddbimporter.componentId");
+      const actionComponentTypeId = (foundry as any).utils.getProperty(action, "flags.ddbimporter.componentTypeId");
+
+      const optionMatch = this.ddbParser.ddbData.character.options[derivedType].find((option: any) =>
+        option.definition.id === actionComponentId
+        && option.definition.entityTypeId === actionComponentTypeId,
+      );
+
+      return optionMatch
+        && !nameMatches.some((m: any) => m.id === action.id)
+        && !idMatches.some((m: any) => m.id === action.id)
+        && optionMatch.componentId === id
+        && optionMatch.componentTypeId === entityTypeId;
+    });
+
+    results.options = optionMatches;
+
+    if (this.ddbParser.ddbFeature) {
+      const choices = DDBDataUtils.getChoices({
+        ddb: this.ddbParser.ddbData,
+        type: derivedType,
+        feat: this.ddbParser.ddbFeature,
+        selectionOnly: true,
+      });
+
+      // console.warn(`CHOICES`, {
+      //   choices,
+      //   this: this,
+      // });
+
+      const choiceMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action: any) => {
+        const choiceMatch = choices.some((choice: any) => choice.id === action.componentId);
+
+        return choiceMatch
+          && !nameMatches.some((m: any) => m.id === action.id)
+          && !idMatches.some((m: any) => m.id === action.id)
+          && !optionMatches.some((m: any) => m.id === action.id);
+      });
+
+      results.choices = choiceMatches;
+    }
+
+    results.all = [...nameMatches, ...idMatches, ...optionMatches, ...results.choices];
+
+    // console.warn(`Action match results ${name} (${derivedType})`, results);
+
+    return results;
+
+  }
+
+  async _buildFeaturesFromAction({ name, type, isAttack = null, id = null }: { name?: string; type?: string; isAttack?: boolean | null; id?: string | null } = {}): Promise<any[]> {
+    if (!this.ddbParser?.ddbCharacter) return [];
+    const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type })
+      .filter((action: any) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name))
+      .filter((action: any) => !id
+        || (type === "class" || (type !== "class" && action.id === id)),
+      );
+
+    const f = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type })
+      .filter((action: any) => this.builtFeaturesFromActionFilters.length === 0 || this.builtFeaturesFromActionFilters.includes(action.name));
+
+    if (f.length !== actions.length) {
+      logger.warn(`Filtered actions from ${f.length} to ${actions.length} for ${name} (${type}) do not match`, {
+        f,
+        actions,
+        this: this,
+        name,
+        type,
+        id,
+      });
+    }
+    logger.debug(`Built Actions from Action "${name}" for ${this.ddbParser.originalName}`, { actions, this: this });
+    if (actions.length === 0) return [];
+    const actionFeatures = await Promise.all(actions.map(async (action: any) => {
+      const generatedActionFeature = await this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
+        action,
+        isAttack,
+        manager: this.manager,
+        extraFlags: this.ddbParser.extraFlags,
+        // usesOnActivity: true,
+        // usesOnActivity: action.length > 1,
+      });
+
+      const actionFeatureName = (foundry as any).utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;
+      if (this.ddbParser.originalName === actionFeatureName) {
+        if (this.activityNameMatchFeature) {
+          logger.warn(`Activity Name Match for ${this.ddbParser.originalName} already set`, {
+            this: this,
+            generatedActionFeature,
+            previous: (foundry as any).utils.deepClone(this.activityNameMatchFeature),
+          });
+        }
+        this.activityNameMatchFeature = generatedActionFeature;
+      }
+
+      return generatedActionFeature;
+    }));
+
+    logger.debug(`Additional Features from Action ${name}`, { actionFeatures });
+    return actionFeatures;
+
+  }
+
+
+  async _buildDefaultActionFeatures({ type = null }: { type?: string | null } = {}): Promise<void> {
+    const derivedType = type ?? this.ddbActionType ?? this.enricherType;
+    if (!derivedType) return;
+    const actions = this.getFeatureActionsName({ type: derivedType });
+
+    const actionsToBuild = actions.all.map((action: any) => {
+      return {
+        action: {
+          name: action.name,
+          type: derivedType,
+          id: action.id,
+        },
+      };
+    });
+
+    // console.warn(`Building Features from Actions for ${this.ddbParser.originalName}`, {
+    //   type,
+    //   derivedType,
+    //   actionsToBuild,
+    //   actions,
+    // });
+
+    let i = 1;
+    for (const activityHint of actionsToBuild) {
+      const actionActivity = (foundry as any).utils.getProperty(activityHint, "action");
+
+      logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
+      const actionFeatures = await this._buildFeaturesFromAction(actionActivity);
+      this.defaultActionFeatures[actionActivity.name] = actionFeatures;
+
+      // console.warn(`Features from actions ${this.ddbParser.originalName}`, {
+      //   actionFeatures,
+      //   activityHint,
+      //   this: this,
+      //   activityMatchedFeatures: this.defaultActionFeatures,
+      //   i,
+      // });
+      i++;
+    }
+
+    logger.debug(`Default Feature Action Build Complete for ${this.ddbParser.originalName}`, {
+      this: this,
+      defaultActionFeatures: this.defaultActionFeatures,
+    });
+  }
+
+  async customFunction(options: any = {}): Promise<void> {
+    await this.loadedEnricher?.customFunction(options);
+  }
+
+  async cleanup(options: any = {}): Promise<void> {
+    await this.loadedEnricher?.cleanup(options);
+  }
+
+}

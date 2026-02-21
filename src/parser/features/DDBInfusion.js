@@ -10,7 +10,7 @@ import {
   mixins as EnricherMixins,
   Effects,
   DDBClassFeatureEnricher,
-} from "../enrichers/_module.mjs";
+} from "../enrichers/_module";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBAction from "./DDBAction.js";
 import DDBAttackAction from "./DDBAttackAction.js";

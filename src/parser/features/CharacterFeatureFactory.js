@@ -10,7 +10,7 @@ import {
   DDBSpeciesTraitEnricher,
   DDBFeatEnricher,
   DDBBackgroundEnricher,
-} from "../enrichers/_module.mjs";
+} from "../enrichers/_module";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import DDBFeature from "./DDBFeature.js";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";

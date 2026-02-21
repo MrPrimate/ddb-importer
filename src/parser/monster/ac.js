@@ -1,6 +1,6 @@
 import { logger, DDBItemImporter, utils, CompendiumHelper } from "../../lib/_module.mjs";
 import DDBMonster from "../DDBMonster.js";
-import ACBonusEffects from "../enrichers/effects/ACBonusEffects.mjs";
+import ACBonusEffects from "../enrichers/effects/ACBonusEffects";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 

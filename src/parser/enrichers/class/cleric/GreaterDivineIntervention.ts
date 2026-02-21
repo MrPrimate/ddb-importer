@@ -1,0 +1,26 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class GreaterDivineIntervention extends DDBEnricherData {
+
+  get type() {
+    return "utility";
+  }
+
+  get activity() {
+    return {
+      data: {
+        roll: {
+          prompt: false,
+          visible: false,
+          formula: "2d4",
+          name: "Long rests till next intervention",
+        },
+      },
+    };
+  }
+
+  get effects() {
+    return [];
+  }
+
+}

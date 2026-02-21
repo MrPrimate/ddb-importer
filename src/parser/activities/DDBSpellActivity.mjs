@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module.mjs";
 import { utils, logger } from "../../lib/_module.mjs";
-import { DDBBasicActivity } from "../enrichers/mixins/_module.mjs";
+import { DDBBasicActivity } from "../enrichers/mixins/_module";
 import { SystemHelpers } from "../lib/_module.mjs";
 
 

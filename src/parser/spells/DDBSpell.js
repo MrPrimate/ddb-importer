@@ -2,10 +2,10 @@ import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { logger, utils, CompendiumHelper, DDBSources } from "../../lib/_module.mjs";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory.mjs";
 import { DDBSpellActivity } from "../activities/_module.mjs";
-import { DDBSpellEnricher, mixins } from "../enrichers/_module.mjs";
+import { DDBSpellEnricher, mixins } from "../enrichers/_module";
 import DDBSummonsManager from "../companions/DDBSummonsManager.mjs";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
-import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module.mjs";
+import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 

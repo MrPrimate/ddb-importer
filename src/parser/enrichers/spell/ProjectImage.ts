@@ -1,0 +1,34 @@
+import DDBEnricherData from "../data/DDBEnricherData";
+
+export default class ProjectImage extends DDBEnricherData {
+
+  get type() {
+    return "summon";
+  }
+
+  get summonsFunction() {
+    return DDBImporter.lib.DDBSummonsInterface.getIllusions;
+  }
+
+  get generateSummons() {
+    return true;
+  }
+
+  get activity() {
+    return {
+      noTemplate: true,
+      profileKeys: [
+        { count: 1, name: "IllusionCreature" },
+      ],
+      data: {
+        creatureSizes: [
+          "tiny",
+          "sm",
+          "med",
+          "lg",
+        ],
+      },
+    };
+  }
+
+}

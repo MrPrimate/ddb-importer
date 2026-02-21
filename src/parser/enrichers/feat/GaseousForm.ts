@@ -1,0 +1,24 @@
+import DDBEnricherData from "../data/DDBEnricherData";
+
+export default class GaseousForm extends DDBEnricherData {
+
+  get type() {
+    return "none";
+  }
+
+  // get type() {
+  //   return "cast";
+  // }
+
+  // get activity() {
+  //   return {
+  //     addSpellUuid: "Gaseous Form",
+  //     data: {
+  //       spell: {
+  //         spellbook: false,
+  //       },
+  //     },
+  //   };
+  // }
+
+}

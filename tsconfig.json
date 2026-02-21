@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    "strict": false,
+    "noEmit": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "types": [],
+    "paths": {
+      "@client/*": ["./foundry/client/*"],
+      "@common/*": ["./foundry/common/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.mjs",
+    "src/**/*.js"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

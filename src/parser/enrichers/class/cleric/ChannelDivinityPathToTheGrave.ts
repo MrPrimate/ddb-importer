@@ -1,0 +1,19 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class ChannelDivinityPathToTheGrave extends DDBEnricherData {
+
+  get effects() {
+    return [
+      {
+        name: "Cursed",
+        options: {
+          durationSeconds: 6,
+        },
+        daeSpecialDurations: ["isDamaged"],
+        changes: DDBEnricherData.allDamageTypes().map((damageType) =>
+          DDBEnricherData.ChangeHelper.unsignedAddChange(damageType, 200, "system.traits.dv.value"),
+        ),
+      },
+    ];
+  }
+}

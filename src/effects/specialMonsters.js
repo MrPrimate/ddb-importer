@@ -10,7 +10,7 @@ import { strahdZombieEffects } from "./monsterFeatures/strahdZombie.js";
 // import { beholderEyeRaysEffect } from "./monsterFeatures/beholderEyeRays.js";
 import { giantSpiderEffects } from "./monsterFeatures/giantSpider.js";
 // import { beholderEyeRayLegendaryEffect } from "./monsterFeatures/beholderEyeRayLegendary.js";
-import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects";
 
 export function baseMonsterFeatureEffect(document, label,
   { transfer = false, disabled = false, showIcon = null } = {},

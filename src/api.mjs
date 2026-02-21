@@ -14,7 +14,7 @@ import DDBCompanion2014 from "./parser/companions/DDBCompanion2014.mjs";
 import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory.mjs";
 import { calculatePrice, updateItemPrices } from "./muncher/prices.js";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager.mjs";
-import * as Enrichers from "./parser/enrichers/_module.mjs";
+import * as Enrichers from "./parser/enrichers/_module";
 import * as ParserLib from "./parser/lib/_module.mjs";
 import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface.mjs";
 import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";

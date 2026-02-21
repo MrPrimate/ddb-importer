@@ -1,5 +1,5 @@
 import { logger } from "../lib/_module.mjs";
-import AutoEffects from "../parser/enrichers/effects/AutoEffects.mjs";
+import AutoEffects from "../parser/enrichers/effects/AutoEffects";
 import {
   effectModules,
   applyDefaultMidiFlags,

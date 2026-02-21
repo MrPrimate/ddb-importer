@@ -1,4 +1,4 @@
-import { AutoEffects } from "../parser/enrichers/effects/_module.mjs";
+import { AutoEffects } from "../parser/enrichers/effects/_module";
 import { DDBMacros } from "../lib/_module.mjs";
 
 async function woundingWeaponEffect(document) {

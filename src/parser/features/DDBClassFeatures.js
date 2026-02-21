@@ -1,7 +1,7 @@
 import { logger } from "../../lib/_module.mjs";
 import DDBChoiceFeature from "./DDBChoiceFeature.js";
 import DDBFeature from "./DDBFeature.js";
-import { DDBClassFeatureEnricher } from "../enrichers/_module.mjs";
+import { DDBClassFeatureEnricher } from "../enrichers/_module";
 import { DDBFeatureActivity } from "../activities/_module.mjs";
 import CharacterFeatureFactory from "./CharacterFeatureFactory.js";
 import { DICTIONARY } from "../../config/_module.mjs";

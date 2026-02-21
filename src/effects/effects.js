@@ -1,4 +1,4 @@
-import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module.mjs";
+import { AutoEffects, ChangeHelper, MidiEffects } from "../parser/enrichers/effects/_module";
 
 // eslint-disable-next-line complexity
 export function effectModules() {

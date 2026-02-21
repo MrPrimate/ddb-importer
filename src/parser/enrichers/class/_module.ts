@@ -1,0 +1,20 @@
+export * as Artificer from "./artificer/_module";
+export * as Barbarian from "./barbarian/_module";
+export * as Bard from "./bard/_module";
+export * as Cleric from "./cleric/_module";
+export * as Druid from "./druid/_module";
+export * as Fighter from "./fighter/_module";
+export * as Gunslinger from "./gunslinger/_module";
+export * as Illriger from "./illriger/_module";
+export * as Monk from "./monk/_module";
+export * as Monsterhunter from "./monster-hunter/_module";
+export * as Paladin from "./paladin/_module";
+export * as Pugilist from "./pugilist/_module";
+export * as Ranger from "./ranger/_module";
+export * as Rogue from "./rogue/_module";
+export * as Shared from "./shared/_module";
+export * as Sorcerer from "./sorcerer/_module";
+export * as Warlock from "./warlock/_module";
+export * as Wizard from "./wizard/_module";
+export { default as Generic } from "./Generic";
+

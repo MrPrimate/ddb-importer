@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../config/_module.mjs";
 import { logger } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
-import { ACBonusEffects } from "../enrichers/effects/_module.mjs";
+import { ACBonusEffects } from "../enrichers/effects/_module";
 import { DDBDataUtils, DDBModifiers, FilterModifiers } from "../lib/_module.mjs";
 
 /**

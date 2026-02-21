@@ -4,6 +4,29 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = {
   mode: 'production',
   devtool: "source-map",
+  resolve: {
+    extensions: ['.ts', '.mjs', '.js'],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
+      {
+        test: /\.ts$/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+          },
+        },
+        exclude: /node_modules/,
+      },
+    ],
+  },
   entry: {
     main: {
       import: './src/index.mjs',

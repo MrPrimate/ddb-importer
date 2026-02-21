@@ -1,7 +1,7 @@
 import { utils, logger, CompendiumHelper } from "../../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../../config/_module.mjs";
 import { DDBMonsterFeatureActivity } from "../../activities/_module.mjs";
-import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module.mjs";
+import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module.mjs";
 import { DDBMonsterDamage } from "./DDBMonsterDamage.js";
 

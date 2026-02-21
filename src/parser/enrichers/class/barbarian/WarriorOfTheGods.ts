@@ -1,0 +1,41 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+
+export default class WarriorOfTheGods extends DDBEnricherData {
+  get type() {
+    return this.is2014 ? "none" : "heal";
+  }
+
+  get activity() {
+    if (this.is2014) return {};
+    return {
+      name: "Heal",
+      targetType: "self",
+      rangeSelf: true,
+      itemConsumeValue: "1",
+      addScalingMode: "amount",
+      addConsumptionScalingMax: "@item.uses.value",
+      data: {
+        healing: DDBEnricherData.basicDamagePart({
+          customFormula: "(@scaling)d12",
+          types: ["healing"],
+        }),
+      },
+    };
+  }
+
+  get override() {
+    return {
+      data: this.is2014
+        ? {}
+        : {
+          "system.uses": this._getUsesWithSpent({
+            type: "class",
+            name: "Warrior of the Gods: Expend Dice",
+            max: "@scale.zealot.warrior-of-the-gods.number",
+            period: "lr",
+          }),
+        },
+    };
+  }
+
+}

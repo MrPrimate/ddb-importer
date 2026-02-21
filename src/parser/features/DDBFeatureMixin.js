@@ -11,7 +11,7 @@ import {
   DDBSpeciesTraitEnricher,
   DDBClassFeatureEnricher,
   DDBBackgroundEnricher,
-} from "../enrichers/_module.mjs";
+} from "../enrichers/_module";
 import {
   DDBDataUtils,
   DDBDescriptions,

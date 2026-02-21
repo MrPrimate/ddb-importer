@@ -8,7 +8,7 @@ import {
 import { DICTIONARY } from "../config/_module.mjs";
 import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature.js";
 import { DDBDescriptions } from "../parser/lib/_module.mjs";
-import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module.mjs";
+import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module";
 
 export default class DDBEffectHelper {
 

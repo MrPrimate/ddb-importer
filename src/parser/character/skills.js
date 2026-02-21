@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../config/_module.mjs";
 import { logger } from "../../lib/_module.mjs";
 import DDBCharacter from "../DDBCharacter.js";
-import { AutoEffects } from "../enrichers/effects/_module.mjs";
+import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBModifiers } from "../lib/_module.mjs";
 
 DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {

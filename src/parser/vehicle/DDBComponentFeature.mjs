@@ -1,6 +1,6 @@
 import { utils, logger } from "../../lib/_module.mjs";
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
-import { DDBMonsterFeatureEnricher, Effects, mixins } from "../enrichers/_module.mjs";
+import { DDBMonsterFeatureEnricher, Effects, mixins } from "../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../lib/_module.mjs";
 
 import DDBVehicleActivity from "../activities/DDBVehicleActivity.mjs";

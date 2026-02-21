@@ -1,7 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
 import { utils, logger, Iconizer, CompendiumHelper, DDBSources } from "../../lib/_module.mjs";
 import { DDBItemActivity } from "../activities/_module.mjs";
-import { DDBItemEnricher, mixins, Effects } from "../enrichers/_module.mjs";
+import { DDBItemEnricher, mixins, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker.js";
 import { addRestrictionFlags } from "../../effects/restrictions.js";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";

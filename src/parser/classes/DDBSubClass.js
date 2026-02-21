@@ -1,6 +1,6 @@
 import { logger } from "../../lib/_module.mjs";
 import AdvancementHelper from "../advancements/AdvancementHelper.js";
-import SpellListExtractor from "../enrichers/data/SpellListExtractor.mjs";
+import SpellListExtractor from "../enrichers/data/SpellListExtractor";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module.mjs";
 import DDBClass from "./DDBClass.js";
 

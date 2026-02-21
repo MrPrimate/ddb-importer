@@ -7,6 +7,7 @@
   "scripts": {
     "lint": "npx eslint src/",
     "lint-fix": "npx eslint src/ --fix",
+    "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run clear; npm run link; webpack",
     "clear": "rm -rf dist/*",
@@ -15,16 +16,19 @@
     "dev-link": "node ./tools/foundry-dev-link.mjs"
   },
   "devDependencies": {
-    "node-fetch": "^3.2.10",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jsdoc": "^46.5.0",
+    "node-fetch": "^3.2.10",
     "prettier": "3.1.0",
     "prettier-eslint": "^16.3.0",
     "prompts": "^2.4.2",
     "terser": "^5.10.0",
     "terser-webpack-plugin": "^5.3.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
     "webpack": "^5.76.0",
-    "webpack-cli": "^4.7.2",
-    "eslint-plugin-jsdoc": "^46.5.0"
+    "webpack-cli": "^4.7.2"
   }
 }

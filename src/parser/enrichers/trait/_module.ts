@@ -1,0 +1,26 @@
+export * as Aasimar from "./aasimar/_module";
+export * as Bugbear from "./bugbear/_module";
+export * as Changeling from "./changeling/_module";
+export * as Dhampir from "./dhampir/_module";
+export * as Dragonborn from "./dragonborn/_module";
+export * as Dwarf from "./dwarf/_module";
+export * as Eladrin from "./eladrin/_module";
+export * as Generic from "./generic/_module";
+export * as Gnome from "./gnome/_module";
+export * as Goblin from "./goblin/_module";
+export * as Goliath from "./goliath/_module";
+export * as Hadozee from "./hadozee/_module";
+export * as HalfOrc from "./halfOrc/_module";
+export * as Halfling from "./halfling/_module";
+export * as Human from "./human/_module";
+export * as Kalashtar from "./kalashtar/_module";
+export * as Khoravar from "./khoravar/_module";
+export * as Leonin from "./leonin/_module";
+export * as Orc from "./orc/_module";
+export * as Shadarkai from "./shadar-kai/_module";
+export * as Shifter from "./shifter/_module";
+export * as Tiefling from "./tiefling/_module";
+export * as Tortle from "./tortle/_module";
+export * as Vedalken from "./vedalken/_module";
+export * as Wulven from "./wulven/_module";
+
