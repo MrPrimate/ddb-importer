@@ -15,6 +15,7 @@ async function setLocalStorage(key, value) {
 const PatreonHelper = {
 
   isValidKey: async(local = false, setKey = true, overrideKey = null) => {
+    // eslint-disable-next-line no-useless-assignment
     let validKey = false;
 
     const key = overrideKey ?? PatreonHelper.getPatreonKey(local);

@@ -512,7 +512,7 @@ function enhanceParsedExtra(actor, extra) {
           const ability = item.system.ability;
           const mod = parseInt(extra.system.abilities[ability].mod);
           const characterMod = parseInt(actor.system.abilities[characterAbility].mod);
-           
+
           const globalMod = parseInt(eval(actor.system.bonuses.rsak.attack || 0));
           item.system.attack.bonus = characterMod + globalMod - mod;
         }
@@ -524,7 +524,7 @@ function enhanceParsedExtra(actor, extra) {
   return extra;
 }
 
-export async function generateCharacterExtras(html, ddbCharacter, actor) {
+export async function generateCharacterExtras(_html, ddbCharacter, actor) {
   const munchSettings = setExtraMunchDefaults();
 
   try {

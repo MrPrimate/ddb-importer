@@ -1,4 +1,4 @@
- 
+
 import { FileHelper } from "./_module";
 
 const logger = {
@@ -21,6 +21,7 @@ const logger = {
         return false;
       }
       return true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       return true;
     }
@@ -34,7 +35,7 @@ const logger = {
       });
     }
   },
-   
+
   log: (logLevel, ...data) => {
     logger._addToLogFile(logLevel, data);
     if (!logger._showMessage(logLevel, data)) {
@@ -58,59 +59,59 @@ const logger = {
     switch (logLevel.toUpperCase()) {
       case "VERBOSE":
         if (payload) {
-          console.debug(msg, ...payload); 
+          console.debug(msg, ...payload);
         } else {
-          console.debug(msg); 
+          console.debug(msg);
         }
         break;
       case "DEBUG":
         if (payload) {
-          console.debug(msg, ...payload); 
+          console.debug(msg, ...payload);
         } else {
-          console.debug(msg); 
+          console.debug(msg);
         }
         break;
       case "INFO":
         if (payload) {
-          console.info(msg, ...payload); 
+          console.info(msg, ...payload);
         } else {
-          console.info(msg); 
+          console.info(msg);
         }
         break;
       case "WARN":
         if (payload) {
-          console.warn(msg, ...payload); 
+          console.warn(msg, ...payload);
         } else {
-          console.warn(msg); 
+          console.warn(msg);
         }
         break;
       case "ERR":
         if (payload) {
-          console.error(msg, ...payload); 
+          console.error(msg, ...payload);
         } else {
-          console.error(msg); 
+          console.error(msg);
         }
         CONFIG.DDBI.CAPTURED_ERRORS.push({ type: "ERROR", msg, payload });
         break;
       case "TIME":
         if (payload) {
-          console.time(msg, ...payload); 
+          console.time(msg, ...payload);
         } else {
-          console.time(msg); 
+          console.time(msg);
         }
         break;
       case "TIMEEND":
         if (payload) {
-          console.timeEnd(msg, ...payload); 
+          console.timeEnd(msg, ...payload);
         } else {
-          console.timeEnd(msg); 
+          console.timeEnd(msg);
         }
         break;
       case "TIMELOG":
         if (payload) {
-          console.timeLog(msg, ...payload); 
+          console.timeLog(msg, ...payload);
         } else {
-          console.timeLog(msg); 
+          console.timeLog(msg);
         }
         break;
       default: break;
@@ -154,14 +155,14 @@ export default logger;
 
 const getCircularReplacer = () => {
   const seen = new WeakSet();
-  return (key, value) => {
+  return (_key, value) => {
     if (typeof value === 'object' && value !== null) {
       if (seen.has(value)) {
         return;
       }
       seen.add(value);
     }
-     
+
     return value;
   };
 };

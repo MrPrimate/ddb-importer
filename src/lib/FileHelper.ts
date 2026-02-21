@@ -71,6 +71,7 @@ export class FileHelper {
         bucket: dir.bucket,
       });
       return true;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return false;
     }
@@ -310,7 +311,9 @@ export class FileHelper {
         }
       }
     } catch (exception) {
-      throw new Error(`Unable to determine file URL for directoryPath "${directoryPath}" and filename "${filename}"`);
+      throw new Error(`Unable to determine file URL for directoryPath "${directoryPath}" and filename "${filename}"`, {
+        cause: exception,
+      });
     }
     return encodeURI(uri);
   }
@@ -370,6 +373,7 @@ export class FileHelper {
     } else if (imageUrl && remoteImage) {
       try {
         return imageUrl.trim();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (ignored) {
         return null;
       }

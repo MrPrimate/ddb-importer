@@ -38,7 +38,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   /** @override */
-   
+
   async getData() {
     let data;
     let packages = [];
@@ -76,7 +76,7 @@ export default class ThirdPartyMunch extends FormApplication {
     html.find("#select-package").on("change", this._selectPackage.bind(this, null, html));
   }
 
-  async _selectPackage(event, html) {
+  async _selectPackage(_event, html) {
     const packageSelectionElement = html.find("#select-package");
 
     // get selected campaign from html selection
@@ -213,7 +213,7 @@ export default class ThirdPartyMunch extends FormApplication {
         });
       }
     } catch (err) {
-       
+
       logger.warn(`Error during reference update for object ${item}`, err);
     }
   }

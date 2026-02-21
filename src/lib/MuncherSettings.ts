@@ -406,7 +406,7 @@ const MuncherSettings = {
   },
 
 
-  updateActorSettings: async (html, event) => {
+  updateActorSettings: async (_html, event) => {
     const selection = event.currentTarget.dataset.section;
     const checked = event.currentTarget.checked;
 
@@ -1034,7 +1034,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
-   
+
   updateMuncherSettings: async (_html, event) => {
     const selection = event.target.dataset.section;
     const checked = event.target.checked;

@@ -196,7 +196,7 @@ const STUBS = {
   </svg>`,
 };
 
-function unPad(match, p1) {
+function unPad(_match, p1) {
   if (isNaN(parseInt(p1))) {
     return p1;
   } else {
@@ -535,10 +535,10 @@ export default class Iconizer {
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
     for (const item of this.documents) {
-       
+
       if (item.type !== type || item.img) continue;
       const ddbImg = foundry.utils.getProperty(item, "flags.ddbimporter.ddbImg");
-       
+
       if (!ddbImg || ddbImg === "") continue;
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
       const rules = item.system.source?.rules ?? "2024";

@@ -272,9 +272,9 @@ export default class AdventureMunchHelpers {
     return newDoc;
   }
 
-  static getImportType(type) {
+  static getImportType(type: string) {
     const typeName = type[0].toUpperCase() + type.slice(1);
-    let importType = typeName;
+    let importType: string;
 
     switch (type) {
       case "journal":

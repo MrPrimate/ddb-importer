@@ -83,7 +83,7 @@ class AdvancedDialog {
         return `${thLabel}<td><select id="ddb-${idx}">${optionString}</select></td>`;
       }
       case "number": {
-        let value = "";
+        let value;
         if (utils.isObject(options)) {
           const values = [];
           for (const [key, v] of Object.entries(options)) {

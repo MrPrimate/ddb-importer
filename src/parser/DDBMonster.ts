@@ -1,9 +1,8 @@
 import { newNPC } from "./monster/templates/monster";
 import { specialCases } from "./monster/special";
 import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters";
-import { logger, utils, CompendiumHelper, FileHelper, Secrets, DDBProxy, PatreonHelper } from '../lib/_module';
+import { logger, utils, CompendiumHelper } from '../lib/_module';
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory";
-import { SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
 
 export default class DDBMonster {

@@ -203,9 +203,9 @@ export default class Crosshairs extends Sheet {
   _setRulerText() {
     this.ruler.text = this.label;
     this.ruler.position.set(
-       
+
       -this.ruler.width / 2 + this.labelOffset.x,
-       
+
       this.template.height / 2 + 5 + this.labelOffset.y,
     );
   }
@@ -264,7 +264,7 @@ export default class Crosshairs extends Sheet {
     this._setRulerText();
   }
 
-   
+
   get layer() {
     return canvas.activeLayer;
   }
@@ -344,13 +344,13 @@ export default class Crosshairs extends Sheet {
     const document = this.document;
     const thisSceneSize = this.scene.grid.size;
     if (event.shiftKey && !this.lockSize) {
-       
+
       let distance = document.distance + 0.25 * Math.sign(event.deltaY);
       distance = Math.max(distance, 0.25);
       this.document.updateSource({ distance });
       this.radius = (document.distance * thisSceneSize) / 2;
     } else if (!event.altKey) {
-       
+
       const direction = document.direction + snap * Math.sign(event.deltaY);
       this.document.updateSource({ direction });
     }
@@ -373,8 +373,8 @@ export default class Crosshairs extends Sheet {
   }
 
   // Cleans up not-needed handlers
-   
-  _clearHandlers(event) {
+
+  _clearHandlers(_event) {
     this.template.destroy();
     this._destroyed = true;
     this.layer.preview.removeChild(this);

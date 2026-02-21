@@ -1,4 +1,4 @@
- 
+
 const Range = function *(total = 0, step = 1, from = 0) {
   // eslint-disable-next-line no-empty
   for (let i = 0; i < total; yield from + i++ * step) {}
@@ -26,7 +26,7 @@ export default class Utils {
    */
   static async asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index += 1) {
-       
+
       await callback(array[index], index, array);
     }
   }
@@ -40,7 +40,7 @@ export default class Utils {
   static removeCompendiumLinks(text) {
     const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;
     const linkRegExNoTag = /@\w+\[(.*)\]/g;
-    function replaceRule(match, p1, p2) {
+    function replaceRule(_match, p1, p2) {
       if (p2) {
         return `${p2}`;
       } else {
@@ -358,9 +358,9 @@ export default class Utils {
   }
 
   static versionCompare(v1, v2, options) {
-    let lexicographical = options && options.lexicographical,
-      zeroExtend = options && options.zeroExtend,
-      v1parts = v1.split("."),
+    const lexicographical = options && options.lexicographical,
+      zeroExtend = options && options.zeroExtend;
+    let v1parts = v1.split("."),
       v2parts = v2.split(".");
 
     function isValidPart(x) {

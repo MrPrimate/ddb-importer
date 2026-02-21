@@ -427,7 +427,7 @@ ${item.system.description.chat}
       }
     });
     // some items get ignored completly, if so we don't match these
-    if (!foundry.utils.getProperty(ddbItemFlags, "ignoreItemImport") ?? false) {
+    if (!(foundry.utils.getProperty(ddbItemFlags, "ignoreItemImport") ?? false)) {
       logger.debug(`Updating ${item.name} with id`);
       item["_id"] = existingItem["id"];
       if (foundry.utils.getProperty(ddbItemFlags, "ignoreIcon") ?? false) {
@@ -498,12 +498,9 @@ ${item.system.description.chat}
   }
 
   async fetchCharacterItems() {
-    // items for actor
-    let items = [];
-
     logger.debug("Calculating items to create and update...");
     this.notifier("Calculating items to create and update...");
-    items = this.filterItemsByUserSelection();
+    let items = this.filterItemsByUserSelection();
 
     logger.debug("Checking existing items for details...");
     this.notifier("Checking existing items for details...");
@@ -983,7 +980,9 @@ ${item.system.description.chat}
       logger.error(error.stack);
       this.notifier("Error importing character, attempting rolling back, see console (F12) for details.", { message: error, isError: true });
       await this.resetActor();
-      throw new Error("ImportFailure");
+      throw new Error("ImportFailure", {
+        cause: error,
+      });
     } finally {
       await this.ddbCharacter.updateDynamicUpdates(activeUpdateState);
       await this.restoreMidiQolConfig();

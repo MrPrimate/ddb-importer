@@ -211,7 +211,7 @@ const CompendiumHelper = {
     id = undefined,
     packageType = "world",
     folderId = null,
-     
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     dnd5eTypeTags = [],
     version = null,
     image = null,
@@ -361,7 +361,7 @@ const CompendiumHelper = {
       })
       .map((data) => {
         const entry = index.find((entity) => {
-          const nameMatch = (entity.originalNormalisedName === data.name) ?? (entity.normalizedName === data.name);
+          const nameMatch = (entity.originalNormalisedName === data.name) || (entity.normalizedName === data.name);
           if (!nameMatch) return false;
           for (const [field, value] of Object.entries(matchedProperties)) {
             if (foundry.utils.getProperty(entity, field) !== value) return false;

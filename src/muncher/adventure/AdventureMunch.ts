@@ -418,7 +418,7 @@ export default class AdventureMunch {
     return undefined;
   }
 
-   
+
   async _getTokenUpdateData(worldActor, sceneToken) {
     const items = [];
     const ddbItems = sceneToken.flags.ddbItems ?? [];
@@ -554,7 +554,7 @@ export default class AdventureMunch {
     return tokenResults;
   }
 
-   
+
   async _revisitScene(document) {
     const updatedData = {};
     const scene = foundry.utils.duplicate(document);
@@ -608,7 +608,7 @@ export default class AdventureMunch {
         });
       }
     } catch (err) {
-       
+
       logger.warn(`Error during reference update for object ${item}`, err);
     }
     logger.info("Revisit data complete");
@@ -788,7 +788,9 @@ export default class AdventureMunch {
         this.folders = JSON.parse(await this._getTextFileFromZip("folders.json"));
         logger.debug("Adventure folders", { folders: this.folders });
       } catch (err) {
-        logger.warn(`Folder structure file not found.`);
+        logger.warn(`Folder structure file not found.`, {
+          err,
+        });
       }
 
       if (this.adventure.system !== game.data.system.id) {
@@ -1177,7 +1179,7 @@ export default class AdventureMunch {
     }
   }
 
-   
+
   async _importRenderedFile(typeName, data, needRevisit, overwriteIds) {
     const overwriteEntity = overwriteIds.includes(data._id);
     const options = { keepId: true, keepEmbeddedIds: true };
@@ -1419,7 +1421,7 @@ export default class AdventureMunch {
 
     totalCount = dataFiles.length;
 
-     
+
     await utils.asyncForEach(dataFiles, async (file) => {
       const rawData = await this._getTextFileFromZip(file.filename);
       let data = JSON.parse(rawData);
