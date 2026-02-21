@@ -1,5 +1,5 @@
-import { logger, DDBItemImporter, utils } from "../../lib/_module.mjs";
-import { getClassFeature, NO_TRAITS } from "./shared.js";
+import { logger, DDBItemImporter, utils } from "../../lib/_module";
+import { getClassFeature, NO_TRAITS } from "./shared";
 
 export async function getClassOptions(data, className) {
   logger.debug("get options started");

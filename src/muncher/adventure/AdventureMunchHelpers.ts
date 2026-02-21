@@ -1,8 +1,8 @@
-import { logger, CompendiumHelper, PatreonHelper, utils, FileHelper } from "../../lib/_module.mjs";
-import { parseSpells } from "../spells.js";
-import DDBItemsImporter from "../DDBItemsImporter.mjs";
-import AdventureMunch from "./AdventureMunch.js";
-import { SETTINGS } from "../../config/_module.mjs";
+import { logger, CompendiumHelper, PatreonHelper, utils, FileHelper } from "../../lib/_module";
+import { parseSpells } from "../spells";
+import DDBItemsImporter from "../DDBItemsImporter";
+import AdventureMunch from "./AdventureMunch";
+import { SETTINGS } from "../../config/_module";
 import DDBMonsterFactory from "../../parser/DDBMonsterFactory";
 
 export default class AdventureMunchHelpers {

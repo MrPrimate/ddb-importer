@@ -5,7 +5,7 @@ import {
   CompendiumHelper,
   DDBProxy,
   logger,
-} from "../lib/_module.mjs";
+} from "../lib/_module";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 
 

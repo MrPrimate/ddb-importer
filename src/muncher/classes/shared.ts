@@ -4,8 +4,8 @@ import {
   FileHelper,
   CompendiumHelper,
   DDBSources,
-} from "../../lib/_module.mjs";
-import { DICTIONARY, SETTINGS } from "../../config/_module.mjs";
+} from "../../lib/_module";
+import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { DDBTable, DDBReferenceLinker } from "../../parser/lib/_module";
 
 const CLASS_TEMPLATE = {

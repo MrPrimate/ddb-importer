@@ -1,5 +1,5 @@
-import { logger, utils, DDBItemImporter, DDBCompendiumFolders } from "../../lib/_module.mjs";
-import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared.js";
+import { logger, utils, DDBItemImporter, DDBCompendiumFolders } from "../../lib/_module";
+import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements, getClassImages } from "./shared";
 // import { buildClassFeatures } from "../../parser/classes/index";
 import { DDBReferenceLinker } from "../../parser/lib/_module";
 

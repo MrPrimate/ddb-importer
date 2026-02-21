@@ -6,8 +6,8 @@ import {
   PatreonHelper,
   DDBProxy,
   utils,
-} from "../lib/_module.mjs";
-import { SETTINGS } from "../config/_module.mjs";
+} from "../lib/_module";
+import { SETTINGS } from "../config/_module";
 
 export default class DDBFrameImporter {
 

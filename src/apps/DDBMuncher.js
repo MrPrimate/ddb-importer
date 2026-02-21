@@ -8,21 +8,21 @@ import {
   DDBSources,
   DDBCampaigns,
 } from "../lib/_module.mjs";
-import { parseSpells } from "../muncher/spells.js";
-import DDBFrameImporter from "../muncher/DDBFrameImporter.js";
-import { downloadAdventureConfig } from "../muncher/adventure.js";
-import AdventureMunch from "../muncher/adventure/AdventureMunch.js";
-import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch.js";
-import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools.js";
+import { parseSpells } from "../muncher/spells";
+import DDBFrameImporter from "../muncher/DDBFrameImporter";
+import { downloadAdventureConfig } from "../muncher/adventure";
+import AdventureMunch from "../muncher/adventure/AdventureMunch";
+import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch";
+import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
-import { updateItemPrices } from "../muncher/prices.js";
+import { updateItemPrices } from "../muncher/prices";
 import DDBAppV2 from "./DDBAppV2.js";
 import DDBEncounterFactory from "../parser/DDBEncounterFactory";
 import DDBDebugger from "./DDBDebugger.mjs";
 import { SETTINGS } from "../config/_module.mjs";
-import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
+import DDBMuleHandler from "../muncher/DDBMuleHandler";
 import DDBCharacter from "../parser/DDBCharacter";
-import DDBItemsImporter from "../muncher/DDBItemsImporter.mjs";
+import DDBItemsImporter from "../muncher/DDBItemsImporter";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBSetup from "./DDBSetup.js";
 

@@ -1,9 +1,9 @@
-import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import { logger, utils, Iconizer, DDBSources } from "../../lib/_module.mjs";
-import { generateAdventureConfig } from "../adventure.js";
-import AdventureMunch from "./AdventureMunch.js";
-import { PageFinder } from "./PageFinder.js";
-import { SETTINGS } from "../../config/_module.mjs";
+import AdventureMunchHelpers from "./AdventureMunchHelpers";
+import { logger, utils, Iconizer, DDBSources } from "../../lib/_module";
+import { generateAdventureConfig } from "../adventure";
+import AdventureMunch from "./AdventureMunch";
+import { PageFinder } from "./PageFinder";
+import { SETTINGS } from "../../config/_module";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;

@@ -1,10 +1,10 @@
-import AdventureMunchHelpers from "./AdventureMunchHelpers.js";
-import { logger, utils, FileHelper, CompendiumHelper } from "../../lib/_module.mjs";
-import { generateAdventureConfig } from "../adventure.js";
-import { SETTINGS } from "../../config/_module.mjs";
-import { createDDBCompendium } from "../../hooks/ready/checkCompendiums.js";
+import AdventureMunchHelpers from "./AdventureMunchHelpers";
+import { logger, utils, FileHelper, CompendiumHelper } from "../../lib/_module";
+import { generateAdventureConfig } from "../adventure";
+import { SETTINGS } from "../../config/_module";
+import { createDDBCompendium } from "../../hooks/ready/checkCompendiums";
 import { DDBReferenceLinker } from "../../parser/lib/_module";
-import MonsterReplacer from "../../apps/MonsterReplacer.js";
+import MonsterReplacer from "../../apps/MonsterReplacer";
 
 export default class AdventureMunch {
 

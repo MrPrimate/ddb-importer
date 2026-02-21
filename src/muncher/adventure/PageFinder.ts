@@ -1,4 +1,4 @@
-import { utils } from "../../lib/_module.mjs";
+import { utils } from "../../lib/_module";
 
 export class PageFinder {
 

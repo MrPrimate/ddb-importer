@@ -6,12 +6,12 @@ import {
   FileHelper,
   PatreonHelper,
   DDBProxy,
-} from "../lib/_module.mjs";
-import { getClasses } from "./classes/classes.js";
-import { getSubClasses } from "./classes/subclasses.js";
-import { getClassOptions } from "./classes/options.js";
-import { SETTINGS } from "../config/_module.mjs";
-import { createDDBCompendium } from "../hooks/ready/checkCompendiums.js";
+} from "../lib/_module";
+import { getClasses } from "./classes/classes";
+import { getSubClasses } from "./classes/subclasses";
+import { getClassOptions } from "./classes/options";
+import { SETTINGS } from "../config/_module";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 
 function getSubClassesData(className) {
   const cobaltCookie = Secrets.getCobalt();

@@ -1,6 +1,6 @@
 
-import { DICTIONARY } from "../config/_module.mjs";
-import { logger, CompendiumHelper } from "../lib/_module.mjs";
+import { DICTIONARY } from "../config/_module";
+import { logger, CompendiumHelper } from "../lib/_module";
 
 // Function to calculate the new price
 export async function calculatePrice(rarity, consumable = false) {

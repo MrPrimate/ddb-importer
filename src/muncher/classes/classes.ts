@@ -4,9 +4,9 @@ import {
   CompendiumHelper,
   DDBCompendiumFolders,
   utils,
-} from "../../lib/_module.mjs";
-import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared.js";
-import { SETTINGS } from "../../config/_module.mjs";
+} from "../../lib/_module";
+import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generateFeatureAdvancements } from "./shared";
+import { SETTINGS } from "../../config/_module";
 import { DDBReferenceLinker } from "../../parser/lib/_module";
 
 function getHPAdvancement(klass, character) {

@@ -4,10 +4,10 @@ import {
   FileHelper,
   DDBItemImporter,
   utils,
-} from "../lib/_module.mjs";
+} from "../lib/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
-import DDBMonsterImporter from "./DDBMonsterImporter.mjs";
+import DDBMonsterImporter from "./DDBMonsterImporter";
 
 let totalTargets = 0;
 let count = 0;

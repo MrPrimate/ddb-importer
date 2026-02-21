@@ -365,4 +365,8 @@ export default class DDBEnricherData {
     return null;
   }
 
+  get identifier(): string | null {
+    return null;
+  }
+
 }

@@ -9,7 +9,7 @@ import {
 } from "./_module.mjs";
 import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
 import { SystemHelpers } from "../parser/lib/_module";
-import DDBMuleHandler from "../muncher/DDBMuleHandler.mjs";
+import DDBMuleHandler from "../muncher/DDBMuleHandler";
 
 const MuncherSettings = {
 

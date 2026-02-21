@@ -279,6 +279,14 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
+  get identifier(): string | null {
+    if (this.loadedEnricher) {
+      return this.loadedEnricher.identifier;
+    } else {
+      return null;
+    }
+  }
+
   get ddbMacroDescription(): string {
     const data = this.ddbMacroDescriptionData;
     if (!data) return "";

@@ -6,14 +6,14 @@ import {
   FileHelper,
   CompendiumHelper,
   DDBMacros,
-} from "../lib/_module.mjs";
-import { DICTIONARY, SETTINGS } from "../config/_module.mjs";
+} from "../lib/_module";
+import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { DDBDataUtils } from "../parser/lib/_module";
-import { abilityOverrideEffects } from "../effects/abilityOverrides.js";
+import { abilityOverrideEffects } from "../effects/abilityOverrides";
 import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions";
 import { setConditions } from "../parser/character/conditions";
-import { ExternalAutomations } from "../effects/_module.mjs";
+import { ExternalAutomations } from "../effects/_module";
 
 export default class DDBCharacterImporter {
 

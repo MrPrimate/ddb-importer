@@ -12,7 +12,7 @@ import { generateCharacterExtras } from "../parser/DDBExtras";
 import { SETTINGS } from "../config/_module.mjs";
 import DDBCookie from "../apps/DDBCookie.js";
 import DDBAppV2 from "./DDBAppV2.js";
-import DDBCharacterImporter from "../muncher/DDBCharacterImporter.mjs";
+import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 import DDBDebugger from "./DDBDebugger.mjs";
 import DDBKeyChangeDialog from "./DDBKeyChangeDialog.js";
 
