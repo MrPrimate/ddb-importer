@@ -79,7 +79,8 @@
     "jsdoc"
   ],
   "ignorePatterns": [
-    "foundry/**/*"
+    "foundry/**/*",
+    ".eslintrc.json"
   ],
   "parserOptions": {
     "ecmaVersion": 2022,

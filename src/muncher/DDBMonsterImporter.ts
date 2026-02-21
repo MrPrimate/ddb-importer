@@ -169,7 +169,7 @@ export default class DDBMonsterImporter {
   }
 
 
-  // eslint-disable-next-line complexity, no-unused-vars
+   
   async getNPCImage({
     forceUpdate = false, forceUseFullToken = false,
     forceUseTokenAvatar = false, disableAutoTokenizeOverride = false,
@@ -242,7 +242,6 @@ export default class DDBMonsterImporter {
         // const imageNamePrefix = useDeepPaths ? "" : nameType;
         const pathPostfix = useDeepPaths ? `/monster/avatar/${subType}` : "";
         const downloadOptions = { type: nameType, name, targetDirectory, pathPostfix, imageNamePrefix, force: forceUpdate || updateImages };
-        // eslint-disable-next-line require-atomic-updates
         this.monster.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
       }
     }
@@ -296,13 +295,10 @@ export default class DDBMonsterImporter {
     }
 
     // check avatar, if not use token image
-    // eslint-disable-next-line require-atomic-updates
     if (!this.monster.img && this.monster.prototypeToken.texture.src) this.monster.img = monsterTokenImgPath;
 
     // final check if image comes back as null
-    // eslint-disable-next-line require-atomic-updates
     if (this.monster.img === null) this.monster.img = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
-    // eslint-disable-next-line require-atomic-updates
     if (monsterTokenImgPath === null && tokenImgSet !== true) this.monster.prototypeToken.texture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
 
     // do we now want to tokenize that?
@@ -341,7 +337,6 @@ export default class DDBMonsterImporter {
         isWildCard: false,
         targetFolder: targetTokenizerFolder,
       };
-      // eslint-disable-next-line require-atomic-updates
       logger.debug("Tokenizing monster image", { monster: this.monster.name, autoOptions });
       const tokenizerResult = await window.Tokenizer.autoToken(this.monster, autoOptions);
       this.monster.prototypeToken.texture.src = tokenizerResult;
@@ -368,7 +363,6 @@ export default class DDBMonsterImporter {
     // await swapItems(this.monster);
 
     logger.debug("Importing Icons");
-    // eslint-disable-next-line require-atomic-updates
     this.monster.items = await Iconizer.updateIcons({
       documents: this.monster.items,
       srdIconUpdate: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"), // "munching-policy-use-srd-monster-images"

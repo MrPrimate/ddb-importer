@@ -128,7 +128,7 @@ export default class DDBItemImporter {
   }
 
 
-  // eslint-disable-next-line complexity
+   
   static updateCharacterItemFlags(itemData, replaceData) {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
@@ -164,9 +164,9 @@ export default class DDBItemImporter {
   static updateMatchingItems(oldItems, newItems,
     { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {},
   ) {
-    let results = [];
+    const results = [];
 
-    for (let newItem of newItems) {
+    for (const newItem of newItems) {
       let item = foundry.utils.duplicate(newItem);
       const compendiumIdMatch = oldItems.find((oldItem) =>
         item._id
@@ -318,13 +318,13 @@ export default class DDBItemImporter {
     this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Removing and Recreating ${updateItem.name} compendium entry`);
     logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
     await existingItem.delete();
-    let newItem = await this.createCompendiumItem(updateItem);
+    const newItem = await this.createCompendiumItem(updateItem);
     return newItem;
   }
 
 
   async updateCompendiumItems(inputItems) {
-    let results = [];
+    const results = [];
     for (const item of inputItems) {
       const existingItems = await this.getFilteredItemDocuments(item);
       // we have a match, update first match
@@ -336,17 +336,16 @@ export default class DDBItemImporter {
           });
         }
         const existingItem = existingItems[0];
-        // eslint-disable-next-line require-atomic-updates
         item._id = existingItem._id;
 
         if (item.type !== existingItem.type || this.deleteBeforeUpdate) {
           if (item.type !== existingItem.type) {
             logger.warn(`Item type mismatch ${item.name} from ${existingItem.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
           }
-          let newItem = this.deleteCreateCompendiumItem(item, existingItem);
+          const newItem = this.deleteCreateCompendiumItem(item, existingItem);
           results.push(newItem);
         } else {
-          let update = await this.updateCompendiumItem(item, existingItem);
+          const update = await this.updateCompendiumItem(item, existingItem);
           results.push(update);
         }
       }
@@ -356,13 +355,13 @@ export default class DDBItemImporter {
   }
 
   async createCompendiumItems(inputItems) {
-    let results = [];
+    const results = [];
     for (const item of inputItems) {
       try {
         const existingItems = await this.getFilteredItemIndexes(item);
         // we have no matching items, create new
         if (existingItems.length === 0) {
-          let newItem = await this.createCompendiumItem(item);
+          const newItem = await this.createCompendiumItem(item);
           results.push(newItem);
         }
       } catch (err) {
@@ -457,9 +456,9 @@ ${item.system.description.chat}
       }),
     );
 
-    let loadedItems = [];
+    const loadedItems = [];
     for (const i of firstPassItems) {
-      let item = await this.compendium.getDocument(i._id).then((doc) => {
+      const item = await this.compendium.getDocument(i._id).then((doc) => {
         const docData = doc.toObject();
         if (deleteCompendiumId) delete docData._id;
         delete docData.folder;
@@ -540,13 +539,13 @@ ${item.system.description.chat}
     });
   }
 
-  // eslint-disable-next-line complexity
+   
   async useSRDMonsterImages() {
     if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
     await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 
-    // eslint-disable-next-line complexity
+     
     for (const monster of this.documents) {
       logger.debug(`Checking ${monster.name} for srd images`);
       const srdImageLibrary = foundry.utils.getProperty(monster, "flags.ddbimporter.is2014") ? this.srdImageLibrary2014 : this.srdImageLibrary2024;
@@ -593,15 +592,14 @@ ${item.system.description.chat}
   }
 
   async generateIconMap() {
-    let promises = [];
+    const promises = [];
 
     const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
-    // eslint-disable-next-line require-atomic-updates
     if (srdIcons) {
       const srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
       const srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
       this.notifier(`Updating SRD Icons`, { nameField: true });
-      let itemMap = [];
+      const itemMap = [];
 
       this.documents.forEach((monster) => {
         this.notifier(`Processing ${monster.name}`);

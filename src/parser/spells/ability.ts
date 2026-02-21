@@ -12,7 +12,7 @@ export function convertSpellCastingAbilityId(spellCastingAbilityId) {
 
 // search through classinfo and determine spellcasting ability
 export function getSpellCastingAbility(classInfo, checkSubclass = true, onlySubclass = false) {
-  let spellCastingAbility = undefined;
+  let spellCastingAbility;
   if (!onlySubclass && hasSpellCastingAbility(classInfo.definition.spellCastingAbilityId)) {
     spellCastingAbility = convertSpellCastingAbilityId(classInfo.definition.spellCastingAbilityId);
   } else if (

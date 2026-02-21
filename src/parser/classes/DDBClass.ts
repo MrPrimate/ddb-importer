@@ -465,7 +465,6 @@ export default class DDBClass {
     this.data.system.description.value += await this._buildClassFeaturesDescription();
     // not all classes have equipment descriptions
     if (this.ddbClass.definition.equipmentDescription && !this.isSubClass && this.is2014) {
-      // eslint-disable-next-line require-atomic-updates
       this.data.system.description.value += `<h1>Starting Equipment</h1>\n${this.ddbClass.definition.equipmentDescription}\n\n`;
     }
 
@@ -690,7 +689,7 @@ export default class DDBClass {
   async _buildClassFeaturesDescription() {
     logger.debug(`Parsing ${this.name} features`);
     let description = "<h1>Class Features</h1>\n\n";
-    let classFeatures = [];
+    const classFeatures = [];
 
     this.classFeatures.forEach((feature) => {
       const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
@@ -796,7 +795,7 @@ export default class DDBClass {
 
   }
 
-  // eslint-disable-next-line complexity
+   
   async _generateFeatureAdvancement(feature, choices) {
     logger.debug(`Generating choice feature advancement for feature ${feature.name} with ${choices.length} choices`);
     // console.warn({
@@ -914,7 +913,7 @@ export default class DDBClass {
     //   uuids,
     // });
 
-    // eslint-disable-next-line no-warning-comments
+     
     // TODO: handle chosen advancements on non muncher classes
     this._addAdvancement(advancement.toObject());
 
@@ -952,7 +951,7 @@ export default class DDBClass {
         );
       if (choices.length === 0) continue;
 
-      // eslint-disable-next-line no-warning-comments
+       
       // TODO: determine if different features at each level, if so, create multiple advancements
       await this._generateFeatureAdvancement(feature, choices);
     }
@@ -963,7 +962,7 @@ export default class DDBClass {
   }
 
   _generateScaleValueAdvancementsFromFeatures() {
-    let specialFeatures = [];
+    const specialFeatures = [];
     const advancements = this.classFeatures
       .filter((feature) => feature.levelScales?.length > 0)
       .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
@@ -1157,7 +1156,7 @@ export default class DDBClass {
           if (availableToMulticlass
             && baseProficiency
             && this.dictionary.multiclassSkill === 0
-          // eslint-disable-next-line no-continue
+           
           ) continue;
           const advancement = this._generateSkillAdvancement(feature, availableToMulticlass, i);
           if (advancement) advancements.push(advancement.toObject());
@@ -1370,7 +1369,7 @@ export default class DDBClass {
 
     for (let i = 0; i <= 20; i++) {
       const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
-      // eslint-disable-next-line no-continue
+       
       if (!expertiseFeature) continue;
 
       const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
@@ -1476,7 +1475,7 @@ export default class DDBClass {
         && f.requiredLevel === i,
       );
 
-      // eslint-disable-next-line no-continue
+       
       if (!abilityAdvancementFeature) continue;
       const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
       advancement.updateSource({
@@ -1625,7 +1624,7 @@ export default class DDBClass {
 
   // fixes
 
-  // eslint-disable-next-line complexity
+   
   async _fightingStyleAdvancement2024() {
     const FIGHTING_STYLE_FEATURES = [
       "Fighting Style",
@@ -1653,7 +1652,7 @@ export default class DDBClass {
       this._addAdvancement(advancement.toObject());
     }
 
-    for (let advancement of this.data.system.advancement) {
+    for (const advancement of this.data.system.advancement) {
       if (!FIGHTING_STYLE_FEATURES.includes(advancement.title)) continue;
       const flags = {
         "flags.ddbimporter.is2014": this.is2014,
@@ -1705,13 +1704,13 @@ export default class DDBClass {
     if (this.is2024) {
       await this._fightingStyleAdvancement2024();
     }
-    // eslint-disable-next-line no-warning-comments
+     
     // TODO: come back to 2014
   }
 
   _druidFixes() {
     if (this.data.name !== "Druid") return;
-    for (let advancement of this.data.system.advancement) {
+    for (const advancement of this.data.system.advancement) {
       if (advancement.title !== "Wild Shape CR") continue;
       advancement.configuration.type = "cr";
       advancement.configuration.scale = {
@@ -1889,7 +1888,7 @@ export default class DDBClass {
     }
 
     if (this.is2014) return;
-    for (let advancement of this.data.system.advancement) {
+    for (const advancement of this.data.system.advancement) {
       if (advancement.title !== "Brutal Strike") continue;
       advancement.configuration.type = "dice";
       advancement.configuration.scale = {
@@ -1963,7 +1962,7 @@ export default class DDBClass {
 
   _artificerFixes() {
     if (this.data.name !== "Artificer") return;
-    for (let advancement of this.data.system.advancement) {
+    for (const advancement of this.data.system.advancement) {
       if (advancement.title !== "Tool Proficiencies") continue;
       advancement.configuration = {
         "allowReplacements": true,

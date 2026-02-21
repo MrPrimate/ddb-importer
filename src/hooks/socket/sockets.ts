@@ -73,7 +73,7 @@ export class DDBSocket {
     }
   }
 
-  // eslint-disable-next-line no-unused-vars
+   
   _receiveResponse(message, _senderId) {
     const { id, result, type } = message;
     const request = this.requests.get(id);

@@ -80,7 +80,7 @@ async function _getSRDEquipment(klass) {
 }
 
 async function buildClass(klass, compendiumClassFeatures) {
-  let result = await buildBaseClass(klass);
+  const result = await buildBaseClass(klass);
   result.system.description.value += await buildClassFeatures(klass, compendiumClassFeatures);
   result.system.description.value = DDBReferenceLinker.parseTags(result.system.description.value);
   result.system.advancement.push(getHPAdvancement(), ...(await generateFeatureAdvancements(klass, compendiumClassFeatures)));
@@ -90,12 +90,12 @@ async function buildClass(klass, compendiumClassFeatures) {
 }
 
 export async function getClasses(data) {
-  let results = [];
+  const results = [];
   logger.debug("get clases started", { data });
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
-  let klasses = [];
-  let classFeatures = [];
+  const klasses = [];
+  const classFeatures = [];
 
   const compendiumFolders = new DDBCompendiumFolders("features");
   utils.munchNote(`Checking compendium folders..`, { nameField: true });
@@ -136,7 +136,7 @@ export async function getClasses(data) {
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
     featureHandler.documents.some((orig) => i.name === orig.name),
   );
-  let compendiumClassFeatures = [];
+  const compendiumClassFeatures = [];
 
   for (const f of firstPassFeatures) {
     const feature = await featureHandler.compendium.getDocument(f._id);

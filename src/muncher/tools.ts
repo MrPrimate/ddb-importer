@@ -13,10 +13,10 @@ let totalTargets = 0;
 let count = 0;
 
 async function updateActorsWithActor(targetActors, sourceActor) {
-  let results = [];
+  const results = [];
   count++;
 
-  for (let targetActor of targetActors) {
+  for (const targetActor of targetActors) {
     utils.munchNote(`Updating ${count}/${totalTargets} world monsters`);
     logger.debug(`Updating ${count}/${totalTargets} world monsters`, targetActor);
     const monsterItems = sourceActor.items.toObject().map((item) => {
@@ -60,7 +60,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
 }
 
 export async function updateWorldMonsters() {
-  let results = [];
+  const results = [];
   // get ddb monsters compendium
   const monsterCompendiumLabel = CompendiumHelper.getCompendiumLabel("monster");
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
@@ -85,7 +85,7 @@ export async function updateWorldMonsters() {
         utils.munchNote(`Found ${value.name} world monster`, { nameField: true });
         logger.debug(`Matched ${value.name} (${key})`);
         const monster = await monsterCompendium.getDocument(value._id);
-        let updatedActors = await updateActorsWithActor(worldMatches, monster, count);
+        const updatedActors = await updateActorsWithActor(worldMatches, monster, count);
         results.push(updatedActors);
       }
     }

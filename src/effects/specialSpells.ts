@@ -29,7 +29,7 @@ export function baseSpellEffect(document, label,
   });
 }
 
-// eslint-disable-next-line complexity
+ 
 async function midiEffectAdjustment(document) {
   const deps = effectModules();
   const name = document.flags.ddbimporter?.originalName ?? document.name;
@@ -99,7 +99,7 @@ export async function spellEffectAdjustment(document, midiEffects = false) {
   if (foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.homebrew")) return document;
   // KNOWN_ISSUE_4_0: spell effect fixes
   return document;
-  // eslint-disable-next-line no-unreachable
+   
   if (!document.effects) document.effects = [];
   if (midiEffects) document = await midiEffectAdjustment(document);
   try {

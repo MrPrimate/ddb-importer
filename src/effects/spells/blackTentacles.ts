@@ -4,7 +4,7 @@ import { DDBMacros } from "../../lib/_module";
 export async function blackTentaclesEffect(document) {
   document.effects = [];
 
-  let effect = baseSpellEffect(document, document.name);
+  const effect = baseSpellEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "generic", "activeAuraDamageAndConditionOnEntry.js");
   effect.flags["ActiveAuras"] = {
     isAura: true,

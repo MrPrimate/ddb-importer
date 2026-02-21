@@ -4,16 +4,16 @@ import { logger } from "./_module";
 export default class NameMatcher {
 
   static getMonsterNames(name) {
-    let magicNames = [name, name.toLowerCase()];
+    const magicNames = [name, name.toLowerCase()];
 
     // +2 sword
-    let frontPlus = name.match(/^(\+\d*)\s*(.*)/);
+    const frontPlus = name.match(/^(\+\d*)\s*(.*)/);
     if (frontPlus) {
       magicNames.push(`${frontPlus[2].trim()}, ${frontPlus[1]}`.toLowerCase().trim());
     }
 
     // sword +2
-    let backPlus = name.match(/(.*)\s*(\+\d*)$/);
+    const backPlus = name.match(/(.*)\s*(\+\d*)$/);
     if (backPlus) {
       magicNames.push(`${backPlus[1].trim()}, ${backPlus[2]}`.toLowerCase().trim());
     }
@@ -22,15 +22,15 @@ export default class NameMatcher {
   }
 
   static getLooseNames(name, extraNames = [], removeMagic = true) {
-    let looseNames = new Set(extraNames.map((n) => n.toLowerCase()));
+    const looseNames = new Set(extraNames.map((n) => n.toLowerCase()));
     looseNames.add(name.toLowerCase());
     looseNames.add(name.replace(",", "").toLowerCase());
-    let refactNameArray = name.split("(")[0].trim().split(", ");
+    const refactNameArray = name.split("(")[0].trim().split(", ");
     refactNameArray.unshift(refactNameArray.pop());
     const refactName = refactNameArray.join(" ").trim();
     looseNames.add(refactName.toLowerCase());
 
-    let deconNameArray = name.replace("(", "").replace(")", "").trim().split(",");
+    const deconNameArray = name.replace("(", "").replace(")", "").trim().split(",");
     deconNameArray.unshift(deconNameArray.pop());
     const deconName = deconNameArray.join(" ").trim();
     looseNames.add(deconName.toLowerCase());
@@ -72,7 +72,7 @@ export default class NameMatcher {
     }
 
     if (removeMagic) {
-      let refactNamePlusArray = name
+      const refactNamePlusArray = name
         .replace(/\+\d*\s*/, "")
         .trim()
         .split("(")[0]

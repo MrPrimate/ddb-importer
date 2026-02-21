@@ -2,7 +2,7 @@ import { baseSpellEffect } from "../specialSpells";
 import { DDBMacros } from "../../lib/_module";
 
 export async function callLightningEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
+  const effect = baseSpellEffect(document, document.name);
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.save.ability = "";
 

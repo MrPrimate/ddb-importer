@@ -92,7 +92,7 @@ export default class Crosshairs extends Sheet {
     }
     const template = new Crosshairs(config, callbacks);
     await template.drawPreview();
-    let dataObj = template.toObject();
+    const dataObj = template.toObject();
     for (const token of controlled) {
       token.control({ releaseOthers: false });
     }
@@ -123,11 +123,11 @@ export default class Crosshairs extends Sheet {
    * @returns {Object<string,PlaceableObject>} List of collected placeables keyed by embeddedName
    */
   static collectPlaceables(crosshairsData, types = "Token", containedFilter = Crosshairs._containsCenter) {
-    let isArray = Array.isArray(types);
+    const isArray = Array.isArray(types);
     if (!isArray) types = [types];
-    let result = types.reduce((acc, embeddedName) => {
-      let collection = crosshairsData.scene.getEmbeddedCollection(embeddedName);
-      let contained = collection.filter((document) => {
+    const result = types.reduce((acc, embeddedName) => {
+      const collection = crosshairsData.scene.getEmbeddedCollection(embeddedName);
+      const contained = collection.filter((document) => {
         return containedFilter(document.object, crosshairsData);
       });
       acc[embeddedName] = contained;
@@ -140,7 +140,7 @@ export default class Crosshairs extends Sheet {
     const calcDistance = (A, B) => {
       return Math.hypot(A.x - B.x, A.y - B.y);
     };
-    let distance = calcDistance(placeable.center, crosshairsData);
+    const distance = calcDistance(placeable.center, crosshairsData);
     return distance <= crosshairsData.radius;
   }
 
@@ -203,9 +203,9 @@ export default class Crosshairs extends Sheet {
   _setRulerText() {
     this.ruler.text = this.label;
     this.ruler.position.set(
-      // eslint-disable-next-line no-mixed-operators
+       
       -this.ruler.width / 2 + this.labelOffset.x,
-      // eslint-disable-next-line no-mixed-operators
+       
       this.template.height / 2 + 5 + this.labelOffset.y,
     );
   }
@@ -220,7 +220,7 @@ export default class Crosshairs extends Sheet {
 
   _drawControlIcon() {
     const size = Math.max(Math.round((canvas.dimensions.size * 0.5) / 20) * 20, 40);
-    let icon = new ControlIcon({ texture: this.icon, size: size });
+    const icon = new ControlIcon({ texture: this.icon, size: size });
     icon.visible = this.drawIcon;
     icon.pivot.set(size * 0.5, size * 0.5);
     icon.angle = this.document.direction;
@@ -230,7 +230,7 @@ export default class Crosshairs extends Sheet {
   /** @override */
   refresh() {
     if (!this.template || this._destroyed) return;
-    let d = canvas.dimensions;
+    const d = canvas.dimensions;
     const document = this.document;
     this.position.set(document.x, document.y);
     let { direction, distance } = document;
@@ -244,8 +244,8 @@ export default class Crosshairs extends Sheet {
     this.template.clear().lineStyle(this._borderThickness, this.document.borderColor, this.drawOutline ? 0.75 : 0);
     if (this._texture) {
       // Will fill texture if included in passed config, tileTexture means it can be tiled without scaling/offset
-      let scale = this.tileTexture ? 1 : (distance * 2) / this._texture.width;
-      let offset = this.tileTexture ? 0 : distance;
+      const scale = this.tileTexture ? 1 : (distance * 2) / this._texture.width;
+      const offset = this.tileTexture ? 0 : distance;
       this.template.beginTextureFill({
         texture: this._texture,
         matrix: new PIXI.Matrix().scale(scale, scale).translate(-offset, -offset),
@@ -264,7 +264,7 @@ export default class Crosshairs extends Sheet {
     this._setRulerText();
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   get layer() {
     return canvas.activeLayer;
   }
@@ -302,7 +302,7 @@ export default class Crosshairs extends Sheet {
     // Prevents movement from mouse if position is locked
     if (this.lockPosition) return;
     // 20ms throttle using real time
-    let now = Date.now();
+    const now = Date.now();
     if (now - this.moveTime <= 20) return;
     const center = event.data.getLocalPosition(this.layer);
     const { x, y } = Crosshairs.getSnappedPosition(center, this.resolution);
@@ -344,13 +344,13 @@ export default class Crosshairs extends Sheet {
     const document = this.document;
     const thisSceneSize = this.scene.grid.size;
     if (event.shiftKey && !this.lockSize) {
-      // eslint-disable-next-line no-mixed-operators
+       
       let distance = document.distance + 0.25 * Math.sign(event.deltaY);
       distance = Math.max(distance, 0.25);
       this.document.updateSource({ distance });
       this.radius = (document.distance * thisSceneSize) / 2;
     } else if (!event.altKey) {
-      // eslint-disable-next-line no-mixed-operators
+       
       const direction = document.direction + snap * Math.sign(event.deltaY);
       this.document.updateSource({ direction });
     }
@@ -373,7 +373,7 @@ export default class Crosshairs extends Sheet {
   }
 
   // Cleans up not-needed handlers
-  // eslint-disable-next-line no-unused-vars
+   
   _clearHandlers(event) {
     this.template.destroy();
     this._destroyed = true;
@@ -391,9 +391,9 @@ export default class Crosshairs extends Sheet {
 
   // Wrap the template's computeShape function and fix sizing
   computeShape(crosshairs) {
-    let shape = crosshairs._computeShape();
+    const shape = crosshairs._computeShape();
     if (crosshairs.document.t === "rect") {
-      let length = this.document.distance * this.scene.grid.size;
+      const length = this.document.distance * this.scene.grid.size;
       shape.height = length;
       shape.width = length;
       shape.y = this.scene.grid.size / -2;
@@ -412,7 +412,7 @@ export default class Crosshairs extends Sheet {
     let distance = 0;
     let widthAdjust = 0;
     if (!centerpoint && token) {
-      let actualHalf = token.document.width / 2;
+      const actualHalf = token.document.width / 2;
       widthAdjust += canvas.grid.distance * Math.floor(actualHalf);
       if (!fudgeDistance && widthAdjust !== actualHalf * canvas.grid.distance) {
         fudgeDistance = 2.5;
@@ -426,10 +426,10 @@ export default class Crosshairs extends Sheet {
 
     const checkDistance = async (crosshairs) => {
       if (maxRange && drawBoundries) {
-        let radius = canvas.grid.size * ((maxRange + fudgeDistance + widthAdjust) / canvas.grid.distance);
+        const radius = canvas.grid.size * ((maxRange + fudgeDistance + widthAdjust) / canvas.grid.distance);
         drawing = new PIXI.Graphics();
         drawing.lineStyle(5, 0xffffff);
-        let matchTemplates = game.settings.get("core", "gridTemplates")
+        const matchTemplates = game.settings.get("core", "gridTemplates")
           && game.settings.get("core", "gridDiagonals") !== CONST.GRID_DIAGONALS.EXACT;
         if (matchTemplates) {
           drawing.drawPolygon(canvas.grid.getCircle(centerpoint, maxRange + fudgeDistance + widthAdjust));

@@ -116,7 +116,7 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
    * @param {HTMLElement} target     The capturing HTML element which defined a [data-action].
    * @param {ChatMessage5e} message  Message associated with the activation.
    */
-  // eslint-disable-next-line no-unused-vars
+   
   static #executeMacro(event, target, message) {
     const targets = Array.from(game.user.targets);
 
@@ -128,7 +128,7 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
   }
 
   /** @override */
-  // eslint-disable-next-line no-unused-vars
+   
   async _triggerSubsequentActions(config, results) {
     // this.rollDamage({ event: config.event }, {}, { data: { "flags.dnd5e.originatingMessage": results.message?.id } });
 

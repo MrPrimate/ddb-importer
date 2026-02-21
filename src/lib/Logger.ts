@@ -1,4 +1,4 @@
-/* eslint-disable no-continue */
+ 
 import { FileHelper } from "./_module";
 
 const logger = {
@@ -34,7 +34,7 @@ const logger = {
       });
     }
   },
-  // eslint-disable-next-line complexity
+   
   log: (logLevel, ...data) => {
     logger._addToLogFile(logLevel, data);
     if (!logger._showMessage(logLevel, data)) {
@@ -58,59 +58,59 @@ const logger = {
     switch (logLevel.toUpperCase()) {
       case "VERBOSE":
         if (payload) {
-          console.debug(msg, ...payload);// eslint-disable-line no-console
+          console.debug(msg, ...payload); 
         } else {
-          console.debug(msg);// eslint-disable-line no-console
+          console.debug(msg); 
         }
         break;
       case "DEBUG":
         if (payload) {
-          console.debug(msg, ...payload);// eslint-disable-line no-console
+          console.debug(msg, ...payload); 
         } else {
-          console.debug(msg);// eslint-disable-line no-console
+          console.debug(msg); 
         }
         break;
       case "INFO":
         if (payload) {
-          console.info(msg, ...payload);// eslint-disable-line no-console
+          console.info(msg, ...payload); 
         } else {
-          console.info(msg);// eslint-disable-line no-console
+          console.info(msg); 
         }
         break;
       case "WARN":
         if (payload) {
-          console.warn(msg, ...payload);// eslint-disable-line no-console
+          console.warn(msg, ...payload); 
         } else {
-          console.warn(msg);// eslint-disable-line no-console
+          console.warn(msg); 
         }
         break;
       case "ERR":
         if (payload) {
-          console.error(msg, ...payload);// eslint-disable-line no-console
+          console.error(msg, ...payload); 
         } else {
-          console.error(msg);// eslint-disable-line no-console
+          console.error(msg); 
         }
         CONFIG.DDBI.CAPTURED_ERRORS.push({ type: "ERROR", msg, payload });
         break;
       case "TIME":
         if (payload) {
-          console.time(msg, ...payload);// eslint-disable-line no-console
+          console.time(msg, ...payload); 
         } else {
-          console.time(msg);// eslint-disable-line no-console
+          console.time(msg); 
         }
         break;
       case "TIMEEND":
         if (payload) {
-          console.timeEnd(msg, ...payload);// eslint-disable-line no-console
+          console.timeEnd(msg, ...payload); 
         } else {
-          console.timeEnd(msg);// eslint-disable-line no-console
+          console.timeEnd(msg); 
         }
         break;
       case "TIMELOG":
         if (payload) {
-          console.timeLog(msg, ...payload);// eslint-disable-line no-console
+          console.timeLog(msg, ...payload); 
         } else {
-          console.timeLog(msg);// eslint-disable-line no-console
+          console.timeLog(msg); 
         }
         break;
       default: break;
@@ -161,7 +161,7 @@ const getCircularReplacer = () => {
       }
       seen.add(value);
     }
-    // eslint-disable-next-line consistent-return
+     
     return value;
   };
 };

@@ -306,7 +306,7 @@ export default class DDBSubClass extends DDBClass {
 
   _fighterFixes() {
     if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
-      for (let advancement of this.data.system.advancement) {
+      for (const advancement of this.data.system.advancement) {
         if (advancement.title !== "Energy Die") continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
           3: { number: 4, faces: 6 },
@@ -337,7 +337,7 @@ export default class DDBSubClass extends DDBClass {
 
       this._addAdvancement(number);
     } else if (this.data.name.startsWith("Steel Hawk")) {
-      for (let advancement of this.data.system.advancement) {
+      for (const advancement of this.data.system.advancement) {
         if (advancement.title !== "Launch") continue;
         advancement.configuration.scale = {
           3: { number: 3, faces: 8 },
@@ -386,7 +386,7 @@ export default class DDBSubClass extends DDBClass {
 
   _rangerFixes() {
     if (this.data.name.startsWith("Drake Warden")) {
-      for (let advancement of this.data.system.advancement) {
+      for (const advancement of this.data.system.advancement) {
         if (advancement.title !== "Drake Companion") continue;
         advancement.configuration.type = "dice";
         advancement.configuration.scale = {
@@ -474,7 +474,7 @@ export default class DDBSubClass extends DDBClass {
         this._addAdvancement(elixir);
       }
     } else if (this.data.name.startsWith("Armorer") && this.is2024) {
-      for (let advancement of this.data.system.advancement) {
+      for (const advancement of this.data.system.advancement) {
         if (advancement.title !== "Improved Armorer") continue;
         advancement.configuration.scale[3] = { value: 0 };
       }
@@ -601,7 +601,7 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
-  // eslint-disable-next-line complexity
+   
   async _fixes() {
     this._fightingStyleAdvancement();
     this._bloodHunterFixes();
@@ -683,7 +683,7 @@ export default class DDBSubClass extends DDBClass {
 
     for (const feature of advancementFeatures) {
       // console.warn("Generating spell list advancement for feature:", feature);
-      let advancement = await this._generateSpellListAdvancement(feature);
+      const advancement = await this._generateSpellListAdvancement(feature);
       if (!advancement) continue;
       if ((this.is2014 && !this.NO_ADVANCEMENT_2014.includes(advancement.configuration?.identifier))
         || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(advancement.configuration?.identifier)))

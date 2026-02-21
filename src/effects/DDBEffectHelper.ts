@@ -52,7 +52,7 @@ export default class DDBEffectHelper {
     generator.generateConditionOnlyEffect();
   }
 
-  // eslint-disable-next-line complexity
+   
   static generateOverTimeEffect(actor, document, otherDescription = null) {
     const generator = new MidiOverTimeEffect({
       document,
@@ -234,9 +234,9 @@ export default class DDBEffectHelper {
 
   static async _createJB2aActors(subFolderName, name) {
     const packKeys = ['jb2a_patreon.jb2a-actors', 'JB2A_DnD5e.jb2a-actors'];
-    for (let key of packKeys) {
-      let pack = game.packs.get(key);
-      // eslint-disable-next-line no-continue
+    for (const key of packKeys) {
+      const pack = game.packs.get(key);
+       
       if (!pack) continue;
       const actors = pack.index.filter((f) => f.name.includes(name));
       const subFolder = await FolderHelper.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
@@ -475,7 +475,7 @@ export default class DDBEffectHelper {
     const t2StartX = t2.document.width >= 1 ? 0.5 : t2.document.width / 2;
     const t2StartY = t2.document.height >= 1 ? 0.5 : t2.document.height / 2;
     let x, x1, y, y1;
-    let segments = [];
+    const segments = [];
     for (x = t1StartX; x < t1.document.width; x++) {
       for (y = t1StartY; y < t1.document.height; y++) {
         const origin = new PIXI.Point(...canvas.grid.getCenter(Math.round(t1.document.x + (canvas.dimensions.size * x)), Math.round(t1.document.y + (canvas.dimensions.size * y))));
@@ -483,10 +483,10 @@ export default class DDBEffectHelper {
           for (y1 = t2StartY; y1 < t2.document.height; y1++) {
             const dest = new PIXI.Point(...canvas.grid.getCenter(Math.round(t2.document.x + (canvas.dimensions.size * x1)), Math.round(t2.document.y + (canvas.dimensions.size * y1))));
             const r = new Ray(origin, dest);
-            // eslint-disable-next-line max-depth
+             
             if (wallBlocking) {
               const collisionCheck = CONFIG.Canvas.polygonBackends.move.testCollision(origin, dest, { mode: "any", type: "move" });
-              // eslint-disable-next-line max-depth, no-continue
+               
               if (collisionCheck) continue;
             }
             segments.push({ ray: r });
@@ -511,7 +511,7 @@ export default class DDBEffectHelper {
     const t2TopElevation = t2Elevation + (Math.min(t2.document.height, t2.document.width) * (canvas?.dimensions?.distance ?? 5));
 
     let heightDifference = 0;
-    let t1ElevationRange = Math.max(t1.document.height, t1.document.width) * (canvas?.dimensions?.distance ?? 5);
+    const t1ElevationRange = Math.max(t1.document.height, t1.document.width) * (canvas?.dimensions?.distance ?? 5);
     if (Math.abs(t2Elevation - t1Elevation) < t1ElevationRange) {
       // token 2 is within t1's size so height difference is functionally 0
       heightDifference = 0;
@@ -555,10 +555,10 @@ export default class DDBEffectHelper {
     // 555 Standard Movement
     // EUCL Euclidean Measurement
     if (["555", "5105"].includes(distanceRule)) {
-      let nd = Math.min(distance, heightDifference);
-      let ns = Math.abs(distance - heightDifference);
+      const nd = Math.min(distance, heightDifference);
+      const ns = Math.abs(distance - heightDifference);
       distance = nd + ns;
-      let dimension = canvas?.dimensions?.distance ?? 5;
+      const dimension = canvas?.dimensions?.distance ?? 5;
       if (distanceRule === "5105") distance += Math.floor(nd / 2 / dimension) * dimension;
     } else {
       // assumes euclidean
@@ -888,7 +888,7 @@ export default class DDBEffectHelper {
    * @returns {Array[Token]} an array of Token instances that were selected.
    */
   static selectTargetsWithinX(sourceToken, distance, includeSource) {
-    let aoeTargets = MidiQOL.findNearby(null, sourceToken, distance);
+    const aoeTargets = MidiQOL.findNearby(null, sourceToken, distance);
     if (includeSource) {
       aoeTargets.unshift(sourceToken);
     }
@@ -1046,7 +1046,7 @@ export default class DDBEffectHelper {
     let i = 1;
     for (const item of listItems) {
       const title = item.querySelector(titleType);
-      // eslint-disable-next-line no-continue
+       
       if (!title) continue;
       const content = title.nextSibling;
       results.push({
@@ -1245,7 +1245,7 @@ export default class DDBEffectHelper {
     return newActivities;
   }
 
-  // eslint-disable-next-line complexity
+   
   static documentWithFilteredActivities({
     uuid = null, document = null, parent = null, activityIds = [], activityTypes = [], clearEffectFlags = false,
     clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = ["concentration"],
@@ -1439,7 +1439,7 @@ export default class DDBEffectHelper {
 
   }
 
-  // eslint-disable-next-line complexity
+   
   static async _conditionRemovalMidiRoll(targetToken, condition, {
     document = {},
     activity = null,
@@ -1543,7 +1543,7 @@ export default class DDBEffectHelper {
   }
 
   static async deleteEffectsByUuid({ effectsToDelete = [] } = {}) {
-    for (let effectUuid of effectsToDelete) {
+    for (const effectUuid of effectsToDelete) {
       const effect = await fromUuid(effectUuid);
       if (effect && !DDBEffectHelper.isEffectExpired(effect)) {
         if (effect.transfer)
@@ -1556,7 +1556,7 @@ export default class DDBEffectHelper {
 
   static async createEffects({ actorUuid, effects = [], options } = {}) {
     const actor = DDBEffectHelper.fromActorUuid(actorUuid);
-    for (let effect of effects) { // override default foundry behaviour of blank being transfer
+    for (const effect of effects) { // override default foundry behaviour of blank being transfer
       if (effect.transfer === undefined) effect.transfer = false;
     }
     return actor?.createEmbeddedDocuments("ActiveEffect", effects, options);

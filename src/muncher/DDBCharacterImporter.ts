@@ -466,11 +466,11 @@ ${item.system.description.chat}
     if (this.actorOriginal.flags.ddbimporter) {
       const ownedItems = this.actor.getEmbeddedCollection("Item");
 
-      let nonMatchedItems = [];
-      let matchedItems = [];
+      const nonMatchedItems = [];
+      const matchedItems = [];
 
       for (let item of items) {
-        let existingItem = DDBDataUtils.findMatchedDDBItem(item, ownedItems, matchedItems);
+        const existingItem = DDBDataUtils.findMatchedDDBItem(item, ownedItems, matchedItems);
         logger.debug(`Checking ${item.name} for existing match`, existingItem);
 
         if (existingItem) {
@@ -713,7 +713,7 @@ ${item.system.description.chat}
 
   fixUpCharacterEffects() {
     // if (!CONFIG.ActiveEffect.legacyTransferral) return;
-    let abilityOverrides = abilityOverrideEffects(this.result.character.flags.ddbimporter.dndbeyond.abilityOverrides);
+    const abilityOverrides = abilityOverrideEffects(this.result.character.flags.ddbimporter.dndbeyond.abilityOverrides);
     if (abilityOverrides.changes.length > 0) {
       this.result.character.effects = this.result.character.effects.concat(abilityOverrides);
     }
@@ -820,7 +820,6 @@ ${item.system.description.chat}
   async processCharacterData() {
     this.getSettings();
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
-      // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
     await this.setSafeMidiQolConfig();
@@ -845,7 +844,7 @@ ${item.system.description.chat}
       await this.preActiveEffects();
       // we need to process the items first to find out if we are ignoring any effects
       logger.debug("Fetching character items for import and clearing current character");
-      let items = await this.fetchCharacterItems();
+      const items = await this.fetchCharacterItems();
       logger.debug("Processing active effects for import");
       await this.processActiveEffects();
 

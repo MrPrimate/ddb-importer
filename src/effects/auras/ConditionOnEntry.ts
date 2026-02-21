@@ -8,7 +8,7 @@ import {
 
 
 export default async function conditionOnEntry({
-  // eslint-disable-next-line no-unused-vars
+   
   speaker, actor, token, character, item, rolledItem, macroItem,
   args, scope, workflow,
 } = {}) {

@@ -126,7 +126,6 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   await FileHelper.generateCurrentFiles(uploadDirectory);
 
   if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
-    // eslint-disable-next-line require-atomic-updates
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 

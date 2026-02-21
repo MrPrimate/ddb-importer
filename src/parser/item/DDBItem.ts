@@ -140,7 +140,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Bag of Bellstones",
   ];
 
-  // eslint-disable-next-line complexity
+   
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
     const addEffects = isCompendium
       ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
@@ -372,7 +372,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #getActivityDuration() {
-    let duration = {
+    const duration = {
       value: null,
       units: "",
       special: "",
@@ -567,7 +567,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   #generateStaffDamageParts() {
     const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     if (weaponBehavior) {
-      let versatile = (weaponBehavior.properties ?? []).find((property) => property.name === "Versatile");
+      const versatile = (weaponBehavior.properties ?? []).find((property) => property.name === "Versatile");
       if (versatile && versatile.notes) {
         this.versatileDamage = utils.parseDiceString(versatile.notes).diceString;
       }
@@ -687,7 +687,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
 
 
-    let restrictions = [];
+    const restrictions = [];
     // loop over restricted damage types
     unfilteredDamageMods
       .filter((mod) => mod.restriction && mod.restriction !== "")
@@ -878,7 +878,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  // eslint-disable-next-line complexity
+   
   #getLootType(typeHint) {
     this.overrides.ddbType = typeHint ?? this.ddbDefinition.subType;
     this.parsingType = "loot";
@@ -1017,7 +1017,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  // eslint-disable-next-line complexity
+   
   #determineType() {
     if (!this.ddbDefinition.filterType) {
       if (this.ddbDefinition.name.startsWith("Spell Scroll:")) {
@@ -1195,7 +1195,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       && mod.type == "monk-weapon",
     ) || (this.ddbDefinition.isMonkWeapon && this.isMartialArtists());
 
-    let features = [];
+    const features = [];
 
     if (kenseiWeapon) features.push("kenseiWeapon");
     if (monkWeapon) features.push("monkWeapon");
@@ -1409,7 +1409,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #getWeaponBehaviourRange() {
     // range: { value: null, long: null, units: '' },
-    let weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
+    const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     return {
       value: weaponBehavior?.range ?? 5,
       long: weaponBehavior?.longRange ?? 5,
@@ -1561,14 +1561,14 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       return `${maxCharges}`;
     }
 
-    let chargeMatchFormula = /regains (\dd\d*(?: \+ \d)?) expended charges/i;
-    let chargeMatchFixed = /regains (\d*) /i;
-    let chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
-    let chargeNextDawn = /can't be used this way again until the next/i;
+    const chargeMatchFormula = /regains (\dd\d*(?: \+ \d)?) expended charges/i;
+    const chargeMatchFixed = /regains (\d*) /i;
+    const chargeMatchLastDitch = /(\dd\d* \+ \d)/i;
+    const chargeNextDawn = /can't be used this way again until the next/i;
 
-    let matchFormula = chargeMatchFormula.exec(description);
-    let matchFixed = chargeMatchFixed.exec(description);
-    let matchLastDitch = chargeMatchLastDitch.exec(description);
+    const matchFormula = chargeMatchFormula.exec(description);
+    const matchFixed = chargeMatchFixed.exec(description);
+    const matchLastDitch = chargeMatchLastDitch.exec(description);
 
     let match = maxCharges;
     if (matchFormula && matchFormula[1]) {
@@ -1586,7 +1586,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   _getUses(prompt = false) {
     if (this.ddbItem.limitedUse !== undefined && this.ddbItem.limitedUse !== null && this.ddbItem.limitedUse.resetTypeDescription !== null) {
-      let resetType = DICTIONARY.resets.find((reset) => reset.id == this.ddbItem.limitedUse.resetType);
+      const resetType = DICTIONARY.resets.find((reset) => reset.id == this.ddbItem.limitedUse.resetType);
 
       const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.limitedUse.resetTypeDescription, this.ddbItem.limitedUse.maxUses);
       const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
@@ -1726,13 +1726,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       || this.ddbDefinition.description.match(targets);
   }
 
-  // eslint-disable-next-line complexity
+   
   #generateDamageFromDescription() {
     if (this.damageParts.length > 0) {
       logger.debug(`Skipping damage description parse as damage already created`);
       return;
     }
-    let description = utils.stripHtml(this.ddbDefinition.description).replace(/[–-–−]/g, "-");
+    const description = utils.stripHtml(this.ddbDefinition.description).replace(/[–-–−]/g, "-");
     // console.warn(hit);
     // eslint-disable-next-line no-useless-escape
     const damageExpression = new RegExp(/(?<prefix>(?:takes|taking|saving throw (?:\([\w ]*\) )?or take\s+)|(?:[\w]*\s+))(?:(?<flat>[0-9]+))?(?:\s*\(?(?<damageDice>[0-9]+d[0-9]+(?:\s*[-+]\s*(?:[0-9]+))*(?:\s+plus [^\)]+)?)\)?)\s*(?<type>[\w ]*?)\s*damage(?<start>\sat the start of|\son a failed save)?/gi);
@@ -1743,7 +1743,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     for (const dmg of matches) {
       let other = false;
       if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
-        continue; // eslint-disable-line no-continue
+        continue;  
       }
       // check for other
       if (dmg.groups.start && dmg.groups.start.trim() == "at the start of") other = true;
@@ -1900,7 +1900,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.data.system.description.value = this.#removeMasteryContainer(this.data.system.description.value);
   }
 
-  // eslint-disable-next-line complexity
+   
   #get2024Price() {
     if (this.is2014) return 0;
     if (!this.data.system.properties.includes("mgc")) {
@@ -2447,7 +2447,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   parsePerSpellMagicItem(useDescription) {
-    let limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
+    const limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
       // the limited use description, fall back to this
@@ -2459,7 +2459,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       return false;
     }
 
-    let perSpell = /each ([A-z]*|\n*) per/i;
+    const perSpell = /each ([A-z]*|\n*) per/i;
     let match = perSpell.exec(useDescription);
     if (match) {
       match = DICTIONARY.magicitems.nums.find((num) => num.id == match[1]).value;
@@ -2476,7 +2476,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     return match;
   }
 
-  // eslint-disable-next-line complexity
+   
   async #addSpellAsCastActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -2620,7 +2620,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   // if this.spellsAsActivities
-  // eslint-disable-next-line complexity
+   
   async #addSpellAsActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -2816,8 +2816,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         spell.system.activities[id].save.dc = saveDC;
       }
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
-
-      // eslint-disable-next-line require-atomic-updates
       spell.system.activities[id] = await this.enricher.customFunction({
         name: spell.name,
         activity: spell.system.activities[id],
@@ -2906,7 +2904,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this._activityEffectLinking();
   }
 
-  // eslint-disable-next-line complexity
+   
   async build() {
     try {
       await this.#prepare();
@@ -3161,7 +3159,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
-  // eslint-disable-next-line complexity
+   
   _getActivitiesType() {
     // console.warn(`Determining activity type for ${this.name}`, {
     //   actionData: this.actionData,

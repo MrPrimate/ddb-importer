@@ -209,7 +209,7 @@ export default class DDBVehicle {
       displaySheet: false,
     };
     const vehicleClass = new Actor.implementation({ name: this.source.name, type: "vehicle" }, options);
-    let vehicle = vehicleClass.toObject();
+    const vehicle = vehicleClass.toObject();
     vehicle._id = ddbId === null
       ? foundry.utils.randomID()
       : utils.namedIDStub(vehicle.name, { postfix: ddbId });
@@ -283,7 +283,7 @@ export default class DDBVehicle {
   }
 
   getAbilityMods() {
-    let abilities = {};
+    const abilities = {};
 
     DICTIONARY.actor.abilities.forEach((ability) => {
       const value = this.source.stats.find((stat) => stat.id === ability.id)?.value || 10;
@@ -301,8 +301,8 @@ export default class DDBVehicle {
   #generateDamageImmunities() {
     const config = CONFIG.DDB.damageTypes;
 
-    let values = [];
-    let custom = [];
+    const values = [];
+    const custom = [];
 
     const damageTypes = DICTIONARY.actions.damageType.filter((d) => d.name !== null).map((d) => d.name);
 
@@ -346,8 +346,8 @@ export default class DDBVehicle {
       };
     });
 
-    let values = [];
-    let custom = [];
+    const values = [];
+    const custom = [];
 
     this.source.conditionImmunities.forEach((adj) => {
       const adjustment = config.find((cadj) => adj === cadj.id);
@@ -366,7 +366,7 @@ export default class DDBVehicle {
   }
 
   #generateCapacity() {
-    let capacity = {
+    const capacity = {
       creature: "",
       cargo: null,
     };
@@ -461,7 +461,7 @@ export default class DDBVehicle {
 
       const mode = comp.definition.speeds[0].modes[0];
       movement["units"] = "ft";
-      let speedType = comp.definition.speeds[0].type;
+      const speedType = comp.definition.speeds[0].type;
 
       const movementModes = comp.definition.speeds[0].modes.some((m) => Number.isInteger(m.movementId));
 

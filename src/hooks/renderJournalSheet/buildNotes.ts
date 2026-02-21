@@ -2,7 +2,7 @@ import { logger } from "../../lib/_module";
 
 function copyToClipboard(text) {
   logger.debug("Copy block", text);
-  let dummy = document.createElement("textarea");
+  const dummy = document.createElement("textarea");
   document.body.appendChild(dummy);
   dummy.value = text;
   dummy.select();

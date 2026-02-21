@@ -11,7 +11,7 @@ export async function magicStoneEffect(document) {
   document.system.actionType = "other";
   document.system.target.type = "self";
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "magicStone.js", ["postActiveEffects"]);
-  let effect = baseSpellEffect(document, document.name);
+  const effect = baseSpellEffect(document, document.name);
   foundry.utils.setProperty(effect, "duration.seconds", 60);
   document.effects.push(effect);
   return document;

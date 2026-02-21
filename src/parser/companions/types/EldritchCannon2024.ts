@@ -2,35 +2,33 @@ import { logger } from "../../../lib/_module";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 import DDBCompanionMixin from "../DDBCompanionMixin";
 
-// eslint-disable-next-line no-unused-vars
-const ELRITCH_CANNON_ABILITY_STUB = {
-  id: 1,
-  entityTypeId: 1120657896,
-  limitedUse: null,
-  name: "",
-  description: "",
-  snippet: "",
-  abilityModifierStatId: 1,
-  saveStatId: null,
-  attackTypeRange: 1,
-  actionType: 1,
-  attackSubtype: 3,
-  dice: null,
-  value: null,
-  damageTypeId: 1,
-  isMartialArts: false,
-  isProficient: true,
-  spellRangeType: null,
-  displayAsAttack: null,
-  range: null,
-  activation: {
-    activationTime: 1,
-    activationType: 1,
-  },
-  componentId: 0,
-  componentTypeId: 0,
-};
-
+// const ELRITCH_CANNON_ABILITY_STUB = {
+//   id: 1,
+//   entityTypeId: 1120657896,
+//   limitedUse: null,
+//   name: "",
+//   description: "",
+//   snippet: "",
+//   abilityModifierStatId: 1,
+//   saveStatId: null,
+//   attackTypeRange: 1,
+//   actionType: 1,
+//   attackSubtype: 3,
+//   dice: null,
+//   value: null,
+//   damageTypeId: 1,
+//   isMartialArts: false,
+//   isProficient: true,
+//   spellRangeType: null,
+//   displayAsAttack: null,
+//   range: null,
+//   activation: {
+//     activationTime: 1,
+//     activationType: 1,
+//   },
+//   componentId: 0,
+//   componentTypeId: 0,
+// };
 
 function extractEldritchCannonAbilities(html) {
   // Create a DOM parser

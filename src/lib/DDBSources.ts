@@ -81,7 +81,7 @@ export default class DDBSources {
    * @param {obj} definition item definition
    * @returns {Array} an array of sourcebook objects
    */
-  // eslint-disable-next-line complexity
+   
   static getSourceData(definition) {
     const results = [];
     if (definition.sources?.length > 0) {
@@ -246,10 +246,10 @@ export default class DDBSources {
     return chosenMonsterTypeIds;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   static AlwaysExcludedCategoryIds = DICTIONARY.sourceCategories.excluded;
 
-  // eslint-disable-next-line class-methods-use-this
+   
   static AlwaysHiddenCategoryIds = DICTIONARY.sourceCategories.hidden;
 
 

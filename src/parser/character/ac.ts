@@ -27,10 +27,10 @@ DDBCharacter.prototype.isUnArmored = function isUnArmored() {
 };
 
 function getMinimumBaseAC(modifiers) {
-  let hasBaseArmor = modifiers.filter(
+  const hasBaseArmor = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "minimum-base-armor" && modifier.isGranted,
   );
-  let baseAC = [];
+  const baseAC = [];
   hasBaseArmor.forEach((base) => {
     baseAC.push(base.value);
   });
@@ -90,8 +90,8 @@ function getEquippedAC(equippedGear) {
 
 // returns an array of ac values from provided array of modifiers
 function getUnarmoredAC(modifiers, character) {
-  let unarmoredACValues = [];
-  let isUnarmored = modifiers.filter(
+  const unarmoredACValues = [];
+  const isUnarmored = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "unarmored-armor-class" && modifier.isGranted,
   );
   // if (isUnarmored.length === 0) {
@@ -124,7 +124,7 @@ function getUnarmoredAC(modifiers, character) {
     // console.log(unarmored);
 
     if (unarmored.statId !== null) {
-      let ability = DICTIONARY.actor.abilities.find((ability) => ability.id === unarmored.statId);
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === unarmored.statId);
       unarmoredACValue += characterAbilities[ability.value].mod;
     }
     if (unarmored.value) unarmoredACValue += unarmored.value;
@@ -152,14 +152,14 @@ function getDualWieldAC(data, modifiers) {
 }
 
 // To Do: Rework AC functions as class functions to help reduce complexity in calculation.
-// eslint-disable-next-line complexity
+
 function calculateACOptions(data, character, calculatedArmor) {
   const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
   let actorBase = 10 + characterAbilities.dex.mod;
   // generated AC effects
-  let effects = [];
+  const effects = [];
   // array to assemble possible AC values
-  let armorClassValues = [];
+  const armorClassValues = [];
   // max holders
   let maxType = "Unarmored";
   let maxValue = actorBase;
@@ -200,12 +200,12 @@ function calculateACOptions(data, character, calculatedArmor) {
       const acType = DICTIONARY.equipment.armorType.find((a) => a.id === armourTypeId);
       if (acType) calculatedArmor.armors[armor].definition.type = acType.name;
     }
-    let effect = null;
+    let effect;
     let acValue;
 
     switch (calculatedArmor.armors[armor].definition.type) {
       case "Natural Armor": {
-        let acCalc = 0;
+        let acCalc;
         // Tortles don't get to add an unarmored ac bonus for their shell
         const ignoreUnarmouredACBonus = DDBModifiers.filterBaseModifiers(data, "ignore", { subType: "unarmored-dex-ac-bonus" });
         if (ignoreUnarmouredACBonus) {

@@ -1,4 +1,4 @@
-/* eslint-disable no-unreachable */
+ 
 // these are non-compliant monsters that currently don't meet parsing requirements
 
 import { utils } from "../../lib/_module";

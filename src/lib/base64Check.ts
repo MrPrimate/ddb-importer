@@ -9,7 +9,7 @@ function occurrences(string, subString, allowOverlapping) {
     pos = 0,
     step = allowOverlapping ? 1 : subString.length;
 
-  // eslint-disable-next-line no-constant-condition
+   
   while (true) {
     pos = string.indexOf(subString, pos);
     if (pos >= 0) {
@@ -21,14 +21,14 @@ function occurrences(string, subString, allowOverlapping) {
 }
 
 function checkBase64(string) {
-  let count = occurrences(JSON.stringify(string), "base64");
+  const count = occurrences(JSON.stringify(string), "base64");
 
   return count > 0;
 }
 
 export function checkScenes() {
-  let fixedScenes = [];
-  let badScenes = [];
+  const fixedScenes = [];
+  const badScenes = [];
   game.scenes.forEach((scene) => {
     if (checkBase64(scene.thumb)) {
       logger.warn(`Scene ${scene.name} has base 64 thumb data - fixing!`);

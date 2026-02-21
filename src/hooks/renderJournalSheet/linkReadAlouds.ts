@@ -18,7 +18,7 @@ export function showReadAlouds(html, data) {
       $(element)
         .parent()
         .mouseenter(function addHover() {
-          // eslint-disable-next-line no-invalid-this
+           
           $(this).append(showPlayersJournalButton);
           $(showPlayersJournalButton).click(async (event) => {
             event.preventDefault();
@@ -29,7 +29,7 @@ export function showReadAlouds(html, data) {
               createAndShowPlayerHandout(name, element.outerHTML, "text", bookCode);
             }
           });
-          // eslint-disable-next-line no-invalid-this
+           
           $(this).append(toChatButton);
           $(toChatButton).click((event) => {
             event.preventDefault();
@@ -40,7 +40,7 @@ export function showReadAlouds(html, data) {
       $(element)
         .parent()
         .mouseleave(function removeHover() {
-          // eslint-disable-next-line no-invalid-this
+           
           $(this).find("a.ddbimporter-show-image, a.ddbimporter-to-chat").remove();
         });
     });

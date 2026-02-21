@@ -81,7 +81,7 @@ function getBackgroundTemplate() {
 }
 
 export function generateBackground(bg) {
-  let result = getBackgroundTemplate();
+  const result = getBackgroundTemplate();
 
   // console.warn(bg)
   if (bg.definition) result.definition = bg.definition;
@@ -143,7 +143,7 @@ export function generateBackground(bg) {
 }
 
 DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
-  let bg = null;
+  let bg;
   if (this.source.ddb.character.background.hasCustomBackground === true) {
     bg = this.source.ddb.character.background.customBackground;
     bg.isHomebrew = true;
@@ -151,7 +151,7 @@ DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
     bg = this.source.ddb.character.background.definition;
   } else {
     bg = this.source.ddb.character.background.customBackground;
-    let result = getBackgroundTemplate();
+    const result = getBackgroundTemplate();
     if (bg.id) {
       result.id = bg.id;
       result.definition.id = bg.id;

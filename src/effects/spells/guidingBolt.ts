@@ -1,7 +1,7 @@
 import { baseSpellEffect } from "../specialSpells";
 
 export function guidingBoltEffect(document) {
-  let effect = baseSpellEffect(document, document.name);
+  const effect = baseSpellEffect(document, document.name);
   effect.changes.push({
     key: "flags.midi-qol.grants.advantage.attack.all",
     value: "1",

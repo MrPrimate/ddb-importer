@@ -12,8 +12,8 @@ import { ProficiencyFinder } from "../lib/_module";
 DDBMonster.prototype._generateLanguages = function _generateLanguages () {
   const config = CONFIG.DDB.languages;
 
-  let values = [];
-  let custom = [];
+  const values = [];
+  const custom = [];
 
   this.source.languages.forEach((lng) => {
     // languageId 100 is sometimes used, but not in config. it is thieves cant

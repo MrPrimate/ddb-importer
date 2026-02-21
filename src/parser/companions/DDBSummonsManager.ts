@@ -98,7 +98,7 @@ export default class DDBSummonsManager {
 
     baseData.profiles = profiles;
     activity = foundry.utils.mergeObject(activity, baseData);
-
+    return activity;
   }
 
   static async addGeneratedSummons(generatedSummonedActors, { notifier = null } = {}) {

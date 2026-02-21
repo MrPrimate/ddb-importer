@@ -1,5 +1,3 @@
-
-
 import { newNPC } from "./monster/templates/monster";
 import { specialCases } from "./monster/special";
 import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters";
@@ -148,52 +146,6 @@ export default class DDBMonster {
     };
   }
 
-
-  async fetchMonsterSourceFromDDB(id) {
-    if (!id && Number.isInteger(id) && Number.isInteger(Number.parseInt(id))) {
-      throw new Error("Please provide a monster ID (number) to fetch");
-    }
-    const cobaltCookie = Secrets.getCobalt();
-    const betaKey = PatreonHelper.getPatreonKey();
-    const parsingApi = DDBProxy.getProxy();
-
-    const body = {
-      cobalt: cobaltCookie,
-      betaKey: betaKey,
-      ids: [Number.parseInt(id)],
-    };
-
-    const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
-
-    return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/proxy/monsters/ids`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (!data.success) {
-            logger.error(`API Failure:`, data.message);
-            reject(data.message);
-          }
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(data), `monsters-raw.json`, "application/json");
-          }
-          return data;
-        })
-        .then((data) => {
-          logger.info(`Retrieved monster`, { monster: data.data });
-          this.source = data.data[0];
-          return data.data[0];
-        })
-        .catch((error) => reject(error));
-    });
-  }
-
   _generateTaggerFlags() {
     // if (!CONFIG.DDBI.tagger) return;
     const tags = [
@@ -300,7 +252,7 @@ export default class DDBMonster {
     this.npc = specialCases(this.npc);
 
     if (this.addChrisPremades) {
-      for (let item of this.npc.items) {
+      for (const item of this.npc.items) {
         await ExternalAutomations.applyChrisPremadeEffect({
           document: item,
           type: "monsterfeature",

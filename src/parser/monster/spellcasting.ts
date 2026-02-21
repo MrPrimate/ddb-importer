@@ -16,7 +16,7 @@ DDBMonster.prototype.getSpellcasting = function(text) {
 };
 
 DDBMonster.prototype._generateSpellcastingAbility = function(text) {
-  let spellcasting = this.getSpellcasting(text);
+  const spellcasting = this.getSpellcasting(text);
   this.spellcasting.spellcasting = spellcasting;
   this.npc.system.attributes.spellcasting = spellcasting;
 };
@@ -81,7 +81,7 @@ DDBMonster.prototype._generateSpellcasting = function() {
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
   const possibleSpellSources = this.source.specialTraitsDescription + this.source.actionsDescription;
-  let specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
+  const specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
 
   const dom = utils.htmlToDocumentFragment(specialTraits);
 

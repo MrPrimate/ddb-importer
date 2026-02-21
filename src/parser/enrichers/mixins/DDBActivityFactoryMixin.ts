@@ -19,13 +19,13 @@ export default class DDBActivityFactoryMixin {
 
   notifier: any = null;
 
-  useMidiAutomations: boolean = false;
+  useMidiAutomations = false;
 
-  usesOnActivity: boolean = false;
+  usesOnActivity = false;
 
-  ignoreActivityGeneration: boolean = false;
+  ignoreActivityGeneration = false;
 
-  forceDefaultActionBuild: boolean = false;
+  forceDefaultActionBuild = false;
 
   data: any = null;
 

@@ -197,8 +197,8 @@ export default class DDBMonsterFactory {
    * @returns {object} Object with two properties: actors (an array of parsed actor documents) and failedMonsterNames (an array of names of monsters that failed to parse)
    */
   async parse(monsters = []) {
-    let foundryActors = [];
-    let failedMonsterNames = [];
+    const foundryActors = [];
+    const failedMonsterNames = [];
 
     const monsterSource = monsters.length > 0 ? monsters : this.source;
 

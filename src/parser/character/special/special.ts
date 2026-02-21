@@ -9,7 +9,7 @@ DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {
     "Constructed Resilience",
   ];
   const features = checkList.filter((f) => sleepFeatures.includes(f.name) && f.type === "feat");
-  let customs = new Set(this.data.character.system.traits.ci.custom.split(":"));
+  const customs = new Set(this.data.character.system.traits.ci.custom.split(":"));
   for (const sleepFeature of features) {
     if (sleepFeature && (foundry.utils.getProperty(sleepFeature, "system.description.value") ?? "").includes("magic can’t put you to sleep")) {
       customs.add("Sleep");

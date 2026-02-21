@@ -188,7 +188,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills() {
       if (changeIndex >= 0) {
         this.raw.character.effects[changeIndex].changes.push(change);
       } else {
-        let skillEffect = AutoEffects.generateBaseSkillEffect(this.source.ddb.character.id, label);
+        const skillEffect = AutoEffects.generateBaseSkillEffect(this.source.ddb.character.id, label);
         skillEffect.changes.push(change);
         this.raw.character.effects.push(skillEffect);
       }

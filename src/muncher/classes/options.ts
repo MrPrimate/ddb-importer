@@ -4,9 +4,9 @@ import { getClassFeature, NO_TRAITS } from "./shared";
 export async function getClassOptions(data, className) {
   logger.debug("get options started");
   const updateBool = game.settings.get("ddb-importer", "munching-policy-update-existing");
-  let results = [];
+  const results = [];
 
-  let classFeatures = [];
+  const classFeatures = [];
   const classMatch = CONFIG.DDB.classConfigurations.find((k) => k.name === className);
 
   const klass = {

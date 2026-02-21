@@ -5,7 +5,7 @@ import {
   FolderHelper,
 } from "../../lib/_module";
 import DDBCompanion2014 from "./DDBCompanion2014";
-import { isEqual } from "../../../vendor/lowdash/_module";
+import { isEqual } from "../../../vendor/lowdash/_module.mjs";
 import DDBSummonsManager from "./DDBSummonsManager";
 import { DDBBasicActivity } from "../enrichers/mixins/_module";
 import DDBCompanion2024 from "./DDBCompanion2024";

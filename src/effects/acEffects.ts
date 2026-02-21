@@ -10,7 +10,7 @@ import { addAddBonusChanges } from "./effects";
 // { type: "bonus", subType: "unarmored-armor-class" },
 
 function buildBaseACEffect(name) {
-  let effect = {
+  const effect = {
     name,
     changes: [],
     duration: {
@@ -47,7 +47,7 @@ function buildBaseACEffect(name) {
  * @returns {object} effect
  */
 export function generateFixedACEffect(formula, label, alwaysActive = false, priority = 30, mode = CONST.ACTIVE_EFFECT_MODES.OVERRIDE) {
-  let effect = buildBaseACEffect(label);
+  const effect = buildBaseACEffect(label);
 
   effect.flags = {
     dae: { transfer: true, armorEffect: true },
@@ -74,7 +74,7 @@ function addACBonusEffect(modifiers, name, subType, restrictions = ["while weari
 
 
 export function generateBonusACEffect(modifiers, label, subType, restrictions = [], alwaysActive = true) {
-  let effect = buildBaseACEffect(label);
+  const effect = buildBaseACEffect(label);
 
   effect.flags = {
     dae: { transfer: true, armorEffect: true },

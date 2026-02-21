@@ -73,7 +73,7 @@ export const FEATURE_DUP = [
 ];
 
 async function buildBase(data) {
-  let result = foundry.utils.duplicate(CLASS_TEMPLATE);
+  const result = foundry.utils.duplicate(CLASS_TEMPLATE);
   const updateExisting = game.settings.get("ddb-importer", "munching-policy-update-existing");
 
   result.name = data.name;
@@ -104,7 +104,7 @@ export async function generateFeatureAdvancements(klass, compendiumClassFeatures
   logger.debug(`Parsing ${klass.name} features for advancement`);
   const compendiumLabel = CompendiumHelper.getCompendiumLabel("features");
 
-  let advancements = [];
+  const advancements = [];
   klass.classFeatures
     .filter((feature) => !ignoreIds.includes(feature.id))
     .forEach((feature) => {
@@ -150,7 +150,7 @@ export async function generateFeatureAdvancements(klass, compendiumClassFeatures
 export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreIds = []) {
   logger.debug(`Parsing ${klass.name} features`);
   let description = "<h1>Class Features</h1>\n\n";
-  let classFeatures = [];
+  const classFeatures = [];
 
   const compendiumLabel = CompendiumHelper.getCompendiumLabel("features");
 
@@ -172,8 +172,6 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
       const title = (featureMatch)
         ? `<p><b>@Compendium[${compendiumLabel}.${featureMatch._id}]{${feature.name}}</b></p>`
         : `<p><b>${feature.name}</b></p>`;
-
-      // eslint-disable-next-line require-atomic-updates
       description += `${title}\n${feature.description}\n\n`;
       classFeatures.push(feature.name);
     }
@@ -185,7 +183,7 @@ export async function buildClassFeatures(klass, compendiumClassFeatures, ignoreI
 export async function getClassFeature(feature, klass, subClassName = "", className = undefined) {
   logger.debug("Class feature build started");
 
-  let result = await buildBase(feature);
+  const result = await buildBase(feature);
   result.flags.obsidian.source.text = klass.name;
 
   result.name = feature.name;
@@ -243,10 +241,8 @@ export async function getClassImages(klass, result) {
     const pathPostfix = useDeepPaths ? `/class/large` : "";
     const downloadOptions = { type: "class-large", name, targetDirectory, imageNamePrefix, pathPostfix };
     largeAvatarUrl = await FileHelper.getImagePath(klass.largeAvatarUrl, downloadOptions);
-    // eslint-disable-next-line require-atomic-updates
     result.flags.ddbimporter['largeAvatarUrl'] = klass.largeAvatarUrl;
     if (!result.img) {
-      // eslint-disable-next-line require-atomic-updates
       result.img = largeAvatarUrl;
     }
   }
@@ -264,7 +260,7 @@ export async function getClassImages(klass, result) {
 }
 
 export async function buildBaseClass(klass) {
-  let result = await buildBase(klass);
+  const result = await buildBase(klass);
   logger.debug(`Parsing ${klass.name}`);
   result.flags.obsidian.source.text = klass.name;
   result.type = "class";
@@ -272,7 +268,6 @@ export async function buildBaseClass(klass) {
   result.system.advancement = [];
 
   await getClassImages(klass, result);
-  // eslint-disable-next-line require-atomic-updates
   result.system.description.value += foundry.utils.getProperty(result, "flags.ddbimporter.image");
 
   result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
@@ -298,7 +293,6 @@ export async function buildBaseClass(klass) {
       };
     }
   }
-  // eslint-disable-next-line require-atomic-updates
   result.system.spellcasting = spellcasting;
 
   // this can be used with the add class response
@@ -323,7 +317,6 @@ export async function buildBaseClass(klass) {
   if (allMatch) {
     const skills = DICTIONARY.actor.skills.map((skill) => skill.name);
     const numberSkills = DICTIONARY.numbers.find((num) => allMatch[1].toLowerCase() === num.natural);
-    // eslint-disable-next-line require-atomic-updates
     result.system.skills = {
       number: numberSkills ? numberSkills.num : 2,
       choices: skills,
@@ -337,7 +330,6 @@ export async function buildBaseClass(klass) {
         return dictSkill.name;
       });
     const numberSkills = DICTIONARY.numbers.find((num) => skillMatch[1].toLowerCase() === num.natural);
-    // eslint-disable-next-line require-atomic-updates
     result.system.skills = {
       number: numberSkills ? numberSkills.num : 2,
       choices: skills,
@@ -358,14 +350,12 @@ export async function buildBaseClass(klass) {
         const dictAbility = DICTIONARY.actor.abilities.find((ab) => ab.long.toLowerCase() === name.toLowerCase());
         return dictAbility.value;
       });
-    // eslint-disable-next-line require-atomic-updates
     result.system.saves = saves;
   }
 
   // "moreDetailsUrl": "/characters/classes/rogue",
 
   if (klass.equipmentDescription) {
-    // eslint-disable-next-line require-atomic-updates
     result.system.description.value += `<p><b>Starting Equipment</b></p>\n${klass.equipmentDescription}\n\n`;
   }
 

@@ -33,11 +33,11 @@ function callDDBCharacterManager(actor) {
 }
 
 async function characterButtonClick(event, document, actor) {
-  let url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
+  const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
     ? document.flags.ddbimporter.dndbeyond.url
     : null;
 
-  let jsonURL = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.json")
+  const jsonURL = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.json")
     ? document.flags.ddbimporter.dndbeyond.json
     : null;
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
@@ -98,18 +98,18 @@ async function characterButtonClick(event, document, actor) {
 }
 
 function characterButtonClickV2(event, _target) {
-  // eslint-disable-next-line no-invalid-this
+   
   characterButtonClick(event, this.document, this.actor);
 }
 
 function getCharacterButton(document, actor) {
   const buttonText = '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
-  let url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
+  const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
     ? document.flags.ddbimporter.dndbeyond.url
     : null;
 
-  let button = $(buttonText);
+  const button = $(buttonText);
   if (!url || url.trim() === "") button.removeClass("inactive");
 
   button.click((event) => characterButtonClick(event, document, actor));
@@ -118,7 +118,7 @@ function getCharacterButton(document, actor) {
 }
 
 function npcButtonClick(event, document) {
-  let url = document.flags.monsterMunch.url;
+  const url = document.flags.monsterMunch.url;
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
     new DDBAdventureFlags(document, {}).render(true);
   } else {
@@ -128,13 +128,13 @@ function npcButtonClick(event, document) {
 }
 
 function npcButtonClickV2(event, _target) {
-  // eslint-disable-next-line no-invalid-this
+   
   npcButtonClick(event, this.document);
 }
 
 function getNPCButton(document) {
-  let button = $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
-  // eslint-disable-next-line no-unused-vars
+  const button = $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
+   
   button.click((event) => npcButtonClick(event, document));
 
   return button;
@@ -372,7 +372,7 @@ export default function () {
 
       if (!characterLink) {
         const button = getCharacterButton(app.document, data.actor);
-        let wrap = $('<div class="ddbCharacterName"></div>');
+        const wrap = $('<div class="ddbCharacterName"></div>');
         $(html).find("input[name='name']").wrap(wrap);
         $(html).find("input[name='name']").parent().prepend(button);
       }
@@ -395,8 +395,8 @@ export default function () {
       if ($(html).find("#ddbImporterButton").length > 0) return;
 
       if (!monsterLink) {
-        let button = getNPCButton(app.document);
-        let wrap = $('<div class="ddbCharacterName"></div>');
+        const button = getNPCButton(app.document);
+        const wrap = $('<div class="ddbCharacterName"></div>');
         $(html).find("input[name='name']").wrap(wrap);
         $(html).find("input[name='name']").parent().prepend(button);
       }

@@ -16,7 +16,7 @@ export default class SpellListExtractorMixin extends DDBEnricherData {
     });
   }
 
-  async generateSpellList(type: string = "class", name: string | null = null): Promise<void> {
+  async generateSpellList(type = "class", name: string | null = null): Promise<void> {
     if (name) this.spellListExtractor.name = name;
     await this.spellListExtractor.generateSpellList(type);
   }

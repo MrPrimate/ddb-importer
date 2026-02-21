@@ -252,9 +252,7 @@ export interface DDBEffectOptions {
 
 // -- Aura Effects -----------------------------------------------------------
 
-export interface DDBAuraEffects {
-  [key: string]: any;
-}
+export type DDBAuraEffects = Record<string, any>;
 
 // -- Effect Hint ------------------------------------------------------------
 

@@ -140,7 +140,6 @@ export default class CharacterClassFactory {
     }
 
     if (Object.keys(feats).length > 0) {
-      // eslint-disable-next-line require-atomic-updates
       klass.system.advancement[advancementIndex].value = {
         type: "feat",
         feat: feats,

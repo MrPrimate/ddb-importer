@@ -6,14 +6,9 @@ import { DDBReferenceLinker } from "../../parser/lib/_module";
 async function buildSubClassBase(klass, subClass) {
   delete klass['_id'];
   await getClassImages(subClass, klass);
-
-  // eslint-disable-next-line require-atomic-updates
   klass.flags.ddbimporter['parentClassId'] = subClass.parentClassId;
-  // eslint-disable-next-line require-atomic-updates
   klass.flags.ddbimporter['spellCastingAbilityId'] = subClass.spellCastingAbilityId;
-  // eslint-disable-next-line require-atomic-updates
   klass.flags.ddbimporter['canCastSpells'] = subClass.canCastSpells;
-  // eslint-disable-next-line require-atomic-updates
   klass.flags.ddbimporter['moreDetailsUrl'] = subClass.moreDetailsUrl;
 
   const image = foundry.utils.getProperty(klass, "flags.ddbimporter.image");
@@ -26,14 +21,11 @@ async function buildSubClassBase(klass, subClass) {
   klass.system.identifier = utils.referenceNameString(subClass.name).toLowerCase();
   klass.type = "subclass";
   klass.name = subClass.name;
-
-  // eslint-disable-next-line require-atomic-updates
   klass.system.description.value += `<h3>${subClass.name}</h3>\n${subClass.description}\n\n`;
 
   // spell caster now?
   // if canCastSpells but now canCastSpells then set to third
   if (klass.system.spellcasting === "" && subClass.canCastSpells) {
-    // eslint-disable-next-line require-atomic-updates
     klass.system.spellcasting = "third";
   }
 
@@ -42,8 +34,8 @@ async function buildSubClassBase(klass, subClass) {
 }
 
 async function buildSubClass(klass, subclass, compendiumSubClassFeatures) {
-  let baseClass = await buildBaseClass(klass.flags.ddbimporter.data);
-  let result = await buildSubClassBase(baseClass, subclass);
+  const baseClass = await buildBaseClass(klass.flags.ddbimporter.data);
+  const result = await buildSubClassBase(baseClass, subclass);
   const ignoreIds = klass.flags.ddbimporter.data.classFeatures.map((f) => f.id);
   result.system.description.value += await buildClassFeatures(subclass, compendiumSubClassFeatures, ignoreIds);
   result.system.description.value = DDBReferenceLinker.parseTags(result.system.description.value);
@@ -66,9 +58,9 @@ export async function getSubClasses(subClassData, klassData) {
   await classHandler.init();
   const classDocs = await classHandler.compendium.getDocuments();
 
-  let subClasses = [];
-  let classFeatures = [];
-  let results = [];
+  const subClasses = [];
+  const classFeatures = [];
+  const results = [];
 
   const featureCompendiumFolders = new DDBCompendiumFolders("features");
   utils.munchNote(`Checking compendium folders..`, { nameField: true });
@@ -132,7 +124,7 @@ export async function getSubClasses(subClassData, klassData) {
   const firstPassFeatures = await featureHandler.compendiumIndex.filter((i) =>
     featureHandler.documents.some((orig) => i.name === orig.name),
   );
-  let compendiumClassFeatures = [];
+  const compendiumClassFeatures = [];
 
   for (const f of firstPassFeatures) {
     const feature = await featureHandler.compendium.getDocument(f._id);

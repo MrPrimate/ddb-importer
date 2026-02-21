@@ -1,6 +1,3 @@
-/* eslint-disable no-continue */
-/* eslint-disable require-atomic-updates */
-
 import { logger, PatreonHelper } from "../../lib/_module";
 import { SETTINGS } from "../../config/_module";
 import ChrisPremadesHelper from "./ChrisPremadesHelper";
@@ -90,7 +87,7 @@ export default class ExternalAutomations {
     await externalAutomations.disableDynamicUpdates();
 
     logger.info("Starting to update actor documents with Cauldron of Plentiful Resources effects");
-    let documents = actor.getEmbeddedCollection("Item").toObject().filter((d) =>
+    const documents = actor.getEmbeddedCollection("Item").toObject().filter((d) =>
       foundry.utils.getProperty(d, "flags.ddbimporter.ignoreItemImport") !== true
       && foundry.utils.getProperty(d, "flags.ddbimporter.ignoreItemForChrisPremades") !== true,
     );

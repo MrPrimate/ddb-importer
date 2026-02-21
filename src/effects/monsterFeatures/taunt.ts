@@ -2,7 +2,7 @@
 import { baseItemEffect, forceItemEffect } from "../effects";
 
 export function generateTauntEffect(document) {
-  let effect = baseItemEffect(document, document.name, {
+  const effect = baseItemEffect(document, document.name, {
     transfer: false,
   });
   effect.changes.push(

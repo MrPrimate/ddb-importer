@@ -91,7 +91,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityL
  * @returns {object} abilities populated with character abilities
  */
 DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEffects = false) {
-  let result = {};
+  const result = {};
   DICTIONARY.actor.abilities.forEach((ability) => {
     result[ability.value] = {
       value: 0,
@@ -190,7 +190,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
  */
 DDBCharacter.prototype._getAbilitiesBonuses = function (includeExcludedEffects = false) {
 
-  let result = {};
+  const result = {};
   DICTIONARY.actor.abilities.forEach((ability) => {
     result[ability.value] = {
       bonuses: {

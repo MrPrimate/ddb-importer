@@ -5,7 +5,7 @@ import { baseMonsterFeatureEffect } from "../specialMonsters";
 export function giantSpiderEffects(npc) {
   for (let item of npc.items) {
     if (item.name.startsWith("Web")) {
-      let effect = baseMonsterFeatureEffect(item, item.name);
+      const effect = baseMonsterFeatureEffect(item, item.name);
       addStatusEffectChange({ effect, statusName: "Restrained" });
       effect.changes.push(
         {

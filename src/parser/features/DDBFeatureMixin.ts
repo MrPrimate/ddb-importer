@@ -503,7 +503,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   }
 
-  // eslint-disable-next-line complexity
+   
   _generateLimitedUse() {
     const uses = DDBDataUtils.getLimitedUses({
       data: this.ddbDefinition.limitedUse,
@@ -727,7 +727,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getActionAttackAbility() {
     return "";
   }
@@ -784,7 +784,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   _getFeatModifierItem(choice, type) {
     if (this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
-    let modifierItem = foundry.utils.duplicate(this.ddbDefinition);
+    const modifierItem = foundry.utils.duplicate(this.ddbDefinition);
     const modifiers = [
       DDBModifiers.getChosenClassModifiers(this.ddbData, { includeExcludedEffects: true, effectOnly: true }),
       DDBModifiers.getModifiers(this.ddbData, "race", true, true),
@@ -837,7 +837,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     DDBDataUtils.addCustomValues(this.ddbData, this.data);
   }
 
-  // eslint-disable-next-line complexity
+   
   static getFeatureSubtype(name, type, includePartial = true, categories = null) {
     if (type === "class") {
       if (name === "Ki") return "ki";
@@ -897,9 +897,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return null;
   }
 
-  // eslint-disable-next-line complexity
+   
   _generateSystemSubType() {
-    let subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, this.ddbDefinition.categories);
+    const subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, this.ddbDefinition.categories);
     if (subType) {
       foundry.utils.setProperty(this.data, "system.type.subtype", subType);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.subType", subType);
@@ -979,7 +979,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
-  // eslint-disable-next-line complexity
+   
   _getActivitiesType() {
     if (this.isSummons) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
@@ -1061,7 +1061,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return activity;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   build() {
     // override this feature
     return false;
@@ -1075,7 +1075,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       type: feature.type,
       notifier: this.notifier,
     });
-    // eslint-disable-next-line require-atomic-updates
     feature.system.description.value = tableDescription;
   }
 

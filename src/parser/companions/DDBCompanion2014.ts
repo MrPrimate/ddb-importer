@@ -182,7 +182,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
   }
 
   async _processFeatureElement(element, featType) {
-    let next = element.nextElementSibling;
+    const next = element.nextElementSibling;
 
     if (!next) return { next, featType };
 

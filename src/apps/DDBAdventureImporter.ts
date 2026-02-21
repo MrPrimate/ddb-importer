@@ -39,7 +39,7 @@ export class DDBAdventureImporter extends Sheet {
   /** @inheritDoc */
   async importContent(toCreate, toUpdate, documentCount) {
     const importResult = await super.importContent(toCreate, toUpdate, documentCount);
-    for (let [name, option] of Object.entries(this.importOptions || {})) {
+    for (const [name, option] of Object.entries(this.importOptions || {})) {
       if (option.handler) {
         await option.handler(this.document, option, this.submitOptions[name]);
       }

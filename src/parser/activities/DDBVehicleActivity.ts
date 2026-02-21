@@ -37,6 +37,10 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     };
   }
 
+  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
+    saveData?: any;
+  };
+
   build({
     activationOverride,
     additionalTargets,
@@ -84,7 +88,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     usesOverride,
     consumptionOverride = null,
     saveData = {},
-  } = {}) {
+  }: typeof DDBVehicleActivity.BuildOptions = {}) {
 
     this._generateSave(foundry.utils.mergeObject({
       saveOverride,

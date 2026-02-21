@@ -62,7 +62,7 @@ DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
  * @param {string} [options.pactText] The pact text to parse
  * @returns {void}
  */
-// eslint-disable-next-line complexity
+
 DDBMonster.prototype.parseOutSpells = function(text, { pactText = null } = {}) {
   // console.log(text);
   const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
@@ -136,7 +136,7 @@ DDBMonster.prototype.parseOutSpells = function(text, { pactText = null } = {}) {
 
 
 function splitEdgeCase(spell) {
-  let result = {
+  const result = {
     name: spell,
     edge: null,
   };
@@ -152,7 +152,7 @@ function splitEdgeCase(spell) {
 
 DDBMonster.prototype._generateSpellEdgeCases = function() {
   ["pact", "class", "atwill"].forEach((spellType) => {
-    this.spellList[spellType].forEach((spellName) => {
+    for (const spellName of this.spellList[spellType]) {
       const edgeCheck = splitEdgeCase(`${spellName}`);
       if (edgeCheck.edge) {
         const edgeEntry = {
@@ -162,8 +162,8 @@ DDBMonster.prototype._generateSpellEdgeCases = function() {
         };
         this.spellList.edgeCases.push(edgeEntry);
       }
-      spellName = edgeCheck.name;
-    });
+      // spellName = edgeCheck.name;
+    }
   });
 
   // innate
@@ -208,7 +208,7 @@ DDBMonster.prototype._generateSpells = function() {
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
   const possibleSpellSources = this.source.specialTraitsDescription + this.source.actionsDescription;
-  let specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
+  const specialTraits = possibleSpellSources.replace(/<br \/>/g, "</p><p>");
 
   const dom = utils.htmlToDocumentFragment(specialTraits);
 
@@ -285,7 +285,7 @@ DDBMonster.prototype.retrieveCompendiumSpells = async function(spells) {
     "system.source.rules": this.use2024Spells ? "2024" : "2014",
   });
   const itemData = compendiumSpells.map((i) => {
-    let spell = i.toObject();
+    const spell = i.toObject();
     delete spell._id;
     return spell;
   });

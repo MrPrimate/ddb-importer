@@ -109,7 +109,7 @@ const PatreonHelper = {
             utils.munchNote(`API Failure: ${data.message}`);
             reject(data.message);
           }
-          let currentEmail = PatreonHelper.getPatreonUser(local);
+          const currentEmail = PatreonHelper.getPatreonUser(local);
           logger.debug("Fetched Patreon tier information", {
             user: data.email,
             tier: data.data,

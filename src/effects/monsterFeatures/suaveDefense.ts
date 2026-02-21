@@ -2,7 +2,7 @@
 import { baseItemEffect } from "../effects";
 
 export function generateSuaveDefenseEffect(ddbMonster, document) {
-  let effect = baseItemEffect(document, document.name);
+  const effect = baseItemEffect(document, document.name);
   effect.changes.push(
     {
       key: "system.attributes.ac.bonus",

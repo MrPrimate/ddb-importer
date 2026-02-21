@@ -4,7 +4,7 @@ import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
 import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module";
 import { DICTIONARY } from "../../../config/_module";
-import { isEqual } from "../../../../vendor/lowdash/_module";
+import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 
 export default class EffectGenerator {
 
@@ -97,7 +97,7 @@ export default class EffectGenerator {
   _addGlobalSavingBonusEffect() {
     const type = "saving-throws";
     const key = "system.bonuses.abilities.save";
-    let changes = [];
+    const changes = [];
     const regularBonuses = this.grantedModifiers.filter((mod) => !mod.bonusTypes?.includes(2));
     const customBonuses = this.grantedModifiers.filter((mod) => mod.bonusTypes?.includes(2));
 
@@ -111,7 +111,7 @@ export default class EffectGenerator {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
       let bonuses = "";
       regularModifiers.forEach((modifier) => {
-        let bonusParse = DDBModifiers.extractModifierValue(modifier);
+        const bonusParse = DDBModifiers.extractModifierValue(modifier);
         if (bonuses !== "") bonuses += " + ";
         bonuses += bonusParse;
       });
@@ -431,7 +431,7 @@ export default class EffectGenerator {
     if (hpBonusModifiers.length > 0 && !this.ddbItem.definition.isConsumable) {
       let hpBonus = "";
       hpBonusModifiers.forEach((modifier) => {
-        let hpParse = DDBModifiers.extractModifierValue(modifier);
+        const hpParse = DDBModifiers.extractModifierValue(modifier);
         if (hpBonus !== "") hpBonus += " + ";
         hpBonus += hpParse;
       });
@@ -663,7 +663,7 @@ export default class EffectGenerator {
   }
 
   _generateEffectDurationFromDocument(activity) {
-    let duration = {
+    const duration = {
       seconds: null,
       startTime: null,
       rounds: null,
@@ -693,7 +693,7 @@ export default class EffectGenerator {
   }
 
   _processConsumableEffect() {
-    let label = `${this.document.name} - Consumable Effects`;
+    const label = `${this.document.name} - Consumable Effects`;
     this.effect.name = label;
     this.effect.disabled = false;
     this.effect.transfer = false;
@@ -763,6 +763,8 @@ export default class EffectGenerator {
     if (this.ddbItem.definition?.filterType === "Potion") {
       effect = this._processConsumableEffect();
     }
+
+    return effect;
   }
 
 
@@ -844,6 +846,7 @@ export default class EffectGenerator {
 
     if (bonuses && bonuses != 0) {
       const bonusSum = Number.isInteger(bonuses) ? 10 + bonuses : `10 + ${bonuses}`;
+      // eslint-disable-next-line no-useless-assignment
       let formula = "";
       switch (subType) {
         case "unarmored-armor-class": {
@@ -1003,7 +1006,7 @@ export default class EffectGenerator {
         const baseEffect = this.document.effects[0];
         baseEffect.changes = this.document.effects.flatMap((e) => e.changes);
         baseEffect.statuses = Array.from(new Set(this.document.effects.flatMap((e) => e.statuses)));
-        let flags = {};
+        const flags = {};
         this.document.effects.forEach((e) => {
           foundry.utils.mergeObject(flags, e.flags, {
             inplace: true,

@@ -346,12 +346,12 @@ export default class DDBRuleJournalFactory {
               };
               CONFIG.DND5E.validProperties["weapon"].add(propertyId);
             } else if (CONFIG.DND5E.itemProperties[shortId]) {
-              // eslint-disable-next-line max-depth
+               
               if (!CONFIG.DND5E.itemProperties[shortId].reference) {
                 CONFIG.DND5E.itemProperties[shortId].reference = page.uuid;
               }
             } else if (CONFIG.DND5E.itemProperties[propertyId]) {
-              // eslint-disable-next-line max-depth
+               
               if (!CONFIG.DND5E.itemProperties[propertyId].reference) {
                 CONFIG.DND5E.itemProperties[propertyId].reference = page.uuid;
               }

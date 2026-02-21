@@ -27,7 +27,7 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   // override this
-  // eslint-disable-next-line class-methods-use-this
+   
   _getTabs() {
     return {};
   }
@@ -106,7 +106,7 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   async _preparePartContext(_partId, context) {
     return context;
   }
@@ -177,7 +177,7 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     logger.debug(`Munching: ${note}`, { message, isError, monsterNote, nameField });
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getMessageClass(section) {
     let messageClass;
     switch (section) {

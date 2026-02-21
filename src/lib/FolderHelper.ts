@@ -24,7 +24,7 @@ export default class FolderHelper {
     return folder;
   }
 
-  // eslint-disable-next-line no-unused-vars
+   
   static async getFolder(kind, subFolder = "", baseFolderName = "D&D Beyond Import", baseColor = "#6f0006", subColor = "#98020a", typeFolder = true) {
     const entityTypes = utils.entityMap();
     const folderName = game.i18n.localize(`ddb-importer.item-type.${kind}`);

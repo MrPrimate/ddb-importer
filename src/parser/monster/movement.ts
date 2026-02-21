@@ -23,7 +23,7 @@ import DDBMonster from "../DDBMonster";
 //   "special": "Fly 80 ft., Swim 40 ft."
 // },
 DDBMonster.prototype._generateMovement = function () {
-  let special = [];
+  const special = [];
 
   this.npc.system.attributes.movement.units = "ft";
 

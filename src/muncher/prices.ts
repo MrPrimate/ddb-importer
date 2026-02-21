@@ -51,7 +51,7 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
 
   // const items = await pack.getDocuments();
 
-  for (let item of items) {
+  for (const item of items) {
     const rarity = item.system.rarity;
     const gpPrice = item.system.price.value;
     const isConsumable = item.type === "consumable";

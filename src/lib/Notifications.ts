@@ -24,7 +24,7 @@ export function registerNotifications() {
       // prettier-ignore
       $("#ddbimporter-notifications").css("bottom", $("#players").height() + (2 * MARGIN));
 
-      let note = $(`<div style="display: none"></div>`).append(message);
+      const note = $(`<div style="display: none"></div>`).append(message);
       $("#ddbimporter-notifications").append(note);
       $(note).fadeIn(200);
 
@@ -55,7 +55,7 @@ export function registerNotifications() {
         $("#ddbimporter-hints").css("width", options.width ? options.width : 300);
 
         // construct the note
-        let note = $(`<div style="display: none"></div>`);
+        const note = $(`<div style="display: none"></div>`);
         $(note).append(message);
         $(note).append('<div class="buttons"></div>');
         $("#ddbimporter-hints").append(note);
@@ -100,15 +100,15 @@ export function registerNotifications() {
             break;
 
           default:
-            // eslint-disable-next-line no-mixed-operators
+             
             $("#ddbimporter-hints").css("top", anchor.top - Math.round(noteInfo.height / 2));
-            // eslint-disable-next-line no-mixed-operators
+             
             $("#ddbimporter-hints").css("left", anchor.left - Math.round(noteInfo.width / 2));
         }
 
         if (options.buttons) {
-          for (let name of options.buttons) {
-            let btn = $("<button>" + name + "</button>");
+          for (const name of options.buttons) {
+            const btn = $("<button>" + name + "</button>");
             $("div.buttons", note).append(btn);
             $(btn).on("click", () => {
               $(note).fadeOut(100, () => {

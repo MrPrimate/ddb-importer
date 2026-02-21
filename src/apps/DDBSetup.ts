@@ -171,7 +171,7 @@ export default class DDBSetup extends DDBAppV2 {
     return `ddb-importer-settings-${this.actor?.id ?? "core"}`;
   }
 
-  get title() { // eslint-disable-line class-methods-use-this
+  get title() {  
     // improve localisation
     // game.i18n.localize("")
     return "DDB Importer Settings";
@@ -337,17 +337,14 @@ export default class DDBSetup extends DDBAppV2 {
     context.patreonUser = this.patreonUser;
     context.patreonLinked = this.patreonUser && this.patreonUser != "";
     const validKeyObject = hasKey ? (await PatreonHelper.getPatreonValidity(this.patreonKey)) : false;
-    // eslint-disable-next-line require-atomic-updates
     context.validKey = validKeyObject && validKeyObject.success && validKeyObject.data;
 
     try {
       const cobaltStatus = await Secrets.checkCobalt("", context.setupConfig["cobalt-cookie"]);
-      // eslint-disable-next-line require-atomic-updates
       context.validCobalt = cobaltStatus.success;
     } catch (error) {
       logger.error("Failed to validate cobalt cookie", { error });
       logger.error(error.stack);
-      // eslint-disable-next-line require-atomic-updates
       context.validCobalt = false;
     }
 
@@ -365,9 +362,7 @@ export default class DDBSetup extends DDBAppV2 {
       campaign.selected = selected;
     });
 
-    // eslint-disable-next-line require-atomic-updates
     context.setupConfig["available-campaigns"] = availableCampaigns;
-    // eslint-disable-next-line require-atomic-updates
     context.setupComplete = context.isCobalt;
     clearTimeout(timeout);
 
@@ -375,7 +370,7 @@ export default class DDBSetup extends DDBAppV2 {
     return context;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async _prepareDynamicContext(context) {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
@@ -386,7 +381,7 @@ export default class DDBSetup extends DDBAppV2 {
     return context;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async _prepareEnhancementsContext(context) {
     const allowedSourceIds = this.allowedWeaponPropertySources;
     const selectedSources = MuncherSettings.getSourcesLookups(allowedSourceIds).map((source) => {
@@ -406,7 +401,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   async _preparePartContext(partId, context) {
     switch (partId) {
       case "core": {
@@ -428,7 +423,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
 
-  // eslint-disable-next-line class-methods-use-this
+   
   static async checkCobaltCookie(value) {
     const cookieStatus = await Secrets.checkCobalt("", value);
     if (value !== "" && !cookieStatus.success) {
@@ -733,7 +728,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async _saveProxy(formData) {
     if (this.proxyAddress !== formData.object['api-endpoint']
       || this.useCustomProxy !== formData.object['custom-proxy']

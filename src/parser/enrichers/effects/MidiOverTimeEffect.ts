@@ -45,7 +45,7 @@ export default class MidiOverTimeEffect {
     if (!this.addToMonster) return;
     if (this.effect.changes.length > 0 || this.effect.statuses.length > 0) {
       this.document.effects.push(this.effect);
-      let overTimeFlags = foundry.utils.hasProperty(this.actor, "flags.monsterMunch.overTime")
+      const overTimeFlags = foundry.utils.hasProperty(this.actor, "flags.monsterMunch.overTime")
         ? foundry.utils.getProperty(this.actor, "flags.monsterMunch.overTime")
         : [];
       overTimeFlags.push(this.document.name);

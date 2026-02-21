@@ -6,7 +6,7 @@ export function newNPC(name, ddbId = null) {
     displaySheet: false,
   };
   const npcClass = new Actor.implementation({ name, type: "npc" }, options);
-  let npc = npcClass.toObject();
+  const npc = npcClass.toObject();
   npc._id = ddbId === null
     ? foundry.utils.randomID()
     : utils.namedIDStub(npc.name, { postfix: ddbId });

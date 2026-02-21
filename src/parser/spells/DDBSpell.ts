@@ -8,6 +8,7 @@ import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
+  isGeneric: boolean;
 
   _generateDataStub() {
     this.data = {
@@ -94,7 +95,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  // eslint-disable-next-line complexity
+
   constructor({
     ddbData, spellData, rawCharacter = null, namePrefix = null, namePostfix = null, isGeneric = null, updateExisting = null,
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
@@ -133,7 +134,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.additionalActivities = [];
     this.healingParts = [];
 
-    this.isGeneric = generic;
+    this.isGeneric = generic ?? false;
     this.addSpellEffects = addEffects;
 
     this.legacyPostfix = this.isGeneric
@@ -212,7 +213,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     // this is mainly guessing
     if (this.ddbDefinition.componentsDescription && this.ddbDefinition.componentsDescription.length > 0) {
       let cost = 0;
-      let matches = (/([\d.,]+)\s*gp/i).exec(this.ddbDefinition.componentsDescription);
+      const matches = (/([\d.,]+)\s*gp/i).exec(this.ddbDefinition.componentsDescription);
       if (matches) {
         cost = parseInt(matches[1].replace(/,|\./g, ""));
       }
@@ -263,7 +264,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  // eslint-disable-next-line complexity
+
   _generateSpellPreparationMode() {
     // default values
     if (this.noSpellcasting) {
@@ -309,8 +310,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
     } else {
       // If spell doesn't use a spell slot and is not a cantrip, mark as always preped
-      let always = !this.spellData.usesSpellSlot && !this.isCantrip;
-      let ritualOnly = this.spellData.ritualCastingType !== null || this.spellData.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
+      const always = !this.spellData.usesSpellSlot && !this.isCantrip;
+      const ritualOnly = this.spellData.ritualCastingType !== null || this.spellData.castOnlyAsRitual; // e.g. Book of ancient secrets & totem barb
       if (always && ritualOnly) {
         // in this case we want the spell to appear in the spell list unprepared
         this.data.system.method = "ritual";
@@ -335,7 +336,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   async _generateDescription() {
-    let description = await DDBTable.generateTable({
+    const description = await DDBTable.generateTable({
       parentName: this.data.name,
       html: this.ddbDefinition.description,
       updateExisting: this.updateExisting,
@@ -370,7 +371,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   _generateDuration() {
     if (this.ddbDefinition.duration) {
-      let units = "";
+      let units: string;
       if (this.ddbDefinition.duration.durationUnit !== null) {
         units = this.ddbDefinition.duration.durationUnit.toLowerCase();
       } else {
@@ -388,7 +389,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
    * Check if the spell targets creatures.
    * @returns {boolean} true if the spell targets creatures, false otherwise.
    */
-  targetsCreature() {
+  targetsCreature(): boolean {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
     const targets = /spell attack against the target|at a target in range|each creature within|each creature in the/gi;
@@ -401,7 +402,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
    * Uses regex magic to try and determine the number of creatures affected
    * @returns {number|null} The maximum number of creatures affected, or null if no valid number is found
    */
-  _getTargetValue() {
+  _getTargetValue(): number | null {
     const numCreatures = /(?!At Higher Levels.*)(\w*) (?:falling )?(?:willing )?(?:Bloodied )?(creature(?:s)?|target|monster|celestial|fiend|fey|corpse(?:s)? of|humanoid)(?!.*you have animated)/gim;
     const targets = [...this.ddbDefinition.description.matchAll(numCreatures)];
     const targetValues = targets
@@ -420,9 +421,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   /**
    * Generates the target details for the spell.
-   * @private
    */
-  // eslint-disable-next-line complexity
   _generateTarget() {
     let target = {
       prompt: true,
@@ -446,13 +445,13 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     const thickReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(thick|wide)/);
     const thickMatch = thickReg.exec(this.ddbDefinition.description);
     if (thickMatch && thickMatch[1] > 5) {
-      target.template.width = parseInt(thickMatch[1]);
+      target.template.width = thickMatch[1];
     }
 
     const heightReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(tall|high)/);
     const heightMatch = heightReg.exec(this.ddbDefinition.description);
-    if (heightMatch && heightMatch[1] > 5) {
-      target.template.height = parseInt(heightMatch[1]);
+    if (heightMatch && Number.isInteger(Number(heightMatch[1])) && parseInt(heightMatch[1]) > 5) {
+      target.template.height = heightMatch[1];
     }
 
     const targetsCreatures = this.targetsCreature();
@@ -460,7 +459,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     // if spell is an AOE effect get some details
     if (this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeValue) {
       const type = this.ddbDefinition.range.aoeType.toLowerCase();
-      target.template.size = parseInt(this.ddbDefinition.range.aoeValue);
+      target.template.size = this.ddbDefinition.range.aoeValue;
       target.template.type = type === "emanation" ? "radius" : type;
       if (targetsCreatures) {
         target.affects.type = "creature";
@@ -528,12 +527,12 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       target.template.units = "ft";
 
       if (this.ddbDefinition.description.includes("ten 10-foot-")) {
-        target.template.size = 100;
+        target.template.size = "100";
       } else {
         const wallReg = new RegExp(/ (\d*) feet long/);
         const matches = wallReg.exec(this.ddbDefinition.description);
         if (matches) {
-          target.template.size = parseInt(matches[1]);
+          target.template.size = matches[1];
         }
       }
     }
@@ -715,7 +714,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     );
 
     heals.forEach((heal) => {
-      let healingPart = {
+      const healingPart = {
         part: null,
         chatFlavor: null,
       };
@@ -868,7 +867,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         .filter((type) => type.type === 4)
         .find((type) => type.id === data.conditionId);
       if (condition) {
-        let effect = AutoEffects.SpellEffect(this.data, `${this.data.name}: ${condition.name}`);
+        const effect = AutoEffects.SpellEffect(this.data, `${this.data.name}: ${condition.name}`);
         effect._id = foundry.utils.randomID();
 
         // KNOWN_ISSUE_4_0: add duration

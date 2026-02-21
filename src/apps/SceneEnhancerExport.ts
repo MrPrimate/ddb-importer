@@ -186,7 +186,7 @@ export function collectSceneData(scene, bookCode) {
   data.flags.ddb.tokens = scene.tokens
     .filter((token) => !token.actorLink)
     .map((token) => {
-      let result = {
+      const result = {
         _id: token._id,
         name: token.name,
         width: token.width,
@@ -253,7 +253,7 @@ export function collectSceneData(scene, bookCode) {
 }
 
 function getCompendiumScenes(compendiumCollection, selectedId = null, selectedName = null) {
-  let scenes = [];
+  const scenes = [];
   const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
   if (compendium) {
     compendium.index.forEach((scene) => {
@@ -274,7 +274,7 @@ const allowedFlags = ["stairways", "perfect-vision", "dynamic-illumination"];
 
 export class SceneEnhancerExport extends Application {
 
-  // eslint-disable-next-line complexity
+   
   constructor(scene) {
     super();
     this.sceneSet = false;
@@ -358,7 +358,7 @@ export class SceneEnhancerExport extends Application {
 
   /** @override */
   getData() {
-    let templateData = {
+    const templateData = {
       sceneName: this.scene.name,
       compendiums: this.compendiums,
       compendiumScenes: this.compendiumScenes,
@@ -466,10 +466,10 @@ export class SceneEnhancerExport extends Application {
   }
 
 
-  async buttonClick(event, formData) { // eslint-disable-line class-methods-use-this
+  async buttonClick(event, formData) {  
     event.preventDefault();
 
-    let sceneFlags = foundry.utils.duplicate(this.scene.flags);
+    const sceneFlags = foundry.utils.duplicate(this.scene.flags);
 
     if (!sceneFlags.ddb) sceneFlags.ddb = {};
     if (!sceneFlags.ddbimporter) sceneFlags.ddbimporter = {};
@@ -495,7 +495,7 @@ export class SceneEnhancerExport extends Application {
 
     await this.scene.update({ flags: sceneFlags });
 
-    let sceneData = collectSceneData(this.scene, formData["select-book"]);
+    const sceneData = collectSceneData(this.scene, formData["select-book"]);
 
     Object.keys(sceneData.flags).forEach((flag) => {
       if (!allowedFlags.includes(flag) && !ddbFlags.includes(flag)) delete sceneData.flags[flag];

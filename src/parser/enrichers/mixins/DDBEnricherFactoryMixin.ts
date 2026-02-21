@@ -725,8 +725,8 @@ export default class DDBEnricherFactoryMixin {
       if (effectHint.aurasOnly && !AutoEffects.effectModules().auraeffectsInstalled && !AutoEffects.effectModules().activeAurasInstalled) continue;
       if (effectHint.atlNever && AutoEffects.effectModules().atlInstalled) continue;
       if (effectHint.atlOnly && !AutoEffects.effectModules().atlInstalled) continue;
-      let name = effectHint.name ?? this.name;
-      let effectOptions = effectHint.options ?? {};
+      const name = effectHint.name ?? this.name;
+      const effectOptions = effectHint.options ?? {};
 
       let effect: any;
       let useExistingEffect = false;
@@ -1268,7 +1268,7 @@ export default class DDBEnricherFactoryMixin {
 
     const feats = this.ddbParser.ddbCharacter.source.ddb.character.feats;
 
-    let feat = feats.find((f: any) =>
+    const feat = feats.find((f: any) =>
       f.definition.id === componentId
       && f.definition.entityTypeId === componentTypeId,
     );

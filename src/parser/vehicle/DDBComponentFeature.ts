@@ -255,7 +255,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
       && (this.action.limitedUse.maxUses)
     ) {
       const resetType = DICTIONARY.resets.find((type) => type.id === this.action.limitedUse.resetType);
-      let maxUses = (this.action.limitedUse.maxUses && this.action.limitedUse.maxUses !== -1) ? this.action.limitedUse.maxUses : 0;
+      const maxUses = (this.action.limitedUse.maxUses && this.action.limitedUse.maxUses !== -1) ? this.action.limitedUse.maxUses : 0;
 
       const finalMaxUses = (maxUses) ? parseInt(maxUses) : null;
 
@@ -315,7 +315,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
 
   }
 
-  // eslint-disable-next-line complexity
+   
   #generateActionData() {
     this.#generateDamageInfo();
 
@@ -635,7 +635,7 @@ ${this.data.system.description.value}
     }
   }
 
-  // eslint-disable-next-line complexity
+   
   async parse() {
 
     await this.enricher.init();

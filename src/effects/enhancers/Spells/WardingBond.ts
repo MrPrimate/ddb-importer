@@ -48,7 +48,7 @@ export default class WardingBond {
     return false;
   }
 
-  // eslint-disable-next-line complexity
+   
   static async preUpdateActorHook(subject, update, options, _user) {
     if (!(update.system?.attributes?.hp ?? false)) return true;
     const targetFlag = DDBEffectHelper.getFlag(subject, "WardingBondIds");

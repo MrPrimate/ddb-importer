@@ -85,7 +85,7 @@ export default class HolyNimbus extends DDBEnricherData {
   }
 
   get effects() {
-    let effects = [];
+    const effects = [];
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       effects.push({
         data: {

@@ -20,7 +20,7 @@ export function addMuncher(app, html) {
     if (setupComplete) {
       const cobaltStatus = await Secrets.checkCobalt();
       if (cobaltStatus.success) {
-        let validKey = await PatreonHelper.isValidKey();
+        const validKey = await PatreonHelper.isValidKey();
         if (validKey) {
           new DDBMuncher().render(true);
         }

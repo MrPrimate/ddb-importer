@@ -1,6 +1,6 @@
 import { logger, DDBMacros } from "../../lib/_module";
 
-// eslint-disable-next-line no-unused-vars, complexity
+ 
 function daeStubEffects(actor, change, _current, _delta, _changes) {
 
   if (typeof change?.key !== "string") return true;
@@ -46,7 +46,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
           op = change.value[0];
         }
       }
-      for (let key of Object.keys(movement)) {
+      for (const key of Object.keys(movement)) {
         if (["units", "hover", "ignoredDifficultTerrain"].includes(key)) continue;
         let valueString = change.value;
         if (op !== "") {
@@ -59,7 +59,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
           if (!roll.isDeterministic) {
             logger.error(`Error evaluating system.attributes.movement.all = ${valueString}. Roll is not deterministic for ${actor.name} ${actor.uuid} dice terms ignored`);
           }
-          // eslint-disable-next-line no-sync
+           
           result = roll.evaluateSync({ strict: false }).total;
           movement[key] = Math.floor(Math.max(0, result) + 0.5);
         } catch (err) {
@@ -76,7 +76,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
 
 export default class DDBEffectHooks {
 
-  // eslint-disable-next-line no-unused-vars
+   
   static ddbMacro(actor, change, ..._params) {
     const scope = { actor, token: null };
     const data = JSON.parse(change.value);
@@ -84,9 +84,9 @@ export default class DDBEffectHooks {
     DDBMacros.executeDDBMacro(data.type, data.name, scope);
   }
 
-  // eslint-disable-next-line no-unused-vars
+   
   static processCustomApplyEffectHooks(_actor, change, _current, _delta, _changes) {
-    // eslint-disable-next-line no-useless-return
+     
     if (change.mode !== CONST.ACTIVE_EFFECT_MODES.CUSTOM) return;
 
   }

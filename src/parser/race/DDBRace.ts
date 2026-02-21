@@ -301,7 +301,6 @@ export default class DDBRace {
       const pathPostfix = useDeepPaths ? `/race/large` : "";
       const downloadOptions = { type: "race-large", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix };
       largeAvatarUrl = await FileHelper.getImagePath(this.race.largeAvatarUrl, downloadOptions);
-      // eslint-disable-next-line require-atomic-updates
       this.data.flags.ddbimporter['largeAvatarUrl'] = this.race.largeAvatarUrl;
       if (!this.data.img) {
         this.data.img = largeAvatarUrl;
@@ -718,7 +717,7 @@ export default class DDBRace {
     // advancement.updateSource(update);
   }
 
-  // eslint-disable-next-line complexity
+
   async #generateTraitChoiceAdvancement(trait, choices) {
     logger.debug(`Generating choice trait advancement for trait ${trait.name} with ${choices.length} choices`);
     const keys = new Set();
@@ -834,19 +833,19 @@ export default class DDBRace {
     //   uuids,
     // });
 
-    // eslint-disable-next-line no-warning-comments
+
     // TODO: handle chosen advancements on non muncher races
     this._addAdvancement(advancement.toObject());
 
   }
 
-  // eslint-disable-next-line complexity
+
   async #generateTraitOptionAdvancement(trait, options) {
     logger.debug(`Generating choice trait option advancement for trait ${trait.name} with ${options.length} options`);
 
     const uuids = new Set();
     const configChoices = {};
-    let lowestLevel = 0;
+    const lowestLevel = 0;
 
     for (const option of options) {
       // {
@@ -937,7 +936,7 @@ export default class DDBRace {
     //   uuids,
     // });
 
-    // eslint-disable-next-line no-warning-comments
+
     // TODO: handle chosen advancements on non muncher races
     this._addAdvancement(advancement.toObject());
 
@@ -987,7 +986,7 @@ export default class DDBRace {
         continue;
       }
 
-      // eslint-disable-next-line no-warning-comments
+
       // TODO: determine if different traits at each level, if so, create multiple advancements
       await this.#generateTraitChoiceAdvancement(trait, choices);
     }
@@ -1242,7 +1241,7 @@ export default class DDBRace {
               && feat.flags.ddbimporter.type === "feat"
               && feat.name.startsWith(this.featLink.name);
 
-            // eslint-disable-next-line no-continue
+
             if (!isMatch) continue;
 
             logger.debug(`Advancement Race ${a._id} found Feature ${feat.name} (${this.featLink.uuid})`);
@@ -1274,18 +1273,18 @@ export default class DDBRace {
     logger.debug("Processed race advancements", this.ddbCharacter.data.race.system.advancement);
   }
 
-  #generateHTMLSenses() {
-    const textDescription = AdvancementHelper.stripDescription(this.data.system.description.value);
+  // #generateHTMLSenses() {
+  //   const textDescription = AdvancementHelper.stripDescription(this.data.system.description.value);
 
-    // You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light
-    // You can see in dim light within 120 feet of you as if it were bright light and in darkness as if it were dim light.
-    const darkVisionRegex = /you can see in dim light within (\d+) feet of you as if it were bright light/im;
-    const darkVisionMatch = textDescription.match(darkVisionRegex);
+  //   // You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light
+  //   // You can see in dim light within 120 feet of you as if it were bright light and in darkness as if it were dim light.
+  //   const darkVisionRegex = /you can see in dim light within (\d+) feet of you as if it were bright light/im;
+  //   const darkVisionMatch = textDescription.match(darkVisionRegex);
 
-    if (darkVisionMatch) {
-      this.data.system.senses.darkvision = parseInt(darkVisionMatch[1]);
-    }
-  }
+  //   if (darkVisionMatch) {
+  //     this.data.system.senses.darkvision = parseInt(darkVisionMatch[1]);
+  //   }
+  // }
 
   #generateSenses() {
     for (const senseName in this.data.system.senses) {
@@ -1349,7 +1348,7 @@ export default class DDBRace {
 
   #fix2024Aasimar() {
     if (!this.data.name.startsWith("Aasimar")) return;
-    for (let advancement of this.data.system.advancement) {
+    for (const advancement of this.data.system.advancement) {
       if (advancement.title !== "Celestial Revelation") continue;
       advancement.type = "ItemGrant";
       advancement.configuration.items = foundry.utils.deepClone(advancement.configuration.pool);

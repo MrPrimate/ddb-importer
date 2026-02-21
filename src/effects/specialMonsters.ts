@@ -1,4 +1,3 @@
-/* eslint-disable require-atomic-updates */
 import { addStatusEffectChange, forceItemEffect } from "./effects";
 
 // import { generateTauntEffect } from "./monsterFeatures/taunt";
@@ -18,7 +17,7 @@ export function baseMonsterFeatureEffect(document, label,
   return AutoEffects.MonsterFeatureEffect(document, label, { transfer, disabled, showIcon });
 }
 
-// eslint-disable-next-line complexity
+ 
 export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects = false) {
   let npc = foundry.utils.duplicate(ddbMonster.npc);
 
@@ -72,7 +71,7 @@ export async function monsterFeatureEffectAdjustment(ddbMonster, addMidiEffects 
       break;
     }
     case "Rahadin": {
-      for (let [index, item] of npc.items.entries()) {
+      for (const [index, item] of npc.items.entries()) {
         if (item.name === "Deathly Choir") {
           npc.items[index] = await deathlyChoirEffect(item);
         }

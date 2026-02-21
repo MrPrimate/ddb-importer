@@ -38,7 +38,7 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   async getData() {
     let data;
     let packages = [];
@@ -185,12 +185,12 @@ export default class ThirdPartyMunch extends FormApplication {
   static async _fixupScenes(scenes) {
     try {
       if (scenes.length > 0) {
-        let totalCount = scenes.length;
+        const totalCount = scenes.length;
         let currentCount = 0;
 
         await utils.asyncForEach(scenes, async (obj) => {
           try {
-            let updatedData = {};
+            const updatedData = {};
             switch (obj.documentName) {
               case "Scene": {
                 // In 0.8.x the thumbs don't seem to be auto generated anymore
@@ -213,7 +213,7 @@ export default class ThirdPartyMunch extends FormApplication {
         });
       }
     } catch (err) {
-      // eslint-disable-next-line no-undef
+       
       logger.warn(`Error during reference update for object ${item}`, err);
     }
   }
@@ -342,7 +342,6 @@ export default class ThirdPartyMunch extends FormApplication {
         if (noteJournal) {
           logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
-          // eslint-disable-next-line require-atomic-updates
           note.icon = await Iconizer.generateIcon(this.adventureMunch, note.label);
           if (noJournalPinNotes) {
             note.flags.ddb.labelName = `${note.label}`;
@@ -438,7 +437,6 @@ export default class ThirdPartyMunch extends FormApplication {
         });
 
       }
-      // eslint-disable-next-line require-atomic-updates
       scene.notes = await this._linkSceneNotes(scene, mockAdventure);
       logger.debug(`Finished scene adjustment for ${scene.name}`);
     });
@@ -625,8 +623,6 @@ export default class ThirdPartyMunch extends FormApplication {
       $(".ddb-overlay").toggleClass("import-invalid");
 
       ThirdPartyMunch._renderCompleteDialog(`Successful Import of ${packageName}`, { name: packageName });
-
-      // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.ADVENTURE.TEMPORARY = {};
       this.close();
     }

@@ -111,7 +111,7 @@ export default class CharacterFeatureFactory {
   static includedFeatureNameCheck(featName) {
     const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-include-versatile-features");
 
-    // eslint-disable-next-line operator-linebreak
+     
     const nameAllowed =
       !CharacterFeatureFactory.LEGACY_SKIPPED_FEATURES.includes(featName)
       && !CharacterFeatureFactory.SKIPPED_FEATURES.includes(featName)
@@ -447,7 +447,7 @@ export default class CharacterFeatureFactory {
   #addGenericAdvancementOrigins(types = ["actions", "features"]) {
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type]) {
-        // eslint-disable-next-line no-continue
+         
         if (foundry.utils.hasProperty(feature, "flags.dnd5e.advancementOrigin")) continue;
         const typeFlag = foundry.utils.getProperty(feature, "flags.ddbimporter.type")
           ?? foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.type");
@@ -489,7 +489,7 @@ export default class CharacterFeatureFactory {
           for (let idx = 0; idx < feature.system.advancement.length; idx++) {
             const a = feature.system.advancement[idx];
             const dataLink = linkingData.find((d) => d._id === a._id);
-            // eslint-disable-next-line max-depth
+             
             if (a.type === "ItemGrant" && dataLink) {
               this.#itemGrantLink(feature, idx);
             }
@@ -1044,7 +1044,7 @@ export default class CharacterFeatureFactory {
   filterActionFeatures() {
     const alwaysUseFeatureDescription = true;
 
-    // eslint-disable-next-line complexity
+     
     this.data.actions = this.processed.actions.map((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
       const featureMatch = this.processed.features.find((feature) => {
@@ -1121,12 +1121,12 @@ export default class CharacterFeatureFactory {
             if (foundry.utils.getProperty(action.system.activities[key], "flags.ddbimporter.noeffect")) continue;
             const effects = [];
             for (const effect of featureMatch.effects) {
-              // eslint-disable-next-line max-depth
+               
               if (effect.transfer) continue;
-              // eslint-disable-next-line max-depth
+               
               if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
               const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
-              // eslint-disable-next-line max-depth
+               
               if (activityNameRequired && action.system.activities[key].name !== activityNameRequired) continue;
               const effectId = effect._id ?? foundry.utils.randomID();
               effect._id = effectId;
@@ -1178,7 +1178,7 @@ export default class CharacterFeatureFactory {
 
   }
 
-  // eslint-disable-next-line complexity
+   
   async addSpellAdvancement({ feature, type } = {}) {
     await AdvancementHelper.addSpellAdvancement({
       ddbParser: this,

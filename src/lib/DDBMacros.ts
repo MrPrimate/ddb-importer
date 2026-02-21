@@ -76,7 +76,7 @@ export default class DDBMacros {
     if (!game.user.isGM) return false;
     // allow item use macros on items
     if (game.modules.get("midi-qol")?.active) {
-      let midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
+      const midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings");
       if (!midiQOLSettings.allowUseMacro) {
         midiQOLSettings.allowUseMacro = true;
         game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);

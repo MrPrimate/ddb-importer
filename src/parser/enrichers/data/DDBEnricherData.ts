@@ -102,7 +102,7 @@ export default class DDBEnricherData {
     );
   }
 
-  _getSpentValue(type: string, name: string, matchSubClass: string | null = null, includesName: boolean = false): number | null {
+  _getSpentValue(type: string, name: string, matchSubClass: string | null = null, includesName = false): number | null {
     const spent = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
@@ -111,7 +111,7 @@ export default class DDBEnricherData {
     return spent;
   }
 
-  _getMaxValue(type: string, name: string, matchSubClass: string | null = null, includesName: boolean = false): number | null {
+  _getMaxValue(type: string, name: string, matchSubClass: string | null = null, includesName = false): number | null {
     const max = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null

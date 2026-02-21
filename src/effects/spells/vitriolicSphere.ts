@@ -5,7 +5,7 @@ import { baseSpellEffect } from "../specialSpells";
 
 export function vitriolicSphereEffect(document) {
 
-  let effect = baseSpellEffect(document, document.name);
+  const effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
       key: "flags.midi-qol.OverTime",

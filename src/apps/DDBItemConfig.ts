@@ -11,10 +11,10 @@ export class DDBItemConfig extends FormApplication {
   }
 
   /** @override */
-  async getData() { // eslint-disable-line class-methods-use-this
+  async getData() {  
     // console.warn(this);
     // console.warn(this.object);
-    let item = this.object;
+    const item = this.object;
 
     const icon = item.flags.ddbimporter?.ignoreIcon;
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
@@ -87,16 +87,16 @@ export class DDBItemConfig extends FormApplication {
 
   get id() {
     const actor = this.object;
-    let id = `ddb-actor-${actor.id}`;
+    const id = `ddb-actor-${actor.id}`;
     return id;
   }
 
   /** @override */
-  // eslint-disable-next-line no-unused-vars
+   
   async _updateObject(event, formData) {
     event.preventDefault();
 
-    let item = {
+    const item = {
       _id: this.object._id,
       flags: this.object.flags,
     };

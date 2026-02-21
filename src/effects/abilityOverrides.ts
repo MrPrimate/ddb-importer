@@ -2,7 +2,7 @@ import { DICTIONARY } from "../config/_module";
 import { generateOverrideChange } from "./effects";
 
 function buildBaseOverrideEffect(label) {
-  let effect = {
+  const effect = {
     changes: [],
     duration: {
       seconds: null,
@@ -29,7 +29,7 @@ function buildBaseOverrideEffect(label) {
 
 
 export function abilityOverrideEffects(overrides) {
-  let effects = buildBaseOverrideEffect("Ability Overrides");
+  const effects = buildBaseOverrideEffect("Ability Overrides");
 
   DICTIONARY.actor.abilities.forEach((ability) => {
     if (overrides[ability.value] === 0) return;

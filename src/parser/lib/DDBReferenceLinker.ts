@@ -199,8 +199,7 @@ function ruleReplacer(baseType, text, slug, forceTrimCheck = false) {
  * @param {string} _string the input string
  * @returns {string} the modified string with the replaced tag
  */
-// eslint-disable-next-line no-unused-vars
-function replaceTag(match, tagType, tagName, _p4, _offset, _string) {
+function replaceTag(match: string, tagType: string, tagName: string, _p4: number, _offset: number, _string: string): string {
   if (!tagName) {
     logger.warn(`Unable to tag parse ${match}`);
     return match;
@@ -228,7 +227,7 @@ function replaceTag(match, tagType, tagName, _p4, _offset, _string) {
 function parseLooseRuleReferences(text, superLoose = false) {
   for (const [type, entries] of Object.entries(getRuleLookups())) {
     // console.error(`Reference Check`, { text });
-    // eslint-disable-next-line no-continue
+
     if (!superLoose && SUPER_LOOSE.includes(type)) continue;
     for (const [key, value] of Object.entries(entries)) {
       if (!value.reference) continue;
@@ -247,7 +246,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
         }
         return match;
       };
-      // eslint-disable-next-line no-continue
+
       text = text.replaceAll(newLinkRegex, replaceRuleNew);
 
       const linkRegEx = new RegExp(`(&(?:amp;)*Reference)?(^| |\\(|\\[|>)(DC (\\d\\d) )?(${value.label})( (saving throw|check|average=true|average=false))?( \\(DC 8 plus your ${value.label} modifier and Proficiency Bonus\\))?( |\\)|\\]|\\.|,|$|\\n|<)`, "ig");
@@ -274,7 +273,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
   return text;
 }
 
-function parseHardCompendiumReferenceTag(type, text) {
+function parseHardCompendiumReferenceTag(type: string, text: string): string {
   const index = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
     ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`)
     : undefined;
@@ -283,7 +282,7 @@ function parseHardCompendiumReferenceTag(type, text) {
     return text;
   }
 
-  const referenceRegexReplacer = (match, referenceName, postfix) => {
+  const referenceRegexReplacer = (_match: string, referenceName: string, postfix: string) => {
     const cMatch = index.find((f) => f.name.toLowerCase() === referenceName.toLowerCase());
     const replacedText = cMatch ? `@UUID[${cMatch.uuid}]{${referenceName}}` : referenceName;
     // console.warn("match", { match, document, prefix, spellName, postfix, compendium: this.spellCompendium.index, cMatch, replacedSpell });
@@ -308,7 +307,7 @@ function parseHardCompendiumReferenceTag(type, text) {
 }
 
 function damageRollGenerator({ text, damageType, actor, document, extraMods = [] } = {}) {
-  let result;
+  let result: string;
   const types = damageType
     .replace(", or ", ",")
     .replace(" or ", ",")
@@ -360,7 +359,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
   return result;
 }
 
-// eslint-disable-next-line complexity
+
 export function parseDamageRolls({ text, document, actor } = {}) {
   // (2d8 + 3) piercing damage
   // [[/damage 2d6 fire average=true]]
@@ -385,7 +384,7 @@ export function parseDamageRolls({ text, document, actor } = {}) {
 
   for (const dmg of matches) {
     if (dmg[1] == "DC " || dmg[4] == "hit points by this") {
-      continue; // eslint-disable-line no-continue
+      continue;
     }
 
     const bonusMods = [];
@@ -662,7 +661,7 @@ function removeDDBToolTipLinks(doc) {
 }
 
 
-// eslint-disable-next-line no-unused-vars
+
 export function replaceMonsterALinks(str, actor) {
   let doc = utils.htmlToDoc(str);
   doc = replaceHREFLookupLinks(doc, actor);

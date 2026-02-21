@@ -42,8 +42,8 @@ export default class DDBEncounter {
     const monsterPack = CompendiumHelper.getCompendiumType("monster", false);
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
 
-    let goodMonsterIds = [];
-    let missingMonsterIds = [];
+    const goodMonsterIds = [];
+    const missingMonsterIds = [];
     logger.debug("Parsing encounter", this.ddbEncounterData);
     this.ddbEncounterData.monsters.forEach((monster) => {
       const id = monster.id;
@@ -55,8 +55,8 @@ export default class DDBEncounter {
       }
     });
 
-    let goodCharacterData = [];
-    let missingCharacterData = [];
+    const goodCharacterData = [];
+    const missingCharacterData = [];
     this.ddbEncounterData.players
       .filter((character) => !character.hidden)
       .forEach((character) => {
@@ -123,10 +123,10 @@ export default class DDBEncounter {
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
     const compendiumName = CompendiumHelper.getCompendiumLabel("monster");
 
-    let monstersToAddToWorld = [];
+    const monstersToAddToWorld = [];
     this.data.monsterData = [];
     this.data.worldMonsters = [];
-    let journalMonsterInfo = new Map();
+    const journalMonsterInfo = new Map();
     this.data.monsters.forEach((monster) => {
       const id = monster.id;
       const monsterInPack = monsterPack.index.find((f) => f.flags?.ddbimporter?.id == id);
@@ -145,7 +145,7 @@ export default class DDBEncounter {
         journalMonsterInfo.set(monsterData.ddbId, monsterData);
 
         for (let i = 0; i < monster.quantity; i++) {
-          let addData = foundry.utils.deepClone(monsterData);
+          const addData = foundry.utils.deepClone(monsterData);
           addData.quantity = 1;
           addData.uniqueId = monster.uniqueId;
           addData.initiative = monster.initiative;
@@ -284,7 +284,7 @@ export default class DDBEncounter {
       false,
     );
 
-    let sceneData = {
+    const sceneData = {
       name: this.data.name,
       flags: {
         ddbimporter: {
@@ -321,7 +321,7 @@ export default class DDBEncounter {
 
   }
 
-  // eslint-disable-next-line complexity
+   
   async #createScene() {
     const importDDBIScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene");
     const useExistingScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
@@ -347,7 +347,7 @@ export default class DDBEncounter {
     }
 
     if (sceneData) {
-      let tokenData = [];
+      const tokenData = [];
       const useDDBSave
         = this.data.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid.size;
@@ -462,7 +462,6 @@ export default class DDBEncounter {
       } else if (importDDBIScene) {
         logger.info(`Importing scene ${sceneData.name}`);
         try {
-          // eslint-disable-next-line require-atomic-updates
           worldScene = await Scene.create(sceneData);
         } catch (err) {
           logger.error(err);
@@ -475,7 +474,6 @@ export default class DDBEncounter {
       thumbScene["thumb"] = thumbData.thumb;
 
       logger.debug("Creating tokenens on scene", tokenData);
-      // eslint-disable-next-line require-atomic-updates
       worldScene = await worldScene.update(thumbScene, { keepId: true });
 
       await worldScene.createEmbeddedDocuments("Token", tokenData);
@@ -506,12 +504,12 @@ export default class DDBEncounter {
     this.combat = await Combat.create({ scene: this.scene.id, flags: flags });
     await this.combat.activate();
 
-    let toCreate = [];
+    const toCreate = [];
     const tokens = canvas.tokens.placeables
       .filter((t) => t.document.flags?.ddbimporter?.encounterId == this.data.id || t.actor.type == "character");
     if (tokens.length) {
       tokens.forEach((t) => {
-        let combatant = { tokenId: t.id, actorId: t.document.actorId, hidden: t.document.hidden };
+        const combatant = { tokenId: t.id, actorId: t.document.actorId, hidden: t.document.hidden };
         if (useDDBSave && t.document.flags.ddbimporter?.dndbeyond?.initiative)
           combatant.initiative = t.document.flags.ddbimporter.dndbeyond.initiative;
         if (!t.inCombat) toCreate.push(combatant);

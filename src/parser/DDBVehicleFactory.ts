@@ -331,8 +331,8 @@ export default class DDBVehicleFactory {
    * @returns {object} Object with two properties: actors (an array of parsed actor documents) and failedVehicleNames (an array of names of vehicles that failed to parse)
    */
   async parse(vehicles = []) {
-    let foundryActors = [];
-    let failedVehicleNames = [];
+    const foundryActors = [];
+    const failedVehicleNames = [];
 
     const vehicleSource = vehicles.length > 0 ? vehicles : this.source;
 

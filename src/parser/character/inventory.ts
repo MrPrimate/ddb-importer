@@ -1,22 +1,22 @@
-/* eslint-disable max-depth */
+ 
 import DDBCharacter from "../DDBCharacter";
 import { logger, CompendiumHelper } from "../../lib/_module";
 import GenericSpellFactory from "../spells/GenericSpellFactory";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import DDBItem from "../item/DDBItem";
 
-// eslint-disable-next-line complexity
+ 
 DDBCharacter.prototype.getInventory = async function getInventory(notifier = null) {
 
-  let items = [];
+  const items = [];
 
   // first, check custom name, price or weight
   this.source.ddb.character.characterValues.forEach((cv) => {
     // try to find a matching item based on the characterValues (an array of custom adjustements to different parts of the character)
-    let item = this.source.ddb.character.inventory.find((item) => item.id === cv.valueId);
+    const item = this.source.ddb.character.inventory.find((item) => item.id === cv.valueId);
     if (item) {
       // check if this property is in the list of supported ones, based on our DICT
-      let property = DICTIONARY.item.characterValues.find((entry) => entry.typeId === cv.typeId);
+      const property = DICTIONARY.item.characterValues.find((entry) => entry.typeId === cv.typeId);
       // overwrite the name, weight or price with the custom value
       if (property && cv.value.length !== 0) item.definition[property.value] = cv.value;
     }
@@ -30,7 +30,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
   await DDBItem.prepareSpellCompendiumIndex();
   let i = 0;
   const length = this.source.ddb.character.inventory.length;
-  for (let ddbItem of this.source.ddb.character.inventory) {
+  for (const ddbItem of this.source.ddb.character.inventory) {
     if (discardMissingContainerItems && this.source.ddb.character.inventory.some((i) => i.id === ddbItem.containerEntityId && i.definition.isContainer === false)
     ) {
       logger.error(`Skipping item ${ddbItem.definition.name} as it is in a container we don't have`, {
@@ -56,7 +56,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
       // parse any infusion data for characters
       itemParser.processInfusion();
     }
-    let item = Object.assign({}, itemParser.data);
+    const item = Object.assign({}, itemParser.data);
     items.push(item);
   }
 

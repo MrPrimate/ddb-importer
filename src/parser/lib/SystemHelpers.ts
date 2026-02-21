@@ -87,7 +87,7 @@ export default class SystemHelpers {
     return damage;
   }
 
-  // eslint-disable-next-line complexity
+   
   static getTemplate(type) {
     switch (type.toLowerCase()) {
       case "character":

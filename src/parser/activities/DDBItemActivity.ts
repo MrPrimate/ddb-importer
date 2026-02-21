@@ -30,7 +30,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       return;
     }
     let targets = [];
-    let scaling = false;
+    const scaling = false;
 
     // types:
     // "attribute"
@@ -100,7 +100,10 @@ export default class DDBItemActivity extends DDBBasicActivity {
     };
   }
 
-  // eslint-disable-next-line complexity
+  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
+    criticalThreshold?: number | undefined;
+  };
+
   build({
     activationOverride = null,
     additionalTargets = null,
@@ -148,7 +151,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
     targetOverride = null,
     usesOverride = null,
     consumptionOverride = null,
-  } = {}) {
+  }: typeof DDBItemActivity.BuildOptions = {}) {
 
     if (generateConsumption) this._generateConsumption({
       targetOverrides: consumptionTargetOverrides,

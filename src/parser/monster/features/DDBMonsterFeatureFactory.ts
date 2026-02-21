@@ -145,7 +145,7 @@ export default class DDBMonsterFeatureFactory {
   }
 
   #generateActionActions(type) {
-    let splitActions1 = this.html[type].split("<h3>Roleplaying Information</h3>");
+    const splitActions1 = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions1.length > 1) {
       this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions1[1]}`;
     }
@@ -156,7 +156,7 @@ export default class DDBMonsterFeatureFactory {
 
     this.html[type] = splitActions2[0];
 
-    let dom = this.#buildDom(type);
+    const dom = this.#buildDom(type);
 
     // build out skeleton actions
     dom.querySelectorAll("p").forEach((node) => {
@@ -269,7 +269,7 @@ export default class DDBMonsterFeatureFactory {
   }
 
   #generateLairActions(type = "lair") {
-    let dom = this.#buildDom(type);
+    const dom = this.#buildDom(type);
 
     if (this.ddbMonster.is2014) {
       const defaultAction = { name: "Lair Actions", options: { html: "", ddbMonster: this.ddbMonster, type } };
@@ -336,7 +336,7 @@ export default class DDBMonsterFeatureFactory {
   }
 
   #generateLegendaryActions(type) {
-    let dom = this.#buildDom(type);
+    const dom = this.#buildDom(type);
 
     // Base feat
     const feat = { name: "Legendary Actions", options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
@@ -414,7 +414,7 @@ export default class DDBMonsterFeatureFactory {
   }
 
   #generateVillainActions(type = "villain") {
-    let dom = this.#buildDom(type);
+    const dom = this.#buildDom(type);
 
     // Base feat
     const feat = { name: "Villain Actions", options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
@@ -484,13 +484,13 @@ export default class DDBMonsterFeatureFactory {
   }
 
   #generateSpecialActions(type) {
-    let splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
+    const splitActions = this.html[type].split("<h3>Roleplaying Information</h3>");
     if (splitActions.length > 1) {
       this.characterDescription[type] = `<h3>Roleplaying Information</h3>${splitActions[1]}`;
     }
 
     this.html[type] = splitActions[0];
-    let dom = this.#buildDom(type);
+    const dom = this.#buildDom(type);
 
     // build out skeleton actions
     dom.querySelectorAll("p").forEach((node) => {

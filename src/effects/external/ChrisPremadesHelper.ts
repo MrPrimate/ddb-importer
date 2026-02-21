@@ -1,6 +1,3 @@
-/* eslint-disable no-continue */
-/* eslint-disable require-atomic-updates */
-
 import { DICTIONARY } from "../../config/_module";
 import {
   logger,
@@ -290,7 +287,7 @@ export default class ChrisPremadesHelper {
     return chrisHelper.document;
   }
 
-  // eslint-disable-next-line no-unused-vars
+   
   static async addAndReplaceRedundantChrisDocuments(actor, monsterName = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of extra effects.");
@@ -300,7 +297,7 @@ export default class ChrisPremadesHelper {
     const choiceRemovals = foundry.utils.getProperty(CONFIG, "chrisPremades.removeChoices") ?? [];
     const choiceAdditions = new Set();
 
-    for (let doc of documents) {
+    for (const doc of documents) {
       if (["class", "subclass", "background"].includes(doc.type)) continue;
 
       const ddbName = ChrisPremadesHelper.getOriginalName(doc);
@@ -369,7 +366,7 @@ export default class ChrisPremadesHelper {
   }
 
 
-  // eslint-disable-next-line complexity
+   
   static async restrictedItemReplacer(actor, monsterName = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of restricted effects.");
@@ -459,7 +456,7 @@ export default class ChrisPremadesHelper {
               monsterName,
             });
 
-            // eslint-disable-next-line max-depth
+             
             if (!chrisDoc) {
               logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
                 ddbName,

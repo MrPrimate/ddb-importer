@@ -44,7 +44,7 @@ export default class SpellListExtractor {
 
   extractSpells(withLevel?: false): string[];
   extractSpells(withLevel: true): Record<string, string[]>;
-  extractSpells(withLevel: boolean = false): string[] | Record<string, string[]> {
+  extractSpells(withLevel = false): string[] | Record<string, string[]> {
     const levelRegex = /(\d+)/;
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = this.description;
@@ -100,7 +100,7 @@ export default class SpellListExtractor {
     return spells;
   }
 
-  async generateSpellList(type: string = "class"): Promise<void> {
+  async generateSpellList(type = "class"): Promise<void> {
 
     if (!game.user.isGM) return;
 

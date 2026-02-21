@@ -55,7 +55,7 @@ export default class AutoEffects {
   }
 
   static generateBasicEffectDuration(document: any, activity?: any): EffectDuration {
-    let duration: EffectDuration = {
+    const duration: EffectDuration = {
       seconds: null,
       startTime: null,
       rounds: null,
@@ -88,7 +88,7 @@ export default class AutoEffects {
     { transfer = true, disabled = false, description = null, durationSeconds = null,
       durationRounds = null, durationTurns = null, showIcon = false }: BaseEffectOptions = {},
   ): any {
-    let effect: any = {
+    const effect: any = {
       img: document.img,
       name,
       statuses: [],
@@ -196,7 +196,7 @@ export default class AutoEffects {
   }
 
 
-  static getGenericConditionAffectData(modifiers: any[], condition: string, typeId: number, forceNoMidi: boolean = false): any[] {
+  static getGenericConditionAffectData(modifiers: any[], condition: string, typeId: number, forceNoMidi = false): any[] {
     const restrictions = [
       "",
       null,
@@ -320,7 +320,7 @@ export default class AutoEffects {
     if (!conditionEffect) return null;
 
     const effectLabel = (labelOverride ?? conditionEffect.name ?? foundryItem.name ?? conditionResult.condition);
-    let effect = AutoEffects.BaseEffect(foundryItem, effectLabel, {
+    const effect = AutoEffects.BaseEffect(foundryItem, effectLabel, {
       transfer: false,
       description: `Apply status ${conditionResult.condition}`,
     });
@@ -351,7 +351,7 @@ export default class AutoEffects {
     const mockItem = {
       img: "icons/svg/up.svg",
     };
-    let skillEffect = this.ItemEffect(mockItem, label);
+    const skillEffect = this.ItemEffect(mockItem, label);
     skillEffect.flags.dae = {};
     skillEffect.flags.ddbimporter.characterEffect = true;
     skillEffect.origin = `Actor.${id}`;

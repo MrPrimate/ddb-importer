@@ -62,7 +62,7 @@ export default class DDBMuleHandler {
     this.ddbMuncher = ddbMuncher;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async _init() {
     await DDBReferenceLinker.importCacheLoad();
     await this._fetchMuleData();
@@ -101,7 +101,7 @@ export default class DDBMuleHandler {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
-    let body = {
+    const body = {
       cobalt: Secrets.getCobalt(),
       betaKey: game.settings.get(SETTINGS.MODULE_ID, "beta-key"),
       characterId: this.characterId,

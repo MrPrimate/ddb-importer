@@ -19,7 +19,7 @@ export default class DDBCookie extends FormApplication {
     return options;
   }
 
-  get title() { // eslint-disable-line class-methods-use-this
+  get title() {  
     // improve localisation
     // game.i18n.localize("")
     return "DDB Importer Cobalt Cookie";

@@ -5,7 +5,7 @@ import { baseMonsterFeatureEffect } from "../specialMonsters";
 export function quasitEffects(npc) {
   for (let item of npc.items) {
     if (item.name.startsWith("Claws")) {
-      let effect = baseMonsterFeatureEffect(item, item.name);
+      const effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
         {
           key: "flags.midi-qol.OverTime",

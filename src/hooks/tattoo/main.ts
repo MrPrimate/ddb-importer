@@ -147,10 +147,10 @@ async function compendiumContext(app, options) {
   }
 
   const getSpellDetailsFromLi = (li) => {
-    let id = li.dataset.documentId ?? li.dataset.entryId;
+    const id = li.dataset.documentId ?? li.dataset.entryId;
     let spell = game.items.get(id);
     if (app.collection instanceof collectionType) {
-      let indexSpell = app.collection.index.get(id);
+      const indexSpell = app.collection.index.get(id);
       if (!indexSpell) return false;
       spell = fromUuidSync(indexSpell.uuid);
       if (!spell) return false;
@@ -162,12 +162,12 @@ async function compendiumContext(app, options) {
     name: "Create Spellwrought Tattoo",
     icon: '<i class="fa-solid fa-user-pen"></i>',
     callback: async (li) => {
-      let spell = getSpellDetailsFromLi(li);
+      const spell = getSpellDetailsFromLi(li);
       const tattoo = await createTattooFromSpellUuid(spell.uuid);
       if (tattoo) dnd5e.documents.Item5e.create(tattoo);
     },
     condition: (li) => {
-      let spell = getSpellDetailsFromLi(li);
+      const spell = getSpellDetailsFromLi(li);
       return spell.type === "spell"
         && spell.system.level <= 5;
     },

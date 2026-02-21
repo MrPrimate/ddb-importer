@@ -8,7 +8,7 @@ export class FileHelper {
   static BAD_DIRS = ["[data]", "[data] ", "", null];
 
   static removeFileExtension(name) {
-    let nameArray = name.split(".");
+    const nameArray = name.split(".");
     nameArray.pop();
     return nameArray.join(".");
   }
@@ -33,8 +33,8 @@ export class FileHelper {
   }
 
   static download(content, fileName, contentType) {
-    let a = document.createElement("a");
-    let file = new Blob([content], { type: contentType });
+    const a = document.createElement("a");
+    const file = new Blob([content], { type: contentType });
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
@@ -93,7 +93,6 @@ export class FileHelper {
       // lets do some forge fun because
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
         if (fileList.bazaar) {
-          // eslint-disable-next-line require-atomic-updates
           CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath] = {};
           fileList.files.forEach((file) => {
             const fileName = file.split("/").pop();
@@ -102,7 +101,6 @@ export class FileHelper {
           });
         } else {
           const assetPrefix = ForgeVTT.ASSETS_LIBRARY_URL_PREFIX + await ForgeAPI.getUserId();
-          // eslint-disable-next-line require-atomic-updates
           CONFIG.DDBI.KNOWN.FORGE.TARGET_URL_PREFIX[parsedDir.fullPath] = `${assetPrefix}/${parsedDir.current}`;
         }
       }
@@ -128,7 +126,7 @@ export class FileHelper {
 
   static async fileExists(directoryPath, filename) {
     const fileRef = `${directoryPath}/${filename}`;
-    let existingFile = CONFIG.DDBI.KNOWN.FILES.has(fileRef);
+    const existingFile = CONFIG.DDBI.KNOWN.FILES.has(fileRef);
     if (existingFile) return true;
 
     logger.debug(`Checking for ${filename} at ${fileRef}...`);
@@ -154,7 +152,7 @@ export class FileHelper {
 
     // Load the data into an image
     const result = new Promise((resolve) => {
-      let rawImage = new Image();
+      const rawImage = new Image();
 
       rawImage.addEventListener("load", () => {
         resolve(rawImage);
@@ -165,8 +163,8 @@ export class FileHelper {
       .then((rawImage) => {
         // Convert image to webp ObjectURL via a canvas blob
         return new Promise((resolve) => {
-          let canvas = document.createElement("canvas");
-          let ctx = canvas.getContext("2d");
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
           const quality = game.settings.get(SETTINGS.MODULE_ID, "webp-quality");
 
           canvas.width = rawImage.width;
@@ -356,12 +354,10 @@ export class FileHelper {
       const imageExists = await FileHelper.fileExists(uploadDirectory, filename + "." + ext);
 
       if (imageExists && !force) {
-        // eslint-disable-next-line require-atomic-updates
         // const image = await FileHelper.getFileUrl(uploadDirectory, filename + "." + ext);
         const image = CONFIG.DDBI.KNOWN.LOOKUPS.get(`${uploadDirectory}/${filename}.${ext}`);
         return image.trim();
       } else {
-        // eslint-disable-next-line require-atomic-updates
         const image = await FileHelper.uploadRemoteImage(imageUrl, uploadDirectory, filename);
         // did upload succeed? if not fall back to remote image path
         if (image) {
@@ -468,9 +464,9 @@ export class FileHelper {
 
   static parseDirectory(str) {
     // parses the string back to something the FilePicker can understand as an option
-    let matches = str.match(/\[(.+)\]\s*(.+)/);
+    const matches = str.match(/\[(.+)\]\s*(.+)/);
     if (matches) {
-      let source = matches[1];
+      const source = matches[1];
       const current = matches[2].trim();
       const [s3, bucket] = source.split(":");
       if (bucket !== undefined) {

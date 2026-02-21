@@ -4,7 +4,7 @@ import { DDBMacros } from "../../lib/_module";
 // this one is a bit different, the macro is triggered by midi-qol and applies effects to the actor
 // the Marked effect gets applied to the target
 export async function favoredFoeEffect(document) {
-  let effect = baseFeatEffect(document, `Marked by ${document.name}`, { transfer: false });
+  const effect = baseFeatEffect(document, `Marked by ${document.name}`, { transfer: false });
   effect.changes.push(
     {
       key: "flags.dae.onUpdateSource",
@@ -16,7 +16,7 @@ export async function favoredFoeEffect(document) {
   effect.duration.seconds = 60;
   document.effects.push(effect);
 
-  let damageBonusEffect = baseFeatEffect(document, document.name, { transfer: true });
+  const damageBonusEffect = baseFeatEffect(document, document.name, { transfer: true });
   damageBonusEffect.changes.push({
     key: "flags.dnd5e.DamageBonusMacro",
     value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "favoredFoe.js", document }),

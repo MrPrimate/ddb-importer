@@ -6,7 +6,7 @@ function avalancheOfBonesEffect(document) {
   foundry.utils.setProperty(document, "system.target", { value: 10, width: null, units: "ft", type: "creature" });
   foundry.utils.setProperty(document, "system.range", { value: null, long: null, units: "self" });
 
-  let effect = baseFeatEffect(document, document.name);
+  const effect = baseFeatEffect(document, document.name);
   addStatusEffectChange({ effect, statusName: "Prone" });
   foundry.utils.setProperty(effect, "duration.turns", 99);
   foundry.utils.setProperty(effect, "duration.seconds", 9999);
@@ -18,7 +18,7 @@ function avalancheOfBonesEffect(document) {
 }
 
 function fallingApartEffect(document) {
-  let effect = baseFeatEffect(document, document.name);
+  const effect = baseFeatEffect(document, document.name);
   effect.changes.push(
     {
       "key": "flags.midi-qol.OverTime",
@@ -34,7 +34,7 @@ function fallingApartEffect(document) {
 }
 
 async function disassembleEffect(document) {
-  let effect = baseFeatEffect(document, document.name);
+  const effect = baseFeatEffect(document, document.name);
 
   await DDBMacros.setItemMacroFlag(document, "monsterFeature", "disassemble.js");
   effect.changes.push(DDBMacros.generateMacroChange({ macroType: "monsterFeature", macroName: "disassemble.js", priority: 0 }));

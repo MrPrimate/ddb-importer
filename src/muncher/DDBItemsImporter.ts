@@ -83,7 +83,6 @@ export default class DDBItemsImporter {
     logger.info("Check complete, getting ItemData.");
 
     if (!CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured) {
-      // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
     }
 

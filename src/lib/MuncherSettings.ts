@@ -448,7 +448,7 @@ const MuncherSettings = {
     const compendiumFolderSetting = game.settings.settings.get(`ddb-importer.munching-selection-compendium-folders-${type}`);
     const settingValue = game.settings.get(SETTINGS.MODULE_ID, `munching-selection-compendium-folders-${type}`);
 
-    let selections = [];
+    const selections = [];
     for (const [key, value] of Object.entries(compendiumFolderSetting.choices)) {
       selections.push({
         key: key,
@@ -1034,7 +1034,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
-  // eslint-disable-next-line complexity
+   
   updateMuncherSettings: async (_html, event) => {
     const selection = event.target.dataset.section;
     const checked = event.target.checked;

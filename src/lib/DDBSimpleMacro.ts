@@ -99,9 +99,9 @@ export default class DDBSimpleMacro {
 
     const variables = foundry.utils.mergeObject(effectVariables, scope);
 
-    // eslint-disable-next-line no-empty-function
+     
     const AsyncFunction = (async function() {}).constructor;
-    // eslint-disable-next-line no-new-func
+     
     const fn = new AsyncFunction(...Object.keys(variables), `{${script}\n}`);
 
     try {

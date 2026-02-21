@@ -123,7 +123,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
+
   _prepare() {
     // override this feature
     this._generateActionTypes();
@@ -368,6 +368,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     const fixedRegex = /Increase your (\w+) score by (\d)/i;
     const fixedMatch = this.ddbDefinition.description.match(fixedRegex);
     if (fixedMatch) {
+      // eslint-disable-next-line no-useless-assignment
       hasMatch = true;
       const ability = DICTIONARY.actor.abilities.find((a) => a.long === fixedMatch[1].trim().toLowerCase());
       if (ability) {
@@ -391,7 +392,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       const splits = lockedMatches[1].replaceAll(", or ", ", ").replaceAll(" or ", ", ").split(",");
       hasMatch = true;
       configuration.points = 1;
-      let locked = new Set(DICTIONARY.actor.abilities.map((a) => a.value));
+      const locked = new Set(DICTIONARY.actor.abilities.map((a) => a.value));
       for (const split of splits) {
         const ability = DICTIONARY.actor.abilities.find((a) => a.long === split.trim().toLowerCase());
         if (ability) {

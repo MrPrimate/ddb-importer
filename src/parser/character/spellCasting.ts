@@ -22,13 +22,13 @@ function getSpellCastingAbility(klass) {
 }
 
 DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting() {
-  let result = [];
+  const result = [];
   this.source.ddb.character.classSpells.forEach((playerClass) => {
-    let classInfo = this.source.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
+    const classInfo = this.source.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
     const spellCastingAbility = getSpellCastingAbility(classInfo);
     if (spellCastingAbility !== undefined) {
       const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
-      let abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
+      const abilityModifier = utils.calculateModifier(characterAbilities[spellCastingAbility].value);
       result.push({ label: spellCastingAbility, value: abilityModifier });
     }
   });
@@ -108,7 +108,7 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots() {
   // get the caster information from all classes and subclasses
   const casterInfo = this.getCasterInfo();
 
-  let result = null;
+  let result;
   if (casterInfo.length !== 1) {
     const multiClassSpellSlots = [
       [0, 0, 0, 0, 0, 0, 0, 0, 0], // 0
@@ -143,7 +143,7 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots() {
   for (let i = 1; i < result.length; i++) {
     const currentSlots = this.source.ddb.character.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used) || 0;
     this.spellSlots["spell" + i] = {
-      value: (result[i] - currentSlots) ?? 0,
+      value: result[i] ? (result[i] - currentSlots) : 0,
       max: result[i] ?? 0,
     };
   }

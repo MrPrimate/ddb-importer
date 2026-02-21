@@ -5,7 +5,7 @@ export function horrifyingVisageEffect(document) {
   foundry.utils.setProperty(document, "system.target", { value: 60, width: null, units: "ft", type: "enemy" });
   foundry.utils.setProperty(document, "system.range", { value: 60, long: null, units: "spec" });
 
-  let effect = baseFeatEffect(document, document.name);
+  const effect = baseFeatEffect(document, document.name);
   effect.changes.push(
     {
       "key": "flags.midi-qol.OverTime",

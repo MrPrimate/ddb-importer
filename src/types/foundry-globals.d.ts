@@ -72,7 +72,7 @@ interface Window {
   };
 }
 
-declare var DDBImporter: {
+declare let DDBImporter: {
   lib: Record<string, any>;
   [key: string]: any;
 };

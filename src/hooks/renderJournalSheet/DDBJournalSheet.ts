@@ -28,9 +28,9 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
 
       // Mouse enter event
       container.addEventListener('mouseenter', function addHover() {
-        // eslint-disable-next-line no-invalid-this
+         
         this.appendChild(showPlayersButton);
-        // eslint-disable-next-line no-invalid-this
+         
         this.appendChild(toChatButton);
 
         // Show players button click handler
@@ -66,7 +66,7 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
 
       // Mouse leave event
       container.addEventListener('mouseleave', function removeHover() {
-        // eslint-disable-next-line no-invalid-this
+         
         const buttons = this.querySelectorAll('a.ddbimporter-show-image, a.ddbimporter-to-chat');
         buttons.forEach((button) => button.remove());
       });

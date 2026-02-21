@@ -17,7 +17,7 @@ import DDBSummonsManager from "./parser/companions/DDBSummonsManager";
 import * as Enrichers from "./parser/enrichers/_module";
 import * as ParserLib from "./parser/lib/_module";
 import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface";
-import { isEqual, uniq } from "../vendor/lowdash/_module";
+import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";
 import DDBCharacterImporter from "./muncher/DDBCharacterImporter";
 import DDBDebugger from "./apps/DDBDebugger";
 import AdventureMunch from "./muncher/adventure/AdventureMunch";
@@ -41,7 +41,7 @@ function resetSecrets() {
   game.settings.set("ddb-importer", "campaign-id", "");
 }
 
-// eslint-disable-next-line no-unused-vars
+
 function migrateAllCompendiums(value, key, map) {
   if (!value.locked) game.dnd5e.migrations.migrateCompendium(value);
 }

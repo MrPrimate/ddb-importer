@@ -12,13 +12,13 @@ import { DDBModifiers } from "../lib/_module";
  * @returns {object} { attack: string, damage: string }
  */
 DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
-  let result = {
+  const result = {
     attack: "",
     damage: "",
   };
   const diceFormula = /\d*d\d*/;
 
-  let lookupResults = {
+  const lookupResults = {
     attack: {
       sum: 0,
       diceString: "",
@@ -122,7 +122,7 @@ DDBCharacter.prototype._generateBonusWeaponAttacks = function() {
  * "system.bonuses.abilities" property.
  */
 DDBCharacter.prototype._generateBonusAbilities = function() {
-  let result = {
+  const result = {
     "check": "",
     "save": "",
     "skill": "",
@@ -152,7 +152,7 @@ DDBCharacter.prototype._generateBonusAbilities = function() {
  * "system.bonuses.spell.dc" property.
  */
 DDBCharacter.prototype._generateBonusSpellDC = function() {
-  let result = {
+  const result = {
     "dc": "",
   };
   const bonusLookup = [

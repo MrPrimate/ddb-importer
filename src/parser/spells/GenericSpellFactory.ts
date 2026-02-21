@@ -52,7 +52,7 @@ export default class GenericSpellFactory {
 
     // console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
 
-    let items = [];
+    const items = [];
     const proficiencyModifier = character.system.attributes.prof;
     const spellCountDict = {};
 
@@ -70,7 +70,7 @@ export default class GenericSpellFactory {
         || itemInfo.isAttuned // if it is attuned (assume equipped)
         || (!itemInfo.definition.canAttune && itemInfo.equipped); // can't attune but is equipped
       // for item spells the spell dc is often on the item spell
-      let spellDC = 8;
+      let spellDC;
       if (spell.overrideSaveDc) {
         spellDC = spell.overrideSaveDc;
       } else if (spell.spellCastingAbilityId) {

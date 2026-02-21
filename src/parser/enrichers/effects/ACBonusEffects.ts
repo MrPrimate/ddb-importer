@@ -5,7 +5,7 @@ import ChangeHelper from "./ChangeHelper";
 export default class ACBonusEffects {
 
   static ACEffect(name) {
-    let effect = {
+    const effect = {
       name,
       changes: [],
       duration: {
@@ -27,7 +27,7 @@ export default class ACBonusEffects {
   }
 
   static addAddBonusChanges(modifiers, name, type, key) {
-    let changes = [];
+    const changes = [];
     // const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, name, type, "bonus");
     if (bonus) {
@@ -46,7 +46,7 @@ export default class ACBonusEffects {
   }
 
   static generateBonusACEffect(modifiers, label, subType, restrictions = [], alwaysActive = true) {
-    let effect = ACBonusEffects.ACEffect(label);
+    const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {
       dae: { transfer: true, armorEffect: true },
@@ -74,7 +74,7 @@ export default class ACBonusEffects {
    * @returns {object} effect
    */
   static generateFixedACEffect(formula, label, alwaysActive = false, priority = 30, mode = CONST.ACTIVE_EFFECT_MODES.OVERRIDE) {
-    let effect = ACBonusEffects.ACEffect(label);
+    const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {
       dae: { transfer: true, armorEffect: true },

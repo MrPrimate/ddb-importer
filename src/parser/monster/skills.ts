@@ -34,7 +34,7 @@ DDBMonster.prototype._generateSkills = function _generateSkills () {
   keys
     .filter((key) => validSkills.includes(key))
     .forEach((key) => {
-      let skill = this.npc.system.skills[key];
+      const skill = this.npc.system.skills[key];
       const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
       const stat = this.source.stats.find((stat) => stat.statId === ability.id).value || 10;
       const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
@@ -101,7 +101,7 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML () {
   keys
     .filter((key) => validSkills.includes(key))
     .forEach((key) => {
-      let skill = this.npc.system.skills[key];
+      const skill = this.npc.system.skills[key];
       const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
       const stat = this.source.stats.find((stat) => stat.statId === ability.id).value || 10;
       const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;

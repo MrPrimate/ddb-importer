@@ -6,7 +6,7 @@ import { baseMonsterFeatureEffect } from "../specialMonsters";
 export async function venomTrollEffects(npc) {
   for (let item of npc.items) {
     if (item.name.startsWith("Venom Spray")) {
-      let effect = baseMonsterFeatureEffect(item, item.name);
+      const effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
         {
           key: "flags.midi-qol.OverTime",
@@ -26,7 +26,7 @@ export async function venomTrollEffects(npc) {
 
       item.effects.push(effect);
     } else if (item.name === "Poison Splash") {
-      let effect = baseMonsterFeatureEffect(item, item.name);
+      const effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
         DDBMacros.generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "monsterFeature", macroName: "venomSpray.js" }),
       );
@@ -47,7 +47,7 @@ export async function venomTrollEffects(npc) {
       item.system.duration.units = "inst";
 
     } else if (item.name === "Regeneration") {
-      let effect = baseMonsterFeatureEffect(item, item.name);
+      const effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
         {
           key: "flags.midi-qol.OverTime",

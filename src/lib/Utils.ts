@@ -1,6 +1,6 @@
-// eslint-disable-next-line func-style
+ 
 const Range = function *(total = 0, step = 1, from = 0) {
-  // eslint-disable-next-line no-mixed-operators, no-empty
+  // eslint-disable-next-line no-empty
   for (let i = 0; i < total; yield from + i++ * step) {}
 };
 
@@ -26,7 +26,7 @@ export default class Utils {
    */
   static async asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index += 1) {
-      // eslint-disable-next-line callback-return, no-await-in-loop
+       
       await callback(array[index], index, array);
     }
   }
@@ -135,7 +135,7 @@ export default class Utils {
   }
 
   static stripHtml(html, preferInnerText = false) {
-    let tmp = document.createElement("DIV");
+    const tmp = document.createElement("DIV");
     tmp.innerHTML = html;
     if (preferInnerText) {
       return tmp.innerText ?? tmp.textContent ?? "";
@@ -207,9 +207,9 @@ export default class Utils {
     const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
     // all found dice strings, e.g. 1d8, 4d6
-    let dice = [];
+    const dice = [];
     // all bonuses, e.g. -1+8
-    let bonuses = [];
+    const bonuses = [];
 
     const diceRegex = /(?<rawSign>[+-]*)(?<count>\d+)(?:d(?<die>\d+))?/gu;
 
@@ -298,7 +298,7 @@ export default class Utils {
   }
 
   static mergeDeep(target, source) {
-    let output = Object.assign({}, target);
+    const output = Object.assign({}, target);
     if (Utils.isObject(target) && Utils.isObject(source)) {
       Object.keys(source).forEach((key) => {
         if (Utils.isObject(source[key])) {
@@ -313,7 +313,7 @@ export default class Utils {
   }
 
   static filterDeprecated(data) {
-    for (let prop in data) {
+    for (const prop in data) {
       if (
         data[prop]
         && Object.prototype.hasOwnProperty.call(data[prop], "_deprecated")
@@ -329,7 +329,7 @@ export default class Utils {
   }
 
   static entityMap() {
-    let entityTypes = new Map();
+    const entityTypes = new Map();
     entityTypes.set("npc", "Actor");
     entityTypes.set("character", "Actor");
     entityTypes.set("monsters", "Actor");
@@ -525,7 +525,7 @@ export default class Utils {
   }
 
   static ordinalSuffixOf(i) {
-    let j = i % 10,
+    const j = i % 10,
       k = i % 100;
     if (j === 1 && k !== 11) {
       return i + "st";

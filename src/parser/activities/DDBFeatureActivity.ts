@@ -65,8 +65,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       this.data.consumption = consumptionOverride;
       return;
     }
-    let targets = [];
-    let scaling = false;
+    const targets = [];
+    const scaling = false;
 
     // types:
     // "attribute"
@@ -218,10 +218,10 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  // eslint-disable-next-line complexity
+
   _getDescriptionTarget() {
     const description = (this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "");
-    let target = {
+    const target = {
       prompt: true,
       affects: {
         count: "",
@@ -420,13 +420,13 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       return;
     }
     const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
-    let calculation = fixedDC
+    const calculation = fixedDC
       ? ""
       : (this.ddbDefinition.abilityModifierStatId)
         ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.abilityModifierStatId).value
         : "spellcasting";
 
-    let saveAbility = (this.ddbDefinition.saveStatId)
+    const saveAbility = (this.ddbDefinition.saveStatId)
       ? DICTIONARY.actor.abilities.find((stat) => stat.id === this.ddbDefinition.saveStatId).value
       : null;
 
@@ -526,7 +526,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       //     formula: "",
       //   },
       // };
-      let formulaParts = [];
+      const formulaParts = [];
       for (const part of this.data.damage.parts) {
         if (part.custom.enabled && part.custom.formula) {
           formulaParts.push(`(${part.custom.formula})`);
@@ -547,6 +547,14 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     delete this.data.damage;
 
   }
+
+  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
+    attackOverride?: any;
+    includeBase?: boolean;
+    noTemplate?: any;
+    targetSelf?: any;
+    rollOverrideName?: string | null;
+  };
 
   build({
     activationOverride = null,
@@ -597,7 +605,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     usesOverride = null,
     rollOverride = null,
     rollOverrideName = null,
-  } = {}) {
+  }: typeof DDBFeatureActivity.BuildOptions = {}) {
 
     if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack({ attackOverride, unarmed: null, spell: null });

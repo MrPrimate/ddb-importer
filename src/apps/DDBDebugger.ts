@@ -39,7 +39,7 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   get title() {
     return `DDB Importer Debugger`;
   }
@@ -80,7 +80,7 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   async _preparePartContext(partId, context) {
     switch (partId) {
       default: {

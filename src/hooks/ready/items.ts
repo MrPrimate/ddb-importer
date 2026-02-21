@@ -3,10 +3,10 @@ import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
 
 function onClickV2(event) {
   if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
-    // eslint-disable-next-line no-invalid-this
+     
     new DDBAdventureFlags(this.document, {}).render(true);
   } else {
-    // eslint-disable-next-line no-invalid-this
+     
     new DDBItemConfig(this.document, {}).render(true);
   }
 }

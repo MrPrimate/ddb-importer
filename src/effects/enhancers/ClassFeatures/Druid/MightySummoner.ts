@@ -1,6 +1,5 @@
 import { logger } from "../../../../lib/_module";
 
-/* eslint-disable require-atomic-updates */
 export default class MightySummoner {
 
   static dnd5ePreSummonTokenHook(activity, _profile, tokenUpdateData, _options) {

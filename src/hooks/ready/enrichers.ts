@@ -1,4 +1,4 @@
-/* eslint-disable no-continue */
+ 
 import { logger, DDBSimpleMacro } from "../../lib/_module";
 
 /**

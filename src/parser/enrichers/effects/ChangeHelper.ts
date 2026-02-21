@@ -134,7 +134,7 @@ export default class ChangeHelper {
     };
   }
 
-  static tokenMagicFXChange(macroValue: string, priority: number = 20): ChangeResult {
+  static tokenMagicFXChange(macroValue: string, priority = 20): ChangeResult {
     return {
       key: 'macro.tokenMagic',
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -143,7 +143,7 @@ export default class ChangeHelper {
     };
   }
 
-  static damageResistanceChange(damageType: string, priority: number = 20): ChangeResult {
+  static damageResistanceChange(damageType: string, priority = 20): ChangeResult {
     return {
       key: "system.traits.dr.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -153,7 +153,7 @@ export default class ChangeHelper {
   }
 
   // this can now be removed once changes refactored
-  static atlChange(atlKey: string, mode: number, value: any, priority: number = 20): ChangeResult {
+  static atlChange(atlKey: string, mode: number, value: any, priority = 20): ChangeResult {
     let key = atlKey;
 
     switch (atlKey) {
@@ -186,7 +186,7 @@ export default class ChangeHelper {
     };
   }
 
-  static daeStatusEffectChange(statusName: string, priority: number = 20): ChangeResult {
+  static daeStatusEffectChange(statusName: string, priority = 20): ChangeResult {
     return {
       key: "macro.StatusEffect",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,

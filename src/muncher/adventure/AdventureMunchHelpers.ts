@@ -42,7 +42,7 @@ export default class AdventureMunchHelpers {
    * @returns {object}
    */
   static diff(obj1, obj2) {
-    let result = {};
+    const result = {};
     for (const key in obj1) {
       if (obj2[key] != obj1[key]) result[key] = obj2[key];
       // eslint-disable-next-line valid-typeof
@@ -252,7 +252,7 @@ export default class AdventureMunchHelpers {
       const muncherVersionChanged = foundry.utils.isNewerVersion(documentVersions["adventureMuncher"], oldVersions["adventureMuncher"]);
       const foundryVersionNewer = foundry.utils.isNewerVersion(documentFoundryVersion, game.version);
 
-      let versionUpdates = {};
+      const versionUpdates = {};
 
       if (metaVersionChanged || muncherVersionChanged || foundryVersionNewer) {
         versionUpdates.importerVersionChanged = importerVersionChanged;

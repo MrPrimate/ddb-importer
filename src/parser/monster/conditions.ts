@@ -27,9 +27,9 @@ DDBMonster.prototype.getAdjustmentsConfig = function getAdjustmentsConfig(type) 
 
 DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(type) {
   const config = this.getAdjustmentsConfig(type);
-  let values = new Set();
-  let custom = [];
-  let bypass = new Set();
+  const values = new Set();
+  const custom = [];
+  const bypass = new Set();
   const midiQolInstalled = game.modules.get("midi-qol")?.active;
 
   this.source.damageAdjustments.forEach((adj) => {
@@ -79,8 +79,8 @@ DDBMonster.prototype._generateDamageVulnerabilities = function _generateDamageVu
 DDBMonster.prototype._generateConditionImmunities = function _generateConditionImmunities() {
   const config = this.getAdjustmentsConfig("conditions");
 
-  let values = new Set();
-  let custom = [];
+  const values = new Set();
+  const custom = [];
 
   this.source.conditionImmunities.forEach((adj) => {
     const adjustment = config.find((cadj) => adj === cadj.id);

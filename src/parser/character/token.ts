@@ -7,7 +7,7 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
     // Default to the most basic token setup.
     // everything else can be handled by the user / Token Mold
     const existingData = foundry.utils.duplicate(this.currentActor.prototypeToken);
-    let tokenData = foundry.utils.mergeObject(existingData, {
+    const tokenData = foundry.utils.mergeObject(existingData, {
       actorLink: true,
       name: this.raw.character.name,
       sight: {
@@ -63,6 +63,8 @@ DDBCharacter.prototype._generateToken = function _generateToken() {
   } catch (err) {
     logger.error(err);
     logger.error(err.stack);
-    throw new Error("Please update your D&D 5e system to a newer version");
+    throw new Error("Please update your D&D 5e system to a newer version", {
+      cause: err,
+    });
   }
 };

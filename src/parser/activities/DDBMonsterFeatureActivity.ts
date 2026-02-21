@@ -32,7 +32,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       return;
     }
     let targets = [];
-    let scaling = false;
+    const scaling = false;
 
     // types:
     // "attribute"
@@ -92,7 +92,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   }
 
   _getFeaturePartsDamage() {
-    let baseParts = this.ddbParent.templateType === "weapon"
+    const baseParts = this.ddbParent.templateType === "weapon"
       ? this.actionData.damageParts.slice(1)
       : this.actionData.damageParts;
 
@@ -152,11 +152,11 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
 
   _generateAttack() {
-    let classification = this.ddbParent.spellAttack
+    const classification = this.ddbParent.spellAttack
       ? "spell"
       : "weapon"; // unarmed, weapon, spell
 
-    let type = this.ddbParent.rangedAttack
+    const type = this.ddbParent.rangedAttack
       ? "ranged"
       : "melee";
 
@@ -184,6 +184,8 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       dc: {},
     };
   }
+
+  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions;
 
   build({
     activationOverride,
@@ -232,7 +234,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     targetOverride,
     usesOverride,
     consumptionOverride = null,
-  } = {}) {
+  }: typeof DDBMonsterFeatureActivity.BuildOptions = {}) {
 
     // override set to false on object if overriding
 

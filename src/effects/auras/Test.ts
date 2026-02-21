@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 // { speaker, actor, token, character, item, rolledItem, macroItem, args, scope, workflow }
 
 export default async function test({
@@ -20,8 +20,8 @@ export default async function test({
   });
 
   let variables = "";
-  // eslint-disable-next-line no-invalid-this
-  for (var name in this) variables += name + "\n";
+   
+  for (const name in this) variables += name + "\n";
 
   console.warn("VARIABLES", variables);
 }

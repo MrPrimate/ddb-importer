@@ -8,7 +8,7 @@ const _GITHUB_MODULE_JSON_LATEST = `https://raw.githubusercontent.com/${MODULE_A
 const MINIMUM_5E_VERSION = "3.0.0";
 const PREVIOUS_VERSION = "3.7.17";
 
-// eslint-disable-next-line consistent-return
+ 
 async function getLatestModuleVersion() {
   try {
     const { tag_name: latestVersion, prerelease } = await $.getJSON(_GITHUB_API_LATEST);
@@ -18,7 +18,7 @@ async function getLatestModuleVersion() {
   }
 }
 
-// eslint-disable-next-line consistent-return
+ 
 async function getCompatibility() {
   try {
     const { compatibility, relationships } = await $.getJSON(_GITHUB_MODULE_JSON_LATEST);
@@ -65,7 +65,7 @@ export default async () => {
     if (preRelease) logger.debug(`Prerelease of ${MODULE_TITLE} detected`);
 
     if (needToUpdate) {
-      let text = $(
+      const text = $(
         `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`,
       );
       game.modules.get("ddb-importer").api?.notification.show(text, null);

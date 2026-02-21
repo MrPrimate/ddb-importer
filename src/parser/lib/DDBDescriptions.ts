@@ -165,7 +165,7 @@ export default class DDBDescriptions {
   // DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
 
 
-  // eslint-disable-next-line complexity
+   
   static dcParser({ text } = {}) {
     const results = {
       save: {
@@ -188,7 +188,7 @@ export default class DDBDescriptions {
       riderStatuses: [],
     };
 
-    let parserText = utils.nameString(text)
+    const parserText = utils.nameString(text)
       .replaceAll("[condition]", "")
       .replaceAll("[/condition]", "")
       .replaceAll("[save]", "")
@@ -369,7 +369,7 @@ export default class DDBDescriptions {
       riderStatuses: [],
     };
 
-    let parserText = utils.nameString(text);
+    const parserText = utils.nameString(text);
     const matchResults = DDBDescriptions.dcParser({ text: parserText });
 
     // console.warn("condition status", match);
@@ -421,7 +421,7 @@ export default class DDBDescriptions {
   }
 
 
-  // eslint-disable-next-line complexity
+   
   static featureBasics({ text } = {}) {
 
     const standardMatchRegex = /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i;

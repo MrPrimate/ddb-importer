@@ -147,7 +147,7 @@ function getIconPath(item, type, monsterName) {
 
 
 async function loadIconMaps(types) {
-  let promises = [];
+  const promises = [];
 
   const mapTypes = types
     .filter((type) => TYPE_MAP[type])
@@ -403,8 +403,6 @@ export default class Iconizer {
     const srdSpellItems = await Iconizer.getSRDIconMatch("spells", version);
     const srdMonsterFeatures = await Iconizer.getSRDIconMatch("monsterfeatures", version);
     const srdMonsters = await Iconizer.getSRDIconMatch("monsters", version);
-
-    // eslint-disable-next-line require-atomic-updates
     foundry.utils.setProperty(CONFIG.DDBI, `SRD_LOAD.iconMap.${version}`, [
       ...officialFeatureItems,
       ...officialOriginItems,
@@ -468,7 +466,7 @@ export default class Iconizer {
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
     const itemMap = items.map(async (item) => {
-      let itemImage = {
+      const itemImage = {
         name: item.name,
         type: item.type,
         img: null,
@@ -537,10 +535,10 @@ export default class Iconizer {
     const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
 
     for (const item of this.documents) {
-      // eslint-disable-next-line no-continue
+       
       if (item.type !== type || item.img) continue;
       const ddbImg = foundry.utils.getProperty(item, "flags.ddbimporter.ddbImg");
-      // eslint-disable-next-line no-continue
+       
       if (!ddbImg || ddbImg === "") continue;
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
       const rules = item.system.source?.rules ?? "2024";
@@ -579,7 +577,7 @@ export default class Iconizer {
         pathPostfix,
       };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
-      let itemIcons = {
+      const itemIcons = {
         filterType: item.filterType,
         img: img,
       };
@@ -605,7 +603,7 @@ export default class Iconizer {
         pathPostfix,
       };
       const img = await FileHelper.getImagePath(item.img, downloadOptions);
-      let itemIcons = {
+      const itemIcons = {
         name: item.name,
         img: img,
       };
@@ -650,7 +648,7 @@ export default class Iconizer {
     const schoolMap = DICTIONARY.spell.schools.map(async (school) => {
       const downloadOptions = { type: "spell", name: school.name, download: true, targetDirectory, pathPostfix };
       const img = await FileHelper.getImagePath(school.img, downloadOptions);
-      let schoolIcons = {
+      const schoolIcons = {
         name: school.name,
         img: img,
         id: school.id,

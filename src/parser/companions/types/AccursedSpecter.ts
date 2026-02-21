@@ -40,7 +40,7 @@ export async function getAccursedSpecter({
 
   for (const data of animated) {
 
-    let stub = monsterResults.actors.find((m) =>
+    const stub = monsterResults.actors.find((m) =>
       m.name === data.name
       && m.system.source?.rules === data.source,
     );

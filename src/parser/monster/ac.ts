@@ -4,7 +4,7 @@ import ACBonusEffects from "../enrichers/effects/ACBonusEffects";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 
-// eslint-disable-next-line complexity
+ 
 DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = []) {
   const originalAc = this.source.armorClass;
   const ac = {
@@ -39,11 +39,11 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
 
   // Eternal flame guardian 17 (breastplate, shield; 15 while using a crossbow)
 
-  let itemsToCheck = [];
+  const itemsToCheck = [];
   descriptionItems.push(...additionalItems.map((item) => item));
 
   if (descriptionItems.length > 0) {
-    // eslint-disable-next-line complexity
+     
     descriptionItems.forEach((item) => {
       let lowerItem = item.toLowerCase();
       if (lowerItem == "natural" || lowerItem == "natural armor") {
@@ -75,8 +75,8 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
         if (!itemsToIgnore.includes(lowerItem)) {
           const quantityRegex = /(.*) \((\d+)\)/;
           const match = lowerItem.match(quantityRegex);
-          let name = match ? match[1] : lowerItem;
-          let quantity = match ? parseInt(match[2]) : 1;
+          const name = match ? match[1] : lowerItem;
+          const quantity = match ? parseInt(match[2]) : 1;
           if (name && name != "") itemsToCheck.push({
             name: (match ? name.replace(` (${quantity})`, "") : name)
               .split(" ")

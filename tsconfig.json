@@ -10,7 +10,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "types": [],
+    "types": [
+      "@league-of-foundry-developers/foundry-vtt-types"
+    ],
     "paths": {
       "@client/*": ["./foundry/client/*"],
       "@common/*": ["./foundry/common/*"]
@@ -21,5 +23,5 @@
     "src/**/*.mjs",
     "src/**/*.js"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "vendor"]
 }

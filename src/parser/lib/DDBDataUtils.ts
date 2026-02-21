@@ -99,7 +99,7 @@ export default class DDBDataUtils {
 
     if (foundryItem.system.activities) {
       Object.keys(foundryItem.system.activities).forEach((id) => {
-        let activity = foundryItem.system.activities[id];
+        const activity = foundryItem.system.activities[id];
 
         if (activity.type === "attack") {
           if (toHitBonus) {
@@ -458,7 +458,7 @@ export default class DDBDataUtils {
           //   optionChoice,
           //   choiceDefinitions,
           // });
-          let result = optionChoice.options
+          const result = optionChoice.options
             .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
             .find((option) => option.id === choice.optionValue);
           result.optionId = result.id;
@@ -585,8 +585,8 @@ export default class DDBDataUtils {
     const featId = DDBDataUtils.determineActualFeatureId(ddb, featureId);
     logger.debug(`Finding subclass featureId ${featureId} with featId ${featId}`);
 
-    let klass = ddb.character.classes.find((cls) => {
-      let classFeatures = cls.definition.classFeatures;
+    const klass = ddb.character.classes.find((cls) => {
+      const classFeatures = cls.definition.classFeatures;
       if (!cls.subclassDefinition) return false;
       if (!cls.subclassDefinition.classFeatures) return false;
 
@@ -606,7 +606,7 @@ export default class DDBDataUtils {
 
     let klass = ddb.character.classes.find((cls) => {
       let classFeatures = cls.classFeatures;
-      let featureMatch = classFeatures.find((feature) => feature.definition.id === featId);
+      const featureMatch = classFeatures.find((feature) => feature.definition.id === featId);
 
       if (featureMatch) {
         return true;
@@ -685,7 +685,7 @@ export default class DDBDataUtils {
     });
   }
 
-  // eslint-disable-next-line complexity
+   
   static getLimitedUses({ data, description = "", scaleValue = null } = {}) {
     let resetType = DICTIONARY.resets.find((type) => type.id === data?.resetType);
 
@@ -756,7 +756,7 @@ export default class DDBDataUtils {
         ],
       };
     } else if (scaleValue) {
-      let maxUses = scaleValue;
+      const maxUses = scaleValue;
 
       return {
         spent: data.numberUsed ?? null,

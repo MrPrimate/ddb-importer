@@ -14,7 +14,7 @@ export async function getHoundOfIllOmen() {
   let direWolfVersion = 2;
 
   if (!direWolf) {
-    // eslint-disable-next-line no-use-before-define
+     
     direWolf = await SRDExtractor.getCompendiumDocument({ pack, name: "Dire Wolf" });
     direWolfVersion = 1;
   }

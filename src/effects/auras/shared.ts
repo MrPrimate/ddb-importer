@@ -338,7 +338,7 @@ export async function applyAuraToTemplate(returnArgs, {
   if (isCantrip) {
     const cantripDice = DDBEffectHelper.getCantripDice(originDocument.actor);
     returnArgs[0].spellLevel = cantripDice;
-    let newEffects = returnArgs[0].item.effects.map((effect) => {
+    const newEffects = returnArgs[0].item.effects.map((effect) => {
       effect.changes = effect.changes.map((change) => {
         change.value = change.value.replaceAll("@cantripDice", cantripDice);
         return change;

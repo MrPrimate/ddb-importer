@@ -63,14 +63,12 @@ export default class DDBCampaigns {
 
   static async getAvailableCampaigns({ notifier = null, cobalt = null, campaignId = null } = {}) {
     if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
-    // eslint-disable-next-line require-atomic-updates
     CONFIG.DDBI.CAMPAIGNS = [];
     if (!campaignId) campaignId = DDBCampaigns.getCampaignId(notifier);
     const campaigns = await DDBCampaigns.getDDBCampaigns(cobalt);
 
     if (!campaigns || campaigns.length === 0) {
       if (campaignId && campaignId.trim() !== "") {
-        // eslint-disable-next-line require-atomic-updates
         CONFIG.DDBI.CAMPAIGNS = [
           {
             id: campaignId,
@@ -80,7 +78,6 @@ export default class DDBCampaigns {
         ];
       }
     } else if (campaigns && campaigns.length > 0) {
-      // eslint-disable-next-line require-atomic-updates
       CONFIG.DDBI.CAMPAIGNS = campaigns;
     }
 

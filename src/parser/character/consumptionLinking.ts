@@ -9,7 +9,7 @@ const notReplace = {
 
 DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async function _getAutoLinkActivityDictionarySpellLinkUpdates() {
   const possibleItems = this.currentActor.items.toObject();
-  let toUpdate = [];
+  const toUpdate = [];
 
   for (const [featureName, linkedSpellArray] of Object.entries(DICTIONARY.CONSUMPTION_SPELL_LINKS)) {
     logger.debug(`Resource Spells: Checking ${featureName}`, linkedSpellArray);
@@ -50,11 +50,11 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
       if (spellData.cost !== 0) {
         const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities");
         for (const id of Object.keys(child.system.activities)) {
-          // eslint-disable-next-line max-depth
+           
           if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
           const targets = child.system.activities[id].consumption.targets;
           const cost = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") ?? spellData.cost;
-          // eslint-disable-next-line max-depth
+           
           if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
             targets.push(
               {
@@ -164,7 +164,7 @@ function _findChildUpdates({ consumingDocs, possibleItems, parent } = {}) {
 
 DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _getAutoLinkActivityDictionaryUpdates() {
   const possibleItems = this.currentActor.items.toObject();
-  let toUpdate = [];
+  const toUpdate = [];
 
   for (const [resourceDocName, consumingDocs] of Object.entries(DICTIONARY.CONSUMPTION_LINKS)) {
     logger.debug(`Generic Resource Linking: Checking ${resourceDocName}`, consumingDocs);
@@ -184,7 +184,7 @@ DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _g
 
 DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getAutoLinkActivityFlagDocUpdates() {
   const possibleItems = this.currentActor.items.toObject();
-  let toUpdate = [];
+  const toUpdate = [];
 
   const activityFlagDocs = possibleItems.filter((doc) =>
     foundry.utils.hasProperty(doc, "flags.ddbimporter.replaceActivityUses"),
@@ -243,7 +243,7 @@ DDBCharacter.prototype._flagCleanup = async function _flagCleanup() {
 };
 
 DDBCharacter.prototype.autoLinkConsumption = async function autoLinkConsumption() {
-  let toUpdate = [];
+  const toUpdate = [];
 
   const activityFlagUpdates = await this._getAutoLinkActivityFlagDocUpdates();
   toUpdate.push(...activityFlagUpdates);

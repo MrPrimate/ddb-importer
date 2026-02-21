@@ -56,7 +56,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     footer: { template: "modules/ddb-importer/handlebars/keychange/footer.hbs" },
   };
 
-  get title() { // eslint-disable-line class-methods-use-this
+  get title() {  
     // improve localisation
     // game.i18n.localize("")
     return this.local ? "DDB Importer Local Key" : "DDB Importer Key Change";

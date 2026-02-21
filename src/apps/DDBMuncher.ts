@@ -1,4 +1,3 @@
-/* eslint-disable require-atomic-updates */
 import {
   logger,
   PatreonHelper,
@@ -395,7 +394,7 @@ export default class DDBMuncher extends DDBAppV2 {
     return context;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async _prepareCharacterContext(context) {
     const characterContext = await MuncherSettings.getCharacterMuncherSettings();
     context = foundry.utils.mergeObject(context, characterContext);
@@ -428,7 +427,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   async _preparePartContext(partId, context) {
     switch (partId) {
       default: {
@@ -735,7 +734,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  // eslint-disable-next-line complexity
+   
   async _parseClassesWithMule() {
     this.autoRotateMessage("class");
     // prepare sources to munch from
@@ -1195,7 +1194,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   async #handleURLUpdate(event) {
-    let URL = event.currentTarget.value;
+    const URL = event.currentTarget.value;
     this.getCharacterId(URL);
 
     const status = this.element.querySelector(".ddb-muncher .dndbeyond-url-status i");

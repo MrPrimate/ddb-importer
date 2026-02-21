@@ -6,7 +6,7 @@ import {
   CompendiumHelper,
 } from "../../lib/_module";
 
-function diceRollMatcher(match, p1, p2, p3, p4, p5) {
+function diceRollMatcher(_match: string, p1: string, p2: string, p3: string, p4: string, p5: string): string {
   if (p5 && p5.toLowerCase() === "damage") {
     let dmgString = `${p4} damage`;
     dmgString = dmgString[0].toUpperCase() + dmgString.substring(1);
@@ -22,7 +22,7 @@ function diceRollMatcher(match, p1, p2, p3, p4, p5) {
   }
 }
 
-function replaceRollLinks(text) {
+function replaceRollLinks(text: string): string {
   text = text.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
   const damageRegex = new RegExp(/([.>( ^]|^|regains +)?(\d*d\d+(?:\s*[+-]\s*\d*d*\d*)*)([.,<)]|$| +) *([a-z,A-Z]*) *(damage|points)?/, "g");
   text = text.replace(damageRegex, diceRollMatcher);
@@ -35,7 +35,7 @@ function replaceRollLinks(text) {
 }
 
 function findDiceColumns(table) {
-  let result = [];
+  const result = [];
   if (table.tHead) {
     const headings = getHeadings(table);
     headings.forEach((h) => {
@@ -49,9 +49,9 @@ function findDiceColumns(table) {
   return result;
 }
 
-function guessTableName(parentName, htmlDocument, tableNum) {
+function guessTableName(parentName: string, htmlDocument: Document, tableNum: number): string {
   const element = htmlDocument.querySelectorAll('table');
-  let track = element[tableNum];
+  let track: HTMLElement | null = element[tableNum];
   let sibling = track.previousElementSibling;
 
   while (!sibling && track.parentElement?.nodeName === "DIV") {
@@ -71,7 +71,7 @@ function guessTableName(parentName, htmlDocument, tableNum) {
 }
 
 
-function tableReplacer(htmlDocument, tableNum, compendiumTables, compendiumLabel) {
+function tableReplacer(htmlDocument: Document, tableNum: number, compendiumTables: any[], compendiumLabel: string): Document {
   // future enhancement - replace liks to DDB spells, monsters, items etc to munched compendium
   const element = htmlDocument.querySelectorAll('table');
   const tablePoint = element[tableNum];
@@ -89,7 +89,7 @@ function tableReplacer(htmlDocument, tableNum, compendiumTables, compendiumLabel
 }
 
 
-function diceInt(text) {
+function diceInt(text: string): number {
   if (text === "0") return 10;
   if (text === "00") return 100;
   return parseInt(text);
@@ -135,7 +135,7 @@ function getDiceTableRange(value) {
 
 
 function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html } = {}) {
-  let generatedTables = [];
+  const generatedTables = [];
 
   diceKeys.forEach((diceKey) => {
     const nameExtension = diceKeys > 1 ? ` [${diceKeys}]` : "";
@@ -148,7 +148,7 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
     const spellCastingAttackRegex = new RegExp(/make a spell attack roll/ig);
     const spellCastingAttackMatch = diceKey.includes("d20") && spellCastingAttackRegex.test(html);
 
-    let table = {
+    const table = {
       "name": realName,
       "sort": 100000,
       "flags": {
@@ -245,7 +245,7 @@ export async function generateTable({ parentName, html, updateExisting, type = "
   let name = `${parentName}`;
   const document = utils.htmlToDoc(html);
   const tableNodes = document.querySelectorAll("table");
-  let tablesMatched = [];
+  const tablesMatched = [];
   let updatedDocument = utils.htmlToDoc(html);
   if (type === "background" && !name.startsWith("Background:")) {
     name = `Background: ${name}`;
@@ -258,7 +258,7 @@ export async function generateTable({ parentName, html, updateExisting, type = "
 
   const tableCompendiumLabel = CompendiumHelper.getCompendiumLabel("tables");
   let tableNum = 0;
-  let foundTables = [];
+  const foundTables = [];
   for (const node of tableNodes) {
     const parsedTable = parseTable(node);
     const keys = getHeadings(node);
@@ -290,7 +290,7 @@ export async function generateTable({ parentName, html, updateExisting, type = "
         : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html, notifier });
 
       if (builtTables.length > 0) {
-        let tableData = {
+        const tableData = {
           nameGuess,
           finalName,
           parentName,

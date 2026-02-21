@@ -1,5 +1,5 @@
-/* eslint-disable complexity */
-/* eslint-disable no-continue */
+
+
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 
 // Import parsing functions
@@ -113,7 +113,7 @@ export default class CharacterSpellFactory {
         for (const c of ddb.character.classes) {
           if (c.subclassDefinition && c.subclassDefinition.id === id) {
             for (const option of ddb.classOptions) {
-              // eslint-disable-next-line max-depth
+
               if (option.classId === c.subclassDefinition.id) {
                 lookup = {
                   id: option.id,
@@ -191,7 +191,7 @@ export default class CharacterSpellFactory {
     return lookup;
   }
 
-  // eslint-disable-next-line complexity
+
   getLookup(type, id) {
     return CharacterSpellFactory.getDDBSpellLookup(this.ddb, type, id);
   }
@@ -295,7 +295,7 @@ export default class CharacterSpellFactory {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
+
   removeSpellsBySourceCategoryIds(spells, ids = []) {
     return spells.filter((s) => {
       const sourceIds = s.definition.sources.map((sm) => sm.sourceId);
@@ -434,12 +434,12 @@ export default class CharacterSpellFactory {
     }
   }
 
-  // eslint-disable-next-line complexity
+
   async generateSpecialClassSpells() {
     for (const spell of this.ddb.character.spells.class) {
       if (!spell.definition) continue;
       // If the spell has an ability attached, use that
-      let spellCastingAbility = undefined;
+      let spellCastingAbility;
       const featureId = DDBDataUtils.determineActualFeatureId(this.ddb, spell.componentId);
       const classInfo = this.getLookup("classFeature", featureId);
 
@@ -621,7 +621,7 @@ export default class CharacterSpellFactory {
     }
 
     // also parse spell as non-limited use
-    let unlimitedSpell = foundry.utils.duplicate(spell);
+    const unlimitedSpell = foundry.utils.duplicate(spell);
     unlimitedSpell.limitedUse = null;
     unlimitedSpell.usesSpellSlot = true;
     unlimitedSpell.alwaysPrepared = true;

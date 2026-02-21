@@ -18,19 +18,22 @@
     "dev-link": "node ./tools/foundry-dev-link.mjs"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@eslint/js": "^10.0.1",
+    "@league-of-foundry-developers/foundry-vtt-types": "^13.346.0-beta.20250812191140",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
     "esbuild": "^0.27.3",
-    "eslint": "^8.52.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-jsdoc": "^46.5.0",
+    "eslint": "^10.0.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^62.7.0",
     "node-fetch": "^3.2.10",
-    "prettier": "3.1.0",
-    "prettier-eslint": "^16.3.0",
+    "prettier": "^3.8.1",
+    "prettier-eslint": "^16.4.2",
     "prompts": "^2.4.2",
     "terser": "^5.10.0",
     "terser-webpack-plugin": "^5.3.0",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.0",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.7.2"
   }

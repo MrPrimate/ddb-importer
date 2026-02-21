@@ -24,7 +24,7 @@ const renderPopup = (type, url) => {
 
 export function adventureFlags(app, html, data) {
   if (!app.document.flags.ddb) return;
-  let journalContent = html.querySelector('section.journal-page-content');
+  const journalContent = html.querySelector('section.journal-page-content');
   journalContent.classList.add('ddb');
   const bookCode = foundry.utils.getProperty(data, "document.flags.ddb.bookCode");
   if (bookCode) journalContent.classList.add(bookCode.toLowerCase());
@@ -48,7 +48,7 @@ function onClick(config, event) {
 }
 
 function onClickV2(event) {
-  // eslint-disable-next-line no-invalid-this
+   
   onClick(this, event);
   // if (event.shiftKey && event.ctrlKey) {
   //   // eslint-disable-next-line no-invalid-this

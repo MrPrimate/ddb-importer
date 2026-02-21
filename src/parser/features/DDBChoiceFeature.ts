@@ -60,7 +60,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
     const classFeatureName = foundry.utils.getProperty(this, "_classFeatureComponent.definition.name");
     if (!classFeatureName) return;
-    let subType = DDBFeatureMixin.getFeatureSubtype(classFeatureName, "class", true);
+    const subType = DDBFeatureMixin.getFeatureSubtype(classFeatureName, "class", true);
     if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
 
   }
@@ -186,7 +186,7 @@ export default class DDBChoiceFeature extends DDBFeature {
     "subClassId",
   ];
 
-  // eslint-disable-next-line complexity
+
   static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
     const features = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
@@ -276,12 +276,12 @@ export default class DDBChoiceFeature extends DDBFeature {
         }
       } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into companion parent feature ${ddbFeature.originalName}`);
-        // eslint-disable-next-line no-unused-vars
-        for (const [key, activity] of Object.entries(ddbFeature.data.system.activities)) {
+
+        for (const [_key, activity] of Object.entries(ddbFeature.data.system.activities)) {
           if (activity.type !== "summon") continue;
-          // eslint-disable-next-line no-unused-vars
-          for (const [cKey, cActivity] of Object.entries(choiceFeature.data.system.activities)) {
-            // eslint-disable-next-line max-depth
+
+          for (const [_cKey, cActivity] of Object.entries(choiceFeature.data.system.activities)) {
+
             if (cActivity.type !== "summon") continue;
             activity.bonuses = cActivity.bonuses;
             activity.match = cActivity.match;

@@ -8,7 +8,7 @@ export async function spikeGrowthEffect(document) {
 
   await DDBMacros.setItemMacroFlag(document, "spell", "spikeGrowth.js");
 
-  let effect = baseSpellEffect(document, document.name);
+  const effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
       key: "system.attributes.movement.walk",

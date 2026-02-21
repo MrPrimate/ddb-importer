@@ -3,8 +3,7 @@ import DDBDataUtils from "./DDBDataUtils";
 import { parseTags } from './DDBReferenceLinker';
 
 
-function evaluateMath(obj) {
-  // eslint-disable-next-line no-new-func
+function evaluateMath(obj: string): number {
   return Function('"use strict";return ' + obj.replace(/\+\s*\+/g, "+"))();
 }
 
@@ -17,13 +16,13 @@ function evaluateMath(obj) {
  * and a link text for display.
  *
  * @param {object} ddb The DDB data object.
- * @param {object} character The character data object.
+ * @param {object} _character The character data object.
  * @param {string} match The match string containing template values.
  * @param {object} feature The feature object associated with the match.
  * @returns {object} An object containing the parsed string and link text.
  */
-// eslint-disable-next-line complexity
-function parseMatch(ddb, character, match, feature) {
+
+function parseMatch(ddb: object, _character: object, match: string, feature: object): object {
   const featureDef = feature.definition ?? feature;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
@@ -34,7 +33,7 @@ function parseMatch(ddb, character, match, feature) {
 
   // scalevalue
   if (result.includes("scalevalue")) {
-    let scaleValue = DDBDataUtils.getScaleValueString(ddb, feature);
+    const scaleValue = DDBDataUtils.getScaleValueString(ddb, feature);
     // if (scaleValue.value.startsWith("@")) scaleValue.value = `[[${scaleValue.value}]]{${scaleValue.name}}`;
     if (scaleValue && scaleValue.value) {
       result = result.replace("scalevalue", scaleValue.value);
@@ -336,11 +335,11 @@ const getNumber = (theNumber, signed) => {
  * Replaces the matched string with the appropriate value or format, based on the value of p2.
  *
  * @param {string} match the matched string
- * @param {string} p1 the first capturing group
+ * @param {string} _p1 the first capturing group
  * @param {string} p2 the second capturing group
  * @returns {string} the replaced or formatted string
  */
-function replaceRoll(match, p1, p2) {
+function replaceRoll(match: string, _p1: string, p2: string): string {
   if (!p2) {
     logger.warn(`Unable to roll parse ${match}`);
     return match;
@@ -363,7 +362,7 @@ function replaceRoll(match, p1, p2) {
  * @param {string} text The input text to be fixed.
  * @returns {string} The text with corrected rollables.
  */
-function fixRollables(text) {
+function fixRollables(text: string): string {
   const diceMatchRegex = /(?:<strong>)?\+*\s*(\d*d\d\d*\s*\+*)\s*(?:<\/strong>)?\+*\s*\[\[(\/roll)?/g;
   const matches = text.match(diceMatchRegex);
   if (matches) {
@@ -386,7 +385,7 @@ function fixRollables(text) {
  * @param {string} matchString the string to match and replace
  * @returns {string} the text with replacements
  */
-function rollMatch(text, matchString) {
+function rollMatch(text: string, matchString: string): string {
   const rollMatch = new RegExp(`(?:^|[ "'(+>])(\\d*d\\d\\d*\\s)({{${matchString}}})(?:$|[., "')+<])`, "g");
   return text.replace(rollMatch, (m) => `[[/roll ${m[1] !== undefined ? m[1] : ""}${m[2]}]`);
 }
@@ -400,12 +399,12 @@ function rollMatch(text, matchString) {
  * @param {object} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export function parse(ddb, character, text, feature) {
-  if (!text) return text;
+export function parse(ddb: object, character: object, text: string, feature: object): object {
+  if (!text) return;
   const featureDefinition = feature.definition ?? feature;
 
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
-  let result = {
+  const result = {
     id: featureDefinition.id,
     entityTypeId: featureDefinition.entityTypeId,
     componentId: featureDefinition.componentId ? featureDefinition.componentId : null,
@@ -421,9 +420,9 @@ export function parse(ddb, character, text, feature) {
   // creates array from match groups and dedups
   const matches = [...new Set(Array.from(result.text.matchAll(regexp), (m) => m[1]))];
 
-  // eslint-disable-next-line complexity
+
   matches.forEach((match) => {
-    let entry = {
+    const entry = {
       parsed: null,
       match,
       replacePattern: new RegExp(`{{${escapeRegExp(match)}}}`, "g"),

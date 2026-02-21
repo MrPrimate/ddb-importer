@@ -235,7 +235,7 @@ export default class DDBCompanionMixin {
 
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   async _generate() {
     // this.#generateSize();
     // this.#generateType();
@@ -511,8 +511,8 @@ export default class DDBCompanionMixin {
   }
 
   _handleConditions(conditionsString) {
-    let values = [];
-    let custom = [];
+    const values = [];
+    const custom = [];
 
     conditionsString.split(",").forEach((adj) => {
       const valueAdjustment = DICTIONARY.conditions.find((condition) => condition.label.toLowerCase() == adj.trim().toLowerCase());
@@ -578,7 +578,7 @@ export default class DDBCompanionMixin {
     keys
       .filter((key) => validSkills.includes(key))
       .forEach((key) => {
-        let skill = this.npc.system.skills[key];
+        const skill = this.npc.system.skills[key];
         const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
         const skillData = skillsMaps.find((skl) => skl.name == lookupSkill.label);
 

@@ -152,7 +152,7 @@ export default class DDBCharacter {
     const betaKey = game.settings.get("ddb-importer", "beta-key");
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
-    let body = {
+    const body = {
       cobalt: cobaltCookie,
       betaKey,
       characterId: this.characterId,

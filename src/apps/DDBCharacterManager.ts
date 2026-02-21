@@ -282,7 +282,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   /** @override */
-  // eslint-disable-next-line class-methods-use-this
+   
   async _preparePartContext(partId, context) {
     switch (partId) {
       default: {
@@ -296,7 +296,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
   showCurrentTask(title, { message = null, isError = false } = {}) {
     logger.debug("DDBCharacterManager: showCurrentTask", { title, message, isError });
-    let element = $(this.element).find(".task-name");
+    const element = $(this.element).find(".task-name");
     element.html(`<h2 ${isError ? " style='color:red'" : ""}>${title}</h2>${message ? `<p>${message}</p>` : ""}`);
     $(this.element).parent().parent().css("height", "auto");
   }
@@ -311,7 +311,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   /* -------------------------------------------- */
 
   async #handleURLUpdate(event) {
-    let URL = event.currentTarget.value;
+    const URL = event.currentTarget.value;
     const characterId = DDBCharacter.getCharacterId(URL);
 
     const status = this.element.querySelector(".dndbeyond-url-status i");

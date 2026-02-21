@@ -12,12 +12,12 @@ export class DDBAdventureFlags extends FormApplication {
   }
 
   /** @override */
-  async getData() { // eslint-disable-line class-methods-use-this
+  async getData() {  
     // console.warn(this);
     // console.warn(this.object);
     const item = this.object;
 
-    let flags = {};
+    const flags = {};
 
     const flagGroups = ["ddb", "ddbimporter", "monsterMunch", "ddb-importer"];
     const ignoredSubFlagGroups = ["ddbimporter.acEffects", "ddbimporter.autoAC"];

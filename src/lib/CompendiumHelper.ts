@@ -108,7 +108,6 @@ const CompendiumHelper = {
     }
   },
 
-  /* eslint-disable require-atomic-updates */
   copyExistingActorProperties: async (type, foundryActor) => {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
@@ -138,7 +137,6 @@ const CompendiumHelper = {
     return foundryActor;
 
   },
-  /* eslint-enable require-atomic-updates */
 
   getActorIndexActor: async (type, npc) => {
     const monsterIndexFields = ["name", "flags.ddbimporter.id", "system.source.rules"];
@@ -158,7 +156,6 @@ const CompendiumHelper = {
     const matchingActor = await CompendiumHelper.getActorIndexActor(type, foundryActor);
     if (matchingActor) {
       logger.debug(`Found existing ${type}, updating: ${matchingActor.name}`);
-      // eslint-disable-next-line require-atomic-updates
       foundryActor._id = matchingActor._id;
       foundryActor = await CompendiumHelper.copyExistingActorProperties(type, foundryActor);
     } else {
@@ -214,7 +211,7 @@ const CompendiumHelper = {
     id = undefined,
     packageType = "world",
     folderId = null,
-    // eslint-disable-next-line no-unused-vars
+     
     dnd5eTypeTags = [],
     version = null,
     image = null,
@@ -309,9 +306,9 @@ const CompendiumHelper = {
     // retrieve the compendium index
     const index = await compendium.getIndex();
 
-    let id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
+    const id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
     if (id && getDocument) {
-      let entity = await compendium.getDocument(id._id);
+      const entity = await compendium.getDocument(id._id);
       return entity;
     }
     return id ? id : null;
@@ -332,7 +329,7 @@ const CompendiumHelper = {
    */
   queryCompendiumEntries: async ({ compendiumName, documentNames, getDocuments = false, matchedProperties = {}, useParenthesisMatch = true } = {}) => {
     // get the compendium
-    let compendium = game.packs.get(compendiumName);
+    const compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
 
     // retrieve the compendium index
@@ -346,7 +343,7 @@ const CompendiumHelper = {
     });
 
     // get the indices of all the entitynames, filter un
-    let indices = documentNames
+    const indices = documentNames
       .map((entityName) => {
         // sometimes spells do have restricted use in paranthesis after the name. Let's try to find those restrictions and add them later
         if (useParenthesisMatch && entityName.search(/(.+)\(([^()]+)\)*/) !== -1) {
@@ -363,7 +360,7 @@ const CompendiumHelper = {
         }
       })
       .map((data) => {
-        let entry = index.find((entity) => {
+        const entry = index.find((entity) => {
           const nameMatch = (entity.originalNormalisedName === data.name) ?? (entity.normalizedName === data.name);
           if (!nameMatch) return false;
           for (const [field, value] of Object.entries(matchedProperties)) {
@@ -389,7 +386,7 @@ const CompendiumHelper = {
 
     if (getDocuments) {
       // replace non-null values with the complete entity from the compendium
-      let entities = await Promise.all(
+      const entities = await Promise.all(
         indices.map((entry) => {
           return new Promise((resolve) => {
             if (entry) {
@@ -422,12 +419,12 @@ const CompendiumHelper = {
   queryCompendium: async (compendiumName, documentName, getDocument = false) => {
     documentName = utils.normalizeString(documentName);
 
-    let compendium = game.packs.get(compendiumName);
+    const compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
-    let index = await compendium.getIndex();
-    let id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
+    const index = await compendium.getIndex();
+    const id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
     if (id && getDocument) {
-      let entity = await compendium.getEntity(id._id);
+      const entity = await compendium.getEntity(id._id);
       return entity;
     }
     return id ? id : null;

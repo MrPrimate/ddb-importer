@@ -5,8 +5,8 @@ import { DDBModifiers } from "../lib/_module";
 DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
 
   // For all processing, we take into account the regular movement types of this character
-  let movementTypes = {};
-  let setToWalking = {};
+  const movementTypes = {};
+  const setToWalking = {};
   for (const type in this.source.ddb.character.race.weightSpeeds.normal) {
     // if (data.character.race.weightSpeeds.normal[type] !== 0) {
     movementTypes[type] = this.source.ddb.character.race.weightSpeeds.normal[type];
@@ -16,17 +16,17 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
 
 
   // get bonus speed mods
-  let restriction = ["", null, "unless your speed is already higher"];
+  const restriction = ["", null, "unless your speed is already higher"];
   // Check for equipped Heavy Armor
   const wearingHeavy = this.source.ddb.character.inventory.some((item) => item.equipped && item.definition.type === "Heavy Armor");
   // Accounts for Barbarian Class Feature - Fast Movement
   if (!wearingHeavy) restriction.push("while you aren’t wearing heavy armor");
 
   // build base speeds
-  for (let type in movementTypes) {
+  for (const type in movementTypes) {
     // is there a 'inntate-speed-[type]ing' race/class modifier?
     const innateType = DICTIONARY.actor.speeds.find((s) => s.type === type).innate;
-    let innateSpeeds = this.source.ddb.character.modifiers.race.filter(
+    const innateSpeeds = this.source.ddb.character.modifiers.race.filter(
       (modifier) => modifier.type === "set" && modifier.subType === `innate-speed-${innateType}`,
     );
     let base = movementTypes[type];
@@ -49,8 +49,8 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
     .reduce((speed, feat) => speed + feat.value, 0);
 
   // speed bonuses
-  for (let type in movementTypes) {
-    let innateBonus = DDBModifiers
+  for (const type in movementTypes) {
+    const innateBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `speed-${type}ing`, restriction })
       .reduce((speed, feat) => speed + feat.value, 0);
 
@@ -63,17 +63,17 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
     DDBModifiers.getChosenClassModifiers(this.source.ddb)
       .filter((modifier) => modifier.type === "bonus" && modifier.subType === "unarmored-movement")
       .forEach((bonusSpeed) => {
-        for (let type in movementTypes) {
+        for (const type in movementTypes) {
           if (movementTypes[type] !== 0) movementTypes[type] += bonusSpeed.value;
         }
       });
   }
 
   // new ranger deft explorer sets speeds, leaves value null, use walking
-  for (let type in movementTypes) {
+  for (const type in movementTypes) {
     const innateType = DICTIONARY.actor.speeds.find((s) => s.type === type).innate;
     // is there a 'inntate-speed-[type]ing' race/class modifier?
-    let innateSpeeds = DDBModifiers
+    const innateSpeeds = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "set", { subType: `innate-speed-${innateType}`, restriction });
     let base = movementTypes[type];
 
@@ -101,7 +101,7 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
     });
   }
 
-  for (let type in setToWalking) {
+  for (const type in setToWalking) {
     if (setToWalking[type] && movementTypes["walk"] > movementTypes[type]) {
       movementTypes[type] = movementTypes["walk"];
     }

@@ -1316,7 +1316,7 @@ const SETTINGS = {
     for (const [name, data] of Object.entries(clone.READY.DIRECTORIES)) {
       clone.READY.DIRECTORIES[name].default = data.default.replace("[data]", defaultLocationSource);
     }
-    let defaultSettings = early
+    const defaultSettings = early
       ? clone.EARLY
       : {
         ...clone.READY.DEV,

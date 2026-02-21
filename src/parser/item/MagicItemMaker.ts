@@ -19,7 +19,7 @@ export default class MagicItemMaker {
   };
 
   static checkDestroy(description) {
-    let destroy = /expend the .* last charge/i;
+    const destroy = /expend the .* last charge/i;
     if (description.search(destroy) !== -1) {
       return true;
     } else {
@@ -28,7 +28,7 @@ export default class MagicItemMaker {
   }
 
   static checkD20Destroy(description) {
-    let destroy = /roll a d20.*destroyed/i;
+    const destroy = /roll a d20.*destroyed/i;
     if (description.search(destroy) !== -1) {
       return MagicItemMaker.MAGICITEMS.DestroyCheck1D20;
     } else {

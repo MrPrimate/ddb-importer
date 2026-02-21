@@ -133,8 +133,8 @@ export default class DDBBasicActivity {
       this.data.consumption = consumptionOverride;
       return;
     }
-    let targets: any[] = [];
-    let scaling = false;
+    const targets: any[] = [];
+    const scaling = false;
 
     // types:
     // "attribute"
@@ -375,6 +375,57 @@ export default class DDBBasicActivity {
     }
   }
 
+  declare static BuildOptions: {
+    activationOverride?: any;
+    additionalTargets?: any[];
+    allowCritical?: boolean | null;
+    attackData?: any;
+    spellOverride?: any;
+    chatFlavor?: string | null;
+    checkOverride?: any;
+    consumeActivity?: any;
+    consumeItem?: any;
+    consumptionOverride?: any;
+    consumptionTargetOverrides?: any;
+    criticalDamage?: string | null;
+    damageParts?: any[] | null;
+    damageScalingOverride?: any;
+    data?: any;
+    ddbMacroOverride?: any;
+    durationOverride?: any;
+    generateActivation?: boolean;
+    generateAttack?: boolean;
+    generateSpell?: boolean;
+    generateCheck?: boolean;
+    generateConsumption?: boolean;
+    generateDamage?: boolean;
+    generateDDBMacro?: boolean;
+    generateDescription?: boolean;
+    generateDuration?: boolean;
+    generateEffects?: boolean;
+    generateEnchant?: boolean;
+    generateHealing?: boolean;
+    generateRange?: boolean;
+    generateRoll?: boolean;
+    generateSave?: boolean;
+    generateSummon?: boolean;
+    generateTarget?: boolean;
+    generateUses?: boolean;
+    healingChatFlavor?: string | null;
+    healingPart?: any;
+    img?: string | null;
+    includeBaseDamage?: boolean;
+    noeffect?: boolean;
+    noManualActivation?: boolean;
+    onSave?: string | null;
+    partialDamageParts?: any;
+    rangeOverride?: any;
+    rollOverride?: any;
+    saveOverride?: any;
+    targetOverride?: any;
+    usesOverride?: any;
+  };
+
   // ATTACK has
   // activation
   // attack
@@ -500,62 +551,12 @@ export default class DDBBasicActivity {
     noeffect = false,
     noManualActivation = false,
     onSave = null,
-    partialDamageParts = null,
     rangeOverride = null,
     rollOverride = null,
     saveOverride = null,
     targetOverride = null,
     usesOverride = null,
-  }: {
-    activationOverride?: any;
-    additionalTargets?: any[];
-    allowCritical?: boolean | null;
-    attackData?: any;
-    spellOverride?: any;
-    chatFlavor?: string | null;
-    checkOverride?: any;
-    consumeActivity?: any;
-    consumeItem?: any;
-    consumptionOverride?: any;
-    consumptionTargetOverrides?: any;
-    criticalDamage?: string | null;
-    damageParts?: any[] | null;
-    damageScalingOverride?: any;
-    data?: any;
-    ddbMacroOverride?: any;
-    durationOverride?: any;
-    generateActivation?: boolean;
-    generateAttack?: boolean;
-    generateSpell?: boolean;
-    generateCheck?: boolean;
-    generateConsumption?: boolean;
-    generateDamage?: boolean;
-    generateDDBMacro?: boolean;
-    generateDescription?: boolean;
-    generateDuration?: boolean;
-    generateEffects?: boolean;
-    generateEnchant?: boolean;
-    generateHealing?: boolean;
-    generateRange?: boolean;
-    generateRoll?: boolean;
-    generateSave?: boolean;
-    generateSummon?: boolean;
-    generateTarget?: boolean;
-    generateUses?: boolean;
-    healingChatFlavor?: string | null;
-    healingPart?: any;
-    img?: string | null;
-    includeBaseDamage?: boolean;
-    noeffect?: boolean;
-    noManualActivation?: boolean;
-    onSave?: string | null;
-    partialDamageParts?: any;
-    rangeOverride?: any;
-    rollOverride?: any;
-    saveOverride?: any;
-    targetOverride?: any;
-    usesOverride?: any;
-  } = {}): void {
+  }: typeof DDBBasicActivity.BuildOptions = {}): void {
 
     if (generateActivation) this._generateActivation({ activationOverride, noManual: noManualActivation });
     if (generateAttack) this._generateAttack(attackData);
@@ -630,7 +631,7 @@ export default class DDBBasicActivity {
     activity.build(options);
     await enricher?.applyActivityOverride(activity.data);
 
-    const effects = await enricher?.createEffects() ?? [];
+    const effects = (await enricher?.createEffects()) ?? [];
     document.effects.push(...effects);
     enricher?.createDefaultEffects();
     await enricher?.addDocumentOverride();
@@ -746,7 +747,7 @@ export default class DDBBasicActivity {
     };
     activity.data.effects.push(effectLink);
 
-    let effects = [enchantmentEffect];
+    const effects = [enchantmentEffect];
 
     foundryData.effects.push(...effects);
     (foundry as any).utils.setProperty(foundryData, `system.activities.${activity.data._id}`, activity.data);

@@ -8,9 +8,9 @@ import {
 
 
 export default async function damageOnEntry({
-  // eslint-disable-next-line no-unused-vars
+   
   speaker, actor, token, character, item, rolledItem, macroItem,
-  // eslint-disable-next-line no-unused-vars
+   
   args, scope, workflow,
 } = {}) {
 

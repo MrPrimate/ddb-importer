@@ -91,7 +91,7 @@ DDBCharacter.prototype._generateResources = function _generateResources(numberOf
   // get all resources
   const allResources = this.getSortedByUsedResourceList();
 
-  let result = {};
+  const result = {};
 
   switch (this.resourceChoices.type) {
     case "custom": {
@@ -176,7 +176,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
 
     if (this.resourceChoices.ask || !foundry.utils.hasProperty(this.resourceChoices, "ask")) {
       const resources = sortedResources.map((resource) => {
-        let resourceArray = [];
+        const resourceArray = [];
         if (resource.sr) resourceArray.push("SR");
         if (resource.lr) resourceArray.push("LR");
         if (!resource.sr && !resource.lr) resourceArray.push("Other");

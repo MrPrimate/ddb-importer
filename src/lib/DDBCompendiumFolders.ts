@@ -42,7 +42,6 @@ export class DDBCompendiumFolders {
   async addCompendiumFolderIds(documents) {
     const results = documents.map(async (d) => {
       const folderId = await this.getFolderId(d);
-      // eslint-disable-next-line require-atomic-updates
       if (folderId) d.folder = folderId;
       return d;
     });
@@ -381,7 +380,6 @@ export class DDBCompendiumFolders {
           color: folderData.color ?? "#222222",
           flagTag,
         }));
-      // eslint-disable-next-line require-atomic-updates
       parentKeyData.subFolders[key] = {
         key,
         folder,
@@ -842,7 +840,7 @@ export class DDBCompendiumFolders {
   //   this.validFolderIds.push(folder._id);
   // }
 
-  // eslint-disable-next-line complexity
+   
   async createCompendiumFolders() {
     logger.debug(`Checking and creating Compendium folder structure for ${this.type}`);
 
@@ -963,7 +961,7 @@ export class DDBCompendiumFolders {
     return { name, flagTag: name };
   }
 
-  // eslint-disable-next-line complexity
+   
   static getItemFolderNameForType(document) {
     const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
     const ddbTypeId = utils.idString(ddbType ?? "").toLowerCase();
@@ -1095,7 +1093,7 @@ export class DDBCompendiumFolders {
     return name;
   }
 
-  // eslint-disable-next-line class-methods-use-this, complexity
+   
   getClassFeatureFolderName(document) {
     const result = {
       name: undefined,
@@ -1163,7 +1161,7 @@ export class DDBCompendiumFolders {
     else return undefined;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getRaceTraitFolderName(document) {
     // "flags.ddbimporter.baseRaceName",
     // "flags.ddbimporter.baseName",
@@ -1199,7 +1197,7 @@ export class DDBCompendiumFolders {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getRaceFolderName(document) {
     const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
@@ -1213,7 +1211,7 @@ export class DDBCompendiumFolders {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getSummonFolderName(document) {
     const result = {
       name: undefined,
@@ -1231,7 +1229,7 @@ export class DDBCompendiumFolders {
     return result;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getClassFolderName(document) {
     const result = {
       name: undefined,
@@ -1406,7 +1404,7 @@ export class DDBCompendiumFolders {
     return DDBCompendiumFolders.getSourceFolderNameFromDocument({ document, type: "vehicle" });
   }
 
-  // eslint-disable-next-line complexity
+   
   getCompendiumFolderData(document) {
     let data;
     switch (this.type) {
@@ -1572,7 +1570,7 @@ export class DDBCompendiumFolders {
   }
 
 
-  // eslint-disable-next-line complexity
+   
   #getIndexFields() {
     switch (this.type) {
       case "spells":
@@ -1703,7 +1701,7 @@ export class DDBCompendiumFolders {
     }
   }
 
-  // eslint-disable-next-line complexity
+   
   async _migrateExistingCompendium({ deleteExisting = true, cleanup = true } = {}) {
     if (!this.compendium) {
       this.loadCompendium(this.type, true);

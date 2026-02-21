@@ -46,8 +46,8 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       this.data.consumption = consumptionOverride;
       return;
     }
-    let targets = additionalTargets ?? [];
-    let scaling = false;
+    const targets = additionalTargets ?? [];
+    const scaling = false;
     let spellSlot = true;
 
     // types:
@@ -95,7 +95,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   #getAlternativeFormula() {
     // this might be specifically for Toll the Dead only, but it's better than nothing
-    let match = this.ddbDefinition.description.match(/instead[\w\s]+(\d+d\d+) (\w+) damage/);
+    const match = this.ddbDefinition.description.match(/instead[\w\s]+(\d+d\d+) (\w+) damage/);
     if (match) {
       return match[1];
     } else {
@@ -162,7 +162,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     return scaleType;
   }
 
-  // eslint-disable-next-line complexity
+
   getScaling({ damageMod = null } = {}) {
     let baseDamage = "";
     let scaleDamage = "";
@@ -235,7 +235,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
               ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
               : undefined;
 
-            // eslint-disable-next-line max-depth
+
             if (!existingMatch && !modMatch) {
               scaleDamage = modScaleDamage;
             } else if (!existingMatch || modMatchValue > existingMatch[1]) {
@@ -335,7 +335,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
     let parts = [];
     let versatile = "";
-    let chatFlavor = [];
+    const chatFlavor = [];
 
     // damage
     const damages = this.ddbDefinition.modifiers
@@ -359,7 +359,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
           chatFlavor.push(`Restriction: ${restrictionText}`);
         }
         const addMod = damageMod.usePrimaryStat || this.cantripBoost ? " + @mod" : "";
-        let diceString = utils.parseDiceString(damageMod.die.diceString, addMod).diceString;
+        const diceString = utils.parseDiceString(damageMod.die.diceString, addMod).diceString;
         if (diceString && diceString.trim() !== "" && diceString.trim() !== "null") {
           const damage = this.buildDamagePart({
             damageString: diceString,
@@ -453,7 +453,12 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
-  // eslint-disable-next-line complexity
+  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
+    noSpellslot?: boolean;
+    modRestrictionFilter?: any;
+    modRestrictionFilterExcludes?: any;
+  };
+
   build({
     activationOverride = null,
     additionalTargets = [],
@@ -503,7 +508,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     usesOverride = null,
     modRestrictionFilter = null,
     modRestrictionFilterExcludes = null,
-  } = {}) {
+  }: typeof DDBSpellActivity.BuildOptions = {}) {
 
     if (generateConsumption) this._generateConsumption({
       consumptionOverride,

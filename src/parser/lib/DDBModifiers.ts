@@ -74,13 +74,13 @@ export default class DDBModifiers {
     );
   }
 
-  static getModifiers(ddb, type, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers = false) {
+  static getModifiers(ddb, type, includeExcludedEffects = false, effectOnly = false, useUnfilteredModifiers = false): any[] {
     // are we adding effects to documents?
     const excludedModifiers = (!includeExcludedEffects || (includeExcludedEffects && effectOnly))
       ? DDBModifiers.getEffectExcludedModifiers(type, true, true)
       : DDBModifiers.getEffectExcludedModifiers(type, false, false);
     // get items we are going to interact on
-    let modifiers = [];
+    let modifiers;
     const baseMods = useUnfilteredModifiers
       ? ddb.unfilteredModifiers[type]
       : ddb.character.modifiers[type];
@@ -428,7 +428,7 @@ export default class DDBModifiers {
     let value = "";
     let modBonus = "";
 
-    let statBonus = (modifier.statId)
+    const statBonus = (modifier.statId)
       ? modifier.statId
       : modifier.abilityModifierStatId
         ? modifier.abilityModifierStatId
@@ -478,7 +478,7 @@ export default class DDBModifiers {
       logger.debug(`Generating ${modifierSubType} ${modifierType} for ${name}`);
       bonuses = "";
       bonusEffects.forEach((modifier) => {
-        let bonusParse = DDBModifiers.extractModifierValue(modifier);
+        const bonusParse = DDBModifiers.extractModifierValue(modifier);
         if (bonuses !== "") bonuses += " + ";
         bonuses += bonusParse;
       });

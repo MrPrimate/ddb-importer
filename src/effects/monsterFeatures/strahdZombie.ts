@@ -6,7 +6,7 @@ import { baseMonsterFeatureEffect } from "../specialMonsters";
 export async function strahdZombieEffects(npc) {
   for (let item of npc.items) {
     if (item.name.startsWith("Loathsome Limbs")) {
-      let effect = baseMonsterFeatureEffect(item, item.name);
+      const effect = baseMonsterFeatureEffect(item, item.name);
       effect.changes.push(
         DDBMacros.generateOnUseMacroChange({ macroPass: "isDamaged", macroType: "monsterFeature", macroName: "loathsomeLimbs.js" }),
       );

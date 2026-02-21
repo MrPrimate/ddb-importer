@@ -6,7 +6,7 @@ export async function stormSphereEffect(document) {
   // we require active auras for this effect
   if (!effectModules().activeAurasInstalled) return document;
 
-  let effect = baseSpellEffect(document, document.name);
+  const effect = baseSpellEffect(document, document.name);
   effect.changes.push(
     {
       key: "system.skills.prc.roll.mode",

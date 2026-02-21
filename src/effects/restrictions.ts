@@ -2,7 +2,7 @@ import { AutoEffects } from "../parser/enrichers/effects/_module";
 import { DDBMacros } from "../lib/_module";
 
 async function woundingWeaponEffect(document) {
-  let effect = AutoEffects.ItemEffect(document, document.name);
+  const effect = AutoEffects.ItemEffect(document, document.name);
 
   effect.transfer = false;
   effect.flags.dae.macroRepeat = "startEveryTurn";
@@ -25,7 +25,7 @@ async function woundingWeaponEffect(document) {
 }
 
 async function lifeStealingEffect(document) {
-  let effect = AutoEffects.ItemEffect(document, document.name);
+  const effect = AutoEffects.ItemEffect(document, document.name);
   await DDBMacros.setItemMacroFlag(document, "item", "lifeStealing.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "item", "lifeStealing.js", ["postActiveEffects"]);
   document.effects.push(effect);

@@ -76,7 +76,7 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
 
 
 DDBMonster.prototype._generateSenses = function _generateSenses() {
-  let senses = {
+  const senses = {
     darkvision: 0,
     blindsight: 0,
     tremorsense: 0,

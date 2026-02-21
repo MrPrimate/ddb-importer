@@ -370,7 +370,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
 
   getUses(name = false) {
-    let uses = {
+    const uses = {
       spent: null,
       max: null,
       recovery: [
@@ -378,7 +378,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       ],
     };
 
-    let recovery = {
+    const recovery = {
       period: null,
       type: "recoverAll",
       formula: undefined,
@@ -453,7 +453,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   getRange() {
-    let range = {
+    const range = {
       value: null,
       long: null,
       units: "",
@@ -496,7 +496,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       range.value = parseInt(withinMatch[1]);
       range.units = "ft";
     } else {
-      // eslint-disable-next-line no-lonely-if
+
       if (this.meleeAttack) {
         range.value = 5;
         range.units = "ft";
@@ -507,7 +507,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   checkAbility(abilitiesToCheck) {
-    let result = {
+    const result = {
       success: false,
       ability: null,
       proficient: null,
@@ -532,7 +532,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
   checkAbilities(abilitiesToCheck, negatives = false) {
     const results = abilitiesToCheck.map((ability) => {
-      let result = {
+      const result = {
         success: false,
         ability,
         proficient: null,
@@ -557,12 +557,12 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     return results;
   }
 
-  // eslint-disable-next-line complexity
+
   generateWeaponAttackInfo() {
     const abilities = ["str", "dex", "int", "wis", "cha", "con"];
-    let initialAbilities = [];
+    let initialAbilities: string[];
     let weaponAbilities = ["str", "dex"];
-    let spellAbilities = ["cha", "wis", "int"];
+    const spellAbilities = ["cha", "wis", "int"];
 
     // we have a weapon name match so we can infer a bit more
     if (this.weaponLookup) {
@@ -695,9 +695,9 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       || matchText.match(targets);
   }
 
-  // eslint-disable-next-line complexity
+
   getTarget() {
-    let target = {
+    const target = {
       template: {
         count: "",
         contiguous: false,
@@ -817,7 +817,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     return description;
   }
 
-  // eslint-disable-next-line complexity
+
   #processMultiAttack(description) {
     if (this.is2014) return description;
 
@@ -854,10 +854,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       for (const name of replaceNames) {
         const listNameRegex = /\(\w\) (.*)/i;
         const listNameMatch = listNameRegex.exec(name);
-        // eslint-disable-next-line max-depth
+
         if (listNameMatch) {
           const listName = listNameMatch[1];
-          // eslint-disable-next-line max-depth
+
           if (listName.includes("Spellcasting")) actionNames.add("Spellcasting");
           else actionNames.add(listName.split("(")[0].trim());
         } else if (name.includes("Spellcasting")) {
@@ -1469,7 +1469,7 @@ ${this.data.system.description.value}
     if (spellData.period) {
       generateActivityUses = true;
       usesOverride.spent = "0";
-      usesOverride.max = `${spellData.quantity}` ?? "1";
+      usesOverride.max = spellData.quantity ? `${spellData.quantity}` : "1";
       const resetType = DICTIONARY.resets.find((reset) =>
         reset.id == spellData.period,
       )?.value ?? "lr";

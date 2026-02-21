@@ -3,7 +3,7 @@ import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
 DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false } = {}) {
-  let senses = {
+  const senses = {
     darkvision: 0,
     blindsight: 0,
     tremorsense: 0,
@@ -11,7 +11,7 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
     units: "ft",
     special: "",
   };
-  let special = [];
+  const special = [];
 
   // custom senses
   if (this.source.ddb.character.customSenses) {

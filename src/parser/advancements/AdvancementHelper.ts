@@ -356,7 +356,7 @@ export default class AdvancementHelper {
     return feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
   }
 
-  // eslint-disable-next-line complexity
+
   getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level } = {}) {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const skillsFromMods = mods
@@ -514,7 +514,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  // eslint-disable-next-line complexity
+
   getToolAdvancement({ mods, feature, availableToMulticlass = undefined, level } = {}) {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
@@ -608,7 +608,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  // eslint-disable-next-line complexity
+
   getArmorAdvancement(mods, feature, availableToMulticlass, level) {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
@@ -699,7 +699,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  // eslint-disable-next-line complexity
+
   getWeaponAdvancement(mods, feature, availableToMulticlass, level) {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
@@ -1244,7 +1244,6 @@ export default class AdvancementHelper {
     if (anyMatch) {
       // const skills = DICTIONARY.actor.skills.map((skill) => skill.name);
       const numberSkills = DICTIONARY.numbers.find((num) => anyMatch[1].toLowerCase() === num.natural);
-      // eslint-disable-next-line require-atomic-updates
       parsedSkills.number = numberSkills ? numberSkills.num : 2;
       parsedSkills.choices = ["*"];
       return parsedSkills;
@@ -1539,7 +1538,7 @@ export default class AdvancementHelper {
     return null;
   }
 
-  // eslint-disable-next-line complexity
+
   static parseHTMLTools(description) {
     const parsedTools = {
       choices: [],
@@ -1593,7 +1592,7 @@ export default class AdvancementHelper {
             proficiencies.add(stub);
           } else {
             const toolGroup = AdvancementHelper.getToolGroup(toolString.trim());
-            // eslint-disable-next-line max-depth
+
             if (toolGroup) {
               proficiencies.add(`${toolGroup}:*`);
             }
@@ -1893,8 +1892,8 @@ export default class AdvancementHelper {
   }
 
   // KNOWN_ISSUE_4_0
-  // eslint-disable-next-line no-unused-vars
-  static parseHTMLWeaponMasteryProficiencies(description) {
+
+  static parseHTMLWeaponMasteryProficiencies(_description: string) {
     const parsedWeaponsProficiencies = {
       // choices: DICTIONARY.actor.proficiencies
       //   .filter((prof) => prof.type === "Weapon" && prof.foundryValue && prof.foundryValue !== "")
@@ -1906,8 +1905,8 @@ export default class AdvancementHelper {
     return parsedWeaponsProficiencies;
   }
 
-  // eslint-disable-next-line complexity
-  static parseHTMLWeaponProficiencies(description) {
+
+  static parseHTMLWeaponProficiencies(description: string) {
     const parsedWeaponsProficiencies = {
       choices: [],
       grants: [],
@@ -2056,7 +2055,7 @@ export default class AdvancementHelper {
           const weaponGroup = AdvancementHelper.getWeaponGroup(choiceMatch[2]);
           if (weaponGroup) {
             parsedWeaponsProficiencies.choices.push(`${weaponGroup}:*`);
-            // eslint-disable-next-line max-depth
+
           } else if (choiceMatch[2].toLowerCase().includes("one-handed melee weapon")) {
             const weapons = DICTIONARY.actor.proficiencies.filter((prof) =>
               prof.type === "Weapon"
@@ -2186,7 +2185,7 @@ export default class AdvancementHelper {
     return result;
   }
 
-  // eslint-disable-next-line complexity
+
   static parseHTMLSpellAdvancementDataForTraits(description) {
     const result = {
       spellListCantripChoice: null,
@@ -2548,7 +2547,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     // "condition": "ci",
   };
 
-  // eslint-disable-next-line complexity
+
   static parseHTMLConditions(description) {
     const grants = new Set();
     const choices = new Set();
@@ -2598,7 +2597,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
               && a.type !== 4 // don't include conditions
               && match === a.name.toLowerCase(),
             );
-            // eslint-disable-next-line max-depth
+
             if (damageMapping) {
               const type = AdvancementHelper.CONDITION_MAPPING[conditionKind];
               const valueData = foundry.utils.hasProperty(damageMapping, "foundryValues")
@@ -2606,13 +2605,13 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
                 : foundry.utils.hasProperty(damageMapping, "foundryValue")
                   ? { value: damageMapping.foundryValue }
                   : undefined;
-              // eslint-disable-next-line max-depth, no-continue
+
               if (!valueData) continue;
               const midiValues = game.modules.get("midi-qol")?.active && valueData.midiValues
                 ? valueData.midiValues
                 : [];
               const mappingValueArray = midiValues.concat(valueData.value).map((value) => value.toLowerCase());
-              // eslint-disable-next-line no-loop-func
+
               mappingValueArray.forEach((value) => {
                 if (type) grants.add(`${type}:${value}`);
                 if (type === "di" && value === "poison") {
@@ -2657,7 +2656,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           );
           if (conditionMapping) {
             grants.add(`ci:${conditionMapping.foundryValue}`);
-            // eslint-disable-next-line max-depth
+
             if (addPoisonDI && conditionMapping.foundryValue === "poisoned") grants.add("di:poison");
           }
         }
@@ -3038,7 +3037,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return advancement;
   }
 
-  // eslint-disable-next-line complexity
+
   static async addSpellAdvancement({ ddbParser, feature, type } = {}) {
     const advancements = [];
 
@@ -3141,7 +3140,6 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       //     spellOverride,
       //   });
 
-      //   // eslint-disable-next-line require-atomic-updates
       //   feature.system.activities[activity.data._id] = activity.data;
       // }
     }
@@ -3213,13 +3211,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         };
 
         if (isItemConsume) {
-          // eslint-disable-next-line require-atomic-updates
           feature.system.uses = uses;
         } else {
           activity.data.uses = uses;
         }
-
-        // eslint-disable-next-line require-atomic-updates
         feature.system.activities[activity.data._id] = activity.data;
 
         ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [spellGrant.name], use2024Spells });

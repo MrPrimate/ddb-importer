@@ -21,7 +21,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   // and saving throws and skills it is proficient in.
   // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
-  let effect = {
+  const effect = {
     changes: [
       {
         key: "system.bonuses.rwak.attack",
@@ -90,7 +90,7 @@ function generateArtificerDamageEffect(actor, extra) {
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
   extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
 
-  let effect = {
+  const effect = {
     changes: [
       {
         key: "data.bonuses.rwak.damage",
@@ -224,7 +224,7 @@ function getCreatureAnimationType(name, creatureGroup) {
 }
 
 function setExtraMunchDefaults() {
-  let munchSettings = [];
+  const munchSettings = [];
 
   SETTINGS.MUNCH_DEFAULTS.forEach((setting) => {
     logger.debug(`Loading extras munch settings ${setting.name}`);
@@ -248,7 +248,7 @@ function revertExtraMunchDefaults(munchSettings) {
 }
 
 function addOwnerSkillProficiencies(ddbCharacter, mock) {
-  let newSkills = [];
+  const newSkills = [];
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find(
     (cr) => cr.id == mock.challengeRatingId,
   ).proficiencyBonus;
@@ -284,7 +284,7 @@ function addOwnerSkillProficiencies(ddbCharacter, mock) {
 
 function addOwnerSaveProficiencies(ddbCharacter, mock) {
 // add owner save profs
-  let newSaves = [];
+  const newSaves = [];
   DICTIONARY.actor.abilities.forEach((ability) => {
     const existingProficient = mock.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
     const characterProficient = ddbCharacter.abilities.withEffects[ability.value].proficient;
@@ -379,7 +379,7 @@ function addCreatureFlags(creature, mock) {
 }
 
 function transformExtraToMonsterData(ddbCharacter, actor, creature) {
-  let ddbCharacterData = ddbCharacter.source.ddb.character;
+  const ddbCharacterData = ddbCharacter.source.ddb.character;
   logger.debug("Extra data", creature);
   let mock = foundry.utils.duplicate(creature.definition);
   mock.id = creature.id;
@@ -512,7 +512,7 @@ function enhanceParsedExtra(actor, extra) {
           const ability = item.system.ability;
           const mod = parseInt(extra.system.abilities[ability].mod);
           const characterMod = parseInt(actor.system.abilities[characterAbility].mod);
-          // eslint-disable-next-line no-eval
+           
           const globalMod = parseInt(eval(actor.system.bonuses.rsak.attack || 0));
           item.system.attack.bonus = characterMod + globalMod - mod;
         }
