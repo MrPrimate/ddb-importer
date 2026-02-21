@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run clear; npm run link; webpack",
+    "dev": "npm run link && node esbuild.config.mjs --watch",
+    "dev:build": "npm run clear && npm run link && node esbuild.config.mjs",
     "clear": "rm -rf dist/*",
     "createSymlinks": "node ./tools/create-symlinks.mjs",
     "link": "cd src/parser/enrichers && node _linkBuilder.js",
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "esbuild": "^0.27.3",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsdoc": "^46.5.0",
