@@ -843,6 +843,7 @@ export default class CharacterSpellFactory {
 
 
     function setLink(spell) {
+      if (!spell) return;
       const lookup = spellCompendium.index.find((s) => {
         if (!s.flags?.ddbimporter?.definitionId) return false;
         if (!spell.flags?.ddbimporter?.definitionId) return false;

@@ -29,4 +29,5 @@ export { default as SuperiorHuntersDefense } from "./SuperiorHuntersDefense";
 export { default as SuperiorHuntersPrey } from "./SuperiorHuntersPrey";
 export { default as TemporaryHitPoints } from "./TemporaryHitPoints";
 export { default as Tireless } from "./Tireless";
+export { default as WrithingTide } from "./WrithingTide";
 

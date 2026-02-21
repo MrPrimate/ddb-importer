@@ -10,7 +10,7 @@ export default class RevelationInFlesh extends DDBEnricherData {
     return {
       targetType: "self",
       addItemConsume: true,
-      itemConsumeTargetName: "Font of Magic: Sorcery Points",
+      itemConsumeTargetName: "Sorcery Points",
       activationType: "bonus",
       addScalingMode: "amount",
       addConsumptionScalingMax: "4",

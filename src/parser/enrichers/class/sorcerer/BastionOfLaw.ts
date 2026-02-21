@@ -10,7 +10,7 @@ export default class BastionOfLaw extends DDBEnricherData {
     return {
       targetType: "creature",
       addItemConsume: true,
-      itemConsumeTargetName: "Font of Magic: Sorcery Points",
+      itemConsumeTargetName: "Sorcery Points",
       addScalingMode: "amount",
       addConsumptionScalingMax: "5",
       data: {

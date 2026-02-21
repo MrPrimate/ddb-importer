@@ -13,7 +13,7 @@ export default class SorceryIncarnate extends DDBEnricherData {
       additionalConsumptionTargets: [
         {
           type: "itemUses",
-          target: "Font of Magic: Sorcery Points",
+          target: "Sorcery Points",
           value: "2",
           scaling: {
             mode: "",

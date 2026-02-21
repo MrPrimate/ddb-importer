@@ -44,7 +44,7 @@ export default class DragonWings extends DDBEnricherData {
               {
                 type: "itemUses",
                 value: "3",
-                target: "Font of Magic: Sorcery Points",
+                target: "Sorcery Points",
                 scaling: { allowed: false, max: "" },
               },
             ],

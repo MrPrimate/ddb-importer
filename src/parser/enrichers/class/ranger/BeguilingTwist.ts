@@ -1,6 +1,10 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
+import Generic from "../Generic";
 
-export default class BeguilingTwist extends DDBEnricherData {
+export default class BeguilingTwist extends Generic {
+
+  get clearAutoEffects() {
+    return true;
+  }
 
   get effects() {
     return [
