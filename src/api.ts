@@ -42,7 +42,7 @@ function resetSecrets() {
 }
 
 
-function migrateAllCompendiums(value, key, map) {
+function migrateAllCompendiums(value, _key, _map) {
   if (!value.locked) game.dnd5e.migrations.migrateCompendium(value);
 }
 
