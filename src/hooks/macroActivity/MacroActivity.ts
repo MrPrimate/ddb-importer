@@ -112,12 +112,11 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
   /**
    * Handle running the macro on a click event.
    * @this {UtilityActivity}
-   * @param {PointerEvent} event     Triggering click event.
-   * @param {HTMLElement} target     The capturing HTML element which defined a [data-action].
-   * @param {ChatMessage5e} message  Message associated with the activation.
+   * @param {PointerEvent} _event     Triggering click event.
+   * @param {HTMLElement} _target     The capturing HTML element which defined a [data-action].
+   * @param {ChatMessage5e} _message  Message associated with the activation.
    */
-   
-  static #executeMacro(event, target, message) {
+  static #executeMacro(_event: PointerEvent, _target: HTMLElement, _message: ChatMessage5e) {
     const targets = Array.from(game.user.targets);
 
     if (this.macro.function.startsWith("ddb.")) {
@@ -128,8 +127,7 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
   }
 
   /** @override */
-   
-  async _triggerSubsequentActions(config, results) {
+  async _triggerSubsequentActions(_config, _results) {
     // this.rollDamage({ event: config.event }, {}, { data: { "flags.dnd5e.originatingMessage": results.message?.id } });
 
     const targets = Array.from(game.user.targets);

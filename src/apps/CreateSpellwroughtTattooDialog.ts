@@ -108,11 +108,11 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /**
    * Handle submission of the dialog using the form buttons.
    * @this {CreateScrollDialog}
-   * @param {Event|SubmitEvent} event    The form submission event.
-   * @param {HTMLFormElement} form       The submitted form.
+   * @param {Event|SubmitEvent} _event   The form submission event.
+   * @param {HTMLFormElement} _form      The submitted form.
    * @param {FormDataExtended} formData  Data from the dialog.
    */
-  static async #handleFormSubmission(event, form, formData) {
+  static async #handleFormSubmission(_event, _form, formData) {
     foundry.utils.mergeObject(this.#config, formData.object);
     this.#config.level = Number(this.#config.level);
     await this.close({ dnd5e: { submitted: true } });

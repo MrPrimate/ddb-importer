@@ -48,7 +48,7 @@ export default class WardingBond {
     return false;
   }
 
-   
+
   static async preUpdateActorHook(subject, update, options, _user) {
     if (!(update.system?.attributes?.hp ?? false)) return true;
     const targetFlag = DDBEffectHelper.getFlag(subject, "WardingBondIds");
@@ -62,9 +62,9 @@ export default class WardingBond {
       if (!targetFlag) return true;
     }
 
-    const oldHP = options.dnd5e.hp.value ?? 0 + options.dnd5e.hp.temp ?? 0;
-    const newHP = foundry.utils.getProperty(update, "system.attributes.hp.value") ?? 0
-      + foundry.utils.getProperty(update, "system.attributes.hp.temp") ?? 0;
+    const oldHP = (options.dnd5e.hp.value ?? 0) + (options.dnd5e.hp.temp ?? 0);
+    const newHP = (foundry.utils.getProperty(update, "system.attributes.hp.value") ?? 0)
+      + (foundry.utils.getProperty(update, "system.attributes.hp.temp") ?? 0);
     const hpChange = oldHP - newHP;
 
     // damage applied to caster, evaluate if warding bond remains in effect

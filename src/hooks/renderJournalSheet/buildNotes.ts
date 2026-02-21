@@ -30,7 +30,7 @@ function buildNotes(html, data) {
   // mark all headers
   $(html)
     .find("h1, h2, h3, h4, h5, figure, p")
-    .each((index, element) => {
+    .each((_index, element) => {
       $(element).wrap("<div class='ddbimporter-note-container'></div>");
       // show the button on mouseenter
       $(element)
@@ -76,7 +76,7 @@ function buildNotes(html, data) {
   // mark all headers
   $(html)
     .find("table")
-    .each((index, element) => {
+    .each((_index, element) => {
       $(element).wrap("<div class='ddbimporter-table-container'></div>");
       // show the button on mouseenter
       $(element)

@@ -8,7 +8,7 @@ function getSceneId(li) {
     ?? $(li).attr("data-entity-id");
 }
 
-export default function (html, contextOptions) {
+export default function (_html, contextOptions) {
   contextOptions.push({
     name: "ddb-importer.scenes.download",
     callback: (li) => {

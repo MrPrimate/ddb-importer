@@ -171,7 +171,7 @@ export default class DDBSetup extends DDBAppV2 {
     return `ddb-importer-settings-${this.actor?.id ?? "core"}`;
   }
 
-  get title() {  
+  get title() {
     // improve localisation
     // game.i18n.localize("")
     return "DDB Importer Settings";
@@ -370,7 +370,7 @@ export default class DDBSetup extends DDBAppV2 {
     return context;
   }
 
-   
+
   async _prepareDynamicContext(context) {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
@@ -381,7 +381,7 @@ export default class DDBSetup extends DDBAppV2 {
     return context;
   }
 
-   
+
   async _prepareEnhancementsContext(context) {
     const allowedSourceIds = this.allowedWeaponPropertySources;
     const selectedSources = MuncherSettings.getSourcesLookups(allowedSourceIds).map((source) => {
@@ -401,7 +401,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   /** @override */
-   
+
   async _preparePartContext(partId, context) {
     switch (partId) {
       case "core": {
@@ -423,7 +423,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
 
-   
+
   static async checkCobaltCookie(value) {
     const cookieStatus = await Secrets.checkCobalt("", value);
     if (value !== "" && !cookieStatus.success) {
@@ -557,7 +557,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
-  static async selectDirectory(event, target) {
+  static async selectDirectory(_event, target) {
     const targetDirSetting = target.dataset.target;
     const currentDir = game.settings.get(SETTINGS.MODULE_ID, targetDirSetting);
     // const parsedDir = FileHelper.parseDirectory(currentDir);
@@ -607,6 +607,7 @@ export default class DDBSetup extends DDBAppV2 {
       } catch (error) {
         if (cobaltCookie !== "") {
           ui.notifications.error("Error validating your cobalt cookie!");
+          console.error("Error validating cobalt cookie", { error });
         }
       }
     }
@@ -728,7 +729,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
-   
+
   async _saveProxy(formData) {
     if (this.proxyAddress !== formData.object['api-endpoint']
       || this.useCustomProxy !== formData.object['custom-proxy']
@@ -754,7 +755,7 @@ export default class DDBSetup extends DDBAppV2 {
    * @param {FormDataExtended} formData           Processed data for the submitted form
    * @returns {Promise<void>}
    */
-  static async formHandler(event, form, formData) {
+  static async formHandler(event, _form, formData) {
     event.preventDefault();
 
     await this._saveProxy(formData);

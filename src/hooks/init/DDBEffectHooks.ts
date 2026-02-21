@@ -1,6 +1,6 @@
 import { logger, DDBMacros } from "../../lib/_module";
 
- 
+
 function daeStubEffects(actor, change, _current, _delta, _changes) {
 
   if (typeof change?.key !== "string") return true;
@@ -55,12 +55,11 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
         }
         try {
           const roll = new Roll(valueString, actor.getRollData());
-          let result;
           if (!roll.isDeterministic) {
             logger.error(`Error evaluating system.attributes.movement.all = ${valueString}. Roll is not deterministic for ${actor.name} ${actor.uuid} dice terms ignored`);
           }
-           
-          result = roll.evaluateSync({ strict: false }).total;
+
+          const result = roll.evaluateSync({ strict: false }).total;
           movement[key] = Math.floor(Math.max(0, result) + 0.5);
         } catch (err) {
           logger.warn(`Error evaluating custom movement.all = ${valueString}`, key, err);
@@ -76,7 +75,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
 
 export default class DDBEffectHooks {
 
-   
+
   static ddbMacro(actor, change, ..._params) {
     const scope = { actor, token: null };
     const data = JSON.parse(change.value);
@@ -84,9 +83,9 @@ export default class DDBEffectHooks {
     DDBMacros.executeDDBMacro(data.type, data.name, scope);
   }
 
-   
+
   static processCustomApplyEffectHooks(_actor, change, _current, _delta, _changes) {
-     
+
     if (change.mode !== CONST.ACTIVE_EFFECT_MODES.CUSTOM) return;
 
   }

@@ -2,7 +2,7 @@ import DDBEnhancers from "../../DDBEnhancers";
 
 export default class WildShape {
 
-  static dnd5eTransformHook(subject, target, delta, options) {
+  static dnd5eTransformHook(subject, _target, delta, options) {
     const isLegacy = game.settings.get("dnd5e", "rulesVersion") === "legacy";
     if ((options.preset !== "wildshape") || !subject.classes?.druid) return;
     if (subject.classes.druid.subclass?.identifier === "moon" && !isLegacy) {

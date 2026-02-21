@@ -1,15 +1,15 @@
 import { logger } from "./_module";
 
-function occurrences(string, subString, allowOverlapping) {
+function occurrences(string: string, subString: string, allowOverlapping = false) {
   string += "";
   subString += "";
   if (subString.length <= 0) return (string.length + 1);
 
   let n = 0,
-    pos = 0,
-    step = allowOverlapping ? 1 : subString.length;
+    pos = 0;
+  const step = allowOverlapping ? 1 : subString.length;
 
-   
+
   while (true) {
     pos = string.indexOf(subString, pos);
     if (pos >= 0) {
@@ -20,7 +20,7 @@ function occurrences(string, subString, allowOverlapping) {
   return n;
 }
 
-function checkBase64(string) {
+function checkBase64(string: string) {
   const count = occurrences(JSON.stringify(string), "base64");
 
   return count > 0;

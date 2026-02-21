@@ -394,7 +394,7 @@ export default class DDBMuncher extends DDBAppV2 {
     return context;
   }
 
-   
+
   async _prepareCharacterContext(context) {
     const characterContext = await MuncherSettings.getCharacterMuncherSettings();
     context = foundry.utils.mergeObject(context, characterContext);
@@ -427,7 +427,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   /** @override */
-   
+
   async _preparePartContext(partId, context) {
     switch (partId) {
       default: {
@@ -734,7 +734,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-   
+
   async _parseClassesWithMule() {
     this.autoRotateMessage("class");
     // prepare sources to munch from
@@ -1055,7 +1055,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async migrateCompendiumFolders(event, target) {
+  static async migrateCompendiumFolders(_event, target) {
     let type = null;
     switch (target.id) {
       case "munch-migrate-compendium-monster":

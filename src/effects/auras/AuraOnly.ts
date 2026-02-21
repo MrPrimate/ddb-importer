@@ -2,9 +2,9 @@ import { logger } from "../../lib/_module";
 import DDBEffectHelper from "../DDBEffectHelper";
 
 export default async function auraOnly({
-   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   speaker, actor, token, character, item, rolledItem, macroItem,
-   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   args, scope, workflow,
 } = {}) {
 

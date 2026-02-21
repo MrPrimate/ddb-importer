@@ -1,4 +1,4 @@
- 
+
 import { logger, DDBSimpleMacro } from "../../lib/_module";
 
 /**
@@ -116,6 +116,7 @@ async function enrichFunction(config, label, options) {
  *                                       indicate that no replacement should be made.
  */
 async function macroEnricher(match, options) {
+  // eslint-disable-next-line prefer-const
   let { type, config, label } = match.groups;
   config = parseConfig(config);
   config._input = match[0];

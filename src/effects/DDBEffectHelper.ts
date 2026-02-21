@@ -52,7 +52,7 @@ export default class DDBEffectHelper {
     generator.generateConditionOnlyEffect();
   }
 
-   
+
   static generateOverTimeEffect(actor, document, otherDescription = null) {
     const generator = new MidiOverTimeEffect({
       document,
@@ -236,7 +236,7 @@ export default class DDBEffectHelper {
     const packKeys = ['jb2a_patreon.jb2a-actors', 'JB2A_DnD5e.jb2a-actors'];
     for (const key of packKeys) {
       const pack = game.packs.get(key);
-       
+
       if (!pack) continue;
       const actors = pack.index.filter((f) => f.name.includes(name));
       const subFolder = await FolderHelper.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
@@ -483,10 +483,10 @@ export default class DDBEffectHelper {
           for (y1 = t2StartY; y1 < t2.document.height; y1++) {
             const dest = new PIXI.Point(...canvas.grid.getCenter(Math.round(t2.document.x + (canvas.dimensions.size * x1)), Math.round(t2.document.y + (canvas.dimensions.size * y1))));
             const r = new Ray(origin, dest);
-             
+
             if (wallBlocking) {
               const collisionCheck = CONFIG.Canvas.polygonBackends.move.testCollision(origin, dest, { mode: "any", type: "move" });
-               
+
               if (collisionCheck) continue;
             }
             segments.push({ ray: r });
@@ -1046,7 +1046,7 @@ export default class DDBEffectHelper {
     let i = 1;
     for (const item of listItems) {
       const title = item.querySelector(titleType);
-       
+
       if (!title) continue;
       const content = title.nextSibling;
       results.push({
@@ -1245,7 +1245,7 @@ export default class DDBEffectHelper {
     return newActivities;
   }
 
-   
+
   static documentWithFilteredActivities({
     uuid = null, document = null, parent = null, activityIds = [], activityTypes = [], clearEffectFlags = false,
     clearEffects = false, filterEffects = true, newId = false, clearId = true, removeProperties = ["concentration"],
@@ -1439,7 +1439,7 @@ export default class DDBEffectHelper {
 
   }
 
-   
+
   static async _conditionRemovalMidiRoll(targetToken, condition, {
     document = {},
     activity = null,
@@ -1570,8 +1570,8 @@ export default class DDBEffectHelper {
   static FLAG_NAME = "ddbihelpers";
 
   static getFlag(entity, flagId) {
-    let theActor = null;
     if (!entity) return logger.error(`ddbeffecthelper getFlag: actor not defined`);
+    let theActor;
     if (typeof entity === "string") {
       theActor = canvas.tokens?.get(entity)?.actor;
       if (!theActor) theActor = game.actors?.get(entity);

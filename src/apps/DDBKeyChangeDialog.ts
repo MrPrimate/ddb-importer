@@ -56,7 +56,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     footer: { template: "modules/ddb-importer/handlebars/keychange/footer.hbs" },
   };
 
-  get title() {  
+  get title() {
     // improve localisation
     // game.i18n.localize("")
     return this.local ? "DDB Importer Local Key" : "DDB Importer Key Change";
@@ -88,11 +88,11 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
   /**
    * Handle submission of the dialog using the form buttons.
    * @this {CreateScrollDialog}
-   * @param {Event|SubmitEvent} event    The form submission event.
-   * @param {HTMLFormElement} form       The submitted form.
+   * @param {Event|SubmitEvent} _event   The form submission event.
+   * @param {HTMLFormElement} _form      The submitted form.
    * @param {FormDataExtended} formData  Data from the dialog.
    */
-  static async #handleFormSubmission(event, form, formData) {
+  static async #handleFormSubmission(_event, _form, formData) {
     const currentKey = PatreonHelper.getPatreonKey(this.local);
     if (currentKey !== formData.object['patreon-key']) {
       await PatreonHelper.setPatreonKey(formData.object['patreon-key'], this.local);

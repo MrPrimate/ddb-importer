@@ -9,7 +9,7 @@ export function showReadAlouds(html, data) {
   // mark all read alouds
   $(html)
     .find("aside, blockquote, .read-aloud-text, .read-aloud, .adventure-read-aloud-text, .ddb-blockquote")
-    .each((index, element) => {
+    .each((_index, element) => {
       const showPlayersJournalButton = $("<a class='ddbimporter-show-image'><i class='fas fa-book-open'></i>&nbsp;Create and Show Handout</a>");
       const toChatButton = $("<a class='ddbimporter-to-chat'><i class='fas fa-comment '></i>&nbsp;To Chat</a>");
 
@@ -18,7 +18,7 @@ export function showReadAlouds(html, data) {
       $(element)
         .parent()
         .mouseenter(function addHover() {
-           
+
           $(this).append(showPlayersJournalButton);
           $(showPlayersJournalButton).click(async (event) => {
             event.preventDefault();
@@ -29,7 +29,7 @@ export function showReadAlouds(html, data) {
               createAndShowPlayerHandout(name, element.outerHTML, "text", bookCode);
             }
           });
-           
+
           $(this).append(toChatButton);
           $(toChatButton).click((event) => {
             event.preventDefault();
@@ -40,7 +40,7 @@ export function showReadAlouds(html, data) {
       $(element)
         .parent()
         .mouseleave(function removeHover() {
-           
+
           $(this).find("a.ddbimporter-show-image, a.ddbimporter-to-chat").remove();
         });
     });
