@@ -4,7 +4,7 @@ const watch = process.argv.includes("--watch");
 
 /** @type {esbuild.BuildOptions} */
 const buildOptions = {
-  entryPoints: ["src/index.mjs"],
+  entryPoints: ["src/index.ts"],
   bundle: true,
   outfile: "dist/main.mjs",
   format: "esm",

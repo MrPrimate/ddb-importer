@@ -24,13 +24,9 @@ import {
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   static LEVEL_SCALE_EXCLUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS;
-
   static LEVEL_SCALE_INFUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_INFUSIONS;
-
   static NATURAL_WEAPONS = DICTIONARY.parsing.levelScale.NATURAL_WEAPONS;
-
   static SPECIAL_ADVANCEMENTS = DICTIONARY.parsing.levelScale.SPECIAL_ADVANCEMENTS;
-
   static UTILITY_FEATURES = DICTIONARY.parsing.levelScale.UTILITY_FEATURES;
 
   DDB_TYPE_ENRICHERS = {
@@ -42,33 +38,19 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   };
 
   spellLinks = [];
-
   isAction = false;
-
   excludedScale = false;
-
   levelScaleInfusion = false;
-
   scaleValueLink = "";
-
   useScaleValueLink = false;
-
   excludedScaleUses = false;
-
   scaleValueUsesLink = "";
-
   useUsesScaleValueLink = false;
-
   tagType = "other";
-
   activities = [];
-
   data = {};
-
   snippet = "";
-
   description = "";
-
   resourceCharges = null;
 
   _init() {
@@ -1146,7 +1128,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   async _final() {
-    this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
+    this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this.data.system.identifier = this.identifier;
 
     if (this.ddbDefinition.hintImage) {

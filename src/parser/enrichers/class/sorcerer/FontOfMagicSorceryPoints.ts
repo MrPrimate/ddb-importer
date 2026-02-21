@@ -30,4 +30,8 @@ export default class FontOfMagicSorceryPoints extends DDBEnricherData {
     };
   }
 
+  get identifier(): string | null {
+    return "sorcery-points";
+  }
+
 }

@@ -29,7 +29,7 @@ module.exports = {
   },
   entry: {
     main: {
-      import: './src/index.mjs',
+      import: './src/index.ts',
       // dependOn: ['lib', 'lowdash', 'parserLib', 'enrichers', 'effects'],
     },
     // enrichers: {
