@@ -1,8 +1,38 @@
+
 import { DICTIONARY } from "../../../config/_module";
 import { logger, utils } from "../../../lib/_module";
 import { DDBDescriptions, DDBModifiers, SystemHelpers } from "../../lib/_module";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
+
+export interface EffectData {
+  img: string;
+  name: string;
+  statuses: string[];
+  changes: any[];
+  duration: EffectDuration;
+  tint: string;
+  transfer: boolean;
+  disabled: boolean;
+  flags: {
+    dae: {
+      showIcon: boolean | null;
+      transfer: boolean;
+      stackable: string;
+      // armorEffect?: boolean;
+    };
+    ddbimporter: {
+      disabled: boolean;
+    };
+    "midi-qol": {
+      forceCEOff: boolean;
+    };
+    core: Record<string, unknown>;
+    [key: string]: any;
+  };
+  description?: string;
+  [key: string]: any;
+}
 
 interface EffectModules {
   daeInstalled: boolean;
@@ -84,39 +114,38 @@ export default class AutoEffects {
     return duration;
   }
 
-  static BaseEffect(document: any, name: string,
-    { transfer = true, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = false }: BaseEffectOptions = {},
-  ): any {
-    const effect: any = {
+  static BaseEffect(
+    document: any,
+    name: string,
+    {
+      transfer = true,
+      disabled = false,
+      description = null,
+      durationSeconds = null,
+      durationRounds = null,
+      durationTurns = null,
+      showIcon = false,
+    }: BaseEffectOptions = {}
+  ): EffectData {
+    const effect: EffectData = {
       img: document.img,
       name,
       statuses: [],
       changes: [],
-      duration: {},
-      // duration: {
-      //   seconds: null,
-      //   startTime: null,
-      //   rounds: null,
-      //   turns: null,
-      //   startRound: null,
-      //   startTurn: null,
-      // },
+      duration: {} as EffectDuration,
       tint: "",
       transfer,
       disabled,
-      // origin: origin,
       flags: {
         dae: {
           showIcon,
           transfer,
           stackable: "noneNameOnly",
-          // armorEffect: true
         },
         ddbimporter: {
           disabled,
         },
-        "midi-qol": { // by default force CE effect usage to off
+        "midi-qol": {
           forceCEOff: true,
         },
         core: {},
