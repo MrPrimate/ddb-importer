@@ -19,13 +19,40 @@ import {
   DDBDataUtils,
 } from "./lib/_module";
 
+export interface ResourceChoices {
+  ask: boolean;
+  type: string;
+  primary: string;
+  secondary: string;
+  tertiary: string;
+}
+
 export default class DDBCharacter {
 
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
-
-  forceCompendiumUpdate;
-
-  addToCompendiums;
+  forceCompendiumUpdate: boolean;
+  addToCompendiums: boolean;
+  characterId: string;
+  currentActor: Actor;
+  currentActorId: string | null;
+  selectResources: boolean;
+  resourceChoices: ResourceChoices;
+  resources: any[];
+  raw: { character: any; classes: any[]; spells: any[]; actions: any[]; features: any[]; race: any; inventory: any[]; itemSpells: any[]; };
+  abilities: { overrides: {}; core: {}; withEffects: {}; };
+  spellSlots: {};
+  totalLevels: number;
+  enableCompanions: boolean;
+  enableSummons: boolean;
+  private _currency: { pp: number; gp: number; ep: number; sp: number; cp: number; };
+  private _itemCurrency: { pp: number; gp: number; ep: number; sp: number; cp: number; };
+  itemCompendium: CompendiumCollection.Any;
+  spellCompendium: CompendiumCollection.Any;
+  matchedFeatures: any[];
+  armor: {};
+  possibleFeatures: any[] | Actor.Embedded.CollectionFor<"Item">;
+  proficiencyFinder: ProficiencyFinder;
+  companionFactories: any[];
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,
@@ -39,9 +66,9 @@ export default class DDBCharacter {
     // show resource selection prompt?
     this.selectResources = selectResources;
     this.resourceChoices = currentActor && foundry.utils.hasProperty(currentActor, "flags.ddbimporter.resources.type")
-      ? foundry.utils.getProperty(currentActor, "flags.ddbimporter.resources")
+      ? foundry.utils.getProperty(currentActor, "flags.ddbimporter.resources") as ResourceChoices
       : {
-        ask: game.settings.get(SETTINGS.MODULE_ID, "show-resource-chooser-default"),
+        ask: utils.getSetting<boolean>("show-resource-chooser-default"),
         type: "remove",
         primary: "",
         secondary: "",
@@ -180,7 +207,7 @@ export default class DDBCharacter {
       this.#sourceFixes();
 
       if (game.settings.get("ddb-importer", "debug-json")) {
-        FileHelper.download(JSON.stringify(this.source), `${this.characterId}-raw.json`, "application/json");
+        FileHelper.download(JSON.stringify(this.source), `${this.characterId}-${this.source.ddb.character.name}-raw.json`, "application/json");
       }
     } catch (error) {
       logger.error("JSON Fetch Error");
@@ -262,7 +289,7 @@ export default class DDBCharacter {
 
   async _generateSpells() {
     this._spellParser = new CharacterSpellFactory(this);
-    this.raw.spells.push(...await this._spellParser.generateCharacterSpells());
+    this.raw.spells.push(...(await this._spellParser.generateCharacterSpells()));
     logger.debug("Character Spells parse complete");
   }
 

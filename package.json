@@ -25,6 +25,7 @@
     "eslint": "^10.0.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.7.0",
+    "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "node-fetch": "^3.2.10",
     "prettier": "^3.8.1",
     "prettier-eslint": "^16.4.2",

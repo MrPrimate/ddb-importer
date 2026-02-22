@@ -7,6 +7,32 @@ import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
 
 export default class DDBCompanionMixin {
+  options: object;
+  block: any;
+  npc: null;
+  data: object;
+  parsed: boolean;
+  type: any;
+  subType: any;
+  rules: any;
+  useItemAC: boolean;
+  legacyName: boolean;
+  addMonsterEffects: boolean;
+  removeSplitCreatureActions: boolean;
+  removeCreatureOnlyNames: boolean;
+  addChrisPremades: boolean;
+  summons: {
+    match: { proficiency: boolean; attacks: boolean; saves: boolean; disposition: boolean; };
+    creatureSizes: any[];
+    creatureTypes: any[];
+    bonuses: { ac: string; hp: string; attackDamage: string; saveDamage: string; healing: string; };
+    profiles: any[];
+    summon: {
+      identifier: string; mode: string; // cr for cr based cusooms
+      prompt: boolean;
+    };
+  };
+  name: any;
 
   constructor(block, options = {}, {
     addMonsterEffects = false, removeSplitCreatureActions = true, removeCreatureOnlyNames = true,
@@ -235,7 +261,7 @@ export default class DDBCompanionMixin {
 
 
   /** @override */
-   
+
   async _generate() {
     // this.#generateSize();
     // this.#generateType();

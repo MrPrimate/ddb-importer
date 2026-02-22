@@ -1,3 +1,4 @@
+import { SETTINGS } from "../config/_module";
 
 const Range = function *(total = 0, step = 1, from = 0) {
   // eslint-disable-next-line no-empty
@@ -607,7 +608,7 @@ export default class Utils {
         : null;
     if (!jb2aMod) return "modules/JB2A_DnD5e";
 
-    const path = game.settings.get(jb2aMod, "jb2aLocation");
+    const path = Utils.getSetting<string>("jb2aLocation", jb2aMod);
     return `${path}/${jb2aMod}`;
   }
 
@@ -621,6 +622,11 @@ export default class Utils {
       || img.includes("systems/dnd5e/icons/svg/actors/npc.svg")
       || img.includes("systems/dnd5e/icons/svg/actors/character.svg")
       || img.includes("systems/dnd5e/icons/svg/actors/vehicle.svg");
+  }
+
+
+  static getSetting<T>(key: string, moduleId: string = SETTINGS.MODULE_ID): T {
+    return (game.settings.get as (moduleId: string, key: string) => unknown)(moduleId, key) as T;
   }
 
 }

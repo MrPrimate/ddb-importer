@@ -142,7 +142,7 @@ export default class EffectGenerator {
     });
     damageResistanceData.forEach((data) => {
       if (data.value && data.value.length > 0)
-        this.effect.changes.push(ChangeHelper.damageResistanceChange(data.value, 1));
+        this.effect.changes.push(ChangeHelper.damageResistanceChange(String(data.value), 1));
       if (data.bypass && data.bypass.length > 0)
         this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
     });

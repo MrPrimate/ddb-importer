@@ -6,6 +6,10 @@ import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactor
 import { ExternalAutomations } from "../effects/_module";
 
 export default class DDBMonster {
+  name: any;
+  npc: any;
+  abilities: any;
+  proficiencyBonus: number;
 
   setProperty(name, value) {
     if (this.overrides["name"]) {

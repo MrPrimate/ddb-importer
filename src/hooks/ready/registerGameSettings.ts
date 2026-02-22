@@ -2,58 +2,129 @@ import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 
-foundry.utils.setProperty(CONFIG, "DDBI", {
-  module: "DDB Importer",
-  schemaVersion: 5.0,
-  DICTIONARY: DICTIONARY,
-  ADVENTURE: {},
-  MACROS: {
-    spell: {},
-    gm: {},
-    item: {},
-    feat: {},
-  },
-  CAPTURED_ERRORS: [],
-  KNOWN: {
-    CHECKED_DIRS: new Set(),
-    FILES: new Set(),
-    DIRS: new Set(),
-    LOOKUPS: new Map(),
-    TOKEN_LOOKUPS: new Map(),
-    AVATAR_LOOKUPS: new Map(),
-    FORGE: {
-      TARGET_URL_PREFIX: {},
-      TARGETS: {},
+interface DDBIMacros {
+  spell: Record<string, any>;
+  gm: Record<string, any>;
+  item: Record<string, any>;
+  feat: Record<string, any>;
+}
+
+interface DDBIKnownForge {
+  TARGET_URL_PREFIX: Record<string, any>;
+  TARGETS: Record<string, any>;
+}
+
+interface DDBIKnown {
+  CHECKED_DIRS: Set<string>;
+  FILES: Set<string>;
+  DIRS: Set<string>;
+  LOOKUPS: Map<string, any>;
+  TOKEN_LOOKUPS: Map<string, any>;
+  AVATAR_LOOKUPS: Map<string, any>;
+  FORGE: DDBIKnownForge;
+}
+
+interface DDBISRDLoad {
+  mapLoaded: {
+    "2014": boolean;
+    "2024": boolean;
+  };
+  iconMap: Record<string, any>;
+  packsLoaded: Record<string, any>;
+  packs: Record<string, any>;
+}
+
+interface DDBIDev {
+  enabled: boolean;
+  clippy: Record<string, any>;
+  tableInUse: boolean;
+  deleteAllBeforeUpdate: boolean;
+}
+
+interface DDBIEffectConfigModules {
+  installedModules: any;
+  configured: boolean;
+}
+
+interface DDBIEffectConfig {
+  MODULES: DDBIEffectConfigModules;
+}
+
+interface DDBIPopups {
+  json: Window | null;
+  web: Window | null;
+}
+
+export interface DDBIConfig {
+  module: string;
+  schemaVersion: number;
+  DICTIONARY: any;
+  ADVENTURE: Record<string, any>;
+  MACROS: DDBIMacros;
+  CAPTURED_ERRORS: any[];
+  KNOWN: DDBIKnown;
+  ICONS: Record<string, any>;
+  TABLES: Record<string, any>;
+  SRD_LOAD: DDBISRDLoad;
+  DEV: DDBIDev;
+  EFFECT_CONFIG: DDBIEffectConfig;
+  POPUPS: DDBIPopups;
+}
+
+if (!(CONFIG as any).DDBI) {
+  (CONFIG as any).DDBI = {
+    module: "DDB Importer",
+    schemaVersion: 5.0,
+    DICTIONARY: DICTIONARY,
+    ADVENTURE: {},
+    MACROS: {
+      spell: {},
+      gm: {},
+      item: {},
+      feat: {},
     },
-  },
-  ICONS: {},
-  TABLES: {},
-  SRD_LOAD: {
-    mapLoaded: {
-      "2014": false,
-      "2024": false,
+    CAPTURED_ERRORS: [],
+    KNOWN: {
+      CHECKED_DIRS: new Set(),
+      FILES: new Set(),
+      DIRS: new Set(),
+      LOOKUPS: new Map(),
+      TOKEN_LOOKUPS: new Map(),
+      AVATAR_LOOKUPS: new Map(),
+      FORGE: {
+        TARGET_URL_PREFIX: {},
+        TARGETS: {},
+      },
     },
-    iconMap: {},
-    packsLoaded: {},
-    packs: {},
-  },
-  DEV: {
-    enabled: false,
-    clippy: {},
-    tableInUse: false,
-    deleteAllBeforeUpdate: false,
-  },
-  EFFECT_CONFIG: {
-    MODULES: {
-      installedModules: null,
-      configured: false,
+    ICONS: {},
+    TABLES: {},
+    SRD_LOAD: {
+      mapLoaded: {
+        "2014": false,
+        "2024": false,
+      },
+      iconMap: {},
+      packsLoaded: {},
+      packs: {},
     },
-  },
-  POPUPS: {
-    json: null,
-    web: null,
-  },
-});
+    DEV: {
+      enabled: false,
+      clippy: {},
+      tableInUse: false,
+      deleteAllBeforeUpdate: false,
+    },
+    EFFECT_CONFIG: {
+      MODULES: {
+        installedModules: null,
+        configured: false,
+      },
+    },
+    POPUPS: {
+      json: null,
+      web: null,
+    },
+  } as DDBIConfig;
+}
 
 async function createFolderPaths() {
   const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");

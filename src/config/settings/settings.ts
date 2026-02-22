@@ -97,7 +97,7 @@ const POPUPS = {
   web: null,
 };
 
-const MODULE_ID = "ddb-importer";
+const MODULE_ID = "ddb-importer" as const;
 
 function activeUpdate() {
   const tiers = PatreonHelper.calculateAccessMatrix(PatreonHelper.getPatreonTier());
@@ -110,8 +110,8 @@ function activeUpdate() {
 }
 
 const SETTINGS = {
-  MODULE_ID: "ddb-importer",
-  FLAG_NAME: "ddbimporter",
+  MODULE_ID,
+  FLAG_NAME: "ddbimporter" as const,
   MODULE_NAME: "D&D Beyond Importer",
   DICTIONARY,
   COMPENDIUMS: COMPENDIUMS,

@@ -1,35 +1,39 @@
+import { NotifierV2Props } from "../apps/DDBAppV2";
+import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { DDBCampaigns, DDBProxy, logger, PatreonHelper, Secrets } from "../lib/_module";
+import { DDBCampaigns, DDBProxy, FileHelper, logger, PatreonHelper, Secrets } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { DDBReferenceLinker } from "../parser/lib/_module";
+
+
+interface DDBMuleHandlerOptions {
+  characterId: string | null;
+  classId?: string | null;
+  sources?: number[];
+  homebrew?: boolean;
+  onlyHomebrew?: boolean;
+  type?: string | null;
+  filterIds?: number[];
+  cleanup?: boolean;
+  backgroundId?: string | null;
+  ddbMuncher?: DDBMuncher | null;
+}
 
 export default class DDBMuleHandler {
 
   static LOADING_MESSAGES = DICTIONARY.messages.loading;
-
   characterId = null;
-
   classId = null;
-
   source = null;
-
   proficiencyFinder = null;
-
   allowedSourceIds = [];
-
   allowedHomebrew = false;
-
   onlyHomebrew = false;
-
   type = null;
-
   filterIds = [];
-
   cleanup = true;
-
   backgroundId = null;
-
-  ddbMuncher = null;
+  ddbMuncher: DDBMuncher | null = null;
 
   constructor({
     characterId,
@@ -42,7 +46,7 @@ export default class DDBMuleHandler {
     cleanup = true,
     backgroundId = null,
     ddbMuncher = null,
-  } = {}) {
+  }: DDBMuleHandlerOptions) {
     if (!characterId) {
       throw new Error("characterId is required");
     }
@@ -62,13 +66,13 @@ export default class DDBMuleHandler {
     this.ddbMuncher = ddbMuncher;
   }
 
-   
+
   async _init() {
     await DDBReferenceLinker.importCacheLoad();
     await this._fetchMuleData();
   }
 
-  notifier({ progress, section, message } = { }) {
+  notifier({ progress, section, message }: NotifierV2Props) {
     // Notify the user about the import progress
     if (progress) {
       const builtMessage = `${progress.current}/${progress.total} : ${message}`;

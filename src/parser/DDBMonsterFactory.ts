@@ -16,6 +16,7 @@ import { DDBReferenceLinker } from "./lib/_module";
 
 
 export default class DDBMonsterFactory {
+  source: any;
 
   static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
