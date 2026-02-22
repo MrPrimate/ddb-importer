@@ -24,6 +24,28 @@ declare global {
     }
   }
 
+  interface PartialSettingConfig {
+    name?: string;
+    hint?: string;
+    scope?: string;
+    config?: boolean;
+    type: any;
+    choices?: Record<string, string>;
+    default: any;
+    onChange?: (value: any) => void;
+    requiresReload?: boolean;
+    filePicker?: string;
+    [key: string]: any;
+  }
+
+  interface CompleteSettingConfig extends PartialSettingConfig {
+    scope: string;
+    config: boolean;
+  }
+
+  type SettingsRecord = Record<string, PartialSettingConfig>;
+  type RegisteredSettingsRecord = Record<string, CompleteSettingConfig>;
+
   // D&D 5e system global
   const dnd5e: any;
 

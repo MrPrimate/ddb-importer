@@ -1,4 +1,4 @@
-import { PatreonHelper } from "../../lib/_module";
+import { PatreonHelper, utils } from "../../lib/_module";
 import { COMPENDIUM_REMOVE_FLAGS, COMPENDIUMS, FOUNDRY_COMPENDIUM_LOOKUPS, FOUNDRY_COMPENDIUM_MAP, SRD_COMPENDIUM_LOOKUPS } from "./compendiums/compendiums";
 import DICTIONARY from "../dictionary/dictionary";
 
@@ -103,8 +103,8 @@ function activeUpdate() {
   const tiers = PatreonHelper.calculateAccessMatrix(PatreonHelper.getPatreonTier());
   const available = tiers.god || tiers.undying || tiers.experimentalMid;
   if (!available) return false;
-  const dynamicSync = game.settings.get(MODULE_ID, "dynamic-sync");
-  const updateUser = game.settings.get(MODULE_ID, "dynamic-sync-user");
+  const dynamicSync = utils.getSetting<boolean>("dynamic-sync");
+  const updateUser = utils.getSetting<string>("dynamic-sync-user");
   const gmSyncUser = game.user.isGM && game.user.id == updateUser;
   return dynamicSync && gmSyncUser;
 }
@@ -1301,11 +1301,12 @@ const SETTINGS = {
       },
     },
   },
-  APPLY_GLOBAL_DEFAULTS(settings) {
+  APPLY_GLOBAL_DEFAULTS(settings: SettingsRecord): RegisteredSettingsRecord {
+    const result: RegisteredSettingsRecord = {};
     for (const [name, data] of Object.entries(settings)) {
-      settings[name] = foundry.utils.mergeObject({ scope: "world", config: false }, data);
+      result[name] = foundry.utils.mergeObject({ scope: "world", config: false }, data) as CompleteSettingConfig;
     }
-    return settings;
+    return result;
   },
   GET_DEFAULT_SETTINGS(early = false) {
     const clone = foundry.utils.deepClone(SETTINGS.DEFAULT_SETTINGS);
