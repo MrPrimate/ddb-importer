@@ -1,12 +1,15 @@
 import { logger, utils } from "../../../lib/_module";
-import AutoEffects from "./AutoEffects";
+import AutoEffects, { EffectData } from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
 import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
+import { DDBCharacterData } from "../../../types/ddb-character-source";
 
 export default class EffectGenerator {
+  effect: EffectData;
+  ddb: DDBCharacterData;
 
   _generateDataStub() {
     this.effect = AutoEffects.BaseEffect(this.document, `${this.label} ${this.labelSuffix}`.trim());
@@ -141,8 +144,15 @@ export default class EffectGenerator {
         this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
     });
     damageResistanceData.forEach((data) => {
-      if (data.value && data.value.length > 0)
-        this.effect.changes.push(ChangeHelper.damageResistanceChange(String(data.value), 1));
+      if (data.value && data.value.length > 0) {
+        if (Array.isArray(data.value)) {
+          data.value.forEach((damageType) => {
+            this.effect.changes.push(ChangeHelper.damageResistanceChange(damageType, 1));
+          });
+        } else {
+          this.effect.changes.push(ChangeHelper.damageResistanceChange(data.value, 1));
+        }
+      }
       if (data.bypass && data.bypass.length > 0)
         this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
     });
