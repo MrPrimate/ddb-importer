@@ -9,6 +9,7 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
+import type { DDBCharacterResponse } from "../types/ddb-character-source";
 import CharacterClassFactory from "./classes/CharacterClassFactory";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory";
@@ -41,6 +42,7 @@ export interface DDBCharacterImportOptions {
 
 export default class DDBCharacter {
 
+  source: DDBCharacterResponse | null;
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
   forceCompendiumUpdate: boolean;
   addToCompendiums: boolean;
