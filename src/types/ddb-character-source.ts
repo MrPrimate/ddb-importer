@@ -655,3 +655,78 @@ export interface DDBCharacterData {
   // Decorations (character-level, distinct from top-level decorations)
   decorations: DDBDecorations;
 }
+
+
+
+// CONFIG interfaces
+
+export interface DDBConfig {
+  armor: { id: number; entityTypeId: number; name: string; categoryId: number }[];
+  tools: { id: number; name: string }[];
+  weapons: { id: number; entityTypeId: number; name: string; categoryId: number }[];
+  languages: { id: number; name: string }[];
+  restoreTypes: { id: number; name: string; description: string }[];
+  raceGroups: { id: number; name: string; avatarUrl: string | null }[];
+  spellRangeTypes: { id: number; name: string }[];
+  adjustmentDataTypes: { id: number; name: string }[];
+  coverTypes: { type: string; name: string }[];
+  spellConditionTypes: { id: number; name: string }[];
+  rangeTypes: { id: number; name: string }[];
+  damageTypes: { id: number; name: string }[];
+  privacyTypes: { id: number; name: string }[];
+  sharingTypes: { id: number; name: string }[];
+  abilityScoreDisplayTypes: { id: number; name: string }[];
+  stealthCheckTypes: { id: number; name: string }[];
+  conditionTypes: { id: number; name: string }[];
+  operators: { id: number; name: string }[];
+  monsterSubTypes: { id: number; name: string }[];
+  creatureGroupFlags: { id: number; name: string; key: string; value: any; valueContextId: number | null }[];
+  monsterTypes: { pluralizedName: string; avatarUrl: string; id: number; name: string; description: string }[];
+  challengeRatings: { id: number; value: number; proficiencyBonus: number; xp: number }[];
+  creatureGroups: any[];
+  creatureGroupCategories: { id: number; name: string }[];
+  environments: { id: number; name: string }[];
+  armorTypes: { id: number; name: string }[];
+  gearTypes: { id: number; name: string }[];
+  naturalActions: any[];
+  adjustmentTypes: any[];
+  weaponCategories: { id: number; entityTypeId: number; name: string }[];
+  spellComponents: any[];
+  activationTypes: any[];
+  basicActions: any[];
+  rules: any[];
+  lifestyles: any[];
+  conditions: any[];
+  damageAdjustments: any[];
+  weaponProperties: any[];
+  aoeTypes: any[];
+  additionalLevelTypes: {
+    id: number;
+    name: string;
+    prerequisite: string | null;
+    description: string;
+    requiredLevel: number | null;
+    displayOrder: number | null;
+  }[];
+  statModifiers: { value: number; modifier: number }[];
+  alignments: {
+    id: number;
+    name: string;
+    description: string;
+    availableToCharacter: boolean;
+  }[];
+  sources: {
+    id: number;
+    name: string;
+    description: string;
+    sourceCategoryId: number;
+    isReleased: boolean;
+    avatarURL: string;
+    sourceURL: string;
+  }[];
+  levelProficiencyBonuses: {
+    level: number;
+    bonus: number;
+  }[];
+
+}
