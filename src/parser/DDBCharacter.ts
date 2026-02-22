@@ -67,6 +67,7 @@ export default class DDBCharacter {
   possibleFeatures: any[] | Actor.Embedded.CollectionFor<"Item">;
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
+  isMuncher: boolean;
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,

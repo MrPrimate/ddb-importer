@@ -2,6 +2,7 @@ node_modules/
 .vscode/
 /dist/
 diff-folder/
+diff/
 
 yarn-error.log
 

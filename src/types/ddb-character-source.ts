@@ -283,27 +283,53 @@ export interface DDBClassDefinition {
   definitionKey: string;
   name: string;
   description: string;
-  equipmentDescription: string;
+  equipmentDescription: string | null;
   parentClassId: number | null;
   slug: string;
-  avatarUrl: string;
-  largeAvatarUrl: string;
-  portraitAvatarUrl: string;
+  avatarUrl: string | null;
+  largeAvatarUrl: string | null;
+  portraitAvatarUrl: string | null;
   moreDetailsUrl: string;
   spellCastingAbilityId: number;
   sources: DDBSource[];
   classFeatures: any[];
   hitDice: number;
-  wealthDice: DDBWealthDice;
+  wealthDice: DDBWealthDice | null;
   canCastSpells: boolean;
   knowsAllSpells: boolean;
   spellPrepareType: number | null;
-  spellCastingLearningStyle: number;
+  spellCastingLearningStyle: number | null;
   spellContainerName: string | null;
   sourcePageNumber: number;
-  subclassDefinition: any | null;
+  subclassDefinition: DDBClassDefinition | null;
   isHomebrew: boolean;
-  primaryAbilities: any[];
+  primaryAbilities: any[] | null;
+  // Card / UI fields
+  cardDescription: string | null;
+  cardEyebrow: string | null;
+  cardHeading: string | null;
+  tagline: string | null;
+  subclassTagline: string | null;
+  subclassFlavorText: string | null;
+  classFantasy: string | null;
+  color: any | null;
+  complexity: number | null;
+  highlights: string | null;
+  iconicGear: string | null;
+  // Image URLs
+  desktopCardBackgroundAvatarUrl: string | null;
+  desktopCardBannerAvatarUrl: string | null;
+  desktopCardForegroundAvatarUrl: string | null;
+  mobileCardBackgroundAvatarUrl: string | null;
+  mobileCardBannerAvatarUrl: string | null;
+  mobileCardForegroundAvatarUrl: string | null;
+  detailsBackgroundAvatarUrl: string | null;
+  detailsForegroundAvatarUrl: string | null;
+  iconAvatarUrl: string | null;
+  iconicGearAvatarUrl: string | null;
+  // Spell rules
+  spellRules: any | null;
+  prerequisites: any[] | null;
 }
 
 export interface DDBClassFeature {
@@ -320,7 +346,7 @@ export interface DDBClass {
   definitionId: number;
   subclassDefinitionId: number | null;
   definition: DDBClassDefinition;
-  subclassDefinition: any | null;
+  subclassDefinition: DDBClassDefinition | null;
   classFeatures: DDBClassFeature[];
 }
 

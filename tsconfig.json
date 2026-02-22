@@ -11,7 +11,7 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "types": [
-      "@league-of-foundry-developers/foundry-vtt-types"
+      "@league-of-foundry-developers/foundry-vtt-types",
     ],
     "paths": {
       "@client/*": ["./foundry/client/*"],
