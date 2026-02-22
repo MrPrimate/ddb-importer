@@ -89,7 +89,7 @@ export default class DDBItemImporter {
     this.totalDocuments = this._documents?.length ?? 0;
   }
 
-  async buildIndex(indexFilter: CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName>) {
+  async buildIndex(indexFilter: CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName> = {}) {
     const flagSet = new Set(indexFilter.fields ?? []);
     if (!flagSet.has("flags.ddbimporter")) {
       for (const flagMatch of this.matchFlags) {
