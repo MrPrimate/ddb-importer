@@ -8,6 +8,15 @@ import {
 } from "./_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
+import { NotifierV1Props } from "../apps/DDBAppV2";
+
+interface DDBItemImporterOptions {
+  matchFlags?: string[];
+  deleteBeforeUpdate?: boolean | null;
+  indexFilter?: { fields: string[] } | null;
+  useCompendiumFolders?: boolean | null;
+  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+}
 
 export default class DDBItemImporter {
 
@@ -18,15 +27,32 @@ export default class DDBItemImporter {
       "flags.ddbimporter.is2024",
       "flags.ddbimporter.dndbeyond.alternativeNames",
     ],
-  };
+  } as CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName>;
 
-  constructor(type, documents, {
+  type: string;
+  _documents: object[];
+  useCompendiumFolders: boolean;
+  matchFlags: string[];
+  compendium: CompendiumCollection.Any;
+  compendiumIndex: IndexTypeForMetadata<CompendiumCollection.DocumentName> | null;
+  indexFilter: CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName>; // { fields?: string[]; };
+  results: any[];
+  deleteBeforeUpdate: boolean;
+  deleteAllBeforeUpdate: boolean;
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  totalDocuments: number;
+  currentDocumentCount: number;
+  compendiumFolders: DDBCompendiumFolders;
+  srdImageLibrary2014: boolean;
+  srdImageLibrary2024: boolean;
+
+  constructor(type: string, documents: object[], {
     matchFlags = [],
     deleteBeforeUpdate = null,
     indexFilter = null,
     useCompendiumFolders = null,
     notifier = null,
-  } = {}) {
+  }: DDBItemImporterOptions = {}) {
     this.type = type;
     this._documents = documents;
     this.useCompendiumFolders = useCompendiumFolders ?? true;
@@ -39,8 +65,8 @@ export default class DDBItemImporter {
 
     this.results = [];
 
-    this.deleteBeforeUpdate = deleteBeforeUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-delete-during-update");
-    this.deleteAllBeforeUpdate = foundry.utils.getProperty(CONFIG, "DDBI.DEV.deleteAllBeforeUpdate") ?? false;
+    this.deleteBeforeUpdate = deleteBeforeUpdate ?? utils.getSetting<boolean>("munching-policy-delete-during-update");
+    this.deleteAllBeforeUpdate = foundry.utils.getProperty(CONFIG, "DDBI.DEV.deleteAllBeforeUpdate") as boolean ?? false;
     this.notifier = notifier;
 
     if (!notifier) {
@@ -51,9 +77,7 @@ export default class DDBItemImporter {
     this.totalDocuments = this._documents?.length ?? 0;
     this.currentDocumentCount = 0;
 
-    this.compendiumFolders = new DDBCompendiumFolders(this.type, {
-      noCreateClassFolders: true,
-    });
+    this.compendiumFolders = new DDBCompendiumFolders(this.type);
   }
 
   get documents() {
@@ -65,7 +89,7 @@ export default class DDBItemImporter {
     this.totalDocuments = this._documents?.length ?? 0;
   }
 
-  async buildIndex(indexFilter = {}) {
+  async buildIndex(indexFilter: CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName>) {
     const flagSet = new Set(indexFilter.fields ?? []);
     if (!flagSet.has("flags.ddbimporter")) {
       for (const flagMatch of this.matchFlags) {
@@ -74,7 +98,7 @@ export default class DDBItemImporter {
     }
     this.indexFilter = indexFilter;
     this.indexFilter.fields = Array.from(flagSet);
-    this.compendiumIndex = await this.compendium.getIndex(this.indexFilter);
+    this.compendiumIndex = await this.compendium.getIndex(this.indexFilter as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>);
   }
 
   async init() {
@@ -128,7 +152,7 @@ export default class DDBItemImporter {
   }
 
 
-   
+
   static updateCharacterItemFlags(itemData, replaceData) {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
@@ -539,13 +563,13 @@ ${item.system.description.chat}
     });
   }
 
-   
+
   async useSRDMonsterImages() {
     if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
     await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 
-     
+
     for (const monster of this.documents) {
       logger.debug(`Checking ${monster.name} for srd images`);
       const srdImageLibrary = foundry.utils.getProperty(monster, "flags.ddbimporter.is2014") ? this.srdImageLibrary2014 : this.srdImageLibrary2024;

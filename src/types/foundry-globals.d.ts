@@ -11,6 +11,18 @@ import { DDBIConfig } from "../hooks/ready/registerGameSettings";
 export {};
 
 declare global {
+
+  type IndexTypeForMetadata<Type extends CompendiumCollection.DocumentName> = foundry.utils.Collection<
+    CompendiumCollection.IndexEntry<Type>
+  >;
+
+  declare namespace CompendiumCollection {
+    interface ExtendedGetIndexOptions<T extends CompendiumCollection.DocumentName>
+      extends GetIndexOptions<T> {
+      fields?: string[];
+    }
+  }
+
   // D&D 5e system global
   const dnd5e: any;
 

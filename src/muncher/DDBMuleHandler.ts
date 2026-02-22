@@ -133,6 +133,7 @@ export default class DDBMuleHandler {
       const jsonResponse = await response.json();
       if (jsonResponse.success) {
         this.source = jsonResponse.data;
+        // FileHelper.download(JSON.stringify(jsonResponse.data), `RAW-${this.characterId}-${this.type}-${this.filterIds.join("_")}-${this.allowedSourceIds.join("_")}.json`, "application/json");
       } else {
         logger.error(jsonResponse);
         throw new Error(`Mule fetch failed: ${jsonResponse.message}`);
@@ -235,6 +236,7 @@ export default class DDBMuleHandler {
           isMuncher: true,
         });
         ddbCharacter.source = { ddb: newStub };
+        // FileHelper.download(JSON.stringify(newStub), `${this.characterId}-${classCurrent}-${subClassData.debug.subclassName}-${current}.json`, "application/json");
         await ddbCharacter.process();
       }
     }

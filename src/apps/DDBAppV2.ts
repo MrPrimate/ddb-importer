@@ -7,6 +7,13 @@ import { DDBReferenceLinker } from "../parser/lib/_module";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+export interface NotifierV1Props {
+  nameField?: boolean;
+  monsterNote?: boolean;
+  isError?: boolean;
+  message?: string;
+}
+
 export interface NotifierV2Props {
   progress?: {
     current: number;
@@ -22,7 +29,7 @@ export interface NotifierV2Props {
 
 export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
 
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: { nameField?: boolean; monsterNote?: boolean; isError?: boolean; message?: any; }) => void;
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
   constructor() {
     super();

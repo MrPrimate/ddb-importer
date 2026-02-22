@@ -27,6 +27,18 @@ export interface ResourceChoices {
   tertiary: string;
 }
 
+export interface DDBCharacterImportOptions {
+  currentActor?: Actor;
+  characterId?: string;
+  selectResources?: boolean;
+  enableCompanions?: boolean;
+  isMuncher?: boolean;
+  enableSummons?: boolean;
+  addToCompendiums?: boolean;
+  compendiumImportTypes?: string[];
+  forceCompendiumUpdate?: boolean;
+}
+
 export default class DDBCharacter {
 
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
@@ -56,8 +68,8 @@ export default class DDBCharacter {
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,
-    enableSummons = false, addToCompendiums = null, compendiumImportTypes, forceCompendiumUpdate,
-  } = {}) {
+    enableSummons = false, addToCompendiums = null, compendiumImportTypes = null, forceCompendiumUpdate = null,
+  }: DDBCharacterImportOptions = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
     this.currentActorId = currentActor?.id;

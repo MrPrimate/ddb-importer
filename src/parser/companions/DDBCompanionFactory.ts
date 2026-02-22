@@ -14,14 +14,50 @@ import { DICTIONARY } from "../../config/_module";
 import { getFindFamiliarActivityData } from "./types/FindFamiliar";
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterImporter from "../../muncher/DDBMonsterImporter";
+import { DDBCompanionSummonsProp } from "./DDBCompanionMixin";
+import { NotifierV1Props } from "../../apps/DDBAppV2";
 
+interface DDBCompanionFactoryOptions {
+  originDocument?: any;
+  is2014?: boolean;
+  is2024?: boolean;
+  notifier?: any;
+  actor?: any;
+  data?: any;
+  folderHint?: string;
+  createCompanions?: boolean;
+  updateCompanions?: boolean;
+  updateImages?: boolean;
+  noCompendiums?: boolean;
+  type?: string;
+}
 
 export default class DDBCompanionFactory {
+  options: DDBCompanionFactoryOptions;
+  doc: Document;
+  html: string;
+  folderIds: Set<string>;
+  createCompanions: boolean;
+  updateCompanions: boolean;
+  updateImages: boolean;
+  results: { created: any[]; updated: any[]; };
+  is2014: boolean;
+  is2024: boolean;
+  badSummons: boolean;
+  noCompendiums: boolean;
+  indexFilter: { fields: string[]; };
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  summonsManager: DDBSummonsManager
+  itemHandler: DDBItemImporter | null;
+  companions: (DDBCompanion2014 | DDBCompanion2024)[];
+  originName: string;
+  summons: DDBCompanionSummonsProp | null;
 
-  constructor(html, options = {}) {
+  constructor(html: string, options: DDBCompanionFactoryOptions = {}) {
     const defaultOptions = {
       originDocument: null,
       is2014: null,
+      is2024: null,
       notifier: null,
       actor: null,
       data: null,

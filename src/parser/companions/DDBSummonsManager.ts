@@ -35,6 +35,8 @@ export default class DDBSummonsManager {
     },
   };
 
+  itemHandler: DDBItemImporter;
+
   constructor({ ddbData, notifier = null } = {}) {
     this.ddbData = ddbData;
     this.indexFilter = { fields: [
