@@ -8,10 +8,10 @@ import DDBFeatureMixin from "./DDBFeatureMixin";
 
 export default class DDBFeature extends DDBFeatureMixin {
 
-  advancementHelper: AdvancementHelper;
-  isChoiceFeature: boolean;
-  include: boolean;
-  hasRequiredLevel: boolean;
+  declare advancementHelper: AdvancementHelper;
+  declare isChoiceFeature: boolean;
+  declare include: boolean;
+  declare hasRequiredLevel: boolean;
 
   static DOC_TYPE = {
     class: "feat", // class feature
@@ -413,9 +413,7 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
   _generateSkillAdvancements() {
-    const mods = this.advancementHelper.noMods
-      ? []
-      : DDBModifiers.getModifiers(this.ddbData, this.type);
+    const mods = DDBModifiers.getModifiers(this.ddbData, this.type);
     const skillExplicitMods = mods.filter((mod) =>
       mod.type === "proficiency"
       && DICTIONARY.actor.skills.map((s) => s.subType).includes(mod.subType),
@@ -429,18 +427,14 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
   _generateLanguageAdvancements() {
-    const mods = this.advancementHelper.noMods
-      ? []
-      : DDBModifiers.getModifiers(this.ddbData, this.type);
+    const mods = DDBModifiers.getModifiers(this.ddbData, this.type);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, this.ddbDefinition, 0);
     this._addAdvancement(advancement);
   }
 
   _generateToolAdvancements() {
-    const mods = this.advancementHelper.noMods
-      ? []
-      : DDBModifiers.getModifiers(this.ddbData, this.type);
+    const mods = DDBModifiers.getModifiers(this.ddbData, this.type);
     const advancement = this.advancementHelper.getToolAdvancement({
       mods: mods,
       feature: this.ddbDefinition,

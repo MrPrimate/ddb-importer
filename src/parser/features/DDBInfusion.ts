@@ -18,6 +18,7 @@ import { DDBTemplateStrings, DDBReferenceLinker, DDBModifiers, DDBDataUtils, Sys
 
 
 export class DDBInfusion {
+  ddbData: IDDBData;
 
   _init() {
     logger.debug(`Generating Infusion Feature ${this.ddbInfusion.name}`);

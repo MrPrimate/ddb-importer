@@ -18,6 +18,10 @@ function htmlToText(html) {
 }
 
 export default class AdvancementHelper {
+  isMuncher: boolean;
+  ddbData: IDDBData;
+  type: string;
+  isSubclass: boolean;
 
   constructor({ ddbData, type, dictionary = null, isMuncher = false, isSubclass = false }) {
     this.ddbData = ddbData;

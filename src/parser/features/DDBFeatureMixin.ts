@@ -56,14 +56,10 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   // Properties set in constructor / _init / _prepare
   ddbCharacter: DDBCharacter | null;
-  ddbData: IDDBData;
   name: string;
   originalName: string;
-  type: string;
   isMuncher: boolean;
-  activityType: string | null;
   identifier: string;
-  documentType: string;
   legacy: boolean;
   is2014: boolean;
   is2024: boolean;
@@ -533,7 +529,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   }
 
-   
+
   _generateLimitedUse() {
     const uses = DDBDataUtils.getLimitedUses({
       data: this.ddbDefinition.limitedUse,
@@ -757,7 +753,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-   
+
   getActionAttackAbility() {
     return "";
   }
@@ -867,7 +863,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     DDBDataUtils.addCustomValues(this.ddbData, this.data);
   }
 
-   
+
   static getFeatureSubtype(name: string, type: string, includePartial: boolean = true, categories = null) {
     if (type === "class") {
       if (name === "Ki") return "ki";
@@ -927,7 +923,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return null;
   }
 
-   
+
   _generateSystemSubType() {
     const subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, this.ddbDefinition.categories);
     if (subType) {
@@ -1009,7 +1005,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
-   
+
   _getActivitiesType() {
     if (this.isSummons) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
@@ -1091,7 +1087,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     return activity;
   }
 
-   
+
   build() {
     // override this feature
     return false;

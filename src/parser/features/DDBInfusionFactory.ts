@@ -1,9 +1,12 @@
 import { logger } from "../../lib/_module";
+import DDBCharacter from "../DDBCharacter";
 import { DDBInfusion } from "./DDBInfusion";
 
 export class DDBInfusionFactory {
+  ddbCharacter: DDBCharacter;
+  ddbData: IDDBData;
 
-  constructor(ddbCharacter) {
+  constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
     this.rawCharacter = ddbCharacter.raw.character;

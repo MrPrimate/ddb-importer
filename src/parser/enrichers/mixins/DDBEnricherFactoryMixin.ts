@@ -7,15 +7,10 @@ import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_modul
 export default class DDBEnricherFactoryMixin {
 
   NAME_HINTS_2014: Record<string, string> = {};
-
   NAME_HINT_2014_INCLUDES: Record<string, string> = {};
-
   NAME_HINTS: Record<string, string> = {};
-
   NAME_HINT_INCLUDES: Record<string, string> = {};
-
   ENRICHERS: Record<string, any> = {};
-
   FALLBACK_ENRICHERS: Record<string, any> = {};
 
   ddbParser: any;
@@ -29,7 +24,7 @@ export default class DDBEnricherFactoryMixin {
   effectType: string;
   enricherType: string;
   fallbackEnricher: string | null;
-  manager: any;
+  manager: DDBSummonsManager;
   loadedEnricher: any;
   _originalActivity: any;
   notifier: any;
