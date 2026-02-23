@@ -21,6 +21,7 @@
     "@eslint/js": "^10.0.1",
     "@league-of-foundry-developers/foundry-vtt-types": "^13.346.0-beta.20250812191140",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "dnd5e": "github:adriangaro/dnd5e-types#5.0.x",
     "esbuild": "^0.27.3",
     "eslint": "^10.0.1",
     "eslint-config-prettier": "^10.1.8",

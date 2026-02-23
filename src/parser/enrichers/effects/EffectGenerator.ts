@@ -1,5 +1,5 @@
 import { logger, utils } from "../../../lib/_module";
-import AutoEffects, { EffectData } from "./AutoEffects";
+import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
 import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module";

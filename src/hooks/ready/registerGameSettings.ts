@@ -1,5 +1,5 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module";
-import { FileHelper } from "../../lib/_module";
+import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 
 interface DDBIMacros {
@@ -127,12 +127,12 @@ if (!(CONFIG as any).DDBI) {
 }
 
 async function createFolderPaths() {
-  const characterUploads = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
-  const otherUploads = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory");
-  const frameUploads = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory");
-  const adventureUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
-  const iconUploads = game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path");
-  const persistentUploads = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location");
+  const characterUploads = utils.getSetting<string>("image-upload-directory");
+  const otherUploads = utils.getSetting<string>("other-image-upload-directory");
+  const frameUploads = utils.getSetting<string>("frame-image-upload-directory");
+  const adventureUploads = utils.getSetting<string>("adventure-upload-path");
+  const iconUploads = utils.getSetting<string>("adventure-misc-path");
+  const persistentUploads = utils.getSetting<string>("persistent-storage-location");
 
   for (const path of [
     characterUploads,
@@ -170,23 +170,23 @@ export default async function () {
     label: `${SETTINGS.MODULE_ID}.settings.setup.name`,
     hint: `${SETTINGS.MODULE_ID}.settings.setup.hint`,
     icon: 'fas fa-wrench',
-    type: DDBSetup,
+    type: DDBSetup as any,
     restricted: true,
   });
 
   for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS())) {
-    game.settings.register(SETTINGS.MODULE_ID, name, data);
+    game.settings.register(SETTINGS.MODULE_ID, name as any, data as any);
   }
 
   // SETTING TWEAKS AND MIGRATIONS
   await createFolderPaths();
 
   if (game.user.isGM && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local")
-    && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie") != "") {
+    && utils.getSetting<string>("cobalt-cookie") != "") {
     game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
   }
 
-  const currentDynamicSyncUser = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user");
+  const currentDynamicSyncUser = utils.getSetting<string>("dynamic-sync-user");
   if (currentDynamicSyncUser !== "" && !game.users.some((i) => i.isGM && i.id === currentDynamicSyncUser)) {
     if (game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync")) {
       await game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", game.user.id);
