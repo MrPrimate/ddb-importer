@@ -13,7 +13,6 @@
     "types": [
       "@league-of-foundry-developers/foundry-vtt-types",
       "dnd5e/dnd5e/dnd5e.d.mts",
-      "**/*.d.ts",
     ],
     "paths": {
       "@client/*": ["./foundry/client/*"],

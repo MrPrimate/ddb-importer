@@ -9,6 +9,7 @@ global {
         ignoreSelf?: boolean;
       }
       dnd5e?: {
+        exhaustionLevel?: number;
         dependents?: {
           uuid: string;
         }[];

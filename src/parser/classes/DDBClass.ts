@@ -15,27 +15,16 @@ import DDBFeatureMixin from '../features/DDBFeatureMixin';
 export default class DDBClass {
 
   addToCompendium = null;
-
   compendiumImportTypes = ["classes", "subclasses"];
-
   updateCompendiumItems = null;
-
   rules = "2014";
-
   name;
-
   className;
-
   isMuncher = false;
-
   isSubClass = false;
-
   choiceMap = new Map();
-
   featureAdvancementUuids = new Set();
-
   spellLinks = [];
-
   configChoices = {};
 
   _indexFilter = {

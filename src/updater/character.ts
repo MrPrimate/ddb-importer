@@ -83,7 +83,7 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
   const parsingApi = dynamicSync
     ? DDBProxy.getDynamicProxy()
     : DDBProxy.getProxy();
-  const useCharacterKey = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+  const useCharacterKey = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") as boolean ?? false;
   const betaKey = PatreonHelper.getPatreonKey(useCharacterKey);
   const campaignId = DDBCampaigns.getCampaignId();
   const proxyCampaignId = campaignId === "" ? null : campaignId;
@@ -174,7 +174,7 @@ async function spellSlotsPact(actor, ddbCharacter) {
     ) {
       resolve(updateDDBSpellSlotsPact(actor));
     } else {
-      resolve();
+      resolve({});
     }
   });
 }
@@ -193,7 +193,7 @@ async function updateDynamicDDBSpellSlots(actor, update) {
     if (spellSlotData["update"]) {
       resolve(updateCharacterCall(actor, "spells/slots", spellSlotData, "Spell slots"));
     } else {
-      resolve();
+      resolve({});
     }
   });
 }
@@ -214,7 +214,7 @@ async function spellSlots(actor, ddbCharacter) {
     if (spellSlotData["update"]) {
       resolve(updateCharacterCall(actor, "spells/slots", spellSlotData, "Spell slots"));
     } else {
-      resolve();
+      resolve({});
     }
   });
 }
@@ -236,7 +236,7 @@ async function updateDDBCurrency(actor) {
 
 async function currency(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")) resolve();
+    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")) resolve({});
 
     const value = {
       pp: Number.isInteger(actor.system.currency.pp) ? actor.system.currency.pp : 0,
@@ -249,9 +249,9 @@ async function currency(actor, ddbCharacter) {
     const same = isEqual(ddbCharacter._currency, value);
 
     if (!same) {
-      resolve(updateCharacterCall(actor, "currency", value));
+      resolve(updateCharacterCall(actor, "currency", value, "Currency"));
     } else {
-      resolve();
+      resolve({});
     }
 
   });
@@ -300,7 +300,7 @@ async function xp(actor, ddbCharacter) {
     if (!same) {
       resolve(updateDDBXP(actor));
     } else {
-      resolve();
+      resolve({});
     }
   });
 }
@@ -366,7 +366,7 @@ async function inspiration(actor, ddbCharacter) {
     if (!same) {
       resolve(updateDDBInspiration(actor));
     } else {
-      resolve();
+      resolve({});
     }
   });
 }
@@ -389,13 +389,13 @@ async function updateDDBExhaustion(actor) {
 
 async function exhaustion(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition")) resolve();
+    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition")) resolve({});
     const same = ddbCharacter.data.character.system.attributes.exhaustion === actor.system.attributes.exhaustion;
 
     if (!same) {
       resolve(updateDDBExhaustion(actor));
     } else {
-      resolve();
+      resolve({});
     }
 
   });
@@ -446,10 +446,10 @@ async function deathSaves(actor, ddbCharacter) {
       if (!same) {
         resolve(updateDDBDeathSaves(actor));
       } else {
-        resolve();
+        resolve({});
       }
     } else {
-      resolve();
+      resolve({});
     }
   });
 }
@@ -464,7 +464,7 @@ async function updateDDBHitDice(actor, klass, update) {
       hitDiceData.classHitDiceUsed[klass.flags.ddbimporter.id] = update.system.hd.spent;
       resolve(updateCharacterCall(actor, "hitdice", { shortRest: hitDiceData }, "Hit Dice"));
     } else {
-      resolve();
+      resolve({});
     }
   });
 }
@@ -496,7 +496,7 @@ async function hitDice(actor, ddbCharacter) {
       resolve(updateCharacterCall(actor, "hitdice", { shortRest: hitDiceData }));
     }
 
-    resolve();
+    resolve({});
   });
 }
 
@@ -601,10 +601,10 @@ function generateItemsToAdd(actor, itemsToAdd) {
     if (item.flags.ddbimporter?.definitionId && item.flags.ddbimporter?.definitionEntityTypeId) {
       const containerItem = getValidContainer(actor, foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId"));
       const containerEntityId = containerItem
-        ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.id"))
+        ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.id") as string)
         : characterId;
       const containerEntityTypeId = containerItem && containerEntityId !== characterId
-        ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.entityTypeId"))
+        ? parseInt(foundry.utils.getProperty(containerItem, "flags.ddbimporter.entityTypeId") as string)
         : parseInt("1581111423");
       results.toAdd.push({
         containerEntityId,
@@ -674,10 +674,10 @@ async function addDDBCustomItems(actor, itemsToAdd) {
   for (let i = 0; i < itemsToAdd.length; i++) {
     const item = itemsToAdd[i];
     const containerEntityId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-      ? parseInt(item.flags.ddbimporter.containerEntityId)
+      ? parseInt(item.flags.ddbimporter.containerEntityId as string)
       : parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
     const containerEntityTypeId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityTypeId")
-      ? parseInt(item.flags.ddbimporter.containerEntityTypeId)
+      ? parseInt(item.flags.ddbimporter.containerEntityTypeId as string)
       : parseInt("1581111423");
     const customData = {
       itemState: "NEW",
@@ -952,7 +952,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
   itemsToMove.forEach((item) => {
     const characterId = parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
     const containerEntityTypeId = foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-      && parseInt(item.flags.ddbimporter.containerEntityId) === parseInt(characterId)
+      && parseInt(item.flags.ddbimporter.containerEntityId as string) === characterId
       ? parseInt("1581111423") // default to character inventory
       : parseInt(item.flags.ddbimporter.containerEntityTypeId);
 
@@ -1090,7 +1090,7 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
     ),
   );
   const itemsToAttune = foundryItems.filter((item) =>
-    ["optional", "required"].includes(foundry.utils.getProperty(item, "system.attunement"))
+    ["optional", "required"].includes(foundry.utils.getProperty(item, "system.attunement") as string)
     && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.action")
     && !foundry.utils.getProperty(item, "flags.ddbimporter.custom")
@@ -1344,7 +1344,7 @@ export async function updateDDBCharacter(actor) {
   try {
     CONFIG.DDBI.ignoreEnrichedImages = true;
     CONFIG.DDBI.keyPostfix = actor.id;
-    CONFIG.DDBI.useLocal = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+    CONFIG.DDBI.useLocal = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") as boolean ?? false;
     const results = await _updateDDBCharacter(actor);
     delete CONFIG.DDBI.ignoreEnrichedImages;
     delete CONFIG.DDBI.keyPostfix;

@@ -8,7 +8,6 @@ import {
   DDBProxy,
   CompendiumHelper,
 } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
 import CharacterClassFactory from "./classes/CharacterClassFactory";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory";
@@ -106,8 +105,8 @@ export default class DDBCharacter {
       inventory: [],
       itemSpells: [],
     };
-    // the data to act on following initial parse
-    this.data = {};
+    // set character data to empty
+    this.data = {} as dnd5e.dataModels.actor.CharacterData;
 
     // Character data
     this.abilities = {

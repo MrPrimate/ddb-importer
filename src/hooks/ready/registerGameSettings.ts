@@ -2,29 +2,29 @@ import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 
-interface DDBIMacros {
+interface IDDBIMacros {
   spell: Record<string, any>;
   gm: Record<string, any>;
   item: Record<string, any>;
   feat: Record<string, any>;
 }
 
-interface DDBIKnownForge {
+interface IDDBIKnownForge {
   TARGET_URL_PREFIX: Record<string, any>;
   TARGETS: Record<string, any>;
 }
 
-interface DDBIKnown {
+interface IDDBIKnown {
   CHECKED_DIRS: Set<string>;
   FILES: Set<string>;
   DIRS: Set<string>;
   LOOKUPS: Map<string, any>;
   TOKEN_LOOKUPS: Map<string, any>;
   AVATAR_LOOKUPS: Map<string, any>;
-  FORGE: DDBIKnownForge;
+  FORGE: IDDBIKnownForge;
 }
 
-interface DDBISRDLoad {
+interface IDDBISRDLoad {
   mapLoaded: {
     "2014": boolean;
     "2024": boolean;
@@ -34,41 +34,44 @@ interface DDBISRDLoad {
   packs: Record<string, any>;
 }
 
-interface DDBIDev {
+interface IDDBIDev {
   enabled: boolean;
   clippy: Record<string, any>;
   tableInUse: boolean;
   deleteAllBeforeUpdate: boolean;
 }
 
-interface DDBIEffectConfigModules {
+interface IDDBIEffectConfigModules {
   installedModules: any;
   configured: boolean;
 }
 
-interface DDBIEffectConfig {
-  MODULES: DDBIEffectConfigModules;
+interface IDDBIEffectConfig {
+  MODULES: IDDBIEffectConfigModules;
 }
 
-interface DDBIPopups {
+interface IDDBIPopups {
   json: Window | null;
   web: Window | null;
 }
 
-export interface DDBIConfig {
+export interface IDDBIConfig {
   module: string;
   schemaVersion: number;
   DICTIONARY: any;
   ADVENTURE: Record<string, any>;
-  MACROS: DDBIMacros;
+  MACROS: IDDBIMacros;
   CAPTURED_ERRORS: any[];
-  KNOWN: DDBIKnown;
+  KNOWN: IDDBIKnown;
   ICONS: Record<string, any>;
   TABLES: Record<string, any>;
-  SRD_LOAD: DDBISRDLoad;
-  DEV: DDBIDev;
-  EFFECT_CONFIG: DDBIEffectConfig;
-  POPUPS: DDBIPopups;
+  SRD_LOAD: IDDBISRDLoad;
+  DEV: IDDBIDev;
+  EFFECT_CONFIG: IDDBIEffectConfig;
+  POPUPS: IDDBIPopups;
+  ignoreEnrichedImages?: boolean;
+  keyPostfix?: string;
+  useLocal?: boolean;
 }
 
 if (!(CONFIG as any).DDBI) {
@@ -123,7 +126,7 @@ if (!(CONFIG as any).DDBI) {
       json: null,
       web: null,
     },
-  } as DDBIConfig;
+  } as IDDBIConfig;
 }
 
 async function createFolderPaths() {

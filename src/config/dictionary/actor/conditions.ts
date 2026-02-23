@@ -1,4 +1,12 @@
-export const CONDITIONS = [
+export interface IDDBConditionMapping {
+  label: string;
+  foundry: string;
+  ddbId: number | null;
+  levelId: number | null;
+  ddbType: number | null;
+}
+
+export const CONDITIONS: IDDBConditionMapping[] = [
   { label: "Blinded", foundry: "blinded", ddbId: 1, levelId: null, ddbType: 1 },
   { label: "Charmed", foundry: "charmed", ddbId: 2, levelId: null, ddbType: 1 },
   { label: "Deafened", foundry: "deafened", ddbId: 3, levelId: null, ddbType: 1 },

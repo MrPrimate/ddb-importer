@@ -16,35 +16,36 @@ import DDBFeature from "./DDBFeature";
 import DDBChoiceFeature from "./DDBChoiceFeature";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import DDBCharacter from "../DDBCharacter";
 
 export default class CharacterFeatureFactory {
 
   // feature parsing hints
 
   static LEGACY_SKIPPED_FEATURES = DICTIONARY.parsing.features.LEGACY_SKIPPED_FEATURES;
-
   static SKIPPED_FEATURES_2014 = DICTIONARY.parsing.features.SKIPPED_FEATURES_2014;
-
   static TASHA_VERSATILE = DICTIONARY.parsing.features.TASHA_VERSATILE;
-
   static SKIPPED_FEATURES = DICTIONARY.parsing.features.SKIPPED_FEATURES;
-
   static SKIPPED_FEATURES_STARTS_WITH = DICTIONARY.parsing.features.SKIPPED_FEATURES_STARTS_WITH;
-
   static SKIPPED_FEATURES_ENDS_WITH = DICTIONARY.parsing.features.SKIPPED_FEATURES_ENDS_WITH;
-
   static SKIPPED_FEATURES_INCLUDES = DICTIONARY.parsing.features.SKIPPED_FEATURES_INCLUDES;
-
   static IGNORED_PARENT_CHOICE_FEATURES = DICTIONARY.parsing.features.IGNORED_PARENT_CHOICE_FEATURES;
 
   // if there are duplicate name entries in your feature use this, due to multiple features in builder
   // and sheet with different descriptions.
   static FORCE_DUPLICATE_FEATURE = DICTIONARY.parsing.features.FORCE_DUPLICATE_FEATURE;
-
   static FORCE_DUPLICATE_OVERWRITE = DICTIONARY.parsing.features.FORCE_DUPLICATE_OVERWRITE;
 
   // always duplicate these features
   static FORCE_FEATURE_CLASS_MATCH = DICTIONARY.parsing.features.FORCE_FEATURE_CLASS_MATCH;
+
+  ddbCharacter: DDBCharacter;
+  ddbData: IDDBData;
+  excludedOriginFeatures: number[];
+  parsed: {
+    actions: any[];
+    features: any[];
+  };
 
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
@@ -111,7 +112,6 @@ export default class CharacterFeatureFactory {
   static includedFeatureNameCheck(featName) {
     const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-include-versatile-features");
 
-     
     const nameAllowed =
       !CharacterFeatureFactory.LEGACY_SKIPPED_FEATURES.includes(featName)
       && !CharacterFeatureFactory.SKIPPED_FEATURES.includes(featName)
@@ -447,7 +447,7 @@ export default class CharacterFeatureFactory {
   #addGenericAdvancementOrigins(types = ["actions", "features"]) {
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type]) {
-         
+
         if (foundry.utils.hasProperty(feature, "flags.dnd5e.advancementOrigin")) continue;
         const typeFlag = foundry.utils.getProperty(feature, "flags.ddbimporter.type")
           ?? foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.type");
@@ -489,7 +489,7 @@ export default class CharacterFeatureFactory {
           for (let idx = 0; idx < feature.system.advancement.length; idx++) {
             const a = feature.system.advancement[idx];
             const dataLink = linkingData.find((d) => d._id === a._id);
-             
+
             if (a.type === "ItemGrant" && dataLink) {
               this.#itemGrantLink(feature, idx);
             }
@@ -1044,7 +1044,7 @@ export default class CharacterFeatureFactory {
   filterActionFeatures() {
     const alwaysUseFeatureDescription = true;
 
-     
+
     this.data.actions = this.processed.actions.map((action) => {
       const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
       const featureMatch = this.processed.features.find((feature) => {
@@ -1121,12 +1121,12 @@ export default class CharacterFeatureFactory {
             if (foundry.utils.getProperty(action.system.activities[key], "flags.ddbimporter.noeffect")) continue;
             const effects = [];
             for (const effect of featureMatch.effects) {
-               
+
               if (effect.transfer) continue;
-               
+
               if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
               const activityNameRequired = foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch");
-               
+
               if (activityNameRequired && action.system.activities[key].name !== activityNameRequired) continue;
               const effectId = effect._id ?? foundry.utils.randomID();
               effect._id = effectId;
@@ -1178,7 +1178,7 @@ export default class CharacterFeatureFactory {
 
   }
 
-   
+
   async addSpellAdvancement({ feature, type } = {}) {
     await AdvancementHelper.addSpellAdvancement({
       ddbParser: this,

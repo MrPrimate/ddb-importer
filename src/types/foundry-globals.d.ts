@@ -7,7 +7,7 @@
 // merges into globalThis. Without it, SettingConfig augmentation is invisible to
 // other modules and game.settings.get/set only recognizes "core" as a namespace.
 
-import { DDBIConfig } from "../hooks/ready/registerGameSettings";
+import { IDDBIConfig } from "../hooks/ready/registerGameSettings";
 import { DDBConfig } from "./ddb-character-source";
 
 export {};
@@ -24,9 +24,6 @@ declare global {
       fields?: string[];
     }
   }
-
-  // D&D 5e system global
-  const dnd5e: any;
 
   // ddb-importer module global
   interface Window {
@@ -58,7 +55,7 @@ declare global {
   const JSZip: any;
 
   interface CONFIG extends CONFIG {
-    DDBI: DDBIConfig;
+    DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
     DND5E: {
       abilities: Record<string, {
