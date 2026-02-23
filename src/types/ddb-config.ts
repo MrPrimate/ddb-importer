@@ -1,6 +1,6 @@
 // DDB CONFIG interfaces
 
-export interface DDBConfigStat {
+export interface IDDBConfigStat {
   id: number;
   entityTypeId: number;
   key: string;
@@ -8,14 +8,14 @@ export interface DDBConfigStat {
   compendiumText: string;
 }
 
-export interface DDBConfigCurrencyData {
+export interface IDDBConfigCurrencyData {
   id: number;
   name: string;
   conversionFromGp: number;
   weight: number;
 }
 
-export interface DDBConfigSpellRules {
+export interface IDDBConfigSpellRules {
   multiClassSpellSlotDivisor: number;
   multiClassSpellSlotRounding: number;
   isRitualSpellCaster: boolean;
@@ -24,7 +24,7 @@ export interface DDBConfigSpellRules {
   levelSpellSlots: number[][];
 }
 
-export interface DDBConfigPrerequisiteMapping {
+export interface IDDBConfigPrerequisiteMapping {
   id: number;
   entityId: number;
   entityTypeId: number;
@@ -36,18 +36,18 @@ export interface DDBConfigPrerequisiteMapping {
   friendlySubTypeName: string;
 }
 
-export interface DDBConfigClassConfiguration {
+export interface IDDBConfigClassConfiguration {
   id: number;
   name: string;
   primaryAbilities: number[];
-  spellRules: DDBConfigSpellRules;
+  spellRules: IDDBConfigSpellRules;
   prerequisites: {
     description: string;
-    prerequisiteMappings: DDBConfigPrerequisiteMapping[];
+    prerequisiteMappings: IDDBConfigPrerequisiteMapping[];
   }[];
 }
 
-export interface DDBConfigAbilitySkill {
+export interface IDDBConfigAbilitySkill {
   id: number;
   entityTypeId: number;
   stat: number;
@@ -55,20 +55,20 @@ export interface DDBConfigAbilitySkill {
   description: string;
 }
 
-export interface DDBConfigSense {
+export interface IDDBConfigSense {
   id: number;
   entityTypeId: number;
   name: string;
 }
 
-export interface DDBConfigCreatureSize {
+export interface IDDBConfigCreatureSize {
   id: number;
   entityTypeId: number;
   name: string;
   weightType: number;
 }
 
-export interface DDBConfigSourceCategory {
+export interface IDDBConfigSourceCategory {
   id: number;
   name: string;
   description: string | null;
@@ -78,20 +78,20 @@ export interface DDBConfigSourceCategory {
   avatarUrl: string;
 }
 
-export interface DDBConfigMovement {
+export interface IDDBConfigMovement {
   id: number;
   name: string;
   description: string;
 }
 
-export interface DDBConfigProficiencyGroup {
+export interface IDDBConfigProficiencyGroup {
   label: string;
   customProficiencyGroup: number;
   customAdjustments: number[];
   entityTypeIds: number[];
 }
 
-export interface DDBConfigCreatureGroup {
+export interface IDDBConfigCreatureGroup {
   id: number;
   name: string;
   categoryId: number;
@@ -109,7 +109,7 @@ export interface DDBConfigCreatureGroup {
   actionSnippet: string | null;
 }
 
-export interface DDBConfigNaturalActionAttackCustomData {
+export interface IDDBConfigNaturalActionAttackCustomData {
   name: string | null;
   notes: string | null;
   damageBonus: number | null;
@@ -126,7 +126,7 @@ export interface DDBConfigNaturalActionAttackCustomData {
   cost: number | null;
 }
 
-export interface DDBConfigNaturalAction {
+export interface IDDBConfigNaturalAction {
   id: number;
   entityTypeId: number;
   limitedUse: any | null;
@@ -151,32 +151,32 @@ export interface DDBConfigNaturalAction {
   displayAsAttack: boolean | null;
   range: any | null;
   activation: { activationTime: number; activationType: number };
-  attackCustomData: DDBConfigNaturalActionAttackCustomData;
+  attackCustomData: IDDBConfigNaturalActionAttackCustomData;
   componentId: number;
   componentTypeId: number;
 }
 
-export interface DDBConfigAdjustmentTypeConstraint {
+export interface IDDBConfigAdjustmentTypeConstraint {
   id: number;
   name: string;
   value: number;
 }
 
-export interface DDBConfigAdjustmentType {
+export interface IDDBConfigAdjustmentType {
   id: number;
   name: string;
   dataType: number;
-  constraints: DDBConfigAdjustmentTypeConstraint[];
+  constraints: IDDBConfigAdjustmentTypeConstraint[];
 }
 
-export interface DDBConfigSpellComponent {
+export interface IDDBConfigSpellComponent {
   id: number;
   name: string;
   shortName: string;
   description: string;
 }
 
-export interface DDBConfigActivationType {
+export interface IDDBConfigActivationType {
   id: number;
   name: string;
   prerequisite: string | null;
@@ -185,27 +185,27 @@ export interface DDBConfigActivationType {
   displayOrder: number | null;
 }
 
-export interface DDBConfigBasicAction {
+export interface IDDBConfigBasicAction {
   id: number;
   name: string;
   description: string;
   activation: { activationTime: number | null; activationType: number };
 }
 
-export interface DDBConfigRule {
+export interface IDDBConfigRule {
   id: number;
   name: string;
   description: string;
 }
 
-export interface DDBConfigLifestyle {
+export interface IDDBConfigLifestyle {
   id: number;
   name: string;
   description: string;
   cost: string;
 }
 
-export interface DDBConfigConditionLevel {
+export interface IDDBConfigConditionLevel {
   definition: {
     id: number;
     entityTypeId: number;
@@ -214,21 +214,21 @@ export interface DDBConfigConditionLevel {
   };
 }
 
-export interface DDBConfigConditionDefinition {
+export interface IDDBConfigConditionDefinition {
   id: number;
   entityTypeId: number;
   name: string;
   type: number;
   description: string;
   slug: string;
-  levels: DDBConfigConditionLevel[];
+  levels: IDDBConfigConditionLevel[];
 }
 
-export interface DDBConfigCondition {
-  definition: DDBConfigConditionDefinition;
+export interface IDDBConfigCondition {
+  definition: IDDBConfigConditionDefinition;
 }
 
-export interface DDBConfigDamageAdjustment {
+export interface IDDBConfigDamageAdjustment {
   id: number;
   name: string;
   type: number;
@@ -237,7 +237,7 @@ export interface DDBConfigDamageAdjustment {
   displayOrder: number;
 }
 
-export interface DDBConfigWeaponProperty {
+export interface IDDBConfigWeaponProperty {
   id: number;
   name: string;
   prerequisite: string | null;
@@ -246,7 +246,7 @@ export interface DDBConfigWeaponProperty {
   displayOrder: number | null;
 }
 
-export interface DDBConfigAoeType {
+export interface IDDBConfigAoeType {
   id: number;
   name: string;
   prerequisite: string | null;
@@ -255,53 +255,53 @@ export interface DDBConfigAoeType {
   displayOrder: number | null;
 }
 
-export interface DDBConfigArmor {
+export interface IDDBConfigArmor {
   id: number;
   entityTypeId: number;
   name: string;
   categoryId: number;
 }
 
-export interface DDBConfigTool {
+export interface IDDBConfigTool {
   id: number;
   name: string;
 }
 
-export interface DDBConfigWeapon {
+export interface IDDBConfigWeapon {
   id: number;
   entityTypeId: number;
   name: string;
   categoryId: number;
 }
 
-export interface DDBConfigLanguage {
+export interface IDDBConfigLanguage {
   id: number;
   name: string;
 }
 
-export interface DDBConfigRestoreType {
+export interface IDDBConfigRestoreType {
   id: number;
   name: string;
   description: string;
 }
 
-export interface DDBConfigRaceGroup {
+export interface IDDBConfigRaceGroup {
   id: number;
   name: string;
   avatarUrl: string | null;
 }
 
-export interface DDBConfigIdName {
+export interface IDDBConfigIdName {
   id: number;
   name: string;
 }
 
-export interface DDBConfigCoverType {
+export interface IDDBConfigCoverType {
   type: string;
   name: string;
 }
 
-export interface DDBConfigCreatureGroupFlag {
+export interface IDDBConfigCreatureGroupFlag {
   id: number;
   name: string;
   key: string;
@@ -309,7 +309,7 @@ export interface DDBConfigCreatureGroupFlag {
   valueContextId: number | null;
 }
 
-export interface DDBConfigMonsterType {
+export interface IDDBConfigMonsterType {
   pluralizedName: string;
   avatarUrl: string;
   id: number;
@@ -317,20 +317,20 @@ export interface DDBConfigMonsterType {
   description: string;
 }
 
-export interface DDBConfigChallengeRating {
+export interface IDDBConfigChallengeRating {
   id: number;
   value: number;
   proficiencyBonus: number;
   xp: number;
 }
 
-export interface DDBConfigWeaponCategory {
+export interface IDDBConfigWeaponCategory {
   id: number;
   entityTypeId: number;
   name: string;
 }
 
-export interface DDBConfigAdditionalLevelType {
+export interface IDDBConfigAdditionalLevelType {
   id: number;
   name: string;
   prerequisite: string | null;
@@ -339,19 +339,19 @@ export interface DDBConfigAdditionalLevelType {
   displayOrder: number | null;
 }
 
-export interface DDBConfigStatModifier {
+export interface IDDBConfigStatModifier {
   value: number;
   modifier: number;
 }
 
-export interface DDBConfigAlignment {
+export interface IDDBConfigAlignment {
   id: number;
   name: string;
   description: string;
   availableToCharacter: boolean;
 }
 
-export interface DDBConfigSource {
+export interface IDDBConfigSource {
   id: number;
   name: string;
   description: string;
@@ -361,69 +361,69 @@ export interface DDBConfigSource {
   sourceURL: string;
 }
 
-export interface DDBConfigLevelProficiencyBonus {
+export interface IDDBConfigLevelProficiencyBonus {
   level: number;
   bonus: number;
 }
 
-export interface DDBConfig {
-  armor: DDBConfigArmor[];
-  tools: DDBConfigTool[];
-  weapons: DDBConfigWeapon[];
-  languages: DDBConfigLanguage[];
-  restoreTypes: DDBConfigRestoreType[];
-  raceGroups: DDBConfigRaceGroup[];
-  spellRangeTypes: DDBConfigIdName[];
-  adjustmentDataTypes: DDBConfigIdName[];
-  coverTypes: DDBConfigCoverType[];
-  spellConditionTypes: DDBConfigIdName[];
-  rangeTypes: DDBConfigIdName[];
-  damageTypes: DDBConfigIdName[];
-  privacyTypes: DDBConfigIdName[];
-  sharingTypes: DDBConfigIdName[];
-  abilityScoreDisplayTypes: DDBConfigIdName[];
-  stealthCheckTypes: DDBConfigIdName[];
-  conditionTypes: DDBConfigIdName[];
-  operators: DDBConfigIdName[];
-  monsterSubTypes: DDBConfigIdName[];
-  creatureGroupFlags: DDBConfigCreatureGroupFlag[];
-  monsterTypes: DDBConfigMonsterType[];
-  challengeRatings: DDBConfigChallengeRating[];
-  creatureGroups: DDBConfigCreatureGroup[];
-  creatureGroupCategories: DDBConfigIdName[];
-  environments: DDBConfigIdName[];
-  armorTypes: DDBConfigIdName[];
-  gearTypes: DDBConfigIdName[];
-  naturalActions: DDBConfigNaturalAction[];
-  adjustmentTypes: DDBConfigAdjustmentType[];
-  weaponCategories: DDBConfigWeaponCategory[];
-  spellComponents: DDBConfigSpellComponent[];
-  activationTypes: DDBConfigActivationType[];
-  basicActions: DDBConfigBasicAction[];
-  rules: DDBConfigRule[];
-  lifestyles: DDBConfigLifestyle[];
-  conditions: DDBConfigCondition[];
-  damageAdjustments: DDBConfigDamageAdjustment[];
-  weaponProperties: DDBConfigWeaponProperty[];
-  aoeTypes: DDBConfigAoeType[];
-  additionalLevelTypes: DDBConfigAdditionalLevelType[];
-  statModifiers: DDBConfigStatModifier[];
-  alignments: DDBConfigAlignment[];
-  sources: DDBConfigSource[];
-  levelProficiencyBonuses: DDBConfigLevelProficiencyBonus[];
+export interface IDDBConfig {
+  armor: IDDBConfigArmor[];
+  tools: IDDBConfigTool[];
+  weapons: IDDBConfigWeapon[];
+  languages: IDDBConfigLanguage[];
+  restoreTypes: IDDBConfigRestoreType[];
+  raceGroups: IDDBConfigRaceGroup[];
+  spellRangeTypes: IDDBConfigIdName[];
+  adjustmentDataTypes: IDDBConfigIdName[];
+  coverTypes: IDDBConfigCoverType[];
+  spellConditionTypes: IDDBConfigIdName[];
+  rangeTypes: IDDBConfigIdName[];
+  damageTypes: IDDBConfigIdName[];
+  privacyTypes: IDDBConfigIdName[];
+  sharingTypes: IDDBConfigIdName[];
+  abilityScoreDisplayTypes: IDDBConfigIdName[];
+  stealthCheckTypes: IDDBConfigIdName[];
+  conditionTypes: IDDBConfigIdName[];
+  operators: IDDBConfigIdName[];
+  monsterSubTypes: IDDBConfigIdName[];
+  creatureGroupFlags: IDDBConfigCreatureGroupFlag[];
+  monsterTypes: IDDBConfigMonsterType[];
+  challengeRatings: IDDBConfigChallengeRating[];
+  creatureGroups: IDDBConfigCreatureGroup[];
+  creatureGroupCategories: IDDBConfigIdName[];
+  environments: IDDBConfigIdName[];
+  armorTypes: IDDBConfigIdName[];
+  gearTypes: IDDBConfigIdName[];
+  naturalActions: IDDBConfigNaturalAction[];
+  adjustmentTypes: IDDBConfigAdjustmentType[];
+  weaponCategories: IDDBConfigWeaponCategory[];
+  spellComponents: IDDBConfigSpellComponent[];
+  activationTypes: IDDBConfigActivationType[];
+  basicActions: IDDBConfigBasicAction[];
+  rules: IDDBConfigRule[];
+  lifestyles: IDDBConfigLifestyle[];
+  conditions: IDDBConfigCondition[];
+  damageAdjustments: IDDBConfigDamageAdjustment[];
+  weaponProperties: IDDBConfigWeaponProperty[];
+  aoeTypes: IDDBConfigAoeType[];
+  additionalLevelTypes: IDDBConfigAdditionalLevelType[];
+  statModifiers: IDDBConfigStatModifier[];
+  alignments: IDDBConfigAlignment[];
+  sources: IDDBConfigSource[];
+  levelProficiencyBonuses: IDDBConfigLevelProficiencyBonus[];
   levelExperiencePoints: number[];
   diceValues: number[];
-  stats: DDBConfigStat[];
-  currencyData: DDBConfigCurrencyData[];
-  classConfigurations: DDBConfigClassConfiguration[];
-  abilitySkills: DDBConfigAbilitySkill[];
-  senses: DDBConfigSense[];
-  creatureSizes: DDBConfigCreatureSize[];
-  limitedUseResetTypes: DDBConfigIdName[];
-  sourceCategories: DDBConfigSourceCategory[];
-  movements: DDBConfigMovement[];
+  stats: IDDBConfigStat[];
+  currencyData: IDDBConfigCurrencyData[];
+  classConfigurations: IDDBConfigClassConfiguration[];
+  abilitySkills: IDDBConfigAbilitySkill[];
+  senses: IDDBConfigSense[];
+  creatureSizes: IDDBConfigCreatureSize[];
+  limitedUseResetTypes: IDDBConfigIdName[];
+  sourceCategories: IDDBConfigSourceCategory[];
+  movements: IDDBConfigMovement[];
   multiClassSpellSlots: number[][];
   pactMagicMultiClassSpellSlots: number[][];
-  proficiencyGroups: DDBConfigProficiencyGroup[];
+  proficiencyGroups: IDDBConfigProficiencyGroup[];
   vehicleConfiguration: any | null;
 }

@@ -9,7 +9,6 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
-import type { DDBCharacterResponse } from "../types/ddb-character-source";
 import CharacterClassFactory from "./classes/CharacterClassFactory";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory";
 import { DDBInfusionFactory } from "./features/DDBInfusionFactory";
@@ -42,7 +41,7 @@ export interface DDBCharacterImportOptions {
 
 export default class DDBCharacter {
 
-  source: DDBCharacterResponse | null;
+  source: IDDBCharacterResponse | null;
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
   forceCompendiumUpdate: boolean;
   addToCompendiums: boolean;
@@ -68,6 +67,10 @@ export default class DDBCharacter {
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
   isMuncher: boolean;
+  _spellParser: CharacterSpellFactory;
+  _infusionFactory: DDBInfusionFactory;
+  _characterFeatureFactory: CharacterFeatureFactory;
+  _classParser: CharacterClassFactory;
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,
@@ -143,7 +146,7 @@ export default class DDBCharacter {
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.isMuncher = isMuncher;
-    this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-features-to-compendiums-dev");
+    this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("character-update-policy-add-features-to-compendiums-dev");
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.forceCompendiumUpdate = forceCompendiumUpdate;
     this._infusionFactory = null;

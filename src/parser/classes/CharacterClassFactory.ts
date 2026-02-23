@@ -1,7 +1,7 @@
 import DDBClass from "./DDBClass";
-import { logger } from '../../lib/_module';
+import { logger, utils } from '../../lib/_module';
 import DDBSubClass from "./DDBSubClass";
-import { SETTINGS } from "../../config/_module";
+import DDBCharacter from "../DDBCharacter";
 
 export default class CharacterClassFactory {
 
@@ -10,8 +10,10 @@ export default class CharacterClassFactory {
   compendiumImportTypes = ["classes", "subclasses"];
 
   updateCompendiumItems = null;
+  source: IDDBData;
+  ddbCharacter: DDBCharacter;
 
-  constructor(ddbCharacter, { addToCompendium = false, compendiumImportTypes = null, updateCompendiumItems } = {}) {
+  constructor(ddbCharacter, { addToCompendium = false, compendiumImportTypes = null, updateCompendiumItems = null } = {}) {
     this.ddbCharacter = ddbCharacter;
     this.character = this.ddbCharacter.raw.character;
     this.source = this.ddbCharacter.source.ddb;
@@ -20,7 +22,7 @@ export default class CharacterClassFactory {
     this.originalClass = null;
     this.addToCompendium = addToCompendium;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
-    this.updateCompendiumItems = updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+    this.updateCompendiumItems = updateCompendiumItems ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
   }
 
   async processCharacter() {

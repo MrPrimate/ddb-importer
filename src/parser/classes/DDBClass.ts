@@ -327,6 +327,38 @@ export default class DDBClass {
     "Magic Resistance",
   ];
 
+  ddbData: IDDBData;
+  ddbClass: IDDBClass;
+  ddbClassDefinition: IDDBClassDefinition;
+  ddbParentClassDefinition: IDDBClassDefinition;
+  is2014: boolean;
+  is2024: boolean;
+  legacy: boolean;
+  parentIs2014: boolean;
+  classFeatureIds: number[];
+  classFeatures: IDDBClassDefinitionFeature[];
+  _proficiencyFeatureIds: number[];
+  _expertiseFeatureIds: number[];
+  _languageFeatureIds: number[];
+  _toolFeatureIds: number[];
+  _armorFeatureIds: number[];
+  _weaponFeatureIds: number[];
+  _weaponMasteryFeatureIds: number[];
+  _languageOrSkillFeatureIds: number[];
+  _conditionFeatureIds: number[];
+  _proficiencyFeatures: IDDBClassDefinitionFeature[];
+  private _expertiseFeatures: IDDBClassDefinitionFeature[];
+  _languageFeatures: IDDBClassDefinitionFeature[];
+  _toolFeatures: IDDBClassDefinitionFeature[];
+  _armorFeatures: IDDBClassDefinitionFeature[];
+  _weaponFeatures: IDDBClassDefinitionFeature[];
+  _weaponMasteryFeatures: IDDBClassDefinitionFeature[];
+  _languageOrSkillFeatures: IDDBClassDefinitionFeature[];
+  _conditionFeatures: IDDBClassDefinitionFeature[];
+  subClassFeatureIds: number[];
+  advancementHelper: AdvancementHelper;
+  isStartingClass: boolean;
+
   _generateSource() {
     const classSource = DDBSources.parseSource(this.ddbClassDefinition);
     this.data.system.source = classSource;
@@ -490,11 +522,11 @@ export default class DDBClass {
 
   constructor(ddbData, classId,
     { addToCompendium = null, compendiumImportTypes = null,
-      updateCompendiumItems, isMuncher } = {},
+      updateCompendiumItems = null, isMuncher } = {},
   ) {
     this.addToCompendium = addToCompendium ?? false;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
-    this.updateCompendiumItems = updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+    this.updateCompendiumItems = updateCompendiumItems ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
     // setup ddb source
     this.isMuncher = isMuncher ?? this.isMuncher;
@@ -795,7 +827,7 @@ export default class DDBClass {
 
   }
 
-   
+
   async _generateFeatureAdvancement(feature, choices) {
     logger.debug(`Generating choice feature advancement for feature ${feature.name} with ${choices.length} choices`);
     // console.warn({
@@ -902,7 +934,7 @@ export default class DDBClass {
         }),
         allowDrops: true,
       },
-      icons: "icons/magic/symbols/cog-orange-red.webp",
+      icon: "icons/magic/symbols/cog-orange-red.webp",
     });
 
     // console.warn(`Generated choice advancement for feature ${feature.name}:`, {
@@ -913,7 +945,7 @@ export default class DDBClass {
     //   uuids,
     // });
 
-     
+
     // TODO: handle chosen advancements on non muncher classes
     this._addAdvancement(advancement.toObject());
 
@@ -951,7 +983,7 @@ export default class DDBClass {
         );
       if (choices.length === 0) continue;
 
-       
+
       // TODO: determine if different features at each level, if so, create multiple advancements
       await this._generateFeatureAdvancement(feature, choices);
     }
@@ -1156,7 +1188,7 @@ export default class DDBClass {
           if (availableToMulticlass
             && baseProficiency
             && this.dictionary.multiclassSkill === 0
-           
+
           ) continue;
           const advancement = this._generateSkillAdvancement(feature, availableToMulticlass, i);
           if (advancement) advancements.push(advancement.toObject());
@@ -1369,7 +1401,7 @@ export default class DDBClass {
 
     for (let i = 0; i <= 20; i++) {
       const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
-       
+
       if (!expertiseFeature) continue;
 
       const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
@@ -1417,8 +1449,8 @@ export default class DDBClass {
     const startingClass = foundry.utils.getProperty(this.data, "flags.ddbimporter.isStartingClass") === true;
     const useMaxHP = game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp");
     if (rolledHP && !useMaxHP) {
-      const baseHP = foundry.utils.getProperty(character, "flags.ddbimporter.baseHitPoints");
-      const totalLevels = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels");
+      const baseHP = foundry.utils.getProperty(character, "flags.ddbimporter.baseHitPoints") as number;
+      const totalLevels = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels") as number;
       const hpPerLevel = Math.floor(baseHP / totalLevels);
       const leftOvers = Math.floor(baseHP % totalLevels);
 
@@ -1475,7 +1507,7 @@ export default class DDBClass {
         && f.requiredLevel === i,
       );
 
-       
+
       if (!abilityAdvancementFeature) continue;
       const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
       advancement.updateSource({
@@ -1624,7 +1656,7 @@ export default class DDBClass {
 
   // fixes
 
-   
+
   async _fightingStyleAdvancement2024() {
     const FIGHTING_STYLE_FEATURES = [
       "Fighting Style",
@@ -1704,7 +1736,7 @@ export default class DDBClass {
     if (this.is2024) {
       await this._fightingStyleAdvancement2024();
     }
-     
+
     // TODO: come back to 2014
   }
 

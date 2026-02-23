@@ -34,6 +34,7 @@ export default class CharacterSpellFactory {
     race: [],
     background: [],
   };
+  ddb: IDDBData;
 
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;
