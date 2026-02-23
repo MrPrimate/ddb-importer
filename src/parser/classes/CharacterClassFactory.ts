@@ -15,7 +15,7 @@ export default class CharacterClassFactory {
   ddbClasses: Record<string, DDBClass | DDBSubClass>;
   originalClass: string | null;
 
-  constructor(ddbCharacter, { addToCompendium = false, compendiumImportTypes = null, updateCompendiumItems = null } = {}) {
+  constructor(ddbCharacter: DDBCharacter, { addToCompendium = false, compendiumImportTypes = null, updateCompendiumItems = null }: { addToCompendium?: boolean; compendiumImportTypes?: string[] | null; updateCompendiumItems?: boolean | null } = {}) {
     this.ddbCharacter = ddbCharacter;
     this.character = this.ddbCharacter.raw.character;
     this.source = this.ddbCharacter.source.ddb;

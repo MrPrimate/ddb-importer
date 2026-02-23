@@ -23,7 +23,7 @@ export default class ProficiencyFinder {
     return Array.isArray(roundUp) && roundUp.length;
   }
 
-  getCustomProficiencies(type) {
+  getCustomProficiencies(type: string) {
     if (!this.ddb?.character) return [];
     if (this.excludeCustom) return [];
     const profGroup = CONFIG.DDB.proficiencyGroups.find((group) => group.label == type);

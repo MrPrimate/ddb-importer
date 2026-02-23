@@ -477,7 +477,7 @@ export default class DDBClass {
     this.data.system.advancement.push(...advancements.flat());
   }
 
-  async _buildCompendiumIndex(type, indexFilter = {}) {
+  async _buildCompendiumIndex(type: string, indexFilter = {}) {
     if (Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
     if (!this._compendiums[type]) return;
     await this._compendiums[type].getIndex(this._indexFilter[type]);
@@ -513,9 +513,9 @@ export default class DDBClass {
     this.is2024 = !this.is2014;
   }
 
-  constructor(ddbData, classId,
+  constructor(ddbData: IDDBData, classId: number,
     { addToCompendium = null, compendiumImportTypes = null,
-      updateCompendiumItems = null, isMuncher } = {},
+      updateCompendiumItems = null, isMuncher }: { addToCompendium?: boolean | null; compendiumImportTypes?: string[] | null; updateCompendiumItems?: boolean | null; isMuncher?: boolean } = {},
   ) {
     this.addToCompendium = addToCompendium ?? false;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;

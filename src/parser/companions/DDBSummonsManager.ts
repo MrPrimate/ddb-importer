@@ -65,7 +65,7 @@ export default class DDBSummonsManager {
     await this.itemHandler.init();
   }
 
-  async addToCompendium(companion, updateExisting = null) {
+  async addToCompendium(companion, updateExisting: boolean | null = null) {
     const results = [];
     if (!game.user.isGM) return results;
     const compendiumCompanion = foundry.utils.deepClone(companion);

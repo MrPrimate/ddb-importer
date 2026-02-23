@@ -44,7 +44,7 @@ export default class CharacterSpellFactory {
   hasSlots: boolean;
   generateSummons: boolean;
 
-  constructor(ddbCharacter) {
+  constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddb = ddbCharacter.source.ddb;
     this.character = ddbCharacter.raw.character;
@@ -62,7 +62,7 @@ export default class CharacterSpellFactory {
     this.generateSummons = ddbCharacter.generateSummons;
   }
 
-  static getDDBSpellLookup(ddb, type, id) {
+  static getDDBSpellLookup(ddb: IDDBData, type: string, id: number) {
     let lookup;
 
     switch (type) {

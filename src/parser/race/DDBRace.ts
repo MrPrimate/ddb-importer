@@ -48,7 +48,7 @@ export default class DDBRace {
     // "Gnomish Lineage",
   ];
 
-  static getGroupName(ids, baseRaceName) {
+  static getGroupName(ids: number[], baseRaceName: string) {
     const ddbGroup = CONFIG.DDB.raceGroups.find((r) => ids.includes(r.id));
     if (ddbGroup) {
       return ddbGroup.name;
@@ -254,7 +254,7 @@ export default class DDBRace {
     this.data.system.advancement.push(...advancements.flat());
   }
 
-  getCompendiumIxByFlags(compendiums, flags, findAll = false) {
+  getCompendiumIxByFlags(compendiums: string[], flags: Record<string, unknown>, findAll: boolean = false) {
     for (const compendium of compendiums) {
       if (!this._compendiums[compendium]) {
         continue;
@@ -274,7 +274,7 @@ export default class DDBRace {
     return null;
   }
 
-  async _buildCompendiumIndex(type, indexFilter = {}) {
+  async _buildCompendiumIndex(type: string, indexFilter = {}) {
     if (Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
     if (!this._compendiums[type]) return;
     await this._compendiums[type].getIndex(this._indexFilter[type]);

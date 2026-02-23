@@ -496,7 +496,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  _generateDescription({ forceFull = false, extra = "" } = {}) {
+  _generateDescription({ forceFull = false, extra = "" }: { forceFull?: boolean; extra?: string } = {}) {
     this.data.system.description = this.getDescription({ forceFull, extra });
 
     const repeatableRegex = /<strong>Repeatable\.<\/strong>/i;
@@ -868,7 +868,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
    
-  static getFeatureSubtype(name, type, includePartial = true, categories = null) {
+  static getFeatureSubtype(name: string, type: string, includePartial: boolean = true, categories = null) {
     if (type === "class") {
       if (name === "Ki") return "ki";
       // many ki abilities do not start with ki

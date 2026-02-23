@@ -162,7 +162,7 @@ export default class DDBCharacter {
    * @returns {string|null} DDB CharacterId
    * @param {string} url
    */
-  static getCharacterId(url) {
+  static getCharacterId(url: string) {
     const ddbNamePattern = /(?:https?:\/\/)?(?:www\.)?(?:dndbeyond\.com|ddb\.ac)(?:\/profile\/.+)?\/characters\/(\d+)\/?/;
     const matches = url.match(ddbNamePattern);
     return matches ? matches[1] : null;
@@ -257,7 +257,7 @@ export default class DDBCharacter {
     }
   }
 
-  async _generateClass(addToCompendium = false) {
+  async _generateClass(addToCompendium: boolean = false) {
     this._classParser = new CharacterClassFactory(this, {
       addToCompendium,
       compendiumImportTypes: this.compendiumImportTypes,
@@ -379,7 +379,7 @@ export default class DDBCharacter {
     }
   }
 
-  getDataFeature(featureName, { featureTypes = ["actions", "features"], hints = [] } = {}) {
+  getDataFeature(featureName: string, { featureTypes = ["actions", "features"], hints = [] }: { featureTypes?: string[]; hints?: string[] } = {}) {
     for (const featureType of featureTypes) {
       const index = this.data[featureType].findIndex((f) => {
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
@@ -398,7 +398,7 @@ export default class DDBCharacter {
     return undefined;
   }
 
-  getDataFeats(featName, { featureTypes = ["actions", "features"], hints = [] } = {}) {
+  getDataFeats(featName: string, { featureTypes = ["actions", "features"], hints = [] }: { featureTypes?: string[]; hints?: string[] } = {}) {
     for (const featureType of featureTypes) {
       const index = this.data[featureType].findIndex((f) => {
         const isCustomAction = f.flags.ddbimporter?.isCustomAction ?? false;
@@ -433,7 +433,7 @@ export default class DDBCharacter {
     await this.currentActor.update(activeUpdateData);
   }
 
-  async updateDynamicUpdates(state) {
+  async updateDynamicUpdates(state: boolean) {
     this.currentActor.flags.ddbimporter.activeUpdate = state;
     const activeUpdateData = { flags: { ddbimporter: { activeUpdate: state } } };
     await this.currentActor.update(activeUpdateData);
@@ -446,7 +446,7 @@ export default class DDBCharacter {
     return activeUpdateState;
   }
 
-  async setActiveSyncSpellsFlag(state) {
+  async setActiveSyncSpellsFlag(state: boolean) {
     this.currentActor.flags.ddbimporter.activeSyncSpells = state;
     const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
     await this.currentActor.update(activeUpdateData);

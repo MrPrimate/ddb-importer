@@ -44,7 +44,7 @@ export default class CharacterFeatureFactory {
   excludedOriginFeatures: number[];
   _ddbClassFeatures: DDBClassFeatures;
 
-  constructor(ddbCharacter) {
+  constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
     this.rawCharacter = ddbCharacter.raw.character;
@@ -106,7 +106,7 @@ export default class CharacterFeatureFactory {
     });
   }
 
-  static includedFeatureNameCheck(featName) {
+  static includedFeatureNameCheck(featName: string) {
     const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-include-versatile-features");
 
     const nameAllowed =
@@ -124,7 +124,7 @@ export default class CharacterFeatureFactory {
     return nameAllowed;
   }
 
-  _getCustomActions(displayedAsAttack) {
+  _getCustomActions(displayedAsAttack: boolean) {
     const customActions = this.ddbData.character.customActions
       .filter((action) => action.displayAsAttack === displayedAsAttack)
       .map((action) => {
