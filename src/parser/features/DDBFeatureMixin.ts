@@ -20,6 +20,7 @@ import {
   DDBTemplateStrings,
   SystemHelpers,
 } from "../lib/_module";
+import type DDBCharacter from "../DDBCharacter";
 
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
@@ -52,6 +53,35 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   snippet = "";
   description = "";
   resourceCharges = null;
+
+  // Properties set in constructor / _init / _prepare
+  ddbCharacter: DDBCharacter | null;
+  ddbData: IDDBData;
+  name: string;
+  originalName: string;
+  type: string;
+  isMuncher: boolean;
+  activityType: string | null;
+  identifier: string;
+  documentType: string;
+  legacy: boolean;
+  is2014: boolean;
+  is2024: boolean;
+  isClass2014: boolean;
+  naturalWeapon: boolean;
+
+  // Set in _getRules / _generateActionTypes / _checkSummons
+  _class: IDDBClass | undefined;
+  klass: string | undefined;
+  subKlass: string | undefined;
+  species: string | undefined;
+  isCompanionFeature: boolean;
+  isCompanionFeatureOption: boolean;
+  isCompanionFeature2014: boolean;
+  isCompanionFeature2024: boolean;
+  isCRSummonFeature2014: boolean;
+  isCRSummonFeature2024: boolean;
+  isSummons: boolean;
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);

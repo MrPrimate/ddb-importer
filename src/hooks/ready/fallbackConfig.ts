@@ -1,6 +1,6 @@
-import { DDBConfig } from "../../types/ddb-character-source";
+import { IDDBConfig } from "../../types/ddb-config";
 
-export const fallbackDDBConfig: DDBConfig = {
+export const fallbackDDBConfig: IDDBConfig = {
   armor: [
     {
       id: 3,

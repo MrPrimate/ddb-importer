@@ -6,6 +6,24 @@ import { DDBModifiers, DDBReferenceLinker, DDBDataUtils, SystemHelpers } from ".
 
 export default class DDBRace {
 
+  // Properties set in constructor
+  ddbData: IDDBData;
+  isMuncher: boolean;
+  race: IDDBRace;
+  is2014: boolean;
+  is2024: boolean;
+  version: string;
+  isLegacy: boolean;
+  type: string;
+  _compendiumLabel: string;
+  fullName: string;
+  baseRaceName: string;
+  groupName: string;
+  isSubRace: boolean;
+  legacy: boolean;
+  advancementHelper: AdvancementHelper;
+  name: string;
+
   static SPECIAL_ADVANCEMENTS = {};
 
   static EXCLUDED_FEATURE_ADVANCEMENTS = [

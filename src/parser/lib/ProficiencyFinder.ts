@@ -4,6 +4,9 @@ import DDBModifiers from "./DDBModifiers";
 
 export default class ProficiencyFinder {
 
+  ddb: IDDBData | null;
+  excludeCustom: boolean;
+
   constructor({ ddb = null, excludeCustom = false } = {}) {
     this.ddb = ddb;
     this.excludeCustom = excludeCustom;

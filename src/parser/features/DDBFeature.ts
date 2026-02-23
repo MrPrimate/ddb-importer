@@ -8,6 +8,11 @@ import DDBFeatureMixin from "./DDBFeatureMixin";
 
 export default class DDBFeature extends DDBFeatureMixin {
 
+  advancementHelper: AdvancementHelper;
+  isChoiceFeature: boolean;
+  include: boolean;
+  hasRequiredLevel: boolean;
+
   static DOC_TYPE = {
     class: "feat", // class feature
     subclass: "feat", // subclass feature

@@ -5,6 +5,7 @@ import { DDBClassFeatureEnricher } from "../enrichers/_module";
 import { DDBFeatureActivity } from "../activities/_module";
 import CharacterFeatureFactory from "./CharacterFeatureFactory";
 import { DICTIONARY } from "../../config/_module";
+import type DDBCharacter from "../DDBCharacter";
 
 export default class DDBClassFeatures {
 
@@ -20,6 +21,10 @@ export default class DDBClassFeatures {
   ];
 
   static DISCARD_BASE_FEATURE = DICTIONARY.parsing.choiceFeatures.DISCARD_FEATURE_AFTER_CHOICES;
+
+  ddbCharacter: DDBCharacter | null;
+  ddbData: IDDBData;
+  excludedFeatures: number[];
 
   deriveFeatures() {
     this.ddbData.character.classes.forEach((klass) => {

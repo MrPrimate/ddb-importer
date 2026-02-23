@@ -7,6 +7,7 @@ import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbil
 import DDBSpell from "./DDBSpell";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module";
+import DDBCharacter from "../DDBCharacter";
 
 const SPELLIST_ADDITION_MATCHES = [
   "using any spell slots you have of the appropriate level",
@@ -35,6 +36,13 @@ export default class CharacterSpellFactory {
     background: [],
   };
   ddb: IDDBData;
+  ddbCharacter: DDBCharacter;
+  proficiencyModifier: number;
+  healingBoost: number;
+  levelSlots: boolean;
+  pactSlots: boolean;
+  hasSlots: boolean;
+  generateSummons: boolean;
 
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;

@@ -8,6 +8,50 @@ import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
+  // Properties set in constructor
+  ddbItem: IDDBInventoryItem;
+  ddbDefinition: IDDBItemDefinition;
+  isCompendiumItem: boolean;
+  legacy: boolean;
+  is2014: boolean;
+  is2024: boolean;
+  originalName: string;
+  name: string;
+  parsingType: string | null;
+  overrides: {
+    ddbType: string | null;
+    armorType: string | null;
+    name: string | null;
+    custom: boolean;
+    earlyProperties: Set<string>;
+  };
+  isContainer: boolean;
+  isContainerTag: boolean;
+  isOuterwearTag: boolean;
+  isClothingTag: boolean;
+  isTashasInstalled: boolean;
+  isTattoo: boolean;
+  tattooType: boolean;
+  isSpellwrought: boolean;
+  isMealTag: boolean;
+  isConsumable: boolean;
+  isPotion: boolean;
+  isPerSpell: boolean;
+  magicChargeType: string;
+  itemTagTypes: string[];
+  systemType: {
+    value: string | null;
+    subtype: string | null;
+    baseItem: string | null;
+  };
+  addAutomationEffects: boolean;
+  updateExisting: boolean;
+  spellsAsCastActivity: boolean;
+  spellsAsActivities: boolean;
+  removeWeaponMasteryDescription: boolean;
+  versatileDamage: string;
+  addMagical: boolean;
+
   static CLOTHING_ITEMS = [
     "Helm",
     "Boots",

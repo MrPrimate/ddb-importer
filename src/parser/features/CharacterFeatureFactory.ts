@@ -42,10 +42,7 @@ export default class CharacterFeatureFactory {
   ddbCharacter: DDBCharacter;
   ddbData: IDDBData;
   excludedOriginFeatures: number[];
-  parsed: {
-    actions: any[];
-    features: any[];
-  };
+  _ddbClassFeatures: DDBClassFeatures;
 
   constructor(ddbCharacter) {
     this.ddbCharacter = ddbCharacter;

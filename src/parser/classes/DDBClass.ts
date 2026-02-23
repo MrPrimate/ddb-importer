@@ -347,6 +347,10 @@ export default class DDBClass {
   subClassFeatureIds: number[];
   advancementHelper: AdvancementHelper;
   isStartingClass: boolean;
+  _excludedFeatureIds: number[];
+  NOT_ADVANCEMENT_FOR_FEATURE: string[];
+  NO_ADVANCEMENT_2014: string[];
+  NO_ADVANCEMENT_2024: string[];
 
   _generateSource() {
     const classSource = DDBSources.parseSource(this.ddbClassDefinition);
