@@ -3,6 +3,7 @@ import { DICTIONARY } from "../../config/_module";
 import { SystemHelpers } from "./_module";
 import DDBClass from "../classes/DDBClass";
 import DDBSubClass from "../classes/DDBSubClass";
+import { Activity } from "../../types/activities";
 
 export default class DDBDataUtils {
 
@@ -99,17 +100,20 @@ export default class DDBDataUtils {
 
     if (foundryItem.system.activities) {
       Object.keys(foundryItem.system.activities).forEach((id) => {
-        const activity = foundryItem.system.activities[id];
+        const activity: Activity = foundryItem.system.activities[id];
 
         if (activity.type === "attack") {
           if (toHitBonus) {
-            if (foundry.utils.hasProperty(activity, "bonus")
-              && (parseInt(activity.bonus) === 0
-              || activity.bonus === "")
+            const existingBonus = foundry.utils.getProperty(activity, "attack.bonus") as string | undefined;
+            if (existingBonus
+              && (parseInt(activity.attack.bonus) === 0
+              || activity.attack.bonus === "")
             ) {
-              activity.bonus = toHitBonus;
+              activity.attack.bonus = toHitBonus;
+            } else if (existingBonus) {
+                activity.attack.bonus += ` + ${toHitBonus}`;
             } else {
-              activity.bonus += ` + ${toHitBonus}`;
+              foundry.utils.setProperty(activity, "attack.bonus", toHitBonus);
             }
           }
         }
@@ -303,7 +307,8 @@ export default class DDBDataUtils {
 
     let feat = feature.levelScale ? feature : DDBDataUtils.findComponentByComponentId(ddb, feature.componentId);
     if (!feat && foundry.utils.hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
-      feat = DDBDataUtils.findComponentByComponentId(ddb, feature.flags.ddbimporter.dndbeyond.choice.componentId);
+      const componentId = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.componentId");
+      feat = DDBDataUtils.findComponentByComponentId(ddb, componentId);
     }
     if (!feat && classOption) {
       feat = DDBDataUtils.findComponentByComponentId(ddb, classOption.componentId);
@@ -350,7 +355,7 @@ export default class DDBDataUtils {
     return result;
   }
 
-  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } = {}) {
+  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : { ddbData: IDDBData, featureName: string, className?: string | null, subClassName?: string | null }) {
     const result = ddbData.character.classes.some((klass) =>
       klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
       && ((className === null || klass.definition.name === className)
@@ -360,7 +365,7 @@ export default class DDBDataUtils {
     return result;
   }
 
-  static hasSubClass({ ddbData, subClassName } = {}) {
+  static hasSubClass({ ddbData, subClassName } : { ddbData: IDDBData, subClassName: string }) {
     return ddbData.character.classes.some((klass) =>
       klass.subclassDefinition?.name === subClassName,
     );
@@ -370,19 +375,19 @@ export default class DDBDataUtils {
    * Retrieves a list of character choices based on the provided parameters.
    *
    * @param {object} params The parameters for retrieving choices.
-   * @param {object} params.ddb The DDB data object containing character information.
+   * @param {IDDBData} params.ddb The DDB data object containing character information.
    * @param {string} params.type The type of choice to retrieve.
    * @param {object} params.feat The feature object used to identify the choice.
    * @param {boolean} [params.selectionOnly=true] Whether to return only selections.
    * @param {boolean} [params.filterByParentChoice=false] Whether to filter choices by parent choice ID.
    * @param {string|null} [params.parentChoiceId=null] The parent choice ID to filter by, if applicable.
    *
-   * @returns {object[]} An array of choice objects, each representing a valid choice option.
+   * @returns {IDDBChoiceResult[]} An array of choice objects, each representing a valid choice option.
    */
   static getChoices(
     { ddb, type, feat, selectionOnly = true, filterByParentChoice = false,
-      parentChoiceId = null } = {},
-  ) {
+      parentChoiceId = null } : { ddb: IDDBData, type: string, feat: any, selectionOnly?: boolean, filterByParentChoice?: boolean, parentChoiceId?: string | null },
+  ): IDDBChoiceResult[] {
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
     const featDefinition = feat.definition ? feat.definition : feat;
 
@@ -426,19 +431,21 @@ export default class DDBDataUtils {
             const optionChoice = choiceDefinitions.find((selection) =>
               selection.id === `${choice.componentTypeId}-${choice.type}`,
             );
-            const options = optionChoice.options
+            const options: IDDBChoiceResult[] = optionChoice.options
               .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
               .map((option) => {
-                option.componentId = choice.componentId;
-                option.componentTypeId = choice.componentTypeId;
-                option.choiceId = choice.id;
-                option.optionId = option.id;
-                option.optionComponentId = option.componentId;
-                option.parentChoiceId = choice.parentChoiceId;
-                option.subType = choice.subType;
-                option.type = type;
-                option.wasOption = false;
-                return option;
+                const choiceOption = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
+                  componentId: choice.componentId,
+                  componentTypeId: choice.componentTypeId,
+                  choiceId: choice.id,
+                  optionId: option.id,
+                  optionComponentId: null,
+                  parentChoiceId: choice.parentChoiceId,
+                  subType: choice.subType,
+                  type: type,
+                  wasOption: false,
+                });
+                return choiceOption;
               });
             // console.warn("validChoice Options", {
             //   choice,
@@ -458,19 +465,21 @@ export default class DDBDataUtils {
           //   optionChoice,
           //   choiceDefinitions,
           // });
-          const result = optionChoice.options
+          const option = optionChoice.options
             .filter((option) => choice.optionIds.length === 0 || choice.optionIds.includes(option.id))
             .find((option) => option.id === choice.optionValue);
-          result.optionId = result.id;
-          result.optionComponentId = result.componentId;
-          result.componentId = choice.componentId;
-          result.componentTypeId = choice.componentTypeId;
-          result.choiceId = choice.id;
-          result.parentChoiceId = choice.parentChoiceId;
-          result.subType = choice.subType;
-          result.type = type;
-          result.wasOption = false;
-          return result;
+          const choiceOption = foundry.utils.mergeObject(foundry.utils.deepClone(option), {
+            optionId: option.id,
+            optionComponentId: null,
+            componentId: choice.componentId,
+            componentTypeId: choice.componentTypeId,
+            choiceId: choice.id,
+            parentChoiceId: choice.parentChoiceId,
+            subType: choice.subType,
+            type: type,
+            wasOption: false,
+          });
+          return choiceOption;
         });
 
         if (options.length > 0) {
@@ -685,7 +694,7 @@ export default class DDBDataUtils {
     });
   }
 
-   
+
   static getLimitedUses({ data, description = "", scaleValue = null } = {}) {
     let resetType = DICTIONARY.resets.find((type) => type.id === data?.resetType);
 

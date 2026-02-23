@@ -905,6 +905,29 @@ global {
     definitionKeyNameMap: Record<string, string>;
   }
 
+  /**
+   * Represents a single choice result returned by DDBDataUtils.getChoices.
+   * Merges properties from IDDBChoiceDefinitionOption with routing metadata
+   * added during choice resolution.
+   */
+  export interface IDDBChoiceResult {
+    id: number;
+    label: string;
+    description: string | null;
+    sourceId: number | null;
+    componentId: number;
+    componentTypeId: number;
+    choiceId: string | null;
+    parentChoiceId: string | null;
+    subType: number | string | null;
+    type: string;
+    wasOption: boolean;
+    optionId: number;
+    optionComponentId: number;
+    /** Only present when the result originated from an options-match lookup. */
+    entityTypeId?: number;
+  }
+
   // ---- Campaign -------------------------------------------------------------
 
   export interface IDDBCampaign {
