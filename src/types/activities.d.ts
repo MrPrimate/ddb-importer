@@ -4,20 +4,20 @@ export {};
 
 global {
   export interface IActivitySaveData {
-    ability: string[];
-    dc: {
-      calculation: string;
-      formula: string;
+    ability?: string[];
+    dc?: {
+      calculation?: string;
+      formula?: string;
     };
     override?: boolean;
   }
 
   export interface IActivityCheckData {
-    ability: string[];
-    associated: string[];
-    dc: {
-      calculation: string;
-      formula: string;
+    ability?: string[];
+    associated?: string[];
+    dc?: {
+      calculation?: string;
+      formula?: string;
     };
   }
 
