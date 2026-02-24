@@ -38,7 +38,7 @@ export default class ShadowPuppets extends DDBEnricherData {
         },
         overrides: {
           data: {
-            sort: "1",
+            sort: 1,
           },
         },
       },

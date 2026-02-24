@@ -66,7 +66,7 @@ export default class FingerGuns extends DDBEnricherData {
           rangeSelf: true,
           overrideRange: true,
           data: {
-            sort: "1",
+            sort: 1,
           },
           noeffect: true,
         },

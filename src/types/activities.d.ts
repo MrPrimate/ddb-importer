@@ -74,6 +74,9 @@ global {
     spell?: IActivitySpellData;
     restrictions?: IActivityRestrictionsData;
     settings?: IActivitySettingsData;
+    description?: {
+      chatFlavor: string;
+    }
     consumption?: {
       scaling?: {
         allowed?: boolean;
@@ -115,7 +118,7 @@ global {
     range?: {
       units?: string;
       reach?: number;
-      value?: number;
+      value?: number | string;
       long?: number;
     };
     healing?: Partial<IDDBDamagePart>;

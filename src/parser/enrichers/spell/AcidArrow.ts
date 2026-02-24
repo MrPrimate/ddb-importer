@@ -6,13 +6,15 @@ export default class AcidArrow extends DDBEnricherData {
     return {
       name: "Cast",
       data: {
-        "damage.parts": [
-          DDBEnricherData.basicDamagePart({
-            number: 4,
-            denomination: 4,
-            type: "acid",
-          }),
-        ],
+        damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              number: 4,
+              denomination: 4,
+              type: "acid",
+            }),
+          ],
+        },
       },
     };
   }

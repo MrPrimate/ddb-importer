@@ -22,19 +22,21 @@ export default class ConjureCelestial extends DDBEnricherData {
         sort: 10000,
         healing: {
           scaling: {
-            mode: "whole",
+            mode: "whole" as const,
             number: 1,
           },
         },
-        "damage.parts": [
-          DDBEnricherData.basicDamagePart({
-            number: 6,
-            denomination: 12,
-            types: ["radiant"],
-            scalingMode: "whole",
-            scalingNumber: 1,
-          }),
-        ],
+        damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              number: 6,
+              denomination: 12,
+              types: ["radiant"],
+              scalingMode: "whole",
+              scalingNumber: 1,
+            }),
+          ],
+        },
       },
     };
   }
@@ -54,7 +56,7 @@ export default class ConjureCelestial extends DDBEnricherData {
         },
         overrides: {
           data: {
-            sort: "1",
+            sort: 1,
           },
         },
       },

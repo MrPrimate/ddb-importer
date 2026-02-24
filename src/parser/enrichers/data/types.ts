@@ -10,25 +10,25 @@ export interface IDDBDamagePartCustom {
 }
 
 export interface IDDBDamagePartScaling {
-  mode: "whole" | "half" | "";
-  number: number;
-  formula: string;
+  mode?: "whole" | "half" | "" | string;
+  number?: number;
+  formula?: string;
 }
 
 export interface IDDBDamagePart {
-  number: number | null;
-  denomination: number | null;
-  bonus: string;
-  types: string[];
-  custom: IDDBDamagePartCustom;
-  scaling: IDDBDamagePartScaling;
+  number?: number | null;
+  denomination?: number | null;
+  bonus?: string;
+  types?: string[];
+  custom?: IDDBDamagePartCustom;
+  scaling?: IDDBDamagePartScaling;
 }
 
 // -- Consumption Targets ----------------------------------------------------
 
 export interface IDDBConsumptionTargetScaling {
   allowed?: boolean;
-  mode?: "" | "amount" | "level";
+  mode?: "" | "amount" | "level" | string;
   max?: string;
   formula?: string;
 }
@@ -43,8 +43,8 @@ export interface IDDBConsumptionTarget {
 // -- Summon Profile Keys ----------------------------------------------------
 
 export interface IDDBSummonProfileKeyLevel {
-  min: number | null;
-  max: number | null;
+  min?: number | null;
+  max?: number | null;
 }
 
 export interface IDDBSummonProfileKey {
@@ -94,12 +94,12 @@ export interface IDDBActivityData {
   addItemConsume?: boolean;
   itemConsumeTargetName?: string;
   itemConsumeValue?: string | number;
-  addScalingMode?: "" | "amount" | "level";
+  addScalingMode?: "" | "amount" | "level" | string;
   addScalingFormula?: string;
 
   addActivityConsume?: boolean;
   activityConsumeValue?: string | number;
-  addActivityScalingMode?: "" | "amount" | "level";
+  addActivityScalingMode?: "" | "amount" | "level" | string;
   addActivityScalingFormula?: string;
 
   addSpellSlotConsume?: boolean;
@@ -107,7 +107,7 @@ export interface IDDBActivityData {
   noSpellslot?: boolean;
   spellSlotConsumeTarget?: string;
   spellSlotConsumeValue?: string | number;
-  addSpellSlotScalingMode?: "" | "amount" | "level";
+  addSpellSlotScalingMode?: "" | "amount" | "level" | string;
   addSpellSlotScalingFormula?: string;
 
   additionalConsumptionTargets?: IDDBConsumptionTarget[];
@@ -332,6 +332,7 @@ export interface IDDBOverrideData {
   forceSpellAdvancement?: boolean;
   descriptionSuffix?: string;
   ddbMacroDescription?: boolean;
+  // To Do add a data object here with flags
   data?: Record<string, any>;
   midiManualReaction?: boolean;
   midiDamageReaction?: boolean;

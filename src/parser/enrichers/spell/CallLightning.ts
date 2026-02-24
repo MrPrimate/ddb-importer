@@ -25,7 +25,7 @@ export default class CallLightning extends DDBEnricherData {
           noSpellslot: true,
           generateDamage: true,
           generateSave: true,
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 3, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: 1 })],
           rangeOverride: {
             value: "",
             units: "spec",
@@ -56,7 +56,7 @@ export default class CallLightning extends DDBEnricherData {
         build: {
           generateDamage: true,
           generateSave: true,
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: "1" })],
+          damageParts: [DDBEnricherData.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: 1 })],
           rangeOverride: {
             value: "",
             units: "spec",

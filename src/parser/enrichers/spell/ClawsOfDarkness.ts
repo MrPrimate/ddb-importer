@@ -39,7 +39,7 @@ export default class ClawsOfDarkness extends DDBEnricherData {
           rangeSelf: true,
           overrideRange: true,
           data: {
-            sort: "1",
+            sort: 1,
           },
         },
       },

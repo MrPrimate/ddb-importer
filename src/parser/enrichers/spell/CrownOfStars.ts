@@ -16,7 +16,7 @@ export default class CrownOfStars extends DDBEnricherData {
           target: "",
           value: "-7",
           scaling: {
-            mode: "",
+            mode: "" as const,
             formula: "",
           },
         },
@@ -51,7 +51,7 @@ export default class CrownOfStars extends DDBEnricherData {
                   number: 4,
                   denomination: 12,
                   types: ["radiant"],
-                  scalingNumber: "-2",
+                  scalingNumber: -2,
                 }),
               ],
             },

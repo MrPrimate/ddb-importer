@@ -10,7 +10,9 @@ export default class AbsorbElements extends DDBEnricherData {
     return {
       name: `${this.data.name} Effect`,
       data: {
-        "description.chatFlavor": "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.",
+        description: {
+          chatFlavor: "Uses the damage type of the triggered attack: Acid, Cold, Fire, Lightning, or Poison.",
+        },
       },
     };
   }

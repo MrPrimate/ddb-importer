@@ -33,7 +33,7 @@ export default class EnhanceAbility extends DDBEnricherData {
               denomination: 6,
               scalingMode: "none",
               type: "temphp",
-              scalingNumber: "",
+              scalingNumber: null,
             }),
           },
         };
@@ -84,7 +84,6 @@ export default class EnhanceAbility extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${data.ability}.check.roll.mode`),
           ],
         ),
-        midiChanges: data.midiChanges ?? [],
       };
     });
   }

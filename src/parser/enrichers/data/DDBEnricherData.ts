@@ -229,7 +229,7 @@ export default class DDBEnricherData {
     bonus?: string;
     scalingMode?: string;
     scalingNumber?: number;
-    scalingFormula?: string;
+    scalingFormula?: string | number;
     customFormula?: string | null;
   } = {}): IDDBDamagePart {
     return {

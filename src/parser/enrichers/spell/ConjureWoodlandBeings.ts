@@ -63,14 +63,12 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
           overrideTemplate: true,
           noTemplate: true,
           data: {
-            flags: {
-              midiProperties: {
-                autoTargetAction: "none",
-                triggeredActivityId: "none",
-                triggeredActivityTargets: "targets",
-                forceDialog: false,
-                confirmTargets: "never",
-              },
+            midiProperties: {
+              autoTargetAction: "none",
+              triggeredActivityId: "none",
+              triggeredActivityTargets: "targets",
+              forceDialog: false,
+              confirmTargets: "never",
             },
           },
         },

@@ -26,7 +26,7 @@ export default class SpiritShroud extends DDBEnricherData {
         generateAttack: false,
         onsave: false,
         damageParts: [
-          DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: "1" }),
+          DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, types: ["radiant", "necrotic", "cold"], scalingMode: "half", scalingNumber: 1 }),
         ],
         noeffect: true,
       },

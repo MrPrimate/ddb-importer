@@ -590,7 +590,8 @@ global {
       isConcentrationCheck?: boolean;
       trapWorkflow?: {
         ignoreSelf?: boolean;
-      }
+      };
+      reactionCondition?: string;
     };
     dae?: {
       macro?: Macro.CreateData;
