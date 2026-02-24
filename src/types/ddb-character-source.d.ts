@@ -562,6 +562,54 @@ global {
     pushDragLift: IDDBWeightSpeedSet | null;
   }
 
+  export interface IDDBEntityCategory {
+    id: number;
+    entityTypeId: number;
+    entityId: number;
+    definitionKey: string;
+    entityTagId: number;
+    tagName: string;
+  }
+
+  export interface IDDBRacialTraitDisplayConfiguration {
+    RACIALTRAIT: number;
+    ABILITYSCORE: number;
+    LANGUAGE: number;
+    CLASSFEATURE: number;
+  }
+
+  export interface IDDBRacialTraitDefinition {
+    id: number;
+    definitionKey: string;
+    entityTypeId: number;
+    displayOrder: number | null;
+    name: string;
+    description: string;
+    snippet: string | null;
+    hideInBuilder: boolean;
+    hideInSheet: boolean;
+    activation: unknown;
+    sourceId: number;
+    sourcePageNumber: number | null;
+    creatureRules: unknown[];
+    spellListIds: number[];
+    featureType: number;
+    sources: IDDBSource[];
+    affectedFeatureDefinitionKeys: string[];
+    isCalledOut: boolean;
+    entityType: string;
+    entityID: string;
+    entityRaceId: number;
+    entityRaceTypeId: number;
+    displayConfiguration: IDDBRacialTraitDisplayConfiguration;
+    requiredLevel: number | null;
+    categories: IDDBEntityCategory[];
+  }
+
+  export interface IDDBRacialTrait {
+    definition: IDDBRacialTraitDefinition;
+  }
+
   export interface IDDBRace {
     entityRaceId: number;
     entityRaceTypeId: number;
@@ -591,7 +639,7 @@ global {
     speciesGroupId: number;
     groupIds: number[];
     featIds: number[];
-    racialTraits: any[];
+    racialTraits: IDDBRacialTrait[];
     weightSpeeds: IDDBWeightSpeeds;
     sources: IDDBSource[];
   }
