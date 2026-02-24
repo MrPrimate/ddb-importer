@@ -707,11 +707,54 @@ global {
 
   // ---- Feats ----------------------------------------------------------------
 
+  export interface IDDBFeatActivation {
+    activationTime: number | null;
+    activationType: number | null;
+  }
+
+  export interface IDDBFeatPrerequisiteMapping {
+    id: number;
+    entityId: number | null;
+    entityTypeId: number | null;
+    type: string;
+    subType: string;
+    value: number | null;
+    friendlyTypeName: string;
+    friendlySubTypeName: string;
+    shouldExclude: boolean;
+  }
+
+  export interface IDDBFeatPrerequisite {
+    description: string;
+    prerequisiteMappings: IDDBFeatPrerequisiteMapping[];
+    hidePrerequisite: boolean;
+  }
+
+  export interface IDDBFeatDefinition {
+    id: number;
+    entityTypeId: number;
+    definitionKey: string;
+    name: string;
+    description: string;
+    snippet: string;
+    activation: IDDBFeatActivation;
+    sourceId: number | null;
+    sourcePageNumber: number | null;
+    creatureRules: unknown[];
+    prerequisites: IDDBFeatPrerequisite[];
+    isHomebrew: boolean;
+    sources: IDDBSource[];
+    spellListIds: number[];
+    isRepeatable: boolean;
+    repeatableParentId: number | null;
+    categories: IDDBEntityCategory[];
+  }
+
   export interface IDDBFeat {
-    componentTypeId: number;
-    componentId: number;
+    componentTypeId: number | null;
+    componentId: number | null;
     definitionId: number;
-    definition: any;
+    definition: IDDBFeatDefinition;
   }
 
   // ---- Spells (source-categorized) ------------------------------------------
