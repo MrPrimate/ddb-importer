@@ -18,7 +18,7 @@ export default class SiegeStaff extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Battering Strike Damage",
           type: "damage",
         },
@@ -48,7 +48,7 @@ export default class SiegeStaff extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Fire Pot Damage",
           type: "damage",
         },
@@ -78,7 +78,7 @@ export default class SiegeStaff extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Trebuchet",
           type: "save",
         },

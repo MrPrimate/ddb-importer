@@ -18,7 +18,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Restrained",
           type: "save",
         },
@@ -36,7 +36,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Damage",
           type: "damage",
         },
@@ -52,7 +52,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
               denomination: 6,
               types: ["piercing"],
               scalingMode: "whole",
-              scalingNumber: "1",
+              scalingNumber: 1,
             }),
           ],
           noeffect: true,

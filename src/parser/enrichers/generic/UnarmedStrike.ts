@@ -14,7 +14,7 @@ export default class UnarmedStrike extends DDBEnricherData {
       : [];
     results.push(
       {
-        constructor: {
+        init: {
           name: "Grapple",
           type: "save",
         },
@@ -38,7 +38,7 @@ export default class UnarmedStrike extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Shove",
           type: "save",
         },

@@ -17,7 +17,7 @@ export default class BolsteringMagic extends Generic {
       ? []
       : [
         {
-          constructor: {
+          init: {
             name: "Spell Level Roll",
             type: "utility",
           },

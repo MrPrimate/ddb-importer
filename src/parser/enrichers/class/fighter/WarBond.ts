@@ -30,7 +30,7 @@ export default class WarBond extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Bond, 1st Weapon",
           type: "enchant",
         },
@@ -64,7 +64,7 @@ export default class WarBond extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Bond, 2nd Weapon",
           type: "enchant",
         },

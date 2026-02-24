@@ -6,7 +6,7 @@ export default class TruePolymorph extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Transform",
           type: "transform",
         },

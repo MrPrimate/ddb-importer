@@ -19,7 +19,7 @@ export default class NobleScion extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Minor Wish",
           type: "utility",
         },
@@ -41,7 +41,7 @@ export default class NobleScion extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Spend Spell Slot to Restore Use",
           type: "utility",
         },

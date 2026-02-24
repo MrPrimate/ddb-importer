@@ -17,7 +17,7 @@ export default class Sanctuary extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Target",
           type: "save",
         },

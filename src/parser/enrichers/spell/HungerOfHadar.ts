@@ -24,7 +24,7 @@ export default class HungerOfHadar extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Start of Turn Damage",
           type: "damage",
         },
@@ -54,7 +54,7 @@ export default class HungerOfHadar extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "End of Turn Save vs Damage",
           type: "save",
         },

@@ -17,7 +17,7 @@ export default class GatheredSwarm extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save",
           type: "save",
         },

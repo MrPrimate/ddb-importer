@@ -34,7 +34,7 @@ export default class StormSphere extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Shoot Lightning",
           type: "attack",
         },

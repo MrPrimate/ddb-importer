@@ -19,7 +19,7 @@ export default class EnhanceAbility extends DDBEnricherData {
       .filter((data) => this.is2014 || (!this.is2014 && data.ability !== "con"))
       .map((data) => {
         return {
-          constructor: {
+          init: {
             name: this.is2014 ? data.name2014 : `Enhance ${CONFIG.DND5E.abilities[data.ability].label}`,
             type: this.is2014
               ? data.type ?? "utility"

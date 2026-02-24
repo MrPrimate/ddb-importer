@@ -26,7 +26,7 @@ export default class GreenFlameBlade extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Secondary Target Damage",
           type: "damage",
         },
@@ -44,7 +44,7 @@ export default class GreenFlameBlade extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Main Weapon Damage",
           type: "damage",
         },

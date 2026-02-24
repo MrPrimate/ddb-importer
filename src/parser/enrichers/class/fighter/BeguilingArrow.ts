@@ -23,7 +23,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
     return this.isAction
       ? [
         {
-          constructor: {
+          init: {
             name: "Save vs Charmed",
             type: "save",
           },

@@ -20,7 +20,7 @@ export default class ElementalEpitome extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Elemental Epitome Damage",
           type: "damage",
         },

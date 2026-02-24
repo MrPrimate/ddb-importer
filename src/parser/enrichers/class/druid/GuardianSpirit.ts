@@ -5,7 +5,7 @@ export default class GuardianSpirit extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Temp HP",
           type: "heal",
         },

@@ -20,7 +20,7 @@ export default class AcidArrow extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "End of Targets Turn Damage",
           type: "damage",
         },

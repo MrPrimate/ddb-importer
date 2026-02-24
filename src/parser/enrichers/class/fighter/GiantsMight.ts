@@ -21,7 +21,7 @@ export default class GiantsMight extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Bonus Damage",
           type: "damage",
         },

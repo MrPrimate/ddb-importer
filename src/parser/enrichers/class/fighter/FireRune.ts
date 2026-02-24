@@ -31,7 +31,7 @@ export default class FireRune extends DDBEnricherData {
     if (this.isAction) return [];
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Constrained",
           type: "save",
         },

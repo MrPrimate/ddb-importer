@@ -21,7 +21,7 @@ export default class DeathArmor extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Cast",
           type: "utility",
         },

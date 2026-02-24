@@ -5,7 +5,7 @@ export default class StaffOfCharming extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Auto Save vs Charmspell",
           type: "utility",
         },
@@ -25,7 +25,7 @@ export default class StaffOfCharming extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Reflect Spell",
           type: "utility",
         },

@@ -56,7 +56,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Temp HP",
           type: "heal",
         },

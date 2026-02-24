@@ -14,7 +14,7 @@ export default class SpellfireSpark extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Sacred Flame",
           type: "cast",
         },
@@ -33,7 +33,7 @@ export default class SpellfireSpark extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Sacred Flame (Bonus Action)",
           type: "cast",
         },

@@ -26,7 +26,7 @@ export default class InvocationLifedrinker extends DDBEnricherData {
   get additionalActivities() {
     return ["Smallest", "Largest"].map((size) => {
       return {
-        constructor: {
+        init: {
           name: `Healing - ${size} Hit Die`,
           type: "heal",
         },

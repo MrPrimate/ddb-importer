@@ -7,7 +7,7 @@ export default class Maneuver extends DDBEnricherData {
 
   extraDamageActivity() {
     return {
-      constructor: {
+      init: {
         name: "Damage",
         type: "damage",
       },

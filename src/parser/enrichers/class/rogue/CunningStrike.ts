@@ -25,7 +25,7 @@ export default class CunningStrike extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Trip",
           type: "save",
         },
@@ -54,7 +54,7 @@ export default class CunningStrike extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Withdraw",
           type: "utility",
         },
@@ -73,7 +73,7 @@ export default class CunningStrike extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Modified Sneak Attack Damage",
           type: "damage",
         },

@@ -15,7 +15,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Enfeebled",
           type: "save",
         },

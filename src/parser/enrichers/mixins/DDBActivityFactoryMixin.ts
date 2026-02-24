@@ -50,7 +50,7 @@ export default class DDBActivityFactoryMixin {
 
   cleanup(): void {
     if (this.usesOnActivity) {
-      (foundry as any).utils.setProperty(this.data, "system.uses", {
+      foundry.utils.setProperty(this.data, "system.uses", {
         spent: null,
         max: null,
         recovery: [],
@@ -67,7 +67,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateSave: true,
       generateDamage: !["weapon"].includes(this.documentType!),
       generateRange: !["spell", "weapon"].includes(this.documentType!),
@@ -85,7 +85,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: true,
       generateDamage: !["weapon"].includes(this.documentType!),
       generateRange: !["spell", "weapon"].includes(this.documentType!),
@@ -102,7 +102,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateDamage: false,
       generateRange: !["spell", "weapon"].includes(this.documentType!),
     }, options));
@@ -119,7 +119,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateRoll: true,
       generateDamage: false,
       generateRange: !["spell", "weapon"].includes(this.documentType!),
@@ -137,7 +137,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject(options));
+    activity.build(foundry.utils.mergeObject(options));
 
     return activity;
   }
@@ -151,7 +151,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateActivation: true,
       generateDamage: false,
       generateHealing: true,
@@ -170,7 +170,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateDamage: !["weapon"].includes(this.documentType!),
       generateRange: !["spell", "weapon"].includes(this.documentType!),
@@ -187,7 +187,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: !["spell"].includes(this.documentType!),
       generateDamage: false,
@@ -204,7 +204,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: !["spell"].includes(this.documentType!),
       generateDamage: false,
@@ -221,7 +221,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: false,
       generateDamage: false,
@@ -240,7 +240,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build((foundry as any).utils.mergeObject({
+    activity.build(foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: false,
       generateDamage: false,
@@ -271,7 +271,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    const buildOptions = (foundry as any).utils.mergeObject({
+    const buildOptions = foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: false,
       generateDamage: false,
@@ -299,7 +299,7 @@ export default class DDBActivityFactoryMixin {
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    const buildOptions = (foundry as any).utils.mergeObject({
+    const buildOptions = foundry.utils.mergeObject({
       generateAttack: false,
       generateRange: true,
       generateDamage: false,
@@ -364,13 +364,13 @@ export default class DDBActivityFactoryMixin {
     if (this.enricher.type === "none" || this.enricher.activity?.type === "none") return undefined;
 
     const activityOptions = this.enricher.activity?.options ?? {};
-    const options = (foundry as any).utils.mergeObject(
-      (foundry as any).utils.deepClone(optionsOverride),
-      (foundry as any).utils.deepClone(activityOptions),
+    const options = foundry.utils.mergeObject(
+      foundry.utils.deepClone(optionsOverride),
+      foundry.utils.deepClone(activityOptions),
     );
 
     if (this.usesOnActivity || this.enricher.usesOnActivity) {
-      options.usesOverride = (foundry as any).utils.deepClone(this.data.system.uses);
+      options.usesOverride = foundry.utils.deepClone(this.data.system.uses);
       options.usesOverride.override = true;
       options.generateUses = true;
     }
@@ -396,10 +396,10 @@ export default class DDBActivityFactoryMixin {
     this.activities.push(activity);
 
     if (this.enricher.activity?.addSingleFreeUse) {
-      const singleActivity = (foundry as any).utils.deepClone(activity.data);
+      const singleActivity = foundry.utils.deepClone(activity.data);
       singleActivity.name = `${singleActivity.name} (Free use)`;
       singleActivity._id = `${singleActivity._id.slice(0, -3)}fre`;
-      (foundry as any).utils.setProperty(singleActivity, "consumption.targets", [
+      foundry.utils.setProperty(singleActivity, "consumption.targets", [
         {
           type: "activityUses",
           target: "",
@@ -411,16 +411,16 @@ export default class DDBActivityFactoryMixin {
         },
       ]);
       const period = this.enricher.activity.addSingleFreeRecoveryPeriod ?? "lr";
-      (foundry as any).utils.setProperty(singleActivity, "uses", {
+      foundry.utils.setProperty(singleActivity, "uses", {
         override: true,
         max: "1",
         spent: 0,
         recovery: [{ period, type: 'recoverAll', formula: undefined }],
       });
-      (foundry as any).utils.setProperty(this.data, `system.activities.${singleActivity._id}`, singleActivity);
+      foundry.utils.setProperty(this.data, `system.activities.${singleActivity._id}`, singleActivity);
     }
 
-    (foundry as any).utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
+    foundry.utils.setProperty(this.data, `system.activities.${activity.data._id}`, activity.data);
 
     return activity.data._id;
   }
@@ -451,29 +451,29 @@ export default class DDBActivityFactoryMixin {
 
   _activityEffectLinking(): void {
     if (this.data.effects.length === 0) return;
-    if (!(foundry as any).utils.hasProperty(this.data, "system.activities")) return;
+    if (!foundry.utils.hasProperty(this.data, "system.activities")) return;
     for (const activityId of Object.keys(this.data.system.activities)) {
       const activity = this.data.system.activities[activityId];
       if (!activity.effects || activity.effects.length !== 0) continue;
-      if ((foundry as any).utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
+      if (foundry.utils.getProperty(activity, "flags.ddbimporter.noeffect")) continue;
       for (const effect of this.data.effects) {
-        const ignoreTransfer = (foundry as any).utils.getProperty(effect, "flags.ddbimporter.ignoreTransfer") ?? false;
+        const ignoreTransfer = foundry.utils.getProperty(effect, "flags.ddbimporter.ignoreTransfer") ?? false;
         if (effect.transfer && !ignoreTransfer) continue;
-        if ((foundry as any).utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
-        const activityNamesRequired = (foundry as any).utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
-          ? (foundry as any).utils.getProperty(effect, "flags.ddbimporter.activitiesMatch")
-          : (foundry as any).utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
-            ? [(foundry as any).utils.getProperty(effect, "flags.ddbimporter.activityMatch")]
+        if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
+        const activityNamesRequired = foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
+          ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch")
+          : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
+            ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")]
             : [];
         if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
-        if (!effect._id) effect._id = (foundry as any).utils.randomID();
+        if (!effect._id) effect._id = foundry.utils.randomID();
         activity.effects.push({
           _id: effect._id,
-          level: (foundry as any).utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null },
+          level: foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null },
           riders: {
-            activity: (foundry as any).utils.getProperty(effect, "flags.ddbimporter.activityRiders") ?? [],
-            effect: (foundry as any).utils.getProperty(effect, "flags.ddbimporter.effectRiders") ?? [],
-            item: (foundry as any).utils.getProperty(effect, "flags.ddbimporter.itemRiders") ?? [],
+            activity: foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") ?? [],
+            effect: foundry.utils.getProperty(effect, "flags.ddbimporter.effectRiders") ?? [],
+            item: foundry.utils.getProperty(effect, "flags.ddbimporter.itemRiders") ?? [],
           },
         });
       }
@@ -495,7 +495,7 @@ export default class DDBActivityFactoryMixin {
       }
     }
 
-    (foundry as any).utils.setProperty(this.data, "flags.dnd5e.riders", {
+    foundry.utils.setProperty(this.data, "flags.dnd5e.riders", {
       activity: Array.from(riders.activity),
       effect: Array.from(riders.effect),
     });

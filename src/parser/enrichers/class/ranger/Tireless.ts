@@ -9,7 +9,7 @@ export default class Tireless extends DDBEnricherData {
     return [
       { action: { name: "Temporary Hit Points", type: "class" } },
       {
-        constructor: {
+        init: {
           name: "Reduce Exhaustion",
           type: "utility",
         },

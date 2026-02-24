@@ -37,7 +37,7 @@ export default class IntimidatingPresence extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Restore With Rage Use",
           type: "utility",
         },

@@ -5,7 +5,7 @@ export default class AnimalFriendship extends DDBEnricherData {
   get effects() {
     return [
       {
-        statuses: "Charmed",
+        statuses: ["Charmed"],
       },
     ];
   }

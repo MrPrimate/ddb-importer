@@ -23,7 +23,7 @@ export default class TranceOfOrder extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Sorcery Points to Restore Use",
           type: "utility",
         },

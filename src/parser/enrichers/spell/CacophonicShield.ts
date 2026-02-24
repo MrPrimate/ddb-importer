@@ -18,7 +18,7 @@ export default class CacophonicShield extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Damage and Deafness",
           type: "save",
         },

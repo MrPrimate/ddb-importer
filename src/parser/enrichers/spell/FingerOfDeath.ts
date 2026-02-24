@@ -13,7 +13,7 @@ export default class FingerOfDeath extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Place Zombie",
           type: "summon",
         },

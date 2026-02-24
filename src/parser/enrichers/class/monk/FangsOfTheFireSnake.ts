@@ -22,7 +22,7 @@ export default class FangsOfTheFireSnake extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Extra Fire Damage",
           type: "damage",
         },

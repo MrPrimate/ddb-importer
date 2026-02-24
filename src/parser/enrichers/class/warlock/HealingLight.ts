@@ -20,7 +20,7 @@ export default class HealingLight extends DDBEnricherData {
           denomination: 6,
           types: ["healing"],
           scalingMode: "whole",
-          scalingNumber: "1",
+          scalingNumber: 1,
         }),
       },
     };

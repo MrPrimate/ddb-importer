@@ -10,7 +10,7 @@ export default class FalseLife extends DDBEnricherData {
           bonus: "4",
           types: ["temphp"],
           scalingMode: "whole",
-          scalingNumber: "5",
+          scalingNumber: 5,
         }),
       },
     };

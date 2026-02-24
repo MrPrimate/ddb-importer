@@ -36,7 +36,7 @@ export default class FlameBlade extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Attack",
           type: "attack",
         },

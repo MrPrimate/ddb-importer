@@ -39,7 +39,7 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Empowered Arms Damage",
           type: "damage",
         },

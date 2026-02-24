@@ -610,13 +610,13 @@ export default class DDBBasicActivity {
     if (generateSpell) this._generateSpell({ spellOverride });
 
     if (noeffect) {
-      const ids = (foundry as any).utils.getProperty(this.foundryFeature, "flags.ddbimporter.noeffect") ?? [];
+      const ids = foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.noeffect") ?? [];
       ids.push(this.data._id);
-      (foundry as any).utils.setProperty(this.foundryFeature, "flags.ddbimporter.noEffectIds", ids);
-      (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
+      foundry.utils.setProperty(this.foundryFeature, "flags.ddbimporter.noEffectIds", ids);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
     }
-    if (img) (foundry as any).utils.setProperty(this.data, "img", img);
-    if (data) (foundry as any).utils.mergeObject(this.data, data);
+    if (img) foundry.utils.setProperty(this.data, "img", img);
+    if (data) foundry.utils.mergeObject(this.data, data);
 
   }
 
@@ -635,7 +635,7 @@ export default class DDBBasicActivity {
     document.effects.push(...effects);
     enricher?.createDefaultEffects();
     await enricher?.addDocumentOverride();
-    (foundry as any).utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
+    foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);
     await enricher?.addAdditionalActivities(enricher?.ddbParent);
 
     return activity.data._id;
@@ -696,7 +696,7 @@ export default class DDBBasicActivity {
       },
     );
 
-    (foundry as any).utils.mergeObject(foundryData.system.activities[ddbActivityId], activityData);
+    foundry.utils.mergeObject(foundryData.system.activities[ddbActivityId], activityData);
     await document.update(foundryData);
     return ddbActivityId;
 
@@ -731,7 +731,7 @@ export default class DDBBasicActivity {
       origin: document.uuid,
     });
     enchantmentEffect.changes.push(...changes);
-    (foundry as any).utils.mergeObject(activity.data, activityData);
+    foundry.utils.mergeObject(activity.data, activityData);
 
     const effectLink = {
       _id: enchantmentEffect._id,
@@ -750,14 +750,14 @@ export default class DDBBasicActivity {
     const effects = [enchantmentEffect];
 
     foundryData.effects.push(...effects);
-    (foundry as any).utils.setProperty(foundryData, `system.activities.${activity.data._id}`, activity.data);
+    foundry.utils.setProperty(foundryData, `system.activities.${activity.data._id}`, activity.data);
 
-    const riderFlags = (foundry as any).utils.getProperty(foundryData, "flags.dnd5e.riders") ?? { activity: [], effect: [] };
+    const riderFlags = foundry.utils.getProperty(foundryData, "flags.dnd5e.riders") ?? { activity: [], effect: [] };
 
     riderFlags.activity.push(...riderActionIds);
     riderFlags.effect.push(...riderEffectIds);
 
-    (foundry as any).utils.setProperty(foundryData, "flags.dnd5e.riders", riderFlags);
+    foundry.utils.setProperty(foundryData, "flags.dnd5e.riders", riderFlags);
     await document.update(foundryData);
     return activity.data._id;
 

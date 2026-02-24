@@ -33,7 +33,7 @@ export default class PackDamage extends DDBEnricherData {
     if (!this.useMidiAutomations) return [];
     return [
       {
-        constructor: {
+        init: {
           name: "Pack Damage (Aura Automation)",
           type: "utility",
         },

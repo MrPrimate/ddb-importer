@@ -18,7 +18,7 @@ export default class DreadAmbusher extends DDBEnricherData {
     return this.is2014
       ? [
         {
-          constructor: {
+          init: {
             name: "Bonus Damage",
             type: "damage",
           },

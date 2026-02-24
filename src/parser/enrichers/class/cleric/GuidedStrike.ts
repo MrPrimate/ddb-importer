@@ -18,7 +18,7 @@ export default class GuidedStrike extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Other",
           type: "utility",
         },

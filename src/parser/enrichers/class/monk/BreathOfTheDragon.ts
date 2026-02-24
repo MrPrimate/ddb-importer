@@ -66,7 +66,7 @@ export default class BreathOfTheDragon extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: `Spend ${spend} to Restore Use`,
           type: "utility",
         },

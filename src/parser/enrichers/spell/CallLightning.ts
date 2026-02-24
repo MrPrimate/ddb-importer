@@ -17,7 +17,7 @@ export default class CallLightning extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Damage",
           type: "save",
         },
@@ -49,7 +49,7 @@ export default class CallLightning extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Damage (Outdoors in a Storm)",
           type: "save",
         },

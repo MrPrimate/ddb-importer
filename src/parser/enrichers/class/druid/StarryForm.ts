@@ -42,7 +42,7 @@ export default class StarryForm extends DDBEnricherData {
   get formActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: this.formActivityName("Archer"),
           type: "attack",
         },
@@ -85,7 +85,7 @@ export default class StarryForm extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: this.formActivityName("Chalice"),
           type: "heal",
         },
@@ -120,7 +120,7 @@ export default class StarryForm extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Twinkling Constellations (Change Form)",
           type: "forward",
         },

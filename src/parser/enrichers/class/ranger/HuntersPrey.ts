@@ -61,7 +61,7 @@ export default class HuntersPrey extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Colossus Slayer: Damage",
           type: "damage",
         },

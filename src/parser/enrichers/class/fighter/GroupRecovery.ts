@@ -15,8 +15,8 @@ export default class GroupRecovery extends DDBEnricherData {
       targetCount: "max(1, @abilities.cha.mod)",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          number: "1",
-          denomination: "4",
+          number: 1,
+          denomination: 4,
           bonus: "@classes.fighter.levels",
           types: ["healing"],
         }),

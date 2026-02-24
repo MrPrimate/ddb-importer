@@ -36,7 +36,7 @@ export default class VineAttack extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Escape Check",
           type: "check",
         },

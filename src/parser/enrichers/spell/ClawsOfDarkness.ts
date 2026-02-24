@@ -26,7 +26,7 @@ export default class ClawsOfDarkness extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Cast",
           type: "utility",
         },

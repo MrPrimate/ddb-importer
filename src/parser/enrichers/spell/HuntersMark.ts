@@ -26,7 +26,7 @@ export default class HuntersMark extends DDBEnricherData {
 
     return [
       {
-        constructor: {
+        init: {
           name: "Bonus Damage",
           type: "damage",
         },

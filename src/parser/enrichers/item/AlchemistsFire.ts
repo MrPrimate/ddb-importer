@@ -44,7 +44,7 @@ export default class AlchemistsFire extends DDBEnricherData {
     if (this.is2014) {
       return [
         {
-          constructor: {
+          init: {
             name: "Extinguish Flames Check",
             type: "check",
           },

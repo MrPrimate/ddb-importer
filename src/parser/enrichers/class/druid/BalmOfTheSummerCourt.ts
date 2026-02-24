@@ -18,8 +18,8 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
           max: "@classes.druid.levels",
         },
         healing: DDBEnricherData.basicDamagePart({
-          number: "1",
-          denomination: "6",
+          number: 1,
+          denomination: 6,
           types: ["healing"],
           scalingMode: "whole",
           scalingFormula: "1",
@@ -31,7 +31,7 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Temp HP",
           type: "heal",
         },

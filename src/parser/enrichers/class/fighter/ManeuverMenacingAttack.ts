@@ -4,7 +4,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Frightened",
           type: "save",
         },

@@ -22,7 +22,7 @@ export default class HailOfThorns extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save",
           type: "save",
         },

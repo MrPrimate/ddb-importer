@@ -27,7 +27,7 @@ export default class OrdersWrath extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Curse",
           type: "utility",
         },

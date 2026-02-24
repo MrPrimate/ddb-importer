@@ -19,7 +19,7 @@ export default class AlterSelf extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Change Appearance",
           type: "utility",
         },
@@ -32,7 +32,7 @@ export default class AlterSelf extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Natural Weapons",
           type: "enchant",
         },
@@ -68,6 +68,7 @@ export default class AlterSelf extends DDBEnricherData {
         DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.damage.base.types"),
       ],
       activityMatch: "Natural Weapons",
+      magicalBonus: undefined,
     };
     if (this.is2014) {
       naturalWeaponEffect.magicalBonus = {

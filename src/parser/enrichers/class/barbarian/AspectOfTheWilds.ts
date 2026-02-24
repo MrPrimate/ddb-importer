@@ -17,7 +17,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Panther",
           type: "utility",
         },
@@ -35,7 +35,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Salmon",
           type: "utility",
         },

@@ -27,7 +27,7 @@ export default class CrownOfStars extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Attack",
           type: "attack",
         },

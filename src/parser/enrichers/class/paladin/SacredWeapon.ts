@@ -22,7 +22,7 @@ export default class SacredWeapon extends DDBEnricherData {
       ? []
       : [{
         id: "SacredWeaponLigh",
-        constructor: {
+        init: {
           name: "Sacred Weapon Light Toggle",
           type: "ddbmacro",
         },

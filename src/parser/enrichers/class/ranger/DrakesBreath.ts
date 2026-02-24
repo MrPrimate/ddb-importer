@@ -40,7 +40,7 @@ export default class DrakesBreath extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Use With Spell Slot",
           type: "forward",
         },

@@ -12,7 +12,7 @@ export default class FindFamiliar extends DDBEnricherData {
     if (!["Pact of the Chain"].includes(this.ddbParser.lookupName)) return [];
     return [
       {
-        constructor: {
+        init: {
           name: "Find Familiar (Expanded Options)",
           type: "summon",
         },

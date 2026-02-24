@@ -4,7 +4,7 @@ export default class TollTheDead extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save (D12 Damage)",
           type: "save",
         },

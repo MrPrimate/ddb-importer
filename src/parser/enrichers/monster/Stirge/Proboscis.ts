@@ -28,7 +28,7 @@ export default class Proboscis extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Attached Damage",
           type: "damage",
         },

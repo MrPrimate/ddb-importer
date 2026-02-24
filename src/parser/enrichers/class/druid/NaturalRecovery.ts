@@ -26,7 +26,7 @@ export default class NaturalRecovery extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Recover Spell Slots",
           type: "ddbmacro",
         },

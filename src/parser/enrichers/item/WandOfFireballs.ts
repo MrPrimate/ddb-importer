@@ -21,7 +21,7 @@ export default class WandOfFireballs extends DDBEnricherData {
               denomination: 6,
               type: "fire",
               scalingMode: "whole",
-              scalingNumber: "1",
+              scalingNumber: 1,
             }),
           ],
         },

@@ -17,7 +17,7 @@ export default class ShadowBlade extends DDBEnricherData {
   // get additionalActivities() {
   //   return [
   //     {
-  //       constructor: {
+  //       init: {
   //         name: "Shadow Blade Attack",
   //         type: "attack",
   //       },

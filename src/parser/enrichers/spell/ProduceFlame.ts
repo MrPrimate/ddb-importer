@@ -7,7 +7,7 @@ export default class ProduceFlame extends DDBEnricherData {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return [
         {
-          constructor: {
+          init: {
             name: "Apply Light Effect",
             type: "utility",
           },
@@ -27,7 +27,7 @@ export default class ProduceFlame extends DDBEnricherData {
     } else {
       return [
         {
-          constructor: {
+          init: {
             name: "Place Light on Token",
             type: "ddbmacro",
           },

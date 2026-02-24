@@ -28,7 +28,7 @@ export default class WallOfLight extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Turn End Damage",
           type: "damage",
         },
@@ -50,7 +50,7 @@ export default class WallOfLight extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Beam of Radiance Attack",
           type: "attack",
         },

@@ -5,7 +5,7 @@ export default class Fisticuffs extends Generic {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Fisticuffs Enchantment",
           type: "enchant",
         },

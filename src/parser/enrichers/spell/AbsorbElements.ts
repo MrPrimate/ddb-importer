@@ -18,7 +18,7 @@ export default class AbsorbElements extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Elemental Damage",
           type: "damage",
         },

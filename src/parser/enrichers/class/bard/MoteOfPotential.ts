@@ -55,7 +55,7 @@ export default class MoteOfPotential extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Temp HP from Mote of Potential Save",
           type: "heal",
         },

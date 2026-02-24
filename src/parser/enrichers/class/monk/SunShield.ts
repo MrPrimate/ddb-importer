@@ -34,7 +34,7 @@ export default class SunShield extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Reaction Damage",
           type: "damage",
         },

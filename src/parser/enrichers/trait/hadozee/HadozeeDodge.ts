@@ -3,12 +3,12 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class HadozeeDodge extends DDBEnricherData {
 
   get type() {
-    if (!this.action) return null;
+    if (!this.isAction) return null;
     return "heal";
   }
 
   get activity() {
-    if (!this.action) return null;
+    if (!this.isAction) return null;
     return {
       name: "Reduce Damage",
       targetType: "self",
@@ -30,7 +30,7 @@ export default class HadozeeDodge extends DDBEnricherData {
   }
 
   get effects() {
-    if (!this.action) return [];
+    if (!this.isAction) return [];
     return [
       {
         midiOnly: true,

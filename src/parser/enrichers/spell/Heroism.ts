@@ -16,7 +16,7 @@ export default class Heroism extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Start of Turn Temp HP",
           type: "heal",
         },

@@ -24,7 +24,7 @@ export default class Backlash extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Cast",
           type: "utility",
         },

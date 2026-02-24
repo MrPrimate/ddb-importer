@@ -28,7 +28,7 @@ export default class HurlThroughHell extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Pact Slot to Restore Use",
           type: "utility",
         },

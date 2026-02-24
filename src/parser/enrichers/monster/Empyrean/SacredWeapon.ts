@@ -26,7 +26,7 @@ export default class SacredWeapon extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Additional Damage",
           type: "damage",
         },

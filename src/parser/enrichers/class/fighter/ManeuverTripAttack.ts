@@ -5,7 +5,7 @@ export default class ManeuverTripAttack extends Maneuver {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Trip",
           type: "save",
         },

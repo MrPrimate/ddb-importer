@@ -14,7 +14,7 @@ export default class ElderChampion extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Regain HP",
           type: "heal",
         },
@@ -33,7 +33,7 @@ export default class ElderChampion extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Spend Spell Slot to Restore Use",
           type: "utility",
         },

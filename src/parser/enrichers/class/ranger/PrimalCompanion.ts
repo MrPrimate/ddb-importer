@@ -14,7 +14,7 @@ export default class PrimalCompanion extends DDBEnricherData {
     return this.is2014
       ? [
         {
-          constructor: {
+          init: {
             name: "Summon",
             type: "summon",
           },
@@ -38,7 +38,7 @@ export default class PrimalCompanion extends DDBEnricherData {
           },
         },
         {
-          constructor: {
+          init: {
             name: "Summon With Spell Slot",
             type: "forward",
           },

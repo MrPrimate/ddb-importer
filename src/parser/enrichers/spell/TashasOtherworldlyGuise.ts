@@ -59,7 +59,7 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Otherworldly Weapon",
           type: "enchant",
         },

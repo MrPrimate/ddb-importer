@@ -14,8 +14,8 @@ export default class BlessedMoonbeam extends DDBEnricherData {
       activationCondition: "A creature fails your moonbeam save",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          number: "2",
-          denomination: "4",
+          number: 2,
+          denomination: 4,
           types: ["healing"],
         }),
       },

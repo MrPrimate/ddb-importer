@@ -17,7 +17,7 @@ export default class FeyStep extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Autumn (Save)",
           type: "save",
         },
@@ -35,7 +35,7 @@ export default class FeyStep extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Winter (Save)",
           type: "save",
         },
@@ -53,7 +53,7 @@ export default class FeyStep extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Summer (Damage)",
           type: "damage",
         },

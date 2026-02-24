@@ -12,8 +12,8 @@ export default class CauterizingFlames extends DDBEnricherData {
       activationType: "reaction",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          number: "2",
-          denomination: "10",
+          number: 2,
+          denomination: 10,
           bonus: "@abilities.wis.mod",
           types: ["healing"],
         }),
@@ -24,7 +24,7 @@ export default class CauterizingFlames extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Bonus Damage",
           type: "damage",
         },
@@ -45,8 +45,8 @@ export default class CauterizingFlames extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  number: "2",
-                  denomination: "10",
+                  number: 2,
+                  denomination: 10,
                   bonus: "@abilities.wis.mod",
                   types: ["fire"],
                 }),

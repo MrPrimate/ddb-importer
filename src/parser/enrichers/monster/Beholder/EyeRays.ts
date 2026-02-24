@@ -77,7 +77,7 @@ export default class EyeRays extends DDBEnricherData {
       ddbMonsterDamage.generateRegain();
 
       const result = {
-        constructor: {
+        init: {
           name: EyeRays.rayName(ray),
           type: "save",
         },

@@ -5,7 +5,7 @@ export default class PsychicBlade extends DDBEnricherData {
   get bardActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Damage",
           type: "damage",
         },
@@ -36,7 +36,7 @@ export default class PsychicBlade extends DDBEnricherData {
     if (!this.isClass("Rogue")) return [];
     return [
       {
-        constructor: {
+        init: {
           name: "Bonus Action Attack",
           type: "attack",
         },

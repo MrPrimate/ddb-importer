@@ -13,7 +13,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Giant: Save vs Death",
           type: "save",
         },
@@ -35,7 +35,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Ranged Attack (Uses Charge)",
           type: "attack",
         },
@@ -67,7 +67,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Save vs Stunned",
           type: "save",
         },

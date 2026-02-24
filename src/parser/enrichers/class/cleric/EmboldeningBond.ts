@@ -1,9 +1,9 @@
 import Generic from "../Generic";
-import type { DDBEffectHint } from "../../data/types";
+import type { IDDBEffectHint } from "../../data/types";
 
 export default class EmboldeningBond extends Generic {
 
-  get effects(): DDBEffectHint[] {
+  get effects(): IDDBEffectHint[] {
     return this.isAction
       ? [
         {

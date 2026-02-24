@@ -15,7 +15,7 @@ export default class IrresistibleDance extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save",
           type: "save",
         },

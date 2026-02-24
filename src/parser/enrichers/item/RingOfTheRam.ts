@@ -4,7 +4,7 @@ export default class RingOfTheRam extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Break Object",
           type: "utility",
         },

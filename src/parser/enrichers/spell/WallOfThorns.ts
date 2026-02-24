@@ -29,7 +29,7 @@ export default class WallOfThorns extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Create Circle",
           type: "save",
         },
@@ -56,7 +56,7 @@ export default class WallOfThorns extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Save to Travel Through Wall",
           type: "save",
         },

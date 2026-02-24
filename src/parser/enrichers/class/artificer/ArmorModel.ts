@@ -15,7 +15,7 @@ export default class ArmorModel extends DDBEnricherData {
     });
     const results = [
       {
-        constructor: {
+        init: {
           name: "Guardian",
           type: "enchant",
         },
@@ -49,7 +49,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Guardian: Thunder Gauntlet",
           type: "attack",
         },
@@ -96,7 +96,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Guardian: Defensive Field",
           type: "heal",
         },
@@ -122,7 +122,7 @@ export default class ArmorModel extends DDBEnricherData {
 
     if (this.is2024) {
       results.push({
-        constructor: {
+        init: {
           name: "Guardian: Pull Creature",
           type: "save",
         },
@@ -177,7 +177,7 @@ export default class ArmorModel extends DDBEnricherData {
   get _infiltratorActivities() {
     const results = [
       {
-        constructor: {
+        init: {
           name: "Infiltrator",
           type: "enchant",
         },
@@ -211,7 +211,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Infiltrator: Lightning Launcher",
           type: "attack",
         },
@@ -261,7 +261,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Infiltrator: Lightning Launcher (Extra Damage)",
           type: "attack",
         },
@@ -307,7 +307,7 @@ export default class ArmorModel extends DDBEnricherData {
 
     if (this.is2024) {
       results.push({
-        constructor: {
+        init: {
           name: "Infiltrator: Fly",
           type: "utility",
         },
@@ -350,7 +350,7 @@ export default class ArmorModel extends DDBEnricherData {
   get _dreadnaughtActivities() {
     const results = [
       {
-        constructor: {
+        init: {
           name: "Dreadnaught",
           type: "enchant",
         },
@@ -409,7 +409,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Dreadnaught: Giant Statue (Large)",
           type: "utility",
         },
@@ -453,7 +453,7 @@ export default class ArmorModel extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Dreadnaught: Giant Statue (Huge)",
           type: "utility",
         },

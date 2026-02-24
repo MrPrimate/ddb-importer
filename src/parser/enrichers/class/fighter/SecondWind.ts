@@ -11,8 +11,8 @@ export default class SecondWind extends DDBEnricherData {
       targetType: "self",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          number: "1",
-          denomination: "10",
+          number: 1,
+          denomination: 10,
           bonus: "@classes.fighter.levels",
           types: ["healing"],
         }),

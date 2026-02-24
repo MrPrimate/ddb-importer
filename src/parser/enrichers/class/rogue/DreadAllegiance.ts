@@ -9,7 +9,7 @@ export default class DreadAllegiance extends DDBEnricherData {
   get additionalActivities() {
     const results = [
       {
-        constructor: {
+        init: {
           name: "Choose Bane",
           type: "utility",
         },
@@ -22,7 +22,7 @@ export default class DreadAllegiance extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Choose Bhaal",
           type: "utility",
         },
@@ -35,7 +35,7 @@ export default class DreadAllegiance extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Choose Myrkul",
           type: "utility",
         },
@@ -48,7 +48,7 @@ export default class DreadAllegiance extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Minor Illusion (Bane)",
           type: "cast",
         },
@@ -67,7 +67,7 @@ export default class DreadAllegiance extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Blade Ward (Bhaal)",
           type: "cast",
         },
@@ -86,7 +86,7 @@ export default class DreadAllegiance extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Chill Touch (Myrkul)",
           type: "cast",
         },

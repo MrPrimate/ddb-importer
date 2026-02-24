@@ -20,7 +20,7 @@ export default class HolyAura extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Blinded",
           type: "save",
         },

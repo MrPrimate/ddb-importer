@@ -13,7 +13,7 @@ export default class BeguilingMagic extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Recharge",
           type: "utility",
         },

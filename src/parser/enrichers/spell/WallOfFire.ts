@@ -29,7 +29,7 @@ export default class WallOfFire extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Place Ring",
           type: "save",
         },
@@ -55,7 +55,7 @@ export default class WallOfFire extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Damage",
           type: "damage",
         },

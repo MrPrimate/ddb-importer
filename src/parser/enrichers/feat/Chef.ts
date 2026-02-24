@@ -24,7 +24,7 @@ export default class Chef extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Create Bolstering Treats",
           type: "utility",
         },
@@ -50,7 +50,7 @@ export default class Chef extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Eat Treat",
           type: "heal",
         },

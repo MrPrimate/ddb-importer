@@ -58,7 +58,7 @@ export default class SylunsViper extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Spectral Snake Attack",
           type: "attack",
         },

@@ -33,7 +33,7 @@ export default class Bite extends DDBEnricherData {
   get additionalActivities2014() {
     return [
       {
-        constructor: {
+        init: {
           name: "Swallowed Damage",
           type: "damage",
         },
@@ -45,7 +45,7 @@ export default class Bite extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Escape Check",
           type: "check",
         },

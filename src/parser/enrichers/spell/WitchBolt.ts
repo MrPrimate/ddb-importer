@@ -12,7 +12,7 @@ export default class WitchBolt extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Ongoing Damage",
           type: "damage",
         },

@@ -21,7 +21,7 @@ export default class Hex extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Hex Damage",
           type: "damage",
         },
@@ -38,7 +38,7 @@ export default class Hex extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Move Hex",
           type: "forward",
         },

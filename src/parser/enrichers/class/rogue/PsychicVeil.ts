@@ -14,7 +14,7 @@ export default class PsychicVeil extends DDBEnricherData {
     if (this.isAction) return [];
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Psionic Energy Die to Restore Use",
           type: "utility",
         },

@@ -3,7 +3,7 @@ import Generic from "./Generic";
 export default class MarkOfSentinel extends Generic {
   get additionalActivities() {
     return [{
-      constructor: {
+      init: {
         name: `Vigilant Guardian`,
         type: "utility",
       },

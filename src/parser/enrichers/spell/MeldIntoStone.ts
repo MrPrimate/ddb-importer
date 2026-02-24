@@ -15,7 +15,7 @@ export default class MeldIntoStone extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Minor Physical Damage",
           type: "damage",
         },
@@ -43,7 +43,7 @@ export default class MeldIntoStone extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Destruction",
           type: "damage",
         },

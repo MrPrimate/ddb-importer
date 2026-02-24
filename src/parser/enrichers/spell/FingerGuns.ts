@@ -53,7 +53,7 @@ export default class FingerGuns extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Cast",
           type: "utility",
         },
@@ -72,7 +72,7 @@ export default class FingerGuns extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Cast (Enchantment)",
           type: "enchant",
         },

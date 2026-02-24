@@ -22,7 +22,7 @@ export default class LayOnHands extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Lay On Hands Macro",
           type: "ddbmacro",
         },

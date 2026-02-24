@@ -8,7 +8,7 @@ export default class AbberantDragonmark extends Generic {
         .map((klass) => klass.definition.hitDice);
     const activities = hd.map((die) => {
       return {
-        constructor: {
+        init: {
           name: `Aberrant Surge: Spend HD (d${die})`,
           type: "heal",
         },

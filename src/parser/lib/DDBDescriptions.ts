@@ -1,6 +1,23 @@
 import { logger, utils } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 
+export interface IDCParserResult {
+  save: IActivitySaveData;
+  match: RegExpExecArray | null;
+  damageAndSave: boolean;
+  check?: boolean;
+  duration: {
+    type: string | null;
+    value: string | null;
+    units?: string;
+  };
+  damage: {
+    type: string | null;
+    value: string | null;
+  };
+  riderStatuses: string[];
+}
+
 export default class DDBDescriptions {
 
   static DEFAULT_DURATION_SECONDS = 60;
@@ -15,13 +32,14 @@ export default class DDBDescriptions {
     }
   }
 
-  static getDuration(text, returnDefault = true, generateSpecial = true) {
+  static getDuration(text: string, returnDefault = true, generateSpecial = true) {
     const defaultDurationSeconds = 60;
     const result = {
       type: returnDefault ? "second" : null,
       second: returnDefault ? defaultDurationSeconds : null,
       round: returnDefault ? (defaultDurationSeconds / 6) : null,
       minute: null,
+      turns: null,
       hour: null,
       special: "",
       value: null,
@@ -124,7 +142,7 @@ export default class DDBDescriptions {
     return effect;
   }
 
-  static getRiderStatusEffects({ text, condition } = {}) {
+  static getRiderStatusEffects({ text, condition } : { text: string, condition: string }) {
     const checkReg = new RegExp(`While ${condition}, the target has the (.*) condition`, "i");
     const match = checkReg.exec(text);
     if (match) {
@@ -165,15 +183,14 @@ export default class DDBDescriptions {
   // DC 13 Constitution saving throw or be poisoned for 1 hour. If the saving throw fails by 5 or more, the target is also unconscious while poisoned in this way. The target wakes up if it takes damage or if another creature takes an action to shake it awake.
 
 
-   
-  static dcParser({ text } = {}) {
-    const results = {
+  static dcParser({ text } : { text: string }): IDCParserResult {
+    const results: IDCParserResult = {
       save: {
         dc: {
           formula: "",
           calculation: "",
         },
-        ability: null,
+        ability: [],
       },
       match: null,
       damageAndSave: false,
@@ -278,12 +295,12 @@ export default class DDBDescriptions {
       if (match.groups.type === "check") results.check = true;
       results.save = {
         dc: {
-          formulas: match.groups["dc"] ?? "",
+          formula: match.groups["dc"] ?? "",
           calculation: match.groups["spellcasting"] ? "spellcasting" : (match.groups["modifier"]?.toLowerCase().substr(0, 3) ?? ""),
         },
-        ability: match.groups["ability"]?.toLowerCase().substr(0, 3) ?? "",
+        ability: match.groups["ability"] ? [match.groups["ability"].toLowerCase().substr(0, 3)] : [],
       };
-      if (results.save.dc.calculation === "" && results.save.dc.formulas === "") {
+      if (results.save.dc.calculation === "" && results.save.dc.formula === "") {
         if (parserText.toLowerCase().includes("channel divinity)")) {
           results.save.dc.calculation = "spellcasting";
         }
@@ -309,7 +326,7 @@ export default class DDBDescriptions {
     return results;
   }
 
-  static getConditionInfo(condition, hint) {
+  static getConditionInfo(condition: string, hint?: string) {
     const result = {
       success: true,
       condition: null,
@@ -342,7 +359,7 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static parseStatusCondition({ text } = {}) {
+  static parseStatusCondition({ text } : { text: string }) {
     const result = {
       success: false,
       check: false,
@@ -352,7 +369,7 @@ export default class DDBDescriptions {
           calculation: "",
         },
         ability: null,
-      },
+      } as IActivitySaveData,
       condition: null,
       group4: null,
       group4Condition: null,
@@ -421,8 +438,8 @@ export default class DDBDescriptions {
   }
 
 
-   
-  static featureBasics({ text } = {}) {
+
+  static featureBasics({ text } : { text: string }) {
 
     const standardMatchRegex = /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i;
     const standardAttackMatches = standardMatchRegex.exec(text);
@@ -459,7 +476,7 @@ export default class DDBDescriptions {
         : false;
 
     const save = {
-      ability: "",
+      ability: [],
       dc: {
         calculation: "",
         formula: "",
@@ -483,9 +500,9 @@ export default class DDBDescriptions {
     if (halfMatch) save.half = true;
 
     if (savingThrow) {
-      save.dc.formula = parseInt(savingThrow.groups.dc);
+      save.dc.formula = savingThrow.groups.dc;
       save.dc.calculation = "";
-      save.ability = savingThrow.groups.ability.toLowerCase().substr(0, 3);
+      save.ability = [savingThrow.groups.ability.toLowerCase().substr(0, 3)];
     } else if (spellSave || summonSave) {
       // save.dc = 10;
       save.ability = spellSave

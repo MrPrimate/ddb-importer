@@ -30,7 +30,7 @@ export default class EyesOfNight extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Activate With Spell Slot",
           type: "forward",
         },

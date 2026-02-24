@@ -16,7 +16,7 @@ export default class ArcaneVigor extends DDBEnricherData {
     const activities = [4, 6, 8, 10, 12]
       .map((die) => {
         return {
-          constructor: {
+          init: {
             name: `Spend spells level HD (d${die})`,
             type: "heal",
           },

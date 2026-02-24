@@ -30,7 +30,7 @@ export default class ArcaneWard extends DDBEnricherData {
   get additionalActivities() {
     const additional = [
       {
-        constructor: {
+        init: {
           name: "Damage Ward",
           type: "utility",
         },
@@ -50,7 +50,7 @@ export default class ArcaneWard extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Restore Ward After Casting Spell",
           type: "utility",
         },
@@ -74,7 +74,7 @@ export default class ArcaneWard extends DDBEnricherData {
     ];
     if (!this.is2014) {
       additional.push({
-        constructor: {
+        init: {
           name: "Expend Spell Slot for Ward",
           type: "utility",
         },

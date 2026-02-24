@@ -27,7 +27,7 @@ export default class PrismaticWall extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Create Globe",
           type: "utility",
         },
@@ -49,7 +49,7 @@ export default class PrismaticWall extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Blinding Save",
           type: "save",
         },
@@ -69,7 +69,7 @@ export default class PrismaticWall extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Damage Save",
           type: "save",
         },

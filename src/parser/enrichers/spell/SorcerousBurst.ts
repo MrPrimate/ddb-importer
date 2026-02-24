@@ -14,7 +14,7 @@ export default class SorcerousBurst extends DDBEnricherData {
           customFormula: "1d8x@mod=8",
           types: ["acid", "cold", "fire", "lightning", "poison", "psychic", "thunder"],
           scalingMode: "whole",
-          scalingNumber: "1",
+          scalingNumber: 1,
         }),
       ],
     };

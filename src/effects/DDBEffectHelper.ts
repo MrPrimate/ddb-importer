@@ -1217,12 +1217,13 @@ export default class DDBEffectHelper {
     return DDBDescriptions.getDuration(text, returnDefault);
   }
 
-  static dcParser({ text } = {}) {
+  static dcParser({ text } : { text: string }) {
     return DDBDescriptions.dcParser({ text });
   }
 
-  static parseStatusCondition({ text, nameHint = null } = {}) {
-    return DDBDescriptions.parseStatusCondition({ text, nameHint });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static parseStatusCondition({ text, nameHint = null } : { text: string, nameHint?: string }) {
+    return DDBDescriptions.parseStatusCondition({ text });
   }
 
   static filerActivitiesByIds(activities, ids) {

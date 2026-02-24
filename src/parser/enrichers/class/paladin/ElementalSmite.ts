@@ -5,7 +5,7 @@ export default class ElementalSmite extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Dao's Crush",
           type: "utility",
         },
@@ -24,7 +24,7 @@ export default class ElementalSmite extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Djinni's Escape",
           type: "utility",
         },
@@ -51,7 +51,7 @@ export default class ElementalSmite extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Efreeti's Fury",
           type: "damage",
         },
@@ -85,7 +85,7 @@ export default class ElementalSmite extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Marid's Surge",
           type: "save",
         },
@@ -113,7 +113,7 @@ export default class ElementalSmite extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Escape Check",
           type: "check",
         },

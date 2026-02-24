@@ -41,7 +41,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: `Spend ${spend} to Restore Use`,
           type: "utility",
         },

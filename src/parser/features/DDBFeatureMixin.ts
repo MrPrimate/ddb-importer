@@ -22,6 +22,14 @@ import {
 } from "../lib/_module";
 import type DDBCharacter from "../DDBCharacter";
 
+interface IDDBFeatureMixinActionType {
+  class?: {
+    componentId: number;
+  };
+  race?: boolean | object;
+  feat?: boolean | object;
+}
+
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   static LEVEL_SCALE_EXCLUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS;
@@ -61,7 +69,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   snippet: string;
   description: string;
   resourceCharges: number | null;
-  ddbFeature: any; // IDDBClassFeatureDefinition | IDDBSpeciesTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
+  ddbFeature: IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
 
   // Set in _getRules / _generateActionTypes / _checkSummons
   _class: IDDBClass | undefined;
@@ -76,7 +84,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   isCRSummonFeature2024: boolean;
   isSummons: boolean;
   _generatedUses: I5eSystemLimitedUses;
-
+  _actionType: IDDBFeatureMixinActionType;
+  _descriptionSave: IActivitySaveData;
+  extraFlags: IActorFlagConfig;
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
@@ -131,9 +141,9 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       foundry.utils.setProperty(this.data.flags, "ddbimporter.type", "class");
       foundry.utils.setProperty(this.data.flags, "ddbimporter.class", klass.definition.name);
       foundry.utils.setProperty(this.data.flags, "ddbimporter.classId", klass.definition.id);
-      const subKlass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
+      const subKlass: IDDBClass = DDBDataUtils.findSubClassByFeatureId(this.ddbData, this._actionType.class.componentId);
       this.subKlass = subKlass?.definition.name;
-      const subClass = foundry.utils.getProperty(subKlass, "subclassDefinition");
+      const subClass : IDDBClassDefinition = foundry.utils.getProperty(subKlass, "subclassDefinition") as IDDBClassDefinition;
       if (subClass) {
         foundry.utils.setProperty(this.data.flags, "ddbimporter.subClass", subClass.name);
         foundry.utils.setProperty(this.data.flags, "ddbimporter.subClassId", subClass.id);

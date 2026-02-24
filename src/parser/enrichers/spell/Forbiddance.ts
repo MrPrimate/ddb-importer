@@ -15,7 +15,7 @@ export default class Forbiddance extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Damage",
           type: "damage",
         },

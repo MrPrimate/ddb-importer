@@ -25,7 +25,7 @@ export default class DeviousStrikes extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Knock Out",
           type: "save",
         },
@@ -54,7 +54,7 @@ export default class DeviousStrikes extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Obscure",
           type: "save",
         },
@@ -88,7 +88,7 @@ export default class DeviousStrikes extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Modified Sneak Attack Damage",
           type: "damage",
         },

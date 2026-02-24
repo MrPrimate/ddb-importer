@@ -35,7 +35,7 @@ export default class Shifting extends DDBEnricherData {
     const results = [];
     for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
       results.push({
-        constructor: {
+        init: {
           name: `Shift ${shifterType}`,
           type: "heal",
         },
@@ -67,7 +67,7 @@ export default class Shifting extends DDBEnricherData {
   get additionalActivitiesLongtooth() {
     return [
       {
-        constructor: {
+        init: {
           name: "Longtooth Attack",
           type: "attack",
         },

@@ -9,7 +9,7 @@ export default class MutateShape extends DDBEnricherData {
   get additionalActivities() {
     const results = [
       {
-        constructor: {
+        init: {
           name: "Clear Mutation Point",
           type: "utility",
         },
@@ -34,7 +34,7 @@ export default class MutateShape extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Spend Spell Slot to Gain Mutation Points",
           type: "utility",
         },

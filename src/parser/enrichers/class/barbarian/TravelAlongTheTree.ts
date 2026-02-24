@@ -24,7 +24,7 @@ export default class TravelAlongTheTree extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Group Teleport",
           type: "utility",
         },

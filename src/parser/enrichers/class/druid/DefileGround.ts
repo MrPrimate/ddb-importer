@@ -17,7 +17,7 @@ export default class DefileGround extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Damage",
           type: "damage",
         },

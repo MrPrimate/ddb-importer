@@ -43,7 +43,7 @@ export default class ConjureFey extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Summons: Teleport and Attack",
           type: "utility",
         },

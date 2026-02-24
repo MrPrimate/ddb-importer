@@ -22,7 +22,7 @@ export default class CelestialResilience extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Heal Others",
           type: "heal",
         },

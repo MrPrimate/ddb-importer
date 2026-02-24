@@ -19,7 +19,7 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Liberation",
           type: "utility",
         },
@@ -36,7 +36,7 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Respite",
           type: "heal",
         },

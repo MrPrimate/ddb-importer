@@ -11,7 +11,7 @@ export default class IllusorySelf extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Spell Slot to Restore Use",
           type: "utility",
         },

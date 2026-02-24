@@ -12,7 +12,7 @@ export default class Banishment extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Banishment Macro",
           type: "ddbmacro",
         },

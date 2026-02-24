@@ -23,7 +23,7 @@ export default class ConjureCelestial extends DDBEnricherData {
         healing: {
           scaling: {
             mode: "whole",
-            number: "1",
+            number: 1,
           },
         },
         "damage.parts": [
@@ -32,7 +32,7 @@ export default class ConjureCelestial extends DDBEnricherData {
             denomination: 12,
             types: ["radiant"],
             scalingMode: "whole",
-            scalingNumber: "1",
+            scalingNumber: 1,
           }),
         ],
       },
@@ -43,7 +43,7 @@ export default class ConjureCelestial extends DDBEnricherData {
     if (this.is2014) return null;
     return [
       {
-        constructor: {
+        init: {
           name: "Cast",
           type: "utility",
         },

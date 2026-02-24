@@ -1,119 +1,124 @@
+import { IDDBDamagePart } from "../parser/enrichers/data/types";
+
 export {};
 
 global {
-  export interface IActivitySave {
-    ability: Set<string>;
+  export interface IActivitySaveData {
+    ability: string[];
     dc: {
       calculation: string;
       formula: string;
-      value: number
     };
+    override?: boolean;
   }
 
-  export interface IActivityCheck {
-    ability: string;
-    associated: Set<string>;
+  export interface IActivityCheckData {
+    ability: string[];
+    associated: string[];
     dc: {
       calculation: string;
       formula: string;
-      value: number
     };
   }
 
   export interface IActivityEffectData {
     _id: string;
-    get effect(): ActiveEffect.Implementation | undefined;
     onSave?: boolean;
   }
 
+  export interface IActivityVisibilityData {
+    level?: {
+      min?: number | null;
+      max?: number | null;
+    };
+    requireAttunement?: boolean;
+    requireIdentification?: boolean;
+    requireMagic?: boolean;
+    identifier?: string;
+  }
 
-  export interface IActivity extends AnyMutableObject {
-    get applicableEffects(): ActiveEffect[] | null;
-    actor?: Actor.Implementation;
-    item: Item.Implementation;
-    ammunitionItem?: Item.Implementation;
-    name: string;
-    uses: {
-      spent: number;
-      max: number;
-      get value(): number;
-      recovery: unknown[];
-    }
-    consumption: {
-      scaling: {
-        allowed: boolean;
-        max: string;
+  export interface IActivitySpellData {
+    challenge?: {
+        override: boolean;
+    };
+    properties?: ("vocal" | "somatic" | "material" | "concentration" | "ritual")[];
+    spellbook?: boolean;
+    uuid?: string;
+    ability?: string;
+  }
+
+  export interface IActivityRestrictionsData {
+    allowMagical?: boolean;
+    categories?: string[];
+    properties?: string[];
+    type?: string;
+  }
+
+  export interface IActivitySettingsData {
+    effects?: string[];
+    keep?: string[];
+    tempFormula?: string;
+    preset?: string;
+    merge?: string[];
+    other?: string[];
+    spellLists?: string[];
+    transformTokens?: boolean;
+    minimumAC?: string;
+  }
+
+  export interface IActivityData {
+    name?: string;
+    uses?: I5eSystemLimitedUses;
+    sort?: number;
+    visibility?: IActivityVisibilityData;
+    spell?: IActivitySpellData;
+    restrictions?: IActivityRestrictionsData;
+    settings?: IActivitySettingsData;
+    consumption?: {
+      scaling?: {
+        allowed?: boolean;
+        max?: string;
       };
-      spellSlot: boolean;
-      targets: {
-        type: string;
-        target: string;
-        value: string;
-        scaling: {
-          mode: string;
-          formula: string;
-        }
+      spellSlot?: boolean;
+      targets?: {
+        type?: string;
+        target?: string;
+        value?: string;
+        scaling?: {
+          mode?: string;
+          formula?: string;
+        };
       }[];
     };
-    effects: IActivityEffectData[];
+    effects?: IActivityEffectData[];
     attack?: {
-      ability: string;
-      bonus: string;
-      critical: {
-        threshold: number;
+      ability?: string;
+      bonus?: string;
+      critical?: {
+        threshold?: number;
       };
-      flat: boolean;
-      type: {
-        value: string;
-        classification: string;
+      flat?: boolean;
+      type?: {
+        value?: string;
+        classification?: string;
       };
-      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-      damage: {};
     };
     damage?: {
-      critical: {
-        allow: boolean;
-        bonus: string;
+      critical?: {
+        allow?: boolean;
+        bonus?: string;
       };
-      parts: {
-        number: number;
-        denomination: number;
-        bonus: string;
-        types: Set<string>;
-        custom: {
-          enabled: boolean;
-          formula: string;
-        };
-        scaling: {
-          mode: string;
-          number: number;
-          formula: string;
-        };
-      }[];
+      parts?: Partial<IDDBDamagePart>[];
       // midi stuff
-      onSave: string;
+      onSave?: string;
     };
     range?: {
       units?: string;
       reach?: number;
       value?: number;
       long?: number;
-    }
-    healing?: {
-      number: number;
-      denomination: number;
-      bonus: string;
-      types: Set<string>;
-      custom: {
-        enabled: boolean;
-        formula: string;
-      };
-      scaling: {
-        mode: string;
-        number: number;
-        formula: string;
-      };
     };
+    healing?: Partial<IDDBDamagePart>;
     overTimeProperties?: {
       turnChoice?: string;
       saveRemoves?: boolean;
@@ -122,111 +127,83 @@ global {
       postRemoveConditionText?: string;
       removeConditionBeforeActivity?: boolean;
       removeConditionText?: string;
-    }
-    metadata: {
-      title: string;
-      img: string;
-      label: string;
-      name: string;
-      type: string;
-      usage: {
-        actions: unknown;
-        chatCard: string;
-        dialog: unknown;
-      };
     };
-    refund: (consumed: unknown) => Promise<void>;
-    getRollData: () => AnyMutableObject;
-    rollAttack?(config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig): Promise<Roll[] | null>;
-    rollDamage(config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig): Promise<Roll[] | void>;
-    rollFormula?(config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig): Promise<Roll[] | void>;
     // Consumption and scaling methods/properties
     canScale?: boolean;
-    _prepareUsageConfig: (config: object) => object;
-    _prepareUsageUpdates: (config: object, options?: { returnErrors?: boolean }) => Promise<any>;
-    // consume() method for consuming activity resources - returns consumed delta data or false if cancelled
-    consume: (usageConfig: object, messageConfig: object) => Promise<object | false>;
     roll?: {
       formula?: string;
     };
-    duration: {
+    duration?: {
       concentration?: boolean;
       override?: boolean;
-      scalar?: boolean;
-      special: string;
-      units: string;
-      value: number;
-    }
-    target: {
-      template: {
-        count: string;
-        contiguous: boolean;
-        type: string;
-        size: string;
-        width: string;
-        height: string;
-        units: string;
-      };
-      affects: {
-        count: string;
-        type: string;
-        choice: boolean;
-        special: string;
-      }
+      special?: string;
+      units?: string;
+      value?: string;
     };
-    activation: {
-      type: string;
-      value: number;
-      condition: string;
+    target?: {
+      template?: {
+        count?: string;
+        contiguous?: boolean;
+        type?: string;
+        size?: string;
+        width?: string;
+        height?: string;
+        units?: string;
+      };
+      affects?: {
+        count?: string;
+        type?: string;
+        choice?: boolean;
+        special?: string;
+      };
+    };
+    activation?: {
+      type?: string;
+      value?: string;
+      condition?: string;
       cost?: number;
     };
-    save?: IActivitySave;
-    check?: IActivityCheck;
-    getAbility?: (associated: string) => string | null;
-    hasDamage: boolean;
-    hasHealing: boolean;
-    actionType: string;
-    uuid: string;
+    save?: IActivitySaveData;
+    check?: IActivityCheckData;
+    actionType?: string;
+    uuid?: string;
     otherActivity?: IActivity | null;
-    type: string;
-    useCondition: string;
-    effectCondition: string;
-    setupCanSeeSense: (usage: { workflow?: Workflow }) => Promise<void>;
-    getTriggeredActivity: () => Promise<IActivity | undefined>;
-    macro: Macro.Implementation;
+    type?: string;
+    useCondition?: string;
+    effectCondition?: string;
     midiProperties?: {
-      ignoreTraits: Set<string>;
-      triggeredActivityId: string;
+      ignoreTraits?: string[];
+      triggeredActivityId?: string;
       triggeredActivityConditionText?: string;
-      triggeredActivityTargets: string;
+      triggeredActivityTargets?: string;
       triggeredActivityRollAs?: string;
-      autoConsume: boolean;
+      autoConsume?: boolean;
       forceConsumeDialog?: string;
       forceRollDialog?: string;
       forceDamageDialog?: string;
-      confirmTargets: string;
-      autoTargetType: string;
+      confirmTargets?: string;
+      autoTargetType?: string;
       autoTargetAction?: string;
       automationOnly?: boolean;
       otherActivityCompatible?: boolean;
       identifier?: string;
       displayActivityName?: boolean;
-      rollMode: keyof CONFIG.Dice.RollModes;
+      rollMode?: keyof CONFIG.Dice.RollModes;
       chooseEffects?: boolean;
       toggleEffect?: boolean;
       ignoreFullCover?: boolean;
-      removeChatButtons: string;
+      removeChatButtons?: string;
       magicEffect?: boolean;
       magicDamage?: boolean;
       noConcentrationCheck?: boolean;
       skipConcentrationCheck?: boolean;
-      autoCEEffects: string;
-    }
-    // Midi mixin methods
-    hasConsumption: () => boolean;
-    shouldAutoConsume: (workflow?: Workflow) => boolean;
-    deferOtherDamage: (config: RollProcessConfig, dialog: RollDialogConfig) => boolean;
-    rollOtherDamage: (config: RollProcessConfig, dialog: RollDialogConfig) => Promise<Roll[] | undefined>;
+      autoCEEffects?: string;
+    };
+    flags?: {
+      ddbimporter?: {
+        isElixirAdditionalActivity?: boolean;
+      };
+    };
   }
 }
 

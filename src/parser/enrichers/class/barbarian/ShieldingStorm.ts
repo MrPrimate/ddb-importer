@@ -15,7 +15,7 @@ export default class ShieldingStorm extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Shielding Storm: Sea",
           type: "utility",
         },
@@ -33,7 +33,7 @@ export default class ShieldingStorm extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Shielding Storm: Tundra",
           type: "utility",
         },

@@ -16,7 +16,7 @@ export default class RayOfSickness extends DDBEnricherData {
     if (this.is2014) {
       return [
         {
-          constructor: {
+          init: {
             name: "Save vs Poisoned",
             type: "save",
           },

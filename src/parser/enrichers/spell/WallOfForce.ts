@@ -30,7 +30,7 @@ export default class WallOfForce extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Create Dome/Globe",
           type: "utility",
         },

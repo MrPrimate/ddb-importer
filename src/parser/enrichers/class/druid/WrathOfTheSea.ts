@@ -25,7 +25,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save for Damage",
           type: "save",
         },

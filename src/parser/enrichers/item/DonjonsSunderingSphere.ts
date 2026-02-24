@@ -20,7 +20,7 @@ export default class DonjonsSunderingSphere extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Isolating Smite: Save vs Banishment",
           type: "save",
         },

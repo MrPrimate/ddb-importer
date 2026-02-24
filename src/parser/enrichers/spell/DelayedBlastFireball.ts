@@ -30,7 +30,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Touch Bead",
           type: "save",
         },
@@ -67,7 +67,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Increase Turn Counter",
           type: "utility",
         },
@@ -98,7 +98,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Explosion",
           type: "save",
         },
@@ -122,8 +122,8 @@ export default class DelayedBlastFireball extends DDBEnricherData {
               damage: {
                 parts: [
                   DDBEnricherData.basicDamagePart({
-                    number: "12",
-                    denomination: "6",
+                    number: 12,
+                    denomination: 6,
                     bonus: "(@item.uses.value)d6",
                     types: ["fire"],
                   }),

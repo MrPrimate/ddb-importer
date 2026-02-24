@@ -29,7 +29,7 @@ export default class ThunderousSmite extends DDBEnricherData {
   get additionalActivities() {
     const activities = [
       {
-        constructor: {
+        init: {
           name: "Save vs Pushed",
           type: "save",
         },
@@ -43,7 +43,7 @@ export default class ThunderousSmite extends DDBEnricherData {
     ];
     if (this.is2014 && this.useMidiAutomations) {
       activities.push({
-        constructor: {
+        init: {
           name: "Cast (Automation)",
           type: "utility",
         },

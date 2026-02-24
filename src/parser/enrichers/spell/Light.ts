@@ -4,7 +4,7 @@ export default class Light extends DDBEnricherData {
 
   get additionalActivities() {
     const template = {
-      constructor: {
+      init: {
         name: "Place or Remove Light",
         type: "ddbmacro",
       },
@@ -32,7 +32,7 @@ export default class Light extends DDBEnricherData {
       return [
         template,
         {
-          constructor: {
+          init: {
             name: "Apply Light Effect",
             type: "utility",
           },
@@ -53,7 +53,7 @@ export default class Light extends DDBEnricherData {
       return [
         template,
         {
-          constructor: {
+          init: {
             name: "Place on Targetted Token or Remove",
             type: "ddbmacro",
           },

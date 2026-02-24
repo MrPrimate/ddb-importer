@@ -15,7 +15,7 @@ export default class SlayersPrey extends Generic {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Bonus Damage",
           type: "damage",
         },

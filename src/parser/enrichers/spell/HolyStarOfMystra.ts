@@ -16,7 +16,7 @@ export default class HolyStarOfMystra extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Attack",
           type: "attack",
         },

@@ -11,7 +11,7 @@ export default class Dragonscarred extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Fearsome Power",
           type: "save",
         },

@@ -44,7 +44,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Withdraw Potion",
           type: "utility",
         },

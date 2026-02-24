@@ -40,7 +40,7 @@ export default class StepsOfTheFey extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Taunting Step",
           type: "save",
         },

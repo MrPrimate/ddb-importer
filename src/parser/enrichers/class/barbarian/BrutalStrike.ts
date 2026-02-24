@@ -22,7 +22,7 @@ export default class BrutalStrike extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Forceful Blow",
           type: "utility",
         },
@@ -32,7 +32,7 @@ export default class BrutalStrike extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Hamstrung Blow",
           type: "utility",
         },

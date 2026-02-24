@@ -4,7 +4,7 @@ export default class ManeuverDisarmingAttack extends Maneuver {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Disarmed",
           type: "save",
         },

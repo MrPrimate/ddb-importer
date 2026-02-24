@@ -20,7 +20,7 @@ export default class MortalBulwark extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Banishment",
           type: "save",
         },

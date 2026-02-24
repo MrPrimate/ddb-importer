@@ -23,7 +23,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
 
   getSkeleton(hd) {
     return {
-      constructor: {
+      init: {
         name: `Burning Life Force (d${hd})`,
         type: "utility",
       },
@@ -85,7 +85,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     const results = this.hdActivities;
     results.push(...[
       {
-        constructor: {
+        init: {
           name: "Spell Avoidance",
           type: "utility",
         },
@@ -99,7 +99,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Spend Sorcery Points to Restore Use",
           type: "utility",
         },

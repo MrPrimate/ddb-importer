@@ -42,7 +42,7 @@ export default class DrakeCompanion extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Restore Drake With Spell Slot",
           type: "forward",
         },

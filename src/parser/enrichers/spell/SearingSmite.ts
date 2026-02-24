@@ -17,7 +17,7 @@ export default class SearingSmite extends DDBEnricherData {
               denomination: 6,
               types: ["fire"],
               scalingMode: "whole",
-              scalingNumber: "1",
+              scalingNumber: 1,
             }),
           ],
         },
@@ -28,7 +28,7 @@ export default class SearingSmite extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Ongoing Damage",
           type: "save",
         },
@@ -40,7 +40,7 @@ export default class SearingSmite extends DDBEnricherData {
               denomination: 6,
               type: "fire",
               scalingMode: "whole",
-              scalingNumber: "1",
+              scalingNumber: 1,
             }),
           ],
           noeffect: true,

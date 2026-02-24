@@ -28,7 +28,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Absorb Energy",
           type: "utility",
         },
@@ -51,7 +51,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Energy Blast",
           type: "attack",
         },

@@ -16,7 +16,7 @@ export default class BloodFuryTattoo extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Reactive Strike",
           type: "utility",
         },

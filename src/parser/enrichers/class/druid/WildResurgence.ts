@@ -37,7 +37,7 @@ export default class WildResurgence extends DDBEnricherData {
     });
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Wild Shape to Regain Spell Slot",
           type: "utility",
         },

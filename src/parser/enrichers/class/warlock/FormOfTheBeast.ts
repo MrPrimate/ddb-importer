@@ -39,7 +39,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Bite",
           type: "attack",
         },
@@ -85,7 +85,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Claw",
           type: "attack",
         },

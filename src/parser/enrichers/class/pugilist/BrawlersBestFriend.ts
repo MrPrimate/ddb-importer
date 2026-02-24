@@ -52,7 +52,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Restore Hound With Moxie",
           type: "forward",
         },

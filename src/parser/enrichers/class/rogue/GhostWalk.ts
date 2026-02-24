@@ -31,7 +31,7 @@ export default class GhostWalk extends DDBEnricherData {
     if (this.isAction) return [];
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Soul Trinket to Restore Use",
           type: "utility",
         },

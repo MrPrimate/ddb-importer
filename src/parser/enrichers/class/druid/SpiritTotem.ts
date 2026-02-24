@@ -9,7 +9,7 @@ export default class SpiritTotem extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Bear Totem",
           type: "heal",
         },
@@ -42,7 +42,7 @@ export default class SpiritTotem extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Hawk Spirit",
           type: "utility",
         },
@@ -71,7 +71,7 @@ export default class SpiritTotem extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Unicorn Spirit",
           type: "utility",
         },
@@ -100,7 +100,7 @@ export default class SpiritTotem extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Unicorn Spirit: Bonus Healing",
           type: "heal",
         },

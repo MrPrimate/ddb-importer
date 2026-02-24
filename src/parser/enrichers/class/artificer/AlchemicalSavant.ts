@@ -23,7 +23,7 @@ export default class AlchemicalSavant extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Damage Bonus",
           type: "damage",
         },

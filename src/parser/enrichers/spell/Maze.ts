@@ -11,7 +11,7 @@ export default class Maze extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Check",
           type: "check",
         },

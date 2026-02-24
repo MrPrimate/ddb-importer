@@ -39,7 +39,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Lightning Bolt",
           type: "save",
         },

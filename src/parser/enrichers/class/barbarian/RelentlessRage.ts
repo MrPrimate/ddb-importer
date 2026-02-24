@@ -25,7 +25,7 @@ export default class RelentlessRage extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Apply Healing",
           type: "heal",
         },

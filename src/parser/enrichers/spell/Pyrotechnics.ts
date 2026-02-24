@@ -29,7 +29,7 @@ export default class Pyrotechnics extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Smoke",
           type: "utility",
         },

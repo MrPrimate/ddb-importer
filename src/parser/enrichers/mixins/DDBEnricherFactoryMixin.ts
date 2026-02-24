@@ -2,6 +2,7 @@ import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
+import { IDDBActivityAction } from "../data/types";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 
 export default class DDBEnricherFactoryMixin {
@@ -419,20 +420,20 @@ export default class DDBEnricherFactoryMixin {
 
     if (overrideData.parent) {
       for (const parent of overrideData.parent) {
-        const lookupName = (foundry as any).utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.lookupName");
+        const lookupName = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.lookupName");
         if (lookupName !== parent.lookupName) continue;
 
-        const base = (foundry as any).utils.deepClone(overrideData);
+        const base = foundry.utils.deepClone(overrideData);
         delete base.parent;
-        overrideData = (foundry as any).utils.mergeObject(base, parent);
+        overrideData = foundry.utils.mergeObject(base, parent);
       }
     }
 
     if (overrideData.noConsumeTargets) {
-      (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+      foundry.utils.setProperty(activity, "consumption.targets", []);
     }
     if (overrideData.addItemConsume) {
-      (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+      foundry.utils.setProperty(activity, "consumption.targets", []);
       activity.consumption.targets.push({
         type: "itemUses",
         target: overrideData.itemConsumeTargetName ?? "",
@@ -443,12 +444,12 @@ export default class DDBEnricherFactoryMixin {
         },
       });
       if (overrideData.itemConsumeTargetName && overrideData.itemConsumeTargetName !== "") {
-        (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
       }
     }
     if (overrideData.addActivityConsume) {
-      if (!(foundry as any).utils.getProperty(activity, "consumption.targets"))
-        (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+      if (!foundry.utils.getProperty(activity, "consumption.targets"))
+        foundry.utils.setProperty(activity, "consumption.targets", []);
       activity.consumption.targets.push({
         type: "activityUses",
         target: "",
@@ -460,8 +461,8 @@ export default class DDBEnricherFactoryMixin {
       });
     }
     if (overrideData.addSpellSlotConsume) {
-      if (!(foundry as any).utils.getProperty(activity, "consumption.targets"))
-        (foundry as any).utils.setProperty(activity, "consumption.targets", []);
+      if (!foundry.utils.getProperty(activity, "consumption.targets"))
+        foundry.utils.setProperty(activity, "consumption.targets", []);
       activity.consumption.targets.push({
         type: "spellSlots",
         target: overrideData.spellSlotConsumeTarget ?? "",
@@ -478,31 +479,31 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.addConsumptionScalingMax !== undefined) {
-      (foundry as any).utils.setProperty(activity, "consumption.scaling", {
+      foundry.utils.setProperty(activity, "consumption.scaling", {
         allowed: true,
         max: overrideData.addConsumptionScalingMax,
       });
     }
 
     if (overrideData.removeSpellSlotConsume || overrideData.noSpellslot) {
-      (foundry as any).utils.setProperty(activity, "consumption.spellSlot", false);
+      foundry.utils.setProperty(activity, "consumption.spellSlot", false);
     }
 
     if (overrideData.targetSelf) {
-      (foundry as any).utils.setProperty(activity, "target.affects.type", "self");
+      foundry.utils.setProperty(activity, "target.affects.type", "self");
     }
 
     if (overrideData.targetType) {
       if (activity.target?.affects) {
-        (foundry as any).utils.setProperty(activity, "target.affects.type", overrideData.targetType);
+        foundry.utils.setProperty(activity, "target.affects.type", overrideData.targetType);
         if (overrideData.targetCount) {
-          (foundry as any).utils.setProperty(activity, "target.affects.count", overrideData.targetCount);
+          foundry.utils.setProperty(activity, "target.affects.count", overrideData.targetCount);
         }
         if (overrideData.targetChoice) {
-          (foundry as any).utils.setProperty(activity, "target.affects.choice", overrideData.targetChoice);
+          foundry.utils.setProperty(activity, "target.affects.choice", overrideData.targetChoice);
         }
       } else {
-        (foundry as any).utils.setProperty(activity, "target", {
+        foundry.utils.setProperty(activity, "target", {
           template: {
             count: "",
             contiguous: false,
@@ -521,8 +522,8 @@ export default class DDBEnricherFactoryMixin {
           prompt: true,
         });
       }
-      if ([undefined, null, ""].includes((foundry as any).utils.getProperty(activity, "range.units"))) {
-        (foundry as any).utils.setProperty(activity, "range", {
+      if ([undefined, null, ""].includes(foundry.utils.getProperty(activity, "range.units") as string)) {
+        foundry.utils.setProperty(activity, "range", {
           value: null,
           units: "self",
           special: "",
@@ -531,7 +532,7 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.rangeType) {
-      (foundry as any).utils.setProperty(activity, "range", {
+      foundry.utils.setProperty(activity, "range", {
         value: overrideData.rangeValue ?? null,
         units: overrideData.rangeType,
         special: overrideData.rangeSpecial ?? "",
@@ -539,7 +540,7 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.rangeSelf) {
-      (foundry as any).utils.setProperty(activity, "range", {
+      foundry.utils.setProperty(activity, "range", {
         value: null,
         units: "self",
         special: "",
@@ -547,7 +548,7 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.noTemplate) {
-      (foundry as any).utils.setProperty(activity, "target.template", {
+      foundry.utils.setProperty(activity, "target.template", {
         count: "",
         contiguous: false,
         type: "",
@@ -560,10 +561,10 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.overrideTemplate || overrideData.overrideTarget)
-      (foundry as any).utils.setProperty(activity, "target.override", true);
+      foundry.utils.setProperty(activity, "target.override", true);
 
     if (overrideData.overrideRange)
-      (foundry as any).utils.setProperty(activity, "range.override", true);
+      foundry.utils.setProperty(activity, "range.override", true);
 
     if (overrideData.activationType) {
       activity.activation = {
@@ -572,14 +573,14 @@ export default class DDBEnricherFactoryMixin {
         condition: overrideData.activationCondition ?? activity.activation?.condition ?? "",
       };
     } else if (overrideData.activationValue) {
-      (foundry as any).utils.setProperty(activity, "activation.value", overrideData.activationValue);
+      foundry.utils.setProperty(activity, "activation.value", overrideData.activationValue);
     }
     if (overrideData.activationCondition) {
-      (foundry as any).utils.setProperty(activity, "activation.condition", overrideData.activationCondition);
+      foundry.utils.setProperty(activity, "activation.condition", overrideData.activationCondition);
     }
 
     if (overrideData.overrideActivation)
-      (foundry as any).utils.setProperty(activity, "activation.override", true);
+      foundry.utils.setProperty(activity, "activation.override", true);
 
     if (overrideData.midiManualReaction && AutoEffects.effectModules().midiQolInstalled)
       activity.useConditionText = "false";
@@ -596,9 +597,9 @@ export default class DDBEnricherFactoryMixin {
     if (overrideData.midiUseCondition && AutoEffects.effectModules().midiQolInstalled)
       activity.useConditionText = overrideData.midiUseCondition;
 
-    if ((foundry as any).utils.hasProperty(overrideData, "flatAttack")) {
-      (foundry as any).utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
-      (foundry as any).utils.setProperty(activity, "attack.flat", true);
+    if (foundry.utils.hasProperty(overrideData, "flatAttack")) {
+      foundry.utils.setProperty(activity, "attack.bonus", overrideData.flatAttack);
+      foundry.utils.setProperty(activity, "attack.flat", true);
     }
 
     if (overrideData.removeDamageParts) {
@@ -612,7 +613,7 @@ export default class DDBEnricherFactoryMixin {
     const isSummon = activity.type === "summon" || overrideData.type === "summon";
 
     if (isSummon) {
-      (foundry as any).utils.setProperty(activity, "midiProperties", {
+      foundry.utils.setProperty(activity, "midiProperties", {
         autoTargetAction: "none",
         confirmTargets: "never",
       });
@@ -623,14 +624,14 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.allowCritical) {
-      (foundry as any).utils.setProperty(activity, "damage.critical.allow", true);
+      foundry.utils.setProperty(activity, "damage.critical.allow", true);
     }
 
     if (overrideData.data) {
       const data = utils.isFunction(overrideData.data)
         ? overrideData.data()
         : overrideData.data;
-      activity = (foundry as any).utils.mergeObject(activity, data);
+      activity = foundry.utils.mergeObject(activity, data);
     }
 
     if (overrideData.addSpellUuid) {
@@ -642,10 +643,10 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.noeffect) {
-      const ids = (foundry as any).utils.getProperty(this.data, "flags.ddbimporter.noeffect") ?? [];
+      const ids = foundry.utils.getProperty(this.data, "flags.ddbimporter.noeffect") as string[] ?? [];
       ids.push(this.data._id);
-      (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.noEffectIds", ids);
-      (foundry as any).utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.noEffectIds", ids);
+      foundry.utils.setProperty(activity, "flags.ddbimporter.noeffect", true);
     }
 
     if (overrideData.func) {
@@ -734,7 +735,7 @@ export default class DDBEnricherFactoryMixin {
         effect = effects[effects.length - 1];
         useExistingEffect = true;
       } else if (effectHint.raw) {
-        effect = (foundry as any).utils.deepClone(effectHint.raw);
+        effect = foundry.utils.deepClone(effectHint.raw);
         if (effectHint.name) effect.name = effectHint.name;
         if (effectOptions.description) effect.description = effectOptions.description;
       } else {
@@ -771,11 +772,11 @@ export default class DDBEnricherFactoryMixin {
         if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
           const duration = DDBDescriptions.getDuration(this.data.system.description.value, false);
           if (duration.type) {
-            (foundry as any).utils.setProperty(effect, "duration.seconds", duration.second);
-            (foundry as any).utils.setProperty(effect, "duration.rounds", duration.round);
+            foundry.utils.setProperty(effect, "duration.seconds", duration.second);
+            foundry.utils.setProperty(effect, "duration.rounds", duration.round);
           }
           const specialDurations = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []);
-          (foundry as any).utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
+          foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
         }
 
       }
@@ -816,27 +817,27 @@ export default class DDBEnricherFactoryMixin {
       }
 
       if (effectHint.daeStackable && AutoEffects.effectModules().daeInstalled) {
-        (foundry as any).utils.setProperty(effect, "flags.dae.stackable", effectHint.daeStackable);
+        foundry.utils.setProperty(effect, "flags.dae.stackable", effectHint.daeStackable);
       }
 
       if (effectHint.daeSpecialDurations && AutoEffects.effectModules().daeInstalled) {
-        (foundry as any).utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
+        foundry.utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
       }
 
       if (effectHint.midiProperties && applyMidiOnlyEffects) {
-        (foundry as any).utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
+        foundry.utils.setProperty(this.data, "flags.midiProperties", effectHint.midiProperties);
       }
 
       if (effectHint.activityMatch) {
-        (foundry as any).utils.setProperty(effect, "flags.ddbimporter.activityMatch", effectHint.activityMatch);
+        foundry.utils.setProperty(effect, "flags.ddbimporter.activityMatch", effectHint.activityMatch);
       }
 
       if (effectHint.activitiesMatch) {
-        (foundry as any).utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
+        foundry.utils.setProperty(effect, "flags.ddbimporter.activitiesMatch", effectHint.activitiesMatch);
       }
 
       if (effectHint.ignoreTransfer) {
-        (foundry as any).utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
+        foundry.utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
       }
 
       if (effectHint.macroChanges && applyMidiOnlyEffects) {
@@ -880,16 +881,16 @@ export default class DDBEnricherFactoryMixin {
       }
 
       if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
-        (foundry as any).utils.setProperty(effect, "system", effectHint.auraeffects);
+        foundry.utils.setProperty(effect, "system", effectHint.auraeffects);
         effect.type = "auraeffects.aura";
       }
 
       if (effectHint.data) {
-        effect = (foundry as any).utils.mergeObject(effect, effectHint.data);
+        effect = foundry.utils.mergeObject(effect, effectHint.data);
       }
 
       if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
-        if ((foundry as any).utils.hasProperty(effect, "flags.ActiveAuras")) {
+        if (foundry.utils.hasProperty(effect, "flags.ActiveAuras")) {
           delete effect.flags.ActiveAuras;
         }
       }
@@ -949,11 +950,11 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (override.replaceActivityUses) {
-      (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.replaceActivityUses", true);
     }
 
     if (override.rangeSelf) {
-      (foundry as any).utils.setProperty(this.data.system, "range", {
+      foundry.utils.setProperty(this.data.system, "range", {
         value: null,
         units: "self",
         special: "",
@@ -961,7 +962,7 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (override.noTemplate) {
-      (foundry as any).utils.setProperty(this.data.system, "target.template", {
+      foundry.utils.setProperty(this.data.system, "target.template", {
         count: "",
         contiguous: false,
         type: "",
@@ -973,10 +974,10 @@ export default class DDBEnricherFactoryMixin {
     }
 
     if (override.forceSpellAdvancement) {
-      (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.forceSpellAdvancement", true);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.forceSpellAdvancement", true);
     }
 
-    if (override.data) this.data = (foundry as any).utils.mergeObject(this.data, override.data);
+    if (override.data) this.data = foundry.utils.mergeObject(this.data, override.data);
 
     if (override.descriptionSuffix) {
       this.data.system.description.value += override.descriptionSuffix;
@@ -999,10 +1000,10 @@ export default class DDBEnricherFactoryMixin {
   }
 
   _getActivityDataFromDDBParent(activityHint: any, i: number, ddbParent: any): any {
-    const activationData = (foundry as any).utils.mergeObject({
+    const activationData = foundry.utils.mergeObject({
       nameIdPrefix: "add",
       nameIdPostfix: `${i}`,
-    }, activityHint.constructor);
+    }, activityHint.init);
     activationData.ddbParent = ddbParent;
     const activity = new this.activityGenerator(activationData);
     activity.build(activityHint.build);
@@ -1044,10 +1045,10 @@ export default class DDBEnricherFactoryMixin {
         while (result.activities[newKey] || this.data.system.activities[newKey]) {
           newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
         }
-        result.activities[newKey] = (foundry as any).utils.deepClone(feature.system.activities[activityKey]);
+        result.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
         result.activities[newKey]._id = `${newKey}`;
         if (rename) {
-          (foundry as any).utils.setProperty(result.activities[newKey], "name", (rename[i] ?? ""));
+          foundry.utils.setProperty(result.activities[newKey], "name", (rename[i] ?? ""));
         } else if (!result.activities[newKey].name) {
           const activityName = name.includes(`:`)
             ? name.split(`:`).pop()!.trim()
@@ -1055,8 +1056,8 @@ export default class DDBEnricherFactoryMixin {
           result.activities[newKey].name = activityName;
         }
       }
-      result.effects.push(...((foundry as any).utils.deepClone(feature.effects)));
-      result.advancements.push(...((foundry as any).utils.deepClone(feature.system.advancement)));
+      result.effects.push(...(foundry.utils.deepClone(feature.effects)));
+      result.advancements.push(...(foundry.utils.deepClone(feature.system.advancement)));
     });
     this.customActionFeatures[name] = actionFeatures;
     logger.debug(`Additional Activities from Action ${name}`, { result });
@@ -1072,9 +1073,9 @@ export default class DDBEnricherFactoryMixin {
 
     let i = Object.keys(this.data.system.activities).length ?? 0 + 1;
     for (const activityHint of additionalActivityHints) {
-      const actionActivity = (foundry as any).utils.getProperty(activityHint, "action");
-      const duplicate = (foundry as any).utils.getProperty(activityHint, "duplicate");
-      const _id = (foundry as any).utils.getProperty(activityHint, "id");
+      const actionActivity = foundry.utils.getProperty(activityHint, "action") as IDDBActivityAction | undefined;
+      const duplicate = foundry.utils.getProperty(activityHint, "duplicate");
+      const _id = foundry.utils.getProperty(activityHint, "id");
       const activityData: any = {
         activities: {},
         effects: [],
@@ -1083,7 +1084,7 @@ export default class DDBEnricherFactoryMixin {
 
       if (duplicate) {
         const key = Object.keys(this.data.system.activities)[0];
-        const activityClone = (foundry as any).utils.deepClone(this.data.system.activities[key]);
+        const activityClone = foundry.utils.deepClone(this.data.system.activities[key]);
         activityClone._id = _id ?? `${activityClone._id.slice(0, -3)}clo`;
         activityData.activities = [activityClone];
       } else if (actionActivity) {
@@ -1118,7 +1119,7 @@ export default class DDBEnricherFactoryMixin {
   }
 
   _addDefaultActionMatchedActivities(): void {
-    (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities", {
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities", {
       enabled: true,
       data: {},
     });
@@ -1135,7 +1136,7 @@ export default class DDBEnricherFactoryMixin {
 
         const activityKeys = Object.keys(feature.system.activities);
         const activityCount = activityKeys.length;
-        const featureName = (foundry as any).utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+        const featureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
 
         logger.debug(`Processing out ${activityCount} default additional activities for ${name}`, {
           feature,
@@ -1152,7 +1153,7 @@ export default class DDBEnricherFactoryMixin {
           && !this.data.system.damage.base.denomination
           && !this.data.system.damage.base.custom.enabled
         ) {
-          this.data.system.damage.base = (foundry as any).utils.deepClone(feature.system.damage.base);
+          this.data.system.damage.base = foundry.utils.deepClone(feature.system.damage.base);
         }
 
         for (const activityKey of activityKeys) {
@@ -1160,7 +1161,7 @@ export default class DDBEnricherFactoryMixin {
           while (activityData.activities[newKey] || this.data.system.activities[newKey]) {
             newKey = `${activityKey.slice(0, -3)}Ne${y + i + 1}`;
           }
-          activityData.activities[newKey] = (foundry as any).utils.deepClone(feature.system.activities[activityKey]);
+          activityData.activities[newKey] = foundry.utils.deepClone(feature.system.activities[activityKey]);
           activityData.activities[newKey]._id = `${newKey}`;
 
           const activityName = activityData.activities[newKey].name;
@@ -1173,10 +1174,10 @@ export default class DDBEnricherFactoryMixin {
           }
           activityData.nameData[newKey] = Array.from(new Set([featureName, activityData.activities[newKey].name]));
         }
-        activityData.effects.push(...(foundry as any).utils.deepClone(feature.effects));
+        activityData.effects.push(...foundry.utils.deepClone(feature.effects));
 
         if (feature.system.advancement) {
-          activityData.advancements.push(...(foundry as any).utils.deepClone(feature.system.advancement));
+          activityData.advancements.push(...foundry.utils.deepClone(feature.system.advancement));
         }
 
         // console.warn(`Final activity map`,{
@@ -1217,7 +1218,7 @@ export default class DDBEnricherFactoryMixin {
           }
         }
 
-        (foundry as any).utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities.data", {
+        foundry.utils.setProperty(this.data, "flags.ddbimporter.defaultAdditionalActivities.data", {
           featureName,
           activityCount,
           activityKeys: Object.keys(activityData.activities),
@@ -1244,7 +1245,7 @@ export default class DDBEnricherFactoryMixin {
       this._addDefaultActionMatchedActivities();
       logger.debug(`Complete adding default additional activities for ${this.ddbParser.originalName}`, {
         this: this,
-        data: (foundry as any).utils.deepClone(this.data),
+        data: foundry.utils.deepClone(this.data),
       });
     }
 
@@ -1312,8 +1313,8 @@ export default class DDBEnricherFactoryMixin {
     results.id = idMatches;
 
     const optionMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action: any) => {
-      const actionComponentId = (foundry as any).utils.getProperty(action, "flags.ddbimporter.componentId");
-      const actionComponentTypeId = (foundry as any).utils.getProperty(action, "flags.ddbimporter.componentTypeId");
+      const actionComponentId = foundry.utils.getProperty(action, "flags.ddbimporter.componentId");
+      const actionComponentTypeId = foundry.utils.getProperty(action, "flags.ddbimporter.componentTypeId");
 
       const optionMatch = this.ddbParser.ddbData.character.options[derivedType].find((option: any) =>
         option.definition.id === actionComponentId
@@ -1395,13 +1396,13 @@ export default class DDBEnricherFactoryMixin {
         // usesOnActivity: action.length > 1,
       });
 
-      const actionFeatureName = (foundry as any).utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;
+      const actionFeatureName = foundry.utils.getProperty(generatedActionFeature, "flags.ddbimporter.originalName") ?? generatedActionFeature.name;
       if (this.ddbParser.originalName === actionFeatureName) {
         if (this.activityNameMatchFeature) {
           logger.warn(`Activity Name Match for ${this.ddbParser.originalName} already set`, {
             this: this,
             generatedActionFeature,
-            previous: (foundry as any).utils.deepClone(this.activityNameMatchFeature),
+            previous: foundry.utils.deepClone(this.activityNameMatchFeature),
           });
         }
         this.activityNameMatchFeature = generatedActionFeature;
@@ -1440,7 +1441,7 @@ export default class DDBEnricherFactoryMixin {
 
     let i = 1;
     for (const activityHint of actionsToBuild) {
-      const actionActivity = (foundry as any).utils.getProperty(activityHint, "action");
+      const actionActivity = foundry.utils.getProperty(activityHint, "action") as IDDBActivityAction;
 
       logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
       const actionFeatures = await this._buildFeaturesFromAction(actionActivity);

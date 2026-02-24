@@ -46,7 +46,7 @@ export default class ChannelDivinity extends DDBEnricherData {
   get _additionalActivitiesCleric2014() {
     return [
       {
-        constructor: {
+        init: {
           name: "Turn Undead",
           type: "save",
         },
@@ -79,7 +79,7 @@ export default class ChannelDivinity extends DDBEnricherData {
   get _additionalActivitiesCleric2024() {
     return [
       {
-        constructor: {
+        init: {
           name: "Divine Spark (Save vs Damage)",
           type: "save",
         },
@@ -112,7 +112,7 @@ export default class ChannelDivinity extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Turn Undead",
           type: "save",
         },

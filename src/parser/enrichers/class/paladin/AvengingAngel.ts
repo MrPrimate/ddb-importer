@@ -21,7 +21,7 @@ export default class AvengingAngel extends DDBEnricherData {
     return [
       { action: { name: "Avenging Angel", type: "class" } },
       {
-        constructor: {
+        init: {
           name: "Spend Spell Slot to Restore Use",
           type: "utility",
         },

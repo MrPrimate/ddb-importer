@@ -39,7 +39,7 @@ export default class DraconicStrike extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Draconic Strike: Simple Weapons",
           type: "enchant",
         },
@@ -58,7 +58,7 @@ export default class DraconicStrike extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Draconic Strike: Light Martial Weapons",
           type: "enchant",
         },

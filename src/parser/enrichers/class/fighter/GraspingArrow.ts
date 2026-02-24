@@ -49,7 +49,7 @@ export default class GraspingArrow extends ArcaneShotOption {
           },
         },
         {
-          constructor: {
+          init: {
             name: "Escape Check",
             type: "check",
           },

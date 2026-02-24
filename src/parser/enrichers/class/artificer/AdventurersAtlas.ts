@@ -87,7 +87,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
   get additionalActivities() {
     const results = [
       {
-        constructor: {
+        init: {
           name: "Superior Atlas: Safe Haven",
           type: "heal",
         },
@@ -127,7 +127,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Superior Atlas: Unerring Path",
           type: "cast",
         },
@@ -171,7 +171,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
   _getEnchantActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Create Magical Map (Enchantment)",
           type: "enchant",
         },
@@ -205,7 +205,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Superior Atlas: Safe Haven",
           type: "heal",
         },
@@ -238,7 +238,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Superior Atlas: Unerring Path",
           type: "cast",
         },

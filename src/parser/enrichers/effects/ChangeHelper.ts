@@ -27,7 +27,7 @@ interface OverTimeDamageParams {
   turn: string;
   damage: string;
   damageType: string;
-  saveAbility: string;
+  saveAbility: string | string[];
   saveRemove: boolean;
   saveDamage: string;
   dc: any;
@@ -36,7 +36,7 @@ interface OverTimeDamageParams {
 interface OverTimeSaveParams {
   document: any;
   turn: string;
-  saveAbility: string;
+  saveAbility: string | string[];
   saveRemove?: boolean;
   dc: any;
 }
@@ -213,10 +213,11 @@ export default class ChangeHelper {
 
 
   static overTimeDamageChange({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }: OverTimeDamageParams): ChangeResult {
+    const ability = Array.isArray(saveAbility) ? saveAbility[0] : saveAbility;
     return {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},saveDamage=${saveDamage},killAnim=true`,
+      value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${ability},saveDamage=${saveDamage},killAnim=true`,
       priority: "20",
     };
   }
@@ -224,10 +225,11 @@ export default class ChangeHelper {
   static overTimeSaveChange({ document, turn, saveAbility, saveRemove = true, dc }: OverTimeSaveParams): ChangeResult {
     const turnValue = turn === "action" ? "end" : turn;
     const actionSave = turn === "action" ? ",actionSave=true" : "";
+    const ability = Array.isArray(saveAbility) ? saveAbility[0] : saveAbility;
     return {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-      value: `turn=${turnValue},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${saveAbility},killAnim=true${actionSave}`,
+      value: `turn=${turnValue},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${ability},killAnim=true${actionSave}`,
       priority: "20",
     };
   }

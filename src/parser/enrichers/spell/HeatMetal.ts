@@ -16,7 +16,7 @@ export default class HeatMetal extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Save vs Drop",
           type: "save",
         },

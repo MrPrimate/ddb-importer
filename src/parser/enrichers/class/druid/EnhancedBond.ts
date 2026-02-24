@@ -12,8 +12,8 @@ export default class EnhancedBond extends DDBEnricherData {
       activationType: "special",
       data: {
         healing: DDBEnricherData.basicDamagePart({
-          number: "1",
-          denomination: "8",
+          number: 1,
+          denomination: 8,
           types: ["healing"],
         }),
       },
@@ -23,7 +23,7 @@ export default class EnhancedBond extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Bonus Damage",
           type: "damage",
         },
@@ -44,8 +44,8 @@ export default class EnhancedBond extends DDBEnricherData {
             damage: {
               parts: [
                 DDBEnricherData.basicDamagePart({
-                  number: "1",
-                  denomination: "8",
+                  number: 1,
+                  denomination: 8,
                   types: ["fire"],
                 }),
               ],

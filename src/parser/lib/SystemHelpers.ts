@@ -1,4 +1,5 @@
 import { utils } from "../../lib/_module";
+import { IDDBDamagePart } from "../enrichers/data/types";
 
 export default class SystemHelpers {
 
@@ -59,8 +60,8 @@ export default class SystemHelpers {
 
   }
 
-  static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false } = {}) {
-    const damage = {
+  static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false } = {}): IDDBDamagePart {
+    const damage: IDDBDamagePart = {
       number: null,
       denomination: 0,
       bonus: "",
@@ -87,7 +88,7 @@ export default class SystemHelpers {
     return damage;
   }
 
-   
+
   static getTemplate(type) {
     switch (type.toLowerCase()) {
       case "character":
@@ -130,7 +131,7 @@ export default class SystemHelpers {
       case "maplocationjournalpage":
         return game.dnd5e.dataModels.journal.MapLocationJournalPageData.schema.getInitialValue();
       case "subclassjournalpage":
-        return game.dnd5e.dataModels.journal.SubClassJournalPageData.schema.getInitialValue();
+        return game.dnd5e.dataModels.journal.SubclassJournalPageData.schema.getInitialValue();
       case "rulejournalpage":
         return game.dnd5e.dataModels.journal.RuleJournalPageData.schema.getInitialValue();
       case "dnd-tashas-cauldron.tattoo":

@@ -30,7 +30,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Restore Dancing Item With Spell Slot",
           type: "forward",
         },

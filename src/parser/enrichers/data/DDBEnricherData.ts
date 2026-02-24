@@ -6,15 +6,15 @@ import DDBSpell from "../../spells/DDBSpell";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
 import type {
-  DDBActivityData,
-  DDBAdditionalActivity,
-  DDBDamagePart,
-  DDBDocumentStub,
-  DDBEffectHint,
-  DDBItemMacro,
-  DDBMacroDescriptionData,
-  DDBOverrideData,
-  DDBSetMidiOnUseMacroFlag,
+  IDDBActivityData,
+  IDDBAdditionalActivity,
+  IDDBDamagePart,
+  IDDBDocumentStub,
+  IDDBEffectHint,
+  IDDBItemMacro,
+  IDDBMacroDescriptionData,
+  IDDBOverrideData,
+  IDDBSetMidiOnUseMacroFlag,
 } from "./types";
 
 export default class DDBEnricherData {
@@ -106,7 +106,7 @@ export default class DDBEnricherData {
     const spent = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
     )?.limitedUse?.numberUsed ?? null;
     return spent;
   }
@@ -115,7 +115,7 @@ export default class DDBEnricherData {
     const max = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
     )?.limitedUse?.maxUses ?? null;
     return max;
   }
@@ -124,7 +124,7 @@ export default class DDBEnricherData {
     const action = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
-      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
+      || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId)?.definition.name === matchSubClass),
     );
 
     const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
@@ -183,6 +183,7 @@ export default class DDBEnricherData {
       return {
         spent: defaultSpent,
         max,
+        recovery: [],
       };
     }
 
@@ -230,7 +231,7 @@ export default class DDBEnricherData {
     scalingNumber?: number;
     scalingFormula?: string;
     customFormula?: string | null;
-  } = {}): DDBDamagePart {
+  } = {}): IDDBDamagePart {
     return {
       number,
       denomination,
@@ -241,7 +242,7 @@ export default class DDBEnricherData {
         formula: customFormula,
       },
       scaling: {
-        mode: scalingMode as DDBDamagePart["scaling"]["mode"],
+        mode: scalingMode as IDDBDamagePart["scaling"]["mode"],
         number: scalingNumber,
         formula: scalingFormula,
       },
@@ -265,7 +266,7 @@ export default class DDBEnricherData {
     return this.ddbEnricher.ddbParser.data;
   }
 
-  get activity(): DDBActivityData | null {
+  get activity(): IDDBActivityData | null {
     return null;
   }
 
@@ -277,15 +278,15 @@ export default class DDBEnricherData {
     return false;
   }
 
-  get effects(): DDBEffectHint[] {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 
-  get override(): DDBOverrideData | null {
+  get override(): IDDBOverrideData | null {
     return null;
   }
 
-  get additionalActivities(): DDBAdditionalActivity[] | null {
+  get additionalActivities(): Partial<IDDBAdditionalActivity>[] | null {
     return null;
   }
 
@@ -293,7 +294,7 @@ export default class DDBEnricherData {
     return [];
   }
 
-  get documentStub(): DDBDocumentStub | null {
+  get documentStub(): IDDBDocumentStub | null {
     return null;
   }
 
@@ -329,11 +330,11 @@ export default class DDBEnricherData {
     return false;
   }
 
-  get itemMacro(): DDBItemMacro | null {
+  get itemMacro(): IDDBItemMacro | null {
     return null;
   }
 
-  get setMidiOnUseMacroFlag(): DDBSetMidiOnUseMacroFlag | null {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     return null;
   }
 
@@ -353,7 +354,7 @@ export default class DDBEnricherData {
     // noop
   }
 
-  get ddbMacroDescriptionData(): DDBMacroDescriptionData | null {
+  get ddbMacroDescriptionData(): IDDBMacroDescriptionData | null {
     return null;
   }
 

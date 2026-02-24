@@ -5,7 +5,7 @@ export default class Polymorph extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Transform",
           type: "transform",
         },

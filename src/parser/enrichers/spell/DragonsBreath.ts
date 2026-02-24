@@ -18,7 +18,7 @@ export default class DragonsBreath extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Breathe",
           type: "save",
         },

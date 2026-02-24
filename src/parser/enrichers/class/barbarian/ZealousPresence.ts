@@ -26,7 +26,7 @@ export default class ZealousPresence extends DDBEnricherData {
     if (this.isAction || this.is2014) return [];
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Rage to Restore Use",
           type: "utility",
         },

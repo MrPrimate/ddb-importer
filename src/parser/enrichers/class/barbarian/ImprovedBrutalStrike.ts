@@ -24,7 +24,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Staggering Blow",
           type: "utility",
         },
@@ -37,7 +37,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Sundering Blow",
           type: "enchant",
         },

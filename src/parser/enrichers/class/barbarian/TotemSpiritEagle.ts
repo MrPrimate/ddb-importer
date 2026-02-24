@@ -22,7 +22,7 @@ export default class TotemSpiritEagle extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Dash",
           type: "utility",
         },

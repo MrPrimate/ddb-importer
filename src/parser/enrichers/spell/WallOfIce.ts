@@ -31,7 +31,7 @@ export default class WallOfIce extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Create Dome/Globe",
           type: "save",
         },
@@ -56,7 +56,7 @@ export default class WallOfIce extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Frigid Air Save",
           type: "save",
         },

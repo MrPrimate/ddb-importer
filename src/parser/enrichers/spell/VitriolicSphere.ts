@@ -17,7 +17,7 @@ export default class VitriolicSphere extends DDBEnricherData {
               denomination: 4,
               type: "acid",
               scalingMode: "whole",
-              scalingNumber: "2",
+              scalingNumber: 2,
             }),
           ],
         },
@@ -40,7 +40,7 @@ export default class VitriolicSphere extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Secondary Acid Damage",
           type: "damage",
         },

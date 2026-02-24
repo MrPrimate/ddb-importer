@@ -52,7 +52,7 @@ export default class ManeuverTacticalAssessment extends Maneuver {
   // get additionalActivities() {
   //   return [
   //     {
-  //       constructor: {
+  //       init: {
   //         name: "Bonus Dice Effect",
   //         type: "utility",
   //       },

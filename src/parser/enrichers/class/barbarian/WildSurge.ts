@@ -23,7 +23,7 @@ export default class WildSurge extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "1: Shadowy Tendrils (Save vs Damage)",
           type: "save",
         },
@@ -77,7 +77,7 @@ export default class WildSurge extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "1: Shadowy Tendrils (Temporary HP)",
           type: "heal",
         },
@@ -105,7 +105,7 @@ export default class WildSurge extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "3: Exploding Spirit (Save vs Damage)",
           type: "save",
         },
@@ -159,7 +159,7 @@ export default class WildSurge extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "4: Wild Surge Enchantment",
           type: "enchant",
         },
@@ -196,7 +196,7 @@ export default class WildSurge extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "5: Wild Magic Damage (Damage)",
           type: "damage",
         },
@@ -233,7 +233,7 @@ export default class WildSurge extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "6: Multicolored Light (AC Bonus)",
           type: "utility",
         },
@@ -254,7 +254,7 @@ export default class WildSurge extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "7: Flowers and Vines (Template)",
           type: "utility",
         },
@@ -289,7 +289,7 @@ export default class WildSurge extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "8: Bolt of Light (Save vs Damage)",
           type: "save",
         },

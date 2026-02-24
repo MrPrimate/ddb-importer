@@ -58,6 +58,7 @@ declare global {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
     DND5E: {
+      dieSteps: number[];
       abilities: Record<string, {
         label: string;
       }>;

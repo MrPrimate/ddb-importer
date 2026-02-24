@@ -5,7 +5,7 @@ export default class ManeuverPushingAttack extends Maneuver {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Pushed",
           type: "save",
         },

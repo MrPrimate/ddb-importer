@@ -1,8 +1,11 @@
 import { SETTINGS } from "../../../../config/_module";
 import { DDBCompendiumFolders, DDBItemImporter, utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { IDDBAdditionalActivity } from "../../data/types";
 
 export default class ExperimentalElixir extends DDBEnricherData {
+  handler: DDBItemImporter;
+  compendiumFolders: DDBCompendiumFolders;
 
   get type() {
     return "utility";
@@ -253,7 +256,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   generateElixirAdditionalActivity(name) {
     const results = this.activityMap[name].map((a, i) => {
       const result = {
-        constructor: {
+        init: {
           name: `Use ${name}`,
           type: "utility",
         },
@@ -282,7 +285,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
             },
           },
         },
-      };
+      } as Partial<IDDBAdditionalActivity>;
 
       if (a.min || a.max) {
         result.overrides.data.visibility = {
@@ -298,7 +301,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       }
 
       if (name === "Healing") {
-        result.constructor.type = "heal";
+        result.init.type = "heal";
         result.build.generateHealing = true;
         result.build.healingPart = {
           number: a.number,
@@ -337,7 +340,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           value: 10,
         };
       } else if (name === "Transformation") {
-        result.constructor.type = "cast";
+        result.init.type = "cast";
         result.build.generateDuration = true;
         result.build.durationOverride = {
           units: "minute",
@@ -509,7 +512,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return results;
   }
 
-  get elixirAdditionalActivities() {
+  get elixirAdditionalActivities(): Partial<IDDBAdditionalActivity>[] {
     const results = [];
     for (const row of this.experimentalElixirDetails) {
       const activities = this.generateElixirAdditionalActivity(row.name);
@@ -519,9 +522,9 @@ export default class ExperimentalElixir extends DDBEnricherData {
   }
 
   get additionalActivities() {
-    const base = [
+    const base : Partial<IDDBAdditionalActivity>[] = [
       {
-        constructor: {
+        init: {
           name: "Create Elixir",
           type: "enchant",
         },
@@ -538,7 +541,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Create Elixir With Spell Slot",
           type: "enchant",
         },
@@ -558,7 +561,6 @@ export default class ExperimentalElixir extends DDBEnricherData {
                   type: "spellSlots",
                   value: "1",
                   target: "1",
-                  scaling: { allowed: false, max: "" },
                 },
               ],
             },
@@ -598,7 +600,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   async buildItem(row) {
     const itemData = this.getSkeletonItem(row);
-    for (const [key, value] of Object.entries(this.data.system.activities)) {
+    for (const [key, value] of Object.entries(this.data.system.activities as Record<string, IActivityData>)) {
       if (!foundry.utils.getProperty(value, "flags.ddbimporter.isElixirAdditionalActivity")) continue;
       if (!value.name.endsWith(row.name)) continue;
       foundry.utils.setProperty(itemData, `system.activities.${key}`, value);
@@ -631,7 +633,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   };
 
   async importElixirs() {
-    const updateFeatures = this.updateCompendiumItems
+    const updateFeatures = this.ddbParser.ddbCharacter.updateCompendiumItems
       ?? this.ddbParser.ddbCharacter.forceCompendiumUpdate
       ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
 
@@ -688,7 +690,10 @@ export default class ExperimentalElixir extends DDBEnricherData {
     const updates = [];
     for (const elixir of this.elixirs) {
       const uuid = this.handler.compendiumIndex.find((e) => e._id === elixir._id)?.uuid
-        ?? this.handler.compendiumIndex.find((e) => e.name === elixir.name && e.flags?.ddbimporter?.is2014 === elixir.flags?.ddbimporter?.is2014)?.uuid;
+        ?? this.handler.compendiumIndex.find((e) =>
+          e.name === elixir.name
+          && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === elixir.flags?.ddbimporter?.is2014
+        )?.uuid;
       if (!uuid) continue;
       updates.push({ name: elixir.name.split(':').pop().trim(), uuid });
     }

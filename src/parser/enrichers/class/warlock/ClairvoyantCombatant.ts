@@ -10,7 +10,7 @@ export default class ClairvoyantCombatant extends DDBEnricherData {
     return [
       { action: { name: "Awakened Mind: Clairvoyant Combatant", type: "class" } },
       {
-        constructor: {
+        init: {
           name: "Spend Pact Slot to Restore Use",
           type: "utility",
         },

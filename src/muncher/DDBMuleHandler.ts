@@ -279,6 +279,7 @@ export default class DDBMuleHandler {
         total,
         count,
       });
+      FileHelper.download(JSON.stringify(newStub), `FEATS-${this.characterId}-${current}.json`, "application/json");
 
       const ddbCharacter = new DDBCharacter({
         currentActor: mockCharacter,
@@ -384,7 +385,7 @@ export default class DDBMuleHandler {
         current,
         total,
       });
-
+      FileHelper.download(JSON.stringify(newStub), `SPECIES-${this.characterId}-${speciesData.data.race.fullName ?? speciesData.data.race.baseName}-${current}.json`, "application/json");
 
       const ddbCharacter = new DDBCharacter({
         currentActor: mockCharacter,

@@ -16,7 +16,7 @@ export default class TheThirdEye extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Greater Comprehension",
           type: "utility",
         },
@@ -31,7 +31,7 @@ export default class TheThirdEye extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "See Invisibility",
           type: "utility",
         },

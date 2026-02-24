@@ -39,7 +39,7 @@ export default class Poisoner extends DDBEnricherData {
   get additionalActivities() {
     const results = [
       {
-        constructor: {
+        init: {
           name: "Apply Poison",
           type: "utility",
         },
@@ -81,7 +81,7 @@ export default class Poisoner extends DDBEnricherData {
     ];
     if (this.is2014) {
       results.push({
-        constructor: {
+        init: {
           name: "Poison Save",
           type: "save",
         },
@@ -116,7 +116,7 @@ export default class Poisoner extends DDBEnricherData {
     } else {
       results.push(
         {
-          constructor: {
+          init: {
             name: "Poison Save (Dexterity)",
             type: "save",
           },
@@ -149,7 +149,7 @@ export default class Poisoner extends DDBEnricherData {
           },
         },
         {
-          constructor: {
+          init: {
             name: "Poison Save (Intelligence)",
             type: "save",
           },

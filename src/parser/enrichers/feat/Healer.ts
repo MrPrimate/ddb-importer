@@ -24,7 +24,7 @@ export default class Healer extends DDBEnricherData {
       return [4, 6, 8, 10, 12]
         .map((die) => {
           return {
-            constructor: {
+            init: {
               name: `Healing (d${die})`,
               type: "heal",
             },

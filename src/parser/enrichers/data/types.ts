@@ -4,64 +4,64 @@
 
 // -- Damage Parts -----------------------------------------------------------
 
-export interface DDBDamagePartCustom {
+export interface IDDBDamagePartCustom {
   enabled: boolean;
   formula: string | null;
 }
 
-export interface DDBDamagePartScaling {
+export interface IDDBDamagePartScaling {
   mode: "whole" | "half" | "";
   number: number;
   formula: string;
 }
 
-export interface DDBDamagePart {
+export interface IDDBDamagePart {
   number: number | null;
   denomination: number | null;
   bonus: string;
   types: string[];
-  custom: DDBDamagePartCustom;
-  scaling: DDBDamagePartScaling;
+  custom: IDDBDamagePartCustom;
+  scaling: IDDBDamagePartScaling;
 }
 
 // -- Consumption Targets ----------------------------------------------------
 
-export interface DDBConsumptionTargetScaling {
+export interface IDDBConsumptionTargetScaling {
   allowed?: boolean;
   mode?: "" | "amount" | "level";
   max?: string;
   formula?: string;
 }
 
-export interface DDBConsumptionTarget {
+export interface IDDBConsumptionTarget {
   type: "itemUses" | "activityUses" | "spellSlots" | "attribute" | string;
   target: string;
   value: string | number;
-  scaling?: DDBConsumptionTargetScaling;
+  scaling?: IDDBConsumptionTargetScaling;
 }
 
 // -- Summon Profile Keys ----------------------------------------------------
 
-export interface DDBSummonProfileKeyLevel {
+export interface IDDBSummonProfileKeyLevel {
   min: number | null;
   max: number | null;
 }
 
-export interface DDBSummonProfileKey {
+export interface IDDBSummonProfileKey {
   name: string;
   count: number | string;
-  level?: DDBSummonProfileKeyLevel;
+  level?: IDDBSummonProfileKeyLevel;
 }
 
 // -- Summons Configuration --------------------------------------------------
 
-export interface DDBSummonsMatch {
+export interface IDDBSummonsMatch {
   proficiency?: boolean;
   attacks?: boolean;
   saves?: boolean;
 }
 
-export interface DDBSummonsBonuses {
+export interface IDDBSummonsBonuses {
   ac?: string;
   hp?: string;
   attackDamage?: string;
@@ -69,25 +69,25 @@ export interface DDBSummonsBonuses {
   healing?: string;
 }
 
-export interface DDBSummonsData {
-  match?: DDBSummonsMatch;
-  bonuses?: DDBSummonsBonuses;
+export interface IDDBSummonsData {
+  match?: IDDBSummonsMatch;
+  bonuses?: IDDBSummonsBonuses;
   [key: string]: any;
 }
 
 // -- Activity Parent Lookup -------------------------------------------------
 
-export interface DDBActivityParentLookup extends Partial<DDBActivityData> {
+export interface IDDBActivityParentLookup extends Partial<IDDBActivityData> {
   lookupName: string;
 }
 
 // -- Activity Data (main getter) --------------------------------------------
 
-export interface DDBActivityData {
+export interface IDDBActivityData {
   name?: string;
   id?: string;
   type?: string;
-  parent?: DDBActivityParentLookup[];
+  parent?: IDDBActivityParentLookup[];
 
   // Consume targets
   noConsumeTargets?: boolean;
@@ -110,7 +110,7 @@ export interface DDBActivityData {
   addSpellSlotScalingMode?: "" | "amount" | "level";
   addSpellSlotScalingFormula?: string;
 
-  additionalConsumptionTargets?: DDBConsumptionTarget[];
+  additionalConsumptionTargets?: IDDBConsumptionTarget[];
   addConsumptionScalingMax?: string | number;
 
   // Targeting
@@ -145,7 +145,7 @@ export interface DDBActivityData {
 
   // Damage
   removeDamageParts?: boolean;
-  damageParts?: DDBDamagePart[];
+  damageParts?: IDDBDamagePart[];
   allowCritical?: boolean;
 
   // Restrictions
@@ -153,12 +153,12 @@ export interface DDBActivityData {
   noeffect?: boolean;
 
   // Data merge & function
-  data?: Record<string, any> | (() => Record<string, any>);
+  data?: Partial<IActivityData>;
   func?: (params: { activity: any }) => void | Promise<void>;
 
   // Summons
-  profileKeys?: DDBSummonProfileKey[];
-  summons?: DDBSummonsData;
+  profileKeys?: IDDBSummonProfileKey[];
+  summons?: IDDBSummonsData;
 
   // Spell parsing flags
   addSingleFreeUse?: boolean;
@@ -171,7 +171,7 @@ export interface DDBActivityData {
 
 // -- Magical Bonus ----------------------------------------------------------
 
-export interface DDBMagicalBonus {
+export interface IDDBMagicalBonus {
   nameAddition?: string | null;
   bonus?: string | number | null;
   mode?: string;
@@ -180,7 +180,7 @@ export interface DDBMagicalBonus {
 
 // -- Macro Change Inputs ----------------------------------------------------
 
-export interface DDBMacroChange {
+export interface IDDBMacroChange {
   macroValues?: string;
   macroType?: string;
   macroName?: string;
@@ -191,7 +191,7 @@ export interface DDBMacroChange {
   functionParams?: string;
 }
 
-export interface DDBOnUseMacroChange {
+export interface IDDBOnUseMacroChange {
   macroPass: string;
   macroType?: string;
   macroName?: string;
@@ -202,7 +202,7 @@ export interface DDBOnUseMacroChange {
   functionParams?: string;
 }
 
-export interface DDBDamageBonusMacroChange {
+export interface IDDBDamageBonusMacroChange {
   macroType?: string;
   macroName?: string;
   document?: any;
@@ -210,7 +210,7 @@ export interface DDBDamageBonusMacroChange {
   functionCall?: string | null;
 }
 
-export interface DDBTargetUpdateMacroChange {
+export interface IDDBTargetUpdateMacroChange {
   macroPass?: string;
   macroType?: string;
   macroName?: string;
@@ -221,13 +221,13 @@ export interface DDBTargetUpdateMacroChange {
   functionParams?: string;
 }
 
-export interface DDBMidiOptionalChange {
+export interface IDDBMidiOptionalChange {
   name: string;
   priority?: number;
   data: Record<string, string | number>;
 }
 
-export interface DDBOptionalMacroChange {
+export interface IDDBOptionalMacroChange {
   optionPostfix: string;
   macroPass?: string | null;
   macroType?: string;
@@ -241,7 +241,7 @@ export interface DDBOptionalMacroChange {
 
 // -- Effect Options ---------------------------------------------------------
 
-export interface DDBEffectOptions {
+export interface IDDBEffectOptions {
   description?: string;
   durationSeconds?: number;
   durationRounds?: number;
@@ -252,11 +252,11 @@ export interface DDBEffectOptions {
 
 // -- Aura Effects -----------------------------------------------------------
 
-export type DDBAuraEffects = Record<string, any>;
+export type IDDBAuraEffects = Record<string, any>;
 
 // -- Effect Hint ------------------------------------------------------------
 
-export interface DDBEffectHint {
+export interface IDDBEffectHint {
   // Creation control
   noCreate?: boolean;
   raw?: Record<string, any>;
@@ -265,7 +265,7 @@ export interface DDBEffectHint {
   // Naming & data
   name?: string;
   data?: Record<string, any>;
-  options?: DDBEffectOptions;
+  options?: IDDBEffectOptions;
 
   // Changes
   changes?: any[] | ((data: any) => any[]);
@@ -290,18 +290,18 @@ export interface DDBEffectHint {
 
   // MIDI
   midiProperties?: Record<string, any>;
-  midiOptionalChanges?: DDBMidiOptionalChange[];
-  optionalMacroChanges?: DDBOptionalMacroChange[];
-  onUseMacroChanges?: DDBOnUseMacroChange[];
-  macroChanges?: DDBMacroChange[];
-  targetUpdateMacroChanges?: DDBTargetUpdateMacroChange[];
-  damageBonusMacroChanges?: DDBDamageBonusMacroChange[];
+  midiOptionalChanges?: IDDBMidiOptionalChange[];
+  optionalMacroChanges?: IDDBOptionalMacroChange[];
+  onUseMacroChanges?: IDDBOnUseMacroChange[];
+  macroChanges?: IDDBMacroChange[];
+  targetUpdateMacroChanges?: IDDBTargetUpdateMacroChange[];
+  damageBonusMacroChanges?: IDDBDamageBonusMacroChange[];
 
   // Auras
-  auraeffects?: DDBAuraEffects;
+  auraeffects?: IDDBAuraEffects;
 
   // Enchant
-  magicalBonus?: DDBMagicalBonus;
+  magicalBonus?: IDDBMagicalBonus;
   descriptionHint?: boolean | string;
 
   // Module conditional flags
@@ -324,7 +324,7 @@ export interface DDBEffectHint {
 
 // -- Override Data ----------------------------------------------------------
 
-export interface DDBOverrideData {
+export interface IDDBOverrideData {
   noTemplate?: boolean;
   removeDamage?: boolean;
   rangeSelf?: boolean;
@@ -333,12 +333,14 @@ export interface DDBOverrideData {
   descriptionSuffix?: string;
   ddbMacroDescription?: boolean;
   data?: Record<string, any>;
+  midiManualReaction?: boolean;
+  midiDamageReaction?: boolean;
   func?: (params: { enricher: any }) => void | Promise<void>;
 }
 
 // -- Additional Activities --------------------------------------------------
 
-export interface DDBActivityAction {
+export interface IDDBActivityAction {
   name: string;
   type: string;
   isAttack?: boolean | null;
@@ -346,13 +348,12 @@ export interface DDBActivityAction {
   id?: string | null;
 }
 
-export interface DDBActivityConstructor {
+export interface IDDBActivityInit {
   name: string;
   type: string;
-  [key: string]: any;
 }
 
-export interface DDBActivityBuild {
+export interface IDDBActivityBuild {
   generateConsumption?: boolean;
   generateTarget?: boolean;
   generateRange?: boolean;
@@ -373,7 +374,7 @@ export interface DDBActivityBuild {
   rangeOverride?: Record<string, any>;
   targetOverride?: Record<string, any>;
   saveOverride?: Record<string, any>;
-  damageParts?: DDBDamagePart[];
+  damageParts?: IDDBDamagePart[];
   img?: string;
   ddbMacroOverride?: {
     name: string;
@@ -384,25 +385,25 @@ export interface DDBActivityBuild {
   [key: string]: any;
 }
 
-export interface DDBAdditionalActivity {
+export interface IDDBAdditionalActivity {
   // Pattern 1: Duplicate existing activity
   duplicate?: boolean;
 
   // Pattern 2: Build from DDB action
-  action?: DDBActivityAction;
+  action?: IDDBActivityAction;
 
   // Pattern 3: Build from scratch
-  constructor?: DDBActivityConstructor;
-  build?: DDBActivityBuild;
+  init?: IDDBActivityInit;
+  build?: IDDBActivityBuild;
 
   // Common
   id?: string | null;
-  overrides?: Partial<DDBActivityData>;
+  overrides?: Partial<IDDBActivityData>;
 }
 
 // -- Document Stub ----------------------------------------------------------
 
-export interface DDBDocumentStub {
+export interface IDDBDocumentStub {
   stopDefaultActivity?: boolean;
   replaceDefaultActivity?: boolean;
   data?: Record<string, any>;
@@ -421,7 +422,7 @@ export interface DDBDocumentStub {
 
 // -- Item Macro -------------------------------------------------------------
 
-export interface DDBItemMacro {
+export interface IDDBItemMacro {
   type?: string;
   name?: string;
   macroType?: string;
@@ -430,7 +431,7 @@ export interface DDBItemMacro {
 
 // -- Set MIDI On Use Macro Flag ---------------------------------------------
 
-export interface DDBSetMidiOnUseMacroFlag {
+export interface IDDBSetMidiOnUseMacroFlag {
   type?: string;
   name?: string;
   macroType?: string;
@@ -441,7 +442,7 @@ export interface DDBSetMidiOnUseMacroFlag {
 
 // -- Macro Description Data -------------------------------------------------
 
-export interface DDBMacroDescriptionData {
+export interface IDDBMacroDescriptionData {
   name: string;
   type: string;
   label?: string;

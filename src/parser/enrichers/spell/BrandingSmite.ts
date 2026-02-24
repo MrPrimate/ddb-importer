@@ -18,7 +18,7 @@ export default class BrandingSmite extends DDBEnricherData {
     return this.is2014 && this.useMidiAutomations
       ? [
         {
-          constructor: {
+          init: {
             name: "Cast (Automation)",
             type: "utility",
           },

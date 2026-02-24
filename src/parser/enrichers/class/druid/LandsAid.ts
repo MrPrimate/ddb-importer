@@ -25,7 +25,7 @@ export default class LandsAid extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Healing",
           type: "heal",
         },

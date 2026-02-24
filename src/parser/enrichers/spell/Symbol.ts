@@ -132,7 +132,7 @@ export default class Symbol extends DDBEnricherData {
   get additionalActivities() {
     return (this.is2014 ? this.data2014 : this.data2024).map((symbol) => {
       return {
-        constructor: {
+        init: {
           name: symbol.name,
           type: "save",
         },

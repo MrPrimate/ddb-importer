@@ -22,7 +22,7 @@ export default class MantleOfMajesty extends DDBEnricherData {
   get additionalActivities() {
     const results = [
       {
-        constructor: {
+        init: {
           name: "Cast Command",
           type: "cast",
         },
@@ -54,7 +54,7 @@ export default class MantleOfMajesty extends DDBEnricherData {
     if (this.is2024) {
       results.push(
         {
-          constructor: {
+          init: {
             name: "Spend Spell Slot to Restore Use",
             type: "utility",
           },

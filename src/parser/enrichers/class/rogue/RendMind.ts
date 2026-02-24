@@ -27,7 +27,7 @@ export default class RendMind extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Spend Psionic Energy Die to Restore Use",
           type: "utility",
         },

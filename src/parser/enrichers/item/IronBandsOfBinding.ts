@@ -41,7 +41,7 @@ export default class IronBandsOfBinding extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Escape Check",
           type: "check",
         },

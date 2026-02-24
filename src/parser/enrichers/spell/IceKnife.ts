@@ -25,7 +25,7 @@ export default class IceKnife extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Blast Damage",
           type: "save",
           id: "addSaveVsBlasDam",
@@ -43,7 +43,7 @@ export default class IceKnife extends DDBEnricherData {
               denomination: 6,
               types: ["cold"],
               scalingMode: "whole",
-              scalingNumber: "1",
+              scalingNumber: 1,
             }),
           ],
         },

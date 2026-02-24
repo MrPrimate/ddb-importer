@@ -12,7 +12,7 @@ export default class FlockOfFamiliars extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Place Additional Familiar",
           type: "forward",
         },

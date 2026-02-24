@@ -57,7 +57,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
       case "Form of the Beast: Bite": {
         return [
           {
-            constructor: {
+            init: {
               name: "Bite (Healing Bonus - 1/your turn)",
               type: "heal",
             },

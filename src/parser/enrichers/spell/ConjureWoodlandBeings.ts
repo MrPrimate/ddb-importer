@@ -31,7 +31,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
     if (this.is2014) return null;
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Damage",
           type: "save",
         },

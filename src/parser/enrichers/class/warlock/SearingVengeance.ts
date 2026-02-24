@@ -13,7 +13,7 @@ export default class SearingVengeance extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Damage Roll",
           type: "damage",
         },

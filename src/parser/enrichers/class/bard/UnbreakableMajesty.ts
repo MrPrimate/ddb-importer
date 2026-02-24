@@ -30,7 +30,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save",
           type: "save",
         },

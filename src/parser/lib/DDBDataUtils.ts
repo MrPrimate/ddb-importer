@@ -106,7 +106,7 @@ export default class DDBDataUtils {
 
     if (foundryItem.system.activities) {
       Object.keys(foundryItem.system.activities).forEach((id) => {
-        const activity: IActivity = foundryItem.system.activities[id];
+        const activity: IActivityData = foundryItem.system.activities[id];
 
         if (activity.type === "attack") {
           if (toHitBonus) {
@@ -554,7 +554,7 @@ export default class DDBDataUtils {
     return undefined;
   }
 
-  static determineActualFeatureId(ddb, featureId, type = "class") {
+  static determineActualFeatureId(ddb: IDDBData, featureId: number, type = "class") {
     const optionalFeatureReplacement = ddb.character?.optionalClassFeatures
       ? ddb.character.optionalClassFeatures
         .filter((f) => f.classFeatureId === featureId && f.affectedClassFeatureId)
@@ -595,7 +595,7 @@ export default class DDBDataUtils {
     return featureId;
   }
 
-  static findSubClassByFeatureId(ddb, featureId) {
+  static findSubClassByFeatureId(ddb: IDDBData, featureId: number): IDDBClass | undefined {
     // optional class features need this filter, as they replace existing features
     const featId = DDBDataUtils.determineActualFeatureId(ddb, featureId);
     logger.debug(`Finding subclass featureId ${featureId} with featId ${featId}`);
@@ -614,24 +614,24 @@ export default class DDBDataUtils {
     return klass;
   }
 
-  static findClassByFeatureId(ddb, featureId) {
+  static findClassByFeatureId(ddb: IDDBData, featureId: number): IDDBClass | undefined {
     // optional class features need this filter, as they replace existing features
     const featId = DDBDataUtils.determineActualFeatureId(ddb, featureId);
     logger.verbose(`Finding featureId ${featureId} with featId ${featId}`);
 
     let klass = ddb.character.classes.find((cls) => {
-      let classFeatures = cls.classFeatures;
+      const classFeatures = cls.classFeatures;
       const featureMatch = classFeatures.find((feature) => feature.definition.id === featId);
 
       if (featureMatch) {
         return true;
       } else {
         // if not in global class feature list lets dig down
-        classFeatures = cls.definition.classFeatures;
+        let classFeaturesDef = cls.definition.classFeatures;
         if (cls.subclassDefinition && cls.subclassDefinition.classFeatures) {
-          classFeatures = classFeatures.concat(cls.subclassDefinition.classFeatures);
+          classFeaturesDef = classFeaturesDef.concat(cls.subclassDefinition.classFeatures);
         }
-        return classFeatures.some((feature) => feature.id === featId);
+        return classFeaturesDef.some((feature) => feature.id === featId);
       }
     });
     // try class option lookup

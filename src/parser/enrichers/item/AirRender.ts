@@ -31,7 +31,7 @@ export default class AirRender extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Wind Mote Attack",
           type: "attack",
         },
@@ -63,7 +63,7 @@ export default class AirRender extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Bludgeoning Gust Save",
           type: "save",
         },
@@ -85,7 +85,7 @@ export default class AirRender extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Slashing Tornado Save",
           type: "save",
         },

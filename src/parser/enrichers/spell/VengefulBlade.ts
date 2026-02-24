@@ -9,7 +9,7 @@ export default class VengefulBlade extends DDBEnricherData {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Extra Attack Damage",
           type: "damage",
         },
@@ -49,7 +49,7 @@ export default class VengefulBlade extends DDBEnricherData {
         },
       },
       {
-        constructor: {
+        init: {
           name: "Extra Damage",
           type: "damage",
         },

@@ -28,7 +28,7 @@ export default class ElementalAttunement extends DDBEnricherData {
       ? []
       : [
         {
-          constructor: {
+          init: {
             name: "Elemental Strike",
             type: "attack",
           },
@@ -73,7 +73,7 @@ export default class ElementalAttunement extends DDBEnricherData {
           },
         },
         {
-          constructor: {
+          init: {
             name: "Elemental Save",
             type: "save",
           },

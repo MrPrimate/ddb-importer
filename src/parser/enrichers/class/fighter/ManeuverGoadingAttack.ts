@@ -5,7 +5,7 @@ export default class ManeuverGoadingAttack extends Maneuver {
   get additionalActivities() {
     return [
       {
-        constructor: {
+        init: {
           name: "Save vs Goading",
           type: "save",
         },

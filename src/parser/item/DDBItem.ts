@@ -10,7 +10,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   // Properties set in constructor
   ddbItem: IDDBInventoryItem;
-  ddbDefinition: IDDBItemDefinition;
+  declare ddbDefinition: IDDBItemDefinition;
   isCompendiumItem: boolean;
   legacy: boolean;
   is2014: boolean;
@@ -184,7 +184,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Bag of Bellstones",
   ];
 
-   
+
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
     const addEffects = isCompendium
       ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
@@ -922,7 +922,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-   
+
   #getLootType(typeHint) {
     this.overrides.ddbType = typeHint ?? this.ddbDefinition.subType;
     this.parsingType = "loot";
@@ -1061,7 +1061,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-   
+
   #determineType() {
     if (!this.ddbDefinition.filterType) {
       if (this.ddbDefinition.name.startsWith("Spell Scroll:")) {
@@ -1770,7 +1770,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       || this.ddbDefinition.description.match(targets);
   }
 
-   
+
   #generateDamageFromDescription() {
     if (this.damageParts.length > 0) {
       logger.debug(`Skipping damage description parse as damage already created`);
@@ -1787,7 +1787,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     for (const dmg of matches) {
       let other = false;
       if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
-        continue;  
+        continue;
       }
       // check for other
       if (dmg.groups.start && dmg.groups.start.trim() == "at the start of") other = true;
@@ -1944,7 +1944,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.data.system.description.value = this.#removeMasteryContainer(this.data.system.description.value);
   }
 
-   
+
   #get2024Price() {
     if (this.is2014) return 0;
     if (!this.data.system.properties.includes("mgc")) {
@@ -2520,7 +2520,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     return match;
   }
 
-   
+
   async #addSpellAsCastActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -2664,7 +2664,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   // if this.spellsAsActivities
-   
+
   async #addSpellAsActivity(spell) {
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -2948,7 +2948,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this._activityEffectLinking();
   }
 
-   
+
   async build() {
     try {
       await this.#prepare();
@@ -3203,7 +3203,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   /** @override */
-   
+
   _getActivitiesType() {
     // console.warn(`Determining activity type for ${this.name}`, {
     //   actionData: this.actionData,
