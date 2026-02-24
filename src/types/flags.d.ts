@@ -2,7 +2,19 @@ export {}
 
 global {
 
+  interface IDDBImporterFlagsOverrideItem {
+    name: string;
+    type: string;
+    ddbId: number;
+  }
+
+  interface IDDBImporterFlags {
+    overrideId: string;
+    overrideItem: IDDBImporterFlagsOverrideItem;
+  }
+
   interface FlagConfig {
+    ddbImporter: IDDBImporterFlags;
     ActiveEffect: {
       ActiveAuras?: {
         isAura?: boolean;

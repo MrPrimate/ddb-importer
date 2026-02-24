@@ -1,3 +1,8 @@
+export interface IResetType {
+  id: string | number | null;
+  value: string;
+}
+
 export const RESETS = [
   { id: 1, value: "sr" },
   { id: "ShortRest", value: "sr" },

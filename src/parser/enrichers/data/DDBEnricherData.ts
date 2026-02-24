@@ -120,14 +120,14 @@ export default class DDBEnricherData {
     return max;
   }
 
-  _getGeneratedUses({ type, name, matchSubClass = null, scaleLink = null, includesName = false }: { type: string; name: string; matchSubClass?: string | null; scaleLink?: any; includesName?: boolean } = { type: "", name: "" }): any {
+  _getGeneratedUses({ type, name, matchSubClass = null, scaleLink = null, includesName = false }: { type: string; name: string; matchSubClass?: string | null; scaleLink?: any; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
     const action = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
       || DDBDataUtils.findSubClassByFeatureId(this.ddbParser.ddbData, a.componentId) === matchSubClass),
     );
 
-    const uses = DDBDataUtils.getLimitedUses({
+    const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
       data: action.limitedUse,
       description: action.description,
       scaleValue: scaleLink
@@ -175,7 +175,7 @@ export default class DDBEnricherData {
     return spells;
   }
 
-  _getSpellUsesWithSpent({ type, name, max, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max: any; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any } = { type: "", name: "", max: null }): any {
+  _getSpellUsesWithSpent({ type, name, max, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max: any; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any } = { type: "", name: "", max: null }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
 
     if (spells.length === 0) {
@@ -186,7 +186,7 @@ export default class DDBEnricherData {
       };
     }
 
-    const uses = DDBSpell.getUses(spells[0].limitedUse);
+    const uses: I5eSystemLimitedUses = DDBSpell.getUses(spells[0].limitedUse);
 
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];

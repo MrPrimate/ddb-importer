@@ -7,12 +7,12 @@ import MidiEffects from "./MidiEffects";
 
 export default class AutoEffects {
 
-  static effectModules(): EffectModules {
+  static effectModules(): IEffectModules {
     return SystemHelpers.effectModules();
   }
 
-  static generateBasicEffectDuration(document: any, activity?: any): EffectDuration {
-    const duration: EffectDuration = {
+  static generateBasicEffectDuration(document: any, activity?: any): IEffectDuration {
+    const duration: IEffectDuration = {
       seconds: null,
       startTime: null,
       rounds: null,
@@ -52,14 +52,14 @@ export default class AutoEffects {
       durationRounds = null,
       durationTurns = null,
       showIcon = false,
-    }: BaseEffectOptions = {}
-  ): EffectData {
-    const effect: EffectData = {
+    }: IBaseEffectOptions = {}
+  ): IEffectData {
+    const effect: IEffectData = {
       img: document.img,
       name,
       statuses: [],
       changes: [],
-      duration: {} as EffectDuration,
+      duration: {} as IEffectDuration,
       tint: "",
       transfer,
       disabled,
@@ -88,7 +88,7 @@ export default class AutoEffects {
 
   static SpellEffect(document: any, label: string,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: BaseEffectOptions = {},
+      durationRounds = null, durationTurns = null, showIcon = null }: IBaseEffectOptions = {},
   ): any {
     const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon };
     return AutoEffects.BaseEffect(document, label, options);
@@ -96,13 +96,13 @@ export default class AutoEffects {
 
   static FeatEffect(document: any, label: string,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: BaseEffectOptions = {},
+      durationRounds = null, durationTurns = null, showIcon = null }: IBaseEffectOptions = {},
   ): any {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
   }
 
   static MonsterFeatureEffect(document: any, label: string,
-    { transfer = false, disabled = false, showIcon = null }: BaseEffectOptions = {},
+    { transfer = false, disabled = false, showIcon = null }: IBaseEffectOptions = {},
   ): any {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, showIcon });
   }
@@ -110,7 +110,7 @@ export default class AutoEffects {
 
   static ItemEffect(document: any, label: string,
     { transfer = true, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: BaseEffectOptions = {},
+      durationRounds = null, durationTurns = null, showIcon = null }: IBaseEffectOptions = {},
   ): any {
     const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
     return effect;
@@ -223,7 +223,7 @@ export default class AutoEffects {
   }
 
 
-  static getStatusConditionEffect({ text = null, status = null, nameHint = null, flags = {} }: StatusConditionEffectOptions = {}): any | null {
+  static getStatusConditionEffect({ text = null, status = null, nameHint = null, flags = {} }: IStatusConditionEffectOptions = {}): any | null {
     const parsedStatus = status ?? DDBDescriptions.parseStatusCondition({ text });
     if (!parsedStatus.success) return null;
 
@@ -264,7 +264,7 @@ export default class AutoEffects {
     return effect;
   }
 
-  static getStatusEffect({ ddbDefinition, foundryItem, labelOverride }: StatusEffectOptions = {}): any | null {
+  static getStatusEffect({ ddbDefinition, foundryItem, labelOverride }: IStatusEffectOptions = {}): any | null {
     if (!foundryItem.effects) foundryItem.effects = [];
 
     const text = ddbDefinition.description ?? ddbDefinition.snippet ?? "";
@@ -295,7 +295,7 @@ export default class AutoEffects {
     return effect;
   }
 
-  static addSimpleConditionEffect(document: any, condition: string, { disabled, transfer }: SimpleConditionOptions = {}): any {
+  static addSimpleConditionEffect(document: any, condition: string, { disabled, transfer }: ISimpleConditionOptions = {}): any {
     document.effects = [];
     const effect = this.ItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`, { disabled, transfer });
     ChangeHelper.addStatusEffectChange({ effect, statusName: condition });

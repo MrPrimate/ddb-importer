@@ -910,11 +910,7 @@ global {
    * Merges properties from IDDBChoiceDefinitionOption with routing metadata
    * added during choice resolution.
    */
-  export interface IDDBChoiceResult {
-    id: number;
-    label: string;
-    description: string | null;
-    sourceId: number | null;
+  export interface IDDBChoiceResult extends IDDBChoiceDefinitionOption {
     componentId: number;
     componentTypeId: number;
     choiceId: string | null;

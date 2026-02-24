@@ -8,7 +8,7 @@ import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 import { DDBCharacterData } from "../../../types/ddb-character-source";
 
 export default class EffectGenerator {
-  effect: EffectData;
+  effect: IEffectData;
   ddb: DDBCharacterData;
 
   _generateDataStub() {

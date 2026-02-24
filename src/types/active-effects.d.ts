@@ -1,12 +1,12 @@
 export {}
 
 global {
-  export interface EffectData {
+  export interface IEffectData {
     img: string;
     name: string;
     statuses: string[];
     changes: any[];
-    duration: EffectDuration;
+    duration: IEffectDuration;
     tint: string;
     transfer: boolean;
     disabled: boolean;
@@ -30,14 +30,14 @@ global {
     [key: string]: any;
   }
 
-  interface EffectModules {
+  interface IEffectModules {
     daeInstalled: boolean;
     midiQolInstalled: boolean;
     atlInstalled: boolean;
     [key: string]: any;
   }
 
-  interface EffectDuration {
+  interface IEffectDuration {
     seconds: number | null;
     startTime: number | null;
     rounds: number | null;
@@ -46,7 +46,7 @@ global {
     startTurn: number | null;
   }
 
-  interface BaseEffectOptions {
+  interface IBaseEffectOptions {
     transfer?: boolean;
     disabled?: boolean;
     description?: string | null;
@@ -56,20 +56,20 @@ global {
     showIcon?: boolean | null;
   }
 
-  interface StatusConditionEffectOptions {
+  interface IStatusConditionEffectOptions {
     text?: string | null;
     status?: any;
     nameHint?: string | null;
     flags?: any;
   }
 
-  interface StatusEffectOptions {
+  interface IStatusEffectOptions {
     ddbDefinition?: any;
     foundryItem?: any;
     labelOverride?: string;
   }
 
-  interface SimpleConditionOptions {
+  interface ISimpleConditionOptions {
     disabled?: boolean;
     transfer?: boolean;
   }

@@ -78,6 +78,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   isCRSummonFeature2014: boolean;
   isCRSummonFeature2024: boolean;
   isSummons: boolean;
+  _generatedUses: I5eSystemLimitedUses;
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
@@ -531,7 +532,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
 
   _generateLimitedUse() {
-    const uses = DDBDataUtils.getLimitedUses({
+    const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
       data: this.ddbDefinition.limitedUse,
       description: this.ddbDefinition.description ?? "",
       scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink ? this.scaleValueUsesLink : null,

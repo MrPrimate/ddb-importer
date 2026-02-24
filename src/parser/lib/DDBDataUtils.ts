@@ -3,7 +3,13 @@ import { DICTIONARY } from "../../config/_module";
 import { SystemHelpers } from "./_module";
 import DDBClass from "../classes/DDBClass";
 import DDBSubClass from "../classes/DDBSubClass";
-import { Activity } from "../../types/activities";
+import { IResetType } from "../../config/dictionary/actor/resets";
+
+interface IDDBDataUtilsLimitedUses {
+  data: IDDBActionLimitedUse | IDDBInventoryLimitedUse | IDDBClassFeatureLimitedUse | IDDBSpellLimitedUse,
+  description?: string,
+  scaleValue?: string | null
+}
 
 export default class DDBDataUtils {
 
@@ -100,7 +106,7 @@ export default class DDBDataUtils {
 
     if (foundryItem.system.activities) {
       Object.keys(foundryItem.system.activities).forEach((id) => {
-        const activity: Activity = foundryItem.system.activities[id];
+        const activity: IActivity = foundryItem.system.activities[id];
 
         if (activity.type === "attack") {
           if (toHitBonus) {
@@ -657,8 +663,11 @@ export default class DDBDataUtils {
     return klass;
   }
 
-  static findMatchedDDBItem(item, ownedItems, existingMatchedItems = []) {
+  static findMatchedDDBItem(item, ownedItems, existingMatchedItems = []) : I5eSystemLimitedUsesRecovery {
+    const itemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
+    const itemDefinitionId = foundry.utils.getProperty(item, "flags.ddbimporter.definitionId");
     return ownedItems.find((owned) => {
+      const ownedId = foundry.utils.getProperty(owned, "flags.ddbimporter.id");
       // have we already matched against this id? lets not double dip
       const existingMatch = existingMatchedItems.find((matched) => {
         return foundry.utils.getProperty(owned, "flags.ddbimporter.id") === foundry.utils.getProperty(matched, "flags.ddbimporter.id");
@@ -668,12 +677,12 @@ export default class DDBDataUtils {
       const simpleMatch
         = item.name === owned.name
         && item.type === owned.type
-        && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id;
+        && itemId === ownedId;
       const definitionIdMatch
         = foundry.utils.hasProperty(item, "flags.ddbimporter.definitionId")
         && foundry.utils.hasProperty(owned, "flags.ddbimporter.id")
-        && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id
-        && item.flags?.ddbimporter?.definitionId === owned.flags?.ddbimporter?.definitionId;
+        && itemId === ownedId
+        && itemDefinitionId === foundry.utils.getProperty(owned, "flags.ddbimporter.definitionId");
       // account for choices in ddb
       const isChoice
         = foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond.choice.choiceId")
@@ -683,7 +692,7 @@ export default class DDBDataUtils {
           === owned.flags.ddbimporter.dndbeyond.choice.choiceId
         : true;
       // force an override
-      const overrideDetails = foundry.utils.getProperty(owned, "flags.ddbimporter.overrideItem");
+      const overrideDetails = foundry.utils.getProperty(owned, "flags.ddbimporter.overrideItem") as IDDBImporterFlagsOverrideItem;
       const overrideMatch
         = overrideDetails
         && item.name === overrideDetails.name
@@ -695,8 +704,12 @@ export default class DDBDataUtils {
   }
 
 
-  static getLimitedUses({ data, description = "", scaleValue = null } = {}) {
-    let resetType = DICTIONARY.resets.find((type) => type.id === data?.resetType);
+  static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses ): I5eSystemLimitedUses {
+    let resetType: IResetType | undefined;
+
+    if ('resetType' in data) {
+      resetType = DICTIONARY.resets.find((type) => type.id === data?.resetType);
+    }
 
     if (!resetType) {
       const resetTypeRegex = /(?:(Short) or )?(Long) Rest/ig;
@@ -710,9 +723,14 @@ export default class DDBDataUtils {
 
     if (
       data
-      && (data.maxUses || data.statModifierUsesId || data.useProficiencyBonus)
+      && ('maxUses' in data || 'statModifierUsesId' in data || 'useProficiencyBonus' in data)
+      && (
+        ('maxUses' in data && data.maxUses)
+        || ('statModifierUsesId' in data && data.statModifierUsesId)
+        || ('useProficiencyBonus' in data && data.useProficiencyBonus)
+      )
     ) {
-      let maxUses = (data.maxUses && data.maxUses !== -1) ? data.maxUses : 0;
+      let maxUses: string | number = ('maxUses' in data && data.maxUses && data.maxUses !== -1) ? data.maxUses : 0;
       const statModifierUsesId = foundry.utils.getProperty(data, "statModifierUsesId");
       if (statModifierUsesId) {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId).value;
@@ -720,7 +738,8 @@ export default class DDBDataUtils {
         if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
         } else {
-          switch (data.operator) {
+          const operator = 'operator' in data ? data.operator : undefined;
+          switch (operator) {
             case 2:
               maxUses = `${maxUses} * @abilities.${ability}.mod`;
               break;
@@ -736,7 +755,8 @@ export default class DDBDataUtils {
         if (maxUses === 0) {
           maxUses = `@prof`;
         } else {
-          switch (data.proficiencyBonusOperator) {
+          const proficiencyBonusOperator = foundry.utils.getProperty(data, "proficiencyBonusOperator");
+          switch (proficiencyBonusOperator) {
             case 2:
               maxUses = `${maxUses} * @prof`;
               break;
@@ -753,12 +773,12 @@ export default class DDBDataUtils {
 
       const finalMaxUses = maxUses
         ? Number.isInteger(maxUses)
-          ? parseInt(maxUses)
+          ? maxUses as number
           : maxUses.toString().trim().replace(/^\+/, "").trim()
         : null;
 
       return {
-        spent: data.numberUsed ?? null,
+        spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
         recovery: [
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
@@ -768,7 +788,7 @@ export default class DDBDataUtils {
       const maxUses = scaleValue;
 
       return {
-        spent: data.numberUsed ?? null,
+        spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (maxUses !== "") ? maxUses : null,
         recovery: [
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
@@ -776,7 +796,7 @@ export default class DDBDataUtils {
       };
     } else if (foundry.utils.hasProperty(data, "value")) {
       return {
-        spent: data.numberUsed ?? null,
+        spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: `${data.value}`,
         recovery: [
           { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },

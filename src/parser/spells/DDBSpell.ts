@@ -620,8 +620,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.#specialRange();
   }
 
-  static getUses(limitedUse) {
-    let uses = {
+  static getUses(limitedUse) : I5eSystemLimitedUses{
+    let uses: I5eSystemLimitedUses = {
       spent: null,
       max: "",
       recovery: [],
