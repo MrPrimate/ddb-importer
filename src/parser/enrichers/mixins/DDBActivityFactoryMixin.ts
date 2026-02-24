@@ -4,29 +4,17 @@ import SystemHelpers from "../../lib/SystemHelpers";
 export default class DDBActivityFactoryMixin {
 
   activities: any[] = [];
-
   activityType: any = null;
-
   activityTypes: any[] = [];
-
   additionalActivities: any[] = [];
-
   enricher: any = null;
-
   activityGenerator: any = null;
-
   documentType: string | null = null;
-
   notifier: any = null;
-
   useMidiAutomations = false;
-
   usesOnActivity = false;
-
   ignoreActivityGeneration = false;
-
   forceDefaultActionBuild = false;
-
   data: any = null;
 
   // These properties are used throughout the class but defined in subclasses

@@ -707,7 +707,7 @@ export default class DDBDataUtils {
   static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses ): I5eSystemLimitedUses {
     let resetType: IResetType | undefined;
 
-    if ('resetType' in data) {
+    if (foundry.utils.hasProperty(data, "resetType")) {
       resetType = DICTIONARY.resets.find((type) => type.id === data?.resetType);
     }
 

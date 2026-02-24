@@ -38,22 +38,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     background: DDBBackgroundEnricher,
   };
 
-  spellLinks = [];
-  isAction = false;
-  excludedScale = false;
-  levelScaleInfusion = false;
-  scaleValueLink = "";
-  useScaleValueLink = false;
-  excludedScaleUses = false;
-  scaleValueUsesLink = "";
-  useUsesScaleValueLink = false;
-  tagType = "other";
-  activities = [];
-  data = {};
-  snippet = "";
-  description = "";
-  resourceCharges = null;
-
   // Properties set in constructor / _init / _prepare
   ddbCharacter: DDBCharacter | null;
   name: string;
@@ -65,6 +49,19 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   is2024: boolean;
   isClass2014: boolean;
   naturalWeapon: boolean;
+  isAction: boolean;
+  excludedScale: boolean;
+  levelScaleInfusion: boolean;
+  scaleValueLink: string;
+  useScaleValueLink: boolean;
+  excludedScaleUses: boolean;
+  scaleValueUsesLink: string;
+  useUsesScaleValueLink: boolean;
+  tagType: string;
+  snippet: string;
+  description: string;
+  resourceCharges: number | null;
+  ddbFeature: any; // IDDBClassFeatureDefinition | IDDBSpeciesTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
 
   // Set in _getRules / _generateActionTypes / _checkSummons
   _class: IDDBClass | undefined;
@@ -126,7 +123,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
   _generateFlagHints() {
-    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
+    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags) as FlagConfig;
 
     if (this._actionType.class) {
       const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
@@ -281,6 +278,22 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
       useMidiAutomations: addEffects,
       usesOnActivity,
     });
+
+    this.spellLinks = [];
+    this.isAction = false;
+    this.excludedScale = false;
+    this.levelScaleInfusion = false;
+    this.scaleValueLink = "";
+    this.useScaleValueLink = false;
+    this.excludedScaleUses = false;
+    this.scaleValueUsesLink = "";
+    this.useUsesScaleValueLink = false;
+    this.tagType = "other";
+    this.activities = [];
+    this.data = {};
+    this.snippet = "";
+    this.description = "";
+    this.resourceCharges = null;
 
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbData;

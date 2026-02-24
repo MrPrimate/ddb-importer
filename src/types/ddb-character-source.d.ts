@@ -589,8 +589,8 @@ global {
     isLegacy: boolean;
     supportsSubrace: boolean;
     speciesGroupId: number;
-    groupIds: any[];
-    featIds: any[];
+    groupIds: number[];
+    featIds: number[];
     racialTraits: any[];
     weightSpeeds: IDDBWeightSpeeds;
     sources: IDDBSource[];

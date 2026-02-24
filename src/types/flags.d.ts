@@ -8,13 +8,327 @@ global {
     ddbId: number;
   }
 
+  interface IDDBImporterFlagsDnDBeyond {
+    // Character identity
+    characterId?: string;
+    url?: string;
+    json?: string;
+    roUrl?: string;
+
+    // Character stats
+    totalLevels?: number;
+    profBonus?: number;
+    proficiencies?: string[];
+    proficienciesIncludingEffects?: string[];
+    effectAbilities?: Record<string, { value: number }>;
+    characterValues?: { valueId: number; valueTypeId: number; typeId: number; value: string }[];
+    templateStrings?: string[];
+    campaign?: { id: number; name: string };
+
+    // Spell flags
+    lookup?: string;
+    lookupName?: string;
+    lookupId?: number;
+    level?: number;
+    characterClassId?: number;
+    spellLevel?: number;
+    ability?: string;
+    mod?: number;
+    dc?: number;
+    cantripBoost?: boolean;
+    overrideDC?: boolean;
+    id?: number;
+    entityTypeId?: number;
+    healingBoost?: number;
+    usesSpellSlot?: boolean;
+    forceMaterial?: boolean;
+    forcePact?: boolean;
+    is2014Class?: boolean;
+    race?: string;
+    granted?: boolean;
+    nameOverride?: string;
+    castAtLevel?: number;
+    unPreparedCantrip?: string | null;
+    homebrew?: boolean;
+
+    // Item flags
+    type?: string;
+    tags?: string[];
+    sources?: { sourceId: number; pageNumber?: number; sourceType?: number }[];
+    restrictions?: string[];
+    stackable?: boolean;
+    isContainer?: boolean;
+    isConsumable?: boolean;
+    isCustomItem?: boolean;
+    isMonkWeapon?: boolean;
+    isPack?: boolean;
+    levelInfusionGranted?: number;
+    avatarUrl?: string;
+    largeAvatarUrl?: string;
+    filterType?: string;
+    ability2?: string;
+    damage?: { parts: string[][] };
+    classFeatures?: number[];
+    alternativeNames?: string[];
+    sourceId?: string;
+    sourceCategoryId?: number;
+
+    // Feature flags
+    requiredLevel?: number;
+    displayOrder?: number;
+    featureType?: number;
+    class?: string;
+    classId?: number;
+    entityId?: number;
+    entityRaceId?: number;
+    entityType?: string;
+
+    // Encounter flags
+    initiative?: number;
+    uniqueId?: string;
+
+    // Choice flags
+    choice?: {
+      componentId?: number;
+      choiceId?: string;
+      optionId?: string;
+    };
+
+    // Infusion flags
+    defintionKey?: string;
+    modifierType?: string;
+    requiresAttunement?: boolean;
+    allowDuplicates?: boolean;
+
+    // Limit use
+    limitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string };
+
+    [key: string]: unknown;
+  }
+
+  interface IDDBImporterFlagsSummons {
+    summonsKey?: string;
+    version?: number;
+    folder?: string;
+    name?: string;
+    changes?: { key: string; value: string; mode: number }[];
+  }
+
+  interface IDDBImporterFlagsEffect {
+    // Aura behavior flags
+    applyStart?: boolean;
+    applyEntry?: boolean;
+    applyImmediate?: boolean;
+    everyEntry?: boolean;
+    allowVsRemoveCondition?: boolean;
+    removalCheck?: string | boolean;
+    removalSave?: string | boolean;
+    saveRemoves?: boolean;
+    saveOnEntry?: boolean;
+    condition?: string;
+    save?: string;
+    sequencerFile?: string;
+    sequencerScale?: number;
+    activityIds?: string[];
+    isCantrip?: boolean;
+    nameSuffix?: string;
+    removeOnOff?: boolean;
+    enchantmentEffects?: string[];
+
+    // magicStone-style effect data
+    dice?: string;
+    damageType?: string;
+  }
+
+  interface IDDBImporterFlagsDisposition {
+    match?: boolean;
+  }
+
+  interface IDDBImporterFlagsPrice {
+    xgte?: boolean;
+    value?: number;
+  }
+
+  interface IDDBImporterFlagsResources {
+    type?: string;
+    ask?: boolean;
+  }
+
+  interface IDDBImporterFlagsAdventure {
+    required?: Record<string, unknown>;
+    revisitUuids?: string[];
+  }
+
   interface IDDBImporterFlags {
-    overrideId: string;
-    overrideItem: IDDBImporterFlagsOverrideItem;
+    // Core identifiers
+    id?: number;
+    definitionId?: number;
+    entityTypeId?: number;
+    definitionEntityTypeId?: number;
+    componentId?: number;
+    componentTypeId?: number;
+    compendiumId?: string;
+
+    // Naming
+    originalName?: string;
+    name?: string;
+
+    // Type/classification
+    type?: string;
+    subType?: string;
+    action?: boolean;
+    isCustomAction?: boolean;
+
+    // Version flags
+    is2014?: boolean;
+    is2024?: boolean;
+    legacy?: boolean;
+    isLegacy?: boolean;
+    version?: string;
+
+    // Class/subclass
+    class?: string;
+    classId?: number;
+    classDefinitionId?: number;
+    subclass?: string;
+    subClass?: string;
+    subClassId?: number;
+    subclassDefinitionId?: number;
+    parentClassId?: number;
+    isStartingClass?: boolean;
+
+    // Feature classification
+    isChoice?: boolean;
+    isChoiceFeature?: boolean;
+    optionalFeature?: boolean;
+    infusionFeature?: boolean;
+    infusionId?: number;
+    experimentalElixir?: boolean;
+    featureName?: string;
+    featureMeta?: Record<string, unknown>;
+    initialFeature?: boolean;
+
+    // Race/species
+    baseName?: string;
+    baseRaceName?: string;
+    subRaceShortName?: string;
+    isSubRace?: boolean;
+    fullRaceName?: string;
+    groupName?: string;
+    isLineage?: boolean;
+    entityRaceId?: number;
+
+    // Image handling
+    ddbImg?: string;
+    image?: string;
+    keepIcon?: boolean;
+    matchedImg?: string;
+
+    // Item flags
+    containerEntityId?: number;
+    containerEntityTypeId?: number;
+    custom?: boolean;
+    isCustom?: boolean;
+    ddbCustomAdded?: boolean;
+    isItemCharge?: boolean;
+    removeSpell?: boolean;
+
+    // Compendium/import
+    compendium?: boolean;
+    pack?: string;
+    overrideId?: string;
+    overrideItem?: IDDBImporterFlagsOverrideItem;
+    replacedId?: string;
+    replaced?: boolean;
+    originalItemName?: string;
+    importId?: string;
+    delete?: Record<string, unknown>;
+
+    // Effect flags
+    effectsApplied?: boolean;
+    chrisEffectsApplied?: boolean;
+    chrisPreEffectName?: string;
+    addSpellEffects?: boolean;
+    generic?: boolean;
+    effectLabelOverride?: string;
+
+    // Effect matching (on effects)
+    activityMatch?: string;
+    activitiesMatch?: string[];
+    ignoreTransfer?: boolean;
+    effectIdLevel?: { min: number | null; max: number | null };
+    activityRiders?: string[];
+    effectRiders?: string[];
+    itemRiders?: string[];
+    noeffect?: boolean | number[];
+    noEffectIds?: number[];
+
+    // AC effects
+    disabled?: boolean;
+    itemId?: number | null;
+    characterEffect?: boolean;
+    originName?: string;
+
+    // Character flags (on actor)
+    rolledHP?: boolean;
+    baseHitPoints?: number;
+    baseAC?: number;
+    acEffects?: string[];
+    activeUpdate?: boolean;
+    activeSyncSpells?: boolean;
+    useLocalPatreonKey?: boolean;
+
+    // Activity/enricher flags
+    replaceActivityUses?: boolean;
+    forceSpellAdvancement?: boolean;
+    spellHintName?: string;
+    defaultAdditionalActivities?: { data?: Record<string, unknown> };
+
+    // Import control
+    ignoreItemImport?: boolean;
+    ignoreItemUpdate?: boolean;
+    ignoreItemForChrisPremades?: boolean;
+    ignoreIcon?: boolean;
+    retainResourceConsumption?: boolean;
+    parentId?: string;
+
+    // Monster feature flags
+    spellSave?: boolean;
+    spellAttack?: boolean;
+    levelBonus?: boolean;
+    profBonus?: boolean;
+
+    // Source metadata
+    sources?: { sourceId: number; pageNumber?: number; sourceType?: number }[];
+    tags?: string[];
+    sourceId?: number;
+    sourceCategory?: number;
+    sourceCode?: string;
+    sourceName?: string;
+
+    // Encounter/adventure
+    encounterId?: number | string;
+    encounters?: boolean;
+    isDDBAdventure?: boolean;
+    adventure?: IDDBImporterFlagsAdventure;
+
+    // Pricing
+    price?: IDDBImporterFlagsPrice;
+
+    // Resources (on actor)
+    resources?: IDDBImporterFlagsResources;
+
+    // Nested objects
+    dndbeyond?: IDDBImporterFlagsDnDBeyond;
+    summons?: IDDBImporterFlagsSummons;
+    effect?: IDDBImporterFlagsEffect;
+    disposition?: IDDBImporterFlagsDisposition;
+
+    [key: string]: unknown;
   }
 
   interface FlagConfig {
-    ddbImporter: IDDBImporterFlags;
+    ddbimporter: IDDBImporterFlags;
     ActiveEffect: {
       ActiveAuras?: {
         isAura?: boolean;
