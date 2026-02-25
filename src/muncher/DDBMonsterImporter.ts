@@ -15,6 +15,7 @@ export default class DDBMonsterImporter {
   type: string;
   fullWipe: boolean;
   updateExisting: boolean;
+  monster: I5eMonsterData;
 
   constructor({ monster, type, updateExisting, notifier, fullWipe = false } = {}) {
     this.monster = monster;
@@ -119,7 +120,7 @@ export default class DDBMonsterImporter {
         if (foundry.utils.hasProperty(this.monster, "prototypeToken.flags.tagger.tags")
           && foundry.utils.hasProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags")
         ) {
-          const newTags = [...new Set(this.monster.prototypeToken.flags.tagger.tags, this.compendiumActor.prototypeToken.flags.tagger.tags)];
+          const newTags = [...new Set([...this.monster.prototypeToken.flags.tagger.tags, ...this.compendiumActor.prototypeToken.flags.tagger.tags])];
           foundry.utils.setProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags", newTags);
         }
 
@@ -134,7 +135,9 @@ export default class DDBMonsterImporter {
           await this.existingItemRetentionCheck(false);
         }
 
-
+        if (CONFIG.DDBI.DEV.downloadUpdateJSON) {
+          FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source.rules}.json`, "application/json");
+        }
         logger.debug("NPC Update Data", foundry.utils.duplicate(this.monster));
         await this.compendiumActor.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
         await this.compendiumActor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
@@ -166,10 +169,14 @@ export default class DDBMonsterImporter {
         keepId: true,
       };
       logger.debug("NPC New Data", foundry.utils.duplicate(this.monster));
-      this.compendiumActor = await Actor.create(this.monster, options);
+      if (CONFIG.DDBI.DEV.downloadUpdateJSON) {
+        FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source.rules}.json`, "application/json");
+      }
+      this.compendiumActor = await Actor.create(this.monster as any, options);
       await this.generateCastSpells();
     }
 
+    // @ts-expect-error - for some reason it doesnt recognize this as a valid hook, but it is
     await Hooks.callAll("ddb-importer.monsterAddToCompendiumComplete", { actor: this.compendiumActor });
 
   }

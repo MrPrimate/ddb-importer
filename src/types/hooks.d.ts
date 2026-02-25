@@ -67,6 +67,8 @@ global {
       "getHeaderControlsActivitySheet": (app: foundry.applications.api.Application /*dnd5e.applications.activity.activitySheet*/ , buttons: any[]) => void;
       "tidy5e-sheet.ready": (api: any) => void;
       "simplecover5eReady": () => void;
+      // ddb importer
+      "ddb-importer.monsterAddToCompendiumComplete": [data: { actor: Actor5e | null }];
     }
   }
 }
