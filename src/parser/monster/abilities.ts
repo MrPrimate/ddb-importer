@@ -49,7 +49,7 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
     this.npc.system.abilities[ability.value]['dc'] = mod + proficiencyBonus + 8;
   });
 
-  this.abilities = this.npc.system.abilities;
+  this.abilities = this.npc.system.abilities as IMonsterAbilities;
 
   let initBonus = null;
 

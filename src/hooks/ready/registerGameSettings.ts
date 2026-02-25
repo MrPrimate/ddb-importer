@@ -41,6 +41,7 @@ interface IDDBIDev {
   deleteAllBeforeUpdate: boolean;
   downloadJSONExamples: boolean;
   downloadRAWJSONExamples: boolean;
+  downloadUpdateJSON: boolean;
 }
 
 interface IDDBIEffectConfigModules {
@@ -121,6 +122,7 @@ if (!(CONFIG as any).DDBI) {
       deleteAllBeforeUpdate: false,
       downloadJSONExamples: false,
       downloadRAWJSONExamples: false,
+      downloadUpdateJSON: false,
     },
     EFFECT_CONFIG: {
       MODULES: {

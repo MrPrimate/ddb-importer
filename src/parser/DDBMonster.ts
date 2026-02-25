@@ -71,6 +71,7 @@ interface DDBMonster {
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 class DDBMonster {
   name: string;
+  npc: I5eMonsterData;
   proficiencyBonus: number;
   source: IDDBMonsterSourceData;
   useItemAC: boolean;
@@ -114,6 +115,7 @@ class DDBMonster {
     innateMatch: boolean;
     concentration: boolean;
   };
+  abilities: IMonsterAbilities;
 
   setProperty(name, value) {
     if (this.overrides["name"]) {
@@ -145,11 +147,9 @@ class DDBMonster {
     this.setProperty("temporaryHitPoints", (this.source?.temporaryHitPoints ?? 0));
 
     this.characterDescription = "";
-    this.unexpectedDescription = null;
 
     // processing info
     this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
-    this.abilities = null;
     this.proficiencyBonus = null;
     this.cr = {
         "id": 1,
@@ -159,7 +159,7 @@ class DDBMonster {
     };
     this.typeName = "";
     this.items = [];
-    this.img = null;
+
     if (existingNpc) {
       this.setProperty("proficiencyBonus", existingNpc.system.attributes.prof);
       this.setProperty("cr", existingNpc.system.details.cr);
@@ -171,9 +171,6 @@ class DDBMonster {
 
     this.featureFactory = new DDBMonsterFeatureFactory({ ddbMonster: this });
 
-    // set during source generation
-    this.is2014 = null;
-    this.is2014 = null;
     this.use2024Spells = use2024Spells;
     this.useCastActivity = useCastActivity;
     this.forceRulesVersion = forceRulesVersion;
@@ -278,8 +275,8 @@ class DDBMonster {
   }
 
   _generate3DModels() {
-    if (!game.canvas3D?.CONFIG?.UI?.TokenBrowser) return;
-    const matches = game.canvas3D.CONFIG.UI.TokenBrowser.findByName(this.name.replace("(Legacy)", "").trim());
+    if (!(game as any).canvas3D?.CONFIG?.UI?.TokenBrowser) return;
+    const matches = (game as any).canvas3D.CONFIG.UI.TokenBrowser.findByName(this.name.replace("(Legacy)", "").trim());
     if (matches && matches.length > 0) {
       foundry.utils.setProperty(this.npc.prototypeToken, "flags.levels-3d-preview.model3d", matches[0].output);
     }
