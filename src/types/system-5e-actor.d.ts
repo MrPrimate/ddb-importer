@@ -476,17 +476,8 @@ global {
     chat: string;
   }
 
-  export interface I5eItemRecovery {
-    period: string;
-    type: string;
-    formula?: string;
-  }
-
-  export interface I5eItemUses {
-    spent: number | null;
-    max: string | null;
-    recovery: I5eItemRecovery[];
-  }
+  // Uses I5eSystemLimitedUsesRecovery from system-5e.d.ts (identical shape)
+  // Uses I5eSystemLimitedUses from system-5e.d.ts (identical shape)
 
   export interface I5eItemSourceRef {
     book?: string;
@@ -573,29 +564,9 @@ global {
     special?: string;
   }
 
-  export interface I5eActivityVisibility {
-    level: Record<string, any>;
-    requireAttunement: boolean;
-    requireIdentification: boolean;
-    requireMagic: boolean;
-  }
-
-  export interface I5eActivityUses {
-    spent: number;
-    recovery: I5eItemRecovery[];
-  }
-
-  export interface I5eMidiActivityProperties {
-    ignoreTraits?: string[];
-    triggeredActivityId?: string;
-    triggeredActivityConditionText?: string;
-    triggeredActivityTargets?: string;
-    triggeredActivityRollAs?: string;
-    forceDialog?: boolean;
-    confirmTargets?: string;
-    automationOnly?: boolean;
-    identifier?: string;
-  }
+  // Uses IActivityVisibilityData from activities.d.ts (identical shape)
+  // Uses I5eSystemLimitedUses from system-5e.d.ts for activity uses
+  // Uses IMidiActivityProperties from activities.d.ts
 
   /** Fields common to all activity types. */
   export interface I5eActivityBase {
@@ -612,9 +583,9 @@ global {
     flags: Record<string, any>;
     range: I5eActivityRange;
     target: I5eActivityTarget;
-    uses: I5eActivityUses;
-    visibility: I5eActivityVisibility;
-    midiProperties?: I5eMidiActivityProperties;
+    uses: I5eSystemLimitedUses;
+    visibility: IActivityVisibilityData;
+    midiProperties?: IMidiActivityProperties;
     otherActivityId?: string;
   }
 
@@ -719,8 +690,8 @@ global {
     consumption: I5eActivityConsumption;
     description: Record<string, any>;
     flags: Record<string, any>;
-    uses: I5eActivityUses;
-    visibility: I5eActivityVisibility;
+    uses: I5eSystemLimitedUses;
+    visibility: IActivityVisibilityData;
   }
 
   export type I5eActivity =
@@ -787,7 +758,7 @@ global {
     source: I5eItemSourceRef;
     type: { value: string; baseItem: string };
     unidentified: { description: string };
-    uses: I5eItemUses;
+    uses: I5eSystemLimitedUses;
     weight: I5eItemWeight;
   }
 
@@ -820,7 +791,7 @@ global {
     requirements: string;
     source: I5eItemSourceRef;
     type: { value: string; subtype: string };
-    uses: I5eItemUses;
+    uses: I5eSystemLimitedUses;
   }
 
   export interface I5eFeatItem {
@@ -872,7 +843,7 @@ global {
         units?: string;
       };
     };
-    uses: I5eItemUses;
+    uses: I5eSystemLimitedUses;
   }
 
   export interface I5eSpellItem {
@@ -916,7 +887,7 @@ global {
     strength: number;
     type: { value: string; baseItem: string };
     unidentified: { description: string };
-    uses: I5eItemUses;
+    uses: I5eSystemLimitedUses;
     weight: I5eItemWeight;
   }
 

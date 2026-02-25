@@ -66,6 +66,36 @@ global {
     minimumAC?: string;
   }
 
+  export interface IMidiActivityProperties {
+    ignoreTraits?: string[];
+    triggeredActivityId?: string;
+    triggeredActivityConditionText?: string;
+    triggeredActivityTargets?: string;
+    triggeredActivityRollAs?: string;
+    autoConsume?: boolean;
+    forceConsumeDialog?: string;
+    forceRollDialog?: string;
+    forceDamageDialog?: string;
+    forceDialog?: boolean;
+    confirmTargets?: string;
+    autoTargetType?: string;
+    autoTargetAction?: string;
+    automationOnly?: boolean;
+    otherActivityCompatible?: boolean;
+    identifier?: string;
+    displayActivityName?: boolean;
+    rollMode?: keyof CONFIG.Dice.RollModes;
+    chooseEffects?: boolean;
+    toggleEffect?: boolean;
+    ignoreFullCover?: boolean;
+    removeChatButtons?: string;
+    magicEffect?: boolean;
+    magicDamage?: boolean;
+    noConcentrationCheck?: boolean;
+    skipConcentrationCheck?: boolean;
+    autoCEEffects?: string;
+  }
+
   export interface IActivityData {
     name?: string;
     uses?: I5eSystemLimitedUses;
@@ -174,34 +204,7 @@ global {
     type?: string;
     useCondition?: string;
     effectCondition?: string;
-    midiProperties?: {
-      ignoreTraits?: string[];
-      triggeredActivityId?: string;
-      triggeredActivityConditionText?: string;
-      triggeredActivityTargets?: string;
-      triggeredActivityRollAs?: string;
-      autoConsume?: boolean;
-      forceConsumeDialog?: string;
-      forceRollDialog?: string;
-      forceDamageDialog?: string;
-      confirmTargets?: string;
-      autoTargetType?: string;
-      autoTargetAction?: string;
-      automationOnly?: boolean;
-      otherActivityCompatible?: boolean;
-      identifier?: string;
-      displayActivityName?: boolean;
-      rollMode?: keyof CONFIG.Dice.RollModes;
-      chooseEffects?: boolean;
-      toggleEffect?: boolean;
-      ignoreFullCover?: boolean;
-      removeChatButtons?: string;
-      magicEffect?: boolean;
-      magicDamage?: boolean;
-      noConcentrationCheck?: boolean;
-      skipConcentrationCheck?: boolean;
-      autoCEEffects?: string;
-    };
+    midiProperties?: IMidiActivityProperties;
     flags?: {
       ddbimporter?: {
         isElixirAdditionalActivity?: boolean;
