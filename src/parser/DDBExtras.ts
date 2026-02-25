@@ -390,7 +390,7 @@ function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor, creature
   if (creature.name) mock.name = creature.name;
 
   // creature group
-  mock.automatedEvcoationAnimation = getCreatureAnimationType(mock.name, mock.creatureGroup);
+  mock.automatedEvocationAnimation = getCreatureAnimationType(mock.name, mock.creatureGroup);
 
   // size
   const sizeChange = getCustomValue(ddbCharacterData, 46, creature.id, creature.entityTypeId);

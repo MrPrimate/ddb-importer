@@ -74,6 +74,8 @@ export interface IDDBIConfig {
   ignoreEnrichedImages?: boolean;
   keyPostfix?: string;
   useLocal?: boolean;
+  monsterURL?: string;
+  version?: string;
 }
 
 if (!(CONFIG as any).DDBI) {

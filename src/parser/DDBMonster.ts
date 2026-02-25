@@ -5,11 +5,115 @@ import { logger, utils, CompendiumHelper } from '../lib/_module';
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory";
 import { ExternalAutomations } from "../effects/_module";
 
-export default class DDBMonster {
-  name: any;
-  npc: any;
-  abilities: any;
+// Declaration merging: these methods are added to DDBMonster.prototype
+// by the files imported via extendParsers.ts
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+interface DDBMonster {
+  // abilities.ts
+  _generateAbilities(): void;
+  // ac.ts
+  BAD_AC_MONSTERS: string[];
+  _generateAC(additionalItems?: any[]): Promise<void>;
+  // conditions.ts
+  getAdjustmentsConfig(type: any): any;
+  getDamageAdjustments(type: any): any;
+  _generateDamageImmunities(): void;
+  _generateDamageResistances(): void;
+  _generateDamageVulnerabilities(): void;
+  _generateConditionImmunities(): void;
+  // environments.ts
+  _generateEnvironments(): void;
+  // features.ts
+  _generateFeatures(): Promise<void>;
+  // habitats.ts
+  _generateHabitats(): void;
+  // hp.ts
+  _generateHitPoints(): void;
+  // languages.ts
+  _generateLanguages(): void;
+  // movement.ts
+  _generateMovement(): void;
+  // senses.ts
+  getTextSenses(): any;
+  _generateTokenSenses(): void;
+  _generateSenses(): void;
+  // size.ts
+  getSizeFromId(sizeId: any): any;
+  _generateSize(): void;
+  // skills.ts
+  _generateSkills(): any;
+  _generateSkillsHTML(): any;
+  // source.ts
+  _generateSource(): void;
+  // spellcasting.ts
+  getSpellcasting(text: any): any;
+  _generateSpellcastingAbility(text: any): void;
+  _generateSpellLevel(text: any): void;
+  _generateSpelldc(text: any): void;
+  _generateSpellAttackBonus(text: any): void;
+  _generateSpellcasting(): void;
+  // spells.ts
+  parseOutInnateSpells(text: any): any;
+  parseAdditionalAtWillSpells(text: any): any;
+  parseOutSpells(text: any, options?: { pactText?: any }): any;
+  _generateSpellEdgeCases(): void;
+  _generateSpells(): void;
+  retrieveCompendiumSpells(spells: any): Promise<any>;
+  getSpellEdgeCase(spell: any, type: any, spellList: any): any;
+  _addSpellHints(): void;
+  addSpells(): Promise<void>;
+  // treasure.ts
+  _generateTreasure(): void;
+  // type.ts
+  _generateType(): void;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+class DDBMonster {
+  name: string;
   proficiencyBonus: number;
+  source: IDDBMonsterSourceData;
+  useItemAC: boolean;
+  legacyName: boolean;
+  addMonsterEffects: boolean;
+  addChrisPremades: boolean;
+  removedHitPoints: number;
+  temporaryHitPoints: number
+  unexpectedDescription: string | null;
+  characterDescription: string;
+  cr: {
+    id: number;
+    value: number;
+    proficiencyBonus: number;
+    xp: number;
+  };
+  typeName: string;
+  img: string;
+  stockImage: boolean;
+  featureFactory: DDBMonsterFeatureFactory;
+  is2014: boolean;
+  is2024: boolean;
+  use2024Spells: boolean;
+  useCastActivity: boolean;
+  forceRulesVersion: boolean;
+  extra: boolean;
+
+  spellcasting: {
+    spelldc: number;
+    spellcasting: "str" | "dex" | "con" | "int" | "wis" | "cha" | string;
+    spellLevel: number;
+    spellAttackBonus: number;
+  };
+  spellList: {
+    class: any[];
+    pact: any[];
+    atwill: any[];
+    innate: any[];
+    edgeCases: { name: string; type: string; edge: string }[];
+    material: boolean;
+    innateMatch: boolean;
+    concentration: boolean;
+  };
 
   setProperty(name, value) {
     if (this.overrides["name"]) {
@@ -37,8 +141,8 @@ export default class DDBMonster {
     this.overrides = overrides;
 
     // used by extra processing
-    this.removedHitPoints = this.setProperty("removedHitPoints", (this.source?.removedHitPoints ?? 0));
-    this.temporaryHitPoints = this.setProperty("temporaryHitPoints", (this.source?.temporaryHitPoints ?? 0));
+    this.setProperty("removedHitPoints", (this.source?.removedHitPoints ?? 0));
+    this.setProperty("temporaryHitPoints", (this.source?.temporaryHitPoints ?? 0));
 
     this.characterDescription = "";
     this.unexpectedDescription = null;
@@ -47,14 +151,19 @@ export default class DDBMonster {
     this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
     this.abilities = null;
     this.proficiencyBonus = null;
-    this.cr = 0;
+    this.cr = {
+        "id": 1,
+        "value": 0,
+        "proficiencyBonus": 2,
+        "xp": 10
+    };
     this.typeName = "";
     this.items = [];
     this.img = null;
     if (existingNpc) {
-      this.proficiencyBonus = this.setProperty("proficiencyBonus", existingNpc.system.attributes.prof);
-      this.cr = this.setProperty("cr", existingNpc.system.details.cr);
-      this.abilities = this.setProperty("abilities", existingNpc.system.abilities);
+      this.setProperty("proficiencyBonus", existingNpc.system.attributes.prof);
+      this.setProperty("cr", existingNpc.system.details.cr);
+      this.setProperty("abilities", existingNpc.system.abilities);
       this.items = foundry.utils.duplicate(existingNpc.items);
       this.img = existingNpc.img;
     }
@@ -64,7 +173,7 @@ export default class DDBMonster {
 
     // set during source generation
     this.is2014 = null;
-    this.is2024 = null;
+    this.is2014 = null;
     this.use2024Spells = use2024Spells;
     this.useCastActivity = useCastActivity;
     this.forceRulesVersion = forceRulesVersion;
@@ -141,7 +250,7 @@ export default class DDBMonster {
       // creatureGroup: monster.creatureGroup ? monster.creatureGroup : null,
       creatureGroupId: this.source.creatureGroupId ? this.source.creatureGroupId : null,
       creatureFlags: this.source.creatureFlags ? this.source.creatureFlags : [],
-      automatedEvcoationAnimation: this.source.automatedEvcoationAnimation ? this.source.automatedEvcoationAnimation : undefined,
+      automatedEvocationAnimation: this.source.automatedEvocationAnimation ? this.source.automatedEvocationAnimation : undefined,
       version: CONFIG.DDBI.version,
       isLegacy: this.source.isLegacy,
       sources: this.source.sources,
@@ -274,3 +383,5 @@ export default class DDBMonster {
   }
 
 }
+
+export default DDBMonster;

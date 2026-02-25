@@ -8,34 +8,50 @@ import {
   DDBCompendiumFolders,
   Iconizer,
   DDBSources,
+  utils,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
 import { SETTINGS } from "../config/_module";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
+import { NotifierV1Props } from "../apps/DDBAppV2";
 
 
 export default class DDBMonsterFactory {
-  source: any;
+  extra: boolean;
+  keys: { useLocal: boolean; keyPostfix: string; };
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  type: string;
+  compendiumFolders: DDBCompendiumFolders;
+  update: boolean;
+  updateImages: boolean;
+  uploadDirectory: string;
+  useItemAC: boolean;
+  legacyName: boolean;
+  addMonsterEffects: boolean;
+  addChrisPremades: boolean;
+  use2024Spells: boolean | null;
+  currentDocument: number;
+  totalDocuments: number
 
   static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
   }
 
   static defaultFetchOptions(ids, searchTerm = null) {
-    const searchFilter = $("#monster-munch-filter")[0];
+    const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
-    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
     const sources = enableSources
       ? DDBSources.getSelectedSourceIds()
       : [];
     const homebrew = sources.length > 0
       ? false
-      : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew");
+      : utils.getSetting<boolean>("munching-policy-monster-homebrew");
     const homebrewOnly = sources.length > 0
       ? false
-      : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only");
-    const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match");
+      : utils.getSetting<boolean>("munching-policy-monster-homebrew-only");
+    const exactMatch = utils.getSetting<boolean>("munching-policy-monster-exact-match");
     const excludedCategories = DDBSources.getAllExcludedCategoryIds();
     const monsterTypes = DDBSources.getSelectedMonsterTypeIds();
 
@@ -68,15 +84,15 @@ export default class DDBMonsterFactory {
     this.notifier = notifier ?? DDBMonsterFactory.#noteStub;
     this.type = type;
     this.compendiumFolders = new DDBCompendiumFolders(type);
-    this.update = forceUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-    this.updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
-    this.uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+    this.update = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
+    this.updateImages = utils.getSetting<boolean>("munching-policy-update-images");
+    this.uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
 
-    this.useItemAC = game.settings.get("ddb-importer", "munching-policy-monster-use-item-ac");
-    this.legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
-    this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
-    this.addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
-    const spellChoice = game.settings.get("ddb-importer", "munching-policy-force-spell-version");
+    this.useItemAC = utils.getSetting<boolean>("munching-policy-monster-use-item-ac");
+    this.legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
+    this.addMonsterEffects = utils.getSetting<boolean>("munching-policy-add-monster-midi-effects");
+    this.addChrisPremades = utils.getSetting<boolean>("munching-policy-use-chris-premades");
+    const spellChoice = utils.getSetting<string>("munching-policy-force-spell-version");
     this.use2024Spells = spellChoice === "FORCE_2024"
       ? true
       : null;
@@ -100,7 +116,7 @@ export default class DDBMonsterFactory {
    * @returns {Promise<object[]>} a promise that resolves with an array of monsters
    */
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] } = {},
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] }: { ids?: number[] | number; searchTerm?: string; sources?: string[]; homebrew?: boolean; homebrewOnly?: boolean; exactMatch?: boolean; excludeLegacy?: boolean; excludedCategories?: number[]; monsterTypes?: number[]; } = {},
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
@@ -111,13 +127,21 @@ export default class DDBMonsterFactory {
     const body = {
       cobalt: cobaltCookie,
       betaKey: betaKey,
+      sources: undefined,
+      search: undefined,
+      homebrew: undefined,
+      homebrewOnly: undefined,
+      exactMatch: undefined,
+      excludeLegacy: undefined,
+      excludedCategories: undefined,
+      monsterTypes: undefined,
+      searchTerm: undefined,
+      ids: undefined,
     };
 
     if (ids && !Array.isArray(ids)) {
-      ids = [ids];
-    }
-
-    if (ids && ids.length > 0) {
+      body.ids = [ids];
+    } else if (ids && Array.isArray(ids) && ids.length > 0) {
       body.ids = [...new Set(ids)];
     } else {
       body.sources = sources;
@@ -133,7 +157,7 @@ export default class DDBMonsterFactory {
 
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
-    const defaultUrl = ids && ids.length > 0
+    const defaultUrl = ids && Array.isArray(ids) && ids.length > 0
       ? `${parsingApi}/proxy/monsters/ids`
       : `${parsingApi}/proxy/monster`;
     const url = CONFIG.DDBI.monsterURL ?? defaultUrl;
@@ -166,7 +190,7 @@ export default class DDBMonsterFactory {
         })
         .then((data) => {
           // handle category filtering
-          if (ids && ids.length > 0) {
+          if (ids && Array.isArray(ids) && ids.length > 0) {
             this.source = data;
             resolve(this.source);
           } else {
@@ -263,9 +287,9 @@ export default class DDBMonsterFactory {
     await FileHelper.generateCurrentFiles(this.uploadDirectory);
     await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
 
-    if (game.canvas3D?.CONFIG?.UI?.TokenBrowser) {
+    if ((game as any).canvas3D?.CONFIG?.UI?.TokenBrowser) {
       // generate 3d model cache
-      await game.canvas3D.CONFIG.UI.TokenBrowser.preloadData();
+      await (game as any).canvas3D.CONFIG.UI.TokenBrowser.preloadData();
     }
   }
 
@@ -293,7 +317,7 @@ export default class DDBMonsterFactory {
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
       this.notifier(`Calculating which monsters to update...`, { nameField: true });
-      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, "npc", {
+      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, {
         keepDDBId: true,
         indexFilter: { fields: ["name", "flags.ddbimporter.id"] },
       });
@@ -365,7 +389,7 @@ export default class DDBMonsterFactory {
    * @returns {Promise<number|Array>} If ids is null, returns the total number of monsters processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed monster documents
    */
-  async processIntoCompendium(ids = null, searchTerm = null) {
+  async processIntoCompendium(ids: any[] = null, searchTerm: string = null): Promise<number | any[]> {
 
     logger.time("Monster Import Time");
     await this.#prepareImporter();
