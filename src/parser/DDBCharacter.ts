@@ -38,7 +38,112 @@ export interface DDBCharacterImportOptions {
   forceCompendiumUpdate?: boolean;
 }
 
-export default class DDBCharacter {
+// Declaration merging: these methods are added to DDBCharacter.prototype
+// by the files imported via extendParsers.ts
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+interface DDBCharacter {
+  // index.ts
+  _newPCSkeleton(): Promise<void>;
+  _generateCharacter(): Promise<void>;
+  // token.ts
+  _generateToken(): void;
+  // ac.ts
+  isArmored(): boolean;
+  isUnArmored(): boolean;
+  _generateOverrideArmorClass(overRideAC: any): void;
+  _generateArmorClass(): void;
+  // specialTraits.ts
+  _setSpecialTraitFlags(): void;
+  // proficiencies.ts
+  _getCoreProficiencies(includeItemEffects?: boolean): any;
+  _getCoreMasteries(includeItemEffects?: boolean): any;
+  _generateLanguages(): void;
+  _generateProficiencies(): void;
+  // skills.ts
+  getSkillProficiency(skill: any, modifiers?: any): any;
+  getCustomSkillProficiency(skill: any): any;
+  getCustomSkillAbility(skill: any): any;
+  getCustomSkillBonus(skill: any): any;
+  _setSpecialSkills(): void;
+  _generateCustomSkills(): Promise<void>;
+  _generateSkills(): Promise<void>;
+  // abilities.ts
+  _generateAbilitiesOverrides(): void;
+  _getCustomSaveProficiency(ability: any): any;
+  _getCustomSaveBonus(ability: any): any;
+  _filterAbilityMods(abilityLongName: any, type: any, options?: { restriction?: any; includeExcludedEffects?: boolean; effectOnly?: boolean; classId?: any; availableToMulticlass?: any; useUnfilteredModifiers?: any }): any;
+  _getAbilities(includeExcludedEffects?: boolean): any;
+  _getAbilitiesBonuses(includeExcludedEffects?: boolean): any;
+  _generateBaseAbilities(includeExcludedEffects?: boolean): void;
+  _generateAbilities(): void;
+  // hp.ts
+  _generateHitPoints(): void;
+  // initiative.ts
+  _generateInitiative(): void;
+  // effects.ts
+  _generateDeathSaves(): void;
+  _generateExhaustion(): void;
+  getCharacterGenericConditionAffectData(condition: any, typeId: any): any;
+  _generateConditions(): void;
+  // currency.ts
+  _generateCurrency(): void;
+  // senses.ts
+  getSenses(options?: { includeEffects?: boolean }): any;
+  _generateSenses(): void;
+  // speed.ts
+  _generateSpeed(): void;
+  // bio.ts
+  getBackgroundName(): any;
+  _generateTrait(): void;
+  _generateIdeal(): void;
+  _generateBond(): void;
+  _generateFlaw(): void;
+  getCharacteristics(): any;
+  _generateAppearance(): void;
+  _generateAlignment(): void;
+  getBackgroundData(): any;
+  _generateBiography(): void;
+  _generateDescription(): void;
+  // size.ts
+  _generateSize(): void;
+  // spellCasting.ts
+  _generateSpellCasting(): void;
+  getCasterInfo(): any;
+  _generateSpellSlots(): void;
+  _generateMaxPreparedSpells(): void;
+  // race.ts
+  _generateRace(addToCompendium?: boolean): Promise<void>;
+  // resources.ts
+  resourceList(): any;
+  getSortedByUsedResourceList(): any;
+  _generateResources(numberOfResources?: number): void;
+  getResourceList(): any;
+  _generateResourceSelectionFromForm(formData: any, type: any): void;
+  setDefaultResources(sortedResources: any): void;
+  resourceSelectionDialog(): Promise<void>;
+  // inventory.ts
+  getInventory(notifier?: any): Promise<any>;
+  _generateInventory(): Promise<void>;
+  // globalBonuses.ts
+  getGlobalBonusAttackModifiers(lookupTable: any): any;
+  getBonusSpellAttacks(type: any): any;
+  _generateBonusSpellAttacks(): void;
+  getBonusWeaponAttacks(type: any): any;
+  _generateBonusWeaponAttacks(): void;
+  _generateBonusAbilities(): void;
+  _generateBonusSpellDC(): void;
+  // special/special.ts
+  _addSpecialAdditions(): void;
+  // consumptionLinking.ts
+  _getAutoLinkActivityDictionarySpellLinkUpdates(): Promise<any>;
+  _getAutoLinkActivityDictionaryUpdates(): Promise<any>;
+  _getAutoLinkActivityFlagDocUpdates(): Promise<any>;
+  _flagCleanup(): Promise<void>;
+  autoLinkConsumption(): Promise<void>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+class DDBCharacter {
 
   source: IDDBCharacterResponse | null;
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
@@ -499,3 +604,5 @@ export default class DDBCharacter {
   }
 
 }
+
+export default DDBCharacter;
