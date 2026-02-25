@@ -41,12 +41,11 @@ export default class AdventureMunchHelpers {
    * @param  {object} obj2
    * @returns {object}
    */
-  static diff(obj1, obj2) {
+  static diff(obj1: object, obj2: object): object {
     const result = {};
     for (const key in obj1) {
       if (obj2[key] != obj1[key]) result[key] = obj2[key];
-      // eslint-disable-next-line valid-typeof
-      if (typeof obj2[key] == 'array' && typeof obj1[key] == 'array')
+      if (Array.isArray(obj2[key]) && Array.isArray(obj1[key]))
         result[key] = this.diff(obj1[key], obj2[key]);
       if (typeof obj2[key] == 'object' && typeof obj1[key] == 'object')
         result[key] = this.diff(obj1[key], obj2[key]);
@@ -121,15 +120,14 @@ export default class AdventureMunchHelpers {
   }
 
   static async getCompendiumIndex(type) {
-    return new Promise((resolve) => {
-      const compendium = CompendiumHelper.getCompendiumType(type);
-      const fields = (type === "monster")
-        ? ["flags.ddbimporter.id"]
-        : ["flags.ddbimporter.definitionId"];
+    const compendium = CompendiumHelper.getCompendiumType(type);
+    const fields = (type === "monster")
+      ? ["flags.ddbimporter.id"]
+      : ["flags.ddbimporter.definitionId"];
 
-      const compendiumIndex = compendium.getIndex({ fields: fields });
-      resolve(compendiumIndex);
-    });
+    const indexFields = { fields } as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>;
+    const compendiumIndex = await compendium.getIndex(indexFields) as IndexTypeForMetadata<CompendiumCollection.DocumentName>;
+    return compendiumIndex;
   }
 
   static async checkForMissingDocuments(type, ids) {
@@ -140,10 +138,10 @@ export default class AdventureMunchHelpers {
       const missingIds = ids.filter((id) => {
         switch (type) {
           case "monster":
-            return !index.some((i) => i.flags?.ddbimporter?.id && String(i.flags.ddbimporter.id) == String(id));
+            return !index.some((i) => foundry.utils.getProperty(i, "flags.ddbimporter.id") && String(foundry.utils.getProperty(i, "flags.ddbimporter.id")) == String(id));
           case "spell":
           case "item":
-            return !index.some((i) => i.flags?.ddbimporter?.definitionId && String(i.flags.ddbimporter.definitionId) == String(id));
+            return !index.some((i) => foundry.utils.getProperty(i, "flags.ddbimporter.definitionId") && String(foundry.utils.getProperty(i, "flags.ddbimporter.definitionId")) == String(id));
           default:
             return false;
         }
@@ -186,15 +184,19 @@ export default class AdventureMunchHelpers {
         .map((i) => {
           switch (type) {
             case "monster":
-              return game.actors.importFromCompendium(compendium, i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true });
+              return game.actors.importFromCompendium(
+                compendium as CompendiumCollection<"Actor">,
+                i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true },
+              );
             case "spell":
             case "item":
-              return game.items.importFromCompendium(compendium, i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true });
+              return game.items.importFromCompendium(
+                compendium as CompendiumCollection<"Item">,
+                i._id, overrides, { temporary, keepId: true, keepEmbeddedIds: true },
+              );
             default:
-              // this should never happen
               return undefined;
           }
-
         });
       logger.debug(`${type} documents loaded`, documents);
       resolve(documents);
@@ -252,19 +254,17 @@ export default class AdventureMunchHelpers {
       const muncherVersionChanged = foundry.utils.isNewerVersion(documentVersions["adventureMuncher"], oldVersions["adventureMuncher"]);
       const foundryVersionNewer = foundry.utils.isNewerVersion(documentFoundryVersion, game.version);
 
-      const versionUpdates = {};
-
-      if (metaVersionChanged || muncherVersionChanged || foundryVersionNewer) {
-        versionUpdates.importerVersionChanged = importerVersionChanged;
-        versionUpdates.metaVersionChanged = metaVersionChanged;
-        versionUpdates.muncherVersionChanged = muncherVersionChanged;
-        versionUpdates.foundryVersionNewer = foundryVersionNewer;
-        versionUpdates.drawingVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["drawings"], oldVersions["ddbMetaData"]["drawings"]);
-        versionUpdates.noteVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["notes"], oldVersions["ddbMetaData"]["notes"]);
-        versionUpdates.tokenVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["tokens"], oldVersions["ddbMetaData"]["tokens"]);
-        versionUpdates.wallVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["walls"], oldVersions["ddbMetaData"]["walls"]);
-        versionUpdates.lightVersionChanged = foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["lights"], oldVersions["ddbMetaData"]["lights"]);
-      }
+      const versionUpdates = {
+        importerVersionChanged: importerVersionChanged,
+        metaVersionChanged: metaVersionChanged,
+        muncherVersionChanged: muncherVersionChanged,
+        foundryVersionNewer: foundryVersionNewer,
+        drawingVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["drawings"], oldVersions["ddbMetaData"]["drawings"]),
+        noteVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["notes"], oldVersions["ddbMetaData"]["notes"]),
+        tokenVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["tokens"], oldVersions["ddbMetaData"]["tokens"]),
+        wallVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["walls"], oldVersions["ddbMetaData"]["walls"]),
+        lightVersionChanged: foundry.utils.isNewerVersion(documentVersions["ddbMetaData"]["lights"], oldVersions["ddbMetaData"]["lights"]),
+      };
       foundry.utils.setProperty(newDoc, "flags.ddb.versions.ddbImporter", ddbIVersion);
       foundry.utils.setProperty(newDoc, "flags.ddb.versions.importer", versionUpdates);
       foundry.utils.setProperty(newDoc, "flags.ddb.oldVersions", oldVersions);
@@ -312,7 +312,7 @@ export default class AdventureMunchHelpers {
    *   fullUploadPath: the full path to the file
    *   forcingWebp: whether the .webp extension was added
    */
-  static getImportFilePaths({ adventureName, path, misc } = {}) {
+  static getImportFilePaths({ adventureName, path, misc }: { adventureName: string; path: string; misc: boolean; }): object {
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
     const adventurePath = adventureName.replace(/[^a-z0-9]/gi, "_");
     const targetPath = path.replace(/[\\/][^\\/]+$/, "");

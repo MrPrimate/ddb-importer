@@ -299,7 +299,7 @@ export default class DDBItemImporter {
             keepId: true,
             temporary: true,
           };
-          newItem = new Item.implementation(item, options);
+          newItem = new (Item.implementation as any)(item, options);
         } catch (err) {
           logger.error(`Error creating ${item.name}`, { item, err });
           throw err;

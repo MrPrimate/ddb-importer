@@ -19,9 +19,15 @@ declare global {
   >;
 
   declare namespace CompendiumCollection {
-    interface ExtendedGetIndexOptions<T extends CompendiumCollection.DocumentName>
-      extends GetIndexOptions<T> {
+    interface ExtendedGetIndexOptions<T extends CompendiumCollection.DocumentName> extends GetIndexOptions<T> {
       fields?: string[];
+    }
+    interface IndexEntry<T extends CompendiumCollection.DocumentName> extends IndexEntry<T> {
+      _id: string;
+      uuid: string;
+      flags?: {
+        ddbimporter?: IDDBImporterFlags;
+      }
     }
   }
 

@@ -319,7 +319,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     if (existingMacro) data._id = existingMacro.id;
     const macro = existingMacro
       ? existingMacro.update(data)
-      : new Macro.implementation(data, { displaySheet: false, temporary: isTemp });
+      : new (Macro.implementation as any)(data, { displaySheet: false, temporary: isTemp });
 
     return macro;
 

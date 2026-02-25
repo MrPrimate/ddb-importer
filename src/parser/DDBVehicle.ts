@@ -208,7 +208,7 @@ export default class DDBVehicle {
       temporary: true,
       displaySheet: false,
     };
-    const vehicleClass = new Actor.implementation({ name: this.source.name, type: "vehicle" }, options);
+    const vehicleClass = new (Actor.implementation as any)({ name: this.source.name, type: "vehicle" }, options);
     const vehicle = vehicleClass.toObject();
     vehicle._id = ddbId === null
       ? foundry.utils.randomID()

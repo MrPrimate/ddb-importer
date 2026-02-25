@@ -1,16 +1,26 @@
+import { STATUSES } from "../config/dictionary/effects/data";
+
 export {}
 
 global {
+
+  interface IActiveEffectChangeData {
+    key: string;
+    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM | CONST.ACTIVE_EFFECT_MODES.ADD | CONST.ACTIVE_EFFECT_MODES.MULTIPLY | CONST.ACTIVE_EFFECT_MODES.OVERRIDE | CONST.ACTIVE_EFFECT_MODES.DOWNGRADE | CONST.ACTIVE_EFFECT_MODES.UPGRADE;
+    value: any;
+    priority: number;
+  }
+
   export interface IEffectData {
-    img: string;
+    img?: string;
     name: string;
-    statuses: string[];
-    changes: any[];
-    duration: IEffectDuration;
-    tint: string;
-    transfer: boolean;
-    disabled: boolean;
-    flags: {
+    statuses?: typeof STATUSES[];
+    changes?: IActiveEffectChangeData[];
+    duration?: IEffectDuration;
+    tint?: string;
+    transfer?: boolean;
+    disabled?: boolean;
+    flags?: {
       dae: {
         showIcon: boolean | null;
         transfer: boolean;

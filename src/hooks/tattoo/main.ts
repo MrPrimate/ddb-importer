@@ -131,7 +131,7 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
    */
   Hooks.callAll("ddb-importer.createTattooFromSpell", spell, spellTattooData, config);
 
-  return new Item.implementation(spellTattooData);
+  return new (Item.implementation as any)(spellTattooData);
 }
 
 

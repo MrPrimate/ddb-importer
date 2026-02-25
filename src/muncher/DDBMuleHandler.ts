@@ -229,7 +229,7 @@ export default class DDBMuleHandler {
         temporary: true,
         displaySheet: false,
       };
-      const mockCharacter = new Actor.implementation({
+      const mockCharacter = new (Actor.implementation as any)({
         name: subClassData.debug.subclassName,
         type: "character",
       }, options);

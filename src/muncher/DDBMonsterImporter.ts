@@ -169,7 +169,7 @@ export default class DDBMonsterImporter {
   }
 
 
-   
+
   async getNPCImage({
     forceUpdate = false, forceUseFullToken = false,
     forceUseTokenAvatar = false, disableAutoTokenizeOverride = false,
@@ -386,7 +386,7 @@ export default class DDBMonsterImporter {
       };
       if (temporary) options.temporary = true;
       const npc = temporary
-        ? new Actor.implementation(this.monster, options)
+        ? new (Actor.implementation as any)(this.monster, options)
         : await Actor.create(this.monster, options);
       this.data = npc;
     }

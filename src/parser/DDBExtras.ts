@@ -1,8 +1,9 @@
-import { logger, FolderHelper } from "../lib/_module";
+import { logger, FolderHelper, utils } from "../lib/_module";
 import DDBMonsterFactory from "./DDBMonsterFactory";
-import { getAbilityMods } from "./monster/helpers";
+import { getAbilityMods, IDDBAbilityMods } from "./monster/helpers";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCompanionFactory from "./companions/DDBCompanionFactory";
+import DDBCharacter from "./DDBCharacter";
 
 function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
   const characterValues = ddbCharacter.characterValues;
@@ -21,7 +22,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   // and saving throws and skills it is proficient in.
   // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
-  const effect = {
+  const effect: IEffectData = {
     changes: [
       {
         key: "system.bonuses.rwak.attack",
@@ -59,8 +60,8 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     tint: "",
     disabled: false,
     selectedKey: [],
+    name: "Beast Companion Effects",
   };
-  effect.name = "Beast Companion Effects";
   DICTIONARY.actor.abilities.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
     const boost = {
       key: `data.abilities.${ability.value}.save`,
@@ -90,7 +91,7 @@ function generateArtificerDamageEffect(actor, extra) {
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
   extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
 
-  const effect = {
+  const effect: IEffectData = {
     changes: [
       {
         key: "data.bonuses.rwak.damage",
@@ -116,8 +117,8 @@ function generateArtificerDamageEffect(actor, extra) {
     tint: "",
     disabled: false,
     selectedKey: [],
+    name: "Artificer Extra Effects",
   };
-  effect.name = "Artificer Extra Effects";
   extra.effects = [effect];
   return extra;
 }
@@ -228,7 +229,7 @@ function setExtraMunchDefaults() {
 
   SETTINGS.MUNCH_DEFAULTS.forEach((setting) => {
     logger.debug(`Loading extras munch settings ${setting.name}`);
-    setting["chosen"] = game.settings.get("ddb-importer", setting.name);
+    setting["chosen"] = utils.getSetting<string>(setting.name);
     munchSettings.push(setting);
   });
 
@@ -282,7 +283,7 @@ function addOwnerSkillProficiencies(ddbCharacter, mock) {
   return mock;
 }
 
-function addOwnerSaveProficiencies(ddbCharacter, mock) {
+function addOwnerSaveProficiencies(ddbCharacter: DDBCharacter, mock) {
 // add owner save profs
   const newSaves = [];
   DICTIONARY.actor.abilities.forEach((ability) => {
@@ -327,7 +328,7 @@ function addAverageHitPoints(ddbCharacterData, actor, creature, mock) {
   if (mock.creatureFlags.includes("AHM")) {
     const artificer = ddbCharacterData.classes.find((klass) => klass.definition.name === "Artificer");
     if (artificer) {
-      mock.averageHitPoints = parseInt(5 * artificer.level);
+      mock.averageHitPoints = 5 * parseInt(artificer.level);
     }
   }
 
@@ -338,8 +339,8 @@ function addAverageHitPoints(ddbCharacterData, actor, creature, mock) {
 
   // Max Hit Points Add Monster CON Modifier
   if (mock.creatureFlags.includes("MHPAMCM")) {
-    const monsterConModifier = getAbilityMods(mock, CONFIG.DDB);
-    mock.averageHitPoints += parseInt(monsterConModifier.con);
+    const monsterConModifier: IDDBAbilityMods = getAbilityMods(mock);
+    mock.averageHitPoints += monsterConModifier.con;
   }
 
   return mock;
@@ -378,8 +379,8 @@ function addCreatureFlags(creature, mock) {
 
 }
 
-function transformExtraToMonsterData(ddbCharacter, actor, creature) {
-  const ddbCharacterData = ddbCharacter.source.ddb.character;
+function transformExtraToMonsterData(ddbCharacter: DDBCharacter, actor, creature) {
+  const ddbCharacterData: IDDBCharacterData = ddbCharacter.source.ddb.character;
   logger.debug("Extra data", creature);
   let mock = foundry.utils.duplicate(creature.definition);
   mock.id = creature.id;
@@ -476,7 +477,7 @@ function enhanceParsedExtra(actor, extra) {
     } else if (artificerBonusGroup.includes(extra.flags?.ddbimporter?.creatureGroupId)) {
       // artificer uses the actors spell attack bonus, so is a bit trickier
       // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
-      extra = generateArtificerDamageEffect(actor, extra, characterProficiencyBonus);
+      extra = generateArtificerDamageEffect(actor, extra);
     } else {
       // who knows!
       extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
