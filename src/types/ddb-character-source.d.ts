@@ -302,13 +302,12 @@ global {
 
   // ---- Modifiers ------------------------------------------------------------
 
-  export interface IDDBModifier {
+  export interface IDDBBaseModifier {
     id: string;
-    entityId: number;
-    entityTypeId: number;
+    entityId: number | null;
+    entityTypeId: number | null;
     type: string;
     subType: string;
-    dice: any | null;
     restriction: string;
     statId: number | null;
     requiresAttunement: boolean;
@@ -319,11 +318,18 @@ global {
     bonusTypes: any[];
     value: number | null;
     fixedValue: number | null;
-    availableToMulticlass: boolean;
+    availableToMulticlass: boolean | null;
     modifierTypeId: number;
     modifierSubTypeId: number;
     componentId: number;
     componentTypeId: number;
+  }
+
+  export interface IDDBModifier extends IDDBBaseModifier {
+    entityId: number;
+    entityTypeId: number;
+    dice: any | null;
+    availableToMulticlass: boolean;
     tagConstraints: any[];
   }
 
@@ -416,7 +422,7 @@ global {
     requiredLevel: number;
     displayOrder: number;
     moreDetailsUrl: string;
-    prerequisite: any | null;
+    prerequisite: string | null;
     summary: string | null;
     featuresSectionType: number | null;
   }
@@ -426,27 +432,27 @@ global {
     definitionKey: string;
     name: string;
     description: string;
+    slug: string;
     equipmentDescription: string | null;
     parentClassId: number | null;
-    slug: string;
     avatarUrl: string | null;
     largeAvatarUrl: string | null;
     portraitAvatarUrl: string | null;
     moreDetailsUrl: string;
-    spellCastingAbilityId: number;
+    spellCastingAbilityId: number | null;
     sources: IDDBSource[];
     classFeatures: IDDBClassDefinitionFeature[];
     hitDice: number;
     wealthDice: IDDBWealthDice | null;
     canCastSpells: boolean;
-    knowsAllSpells: boolean;
+    knowsAllSpells: boolean | null;
     spellPrepareType: number | null;
     spellCastingLearningStyle: number | null;
     spellContainerName: string | null;
-    sourcePageNumber: number;
+    sourcePageNumber: number | null;
     subclassDefinition: IDDBClassDefinition | null;
     isHomebrew: boolean;
-    primaryAbilities: any[] | null;
+    primaryAbilities: number[] | null;
     // Card / UI fields
     cardDescription: string | null;
     cardEyebrow: string | null;
@@ -455,11 +461,13 @@ global {
     subclassTagline: string | null;
     subclassFlavorText: string | null;
     classFantasy: string | null;
-    color: any | null;
+    color: IDDBClassColor | null;
     complexity: number | null;
     highlights: string | null;
     iconicGear: string | null;
     // Image URLs
+    iconAvatarUrl: string | null;
+    iconicGearAvatarUrl: string | null;
     desktopCardBackgroundAvatarUrl: string | null;
     desktopCardBannerAvatarUrl: string | null;
     desktopCardForegroundAvatarUrl: string | null;
@@ -468,11 +476,9 @@ global {
     mobileCardForegroundAvatarUrl: string | null;
     detailsBackgroundAvatarUrl: string | null;
     detailsForegroundAvatarUrl: string | null;
-    iconAvatarUrl: string | null;
-    iconicGearAvatarUrl: string | null;
     // Spell rules
-    spellRules: any | null;
-    prerequisites: any[] | null;
+    spellRules: IDDBSpellRules | null;
+    prerequisites: IDDBFeatPrerequisite[] | null;
   }
 
   export interface IDDBClassFeatureLimitedUse {
@@ -523,7 +529,7 @@ global {
     limitedUse: IDDBClassFeatureLimitedUse[];
     infusionRules: any[];
     creatureRules: any[];
-    spellListIds: any[];
+    spellListIds: number[];
   }
 
   export interface IDDBClassFeature {
@@ -805,29 +811,9 @@ global {
     range: any[];
   }
 
-  export interface IDDBSpellModifier {
-    id: string;
-    entityId: number | null;
-    entityTypeId: number | null;
-    type: string;
-    subType: string;
+  export interface IDDBSpellModifier extends IDDBBaseModifier {
     dice: IDDBDamageDice | null;
     die: IDDBDamageDice | null;
-    restriction: string;
-    statId: number | null;
-    requiresAttunement: boolean;
-    duration: any | null;
-    friendlyTypeName: string;
-    friendlySubtypeName: string;
-    isGranted: boolean;
-    bonusTypes: any[];
-    value: number | null;
-    fixedValue: number | null;
-    availableToMulticlass: boolean | null;
-    modifierTypeId: number;
-    modifierSubTypeId: number;
-    componentId: number;
-    componentTypeId: number;
     count: number;
     durationUnit: string | null;
     usePrimaryStat: boolean;
@@ -956,7 +942,7 @@ global {
     definition: IDDBOptionDefinition;
   }
 
-  type DDBOptions = IDDBSourceCategorized<IDDBOptionEntry[] | null>;
+  type IDDBOptions = IDDBSourceCategorized<IDDBOptionEntry[] | null>;
 
   // ---- Choices --------------------------------------------------------------
 
@@ -1121,7 +1107,7 @@ global {
 
     // Choices & options
     choices: IDDBChoices;
-    options: DDBOptions;
+    options: IDDBOptions;
 
     // Actions & modifiers
     actions: IDDBActions;
@@ -1134,5 +1120,117 @@ global {
 
     // Decorations (character-level, distinct from top-level decorations)
     decorations: IDDBDecorations;
+  }
+
+  export interface IDDBClassColor {
+    id: number;
+    entityId: number;
+    entityTypeId: number;
+    name: string;
+    accent: string;
+    theme: string;
+  }
+
+  export interface IDDBSpellRules {
+    isRitualSpellCaster: boolean;
+    levelCantripsKnownMaxes: number[];
+    levelPreparedSpellMaxes: number[];
+    levelSpellKnownMaxes: number[];
+    levelSpellSlots: number[][];
+    multiClassSpellSlotDivisor: number;
+    multiClassSpellSlotRounding: number;
+  }
+
+  // ---- Mule: subClassData entry ---------------------------------------------
+
+  export interface IDDBMuleSubClassAddData {
+    characterId: number;
+    classId: number;
+    classMappingId: number;
+    classFeatureId: number;
+    choiceKey: string;
+    choiceValue: number;
+    type: number;
+  }
+
+  /** Partial character data returned for a subclass selection. */
+  export interface IDDBMuleSubClassMergeData {
+    actions: IDDBActions;
+    choices: IDDBChoices;
+    classSpells: IDDBClassSpell[];
+    classes: IDDBClass[];
+    feats: IDDBFeat[];
+    modifiers: IDDBModifier[];
+    options: IDDBOptions;
+    spells: IDDBSpells;
+    updateClassSpells: any[];
+  }
+
+  export interface IDDBMuleSubClassDebug {
+    classId: number;
+    className: string;
+    subClassId: number;
+    subclassName: string;
+  }
+
+  export interface IDDBMuleSubClassDataEntry {
+    addData: IDDBMuleSubClassAddData;
+    data: IDDBMuleSubClassMergeData;
+    debug: IDDBMuleSubClassDebug;
+  }
+
+  // ---- Mule: subClassChoicesData entry --------------------------------------
+
+  export interface IDDBMuleChoiceAddData {
+    characterId: number;
+    classId: number;
+    classMappingId: number;
+    classFeatureId: number;
+    choiceKey: string;
+    choiceValue: number;
+    type: number;
+    parentChoiceId: number | null;
+    debug: Record<string, any>;
+  }
+
+  export interface IDDBMuleChoiceDebug {
+    allOptions: unknown[];
+    campaignId: number;
+    classId: number;
+    className: string;
+    subClassId: number;
+    subclassName: string;
+    type: string;
+  }
+
+  export interface IDDBMuleOptionLoadData {
+    actions: Record<string, any[]>;
+    choices: Record<string, any>;
+    modifiers: Record<string, any[]>;
+    options: Record<string, any[]>;
+    spells: Record<string, any[]>;
+  }
+
+  export interface IDDBMuleSubClassChoicesDataEntry {
+    characterId: number;
+    addData: IDDBMuleChoiceAddData[];
+    choiceFailures: unknown[];
+    data: IDDBCharacterData;
+    debug: IDDBMuleChoiceDebug;
+    optionLoadData: IDDBMuleOptionLoadData | null;
+    infusions?: IDDBInfusions;
+  }
+
+  // ---- Mule: top-level source -----------------------------------------------
+
+  /** Shape of `this.source` in DDBMuleHandler for `type === "class"`. */
+  export interface IDDBMuleClassSource {
+    baseCharacter: IDDBCharacterData;
+    class: IDDBClassDefinition;
+    subClasses: Record<string, IDDBClassDefinition[]>;
+    options: IDDBClassFeatureDefinition[];
+    subClassData: Record<string, IDDBMuleSubClassDataEntry>;
+    subClassChoicesData: IDDBMuleSubClassChoicesDataEntry[];
+    infusions?: IDDBInfusions;
   }
 }

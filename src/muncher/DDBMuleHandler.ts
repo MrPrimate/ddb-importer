@@ -5,6 +5,29 @@ import { DDBCampaigns, DDBProxy, FileHelper, logger, PatreonHelper, Secrets } fr
 import DDBCharacter from "../parser/DDBCharacter";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 
+interface IDDBMuleHandlerQuickBase {
+  characterId: string,
+  sources: number[],
+  homebrew: boolean,
+  filterIds: number[]
+}
+
+interface IDDBMuleHandlerQuickClass extends IDDBMuleHandlerQuickBase {
+  classId: string,
+  cleanup?: boolean,
+}
+
+interface IDDBMuleHandlerQuickClassList extends IDDBMuleHandlerQuickBase {
+  classIds: string[],
+  cleanup?: boolean,
+}
+
+interface IDDBGetSubClasses {
+  className: string,
+  rulesVersion?: string,
+  includeHomebrew?: boolean,
+  campaignId?: string | null
+}
 
 interface DDBMuleHandlerOptions {
   characterId: string | null;
@@ -22,17 +45,16 @@ interface DDBMuleHandlerOptions {
 export default class DDBMuleHandler {
 
   static LOADING_MESSAGES = DICTIONARY.messages.loading;
-  characterId = null;
-  classId = null;
-  source = null;
-  proficiencyFinder = null;
-  allowedSourceIds = [];
+  characterId: string | null = null;
+  classId: string | null = null;
+  source: IDDBMuleClassSource;
+  allowedSourceIds: number[] = [];
   allowedHomebrew = false;
   onlyHomebrew = false;
-  type = null;
-  filterIds = [];
+  type: string | null = null;
+  filterIds: number[] = [];
   cleanup = true;
-  backgroundId = null;
+  backgroundId: string | null = null;
   ddbMuncher: DDBMuncher | null = null;
 
   constructor({
@@ -133,7 +155,9 @@ export default class DDBMuleHandler {
       const jsonResponse = await response.json();
       if (jsonResponse.success) {
         this.source = jsonResponse.data;
-        // FileHelper.download(JSON.stringify(jsonResponse.data), `RAW-${this.characterId}-${this.type}-${this.filterIds.join("_")}-${this.allowedSourceIds.join("_")}.json`, "application/json");
+        if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
+          FileHelper.download(JSON.stringify(jsonResponse.data), `RAW-${this.characterId}-${this.type}-${this.filterIds.join("_")}-${this.allowedSourceIds.join("_")}.json`, "application/json");
+        }
       } else {
         logger.error(jsonResponse);
         throw new Error(`Mule fetch failed: ${jsonResponse.message}`);
@@ -160,10 +184,10 @@ export default class DDBMuleHandler {
     }
   }
 
-  async _buildDDBStub() {
+  async _buildDDBStub(): Promise<IDDBData> {
     const stub = {
       backgroundEquipment: { slots: [] },
-      character: foundry.utils.deepClone(this.source.baseCharacter),
+      character: foundry.utils.deepClone(this.source.baseCharacter) as IDDBCharacterData,
       classOptions: [],
       decorations: foundry.utils.deepClone(this.source.baseCharacter.decorations),
       infusions: {
@@ -190,9 +214,9 @@ export default class DDBMuleHandler {
     for (const subClassData of Object.values(this.source.subClassData)) {
       const ddbStub = await this._buildDDBStub();
       foundry.utils.mergeObject(ddbStub.character, subClassData.data);
-      if (subClassData.infusions) {
-        ddbStub.infusions = foundry.utils.deepClone(subClassData.infusions);
-      }
+      // if (subClassData.infusions) {
+      //   ddbStub.infusions = foundry.utils.deepClone(subClassData.infusions);
+      // }
 
       // for the subclass we now loop through each class choice
       classCurrent++;
@@ -222,7 +246,7 @@ export default class DDBMuleHandler {
         });
         const newStub = foundry.utils.deepClone(ddbStub);
         foundry.utils.mergeObject(newStub.character, subClassChoiceData.data);
-        if (subClassData.infusions) {
+        if (subClassChoiceData.infusions) {
           newStub.infusions = foundry.utils.deepClone(subClassChoiceData.infusions);
         }
 
@@ -235,8 +259,10 @@ export default class DDBMuleHandler {
           compendiumImportTypes: ["classes", "features", "subclasses", "feats"],
           isMuncher: true,
         });
-        ddbCharacter.source = { ddb: newStub };
-        // FileHelper.download(JSON.stringify(newStub), `${this.characterId}-${classCurrent}-${subClassData.debug.subclassName}-${current}.json`, "application/json");
+        ddbCharacter.source = { success: true, ddb: newStub };
+        if (CONFIG.DDBI.DEV.downloadJSONExamples) {
+          FileHelper.download(JSON.stringify(newStub), `${this.characterId}-${classCurrent}-${subClassData.debug.subclassName}-${current}.json`, "application/json");
+        }
         await ddbCharacter.process();
       }
     }
@@ -254,7 +280,7 @@ export default class DDBMuleHandler {
       temporary: true,
       displaySheet: false,
     };
-    const mockCharacter = new Actor.implementation({
+    const mockCharacter = new (Actor.implementation as any)({
       name: "Feat Muncher",
       type: "character",
     }, options);
@@ -279,7 +305,9 @@ export default class DDBMuleHandler {
         total,
         count,
       });
-      FileHelper.download(JSON.stringify(newStub), `FEATS-${this.characterId}-${current}.json`, "application/json");
+      if (CONFIG.DDBI.DEV.downloadJSONExamples) {
+        FileHelper.download(JSON.stringify(newStub), `FEATS-${this.characterId}-${current}.json`, "application/json");
+      }
 
       const ddbCharacter = new DDBCharacter({
         currentActor: mockCharacter,
@@ -290,7 +318,7 @@ export default class DDBMuleHandler {
         compendiumImportTypes: ["feats"],
         isMuncher: true,
       });
-      ddbCharacter.source = { ddb: newStub };
+      ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
       current = count + 1;
     }
@@ -309,7 +337,7 @@ export default class DDBMuleHandler {
       temporary: true,
       displaySheet: false,
     };
-    const mockCharacter = new Actor.implementation({
+    const mockCharacter = new (Actor.implementation as any)({
       name: "Background Muncher",
       type: "character",
     }, options);
@@ -344,7 +372,11 @@ export default class DDBMuleHandler {
         compendiumImportTypes: ["backgrounds", "feats"],
         isMuncher: true,
       });
-      ddbCharacter.source = { ddb: newStub };
+
+      if (CONFIG.DDBI.DEV.downloadJSONExamples) {
+        FileHelper.download(JSON.stringify(newStub), `BACKGROUND-${this.characterId}-${backgroundData.backgroundResponse.data.background.definition?.name}-${current}.json`, "application/json");
+      }
+      ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
       current++;
     }
@@ -362,7 +394,7 @@ export default class DDBMuleHandler {
       temporary: true,
       displaySheet: false,
     };
-    const mockCharacter = new Actor.implementation({
+    const mockCharacter = new (Actor.implementation as any)({
       name: "Species Muncher",
       type: "character",
     }, options);
@@ -385,7 +417,9 @@ export default class DDBMuleHandler {
         current,
         total,
       });
-      FileHelper.download(JSON.stringify(newStub), `SPECIES-${this.characterId}-${speciesData.data.race.fullName ?? speciesData.data.race.baseName}-${current}.json`, "application/json");
+      if (CONFIG.DDBI.DEV.downloadJSONExamples) {
+        FileHelper.download(JSON.stringify(newStub), `SPECIES-${this.characterId}-${speciesData.data.race.fullName ?? speciesData.data.race.baseName}-${current}.json`, "application/json");
+      }
 
       const ddbCharacter = new DDBCharacter({
         currentActor: mockCharacter,
@@ -396,7 +430,7 @@ export default class DDBMuleHandler {
         compendiumImportTypes: ["species", "traits", "feats"],
         isMuncher: true,
       });
-      ddbCharacter.source = { ddb: newStub };
+      ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
       current++;
     }
@@ -427,7 +461,7 @@ export default class DDBMuleHandler {
   }
 
 
-  static async munchFeats({ characterId, sources, homebrew, filterIds } = {}) {
+  static async munchFeats({ characterId, sources, homebrew, filterIds }: IDDBMuleHandlerQuickBase) {
     const muleHandler = new DDBMuleHandler({ characterId, sources, homebrew, type: "feat", filterIds });
     await muleHandler.process();
 
@@ -440,7 +474,7 @@ export default class DDBMuleHandler {
     });
   }
 
-  static async munchBackgrounds({ characterId, sources, homebrew, filterIds } = {}) {
+  static async munchBackgrounds({ characterId, sources, homebrew, filterIds }: IDDBMuleHandlerQuickBase) {
     const muleHandler = new DDBMuleHandler({
       characterId,
       sources,
@@ -461,7 +495,7 @@ export default class DDBMuleHandler {
     });
   }
 
-  static async munchSpecies({ characterId, sources, homebrew, filterIds } = {}) {
+  static async munchSpecies({ characterId, sources, homebrew, filterIds }: IDDBMuleHandlerQuickBase) {
     const muleHandler = new DDBMuleHandler({
       characterId,
       sources,
@@ -483,7 +517,7 @@ export default class DDBMuleHandler {
   }
 
 
-  static async munchClass({ classId, characterId, sources, homebrew, filterIds, cleanup } = {}) {
+  static async munchClass({ classId, characterId, sources, homebrew, filterIds, cleanup }: IDDBMuleHandlerQuickClass) {
     const muleHandler = new DDBMuleHandler({ classId, characterId, sources, homebrew, type: "class", filterIds, cleanup });
     await muleHandler.process();
 
@@ -497,7 +531,7 @@ export default class DDBMuleHandler {
     });
   }
 
-  static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds, cleanup } = {}) {
+  static async munchClasses({ characterId, classIds = [], sources, homebrew, filterIds, cleanup }: IDDBMuleHandlerQuickClassList) {
     const classList = await DDBMuleHandler.getList("class", sources);
 
     for (const klass of classList) {
@@ -577,7 +611,7 @@ export default class DDBMuleHandler {
     return data.data;
   }
 
-  static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null } = {}) {
+  static async getSubclasses({ className, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses) {
     const cobaltCookie = Secrets.getCobalt();
     const resolvedCampaignId = campaignId ?? DDBCampaigns.getCampaignId();
     const parsingApi = DDBProxy.getProxy();

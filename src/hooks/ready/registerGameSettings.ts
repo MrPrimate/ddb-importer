@@ -39,6 +39,8 @@ interface IDDBIDev {
   clippy: Record<string, any>;
   tableInUse: boolean;
   deleteAllBeforeUpdate: boolean;
+  downloadJSONExamples: boolean;
+  downloadRAWJSONExamples: boolean;
 }
 
 interface IDDBIEffectConfigModules {
@@ -115,6 +117,8 @@ if (!(CONFIG as any).DDBI) {
       clippy: {},
       tableInUse: false,
       deleteAllBeforeUpdate: false,
+      downloadJSONExamples: false,
+      downloadRAWJSONExamples: false,
     },
     EFFECT_CONFIG: {
       MODULES: {
