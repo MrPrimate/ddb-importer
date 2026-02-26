@@ -1,5 +1,3 @@
-import { IDDBConfig } from "../../types/ddb-config";
-
 export const fallbackDDBConfig: IDDBConfig = {
   armor: [
     {
@@ -5651,6 +5649,15 @@ export const fallbackDDBConfig: IDDBConfig = {
       sourceURL: "sources/dnd/winap",
     },
     {
+      id: 227,
+      name: "FPW1",
+      description: "Faster, Purple Worm! Everybody Dies, Vol. 1",
+      sourceCategoryId: 42,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/54921/214/639069559741302095.jpeg",
+      sourceURL: "sources/dnd/fpw1",
+    },
+    {
       id: 228,
       name: "TPC",
       description: "The Pugilist Class (2024)",
@@ -8758,10 +8765,10 @@ export const fallbackDDBConfig: IDDBConfig = {
       isToggleable: true,
       avatarUrl: "",
     },
-    {
+        {
       id: 39,
-      name: "Visionary",
-      description: "<p>This contains content from Visionary.</p>",
+      name: "Visionary Production and Design Inc.",
+      description: "<p>This contains content from Visionary Production and Design Inc.</p>",
       isHideable: false,
       isEnabledByDefault: true,
       isToggleable: true,
@@ -8783,6 +8790,15 @@ export const fallbackDDBConfig: IDDBConfig = {
       isHideable: false,
       isEnabledByDefault: false,
       isToggleable: false,
+      avatarUrl: "",
+    },
+    {
+      id: 42,
+      name: "Beadle & Grimm's",
+      description: "<p>This source contains content from Beadle & Grimm's.</p>",
+      isHideable: false,
+      isEnabledByDefault: true,
+      isToggleable: true,
       avatarUrl: "",
     },
   ],

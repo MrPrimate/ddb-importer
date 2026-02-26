@@ -1,6 +1,7 @@
 import { PatreonHelper, utils } from "../../lib/_module";
 import { COMPENDIUM_REMOVE_FLAGS, COMPENDIUMS, FOUNDRY_COMPENDIUM_LOOKUPS, FOUNDRY_COMPENDIUM_MAP, SRD_COMPENDIUM_LOOKUPS } from "./compendiums/compendiums";
 import DICTIONARY from "../dictionary/dictionary";
+import { fallbackDDBConfig } from "../../hooks/ready/fallbackConfig";
 
 const SUPPORTED_FLAG_GROUPS = [
   "advancedspelleffects",
@@ -1052,7 +1053,7 @@ const SETTINGS = {
           "munching-policy-muncher-excluded-source-categories": {
             type: Array,
             // 2014 core/expanded and 2024 core/expanded only enabled by default
-            default: [2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 39],
+            default: fallbackDDBConfig.sourceCategories.map((s) => s.id).filter((i: number) => ![1,24,26,38].includes(i)),
           },
           "munching-policy-muncher-monster-types": {
             type: Array,
