@@ -1,13 +1,6 @@
 import { utils } from "../../../lib/_module";
 import AutoEffects from "./AutoEffects";
 
-interface ChangeResult {
-  key: string;
-  value: any;
-  mode: number;
-  priority: any;
-}
-
 interface ChangeParams {
   value: any;
   priority: any;
@@ -43,7 +36,7 @@ interface OverTimeSaveParams {
 
 export default class ChangeHelper {
 
-  static change({ value, priority, key, type }: ChangeParams): ChangeResult {
+  static change({ value, priority, key, type }: ChangeParams): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -54,7 +47,7 @@ export default class ChangeHelper {
 
 
   // Basic Change generation helpers
-  static signedAddChange(value: any, priority: any, key: string): ChangeResult {
+  static signedAddChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     const bonusValue = (Number.isInteger(value) && value >= 0) // if bonus is a positive integer
       || (!Number.isInteger(value) && !value.trim().startsWith("+") && !value.trim().startsWith("-")) // not an int and does not start with + or -
       ? `+${value}`
@@ -67,7 +60,7 @@ export default class ChangeHelper {
     };
   }
 
-  static unsignedAddChange(value: any, priority: any, key: string): ChangeResult {
+  static unsignedAddChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     const bonusValue = `${value}`.trim().replace("+ +", "+").replace(/^\+\s+/, "");
     return {
       key,
@@ -77,11 +70,11 @@ export default class ChangeHelper {
     };
   }
 
-  static addChange(value: any, priority: any, key: string): ChangeResult {
+  static addChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     return ChangeHelper.unsignedAddChange(value, priority, key);
   }
 
-  static customChange(value: any, priority: any, key: string): ChangeResult {
+  static customChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -90,7 +83,7 @@ export default class ChangeHelper {
     };
   }
 
-  static customBonusChange(value: any, priority: any, key: string): ChangeResult {
+  static customBonusChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     const bonusValue = (Number.isInteger(value) && value >= 0) // if bonus is a positive integer
       || (!Number.isInteger(value) && !value.trim().startsWith("+") && !value.trim().startsWith("-")) // not an int and does not start with + or -
       ? `+${value}`
@@ -98,7 +91,7 @@ export default class ChangeHelper {
     return ChangeHelper.customChange(bonusValue, priority, key);
   }
 
-  static upgradeChange(value: any, priority: any, key: string): ChangeResult {
+  static upgradeChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -107,7 +100,7 @@ export default class ChangeHelper {
     };
   }
 
-  static overrideChange(value: any, priority: any, key: string): ChangeResult {
+  static overrideChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -116,7 +109,7 @@ export default class ChangeHelper {
     };
   }
 
-  static multiplyChange(value: any, priority: any, key: string): ChangeResult {
+  static multiplyChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -125,7 +118,7 @@ export default class ChangeHelper {
     };
   }
 
-  static downgradeChange(value: any, priority: any, key: string): ChangeResult {
+  static downgradeChange(value: any, priority: any, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -134,7 +127,7 @@ export default class ChangeHelper {
     };
   }
 
-  static tokenMagicFXChange(macroValue: string, priority = 20): ChangeResult {
+  static tokenMagicFXChange(macroValue: string, priority = 20): IActiveEffectChangeData {
     return {
       key: 'macro.tokenMagic',
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
@@ -143,7 +136,7 @@ export default class ChangeHelper {
     };
   }
 
-  static damageResistanceChange(damageType: string, priority = 20): ChangeResult {
+  static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "system.traits.dr.value",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -153,7 +146,7 @@ export default class ChangeHelper {
   }
 
   // this can now be removed once changes refactored
-  static atlChange(atlKey: string, mode: number, value: any, priority = 20): ChangeResult {
+  static atlChange(atlKey: string, mode: number, value: any, priority = 20): IActiveEffectChangeData {
     let key = atlKey;
 
     switch (atlKey) {
@@ -186,7 +179,7 @@ export default class ChangeHelper {
     };
   }
 
-  static daeStatusEffectChange(statusName: string, priority = 20): ChangeResult {
+  static daeStatusEffectChange(statusName: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "macro.StatusEffect",
       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
@@ -212,17 +205,17 @@ export default class ChangeHelper {
   }
 
 
-  static overTimeDamageChange({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }: OverTimeDamageParams): ChangeResult {
+  static overTimeDamageChange({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }: OverTimeDamageParams): IActiveEffectChangeData {
     const ability = Array.isArray(saveAbility) ? saveAbility[0] : saveAbility;
     return {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${ability},saveDamage=${saveDamage},killAnim=true`,
-      priority: "20",
+      priority: 20,
     };
   }
 
-  static overTimeSaveChange({ document, turn, saveAbility, saveRemove = true, dc }: OverTimeSaveParams): ChangeResult {
+  static overTimeSaveChange({ document, turn, saveAbility, saveRemove = true, dc }: OverTimeSaveParams): IActiveEffectChangeData {
     const turnValue = turn === "action" ? "end" : turn;
     const actionSave = turn === "action" ? ",actionSave=true" : "";
     const ability = Array.isArray(saveAbility) ? saveAbility[0] : saveAbility;
@@ -230,7 +223,7 @@ export default class ChangeHelper {
       key: "flags.midi-qol.OverTime",
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
       value: `turn=${turnValue},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${ability},killAnim=true${actionSave}`,
-      priority: "20",
+      priority: 20,
     };
   }
 

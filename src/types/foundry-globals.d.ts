@@ -8,7 +8,6 @@
 // other modules and game.settings.get/set only recognizes "core" as a namespace.
 
 import { IDDBIConfig } from "../hooks/ready/registerGameSettings";
-import { DDBConfig } from "./ddb-character-source";
 
 export {};
 
@@ -148,7 +147,7 @@ declare global {
       weaponMasteries: Record<string, { label: string, reference?: string }>;
       weaponTypes: Record<string, string>;
     }
-    DDB: DDBConfig;
+    DDB: IDDBConfig;
   }
 
 }

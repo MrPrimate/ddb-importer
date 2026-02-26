@@ -96,6 +96,13 @@ global {
     autoCEEffects?: string;
   }
 
+  export interface IDDBActivityMacroData {
+    name: string;
+    function: string;
+    visible?: boolean;
+    parameters?: string;
+  }
+
   export interface IActivityData {
     name?: string;
     uses?: I5eSystemLimitedUses;
@@ -196,6 +203,7 @@ global {
       condition?: string;
       cost?: number;
     };
+    macro?: IDDBActivityMacroData;
     save?: IActivitySaveData;
     check?: IActivityCheckData;
     actionType?: string;

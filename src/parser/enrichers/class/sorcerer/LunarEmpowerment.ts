@@ -1,0 +1,152 @@
+import DDBEnricherData from "../../data/DDBEnricherData";
+import { IDDBActivityData, IDDBEffectHint } from "../../data/types";
+
+export default class LunarEmpowerment extends DDBEnricherData {
+
+  get activity(): IDDBActivityData {
+    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
+      return {
+        type: "utility",
+        name: "Full Moon: Shed Light",
+        activationType: "special",
+      };
+    } else {
+      return {
+        type: "ddbmacro",
+        data: {
+          name: "Full Moon: Shed Light",
+          macro: {
+            name: "Apply Light",
+            function: "ddb.generic.light",
+            visible: false,
+            parameters: '{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":20,"bright":10},"flag":"light"}',
+          },
+        },
+      };
+    }
+  }
+
+  get additionalActivities() {
+    return [
+      {
+        init: {
+          name: "Full Moon",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+      {
+        init: {
+          name: "New Moon",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+      {
+        init: {
+          name: "Crescent Moon",
+          type: "utility",
+        },
+        build: {
+          generateConsumption: false,
+          generateTarget: false,
+          generateRange: false,
+          generateActivation: true,
+          activationOverride: {
+            type: "special",
+            value: 1,
+            condition: "",
+          },
+        },
+      },
+    ];
+  }
+
+  get effects(): IDDBEffectHint[] {
+    const effects: IDDBEffectHint[] = [
+      {
+        name: "Full Moon Aura",
+        activitiesMatch: ["Full Moon"],
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.inv.roll.mode"),
+          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.per.roll.mode"),
+        ],
+        daeStackable: "noneNameOnly",
+        data: {
+          flags: {
+            ActiveAuras: {
+              ignoreSelf: false,
+              aura: "Allies",
+              radius: `10`,
+              isAura: true,
+              inactive: false,
+              hidden: false,
+              displayTemp: true,
+            },
+          },
+        },
+        auraeffects: {
+          applyToSelf: true,
+          bestFormula: "",
+          canStack: false,
+          collisionTypes: ["move"],
+          combatOnly: false,
+          disableOnHidden: true,
+          distanceFormula: `10`,
+          disposition: 1,
+          evaluatePreApply: true,
+          overrideName: "",
+          script: "",
+        },
+      },
+       {
+        name: "New Moon",
+        activityMatch: "New Moon",
+        changes: [
+          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode")
+        ],
+      },
+      {
+        name: "Crescent Moon",
+        activityMatch: "Crescent Moon",
+        changes: [
+          DDBEnricherData.ChangeHelper.damageResistanceChange("necrotic"),
+        ],
+      }
+    ];
+    if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
+      effects.push({
+        name: "Full Moon: Shed Light",
+        activityMatch: "Full Moon: Shed Light",
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '20'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '10'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '#ffffff'),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, '0.25'),
+        ],
+      } as IDDBEffectHint);
+    }
+    return effects;
+  }
+
+}

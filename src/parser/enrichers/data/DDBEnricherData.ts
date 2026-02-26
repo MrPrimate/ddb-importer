@@ -244,7 +244,7 @@ export default class DDBEnricherData {
       scaling: {
         mode: scalingMode as IDDBDamagePart["scaling"]["mode"],
         number: scalingNumber,
-        formula: scalingFormula,
+        formula: `${scalingFormula}`,
       },
     };
   }

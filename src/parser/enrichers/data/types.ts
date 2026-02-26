@@ -264,16 +264,16 @@ export interface IDDBEffectHint {
 
   // Naming & data
   name?: string;
-  data?: Record<string, any>;
+  data?: IEffectData;
   options?: IDDBEffectOptions;
 
   // Changes
-  changes?: any[] | ((data: any) => any[]);
+  changes?: IActiveEffectChangeData[];
   changesOverwrite?: boolean;
-  atlChanges?: any[];
-  tokenMagicChanges?: any[];
-  midiChanges?: any[];
-  daeChanges?: any[];
+  atlChanges?: IActiveEffectChangeData[];
+  tokenMagicChanges?: IActiveEffectChangeData[];
+  midiChanges?: IActiveEffectChangeData[];
+  daeChanges?: IActiveEffectChangeData[];
 
   // DAE
   daeStackable?: string;

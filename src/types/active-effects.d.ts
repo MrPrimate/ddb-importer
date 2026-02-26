@@ -13,7 +13,7 @@ global {
 
   export interface IEffectData {
     img?: string;
-    name: string;
+    name?: string;
     statuses?: typeof STATUSES[];
     changes?: IActiveEffectChangeData[];
     duration?: IEffectDuration;
@@ -21,19 +21,29 @@ global {
     transfer?: boolean;
     disabled?: boolean;
     flags?: {
-      dae: {
+      ActiveAuras?: {
+        ignoreSelf?: boolean;
+        aura: "Allies" | "Enemies" | "All";
+        radius: string;
+        isAura: boolean;
+        inactive: boolean;
+        hidden: boolean;
+        displayTemp: boolean;
+      };
+      auraeffects?: IDDBAuraEffects;
+      dae?: {
         showIcon: boolean | null;
         transfer: boolean;
         stackable: string;
         // armorEffect?: boolean;
       };
-      ddbimporter: {
-        disabled: boolean;
+      ddbimporter?: {
+        disabled?: boolean;
       };
-      "midi-qol": {
-        forceCEOff: boolean;
+      "midi-qol"?: {
+        forceCEOff?: boolean;
       };
-      core: Record<string, unknown>;
+      core?: Record<string, unknown>;
       [key: string]: any;
     };
     description?: string;

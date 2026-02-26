@@ -9556,5 +9556,9 @@
   {
     "name": "Circle Magic Casting",
     "path": "icons/magic/symbols/runes-star-pentagon-blue.webp"
+  },
+  {
+    "name": "Lunar Embodiment",
+    "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
   }
 ]
