@@ -69,11 +69,7 @@ export default class SpellfireSpark extends DDBEnricherData {
         type: "feat",
         name: "Spellfire Spark",
       }),
-      data: {
-        "flags.ddbimporter": {
-          retainOriginalConsumption: true,
-        },
-      },
+      retainOriginalConsumption: true,
     };
   }
 

@@ -65,9 +65,7 @@ export default class LandsAid extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Healing"],
-      },
+      ignoredConsumptionActivities: ["Healing"],
     };
   }
 

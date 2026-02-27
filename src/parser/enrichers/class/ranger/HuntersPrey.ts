@@ -47,9 +47,7 @@ export default class HuntersPrey extends DDBEnricherData {
           { period: "sr", type: 'recoverAll', formula: undefined },
         ],
       },
-      data: {
-        "flags.ddbimporter.retainOriginalConsumption": true,
-      },
+      retainOriginalConsumption: true,
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbHuntersPrey">
 <p><strong>Implementation Details</strong></p>

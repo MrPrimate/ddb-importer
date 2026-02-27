@@ -33,9 +33,7 @@ export default class DivineIntervention extends DDBEnricherData {
           { period: "lr", type: 'recoverAll', formula: undefined },
         ],
       },
-      data: {
-        "flags.ddbimporter.retainOriginalConsumption": true,
-      },
+      retainOriginalConsumption: true,
     };
   }
 

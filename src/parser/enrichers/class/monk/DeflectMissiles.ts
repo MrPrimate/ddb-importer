@@ -64,11 +64,7 @@ export default class DeflectMissiles extends DDBEnricherData {
   get override() {
     return {
       midiDamageReaction: true,
-      data: {
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: ["Reduce Damage"],
-        },
-      },
+      ignoredConsumptionActivities: ["Reduce Damage"],
     };
   }
 

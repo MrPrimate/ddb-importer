@@ -15,9 +15,7 @@ export default class HarnessDivinePower extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter.retainOriginalConsumption": true,
-      },
+      retainOriginalConsumption: true,
     };
   }
 

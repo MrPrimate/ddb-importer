@@ -78,11 +78,7 @@ export default class RitualCaster extends DDBEnricherData {
           spent: null,
           max: "1",
         },
-        data: {
-          "flags.ddbimporter": {
-            retainUseSpent: true,
-          },
-        },
+        retainUseSpent: true,
       };
   }
 

@@ -1,4 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { IDDBEffectHint } from "../../data/types";
 
 export default class IntimidatingPresence extends DDBEnricherData {
 
@@ -71,13 +72,11 @@ export default class IntimidatingPresence extends DDBEnricherData {
 
   get override() {
     return {
+      ignoredConsumptionActivities: ["Save"],
+      retainOriginalConsumption: true,
+      retainChildUses: true,
       data: {
         flags: {
-          ddbimporter: {
-            ignoredConsumptionActivities: ["Save"],
-            retainOriginalConsumption: true,
-            retainChildUses: true,
-          },
           "midi-qol": {
             effectActivation: true,
             effectCondition: "!target.effects.some((e)=> e.name?.toLowerCase().includes('blind') || e.name?.toLowerCase().includes('deaf'))",
@@ -87,7 +86,7 @@ export default class IntimidatingPresence extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Save",

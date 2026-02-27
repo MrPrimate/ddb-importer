@@ -49,9 +49,7 @@ export default class StepOfTheWind extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Step of the Wind: Dash"],
-      },
+      ignoredConsumptionActivities: ["Step of the Wind: Dash"],
     };
   }
 }

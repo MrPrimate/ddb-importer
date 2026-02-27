@@ -43,12 +43,8 @@ export default class BeguilingMagic extends DDBEnricherData {
         max: "1",
         period: "lr",
       }),
-      data: {
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: ["Save"],
-          retainOriginalConsumption: true,
-        },
-      },
+      ignoredConsumptionActivities: ["Save"],
+      retainOriginalConsumption: true,
     };
   }
 

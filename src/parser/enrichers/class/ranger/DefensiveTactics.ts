@@ -42,9 +42,7 @@ export default class DefensiveTactics extends DDBEnricherData {
           { period: "sr", type: 'recoverAll', formula: undefined },
         ],
       },
-      data: {
-        "flags.ddbimporter.retainOriginalConsumption": true,
-      },
+      retainOriginalConsumption: true,
     };
   }
 

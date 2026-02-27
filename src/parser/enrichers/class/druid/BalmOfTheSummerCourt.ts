@@ -77,12 +77,10 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
     });
 
     return {
+      retainOriginalConsumption: true,
       data: {
         system: {
           uses,
-        },
-        "flags.ddbimporter": {
-          retainOriginalConsumption: true,
         },
       },
     };

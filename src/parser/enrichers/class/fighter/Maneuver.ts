@@ -67,11 +67,9 @@ export default class Maneuver extends DDBEnricherData {
       .replace("Maneuvers:", "Maneuver:")
       .replace("Martial Adept: ", "Maneuver: ");
     return {
+      ignoredConsumptionActivities: this.ignoredConsumptionActivities,
       data: {
         name,
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: this.ignoredConsumptionActivities,
-        },
         system: {
           type: {
             "value": "class",

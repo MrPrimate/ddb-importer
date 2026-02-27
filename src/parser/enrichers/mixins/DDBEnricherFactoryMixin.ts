@@ -977,6 +977,10 @@ export default class DDBEnricherFactoryMixin {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.retainResourceConsumption", true);
     }
 
+    if (override.ignoredConsumptionActivities) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.ignoredConsumptionActivities", override.ignoredConsumptionActivities);
+    }
+
     if (override.retainOriginalConsumption) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.retainOriginalConsumption", true);
     }

@@ -69,9 +69,7 @@ export default class PatientDefense extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage"],
-      },
+      ignoredConsumptionActivities: ["Patient Defense: Disengage"],
     };
   }
 }

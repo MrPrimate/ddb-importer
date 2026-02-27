@@ -61,9 +61,7 @@ export default class TranceOfOrder extends DDBEnricherData {
   get override() {
     return {
       replaceActivityUses: true,
-      "flags.ddbimporter.dndbeyond": {
-        retainOriginalConsumption: true,
-      },
+      retainOriginalConsumption: true,
       uses: {
         spent: null,
         max: "1",

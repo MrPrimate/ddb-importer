@@ -1,4 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { IDDBEffectHint } from "../../data/types";
 
 export default class SacredWeapon extends DDBEnricherData {
 
@@ -46,9 +47,7 @@ export default class SacredWeapon extends DDBEnricherData {
   get override() {
     return {
       // ddbMacroDescription: !DDBEnricherData.AutoEffects.effectModules().atlInstalled,
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Sacred Weapon Light Toggle"],
-      },
+      ignoredConsumptionActivities: ["Sacred Weapon Light Toggle"],
     };
   }
 
@@ -69,7 +68,7 @@ export default class SacredWeapon extends DDBEnricherData {
 
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const lightAnimation = '{"type": "sunburst", "speed": 2,"intensity": 4}';
     const atlChanges = [
       DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, (this.is2014 ? '5' : '40')),

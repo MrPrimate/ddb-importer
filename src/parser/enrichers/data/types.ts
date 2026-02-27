@@ -335,7 +335,9 @@ export interface IDDBOverrideData {
   descriptionSuffix?: string;
   ddbMacroDescription?: boolean;
   retainResourceConsumption?: boolean;
+  ignoredConsumptionActivities?: string[];
   retainOriginalConsumption?: boolean;
+  retainChildUses?: boolean;
   retainUseSpent?: boolean;
   uses?: I5eSystemLimitedUses;
   // To Do add a data object here with flags

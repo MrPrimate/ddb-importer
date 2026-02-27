@@ -33,9 +33,7 @@ export default class TelekineticMaster extends DDBEnricherData {
         max: "1",
         period: "lr",
       }),
-      data: {
-        "flags.ddbimporter.retainChildUses": true,
-      },
+      retainChildUses: true,
     };
   }
 

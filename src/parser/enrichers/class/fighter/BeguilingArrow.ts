@@ -70,11 +70,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: ["Save vs Charmed"],
-        },
-      },
+      ignoredConsumptionActivities: ["Save vs Charmed"],
     };
   }
 

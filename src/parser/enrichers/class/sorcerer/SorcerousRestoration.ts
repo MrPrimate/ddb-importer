@@ -34,9 +34,7 @@ export default class SorcerousRestoration extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter.retainChildUses": true,
-      },
+      retainChildUses: true,
     };
   }
 

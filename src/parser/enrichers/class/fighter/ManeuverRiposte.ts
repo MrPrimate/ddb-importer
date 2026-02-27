@@ -10,11 +10,9 @@ export default class ManeuverRiposte extends Maneuver {
   get override() {
     return {
       midiManualReaction: true,
+      ignoredConsumptionActivities: this.ignoredConsumptionActivities,
       data: {
         name: this.data.name.replace("Maneuver Options:", "Maneuver:").replace("Maneuvers:", "Maneuver: "),
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: this.ignoredConsumptionActivities,
-        },
       },
     };
   }

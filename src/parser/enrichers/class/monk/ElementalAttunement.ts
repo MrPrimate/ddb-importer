@@ -147,9 +147,7 @@ export default class ElementalAttunement extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Elemental Strike", "Elemental Save"],
-      },
+      ignoredConsumptionActivities: ["Elemental Strike", "Elemental Save"],
     };
   }
 }

@@ -193,11 +193,7 @@ export default class Poisoner extends DDBEnricherData {
         spent: null,
         max: "20",
       },
-      data: {
-        "flags.ddbimporter": {
-          retainUseSpent: true,
-        },
-      },
+      retainUseSpent: true,
     };
   }
 }

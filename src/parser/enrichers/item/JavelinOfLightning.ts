@@ -10,7 +10,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
 
   get override() {
     const override = {
-      "flags.ddbimporter.retainUseSpent": true,
+      retainUseSpent: true,
       data: {
         system: {
           uses: {

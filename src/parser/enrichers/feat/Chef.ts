@@ -84,10 +84,8 @@ export default class Chef extends DDBEnricherData {
 
   get override() {
     return {
+      retainOriginalConsumption: true,
       data: {
-        "flags.ddbimporter": {
-          retainOriginalConsumption: true,
-        },
         system: {
           uses: {
             spent: null,

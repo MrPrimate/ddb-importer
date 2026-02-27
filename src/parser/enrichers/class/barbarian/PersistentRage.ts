@@ -24,11 +24,11 @@ export default class PersistentRage extends DDBEnricherData {
         max: "1",
         period: "lr",
       }),
+      retainOriginalConsumption: true,
+      retainChildUses: true,
       data: {
         "flags.ddbimporter": {
-          retainOriginalConsumption: true,
           consumptionValue: "-@scale.barbarian.rages",
-          retainChildUses: true,
         },
       },
     };

@@ -73,6 +73,7 @@ global {
       };
       ddbimporter?: {
         disabled?: boolean;
+        activityRiders?: string[];
       };
       "midi-qol"?: {
         forceCEOff?: boolean;
@@ -92,12 +93,12 @@ global {
   }
 
   interface IEffectDuration {
-    seconds: number | null;
-    startTime: number | null;
-    rounds: number | null;
-    turns: number | null;
-    startRound: number | null;
-    startTurn: number | null;
+    seconds?: number | null;
+    startTime?: number | null;
+    rounds?: number | null;
+    turns?: number | null;
+    startRound?: number | null;
+    startTurn?: number | null;
   }
 
   interface IBaseEffectOptions {

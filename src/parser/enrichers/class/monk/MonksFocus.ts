@@ -22,9 +22,7 @@ export default class MonksFocus extends DDBEnricherData {
         max: "@scale.monk.focus-points",
         period: "sr",
       }),
-      data: {
-        "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage", "Step of the Wind: Dash"],
-      },
+      ignoredConsumptionActivities: ["Patient Defense: Disengage", "Step of the Wind: Dash"],
     };
   }
 

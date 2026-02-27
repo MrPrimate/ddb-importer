@@ -34,11 +34,7 @@ export default class UncannyMetabolism extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter": {
-          retainChildUses: true,
-        },
-      },
+      retainChildUses: true,
     };
   }
 

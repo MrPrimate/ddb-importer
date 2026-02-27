@@ -29,9 +29,7 @@ export default class CosmicOmen extends DDBEnricherData {
         max: "@abilities.wis.mod",
         recovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
       },
-      data: {
-        "flags.ddbimporter.retainOriginalConsumption": true,
-      },
+      retainOriginalConsumption: true,
     };
   }
 

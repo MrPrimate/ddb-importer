@@ -37,11 +37,7 @@ export default class BoonOfFate extends DDBEnricherData {
           { period: "lr", type: 'recoverAll', formula: undefined },
         ],
       },
-      data: {
-        "flags.ddbimporter": {
-          retainUseSpent: true,
-        },
-      },
+      retainUseSpent: true,
     };
   }
 

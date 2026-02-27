@@ -19,11 +19,7 @@ export default class DeflectEnergy extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter": {
-          ignoredConsumptionActivities: ["Reduce Damage"],
-        },
-      },
+      ignoredConsumptionActivities: ["Reduce Damage"],
     };
   }
 }
