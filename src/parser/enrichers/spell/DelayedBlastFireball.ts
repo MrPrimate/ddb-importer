@@ -145,9 +145,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
     <p>The <strong>Increase Turn Counter</strong> activity will increase that value by 1.</p>
     <p>The <strong>Explosion</strong> activity calculates the total damage based on the  uses.</p>
 </section>`,
-      data: {
-        "system.uses": { spent: null, max: "10" },
-      },
+      uses: { spent: null, max: "10" },
     };
   }
 

@@ -67,14 +67,12 @@ export default class UnbreakableMajesty extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Assume Unbreakable Majesty",
-          max: "1",
-          period: "sr",
-        }),
-      },
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Assume Unbreakable Majesty",
+        max: "1",
+        period: "sr",
+      }),
     };
   }
 

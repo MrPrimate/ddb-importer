@@ -25,9 +25,7 @@ export default class Lucky extends DDBEnricherData {
       period: "lr",
     });
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

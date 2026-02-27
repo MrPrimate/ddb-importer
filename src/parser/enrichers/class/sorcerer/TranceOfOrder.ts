@@ -64,18 +64,16 @@ export default class TranceOfOrder extends DDBEnricherData {
       "flags.ddbimporter.dndbeyond": {
         retainOriginalConsumption: true,
       },
-      data: {
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [
-            {
-              period: "lr",
-              type: "recoverAll",
-              formula: "",
-            },
-          ],
-        },
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [
+          {
+            period: "lr",
+            type: "recoverAll",
+            formula: "",
+          },
+        ],
       },
     };
   }

@@ -335,8 +335,9 @@ export interface IDDBOverrideData {
   descriptionSuffix?: string;
   ddbMacroDescription?: boolean;
   retainResourceConsumption?: boolean;
+  retainOriginalConsumption?: boolean;
   retainUseSpent?: boolean;
-  uses: I5eSystemLimitedUses;
+  uses?: I5eSystemLimitedUses;
   // To Do add a data object here with flags
   data?: Record<string, any>;
   midiManualReaction?: boolean;

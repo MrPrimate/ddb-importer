@@ -76,8 +76,8 @@ export default class AlchemistsFire extends DDBEnricherData {
       };
     } else {
       return {
-        data: {
-          "system.uses.autoDestroy": false,
+        uses: {
+          autoDestroy: false,
         },
       };
     }

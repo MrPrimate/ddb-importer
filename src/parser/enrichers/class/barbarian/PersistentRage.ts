@@ -18,13 +18,13 @@ export default class PersistentRage extends DDBEnricherData {
 
   get override() {
     return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Rage: Regain Expended Uses",
+        max: "1",
+        period: "lr",
+      }),
       data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Rage: Regain Expended Uses",
-          max: "1",
-          period: "lr",
-        }),
         "flags.ddbimporter": {
           retainOriginalConsumption: true,
           consumptionValue: "-@scale.barbarian.rages",

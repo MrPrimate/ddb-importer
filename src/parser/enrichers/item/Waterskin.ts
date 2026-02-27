@@ -16,14 +16,12 @@ export default class Waterskin extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          spent: null,
-          max: "4",
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
+      uses: {
+        spent: null,
+        max: "4",
+        recovery: [],
+        autoDestroy: false,
+        autoUse: true,
       },
     };
   }

@@ -44,15 +44,15 @@ export default class ParalysisPistol extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "6",
+        recovery: [],
+        autoDestroy: false,
+        autoUse: true,
+      },
       data: {
         "flags.ddbimporter.retainUseSpent": true,
-        "system.uses": {
-          spent: null,
-          max: "6",
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
       },
     };
   }

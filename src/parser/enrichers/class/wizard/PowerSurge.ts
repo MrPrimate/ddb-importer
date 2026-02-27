@@ -28,9 +28,7 @@ export default class PowerSurge extends DDBEnricherData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,
-      data: {
-        "system.uses": uses,
-      },
+      uses,
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbPowerSurge">
 <p><strong>Implementation Details</strong></p>

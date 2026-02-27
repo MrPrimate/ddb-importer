@@ -135,14 +135,12 @@ export default class FormOfTheBeast extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Form of the Beast",
-          max: "2",
-          period: "sr",
-        }),
-      },
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Form of the Beast",
+        max: "2",
+        period: "sr",
+      }),
     };
   }
 

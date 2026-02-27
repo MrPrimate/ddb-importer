@@ -28,14 +28,12 @@ export default class HealingLight extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          spent: null,
-          max: "1 + @classes.warlock.levels",
-          recovery: [
-            { period: "lr", type: "recoverAll", formula: undefined },
-          ],
-        },
+      uses: {
+        spent: null,
+        max: "1 + @classes.warlock.levels",
+        recovery: [
+          { period: "lr", type: "recoverAll", formula: undefined },
+        ],
       },
     };
   }

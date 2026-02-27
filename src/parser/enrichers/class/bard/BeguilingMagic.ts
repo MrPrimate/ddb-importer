@@ -37,13 +37,13 @@ export default class BeguilingMagic extends DDBEnricherData {
 
   get override() {
     return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Beguiling Magic",
+        max: "1",
+        period: "lr",
+      }),
       data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Beguiling Magic",
-          max: "1",
-          period: "lr",
-        }),
         "flags.ddbimporter": {
           ignoredConsumptionActivities: ["Save"],
           retainOriginalConsumption: true,

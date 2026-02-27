@@ -6,20 +6,18 @@ export default class MartialAdept extends DDBEnricherData {
   get override() {
     return {
       retainResourceConsumption: true,
-      data: {
-        "system.uses": this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })
-          ? {
-            spent: null,
-            max: null,
-            recovery: [],
-          }
-          : this._getUsesWithSpent({
-            type: "feat",
-            name: "Superiority Dice (Martial Adept)",
-            max: "1",
-            period: "sr",
-          }),
-      },
+      uses: this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })
+        ? {
+          spent: null,
+          max: null,
+          recovery: [],
+        }
+        : this._getUsesWithSpent({
+          type: "feat",
+          name: "Superiority Dice (Martial Adept)",
+          max: "1",
+          period: "sr",
+        }),
     };
   }
 

@@ -40,9 +40,7 @@ export default class LargeForm extends DDBEnricherData {
       period: "lr",
     });
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

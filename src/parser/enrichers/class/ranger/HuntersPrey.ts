@@ -40,15 +40,15 @@ export default class HuntersPrey extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [
+          { period: "sr", type: 'recoverAll', formula: undefined },
+        ],
+      },
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [
-            { period: "sr", type: 'recoverAll', formula: undefined },
-          ],
-        },
       },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbHuntersPrey">

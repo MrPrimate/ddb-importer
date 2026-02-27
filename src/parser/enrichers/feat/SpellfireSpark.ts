@@ -65,11 +65,11 @@ export default class SpellfireSpark extends DDBEnricherData {
 
   get override() {
     return {
+      uses: this._getSpellUsesWithSpent({
+        type: "feat",
+        name: "Spellfire Spark",
+      }),
       data: {
-        "system.uses": this._getSpellUsesWithSpent({
-          type: "feat",
-          name: "Spellfire Spark",
-        }),
         "flags.ddbimporter": {
           retainOriginalConsumption: true,
         },

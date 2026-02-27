@@ -12,14 +12,12 @@ export default class Ki extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Ki Points",
-          max: "@scale.monk.ki-points",
-          period: "sr",
-        }),
-      },
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Ki Points",
+        max: "@scale.monk.ki-points",
+        period: "sr",
+      }),
     };
   }
 

@@ -238,9 +238,9 @@ export default class Shifting extends DDBEnricherData {
       };
 
     return {
+      uses,
       data: {
         "name": "Shifting",
-        "system.uses": uses,
         "flags.ddbimporter": flags,
       },
     };

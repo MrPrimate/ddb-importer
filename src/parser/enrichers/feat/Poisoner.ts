@@ -189,11 +189,11 @@ export default class Poisoner extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "20",
+      },
       data: {
-        "system.uses": {
-          spent: null,
-          max: "20",
-        },
         "flags.ddbimporter": {
           retainUseSpent: true,
         },

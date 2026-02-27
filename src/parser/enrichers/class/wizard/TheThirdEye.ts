@@ -94,12 +94,10 @@ export default class TheThirdEye extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
-        },
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
       },
     };
   }

@@ -64,15 +64,15 @@ export default class HurlThroughHell extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [
+          { period: "lr", type: 'recoverAll', formula: undefined },
+        ],
+      },
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
-          ],
-        },
       },
     };
   }

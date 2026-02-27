@@ -10,9 +10,7 @@ export default class CombatSuperiority extends DDBEnricherData {
       period: "sr",
     });
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

@@ -23,14 +23,12 @@ export default class HillsTumble extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "race",
-          name: this.ddbParser.originalName,
-          max: "@prof",
-          period: "lr",
-        }),
-      },
+      uses: this._getUsesWithSpent({
+        type: "race",
+        name: this.ddbParser.originalName,
+        max: "@prof",
+        period: "lr",
+      }),
     };
   }
 }

@@ -104,9 +104,7 @@ export default class HolyNimbus extends DDBEnricherData {
   get override() {
     const uses = this._getUsesWithSpent({ type: "class", name: "Imbue Aura of Protection", max: "1", period: "lr" });
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

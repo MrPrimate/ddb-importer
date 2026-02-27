@@ -6,20 +6,18 @@ export default class MetamagicAdept extends DDBEnricherData {
   get override() {
     return {
       retainResourceConsumption: true,
-      data: {
-        "system.uses": this.hasClassFeature({ featureName: "Font of Magic", className: "Sorcerer" })
-          ? {
-            spent: null,
-            max: null,
-            recovery: [],
-          }
-          : this._getUsesWithSpent({
-            type: "feat",
-            name: "Sorcery Points (Metamagic Adept)",
-            max: "2",
-            period: "lr",
-          }),
-      },
+      uses: this.hasClassFeature({ featureName: "Font of Magic", className: "Sorcerer" })
+        ? {
+          spent: null,
+          max: null,
+          recovery: [],
+        }
+        : this._getUsesWithSpent({
+          type: "feat",
+          name: "Sorcery Points (Metamagic Adept)",
+          max: "2",
+          period: "lr",
+        }),
     };
   }
 

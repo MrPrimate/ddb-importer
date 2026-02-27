@@ -25,8 +25,8 @@ export default class DarkOnesOwnLuck extends DDBEnricherData {
     if (this.is2014) return null;
 
     return {
-      data: {
-        "system.uses.max": "@abilities.cha.mod",
+      uses: {
+        max: "@abilities.cha.mod",
       },
     };
   }

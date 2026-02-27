@@ -51,9 +51,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,
-      data: {
-        "system.uses": uses,
-      },
+      uses,
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbTokensOfTheDeparted">
 <p><strong>Implementation Details</strong></p>

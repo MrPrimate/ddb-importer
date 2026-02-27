@@ -16,9 +16,7 @@ export default class HillRune extends DDBEnricherData {
       max: "@scale.rune-knight.rune-uses",
     });
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

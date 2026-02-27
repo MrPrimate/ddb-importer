@@ -73,12 +73,10 @@ export default class PsionicPower extends DDBEnricherData {
       : "psi-warrior";
 
     return {
-      data: {
-        "system.uses": {
-          spent,
-          max: this.is2014 ? "@prof * 2" : `@scale.${subclass}.energy-die.number`,
-          recovery,
-        },
+      uses: {
+        spent,
+        max: this.is2014 ? "@prof * 2" : `@scale.${subclass}.energy-die.number`,
+        recovery,
       },
     };
   }

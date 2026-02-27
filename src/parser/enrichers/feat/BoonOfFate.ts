@@ -30,16 +30,16 @@ export default class BoonOfFate extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [
+          { period: "lr", type: 'recoverAll', formula: undefined },
+        ],
+      },
       data: {
         "flags.ddbimporter": {
           retainUseSpent: true,
-        },
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
-          ],
         },
       },
     };

@@ -84,14 +84,12 @@ export default class DrakesBreath extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Drake's Breath",
-          max: "1",
-          period: "lr",
-        }),
-      },
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Drake's Breath",
+        max: "1",
+        period: "lr",
+      }),
     };
   }
 

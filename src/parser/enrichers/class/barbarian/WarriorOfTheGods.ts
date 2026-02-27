@@ -24,18 +24,16 @@ export default class WarriorOfTheGods extends DDBEnricherData {
   }
 
   get override() {
-    return {
-      data: this.is2014
-        ? {}
-        : {
-          "system.uses": this._getUsesWithSpent({
-            type: "class",
-            name: "Warrior of the Gods: Expend Dice",
-            max: "@scale.zealot.warrior-of-the-gods.number",
-            period: "lr",
-          }),
-        },
-    };
+    return this.is2014
+      ? {}
+      : {
+        uses: this._getUsesWithSpent({
+          type: "class",
+          name: "Warrior of the Gods: Expend Dice",
+          max: "@scale.zealot.warrior-of-the-gods.number",
+          period: "lr",
+        }),
+      };
   }
 
 }

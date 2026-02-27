@@ -23,14 +23,12 @@ export default class HealersKit extends DDBEnricherData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,
-      data: {
-        "system.uses": {
-          spent: null,
-          max: "10",
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
+      uses: {
+        spent: null,
+        max: "10",
+        recovery: [],
+        autoDestroy: false,
+        autoUse: true,
       },
     };
   }

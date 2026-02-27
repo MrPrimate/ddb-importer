@@ -77,9 +77,9 @@ export default class AvengingAngel extends DDBEnricherData {
   get override() {
     const uses = this._getUsesWithSpent({ type: "class", name: "Avenging Angel", max: "1", period: "lr" });
     return {
+      uses,
       data: {
         name: "Avenging Angel",
-        "system.uses": uses,
       },
     };
   }

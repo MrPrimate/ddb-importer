@@ -12,13 +12,13 @@ export default class MageSlayer extends DDBEnricherData {
   get override() {
     return {
       retainResourceConsumption: true,
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [{ period: "sr", type: 'recoverAll' }],
+      },
       data: {
         name: "Mage Slayer",
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [{ period: "sr", type: 'recoverAll' }],
-        },
       },
     };
   }

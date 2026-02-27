@@ -15,9 +15,7 @@ export default class WarPriest extends DDBEnricherData {
     });
 
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

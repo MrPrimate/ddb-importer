@@ -62,17 +62,15 @@ export default class SneakAttack extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          "spent": 0,
-          "recovery": [
-            {
-              "period": "turn",
-              "type": "recoverAll",
-            },
-          ],
-          "max": "1",
-        },
+      uses: {
+        "spent": 0,
+        "recovery": [
+          {
+            "period": "turn",
+            "type": "recoverAll",
+          },
+        ],
+        "max": "1",
       },
     };
   }

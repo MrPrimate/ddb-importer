@@ -35,15 +35,15 @@ export default class DefensiveTactics extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [
+          { period: "sr", type: 'recoverAll', formula: undefined },
+        ],
+      },
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [
-            { period: "sr", type: 'recoverAll', formula: undefined },
-          ],
-        },
       },
     };
   }

@@ -24,15 +24,13 @@ export default class CosmicOmen extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "@abilities.wis.mod",
+        recovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
+      },
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
-        system: {
-          uses: {
-            spent: null,
-            max: "@abilities.wis.mod",
-            recovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
-          },
-        },
       },
     };
   }

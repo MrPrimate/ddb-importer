@@ -47,9 +47,7 @@ export default class ClairvoyantCombatant extends DDBEnricherData {
   get override() {
     const uses = this._getUsesWithSpent({ type: "class", name: "Awakened Mind: Clairvoyant Combatant", max: "1", period: "sr" });
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

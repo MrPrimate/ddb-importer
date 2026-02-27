@@ -26,17 +26,17 @@ export default class PartiallyAmphibious extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [
+          {
+            period: "lr",
+            type: "recoverAll",
+          },
+        ],
+      },
       data: {
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [
-            {
-              period: "lr",
-              type: "recoverAll",
-            },
-          ],
-        },
         "flags.midiProperties.toggleEffect": true,
       },
     };

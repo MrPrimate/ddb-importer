@@ -49,8 +49,8 @@ export default class Launch extends DDBEnricherData {
       max: "@scale.steel-hawk.launch.number",
     });
     return {
+      uses,
       data: {
-        "system.uses": uses,
         "flags.ddbimporter.skipScale": true,
       },
     };

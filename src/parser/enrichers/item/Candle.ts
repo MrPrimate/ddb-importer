@@ -24,10 +24,8 @@ export default class Candle extends GenericLightSource {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          autoDestroy: true,
-        },
+      uses: {
+        autoDestroy: true,
       },
     };
   }

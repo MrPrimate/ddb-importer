@@ -26,15 +26,15 @@ export default class DivineIntervention extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: "0",
+        max: "1",
+        recovery: [
+          { period: "lr", type: 'recoverAll', formula: undefined },
+        ],
+      },
       data: {
         "flags.ddbimporter.retainOriginalConsumption": true,
-        "system.uses": {
-          spent: "0",
-          max: "1",
-          recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
-          ],
-        },
       },
     };
   }

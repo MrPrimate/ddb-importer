@@ -33,9 +33,7 @@ export default class InnateSorcery extends DDBEnricherData {
     });
 
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 

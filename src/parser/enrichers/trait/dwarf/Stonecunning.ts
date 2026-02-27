@@ -44,14 +44,12 @@ export default class Stonecunning extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": this._getUsesWithSpent({
-          type: "race",
-          name: "Stonecunning (Tremorsense)",
-          max: "@prof",
-          period: "lr",
-        }),
-      },
+      uses: this._getUsesWithSpent({
+        type: "race",
+        name: "Stonecunning (Tremorsense)",
+        max: "@prof",
+        period: "lr",
+      }),
     };
   }
 

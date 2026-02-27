@@ -16,14 +16,14 @@ export default class MonksFocus extends DDBEnricherData {
 
   get override() {
     return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Focus Points",
+        max: "@scale.monk.focus-points",
+        period: "sr",
+      }),
       data: {
         "flags.ddbimporter.ignoredConsumptionActivities": ["Patient Defense: Disengage", "Step of the Wind: Dash"],
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Focus Points",
-          max: "@scale.monk.focus-points",
-          period: "sr",
-        }),
       },
     };
   }

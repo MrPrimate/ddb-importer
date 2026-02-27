@@ -39,17 +39,15 @@ export default class GatheredSwarm extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          "spent": 0,
-          "recovery": [
-            {
-              "period": "turnStart",
-              "type": "recoverAll",
-            },
-          ],
-          "max": "1",
-        },
+      uses: {
+        "spent": 0,
+        "recovery": [
+          {
+            "period": "turnStart",
+            "type": "recoverAll",
+          },
+        ],
+        "max": "1",
       },
     };
   }

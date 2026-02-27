@@ -131,12 +131,10 @@ export default class ArcaneWard extends DDBEnricherData {
     return {
       descriptionSuffix,
       retainResourceConsumption: true,
-      data: {
-        "system.uses": {
-          spent,
-          max: "(2 * @classes.wizard.levels) + @abilities.int.mod",
-          recovery: [{ period: "lr", type: "loseAll", formula: undefined }],
-        },
+      uses: {
+        spent,
+        max: "(2 * @classes.wizard.levels) + @abilities.int.mod",
+        recovery: [{ period: "lr", type: "loseAll", formula: undefined }],
       },
     };
   }

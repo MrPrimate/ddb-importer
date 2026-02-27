@@ -23,17 +23,15 @@ export default class IronBandsOfBinding extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          spent: null,
-          max: "1",
-          recovery: [{
-            period: "day",
-            type: "recoverAll",
-          }],
-          autoDestroy: false,
-          autoUse: true,
-        },
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [{
+          period: "day",
+          type: "recoverAll",
+        }],
+        autoDestroy: false,
+        autoUse: true,
       },
     };
   }

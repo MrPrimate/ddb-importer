@@ -27,14 +27,14 @@ export default class TelekineticMaster extends DDBEnricherData {
 
   get override() {
     return {
+      uses: this._getUsesWithSpent({
+        type: "class",
+        name: "Telekinetic Master: Weapon Attack",
+        max: "1",
+        period: "lr",
+      }),
       data: {
         "flags.ddbimporter.retainChildUses": true,
-        "system.uses": this._getUsesWithSpent({
-          type: "class",
-          name: "Telekinetic Master: Weapon Attack",
-          max: "1",
-          period: "lr",
-        }),
       },
     };
   }

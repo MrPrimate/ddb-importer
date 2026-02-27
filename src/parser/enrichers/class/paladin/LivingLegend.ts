@@ -20,9 +20,9 @@ export default class LivingLegend extends DDBEnricherData {
   get override() {
     const uses = this._getUsesWithSpent({ type: "class", name: "Embody Legends", max: "1", period: "lr" });
     return {
+      uses,
       data: {
         name: "Living Legend",
-        "system.uses": uses,
       },
     };
   }

@@ -38,9 +38,7 @@ export default class EldritchCannonForceBallista extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "system.uses": { spent: null, max: "" },
-      },
+      uses: { spent: null, max: "" },
     };
   }
 }

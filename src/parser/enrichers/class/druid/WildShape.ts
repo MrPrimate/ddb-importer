@@ -78,9 +78,7 @@ export default class WildShape extends DDBEnricherData {
     }
 
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 }

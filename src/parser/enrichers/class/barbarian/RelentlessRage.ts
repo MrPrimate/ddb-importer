@@ -55,17 +55,15 @@ export default class RelentlessRage extends DDBEnricherData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,
-      data: {
-        "system.uses": {
-          spent: 0,
-          max: "30",
-          recovery: [
-            {
-              period: this.is2014 ? "sr" : "lr",
-              type: "recoverAll",
-            },
-          ],
-        },
+      uses: {
+        spent: 0,
+        max: "30",
+        recovery: [
+          {
+            period: this.is2014 ? "sr" : "lr",
+            type: "recoverAll",
+          },
+        ],
       },
     };
   }

@@ -43,24 +43,17 @@ export default class HeroesFeast extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        // flags: {
-        //   "midi-qol": {
-        //     removeAttackDamageButtons: false,
-        //   },
-        // },
-        "system.uses": this.useMidiAutomations
-          ? {
-            spent: null,
-            max: "",
-            recovery: [],
-          }
-          : {
-            spent: "12",
-            max: "12",
-            recovery: [{ period: "sr", type: "loseAll", formula: "" }],
-          },
-      },
+      uses: this.useMidiAutomations
+        ? {
+          spent: null,
+          max: "",
+          recovery: [],
+        }
+        : {
+          spent: "12",
+          max: "12",
+          recovery: [{ period: "sr", type: "loseAll", formula: "" }],
+        },
       descriptionSuffix: this.useMidiAutomations
         ? `
 <section class="secret ddbSecret" id="secret-ddbHeroesFeast">

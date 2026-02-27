@@ -264,14 +264,10 @@ export default class LunarPhenomenon extends DDBEnricherData {
   get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
-      data: {
-        system: {
-          uses: {
-            spent: null,
-            max: "1",
-            recovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
-          },
-        },
+      uses: {
+        spent: null,
+        max: "1",
+        recovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
       },
     };
   }

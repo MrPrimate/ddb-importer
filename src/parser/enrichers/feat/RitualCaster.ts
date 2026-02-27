@@ -74,11 +74,11 @@ export default class RitualCaster extends DDBEnricherData {
     return this.is2014
       ? null
       : {
+        uses: {
+          spent: null,
+          max: "1",
+        },
         data: {
-          "system.uses": {
-            spent: null,
-            max: "1",
-          },
           "flags.ddbimporter": {
             retainUseSpent: true,
           },

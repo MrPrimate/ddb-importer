@@ -27,10 +27,8 @@ export default class Torch extends GenericLightSource {
 
   get override() {
     return {
-      data: {
-        "system.uses": {
-          autoDestroy: true,
-        },
+      uses: {
+        autoDestroy: true,
       },
     };
   }

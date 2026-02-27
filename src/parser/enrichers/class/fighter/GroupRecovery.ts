@@ -41,9 +41,7 @@ export default class GroupRecovery extends DDBEnricherData {
       type: "class",
     });
     return {
-      data: {
-        "system.uses": uses,
-      },
+      uses,
     };
   }
 }

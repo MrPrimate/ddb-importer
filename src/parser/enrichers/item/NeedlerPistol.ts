@@ -30,15 +30,15 @@ export default class NeedlerPistol extends DDBEnricherData {
 
   get override() {
     return {
-      "flags.ddbimporter.retainUseSpent": true,
+      uses: {
+        spent: null,
+        max: "10",
+        recovery: [],
+        autoDestroy: false,
+        autoUse: true,
+      },
       data: {
-        "system.uses": {
-          spent: null,
-          max: "10",
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
+        "flags.ddbimporter.retainUseSpent": true,
       },
     };
   }

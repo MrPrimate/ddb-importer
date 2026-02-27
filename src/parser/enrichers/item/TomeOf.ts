@@ -55,14 +55,12 @@ export default class TomeOf extends DDBEnricherData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,
-      data: {
-        "system.uses": {
-          spent: null,
-          max: "48",
-          recovery: [],
-          autoDestroy: false,
-          autoUse: true,
-        },
+      uses: {
+        spent: null,
+        max: "48",
+        recovery: [],
+        autoDestroy: false,
+        autoUse: true,
       },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbTomeOf">

@@ -102,13 +102,13 @@ export default class WarBond extends DDBEnricherData {
 
   get override() {
     return {
+      uses: {
+        spent: null,
+        max: "2",
+      },
       data: {
         "flags.ddbimporter": {
           retainUseSpent: true,
-        },
-        "system.uses": {
-          spent: null,
-          max: "2",
         },
       },
     };
