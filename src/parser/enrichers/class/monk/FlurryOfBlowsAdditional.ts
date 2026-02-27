@@ -17,9 +17,7 @@ export default class FlurryOfBlowsAdditional extends DDBEnricherData {
 
   get override() {
     return {
-      data: {
-        "flags.ddbimporter.retainResourceConsumption": true,
-      },
+      retainResourceConsumption: true,
     };
   }
 

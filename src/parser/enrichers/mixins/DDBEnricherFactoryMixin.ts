@@ -2,7 +2,7 @@ import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
-import { IDDBActivityAction } from "../data/types";
+import { IDDBActivityAction, IDDBActivityData, IDDBAdditionalActivity, IDDBDocumentStub, IDDBEffectHint, IDDBItemMacro, IDDBMacroDescriptionData, IDDBOverrideData, IDDBSetMidiOnUseMacroFlag } from "../data/types";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 
 export default class DDBEnricherFactoryMixin {
@@ -100,7 +100,8 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get type(): any {
+  // TO DO improve types here
+  get type(): string | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.type;
     } else {
@@ -108,7 +109,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get activity(): any {
+  get activity(): IDDBActivityData | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.activity;
     } else {
@@ -116,7 +117,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get effects(): any[] {
+  get effects(): IDDBEffectHint[] {
     if (this.loadedEnricher) {
       return this.loadedEnricher.effects;
     } else {
@@ -124,7 +125,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get override(): any {
+  get override(): IDDBOverrideData | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.override;
     } else {
@@ -132,7 +133,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get additionalActivities(): any[] {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.loadedEnricher) {
       return this.loadedEnricher.additionalActivities;
     } else {
@@ -163,7 +164,7 @@ export default class DDBEnricherFactoryMixin {
     return false;
   }
 
-  get documentStub(): any {
+  get documentStub(): IDDBDocumentStub | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.documentStub;
     } else {
@@ -203,7 +204,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get itemMacro(): any {
+  get itemMacro(): IDDBItemMacro | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.itemMacro;
     } else {
@@ -211,7 +212,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get setMidiOnUseMacroFlag(): any {
+  get setMidiOnUseMacroFlag(): IDDBSetMidiOnUseMacroFlag | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.setMidiOnUseMacroFlag;
     } else {
@@ -235,7 +236,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  get ddbMacroDescriptionData(): any {
+  get ddbMacroDescriptionData(): IDDBMacroDescriptionData | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.ddbMacroDescriptionData;
     } else {
@@ -704,10 +705,7 @@ export default class DDBEnricherFactoryMixin {
 
     if (!effectHints || effectHints?.length === 0) return effects;
 
-    for (const effectHintFunction of effectHints) {
-      const effectHint = utils.isFunction(effectHintFunction)
-        ? effectHintFunction()
-        : effectHintFunction;
+    for (const effectHint of effectHints) {
       if (!effectHint) continue;
       if (effectHint.daeNever && AutoEffects.effectModules().daeInstalled) continue;
       if (effectHint.daeOnly && !AutoEffects.effectModules().daeInstalled) continue;
@@ -724,7 +722,7 @@ export default class DDBEnricherFactoryMixin {
       const name = effectHint.name ?? this.name;
       const effectOptions = effectHint.options ?? {};
 
-      let effect: any;
+      let effect: IEffectData;
       let useExistingEffect = false;
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];
@@ -745,8 +743,8 @@ export default class DDBEnricherFactoryMixin {
             if (effectHint.magicalBonus) {
               EnchantmentEffects.addMagicalBonus({
                 effect,
-                nameAddition: effectHint.magicalBonus.name,
-                bonus: effectHint.magicalBonus.bonus,
+                nameAddition: effectHint.magicalBonus.nameAddition,
+                bonus: `${effectHint.magicalBonus.bonus}`,
                 bonusMode: effectHint.magicalBonus.mode,
                 makeMagical: effectHint.magicalBonus.makeMagical,
               });
@@ -775,7 +773,7 @@ export default class DDBEnricherFactoryMixin {
             foundry.utils.setProperty(effect, "duration.seconds", duration.second);
             foundry.utils.setProperty(effect, "duration.rounds", duration.round);
           }
-          const specialDurations = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []);
+          const specialDurations: DAESpecialDuration[] = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []) as DAESpecialDuration[];
           foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
         }
 
@@ -787,15 +785,13 @@ export default class DDBEnricherFactoryMixin {
           ChangeHelper.addStatusEffectChange({
             effect,
             statusName: splitStatus[0],
-            level: splitStatus.length > 1 ? splitStatus[1] : null,
+            level: splitStatus.length > 1 ? parseInt(splitStatus[1]) : null,
           });
         }
       }
 
       if (effectHint.changes) {
-        const changes = utils.isFunction(effectHint.changes)
-          ? effectHint.changes(this.data)
-          : effectHint.changes;
+        const changes = effectHint.changes;
         if (effectHint.changesOverwrite) effect.changes = changes;
         else effect.changes.push(...changes);
       }
@@ -975,6 +971,18 @@ export default class DDBEnricherFactoryMixin {
 
     if (override.forceSpellAdvancement) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.forceSpellAdvancement", true);
+    }
+
+    if (override.retainResourceConsumption) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.retainResourceConsumption", true);
+    }
+
+    if (override.retainUseSpent) {
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.retainUseSpent", true);
+    }
+
+    if (override.uses) {
+      foundry.utils.setProperty(this.data, "system.uses", override.uses);
     }
 
     if (override.data) this.data = foundry.utils.mergeObject(this.data, override.data);

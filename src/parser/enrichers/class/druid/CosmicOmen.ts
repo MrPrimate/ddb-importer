@@ -30,7 +30,7 @@ export default class CosmicOmen extends DDBEnricherData {
           uses: {
             spent: null,
             max: "@abilities.wis.mod",
-            reovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
+            recovery: [{ period: "lr", type: 'recoverAll', formula: "" }],
           },
         },
       },

@@ -1,4 +1,5 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import { IDDBAdditionalActivity } from "../../data/types";
 
 export default class ArcaneWard extends DDBEnricherData {
   get type() {
@@ -71,7 +72,7 @@ export default class ArcaneWard extends DDBEnricherData {
           itemConsumeValue: "-(@scaling * 2)",
         },
       },
-    ];
+    ] as IDDBAdditionalActivity[];
     if (!this.is2014) {
       additional.push({
         init: {
@@ -129,8 +130,8 @@ export default class ArcaneWard extends DDBEnricherData {
 
     return {
       descriptionSuffix,
+      retainResourceConsumption: true,
       data: {
-        "flags.ddbimporter.retainResourceConsumption": true,
         "system.uses": {
           spent,
           max: "(2 * @classes.wizard.levels) + @abilities.int.mod",

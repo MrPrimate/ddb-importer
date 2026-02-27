@@ -5,10 +5,8 @@ export default class MartialAdept extends DDBEnricherData {
 
   get override() {
     return {
+      retainResourceConsumption: true,
       data: {
-        "flags.ddbimporter.dndbeyond": {
-          retainResourceConsumption: true,
-        },
         "system.uses": this.hasClassFeature({ featureName: "Combat Superiority", className: "Fighter" })
           ? {
             spent: null,

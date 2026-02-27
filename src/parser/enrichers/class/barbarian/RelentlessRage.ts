@@ -53,6 +53,8 @@ export default class RelentlessRage extends DDBEnricherData {
 
   get override() {
     return {
+      retainResourceConsumption: true,
+      retainUseSpent: true,
       data: {
         "system.uses": {
           spent: 0,
@@ -63,10 +65,6 @@ export default class RelentlessRage extends DDBEnricherData {
               type: "recoverAll",
             },
           ],
-        },
-        "flags.ddbimporter": {
-          retainResourceConsumption: true,
-          retainUseSpent: true,
         },
       },
     };

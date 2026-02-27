@@ -28,15 +28,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
   get override() {
     if (this.is2014) return null;
     return {
+      retainResourceConsumption: true,
+      retainUseSpent: true,
       data: {
         "system.uses": {
           spent: 0,
           max: "@scale.alchemist.experimental-elixir",
           recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
-        },
-        "flags.ddbimporter": {
-          retainResourceConsumption: true,
-          retainUseSpent: true,
         },
       },
     };

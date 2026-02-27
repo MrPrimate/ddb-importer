@@ -53,11 +53,9 @@ export default class TomeOf extends DDBEnricherData {
 
   get override() {
     return {
+      retainResourceConsumption: true,
+      retainUseSpent: true,
       data: {
-        "flags.ddbimporter": {
-          retainResourceConsumption: true,
-          retainUseSpent: true,
-        },
         "system.uses": {
           spent: null,
           max: "48",

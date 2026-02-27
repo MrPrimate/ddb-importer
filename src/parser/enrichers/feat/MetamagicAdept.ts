@@ -5,10 +5,8 @@ export default class MetamagicAdept extends DDBEnricherData {
 
   get override() {
     return {
+      retainResourceConsumption: true,
       data: {
-        "flags.ddbimporter.dndbeyond": {
-          retainResourceConsumption: true,
-        },
         "system.uses": this.hasClassFeature({ featureName: "Font of Magic", className: "Sorcerer" })
           ? {
             spent: null,

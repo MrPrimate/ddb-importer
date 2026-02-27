@@ -11,6 +11,39 @@ global {
     priority: number;
   }
 
+  type DAESpecialDuration =
+    // Turn/Combat timing
+    | "turnStart"
+    | "turnEnd"
+    | "turnStartSource"
+    | "turnEndSource"
+    | "combatEnd"
+    // Attack/Action triggers
+    | "1Action"
+    | "1Attack"
+    | "1Attack:mwak"
+    | "1Attack:rwak"
+    | "1Reaction"
+    | "1Save"
+    | "1Spell"
+    // Condition triggers
+    | "isAttacked"
+    | "isDamaged"
+    | "DamageDealt"
+    | "isSave"
+    | "isInitiative"
+    | "Initiative"
+    // Skill check triggers
+    | "isSkill.acr"
+    | "isSkill.ath"
+    | "isSkill.his"
+    | "isSkill.ins"
+    | "isSkill.inv"
+    | "isSkill.itm"
+    | "isSkill.per"
+    | "isSkill.prf"
+    | "isSkill.ste";
+
   export interface IEffectData {
     img?: string;
     name?: string;
@@ -35,6 +68,7 @@ global {
         showIcon: boolean | null;
         transfer: boolean;
         stackable: string;
+        specialDuration: DAESpecialDuration[];
         // armorEffect?: boolean;
       };
       ddbimporter?: {

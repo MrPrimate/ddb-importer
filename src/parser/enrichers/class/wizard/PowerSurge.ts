@@ -26,12 +26,10 @@ export default class PowerSurge extends DDBEnricherData {
       { "period": "lr", "type": "formula", "formula": "1 - @item.uses.value" },
     ];
     return {
+      retainResourceConsumption: true,
+      retainUseSpent: true,
       data: {
         "system.uses": uses,
-        "flags.ddbimporter": {
-          retainResourceConsumption: true,
-          retainUseSpent: true,
-        },
       },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbPowerSurge">

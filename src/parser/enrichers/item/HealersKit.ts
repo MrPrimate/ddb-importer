@@ -12,18 +12,18 @@ export default class HealersKit extends DDBEnricherData {
       activationType: "action",
       targetType: "creature",
       data: {
-        "range.units": "touch",
+        range: {
+          units: "touch",
+        },
       },
     };
   }
 
   get override() {
     return {
+      retainResourceConsumption: true,
+      retainUseSpent: true,
       data: {
-        "flags.ddbimporter": {
-          retainResourceConsumption: true,
-          retainUseSpent: true,
-        },
         "system.uses": {
           spent: null,
           max: "10",

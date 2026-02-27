@@ -2,6 +2,8 @@
 // Type definitions for DDBEnricherData
 // ---------------------------------------------------------------------------
 
+import { STATUSES } from "../../../config/dictionary/effects/data";
+
 // -- Damage Parts -----------------------------------------------------------
 
 export interface IDDBDamagePartCustom {
@@ -277,10 +279,10 @@ export interface IDDBEffectHint {
 
   // DAE
   daeStackable?: string;
-  daeSpecialDurations?: string[];
+  daeSpecialDurations?: DAESpecialDuration[];
 
   // Status effects
-  statuses?: string[];
+  statuses?: typeof STATUSES[];
   riderStatuses?: string[];
 
   // Activity matching
@@ -332,6 +334,9 @@ export interface IDDBOverrideData {
   forceSpellAdvancement?: boolean;
   descriptionSuffix?: string;
   ddbMacroDescription?: boolean;
+  retainResourceConsumption?: boolean;
+  retainUseSpent?: boolean;
+  uses: I5eSystemLimitedUses;
   // To Do add a data object here with flags
   data?: Record<string, any>;
   midiManualReaction?: boolean;

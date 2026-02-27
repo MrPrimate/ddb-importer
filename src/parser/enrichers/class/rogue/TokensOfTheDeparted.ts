@@ -49,12 +49,10 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     uses.spent = Math.max((this.ddbParser.ddbCharacter?.profBonus ?? 2) - uses.spent, 0);
 
     return {
+      retainResourceConsumption: true,
+      retainUseSpent: true,
       data: {
         "system.uses": uses,
-        "flags.ddbimporter": {
-          retainResourceConsumption: true,
-          retainUseSpent: true,
-        },
       },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbTokensOfTheDeparted">

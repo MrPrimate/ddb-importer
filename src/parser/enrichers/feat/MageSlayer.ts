@@ -11,11 +11,9 @@ export default class MageSlayer extends DDBEnricherData {
 
   get override() {
     return {
+      retainResourceConsumption: true,
       data: {
         name: "Mage Slayer",
-        "flags.ddbimporter.dndbeyond": {
-          retainResourceConsumption: true,
-        },
         "system.uses": {
           spent: null,
           max: "1",
