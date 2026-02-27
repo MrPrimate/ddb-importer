@@ -1,20 +1,21 @@
 import { logger, utils } from "../../../lib/_module";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 import DDBCompanionMixin from "../DDBCompanionMixin";
+import { ICompanionData } from "./types";
 
 export async function getEldritchCannons2014({
   ddbParser, // this,
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-} = {}) {
+}: ICompanionData) {
   logger.verbose("getEldritchCannon", {
     ddbParser,
     document,
     raw,
     text,
   });
-  const cannonStub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
+  const cannonStub: I5eMonsterData = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     name: "Eldritch Cannon",
     img: "icons/weapons/guns/gun-blunderbuss-gold.webp",
     system: {
@@ -75,7 +76,7 @@ export async function getEldritchCannons2014({
         src: "icons/weapons/guns/gun-blunderbuss-gold.webp",
       },
     },
-  });
+  }) as I5eMonsterData;
 
   const results = {};
 

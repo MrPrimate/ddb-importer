@@ -1,6 +1,7 @@
 import logger from "../../../lib/Logger";
 import DDBCompanionMixin from "../DDBCompanionMixin";
 import { SUMMONS_ACTOR_STUB } from "./_data";
+import { ICompanionData } from "./types";
 
 
 export async function getSpiritualWeapons({
@@ -8,7 +9,7 @@ export async function getSpiritualWeapons({
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-} = {}) {
+}: ICompanionData) {
 
   logger.verbose("getSpiritualWeapons", {
     ddbParser,
@@ -45,7 +46,7 @@ export async function getSpiritualWeapons({
       },
     },
     img: "modules/ddb-importer/img/jb2a/SpiritualWeapon_Shortsword01_02_Spectral_Green_Thumb.webp",
-  });
+  }) as I5eMonsterData;
 
   const action = `<p><em><strong>Move and Attack.</strong></em> ${raw.split("<p><strong><em>Using a Higher-Level")[0]}</p>`;
 

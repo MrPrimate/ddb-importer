@@ -5,6 +5,7 @@
 import logger from "../../../lib/Logger";
 import DDBCompanionMixin from "../DDBCompanionMixin";
 import { SUMMONS_ACTOR_STUB } from "./_data";
+import { ICompanionData } from "./types";
 
 
 export async function getFlamingSphere({
@@ -12,7 +13,7 @@ export async function getFlamingSphere({
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-} = {}) {
+}: ICompanionData) {
 
   logger.verbose("getFlamingSphere", {
     ddbParser,
@@ -75,7 +76,7 @@ export async function getFlamingSphere({
     },
     img: "icons/magic/fire/flame-burning-earth-yellow.webp",
     items: [],
-  });
+  }) as I5eMonsterData;
 
   const desArray = raw.split("Using a Higher-Level Spell Slot")[0].split("At Higher Levels")[0].split("As a");
 

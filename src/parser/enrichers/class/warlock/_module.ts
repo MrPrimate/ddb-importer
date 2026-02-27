@@ -14,6 +14,7 @@ export { default as FiendishResilience } from "./FiendishResilience";
 export { default as FormOfTheBeast } from "./FormOfTheBeast";
 export { default as GeniesVessel } from "./GeniesVessel";
 export { default as GhostlyGaze } from "./GhostlyGaze";
+export { default as GraspingTentacles } from "./GraspingTentacles";
 export { default as HealingLight } from "./HealingLight";
 export { default as HexWarrior } from "./HexWarrior";
 export { default as HurlThroughHell } from "./HurlThroughHell";
@@ -25,5 +26,8 @@ export { default as PactOfTheChain } from "./PactOfTheChain";
 export { default as RadiantSoul } from "./RadiantSoul";
 export { default as SearingVengeance } from "./SearingVengeance";
 export { default as StepsOfTheFey } from "./StepsOfTheFey";
+export { default as TentacleOfTheDeepsAttack } from "./TentacleOfTheDeepsAttack";
+export { default as TentacleOfTheDeepsGuardianCoil } from "./TentacleOfTheDeepsGuardianCoil";
+export { default as TentacleOfTheDeepsSummon } from "./TentacleOfTheDeepsSummon";
 export { default as ThrillOfTheHunt } from "./ThrillOfTheHunt";
 

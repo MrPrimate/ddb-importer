@@ -946,7 +946,7 @@ export default class DDBEffectHelper {
     }
   }
 
-  static findCondition({ conditionName, forceSystemCondition = false } = {}) {
+  static findCondition({ conditionName, forceSystemCondition = false }: { conditionName: string, forceSystemCondition?: boolean }) {
     const condition = CONFIG.statusEffects.find((se) =>
       se.name.toLowerCase() === conditionName.toLowerCase()
       && (!forceSystemCondition || (forceSystemCondition && se._id?.startsWith("dnd5e"))),

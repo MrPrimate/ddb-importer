@@ -1,5 +1,6 @@
 import { logger, utils } from "../../../lib/_module";
 import { SRDExtractor } from "../SRDExtractor";
+import { IArcaneHandData } from "./types";
 
 const EXTRA_ARCANE_HAND_INSTANCES = () => {
   return [
@@ -19,7 +20,7 @@ export async function getArcaneHands2024({
   text, // this.data.system.description,
   name = "Bigby's Hand",
   postfix = "2024",
-} = {}) {
+}: IArcaneHandData) {
 
   logger.verbose(
     "getArcaneHands2024", {

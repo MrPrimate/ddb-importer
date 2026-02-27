@@ -59,6 +59,14 @@ declare global {
   // JSZip library (loaded at runtime, not bundled)
   const JSZip: any;
 
+  namespace CONFIG {
+    interface StatusEffect {
+      name: string;
+      _id: string;
+      reference?: string;
+    }
+  }
+
   interface CONFIG extends CONFIG {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
@@ -73,6 +81,11 @@ declare global {
       }>;
       actorSizes: Record<string, {
         label: string;
+        token?: number;
+        hitDie: number;
+        abbreviation: string;
+        numerical: number;
+        capacityMultiplier: number;
       }>;
       areaTargetTypes: Record<string, {
         label: string;

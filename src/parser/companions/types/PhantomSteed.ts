@@ -2,6 +2,7 @@ import logger from "../../../lib/Logger";
 
 import DDBCompanionMixin from "../DDBCompanionMixin";
 import DDBMonsterFactory from "../../DDBMonsterFactory";
+import { ICompanionData } from "./types";
 
 
 export async function getPhantomSteed({
@@ -9,7 +10,7 @@ export async function getPhantomSteed({
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-} = {}) {
+}: ICompanionData) {
 
   logger.verbose("getPhantomSteed", {
     ddbParser,

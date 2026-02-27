@@ -28,6 +28,8 @@ import { getPhantomSteed } from "./types/PhantomSteed";
 import { getSpiritualWeapons } from "./types/SpiritualWeapon";
 import { getUnseenServant } from "./types/UnseenServant";
 import { getAccursedSpecter } from "./types/AccursedSpecter";
+import { getTentacleOfTheDeeps } from "./types/TentacleOfTheDeeps";
+
 export default class DDBSummonsInterface {
 
   static getAccursedSpecter = getAccursedSpecter;
@@ -87,6 +89,8 @@ export default class DDBSummonsInterface {
   static getPhantomSteed = getPhantomSteed;
 
   static getSpiritualWeapons = getSpiritualWeapons;
+
+  static getTentacleOfTheDeeps = getTentacleOfTheDeeps;
 
   static getUnseenServant = getUnseenServant;
 

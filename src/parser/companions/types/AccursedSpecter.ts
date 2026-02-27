@@ -1,5 +1,6 @@
 import logger from "../../../lib/Logger";
 import DDBMonsterFactory from "../../DDBMonsterFactory";
+import { ICompanionData } from "./types";
 
 
 export async function getAccursedSpecter({
@@ -7,7 +8,7 @@ export async function getAccursedSpecter({
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-} = {}) {
+} : ICompanionData) {
 
   logger.verbose("getAnimateDead", {
     ddbParser,

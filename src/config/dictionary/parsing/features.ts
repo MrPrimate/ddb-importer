@@ -316,6 +316,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Path of the Kensei",
     "Black Magic",
     "Giant's Power",
+    "Metamagic",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",

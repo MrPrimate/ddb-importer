@@ -10,23 +10,23 @@ global {
 
   /** Roll min/max/mode triple used across abilities, skills, death saves, etc. */
   export interface I5eRollConfig {
-    min: number | null;
-    max: number | null;
-    mode: number;
+    min?: number | null;
+    max?: number | null;
+    mode?: number;
   }
 
   // ---- Abilities ------------------------------------------------------------
 
   export interface IMonsterAbilityScore {
-    value: number;
-    proficient: number;
-    max: number | null;
-    mod: number;
+    value?: number;
+    proficient?: number;
+    max?: number | null;
+    mod?: number;
     /** When proficient, overwritten to a computed number; otherwise Foundry default roll config. */
-    save: number | I5eAbilitySaveConfig;
-    dc: number;
-    check: I5eAbilityCheckConfig;
-    bonuses: I5eAbilityBonuses;
+    save?: number | I5eAbilitySaveConfig;
+    dc?: number;
+    check?: I5eAbilityCheckConfig;
+    bonuses?: I5eAbilityBonuses;
     /** Set when proficient — proficiency bonus value. */
     prof?: number;
     /** Set when proficient — additional save bonus from source data. */
@@ -34,7 +34,7 @@ global {
   }
 
   export interface I5eAbilitySaveConfig {
-    roll: I5eRollConfig;
+    roll?: I5eRollConfig;
   }
 
   export interface I5eAbilityCheckConfig {
@@ -42,8 +42,8 @@ global {
   }
 
   export interface I5eAbilityBonuses {
-    check: string;
-    save: string;
+    check?: string;
+    save?: string;
   }
 
   export type IMonsterAbilities = Record<string, IMonsterAbilityScore>;
@@ -51,10 +51,10 @@ global {
   // ---- Attributes -----------------------------------------------------------
 
   export interface I5eArmorClass {
-    calc: string;
-    flat: number | null;
-    formula: string;
-    label: string;
+    calc?: string;
+    flat?: number | null;
+    formula?: string;
+    label?: string;
   }
 
   export interface I5eAttunement {
@@ -62,119 +62,119 @@ global {
   }
 
   export interface I5eConcentration {
-    ability: string;
-    bonuses: { save: string };
-    limit: number;
-    roll: I5eRollConfig;
+    ability?: string;
+    bonuses?: { save: string };
+    limit?: number;
+    roll?: I5eRollConfig;
   }
 
   export interface I5eDeathSaves {
-    bonuses: { save: string };
-    failure: number;
-    success: number;
-    roll: I5eRollConfig;
+    bonuses?: { save: string };
+    failure?: number;
+    success?: number;
+    roll?: I5eRollConfig;
   }
 
   export interface I5eHitDice {
-    spent: number;
+    spent?: number;
   }
 
   export interface I5eHitPoints {
-    formula: string;
-    max: number;
-    min: number;
-    temp: number;
-    tempmax: number;
-    value: number;
+    formula?: string;
+    max?: number;
+    min?: number;
+    temp?: number;
+    tempmax?: number;
+    value?: number;
   }
 
   export interface I5eInitiative {
-    ability: string;
-    bonus: string;
-    roll: I5eRollConfig;
+    ability?: string;
+    bonus?: string;
+    roll?: I5eRollConfig;
   }
 
   export interface I5eMovement {
-    walk?: number;
-    burrow?: number;
-    climb?: number;
-    fly?: number;
-    swim?: number;
-    hover: boolean;
-    units: string;
-    ignoredDifficultTerrain: string[];
+    walk?: string | number | null;
+    burrow?: string | number | null;
+    climb?: string | number | null;
+    fly?: string | number | null;
+    swim?: string | number | null;
+    hover?: boolean;
+    units?: string;
+    ignoredDifficultTerrain?: string[];
   }
 
   export interface I5ePrice {
-    denomination: string;
-    value: number | null;
+    denomination?: string;
+    value?: number | null;
   }
 
   export interface I5eSenses {
-    blindsight: number;
-    darkvision: number;
-    tremorsense: number;
-    truesight: number;
-    special: string;
-    units: string;
+    blindsight?: number;
+    darkvision?: number;
+    tremorsense?: number;
+    truesight?: number;
+    special?: string;
+    units?: string;
   }
 
   export interface I5eSpellAttribute {
-    level: number;
+    level?: number;
   }
 
   export interface I5eAttributes {
-    ac: I5eArmorClass;
-    attunement: I5eAttunement;
-    concentration: I5eConcentration;
-    death: I5eDeathSaves;
-    exhaustion: number;
-    hd: I5eHitDice;
-    hp: I5eHitPoints;
-    init: I5eInitiative;
-    loyalty: Record<string, never>;
-    movement: I5eMovement;
-    price: I5ePrice;
-    prof: number;
-    senses: I5eSenses;
-    spell: I5eSpellAttribute;
-    spellcasting: string;
+    ac?: I5eArmorClass;
+    attunement?: I5eAttunement;
+    concentration?: I5eConcentration;
+    death?: I5eDeathSaves;
+    exhaustion?: number;
+    hd?: I5eHitDice;
+    hp?: I5eHitPoints;
+    init?: I5eInitiative;
+    loyalty?: Record<string, never>;
+    movement?: I5eMovement;
+    price?: I5ePrice;
+    prof?: number;
+    senses?: I5eSenses;
+    spell?: I5eSpellAttribute;
+    spellcasting?: string;
   }
 
   // ---- Bonuses --------------------------------------------------------------
 
   export interface I5eAbilityBonusGroup {
-    check: string;
-    save: string;
-    skill: string;
+    check?: string;
+    save?: string;
+    skill?: string;
   }
 
   export interface I5eAttackBonus {
-    attack: string;
-    damage: string;
+    attack?: string;
+    damage?: string;
   }
 
   export interface I5eSpellBonus {
-    dc: string;
+    dc?: string;
   }
 
   export interface I5eBonuses {
-    abilities: I5eAbilityBonusGroup;
-    msak: I5eAttackBonus;
-    mwak: I5eAttackBonus;
-    rsak: I5eAttackBonus;
-    rwak: I5eAttackBonus;
-    spell: I5eSpellBonus;
+    abilities?: I5eAbilityBonusGroup;
+    msak?: I5eAttackBonus;
+    mwak?: I5eAttackBonus;
+    rsak?: I5eAttackBonus;
+    rwak?: I5eAttackBonus;
+    spell?: I5eSpellBonus;
   }
 
   // ---- Currency -------------------------------------------------------------
 
   export interface I5eCurrency {
-    cp: number;
-    sp: number;
-    ep: number;
-    gp: number;
-    pp: number;
+    cp?: number;
+    sp?: number;
+    ep?: number;
+    gp?: number;
+    pp?: number;
   }
 
   // ---- Details --------------------------------------------------------------
@@ -185,8 +185,8 @@ global {
   }
 
   export interface I5eCreatureType {
-    value: string;
-    subtype: string;
+    value?: string;
+    subtype?: string;
   }
 
   export interface I5eXP {
@@ -199,8 +199,8 @@ global {
   }
 
   export interface I5eHabitat {
-    custom: string;
-    value: I5eHabitatEntry[];
+    custom?: string;
+    value?: I5eHabitatEntry[];
   }
 
   export interface I5eTreasure {
@@ -208,51 +208,51 @@ global {
   }
 
   export interface I5eDetails {
-    alignment: string;
-    biography: I5eBiography;
-    bond: string;
-    cr: number;
-    environment: string;
-    flaw: string;
-    habitat: I5eHabitat;
-    ideal: string;
-    race: string | null;
-    treasure: I5eTreasure;
-    type: I5eCreatureType;
-    xp: I5eXP;
+    alignment?: string;
+    biography?: I5eBiography;
+    bond?: string;
+    cr?: number;
+    environment?: string;
+    flaw?: string;
+    habitat?: I5eHabitat;
+    ideal?: string;
+    race?: string | null;
+    treasure?: I5eTreasure;
+    type?: I5eCreatureType;
+    xp?: I5eXP;
   }
 
   // ---- Resources ------------------------------------------------------------
 
   export interface I5eLairResource {
-    value: boolean;
-    initiative: number | null;
+    value?: boolean;
+    initiative?: number | null;
   }
 
   export interface I5eLegendaryResource {
-    value: number;
-    max: number;
+    value?: number;
+    max?: number;
   }
 
   export interface I5eResources {
-    lair: I5eLairResource;
-    legact: I5eLegendaryResource;
-    legres: I5eLegendaryResource;
+    lair?: I5eLairResource;
+    legact?: I5eLegendaryResource;
+    legres?: I5eLegendaryResource;
   }
 
   // ---- Skills ---------------------------------------------------------------
 
   export interface I5eSkill {
-    ability: string;
-    value: number;
-    mod: number;
-    passive: number | null;
-    total: number | null;
-    bonuses: {
-      check: string;
-      passive: string;
+    ability?: string;
+    value?: number;
+    mod?: number;
+    passive?: number | null;
+    total?: number | null;
+    bonuses?: {
+      check?: string;
+      passive?: string;
     };
-    roll: I5eRollConfig;
+    roll?: I5eRollConfig;
   }
 
   export type I5eSkills = Record<string, I5eSkill>;
@@ -260,13 +260,13 @@ global {
   // ---- Source ---------------------------------------------------------------
 
   export interface I5eSourceInfo {
-    book: string;
-    custom: string;
-    id: number;
-    license: string;
-    page: string;
-    rules: string;
-    sourceCategoryId: number;
+    book?: string;
+    custom?: string;
+    id?: number;
+    license?: string;
+    page?: string;
+    rules?: string;
+    sourceCategoryId?: number;
   }
 
   // ---- Spell Slots ----------------------------------------------------------
@@ -278,67 +278,67 @@ global {
   }
 
   export interface I5eSpellSlots {
-    pact: I5eSpellSlot;
-    spell1: I5eSpellSlot;
-    spell2: I5eSpellSlot;
-    spell3: I5eSpellSlot;
-    spell4: I5eSpellSlot;
-    spell5: I5eSpellSlot;
-    spell6: I5eSpellSlot;
-    spell7: I5eSpellSlot;
-    spell8: I5eSpellSlot;
-    spell9: I5eSpellSlot;
+    pact?: I5eSpellSlot;
+    spell1?: I5eSpellSlot;
+    spell2?: I5eSpellSlot;
+    spell3?: I5eSpellSlot;
+    spell4?: I5eSpellSlot;
+    spell5?: I5eSpellSlot;
+    spell6?: I5eSpellSlot;
+    spell7?: I5eSpellSlot;
+    spell8?: I5eSpellSlot;
+    spell9?: I5eSpellSlot;
   }
 
   // ---- Traits ---------------------------------------------------------------
 
   export interface I5eDamageTraitSet {
-    value: string[];
-    bypasses: string[];
-    custom: string;
+    value?: string[];
+    bypasses?: string[];
+    custom?: string;
   }
 
   export interface I5eDamageModification {
-    amount: Record<string, number>;
-    bypasses: string[];
+    amount?: Record<string, number>;
+    bypasses?: string[];
   }
 
   export interface I5eConditionTraitSet {
-    value: string[];
-    custom: string;
+    value?: string[];
+    custom?: string;
   }
 
   export interface I5eLanguages {
-    value: string[];
-    custom: string;
+    value?: string[];
+    custom?: string;
   }
 
   export interface I5eTraits {
-    ci: I5eConditionTraitSet;
-    di: I5eDamageTraitSet;
-    dm: I5eDamageModification;
-    dr: I5eDamageTraitSet;
-    dv: I5eDamageTraitSet;
-    important: boolean;
-    languages: I5eLanguages;
-    size: string;
+    ci?: I5eConditionTraitSet;
+    di?: I5eDamageTraitSet;
+    dm?: I5eDamageModification;
+    dr?: I5eDamageTraitSet;
+    dv?: I5eDamageTraitSet;
+    important?: boolean;
+    languages?: I5eLanguages;
+    size?: string;
   }
 
   // ---- System (top-level) ---------------------------------------------------
 
   export interface I5eMonsterSystemData {
-    abilities: IMonsterAbilities;
-    attributes: I5eAttributes;
-    bonuses: I5eBonuses;
-    currency: I5eCurrency;
-    details: I5eDetails;
-    identifier: string;
-    resources: I5eResources;
-    skills: I5eSkills;
-    source: I5eSourceInfo;
-    spells: I5eSpellSlots;
-    tools: Record<string, any>;
-    traits: I5eTraits;
+    abilities?: IMonsterAbilities;
+    attributes?: I5eAttributes;
+    bonuses?: I5eBonuses;
+    currency?: I5eCurrency;
+    details?: I5eDetails;
+    identifier?: string;
+    resources?: I5eResources;
+    skills?: I5eSkills;
+    source?: I5eSourceInfo;
+    spells?: I5eSpellSlots;
+    tools?: Record<string, any>;
+    traits?: I5eTraits;
   }
 
   // ---- Prototype Token ------------------------------------------------------
@@ -354,115 +354,115 @@ global {
   }
 
   export interface I5eTokenTexture {
-    src: string;
-    tint: string;
-    alphaThreshold: number;
-    anchorX: number;
-    anchorY: number;
-    fit: string;
-    offsetX: number;
-    offsetY: number;
-    rotation: number;
-    scaleX: number;
-    scaleY: number;
+    src?: string;
+    tint?: string;
+    alphaThreshold?: number;
+    anchorX?: number;
+    anchorY?: number;
+    fit?: string;
+    offsetX?: number;
+    offsetY?: number;
+    rotation?: number;
+    scaleX?: number;
+    scaleY?: number;
   }
 
   export interface I5eTokenSight {
-    enabled: boolean;
-    range: number;
-    angle: number;
-    visionMode: string;
-    attenuation: number;
-    brightness: number;
-    saturation: number;
-    contrast: number;
+    enabled?: boolean;
+    range?: number;
+    angle?: number;
+    visionMode?: string;
+    attenuation?: number;
+    brightness?: number;
+    saturation?: number;
+    contrast?: number;
   }
 
   export interface I5eTokenLightAnimation {
-    type: string | null;
-    speed: number;
-    intensity: number;
-    reverse: boolean;
+    type?: string | null;
+    speed?: number;
+    intensity?: number;
+    reverse?: boolean;
   }
 
   export interface I5eTokenLight {
-    alpha: number;
-    angle: number;
-    bright: number;
-    dim: number;
-    color: string | null;
-    coloration: number;
-    luminosity: number;
-    saturation: number;
-    contrast: number;
-    attenuation: number;
-    negative: boolean;
-    priority: number;
-    shadows: number;
-    animation: I5eTokenLightAnimation;
-    darkness: { min: number; max: number };
+    alpha?: number;
+    angle?: number;
+    bright?: number;
+    dim?: number;
+    color?: string | null;
+    coloration?: number;
+    luminosity?: number;
+    saturation?: number;
+    contrast?: number;
+    attenuation?: number;
+    negative?: boolean;
+    priority?: number;
+    shadows?: number;
+    animation?: I5eTokenLightAnimation;
+    darkness?: { min: number; max: number };
   }
 
   export interface I5eTokenRing {
-    enabled: boolean;
-    effects: number;
-    colors: { ring: string | null; background: string | null };
-    subject: { texture: string; scale: number };
+    enabled?: boolean;
+    effects?: number;
+    colors?: { ring: string | null; background: string | null };
+    subject?: { texture: string; scale: number };
   }
 
   export interface I5eTokenTurnMarker {
-    mode: number;
-    disposition: boolean;
-    animation: string | null;
-    src: string | null;
+    mode?: number;
+    disposition?: boolean;
+    animation?: string | null;
+    src?: string | null;
   }
 
   export interface I5ePrototypeToken {
-    name: string;
-    displayName: number;
-    actorLink: boolean;
-    appendNumber: boolean;
-    prependAdjective: boolean;
-    width: number;
-    height: number;
-    lockRotation: boolean;
-    rotation: number;
-    alpha: number;
-    disposition: number;
-    displayBars: number;
-    bar1: I5eTokenBar;
-    bar2: I5eTokenBar;
-    light: I5eTokenLight;
-    sight: I5eTokenSight;
-    texture: I5eTokenTexture;
-    ring: I5eTokenRing;
-    detectionModes: I5eTokenDetectionMode[];
-    occludable: { radius: number };
-    randomImg: boolean;
-    movementAction: string | null;
-    turnMarker: I5eTokenTurnMarker;
-    flags: Record<string, any>;
+    name?: string;
+    displayName?: number;
+    actorLink?: boolean;
+    appendNumber?: boolean;
+    prependAdjective?: boolean;
+    width?: number;
+    height?: number;
+    lockRotation?: boolean;
+    rotation?: number;
+    alpha?: number;
+    disposition?: number;
+    displayBars?: number;
+    bar1?: I5eTokenBar;
+    bar2?: I5eTokenBar;
+    light?: I5eTokenLight;
+    sight?: I5eTokenSight;
+    texture?: I5eTokenTexture;
+    ring?: I5eTokenRing;
+    detectionModes?: I5eTokenDetectionMode[];
+    occludable?: { radius: number };
+    randomImg?: boolean;
+    movementAction?: string | null;
+    turnMarker?: I5eTokenTurnMarker;
+    flags?: Record<string, any>;
   }
 
   // ---- Document stats -------------------------------------------------------
 
   export interface I5eDocumentStats {
-    systemId: string;
-    systemVersion: string;
-    coreVersion: string;
-    compendiumSource: string | null;
-    duplicateSource: string | null;
-    exportSource: string | null;
-    lastModifiedBy: string | null;
+    systemId?: string;
+    systemVersion?: string;
+    coreVersion?: string;
+    compendiumSource?: string | null;
+    duplicateSource?: string | null;
+    exportSource?: string | null;
+    lastModifiedBy?: string | null;
   }
 
   // ---- Monster Munch flags --------------------------------------------------
 
   export interface IMonsterMunchFlags {
-    url: string;
-    img: string;
-    tokenImg: string;
-    isStockImg: boolean;
+    url?: string;
+    img?: string;
+    tokenImg?: string;
+    isStockImg?: boolean;
     spellList?: Record<string, any>;
     overTime?: any[];
   }
@@ -974,18 +974,18 @@ global {
   // ---- Top-level NPC document -----------------------------------------------
 
   export interface I5eMonsterData {
-    _id: string;
+    _id?: string;
     name: string;
     type: "npc";
     system: I5eMonsterSystemData;
-    img: string;
+    img?: string;
     items: I5eMonsterItem[];
-    flags: IActorFlagConfig & { monsterMunch?: IMonsterMunchFlags };
+    flags?: IActorFlagConfig & { monsterMunch?: IMonsterMunchFlags };
     effects: IEffectData[];
-    folder: string | null;
-    sort: number;
-    ownership: Record<string, number>;
-    prototypeToken: I5ePrototypeToken;
-    _stats: I5eDocumentStats;
+    folder?: string | null;
+    sort?: number;
+    ownership?: Record<string, number>;
+    prototypeToken?: I5ePrototypeToken;
+    _stats?: I5eDocumentStats;
   }
 }

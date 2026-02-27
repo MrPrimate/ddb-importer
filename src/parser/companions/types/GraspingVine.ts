@@ -1,6 +1,7 @@
 import logger from "../../../lib/Logger";
 import DDBCompanionMixin from "../DDBCompanionMixin";
 import { SUMMONS_ACTOR_STUB } from "./_data";
+import { ICompanionData } from "./types";
 
 
 export async function getGraspingVines({
@@ -8,7 +9,7 @@ export async function getGraspingVines({
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-} = {}) {
+}: ICompanionData) {
 
   logger.verbose("getGraspingVines", {
     ddbParser,
@@ -37,7 +38,7 @@ export async function getGraspingVines({
       },
     },
     img: "icons/magic/nature/root-vine-beanstalk-moon.webp",
-  });
+  }) as I5eMonsterData;
 
   const description = `<p><em><strong>Vine Attack.</strong></em> ${(ddbParser.is2014 ? raw : raw.split("\r\n")[1]).replace("<p>", "")}</p>`;
 

@@ -171,7 +171,7 @@ const animals2024 = [
   },
 ];
 
-export async function getFindFamiliarActivityData(activity, options) {
+export async function getFindFamiliarActivityData(activity: I5eActivity, options: any) {
   const is2014 = options.is2014;
   const rules = is2014 ? "2014" : "2024";
 

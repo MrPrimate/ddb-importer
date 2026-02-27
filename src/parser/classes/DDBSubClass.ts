@@ -601,7 +601,7 @@ export default class DDBSubClass extends DDBClass {
     }
   }
 
-   
+
   async _fixes() {
     this._fightingStyleAdvancement();
     this._bloodHunterFixes();

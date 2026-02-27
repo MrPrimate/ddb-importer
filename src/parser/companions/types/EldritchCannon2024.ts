@@ -1,6 +1,7 @@
 import { logger } from "../../../lib/_module";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 import DDBCompanionMixin from "../DDBCompanionMixin";
+import { ICompanionData } from "./types";
 
 // const ELRITCH_CANNON_ABILITY_STUB = {
 //   id: 1,
@@ -75,7 +76,7 @@ export async function getEldritchCannons2024({
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-} = {}) {
+}: ICompanionData) {
   logger.verbose("getEldritchCannon", {
     ddbParser,
     document,
@@ -144,7 +145,7 @@ export async function getEldritchCannons2024({
         src: "icons/weapons/guns/gun-blunderbuss-gold.webp",
       },
     },
-  });
+  }) as I5eMonsterData;
 
   const results = {};
 
