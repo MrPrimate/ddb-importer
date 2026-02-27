@@ -518,6 +518,22 @@ global {
     onSave: string | null;
   }
 
+  // -- Consumption Targets ----------------------------------------------------
+
+  export interface I5eConsumptionTargetScaling {
+    allowed?: boolean;
+    mode?: "" | "amount" | "level" | string;
+    max?: string;
+    formula?: string;
+  }
+
+  export interface I5eConsumptionTarget {
+    type: "itemUses" | "activityUses" | "spellSlots" | "attribute" | string;
+    target: string;
+    value: string | number;
+    scaling?: I5eConsumptionTargetScaling;
+  }
+
   // ---- Activities -----------------------------------------------------------
 
   export interface I5eActivityActivation {
@@ -528,7 +544,7 @@ global {
   }
 
   export interface I5eActivityConsumption {
-    targets: any[];
+    targets: I5eConsumptionTarget[];
     scaling: { allowed: boolean; max: string };
     spellSlot?: boolean;
   }
@@ -648,12 +664,26 @@ global {
     spell: Record<string, any>;
   }
 
+  export interface I5eSummonsMatch {
+    proficiency?: boolean;
+    attacks?: boolean;
+    saves?: boolean;
+  }
+
+  export interface I5eSummonsBonuses {
+    ac?: string;
+    hp?: string;
+    attackDamage?: string;
+    saveDamage?: string;
+    healing?: string;
+  }
+
   export interface I5eSummonActivity extends I5eActivityBase {
     type: "summon";
-    bonuses: Record<string, any>;
+    bonuses: I5eSummonsBonuses;
     creatureSizes: string[];
     creatureTypes: string[];
-    match: Record<string, any>;
+    match: I5eSummonsMatch;
     profiles: any[];
     summon: Record<string, any>;
   }

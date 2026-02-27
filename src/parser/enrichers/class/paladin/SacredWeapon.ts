@@ -1,5 +1,4 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
-import { IDDBEffectHint } from "../../data/types";
 
 export default class SacredWeapon extends DDBEnricherData {
 

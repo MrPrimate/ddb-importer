@@ -1,5 +1,4 @@
 import DDBEnricherData from "../data/DDBEnricherData";
-import type { IDDBOverrideData } from "../data/types";
 
 export default class Generic extends DDBEnricherData {
 

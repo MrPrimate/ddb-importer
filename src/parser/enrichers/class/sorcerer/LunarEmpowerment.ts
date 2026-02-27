@@ -1,5 +1,4 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
-import { IDDBActivityData, IDDBEffectHint } from "../../data/types";
 
 export default class LunarEmpowerment extends DDBEnricherData {
 

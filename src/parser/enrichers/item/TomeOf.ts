@@ -2,6 +2,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class TomeOf extends DDBEnricherData {
 
+  effectData: any;
+
   get type() {
     return "utility";
   }

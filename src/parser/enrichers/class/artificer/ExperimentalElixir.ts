@@ -1,7 +1,6 @@
 import { SETTINGS } from "../../../../config/_module";
 import { DDBCompendiumFolders, DDBItemImporter, utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
-import { IDDBAdditionalActivity } from "../../data/types";
 
 export default class ExperimentalElixir extends DDBEnricherData {
   handler: DDBItemImporter;
@@ -687,7 +686,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     for (const elixir of this.elixirs) {
       const uuid = this.handler.compendiumIndex.find((e) => e._id === elixir._id)?.uuid
         ?? this.handler.compendiumIndex.find((e) =>
-          e.name === elixir.name
+          foundry.utils.getProperty(e, "name") === elixir.name
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === elixir.flags?.ddbimporter?.is2014
         )?.uuid;
       if (!uuid) continue;

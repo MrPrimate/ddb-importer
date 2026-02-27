@@ -1,5 +1,4 @@
 import Generic from "../Generic";
-import type { IDDBEffectHint } from "../../data/types";
 
 export default class EmboldeningBond extends Generic {
 

@@ -47,7 +47,7 @@ global {
   export interface IEffectData {
     img?: string;
     name?: string;
-    statuses?: typeof STATUSES[];
+    statuses?: typeof STATUSES;
     changes?: IActiveEffectChangeData[];
     duration?: IEffectDuration;
     tint?: string;

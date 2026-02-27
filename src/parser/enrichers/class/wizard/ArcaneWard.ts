@@ -1,5 +1,4 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
-import { IDDBAdditionalActivity } from "../../data/types";
 
 export default class ArcaneWard extends DDBEnricherData {
   get type() {

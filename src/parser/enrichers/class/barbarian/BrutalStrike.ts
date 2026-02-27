@@ -77,7 +77,6 @@ export default class BrutalStrike extends DDBEnricherData {
           },
         ],
         "max": "1",
-        },
       },
     };
   }

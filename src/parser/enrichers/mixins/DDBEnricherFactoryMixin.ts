@@ -2,7 +2,6 @@ import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
-import { IDDBActivityAction, IDDBActivityData, IDDBAdditionalActivity, IDDBDocumentStub, IDDBEffectHint, IDDBItemMacro, IDDBMacroDescriptionData, IDDBOverrideData, IDDBSetMidiOnUseMacroFlag } from "../data/types";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 
 export default class DDBEnricherFactoryMixin {
