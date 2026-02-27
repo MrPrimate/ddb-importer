@@ -16,6 +16,7 @@ export { default as HonedSpellfire } from "./HonedSpellfire";
 export { default as HoundOfIllOmen } from "./HoundOfIllOmen";
 export { default as InnateSorcery } from "./InnateSorcery";
 export { default as LunarEmpowerment } from "./LunarEmpowerment";
+export { default as LunarPhenomenon } from "./LunarPhenomenon";
 export { default as MetamagicGeneric } from "./MetamagicGeneric";
 export { default as MetamagicOptions } from "./MetamagicOptions";
 export { default as PsionicSorcery } from "./PsionicSorcery";
