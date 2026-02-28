@@ -73,6 +73,17 @@ declare global {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
     DND5E: {
+      spellPreparationStates: {
+        prepared: {
+          value: number;
+        };
+        unprepared: {
+          value: number;
+        };
+        always: {
+          value: number;
+        };
+      };
       dieSteps: number[];
       abilities: Record<string, {
         label: string;

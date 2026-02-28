@@ -190,13 +190,14 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
   if (game.user.isGM) await monsterFactory.processIntoCompendium(mapInUse.map((i) => i.id));
 
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
-  const indexOptions = { fields: ["name", "system.source.rules"] } as CompendiumCollection.ExtendedGetIndexOptions<"Actor">;
+  const indexOptions = { fields: ["name", "system.source.rules"] } as CompendiumCollection.GetIndexOptions<"Actor">;
   await ddbCompendium?.getIndex(indexOptions);
 
   const profiles = [];
 
   for (const familiar of mapInUse) {
-    const i = ddbCompendium?.index.find((i) => i.name === familiar.name && i.system?.source?.rules === rules);
+    const i = ddbCompendium?.index.find((i) => i.name === familiar.name
+      && foundry.utils.getProperty(i, "system.source.rules") === rules);
     if (i) profiles.push({
       name: familiar.name,
       uuid: i.uuid,
