@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class UseMagicDeviceScroll extends DDBEnricherData {
 
   get type() {
-    return "check";
+    return DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
   get activity() {

@@ -4,7 +4,7 @@ export default class BreathWeapon2024 extends DDBEnricherData {
 
   get type() {
     if (this.is2014) return null;
-    return "save";
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   get damageType() {

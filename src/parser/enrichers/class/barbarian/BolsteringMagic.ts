@@ -3,7 +3,7 @@ import Generic from "../Generic";
 export default class BolsteringMagic extends Generic {
 
   get type() {
-    return this.isAction ? "none" : "utility";
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

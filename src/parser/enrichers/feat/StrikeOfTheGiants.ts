@@ -3,11 +3,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class StrikeOfTheGiants extends DDBEnricherData {
 
   get type() {
-    if (!this.isAction) return "none";
+    if (!this.isAction) return DDBEnricherData.ACTIVITY_TYPES.NONE;
     if ([
       "Strike of the Giants: Fire Strike",
-    ].includes(this.name)) return "damage";
-    return "save";
+    ].includes(this.name)) return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
 

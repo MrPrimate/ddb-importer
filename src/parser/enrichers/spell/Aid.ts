@@ -3,8 +3,8 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class Aid extends DDBEnricherData {
 
   get type() {
-    if (this.useMidiAutomations) return "utility";
-    return "heal";
+    if (this.useMidiAutomations) return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   get activity() {

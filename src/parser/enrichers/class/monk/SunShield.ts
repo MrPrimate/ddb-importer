@@ -4,8 +4,8 @@ export default class SunShield extends DDBEnricherData {
 
   get type() {
     return DDBEnricherData.AutoEffects.effectModules().atlInstalled
-      ? "utility"
-      : "ddbmacro";
+      ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
+      : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
   get activity() {

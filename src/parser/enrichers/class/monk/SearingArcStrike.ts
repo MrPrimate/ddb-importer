@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class SearingArcStrike extends DDBEnricherData {
 
   get type() {
-    return "cast";
+    return DDBEnricherData.ACTIVITY_TYPES.CAST;
   }
 
   get activity() {

@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class TotemicAttunementEagle extends DDBEnricherData {
 
   get type() {
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

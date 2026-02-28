@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class FlurryOfBlowsAdditional extends DDBEnricherData {
   get type() {
     if (this.ddbParser.originalName === "Flurry of Blows: Addle") {
-      return "utility";
+      return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     }
     return null;
   }

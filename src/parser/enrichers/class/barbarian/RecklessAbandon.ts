@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RecklessAbandon extends DDBEnricherData {
   get type() {
-    return "heal";
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   get activity() {

@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class MoteOfPotential extends DDBEnricherData {
 
   get type() {
-    return this.isAction ? "none" : "save";
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   get activity() {

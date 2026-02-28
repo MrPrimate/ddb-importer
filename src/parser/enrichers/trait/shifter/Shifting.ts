@@ -12,7 +12,7 @@ export default class Shifting extends DDBEnricherData {
   }
 
   get type() {
-    return "enchant";
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   get activity() {

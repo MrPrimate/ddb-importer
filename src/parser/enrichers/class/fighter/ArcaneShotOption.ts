@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class ArcaneShotOption extends DDBEnricherData {
 
   get type() {
-    return this.isAction ? null : "none";
+    return this.isAction ? null : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

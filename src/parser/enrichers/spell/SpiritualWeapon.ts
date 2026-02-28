@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SpiritualWeapon extends DDBEnricherData {
   get type() {
-    return this.is2014 ? "utility" : "summon";
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
   get summonsFunction() {

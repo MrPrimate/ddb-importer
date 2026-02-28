@@ -4,7 +4,7 @@ export default class HadozeeDodge extends DDBEnricherData {
 
   get type() {
     if (!this.isAction) return null;
-    return "heal";
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   get activity() {

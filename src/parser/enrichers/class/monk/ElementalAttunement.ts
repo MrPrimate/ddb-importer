@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalAttunement extends DDBEnricherData {
   get type() {
-    return this.is2014 ? null : "enchant";
+    return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   get activity() {

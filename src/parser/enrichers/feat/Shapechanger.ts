@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Shapechanger extends DDBEnricherData {
   get type() {
-    return "transform";
+    return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
 
   get activity() {

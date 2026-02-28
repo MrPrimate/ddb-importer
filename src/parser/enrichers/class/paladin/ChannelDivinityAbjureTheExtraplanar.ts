@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class ChannelDivinityAbjureTheExtraplanar extends DDBEnricherData {
 
   get type() {
-    return "save";
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   /**

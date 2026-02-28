@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class Vial extends DDBEnricherData {
 
   get type() {
-    return "none";
+    return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get documentStub() {

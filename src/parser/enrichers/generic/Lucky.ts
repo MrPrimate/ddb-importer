@@ -4,7 +4,7 @@ export default class Lucky extends DDBEnricherData {
 
   get type() {
     if (this.featureType !== "feat") return null;
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

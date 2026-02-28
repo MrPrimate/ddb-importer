@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class WallOfThorns extends DDBEnricherData {
 
   get type() {
-    return "save";
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   get activity() {

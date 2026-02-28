@@ -4,7 +4,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 export default class GraspingArrow extends ArcaneShotOption {
 
   get type() {
-    return this.isAction ? "damage" : "none";
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

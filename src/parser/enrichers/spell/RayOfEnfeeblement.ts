@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class RayOfEnfeeblement extends DDBEnricherData {
 
   get type() {
-    return this.is2014 ? "attack" : "save";
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   get activity() {

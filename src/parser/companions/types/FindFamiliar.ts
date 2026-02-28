@@ -183,14 +183,15 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
 
   const isPactActivity = activity.name === "Find Familiar (Expanded Options)";
   const isPactSpell = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.dndbeyond.lookupName") === "Pact of the Chain";
-  const isPactFeature = foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.originalName").includes("Pact of the Chain");
+  const isPactFeature = (foundry.utils.getProperty(options.originDocument, "flags.ddbimporter.originalName") as string)?.includes("Pact of the Chain");
 
   const mapInUse = isPactActivity && (isPactSpell || isPactFeature) ? packMap : baseMap;
 
   if (game.user.isGM) await monsterFactory.processIntoCompendium(mapInUse.map((i) => i.id));
 
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
-  await ddbCompendium?.getIndex({ fields: ["name", "system.source.rules"] });
+  const indexOptions = { fields: ["name", "system.source.rules"] } as CompendiumCollection.ExtendedGetIndexOptions<"Actor">;
+  await ddbCompendium?.getIndex(indexOptions);
 
   const profiles = [];
 

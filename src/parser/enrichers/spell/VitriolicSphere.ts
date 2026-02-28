@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class VitriolicSphere extends DDBEnricherData {
   get type() {
-    return "save";
+    return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   get activity() {

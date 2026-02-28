@@ -4,7 +4,7 @@ import Maneuver from "./Maneuver";
 export default class ManeuverTacticalAssessment extends Maneuver {
 
   get type() {
-    return this.useMidiAutomations ? "utility" : "check";
+    return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
   get activity() {

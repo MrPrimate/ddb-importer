@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class PearlOfPower extends DDBEnricherData {
 
   get type() {
-    return "ddbmacro";
+    return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
   get activity() {

@@ -4,7 +4,7 @@ export default class Relentless extends DDBEnricherData {
 
   get type() {
     if (this.is2014) return null;
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

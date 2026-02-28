@@ -4,7 +4,7 @@ import { DDBEnricherData } from "../../data/_module";
 export default class AspectOfTheWyrm extends DDBEnricherData {
 
   get type() {
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   /**

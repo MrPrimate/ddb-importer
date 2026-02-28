@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class SorcerousRestoration extends DDBEnricherData {
 
   get type() {
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

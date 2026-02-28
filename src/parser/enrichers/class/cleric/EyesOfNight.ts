@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class EyesOfNight extends DDBEnricherData {
 
   get type() {
-    return this.isAction ? "none" : "utility";
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

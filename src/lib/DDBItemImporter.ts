@@ -20,14 +20,14 @@ interface DDBItemImporterOptions {
 
 export default class DDBItemImporter {
 
-  static DEFAULT_INDEX_FILTER = {
+  static DEFAULT_INDEX_FILTER: Record<string, any> = {
     fields: [
       "name",
       "flags.ddbimporter.is2014",
       "flags.ddbimporter.is2024",
       "flags.ddbimporter.dndbeyond.alternativeNames",
     ],
-  } as CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName>;
+  } as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>;
 
   type: string;
   _documents: object[];
@@ -35,7 +35,7 @@ export default class DDBItemImporter {
   matchFlags: string[];
   compendium: CompendiumCollection.Any;
   compendiumIndex: IndexTypeForMetadata<CompendiumCollection.DocumentName> | null;
-  indexFilter: CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName>; // { fields?: string[]; };
+  indexFilter: Record<string, any>; // { fields?: string[]; };
   results: any[];
   deleteBeforeUpdate: boolean;
   deleteAllBeforeUpdate: boolean;
@@ -89,16 +89,17 @@ export default class DDBItemImporter {
     this.totalDocuments = this._documents?.length ?? 0;
   }
 
-  async buildIndex(indexFilter: CompendiumCollection.ExtendedGetIndexOptions<CompendiumCollection.DocumentName> = {}) {
-    const flagSet = new Set(indexFilter.fields ?? []);
-    if (!flagSet.has("flags.ddbimporter")) {
+  async buildIndex(indexFilter: CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName> = {}) {
+    const flagSet = new Set<string>(indexFilter.fields ?? []);
+     const hasDDBImporterFlags = [...flagSet].some((f) => f.startsWith("flags.ddbimporter"));
+    if (!hasDDBImporterFlags) {
       for (const flagMatch of this.matchFlags) {
         flagSet.add(`flags.ddbimporter.${flagMatch}`);
       }
     }
     this.indexFilter = indexFilter;
-    this.indexFilter.fields = Array.from(flagSet);
-    this.compendiumIndex = await this.compendium.getIndex(this.indexFilter as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>);
+    this.indexFilter.fields = Array.from(flagSet) as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>["fields"];
+    this.compendiumIndex = await this.compendium.getIndex(this.indexFilter);
   }
 
   async init() {

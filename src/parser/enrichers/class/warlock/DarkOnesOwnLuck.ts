@@ -4,7 +4,7 @@ export default class DarkOnesOwnLuck extends DDBEnricherData {
 
   get type() {
     if (this.is2014) return null;
-    return "heal";
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   get activity() {

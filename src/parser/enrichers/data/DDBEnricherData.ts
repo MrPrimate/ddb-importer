@@ -7,11 +7,10 @@ import { AutoEffects, ChangeHelper } from "../effects/_module";
 
 export default abstract class DDBEnricherData {
 
-  static META_DATA: Record<string, any> = {};
-
   static AutoEffects = AutoEffects;
-
   static ChangeHelper = ChangeHelper;
+  static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
+  static SPELL_PROPERTIES = DICTIONARY.spell.components;
 
   ddbEnricher: any;
   ddbParser: any;

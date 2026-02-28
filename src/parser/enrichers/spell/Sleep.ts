@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class Sleep extends DDBEnricherData {
 
   get type() {
-    return this.is2014 ? "utility" : null;
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
   }
 
   get activity() {

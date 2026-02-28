@@ -1,4 +1,11 @@
 export const SPELL = {
+  components: {
+    MATERIAL: "material",
+    SOMATIC: "somatic",
+    VERBAL: "verbal",
+    CONCENTRATION: "concentration",
+    RITUAL: "ritual",
+  } as const,
   schools: [
     {
       id: "abj",

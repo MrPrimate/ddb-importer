@@ -4,7 +4,7 @@ import Maneuver from "./Maneuver";
 export default class ManeuverCommandersStrike extends Maneuver {
 
   get type() {
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

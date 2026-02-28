@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class ArmsOfTheAstralSelf extends DDBEnricherData {
 
   get type() {
-    return this.isAction ? "attack" : "none";
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

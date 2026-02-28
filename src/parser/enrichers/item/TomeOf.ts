@@ -5,7 +5,7 @@ export default class TomeOf extends DDBEnricherData {
   effectData: any;
 
   get type() {
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

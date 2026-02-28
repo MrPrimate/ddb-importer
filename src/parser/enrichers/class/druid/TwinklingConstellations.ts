@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TwinklingConstellations extends DDBEnricherData {
   get type() {
-    return "none";
+    return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   // get activity() {

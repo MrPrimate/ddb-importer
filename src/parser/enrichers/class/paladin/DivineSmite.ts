@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DivineSmite extends DDBEnricherData {
   get type() {
-    return this.is2014 ? "damage" : null;
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : null;
   }
 
   get activity() {

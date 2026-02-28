@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class SpellStoringItem extends DDBEnricherData {
 
   get type() {
-    return this.is2014 ? null : "none";
+    return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get additionalActivities() {

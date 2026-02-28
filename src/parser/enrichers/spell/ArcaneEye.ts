@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class ArcaneEye extends DDBEnricherData {
 
   get type() {
-    return "summon";
+    return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
   get summonsFunction() {

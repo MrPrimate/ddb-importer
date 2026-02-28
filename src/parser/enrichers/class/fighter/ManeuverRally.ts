@@ -3,7 +3,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverRally extends Maneuver {
   get type() {
-    return "heal";
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   get activity() {

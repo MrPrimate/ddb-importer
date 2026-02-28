@@ -24,6 +24,8 @@ import { COMPANIONS } from "./parsing/companions";
 import { SCENE_IMG } from "./encounters";
 import { IDENTIFIER_ADJUSTMENTS } from "./parsing/identifiers";
 import { LOADING_MESSAGES } from "./messages/messages";
+import { ACTIVITY_TYPES } from "./parsing/data";
+import { STATUSES } from "./effects/data";
 
 const DICTIONARY = {
   source: SOURCE_DATA,
@@ -47,6 +49,9 @@ const DICTIONARY = {
   CONSUMPTION_LINKS: CONSUMPTION_LINKS,
   CONSUMPTION_SPELL_LINKS: CONSUMPTION_SPELL_LINKS,
   parsing: {
+    activity: {
+      types: ACTIVITY_TYPES,
+    },
     actions: PARSING_ACTIONS,
     attackActions: PARSING_ATTACK_ACTIONS,
     features: PARSING_FEATURES,
@@ -63,6 +68,7 @@ const DICTIONARY = {
   effects: {
     excludedModifiers: EXCLUDED_EFFECT_MODIFIERS,
     vision5e: VISION_5E_EFFECTS,
+    statuses: STATUSES,
   },
   companions: COMPANIONS,
   encounters: {

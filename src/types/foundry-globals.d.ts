@@ -13,22 +13,24 @@ export {};
 
 declare global {
 
-  type IndexTypeForMetadata<Type extends CompendiumCollection.DocumentName> = foundry.utils.Collection<
-    CompendiumCollection.IndexEntry<Type>
-  >;
+  type IndexTypeForMetadata<Type extends CompendiumCollection.DocumentName> = foundry.utils.Collection<CompendiumCollection.IndexEntry<Type>>;
 
-  declare namespace CompendiumCollection {
-    interface ExtendedGetIndexOptions<T extends CompendiumCollection.DocumentName> extends GetIndexOptions<T> {
-      fields?: string[];
-    }
-    interface IndexEntry<T extends CompendiumCollection.DocumentName> extends IndexEntry<T> {
-      _id: string;
-      uuid: string;
-      flags?: {
-        ddbimporter?: IDDBImporterFlags;
-      }
-    }
-  }
+  // interface IndexTypeForMetadata<Type extends CompendiumCollection.DocumentName> extends foundry.utils.Collection<CompendiumCollection.IndexEntry<Type>> {
+  //   flags?: IActorFlagConfig | IItemFlagConfig | IJournalEntryFlagConfig | IRollTableFlagConfig;
+  // }
+
+  // declare namespace CompendiumCollection {
+  //   interface ExtendedGetIndexOptions<T extends CompendiumCollection.DocumentName> extends GetIndexOptions<T> {
+  //     fields?: string[];
+  //   }
+  //   interface IndexEntry<T extends CompendiumCollection.DocumentName> extends IndexEntry<T> {
+  //     _id: string;
+  //     uuid: string;
+  //     flags?: {
+  //       ddbimporter?: IDDBImporterFlags;
+  //     }
+  //   }
+  // }
 
   // ddb-importer module global
   interface Window {

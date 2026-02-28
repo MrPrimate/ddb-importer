@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PrimalCompanionRestoreBeast extends DDBEnricherData {
   get type() {
-    return "heal";
+    return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   get activity() {
@@ -40,7 +40,7 @@ export default class PrimalCompanionRestoreBeast extends DDBEnricherData {
   }
 
   // get type() {
-  //   return "forward";
+  //   return DDBEnricherData.ACTIVITY_TYPES.FORWARD;
   // }
 
   // get activity() {

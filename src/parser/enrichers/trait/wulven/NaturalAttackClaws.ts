@@ -4,7 +4,7 @@ import { utils } from "../../../../lib/_module";
 export default class NaturalAttackClaws extends DDBEnricherData {
 
   get type() {
-    return "attack";
+    return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
   get activity() {

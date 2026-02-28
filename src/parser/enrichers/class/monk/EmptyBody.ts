@@ -41,7 +41,7 @@ export default class EmptyBody extends DDBEnricherData {
           itemConsumeValue: 8,
           data: {
             spell: {
-              properties: ["material"],
+              properties: [DDBEnricherData.SPELL_PROPERTIES.MATERIAL],
               spellbook: true,
             },
           },

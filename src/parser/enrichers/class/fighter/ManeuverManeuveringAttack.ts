@@ -3,7 +3,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverManeuveringAttack extends Maneuver {
   get type() {
-    return "damage";
+    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
   get activity() {

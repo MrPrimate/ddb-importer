@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EmpoweredStrikes extends DDBEnricherData {
   get type() {
-    return "attack";
+    return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
   get activity() {

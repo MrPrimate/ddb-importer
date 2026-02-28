@@ -126,7 +126,7 @@ export default class Symbol extends DDBEnricherData {
   }
 
   get type() {
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get additionalActivities() {

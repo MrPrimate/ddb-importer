@@ -7,7 +7,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   compendiumFolders: DDBCompendiumFolders;
 
   get type() {
-    return "utility";
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

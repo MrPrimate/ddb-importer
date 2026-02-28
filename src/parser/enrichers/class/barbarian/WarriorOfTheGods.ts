@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WarriorOfTheGods extends DDBEnricherData {
   get type() {
-    return this.is2014 ? "none" : "heal";
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
   get activity() {

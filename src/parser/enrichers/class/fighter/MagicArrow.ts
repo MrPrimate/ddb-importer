@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class MagicArrow extends DDBEnricherData {
 
   get type() {
-    return "enchant";
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   get activity() {

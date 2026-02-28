@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SearUndead extends DDBEnricherData {
   get type() {
-    return "damage";
+    return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
   get activity() {

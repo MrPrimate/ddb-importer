@@ -4,7 +4,7 @@ import { DDBEnricherData } from "../../data/_module";
 export default class AscendantAspect extends DDBEnricherData {
 
   get type() {
-    return "none";
+    return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   /**

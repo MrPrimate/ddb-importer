@@ -1,29 +1,23 @@
+import { DICTIONARY } from "../../../config/_module";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const STATUSES = DICTIONARY.effects.statuses;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
+
 export { };
+
 
 // ---------------------------------------------------------------------------
 // Type definitions for DDBEnricherData
 // ---------------------------------------------------------------------------
 
-import { STATUSES } from "../../../config/dictionary/effects/data";
 
 // -- Damage Parts -----------------------------------------------------------
 
 global {
 
-  export type IDDBActivityType = "attack" |
-    "cast" |
-    "check" |
-    "damage"  |
-    "enchant" |
-    "forward" |
-    "heal" |
-    "order" |
-    "save" |
-    "summon" |
-    "transform" |
-    "utility" |
-    "ddbmacro" |
-    string;
+  export type IDDBActivityType = typeof ACTIVITY_TYPES[keyof typeof ACTIVITY_TYPES];
 
   // -- Summon Profile Keys ----------------------------------------------------
 

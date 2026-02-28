@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class EnsnaringStrike extends DDBEnricherData {
   get type() {
-    return this.is2014 && this.useMidiAutomations ? "utility" : "none";
+    return this.is2014 && this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

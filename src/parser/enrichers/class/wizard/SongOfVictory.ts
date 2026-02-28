@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class SongOfVictory extends DDBEnricherData {
 
   get type() {
-    return this.is2024 ? "none" : null;
+    return this.is2024 ? DDBEnricherData.ACTIVITY_TYPES.NONE : null;
   }
 
   get addAutoAdditionalActivities() {

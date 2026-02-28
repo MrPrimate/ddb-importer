@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class FountOfMoonlight extends DDBEnricherData {
 
   get type() {
-    return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? "utility" : "ddbmacro";
+    return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
   get activity() {

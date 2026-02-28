@@ -3,7 +3,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 export default class BeguilingArrow extends ArcaneShotOption {
 
   get type() {
-    return this.isAction ? "damage" : "none";
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

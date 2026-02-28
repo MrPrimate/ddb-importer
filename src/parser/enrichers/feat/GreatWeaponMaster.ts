@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class GreatWeaponMaster extends DDBEnricherData {
 
   get type() {
-    if (this.is2014) return "utility";
+    if (this.is2014) return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     return null;
   }
 

@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class GreenFlameBlade extends DDBEnricherData {
 
   get type() {
-    return this.useMidiAutomations ? "utility" : "none";
+    return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

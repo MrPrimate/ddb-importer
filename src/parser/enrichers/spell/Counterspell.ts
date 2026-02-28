@@ -4,7 +4,7 @@ export default class Counterspell extends DDBEnricherData {
 
   get type() {
     if (this.is2014) {
-      return "check";
+      return DDBEnricherData.ACTIVITY_TYPES.CHECK;
     } else {
       return "save";
     }

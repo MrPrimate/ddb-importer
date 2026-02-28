@@ -4,8 +4,8 @@ export default class AlchemistsFire extends DDBEnricherData {
 
   get type() {
     return this.is2014
-      ? "attack"
-      : "save";
+      ? DDBEnricherData.ACTIVITY_TYPES.ATTACK
+      : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
   get activity() {

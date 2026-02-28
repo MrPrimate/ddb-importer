@@ -4,7 +4,7 @@ export default class ColorSpray extends DDBEnricherData {
 
   get type() {
     if (this.is2014) {
-      return "utility";
+      return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
     } else {
       return null;
     }

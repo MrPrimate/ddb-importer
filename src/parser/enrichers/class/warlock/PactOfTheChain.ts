@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class PactOfTheChain extends DDBEnricherData {
 
   get type() {
-    return "summon";
+    return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
 

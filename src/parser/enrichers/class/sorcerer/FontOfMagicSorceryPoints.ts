@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class FontOfMagicSorceryPoints extends DDBEnricherData {
 
   get type() {
-    return "ddbmacro";
+    return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
   get activity() {

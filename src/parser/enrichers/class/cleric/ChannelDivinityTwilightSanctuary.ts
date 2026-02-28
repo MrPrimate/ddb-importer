@@ -4,10 +4,10 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
 
   get type() {
     return this.isAction
-      ? "none"
+      ? DDBEnricherData.ACTIVITY_TYPES.NONE
       : DDBEnricherData.AutoEffects.effectModules().atlInstalled
-        ? "utility"
-        : "ddbmacro";
+        ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
+        : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
   get activity() {

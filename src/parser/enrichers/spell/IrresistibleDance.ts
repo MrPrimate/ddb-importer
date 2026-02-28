@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class IrresistibleDance extends DDBEnricherData {
 
   get type() {
-    return this.is2014 ? "utility" : "none";
+    return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class FlashOfGenius extends DDBEnricherData {
 
   get type() {
-    return this.isAction ? "utility" : "none";
+    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {

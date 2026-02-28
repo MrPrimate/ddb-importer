@@ -3,9 +3,9 @@ export {}
 global {
 
   interface IDDBImporterFlagsOverrideItem {
-    name: string;
-    type: string;
-    ddbId: number;
+    name?: string;
+    type?: string;
+    ddbId?: number;
   }
 
   interface IDDBImporterFlagsDnDBeyond {
@@ -20,10 +20,10 @@ global {
     profBonus?: number;
     proficiencies?: string[];
     proficienciesIncludingEffects?: string[];
-    effectAbilities?: Record<string, { value: number }>;
-    characterValues?: { valueId: number; valueTypeId: number; typeId: number; value: string }[];
+    effectAbilities?: Record<string, { value?: number }>;
+    characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[];
     templateStrings?: string[];
-    campaign?: { id: number; name: string };
+    campaign?: { id?: number; name?: string };
 
     // Spell flags
     lookup?: string;
@@ -54,7 +54,7 @@ global {
     // Item flags
     type?: string;
     tags?: string[];
-    sources?: { sourceId: number; pageNumber?: number; sourceType?: number }[];
+    sources?: { sourceId?: number; pageNumber?: number; sourceType?: number }[];
     restrictions?: string[];
     stackable?: boolean;
     isContainer?: boolean;
@@ -67,7 +67,7 @@ global {
     largeAvatarUrl?: string;
     filterType?: string;
     ability2?: string;
-    damage?: { parts: string[][] };
+    damage?: { parts?: string[][] };
     classFeatures?: number[];
     alternativeNames?: string[];
     sourceId?: string;
@@ -256,7 +256,7 @@ global {
     activityMatch?: string;
     activitiesMatch?: string[];
     ignoreTransfer?: boolean;
-    effectIdLevel?: { min: number | null; max: number | null };
+    effectIdLevel?: { min?: number | null; max?: number | null };
     activityRiders?: string[];
     effectRiders?: string[];
     itemRiders?: string[];

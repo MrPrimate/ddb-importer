@@ -4,7 +4,7 @@ export default class ConjureElemental extends DDBEnricherData {
 
   get type() {
     if (this.is2014) return null;
-    return "summon";
+    return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
   get summonsFunction() {

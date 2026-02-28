@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HexWarrior extends DDBEnricherData {
   get type() {
-    return "enchant";
+    return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
   get activity() {

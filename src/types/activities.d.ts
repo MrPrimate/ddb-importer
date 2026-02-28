@@ -1,3 +1,5 @@
+import { DICTIONARY } from "../config/_module";
+
 export {};
 
 global {
@@ -35,11 +37,13 @@ global {
     identifier?: string;
   }
 
+  export type I5eActivityCastSpellProperties = typeof DICTIONARY.spell.components[keyof typeof DICTIONARY.spell.components];
+
   export interface IActivitySpellData {
     challenge?: {
         override: boolean;
     };
-    properties?: ("vocal" | "somatic" | "material" | "concentration" | "ritual")[];
+    properties?: I5eActivityCastSpellProperties[];
     spellbook?: boolean;
     uuid?: string;
     ability?: string;

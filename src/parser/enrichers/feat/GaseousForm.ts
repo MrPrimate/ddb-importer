@@ -3,11 +3,11 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class GaseousForm extends DDBEnricherData {
 
   get type() {
-    return "none";
+    return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
   // get type() {
-  //   return "cast";
+  //   return DDBEnricherData.ACTIVITY_TYPES.CAST;
   // }
 
   // get activity() {

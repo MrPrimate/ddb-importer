@@ -8,7 +8,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
 
     switch (name) {
       case "Form of the Beast: Tail (reaction)": {
-        return "utility";
+        return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
       }
       // no default
     }
