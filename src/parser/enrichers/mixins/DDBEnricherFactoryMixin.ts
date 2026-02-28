@@ -99,8 +99,7 @@ export default class DDBEnricherFactoryMixin {
     }
   }
 
-  // TO DO improve types here
-  get type(): string | null {
+  get type(): IDDBActivityType | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.type;
     } else {

@@ -504,11 +504,13 @@ global {
     formula: string;
   }
 
+  export type I5eDamageType = "acid" | "bludgeoning" | "cold" | "fire" | "force" | "lightning" | "necrotic" | "piercing" | "poison" | "psychic" | "radiant" | "slashing" | "thunder" | string;
+
   export interface I5eDamagePart {
     number: number;
     denomination: number;
     bonus: string;
-    types: string[];
+    types: I5eDamageType[];
     custom: I5eDamageCustom;
     scaling: I5eDamageScaling;
   }

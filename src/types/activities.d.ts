@@ -1,5 +1,3 @@
-import { IDDBDamagePart } from "../parser/enrichers/data/types";
-
 export {};
 
 global {
@@ -148,7 +146,7 @@ global {
         allow?: boolean;
         bonus?: string;
       };
-      parts?: Partial<IDDBDamagePart>[];
+      parts?: Partial<I5eDamagePart>[];
       // midi stuff
       onSave?: string;
     };
@@ -158,7 +156,7 @@ global {
       value?: number | string;
       long?: number;
     };
-    healing?: Partial<IDDBDamagePart>;
+    healing?: Partial<I5eDamagePart>;
     overTimeProperties?: {
       turnChoice?: string;
       saveRemoves?: boolean;

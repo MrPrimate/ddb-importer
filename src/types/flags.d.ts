@@ -336,6 +336,12 @@ global {
     sharpShooter?: string;
   };
 
+  interface I5eItemRiderFlags {
+    activity?: string[];
+    effect?: string[];
+    status?: string[];
+  }
+
   interface I5eItemFlags {
     scaling?: number;
     spellLevel?: {
@@ -343,9 +349,7 @@ global {
       value?: number;
     };
     cachedFor?: Item;
-    riders?: {
-      activity?: string[];
-    }
+    riders?: I5eItemRiderFlags;
   };
 
   interface IMidiQoLActorFlags {

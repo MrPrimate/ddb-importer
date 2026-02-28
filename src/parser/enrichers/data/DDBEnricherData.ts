@@ -5,19 +5,7 @@ import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
 import DDBSpell from "../../spells/DDBSpell";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
-import type {
-  IDDBActivityData,
-  IDDBAdditionalActivity,
-  IDDBDamagePart,
-  IDDBDocumentStub,
-  IDDBEffectHint,
-  IDDBItemMacro,
-  IDDBMacroDescriptionData,
-  IDDBOverrideData,
-  IDDBSetMidiOnUseMacroFlag,
-} from "./types";
-
-export default class DDBEnricherData {
+export default abstract class DDBEnricherData {
 
   static META_DATA: Record<string, any> = {};
 
@@ -231,7 +219,7 @@ export default class DDBEnricherData {
     scalingNumber?: number;
     scalingFormula?: string | number;
     customFormula?: string | null;
-  } = {}): IDDBDamagePart {
+  } = {}): I5eDamagePart {
     return {
       number,
       denomination,
@@ -242,7 +230,7 @@ export default class DDBEnricherData {
         formula: customFormula,
       },
       scaling: {
-        mode: scalingMode as IDDBDamagePart["scaling"]["mode"],
+        mode: scalingMode as I5eDamagePart["scaling"]["mode"],
         number: scalingNumber,
         formula: `${scalingFormula}`,
       },
@@ -258,7 +246,7 @@ export default class DDBEnricherData {
     return foundry.utils.getProperty(this.data, "flags.ddbimporter.type");
   }
 
-  get type(): string | null {
+  get type(): IDDBActivityType | null {
     return null;
   }
 

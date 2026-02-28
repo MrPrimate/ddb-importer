@@ -1,5 +1,4 @@
 import { utils } from "../../lib/_module";
-import { IDDBDamagePart } from "../enrichers/data/types";
 
 export default class SystemHelpers {
 
@@ -60,8 +59,8 @@ export default class SystemHelpers {
 
   }
 
-  static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false } = {}): IDDBDamagePart {
-    const damage: IDDBDamagePart = {
+  static buildDamagePart({ dice = null, damageString = "", type = null, types = null, stripMod = false } = {}): I5eDamagePart {
+    const damage: I5eDamagePart = {
       number: null,
       denomination: 0,
       bonus: "",

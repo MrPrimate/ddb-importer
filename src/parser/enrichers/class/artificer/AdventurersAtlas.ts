@@ -84,8 +84,8 @@ export default class AdventurersAtlas extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
-    const results = [
+  get additionalActivities(): IDDBAdditionalActivity[] {
+    const results: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Superior Atlas: Safe Haven",
@@ -168,7 +168,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
     return results;
   }
 
-  _getEnchantActivities() {
+  _getEnchantActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

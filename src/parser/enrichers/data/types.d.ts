@@ -10,6 +10,21 @@ import { STATUSES } from "../../../config/dictionary/effects/data";
 
 global {
 
+  export type IDDBActivityType = "attack" |
+    "cast" |
+    "check" |
+    "damage"  |
+    "enchant" |
+    "forward" |
+    "heal" |
+    "order" |
+    "save" |
+    "summon" |
+    "transform" |
+    "utility" |
+    "ddbmacro" |
+    string;
+
   // -- Summon Profile Keys ----------------------------------------------------
 
   export interface IDDBSummonProfileKeyLevel {
@@ -338,7 +353,7 @@ global {
     rangeOverride?: Record<string, any>;
     targetOverride?: Record<string, any>;
     saveOverride?: Record<string, any>;
-    damageParts?: IDDBDamagePart[];
+    damageParts?: I5eDamagePart[];
     img?: string;
     ddbMacroOverride?: {
       name: string;

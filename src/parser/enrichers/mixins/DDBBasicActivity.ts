@@ -4,7 +4,7 @@ import { Effects } from "../_module";
 
 export default class DDBBasicActivity {
 
-  type: string;
+  type: IDDBActivityType;
   activityType: any;
   name: string | null;
   ddbParent: any;
@@ -57,11 +57,11 @@ export default class DDBBasicActivity {
 
 
   constructor({
-    type, name, actor = null, ddbParent = null,
+    type = null, name, actor = null, ddbParent = null,
     nameIdPrefix = null, nameIdPostfix = null, id = null,
     foundryFeature = null,
   }: {
-    type: string;
+    type: IDDBActivityType;
     name?: string | null;
     actor?: any;
     ddbParent?: any;
@@ -69,9 +69,9 @@ export default class DDBBasicActivity {
     nameIdPostfix?: string | null;
     id?: string | null;
     foundryFeature?: any;
-  } = { type: "" }) {
+  }) {
 
-    this.type = type.toLowerCase();
+    this.type = type.toLowerCase() as IDDBActivityType;
     this.activityType = (CONFIG as any).DND5E.activityTypes[this.type];
     if (!this.activityType) {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys((CONFIG as any).DND5E.activityTypes)}`);
@@ -610,7 +610,7 @@ export default class DDBBasicActivity {
     if (generateSpell) this._generateSpell({ spellOverride });
 
     if (noeffect) {
-      const ids = foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.noeffect") ?? [];
+      const ids = (foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.noeffect") ?? []) as string[];
       ids.push(this.data._id);
       foundry.utils.setProperty(this.foundryFeature, "flags.ddbimporter.noEffectIds", ids);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.noeffect", true);
@@ -620,7 +620,7 @@ export default class DDBBasicActivity {
 
   }
 
-  static async createActivity({ document, type, name, character, enricher }: { document?: any; type?: string; name?: string | null; character?: any; enricher?: any } = {}, options: any = {}): Promise<string> {
+  static async createActivity({ document, type, name, character, enricher }: { document?: any; type: IDDBActivityType; name?: string | null; character?: any; enricher?: any }, options: any = {}): Promise<string> {
     const activity = new DDBBasicActivity({
       name: name ?? null,
       type,
@@ -642,7 +642,7 @@ export default class DDBBasicActivity {
 
   }
 
-  static buildDamagePart({ dice = null, damageString = "", type, stripMod = false }: { dice?: any; damageString?: string; type?: string; stripMod?: boolean } = {}): any {
+  static buildDamagePart({ dice = null, damageString = "", type, stripMod = false }: { dice?: any; damageString?: string; type?: I5eDamageType; stripMod?: boolean }): any {
     return SystemHelpers.buildDamagePart({ dice, damageString, type, stripMod });
   }
 
@@ -752,7 +752,7 @@ export default class DDBBasicActivity {
     foundryData.effects.push(...effects);
     foundry.utils.setProperty(foundryData, `system.activities.${activity.data._id}`, activity.data);
 
-    const riderFlags = foundry.utils.getProperty(foundryData, "flags.dnd5e.riders") ?? { activity: [], effect: [] };
+    const riderFlags = (foundry.utils.getProperty(foundryData, "flags.dnd5e.riders") ?? { activity: [], effect: [] }) as I5eItemRiderFlags;
 
     riderFlags.activity.push(...riderActionIds);
     riderFlags.effect.push(...riderEffectIds);

@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 export default class GraspingTentacles extends DDBEnricherData {
 
   get type() {
-    return "healing";
+    return "heal" as const;
   }
 
   get activity() {
