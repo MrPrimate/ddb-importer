@@ -446,6 +446,7 @@ ${item.system.description.chat}
 
     this.results = createResults.concat(results);
     await Promise.all(this.results);
+    // @ts-expect-error - this can be corrected once type is from a known set of strings instead of dynamic
     await Hooks.callAll(`ddb-importer.${this.type.toLowerCase()}CompendiumUpdateComplete`, { results: this.results });
     return this.results;
   }
@@ -458,28 +459,29 @@ ${item.system.description.chat}
 
     await this.buildIndex(indexFilter);
 
-    const firstPassItems = await this.compendiumIndex.filter((i) =>
-      items.some((orig) => {
+    const firstPassItems = await this.compendiumIndex.filter((i) => {
+      const iName = foundry.utils.getProperty(i, "name") as string;
+      return items.some((orig) => {
         if (!this.#flagMatch(i, orig)) return false;
-        const extraNames = foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
+        const extraNames = (foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
         if (looseMatch) {
           const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
-          return looseNames.includes(i.name.split("(")[0].trim().toLowerCase());
+          return looseNames.includes(iName.split("(")[0].trim().toLowerCase());
         } else if (monsterMatch) {
           const monsterNames = NameMatcher.getMonsterNames(orig.name);
           // console.log(magicNames)
-          if (i.name === orig.name) {
+          if (iName === orig.name) {
             return true;
-          } else if (monsterNames.includes(i.name.toLowerCase())) {
+          } else if (monsterNames.includes(iName.toLowerCase())) {
             return true;
           } else {
             return false;
           }
         } else {
-          return i.name === orig.name || extraNames.includes(i.name);
+          return iName === orig.name || extraNames.includes(iName);
         }
-      }),
-    );
+      });
+    });
 
     const loadedItems = [];
     for (const i of firstPassItems) {

@@ -2,6 +2,7 @@
 export {}
 
 global {
+
   namespace Hooks {
     interface HookConfig {
       "dae.addSpecialDurations": (daeSpecialDurations: Record<string, string>) => void;
@@ -69,6 +70,13 @@ global {
       "simplecover5eReady": () => void;
       // ddb importer
       "ddb-importer.monsterAddToCompendiumComplete": [data: { actor: Actor5e | null }];
+      "ddb-importer.spellsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
+      "ddb-importer.classCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
+      "ddb-importer.spellsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
+      "ddb-importer.summonsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
+      "ddb-importer.featuresCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
+      "ddb-importer.vehiclesCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
+      "ddb-importer.itemsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
     }
   }
 }
