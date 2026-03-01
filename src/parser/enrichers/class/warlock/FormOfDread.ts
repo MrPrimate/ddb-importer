@@ -89,14 +89,9 @@ export default class FormOfDread extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.di.value"),
         ],
         data: {
-          flags: {
-            ddbimporter: {
-              effectIdLevel: {
-                min: null,
-                max: null,
-              },
-            },
-          },
+          level: {
+            min: 10,
+          }
         },
       },
       {

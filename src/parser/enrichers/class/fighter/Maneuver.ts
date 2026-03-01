@@ -61,7 +61,7 @@ export default class Maneuver extends DDBEnricherData {
     return ["Damage"];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const name = this.data.name
       .replace("Maneuver Options:", "Maneuver:")
       .replace("Maneuvers:", "Maneuver:")
@@ -85,11 +85,11 @@ export default class Maneuver extends DDBEnricherData {
     };
   }
 
-  get type() {
+  get type(): IDDBActivityType {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       addItemConsume: true,

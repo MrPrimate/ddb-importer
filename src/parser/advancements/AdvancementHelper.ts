@@ -2190,7 +2190,7 @@ export default class AdvancementHelper {
   }
 
 
-  static parseHTMLSpellAdvancementDataForTraits(description) {
+  static parseHTMLSpellAdvancementDataForTraits(description: string) {
     const result = {
       spellListCantripChoice: null,
       spellListCantripChoiceNum: null,

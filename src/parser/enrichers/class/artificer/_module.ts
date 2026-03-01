@@ -2,6 +2,7 @@ export { default as AdvancedArtifice } from "./AdvancedArtifice";
 export { default as AdventurersAtlas } from "./AdventurersAtlas";
 export { default as AlchemicalSavant } from "./AlchemicalSavant";
 export { default as ArcaneArmorCreateArmor } from "./ArcaneArmorCreateArmor";
+export { default as ArcaneFirearm } from "./ArcaneFirearm";
 export { default as ArcanePropulsionArmorGauntlet } from "./ArcanePropulsionArmorGauntlet";
 export { default as ArmorModel } from "./ArmorModel";
 export { default as ArtificerSpells } from "./ArtificerSpells";

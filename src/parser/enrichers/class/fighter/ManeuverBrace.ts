@@ -1,13 +1,12 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
 import Maneuver from "./Maneuver";
 
 export default class ManeuverBrace extends Maneuver {
 
-  get type() {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  get type(): IDDBActivityType {
+    return Maneuver.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Brace",
       activationType: "reaction",
@@ -45,7 +44,7 @@ export default class ManeuverBrace extends Maneuver {
           },
         },
         midiChanges: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
+          Maneuver.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.bonuses.mwak.damage"),
         ],
       },
     ];
