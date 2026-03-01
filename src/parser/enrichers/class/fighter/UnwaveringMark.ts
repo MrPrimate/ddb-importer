@@ -54,7 +54,7 @@ export default class UnwaveringMark extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnEndSource"],
+        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }

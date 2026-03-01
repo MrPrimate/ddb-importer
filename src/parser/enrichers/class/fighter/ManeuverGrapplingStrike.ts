@@ -11,7 +11,7 @@ export default class ManeuverGrapplingStrike extends Maneuver {
     return [
       {
         name: "Grappling Strike Bonus",
-        daeSpecialDurations: ["isSkill.ath"],
+        daeSpecialDurations: ["isSkill.ath" as const],
         data: {
           duration: {
             turns: 1,

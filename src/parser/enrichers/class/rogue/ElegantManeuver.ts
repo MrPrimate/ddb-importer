@@ -20,7 +20,7 @@ export default class ElegantManeuver extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.acr.roll.mode"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ath.roll.mode"),
         ],
-        daeSpecialDurations: ["isSkill.acr", "isSkill.ath"],
+        daeSpecialDurations: ["isSkill.acr" as const, "isSkill.ath" as const],
       },
     ];
   }

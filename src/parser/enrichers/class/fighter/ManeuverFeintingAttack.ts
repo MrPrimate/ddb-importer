@@ -28,7 +28,7 @@ export default class ManeuverFeintingAttack extends Maneuver {
         name: "Feinting Attack: Extra Damage",
         activityMatch: "Feint",
         midiOnly: true,
-        daeSpecialDurations: ["1Attack"],
+        daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
             turns: 1,

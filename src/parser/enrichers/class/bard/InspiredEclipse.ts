@@ -22,7 +22,7 @@ export default class InspiredEclipse extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnStart", "1Attack", "1Spell"],
+        daeSpecialDurations: ["turnStart" as const, "1Attack" as const, "1Spell" as const],
       },
     ];
   }

@@ -53,7 +53,7 @@ export default class FangsOfTheFireSnake extends DDBEnricherData {
           durationTurns: 1,
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnEndSource"],
+        daeSpecialDurations: ["turnEndSource" as const],
         data: {
           flags: {
             ddbimporter: {

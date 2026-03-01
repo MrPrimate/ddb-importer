@@ -15,7 +15,7 @@ export default class Frostbite extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.mwak"),
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.rwak"),
         ],
-        daeSpecialDurations: ["1Attack:rwak", "1Attack:mwak", "turnEnd"],
+        daeSpecialDurations: ["1Attack:rwak" as const, "1Attack:mwak" as const, "turnEnd" as const],
       },
     ];
   }

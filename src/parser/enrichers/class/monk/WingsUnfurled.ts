@@ -12,7 +12,7 @@ export default class WingsUnfurled extends Generic {
         changes: [
           Generic.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
         ],
-        daeSpecialDurations: ["turnEnd"],
+        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

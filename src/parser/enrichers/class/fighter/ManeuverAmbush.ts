@@ -18,7 +18,7 @@ export default class ManeuverAmbush extends Maneuver {
     return [
       {
         name: "Ambush Bonus",
-        daeSpecialDurations: ["isSkill.ste", "Initiative"],
+        daeSpecialDurations: ["isSkill.ste" as const, "Initiative" as const],
         data: {
           duration: {
             turns: 1,

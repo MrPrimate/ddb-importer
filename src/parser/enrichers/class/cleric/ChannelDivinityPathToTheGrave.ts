@@ -9,7 +9,7 @@ export default class ChannelDivinityPathToTheGrave extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["isDamaged"],
+        daeSpecialDurations: ["isDamaged" as const],
         changes: DDBEnricherData.allDamageTypes().map((damageType) =>
           DDBEnricherData.ChangeHelper.unsignedAddChange(damageType, 200, "system.traits.dv.value"),
         ),

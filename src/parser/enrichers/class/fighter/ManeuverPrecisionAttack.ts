@@ -28,7 +28,7 @@ export default class ManeuverPrecisionAttack extends Maneuver {
     return [
       {
         name: "Precision Attack Bonus",
-        daeSpecialDurations: ["1Attack"],
+        daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
             turns: 1,

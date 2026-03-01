@@ -88,7 +88,7 @@ export default class VengefulBlade extends DDBEnricherData {
       options: {
         description: `If the target makes an attack or spell before then, [[/item ${this.data.name} activity="Extra Damage"]](it takes necrotic damage), and the spell ends.`,
       },
-      daeSpecialDurations: ["1Attack", "1Spell", "turnEndSource"],
+      daeSpecialDurations: ["1Attack" as const, "1Spell" as const, "turnEndSource" as const],
     }];
   }
 

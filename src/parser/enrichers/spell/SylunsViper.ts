@@ -45,7 +45,7 @@ export default class SylunsViper extends DDBEnricherData {
           durationSeconds: 6,
           durationRounds: 1,
         },
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
         statuses: ["Poisoned", "Incapacitated"],
       },
     ];

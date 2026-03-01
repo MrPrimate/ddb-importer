@@ -32,7 +32,7 @@ export default class Resistance extends DDBEnricherData {
               },
             },
           ],
-          daeSpecialDurations: ["isSave"],
+          daeSpecialDurations: ["isSave" as const],
         },
       ];
     }

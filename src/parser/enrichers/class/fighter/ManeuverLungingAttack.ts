@@ -25,7 +25,7 @@ export default class ManeuverLungingAttack extends Maneuver {
     return [
       {
         name: "Lunging Attack Bonus Damage",
-        daeSpecialDurations: ["1Attack"],
+        daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
             turns: 1,

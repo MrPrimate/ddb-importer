@@ -23,7 +23,7 @@ export default class Taunt extends DDBEnricherData {
           transfer: false,
           showIcon: true,
         },
-        daeSpecialDurations: ["turnStart", "combatEnd"],
+        daeSpecialDurations: ["turnStart" as const, "combatEnd" as const],
       },
     ];
   }

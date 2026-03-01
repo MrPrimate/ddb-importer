@@ -70,7 +70,7 @@ export default class ZealousPresence extends DDBEnricherData {
         options: {
           durationTurns: 1,
         },
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
         ],

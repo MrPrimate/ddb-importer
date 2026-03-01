@@ -32,7 +32,7 @@ export default class Panache extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
         data: {
           duration: {
             seconds: 60,

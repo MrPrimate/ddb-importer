@@ -16,7 +16,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("@system.attributes.prof", 20, "system.attributes.ac.bonus"),
         ],
-        daeSpecialDurations: this.is2014 ? ["isAttacked"] : [],
+        daeSpecialDurations: this.is2014 ? ["isAttacked" as const] : [],
         data: {
           flags: {
             dae: {

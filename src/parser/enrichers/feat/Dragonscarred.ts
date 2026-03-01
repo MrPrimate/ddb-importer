@@ -45,7 +45,7 @@ export default class Dragonscarred extends DDBEnricherData {
     const effects = [
       {
         name: "Frightened",
-        daeSpecialDurations: ["turnEndSource"],
+        daeSpecialDurations: ["turnEndSource" as const],
         statuses: ["Frightened"],
         activityMatch: "Fearsome Power",
         data: {

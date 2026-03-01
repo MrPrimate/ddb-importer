@@ -52,7 +52,7 @@ export default class HolyAura extends DDBEnricherData {
         noCreate: true,
         name: "Holy Aura: Blinded",
         activityMatch: "Save vs Blinded",
-        daeSpecialDurations: ["turnEnd"],
+        daeSpecialDurations: ["turnEnd" as const],
       },
       {
         name: "Holy Aura (Aura)",

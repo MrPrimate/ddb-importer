@@ -27,7 +27,7 @@ export default class ManeuverCommandersStrike extends Maneuver {
       {
         midiOnly: true,
         activityMatch: "Commander's Strike",
-        daeSpecialDurations: ["1Attack"],
+        daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
             turns: 2,

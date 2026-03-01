@@ -16,7 +16,7 @@ export default class Command extends DDBEnricherData {
             turns: 1,
           },
         },
-        daeSpecialDurations: ["turnStart"],
+        daeSpecialDurations: ["turnStart" as const],
       },
     ];
   }

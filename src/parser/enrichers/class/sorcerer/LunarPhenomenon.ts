@@ -255,7 +255,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
         options: {
           durationRounds: 1,
         },
-        daeSpecialDurations: ['turnStartSource'],
+        daeSpecialDurations: ['turnStartSource' as const],
       },
     ];
   }

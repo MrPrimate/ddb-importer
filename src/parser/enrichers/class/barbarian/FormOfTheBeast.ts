@@ -19,7 +19,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
         options: {
           durationTurns: 1,
         },
-        daeSpecialDurations: ["isAttacked"],
+        daeSpecialDurations: ["isAttacked" as const],
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("+1d8", 1, "system.attributes.ac.bonus"),
         ],

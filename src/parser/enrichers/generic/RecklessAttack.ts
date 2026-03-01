@@ -40,7 +40,7 @@ export default class RecklessAttack extends DDBEnricherData {
           },
         },
         daeSpecialDurations: [
-          "turnStartSource",
+          "turnStartSource" as const,
         ],
       },
     ];

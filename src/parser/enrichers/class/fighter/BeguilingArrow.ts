@@ -59,7 +59,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
         options: {
           durationSeconds: 12,
         },
-        daeSpecialDurations: ["turnEnd"],
+        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

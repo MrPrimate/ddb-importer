@@ -7,7 +7,7 @@ export default class ChorusOfTheLost extends DDBEnricherData {
       {
         name: "Chorus of the Lost: Short Fear",
         statuses: ["Frightened"],
-        daeSpecialDurations: ["turnEnd"],
+        daeSpecialDurations: ["turnEnd" as const],
         options: {
           durationSeconds: 6,
         },

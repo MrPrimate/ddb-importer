@@ -6,7 +6,7 @@ export default class StonyLethargy extends DDBEnricherData {
     return [
       {
         name: "Lethargic",
-        daeSpecialDurations: ["turnStart"],
+        daeSpecialDurations: ["turnStart" as const],
         options: {
           durationSeconds: 6,
           description: "Unable to make opportunity attacks",

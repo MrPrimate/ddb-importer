@@ -43,7 +43,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
         name: "Menaced",
         statuses: ["Frightened"],
         activityMatch: "Save vs Frightened",
-        daeSpecialDurations: ["turnEndSource"],
+        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }

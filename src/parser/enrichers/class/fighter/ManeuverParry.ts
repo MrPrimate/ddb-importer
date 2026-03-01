@@ -29,7 +29,7 @@ export default class ManeuverParry extends Maneuver {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.traits.dm.midi.all"),
         ],
-        daeSpecialDurations: ["isDamaged"],
+        daeSpecialDurations: ["isDamaged" as const],
       },
       // Future Enhancement: Add a macro that rolls dice and applies dr effect
       // {

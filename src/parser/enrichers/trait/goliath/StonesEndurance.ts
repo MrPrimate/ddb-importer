@@ -29,7 +29,7 @@ export default class StonesEndurance extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("[[1d12 + @abilities.con.mod]]", 30, "system.traits.dm.midi.all"),
         ],
-        daeSpecialDurations: ["1Reaction"],
+        daeSpecialDurations: ["1Reaction" as const],
         data: {
           flags: {
             dae: {

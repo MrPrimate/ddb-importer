@@ -32,7 +32,7 @@ export default class BanishingArrow extends ArcaneShotOption {
         options: {
           durationSeconds: 12,
         },
-        daeSpecialDurations: ["turnEnd"],
+        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

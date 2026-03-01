@@ -36,7 +36,7 @@ export default class ManeuverCommandingPresence extends Maneuver {
     return [
       {
         name: "Commanding Presence Bonus",
-        daeSpecialDurations: ["isSkill.itm", "isSkill.per", "isSkill.prf"],
+        daeSpecialDurations: ["isSkill.itm" as const, "isSkill.per" as const, "isSkill.prf" as const],
         data: {
           duration: {
             turns: 2,

@@ -13,7 +13,7 @@ export default class ManeuverQuickToss extends Maneuver {
     return [
       {
         midiOnly: true,
-        daeSpecialDurations: ["1Attack"],
+        daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
             turns: 1,

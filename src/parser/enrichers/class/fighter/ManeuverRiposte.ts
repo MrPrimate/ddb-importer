@@ -26,7 +26,7 @@ export default class ManeuverRiposte extends Maneuver {
   get effects() {
     return [
       {
-        daeSpecialDurations: ["1Attack:mwak"],
+        daeSpecialDurations: ["1Attack:mwak" as const],
         data: {
           duration: {
             turns: 2,

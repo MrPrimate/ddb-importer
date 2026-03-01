@@ -564,7 +564,7 @@ export default class ArmorModel extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
         data: {
           img: "icons/skills/melee/unarmed-punch-fist-white.webp",
           duration: {
@@ -641,7 +641,7 @@ export default class ArmorModel extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("(2 * @attributes.movement.walk)", 20, "system.attributes.movement.fly"),
         ],
-        daeSpecialDurations: ["turnEndSource", "turnEnd"],
+        daeSpecialDurations: ["turnEndSource" as const, "turnEnd" as const],
         data: {
           duration: {
             seconds: 6,

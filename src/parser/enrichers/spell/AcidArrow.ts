@@ -55,7 +55,7 @@ export default class AcidArrow extends DDBEnricherData {
             "flags.midi-qol.OverTime",
           ),
         ],
-        daeSpecialDurations: ["turnEnd"],
+        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

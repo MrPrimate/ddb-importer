@@ -19,7 +19,7 @@ export default class LordsAllianceAgent extends DDBEnricherData {
     return [
       {
         name: "Reassert Honor: Advantage Mark",
-        daeSpecialDurations: ["1Attack"],
+        daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
             turns: 1,

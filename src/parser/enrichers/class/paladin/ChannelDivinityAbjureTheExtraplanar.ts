@@ -32,7 +32,7 @@ export default class ChannelDivinityAbjureTheExtraplanar extends DDBEnricherData
       options: {
         durationSeconds: 60,
       },
-      daeSpecialDurations: ["isDamaged"],
+      daeSpecialDurations: ["isDamaged" as const],
     }];
   }
 

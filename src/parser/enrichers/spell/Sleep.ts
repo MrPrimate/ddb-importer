@@ -54,7 +54,7 @@ export default class Sleep extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnEnd"],
+        daeSpecialDurations: ["turnEnd" as const],
         activityMatch: "Cast",
       },
       {
@@ -63,7 +63,7 @@ export default class Sleep extends DDBEnricherData {
         options: {
           durationSeconds: 54,
         },
-        daeSpecialDurations: ["isDamaged"],
+        daeSpecialDurations: ["isDamaged" as const],
         activityMatch: "Save vs Unconscious",
       },
     ];

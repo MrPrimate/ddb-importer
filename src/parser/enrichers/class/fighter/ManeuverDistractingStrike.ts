@@ -6,7 +6,7 @@ export default class ManeuverDistractingStrike extends Maneuver {
     return [
       {
         name: "Distracting Strike",
-        daeSpecialDurations: ["isAttacked", "turnStartSource"],
+        daeSpecialDurations: ["isAttacked" as const, "turnStartSource" as const],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.advantage.attack.all"),
         ],

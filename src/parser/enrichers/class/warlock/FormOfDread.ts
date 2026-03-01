@@ -80,7 +80,7 @@ export default class FormOfDread extends DDBEnricherData {
         options: {
           durationSeconds: 12,
         },
-        daeSpecialDurations: ["turnEndSource"],
+        daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
   }

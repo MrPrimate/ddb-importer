@@ -12,7 +12,7 @@ export default class Wardaway extends DDBEnricherData {
         options: {
           description: "Target's Speed is halved until the start of your next turn, and on its next turn, it can take only an Action or a Bonus Action.",
         },
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
       },
     ];
   }

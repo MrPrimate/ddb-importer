@@ -34,7 +34,7 @@ export default class ManeuverTacticalAssessment extends Maneuver {
     return [
       {
         name: "Tactical Assessment Bonus",
-        daeSpecialDurations: ["isSkill.his", "isSkill.inv", "isSkill.ins"],
+        daeSpecialDurations: ["isSkill.his" as const, "isSkill.inv" as const, "isSkill.ins" as const],
         data: {
           duration: {
             turns: 2,

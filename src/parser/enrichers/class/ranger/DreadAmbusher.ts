@@ -63,7 +63,7 @@ export default class DreadAmbusher extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDuration: ["turnEnd"],
+        daeSpecialDuration: ["turnEnd" as const],
       },
     ];
   }

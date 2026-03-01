@@ -62,7 +62,7 @@ export default class AbsorbElements extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.msak.damage"),
         ],
-        daeSpecialDurations: ["DamageDealt", "turnEnd"],
+        daeSpecialDurations: ["DamageDealt" as const, "turnEnd" as const],
         data: {
           duration: {
             rounds: 2,
@@ -76,7 +76,7 @@ export default class AbsorbElements extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(""),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
         data: {
           duration: {
             rounds: 2,

@@ -113,7 +113,7 @@ export default class FeyStep extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnEndSource"],
+        daeSpecialDurations: ["turnEndSource" as const],
         activityMatch: "Winter (Save)",
       },
     ];

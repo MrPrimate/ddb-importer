@@ -18,7 +18,7 @@ export default class ViciousMockery extends DDBEnricherData {
     return [
       {
         name: "Vicious Mockery",
-        daeSpecialDurations: ["1Attack", "turnEnd"],
+        daeSpecialDurations: ["1Attack" as const, "turnEnd" as const],
       },
       {
         midiOnly: true,

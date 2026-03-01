@@ -78,7 +78,7 @@ export default class IrresistibleDance extends DDBEnricherData {
         data: {
           flags: {
             dae: {
-              specialDuration: ["turnEnd"],
+              specialDuration: ["turnEnd" as const],
             },
           },
         },

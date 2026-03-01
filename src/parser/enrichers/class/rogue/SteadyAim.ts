@@ -23,7 +23,7 @@ export default class SteadyAim extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.advantage.attack.all"),
         ],
-        daeSpecialDurations: ["1Attack"],
+        daeSpecialDurations: ["1Attack" as const],
         daeStackable: "noneName",
         options: {
           durationTurns: 1,
@@ -35,7 +35,7 @@ export default class SteadyAim extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.downgradeChange("0", 100, "system.attributes.movement.all"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
         daeStackable: "noneName",
         options: {
           durationSeconds: 12,

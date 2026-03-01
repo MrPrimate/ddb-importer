@@ -83,7 +83,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
           options: {
             durationSeconds: 6,
           },
-          daeSpecialDurations: ["turnStart", "1Attack", "1Spell"],
+          daeSpecialDurations: ["turnStart" as const, "1Attack" as const, "1Spell" as const],
         });
         break;
       case "Strike of the Giants: Frost Strike":
@@ -95,7 +95,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
           options: {
             durationSeconds: 6,
           },
-          daeSpecialDurations: ["turnStartSource"],
+          daeSpecialDurations: ["turnStartSource" as const],
         });
         break;
       case "Strike of the Giants: Storm Strike":
@@ -107,7 +107,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
           options: {
             durationSeconds: 6,
           },
-          daeSpecialDurations: ["turnStartSource"],
+          daeSpecialDurations: ["turnStartSource" as const],
         });
         break;
       // no default

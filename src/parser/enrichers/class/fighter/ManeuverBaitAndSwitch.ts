@@ -27,7 +27,7 @@ export default class ManeuverBaitAndSwitch extends Maneuver {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(this.diceString, 20, "system.attributes.ac.bonus"),
         ],
-        daeSpecialDurations: ["turnStartSource"],
+        daeSpecialDurations: ["turnStartSource" as const],
       },
     ];
   }
