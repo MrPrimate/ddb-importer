@@ -14,7 +14,7 @@ export default class AvengingAngel extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.ddbParser.isAction) {
       return [];
     }

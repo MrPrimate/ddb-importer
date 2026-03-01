@@ -76,7 +76,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects() : IDDBEffectHint[] {
     if (this.is2014) return null;
     const flagName = `${utils.idString(this.data.name)}Called`;
     const overtimeOptions = [
@@ -118,8 +118,8 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
             },
             ActiveAuras: {
               isAura: true,
-              aura: "Enemy",
-              radius: 10,
+              aura: "Enemies" as const,
+              radius: "10",
               alignment: "",
               type: "",
               ignoreSelf: true,

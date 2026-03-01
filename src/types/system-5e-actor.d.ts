@@ -494,9 +494,9 @@ global {
   // ---- Damage parts ---------------------------------------------------------
 
   export interface I5eDamageScaling {
-    mode: string;
-    number: number | null;
-    formula: string;
+    mode?: string;
+    number?: number | null;
+    formula?: string;
   }
 
   export interface I5eDamageCustom {

@@ -57,11 +57,16 @@ global {
       ActiveAuras?: {
         ignoreSelf?: boolean;
         aura: "Allies" | "Enemies" | "All";
-        radius: string;
-        isAura: boolean;
-        inactive: boolean;
-        hidden: boolean;
-        displayTemp: boolean;
+        alignment?: string;
+        type?: string;
+        height?: boolean;
+        hostile?: boolean;
+        onlyOnce?: boolean;
+        radius?: string;
+        isAura?: boolean;
+        inactive?: boolean;
+        hidden?: boolean;
+        displayTemp?: boolean;
       };
       auraeffects?: IDDBAuraEffects;
       dae?: {

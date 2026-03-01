@@ -10,7 +10,7 @@ export default class ConjureCelestial extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return null;
     if (!["save", "heal"].includes(this.ddbEnricher?._originalActivity?.type)) return null;
     return {

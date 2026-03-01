@@ -10,9 +10,9 @@ global {
   }
 
   export interface I5eSystemLimitedUses {
-    spent: number | null;
-    max: string | null;
-    recovery: I5eSystemLimitedUsesRecovery[];
+    spent?: number | null;
+    max?: string | null;
+    recovery?: I5eSystemLimitedUsesRecovery[];
     override?: boolean;
   }
 
