@@ -40,6 +40,12 @@ export default class FormOfDread extends DDBEnricherData {
           activationType: "special",
           noTemplate: true,
           data: {
+            save: {
+              ability: ["wis"],
+              dc: {
+                calculation: "spellcasting",
+              },
+            },
             range: {
               value: null,
               units: "spec",
@@ -70,8 +76,28 @@ export default class FormOfDread extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.ci.value")
+          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.ci.value"),
         ],
+      },
+      {
+        name: "Form of Dread: Necrotic Husk",
+        activityMatch: "Transform",
+        options: {
+          durationSeconds: 60,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.di.value"),
+        ],
+        data: {
+          flags: {
+            ddbimporter: {
+              effectIdLevel: {
+                min: null,
+                max: null,
+              },
+            },
+          },
+        },
       },
       {
         name: "Frightened",
