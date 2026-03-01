@@ -10,7 +10,7 @@ export default class EnhanceAbility extends DDBEnricherData {
   get additionalActivities() {
     return [
       { ability: "str", name2014: "Bull's Strength" },
-      { ability: "con", name2014: "Bear's Endurance", type: "heal" },
+      { ability: "con", name2014: "Bear's Endurance", type: DDBEnricherData.ACTIVITY_TYPES.HEAL },
       { ability: "dex", name2014: "Cat's Grace" },
       { ability: "int", name2014: "Fox's Cunning" },
       { ability: "wis", name2014: "Owl's Wisdom" },
@@ -22,12 +22,12 @@ export default class EnhanceAbility extends DDBEnricherData {
           init: {
             name: this.is2014 ? data.name2014 : `Enhance ${CONFIG.DND5E.abilities[data.ability].label}`,
             type: this.is2014
-              ? data.type ?? "utility"
-              : "utility",
+              ? data.type ?? DDBEnricherData.ACTIVITY_TYPES.UTILITY
+              : DDBEnricherData.ACTIVITY_TYPES.UTILITY,
           },
           build: {
             generateConsumption: true,
-            generateHealing: data.type === "heal",
+            generateHealing: data.type === DDBEnricherData.ACTIVITY_TYPES.HEAL,
             healingPart: DDBEnricherData.basicDamagePart({
               number: 2,
               denomination: 6,

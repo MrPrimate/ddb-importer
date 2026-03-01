@@ -349,6 +349,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Totem Spirit",
     "Totemic Attunement",
     "Variant Tiefling",
+    "Genie's Vessel",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -464,6 +465,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Divine Magic",
     "Giant's Power",
     "Draconic Disciple",
+    "Genie Kind",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

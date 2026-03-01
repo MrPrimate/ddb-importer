@@ -65,15 +65,22 @@ global {
       };
       auraeffects?: IDDBAuraEffects;
       dae?: {
-        showIcon: boolean | null;
-        transfer: boolean;
-        stackable: string;
-        specialDuration: DAESpecialDuration[];
-        // armorEffect?: boolean;
+        selfTarget?: boolean;
+        selfTargetAlways?: boolean;
+        macroRepeat?: "startEndEveryTurn" | "startEveryTurn" | "endEveryTurn" | "startEndTurn" | "startTurn" | "endTurn"| string;
+        showIcon?: boolean | null;
+        transfer?: boolean;
+        stackable?: string;
+        specialDuration?: DAESpecialDuration[];
       };
       ddbimporter?: {
         disabled?: boolean;
         activityRiders?: string[];
+        effectRiders?: string[];
+        effectIdLevel?: {
+          min: number | null;
+          max: number | null;
+        };
       };
       "midi-qol"?: {
         forceCEOff?: boolean;

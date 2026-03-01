@@ -315,7 +315,7 @@ global {
 
   export interface IDDBActivityAction {
     name: string;
-    type: string;
+    type: "race" | "class" | "feat" | "item" | "spell";
     isAttack?: boolean | null;
     rename?: string[] | null;
     id?: string | null;
@@ -323,7 +323,7 @@ global {
 
   export interface IDDBActivityInit {
     name: string;
-    type: string;
+    type: IDDBActivityType;
   }
 
   export interface IDDBActivityBuild {

@@ -24,7 +24,7 @@ export default class CrownOfStars extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -61,19 +61,19 @@ export default class CrownOfStars extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "A Crown of Stars",
         activityMatch: "Cast Spell",
-        option: {
+        options: {
           description: "Star-like motes of light orbit your head",
         },
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '60'),
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '30'),
         ],
-        macroChange: [
+        macroChanges: [
           { macroType: "spell", macroName: "crownOfStars.js" },
         ],
         data: {

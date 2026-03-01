@@ -13,7 +13,7 @@ export default class ArmorModel extends DDBEnricherData {
       max: "@prof",
       period: "lr",
     });
-    const results = [
+    const results: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Guardian",
@@ -130,12 +130,12 @@ export default class ArmorModel extends DDBEnricherData {
           generateTarget: true,
           generateRange: true,
           generateActivation: true,
-          activationCondition: "A creature ends it's turn within 30 feet of you",
           activationOverride: {
             type: "reaction",
           },
         },
         overrides: {
+          activationCondition: "A creature ends it's turn within 30 feet of you",
           id: "ddbPullCreature1",
           targetType: "creature",
           addActivityConsume: true,
@@ -175,7 +175,7 @@ export default class ArmorModel extends DDBEnricherData {
   }
 
   get _infiltratorActivities() {
-    const results = [
+    const results: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Infiltrator",
@@ -347,8 +347,8 @@ export default class ArmorModel extends DDBEnricherData {
     return results;
   }
 
-  get _dreadnaughtActivities() {
-    const results = [
+  get _dreadnaughtActivities(): IDDBAdditionalActivity[] {
+    const results: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Dreadnaught",
@@ -529,7 +529,7 @@ export default class ArmorModel extends DDBEnricherData {
     return results;
   }
 
-  get _guardianEffects() {
+  get _guardianEffects(): IDDBEffectHint[] {
     return [
       {
         name: "Guardian",
@@ -575,7 +575,7 @@ export default class ArmorModel extends DDBEnricherData {
     ];
   }
 
-  get _infiltratorEffects() {
+  get _infiltratorEffects(): IDDBEffectHint[] {
     return [
       {
         name: "Infiltrator Armor",
@@ -717,7 +717,7 @@ export default class ArmorModel extends DDBEnricherData {
   }
 
   get effects() {
-    const results = [
+    const results: IDDBEffectHint[] = [
       ...this._guardianEffects,
       ...this._infiltratorEffects,
     ];

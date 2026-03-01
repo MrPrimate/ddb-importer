@@ -12,5 +12,6 @@ export const ACTIVITY_TYPES = {
   SUMMON: "summon",
   TRANSFORM: "transform",
   UTILITY: "utility",
+  USE: "utility",
   DDBMACRO: "ddbmacro",
 } as const;

@@ -24,6 +24,14 @@ global {
   export interface IActivityEffectData {
     _id: string;
     onSave?: boolean;
+    riders?: {
+      activity?: string[];
+      effect?: string[];
+    };
+     level?: {
+      min: number | null;
+      max: number | null;
+    };
   }
 
   export interface IActivityVisibilityData {
@@ -210,6 +218,7 @@ global {
     check?: IActivityCheckData;
     actionType?: string;
     uuid?: string;
+    img?: string;
     otherActivity?: IActivity | null;
     type?: string;
     useCondition?: string;
