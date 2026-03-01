@@ -11,6 +11,7 @@ export { default as EldritchInvocationsAgonizingBlast } from "./EldritchInvocati
 export { default as EldritchMaster } from "./EldritchMaster";
 export { default as ExtraSpells } from "./ExtraSpells";
 export { default as FiendishResilience } from "./FiendishResilience";
+export { default as FormOfDread } from "./FormOfDread";
 export { default as FormOfTheBeast } from "./FormOfTheBeast";
 export { default as GeniesVessel } from "./GeniesVessel";
 export { default as GhostlyGaze } from "./GhostlyGaze";
