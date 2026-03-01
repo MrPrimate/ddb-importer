@@ -43,7 +43,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
         name: "Magical Map",
         type: "enchant",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(`Magical Map`, 20, "name"),
+          DDBEnricherData.ChangeHelper.overrideChange("Magical Map", 20, "name"),
           DDBEnricherData.ChangeHelper.overrideChange("icons/sundries/scrolls/scroll-bound-green.webp", 20, "img"),
         ],
         activitiesMatch: ["Create Magical Map (Enchantment)"],
@@ -64,7 +64,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
         name: "Magical Map",
         type: "enchant",
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(`Magical Map`, 20, "name"),
+          DDBEnricherData.ChangeHelper.overrideChange("Magical Map", 20, "name"),
           DDBEnricherData.ChangeHelper.overrideChange("icons/sundries/scrolls/scroll-bound-green.webp", 20, "img"),
         ],
         activitiesMatch: ["Create Magical Map (Enchantment)"],
@@ -158,7 +158,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
             uses: {
               max: "1",
               spent: 0,
-              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+              recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
             },
           },
         },
@@ -262,7 +262,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
             uses: {
               max: "1",
               spent: 0,
-              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+              recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
             },
           },
         },
