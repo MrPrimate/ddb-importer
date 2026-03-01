@@ -8,4 +8,3 @@ export default class ArtificerSpells extends SpellListExtractorMixin {
 
 }
 
-

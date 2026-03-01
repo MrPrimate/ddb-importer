@@ -25,7 +25,7 @@ export default class FiendishResilience extends DDBEnricherData {
         spent: null,
         max: "1",
         recovery: [
-          { period: "sr", type: 'recoverAll', formula: undefined },
+          { period: "sr", type: "recoverAll", formula: undefined },
         ],
       },
       retainOriginalConsumption: true,

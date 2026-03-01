@@ -154,7 +154,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
 DDBCharacter.prototype._generateSkills = async function _generateSkills() {
   const addEffects = game.modules.get("dae")?.active;
 
-  if (!addEffects) this.raw.character.flags['skill-customization-5e'] = {};
+  if (!addEffects) this.raw.character.flags["skill-customization-5e"] = {};
   DICTIONARY.actor.skills.forEach((skill) => {
     const customProficient = this.getCustomSkillProficiency(skill);
     // we use !== undefined because the return value could be 0, which is falsey

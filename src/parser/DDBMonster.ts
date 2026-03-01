@@ -1,7 +1,7 @@
 import { newNPC } from "./monster/templates/monster";
 import { specialCases } from "./monster/special";
 import { monsterFeatureEffectAdjustment } from "../effects/specialMonsters";
-import { logger, utils, CompendiumHelper } from '../lib/_module';
+import { logger, utils, CompendiumHelper } from "../lib/_module";
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory";
 import { ExternalAutomations } from "../effects/_module";
 
@@ -79,7 +79,7 @@ class DDBMonster {
   addMonsterEffects: boolean;
   addChrisPremades: boolean;
   removedHitPoints: number;
-  temporaryHitPoints: number
+  temporaryHitPoints: number;
   unexpectedDescription: string | null;
   characterDescription: string;
   cr: {
@@ -88,6 +88,7 @@ class DDBMonster {
     proficiencyBonus: number;
     xp: number;
   };
+
   typeName: string;
   img: string;
   stockImage: boolean;
@@ -105,6 +106,7 @@ class DDBMonster {
     spellLevel: number;
     spellAttackBonus: number;
   };
+
   spellList: {
     class: any[];
     pact: any[];
@@ -115,6 +117,7 @@ class DDBMonster {
     innateMatch: boolean;
     concentration: boolean;
   };
+
   abilities: IMonsterAbilities;
 
   setProperty(name, value) {

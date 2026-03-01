@@ -21,4 +21,3 @@ export default class UnearthlyRecovery extends DDBEnricherData {
 
 }
 
-

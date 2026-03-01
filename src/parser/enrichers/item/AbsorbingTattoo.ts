@@ -11,7 +11,7 @@ export default class AbsorbingTattoo extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "reaction",
-      activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,
+      activationCondition: `When you take ${this.ddbParser.originalName.split(",").pop().trim().toLowerCase()} damage`,
       targetType: "self",
       data: {
         name: "Healing Reaction",

@@ -123,7 +123,7 @@ global {
     settings?: IActivitySettingsData;
     description?: {
       chatFlavor: string;
-    }
+    };
     consumption?: {
       scaling?: {
         allowed?: boolean;
@@ -187,7 +187,7 @@ global {
     enchant?: {
       identifier?: string;
       self: boolean;
-    },
+    };
     duration?: {
       concentration?: boolean;
       override?: boolean;

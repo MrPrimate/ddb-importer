@@ -115,10 +115,10 @@ export default class DDBSummonsManager {
     for (const [key, value] of Object.entries(generatedSummonedActors)) {
       // check for JB2A modules
       if (value.needsJB2A
-        && !game.modules.get('jb2a_patreon')?.active
-        && !game.modules.get('JB2A_DnD5e')?.active
+        && !game.modules.get("jb2a_patreon")?.active
+        && !game.modules.get("JB2A_DnD5e")?.active
       ) continue;
-      if (value.needsJB2APatreon && !game.modules.get('jb2a_patreon')?.active) continue;
+      if (value.needsJB2APatreon && !game.modules.get("jb2a_patreon")?.active) continue;
       const existingSummons = manager.itemHandler.compendium.index.find((i) =>
         i.flags?.ddbimporter?.summons?.summonsKey === key,
       );

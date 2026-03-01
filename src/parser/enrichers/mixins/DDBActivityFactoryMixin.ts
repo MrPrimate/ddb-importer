@@ -419,7 +419,7 @@ export default class DDBActivityFactoryMixin {
         override: true,
         max: "1",
         spent: 0,
-        recovery: [{ period, type: 'recoverAll', formula: undefined }],
+        recovery: [{ period, type: "recoverAll", formula: undefined }],
       });
       foundry.utils.setProperty(this.data, `system.activities.${singleActivity._id}`, singleActivity);
     }

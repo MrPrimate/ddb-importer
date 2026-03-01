@@ -35,6 +35,7 @@ export default class CharacterSpellFactory {
     race: [],
     background: [],
   };
+
   ddb: IDDBData;
   ddbCharacter: DDBCharacter;
   proficiencyModifier: number;

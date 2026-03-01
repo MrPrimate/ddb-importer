@@ -95,7 +95,7 @@ export class DDBAdventureFlags extends FormApplication {
     $(html)
       .find(
         [
-          '.flag-policy input[type="checkbox"]',
+          ".flag-policy input[type=\"checkbox\"]",
         ].join(","),
       )
       .on("change", async (event) => {

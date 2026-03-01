@@ -55,8 +55,8 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
   DDBModifiers
     .filterBaseModifiers(this.source.ddb, "set-base", devilsSightFilters)
     .forEach((sense) => {
-      if (Number.isInteger(sense.value) && sense.value > senses['darkvision']) {
-        senses['darkvision'] = parseInt(sense.value);
+      if (Number.isInteger(sense.value) && sense.value > senses["darkvision"]) {
+        senses["darkvision"] = parseInt(sense.value);
         special.push("You can see normally in darkness, both magical and nonmagical.");
       }
     });

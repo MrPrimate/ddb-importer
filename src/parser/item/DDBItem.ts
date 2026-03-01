@@ -25,6 +25,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     custom: boolean;
     earlyProperties: Set<string>;
   };
+
   isContainer: boolean;
   isContainerTag: boolean;
   isOuterwearTag: boolean;
@@ -44,6 +45,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     subtype: string | null;
     baseItem: string | null;
   };
+
   addAutomationEffects: boolean;
   updateExisting: boolean;
   spellsAsCastActivity: boolean;
@@ -237,23 +239,23 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.characterEffectAbilities = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.effectAbilities");
 
     this.isContainer = this.ddbDefinition.isContainer && !DDBItem.NON_CONTAINERS.includes(this.ddbDefinition.name);
-    this.isContainerTag = this.ddbDefinition.tags.includes('Container');
-    this.isOuterwearTag = this.ddbDefinition.tags.includes('Outerwear')
-      || this.ddbDefinition.tags.includes('Footwear');
-    this.isClothingTag = this.isOuterwearTag || this.ddbDefinition.tags.includes('Clothing');
+    this.isContainerTag = this.ddbDefinition.tags.includes("Container");
+    this.isOuterwearTag = this.ddbDefinition.tags.includes("Outerwear")
+      || this.ddbDefinition.tags.includes("Footwear");
+    this.isClothingTag = this.isOuterwearTag || this.ddbDefinition.tags.includes("Clothing");
     this.isTashasInstalled = game.modules.get("dnd-tashas-cauldron")?.active;
     this.isTattoo = this.ddbDefinition.name.toLowerCase().includes("tattoo");
     this.tattooType = this.isTashasInstalled && this.isTattoo;
     this.isSpellwrought = this.ddbDefinition.name.toLowerCase().includes("spellwrought");
-    this.isMealTag = this.ddbDefinition.tags.includes('Meal')
-      || this.ddbDefinition.tags.includes('magical meal')
-      || this.ddbDefinition.tags.includes('Food')
+    this.isMealTag = this.ddbDefinition.tags.includes("Meal")
+      || this.ddbDefinition.tags.includes("magical meal")
+      || this.ddbDefinition.tags.includes("Food")
       || this.originalName.startsWith("Magnetite Curry");
     this.isConsumable = DDBItem.CONSUMABLE_TRINKETS.includes(this.originalName)
       || DDBItem.CONSUMABLE_TRINKETS.some((t) => this.originalName.startsWith(t))
       || DDBItem.CONSUMABLE_WONDROUS_ITEMS.includes(this.originalName)
       || DDBItem.CONSUMABLE_WONDROUS_ITEMS.some((t) => this.originalName.startsWith(t));
-    this.isPotion = this.ddbDefinition.tags.includes('Potion')
+    this.isPotion = this.ddbDefinition.tags.includes("Potion")
       || DDBItem.POTIONS.includes(this.originalName);
     // this.ddbDefinition.isConsumable; // this adds too many
 
@@ -978,7 +980,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (itemType) {
       this.documentType = itemType;
       if (itemType === "consumable") {
-        if (this.ddbDefinition.name.includes('vial') || this.ddbDefinition.name.includes('flask')) {
+        if (this.ddbDefinition.name.includes("vial") || this.ddbDefinition.name.includes("flask")) {
           this.systemType.value = "potion";
         } else if (this.ddbDefinition.name.startsWith("Ration")) {
           this.systemType.value = "food";
@@ -1828,7 +1830,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       const part = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, null).diceString,
-        type: 'healing',
+        type: "healing",
       });
       this.healingParts.push(part);
     }
@@ -1909,9 +1911,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (!this.removeWeaponMasteryDescription) return text;
     if (this.documentType !== "weapon") return text;
     const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'text/html');
+    const doc = parser.parseFromString(text, "text/html");
 
-    doc.querySelectorAll('.mastery-container').forEach((container) => {
+    doc.querySelectorAll(".mastery-container").forEach((container) => {
       container.remove();
     });
 
@@ -3041,16 +3043,16 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   }
 
   #addExtraDDBFlags() {
-    this.data.flags.ddbimporter['id'] = this.ddbItem.id;
-    this.data.flags.ddbimporter['entityTypeId'] = this.ddbItem.entityTypeId;
+    this.data.flags.ddbimporter["id"] = this.ddbItem.id;
+    this.data.flags.ddbimporter["entityTypeId"] = this.ddbItem.entityTypeId;
 
     if (this.ddbDefinition.avatarUrl)
-      this.data.flags.ddbimporter.dndbeyond['avatarUrl'] = this.ddbDefinition.avatarUrl.split('?')[0];
+      this.data.flags.ddbimporter.dndbeyond["avatarUrl"] = this.ddbDefinition.avatarUrl.split("?")[0];
     if (this.ddbDefinition.largeAvatarUrl)
-      this.data.flags.ddbimporter.dndbeyond['largeAvatarUrl'] = this.ddbDefinition.largeAvatarUrl.split('?')[0];
+      this.data.flags.ddbimporter.dndbeyond["largeAvatarUrl"] = this.ddbDefinition.largeAvatarUrl.split("?")[0];
     if (this.ddbDefinition.filterType) {
       const filter = DICTIONARY.items.find((i) => i.filterType === this.ddbDefinition.filterType);
-      if (filter) this.data.flags.ddbimporter.dndbeyond['filterType'] = filter.filterType;
+      if (filter) this.data.flags.ddbimporter.dndbeyond["filterType"] = filter.filterType;
     }
 
     // container info
@@ -3112,19 +3114,19 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #enrichFlags() {
     if (this.ddbDefinition?.entityTypeId)
-      this.data.flags.ddbimporter['definitionEntityTypeId'] = this.ddbDefinition.entityTypeId;
+      this.data.flags.ddbimporter["definitionEntityTypeId"] = this.ddbDefinition.entityTypeId;
     if (this.ddbDefinition?.id)
-      this.data.flags.ddbimporter['definitionId'] = this.ddbDefinition.id;
+      this.data.flags.ddbimporter["definitionId"] = this.ddbDefinition.id;
     if (this.ddbItem.entityTypeId)
-      this.data.flags.ddbimporter['entityTypeId'] = this.ddbItem.entityTypeId;
+      this.data.flags.ddbimporter["entityTypeId"] = this.ddbItem.entityTypeId;
     if (this.ddbItem.id)
-      this.data.flags.ddbimporter['id'] = this.ddbItem.id;
+      this.data.flags.ddbimporter["id"] = this.ddbItem.id;
     if (this.ddbDefinition?.tags)
-      this.data.flags.ddbimporter.dndbeyond['tags'] = this.ddbDefinition.tags;
+      this.data.flags.ddbimporter.dndbeyond["tags"] = this.ddbDefinition.tags;
     if (this.ddbDefinition?.sources)
-      this.data.flags.ddbimporter.dndbeyond['sources'] = this.ddbDefinition.sources;
+      this.data.flags.ddbimporter.dndbeyond["sources"] = this.ddbDefinition.sources;
     if (this.ddbDefinition?.stackable)
-      this.data.flags.ddbimporter.dndbeyond['stackable'] = this.ddbDefinition.stackable;
+      this.data.flags.ddbimporter.dndbeyond["stackable"] = this.ddbDefinition.stackable;
   }
 
 

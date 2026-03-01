@@ -90,7 +90,7 @@ declare global {
       }>;
       abilityActivationTypes: Record<string, string>;
       activityTypes: Record<string, {
-        documentClass: Function | Activity
+        documentClass: Function | Activity;
       }>;
       actorSizes: Record<string, {
         label: string;
@@ -107,7 +107,7 @@ declare global {
         standard?: boolean;
       }>;
       armorClasses: Record<string, {
-        label: string
+        label: string;
       }>;
       consumableTypes: Record<string, {
         label: string;
@@ -169,10 +169,10 @@ declare global {
         sortCategories?: boolean;
         expertise?: boolean;
         mastery?: boolean;
-      }>
-      weaponMasteries: Record<string, { label: string, reference?: string }>;
+      }>;
+      weaponMasteries: Record<string, { label: string; reference?: string }>;
       weaponTypes: Record<string, string>;
-    }
+    };
     DDB: IDDBConfig;
   }
 

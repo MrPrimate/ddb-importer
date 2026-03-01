@@ -211,7 +211,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
             // icon: '<i class="fas fa-list-ol"></i>',
             // label: "Auto",
             callback: async () => {
-              const formData = $('.character-resource-selection').serializeArray();
+              const formData = $(".character-resource-selection").serializeArray();
               this._generateResourceSelectionFromForm(formData, "default");
               this.setDefaultResources(sortedResources);
               this._generateResources();
@@ -222,14 +222,14 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
             // icon: '<i class="fas fa-sort"></i>',
             // label: "Custom",
             callback: async () => {
-              const formData = $('.character-resource-selection').serializeArray();
+              const formData = $(".character-resource-selection").serializeArray();
               this._generateResourceSelectionFromForm(formData, "custom");
               resolve(this.raw.character);
             },
           },
           disable: {
             callback: async () => {
-              const formData = $('.character-resource-selection').serializeArray();
+              const formData = $(".character-resource-selection").serializeArray();
               this._generateResourceSelectionFromForm(formData, "disable");
               this._generateResources();
               resolve(this.raw.character);
@@ -237,7 +237,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
           },
           remove: {
             callback: async () => {
-              const formData = $('.character-resource-selection').serializeArray();
+              const formData = $(".character-resource-selection").serializeArray();
               this._generateResourceSelectionFromForm(formData, "remove");
               this._generateResources();
               resolve(this.raw.character);

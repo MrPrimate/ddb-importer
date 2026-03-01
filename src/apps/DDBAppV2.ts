@@ -29,7 +29,7 @@ export interface NotifierV2Props {
 
 export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
 
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
 
   constructor() {
     super();
@@ -65,8 +65,8 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
   }
 
   _toggleNestedTabs() {
-    const primary = this.element.querySelector('.window-content > [data-application-part="tabs"]');
-    const active = this.element.querySelector('.tab.active[data-group="sheet"]');
+    const primary = this.element.querySelector(".window-content > [data-application-part=\"tabs\"]");
+    const active = this.element.querySelector(".tab.active[data-group=\"sheet\"]");
     if (!primary || !active) return;
     primary.classList.toggle("nested-tabs", active.querySelector(`:scope > .sheet-tabs`));
   }
@@ -176,7 +176,7 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
    *   - `#munching-task-monster` if `options.monsterNote` is true
    *   - `#munching-task-notes` otherwise
    */
-  munchNote(note: string, { nameField = false, monsterNote = false, isError = false, message = null }: { nameField?: boolean; monsterNote?: boolean; isError?: boolean; message?: string; } = {}) {
+  munchNote(note: string, { nameField = false, monsterNote = false, isError = false, message = null }: { nameField?: boolean; monsterNote?: boolean; isError?: boolean; message?: string } = {}) {
     if (!this.element) {
       logger.info("PreRenderNote:", { note, nameField, monsterNote, message, isError });
       return;
@@ -241,12 +241,12 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     }
 
     if (progress && importProgressElement) {
-      importProgressElement.classList.remove('munching-hidden');
+      importProgressElement.classList.remove("munching-hidden");
       barElement.style.width = `${Math.trunc((progress.current / progress.total) * 100)}%`;
 
       if (clear && barElement) {
         // clear logic here
-        importProgressElement.classList.add('munching-hidden');
+        importProgressElement.classList.add("munching-hidden");
       }
     }
 

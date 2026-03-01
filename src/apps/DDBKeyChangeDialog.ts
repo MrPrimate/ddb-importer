@@ -25,7 +25,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     classes: ["standard-form", "dnd5e2"],
     window: {
       title: "ddb-importer.keychange.Update",
-      icon: 'fab fa-d-and-d-beyond',
+      icon: "fab fa-d-and-d-beyond",
     },
     tag: "form",
     actions: {
@@ -94,8 +94,8 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
    */
   static async #handleFormSubmission(_event, _form, formData) {
     const currentKey = PatreonHelper.getPatreonKey(this.local);
-    if (currentKey !== formData.object['patreon-key']) {
-      await PatreonHelper.setPatreonKey(formData.object['patreon-key'], this.local);
+    if (currentKey !== formData.object["patreon-key"]) {
+      await PatreonHelper.setPatreonKey(formData.object["patreon-key"], this.local);
       await PatreonHelper.setPatreonTier(this.local);
     }
 

@@ -1203,7 +1203,7 @@ export default class CharacterFeatureFactory {
       featuresToCheck.push({
         feature,
         type,
-        version: feature.system.source?.rules ?? (game.settings.get("dnd5e", "rulesVersion") === 'modern' ? "2024" : "2014"),
+        version: feature.system.source?.rules ?? (game.settings.get("dnd5e", "rulesVersion") === "modern" ? "2024" : "2014"),
       });
     }
 

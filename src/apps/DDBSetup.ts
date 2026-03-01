@@ -135,7 +135,7 @@ export default class DDBSetup extends DDBAppV2 {
       closeOnSubmit: false,
     },
     window: {
-      icon: 'fab fa-d-and-d-beyond',
+      icon: "fab fa-d-and-d-beyond",
       resizable: true,
       minimizable: true,
       subtitle: "",
@@ -423,12 +423,11 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
 
-
   static async checkCobaltCookie(value) {
     const cookieStatus = await Secrets.checkCobalt("", value);
     if (value !== "" && !cookieStatus.success) {
-      $('#munching-task-setup').text(`Your Cobalt Cookie is invalid, please check that you pasted the right information.`);
-      $('#ddb-importer-settings').css("height", "auto");
+      $("#munching-task-setup").text(`Your Cobalt Cookie is invalid, please check that you pasted the right information.`);
+      $("#ddb-importer-settings").css("height", "auto");
       throw new Error(`Your Cobalt Cookie is invalid, please check that you pasted the right information.`);
     }
     return cookieStatus;
@@ -592,13 +591,13 @@ export default class DDBSetup extends DDBAppV2 {
   async _saveCore(formData) {
     const currentKey = PatreonHelper.getPatreonKey();
 
-    if (currentKey !== formData.object['patreon-key']) {
-      await PatreonHelper.setPatreonKey(formData.object['patreon-key']);
+    if (currentKey !== formData.object["patreon-key"]) {
+      await PatreonHelper.setPatreonKey(formData.object["patreon-key"]);
       await PatreonHelper.setPatreonTier();
     }
 
-    const cobaltCookie = formData.object['cobalt-cookie'];
-    const cobaltCookieLocal = formData.object['cobalt-cookie-local'] ?? true;
+    const cobaltCookie = formData.object["cobalt-cookie"];
+    const cobaltCookieLocal = formData.object["cobalt-cookie-local"] ?? true;
     const currentCobalt = Secrets.getCobalt();
 
     if (currentCobalt !== cobaltCookie) {
@@ -617,8 +616,8 @@ export default class DDBSetup extends DDBAppV2 {
       await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", cobaltCookieLocal);
     }
 
-    const campaignSelect = formData.object['campaign-select'];
-    const fallbackCampaign = formData.object['campaign-fallback'];
+    const campaignSelect = formData.object["campaign-select"];
+    const fallbackCampaign = formData.object["campaign-fallback"];
     const campaignId = this.campaignFallback && fallbackCampaign && fallbackCampaign !== ""
       ? (fallbackCampaign ?? "")
       : campaignSelect == 0
@@ -681,8 +680,8 @@ export default class DDBSetup extends DDBAppV2 {
       for (const data of directoryStatus.filter((dir) => !dir.isBad)) {
         await game.settings.set(SETTINGS.MODULE_ID, data.key, data.value);
       }
-      const useWebP = formData.object['use-webp'];
-      const useDeepFilePaths = formData.object['use-deep-file-paths'];
+      const useWebP = formData.object["use-webp"];
+      const useDeepFilePaths = formData.object["use-deep-file-paths"];
 
       if (this.useWebP !== useWebP) await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
       if (this.useDeepFilePaths !== useDeepFilePaths) {
@@ -710,7 +709,7 @@ export default class DDBSetup extends DDBAppV2 {
       return;
     }
 
-    game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", formData.object['dynamic-sync-user']);
+    game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", formData.object["dynamic-sync-user"]);
 
     for (const setting of this.dynamicEnabledSettings) {
       if (setting.name === "dynamic-sync"
@@ -731,16 +730,16 @@ export default class DDBSetup extends DDBAppV2 {
 
 
   async _saveProxy(formData) {
-    if (this.proxyAddress !== formData.object['api-endpoint']
-      || this.useCustomProxy !== formData.object['custom-proxy']
+    if (this.proxyAddress !== formData.object["api-endpoint"]
+      || this.useCustomProxy !== formData.object["custom-proxy"]
     ) {
-      await game.settings.set(SETTINGS.MODULE_ID, "custom-proxy", formData.object['custom-proxy']);
-      await game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", formData.object['api-endpoint']);
+      await game.settings.set(SETTINGS.MODULE_ID, "custom-proxy", formData.object["custom-proxy"]);
+      await game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", formData.object["api-endpoint"]);
     }
   }
 
   async _saveEnhancements(formData) {
-    const allowed = formData.object['allowed-weapon-property-sources'].map((id) => parseInt(id));
+    const allowed = formData.object["allowed-weapon-property-sources"].map((id) => parseInt(id));
     await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", allowed);
     for (const setting of this.enhancementConfig) {
       await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);

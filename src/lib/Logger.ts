@@ -7,7 +7,7 @@ const logger = {
   LOG_MSG_DEFAULT: "No logging message provided. Please see the payload for more information.",
 
   _showMessage: (logLevel, data) => {
-    if (!logLevel || !data || typeof (logLevel) !== 'string') {
+    if (!logLevel || !data || typeof (logLevel) !== "string") {
       return false;
     }
 
@@ -46,10 +46,10 @@ const logger = {
       ? "DEBUG"
       : logLevel.toUpperCase();
 
-    const msgContent = data[0] && typeof (data[0] == 'string')
+    const msgContent = data[0] && typeof (data[0] == "string")
       ? data[0]
       : logger.LOG_MSG_DEFAULT;
-    const payload = data[0] && typeof (data[0] == 'string')
+    const payload = data[0] && typeof (data[0] == "string")
       ? data.length > 1
         ? data.slice(1)
         : null
@@ -156,7 +156,7 @@ export default logger;
 const getCircularReplacer = () => {
   const seen = new WeakSet();
   return (_key, value) => {
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === "object" && value !== null) {
       if (seen.has(value)) {
         return;
       }

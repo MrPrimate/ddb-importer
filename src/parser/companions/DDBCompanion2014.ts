@@ -26,8 +26,8 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
       const value = Number.parseInt(abilityScore);
       const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
-      this.npc.system.abilities[ability]['value'] = value;
-      this.npc.system.abilities[ability]['mod'] = mod;
+      this.npc.system.abilities[ability]["value"] = value;
+      this.npc.system.abilities[ability]["mod"] = mod;
     });
   }
 
@@ -62,7 +62,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     saves.forEach((save) => {
       const ability = save.trim().split(" ")[0].toLowerCase();
       if (save.includes("plus PB") || save.includes("+ PB")) {
-        this.npc.system.abilities[ability]['proficient'] = 1;
+        this.npc.system.abilities[ability]["proficient"] = 1;
       }
     });
   }

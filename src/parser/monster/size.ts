@@ -9,8 +9,8 @@
 //     "size": "grg",
 //     "sizeId": 7,
 
-import { DICTIONARY } from '../../config/_module';
-import { logger } from '../../lib/_module';
+import { DICTIONARY } from "../../config/_module";
+import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {

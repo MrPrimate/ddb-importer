@@ -27,7 +27,7 @@ export default class BlessingOfTheForge extends DDBEnricherData {
           data: {
             restrictions: {
               type: "equipment",
-              categories: ['heavy', 'light', 'medium'],
+              categories: ["heavy", "light", "medium"],
             },
           },
         },

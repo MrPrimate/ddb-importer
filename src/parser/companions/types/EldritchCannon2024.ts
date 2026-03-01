@@ -34,22 +34,22 @@ import { ICompanionData } from "./types";
 function extractEldritchCannonAbilities(html) {
   // Create a DOM parser
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
+  const doc = parser.parseFromString(html, "text/html");
 
   // Get all paragraph elements
-  const paragraphs = doc.querySelectorAll('p');
+  const paragraphs = doc.querySelectorAll("p");
 
   const abilities = [];
 
   paragraphs.forEach((p) => {
     // Look for paragraphs with <strong> tags that contain ability names
-    const strongTags = p.querySelectorAll('strong');
+    const strongTags = p.querySelectorAll("strong");
 
     strongTags.forEach((strong) => {
       const text = strong.textContent.replace(".", "").trim();
 
       // Check if this is one of our target abilities (ends with a period)
-      if (['Flamethrower', 'Force Ballista', 'Protector'].includes(text)) {
+      if (["Flamethrower", "Force Ballista", "Protector"].includes(text)) {
         // Get the ability name without the period
         const abilityName = text.slice(0, -1);
 

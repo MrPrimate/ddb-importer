@@ -31,7 +31,7 @@ DDBMonster.prototype._generateMovement = function () {
     const movement = CONFIG.DDB.movements.find((mv) => mv.id == monsterMovement.movementId);
     this.npc.system.attributes.movement[movement.name.toLowerCase()] = monsterMovement.speed;
 
-    if (monsterMovement.notes && monsterMovement.notes.toLowerCase().includes('hover')) {
+    if (monsterMovement.notes && monsterMovement.notes.toLowerCase().includes("hover")) {
       this.npc.system.attributes.movement.hover = true;
     }
 

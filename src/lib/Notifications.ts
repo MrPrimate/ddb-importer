@@ -35,7 +35,7 @@ export function registerNotifications() {
           });
         }, timeout);
       else
-        $(note).append('<p style="text-align: center; color: #7e7e7e; margin: 0px;"><small>Click to close</small>');
+        $(note).append("<p style=\"text-align: center; color: #7e7e7e; margin: 0px;\"><small>Click to close</small>");
 
       $(note).on("click", () => {
         $(note).fadeOut(200, () => {
@@ -57,7 +57,7 @@ export function registerNotifications() {
         // construct the note
         const note = $(`<div style="display: none"></div>`);
         $(note).append(message);
-        $(note).append('<div class="buttons"></div>');
+        $(note).append("<div class=\"buttons\"></div>");
         $("#ddbimporter-hints").append(note);
         $(note).fadeIn(200);
 

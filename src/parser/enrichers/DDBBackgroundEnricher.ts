@@ -20,6 +20,7 @@ export default class DDBBackgroundEnricher extends DDBEnricherFactoryMixin {
     None: GenericEnrichers.None,
     Generic: BackgroundEnrichers.Generic,
   };
+
   FALLBACK_ENRICHERS: Record<string, any> = {
     Generic: BackgroundEnrichers.Generic,
   };

@@ -1569,7 +1569,6 @@ export class DDBCompendiumFolders {
     }
   }
 
-
    
   #getIndexFields() {
     switch (this.type) {

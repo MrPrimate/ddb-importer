@@ -103,7 +103,7 @@ function characterButtonClickV2(event, _target) {
 }
 
 function getCharacterButton(document, actor) {
-  const buttonText = '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
+  const buttonText = "<button type=\"button\" id=\"ddbImporterButton\" class=\"inactive\"><i class=\"fab fa-d-and-d-beyond\"></button>";
 
   const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
     ? document.flags.ddbimporter.dndbeyond.url
@@ -133,7 +133,7 @@ function npcButtonClickV2(event, _target) {
 }
 
 function getNPCButton(document) {
-  const button = $('<button type="button" id="ddbImporterButton"><i class="fab fa-d-and-d-beyond"></button>');
+  const button = $("<button type=\"button\" id=\"ddbImporterButton\"><i class=\"fab fa-d-and-d-beyond\"></button>");
    
   button.click((event) => npcButtonClick(event, document));
 
@@ -145,7 +145,7 @@ function handlePCHeaderButton(config, buttons, label = true) {
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
-    class: 'ddb-open-url',
+    class: "ddb-open-url",
     icon: `fab fa-d-and-d-beyond${whiteTitle}`,
     onclick: (event) => characterButtonClick(event, config.document, config.actor),
   });
@@ -155,7 +155,7 @@ function handleNPCHeaderButton(config, buttons, label = true) {
   const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
-    class: 'ddb-open-url',
+    class: "ddb-open-url",
     icon: `fab fa-d-and-d-beyond${whiteTitle}`,
     onclick: (event) => npcButtonClick(event, config.document),
   });
@@ -362,8 +362,8 @@ export default function () {
 
   tidySheets();
   Hooks.on("getHeaderControlsBaseActorSheet", createDefault5eButtonsV2);
-  Hooks.on('getActorSheet5eHeaderButtons', createDefault5eButtons);
-  Hooks.on('getActorSheetHeaderButtons', createOldSheetHeaderButtons);
+  Hooks.on("getActorSheet5eHeaderButtons", createDefault5eButtons);
+  Hooks.on("getActorSheetHeaderButtons", createOldSheetHeaderButtons);
   pcSheetNames.forEach((sheetName) => {
     Hooks.on("render" + sheetName, (app, html, data) => {
       // only for GMs or the owner of this character
@@ -372,7 +372,7 @@ export default function () {
 
       if (!characterLink) {
         const button = getCharacterButton(app.document, data.actor);
-        const wrap = $('<div class="ddbCharacterName"></div>');
+        const wrap = $("<div class=\"ddbCharacterName\"></div>");
         $(html).find("input[name='name']").wrap(wrap);
         $(html).find("input[name='name']").parent().prepend(button);
       }
@@ -396,7 +396,7 @@ export default function () {
 
       if (!monsterLink) {
         const button = getNPCButton(app.document);
-        const wrap = $('<div class="ddbCharacterName"></div>');
+        const wrap = $("<div class=\"ddbCharacterName\"></div>");
         $(html).find("input[name='name']").wrap(wrap);
         $(html).find("input[name='name']").parent().prepend(button);
       }

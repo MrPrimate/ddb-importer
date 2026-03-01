@@ -160,7 +160,7 @@ async function compendiumContext(app, options) {
 
   options.push({
     name: "Create Spellwrought Tattoo",
-    icon: '<i class="fa-solid fa-user-pen"></i>',
+    icon: "<i class=\"fa-solid fa-user-pen\"></i>",
     callback: async (li) => {
       const spell = getSpellDetailsFromLi(li);
       const tattoo = await createTattooFromSpellUuid(spell.uuid);

@@ -571,7 +571,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         this.actionData.properties[key] = value;
       }
       const versatileWeapon = this.actionData.properties.ver
-        && this.ddbMonster.abilities['dex'].mod > this.ddbMonster.abilities['str'].mod;
+        && this.ddbMonster.abilities["dex"].mod > this.ddbMonster.abilities["str"].mod;
       if (versatileWeapon || this.weaponLookup.actionType == "rwak") {
         weaponAbilities = ["dex"];
       } else if (this.weaponLookup.actionType == "mwak") {
@@ -1163,7 +1163,7 @@ ${this.data.system.description.value}
         spent: 0,
         max: this.actionData.uses.max ? `${this.actionData.uses.max}` : null,
         recovery: [
-          { period: "sr", type: 'recoverAll', formula: undefined },
+          { period: "sr", type: "recoverAll", formula: undefined },
         ],
       };
     }

@@ -4,12 +4,12 @@ import { buildBaseClass, getClassFeature, NO_TRAITS, buildClassFeatures, generat
 import { DDBReferenceLinker } from "../../parser/lib/_module";
 
 async function buildSubClassBase(klass, subClass) {
-  delete klass['_id'];
+  delete klass["_id"];
   await getClassImages(subClass, klass);
-  klass.flags.ddbimporter['parentClassId'] = subClass.parentClassId;
-  klass.flags.ddbimporter['spellCastingAbilityId'] = subClass.spellCastingAbilityId;
-  klass.flags.ddbimporter['canCastSpells'] = subClass.canCastSpells;
-  klass.flags.ddbimporter['moreDetailsUrl'] = subClass.moreDetailsUrl;
+  klass.flags.ddbimporter["parentClassId"] = subClass.parentClassId;
+  klass.flags.ddbimporter["spellCastingAbilityId"] = subClass.spellCastingAbilityId;
+  klass.flags.ddbimporter["canCastSpells"] = subClass.canCastSpells;
+  klass.flags.ddbimporter["moreDetailsUrl"] = subClass.moreDetailsUrl;
 
   const image = foundry.utils.getProperty(klass, "flags.ddbimporter.image");
   if (image && image !== "") {

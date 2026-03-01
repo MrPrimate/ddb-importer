@@ -5,7 +5,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   constructor(block, options = {}) {
     super(block, options);
 
-    this.headerTag = this.block.querySelector('h4, h5');
+    this.headerTag = this.block.querySelector("h4, h5");
     this.infoTag = null;
 
     // If the h4 tag is found, get the next sibling element
@@ -13,7 +13,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
       const nextSibling = this.headerTag.nextElementSibling;
 
       // If the next sibling is a p tag, return its text content
-      if (nextSibling.tagName === 'P') {
+      if (nextSibling.tagName === "P") {
         this.infoTag = nextSibling;
       }
     }
@@ -27,7 +27,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     // Create a DOM parser to parse the HTML string
 
     // Find the table elements containing the ability scores
-    const tables = this.block.querySelectorAll('tbody');
+    const tables = this.block.querySelectorAll("tbody");
 
     // Initialize an object to store the ability scores
     const abilityScores = {};
@@ -35,12 +35,12 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     // Loop through each table
     tables.forEach((table) => {
       // Find the table rows
-      const rows = table.querySelectorAll('tr');
+      const rows = table.querySelectorAll("tr");
 
       // Loop through each row
       rows.forEach((row) => {
         // Find the table cells
-        const cells = row.querySelectorAll('th, td');
+        const cells = row.querySelectorAll("th, td");
 
         // If the row has at least two cells, extract the ability score
         if (cells.length >= 2) {
@@ -67,21 +67,21 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
       foundry.utils.setProperty(this.npc, `system.abilities.${ability}.value`, score);
       foundry.utils.setProperty(this.npc, `system.abilities.${ability}.mod`, mod);
       if (save > score) {
-        this.npc.system.abilities[ability]['proficient'] = 1;
+        this.npc.system.abilities[ability]["proficient"] = 1;
       }
     }
   }
 
   _extractValue(match) {
-    const paragraphs = this.block.querySelectorAll('p');
+    const paragraphs = this.block.querySelectorAll("p");
 
     for (let i = 0; i < paragraphs.length; i++) {
       const paragraph = paragraphs[i];
-      const strongTags = paragraph.querySelectorAll('strong');
+      const strongTags = paragraph.querySelectorAll("strong");
       for (let j = 0; j < strongTags.length; j++) {
         const strongTag = strongTags[j];
         if (strongTag.textContent.trim() === match) {
-          return paragraph.textContent.trim().replace(match, '').trim();
+          return paragraph.textContent.trim().replace(match, "").trim();
         }
       }
     }
@@ -247,12 +247,12 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
   }
 
   async #generateFeatures() {
-    for (const header of this.block.querySelectorAll('.monster-header')) {
+    for (const header of this.block.querySelectorAll(".monster-header")) {
       let now = header.nextElementSibling;
       const featType = DDBCompanion2024._getActionType(header.innerText);
       let block = now.outerHTML;
       while (now !== null) {
-        if (now.nextElementSibling === null || now.nextElementSibling.classList.contains('monster-header')) {
+        if (now.nextElementSibling === null || now.nextElementSibling.classList.contains("monster-header")) {
           now = null;
         } else {
           now = now.nextElementSibling;

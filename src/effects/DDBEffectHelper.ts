@@ -221,19 +221,19 @@ export default class DDBEffectHelper {
   }
 
   static checkJB2a(free = true, patreon = true, notify = false) {
-    if (patreon && game.modules.get('jb2a_patreon')?.active) {
+    if (patreon && game.modules.get("jb2a_patreon")?.active) {
       return true;
     } else if (!free) {
       if (notify) ui.notifications.error("This macro requires the patreon version of JB2A");
       return false;
     }
-    if (free && game.modules.get('JB2A_DnD5e')?.active) return true;
+    if (free && game.modules.get("JB2A_DnD5e")?.active) return true;
     if (notify) ui.notifications.error("This macro requires either the patreon or free version of JB2A");
     return false;
   }
 
   static async _createJB2aActors(subFolderName, name) {
-    const packKeys = ['jb2a_patreon.jb2a-actors', 'JB2A_DnD5e.jb2a-actors'];
+    const packKeys = ["jb2a_patreon.jb2a-actors", "JB2A_DnD5e.jb2a-actors"];
     for (const key of packKeys) {
       const pack = game.packs.get(key);
 
@@ -946,7 +946,7 @@ export default class DDBEffectHelper {
     }
   }
 
-  static findCondition({ conditionName, forceSystemCondition = false }: { conditionName: string, forceSystemCondition?: boolean }) {
+  static findCondition({ conditionName, forceSystemCondition = false }: { conditionName: string; forceSystemCondition?: boolean }) {
     const condition = CONFIG.statusEffects.find((se) =>
       se.name.toLowerCase() === conditionName.toLowerCase()
       && (!forceSystemCondition || (forceSystemCondition && se._id?.startsWith("dnd5e"))),
@@ -1021,7 +1021,7 @@ export default class DDBEffectHelper {
     const parsedDoc = utils.htmlToDoc(text);
     const list = parsedDoc.body.querySelector(type);
     if (list) {
-      const listItems = list.querySelectorAll('li');
+      const listItems = list.querySelectorAll("li");
       listItems.forEach((item, index) => {
         // console.log('Item ' + (index + 1) + ': ' + item.textContent);
         const title = item.querySelector(titleType);
@@ -1165,7 +1165,7 @@ export default class DDBEffectHelper {
         configure: configureDialog,
         options: {},
         workflowOptions: {
-          autoRollDamage: 'always',
+          autoRollDamage: "always",
           autoFastDamage: true,
           autoRollAttack: true,
           targetConfirmation,
@@ -1222,7 +1222,7 @@ export default class DDBEffectHelper {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static parseStatusCondition({ text, nameHint = null } : { text: string, nameHint?: string }) {
+  static parseStatusCondition({ text, nameHint = null } : { text: string; nameHint?: string }) {
     return DDBDescriptions.parseStatusCondition({ text });
   }
 

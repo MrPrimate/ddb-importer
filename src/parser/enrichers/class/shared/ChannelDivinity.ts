@@ -249,8 +249,8 @@ export default class ChannelDivinity extends DDBEnricherData {
     return {
       uses: {
         recovery: [
-          { period: "sr", type: 'formula', formula: "1" },
-          { period: "lr", type: 'recoverAll', formula: undefined },
+          { period: "sr", type: "formula", formula: "1" },
+          { period: "lr", type: "recoverAll", formula: undefined },
         ],
       },
     };

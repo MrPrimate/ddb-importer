@@ -273,9 +273,9 @@ export default class DDBVehicle {
         ? -5
         : CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
-      this.data.system.abilities[ability.value]['value'] = value;
-      this.data.system.abilities[ability.value]['proficient'] = 0;
-      this.data.system.abilities[ability.value]['mod'] = mod;
+      this.data.system.abilities[ability.value]["value"] = value;
+      this.data.system.abilities[ability.value]["proficient"] = 0;
+      this.data.system.abilities[ability.value]["mod"] = mod;
 
     });
 
@@ -546,7 +546,7 @@ export default class DDBVehicle {
       this.data.system.details.biography.value += `<h2>Actions</h2>\n<p>${this.source.actionsText}</p>`;
       const componentActionSummaries = this.source.componentActionSummaries.map((feature) => {
         return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
-      }).join('\n');
+      }).join("\n");
       this.data.system.details.biography.value += `\n<p>${componentActionSummaries}</p>`;
 
       const actionsRegex = /On its turn(?:,*) the (?:.*?) can take (\d+) action/g;
@@ -560,7 +560,7 @@ export default class DDBVehicle {
     } else if (this.source.features.length > 0) {
       const featuresText = this.source.features.map((feature) => {
         return `<h3>${feature.name}</h3>\n<p>${feature.description}</p>`;
-      }).join('\n');
+      }).join("\n");
       this.data.system.details.biography.value += `<h2>Features</h2>\n<p>${featuresText}</p>`;
     }
   }

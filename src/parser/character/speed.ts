@@ -81,8 +81,8 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
       // take the highest value
       if (speed.value > base) {
         base = speed.value;
-      } else if (!speed.value && movementTypes['walk']) {
-        base = movementTypes['walk'];
+      } else if (!speed.value && movementTypes["walk"]) {
+        base = movementTypes["walk"];
       }
     });
 
@@ -108,11 +108,11 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
   }
 
   this.raw.character.system.attributes.movement = {
-    burrow: movementTypes['burrow'] || 0,
-    climb: movementTypes['climb'] || 0,
-    fly: movementTypes['fly'] || 0,
-    swim: movementTypes['swim'] || 0,
-    walk: movementTypes['walk'] || 0,
+    burrow: movementTypes["burrow"] || 0,
+    climb: movementTypes["climb"] || 0,
+    fly: movementTypes["fly"] || 0,
+    swim: movementTypes["swim"] || 0,
+    walk: movementTypes["walk"] || 0,
     units: "ft",
     hover: false,
   };

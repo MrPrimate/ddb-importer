@@ -20,7 +20,7 @@ export default class DreadfulStrike extends DDBEnricherData {
           spent: null,
           max: "max(1, @abilities.wis.mod)",
           recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
+            { period: "lr", type: "recoverAll", formula: undefined },
           ],
         },
       },

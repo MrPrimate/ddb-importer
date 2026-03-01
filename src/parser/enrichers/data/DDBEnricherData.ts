@@ -134,7 +134,7 @@ export default abstract class DDBEnricherData {
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];
     } else if (period != "") {
-      uses.recovery = [{ period, type: 'recoverAll', formula: undefined }];
+      uses.recovery = [{ period, type: "recoverAll", formula: undefined }];
     }
 
     if (!max) {
@@ -179,7 +179,7 @@ export default abstract class DDBEnricherData {
     if (formula) {
       uses.recovery = [{ period, type: "formula", formula }];
     } else if (period != "") {
-      uses.recovery = [{ period, type: 'recoverAll', formula: undefined }];
+      uses.recovery = [{ period, type: "recoverAll", formula: undefined }];
     }
 
     if (override) {

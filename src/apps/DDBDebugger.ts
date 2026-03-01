@@ -27,7 +27,7 @@ export default class DDBDebugger extends DDBAppV2 {
       height: "auto",
     },
     window: {
-      icon: 'fab fa-d-and-d-beyond',
+      icon: "fab fa-d-and-d-beyond",
       resizable: true,
       minimizable: true,
       subtitle: "",

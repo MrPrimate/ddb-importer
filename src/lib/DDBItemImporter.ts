@@ -15,7 +15,7 @@ interface DDBItemImporterOptions {
   deleteBeforeUpdate?: boolean | null;
   indexFilter?: { fields: string[] } | null;
   useCompendiumFolders?: boolean | null;
-  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier?: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
 }
 
 export default class DDBItemImporter {
@@ -39,7 +39,7 @@ export default class DDBItemImporter {
   results: any[];
   deleteBeforeUpdate: boolean;
   deleteAllBeforeUpdate: boolean;
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifier: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
   totalDocuments: number;
   currentDocumentCount: number;
   compendiumFolders: DDBCompendiumFolders;
@@ -151,7 +151,6 @@ export default class DDBItemImporter {
       this.copyFlagGroup(flagGroup, originalItem, targetItem);
     });
   }
-
 
 
   static updateCharacterItemFlags(itemData, replaceData) {

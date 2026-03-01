@@ -127,14 +127,14 @@ export default class ThirdPartyMunch extends FormApplication {
       }
 
       if (missingBooks.length === 0 && missingModules.length === 0) {
-        $(".dialog-button").prop('disabled', false);
+        $(".dialog-button").prop("disabled", false);
       }
 
     } else {
       moduleMessage[0].innerHTML = "";
       $(".ddb-message").addClass("import-hidden");
     }
-    $('#ddb-adventure-import').css("height", "auto");
+    $("#ddb-adventure-import").css("height", "auto");
   }
 
   async _createFolders(adventure, folders) {

@@ -234,7 +234,7 @@ export default class DDBRace {
     };
 
     if (this.race.moreDetailsUrl) {
-      this.data.flags.ddbimporter['moreDetailsUrl'] = this.race.moreDetailsUrl;
+      this.data.flags.ddbimporter["moreDetailsUrl"] = this.race.moreDetailsUrl;
     }
 
     if (this.race.isSubRace && this.race.baseRaceName) this.data.system.requirements = this.race.baseRaceName;
@@ -254,7 +254,7 @@ export default class DDBRace {
     this.data.system.advancement.push(...advancements.flat());
   }
 
-  getCompendiumIxByFlags(compendiums: string[], flags: Record<string, unknown>, findAll: boolean = false) {
+  getCompendiumIxByFlags(compendiums: string[], flags: Record<string, unknown>, findAll = false) {
     for (const compendium of compendiums) {
       if (!this._compendiums[compendium]) {
         continue;
@@ -300,7 +300,7 @@ export default class DDBRace {
       portraitAvatarUrl = await FileHelper.getImagePath(this.race.portraitAvatarUrl, downloadOptions);
 
       this.data.img = portraitAvatarUrl;
-      this.data.flags.ddbimporter['portraitAvatarUrl'] = this.race.portraitAvatarUrl;
+      this.data.flags.ddbimporter["portraitAvatarUrl"] = this.race.portraitAvatarUrl;
     }
 
     if (this.race.avatarUrl) {
@@ -308,7 +308,7 @@ export default class DDBRace {
       const pathPostfix = useDeepPaths ? `/race/avatar` : "";
       const downloadOptions = { type: "race-avatar", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix, download: true };
       avatarUrl = await FileHelper.getImagePath(this.race.avatarUrl, downloadOptions);
-      this.data.flags.ddbimporter['avatarUrl'] = this.race.avatarUrl;
+      this.data.flags.ddbimporter["avatarUrl"] = this.race.avatarUrl;
       if (!this.data.img) {
         this.data.img = avatarUrl;
       }
@@ -319,7 +319,7 @@ export default class DDBRace {
       const pathPostfix = useDeepPaths ? `/race/large` : "";
       const downloadOptions = { type: "race-large", name: this.race.fullName, targetDirectory, imageNamePrefix, pathPostfix };
       largeAvatarUrl = await FileHelper.getImagePath(this.race.largeAvatarUrl, downloadOptions);
-      this.data.flags.ddbimporter['largeAvatarUrl'] = this.race.largeAvatarUrl;
+      this.data.flags.ddbimporter["largeAvatarUrl"] = this.race.largeAvatarUrl;
       if (!this.data.img) {
         this.data.img = largeAvatarUrl;
       }

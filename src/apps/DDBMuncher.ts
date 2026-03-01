@@ -93,7 +93,7 @@ export default class DDBMuncher extends DDBAppV2 {
       height: "auto",
     },
     window: {
-      icon: 'fab fa-d-and-d-beyond',
+      icon: "fab fa-d-and-d-beyond",
       title: "MrPrimate's DDB Muncher",
       resizable: true,
       minimizable: true,
@@ -225,10 +225,10 @@ export default class DDBMuncher extends DDBAppV2 {
 
 
   _toggleNestedTabs() {
-    const munch = this.element.querySelector('.munch-munch > [data-application-part="muncherTabs"]');
-    const munchActive = this.element.querySelector('.tab.active[data-group="munch"]');
+    const munch = this.element.querySelector(".munch-munch > [data-application-part=\"muncherTabs\"]");
+    const munchActive = this.element.querySelector(".tab.active[data-group=\"munch\"]");
     if (munch && munchActive) {
-      const monstersActive = this.element.querySelector('.tab.active[data-tab="monsters"]');
+      const monstersActive = this.element.querySelector(".tab.active[data-tab=\"monsters\"]");
       munch.classList.toggle("nested-tabs", monstersActive ?? false);
     }
     super._toggleNestedTabs();
@@ -301,13 +301,13 @@ export default class DDBMuncher extends DDBAppV2 {
 
     // watch the change of the muncher-policy-selector checkboxes
     this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
-      checkbox.addEventListener('change', async (event) => {
+      checkbox.addEventListener("change", async (event) => {
         await MuncherSettings.updateMuncherSettings(this.element, event);
         await this.render();
       });
     });
 
-    this.element.querySelector("input[name=muncher-character-url]")?.addEventListener('input', async (event) => {
+    this.element.querySelector("input[name=muncher-character-url]")?.addEventListener("input", async (event) => {
       await this.#handleURLUpdate(event);
     });
 
@@ -441,8 +441,8 @@ export default class DDBMuncher extends DDBAppV2 {
 
   _disableButtons() {
     const buttonSelectors = [
-      'button[id^="adventure-config-start"]',
-      'button[id^="munch-"]',
+      "button[id^=\"adventure-config-start\"]",
+      "button[id^=\"munch-\"]",
     ];
     buttonSelectors.forEach((selector) => {
       const buttons = this.element.querySelectorAll(selector);
@@ -461,33 +461,33 @@ export default class DDBMuncher extends DDBAppV2 {
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
 
     const buttonSelectors = [
-      'button[id^="adventure-config-start"]',
-      'button[id^="munch-spells-start"]',
-      'button[id^="munch-items-start"]',
-      'button[id^="munch-adventure-config-start"]',
-      'button[id^="munch-adventure-import-start"]',
-      'button[id^="munch-adventure-third-party-start"]',
-      'button[id^="munch-migrate-compendium-monster"]',
-      'button[id^="munch-migrate-compendium-spell"]',
-      'button[id^="munch-migrate-compendium-item"]',
-      'button[id^="munch-reset-images"]',
-      'button[id^="munch-xanathar-price"]',
+      "button[id^=\"adventure-config-start\"]",
+      "button[id^=\"munch-spells-start\"]",
+      "button[id^=\"munch-items-start\"]",
+      "button[id^=\"munch-adventure-config-start\"]",
+      "button[id^=\"munch-adventure-import-start\"]",
+      "button[id^=\"munch-adventure-third-party-start\"]",
+      "button[id^=\"munch-migrate-compendium-monster\"]",
+      "button[id^=\"munch-migrate-compendium-spell\"]",
+      "button[id^=\"munch-migrate-compendium-item\"]",
+      "button[id^=\"munch-reset-images\"]",
+      "button[id^=\"munch-xanathar-price\"]",
     ];
 
     if (tiers.all) {
-      buttonSelectors.push('button[id^="munch-monsters-start"]');
-      buttonSelectors.push('button[id^="munch-source-select"]');
-      buttonSelectors.push('button[id^="munch-encounter-start"]');
+      buttonSelectors.push("button[id^=\"munch-monsters-start\"]");
+      buttonSelectors.push("button[id^=\"munch-source-select\"]");
+      buttonSelectors.push("button[id^=\"munch-encounter-start\"]");
     }
     if (tiers.supporter) {
-      buttonSelectors.push('button[id^="munch-frames-start"]');
+      buttonSelectors.push("button[id^=\"munch-frames-start\"]");
     }
     if (tiers.experimentalMid) {
-      buttonSelectors.push('button[id^="munch-vehicles-start"]');
-      buttonSelectors.push('button[id^="munch-species-start"]');
-      buttonSelectors.push('button[id^="munch-feats-start"]');
-      buttonSelectors.push('button[id^="munch-classes-start"]');
-      buttonSelectors.push('button[id^="munch-backgrounds-start"]');
+      buttonSelectors.push("button[id^=\"munch-vehicles-start\"]");
+      buttonSelectors.push("button[id^=\"munch-species-start\"]");
+      buttonSelectors.push("button[id^=\"munch-feats-start\"]");
+      buttonSelectors.push("button[id^=\"munch-classes-start\"]");
+      buttonSelectors.push("button[id^=\"munch-backgrounds-start\"]");
     }
 
     buttonSelectors.forEach((selector) => {

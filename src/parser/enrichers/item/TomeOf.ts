@@ -33,7 +33,7 @@ export default class TomeOf extends DDBEnricherData {
         //   transfer: false,
         // },
         changes: [
-          DDBEnricherData.ChangeHelper.overrideChange(`min(@abilities.${effectData.ability}.max, @abilities.${effectData.ability}.value + 2)`, '5', `system.abilities.${effectData.ability}.value`),
+          DDBEnricherData.ChangeHelper.overrideChange(`min(@abilities.${effectData.ability}.max, @abilities.${effectData.ability}.value + 2)`, "5", `system.abilities.${effectData.ability}.value`),
           DDBEnricherData.ChangeHelper.addChange("2", "1", `system.abilities.${effectData.ability}.max`),
         ],
       },
@@ -46,7 +46,7 @@ export default class TomeOf extends DDBEnricherData {
         //   transfer: false,
         // },
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("2", '5', `system.abilities.${effectData.ability}.value`),
+          DDBEnricherData.ChangeHelper.addChange("2", "5", `system.abilities.${effectData.ability}.value`),
           DDBEnricherData.ChangeHelper.addChange("2", "1", `system.abilities.${effectData.ability}.max`),
         ],
       },

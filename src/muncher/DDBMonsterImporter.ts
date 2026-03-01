@@ -182,7 +182,6 @@ export default class DDBMonsterImporter {
   }
 
 
-
   async getNPCImage({
     forceUpdate = false, forceUseFullToken = false,
     forceUseTokenAvatar = false, disableAutoTokenizeOverride = false,
@@ -269,7 +268,7 @@ export default class DDBMonsterImporter {
     if (ddbTokenUrl && tokenImgSet !== true) {
       if (hasTokenProcessedAlready) {
         this.monster.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
-        if (useWildcard && this.monster.prototypeToken.texture.src.includes('*')) this.monster.prototypeToken.randomImg = true;
+        if (useWildcard && this.monster.prototypeToken.texture.src.includes("*")) this.monster.prototypeToken.randomImg = true;
       } else {
         const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
         const genericNpc = ddbTokenUrl.endsWith(npcType + "." + tokenExt) || isStock;
@@ -296,11 +295,11 @@ export default class DDBMonsterImporter {
         monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
         this.monster.prototypeToken.texture.src = monsterTokenImgPath;
         if (useWildcard && !useTokenizer) {
-          const lastSlashIndex = monsterTokenImgPath.lastIndexOf('/');
+          const lastSlashIndex = monsterTokenImgPath.lastIndexOf("/");
           if (lastSlashIndex !== -1) {
             // const postFix = useTokenizer ? `/${name}/*` : "/*";
             // this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + postFix;
-            this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + '*';
+            this.monster.prototypeToken.texture.src = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + "*";
             this.monster.prototypeToken.randomImg = true;
           }
         }
@@ -322,7 +321,7 @@ export default class DDBMonsterImporter {
         ? npcType
         : this.monster.name;
 
-      const lastSlashIndex = monsterTokenImgPath.lastIndexOf('/');
+      const lastSlashIndex = monsterTokenImgPath.lastIndexOf("/");
       let targetTokenizerFolder = null;
       const wildcardPath = monsterTokenImgPath.substring(0, lastSlashIndex + 1) + `${tokenName}/`;
       if (useWildcard) {

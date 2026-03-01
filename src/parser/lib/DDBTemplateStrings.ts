@@ -1,10 +1,10 @@
 import { utils, logger } from "../../lib/_module";
 import DDBDataUtils from "./DDBDataUtils";
-import { parseTags } from './DDBReferenceLinker';
+import { parseTags } from "./DDBReferenceLinker";
 
 
 function evaluateMath(obj: string): number {
-  return Function('"use strict";return ' + obj.replace(/\+\s*\+/g, "+"))();
+  return Function("\"use strict\";return " + obj.replace(/\+\s*\+/g, "+"))();
 }
 
 /**
@@ -311,7 +311,7 @@ const addConstraintEvaluations = (value, constraintList) => {
     }
   });
 
-  if (typeof result === 'string') result = result.trim().replace(/^\+\s*/, "");
+  if (typeof result === "string") result = result.trim().replace(/^\+\s*/, "");
 
   return result;
 };

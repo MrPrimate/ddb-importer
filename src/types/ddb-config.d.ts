@@ -1,6 +1,6 @@
 // DDB CONFIG interfaces
 
-export {}
+export {};
 
 global {
 

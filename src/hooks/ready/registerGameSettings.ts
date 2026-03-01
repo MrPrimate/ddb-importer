@@ -176,11 +176,11 @@ async function createFolderPaths() {
 
 export default async function () {
 
-  game.settings.registerMenu(SETTINGS.MODULE_ID, 'setupMenu', {
+  game.settings.registerMenu(SETTINGS.MODULE_ID, "setupMenu", {
     name: `${SETTINGS.MODULE_ID}.settings.setup.name`,
     label: `${SETTINGS.MODULE_ID}.settings.setup.name`,
     hint: `${SETTINGS.MODULE_ID}.settings.setup.hint`,
-    icon: 'fas fa-wrench',
+    icon: "fas fa-wrench",
     type: DDBSetup as any,
     restricted: true,
   });

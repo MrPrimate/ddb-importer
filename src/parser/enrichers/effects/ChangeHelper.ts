@@ -129,7 +129,7 @@ export default class ChangeHelper {
 
   static tokenMagicFXChange(macroValue: string, priority = 20): IActiveEffectChangeData {
     return {
-      key: 'macro.tokenMagic',
+      key: "macro.tokenMagic",
       mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
       value: macroValue,
       priority: priority,
@@ -150,23 +150,23 @@ export default class ChangeHelper {
     let key = atlKey;
 
     switch (atlKey) {
-      case 'ATL.dimLight':
-        key = 'ATL.light.dim';
+      case "ATL.dimLight":
+        key = "ATL.light.dim";
         break;
-      case 'ATL.brightLight':
-        key = 'ATL.light.bright';
+      case "ATL.brightLight":
+        key = "ATL.light.bright";
         break;
-      case 'ATL.lightAnimation':
-        key = 'ATL.light.animation';
+      case "ATL.lightAnimation":
+        key = "ATL.light.animation";
         break;
-      case 'ATL.lightColor':
-        key = 'ATL.light.color';
+      case "ATL.lightColor":
+        key = "ATL.light.color";
         break;
-      case 'ATL.lightAlpha':
-        key = 'ATL.light.alpha';
+      case "ATL.lightAlpha":
+        key = "ATL.light.alpha";
         break;
-      case 'ATL.lightAngle':
-        key = 'ATL.light.angle';
+      case "ATL.lightAngle":
+        key = "ATL.light.angle";
         break;
       // no default
     }

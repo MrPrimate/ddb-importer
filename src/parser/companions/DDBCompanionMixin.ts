@@ -7,15 +7,15 @@ import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
 
 export interface DDBCompanionSummonsProp {
-  match: { proficiency: boolean; attacks: boolean; saves: boolean; disposition: boolean; };
+  match: { proficiency: boolean; attacks: boolean; saves: boolean; disposition: boolean };
   creatureSizes: any[];
   creatureTypes: any[];
-  bonuses: { ac: string; hp: string; attackDamage: string; saveDamage: string; healing: string; };
+  bonuses: { ac: string; hp: string; attackDamage: string; saveDamage: string; healing: string };
   profiles: any[];
   summon: {
     identifier: string; mode: string; // cr for cr based cusooms
     prompt: boolean;
-  },
+  };
 }
 
 export default class DDBCompanionMixin {
@@ -576,7 +576,7 @@ export default class DDBCompanionMixin {
   _handleSkills(skillsString) {
 
     //  "History + 12, Perception +0 plus PB &times; 2"
-    const skillsMaps = skillsString.split(",").filter((str) => str != '').map((str) => {
+    const skillsMaps = skillsString.split(",").filter((str) => str != "").map((str) => {
       const skillMatch = str
         .replaceAll("[skill]", "")
         .replaceAll("[/skill]", "")

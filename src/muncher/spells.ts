@@ -220,4 +220,3 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   return updateResults;
 }
 
-

@@ -1,6 +1,6 @@
 import { STATUSES } from "../config/dictionary/effects/data";
 
-export {}
+export {};
 
 global {
 

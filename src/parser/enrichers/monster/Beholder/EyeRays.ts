@@ -28,7 +28,7 @@ export default class EyeRays extends DDBEnricherData {
       .replace(/<strong> \.<\/strong>/, "").trim()
       .replaceAll("<strong></strong>", "")
       .replaceAll("<em></em>", "")
-      .replaceAll('<em> </em>', '')
+      .replaceAll("<em> </em>", "")
       .replaceAll("<em><strong></strong></em>", "");
     if (this.is2014)
       return text;

@@ -20,5 +20,6 @@ export default class DDBGenericEnricher extends DDBEnricherFactoryMixin {
     None: GenericEnrichers.None,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
   };
+
   FALLBACK_ENRICHERS: Record<string, any> = {};
 }

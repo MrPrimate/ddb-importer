@@ -50,7 +50,7 @@ function findDiceColumns(table) {
 }
 
 function guessTableName(parentName: string, htmlDocument: Document, tableNum: number): string {
-  const element = htmlDocument.querySelectorAll('table');
+  const element = htmlDocument.querySelectorAll("table");
   let track: HTMLElement | null = element[tableNum];
   let sibling = track.previousElementSibling;
 
@@ -73,7 +73,7 @@ function guessTableName(parentName: string, htmlDocument: Document, tableNum: nu
 
 function tableReplacer(htmlDocument: Document, tableNum: number, compendiumTables: any[], compendiumLabel: string): Document {
   // future enhancement - replace liks to DDB spells, monsters, items etc to munched compendium
-  const element = htmlDocument.querySelectorAll('table');
+  const element = htmlDocument.querySelectorAll("table");
   const tablePoint = element[tableNum];
 
   if (tablePoint) {

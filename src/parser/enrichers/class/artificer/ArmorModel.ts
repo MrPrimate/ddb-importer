@@ -164,7 +164,7 @@ export default class ArmorModel extends DDBEnricherData {
             uses: {
               spent: 0,
               max: "min(1, @abilities.int.mod)",
-              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+              recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
             },
           },
         },
@@ -337,7 +337,7 @@ export default class ArmorModel extends DDBEnricherData {
             uses: {
               spent: 0,
               max: "min(1, @abilities.int.mod)",
-              recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+              recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
             },
           },
         },

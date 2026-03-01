@@ -18,7 +18,7 @@ export default function (_html, contextOptions) {
       const cobaltId = scene.flags.ddb?.cobaltId ? `-${scene.flags.ddb.cobaltId}` : "";
       const parentId = scene.flags.ddb?.parentId ? `-${scene.flags.ddb.parentId}` : "";
       const contentChunkId = scene.flags.ddb?.contentChunkId ? `-${scene.flags.ddb.contentChunkId}` : "";
-      const name = scene.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+      const name = scene.name.replace(/[^a-z0-9_-]/gi, "").toLowerCase();
       const sceneRef = `${bookCode}${cobaltId}${parentId}${contentChunkId}-${name}`;
       return FileHelper.download(JSON.stringify(data, null, 4), `${sceneRef}-scene.json`, "application/json");
     },
@@ -28,7 +28,7 @@ export default function (_html, contextOptions) {
       const allowDownload = game.user.isGM && sceneDownload && scene.flags?.ddb?.ddbId;
       return allowDownload;
     },
-    icon: '<i class="fas fa-share-alt"></i>',
+    icon: "<i class=\"fas fa-share-alt\"></i>",
   });
 
   contextOptions.push({
@@ -43,6 +43,6 @@ export default function (_html, contextOptions) {
       const allowDownload = game.user.isGM && sceneDownload && !scene.flags?.ddb?.ddbId;
       return allowDownload;
     },
-    icon: '<i class="fas fa-share-alt"></i>',
+    icon: "<i class=\"fas fa-share-alt\"></i>",
   });
 }

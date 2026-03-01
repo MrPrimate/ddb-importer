@@ -20,7 +20,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
           max: "1",
           override: true,
           recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
+            { period: "lr", type: "recoverAll", formula: undefined },
           ],
         },
         bonuses: {

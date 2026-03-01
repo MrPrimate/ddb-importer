@@ -25,10 +25,10 @@ export default class Rage extends DDBEnricherData {
       uses: {
         max: "@scale.barbarian.rages",
         recovery: this.is2014
-          ? [{ period: "lr", type: 'recoverAll', formula: "" }]
+          ? [{ period: "lr", type: "recoverAll", formula: "" }]
           : [
-            { period: "lr", type: 'recoverAll', formula: "" },
-            { period: "sr", type: 'formula', formula: "1" },
+            { period: "lr", type: "recoverAll", formula: "" },
+            { period: "sr", type: "formula", formula: "1" },
           ],
       },
       data: {

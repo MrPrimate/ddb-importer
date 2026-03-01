@@ -59,13 +59,13 @@ export function deleteLocalCobalt(keyPostfix) {
 }
 
 export async function moveCobaltToLocal() {
-  localStorage.setItem('ddb-cobalt-cookie', game.settings.get("ddb-importer", "cobalt-cookie"));
+  localStorage.setItem("ddb-cobalt-cookie", game.settings.get("ddb-importer", "cobalt-cookie"));
   await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie", "");
   game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", true);
 }
 
 export async function moveCobaltToSettings() {
-  game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie", localStorage.getItem('ddb-cobalt-cookie'));
+  game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie", localStorage.getItem("ddb-cobalt-cookie"));
   game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
 }
 

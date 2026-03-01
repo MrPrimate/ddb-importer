@@ -15,7 +15,7 @@ export default class DDBSources {
     const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
     if (force2024) return false;
     // if game is set to modern rules force items that have a 2024 source to be 2024
-    if (game.settings.get("dnd5e", "rulesVersion") === 'modern') {
+    if (game.settings.get("dnd5e", "rulesVersion") === "modern") {
       if (force2024) return false;
     }
     const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
@@ -28,7 +28,7 @@ export default class DDBSources {
     const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
     if (force2014) return false;
     // if game is set to modern rules force items that have a 2024 source to be 2024
-    if (game.settings.get("dnd5e", "rulesVersion") === 'modern') {
+    if (game.settings.get("dnd5e", "rulesVersion") === "modern") {
       if (force2014) return false;
     }
     const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
@@ -109,7 +109,7 @@ export default class DDBSources {
       if (useBasicRules && coreRules.length > 0) {
         sources = coreRules;
       } else if (useBasicRules
-        && game.settings.get("dnd5e", "rulesVersion") === 'modern' && basicRules2024.length > 0
+        && game.settings.get("dnd5e", "rulesVersion") === "modern" && basicRules2024.length > 0
       ) {
         sources = basicRules2024;
       } else if (useBasicRules && basicRules2014.length > 0) {

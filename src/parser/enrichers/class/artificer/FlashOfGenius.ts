@@ -28,7 +28,7 @@ export default class FlashOfGenius extends DDBEnricherData {
     if (!this.ddbParser.isMuncher) return {};
     return {
       uses: {
-        recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+        recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
       },
     };
   }

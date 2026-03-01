@@ -5,12 +5,12 @@ import {
   DDBCompendiumFolders,
   DDBItemImporter,
   DDBSources,
-} from '../../lib/_module';
+} from "../../lib/_module";
 import { getSpellCastingAbility } from "../spells/ability";
-import AdvancementHelper from '../advancements/AdvancementHelper';
-import { SETTINGS, DICTIONARY } from '../../config/_module';
-import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from '../lib/_module';
-import DDBFeatureMixin from '../features/DDBFeatureMixin';
+import AdvancementHelper from "../advancements/AdvancementHelper";
+import { SETTINGS, DICTIONARY } from "../../config/_module";
+import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from "../lib/_module";
+import DDBFeatureMixin from "../features/DDBFeatureMixin";
 
 export default class DDBClass {
 

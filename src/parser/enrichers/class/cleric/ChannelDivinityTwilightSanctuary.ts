@@ -46,7 +46,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
           name: "Apply Light",
           function: "ddb.generic.light",
           visible: false,
-          parameters: '{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":30,"bright":0},"flag":"light"}',
+          parameters: `{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":30,"bright":0},"flag":"light"}`,
         },
       },
     };
@@ -87,11 +87,11 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
   }
 
   get effects() {
-    const lightAnimation = '{"type": "sunburst", "speed": 2,"intensity": 4}';
+    const lightAnimation = "{\"type\": \"sunburst\", \"speed\": 2,\"intensity\": 4}";
     const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '30'),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '#ffffff'),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.UPGRADE, '0.25'),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "30"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "#ffffff"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "0.25"),
       DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.UPGRADE, lightAnimation),
     ];
 

@@ -1046,13 +1046,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       case "encounter-import-policy-create-scene": {
         await game.settings.set(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene", false);
         if (checked) $("#encounter-scene-select").prop("disabled", true);
-        $("#encounter-import-policy-existing-scene").prop('checked', false);
+        $("#encounter-import-policy-existing-scene").prop("checked", false);
         break;
       }
       case "encounter-import-policy-existing-scene": {
         await game.settings.set(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene", false);
         if (checked) $("#encounter-scene-img-select").prop("disabled", true);
-        $("#encounter-import-policy-create-scene").prop('checked', false);
+        $("#encounter-import-policy-create-scene").prop("checked", false);
         break;
       }
       case "munching-policy-monster-homebrew": {

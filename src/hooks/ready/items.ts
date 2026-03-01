@@ -17,7 +17,7 @@ function createItemHeaderButtonV1(config, buttons) {
   if (config.object instanceof Item) {
     buttons.unshift({
       label: `DDB Importer Item Config`,
-      class: 'open-item-ddb-importer',
+      class: "open-item-ddb-importer",
       icon: `fab fa-d-and-d-beyond${whiteTitle}`,
       onclick: (event) => {
         if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
@@ -44,7 +44,7 @@ function createItemHeaderButtonV2(config, buttons) {
 }
 
 export function itemSheets() {
-  Hooks.on('getItemSheet5eHeaderButtons', createItemHeaderButtonV1);
-  Hooks.on('getHeaderControlsDocumentSheetV2', createItemHeaderButtonV2);
+  Hooks.on("getItemSheet5eHeaderButtons", createItemHeaderButtonV1);
+  Hooks.on("getHeaderControlsDocumentSheetV2", createItemHeaderButtonV2);
 }
 

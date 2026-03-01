@@ -24,8 +24,8 @@ export default class SecondWind extends DDBEnricherData {
     if (!this.is2024) return null;
     const uses = foundry.utils.deepClone(this.data.system.uses);
     const recovery = foundry.utils.deepClone(uses.recovery ?? []);
-    if (recovery.length === 0) recovery.push({ period: "lr", type: 'recoverAll' });
-    recovery.push({ period: "sr", type: 'formula', formula: "1" });
+    if (recovery.length === 0) recovery.push({ period: "lr", type: "recoverAll" });
+    recovery.push({ period: "sr", type: "formula", formula: "1" });
     uses.recovery = recovery;
     return {
       uses,

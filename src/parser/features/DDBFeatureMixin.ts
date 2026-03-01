@@ -888,7 +888,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   }
 
 
-  static getFeatureSubtype(name: string, type: string, includePartial: boolean = true, categories = null) {
+  static getFeatureSubtype(name: string, type: string, includePartial = true, categories = null) {
     if (type === "class") {
       if (name === "Ki") return "ki";
       // many ki abilities do not start with ki
@@ -1181,7 +1181,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.data.system.identifier = this.identifier;
 
     if (this.ddbDefinition.hintImage) {
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.ddbImg", this.ddbDefinition.hintImage.split('?')[0]);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.ddbImg", this.ddbDefinition.hintImage.split("?")[0]);
     }
   }
 }

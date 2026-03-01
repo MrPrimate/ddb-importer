@@ -9,7 +9,7 @@ export default class GreatWeaponMaster {
       && i.system.source.rules === "2024",
     );
     if (!document) return true;
-    rollData.rolls[0].parts.push('@prof');
+    rollData.rolls[0].parts.push("@prof");
     return true;
   }
 

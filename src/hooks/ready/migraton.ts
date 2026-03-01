@@ -6,10 +6,10 @@ const SCHEMA_VERSION = "6.5.0";
 
 export function registerSettings () {
   game.settings.register("ddb-importer", "data-version", {
-    scope: 'world',
+    scope: "world",
     config: false,
     type: String,
-    default: '0.0.0',
+    default: "0.0.0",
   });
 }
 

@@ -247,7 +247,7 @@ export function collectSceneData(scene, bookCode) {
   data.flags.ddb.img = `assets/${scene.background.src.split("assets/").pop()}`;
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
-  data.flags.ddbimporter['version'] = game.modules.get("ddb-importer").version;
+  data.flags.ddbimporter["version"] = game.modules.get("ddb-importer").version;
 
   return data;
 }
@@ -393,14 +393,14 @@ export class SceneEnhancerExport extends Application {
     super.activateListeners(html);
     $("#ddb-importer-scene-enhancer").css("height", "auto");
 
-    html.find('#compendium-form').submit(async (event) => {
-      const form = document.querySelector('#compendium-form');
+    html.find("#compendium-form").submit(async (event) => {
+      const form = document.querySelector("#compendium-form");
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
     });
 
-    html.find('#download-form').submit(async (event) => {
-      const form = document.querySelector('#download-form');
+    html.find("#download-form").submit(async (event) => {
+      const form = document.querySelector("#download-form");
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
     });
@@ -477,20 +477,20 @@ export class SceneEnhancerExport extends Application {
 
     sceneFlags.ddb["bookCode"] = formData["select-book"];
     localStorage.setItem("ddb-last-book", formData["select-book"]);
-    sceneFlags.ddbimporter.export['description'] = formData["description"];
-    sceneFlags.ddbimporter.export['actors'] = formData["export-actors"] == "on";
-    sceneFlags.ddbimporter.export['notes'] = formData["export-notes"] == "on";
-    sceneFlags.ddbimporter.export['lights'] = formData["export-lights"] == "on";
-    sceneFlags.ddbimporter.export['walls'] = formData["export-walls"] == "on";
-    sceneFlags.ddbimporter.export['drawings'] = formData["export-drawings"] == "on";
-    sceneFlags.ddbimporter.export['config'] = formData["export-config"] == "on";
+    sceneFlags.ddbimporter.export["description"] = formData["description"];
+    sceneFlags.ddbimporter.export["actors"] = formData["export-actors"] == "on";
+    sceneFlags.ddbimporter.export["notes"] = formData["export-notes"] == "on";
+    sceneFlags.ddbimporter.export["lights"] = formData["export-lights"] == "on";
+    sceneFlags.ddbimporter.export["walls"] = formData["export-walls"] == "on";
+    sceneFlags.ddbimporter.export["drawings"] = formData["export-drawings"] == "on";
+    sceneFlags.ddbimporter.export["config"] = formData["export-config"] == "on";
 
     if (formData["download-url"]) {
-      sceneFlags.ddbimporter.export['url'] = formData["download-url"];
+      sceneFlags.ddbimporter.export["url"] = formData["download-url"];
     } else {
-      sceneFlags.ddbimporter.export['compendium'] = formData["select-compendium"];
+      sceneFlags.ddbimporter.export["compendium"] = formData["select-compendium"];
       localStorage.setItem("ddb-last-compendium", formData["select-compendium"]);
-      sceneFlags.ddbimporter.export['scene'] = formData["select-scene"];
+      sceneFlags.ddbimporter.export["scene"] = formData["select-scene"];
     }
 
     await this.scene.update({ flags: sceneFlags });
@@ -530,7 +530,7 @@ export class SceneEnhancerExport extends Application {
     }
 
     logger.debug(sceneData);
-    const name = sceneData.name.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+    const name = sceneData.name.replace(/[^a-z0-9_-]/gi, "").toLowerCase();
     const sceneRef = `ddb-enhanced-scene-${name}`;
     FileHelper.download(JSON.stringify(sceneData, null, 4), `${sceneRef}.json`, "application/json");
 

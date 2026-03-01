@@ -6,27 +6,27 @@ import DDBCharacter from "../parser/DDBCharacter";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 
 interface IDDBMuleHandlerQuickBase {
-  characterId: string,
-  sources: number[],
-  homebrew: boolean,
-  filterIds: number[]
+  characterId: string;
+  sources: number[];
+  homebrew: boolean;
+  filterIds: number[];
 }
 
 interface IDDBMuleHandlerQuickClass extends IDDBMuleHandlerQuickBase {
-  classId: string,
-  cleanup?: boolean,
+  classId: string;
+  cleanup?: boolean;
 }
 
 interface IDDBMuleHandlerQuickClassList extends IDDBMuleHandlerQuickBase {
-  classIds: string[],
-  cleanup?: boolean,
+  classIds: string[];
+  cleanup?: boolean;
 }
 
 interface IDDBGetSubClasses {
-  className: string,
-  rulesVersion?: string,
-  includeHomebrew?: boolean,
-  campaignId?: string | null
+  className: string;
+  rulesVersion?: string;
+  includeHomebrew?: boolean;
+  campaignId?: string | null;
 }
 
 interface DDBMuleHandlerOptions {

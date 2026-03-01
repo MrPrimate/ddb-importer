@@ -52,17 +52,17 @@ export default class DDBDebug {
 
     const defs = new Map();
     return (k, v) => {
-      if (k && v == obj) return '[' + k + ' is the same as original object]';
+      if (k && v == obj) return "[" + k + " is the same as original object]";
       if (v === undefined) return undefined;
       if (v === null) return null;
       const weirdType = weirdTypes.find((t) => v instanceof t);
       if (weirdType) return weirdType.toString();
-      if (typeof (v) == 'function') {
+      if (typeof (v) == "function") {
         return v.toString();
       }
-      if (v && typeof (v) == 'object') {
+      if (v && typeof (v) == "object") {
         const def = defs.get(v);
-        if (def) return '[' + k + ' is the same as ' + def + ']';
+        if (def) return "[" + k + " is the same as " + def + "]";
         defs.set(v, k);
       }
       return v;

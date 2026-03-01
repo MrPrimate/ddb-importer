@@ -18,7 +18,7 @@ export default class GhostlyGaze extends DDBEnricherData {
         uses: {
           spent: this.ddbParser?.ddbData?.character.actions.class.find((a) => a.name === "Ghostly Gaze")?.limitedUse?.numberUsed ?? null,
           max: "1",
-          recovery: [{ period: "sr", type: 'recoverAll', formula: undefined }],
+          recovery: [{ period: "sr", type: "recoverAll", formula: undefined }],
         },
         data: {
           "duration": {

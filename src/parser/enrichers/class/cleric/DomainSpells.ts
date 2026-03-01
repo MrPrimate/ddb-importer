@@ -9,4 +9,3 @@ export default class DomainSpells extends SpellListExtractorMixin {
 
 }
 
-

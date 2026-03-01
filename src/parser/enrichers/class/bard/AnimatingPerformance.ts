@@ -19,7 +19,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
           max: "1",
           override: true,
           recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
+            { period: "lr", type: "recoverAll", formula: undefined },
           ],
         },
         creatureSizes: ["med", "lg"],

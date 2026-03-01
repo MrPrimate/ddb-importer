@@ -137,7 +137,7 @@ async function macroEnricher(match, options) {
  * @returns {Promise}
  */
 async function runFunction(event) {
-  const target = event.target.closest('.roll-link, [data-action="rollRequest"], [data-action="concentration"]');
+  const target = event.target.closest(".roll-link, [data-action=\"rollRequest\"], [data-action=\"concentration\"]");
   if (!target) return;
   event.stopPropagation();
 

@@ -239,7 +239,7 @@ export default class StarryForm extends DDBEnricherData {
       DDBEnricherData.ChangeHelper.atlChange(
         "ATL.light.animation",
         CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        '{"type": ""starlight"", "speed": 5,"intensity": 5}',
+        "{\"type\": \"\"starlight\"\", \"speed\": 5,\"intensity\": 5}",
       ),
     ];
 

@@ -27,7 +27,7 @@ export default class ThrillOfTheHunt extends DDBEnricherData {
         spent: null,
         max: "1",
         recovery: [
-          { period: "sr", type: 'recoverAll', formula: undefined },
+          { period: "sr", type: "recoverAll", formula: undefined },
         ],
       },
       retainOriginalConsumption: true,

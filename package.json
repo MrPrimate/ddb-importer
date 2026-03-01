@@ -20,6 +20,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@league-of-foundry-developers/foundry-vtt-types": "^13.346.0-beta.20250812191140",
+    "@stylistic/eslint-plugin": "^5.9.0",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "dnd5e": "github:adriangaro/dnd5e-types#5.0.x",
     "esbuild": "^0.27.3",

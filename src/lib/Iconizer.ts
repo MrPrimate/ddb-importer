@@ -250,7 +250,7 @@ export default class Iconizer {
             foundry.utils.setProperty(item, "flags.ddbimporter.keepIcon", true);
           }
           if (imageMatch && imageMatch.large) {
-            item.flags.ddbimporter.dndbeyond['pictureUrl'] = imageMatch.large;
+            item.flags.ddbimporter.dndbeyond["pictureUrl"] = imageMatch.large;
           }
         }
       }
@@ -481,7 +481,7 @@ export default class Iconizer {
 
       if (foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond")) {
         if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
-          const avatarUrl = item.flags.ddbimporter.dndbeyond['avatarUrl'];
+          const avatarUrl = item.flags.ddbimporter.dndbeyond["avatarUrl"];
           if (avatarUrl && avatarUrl != "") {
             utils.munchNote(`Downloading ${item.name} image`, { nameField: true });
             const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-item`;
@@ -500,7 +500,7 @@ export default class Iconizer {
           }
         }
         if (item.flags.ddbimporter.dndbeyond.largeAvatarUrl) {
-          const largeAvatarUrl = item.flags.ddbimporter.dndbeyond['largeAvatarUrl'];
+          const largeAvatarUrl = item.flags.ddbimporter.dndbeyond["largeAvatarUrl"];
           if (largeAvatarUrl && largeAvatarUrl != "") {
             const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-item`;
             const name = useDeepPaths ? `${item.name}-large` : item.name;

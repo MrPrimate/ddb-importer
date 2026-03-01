@@ -92,7 +92,7 @@ async function buildBase(data) {
   };
 
   if (data.moreDetailsUrl) {
-    result.flags.ddbimporter['moreDetailsUrl'] = data.moreDetailsUrl;
+    result.flags.ddbimporter["moreDetailsUrl"] = data.moreDetailsUrl;
   }
 
   result.system.source = DDBSources.parseSource(data);
@@ -187,14 +187,14 @@ export async function getClassFeature(feature, klass, subClassName = "", classNa
   result.flags.obsidian.source.text = klass.name;
 
   result.name = feature.name;
-  result.flags.ddbimporter['featureId'] = feature.id;
-  result.flags.ddbimporter['originalName'] = feature.name;
-  result.flags.ddbimporter['requiredLevel'] = feature.requiredLevel;
-  result.flags.ddbimporter['prerequisite'] = feature.prerequisite;
-  result.flags.ddbimporter['class'] = className ?? klass.name;
-  result.flags.ddbimporter['classId'] = klass.id;
-  result.flags.ddbimporter['subClass'] = subClassName;
-  result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
+  result.flags.ddbimporter["featureId"] = feature.id;
+  result.flags.ddbimporter["originalName"] = feature.name;
+  result.flags.ddbimporter["requiredLevel"] = feature.requiredLevel;
+  result.flags.ddbimporter["prerequisite"] = feature.prerequisite;
+  result.flags.ddbimporter["class"] = className ?? klass.name;
+  result.flags.ddbimporter["classId"] = klass.id;
+  result.flags.ddbimporter["subClass"] = subClassName;
+  result.flags.ddbimporter["parentClassId"] = klass.parentClassId;
   const requiredLevel = feature.requiredLevel ? ` ${feature.requiredLevel}` : "";
   result.system.requirements = `${klass.name}${requiredLevel}`;
 
@@ -222,7 +222,7 @@ export async function getClassImages(klass, result) {
     const downloadOptions = { type: "class-portrait", name, targetDirectory, imageNamePrefix, pathPostfix };
     portraitAvatarUrl = await FileHelper.getImagePath(klass.portraitAvatarUrl, downloadOptions);
     result.img = portraitAvatarUrl;
-    result.flags.ddbimporter['portraitAvatarUrl'] = klass.portraitAvatarUrl;
+    result.flags.ddbimporter["portraitAvatarUrl"] = klass.portraitAvatarUrl;
   }
 
   if (klass.avatarUrl) {
@@ -230,7 +230,7 @@ export async function getClassImages(klass, result) {
     const pathPostfix = useDeepPaths ? `/class/avatar` : "";
     const downloadOptions = { type: "class-avatar", name, targetDirectory, imageNamePrefix, pathPostfix };
     avatarUrl = await FileHelper.getImagePath(klass.avatarUrl, downloadOptions);
-    result.flags.ddbimporter['avatarUrl'] = klass.avatarUrl;
+    result.flags.ddbimporter["avatarUrl"] = klass.avatarUrl;
     if (!result.img) {
       result.img = avatarUrl;
     }
@@ -241,7 +241,7 @@ export async function getClassImages(klass, result) {
     const pathPostfix = useDeepPaths ? `/class/large` : "";
     const downloadOptions = { type: "class-large", name, targetDirectory, imageNamePrefix, pathPostfix };
     largeAvatarUrl = await FileHelper.getImagePath(klass.largeAvatarUrl, downloadOptions);
-    result.flags.ddbimporter['largeAvatarUrl'] = klass.largeAvatarUrl;
+    result.flags.ddbimporter["largeAvatarUrl"] = klass.largeAvatarUrl;
     if (!result.img) {
       result.img = largeAvatarUrl;
     }
@@ -270,11 +270,11 @@ export async function buildBaseClass(klass) {
   await getClassImages(klass, result);
   result.system.description.value += foundry.utils.getProperty(result, "flags.ddbimporter.image");
 
-  result.flags.ddbimporter['parentClassId'] = klass.parentClassId;
-  result.flags.ddbimporter['class'] = klass.name;
-  result.flags.ddbimporter['hitDice'] = klass.hitDice;
-  result.flags.ddbimporter['spellCastingAbilityId'] = klass.spellCastingAbilityId;
-  result.flags.ddbimporter['canCastSpells'] = klass.canCastSpells;
+  result.flags.ddbimporter["parentClassId"] = klass.parentClassId;
+  result.flags.ddbimporter["class"] = klass.name;
+  result.flags.ddbimporter["hitDice"] = klass.hitDice;
+  result.flags.ddbimporter["spellCastingAbilityId"] = klass.spellCastingAbilityId;
+  result.flags.ddbimporter["canCastSpells"] = klass.canCastSpells;
 
   // setup data
   result.system.levels = 1;
@@ -323,7 +323,7 @@ export async function buildBaseClass(klass) {
       value: [],
     };
   } else if (skillMatch) {
-    const skillNames = skillMatch[2].replace('and', ',').split(',').map((skill) => skill.trim());
+    const skillNames = skillMatch[2].replace("and", ",").split(",").map((skill) => skill.trim());
     const skills = skillNames.filter((name) => DICTIONARY.actor.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
       .map((name) => {
         const dictSkill = DICTIONARY.actor.skills.find((skill) => skill.label.toLowerCase() === name.toLowerCase());
@@ -343,7 +343,7 @@ export async function buildBaseClass(klass) {
   const saveMatch = savingText.match(saveRegex);
 
   if (saveMatch) {
-    const saveNames = saveMatch[1].replace('and', ',').split(',').map((ab) => ab.trim());
+    const saveNames = saveMatch[1].replace("and", ",").split(",").map((ab) => ab.trim());
     const saves = saveNames
       .filter((name) => DICTIONARY.actor.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
       .map((name) => {

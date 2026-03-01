@@ -90,7 +90,7 @@ export default class ChrisPremadesHelper {
 
   static async getDocumentFromName({
     documentName, documentType,
-    rules = '2014', monsterName = null, actorType = 'character', featType = null,
+    rules = "2014", monsterName = null, actorType = "character", featType = null,
   } = {},
   ) {
 
@@ -137,7 +137,7 @@ export default class ChrisPremadesHelper {
   async getDocumentFromChrisAPI() {
     const options = {
       rules: this.rules,
-      actorType: this.isMonster ? 'npc' : 'character',
+      actorType: this.isMonster ? "npc" : "character",
       itemType: this.documentType, // "spell",
       monsterName: this.isMonster ? this.monsterName : null,
       featType: this.featType, // 'race',
@@ -204,9 +204,9 @@ export default class ChrisPremadesHelper {
   removeDDBImplementationNotes() {
     const description = foundry.utils.getProperty(this.document, "system.description.value");
     if (!description || description.trim() === "") return;
-    const tempDiv = document.createElement('div');
+    const tempDiv = document.createElement("div");
     tempDiv.innerHTML = description;
-    const notes = tempDiv.querySelectorAll('section.ddbSecret');
+    const notes = tempDiv.querySelectorAll("section.ddbSecret");
     notes.forEach((note) => note.remove());
     this.document.system.description.value = tempDiv.innerHTML;
   }
@@ -364,7 +364,6 @@ export default class ChrisPremadesHelper {
     await actor.createEmbeddedDocuments("Item", toAdd);
 
   }
-
 
    
   static async restrictedItemReplacer(actor, monsterName = null) {

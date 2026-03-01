@@ -67,7 +67,7 @@ export function anchorInjection() {
       addSlugField(form, slug, data.document);
       if (!noteConfig._minimized) {
         const pos = noteConfig.position;
-        pos.height = 'auto';
+        pos.height = "auto";
         noteConfig.setPosition(pos);
       }
     }
@@ -111,12 +111,12 @@ export function anchorInjection() {
     Hooks.once("renderNoteConfig", (noteConfig, form, app) => {
       const titleInput = form.querySelector("input[name='text']");
       if (dropData.anchor.slug && dropData.anchor.name) {
-        titleInput.setAttribute('value', dropData.anchor.name);
+        titleInput.setAttribute("value", dropData.anchor.name);
         updateNotePage(noteConfig, dropData.anchor.slug);
       } else if (app.document.pageId) {
-        titleInput.setAttribute('value', app.pages[app.document.pageId] ?? "");
+        titleInput.setAttribute("value", app.pages[app.document.pageId] ?? "");
       } else if (app.label) {
-        titleInput.setAttribute('value', app.label);
+        titleInput.setAttribute("value", app.label);
       }
     });
   });

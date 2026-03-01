@@ -10,34 +10,34 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
 
   async _linkImages() {
     const data = this.document;
-    this.element.querySelectorAll('img').forEach((element) => {
+    this.element.querySelectorAll("img").forEach((element) => {
       // Create buttons
-      const showPlayersButton = document.createElement('a');
-      showPlayersButton.className = 'ddbimporter-show-image';
-      showPlayersButton.innerHTML = '<i class="fas fa-eye"></i>&nbsp;Show Players Image';
+      const showPlayersButton = document.createElement("a");
+      showPlayersButton.className = "ddbimporter-show-image";
+      showPlayersButton.innerHTML = "<i class=\"fas fa-eye\"></i>&nbsp;Show Players Image";
 
-      const toChatButton = document.createElement('a');
-      toChatButton.className = 'ddbimporter-to-chat';
-      toChatButton.innerHTML = '<i class="fas fa-comment"></i>&nbsp;To Chat';
+      const toChatButton = document.createElement("a");
+      toChatButton.className = "ddbimporter-to-chat";
+      toChatButton.innerHTML = "<i class=\"fas fa-comment\"></i>&nbsp;To Chat";
 
       // Wrap image in container
-      const container = document.createElement('div');
-      container.className = 'ddbimporter-image-container';
+      const container = document.createElement("div");
+      container.className = "ddbimporter-image-container";
       element.parentNode.insertBefore(container, element);
       container.appendChild(element);
 
       // Mouse enter event
-      container.addEventListener('mouseenter', function addHover() {
+      container.addEventListener("mouseenter", function addHover() {
          
         this.appendChild(showPlayersButton);
          
         this.appendChild(toChatButton);
 
         // Show players button click handler
-        showPlayersButton.addEventListener('click', (event) => {
+        showPlayersButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
-          const src = element.getAttribute('src');
+          const src = element.getAttribute("src");
           Dialog.confirm({
             title: "Would you like to create a handout for the image?",
             content: "<p>Create a player viewable handout? (No will show the image only)</p>",
@@ -57,17 +57,17 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
         });
 
         // To chat button click handler
-        toChatButton.addEventListener('click', (event) => {
+        toChatButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
-          imageToChat(element.getAttribute('src'));
+          imageToChat(element.getAttribute("src"));
         });
       });
 
       // Mouse leave event
-      container.addEventListener('mouseleave', function removeHover() {
+      container.addEventListener("mouseleave", function removeHover() {
          
-        const buttons = this.querySelectorAll('a.ddbimporter-show-image, a.ddbimporter-to-chat');
+        const buttons = this.querySelectorAll("a.ddbimporter-show-image, a.ddbimporter-to-chat");
         buttons.forEach((button) => button.remove());
       });
     });
@@ -82,14 +82,14 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
       const table = await fromUuid(link.dataset.uuid);
 
       if (!table) continue;
-      const button = document.createElement('a');
+      const button = document.createElement("a");
       button.title = "Click: Roll | Shift-Click: Self Roll";
       button.className = "ddbimporter roll";
-      button.innerHTML = '<i class="fas fa-dice-d20"></i> Roll!';
+      button.innerHTML = "<i class=\"fas fa-dice-d20\"></i> Roll!";
 
-      link.insertAdjacentElement('afterend', button);
+      link.insertAdjacentElement("afterend", button);
 
-      button.addEventListener('click', async (event) => {
+      button.addEventListener("click", async (event) => {
         event.preventDefault();
         const rollMode = event.shiftKey ? "selfroll" : "roll";
 

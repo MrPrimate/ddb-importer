@@ -74,4 +74,3 @@ export default class GiantsMight extends DDBEnricherData {
   }
 }
 
-

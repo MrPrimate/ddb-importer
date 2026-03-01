@@ -15,7 +15,7 @@ export default class EnchantmentEffects {
 
 
   static addMagicalBonus({ effect, nameAddition = null, bonus = null, bonusMode = "OVERRIDE",
-    makeMagical = true }: { effect: IEffectData, nameAddition?: string | null, bonus?: string | null, bonusMode?: string, makeMagical?: boolean },
+    makeMagical = true }: { effect: IEffectData; nameAddition?: string | null; bonus?: string | null; bonusMode?: string; makeMagical?: boolean },
   ) {
     const name = nameAddition
       ? `, ${nameAddition}`

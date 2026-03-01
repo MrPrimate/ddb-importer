@@ -15,7 +15,7 @@ export default class MageSlayer extends DDBEnricherData {
       uses: {
         spent: null,
         max: "1",
-        recovery: [{ period: "sr", type: 'recoverAll' }],
+        recovery: [{ period: "sr", type: "recoverAll" }],
       },
       data: {
         name: "Mage Slayer",

@@ -4,7 +4,7 @@
 // Leaf objects that are not yet fully typed use `any`.
 // ---------------------------------------------------------------------------
 
-export {}
+export {};
 
 global {
   // ---- Top-level response ---------------------------------------------------

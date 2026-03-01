@@ -274,7 +274,7 @@ export class DDBMonsterDamage {
       const damageValue = regainMatch[3] ? regainMatch[3] : regainMatch[2];
       const part = SystemHelpers.buildDamagePart({
         damageString: utils.parseDiceString(damageValue, null).diceString,
-        type: 'healing',
+        type: "healing",
       });
       this.healingParts.push({ versatile: this.versatile, part });
     }

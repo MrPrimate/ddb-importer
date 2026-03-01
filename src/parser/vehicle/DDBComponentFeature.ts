@@ -266,7 +266,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
         recovery: resetType
           ? [
             // KNOWN_ISSUE_4_0: ensure charges is not returned here
-            { period: resetType.value, type: 'recoverAll', formula: undefined },
+            { period: resetType.value, type: "recoverAll", formula: undefined },
           ]
           : [],
       };

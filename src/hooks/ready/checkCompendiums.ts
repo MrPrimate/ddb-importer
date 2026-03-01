@@ -1,5 +1,5 @@
-import { SETTINGS } from '../../config/_module';
-import { CompendiumHelper, FolderHelper } from '../../lib/_module';
+import { SETTINGS } from "../../config/_module";
+import { CompendiumHelper, FolderHelper } from "../../lib/_module";
 
 
 export async function createDDBCompendium(compendiumSetting) {

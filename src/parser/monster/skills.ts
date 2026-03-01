@@ -78,8 +78,8 @@ DDBMonster.prototype._generateSkills = function _generateSkills () {
 DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML () {
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
   //  "skillsHtml": "History + 12, Perception + 10"
-  const skillsHTML = utils.stripHtml(this.source.skillsHtml).split(',');
-  const skillsMaps = skillsHTML.filter((str) => str != '').map((str) => {
+  const skillsHTML = utils.stripHtml(this.source.skillsHtml).split(",");
+  const skillsMaps = skillsHTML.filter((str) => str != "").map((str) => {
     const skillMatch = str.match(/(\w+\s*\w*\s*\w*)(?:\s*)([+-])(?:\s*)(\d+)/);
     let result = {};
     if (skillMatch) {

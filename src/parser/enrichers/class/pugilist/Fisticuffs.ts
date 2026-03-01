@@ -18,7 +18,7 @@ export default class Fisticuffs extends Generic {
             restrictions: {
               type: "weapon",
               allowMagical: true,
-              categories: ['simpleM', 'natural', 'improv'],
+              categories: ["simpleM", "natural", "improv"],
             },
           },
         },

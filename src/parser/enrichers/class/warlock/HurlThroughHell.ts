@@ -68,7 +68,7 @@ export default class HurlThroughHell extends DDBEnricherData {
         spent: null,
         max: "1",
         recovery: [
-          { period: "lr", type: 'recoverAll', formula: undefined },
+          { period: "lr", type: "recoverAll", formula: undefined },
         ],
       },
       retainOriginalConsumption: true,

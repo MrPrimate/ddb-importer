@@ -40,14 +40,14 @@ export default class DDBCompanionFactory {
   createCompanions: boolean;
   updateCompanions: boolean;
   updateImages: boolean;
-  results: { created: any[]; updated: any[]; };
+  results: { created: any[]; updated: any[] };
   is2014: boolean;
   is2024: boolean;
   badSummons: boolean;
   noCompendiums: boolean;
-  indexFilter: { fields: string[]; };
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
-  summonsManager: DDBSummonsManager
+  indexFilter: { fields: string[] };
+  notifier: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
+  summonsManager: DDBSummonsManager;
   itemHandler: DDBItemImporter | null;
   companions: (DDBCompanion2014 | DDBCompanion2024)[];
   originName: string;
@@ -69,7 +69,7 @@ export default class DDBCompanionFactory {
     // console.warn("html", html);
     this.options = Object.assign({}, defaultOptions, options);
     this.html = html;
-    this.doc = new DOMParser().parseFromString(html.replaceAll("\n", ""), 'text/html');
+    this.doc = new DOMParser().parseFromString(html.replaceAll("\n", ""), "text/html");
     this.companions = [];
     this.actor = this.options.actor;
     this.folderIds = new Set();

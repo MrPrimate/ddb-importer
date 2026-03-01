@@ -24,8 +24,8 @@ const renderPopup = (type, url) => {
 
 export function adventureFlags(app, html, data) {
   if (!app.document.flags.ddb) return;
-  const journalContent = html.querySelector('section.journal-page-content');
-  journalContent.classList.add('ddb');
+  const journalContent = html.querySelector("section.journal-page-content");
+  journalContent.classList.add("ddb");
   const bookCode = foundry.utils.getProperty(data, "document.flags.ddb.bookCode");
   if (bookCode) journalContent.classList.add(bookCode.toLowerCase());
 
@@ -72,7 +72,7 @@ export function getJournalSheet5eHeaderButtons(config, buttons) {
 
   buttons.unshift({
     label: undefined,
-    class: 'ddb-open-url',
+    class: "ddb-open-url",
     icon: `fab fa-d-and-d-beyond${whiteTitle}`,
     onclick: (event) => onClick(config, event),
   });

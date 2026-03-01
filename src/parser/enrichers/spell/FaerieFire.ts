@@ -17,7 +17,7 @@ export default class FaerieFire extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange(data.hex, 30, "ATL.light.color"),
           DDBEnricherData.ChangeHelper.overrideChange("0.65", 30, "ATL.light.alpha"),
           DDBEnricherData.ChangeHelper.overrideChange("10", 30, "ATL.light.dim"),
-          DDBEnricherData.ChangeHelper.overrideChange('{"type": "pulse","speed": 1,"intensity": 3}', 30, "ATL.light.animation"),
+          DDBEnricherData.ChangeHelper.overrideChange("{\"type\": \"pulse\",\"speed\": 1,\"intensity\": 3}", 30, "ATL.light.animation"),
         ],
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("glow"),

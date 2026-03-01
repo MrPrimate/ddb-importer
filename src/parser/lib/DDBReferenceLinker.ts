@@ -661,7 +661,6 @@ function removeDDBToolTipLinks(doc) {
 }
 
 
-
 export function replaceMonsterALinks(str, actor) {
   let doc = utils.htmlToDoc(str);
   doc = replaceHREFLookupLinks(doc, actor);

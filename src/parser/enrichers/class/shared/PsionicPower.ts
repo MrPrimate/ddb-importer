@@ -63,10 +63,10 @@ export default class PsionicPower extends DDBEnricherData {
       : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");
 
     const recovery = [
-      { period: "lr", type: 'recoverAll', formula: undefined },
+      { period: "lr", type: "recoverAll", formula: undefined },
     ];
     if (!this.is2014) {
-      recovery.push({ period: "sr", type: 'formula', formula: "1" });
+      recovery.push({ period: "sr", type: "formula", formula: "1" });
     }
     const subclass = this.ddbParser.subKlass === "Soulknife"
       ? "soulknife"

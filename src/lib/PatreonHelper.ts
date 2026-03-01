@@ -189,7 +189,7 @@ const PatreonHelper = {
     const patreonScopes = encodeURI("identity identity[email]");
 
     const socketOptions = {
-      transports: ['websocket', 'polling', 'flashsocket'],
+      transports: ["websocket", "polling", "flashsocket"],
       // reconnection: false,
       // reconnectionAttempts: 10,
     };
@@ -206,13 +206,13 @@ const PatreonHelper = {
 
     });
 
-    socket.on('registered', (data) => {
+    socket.on("registered", (data) => {
       logger.info(`Foundry instance registered with DDB Muncher Proxy`);
       logger.debug(data);
       utils.renderPopup("web", `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${patreonId}&redirect_uri=${patreonAuthUrl}&state=${data.userHash}&scope=${patreonScopes}`);
     });
 
-    socket.on('auth', async (data) => {
+    socket.on("auth", async (data) => {
       logger.debug(`Response from auth socket!`, data);
 
       CONFIG.DDBI.POPUPS["web"].close();
@@ -226,7 +226,7 @@ const PatreonHelper = {
       }
     });
 
-    socket.on('error', (data) => {
+    socket.on("error", (data) => {
       logger.error(`Error Response from socket!`, data);
       socket.disconnect();
     });

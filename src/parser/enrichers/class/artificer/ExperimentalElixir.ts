@@ -32,7 +32,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       uses: {
         spent: 0,
         max: "@scale.alchemist.experimental-elixir",
-        recovery: [{ period: "lr", type: 'recoverAll', formula: undefined }],
+        recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
       },
     };
   }
@@ -45,24 +45,24 @@ export default class ExperimentalElixir extends DDBEnricherData {
     const dom = utils.htmlToDocumentFragment(this.ddbParser?.ddbDefinition?.description ?? "");
 
     // Find all rows in the tbody
-    const rows = dom.querySelectorAll('tbody tr');
+    const rows = dom.querySelectorAll("tbody tr");
 
     const details = [];
 
     rows.forEach((row) => {
-      const cells = row.querySelectorAll('td');
+      const cells = row.querySelectorAll("td");
       if (cells.length < 2) return;
       const rollValue = cells[0].textContent.trim();
       const effectCell = cells[1];
 
-      const strongTag = effectCell.querySelector('strong');
+      const strongTag = effectCell.querySelector("strong");
       if (!strongTag) return;
 
       const name = strongTag.textContent.replace(".", "").trim();
       const fullText = effectCell.textContent.trim();
       const description = fullText
-        .replace(name, '')
-        .replace(/^[.\s]*/, '')
+        .replace(name, "")
+        .replace(/^[.\s]*/, "")
         .trim();
 
       details.push({
@@ -659,18 +659,18 @@ export default class ExperimentalElixir extends DDBEnricherData {
   updateDescriptionTable(updates = []) {
     const doc = utils.htmlToDoc(this.ddbParser?.ddbDefinition?.description ?? "");
 
-    const rows = doc.body.querySelectorAll('tbody tr');
+    const rows = doc.body.querySelectorAll("tbody tr");
 
     for (const update of updates) {
       const currentTitle = `${update.name.trim()}.`;
 
       for (const row of rows) {
-        const cells = row.querySelectorAll('td');
+        const cells = row.querySelectorAll("td");
         if (cells.length < 2)
           continue;
 
         const effectCell = cells[1];
-        const strongTag = effectCell.querySelector('strong');
+        const strongTag = effectCell.querySelector("strong");
 
         if (strongTag && strongTag.textContent.trim() === currentTitle) {
           strongTag.textContent = `@UUID[${update.uuid}]{${update.name}.}`;
@@ -690,7 +690,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === elixir.flags?.ddbimporter?.is2014
         )?.uuid;
       if (!uuid) continue;
-      updates.push({ name: elixir.name.split(':').pop().trim(), uuid });
+      updates.push({ name: elixir.name.split(":").pop().trim(), uuid });
     }
 
     this.updateDescriptionTable(updates);

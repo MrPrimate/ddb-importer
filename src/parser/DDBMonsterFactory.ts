@@ -19,8 +19,8 @@ import { NotifierV1Props } from "../apps/DDBAppV2";
 
 export default class DDBMonsterFactory {
   extra: boolean;
-  keys: { useLocal: boolean; keyPostfix: string; };
-  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  keys: { useLocal: boolean; keyPostfix: string };
+  notifier: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
   type: string;
   compendiumFolders: DDBCompendiumFolders;
   update: boolean;
@@ -32,7 +32,7 @@ export default class DDBMonsterFactory {
   addChrisPremades: boolean;
   use2024Spells: boolean | null;
   currentDocument: number;
-  totalDocuments: number
+  totalDocuments: number;
 
   static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
@@ -116,7 +116,7 @@ export default class DDBMonsterFactory {
    * @returns {Promise<object[]>} a promise that resolves with an array of monsters
    */
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] }: { ids?: number[] | number; searchTerm?: string; sources?: string[]; homebrew?: boolean; homebrewOnly?: boolean; exactMatch?: boolean; excludeLegacy?: boolean; excludedCategories?: number[]; monsterTypes?: number[]; } = {},
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] }: { ids?: number[] | number; searchTerm?: string; sources?: string[]; homebrew?: boolean; homebrewOnly?: boolean; exactMatch?: boolean; excludeLegacy?: boolean; excludedCategories?: number[]; monsterTypes?: number[] } = {},
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;

@@ -39,7 +39,7 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
     if (!this.macro.function) return super._usageChatButtons(message);
     return [{
       label: this.macro.name || game.i18n.localize("ddb-importer.activities.macro.Button"),
-      icon: '<i class="fas fa-code" inert></i>',
+      icon: "<i class=\"fas fa-code\" inert></i>",
       dataset: {
         action: "executeMacro",
         visibility: this.macro.visible ? "all" : undefined,

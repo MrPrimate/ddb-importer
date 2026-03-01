@@ -636,7 +636,7 @@ export default class AdventureMunch {
     for (const key of Object.keys(this.raw)) {
       this.raw[key] = this.zipEntries.filter((entry) => {
         return !entry.directory
-          && entry.filename.split('.').pop() === 'json'
+          && entry.filename.split(".").pop() === "json"
           && entry.filename.includes(`${key}/`);
       });
     }
@@ -1537,7 +1537,7 @@ export default class AdventureMunch {
       compendiumLinks.forEach((node) => {
         const target = node.outerHTML;
         const ddbStub = AdventureMunch.DDB_MAP[lookupKey];
-        const ddbNameGuess = node.textContent.toLowerCase().replace(" ", "-").replace(/[^0-9a-z-]/gi, '');
+        const ddbNameGuess = node.textContent.toLowerCase().replace(" ", "-").replace(/[^0-9a-z-]/gi, "");
         logger.warn(`No Compendium Entry for ${node.outerHTML} attempting to guess a link to DDB`);
 
         node.setAttribute("href", `https://www.dndbeyond.com/${ddbStub}/${ddbNameGuess}`);

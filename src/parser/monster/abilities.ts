@@ -36,26 +36,26 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
     const proficient = this.source.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
     const mod = CONFIG.DDB.statModifiers.find((s) => s.value == value).modifier;
 
-    this.npc.system.abilities[ability.value]['value'] = value;
-    this.npc.system.abilities[ability.value]['proficient'] = proficient;
-    this.npc.system.abilities[ability.value]['mod'] = mod;
+    this.npc.system.abilities[ability.value]["value"] = value;
+    this.npc.system.abilities[ability.value]["proficient"] = proficient;
+    this.npc.system.abilities[ability.value]["mod"] = mod;
 
     if (proficient) {
-      this.npc.system.abilities[ability.value]['prof'] = proficiencyBonus;
-      this.npc.system.abilities[ability.value]['saveBonus'] = this.source.savingThrows.find((stat) => stat.statId === ability.id).bonusModifier || 0;
-      this.npc.system.abilities[ability.value]['save'] = mod + proficiencyBonus + this.npc.system.abilities[ability.value]['saveBonus'];
+      this.npc.system.abilities[ability.value]["prof"] = proficiencyBonus;
+      this.npc.system.abilities[ability.value]["saveBonus"] = this.source.savingThrows.find((stat) => stat.statId === ability.id).bonusModifier || 0;
+      this.npc.system.abilities[ability.value]["save"] = mod + proficiencyBonus + this.npc.system.abilities[ability.value]["saveBonus"];
     }
 
-    this.npc.system.abilities[ability.value]['dc'] = mod + proficiencyBonus + 8;
+    this.npc.system.abilities[ability.value]["dc"] = mod + proficiencyBonus + 8;
   });
 
   this.abilities = this.npc.system.abilities as IMonsterAbilities;
 
   let initBonus = null;
 
-  if (foundry.utils.hasProperty(this.source, 'initiativeBonus') && Number.isInteger(parseInt(this.source.initiativeBonus))) {
+  if (foundry.utils.hasProperty(this.source, "initiativeBonus") && Number.isInteger(parseInt(this.source.initiativeBonus))) {
     initBonus = parseInt(this.source.initiativeBonus) - this.npc.system.abilities.dex.mod;
-  } else if (foundry.utils.hasProperty(this.source, 'extraInitiative') && Number.isInteger(parseInt(this.source.extraInitiative))) {
+  } else if (foundry.utils.hasProperty(this.source, "extraInitiative") && Number.isInteger(parseInt(this.source.extraInitiative))) {
     initBonus = parseInt(this.source.extraInitiative) - this.npc.system.abilities.dex.mod;
   }
 

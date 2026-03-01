@@ -142,7 +142,7 @@ export default class DDBDescriptions {
     return effect;
   }
 
-  static getRiderStatusEffects({ text, condition } : { text: string, condition: string }) {
+  static getRiderStatusEffects({ text, condition } : { text: string; condition: string }) {
     const checkReg = new RegExp(`While ${condition}, the target has the (.*) condition`, "i");
     const match = checkReg.exec(text);
     if (match) {
@@ -436,7 +436,6 @@ export default class DDBDescriptions {
 
     return result;
   }
-
 
 
   static featureBasics({ text } : { text: string }) {

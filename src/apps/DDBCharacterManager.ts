@@ -72,7 +72,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       height: "auto",
     },
     window: {
-      icon: 'fab fa-d-and-d-beyond',
+      icon: "fab fa-d-and-d-beyond",
       resizable: true,
       minimizable: true,
       subtitle: "",
@@ -162,7 +162,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     // custom listeners
     // watch the change of the muncher-policy-selector checkboxes
     this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
-      checkbox.addEventListener('change', async (event) => {
+      checkbox.addEventListener("change", async (event) => {
         switch (event.currentTarget.dataset.section) {
           case "resource-selection": {
             const updateData = { flags: { ddbimporter: { resources: { ask: event.currentTarget.checked } } } };
@@ -183,12 +183,12 @@ export default class DDBCharacterManager extends DDBAppV2 {
       });
     });
 
-    this.element.querySelector("input[name=dndbeyond-url]").addEventListener('input', async (event) => {
+    this.element.querySelector("input[name=dndbeyond-url]").addEventListener("input", async (event) => {
       await this.#handleURLUpdate(event);
     });
 
 
-    this.element.querySelector("#open-dndbeyond-url").addEventListener('click', async () => {
+    this.element.querySelector("#open-dndbeyond-url").addEventListener("click", async () => {
       try {
         const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
         DDBCharacterManager.renderPopup("json", characterUrl);

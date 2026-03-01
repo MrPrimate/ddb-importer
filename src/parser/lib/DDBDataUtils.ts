@@ -6,9 +6,9 @@ import DDBSubClass from "../classes/DDBSubClass";
 import { IResetType } from "../../config/dictionary/actor/resets";
 
 interface IDDBDataUtilsLimitedUses {
-  data: IDDBActionLimitedUse | IDDBInventoryLimitedUse | IDDBClassFeatureLimitedUse | IDDBSpellLimitedUse,
-  description?: string,
-  scaleValue?: string | null
+  data: IDDBActionLimitedUse | IDDBInventoryLimitedUse | IDDBClassFeatureLimitedUse | IDDBSpellLimitedUse;
+  description?: string;
+  scaleValue?: string | null;
 }
 
 export default class DDBDataUtils {
@@ -361,7 +361,7 @@ export default class DDBDataUtils {
     return result;
   }
 
-  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : { ddbData: IDDBData, featureName: string, className?: string | null, subClassName?: string | null }) {
+  static hasClassFeature({ ddbData, featureName, className = null, subClassName = null } : { ddbData: IDDBData; featureName: string; className?: string | null; subClassName?: string | null }) {
     const result = ddbData.character.classes.some((klass) =>
       klass.classFeatures.some((feature) => feature.definition.name === featureName && klass.level >= feature.definition.requiredLevel)
       && ((className === null || klass.definition.name === className)
@@ -371,7 +371,7 @@ export default class DDBDataUtils {
     return result;
   }
 
-  static hasSubClass({ ddbData, subClassName } : { ddbData: IDDBData, subClassName: string }) {
+  static hasSubClass({ ddbData, subClassName } : { ddbData: IDDBData; subClassName: string }) {
     return ddbData.character.classes.some((klass) =>
       klass.subclassDefinition?.name === subClassName,
     );
@@ -392,7 +392,7 @@ export default class DDBDataUtils {
    */
   static getChoices(
     { ddb, type, feat, selectionOnly = true, filterByParentChoice = false,
-      parentChoiceId = null } : { ddb: IDDBData, type: string, feat: any, selectionOnly?: boolean, filterByParentChoice?: boolean, parentChoiceId?: string | null },
+      parentChoiceId = null } : { ddb: IDDBData; type: string; feat: any; selectionOnly?: boolean; filterByParentChoice?: boolean; parentChoiceId?: string | null },
   ): IDDBChoiceResult[] {
     const id = feat.id ? feat.id : feat.definition.id ? feat.definition.id : null;
     const featDefinition = feat.definition ? feat.definition : feat;
@@ -723,14 +723,14 @@ export default class DDBDataUtils {
 
     if (
       data
-      && ('maxUses' in data || 'statModifierUsesId' in data || 'useProficiencyBonus' in data)
+      && ("maxUses" in data || "statModifierUsesId" in data || "useProficiencyBonus" in data)
       && (
-        ('maxUses' in data && data.maxUses)
-        || ('statModifierUsesId' in data && data.statModifierUsesId)
-        || ('useProficiencyBonus' in data && data.useProficiencyBonus)
+        ("maxUses" in data && data.maxUses)
+        || ("statModifierUsesId" in data && data.statModifierUsesId)
+        || ("useProficiencyBonus" in data && data.useProficiencyBonus)
       )
     ) {
-      let maxUses: string | number = ('maxUses' in data && data.maxUses && data.maxUses !== -1) ? data.maxUses : 0;
+      let maxUses: string | number = ("maxUses" in data && data.maxUses && data.maxUses !== -1) ? data.maxUses : 0;
       const statModifierUsesId = foundry.utils.getProperty(data, "statModifierUsesId");
       if (statModifierUsesId) {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === statModifierUsesId).value;
@@ -738,7 +738,7 @@ export default class DDBDataUtils {
         if (maxUses === 0) {
           maxUses = `@abilities.${ability}.mod`;
         } else {
-          const operator = 'operator' in data ? data.operator : undefined;
+          const operator = "operator" in data ? data.operator : undefined;
           switch (operator) {
             case 2:
               maxUses = `${maxUses} * @abilities.${ability}.mod`;
@@ -781,7 +781,7 @@ export default class DDBDataUtils {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
         recovery: [
-          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
         ],
       };
     } else if (scaleValue) {
@@ -791,7 +791,7 @@ export default class DDBDataUtils {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: (maxUses !== "") ? maxUses : null,
         recovery: [
-          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
         ],
       };
     } else if (foundry.utils.hasProperty(data, "value")) {
@@ -799,7 +799,7 @@ export default class DDBDataUtils {
         spent: foundry.utils.getProperty(data, "numberUsed") as number ?? null,
         max: `${data.value}`,
         recovery: [
-          { period: resetType ? resetType.value : "", type: 'recoverAll', formula: undefined },
+          { period: resetType ? resetType.value : "", type: "recoverAll", formula: undefined },
         ],
       };
     }

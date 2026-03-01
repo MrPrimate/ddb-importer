@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-export {}
+export {};
 
 global {
 
@@ -30,7 +30,7 @@ global {
       "dnd5e.preActivityConsumption": (activity: Activity, usageConfig: ActivityUseConfiguration, messageConfig: RollMessageConfig) => boolean | void;
       "dnd5e.preApplyDamage": (actor: Actor.Implementation, amount: number, updates: Actor.UpdateData, options: DamageApplicationOptions) => boolean | void;
       "dnd5e.preCalculateDamage": (actor: Actor.Implementation, damages: DamageDescription[], options: DamageApplicationOptions) => boolean | void;
-      "dnd5e.preConfigureInitiative": (actor: Actor.Implementation, rollConfig: { data: AnyMutableObject, parts: string[], options: D20RollOptions }) => void;
+      "dnd5e.preConfigureInitiative": (actor: Actor.Implementation, rollConfig: { data: AnyMutableObject; parts: string[]; options: D20RollOptions }) => void;
       "dnd5e.preCreateActivityTemplate": (activity: Activity, templateData: MeasuredTemplateDocument.CreateData) => boolean | void;
       "dnd5e.preRollAbilityCheck": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preRollAttack": (rollConfig: RollProcessConfig & { attackMode: string }, dialogConfig: RollDialogConfig, messageConfig: RollMessageConfig) => boolean | void;
@@ -43,7 +43,7 @@ global {
       "dnd5e.preRollTool": (config: RollProcessConfig, dialog: RollDialogConfig, message: RollMessageConfig) => boolean | void;
       "dnd5e.preUseActivity": (activity: Activity, usageConfig: AnyMutableObject, dialogConfig: AnyMutableObject, messageConfig: AnyMutableObject) => boolean | void;
       "dnd5e.restCompleted": (actor: Actor.Implementation, result: { longRest: boolean; newDay: boolean }, config: unknown) => void;
-      "dnd5e.rollAttack": (rolls: Roll[], data: { subject: Activity | null, ammoUpdate: { id: string, destroy: boolean; quantity: number } | null }) => void;
+      "dnd5e.rollAttack": (rolls: Roll[], data: { subject: Activity | null; ammoUpdate: { id: string; destroy: boolean; quantity: number } | null }) => void;
       "dnd5e.rollConcentration": (rolls: Roll[], data: { subject?: Actor.Implementation }) => void;
       "dnd5e.rollDamage": (rolls: Roll[], data?: { subject?: Activity }) => void;
       "dnd5e.rollDeathSave": (rolls: Roll[], data: { chatString: string; updates: Actor.UpdateData; subject: Actor.Implementation }) => boolean | void;
@@ -65,7 +65,7 @@ global {
       "midi-qol.targeted": (targets: Set<Token.Implementation> | undefined) => void;
       "midi-qol.dependentsRegistryChanged": (event: RegistryChangeEvent) => void;
       "midi-qol-setup-wizard.launch": () => void;
-      "getHeaderControlsActivitySheet": (app: foundry.applications.api.Application /*dnd5e.applications.activity.activitySheet*/ , buttons: any[]) => void;
+      "getHeaderControlsActivitySheet": (app: foundry.applications.api.Application /* dnd5e.applications.activity.activitySheet */ , buttons: any[]) => void;
       "tidy5e-sheet.ready": (api: any) => void;
       "simplecover5eReady": () => void;
       // ddb importer

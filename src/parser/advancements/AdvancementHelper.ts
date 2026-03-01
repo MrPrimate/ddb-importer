@@ -1,8 +1,8 @@
-import { DICTIONARY, SETTINGS } from '../../config/_module';
-import { utils, logger, CompendiumHelper } from '../../lib/_module';
-import { AutoEffects } from '../enrichers/effects/_module';
-import DDBBasicActivity from '../enrichers/mixins/DDBBasicActivity';
-import { DDBModifiers } from '../lib/_module';
+import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { utils, logger, CompendiumHelper } from "../../lib/_module";
+import { AutoEffects } from "../enrichers/effects/_module";
+import DDBBasicActivity from "../enrichers/mixins/DDBBasicActivity";
+import { DDBModifiers } from "../lib/_module";
 
 function htmlToText(html) {
   // keep html brakes and tabs
@@ -1162,7 +1162,7 @@ export default class AdvancementHelper {
     const saveMatch = savingText.match(saveRegex);
 
     if (saveMatch) {
-      const saveNames = saveMatch[1].replace(' and ', ',').split(',').map((ab) => ab.trim());
+      const saveNames = saveMatch[1].replace(" and ", ",").split(",").map((ab) => ab.trim());
       const saves = saveNames
         .filter((name) => DICTIONARY.actor.abilities.some((ab) => ab.long.toLowerCase() === name.toLowerCase()))
         .map((name) => {
@@ -1182,13 +1182,13 @@ export default class AdvancementHelper {
    */
   static getTableValue(html, key) {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const doc = parser.parseFromString(html, "text/html");
 
-    const rows = doc.querySelectorAll('tr');
+    const rows = doc.querySelectorAll("tr");
 
     for (const row of rows) {
-      const th = row.querySelector('th');
-      const td = row.querySelector('td');
+      const th = row.querySelector("th");
+      const td = row.querySelector("td");
 
       if (th && td && th.textContent.trim() === key) {
         return td.textContent.trim();
@@ -1222,10 +1222,10 @@ export default class AdvancementHelper {
         parsedSkills.number = parseInt(chooseMatch[1]);
       }
 
-      const skillNames = tableAdvancements.split(':').pop()
-        .replaceAll(' and ', ',')
-        .replaceAll(' or ', ',')
-        .split(',')
+      const skillNames = tableAdvancements.split(":").pop()
+        .replaceAll(" and ", ",")
+        .replaceAll(" or ", ",")
+        .split(",")
         .map((name) => name.trim());
 
       const skills = skillNames
@@ -1288,7 +1288,7 @@ export default class AdvancementHelper {
 
     if (skillMatch || oneOffMatch || twoMatch) {
       const match = skillMatch ?? oneOffMatch ?? twoMatch;
-      const skillNames = match[2].replace(' and ', ',').replace(" or ", " ").split(',').map((skill) => skill.trim());
+      const skillNames = match[2].replace(" and ", ",").replace(" or ", " ").split(",").map((skill) => skill.trim());
       const skills = skillNames
         .filter((name) => DICTIONARY.actor.skills.some((skill) => skill.label.toLowerCase() === name.toLowerCase()))
         .map((name) => {
@@ -1564,10 +1564,10 @@ export default class AdvancementHelper {
 
       const toolNames = tableAdvancements
         .split("(")[0]
-        .split(':').pop()
-        .replaceAll(' and ', ',')
-        .replaceAll(' or ', ',')
-        .split(',')
+        .split(":").pop()
+        .replaceAll(" and ", ",")
+        .replaceAll(" or ", ",")
+        .split(",")
         .map((name) => name.trim());
 
       let isChoice = false;
@@ -1699,7 +1699,7 @@ export default class AdvancementHelper {
       const additionalMatches = additionalMatch[1]
         .replace(" and the ", ",")
         .replace(" and ", ",")
-        .split(",").map((skill) => skill.trim().replace(/^the /i, ''));
+        .split(",").map((skill) => skill.trim().replace(/^the /i, ""));
       for (const match of additionalMatches) {
         const toolChoiceRegex = /(\w+) (.*?) of your choice($|\.|\w+:)/i;
         const choiceMatch = match.match(toolChoiceRegex);
@@ -1784,10 +1784,10 @@ export default class AdvancementHelper {
 
     const tableAdvancements = AdvancementHelper.getTableValue(description, "Armor Training");
     if (tableAdvancements) {
-      const names = tableAdvancements.split(':').pop()
-        .replaceAll(' and ', ',')
-        .replaceAll(' or ', ',')
-        .split(',')
+      const names = tableAdvancements.split(":").pop()
+        .replaceAll(" and ", ",")
+        .replaceAll(" or ", ",")
+        .split(",")
         .map((name) => name.trim());
 
       names.forEach((name) => {
@@ -1919,11 +1919,11 @@ export default class AdvancementHelper {
 
     const tableAdvancements = AdvancementHelper.getTableValue(description, "Weapon Proficiencies");
     if (tableAdvancements) {
-      const nameString = tableAdvancements.split(':').pop();
+      const nameString = tableAdvancements.split(":").pop();
       const names = nameString
-        .replaceAll(' and ', ',')
-        .replaceAll(' or ', ',')
-        .split(',')
+        .replaceAll(" and ", ",")
+        .replaceAll(" or ", ",")
+        .split(",")
         .map((name) => name.trim());
 
       const proficiencies = new Set();
@@ -2495,7 +2495,7 @@ export default class AdvancementHelper {
 
     const dom = utils.htmlToDocumentFragment(description);
 
-    const pTags = dom.querySelectorAll('p strong');
+    const pTags = dom.querySelectorAll("p strong");
 
     let result;
 
@@ -2512,11 +2512,11 @@ export default class AdvancementHelper {
   static parseHTMLTableSpellAdvancementData({ description, species } = {}) {
     const dom = utils.htmlToDocumentFragment(description);
 
-    const rows = dom.querySelectorAll('table tbody tr');
+    const rows = dom.querySelectorAll("table tbody tr");
     const lineages = [];
 
     rows.forEach((row) => {
-      const cells = row.querySelectorAll('td');
+      const cells = row.querySelectorAll("td");
       if (cells.length >= 4) {
         const lineage = {
           name: cells[0].textContent.trim(),

@@ -52,7 +52,7 @@ export default class DraconicStrike extends DDBEnricherData {
             restrictions: {
               type: "weapon",
               allowMagical: true,
-              categories: ['simpleM'],
+              categories: ["simpleM"],
             },
           },
         },
@@ -71,8 +71,8 @@ export default class DraconicStrike extends DDBEnricherData {
             restrictions: {
               type: "weapon",
               allowMagical: true,
-              categories: ['martialM'],
-              properties: ['lgt'],
+              categories: ["martialM"],
+              properties: ["lgt"],
             },
           },
         },

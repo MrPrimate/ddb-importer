@@ -1,4 +1,4 @@
-export {}
+export {};
 
 global {
 
@@ -356,8 +356,8 @@ global {
     dependentOn?: string; // UUID of parent document for midi-qol dependent tracking
     actions?: {
       // This really should be structured but actions.reaction is used in other modules and macros
-      reaction?: boolean,
-      reactionsUsed?: number,
+      reaction?: boolean;
+      reactionsUsed?: number;
       reactionsMax?: number;
       reactionsReset?: "eachTurn"| "onTurnStart" | "rest" | "never"; // When reactions reset default: onTurnStart
       action?: boolean;
@@ -438,11 +438,11 @@ global {
         bonus?: Record<string, string>;
         fail?: {
           all?: string;
-        }
+        };
         success?: Record<string, string>;
       };
       bonus?: {
-        damage?: Record<string, string>
+        damage?: Record<string, string>;
       };
       critical?: Record<string, string>;
       criticalThreshold?: string;
@@ -495,7 +495,7 @@ global {
         all?: string;
         check?: Record<string, string>;
         save?: Record<string, string>;
-      }
+      };
       damage?: Record<string, string>;
       deathSave?: string;
       skill?: {
@@ -508,7 +508,7 @@ global {
         all?: string;
         check?: Record<string, string>;
         save?: Record<string, string>;
-      }
+      };
       damage?: Record<string, string>;
       deathSave?: string;
       skill?: {
@@ -560,7 +560,7 @@ global {
     rollModifiers?: {
       attack?: Record<string, string>;
       damage?: Record<string, Record<string, string>>;
-    }
+    };
     save?: {
       fail?: Record<string, string>;
     };
@@ -616,7 +616,7 @@ global {
       ActiveAuras?: {
         isAura?: boolean;
         ignoreSelf?: boolean;
-      }
+      };
       dnd5e?: {
         exhaustionLevel?: number;
         dependents?: {
@@ -627,12 +627,12 @@ global {
           type: string;
           id: string;
           uuid: string;
-        }
+        };
         riders?: {
           effect?: string[];
           activity?: string[];
           statuses?: string[];
-        }
+        };
       };
       // Copied from DAE's `globals.ts` for now
       dae?: {
@@ -792,7 +792,7 @@ global {
         dependentOn?: string; // UUID of parent document (Actor/Item) for midi-qol dependent tracking
         anchorToToken?: boolean; // Whether cone/ray template origin is anchored to caster's token border
       };
-    }
+    };
     TokenDocument: {
       dnd5e?: {
         dependentOn?: string;
@@ -800,11 +800,11 @@ global {
       "midi-qol"?: {
         dependentOn?: string; // UUID of parent document (Actor/Item) for midi-qol dependent tracking
       };
-    }
+    };
     AmbientLightDocument: {
       "midi-qol"?: {
         dependentOn?: string; // UUID of parent document (Actor/Item) for midi-qol dependent tracking
       };
-    }
+    };
   }
 }

@@ -8,7 +8,7 @@ export default class SpellListExtractor {
 
   SPELL_COLUMN_NUMBER = 1;
 
-  SPELL_COLUMN_HEADER = 'Prepared Spells';
+  SPELL_COLUMN_HEADER = "Prepared Spells";
 
   RENAME_REGEX = / Spells$/;
 
@@ -46,16 +46,16 @@ export default class SpellListExtractor {
   extractSpells(withLevel: true): Record<string, string[]>;
   extractSpells(withLevel = false): string[] | Record<string, string[]> {
     const levelRegex = /(\d+)/;
-    const tempDiv = document.createElement('div');
+    const tempDiv = document.createElement("div");
     tempDiv.innerHTML = this.description;
 
-    const table = tempDiv.querySelector('table');
+    const table = tempDiv.querySelector("table");
     if (!table) {
-      logger.error('No table found in the HTML', { this: this, description: this.description });
+      logger.error("No table found in the HTML", { this: this, description: this.description });
       return withLevel ? {} : [];
     }
 
-    const headers = table.querySelectorAll('thead th');
+    const headers = table.querySelectorAll("thead th");
     let spellColumnIndex = -1;
 
     headers.forEach((header: any, index: number) => {
@@ -75,17 +75,17 @@ export default class SpellListExtractor {
       throw new Error(`Unable to parse spell column header`);
     }
 
-    const rows = table.querySelectorAll('tbody tr');
+    const rows = table.querySelectorAll("tbody tr");
     const spells: any = withLevel ? {} : [];
 
     rows.forEach((row: any) => {
-      const cells = row.querySelectorAll('td');
+      const cells = row.querySelectorAll("td");
       if (cells.length > spellColumnIndex) {
         const spellsCell = cells[spellColumnIndex];
         const spellsText = spellsCell.textContent.trim();
 
         if (spellsText) {
-          const spellsInCell = spellsText.split(',').map((spell: string) => utils.nameString(spell));
+          const spellsInCell = spellsText.split(",").map((spell: string) => utils.nameString(spell));
           const level = `${cells[0].textContent.trim()}`.match(levelRegex);
           if (withLevel && level) {
             spells[level[0]] = spells[level[0]] ?? [];
@@ -120,7 +120,7 @@ export default class SpellListExtractor {
 
     logger.debug(`Generating Spell List for ${type} "${name}" from source "${source.acronym}" with spells:`, { spells, this: this });
 
-    spellListFactory.generateSpellUuidsForSourceAndSpellList(source.acronym, name, spells, [this.is2014 ? 'is2014' : 'is2024']);
+    spellListFactory.generateSpellUuidsForSourceAndSpellList(source.acronym, name, spells, [this.is2014 ? "is2014" : "is2024"]);
 
     await spellListFactory.buildSpellList(source, name);
     await spellListFactory.registerSpellLists();

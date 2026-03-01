@@ -19,7 +19,7 @@ export default class DrakeCompanion extends DDBEnricherData {
           max: "1",
           override: true,
           recovery: [
-            { period: "lr", type: 'recoverAll', formula: undefined },
+            { period: "lr", type: "recoverAll", formula: undefined },
           ],
         },
         bonuses: {

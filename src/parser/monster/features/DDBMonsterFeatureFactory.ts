@@ -163,7 +163,7 @@ export default class DDBMonsterFeatureFactory {
       const pDom = utils.htmlToDocumentFragment(node.outerHTML);
       const query = pDom.querySelector("em strong") ?? pDom.querySelector("strong em");
       if (!query) return;
-      let name = query.textContent.trim().replace(/\./g, '');
+      let name = query.textContent.trim().replace(/\./g, "");
       name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
       if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
       const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
@@ -176,7 +176,7 @@ export default class DDBMonsterFeatureFactory {
         const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const query = pDom.querySelector("strong");
         if (!query) return;
-        let name = query.textContent.trim().replace(/\./g, '');
+        let name = query.textContent.trim().replace(/\./g, "");
         name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
         if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
@@ -190,7 +190,7 @@ export default class DDBMonsterFeatureFactory {
         const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const query = pDom.querySelector("b");
         if (!query) return;
-        let name = query.textContent.trim().replace(/\./g, '');
+        let name = query.textContent.trim().replace(/\./g, "");
         name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
         if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
@@ -203,11 +203,11 @@ export default class DDBMonsterFeatureFactory {
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("p").forEach((node) => {
         const pDom = utils.htmlToDocumentFragment(node.outerHTML);
-        const title = pDom.textContent.split('.')[0];
+        const title = pDom.textContent.split(".")[0];
         const name = title.trim();
         if (name && name.length > 0) {
           if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
-          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
+          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split(".")[0] : undefined;
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
         }
@@ -218,10 +218,10 @@ export default class DDBMonsterFeatureFactory {
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("div").forEach((node) => {
         const pDom = utils.htmlToDocumentFragment(node.outerHTML);
-        const title = pDom.textContent.split('.')[0];
+        const title = pDom.textContent.split(".")[0];
         const name = title.trim();
         if (name && name.length > 0) {
-          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split('.')[0] : undefined;
+          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split(".")[0] : undefined;
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
         }
@@ -231,9 +231,9 @@ export default class DDBMonsterFeatureFactory {
     let action = this.featureBlocks[type][0];
 
     dom.childNodes.forEach((node) => {
-      const nodeContextSplit = node.textContent.split('.');
+      const nodeContextSplit = node.textContent.split(".");
       const nodeName = nodeContextSplit[0].trim();
-      const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith('('))
+      const longNodeName = (nodeContextSplit.length > 2 && nodeContextSplit[1].trim().startsWith("("))
         ? `${nodeName} ${nodeContextSplit[1].trim()}`
         : nodeName;
       let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name || longNodeName === act.name);
@@ -308,7 +308,7 @@ export default class DDBMonsterFeatureFactory {
 
     dom.childNodes.forEach((node) => {
       // const switchAction = dynamicActions.find((act) => act.name == node.textContent);
-      const nodeName = node.textContent.split('.')[0].trim();
+      const nodeName = node.textContent.split(".")[0].trim();
       const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       let startFlag = false;
       if (switchAction) {
@@ -346,7 +346,7 @@ export default class DDBMonsterFeatureFactory {
 
     // build out skeleton actions
     dom.querySelectorAll("strong").forEach((node, i) => {
-      const name = node.textContent.trim().replace(/\.$/, '').trim();
+      const name = node.textContent.trim().replace(/\.$/, "").trim();
       const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false, sort: i + 1 } };
 
       const actionMatch = this.features["action"].concat(
@@ -356,8 +356,8 @@ export default class DDBMonsterFeatureFactory {
       ).find((mstAction) =>
         name == mstAction.name
         || name == `${mstAction.name} Attack`
-        || name == `${mstAction.name}`.split('(', 1)[0].trim()
-        || name == `${mstAction.name} Attack`.split('(', 1)[0].trim(),
+        || name == `${mstAction.name}`.split("(", 1)[0].trim()
+        || name == `${mstAction.name} Attack`.split("(", 1)[0].trim(),
       );
 
       if (actionMatch) {
@@ -390,7 +390,7 @@ export default class DDBMonsterFeatureFactory {
           this.resources.legendary.max = parseInt(actionMatch[1]);
         }
 
-        const nodeName = node.textContent.split('.')[0].trim();
+        const nodeName = node.textContent.split(".")[0].trim();
         const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
         if (action.name !== "Legendary Actions" || switchAction) {
 
@@ -423,7 +423,7 @@ export default class DDBMonsterFeatureFactory {
 
     // build out skeleton actions
     dom.querySelectorAll("strong").forEach((node) => {
-      const name = node.textContent.trim().replace(/\.$/, '').trim();
+      const name = node.textContent.trim().replace(/\.$/, "").trim();
       const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, actionCopy: false } };
 
       this.featureBlocks[type].push(action);
@@ -437,7 +437,7 @@ export default class DDBMonsterFeatureFactory {
 
         const nameRegex = /^Action (.)+?[.!?]/;
         const actionMatch = node.textContent.match(nameRegex);
-        const nodeName = actionMatch ? actionMatch[0].split('.')[0].trim() : node.textContent.split('.')[0].trim();
+        const nodeName = actionMatch ? actionMatch[0].split(".")[0].trim() : node.textContent.split(".")[0].trim();
         const switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
 
         if (action.name !== "Villain Actions" || switchAction) {
@@ -497,7 +497,7 @@ export default class DDBMonsterFeatureFactory {
       const pDom = utils.htmlToDocumentFragment(node.outerHTML);
       const query = pDom.querySelector("em");
       if (!query) return;
-      let name = query.textContent.trim().replace(/\./g, '');
+      let name = query.textContent.trim().replace(/\./g, "");
       name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
       if (name) {
         const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
@@ -510,7 +510,7 @@ export default class DDBMonsterFeatureFactory {
         const pDom = utils.htmlToDocumentFragment(node.outerHTML);
         const query = pDom.querySelector("strong");
         if (!query) return;
-        let name = query.textContent.trim().replace(/\./g, '');
+        let name = query.textContent.trim().replace(/\./g, "");
         name = DDBMonsterFeatureFactory.splitName(name, node.textContent);
         if (name) {
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: query.outerHTML, fullName: query.textContent } };
@@ -521,7 +521,7 @@ export default class DDBMonsterFeatureFactory {
 
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("em").forEach((node) => {
-        const name = node.textContent.trim().replace(/\.$/, '').trim();
+        const name = node.textContent.trim().replace(/\.$/, "").trim();
         if (name) {
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
           this.featureBlocks[type].push(action);
@@ -531,7 +531,7 @@ export default class DDBMonsterFeatureFactory {
 
     if (this.featureBlocks[type].length == 0) {
       dom.querySelectorAll("strong").forEach((node) => {
-        const name = node.textContent.trim().replace(/\.$/, '').trim();
+        const name = node.textContent.trim().replace(/\.$/, "").trim();
         if (name) {
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML: node.outerHTML, fullName: node.textContent } };
           this.featureBlocks[type].push(action);
@@ -549,7 +549,7 @@ export default class DDBMonsterFeatureFactory {
     let action = this.featureBlocks[type][0];
 
     dom.childNodes.forEach((node) => {
-      const nodeName = node.textContent.split('.')[0].trim();
+      const nodeName = node.textContent.split(".")[0].trim();
       let switchAction = this.featureBlocks[type].find((act) => nodeName === act.name);
       if (action.name.includes("; Recharges after a Short or Long Rest")) action.name = action.name.replace("; Recharges after a Short or Long Rest", "");
       if (action.name.includes("; Recharges after a Long Rest")) action.name = action.name.replace("; Recharges after a Long Rest", "");

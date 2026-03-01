@@ -1,5 +1,5 @@
 import { logger, utils, DDBItemImporter, FileHelper } from "./_module";
-import { SETTINGS } from '../config/_module';
+import { SETTINGS } from "../config/_module";
 
 const CompendiumHelper = {
 
@@ -166,7 +166,7 @@ const CompendiumHelper = {
 
   sanitize: (text) => {
     if (text && typeof text === "string") {
-      return text.replace(/\s|\./g, '-').toLowerCase();
+      return text.replace(/\s|\./g, "-").toLowerCase();
     }
     return text;
   },

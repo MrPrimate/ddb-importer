@@ -145,7 +145,7 @@ export default class Utils {
   }
 
   static htmlToElement(html) {
-    const template = document.createElement('template');
+    const template = document.createElement("template");
     html = html.trim(); // Never return a text node of whitespace as the result
     template.innerHTML = html;
     return template.content.firstChild;
@@ -165,7 +165,7 @@ export default class Utils {
   }
 
   static replaceHtmlSpaces(str) {
-    return str.replace(/&nbsp;/g, ' ').replace(/\xA0/g, ' ').replace(/\s\s+/g, ' ').trim();
+    return str.replace(/&nbsp;/g, " ").replace(/\xA0/g, " ").replace(/\s\s+/g, " ").trim();
   }
 
   static renderLesserString(str) {
@@ -182,12 +182,12 @@ export default class Utils {
 
   static diceStringResultBuild(diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "", addHint = false) {
     const globalDamageHints = addHint;
-    const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? ' +' : ' '} ${bonus}`;
+    const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? " +" : " "} ${bonus}`;
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
     const hintString = diceHintAdd ? diceHint.replace("[]", "") : "";
     const diceHintString = diceMap.map(({ sign, count, die }, index) =>
-      `${index ? `${sign} ` : ''}${count}d${die}${specialFlags}${hintString}`,
-    ).join(' ');
+      `${index ? `${sign} ` : ""}${count}d${die}${specialFlags}${hintString}`,
+    ).join(" ");
 
     const result = {
       dice,
@@ -198,7 +198,7 @@ export default class Utils {
         diceHintString,
         mods,
         resultBonus,
-      ].join('').trim(),
+      ].join("").trim(),
     };
     return result;
   }
@@ -216,7 +216,7 @@ export default class Utils {
 
     for (const { groups } of str.matchAll(diceRegex)) {
       const {
-        rawSign = '+',
+        rawSign = "+",
         count,
         die,
       } = groups;
@@ -248,9 +248,9 @@ export default class Utils {
     // +1d8-2d8 => +1d8 -2d8 will remain as-is
     const diceMap = [];
 
-    const groupBySign = Utils.groupBy(dice, 'sign');
+    const groupBySign = Utils.groupBy(dice, "sign");
     for (const group of groupBySign.values()) {
-      const groupByDie = Utils.groupBy(group, 'die');
+      const groupByDie = Utils.groupBy(group, "die");
 
       for (const dieGroup of groupByDie.values()) {
         diceMap.push(
@@ -279,11 +279,11 @@ export default class Utils {
   }
 
   static isObject(obj) {
-    return typeof obj === 'object' && !Array.isArray(obj) && obj !== null;
+    return typeof obj === "object" && !Array.isArray(obj) && obj !== null;
   }
 
   static isString(str) {
-    return typeof str === 'string' || str instanceof String;
+    return typeof str === "string" || str instanceof String;
   }
 
   static isArray(arr) {
@@ -291,7 +291,7 @@ export default class Utils {
   }
 
   static isBoolean(bool) {
-    return typeof bool === 'boolean';
+    return typeof bool === "boolean";
   }
 
   static isFunction(func) {
@@ -601,9 +601,9 @@ export default class Utils {
   }
 
   static getJB2APath() {
-    const jb2aMod = game.modules.get('jb2a_patreon')?.active
+    const jb2aMod = game.modules.get("jb2a_patreon")?.active
       ? "jb2a_patreon"
-      : game.modules.get('JB2A_DnD5e')?.active
+      : game.modules.get("JB2A_DnD5e")?.active
         ? "JB2A_DnD5e"
         : null;
     if (!jb2aMod) return "modules/JB2A_DnD5e";

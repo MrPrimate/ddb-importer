@@ -47,7 +47,7 @@ export default class AdventureMunchHelpers {
       if (obj2[key] != obj1[key]) result[key] = obj2[key];
       if (Array.isArray(obj2[key]) && Array.isArray(obj1[key]))
         result[key] = this.diff(obj1[key], obj2[key]);
-      if (typeof obj2[key] == 'object' && typeof obj1[key] == 'object')
+      if (typeof obj2[key] == "object" && typeof obj1[key] == "object")
         result[key] = this.diff(obj1[key], obj2[key]);
     }
     return result;
@@ -312,7 +312,7 @@ export default class AdventureMunchHelpers {
    *   fullUploadPath: the full path to the file
    *   forcingWebp: whether the .webp extension was added
    */
-  static getImportFilePaths({ adventureName, path, misc }: { adventureName: string; path: string; misc: boolean; }): object {
+  static getImportFilePaths({ adventureName, path, misc }: { adventureName: string; path: string; misc: boolean }): object {
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
     const adventurePath = adventureName.replace(/[^a-z0-9]/gi, "_");
     const targetPath = path.replace(/[\\/][^\\/]+$/, "");

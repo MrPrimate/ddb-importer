@@ -32,4 +32,3 @@ export default class GuardianSpirit extends DDBEnricherData {
 
 }
 
-

@@ -155,14 +155,27 @@ class DDBCharacter {
   selectResources: boolean;
   resourceChoices: ResourceChoices;
   resources: any[];
-  raw: { character: any; classes: any[]; spells: any[]; actions: any[]; features: any[]; race: any; inventory: any[]; itemSpells: any[]; };
-  abilities: { overrides: {}; core: {}; withEffects: {}; };
+  raw: {
+    character: any;
+    classes: any[];
+    spells: any[];
+    actions: any[];
+    features: any[];
+    race: any;
+    inventory: any[];
+    itemSpells: any[];
+  };
+  abilities: {
+    overrides: {};
+    core: {};
+    withEffects: {};
+  };
   spellSlots: {};
   totalLevels: number;
   enableCompanions: boolean;
   enableSummons: boolean;
-  private _currency: { pp: number; gp: number; ep: number; sp: number; cp: number; };
-  private _itemCurrency: { pp: number; gp: number; ep: number; sp: number; cp: number; };
+  private _currency: { pp: number; gp: number; ep: number; sp: number; cp: number };
+  private _itemCurrency: { pp: number; gp: number; ep: number; sp: number; cp: number };
   itemCompendium: CompendiumCollection.Any;
   spellCompendium: CompendiumCollection.Any;
   matchedFeatures: any[];
@@ -362,7 +375,7 @@ class DDBCharacter {
     }
   }
 
-  async _generateClass(addToCompendium: boolean = false) {
+  async _generateClass(addToCompendium = false) {
     this._classParser = new CharacterClassFactory(this, {
       addToCompendium,
       compendiumImportTypes: this.compendiumImportTypes,

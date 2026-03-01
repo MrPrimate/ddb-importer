@@ -73,7 +73,7 @@ function simpleTest(...params) {
 
 async function updateFoundryCharacters() {
   for (const actor of game.actors.values()) {
-    const ddbImported = 'ddbimporter' in actor.flags;
+    const ddbImported = "ddbimporter" in actor.flags;
     if (ddbImported && actor.type === "character") {
       lib.logger.info(`Updating ${actor.name} to DDB`);
       await DDBCharacterImporter.importCharacter({ actor });
@@ -83,7 +83,7 @@ async function updateFoundryCharacters() {
 
 async function updateDDBCharacters() {
   for (const actor of game.actors.values()) {
-    const ddbImported = 'ddbimporter' in actor.flags;
+    const ddbImported = "ddbimporter" in actor.flags;
     if (ddbImported && actor.type === "character") {
       lib.logger.info(`Updating ${actor.name} to DDB`);
       await updateDDBCharacter(actor);
@@ -261,7 +261,7 @@ export function registerApi() {
     SETTINGS: config.SETTINGS,
   };
 
-  globalThis['DDBImporter'] = API;
+  globalThis["DDBImporter"] = API;
   game.modules.get(config.SETTINGS.MODULE_ID).api = API;
   game.modules.get(config.SETTINGS.MODULE_ID).DICTIONARY = config.DICTIONARY;
 }

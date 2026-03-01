@@ -683,7 +683,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
           ? [{
             // KNOWN_ISSUE_4_0: if charges returned here maybe don't?
             period: resetType.value,
-            type: 'recoverAll',
+            type: "recoverAll",
           }]
           : [],
       };

@@ -8,4 +8,3 @@ export default class RangerSpells extends SpellListExtractorMixin {
 
 }
 
-

@@ -48,7 +48,7 @@ DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
   const atWillMatch = text.match(atWillSearch);
   let atWillSpells = [];
   if (atWillMatch) {
-    atWillSpells = atWillMatch[1].replace(" and", ",").split(",").map((spell) => spell.split('(', 1)[0].trim());
+    atWillSpells = atWillMatch[1].replace(" and", ",").split(",").map((spell) => spell.split("(", 1)[0].trim());
   }
 
   this.spellList.atwill.push(...atWillSpells);
@@ -93,7 +93,7 @@ DDBMonster.prototype.parseOutSpells = function(text, { pactText = null } = {}) {
     return;
   }
 
-  const spellLevel = (match) ? match[1] : 'pact';
+  const spellLevel = (match) ? match[1] : "pact";
   const slots = (match)
     ? match[2]
     : (warlockMatch)
@@ -112,23 +112,23 @@ DDBMonster.prototype.parseOutSpells = function(text, { pactText = null } = {}) {
   // });
   if (Number.isInteger(parseInt(spellLevel)) && Number.isInteger(parseInt(slots))) {
     logger.debug("Spell level parsing");
-    this.npc.system.spells[`spell${spellLevel}`]['value'] = parseInt(slots);
-    this.npc.system.spells[`spell${spellLevel}`]['max'] = slots ?? "";
-    this.npc.system.spells[`spell${spellLevel}`]['override'] = parseInt(slots) ?? null;
+    this.npc.system.spells[`spell${spellLevel}`]["value"] = parseInt(slots);
+    this.npc.system.spells[`spell${spellLevel}`]["max"] = slots ?? "";
+    this.npc.system.spells[`spell${spellLevel}`]["override"] = parseInt(slots) ?? null;
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     this.spellList.class.push(...spellArray);
-  } else if (spellLevel === 'pact' && Number.isInteger(parseInt(slots))) {
+  } else if (spellLevel === "pact" && Number.isInteger(parseInt(slots))) {
     logger.debug("Spell pact parsing");
-    this.npc.system.spells[spellLevel]['value'] = parseInt(slots);
-    this.npc.system.spells[spellLevel]['max'] = slots ?? "";
-    this.npc.system.spells[spellLevel]['override'] = parseInt(slots) ?? null;
-    this.npc.system.spells[spellLevel]['level'] = warlockMatch ? warlockMatch[3] : pactTextSlotsMatch[2];
+    this.npc.system.spells[spellLevel]["value"] = parseInt(slots);
+    this.npc.system.spells[spellLevel]["max"] = slots ?? "";
+    this.npc.system.spells[spellLevel]["override"] = parseInt(slots) ?? null;
+    this.npc.system.spells[spellLevel]["level"] = warlockMatch ? warlockMatch[3] : pactTextSlotsMatch[2];
     const spellArray = spellMatches.split(",").map((spell) => spell.trim());
     this.spellList.pact.push(...spellArray);
   } else if (["at will", "at-will"].includes(slots)) {
     logger.debug("Spell at-will parsing");
     // at will spells
-    const spellArray = spellMatches.replace(/\*/g, '').split(",").map((spell) => spell.trim());
+    const spellArray = spellMatches.replace(/\*/g, "").split(",").map((spell) => spell.trim());
     this.spellList.atwill.push(...spellArray);
   }
 
@@ -269,7 +269,7 @@ DDBMonster.prototype._generateSpells = function() {
   //   spellAttackBonus,
   // };
 
-  this.npc.flags.monsterMunch['spellList'] = this.spellList;
+  this.npc.flags.monsterMunch["spellList"] = this.spellList;
 
 };
 

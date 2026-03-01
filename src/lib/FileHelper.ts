@@ -383,7 +383,7 @@ export class FileHelper {
 
   static async forgeCreateDirectory(target) {
     if (!target) return undefined;
-    const response = await ForgeAPI.call('assets/new-folder', { path: target });
+    const response = await ForgeAPI.call("assets/new-folder", { path: target });
     if (!response || response.error) {
       throw new Error(response ? response.error : "Unknown error while creating directory.");
     }

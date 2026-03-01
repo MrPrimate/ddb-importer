@@ -1,4 +1,4 @@
-import { SystemHelpers } from '../../lib/_module';
+import { SystemHelpers } from "../../lib/_module";
 
 export function newFeat(name) {
   const feat = {

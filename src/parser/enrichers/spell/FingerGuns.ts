@@ -90,7 +90,7 @@ export default class FingerGuns extends DDBEnricherData {
             restrictions: {
               type: "weapon",
               allowMagical: false,
-              categories: ['simpleM', 'natural'],
+              categories: ["simpleM", "natural"],
             },
             sort: 3,
           },
