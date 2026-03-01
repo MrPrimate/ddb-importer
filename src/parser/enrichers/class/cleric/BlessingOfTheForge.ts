@@ -5,7 +5,7 @@ export default class BlessingOfTheForge extends DDBEnricherData {
   get activity() {
     return {
       name: "Weapon Enchantment",
-      type: "enchant",
+      type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       activationType: "special",
       noTemplate: true,
       targetType: "self",

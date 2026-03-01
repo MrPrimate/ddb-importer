@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class WandOfFireballs extends DDBEnricherData {
   get activity() {
     return {
-      type: "save",
+      type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
       addItemConsume: true,
       data: {
         save: {

@@ -5,7 +5,7 @@ export default class ExaltedChampion extends DDBEnricherData {
   get activity() {
     return {
       name: "Activate Exalted Champion",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "action",
     };

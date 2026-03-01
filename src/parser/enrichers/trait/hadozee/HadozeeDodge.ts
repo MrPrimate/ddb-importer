@@ -12,7 +12,7 @@ export default class HadozeeDodge extends DDBEnricherData {
     return {
       name: "Reduce Damage",
       targetType: "self",
-      type: "heal",
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       data: {
         "consumption.targets": [],
         healing: DDBEnricherData.basicDamagePart({

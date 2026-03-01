@@ -20,7 +20,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
       {
         init: {
           name: "Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           noeffect: true,

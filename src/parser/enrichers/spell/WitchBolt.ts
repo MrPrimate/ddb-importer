@@ -14,7 +14,7 @@ export default class WitchBolt extends DDBEnricherData {
       {
         init: {
           name: "Ongoing Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

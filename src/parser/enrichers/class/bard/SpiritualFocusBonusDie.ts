@@ -29,7 +29,7 @@ export default class SpiritualFocusBonusDie extends DDBEnricherData {
       {
         init: {
           name: "Bonus Healing",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: true,

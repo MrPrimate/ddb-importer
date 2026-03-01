@@ -16,7 +16,7 @@ export default class SpikeGrowth extends DDBEnricherData {
       {
         init: {
           name: "Movement Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

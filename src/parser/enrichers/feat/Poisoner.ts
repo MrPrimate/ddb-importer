@@ -41,7 +41,7 @@ export default class Poisoner extends DDBEnricherData {
       {
         init: {
           name: "Apply Poison",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           img: "icons/skills/toxins/poison-bottle-corked-fire-green.webp",
@@ -83,7 +83,7 @@ export default class Poisoner extends DDBEnricherData {
       results.push({
         init: {
           name: "Poison Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateConsumption: false,
@@ -118,7 +118,7 @@ export default class Poisoner extends DDBEnricherData {
         {
           init: {
             name: "Poison Save (Dexterity)",
-            type: "save",
+            type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
           },
           build: {
             generateConsumption: false,
@@ -151,7 +151,7 @@ export default class Poisoner extends DDBEnricherData {
         {
           init: {
             name: "Poison Save (Intelligence)",
-            type: "save",
+            type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
           },
           build: {
             generateConsumption: false,

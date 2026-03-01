@@ -48,7 +48,7 @@ export default class SwarmOfProboscises extends DDBEnricherData {
       {
         init: {
           name: "Grappled Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

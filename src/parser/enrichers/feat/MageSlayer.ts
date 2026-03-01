@@ -5,7 +5,7 @@ export default class MageSlayer extends DDBEnricherData {
   get activity() {
     return {
       name: "Guarded Mind",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
     };
   }
 

@@ -8,7 +8,7 @@ export default class HeadlessSummoning extends DDBEnricherData {
 
   get activity() {
     return {
-      activationType: "heal",
+      activationType: "bonus",
       targetType: "self",
       data: {
         damage: {

@@ -5,7 +5,7 @@ export default class ElderChampion extends DDBEnricherData {
   get activity() {
     return {
       name: "Activate Elder Champion",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "bonus",
     };
@@ -16,7 +16,7 @@ export default class ElderChampion extends DDBEnricherData {
       {
         init: {
           name: "Regain HP",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateActivation: true,
@@ -35,7 +35,7 @@ export default class ElderChampion extends DDBEnricherData {
       {
         init: {
           name: "Spend Spell Slot to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

@@ -21,7 +21,7 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
       {
         init: {
           name: "Liberation",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: false,
@@ -38,7 +38,7 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
       {
         init: {
           name: "Respite",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateDamage: false,

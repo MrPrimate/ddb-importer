@@ -15,7 +15,7 @@ export default class SearingVengeance extends DDBEnricherData {
       {
         init: {
           name: "Damage Roll",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateConsumption: false,

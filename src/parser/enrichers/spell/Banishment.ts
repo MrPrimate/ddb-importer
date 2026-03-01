@@ -14,7 +14,7 @@ export default class Banishment extends DDBEnricherData {
       {
         init: {
           name: "Banishment Macro",
-          type: "ddbmacro",
+          type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         },
         build: {
           noeffect: true,

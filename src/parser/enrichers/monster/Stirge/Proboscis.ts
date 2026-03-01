@@ -30,7 +30,7 @@ export default class Proboscis extends DDBEnricherData {
       {
         init: {
           name: "Attached Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

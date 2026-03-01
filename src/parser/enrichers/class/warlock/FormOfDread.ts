@@ -27,7 +27,7 @@ export default class FormOfDread extends DDBEnricherData {
       {
         init: {
           name: "Save vs Frightened",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

@@ -74,7 +74,7 @@ export default class EldritchCannon extends DDBEnricherData {
       {
         init: {
           name: "Summon With Spell Slot",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
         },

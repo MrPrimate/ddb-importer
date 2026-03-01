@@ -24,7 +24,7 @@ export default class BrutalStrike extends DDBEnricherData {
       {
         init: {
           name: "Forceful Blow",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           noeffect: true,
@@ -34,7 +34,7 @@ export default class BrutalStrike extends DDBEnricherData {
       {
         init: {
           name: "Hamstrung Blow",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateActivation: true,

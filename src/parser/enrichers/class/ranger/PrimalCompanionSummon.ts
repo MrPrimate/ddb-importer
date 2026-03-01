@@ -5,7 +5,7 @@ export default class PrimalCompanionSummon extends DDBEnricherData {
   get activity() {
     return {
       name: "Summon After Long Rest",
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       activationType: "longRest",
       activationCondition: "After a Long Rest",
       addActivityConsume: true,

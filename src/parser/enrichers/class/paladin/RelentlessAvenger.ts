@@ -5,7 +5,7 @@ export default class RelentlessAvenger extends DDBEnricherData {
   get activity() {
     return {
       name: "Reduce Speed",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       targetType: "creature",
     };
   }

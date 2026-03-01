@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class FingerGuns extends DDBEnricherData {
 
   static RANGE_DATA = [
-    { level: 1, range: 60, rangeLong: 240, min: null, max: 4 },
+    { level: 1, range: 60, rangeLong: 240, min: null, max: 4, number: 2, denomination: 6 },
     { level: 5, range: 90, rangeLong: 360, min: 5, max: 10 },
     { level: 11, range: 120, rangeLong: 480, min: 11, max: 16 },
     { level: 17, range: 150, rangeLong: 600, min: 17, max: null },
@@ -55,7 +55,7 @@ export default class FingerGuns extends DDBEnricherData {
       {
         init: {
           name: "Cast",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -74,7 +74,7 @@ export default class FingerGuns extends DDBEnricherData {
       {
         init: {
           name: "Cast (Enchantment)",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateRange: true,

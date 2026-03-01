@@ -4,7 +4,7 @@ export default class LayOnHands extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "heal",
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       name: "Healing",
       addItemConsume: true,
       addScalingMode: "amount",
@@ -24,7 +24,7 @@ export default class LayOnHands extends DDBEnricherData {
       {
         init: {
           name: "Lay On Hands Macro",
-          type: "ddbmacro",
+          type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         },
         build: {
           generateConsumption: false,

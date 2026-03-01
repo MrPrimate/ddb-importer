@@ -10,7 +10,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
     return {
       id: "summonHound11111",
       name: "Summon After Long Rest",
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       activationType: "action",
       addActivityConsume: true,
       noeffects: true,
@@ -54,7 +54,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
       {
         init: {
           name: "Restore Hound With Moxie",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
         },

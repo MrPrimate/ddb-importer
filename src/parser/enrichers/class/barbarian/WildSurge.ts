@@ -25,7 +25,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "1: Shadowy Tendrils (Save vs Damage)",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -69,7 +69,7 @@ export default class WildSurge extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 1,
                   denomination: 12,
-                  type: ["necrotic"],
+                  types: ["necrotic"],
                 }),
               ],
             },
@@ -79,7 +79,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "1: Shadowy Tendrils (Temporary HP)",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateTarget: true,
@@ -107,7 +107,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "3: Exploding Spirit (Save vs Damage)",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -151,7 +151,7 @@ export default class WildSurge extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 1,
                   denomination: 6,
-                  type: ["force"],
+                  types: ["force"],
                 }),
               ],
             },
@@ -161,7 +161,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "4: Wild Surge Enchantment",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateTarget: true,
@@ -198,7 +198,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "5: Wild Magic Damage (Damage)",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -225,7 +225,7 @@ export default class WildSurge extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 1,
                   denomination: 6,
-                  type: ["force"],
+                  types: ["force"],
                 }),
               ],
             },
@@ -235,7 +235,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "6: Multicolored Light (AC Bonus)",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -256,7 +256,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "7: Flowers and Vines (Template)",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -291,7 +291,7 @@ export default class WildSurge extends DDBEnricherData {
       {
         init: {
           name: "8: Bolt of Light (Save vs Damage)",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -330,7 +330,7 @@ export default class WildSurge extends DDBEnricherData {
                 DDBEnricherData.basicDamagePart({
                   number: 1,
                   denomination: 6,
-                  type: ["radiant"],
+                  types: ["radiant"],
                 }),
               ],
             },
@@ -373,7 +373,7 @@ export default class WildSurge extends DDBEnricherData {
         data: {
           flags: {
             ActiveAuras: {
-              aura: "Allies",
+              aura: "Allies" as const,
               radius: "10",
               isAura: true,
               ignoreSelf: false,

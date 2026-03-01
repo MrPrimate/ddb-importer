@@ -25,7 +25,7 @@ export default class EnhancedBond extends DDBEnricherData {
       {
         init: {
           name: "Bonus Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateConsumption: false,

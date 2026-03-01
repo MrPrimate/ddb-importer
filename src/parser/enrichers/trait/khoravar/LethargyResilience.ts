@@ -3,7 +3,7 @@ import { Generic } from "../_module";
 export default class LethargyResilience extends Generic.Generic {
 
   get type() {
-    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return Generic.Generic.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {

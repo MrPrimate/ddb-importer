@@ -10,7 +10,7 @@ export default class DrakeCompanion extends DDBEnricherData {
     return {
       id: "summonDrakeComp1",
       name: "Summon After Long Rest",
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       activationType: "action",
       addActivityConsume: true,
       data: {
@@ -44,7 +44,7 @@ export default class DrakeCompanion extends DDBEnricherData {
       {
         init: {
           name: "Restore Drake With Spell Slot",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
         },

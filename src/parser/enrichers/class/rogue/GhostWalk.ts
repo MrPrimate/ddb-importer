@@ -33,7 +33,7 @@ export default class GhostWalk extends DDBEnricherData {
       {
         init: {
           name: "Spend Soul Trinket to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

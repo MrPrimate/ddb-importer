@@ -29,7 +29,7 @@ export default class OrdersWrath extends DDBEnricherData {
       {
         init: {
           name: "Curse",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           targetType: "creature",

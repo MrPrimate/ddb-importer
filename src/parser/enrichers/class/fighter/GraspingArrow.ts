@@ -51,7 +51,7 @@ export default class GraspingArrow extends ArcaneShotOption {
         {
           init: {
             name: "Escape Check",
-            type: "check",
+            type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
           },
           build: {
             generateCheck: true,

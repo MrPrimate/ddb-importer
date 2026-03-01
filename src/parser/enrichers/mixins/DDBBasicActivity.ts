@@ -1,6 +1,7 @@
 import { utils, logger } from "../../../lib/_module";
 import { SystemHelpers } from "../../lib/_module";
 import { Effects } from "../_module";
+import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class DDBBasicActivity {
 
@@ -657,7 +658,7 @@ export default class DDBBasicActivity {
 
     const ddbActivityId = await DDBBasicActivity.createActivity(
       {
-        type: "cast",
+        type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         character: actor,
         document: foundryData,
         name: `Cast ${spellData.name}`,
@@ -717,7 +718,7 @@ export default class DDBBasicActivity {
     const foundryData = document.toObject();
 
     const activity = new DDBBasicActivity({
-      type: "enchant",
+      type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       actor,
       foundryFeature: foundryData,
     });

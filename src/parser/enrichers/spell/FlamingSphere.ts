@@ -17,7 +17,7 @@ export default class FlamingSphere extends DDBEnricherData {
   get activity() {
     return {
       name: "Summon Sphere",
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: [
         { count: 1, name: "FlamingSphere" },
@@ -44,7 +44,7 @@ export default class FlamingSphere extends DDBEnricherData {
     return [{
       init: {
         name: "Save vs Damage",
-        type: "save",
+        type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
       },
       build: {
         generateDamage: true,

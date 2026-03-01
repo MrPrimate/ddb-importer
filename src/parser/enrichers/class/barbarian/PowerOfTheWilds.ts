@@ -19,7 +19,7 @@ export default class PowerOfTheWilds extends DDBEnricherData {
       {
         init: {
           name: "Lion",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -37,7 +37,7 @@ export default class PowerOfTheWilds extends DDBEnricherData {
       {
         init: {
           name: "Ram",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,

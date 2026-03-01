@@ -33,7 +33,7 @@ export default class WallOfIce extends DDBEnricherData {
       {
         init: {
           name: "Create Dome/Globe",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,
@@ -58,7 +58,7 @@ export default class WallOfIce extends DDBEnricherData {
       {
         init: {
           name: "Frigid Air Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,

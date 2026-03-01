@@ -7,7 +7,7 @@ export default class Fisticuffs extends Generic {
       {
         init: {
           name: "Fisticuffs Enchantment",
-          type: "enchant",
+          type: Generic.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateActivation: true,

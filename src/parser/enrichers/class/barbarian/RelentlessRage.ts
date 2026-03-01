@@ -27,7 +27,7 @@ export default class RelentlessRage extends DDBEnricherData {
       {
         init: {
           name: "Apply Healing",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: false,

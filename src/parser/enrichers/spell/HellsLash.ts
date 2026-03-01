@@ -14,7 +14,7 @@ export default class HellsLash extends DDBEnricherData {
       {
         init: {
           name: "Turn Start Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -39,7 +39,7 @@ export default class HellsLash extends DDBEnricherData {
       {
         init: {
           name: "Turn End Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: false,

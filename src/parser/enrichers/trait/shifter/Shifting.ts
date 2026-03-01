@@ -37,7 +37,7 @@ export default class Shifting extends DDBEnricherData {
       results.push({
         init: {
           name: `Shift ${shifterType}`,
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateHeal: true,
@@ -69,7 +69,7 @@ export default class Shifting extends DDBEnricherData {
       {
         init: {
           name: "Longtooth Attack",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateAttack: true,

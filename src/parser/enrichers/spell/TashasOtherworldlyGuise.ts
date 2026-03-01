@@ -61,7 +61,7 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
       {
         init: {
           name: "Otherworldly Weapon",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           img: "icons/magic/holy/angel-wings-gray.webp",

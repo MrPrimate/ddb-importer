@@ -5,14 +5,14 @@ export default class HolyNimbus extends DDBEnricherData {
   get activity() {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
-        type: "utility",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         data: {
           name: "Use/Apply Light",
         },
       };
     } else {
       return {
-        type: "ddbmacro",
+        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         data: {
           name: "Use/Apply Light",
           macro: {
@@ -31,7 +31,7 @@ export default class HolyNimbus extends DDBEnricherData {
       {
         init: {
           name: "Aura Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           noeffect: true,
@@ -51,7 +51,7 @@ export default class HolyNimbus extends DDBEnricherData {
       {
         init: {
           name: "Spend Spell Slot to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

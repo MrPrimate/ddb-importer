@@ -14,7 +14,7 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
       name: "Reduce Damage",
       targetType: "self",
       activationType: "reaction",
-      type: "heal",
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       data: {
         "consumption.targets": [],
         // roll: {
@@ -41,7 +41,7 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
       {
         init: {
           name: "Empowered Arms Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

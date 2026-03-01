@@ -30,7 +30,7 @@ export default class SearingSmite extends DDBEnricherData {
       {
         init: {
           name: "Save vs Ongoing Damage",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,

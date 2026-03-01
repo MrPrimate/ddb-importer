@@ -14,7 +14,7 @@ export default class NaturalRecovery extends DDBEnricherData {
     });
 
     return {
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       name: "Cast Circle Spell",
       addActivityConsume: true,
       data: {
@@ -28,7 +28,7 @@ export default class NaturalRecovery extends DDBEnricherData {
       {
         init: {
           name: "Recover Spell Slots",
-          type: "ddbmacro",
+          type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         },
         build: {
           generateConsumption: true,

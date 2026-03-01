@@ -5,7 +5,7 @@ export default class GhostlyGaze extends DDBEnricherData {
   get activity() {
     if (this.is2014) {
       return {
-        type: "utility",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       };
     } else {
       return null;

@@ -4,7 +4,7 @@ export default class UndyingSentinel extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "heal",
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       addItemConsume: true,
       targetType: "self",
       activationType: "special",

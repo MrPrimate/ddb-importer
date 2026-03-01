@@ -5,7 +5,7 @@ export default class MarkOfSentinel extends Generic {
     return [{
       init: {
         name: `Vigilant Guardian`,
-        type: "utility",
+        type: Generic.ACTIVITY_TYPES.UTILITY,
       },
       build: {
         generateDamage: false,

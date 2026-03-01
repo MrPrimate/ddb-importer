@@ -15,7 +15,7 @@ export default class FingerOfDeath extends DDBEnricherData {
       {
         init: {
           name: "Place Zombie",
-          type: "summon",
+          type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
         },
         build: {
           generateSummon: true,

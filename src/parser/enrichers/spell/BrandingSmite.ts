@@ -20,7 +20,7 @@ export default class BrandingSmite extends DDBEnricherData {
         {
           init: {
             name: "Cast (Automation)",
-            type: "utility",
+            type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
           },
           build: {
             generateConsumption: true,

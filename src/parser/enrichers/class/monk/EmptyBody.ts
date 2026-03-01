@@ -28,7 +28,7 @@ export default class EmptyBody extends DDBEnricherData {
       {
         init: {
           name: "Astral Projection",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,

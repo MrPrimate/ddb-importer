@@ -35,7 +35,7 @@ export default class PackDamage extends DDBEnricherData {
       {
         init: {
           name: "Pack Damage (Aura Automation)",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,

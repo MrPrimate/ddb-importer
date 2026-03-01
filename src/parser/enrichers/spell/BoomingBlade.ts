@@ -28,7 +28,7 @@ export default class BoomingBlade extends DDBEnricherData {
       {
         init: {
           name: "Extra Attack Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -72,7 +72,7 @@ export default class BoomingBlade extends DDBEnricherData {
       {
         init: {
           name: "Movement Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

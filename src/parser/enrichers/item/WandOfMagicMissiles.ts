@@ -4,7 +4,7 @@ export default class WandOfMagicMissiles extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "damage",
+      type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       addItemConsume: true,
       targetType: "creature",
       data: {

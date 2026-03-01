@@ -79,7 +79,7 @@ export default class EyeRays extends DDBEnricherData {
       const result = {
         init: {
           name: EyeRays.rayName(ray),
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

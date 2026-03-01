@@ -27,7 +27,7 @@ export default class Overchannel extends DDBEnricherData {
       {
         init: {
           name: "Second+ Use",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateConsumption: true,

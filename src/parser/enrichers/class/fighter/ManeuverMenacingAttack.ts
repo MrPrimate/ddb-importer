@@ -6,7 +6,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
       {
         init: {
           name: "Save vs Frightened",
-          type: "save",
+          type: Maneuver.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateTarget: true,

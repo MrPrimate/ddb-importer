@@ -29,7 +29,7 @@ export default class WallOfWater extends DDBEnricherData {
       {
         init: {
           name: "Create Ring",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateDamage: false,

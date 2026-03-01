@@ -20,7 +20,7 @@ export default class ElementalAffinity extends DDBEnricherData {
   get activity() {
     return {
       name: "Damage bonus",
-      type: "damage",
+      type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       noeffect: true,
       activationType: "special",
       activationCondition: "1/turn. Damage someone with a spell of the same damage type",

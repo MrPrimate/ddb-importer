@@ -21,7 +21,7 @@ export default class FrozenHaunt extends DDBEnricherData {
       {
         init: {
           name: "Frozen Soul Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateConsumption: false,
@@ -40,7 +40,7 @@ export default class FrozenHaunt extends DDBEnricherData {
               parts: [
                 DDBEnricherData.basicDamagePart({
                   number: 2,
-                  die: 4,
+                  denomination: 4,
                   type: "cold",
                 }),
               ],
@@ -66,7 +66,7 @@ export default class FrozenHaunt extends DDBEnricherData {
       {
         init: {
           name: "Spend Spell Slot to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

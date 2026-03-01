@@ -7,7 +7,7 @@ export default class StaffOfCharming extends DDBEnricherData {
       {
         init: {
           name: "Auto Save vs Charmspell",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateSave: false,
@@ -27,7 +27,7 @@ export default class StaffOfCharming extends DDBEnricherData {
       {
         init: {
           name: "Reflect Spell",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateSave: true,

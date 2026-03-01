@@ -41,7 +41,7 @@ export default class DraconicStrike extends DDBEnricherData {
       {
         init: {
           name: "Draconic Strike: Simple Weapons",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateActivation: true,
@@ -60,7 +60,7 @@ export default class DraconicStrike extends DDBEnricherData {
       {
         init: {
           name: "Draconic Strike: Light Martial Weapons",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateActivation: true,

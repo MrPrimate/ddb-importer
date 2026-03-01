@@ -3,7 +3,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 export default class BeguilingArrow extends ArcaneShotOption {
 
   get type() {
-    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
+    return this.isAction ? ArcaneShotOption.ACTIVITY_TYPES.DAMAGE : ArcaneShotOption.ACTIVITY_TYPES.NONE;
   }
 
   get activity() {
@@ -25,7 +25,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
         {
           init: {
             name: "Save vs Charmed",
-            type: "save",
+            type: ArcaneShotOption.ACTIVITY_TYPES.SAVE,
           },
           build: {
             generateSave: true,

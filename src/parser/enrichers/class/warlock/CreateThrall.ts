@@ -26,7 +26,7 @@ export default class CreateThrall extends DDBEnricherData {
       {
         init: {
           name: "Thrall Temp HP",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: false,

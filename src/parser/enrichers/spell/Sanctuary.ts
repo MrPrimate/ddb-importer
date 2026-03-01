@@ -19,7 +19,7 @@ export default class Sanctuary extends DDBEnricherData {
       {
         init: {
           name: "Save vs Target",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           noSpellslot: true,

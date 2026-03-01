@@ -1,5 +1,9 @@
+import { DICTIONARY } from "../../../config/_module";
 import { logger } from "../../../lib/_module";
 import SystemHelpers from "../../lib/SystemHelpers";
+
+const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
+
 
 export default class DDBActivityFactoryMixin {
 
@@ -61,7 +65,7 @@ export default class DDBActivityFactoryMixin {
   _getSaveActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "save",
+      type: ACTIVITY_TYPES.SAVE,
       ddbParent: this,
       nameIdPrefix: "save",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -79,7 +83,7 @@ export default class DDBActivityFactoryMixin {
   _getAttackActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "attack",
+      type: ACTIVITY_TYPES.ATTACK,
       ddbParent: this,
       nameIdPrefix: "attack",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -96,7 +100,7 @@ export default class DDBActivityFactoryMixin {
   _getUtilityActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "utility",
+      type: ACTIVITY_TYPES.UTILITY,
       ddbParent: this,
       nameIdPrefix: "utility",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -113,7 +117,7 @@ export default class DDBActivityFactoryMixin {
   _getRollActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "utility",
+      type: ACTIVITY_TYPES.UTILITY,
       ddbParent: this,
       nameIdPrefix: "roll",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -131,7 +135,7 @@ export default class DDBActivityFactoryMixin {
   _getForwardActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "forward",
+      type: ACTIVITY_TYPES.FORWARD,
       ddbParent: this,
       nameIdPrefix: "forward",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -145,7 +149,7 @@ export default class DDBActivityFactoryMixin {
   _getHealActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "heal",
+      type: ACTIVITY_TYPES.HEAL,
       ddbParent: this,
       nameIdPrefix: "heal",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -164,7 +168,7 @@ export default class DDBActivityFactoryMixin {
   _getDamageActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "damage",
+      type: ACTIVITY_TYPES.DAMAGE,
       ddbParent: this,
       nameIdPrefix: "damage",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -181,7 +185,7 @@ export default class DDBActivityFactoryMixin {
   _getEnchantActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "enchant",
+      type: ACTIVITY_TYPES.ENCHANT,
       ddbParent: this,
       nameIdPrefix: "enchant",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -198,7 +202,7 @@ export default class DDBActivityFactoryMixin {
   _getSummonActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "summon",
+      type: ACTIVITY_TYPES.SUMMON,
       ddbParent: this,
       nameIdPrefix: "summon",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -215,7 +219,7 @@ export default class DDBActivityFactoryMixin {
   _getCheckActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "check",
+      type: ACTIVITY_TYPES.CHECK,
       ddbParent: this,
       nameIdPrefix: "check",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -234,7 +238,7 @@ export default class DDBActivityFactoryMixin {
   _getDDBMacroActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "ddbmacro",
+      type: ACTIVITY_TYPES.DDBMACRO,
       ddbParent: this,
       nameIdPrefix: "mac",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -265,7 +269,7 @@ export default class DDBActivityFactoryMixin {
   _getCastActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "cast",
+      type: ACTIVITY_TYPES.CAST,
       ddbParent: this,
       nameIdPrefix: "cast",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -293,7 +297,7 @@ export default class DDBActivityFactoryMixin {
   _getTransformActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
     const activity = new this.activityGenerator({
       name,
-      type: "transform",
+      type: ACTIVITY_TYPES.TRANSFORM,
       ddbParent: this,
       nameIdPrefix: "tran",
       nameIdPostfix: nameIdPostfix ?? this.type,
@@ -567,7 +571,7 @@ export default class DDBActivityFactoryMixin {
       const escape = this.ddbDefinition.description.match(/escape DC ([0-9]+)/);
       if (escape) {
         this.additionalActivities.push({
-          type: "check",
+          type: ACTIVITY_TYPES.CHECK,
           name: `Escape Check`,
           options: {
             generateCheck: true,
@@ -595,7 +599,7 @@ export default class DDBActivityFactoryMixin {
     const match = this.ddbDefinition.description.match(studyRegex);
     if (match) {
       this.additionalActivities.push({
-        type: "check",
+        type: ACTIVITY_TYPES.CHECK,
         name: `Study Check`,
         options: {
           generateCheck: true,

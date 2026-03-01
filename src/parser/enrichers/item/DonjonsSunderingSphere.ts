@@ -22,7 +22,7 @@ export default class DonjonsSunderingSphere extends DDBEnricherData {
       {
         init: {
           name: "Isolating Smite: Save vs Banishment",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateTarget: false,

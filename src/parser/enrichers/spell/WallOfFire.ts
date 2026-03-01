@@ -31,7 +31,7 @@ export default class WallOfFire extends DDBEnricherData {
       {
         init: {
           name: "Place Ring",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,
@@ -57,7 +57,7 @@ export default class WallOfFire extends DDBEnricherData {
       {
         init: {
           name: "Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           img: "icons/magic/fire/flame-burning-skeleton-explosion.webp",

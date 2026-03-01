@@ -16,7 +16,7 @@ export default class SunShield extends DDBEnricherData {
       };
     } else {
       return {
-        type: "ddbmacro",
+        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         noTemplate: true,
         name: "Toggle Light/Aura",
         data: {
@@ -36,7 +36,7 @@ export default class SunShield extends DDBEnricherData {
       {
         init: {
           name: "Reaction Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

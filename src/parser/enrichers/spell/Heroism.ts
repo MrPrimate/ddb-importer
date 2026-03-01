@@ -18,7 +18,7 @@ export default class Heroism extends DDBEnricherData {
       {
         init: {
           name: "Start of Turn Temp HP",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateHealing: true,

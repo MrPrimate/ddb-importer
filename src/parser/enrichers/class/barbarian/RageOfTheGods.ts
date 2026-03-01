@@ -37,7 +37,7 @@ export default class RageOfTheGods extends DDBEnricherData {
       {
         init: {
           name: "Resurrect",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: false,

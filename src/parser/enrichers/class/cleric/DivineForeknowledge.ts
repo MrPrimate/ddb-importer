@@ -14,7 +14,7 @@ export default class DivineForeknowledge extends DDBEnricherData {
       {
         init: {
           name: "Spend Spell Slot to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

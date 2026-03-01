@@ -20,7 +20,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
   get activity() {
     return {
       name: "Damage bonus",
-      type: "damage",
+      type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       noeffect: true,
       activationType: "special",
       activationCondition: "The drake’s Bite attack deals extra damage",

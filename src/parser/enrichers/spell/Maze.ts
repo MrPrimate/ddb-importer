@@ -13,7 +13,7 @@ export default class Maze extends DDBEnricherData {
       {
         init: {
           name: "Check",
-          type: "check",
+          type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
         },
         build: {
           generateCheck: true,

@@ -30,7 +30,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
       {
         init: {
           name: "Absorb Energy",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateAttack: false,
@@ -53,7 +53,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
       {
         init: {
           name: "Energy Blast",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateAttack: true,
@@ -109,7 +109,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
         },
         daeSpecialDurations: ["turnStartSource" as const],
       };
-    });
+    }) as IDDBEffectHint[];
 
     const enchant = {
       name: "Elminster's Effulgent Spheres",
@@ -130,7 +130,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
           },
         },
       },
-    };
+    } as IDDBEffectHint;
     absorb.push(enchant);
     return absorb;
   }

@@ -8,7 +8,7 @@ export default class ArcaneWard extends DDBEnricherData {
   get activity() {
     return {
       name: "Create Ward",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       activationType: "special",
       activationCondition: "When you cast an Abjuration spell with a spell slot",
       addItemConsume: true,
@@ -32,7 +32,7 @@ export default class ArcaneWard extends DDBEnricherData {
       {
         init: {
           name: "Damage Ward",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,
@@ -52,7 +52,7 @@ export default class ArcaneWard extends DDBEnricherData {
       {
         init: {
           name: "Restore Ward After Casting Spell",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,
@@ -76,7 +76,7 @@ export default class ArcaneWard extends DDBEnricherData {
       additional.push({
         init: {
           name: "Expend Spell Slot for Ward",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

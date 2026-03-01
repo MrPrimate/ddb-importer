@@ -39,7 +39,7 @@ export default class RitualCaster extends DDBEnricherData {
       const activity = {
         init: {
           name,
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,

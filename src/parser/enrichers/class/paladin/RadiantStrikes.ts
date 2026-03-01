@@ -4,7 +4,7 @@ export default class RadiantStrikes extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "none",
+      type: DDBEnricherData.ACTIVITY_TYPES.NONE,
     };
   }
 

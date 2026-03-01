@@ -5,7 +5,7 @@ export default class PrimalCompanion extends DDBEnricherData {
   get activity() {
     return {
       name: "Command",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       activationType: "bonus",
     };
   }
@@ -16,7 +16,7 @@ export default class PrimalCompanion extends DDBEnricherData {
         {
           init: {
             name: "Summon",
-            type: "summon",
+            type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
           },
           build: {
             generateRange: true,
@@ -40,7 +40,7 @@ export default class PrimalCompanion extends DDBEnricherData {
         {
           init: {
             name: "Summon With Spell Slot",
-            type: "forward",
+            type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
           },
           build: {
           },

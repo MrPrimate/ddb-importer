@@ -42,7 +42,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
       {
         init: {
           name: "Full Moon: Heal",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: false,
@@ -75,7 +75,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
       {
         init: {
           name: "New Moon: Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateConsumption: true,
@@ -133,7 +133,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
       {
         init: {
           name: "New Moon: Invisibility",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: false,
@@ -150,7 +150,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
       {
         init: {
           name: "Crescent Moon",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,
@@ -187,7 +187,7 @@ export default class LunarPhenomenon extends DDBEnricherData {
       {
         init: {
           name: "Spend Sorcery Points to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

@@ -253,7 +253,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       const result = {
         init: {
           name: `Use ${name}`,
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateActivation: true,
@@ -521,7 +521,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       {
         init: {
           name: "Create Elixir",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         overrides: {
           noTemplate: true,
@@ -538,7 +538,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       {
         init: {
           name: "Create Elixir With Spell Slot",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         overrides: {
           activationType: "action",

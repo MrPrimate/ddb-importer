@@ -20,7 +20,7 @@ export default class CacophonicShield extends DDBEnricherData {
       {
         init: {
           name: "Save vs Damage and Deafness",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

@@ -31,7 +31,7 @@ export default class WandOfOrcus extends DDBEnricherData {
       {
         init: {
           name: "Save vs Attunement",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

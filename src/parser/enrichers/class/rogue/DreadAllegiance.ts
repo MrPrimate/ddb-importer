@@ -11,7 +11,7 @@ export default class DreadAllegiance extends DDBEnricherData {
       {
         init: {
           name: "Choose Bane",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,
@@ -24,7 +24,7 @@ export default class DreadAllegiance extends DDBEnricherData {
       {
         init: {
           name: "Choose Bhaal",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,
@@ -37,7 +37,7 @@ export default class DreadAllegiance extends DDBEnricherData {
       {
         init: {
           name: "Choose Myrkul",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,
@@ -50,7 +50,7 @@ export default class DreadAllegiance extends DDBEnricherData {
       {
         init: {
           name: "Minor Illusion (Bane)",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,
@@ -69,7 +69,7 @@ export default class DreadAllegiance extends DDBEnricherData {
       {
         init: {
           name: "Blade Ward (Bhaal)",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,
@@ -88,7 +88,7 @@ export default class DreadAllegiance extends DDBEnricherData {
       {
         init: {
           name: "Chill Touch (Myrkul)",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,

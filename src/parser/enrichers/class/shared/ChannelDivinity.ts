@@ -4,7 +4,7 @@ export default class ChannelDivinity extends DDBEnricherData {
 
   get _activityCleric2024() {
     return {
-      type: "heal",
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       name: "Divine Spark (Healing)",
       targetType: "creature",
       data: {
@@ -19,7 +19,7 @@ export default class ChannelDivinity extends DDBEnricherData {
 
   get _activityPaladin() {
     return {
-      type: "none",
+      type: DDBEnricherData.ACTIVITY_TYPES.NONE,
     };
   }
 
@@ -48,7 +48,7 @@ export default class ChannelDivinity extends DDBEnricherData {
       {
         init: {
           name: "Turn Undead",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -81,7 +81,7 @@ export default class ChannelDivinity extends DDBEnricherData {
       {
         init: {
           name: "Divine Spark (Save vs Damage)",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -114,7 +114,7 @@ export default class ChannelDivinity extends DDBEnricherData {
       {
         init: {
           name: "Turn Undead",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

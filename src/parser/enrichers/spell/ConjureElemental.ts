@@ -18,7 +18,7 @@ export default class ConjureElemental extends DDBEnricherData {
   get activity() {
     if (this.is2014) return null;
     return {
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: [
         { count: 1, name: "ConjureElementalAir" },

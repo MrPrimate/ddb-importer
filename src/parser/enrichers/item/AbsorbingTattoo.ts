@@ -8,7 +8,7 @@ export default class AbsorbingTattoo extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "reaction",
       activationCondition: `When you take ${this.ddbParser.originalName.split(',').pop().trim().toLowerCase()} damage`,

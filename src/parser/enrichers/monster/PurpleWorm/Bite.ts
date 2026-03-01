@@ -35,7 +35,7 @@ export default class Bite extends DDBEnricherData {
       {
         init: {
           name: "Swallowed Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -47,7 +47,7 @@ export default class Bite extends DDBEnricherData {
       {
         init: {
           name: "Escape Check",
-          type: "check",
+          type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
         },
         build: {
           generateCheck: true,

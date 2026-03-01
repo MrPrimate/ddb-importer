@@ -7,7 +7,7 @@ export default class Polymorph extends DDBEnricherData {
       {
         init: {
           name: "Transform",
-          type: "transform",
+          type: DDBEnricherData.ACTIVITY_TYPES.TRANSFORM,
         },
         overrides: {
           noConsumeTargets: true,

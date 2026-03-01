@@ -26,7 +26,7 @@ export default class PactOfTheChain extends DDBEnricherData {
       {
         init: {
           name: "Find Familiar (Expanded Options)",
-          type: "summon",
+          type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
         },
         build: this.is2014
           ? {

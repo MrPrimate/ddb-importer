@@ -28,7 +28,7 @@ export default class InvocationLifedrinker extends DDBEnricherData {
       return {
         init: {
           name: `Healing - ${size} Hit Die`,
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: true,

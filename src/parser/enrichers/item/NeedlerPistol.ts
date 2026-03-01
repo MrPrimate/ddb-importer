@@ -8,7 +8,7 @@ export default class NeedlerPistol extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "save",
+      type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
       addItemConsume: true,
       data: {
         damage: {

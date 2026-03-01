@@ -14,7 +14,7 @@ export default class FindFamiliar extends DDBEnricherData {
       {
         init: {
           name: "Find Familiar (Expanded Options)",
-          type: "summon",
+          type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
         },
         build: {
 

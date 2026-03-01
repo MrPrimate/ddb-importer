@@ -21,7 +21,7 @@ export default class AlterSelf extends DDBEnricherData {
       {
         init: {
           name: "Change Appearance",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           img: "icons/creatures/magical/spirit-undead-ghost-blue.webp",
@@ -34,7 +34,7 @@ export default class AlterSelf extends DDBEnricherData {
       {
         init: {
           name: "Natural Weapons",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           img: "icons/creatures/abilities/fang-tooth-blood-red.webp",

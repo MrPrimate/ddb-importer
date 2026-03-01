@@ -57,7 +57,7 @@ export default class MoteOfPotential extends DDBEnricherData {
       {
         init: {
           name: "Temp HP from Mote of Potential Save",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: true,

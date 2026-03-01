@@ -19,12 +19,12 @@ export default class MantleOfMajesty extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const results = [
       {
         init: {
           name: "Cast Command",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,
@@ -49,14 +49,14 @@ export default class MantleOfMajesty extends DDBEnricherData {
         },
       },
 
-    ];
+    ] as IDDBAdditionalActivity[];
 
     if (this.is2024) {
       results.push(
         {
           init: {
             name: "Spend Spell Slot to Restore Use",
-            type: "utility",
+            type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
           },
           build: {
             generateConsumption: true,
@@ -86,7 +86,7 @@ export default class MantleOfMajesty extends DDBEnricherData {
               ],
             },
           },
-        },
+        } as IDDBAdditionalActivity,
       );
     }
     return results;

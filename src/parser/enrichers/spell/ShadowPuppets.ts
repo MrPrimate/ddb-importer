@@ -28,7 +28,7 @@ export default class ShadowPuppets extends DDBEnricherData {
       {
         init: {
           name: "Cast",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateConsumption: true,

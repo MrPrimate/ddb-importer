@@ -26,7 +26,7 @@ export default class VitalityOfTheTree extends DDBEnricherData {
       {
         init: {
           name: "Life-Giving Force",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: true,

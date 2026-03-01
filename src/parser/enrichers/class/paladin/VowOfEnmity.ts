@@ -5,7 +5,7 @@ export default class VowOfEnmity extends DDBEnricherData {
   get activity() {
     return {
       name: "Activate Vow",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "special",
       activationCondition: "Take the attack action",

@@ -15,7 +15,7 @@ export default class BeguilingMagic extends DDBEnricherData {
       {
         init: {
           name: "Recharge",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

@@ -5,7 +5,7 @@ export default class EnergyRedirection extends DDBEnricherData {
   get activity() {
     return {
       name: "Energy Redirection",
-      type: "save",
+      type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
       data: {
         save: {
           ability: "dex",

@@ -20,7 +20,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
       {
         init: {
           name: "Save vs Restrained",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -38,7 +38,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
       {
         init: {
           name: "Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

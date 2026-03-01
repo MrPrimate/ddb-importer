@@ -7,7 +7,7 @@ export default class PsychicBlade extends DDBEnricherData {
       {
         init: {
           name: "Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -38,7 +38,7 @@ export default class PsychicBlade extends DDBEnricherData {
       {
         init: {
           name: "Bonus Action Attack",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateAttack: true,

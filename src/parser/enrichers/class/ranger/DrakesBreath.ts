@@ -42,7 +42,7 @@ export default class DrakesBreath extends DDBEnricherData {
       {
         init: {
           name: "Use With Spell Slot",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
         },

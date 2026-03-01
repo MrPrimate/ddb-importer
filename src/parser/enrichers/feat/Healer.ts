@@ -8,7 +8,7 @@ export default class Healer extends DDBEnricherData {
     } else {
       return {
         name: "Stabilize",
-        type: "heal",
+        type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         targetType: "creature",
         activationType: "special",
         activationCondition: "Use a healers kit to stabalize a creature",
@@ -26,7 +26,7 @@ export default class Healer extends DDBEnricherData {
           return {
             init: {
               name: `Healing (d${die})`,
-              type: "heal",
+              type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
             },
             build: {
               generateDamage: false,

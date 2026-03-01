@@ -181,8 +181,13 @@ global {
     // Consumption and scaling methods/properties
     canScale?: boolean;
     roll?: {
+      name?: string;
       formula?: string;
     };
+    enchant?: {
+      identifier?: string;
+      self: boolean;
+    },
     duration?: {
       concentration?: boolean;
       override?: boolean;

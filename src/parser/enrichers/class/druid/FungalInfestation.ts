@@ -16,7 +16,7 @@ export default class FungalInfestation extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       activationType: "reaction",
       noTemplate: true,
       profileKeys: game.settings.get("ddb-importer", "munching-policy-force-spell-version") === "FORCE_2014"

@@ -47,7 +47,7 @@ export default class ConjureCelestial extends DDBEnricherData {
       {
         init: {
           name: "Cast",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

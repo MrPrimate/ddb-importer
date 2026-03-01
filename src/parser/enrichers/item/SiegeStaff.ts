@@ -20,7 +20,7 @@ export default class SiegeStaff extends DDBEnricherData {
       {
         init: {
           name: "Battering Strike Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -50,7 +50,7 @@ export default class SiegeStaff extends DDBEnricherData {
       {
         init: {
           name: "Fire Pot Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -80,7 +80,7 @@ export default class SiegeStaff extends DDBEnricherData {
       {
         init: {
           name: "Trebuchet",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

@@ -29,7 +29,7 @@ export default class GnomengardeGrenade extends DDBEnricherData {
       {
         init: {
           name: "Thunder Damage",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

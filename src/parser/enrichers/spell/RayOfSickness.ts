@@ -18,7 +18,7 @@ export default class RayOfSickness extends DDBEnricherData {
         {
           init: {
             name: "Save vs Poisoned",
-            type: "save",
+            type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
           },
           build: {
             generateDamage: false,

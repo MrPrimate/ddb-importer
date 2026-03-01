@@ -89,7 +89,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
       {
         init: {
           name: "Superior Atlas: Safe Haven",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateHealing: true,
@@ -129,7 +129,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
       {
         init: {
           name: "Superior Atlas: Unerring Path",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateCast: true,
@@ -173,7 +173,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
       {
         init: {
           name: "Create Magical Map (Enchantment)",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateTarget: true,
@@ -207,7 +207,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
       {
         init: {
           name: "Superior Atlas: Safe Haven",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateHealing: true,
@@ -240,7 +240,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
       {
         init: {
           name: "Superior Atlas: Unerring Path",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateCast: true,

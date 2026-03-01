@@ -13,7 +13,7 @@ export default class Counterspell extends DDBEnricherData {
   get activity() {
     if (this.is2014) {
       return {
-        type: "check",
+        type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
         check: {
           associated: [],
           ability: "spellcasting",

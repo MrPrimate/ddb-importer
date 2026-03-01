@@ -44,7 +44,7 @@ export default class StarryForm extends DDBEnricherData {
       {
         init: {
           name: this.formActivityName("Archer"),
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateAttack: true,
@@ -87,7 +87,7 @@ export default class StarryForm extends DDBEnricherData {
       {
         init: {
           name: this.formActivityName("Chalice"),
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateAttack: false,
@@ -122,7 +122,7 @@ export default class StarryForm extends DDBEnricherData {
       {
         init: {
           name: "Twinkling Constellations (Change Form)",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
           targetOverride: {

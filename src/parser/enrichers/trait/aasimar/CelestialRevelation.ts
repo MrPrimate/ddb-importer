@@ -21,7 +21,7 @@ export default class CelestialRevelation extends DDBEnricherData {
       {
         init: {
           name: "Bonus Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -44,7 +44,7 @@ export default class CelestialRevelation extends DDBEnricherData {
       {
         init: {
           name: "Inner Radiance Save",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -66,7 +66,7 @@ export default class CelestialRevelation extends DDBEnricherData {
       {
         init: {
           name: "Necrotic Shroud Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

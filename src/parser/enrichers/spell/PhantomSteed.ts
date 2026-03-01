@@ -16,7 +16,7 @@ export default class PhantomSteed extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: this.is2014
         ? [

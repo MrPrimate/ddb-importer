@@ -18,7 +18,7 @@ export default class ConjureFey extends DDBEnricherData {
   get activity() {
     if (this.is2014) return null;
     return {
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: [
         { count: 1, name: "ConjureFey" },
@@ -45,7 +45,7 @@ export default class ConjureFey extends DDBEnricherData {
       {
         init: {
           name: "Summons: Teleport and Attack",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: false,

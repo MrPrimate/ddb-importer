@@ -29,7 +29,7 @@ export default class PrismaticWall extends DDBEnricherData {
       {
         init: {
           name: "Create Globe",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateDamage: false,
@@ -51,7 +51,7 @@ export default class PrismaticWall extends DDBEnricherData {
       {
         init: {
           name: "Blinding Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: false,
@@ -71,7 +71,7 @@ export default class PrismaticWall extends DDBEnricherData {
       {
         init: {
           name: "Damage Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,

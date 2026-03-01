@@ -17,7 +17,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
       {
         init: {
           name: "Save vs Enfeebled",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

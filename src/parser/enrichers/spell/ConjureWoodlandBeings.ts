@@ -33,7 +33,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
       {
         init: {
           name: "Save vs Damage",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,

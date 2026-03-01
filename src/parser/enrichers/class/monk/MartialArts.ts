@@ -68,7 +68,7 @@ export default class MartialArts extends DDBEnricherData {
       {
         init: {
           name: "Martial Arts: Simple Weapons",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateActivation: true,
@@ -87,7 +87,7 @@ export default class MartialArts extends DDBEnricherData {
       {
         init: {
           name: "Martial Arts: Light Martial Weapons",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateActivation: true,

@@ -4,7 +4,7 @@ export default class Slasher extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "none",
+      type: DDBEnricherData.ACTIVITY_TYPES.NONE,
     };
   }
 
@@ -13,7 +13,7 @@ export default class Slasher extends DDBEnricherData {
       {
         init: {
           name: "Hamstring",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateActivation: true,
@@ -27,7 +27,7 @@ export default class Slasher extends DDBEnricherData {
       {
         init: {
           name: "Enhanced Critical",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateActivation: true,

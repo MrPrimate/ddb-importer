@@ -5,7 +5,7 @@ export default class LivingLegend extends DDBEnricherData {
   get activity() {
     return {
       name: "Activate Living Legend",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "bonus",
     };

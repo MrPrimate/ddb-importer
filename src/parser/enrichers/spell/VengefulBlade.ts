@@ -11,7 +11,7 @@ export default class VengefulBlade extends DDBEnricherData {
       {
         init: {
           name: "Extra Attack Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -51,7 +51,7 @@ export default class VengefulBlade extends DDBEnricherData {
       {
         init: {
           name: "Extra Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

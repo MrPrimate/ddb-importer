@@ -27,7 +27,7 @@ export default class IceKnife extends DDBEnricherData {
       {
         init: {
           name: "Save vs Blast Damage",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
           id: "addSaveVsBlasDam",
         },
         build: {

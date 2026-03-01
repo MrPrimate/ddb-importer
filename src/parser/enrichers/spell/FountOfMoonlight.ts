@@ -31,7 +31,7 @@ export default class FountOfMoonlight extends DDBEnricherData {
       {
         init: {
           name: "Force Blinding Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: false,

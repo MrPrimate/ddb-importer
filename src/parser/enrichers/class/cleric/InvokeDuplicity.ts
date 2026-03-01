@@ -37,7 +37,7 @@ export default class InvokeDuplicity extends DDBEnricherData {
       {
         init: {
           name: "Move Duplicate",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: false,

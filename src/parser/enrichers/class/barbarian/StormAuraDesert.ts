@@ -7,7 +7,7 @@ export default class StormAuraDesert extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "damage",
+      type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       activationType: "bonus",
       rangeSelf: true,
       data: {

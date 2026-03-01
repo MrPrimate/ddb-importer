@@ -5,7 +5,7 @@ export default class DivineIntervention extends DDBEnricherData {
   get activity() {
     if (this.is2014) {
       return {
-        type: "utility",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         addItemConsume: true,
         data: {
           roll: {
@@ -18,7 +18,7 @@ export default class DivineIntervention extends DDBEnricherData {
       };
     } else {
       return {
-        type: "utility",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         addItemConsume: true,
       };
     }

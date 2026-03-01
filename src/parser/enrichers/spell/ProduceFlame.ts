@@ -9,7 +9,7 @@ export default class ProduceFlame extends DDBEnricherData {
         {
           init: {
             name: "Apply Light Effect",
-            type: "utility",
+            type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
           },
           build: {
             generateConsumption: true,
@@ -29,7 +29,7 @@ export default class ProduceFlame extends DDBEnricherData {
         {
           init: {
             name: "Place Light on Token",
-            type: "ddbmacro",
+            type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
           },
           build: {
             generateConsumption: false,

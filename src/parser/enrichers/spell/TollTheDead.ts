@@ -6,7 +6,7 @@ export default class TollTheDead extends DDBEnricherData {
       {
         init: {
           name: "Save (D12 Damage)",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,

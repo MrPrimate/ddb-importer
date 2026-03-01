@@ -134,7 +134,7 @@ export default class Symbol extends DDBEnricherData {
       return {
         init: {
           name: symbol.name,
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

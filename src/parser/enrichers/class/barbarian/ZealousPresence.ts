@@ -28,7 +28,7 @@ export default class ZealousPresence extends DDBEnricherData {
       {
         init: {
           name: "Spend Rage to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

@@ -22,7 +22,7 @@ export default class ElementalEpitome extends DDBEnricherData {
       {
         init: {
           name: "Elemental Epitome Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

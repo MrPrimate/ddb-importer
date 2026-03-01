@@ -9,7 +9,7 @@ export default class PsionicStrike extends DDBEnricherData {
     return {
       name: "Psionic Strike",
       activationType: "special",
-      type: "damage",
+      type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       targetType: "creature",
       addItemConsume: true,
       data: {

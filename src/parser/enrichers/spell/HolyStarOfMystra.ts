@@ -18,7 +18,7 @@ export default class HolyStarOfMystra extends DDBEnricherData {
       {
         init: {
           name: "Attack",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateAttack: true,

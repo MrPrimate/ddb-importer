@@ -19,7 +19,7 @@ export default class SummonWildfireSpirit extends DDBEnricherData {
       {
         init: {
           name: "Wildfire Summoning Damage",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           noeffect: true,
@@ -70,7 +70,7 @@ export default class SummonWildfireSpirit extends DDBEnricherData {
       {
         init: {
           name: "Command Spirit",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           noeffect: true,

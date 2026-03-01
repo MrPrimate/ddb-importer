@@ -39,7 +39,7 @@ export default class IntimidatingPresence extends DDBEnricherData {
       {
         init: {
           name: "Restore With Rage Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           noeffect: true,

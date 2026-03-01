@@ -30,7 +30,7 @@ export default class ElementalAttunement extends DDBEnricherData {
         {
           init: {
             name: "Elemental Strike",
-            type: "attack",
+            type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
           },
           build: {
             generateAttack: true,
@@ -60,7 +60,7 @@ export default class ElementalAttunement extends DDBEnricherData {
                 units: "ft",
               },
               attack: {
-                ability: ["dex"],
+                ability: "dex",
                 type: {
                   value: "melee",
                   classification: "unarmed",
@@ -75,7 +75,7 @@ export default class ElementalAttunement extends DDBEnricherData {
         {
           init: {
             name: "Elemental Save",
-            type: "save",
+            type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
           },
           build: {
             generateSave: true,

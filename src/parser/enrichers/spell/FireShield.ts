@@ -23,7 +23,7 @@ export default class FireShield extends DDBEnricherData {
       {
         init: {
           name: "On Hit Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateTarget: true,

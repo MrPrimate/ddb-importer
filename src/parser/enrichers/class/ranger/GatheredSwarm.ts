@@ -19,7 +19,7 @@ export default class GatheredSwarm extends DDBEnricherData {
       {
         init: {
           name: "Save",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: false,

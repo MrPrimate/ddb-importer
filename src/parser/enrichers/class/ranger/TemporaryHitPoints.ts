@@ -9,7 +9,7 @@ export default class TemporaryHitPoints extends DDBEnricherData {
   get activity() {
     return {
       name: "Temporary Hit Points",
-      type: "heal",
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       targetType: "self",
       activationType: "action",
       addActivityConsume: true,

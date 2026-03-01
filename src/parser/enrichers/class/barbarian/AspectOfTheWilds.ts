@@ -19,7 +19,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
       {
         init: {
           name: "Panther",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -37,7 +37,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
       {
         init: {
           name: "Salmon",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,

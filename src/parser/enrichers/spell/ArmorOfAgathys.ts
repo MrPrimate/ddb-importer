@@ -26,7 +26,7 @@ export default class ArmorOfAgathys extends DDBEnricherData {
       {
         init: {
           name: "Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

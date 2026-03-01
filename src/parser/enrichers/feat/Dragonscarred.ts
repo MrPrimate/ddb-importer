@@ -4,7 +4,7 @@ export default class Dragonscarred extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "none",
+      type: DDBEnricherData.ACTIVITY_TYPES.NONE,
     };
   }
 
@@ -13,7 +13,7 @@ export default class Dragonscarred extends DDBEnricherData {
       {
         init: {
           name: "Fearsome Power",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

@@ -47,7 +47,7 @@ export default class BreathWeapon2024 extends DDBEnricherData {
       {
         init: {
           name: "Line",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

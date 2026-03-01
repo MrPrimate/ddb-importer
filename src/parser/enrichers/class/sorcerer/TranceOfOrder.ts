@@ -25,7 +25,7 @@ export default class TranceOfOrder extends DDBEnricherData {
       {
         init: {
           name: "Spend Sorcery Points to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

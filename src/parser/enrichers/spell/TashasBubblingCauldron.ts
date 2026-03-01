@@ -46,7 +46,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
       {
         init: {
           name: "Withdraw Potion",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           img: "systems/dnd5e/icons/svg/ink-pot.svg",

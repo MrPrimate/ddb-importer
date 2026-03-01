@@ -59,7 +59,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
           {
             init: {
               name: "Bite (Healing Bonus - 1/your turn)",
-              type: "heal",
+              type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
             },
             build: {
               generateConsumption: false,

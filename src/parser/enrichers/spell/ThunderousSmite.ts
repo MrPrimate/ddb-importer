@@ -31,7 +31,7 @@ export default class ThunderousSmite extends DDBEnricherData {
       {
         init: {
           name: "Save vs Pushed",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateConsumption: true,
@@ -45,7 +45,7 @@ export default class ThunderousSmite extends DDBEnricherData {
       activities.push({
         init: {
           name: "Cast (Automation)",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

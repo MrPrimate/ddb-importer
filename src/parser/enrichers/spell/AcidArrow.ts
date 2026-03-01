@@ -24,7 +24,7 @@ export default class AcidArrow extends DDBEnricherData {
       {
         init: {
           name: "End of Targets Turn Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

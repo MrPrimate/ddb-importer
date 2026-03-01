@@ -15,7 +15,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
       {
         init: {
           name: "Giant: Save vs Death",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -37,7 +37,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
       {
         init: {
           name: "Ranged Attack (Uses Charge)",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateTarget: true,
@@ -69,7 +69,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
       {
         init: {
           name: "Save vs Stunned",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

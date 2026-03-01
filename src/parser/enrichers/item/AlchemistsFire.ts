@@ -46,7 +46,7 @@ export default class AlchemistsFire extends DDBEnricherData {
         {
           init: {
             name: "Extinguish Flames Check",
-            type: "check",
+            type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
           },
           build: {
             generateCheck: true,

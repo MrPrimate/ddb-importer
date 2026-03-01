@@ -19,7 +19,7 @@ export default class RageOfTheWilds extends DDBEnricherData {
       return {
         init: {
           name,
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,

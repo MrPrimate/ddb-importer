@@ -5,13 +5,13 @@ export default class LunarEmpowerment extends DDBEnricherData {
   get activity(): IDDBActivityData {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
-        type: "utility",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         name: "Full Moon: Shed Light",
         activationType: "special",
       };
     } else {
       return {
-        type: "ddbmacro",
+        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         data: {
           name: "Full Moon: Shed Light",
           macro: {
@@ -30,7 +30,7 @@ export default class LunarEmpowerment extends DDBEnricherData {
       {
         init: {
           name: "Full Moon",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: false,
@@ -47,7 +47,7 @@ export default class LunarEmpowerment extends DDBEnricherData {
       {
         init: {
           name: "New Moon",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: false,
@@ -64,7 +64,7 @@ export default class LunarEmpowerment extends DDBEnricherData {
       {
         init: {
           name: "Crescent Moon",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: false,

@@ -24,7 +24,7 @@ export default class CelestialResilience extends DDBEnricherData {
       {
         init: {
           name: "Heal Others",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: false,

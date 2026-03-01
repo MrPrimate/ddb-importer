@@ -17,7 +17,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Guardian",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateTarget: true,
@@ -51,7 +51,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Guardian: Thunder Gauntlet",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateTarget: true,
@@ -98,7 +98,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Guardian: Defensive Field",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateTarget: true,
@@ -124,7 +124,7 @@ export default class ArmorModel extends DDBEnricherData {
       results.push({
         init: {
           name: "Guardian: Pull Creature",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateTarget: true,
@@ -179,7 +179,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Infiltrator",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateTarget: true,
@@ -213,7 +213,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Infiltrator: Lightning Launcher",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateTarget: true,
@@ -263,7 +263,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Infiltrator: Lightning Launcher (Extra Damage)",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateTarget: true,
@@ -309,7 +309,7 @@ export default class ArmorModel extends DDBEnricherData {
       results.push({
         init: {
           name: "Infiltrator: Fly",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -352,7 +352,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Dreadnaught",
-          type: "enchant",
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateTarget: true,
@@ -411,7 +411,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Dreadnaught: Giant Statue (Large)",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -455,7 +455,7 @@ export default class ArmorModel extends DDBEnricherData {
       {
         init: {
           name: "Dreadnaught: Giant Statue (Huge)",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,

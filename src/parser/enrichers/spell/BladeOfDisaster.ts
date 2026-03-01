@@ -16,7 +16,7 @@ export default class BladeOfDisaster extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: [
         { count: 1, name: "BladeOfDisaster" },

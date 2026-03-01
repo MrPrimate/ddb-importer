@@ -16,7 +16,7 @@ export default class UnarmedStrike extends DDBEnricherData {
       {
         init: {
           name: "Grapple",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -40,7 +40,7 @@ export default class UnarmedStrike extends DDBEnricherData {
       {
         init: {
           name: "Shove",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

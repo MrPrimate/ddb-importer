@@ -31,7 +31,7 @@ export default class Pyrotechnics extends DDBEnricherData {
       {
         init: {
           name: "Smoke",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateDamage: false,

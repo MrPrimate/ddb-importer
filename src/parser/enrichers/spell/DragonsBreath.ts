@@ -20,7 +20,7 @@ export default class DragonsBreath extends DDBEnricherData {
       {
         init: {
           name: "Breathe",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

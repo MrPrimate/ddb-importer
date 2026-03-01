@@ -39,7 +39,7 @@ export default class WildResurgence extends DDBEnricherData {
       {
         init: {
           name: "Spend Wild Shape to Regain Spell Slot",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           img: "systems/dnd5e/icons/svg/trait.svg",

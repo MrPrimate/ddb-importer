@@ -3,7 +3,7 @@ import Generic from "../Generic";
 export default class BolsteringMagic extends Generic {
 
   get type() {
-    return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+    return this.isAction ? Generic.ACTIVITY_TYPES.NONE : Generic.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity() {
@@ -19,7 +19,7 @@ export default class BolsteringMagic extends Generic {
         {
           init: {
             name: "Spell Level Roll",
-            type: "utility",
+            type: Generic.ACTIVITY_TYPES.UTILITY,
           },
           build: {
             generateTarget: true,

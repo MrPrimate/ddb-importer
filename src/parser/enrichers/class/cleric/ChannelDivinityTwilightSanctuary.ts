@@ -58,7 +58,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
       {
         init: {
           name: "Temp HP",
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: false,

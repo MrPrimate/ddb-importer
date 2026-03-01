@@ -6,7 +6,7 @@ export default class ManeuverDisarmingAttack extends Maneuver {
       {
         init: {
           name: "Save vs Disarmed",
-          type: "save",
+          type: Maneuver.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateTarget: true,

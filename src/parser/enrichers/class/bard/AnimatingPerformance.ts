@@ -10,7 +10,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
     return {
       id: "summonDanciItem1",
       name: "Summon Dancing Item",
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       activationType: "action",
       addActivityConsume: true,
       data: {
@@ -32,7 +32,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
       {
         init: {
           name: "Restore Dancing Item With Spell Slot",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
         },

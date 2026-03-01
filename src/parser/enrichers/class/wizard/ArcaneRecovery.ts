@@ -4,7 +4,7 @@ export default class ArcaneRecovery extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "ddbmacro",
+      type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
       data: {
         macro: {
           name: "Arcane Recovery",

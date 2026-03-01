@@ -1,4 +1,5 @@
 import Generic from "./Generic";
+import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AbberantDragonmark extends Generic {
   get additionalActivities() {
@@ -10,7 +11,7 @@ export default class AbberantDragonmark extends Generic {
       return {
         init: {
           name: `Aberrant Surge: Spend HD (d${die})`,
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateDamage: false,

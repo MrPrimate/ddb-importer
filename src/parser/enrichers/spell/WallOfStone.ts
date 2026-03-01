@@ -31,7 +31,7 @@ export default class WallOfStone extends DDBEnricherData {
       {
         init: {
           name: "Place Long Panels",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: false,

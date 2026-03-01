@@ -5,7 +5,7 @@ export default class BoonOfFortitude extends DDBEnricherData {
   get activity() {
     return {
       name: "Healing Bonus",
-      type: "heal",
+      type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       targetType: "self",
       activationType: "special",
       activationCondition: "Once a turn",

@@ -4,7 +4,7 @@ export default class LayOnHandsPurifyPoison extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       itemConsumeValue: "5",
     };

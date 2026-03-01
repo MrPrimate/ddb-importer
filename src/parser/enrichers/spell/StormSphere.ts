@@ -36,7 +36,7 @@ export default class StormSphere extends DDBEnricherData {
       {
         init: {
           name: "Shoot Lightning",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateAttack: true,

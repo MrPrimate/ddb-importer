@@ -24,7 +24,7 @@ export default class TotemSpiritEagle extends DDBEnricherData {
       {
         init: {
           name: "Dash",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,

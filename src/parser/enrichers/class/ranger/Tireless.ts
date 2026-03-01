@@ -11,7 +11,7 @@ export default class Tireless extends DDBEnricherData {
       {
         init: {
           name: "Reduce Exhaustion",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

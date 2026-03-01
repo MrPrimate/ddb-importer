@@ -20,7 +20,7 @@ export default class ConjureConstructs extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "summon",
+      type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,
       profileKeys: [
         { count: 1, name: "ConjureConstructs2024" },

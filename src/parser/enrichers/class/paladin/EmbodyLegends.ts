@@ -5,7 +5,7 @@ export default class EmbodyLegends extends DDBEnricherData {
   get activity() {
     return {
       name: "Reroll Saving Throw",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       targetType: "self",
       activationType: "reaction",
       noConsumeTargets: true,
@@ -17,7 +17,7 @@ export default class EmbodyLegends extends DDBEnricherData {
       {
         init: {
           name: "Spend Spell Slot to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

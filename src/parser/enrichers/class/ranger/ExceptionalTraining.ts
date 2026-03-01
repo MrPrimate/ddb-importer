@@ -8,7 +8,7 @@ export default class ExceptionalTraining extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "enchant",
+      type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       activationType: "special",
       noTemplate: true,
       targetType: "creature",

@@ -41,7 +41,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
       {
         init: {
           name: "Bite",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateTarget: true,
@@ -87,7 +87,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
       {
         init: {
           name: "Claw",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateTarget: true,

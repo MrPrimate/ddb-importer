@@ -22,7 +22,7 @@ export default class HolyAura extends DDBEnricherData {
       {
         init: {
           name: "Save vs Blinded",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

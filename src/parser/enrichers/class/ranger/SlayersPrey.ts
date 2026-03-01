@@ -1,5 +1,4 @@
 import Generic from "../Generic";
-
 export default class SlayersPrey extends Generic {
 
   get addAutoAdditionalActivities() {
@@ -17,7 +16,7 @@ export default class SlayersPrey extends Generic {
       {
         init: {
           name: "Bonus Damage",
-          type: "damage",
+          type: Generic.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,
@@ -33,7 +32,7 @@ export default class SlayersPrey extends Generic {
                 Generic.basicDamagePart({
                   number: 1,
                   denomination: 6,
-                  type: Generic.allDamageTypes(),
+                  types: Generic.allDamageTypes(),
                 }),
               ],
             },

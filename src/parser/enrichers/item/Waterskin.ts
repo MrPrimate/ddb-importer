@@ -8,7 +8,7 @@ export default class Waterskin extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       activationType: "special",
       addItemConsume: true,
     };

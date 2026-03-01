@@ -7,7 +7,7 @@ export default class ManeuverPushingAttack extends Maneuver {
       {
         init: {
           name: "Save vs Pushed",
-          type: "save",
+          type: Maneuver.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateTarget: true,

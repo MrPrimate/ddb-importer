@@ -8,7 +8,7 @@ export default class MortalBulwark extends DDBEnricherData {
   get activity() {
     return {
       name: "Activate Mortal Bulwark",
-      type: "utility",
+      type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       addItemConsume: true,
       activationType: "bonus",
     };
@@ -22,7 +22,7 @@ export default class MortalBulwark extends DDBEnricherData {
       {
         init: {
           name: "Save vs Banishment",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

@@ -11,14 +11,14 @@ export default class HeatMetal extends DDBEnricherData {
           noSpellslot: true,
           noConsumeTargets: true,
           data: {
-            type: "damage",
+            type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
           },
         },
       },
       {
         init: {
           name: "Save vs Drop",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: false,

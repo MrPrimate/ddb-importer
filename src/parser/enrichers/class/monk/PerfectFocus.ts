@@ -8,7 +8,7 @@ export default class PerfectFocus extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "ddbmacro",
+      type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
       data: {
         name: "Recover Focus",
         macro: {

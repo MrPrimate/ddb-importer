@@ -17,7 +17,7 @@ export default class ConjureMinorElementals extends DDBEnricherData {
       {
         init: {
           name: "Extra Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

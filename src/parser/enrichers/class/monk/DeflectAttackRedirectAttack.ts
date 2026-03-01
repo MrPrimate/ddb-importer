@@ -11,7 +11,7 @@ export default class DeflectAttackRedirectAttack extends DDBEnricherData {
       targetType: "creature",
       addItemConsume: true,
       activationType: "special",
-      type: "save",
+      type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
       data: {
         save: {
           ability: ["dex"],

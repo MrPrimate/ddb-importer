@@ -23,7 +23,7 @@ export default class Hex extends DDBEnricherData {
       {
         init: {
           name: "Hex Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           allowCritical: true,
@@ -40,7 +40,7 @@ export default class Hex extends DDBEnricherData {
       {
         init: {
           name: "Move Hex",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
         },

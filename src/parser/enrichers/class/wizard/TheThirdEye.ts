@@ -18,7 +18,7 @@ export default class TheThirdEye extends DDBEnricherData {
       {
         init: {
           name: "Greater Comprehension",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,
@@ -33,7 +33,7 @@ export default class TheThirdEye extends DDBEnricherData {
       {
         init: {
           name: "See Invisibility",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

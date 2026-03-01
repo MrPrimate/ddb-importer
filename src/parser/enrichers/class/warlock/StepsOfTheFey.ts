@@ -42,7 +42,7 @@ export default class StepsOfTheFey extends DDBEnricherData {
       {
         init: {
           name: "Taunting Step",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,

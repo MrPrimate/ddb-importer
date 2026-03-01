@@ -8,7 +8,7 @@ export default class BloodFuryTattoo extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "damage",
+      type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       addItemConsume: true,
     };
   }
@@ -18,7 +18,7 @@ export default class BloodFuryTattoo extends DDBEnricherData {
       {
         init: {
           name: "Reactive Strike",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: false,

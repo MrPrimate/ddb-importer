@@ -4,7 +4,7 @@ export default class AcidVial extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "attack",
+      type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
       addItemConsume: true,
       targetType: "creature",
       data: {

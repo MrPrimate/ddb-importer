@@ -18,7 +18,7 @@ export default class ArcaneVigor extends DDBEnricherData {
         return {
           init: {
             name: `Spend spells level HD (d${die})`,
-            type: "heal",
+            type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
           },
           build: {
             generateDamage: false,

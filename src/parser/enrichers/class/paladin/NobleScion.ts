@@ -21,7 +21,7 @@ export default class NobleScion extends DDBEnricherData {
       {
         init: {
           name: "Minor Wish",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateTarget: true,
@@ -43,7 +43,7 @@ export default class NobleScion extends DDBEnricherData {
       {
         init: {
           name: "Spend Spell Slot to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

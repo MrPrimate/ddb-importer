@@ -14,7 +14,7 @@ export default class FlockOfFamiliars extends DDBEnricherData {
       {
         init: {
           name: "Place Additional Familiar",
-          type: "forward",
+          type: DDBEnricherData.ACTIVITY_TYPES.FORWARD,
         },
         build: {
         },

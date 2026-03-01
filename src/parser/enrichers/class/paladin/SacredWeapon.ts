@@ -4,7 +4,7 @@ export default class SacredWeapon extends DDBEnricherData {
 
   get activity() {
     return {
-      type: "enchant",
+      type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       activationType: "special",
       noTemplate: true,
       targetType: "self",
@@ -24,7 +24,7 @@ export default class SacredWeapon extends DDBEnricherData {
         id: "SacredWeaponLigh",
         init: {
           name: "Sacred Weapon Light Toggle",
-          type: "ddbmacro",
+          type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         },
         build: {
           generateConsumption: false,

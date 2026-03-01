@@ -14,12 +14,12 @@ export default class CallLightning extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
           name: "Damage",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           noSpellslot: true,
@@ -51,12 +51,18 @@ export default class CallLightning extends DDBEnricherData {
       {
         init: {
           name: "Damage (Outdoors in a Storm)",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,
           generateSave: true,
-          damageParts: [DDBEnricherData.basicDamagePart({ number: 4, denomination: 10, type: "lightning", scalingMode: "whole", scalingNumber: 1 })],
+          damageParts: [DDBEnricherData.basicDamagePart({
+            number: 4,
+            denomination: 10,
+            type: "lightning",
+            scalingMode: "whole",
+            scalingNumber: 1,
+          })],
           rangeOverride: {
             value: "",
             units: "spec",

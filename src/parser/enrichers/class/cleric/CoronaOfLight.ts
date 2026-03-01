@@ -11,14 +11,14 @@ export default class CoronaOfLight extends DDBEnricherData {
   get activity() {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
-        type: "utility",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         data: {
           name: "Use/Apply Light",
         },
       };
     } else {
       return {
-        type: "ddbmacro",
+        type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
         data: {
           name: "Use/Apply Light",
           macro: {

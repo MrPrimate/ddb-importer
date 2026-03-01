@@ -7,7 +7,7 @@ export default class WalkerInDreams extends DDBEnricherData {
       {
         init: {
           name: "Dream",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,
@@ -26,7 +26,7 @@ export default class WalkerInDreams extends DDBEnricherData {
       {
         init: {
           name: "Scrying",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,
@@ -45,7 +45,7 @@ export default class WalkerInDreams extends DDBEnricherData {
       {
         init: {
           name: "Teleportation Circle",
-          type: "cast",
+          type: DDBEnricherData.ACTIVITY_TYPES.CAST,
         },
         build: {
           generateConsumption: false,

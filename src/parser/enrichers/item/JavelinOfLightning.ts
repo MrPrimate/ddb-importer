@@ -41,7 +41,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
       {
         init: {
           name: "Lightning Bolt",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           onSave: "half",

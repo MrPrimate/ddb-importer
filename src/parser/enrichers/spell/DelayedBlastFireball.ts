@@ -32,7 +32,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
       {
         init: {
           name: "Touch Bead",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateSave: true,
@@ -69,7 +69,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
       {
         init: {
           name: "Increase Turn Counter",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateDuration: true,
@@ -100,7 +100,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
       {
         init: {
           name: "Explosion",
-          type: "save",
+          type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateDamage: true,

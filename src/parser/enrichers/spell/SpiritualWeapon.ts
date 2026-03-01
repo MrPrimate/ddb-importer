@@ -48,7 +48,7 @@ export default class SpiritualWeapon extends DDBEnricherData {
       {
         init: {
           name: "Attack",
-          type: "attack",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
         },
         build: {
           generateDamage: true,

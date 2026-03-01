@@ -42,7 +42,7 @@ export default class VitriolicSphere extends DDBEnricherData {
       {
         init: {
           name: "Secondary Acid Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

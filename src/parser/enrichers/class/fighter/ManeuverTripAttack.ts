@@ -7,7 +7,7 @@ export default class ManeuverTripAttack extends Maneuver {
       {
         init: {
           name: "Save vs Trip",
-          type: "save",
+          type: Maneuver.ACTIVITY_TYPES.SAVE,
         },
         build: {
           generateTarget: true,

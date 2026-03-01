@@ -22,7 +22,7 @@ export default class AbsorbElements extends DDBEnricherData {
       {
         init: {
           name: "Elemental Damage",
-          type: "damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateDamage: true,

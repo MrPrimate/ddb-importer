@@ -20,7 +20,7 @@ export default class GuidedStrike extends DDBEnricherData {
       {
         init: {
           name: "Other",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

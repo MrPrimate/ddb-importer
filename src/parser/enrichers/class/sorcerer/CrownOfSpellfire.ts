@@ -21,11 +21,11 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     };
   }
 
-  getSkeleton(hd) {
+  getSkeleton(hd): IDDBAdditionalActivity {
     return {
       init: {
         name: `Burning Life Force (d${hd})`,
-        type: "utility",
+        type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       },
       build: {
         generateDamage: true,
@@ -65,7 +65,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
   }
 
   get hdActivities() {
-    const base = [this.getSkeleton(6)];
+    const base = [this.getSkeleton(6)] as IDDBAdditionalActivity[];
 
     const hitDiceSize = this.ddbParser.isMuncher
       ? []
@@ -74,7 +74,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
         .filter((hd) => hd && hd !== 6);
 
     for (const hd of hitDiceSize) {
-      const clone = foundry.utils.duplicate(this.getSkeleton(hd));
+      const clone = foundry.utils.duplicate(this.getSkeleton(hd)) as IDDBAdditionalActivity;
       base.push(clone);
     }
 
@@ -82,12 +82,12 @@ export default class CrownOfSpellfire extends DDBEnricherData {
   }
 
   get additionalActivities() {
-    const results = this.hdActivities;
+    const results = this.hdActivities as IDDBAdditionalActivity[];
     results.push(...[
       {
         init: {
           name: "Spell Avoidance",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
         },
@@ -101,7 +101,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
       {
         init: {
           name: "Spend Sorcery Points to Restore Use",
-          type: "utility",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
           generateConsumption: true,

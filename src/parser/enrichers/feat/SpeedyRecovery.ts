@@ -10,7 +10,7 @@ export default class SpeedyRecovery extends DDBEnricherData {
       return {
         init: {
           name: `Healing - ${size} Hit Die`,
-          type: "heal",
+          type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
           generateConsumption: true,
