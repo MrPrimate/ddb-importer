@@ -51,6 +51,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   flagData: IParseSpellFlagData;
   limitedUse: I5eSystemLimitedUses | null;
   lookup: ParseSpellLookup;
+  classPrepMode: import("/home/jack/repos/github.com/MrPrimate/ddb-importer-typescript/src/config/dictionary/spell/spell").ISpellPreparationMode;
 
   _generateDataStub() {
     this.data = {
@@ -224,10 +225,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       || (generateSummons ?? utils.getSetting<boolean>("character-update-policy-create-companions"))
       || this.generateSummons;
     this.DDBCompanionFactory = null; // lazy init
-
-    console.warn("THIS", {
-      this: this,
-    })
 
     this.isCantrip = this.ddbDefinition.level === 0;
     this.unPreparedCantrip = this.isCantrip && unPreparedCantrip;

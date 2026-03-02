@@ -14,6 +14,7 @@ export default defineConfig(
   prettierConfig,
   {
     rules: {
+      "no-console": ["error"],
       "@stylistic/member-delimiter-style": [
         "error",
         {

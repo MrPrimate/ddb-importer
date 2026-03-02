@@ -1,3 +1,11 @@
+export interface ISpellPreparationMode {
+  name: string;
+  version?: "2014" | "2024";
+  method: "spell" | "pact" | "atwill";
+  preparation: (prepared?: boolean) => number;
+  cantripsPrepared?: () => number;
+}
+
 export const SPELL = {
   components: {
     MATERIAL: "material",
@@ -219,7 +227,7 @@ export const SPELL = {
       preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
       cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
     },
-  ],
+  ] as ISpellPreparationMode[],
   activationTypes: [
     { activationType: 0, value: "none", name: "No Action" }, // doesn't exist an more
     { activationType: 1, value: "action", name: "Action" }, // action

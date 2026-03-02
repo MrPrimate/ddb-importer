@@ -531,7 +531,7 @@ const SETTINGS = {
           },
           "pact-spells-prepared": {
             type: Boolean,
-            default: false,
+            default: true,
           },
           "character-update-policy-add-midi-effects": {
             scope: "player",

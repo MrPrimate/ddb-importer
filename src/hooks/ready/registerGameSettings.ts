@@ -42,6 +42,8 @@ interface IDDBIDev {
   downloadJSONExamples: boolean;
   downloadRAWJSONExamples: boolean;
   downloadUpdateJSON: boolean;
+  downloadFinalActorJSON: boolean;
+  itemImportSingle: boolean;
 }
 
 interface IDDBIEffectConfigModules {
@@ -123,6 +125,8 @@ if (!(CONFIG as any).DDBI) {
       downloadJSONExamples: false,
       downloadRAWJSONExamples: false,
       downloadUpdateJSON: false,
+      downloadFinalActorJSON: false,
+      itemImportSingle: false,
     },
     EFFECT_CONFIG: {
       MODULES: {

@@ -14,11 +14,18 @@ import { abilityOverrideEffects } from "../effects/abilityOverrides";
 import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions";
 import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module";
+import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
+import { NotifierV1Props } from "../apps/DDBAppV2";
 
 export default class DDBCharacterImporter {
 
+  actor: Actor5e;
+  ddbCharacter: DDBCharacter;
+  notifier: (title: any, { message, isError }: NotifierV1Props) => void;
+  settings: Record<string, any>;
+
   constructor({ actorId, ddbCharacter = null, notifier } = {}) {
-    this.actor = game.actors.get(actorId);
+    this.actor = game.actors.get(actorId) as Actor5e;
     this.migrateMetadata();
     this.actorOriginal = foundry.utils.duplicate(this.actor);
     logger.debug("Current Actor (Original):", this.actorOriginal);
@@ -987,6 +994,9 @@ ${item.system.description.chat}
       await this.ddbCharacter.updateDynamicUpdates(activeUpdateState);
       await this.restoreMidiQolConfig();
       this.actor.render();
+      if (CONFIG.DDBI.DEV.downloadFinalActorJSON) {
+        FileHelper.download(JSON.stringify(this.actor._source), `${this.actor.name}-${this.actor.id}.json`, "application/json");
+      }
     }
 
     await Hooks.callAll("ddb-importer.characterProcessDataComplete", { actor: this.actor, ddbCharacter: this.ddbCharacter });
@@ -1106,10 +1116,11 @@ ${item.system.description.chat}
     }
   }
 
-  static async importCharacterById(characterId, notifier) {
+  static async importCharacterById(characterId, notifier, folderId = null) {
     const actor = await Actor.create({
       name: "New Actor",
       type: "character",
+      folder: folderId,
       flags: {
         ddbimporter: {
           dndbeyond: {
@@ -1120,7 +1131,7 @@ ${item.system.description.chat}
       },
     });
 
-    const result = await DDBCharacterImporter.importCharacter(actor, notifier);
+    const result = await DDBCharacterImporter.importCharacter({ actor, notifier });
     return result;
   }
 

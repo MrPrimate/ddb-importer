@@ -1,3 +1,5 @@
+import DDBCharacter from "../parser/DDBCharacter";
+
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 export {};
 
@@ -77,6 +79,7 @@ global {
       "ddb-importer.featuresCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
       "ddb-importer.vehiclesCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
       "ddb-importer.itemsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
+      "ddb-importer.characterProcessDataComplete": [data: { actor: Actor5e | null; ddbCharacter: DDBCharacter }];
     }
   }
 }

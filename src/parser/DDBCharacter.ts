@@ -399,7 +399,7 @@ class DDBCharacter {
     logger.debug("Action parse complete");
   }
 
-  async _generateFeatureSpellAdvancements({ types = ["feat"] } = {}) {
+  async _generateFeatureSpellAdvancements({ types = ["feat", "race"] } = {}) {
     if (!this._characterFeatureFactory)
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
     await this._characterFeatureFactory.addSpellAdvancements(types);
@@ -540,24 +540,28 @@ class DDBCharacter {
   }
 
   async disableDynamicUpdates() {
-    this.currentActor.flags.ddbimporter.activeUpdate = false;
+    if (!this.currentActor) return;
+    foundry.utils.setProperty(this.currentActor.flags, "ddbimporter.activeUpdate", false);
     const activeUpdateData = { flags: { ddbimporter: { activeUpdate: false } } };
     await this.currentActor.update(activeUpdateData);
   }
 
   async enableDynamicUpdates() {
-    this.currentActor.flags.ddbimporter.activeUpdate = true;
+    if (!this.currentActor) return;
+    foundry.utils.setProperty(this.currentActor.flags, "ddbimporter.activeUpdate", true);
     const activeUpdateData = { flags: { ddbimporter: { activeUpdate: true } } };
     await this.currentActor.update(activeUpdateData);
   }
 
   async updateDynamicUpdates(state: boolean) {
-    this.currentActor.flags.ddbimporter.activeUpdate = state;
+    if (!this.currentActor) return;
+    foundry.utils.setProperty(this.currentActor.flags, "ddbimporter.activeUpdate", state);
     const activeUpdateData = { flags: { ddbimporter: { activeUpdate: state } } };
     await this.currentActor.update(activeUpdateData);
   }
 
   getCurrentDynamicUpdateState() {
+    if (!this.currentActor) return false;
     const activeUpdateState = this.currentActor.flags?.ddbimporter?.activeUpdate
       ? this.currentActor.flags.ddbimporter.activeUpdate
       : false;
@@ -565,6 +569,7 @@ class DDBCharacter {
   }
 
   async setActiveSyncSpellsFlag(state: boolean) {
+    if (!this.currentActor) return;
     this.currentActor.flags.ddbimporter.activeSyncSpells = state;
     const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
     await this.currentActor.update(activeUpdateData);

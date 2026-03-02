@@ -1,9 +1,10 @@
 import { NotifierV2Props } from "../apps/DDBAppV2";
 import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { DDBCampaigns, DDBProxy, FileHelper, logger, PatreonHelper, Secrets } from "../lib/_module";
+import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, Secrets } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { DDBReferenceLinker } from "../parser/lib/_module";
+import DDBCharacterImporter from "./DDBCharacterImporter";
 
 interface IDDBMuleHandlerQuickBase {
   characterId: string;
@@ -56,6 +57,7 @@ export default class DDBMuleHandler {
   cleanup = true;
   backgroundId: string | null = null;
   ddbMuncher: DDBMuncher | null = null;
+  folder: string | null = null;
 
   constructor({
     characterId,
@@ -92,6 +94,51 @@ export default class DDBMuleHandler {
   async _init() {
     await DDBReferenceLinker.importCacheLoad();
     await this._fetchMuleData();
+    if (CONFIG.DDBI.DEV.downloadFinalActorJSON) {
+      const folder = await FolderHelper.getOrCreateFolder(null, "Actor", "Mule");
+      this.folder = folder.id;
+    }
+  }
+
+  async _loadCharacterIntoFoundryWorld(ddbCharacter: DDBCharacter) {
+    if (!CONFIG.DDBI.DEV.downloadFinalActorJSON) return;
+    try {
+      const actor = await Actor.create({
+        name: "New Actor",
+        type: "character",
+        folder: this.folder,
+        flags: {
+          ddbimporter: {
+            dndbeyond: {
+              characterId: this.characterId,
+              url: `https://www.dndbeyond.com/characters/${this.characterId}`,
+            },
+          },
+        },
+      });
+      const actorData = actor.toObject();
+      ddbCharacter.currentActor = actor;
+      const importer = new DDBCharacterImporter({
+        actorId: actorData._id,
+        ddbCharacter,
+      });
+      await importer.processCharacterData();
+    } catch (error) {
+      switch (error.message) {
+        case "ImportFailure":
+          logger.error("Failure");
+          logger.error(error.stack);
+          break;
+        case "Forbidden":
+          logger.error("Error retrieving Character: ", error);
+          logger.error(error.stack);
+          break;
+        default:
+          logger.error("Error processing Character: ", error);
+          logger.error(error.stack);
+          break;
+      }
+    }
   }
 
   notifier({ progress, section, message }: NotifierV2Props) {
@@ -264,6 +311,7 @@ export default class DDBMuleHandler {
           FileHelper.download(JSON.stringify(newStub), `${this.characterId}-${classCurrent}-${subClassData.debug.subclassName}-${current}.json`, "application/json");
         }
         await ddbCharacter.process();
+        await this._loadCharacterIntoFoundryWorld(ddbCharacter);
       }
     }
   }
@@ -321,6 +369,7 @@ export default class DDBMuleHandler {
       ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
       current = count + 1;
+      await this._loadCharacterIntoFoundryWorld(ddbCharacter);
     }
 
   }
@@ -379,6 +428,7 @@ export default class DDBMuleHandler {
       ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
       current++;
+      await this._loadCharacterIntoFoundryWorld(ddbCharacter);
     }
 
   }
@@ -433,6 +483,7 @@ export default class DDBMuleHandler {
       ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
       current++;
+      await this._loadCharacterIntoFoundryWorld(ddbCharacter);
     }
 
   }
