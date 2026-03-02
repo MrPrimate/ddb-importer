@@ -7,6 +7,14 @@
 export {};
 
 global {
+
+  interface IDDBCommonDefinition {
+    id: number;
+    name: string;
+    description: string;
+    snippet: string | null;
+  }
+
   // ---- Top-level response ---------------------------------------------------
 
   export interface IDDBCharacterResponse {
@@ -100,12 +108,9 @@ global {
     isMonkWeapon: boolean;
   }
 
-  export interface IDDBItemDefinition {
-    id: number;
+  export interface IDDBItemDefinition extends IDDBCommonDefinition {
     entityTypeId: number;
     definitionKey: string;
-    name: string;
-    description: string;
     snippet: string;
     type: string;
     filterType: string;
@@ -367,12 +372,8 @@ global {
     resetDice: any | null;
   }
 
-  export interface IDDBAction {
-    id: number;
+  export interface IDDBAction extends IDDBCommonDefinition {
     entityTypeId: number;
-    name: string;
-    description: string;
-    snippet: string | null;
     actionType: number;
     attackTypeRange: number | null;
     attackSubtype: number | null;
@@ -501,14 +502,11 @@ global {
     featIds: number[];
   }
 
-  export interface IDDBClassFeatureDefinition {
-    id: number;
+  export interface IDDBClassFeatureDefinition extends IDDBCommonDefinition {
     definitionKey: string;
     entityID: string;
     entityType: string;
     entityTypeId: number;
-    name: string;
-    description: string;
     snippet: string;
     classId: number;
     requiredLevel: number;
@@ -584,14 +582,10 @@ global {
     CLASSFEATURE: number;
   }
 
-  export interface IDDBRacialTraitDefinition {
-    id: number;
+  export interface IDDBRacialTraitDefinition extends IDDBCommonDefinition {
     definitionKey: string;
     entityTypeId: number;
     displayOrder: number | null;
-    name: string;
-    description: string;
-    snippet: string | null;
     hideInBuilder: boolean;
     hideInSheet: boolean;
     activation: unknown;
@@ -652,12 +646,9 @@ global {
 
   // ---- Background -----------------------------------------------------------
 
-  export interface IDDBBackgroundDefinition {
-    id: number;
+  export interface IDDBBackgroundDefinition extends IDDBCommonDefinition {
     entityTypeId: number;
     definitionKey: string;
-    name: string;
-    description: string;
     shortDescription: string;
     snippet: string;
     slug: string;
@@ -736,12 +727,9 @@ global {
     hidePrerequisite: boolean;
   }
 
-  export interface IDDBFeatDefinition {
-    id: number;
+  export interface IDDBFeatDefinition extends IDDBCommonDefinition {
     entityTypeId: number;
     definitionKey: string;
-    name: string;
-    description: string;
     snippet: string;
     activation: IDDBFeatActivation;
     sourceId: number | null;
@@ -820,11 +808,8 @@ global {
     atHigherLevels: IDDBAtHigherLevels;
   }
 
-  export interface IDDBSpellDefinition {
-    id: number;
+  export interface IDDBSpellDefinition extends IDDBCommonDefinition {
     definitionKey: string;
-    name: string;
-    description: string;
     snippet: string;
     level: number;
     school: string;
@@ -909,6 +894,7 @@ global {
     componentId: number;
     componentTypeId: number;
     spellListId: number | null;
+    unPreparedCantrip: boolean | null;
   }
 
   type IDDBSpells = IDDBSourceCategorized<IDDBSpellEntry[] | null>;
@@ -919,15 +905,15 @@ global {
     entityTypeId: number;
     characterClassId: number;
     spells: IDDBSpellEntry[];
+    alwaysPreparedSpells: IDDBSpellEntry[];
+    alwaysKnownSpells: IDDBSpellEntry[];
+    cantrips: IDDBSpellEntry[];
   }
 
   // ---- Options (source-categorized) -----------------------------------------
 
-  export interface IDDBOptionDefinition {
-    id: number;
+  export interface IDDBOptionDefinition extends IDDBCommonDefinition {
     entityTypeId: number;
-    name: string;
-    description: string;
     snippet: string;
     activation: any | null;
     sourceId: number | null;

@@ -975,19 +975,11 @@ global {
 
   // ---- Top-level NPC document -----------------------------------------------
 
-  export interface I5eMonsterData {
-    _id?: string;
-    name: string;
+  export interface I5eMonsterData extends I5eSystemBaseDocumentData {
     type: "npc";
     system: I5eMonsterSystemData;
-    img?: string;
     items: I5eMonsterItem[];
     flags?: IActorFlagConfig & { monsterMunch?: IMonsterMunchFlags };
-    effects: IEffectData[];
-    folder?: string | null;
-    sort?: number;
-    ownership?: Record<string, number>;
     prototypeToken?: I5ePrototypeToken;
-    _stats?: I5eDocumentStats;
   }
 }

@@ -16,4 +16,17 @@ global {
     override?: boolean;
   }
 
+  export interface I5eSystemBaseDocumentData {
+    _id?: string;
+    name: string;
+    type: string;
+    img?: string;
+    flags?: Record<string, any>;
+    effects: IEffectData[];
+    folder?: string | null;
+    sort?: number;
+    ownership?: Record<string, number>;
+    _stats?: I5eDocumentStats;
+  }
+
 }

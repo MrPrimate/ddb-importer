@@ -19,12 +19,12 @@ export default class DDBActivityFactoryMixin {
   usesOnActivity = false;
   ignoreActivityGeneration = false;
   forceDefaultActionBuild = false;
-  data: any = null;
+  data: I5eSystemBaseDocumentData = null;
 
   // These properties are used throughout the class but defined in subclasses
-  type: any;
-  ddbDefinition: any;
-  ddbData: any;
+  type: string;
+  ddbDefinition: IDDBCommonDefinition;
+  ddbData: IDDBData;
 
   constructor({
     enricher = null, activityGenerator, documentType = null, notifier = null, useMidiAutomations = false,
@@ -374,7 +374,8 @@ export default class DDBActivityFactoryMixin {
     );
 
     if (this.usesOnActivity || this.enricher.usesOnActivity) {
-      options.usesOverride = foundry.utils.deepClone(this.data.system.uses);
+      const uses = foundry.utils.getProperty(this.data, "system.uses");
+      options.usesOverride = foundry.utils.deepClone(uses);
       options.usesOverride.override = true;
       options.generateUses = true;
     }
@@ -465,10 +466,10 @@ export default class DDBActivityFactoryMixin {
         if (effect.transfer && !ignoreTransfer) continue;
         if (foundry.utils.getProperty(effect, "flags.ddbimporter.noeffect")) continue;
         const activityNamesRequired = foundry.utils.hasProperty(effect, "flags.ddbimporter.activitiesMatch")
-          ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch")
+          ? foundry.utils.getProperty(effect, "flags.ddbimporter.activitiesMatch") as string[]
           : foundry.utils.hasProperty(effect, "flags.ddbimporter.activityMatch")
-            ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")]
-            : [];
+            ? [foundry.utils.getProperty(effect, "flags.ddbimporter.activityMatch")] as string[]
+            : [] as string[];
         if (activityNamesRequired.length > 0 && !activityNamesRequired.includes(activity.name)) continue;
         if (!effect._id) effect._id = foundry.utils.randomID();
         activity.effects.push({

@@ -2,6 +2,83 @@ export {};
 
 global {
 
+  type ParseSpellLookup = "classSpell" | "classFeature" | "race" | "feat" | "background" | "generic" | "item";
+
+  interface IParseSpellFlagDataDnDBeyond {
+    /** The type of spell lookup source */
+    lookup?: ParseSpellLookup;
+    /** Name of the lookup source (e.g. class feature name, feat name, item name) */
+    lookupName?: string;
+    /** ID of the lookup source */
+    lookupId?: number;
+    /** Class name associated with the spell */
+    class?: string;
+    /** Whether the class is a 2014 version */
+    is2014Class?: boolean;
+    /** Character level or spell cast-at level */
+    level?: number;
+    /** Character class ID */
+    characterClassId?: number;
+    /** The spell's innate level */
+    spellLevel?: number;
+    /** Spellcasting ability abbreviation (e.g. "int", "wis", "cha") */
+    ability?: string;
+    /** Ability modifier for the spellcasting ability */
+    mod?: number;
+    /** Spell save DC */
+    dc?: number | null;
+    /** Whether the cantrip damage is boosted */
+    cantripBoost?: boolean;
+    /** Whether to override the default DC calculation */
+    overrideDC?: boolean;
+    /** DDB spell ID */
+    id?: number;
+    /** DDB entity type ID */
+    entityTypeId?: number;
+    /** Healing bonus modifier */
+    healingBoost?: number;
+    /** Whether the spell uses a spell slot */
+    usesSpellSlot?: boolean;
+    /** Whether material components are forced (e.g. Artificer) */
+    forceMaterial?: boolean;
+    /** Whether to force pact magic slot usage (e.g. Warlock) */
+    forcePact?: boolean;
+    /** Race full name (for race spells) */
+    race?: string;
+    /** Whether this is a granted (slot-using copy) of a limited-use spell */
+    granted?: boolean;
+    /** Override display name for the spell (e.g. item spells) */
+    nameOverride?: string;
+    /** The level the spell is cast at */
+    castAtLevel?: number;
+    /** Whether the spell is an unprepared cantrip replacement */
+    unPreparedCantrip?: string | null;
+    /** Whether the spell is homebrew */
+    homebrew?: boolean;
+    /** Limited use data from an item source */
+    limitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string };
+    /** Limited use data from the spell itself (item spells) */
+    spellLimitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string } | null;
+    /** Whether the item granting this spell is active/equipped/attuned */
+    active?: boolean;
+  }
+
+  interface IParseSpellFlagData {
+    ddbimporter: {
+      /** Whether this is a generic (non-character) spell */
+      generic?: boolean;
+      dndbeyond: IParseSpellFlagDataDnDBeyond;
+    };
+    /** Integration flag for the spell-class-filter-for-5e module */
+    "spell-class-filter-for-5e"?: {
+      parentClass?: string;
+    };
+    /** Integration flag for the tidy5e-sheet module */
+    "tidy5e-sheet"?: {
+      parentClass?: string;
+    };
+  }
+
   interface IDDBImporterFlagsOverrideItem {
     name?: string;
     type?: string;

@@ -9,6 +9,48 @@ import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   isGeneric: boolean;
+  namePrefix: string;
+  namePostfix: string;
+  nameOverride: string;
+  originalName: string;
+  name: string;
+  addSpellEffects: boolean;
+  legacyPostfix: boolean;
+  updateExisting: boolean;
+  pactSpellsPrepared: boolean;
+  forceMaterial: boolean;
+  forcePact: boolean;
+  spellClass: string;
+  is2014Class: boolean;
+  lookupName: string;
+  ability: string;
+  school: { id: string; name: string; img: string; };
+  dc: string;
+  overrideDC: boolean;
+  isHomebrew: boolean;
+  onlyPactMagic: boolean;
+  legacy: boolean;
+  is2014: boolean;
+  is2024: boolean;
+  itemCompendium: CompendiumCollection.Any;
+  isCompanionSpell2014: boolean;
+  isCompanionSpell2024: boolean;
+  isCRSummonSpell2014: boolean;
+  isCRSummonSpell2024: boolean;
+  isSummons: boolean;
+  generateSummons: boolean;
+  DDBCompanionFactory: DDBCompanionFactory;
+  isCantrip: boolean;
+  unPreparedCantrip: boolean;
+  cantripBoost: boolean;
+  healingBonus: string;
+  noSpellcasting: boolean;
+  spellData: IDDBSpellEntry;
+  declare ddbDefinition: IDDBSpellDefinition;
+  ddbCompanionFactory: DDBCompanionFactory;
+  flagData: IParseSpellFlagData;
+  limitedUse: I5eSystemLimitedUses | null;
+  lookup: ParseSpellLookup;
 
   _generateDataStub() {
     this.data = {
@@ -22,7 +64,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
           id: this.spellData.id,
           definitionId: this.ddbDefinition.id,
           entityTypeId: this.spellData.entityTypeId,
-          dndbeyond: this.spellData.flags.ddbimporter.dndbeyond,
+          dndbeyond: this.flagData.ddbimporter.dndbeyond,
           originalName: this.originalName,
           sources: this.ddbDefinition.sources,
           tags: this.ddbDefinition.tags,
@@ -40,8 +82,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
           magicdam: true,
           magiceffect: true,
         },
-        "spell-class-filter-for-5e": this.spellData.flags["spell-class-filter-for-5e"],
-        "tidy5e-sheet": this.spellData.flags["tidy5e-sheet"],
+        "spell-class-filter-for-5e": this.flagData["spell-class-filter-for-5e"],
+        "tidy5e-sheet": this.flagData["tidy5e-sheet"],
       },
     };
 
@@ -101,13 +143,13 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     limitedUse = null, forceMaterial = null, klass = null, lookup = null, lookupName = null, ability = null,
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
     generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null, unPreparedCantrip = null,
-    noSpellcasting = false, is2014Class = null,
+    noSpellcasting = false, is2014Class = null, flagData = {} as IParseSpellFlagData,
   } = {}) {
 
     const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic");
     const addEffects = generic
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects")
-      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects");
+      ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
+      : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
     super({
       enricher,
       activityGenerator: DDBSpellActivity,
@@ -124,9 +166,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.rawCharacter = rawCharacter;
     this.namePrefix = namePrefix;
     this.namePostfix = namePostfix;
-    this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.nameOverride");
+    this.flagData = flagData;
+    this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.nameOverride") as string;
     this.originalName = utils.nameString(this.ddbDefinition.name);
-    this.name = this.getName(this.spellData, this.rawCharacter);
+    this.name = this.getName();
     this.data = {};
     this.activities = [];
     this.activityTypes = [];
@@ -138,24 +181,24 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.addSpellEffects = addEffects;
 
     this.legacyPostfix = this.isGeneric
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-legacy-postfix")
-      : !game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024");
+      ? utils.getSetting<boolean>("munching-policy-legacy-postfix")
+      : !utils.getSetting<boolean>("character-update-policy-remove-2024");
     this.updateExisting = updateExisting ?? this.isGeneric
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")
+      ? utils.getSetting<boolean>("munching-policy-update-existing")
       : false;
-    this.pactSpellsPrepared = game.settings.get("ddb-importer", "pact-spells-prepared");
-    this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.limitedUse");
-    this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.forceMaterial");
-    this.forcePact = foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.forcePact");
-    this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.class");
-    this.is2014Class = is2014Class ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.is2014Class");
-    this.lookup = lookup ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookup");
-    this.lookupName = lookupName ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.lookupName");
-    this.ability = ability ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.ability");
+    this.pactSpellsPrepared = utils.getSetting<boolean>("pact-spells-prepared");
+    this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.limitedUse") as I5eSystemLimitedUses;
+    this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forceMaterial");
+    this.forcePact = foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forcePact") as boolean;
+    this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.class");
+    this.is2014Class = is2014Class ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.is2014Class");
+    this.lookup = lookup ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookup");
+    this.lookupName = lookupName ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookupName");
+    this.ability = ability ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.ability");
     this.school = DICTIONARY.spell.schools.find((s) => s.name === this.ddbDefinition.school.toLowerCase());
-    this.dc = dc ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.dc");
-    this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.overrideDC");
-    this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.homebrew");
+    this.dc = dc ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.dc");
+    this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.overrideDC");
+    this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.homebrew");
 
     this.onlyPactMagic = this.ddbData?.character?.classes?.length === 1
       && this.ddbData.character.classes[0].definition.name === "Warlock";
@@ -178,16 +221,20 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.isCRSummonSpell2024 = !this.is2014 && DICTIONARY.companions.CR_SUMMONING_SPELLS_2024.includes(this.originalName);
     this.isSummons = this.isCompanionSpell2014 || this.isCompanionSpell2024 || this.isCRSummonSpell2014 || this.isCRSummonSpell2024;
     this.generateSummons = this.isGeneric
-      || (generateSummons ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions"))
-      || this.ddbCharacter?.enableSummons;
+      || (generateSummons ?? utils.getSetting<boolean>("character-update-policy-create-companions"))
+      || this.generateSummons;
     this.DDBCompanionFactory = null; // lazy init
+
+    console.warn("THIS", {
+      this: this,
+    })
 
     this.isCantrip = this.ddbDefinition.level === 0;
     this.unPreparedCantrip = this.isCantrip && unPreparedCantrip;
-    const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost");
+    const boost = cantripBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.cantripBoost");
     this.cantripBoost = this.isCantrip && boost;
 
-    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.healingBoost");
+    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.healingBoost");
     this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
     this.noSpellcasting = noSpellcasting;
 
@@ -1018,10 +1065,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     await this.enricher.cleanup();
   }
 
-  static async parseSpell(data, character,
+  static async parseSpell(data: IDDBSpellEntry, character,
     {
       namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null,
-      unPreparedCantrip = null, noSpellcasting = false,
+      unPreparedCantrip = null, noSpellcasting = false, flagData = {}
     } = {},
   ) {
     const spell = new DDBSpell({
@@ -1035,6 +1082,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       notifier,
       unPreparedCantrip,
       noSpellcasting,
+      flagData,
     });
     await spell.init();
     await spell.parse();

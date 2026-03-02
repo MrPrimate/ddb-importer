@@ -60,7 +60,7 @@ export default class CharacterSpellFactory {
     });
     this.pactSlots = this.slots.pact?.max && this.slots.pact.max > 0;
     this.hasSlots = this.levelSlots || this.pactSlots;
-    this.generateSummons = ddbCharacter.generateSummons;
+    this.generateSummons = ddbCharacter.enableSummons;
   }
 
   static getDDBSpellLookup(ddb: IDDBData, type: string, id: number) {
@@ -216,6 +216,7 @@ export default class CharacterSpellFactory {
 
   async _processClassSpell({
     classInfo,
+    is2014Class,
     playerClass,
     spell,
     spellCastingAbility,
@@ -224,12 +225,12 @@ export default class CharacterSpellFactory {
     unPreparedCantrip = null,
   } = {}) {
     // add some data for the parsing of the spells into the data structure
-    spell.flags = {
+    const flagData: IParseSpellFlagData = {
       ddbimporter: {
         dndbeyond: {
           lookup: "classSpell",
           class: classInfo.definition.name,
-          is2014Class: classInfo.is2014Class,
+          is2014Class: classInfo.is2014Class ?? is2014Class,
           level: classInfo.level,
           characterClassId: playerClass.characterClassId,
           spellLevel: spell.definition.level,
@@ -267,6 +268,7 @@ export default class CharacterSpellFactory {
       namePostfix: `${this._getSpellCount(spell.definition.name)}`,
       generateSummons: this.generateSummons,
       unPreparedCantrip,
+      flagData,
     });
     foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
     const duplicateSpell = this._generated.class.findIndex(
@@ -284,7 +286,10 @@ export default class CharacterSpellFactory {
     if (!duplicateItem) {
       this._generated.class.push(parsedSpell);
     } else if (spell.alwaysPrepared || parsedSpell.system.method === "always"
-      || (spell.alwaysPrepared === duplicateItem.alwaysPrepared && parsedSpell.system.method === duplicateItem.system.method && parsedSpell.prepared && !duplicateItem.prepared)) {
+      || (spell.alwaysPrepared === duplicateItem.alwaysPrepared
+        && parsedSpell.system.method === duplicateItem.system.method
+        && parsedSpell.system.prepared === CONFIG.DND5E.spellPreparationStates.always.value
+        && duplicateItem.system.prepared === CONFIG.DND5E.spellPreparationStates.unprepared.value)) {
       // if our new spell is always known we overwrite!
       // it's probably domain
       this._generated.class[duplicateSpell] = parsedSpell;
@@ -324,7 +329,6 @@ export default class CharacterSpellFactory {
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
       const is2014Class = classInfo.definition.sources.some((s) => Number.isInteger(s.sourceId) && s.sourceId < 145);
-      classInfo.is2014Class = is2014Class;
       const is2024NewKnownCaster = ["Ranger", "Paladin"].includes(classInfo.definition.name);
       if (!is2014Class && is2024NewKnownCaster) {
         playerClass.spells = playerClass.spells.map((spell) => {
@@ -370,6 +374,7 @@ export default class CharacterSpellFactory {
         if (!spell.definition) continue;
         await this._processClassSpell({
           classInfo,
+          is2014Class,
           playerClass,
           spell,
           spellCastingAbility,
@@ -433,6 +438,7 @@ export default class CharacterSpellFactory {
         if (!spell.definition) continue;
         await this._processClassSpell({
           classInfo,
+          is2014Class,
           playerClass,
           spell,
           spellCastingAbility,
@@ -511,7 +517,7 @@ export default class CharacterSpellFactory {
         ).length > 0;
 
       // add some data for the parsing of the spells into the data structure
-      spell.flags = {
+      const flagData: IParseSpellFlagData = {
         ddbimporter: {
           dndbeyond: {
             class: klassName,
@@ -553,15 +559,16 @@ export default class CharacterSpellFactory {
           ddbData: this.ddb,
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
+          flagData,
         });
-        if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
+        if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", flagData.ddbimporter.dndbeyond.class.toLowerCase());
         this._granted.class.push(parsedSpell);
 
         // check for class granted spells here
         if (parsedSpell.flags.ddbimporter.is2024
           && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName)
         ) {
-          await this.handleGrantedSpells(spell, "class", {
+          await this.handleGrantedSpells(spell, "class", flagData,{
             forceCopy: true,
             flags: {
               lookup: "classFeature",
@@ -577,7 +584,7 @@ export default class CharacterSpellFactory {
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
         });
-        if (spell.flags.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", spell.flags.ddbimporter.dndbeyond.class.toLowerCase());
+        if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", flagData.ddbimporter.dndbeyond.class.toLowerCase());
         this._granted.class[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
@@ -590,7 +597,7 @@ export default class CharacterSpellFactory {
     "Hunter's Mark",
   ];
 
-  canCast(spell) {
+  canCast(spell: IDDBSpellEntry) {
     if (spell.limitedUse || spell.definition.level === 0) return true;
     if (!this.slots) return false;
     if (this.pactSlots) return true;
@@ -601,7 +608,7 @@ export default class CharacterSpellFactory {
     return levelSlots;
   }
 
-  async handleGrantedSpells(spell, type, { forceCopy = false, flags = {} } = {}) {
+  async handleGrantedSpells(spell: IDDBSpellEntry, type: string, flagData: IParseSpellFlagData, { forceCopy = false, flags = {} } = {}) {
     if (spell.definition.level === 0) return;
     if (!forceCopy && !spell.limitedUse) return;
     if (!forceCopy && !this.slots) return;
@@ -631,20 +638,22 @@ export default class CharacterSpellFactory {
     }
 
     // also parse spell as non-limited use
-    const unlimitedSpell = foundry.utils.duplicate(spell);
+    const unlimitedSpell = foundry.utils.duplicate(spell) as IDDBSpellEntry;
+    const unlimitedFlags = foundry.utils.deepClone(flagData) as IParseSpellFlagData;
     unlimitedSpell.limitedUse = null;
     unlimitedSpell.usesSpellSlot = true;
     unlimitedSpell.alwaysPrepared = true;
-    unlimitedSpell.flags.ddbimporter.dndbeyond.usesSpellSlot = true;
-    unlimitedSpell.flags.ddbimporter.dndbeyond.granted = true;
-    unlimitedSpell.flags.ddbimporter.dndbeyond.lookup = flags.lookup ?? type;
+    unlimitedFlags.ddbimporter.dndbeyond.usesSpellSlot = true;
+    unlimitedFlags.ddbimporter.dndbeyond.granted = true;
+    unlimitedFlags.ddbimporter.dndbeyond.lookup = flags.lookup ?? type;
     delete unlimitedSpell.id;
-    delete unlimitedSpell.flags.ddbimporter.dndbeyond.id;
+    delete unlimitedFlags.ddbimporter.dndbeyond.id;
     const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, {
       ddbData: this.ddb,
       namePrefix: `Gr`,
       namePostfix: `${this._getSpellCount(unlimitedSpell.definition.name)}`,
       generateSummons: this.generateSummons,
+      flagData: unlimitedFlags,
     });
 
     if (parsedSpell.system.source.rules === "2014"
@@ -680,7 +689,7 @@ export default class CharacterSpellFactory {
       }
 
       // add some data for the parsing of the spells into the data structure
-      spell.flags = {
+      const flagData: IParseSpellFlagData = {
         ddbimporter: {
           dndbeyond: {
             lookup: "race",
@@ -705,13 +714,14 @@ export default class CharacterSpellFactory {
         sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        await this.handleGrantedSpells(spell, "race");
+        await this.handleGrantedSpells(spell, "race", flagData);
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
+        flagData,
       });
       // this._generated.race.push(parsedSpell);
       this._granted.race.push(parsedSpell);
@@ -751,7 +761,7 @@ export default class CharacterSpellFactory {
       }
 
       // add some data for the parsing of the spells into the data structure
-      spell.flags = {
+      const flagData: IParseSpellFlagData = {
         ddbimporter: {
           dndbeyond: {
             lookup: "feat",
@@ -777,7 +787,7 @@ export default class CharacterSpellFactory {
       ) {
         const forceCopy = SPELLIST_ADDITION_MATCHES.some((t) => (featInfo.data?.definition.description ?? "").toLowerCase().includes(t));
         if (forceCopy) {
-          await this.handleGrantedSpells(spell, "feat", {
+          await this.handleGrantedSpells(spell, "feat", flagData, {
             forceCopy,
           });
         }
@@ -787,6 +797,7 @@ export default class CharacterSpellFactory {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
+        flagData,
       });
       // if (spell.definition.level === 0) {
       //   this._generated.feat.push(parsedSpell);
@@ -811,7 +822,7 @@ export default class CharacterSpellFactory {
       const abilityModifier = utils.calculateModifier(this.characterAbilities[spellCastingAbility].value);
 
       // add some data for the parsing of the spells into the data structure
-      spell.flags = {
+      const flagData: IParseSpellFlagData = {
         ddbimporter: {
           dndbeyond: {
             lookup: "background",
@@ -833,13 +844,14 @@ export default class CharacterSpellFactory {
       if (this.ddb.character.spells.background.filter((sp) => sp.definition
         && sp.definition.name === spell.definition.name).length === 1
       ) {
-        await this.handleGrantedSpells(spell, "background");
+        await this.handleGrantedSpells(spell, "background", flagData);
       }
       if (!this.canCast(spell)) continue;
       const parsedSpell = await DDBSpell.parseSpell(spell, this.character, {
         ddbData: this.ddb,
         namePostfix: `${this._getSpellCount(spell.definition.name)}`,
         generateSummons: this.generateSummons,
+        flagData,
       });
       this._generated.background.push(parsedSpell);
     }

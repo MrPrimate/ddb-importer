@@ -22,7 +22,7 @@ export default class GenericSpellFactory {
     const length = filteredSpells.length;
     for (const spellData of filteredSpells) {
       if (notifier) notifier(`Parsing spell ${++i} of ${length}: ${spellData.definition.name}`, { nameField: true });
-      spellData.flags = {
+      const flagData = {
         ddbimporter: {
           generic: true,
           dndbeyond: {
@@ -34,7 +34,7 @@ export default class GenericSpellFactory {
           },
         },
       };
-      const spell = await DDBSpell.parseSpell(spellData, null, { generateSummons, notifier });
+      const spell = await DDBSpell.parseSpell(spellData, null, { generateSummons, notifier, flagData });
       results.push(spell);
     }
 
@@ -88,7 +88,7 @@ export default class GenericSpellFactory {
       }
 
       // add some data for the parsing of the spells into the data structure
-      spell.flags = {
+      const flagData = {
         ddbimporter: {
           dndbeyond: {
             lookup: "item",
@@ -107,7 +107,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = `It${GenericSpellFactory.getSpellCount(spellCountDict, spell.definition.name)}`;
-      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix, generateSummons, notifier }));
+      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix, generateSummons, notifier, flagData }));
     }
 
     return items;
