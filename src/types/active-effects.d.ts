@@ -45,6 +45,7 @@ global {
     | "isSkill.ste";
 
   export interface IEffectData {
+    _id?: string;
     img?: string;
     name?: string;
     statuses?: typeof STATUSES;
