@@ -760,11 +760,145 @@ global {
     magiceffect?: boolean;
   }
 
+  // ---- Advancement types ----------------------------------------------------
+
+  export interface I5eAdvancementBase {
+    _id: string;
+    type: string;
+    title?: string;
+    hint?: string;
+    level?: number;
+    classRestriction?: "primary" | "secondary";
+    icon?: string | null;
+  }
+
+  export type I5eAdvScaleValueType =
+    "number" | "dice" | "string" | "boolean" | "distance" | "cr" | string;
+
+  export interface I5eAdvScaleValueNumericEntry { value?: number | string }
+
+  export interface I5eAdvScaleValueDiceEntry {
+    number?: number;
+    faces?: number;
+    modifiers?: string[];
+  }
+
+  export type I5eAdvScaleValueEntry =
+    I5eAdvScaleValueNumericEntry | I5eAdvScaleValueDiceEntry;
+
+  export interface I5eAdvScaleValueConfig {
+    identifier?: string;
+    type?: I5eAdvScaleValueType;
+    distance?: { units?: string };
+    scale?: Record<string, I5eAdvScaleValueEntry>;
+  }
+  export interface I5eAdvancementScaleValue extends I5eAdvancementBase {
+    type: "ScaleValue";
+    configuration: I5eAdvScaleValueConfig;
+    value: Record<string, never>;
+  }
+
+  export interface I5eAdvItemGrantItem { uuid: string; optional?: boolean }
+  export interface I5eAdvItemGrantConfig {
+    items?: I5eAdvItemGrantItem[];
+    optional?: boolean;
+    spell?: Record<string, any> | null;
+  }
+  export interface I5eAdvancementItemGrant extends I5eAdvancementBase {
+    type: "ItemGrant";
+    configuration: I5eAdvItemGrantConfig;
+    /** Keys are local item IDs; values are compendium UUIDs, populated after grant. */
+    value: { added?: Record<string, string> };
+  }
+
+  export interface I5eAdvASIConfig {
+    cap?: number;
+    fixed?: Record<string, number>;
+    locked?: string[];
+    points?: number;
+    recommendation?: string | null;
+    max?: number | null;
+  }
+  export interface I5eAdvancementAbilityScoreImprovement extends I5eAdvancementBase {
+    type: "AbilityScoreImprovement";
+    configuration: I5eAdvASIConfig;
+    value: { type?: "asi" | "feat"; feat?: Record<string, string> };
+  }
+
+  export interface I5eAdvancementHitPoints extends I5eAdvancementBase {
+    type: "HitPoints";
+    configuration: Record<string, never>;
+    /** Keys are level strings ("1"–"20"); values are "max", "avg", or a rolled number. */
+    value: Record<string, "max" | "avg" | number>;
+  }
+
+  export interface I5eAdvTraitChoice {
+    count?: number;
+    pool?: string[];
+    replacement?: boolean;
+  }
+  export interface I5eAdvTraitConfig {
+    mode?: "default" | "expertise" | "mastery" | "upgrade" | string;
+    allowReplacements?: boolean;
+    grants?: string[];
+    choices?: I5eAdvTraitChoice[];
+  }
+  export interface I5eAdvancementTrait extends I5eAdvancementBase {
+    type: "Trait";
+    configuration: I5eAdvTraitConfig;
+    value: { chosen?: string[] };
+  }
+
+  export interface I5eAdvItemChoiceLevelConfig {
+    count?: number | null;
+    replacement?: boolean;
+  }
+  export interface I5eAdvItemChoiceRestriction {
+    type?: string;
+    subtype?: string;
+    list?: string[];
+  }
+  export interface I5eAdvItemChoiceConfig {
+    choices?: Record<string, I5eAdvItemChoiceLevelConfig>;
+    allowDrops?: boolean;
+    type?: string;
+    pool?: { uuid: string }[];
+    spell?: Record<string, any> | null;
+    restriction?: I5eAdvItemChoiceRestriction;
+  }
+  export interface I5eAdvancementItemChoice extends I5eAdvancementBase {
+    type: "ItemChoice";
+    configuration: I5eAdvItemChoiceConfig;
+    value: { added?: Record<string, string>; replaced?: Record<string, string> };
+  }
+
+  export interface I5eAdvancementSubclass extends I5eAdvancementBase {
+    type: "Subclass";
+    configuration: Record<string, never>;
+    value: { document?: any; uuid?: string | null };
+  }
+
+  export interface I5eAdvancementSize extends I5eAdvancementBase {
+    type: "Size";
+    configuration: { sizes?: string[] };
+    value: { size?: string };
+  }
+
+  export type I5eAdvancement =
+    | I5eAdvancementScaleValue
+    | I5eAdvancementItemGrant
+    | I5eAdvancementAbilityScoreImprovement
+    | I5eAdvancementHitPoints
+    | I5eAdvancementTrait
+    | I5eAdvancementItemChoice
+    | I5eAdvancementSubclass
+    | I5eAdvancementSize;
+
   // ---- Weapon item ----------------------------------------------------------
 
   export interface I5eWeaponSystemData {
     activities: Record<string, I5eActivity>;
-    advancement: any[];
+    advancement?: I5eAdvancement[];
     ammunition: Record<string, any>;
     armor: Record<string, any>;
     attuned: boolean;
@@ -796,25 +930,20 @@ global {
     weight: I5eItemWeight;
   }
 
-  export interface I5eWeaponItem {
-    _id?: string;
-    name: string;
+  export interface I5eWeaponItem extends I5eSystemBaseDocumentData {
     type: "weapon";
     system: I5eWeaponSystemData;
-    effects: IEffectData[];
     flags: IItemFlagConfig & {
       monsterMunch?: I5eMonsterMunchItemFlags;
       midiProperties?: I5eMidiItemProperties;
     };
-    sort?: number;
-    img?: string;
   }
 
   // ---- Feat item ------------------------------------------------------------
 
   export interface I5eFeatSystemData {
     activities: Record<string, I5eActivity>;
-    advancement: any[];
+    advancement?: I5eAdvancement[];
     crewed: boolean;
     description: I5eItemDescription;
     enchant: Record<string, any>;
@@ -828,18 +957,13 @@ global {
     uses: I5eSystemLimitedUses;
   }
 
-  export interface I5eFeatItem {
-    _id?: string;
-    name: string;
+  export interface I5eFeatItem extends I5eSystemBaseDocumentData {
     type: "feat";
     system: I5eFeatSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig & {
       monsterMunch?: I5eMonsterMunchItemFlags;
       midiProperties?: I5eMidiItemProperties;
     };
-    sort?: number;
-    img?: string;
   }
 
   // ---- Spell item -----------------------------------------------------------
@@ -880,12 +1004,9 @@ global {
     uses: I5eSystemLimitedUses;
   }
 
-  export interface I5eSpellItem {
-    _id?: string;
-    name: string;
+  export interface I5eSpellItem extends I5eSystemBaseDocumentData {
     type: "spell";
     system: I5eSpellSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig & {
       ddbimporter?: { dndbeyond: IParseSpellFlagDataDnDBeyond };
       "midi-qol"?: { removeAttackDamageButtons?: string };
@@ -893,11 +1014,6 @@ global {
       "spell-class-filter-for-5e"?: Record<string, any>;
       "tidy5e-sheet"?: Record<string, any>;
     };
-    sort?: number;
-    img?: string;
-    folder?: string | null;
-    _stats?: I5eDocumentStats;
-    ownership?: Record<string, number>;
   }
 
   // ---- Equipment item -------------------------------------------------------
@@ -926,20 +1042,13 @@ global {
     weight: I5eItemWeight;
   }
 
-  export interface I5eEquipmentItem {
-    _id?: string;
-    name: string;
+  export interface I5eEquipmentItem extends I5eSystemBaseDocumentData {
     type: "equipment";
     system: I5eEquipmentSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig & {
       infusions?: { maps: any[]; applied: any[]; infused: boolean };
       midiProperties?: I5eMidiItemProperties;
     };
-    sort?: number;
-    img?: string;
-    _stats?: I5eDocumentStats;
-    ownership?: Record<string, number>;
   }
 
   // ---- Container item -------------------------------------------------------
@@ -977,15 +1086,10 @@ global {
     equipped: boolean;
   }
 
-  export interface I5eContainerItem {
-    _id?: string;
-    name: string;
+  export interface I5eContainerItem extends I5eSystemBaseDocumentData {
     type: "container";
     system: I5eContainerSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig;
-    sort?: number;
-    img?: string;
   }
 
   // ---- Tool item ------------------------------------------------------------
@@ -1014,15 +1118,10 @@ global {
     equipped: boolean;
   }
 
-  export interface I5eToolItem {
-    _id?: string;
-    name: string;
+  export interface I5eToolItem  extends I5eSystemBaseDocumentData {
     type: "tool";
     system: I5eToolSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig;
-    sort?: number;
-    img?: string;
   }
 
   // ---- Item union ---------------------------------------------------
@@ -1177,7 +1276,7 @@ global {
   }
 
   export interface I5eClassSystemData {
-    advancement?: Record<string, any>[];
+    advancement?: I5eAdvancement[];
     description?: I5eItemDescription;
     hd?: I5eClassHitDice;
     identifier?: string;
@@ -1190,21 +1289,16 @@ global {
     wealth?: string;
   }
 
-  export interface I5eClassItem {
-    _id?: string;
-    name: string;
+  export interface I5eClassItem extends I5eSystemBaseDocumentData {
     type: "class";
     system: I5eClassSystemData;
-    effects: IEffectData[];
     flags: IItemFlagConfig;
-    sort?: number;
-    img?: string;
   }
 
   // ---- Subclass item --------------------------------------------------------
 
   export interface I5eSubclassSystemData {
-    advancement?: Record<string, any>[];
+    advancement?: I5eAdvancement[];
     classIdentifier?: string;
     description?: I5eItemDescription;
     identifier?: string;
@@ -1212,21 +1306,16 @@ global {
     spellcasting?: I5eClassSpellcasting;
   }
 
-  export interface I5eSubclassItem {
-    _id?: string;
-    name: string;
+  export interface I5eSubclassItem extends I5eSystemBaseDocumentData {
     type: "subclass";
     system: I5eSubclassSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig;
-    sort?: number;
-    img?: string;
   }
 
   // ---- Race item ------------------------------------------------------------
 
   export interface I5eRaceSystemData {
-    advancement?: Record<string, any>[];
+    advancement?: I5eAdvancement[];
     description?: I5eItemDescription;
     identifier?: string;
     movement?: I5eMovement;
@@ -1235,53 +1324,51 @@ global {
     type?: I5eCreatureType;
   }
 
-  export interface I5eRaceItem {
-    _id?: string;
-    name: string;
+  export interface I5eRaceItem extends I5eSystemBaseDocumentData {
     type: "race";
     system: I5eRaceSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig;
-    sort?: number;
-    img?: string;
   }
 
   // ---- Background item ------------------------------------------------------
 
   export interface I5eBackgroundSystemData {
-    advancement?: Record<string, any>[];
+    advancement?: I5eAdvancement[];
     description?: I5eItemDescription;
     identifier?: string;
     source?: I5eItemSourceRef;
     startingEquipment?: I5eClassStartingEquipment[];
   }
 
-  export interface I5eBackgroundItem {
-    _id?: string;
-    name: string;
+  export interface I5eBackgroundItem extends I5eSystemBaseDocumentData {
     type: "background";
     system: I5eBackgroundSystemData;
-    effects?: IEffectData[];
     flags: IItemFlagConfig & {
       dnd5e?: { advancementOrigin?: string };
     };
-    sort?: number;
-    img?: string;
   }
 
   // ---- PC item union --------------------------------------------------------
 
+  export type I5eClassItems = I5eClassItem | I5eSubclassItem;
+
   export type I5ePCItem =
-    | I5eClassItem
-    | I5eSubclassItem
+    | I5eClassItems
     | I5eRaceItem
     | I5eBackgroundItem
-    | I5eWeaponItem
     | I5eFeatItem
     | I5eSpellItem
+    | I5eInventoryItem;
+
+  export type I5eInventoryItem =
+    | I5eWeaponItem
     | I5eEquipmentItem
     | I5eContainerItem
     | I5eToolItem;
+
+  export type I5eFeatureItem =
+    | I5eFeatItem
+    | I5eWeaponItem;
 
   // ---- PC DDB Importer flags ------------------------------------------------
 
@@ -1396,4 +1483,6 @@ global {
     flags?: I5ePCActorFlags;
     prototypeToken?: I5ePrototypeToken;
   }
+
+  export type I5eActorData = I5eMonsterData | I5ePCData;
 }

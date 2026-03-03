@@ -13,8 +13,8 @@ export default class DDBAttackAction extends DDBAction {
     this.isAction = true;
     this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
       || DDBAttackAction.FORCE_WEAPON_FEATURE_IF_ACTION.includes(this.originalName)
-      ? "weapon"
-      : "feat";
+      ? "weapon" as const
+      : "feat" as const;
     logger.debug(`Generating Attack Action ${this.ddbDefinition.name} as ${this.documentType}`);
   }
 

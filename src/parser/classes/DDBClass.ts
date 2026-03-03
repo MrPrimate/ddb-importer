@@ -14,12 +14,13 @@ import DDBFeatureMixin from "../features/DDBFeatureMixin";
 
 export default class DDBClass {
 
+  data: I5eClassItem;
   addToCompendium = null;
   compendiumImportTypes = ["classes", "subclasses"];
   updateCompendiumItems = null;
   rules = "2014";
-  name;
-  className;
+  name: string;
+  className: string;
   isMuncher = false;
   isSubClass = false;
   choiceMap = new Map();

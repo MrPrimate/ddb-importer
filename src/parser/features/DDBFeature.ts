@@ -14,11 +14,11 @@ export default class DDBFeature extends DDBFeatureMixin {
   declare hasRequiredLevel: boolean;
 
   static DOC_TYPE = {
-    class: "feat", // class feature
-    subclass: "feat", // subclass feature
-    race: "feat",
-    background: "background",
-    feat: "feat",
+    class: "feat" as const, // class feature
+    subclass: "feat" as const, // subclass feature
+    race: "feat" as const,
+    background: "background" as const,
+    feat: "feat" as const,
   };
 
   static LEVEL_SCALE_EXCLUSION_USES = [
@@ -41,7 +41,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   _init() {
     this.documentType = DDBAttackAction.FORCE_WEAPON_FEATURES.includes(this.originalName)
-      ? "weapon"
+      ? "weapon" as const
       : DDBFeature.DOC_TYPE[this.type];
     this.tagType = this.type;
     logger.debug(`Init Feature ${this.ddbDefinition.name}`);

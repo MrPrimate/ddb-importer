@@ -70,6 +70,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   description: string;
   resourceCharges: number | null;
   ddbFeature: IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
+  declare data: I5eRaceItem | I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
+  rawCharacter: I5ePCData;
 
   // Set in _getRules / _generateActionTypes / _checkSummons
   _class: IDDBClass | undefined;
@@ -87,6 +89,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   _actionType: IDDBFeatureMixinActionType;
   _descriptionSave: IActivitySaveData;
   extraFlags: IActorFlagConfig;
+
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
   }
@@ -267,7 +270,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     ddbDefinition,
     type,
     source,
-    documentType = "feat",
+    documentType = "feat" as const,
     rawCharacter = null,
     activityType = null,
     extraFlags = {},

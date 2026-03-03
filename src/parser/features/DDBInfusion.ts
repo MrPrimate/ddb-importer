@@ -16,9 +16,29 @@ import DDBAction from "./DDBAction";
 import DDBAttackAction from "./DDBAttackAction";
 import { DDBTemplateStrings, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 
+type IDDBSupportedInfusionDocuments = I5eFeatItem | I5eWeaponItem | I5eEquipmentItem;
 
 export class DDBInfusion {
   ddbData: IDDBData;
+  documentType: "feat" | "weapon" | "equipment";
+  rawCharacter: I5ePCData | null;
+  name: string;
+  data: IDDBSupportedInfusionDocuments;
+  nameIdPostfix: string | null;
+  requiredLevel: number | null;
+  originClass: string;
+  tagType: string;
+  type: string;
+  isAction: boolean;
+  isMuncher: boolean;
+  snippet = "";
+  addToCompendium: boolean;
+  activity: EnricherMixins.DDBBasicActivity;
+  enricher: DDBClassFeatureEnricher;
+  activityType: IDDBActivityType;
+  compendiumFolders: DDBCompendiumFolders;
+  actions: IDDBSupportedInfusionDocuments[];
+  actionsToAddToCompendium: IDDBSupportedInfusionDocuments[];
 
   _init() {
     logger.debug(`Generating Infusion Feature ${this.ddbInfusion.name}`);
@@ -75,7 +95,7 @@ export class DDBInfusion {
     return undefined;
   }
 
-  constructor({ ddbData, ddbInfusion, documentType = "feat", rawCharacter = null, isMuncher = false, addToCompendium = true, nameIdPostfix = null } = {}) {
+  constructor({ ddbData, ddbInfusion, documentType = "feat" as const, rawCharacter = null, isMuncher = false, addToCompendium = true, nameIdPostfix = null } = {}) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbInfusion = ddbInfusion;
@@ -85,14 +105,12 @@ export class DDBInfusion {
     this.isAction = false;
     this.documentType = documentType;
     this.tagType = "infusion";
-    this.data = {};
     this.actions = [];
     this.actionsToAddToCompendium = [];
     this.grantedItems = [];
     this.isMuncher = isMuncher;
     this.idNames = [];
     this.compendium = null;
-    this.snippet = "";
     this._init();
     this._generateDataStub();
     this.addToCompendium = addToCompendium;
@@ -168,7 +186,7 @@ export class DDBInfusion {
       foundry.utils.setProperty(this.activity, "data.restrictions.allowMagical", true);
     }
     let type = "";
-    const itemRule = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text");
+    const itemRule = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text") as string;
     if (!itemRule) return;
     if (itemRule.includes("weapon")) type = "weapon";
     else if (itemRule.includes("armor")) type = "equipment";
@@ -227,7 +245,7 @@ export class DDBInfusion {
     for (const actionData of this.ddbInfusion.actions) {
       // const itemLookup = ddb.infusions.item.find((mapping) => mapping.definitionKey === infusionDetail.definitionKey);
       if (!actionData.name) {
-        const activationType = foundry.utils.getProperty(actionData, "activation.activationType");
+        const activationType = foundry.utils.getProperty(actionData, "activation.activationType") as number;
         const postfix = [3, 4].includes(activationType)
           ? ` (${utils.capitalize(DICTIONARY.actions.activationTypes.find((a) => a.id === activationType).value)})`
           : "";
@@ -256,8 +274,9 @@ export class DDBInfusion {
       foundry.utils.setProperty(action.data, "flags.ddbimporter.class", this.originClass);
       foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionFeature", true);
       foundry.utils.setProperty(action.data, "flags.ddbimporter.infusionId", actionData.id);
-      action._id = utils.namedIDStub(actionData.name);
-      this.actions.push(action.data);
+      action.data._id = utils.namedIDStub(actionData.name);
+      // these factories can
+      this.actions.push(action.data as (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem));
     }
     logger.debug(`Generated Infusions Actions`, this.actions);
   }
@@ -361,6 +380,7 @@ export class DDBInfusion {
         key: "system.attunement",
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: "required",
+        priority: 20,
       });
     }
 

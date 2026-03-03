@@ -10,6 +10,18 @@ import { DDBCharacterData } from "../../../types/ddb-character-source";
 export default class EffectGenerator {
   effect: IEffectData;
   ddb: DDBCharacterData;
+  character: I5eActorData;
+  document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
+  proficiencyFinder: ProficiencyFinder;
+  ddbItem: IDDBInventoryItem | IDDBClassFeature | IDDBBackground | IDDBRacialTrait | IDDBFeat;
+  description: string;
+  labelSuffix: string;
+  labelOverride: string | null;
+  isCompendiumItem: boolean;
+  type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
+  grantedModifiers: IDDBModifier[];
+  noGenerate: boolean;
+  separateACEffects: any;
 
   _generateDataStub() {
     this.effect = AutoEffects.BaseEffect(this.document, `${this.label} ${this.labelSuffix}`.trim());
@@ -57,7 +69,7 @@ export default class EffectGenerator {
 
     this.noGenerate = !this.grantedModifiers || this.grantedModifiers.length === 0;
 
-    this.separateACEffects = separateACEffects ?? game.settings.get("ddb-importer", "separate-ac-effects");
+    this.separateACEffects = separateACEffects ?? utils.getSetting<boolean>("separate-ac-effects");
 
     this._generateDataStub();
   }
@@ -85,7 +97,7 @@ export default class EffectGenerator {
   }
 
   _addLanguages() {
-    const languages = this.proficiencyFinder.getLanguagesFromModifiers(this.grantedModifiers, true);
+    const languages = this.proficiencyFinder.getLanguagesFromModifiers(this.grantedModifiers);
 
     languages.value.forEach((prof) => {
       logger.debug(`Generating language ${prof} for ${this.document.name}`);
@@ -118,8 +130,8 @@ export default class EffectGenerator {
         if (bonuses !== "") bonuses += " + ";
         bonuses += bonusParse;
       });
-      if (bonuses === "") bonuses = 0;
-      changes.push(ChangeHelper.unsignedAddChange(`+ ${bonuses}`, 20, key));
+      if (bonuses === "") bonuses = "0";
+      changes.push(ChangeHelper.addChange(bonuses, 20, key));
       logger.debug(`Changes for ${type} bonus for ${this.document.name}`, changes);
     }
 
@@ -290,9 +302,9 @@ export default class EffectGenerator {
         .map((mod) => mod.value);
       if (base.length > 0) {
         logger.debug(`Generating ${sense} base for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(base), 10, `system.attributes.senses.${sense}`));
+        this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.${sense}`));
         if (AutoEffects.effectModules().atlInstalled) {
-          this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(base), 10, "ATL.sight.range"));
+          this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, "ATL.sight.range"));
           this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 5));
         }
       }
@@ -527,7 +539,7 @@ export default class EffectGenerator {
 
   _addAttackRollDisadvantage() {
     if (!game.modules.get("midi-qol")?.active) return;
-    const disadvantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "disadvantage", "attack-rolls-against-you", false);
+    const disadvantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "disadvantage", "attack-rolls-against-you");
     if (disadvantage.length > 0) {
       logger.debug(`Generating disadvantage for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.customChange(1, 5, "flags.midi-qol.grants.disadvantage.attack.all"));
@@ -681,7 +693,7 @@ export default class EffectGenerator {
       startRound: null,
       startTurn: null,
     };
-    const foundryData = this.document?.system?.duration ?? activity?.duration;
+    const foundryData = foundry.utils.getProperty(this, "document.system.duration") ?? activity?.duration;
     if (!foundryData) return duration;
 
     switch (foundryData?.units) {
@@ -726,7 +738,7 @@ export default class EffectGenerator {
     //     units: "touch",
     //   };
     // }
-    if (this.document.system.uses) {
+    if (foundry.utils.hasProperty(this.document.system, "uses")) {
       this.document.system.uses.autoDestroy = true;
       this.document.system.uses.autoUse = true;
     }
@@ -748,8 +760,8 @@ export default class EffectGenerator {
     } else if (
       this.isCompendiumItem
       || this.document.type === "feat"
-      || (this.ddbItem.isAttuned && this.ddbItem.equipped) // if it is attuned and equipped
-      || (this.ddbItem.isAttuned && !this.ddbItem.definition?.canEquip) // if it is attuned but can't equip
+      || ( "isAttuned" in this.ddbItem && this.ddbItem.isAttuned && this.ddbItem.equipped) // if it is attuned and equipped
+      || ("isAttuned" in this.ddbItem && this.ddbItem.isAttuned && !this.ddbItem.definition?.canEquip) // if it is attuned but can't equip
       || (!this.ddbItem.definition?.canAttune && this.ddbItem.equipped) // can't attune but is equipped
     ) {
       foundry.utils.setProperty(this.document, "flags.dae.alwaysActive", false);
@@ -764,7 +776,7 @@ export default class EffectGenerator {
     foundry.utils.setProperty(effect, "flags.ddbimporter.itemId", this.ddbItem.id);
     foundry.utils.setProperty(effect, "flags.ddbimporter.itemEntityTypeId", this.ddbItem.entityTypeId);
     // set dae flag for active equipped
-    if (this.ddbItem.definition?.canEquip || this.ddbItem.definitio?.canAttune) {
+    if (this.ddbItem.definition?.canEquip || this.ddbItem.definition?.canAttune) {
       foundry.utils.setProperty(this.document, "flags.dae.activeEquipped", true);
     } else {
       foundry.utils.setProperty(this.document, "flags.dae.activeEquipped", false);
@@ -849,7 +861,7 @@ export default class EffectGenerator {
     } else {
       // others are picked up here e.g. Draconic Resilience
       const fixedValues = this.grantedModifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
-      bonuses = Math.max(fixedValues);
+      bonuses = Math.max(...fixedValues);
     }
 
     const maxDexTypes = ["ac-max-dex-unarmored-modifier", "ac-max-dex-modifier"];
@@ -891,7 +903,7 @@ export default class EffectGenerator {
         },
       );
 
-      if (this.ddbItem.entityType === "racial-trait") {
+      if ("entityType" in this.ddbItem && this.ddbItem.entityType === "racial-trait") {
         this.effect.changes.push(
           {
             key: "system.attributes.ac.calc",

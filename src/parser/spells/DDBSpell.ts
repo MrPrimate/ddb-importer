@@ -25,7 +25,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   is2014Class: boolean;
   lookupName: string;
   ability: string;
-  school: { id: string; name: string; img: string; };
+  school: { id: string; name: string; img: string };
   dc: string;
   overrideDC: boolean;
   isHomebrew: boolean;
@@ -53,6 +53,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   limitedUse: I5eSystemLimitedUses | null;
   lookup: ParseSpellLookup;
   classPrepMode: import("/home/jack/repos/github.com/MrPrimate/ddb-importer-typescript/src/config/dictionary/spell/spell").ISpellPreparationMode;
+  rawCharacter: I5ePCData;
 
   _generateDataStub() {
     this.data = {
@@ -172,7 +173,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.nameOverride") as string;
     this.originalName = utils.nameString(this.ddbDefinition.name);
     this.name = this.getName();
-    this.data = {};
     this.activities = [];
     this.activityTypes = [];
     this.activityType = null;
