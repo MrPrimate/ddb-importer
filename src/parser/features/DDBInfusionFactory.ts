@@ -5,6 +5,7 @@ import { DDBInfusion } from "./DDBInfusion";
 export class DDBInfusionFactory {
   ddbCharacter: DDBCharacter;
   ddbData: IDDBData;
+  rawCharacter: I5ePCData;
 
   constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;

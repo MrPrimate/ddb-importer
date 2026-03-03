@@ -26,7 +26,7 @@ DDBCharacter.prototype.isUnArmored = function isUnArmored() {
   return !this.isArmored();
 };
 
-function getMinimumBaseAC(modifiers) {
+function getMinimumBaseAC(modifiers): number[] {
   const hasBaseArmor = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "minimum-base-armor" && modifier.isGranted,
   );
@@ -89,7 +89,7 @@ function getEquippedAC(equippedGear) {
 }
 
 // returns an array of ac values from provided array of modifiers
-function getUnarmoredAC(modifiers, character) {
+function getUnarmoredAC(modifiers): number[] {
   const unarmoredACValues = [];
   const isUnarmored = modifiers.filter(
     (modifier) => modifier.type === "set" && modifier.subType === "unarmored-armor-class" && modifier.isGranted,
@@ -111,7 +111,7 @@ function getUnarmoredAC(modifiers, character) {
   const maxUnamoredDexMod = ignoreDex ? 0 : Math.min(...maxUnamoredDexMods, 20);
 
   // console.log(`Max Dex: ${maxUnamoredDexMod}`);
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   isUnarmored.forEach((unarmored) => {
     let unarmoredACValue = 10;
@@ -143,7 +143,7 @@ function getDualWieldAC(data, modifiers) {
   let dualWieldBonus = 0;
 
   if (dualWielding) {
-    DDBModifiers.filterModifiersOld(modifiers, "bonus", "dual-wield-armor-class", ["", null], true).forEach((bonus) => {
+    DDBModifiers.filterModifiersOld(modifiers, "bonus", "dual-wield-armor-class", ["", null]).forEach((bonus) => {
       dualWieldBonus += bonus.value;
     });
   }
@@ -444,7 +444,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
       DDBModifiers.getActiveItemModifiers(this.source.ddb, true),
     ];
     unarmoredSources.forEach((modifiers) => {
-      const unarmoredAC = Math.max(getUnarmoredAC(modifiers, this.raw.character));
+      const unarmoredAC = Math.max(...getUnarmoredAC(modifiers));
       if (unarmoredAC) {
         // we add this as an armored type so we can get magical item bonuses
         // e.g. ring of protection
@@ -470,7 +470,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     DDBModifiers.getModifiers(this.source.ddb, "feat"),
   ];
 
-  DDBModifiers.filterModifiersOld(this.armor.miscModifiers, "bonus", "armor-class", ["", null], true).forEach((bonus) => {
+  DDBModifiers.filterModifiersOld(this.armor.miscModifiers, "bonus", "armor-class", ["", null]).forEach((bonus) => {
     const component = DDBDataUtils.findComponentByComponentId(this.source.ddb, bonus.componentId);
     const name = component ? component.definition?.name ?? component.name : `AC: Misc (${bonus.friendlySubtypeName})`;
     const effect = ACBonusEffects.generateBonusACEffect([bonus], name, "armor-class", null);
@@ -501,7 +501,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   // modifier is set differently
   switch (this.source.ddb.character.race.fullName) {
     case "Lizardfolk":
-      this.armor.baseAC = Math.max(getUnarmoredAC(this.source.ddb.character.modifiers.race, this.raw.character));
+      this.armor.baseAC = Math.max(...getUnarmoredAC(this.source.ddb.character.modifiers.race));
       this.armor.equippedArmor.push(
         getBaseArmor(this.armor.baseAC, "Natural Armor", this.source.ddb.character.race.fullName),
       );
@@ -511,8 +511,8 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
     case "Loxodon":
     case "Tortle":
       this.armor.baseAC = Math.max(
-        getMinimumBaseAC(this.source.ddb.character.modifiers.race, this.raw.character),
-        getUnarmoredAC(this.source.ddb.character.modifiers.race, this.raw.character),
+        ...getMinimumBaseAC(this.source.ddb.character.modifiers.race),
+        ...getUnarmoredAC(this.source.ddb.character.modifiers.race),
       );
       this.armor.equippedArmor.push(
         getBaseArmor(this.armor.baseAC, "Natural Armor", this.source.ddb.character.race.fullName),
@@ -523,7 +523,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
   }
 
   if (this.source.ddb.character.feats.some((f) => f.definition.name === "Dragon Hide")) {
-    this.armor.baseAC = Math.max(getUnarmoredAC(this.source.ddb.character.modifiers.feat, this.raw.character));
+    this.armor.baseAC = Math.max(...getUnarmoredAC(this.source.ddb.character.modifiers.feat));
     this.armor.equippedArmor.push(getBaseArmor(this.armor.baseAC, "Custom", "Dragon Hide", "13 + @abilities.dex.mod"));
   }
 

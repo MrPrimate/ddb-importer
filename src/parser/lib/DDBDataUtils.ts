@@ -4,6 +4,7 @@ import { SystemHelpers } from "./_module";
 import DDBClass from "../classes/DDBClass";
 import DDBSubClass from "../classes/DDBSubClass";
 import { IResetType } from "../../config/dictionary/actor/resets";
+import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
 
 interface IDDBDataUtilsLimitedUses {
   data: IDDBActionLimitedUse | IDDBInventoryLimitedUse | IDDBClassFeatureLimitedUse | IDDBSpellLimitedUse;
@@ -663,7 +664,7 @@ export default class DDBDataUtils {
     return klass;
   }
 
-  static findMatchedDDBItem(item, ownedItems, existingMatchedItems = []) : I5eSystemLimitedUsesRecovery {
+  static findMatchedDDBItem(item, ownedItems, existingMatchedItems = []) : Item5e {
     const itemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
     const itemDefinitionId = foundry.utils.getProperty(item, "flags.ddbimporter.definitionId");
     return ownedItems.find((owned) => {

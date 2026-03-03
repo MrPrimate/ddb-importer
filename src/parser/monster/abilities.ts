@@ -38,18 +38,19 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
 
     this.npc.system.abilities[ability.value]["value"] = value;
     this.npc.system.abilities[ability.value]["proficient"] = proficient;
-    this.npc.system.abilities[ability.value]["mod"] = mod;
 
     if (proficient) {
       this.npc.system.abilities[ability.value]["prof"] = proficiencyBonus;
-      this.npc.system.abilities[ability.value]["saveBonus"] = this.source.savingThrows.find((stat) => stat.statId === ability.id).bonusModifier || 0;
-      this.npc.system.abilities[ability.value]["save"] = mod + proficiencyBonus + this.npc.system.abilities[ability.value]["saveBonus"];
+      const saveBonus = this.source.savingThrows.find((stat) => stat.statId === ability.id).bonusModifier || 0;
+      if (saveBonus !== 0) {
+        this.npc.system.abilities[ability.value].bonuses.save = saveBonus;
+      }
     }
 
     this.npc.system.abilities[ability.value]["dc"] = mod + proficiencyBonus + 8;
   });
 
-  this.abilities = this.npc.system.abilities as IMonsterAbilities;
+  this.abilities = this.npc.system.abilities as I5eAbilities;
 
   let initBonus = null;
 

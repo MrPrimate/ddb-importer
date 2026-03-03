@@ -17,22 +17,6 @@ global {
 
   // ---- Abilities ------------------------------------------------------------
 
-  export interface IMonsterAbilityScore {
-    value?: number;
-    proficient?: number;
-    max?: number | null;
-    mod?: number;
-    /** When proficient, overwritten to a computed number; otherwise Foundry default roll config. */
-    save?: number | I5eAbilitySaveConfig;
-    dc?: number;
-    check?: I5eAbilityCheckConfig;
-    bonuses?: I5eAbilityBonuses;
-    /** Set when proficient — proficiency bonus value. */
-    prof?: number;
-    /** Set when proficient — additional save bonus from source data. */
-    saveBonus?: number;
-  }
-
   export interface I5eAbilitySaveConfig {
     roll?: I5eRollConfig;
   }
@@ -46,7 +30,16 @@ global {
     save?: string;
   }
 
-  export type IMonsterAbilities = Record<string, IMonsterAbilityScore>;
+  export interface I5eAbilityScore {
+    value?: number;
+    proficient?: number;
+    max?: number | null;
+    bonuses?: I5eAbilityBonuses;
+    check?: I5eAbilityCheckConfig;
+    save?: I5eAbilitySaveConfig;
+  }
+
+  export type I5eAbilities = Record<string, I5eAbilityScore>;
 
   // ---- Attributes -----------------------------------------------------------
 
@@ -234,7 +227,7 @@ global {
     max?: number;
   }
 
-  export interface I5eResources {
+  export interface I5eMonsterResources {
     lair?: I5eLairResource;
     legact?: I5eLegendaryResource;
     legres?: I5eLegendaryResource;
@@ -256,6 +249,17 @@ global {
   }
 
   export type I5eSkills = Record<string, I5eSkill>;
+
+  // ---- Tool Proficiencies ---------------------------------------------------
+
+  export interface I5eToolProficiency {
+    value?: number;
+    ability?: string;
+    bonuses?: {
+      check?: string;
+    };
+    roll?: I5eRollConfig;
+  }
 
   // ---- Source ---------------------------------------------------------------
 
@@ -327,17 +331,17 @@ global {
   // ---- System (top-level) ---------------------------------------------------
 
   export interface I5eMonsterSystemData {
-    abilities?: IMonsterAbilities;
+    abilities?: I5eAbilities;
     attributes?: I5eAttributes;
     bonuses?: I5eBonuses;
     currency?: I5eCurrency;
     details?: I5eDetails;
     identifier?: string;
-    resources?: I5eResources;
+    resources?: I5eMonsterResources;
     skills?: I5eSkills;
     source?: I5eSourceInfo;
     spells?: I5eSpellSlots;
-    tools?: Record<string, any>;
+    tools?: Record<string, I5eToolProficiency>;
     traits?: I5eTraits;
   }
 
@@ -793,7 +797,7 @@ global {
   }
 
   export interface I5eWeaponItem {
-    _id: string;
+    _id?: string;
     name: string;
     type: "weapon";
     system: I5eWeaponSystemData;
@@ -802,8 +806,8 @@ global {
       monsterMunch?: I5eMonsterMunchItemFlags;
       midiProperties?: I5eMidiItemProperties;
     };
-    sort: number;
-    img: string;
+    sort?: number;
+    img?: string;
   }
 
   // ---- Feat item ------------------------------------------------------------
@@ -825,17 +829,17 @@ global {
   }
 
   export interface I5eFeatItem {
-    _id: string;
+    _id?: string;
     name: string;
     type: "feat";
     system: I5eFeatSystemData;
-    effects: IEffectData[];
+    effects?: IEffectData[];
     flags: IItemFlagConfig & {
       monsterMunch?: I5eMonsterMunchItemFlags;
       midiProperties?: I5eMidiItemProperties;
     };
-    sort: number;
-    img: string;
+    sort?: number;
+    img?: string;
   }
 
   // ---- Spell item -----------------------------------------------------------
@@ -877,19 +881,20 @@ global {
   }
 
   export interface I5eSpellItem {
-    _id: string;
+    _id?: string;
     name: string;
     type: "spell";
     system: I5eSpellSystemData;
-    effects: IEffectData[];
+    effects?: IEffectData[];
     flags: IItemFlagConfig & {
+      ddbimporter?: { dndbeyond: IParseSpellFlagDataDnDBeyond };
       "midi-qol"?: { removeAttackDamageButtons?: string };
       midiProperties?: I5eMidiItemProperties;
       "spell-class-filter-for-5e"?: Record<string, any>;
       "tidy5e-sheet"?: Record<string, any>;
     };
     sort?: number;
-    img: string;
+    img?: string;
     folder?: string | null;
     _stats?: I5eDocumentStats;
     ownership?: Record<string, number>;
@@ -922,17 +927,17 @@ global {
   }
 
   export interface I5eEquipmentItem {
-    _id: string;
+    _id?: string;
     name: string;
     type: "equipment";
     system: I5eEquipmentSystemData;
-    effects: IEffectData[];
+    effects?: IEffectData[];
     flags: IItemFlagConfig & {
       infusions?: { maps: any[]; applied: any[]; infused: boolean };
       midiProperties?: I5eMidiItemProperties;
     };
     sort?: number;
-    img: string;
+    img?: string;
     _stats?: I5eDocumentStats;
     ownership?: Record<string, number>;
   }
@@ -940,30 +945,30 @@ global {
   // ---- Container item -------------------------------------------------------
 
   export interface I5eContainerItem {
-    _id: string;
+    _id?: string;
     name: string;
     type: "container";
     system: Record<string, any>;
-    effects: IEffectData[];
+    effects?: IEffectData[];
     flags: IItemFlagConfig;
     sort?: number;
-    img: string;
+    img?: string;
   }
 
   // ---- Tool item ------------------------------------------------------------
 
   export interface I5eToolItem {
-    _id: string;
+    _id?: string;
     name: string;
     type: "tool";
     system: Record<string, any>;
-    effects: IEffectData[];
+    effects?: IEffectData[];
     flags: IItemFlagConfig;
     sort?: number;
-    img: string;
+    img?: string;
   }
 
-  // ---- Monster item union ---------------------------------------------------
+  // ---- Item union ---------------------------------------------------
 
   export type I5eMonsterItem =
     | I5eWeaponItem
@@ -980,6 +985,358 @@ global {
     system: I5eMonsterSystemData;
     items: I5eMonsterItem[];
     flags?: IActorFlagConfig & { monsterMunch?: IMonsterMunchFlags };
+    prototypeToken?: I5ePrototypeToken;
+  }
+
+  // ===========================================================================
+  // PC (Player Character) interfaces
+  // ===========================================================================
+
+  // ---- PC Hit Points --------------------------------------------------------
+
+  export interface I5ePCHitPoints {
+    max?: number | null;
+    temp?: number;
+    tempmax?: number;
+    value?: number;
+    bonuses?: {
+      level?: string;
+      overall?: string;
+    };
+  }
+
+  // ---- PC Attributes --------------------------------------------------------
+
+  export interface I5ePCAttributes {
+    ac?: I5eArmorClass;
+    attunement?: I5eAttunement;
+    concentration?: I5eConcentration;
+    death?: I5eDeathSaves;
+    exhaustion?: number;
+    hp?: I5ePCHitPoints;
+    init?: I5eInitiative;
+    inspiration?: boolean;
+    loyalty?: Record<string, never>;
+    movement?: I5eMovement;
+    senses?: I5eSenses;
+    spellcasting?: string;
+  }
+
+  // ---- PC Resources ---------------------------------------------------------
+
+  export interface I5ePCResource {
+    value?: number;
+    max?: number;
+    sr?: boolean;
+    lr?: boolean;
+    label?: string;
+  }
+
+  export interface I5ePCResources {
+    primary?: I5ePCResource;
+    secondary?: I5ePCResource;
+    tertiary?: I5ePCResource;
+  }
+
+  // ---- PC Details -----------------------------------------------------------
+
+  export interface I5ePCDetails {
+    age?: string;
+    alignment?: string;
+    appearance?: string;
+    /** Item ID of the background item. */
+    background?: string;
+    biography?: I5eBiography;
+    bond?: string;
+    eyes?: string;
+    flaw?: string;
+    gender?: string;
+    hair?: string;
+    height?: string;
+    ideal?: string;
+    /** Item ID of the starting class item. */
+    originalClass?: string;
+    /** Item ID of the race item. */
+    race?: string;
+    skin?: string;
+    trait?: string;
+    weight?: string;
+    xp?: I5eXP;
+  }
+
+  // ---- PC Bastion -----------------------------------------------------------
+
+  export interface I5ePCBastion {
+    name?: string;
+    description?: string;
+  }
+
+  // ---- PC System Data -------------------------------------------------------
+
+  export interface I5ePCSystemData {
+    abilities?: I5eAbilities;
+    attributes?: I5ePCAttributes;
+    bastion?: I5ePCBastion;
+    bonuses?: I5eBonuses;
+    currency?: I5eCurrency;
+    details?: I5ePCDetails;
+    favorites?: Record<string, any>[];
+    resources?: I5ePCResources;
+    skills?: I5eSkills;
+    spells?: I5eSpellSlots;
+    tools?: Record<string, I5eToolProficiency>;
+    traits?: I5eTraits;
+  }
+
+  // ---- Class item -----------------------------------------------------------
+
+  export interface I5eClassHitDice {
+    denomination?: string;
+    spent?: number;
+    additional?: string;
+  }
+
+  export interface I5eClassSpellcasting {
+    progression?: "full" | "half" | "third" | "pact" | null;
+    preparation?: {
+      formula?: string;[];
+    };
+    ability?: "str" | "dex" | "con" | "int" | "wis" | "cha" | null;
+  }
+
+  export interface I5eClassPrimaryAbility {
+    value?: ("str" | "dex" | "con" | "int" | "wis" | "cha")[];
+    all?: boolean;
+  }
+
+  export interface I5eClassStartingEquipment {
+    type?: string;
+    _id?: string;
+    group?: string;
+    sort?: number;
+    requiresProficiency?: boolean;
+    count?: number | null;
+    key?: string;
+  }
+
+  export interface I5eClassSystemData {
+    advancement?: Record<string, any>[];
+    description?: I5eItemDescription;
+    hd?: I5eClassHitDice;
+    identifier?: string;
+    levels?: number;
+    primaryAbility?: I5eClassPrimaryAbility;
+    properties?: string[];
+    source?: I5eItemSourceRef;
+    spellcasting?: I5eClassSpellcasting;
+    startingEquipment?: I5eClassStartingEquipment[];
+    wealth?: string;
+  }
+
+  export interface I5eClassItem {
+    _id?: string;
+    name: string;
+    type: "class";
+    system: I5eClassSystemData;
+    effects: IEffectData[];
+    flags: IItemFlagConfig;
+    sort?: number;
+    img?: string;
+  }
+
+  // ---- Subclass item --------------------------------------------------------
+
+  export interface I5eSubclassSystemData {
+    advancement?: Record<string, any>[];
+    classIdentifier?: string;
+    description?: I5eItemDescription;
+    identifier?: string;
+    source?: I5eItemSourceRef;
+    spellcasting?: I5eClassSpellcasting;
+  }
+
+  export interface I5eSubclassItem {
+    _id?: string;
+    name: string;
+    type: "subclass";
+    system: I5eSubclassSystemData;
+    effects?: IEffectData[];
+    flags: IItemFlagConfig;
+    sort?: number;
+    img?: string;
+  }
+
+  // ---- Race item ------------------------------------------------------------
+
+  export interface I5eRaceSystemData {
+    advancement?: Record<string, any>[];
+    description?: I5eItemDescription;
+    identifier?: string;
+    movement?: I5eMovement;
+    senses?: I5eSenses;
+    source?: I5eItemSourceRef;
+    type?: I5eCreatureType;
+  }
+
+  export interface I5eRaceItem {
+    _id?: string;
+    name: string;
+    type: "race";
+    system: I5eRaceSystemData;
+    effects?: IEffectData[];
+    flags: IItemFlagConfig;
+    sort?: number;
+    img?: string;
+  }
+
+  // ---- Background item ------------------------------------------------------
+
+  export interface I5eBackgroundSystemData {
+    advancement?: Record<string, any>[];
+    description?: I5eItemDescription;
+    identifier?: string;
+    source?: I5eItemSourceRef;
+    startingEquipment?: I5eClassStartingEquipment[];
+  }
+
+  export interface I5eBackgroundItem {
+    _id?: string;
+    name: string;
+    type: "background";
+    system: I5eBackgroundSystemData;
+    effects?: IEffectData[];
+    flags: IItemFlagConfig & {
+      dnd5e?: { advancementOrigin?: string };
+    };
+    sort?: number;
+    img?: string;
+  }
+
+  // ---- PC item union --------------------------------------------------------
+
+  export type I5ePCItem =
+    | I5eClassItem
+    | I5eSubclassItem
+    | I5eRaceItem
+    | I5eBackgroundItem
+    | I5eWeaponItem
+    | I5eFeatItem
+    | I5eSpellItem
+    | I5eEquipmentItem
+    | I5eContainerItem
+    | I5eToolItem;
+
+  // ---- PC DDB Importer flags ------------------------------------------------
+
+  export interface IDDBPCDnDBeyondCampaignCharacterFlags {
+    userId?: number;
+    username?: string;
+    characterId?: number;
+    characterName?: string;
+    characterUrl?: string;
+    avatarUrl?: string;
+    privacyType?: number;
+    campaignId?: number | null;
+    isAssigned?: boolean;
+  }
+
+  export interface IDDBPCDnDBeyondCampaignFlags {
+    id?: number;
+    name?: string;
+    description?: string;
+    link?: string;
+    publicNotes?: string;
+    dmUserId?: number;
+    dmUsername?: string;
+    characters?: IDDBPCDnDBeyondCampaignCharacterFlags[];
+  }
+
+  export interface IDDBPCDnDBeyondFlags {
+    characterId?: string;
+    url?: string;
+    totalLevels?: number;
+    proficiencies?: any;
+    proficienciesIncludingEffects?: any;
+    roUrl?: string | null;
+    characterValues?: any;
+    templateStrings?: any;
+    campaign?: IDDBPCDnDBeyondCampaignFlags;
+    profBonus?: number;
+    weaponMasteries?: any[];
+    effectAbilities?: any;
+    abilityOverrides?: Record<string, number>;
+  }
+
+  export interface IDDBPCAutoAC {
+    flat?: number | null;
+    calc?: string;
+    formula?: string;
+  }
+
+  export interface IDDBPCImporterFlags {
+    dndbeyond?: IDDBPCDnDBeyondFlags;
+    activeUpdate?: boolean;
+    compendium?: boolean;
+    acEffects?: IEffectData[];
+    baseAC?: number;
+    autoAC?: IDDBPCAutoAC;
+    overrideAC?: IDDBPCAutoAC;
+    rolledHP?: boolean;
+    baseHitPoints?: number;
+    fixedBonusHitPointValuesWithEffects?: number;
+    totalHP?: number;
+    removedHitPoints?: number;
+    resources?: {
+      ask?: boolean;
+      type?: string;
+      primary?: string;
+      secondary?: string;
+      tertiary?: string;
+    };
+    importId?: string;
+    syncItemReady?: boolean;
+    syncActionReady?: boolean;
+    activeSyncSpells?: boolean;
+  }
+
+  /** Character-sheet feature flags stored in `flags.dnd5e` on a PC actor. */
+  export interface I5ePCDnd5eFlags {
+    powerfulBuild?: boolean;
+    savageAttacks?: boolean;
+    elvenAccuracy?: boolean;
+    halflingLucky?: boolean;
+    initiativeAdv?: boolean;
+    initiativeAlert?: boolean;
+    jackOfAllTrades?: boolean;
+    weaponCriticalThreshold?: number;
+    observantFeat?: boolean;
+    remarkableAthlete?: boolean;
+    reliableTalent?: boolean;
+    diamondSoul?: boolean;
+    meleeCriticalDamageDice?: number;
+    wildMagic?: boolean;
+    spellSniper?: boolean;
+    tavernBrawlerFeat?: boolean;
+    initiativeHalfProf?: boolean;
+    // [key: string]: boolean | number | string | undefined;
+  }
+
+  export interface I5ePCActorFlags {
+    ddbimporter?: IDDBPCImporterFlags;
+    dnd5e?: I5ePCDnd5eFlags;
+    "midi-qol"?: { onUseMacroName?: string; [key: string]: any };
+    "tidy5e-sheet"?: { maxPreparedSpells?: number; [key: string]: any };
+    "tidy5e-sheet-kgar"?: Record<string, any>;
+    "ddb-importer"?: Record<string, any>;
+  }
+
+  // ---- Top-level PC document ------------------------------------------------
+
+  export interface I5ePCData extends I5eSystemBaseDocumentData {
+    type: "character";
+    system: I5ePCSystemData;
+    items: I5ePCItem[];
+    flags?: I5ePCActorFlags;
     prototypeToken?: I5ePrototypeToken;
   }
 }

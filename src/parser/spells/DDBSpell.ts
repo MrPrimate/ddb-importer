@@ -8,6 +8,7 @@ import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
+  declare data: I5eSpellItem;
   isGeneric: boolean;
   namePrefix: string;
   namePostfix: string;

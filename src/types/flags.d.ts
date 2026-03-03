@@ -4,7 +4,7 @@ global {
 
   type ParseSpellLookup = "classSpell" | "classFeature" | "race" | "feat" | "background" | "generic" | "item";
 
-  interface IParseSpellFlagDataDnDBeyond {
+  interface IParseSpellFlagDataDnDBeyond extends IDDBImporterFlagsDnDBeyond {
     /** The type of spell lookup source */
     lookup?: ParseSpellLookup;
     /** Name of the lookup source (e.g. class feature name, feat name, item name) */

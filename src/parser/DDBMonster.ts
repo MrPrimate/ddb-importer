@@ -118,7 +118,7 @@ class DDBMonster {
     concentration: boolean;
   };
 
-  abilities: IMonsterAbilities;
+  abilities: I5eAbilities;
 
   setProperty(name, value) {
     if (this.overrides["name"]) {

@@ -94,14 +94,13 @@ global {
       [key: string]: any;
     };
     description?: string;
-    [key: string]: any;
+    // [key: string]: any;
   }
 
   interface IEffectModules {
     daeInstalled: boolean;
     midiQolInstalled: boolean;
     atlInstalled: boolean;
-    [key: string]: any;
   }
 
   interface IEffectDuration {
