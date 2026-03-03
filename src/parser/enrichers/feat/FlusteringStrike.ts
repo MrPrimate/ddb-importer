@@ -4,7 +4,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class FlusteringStrike extends DDBEnricherData {
 
   get activity() {
-    const data = this.ddbParser.isMuncher
+    const data: IActivityData = this.ddbParser.isMuncher
       ? {
         save: {
           ability: ["dex"],
@@ -43,7 +43,7 @@ export default class FlusteringStrike extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return this.ddbParser.isMuncher
       ? [
         {
@@ -52,7 +52,7 @@ export default class FlusteringStrike extends DDBEnricherData {
             name: "Flustering Strike (Charisma)",
             data: {
               save: {
-                ability: "cha",
+                ability: ["cha"],
               },
             },
           },

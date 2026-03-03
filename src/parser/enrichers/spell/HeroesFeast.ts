@@ -17,7 +17,7 @@ export default class HeroesFeast extends DDBEnricherData {
           prompt: false,
         },
         duration: {
-          value: 1,
+          value: "1",
           units: "day",
           override: true,
         },
@@ -41,7 +41,7 @@ export default class HeroesFeast extends DDBEnricherData {
       : this._utilityActivity;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this.useMidiAutomations
         ? {
@@ -50,7 +50,7 @@ export default class HeroesFeast extends DDBEnricherData {
           recovery: [],
         }
         : {
-          spent: "12",
+          spent: 12,
           max: "12",
           recovery: [{ period: "sr", type: "loseAll", formula: "" }],
         },

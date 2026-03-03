@@ -9,10 +9,14 @@ export default class DeftStrike extends DDBEnricherData {
   get activity() {
     return {
       data: {
-        damage: DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.monk.die",
-          types: DDBEnricherData.allDamageTypes(),
-        }),
+        damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: "@scale.monk.die",
+              types: DDBEnricherData.allDamageTypes(),
+            }),
+          ],
+        },
       },
     };
   }
@@ -27,7 +31,7 @@ export default class DeftStrike extends DDBEnricherData {
         midiOptionalChanges: [{
           name: "deftStrike",
           data: {
-            label: `${document.name} Additional Damage`,
+            label: `${this.data.name} Additional Damage`,
             count: "turn",
             "damage.all": "@scale.monk.die",
             countAlt: "ItemUses.Ki",

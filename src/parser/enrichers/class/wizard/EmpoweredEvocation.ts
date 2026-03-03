@@ -13,7 +13,7 @@ export default class EmpoweredEvocation extends DDBEnricherData {
       damageParts: [
         DDBEnricherData.basicDamagePart({
           customFormula: "@abilities.int.mod",
-          types: this.allDamageTypes,
+          types: DDBEnricherData.allDamageTypes(),
         }),
       ],
     };

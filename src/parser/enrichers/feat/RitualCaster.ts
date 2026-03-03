@@ -22,8 +22,8 @@ export default class RitualCaster extends DDBEnricherData {
     return null;
   }
 
-  get additionalActivities() {
-    const results = [];
+  get additionalActivities(): IDDBAdditionalActivity[] {
+    const results: IDDBAdditionalActivity[] = [];
 
     if (this.ddbParser.isMuncher) return results;
 
@@ -47,6 +47,7 @@ export default class RitualCaster extends DDBEnricherData {
           generateSpell: true,
           generateActivation: true,
           spellOverride: {
+            ability: ability ? ability.value : null,
             uuid: null,
             properties: [],
             challenge: {
@@ -61,8 +62,6 @@ export default class RitualCaster extends DDBEnricherData {
           addSpellUuid: name,
         },
       };
-
-      if (ability) activity.build.spellOverride.ability = ability.value;
 
       results.push(activity);
     }

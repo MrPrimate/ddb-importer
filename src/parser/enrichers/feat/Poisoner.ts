@@ -35,7 +35,7 @@ export default class Poisoner extends DDBEnricherData {
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    const results = [
+    const results: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Apply Poison",
@@ -51,13 +51,13 @@ export default class Poisoner extends DDBEnricherData {
           noeffect: true,
           activationOverride: {
             type: "bonus",
-            value: 1,
+            value: "1",
             condition: "",
           },
           targetOverride: {
             affects: {
               type: "creature",
-              value: 1,
+              count: "1",
             },
           },
           consumptionOverride: {
@@ -65,7 +65,7 @@ export default class Poisoner extends DDBEnricherData {
               {
                 type: "itemUses",
                 target: "",
-                value: 1,
+                value: "1",
                 scaling: {
                   mode: "",
                   formula: "",
@@ -76,7 +76,7 @@ export default class Poisoner extends DDBEnricherData {
           },
         },
       },
-    ] as IDDBAdditionalActivity[];
+    ];
     if (this.is2014) {
       results.push({
         init: {
@@ -92,7 +92,7 @@ export default class Poisoner extends DDBEnricherData {
           generateDamage: true,
           activationOverride: {
             type: "special",
-            value: 1,
+            value: "1",
             condition: "",
           },
           damageParts: [
@@ -127,7 +127,7 @@ export default class Poisoner extends DDBEnricherData {
             generateDamage: true,
             activationOverride: {
               type: "special",
-              value: 1,
+              value: "1",
               condition: "",
             },
             damageParts: [
@@ -160,7 +160,7 @@ export default class Poisoner extends DDBEnricherData {
             generateDamage: true,
             activationOverride: {
               type: "special",
-              value: 1,
+              value: "1",
               condition: "",
             },
             damageParts: [

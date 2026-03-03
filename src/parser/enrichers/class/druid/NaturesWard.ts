@@ -3,8 +3,8 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class NaturesWard extends DDBEnricherData {
 
-  get effects() {
-    const multiple = [
+  get effects(): IDDBEffectHint[] {
+    const multiple: IDDBEffectHint[] = [
       {
         name: "Poison Immunity",
         options: {

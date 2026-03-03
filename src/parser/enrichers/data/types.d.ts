@@ -342,11 +342,13 @@ global {
     allowCritical?: boolean;
     onsave?: boolean | string;
     onSave?: string;
-    activationOverride?: Record<string, any>;
-    durationOverride?: Record<string, any>;
-    rangeOverride?: Record<string, any>;
-    targetOverride?: Record<string, any>;
-    saveOverride?: Record<string, any>;
+    consumptionOverride?: IActivityConsumptionData;
+    activationOverride?: IActivityActivationData;
+    durationOverride?: IActivityDurationData;
+    rangeOverride?: IActivityRangeData;
+    targetOverride?: IActivityTargetData;
+    saveOverride?: IActivitySaveData;
+    spellOverride?: IActivitySpellData;
     damageParts?: I5eDamagePart[];
     img?: string;
     ddbMacroOverride?: {
@@ -355,7 +357,6 @@ global {
       visible?: boolean;
       parameters?: string;
     };
-    [key: string]: any;
   }
 
   export interface IDDBAdditionalActivity {

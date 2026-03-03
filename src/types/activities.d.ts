@@ -113,6 +113,64 @@ global {
     parameters?: string;
   }
 
+  interface IActivityActivationData {
+    type?: string;
+    value?: string;
+    condition?: string;
+    cost?: number;
+  }
+
+  interface IActivityTargetData {
+    prompt?: boolean;
+    template?: {
+      count?: string;
+      contiguous?: boolean;
+      type?: string;
+      size?: string;
+      width?: string;
+      height?: string;
+      units?: string;
+    };
+    affects?: {
+      count?: string;
+      type?: string;
+      choice?: boolean;
+      special?: string;
+    };
+  }
+
+  interface IActivityDurationData {
+    concentration?: boolean;
+    override?: boolean;
+    special?: string;
+    units?: string;
+    value?: string;
+  }
+
+  interface IActivityRangeData {
+    units?: string;
+    reach?: number;
+    value?: number | string;
+    long?: number;
+  }
+
+  interface IActivityConsumptionData {
+    scaling?: {
+      allowed?: boolean;
+      max?: string;
+    };
+    spellSlot?: boolean;
+    targets?: {
+      type?: string;
+      target?: string;
+      value?: string;
+      scaling?: {
+        mode?: string;
+        formula?: string;
+      };
+    }[];
+  }
+
   export interface IActivityData {
     name?: string;
     uses?: I5eSystemLimitedUses;
@@ -124,25 +182,10 @@ global {
     description?: {
       chatFlavor: string;
     };
-    activity: {
+    activity?: {
       id?: string;
     };
-    consumption?: {
-      scaling?: {
-        allowed?: boolean;
-        max?: string;
-      };
-      spellSlot?: boolean;
-      targets?: {
-        type?: string;
-        target?: string;
-        value?: string;
-        scaling?: {
-          mode?: string;
-          formula?: string;
-        };
-      }[];
-    };
+    consumption?: IActivityConsumptionData;
     effects?: IActivityEffectData[];
     attack?: {
       ability?: string;
@@ -165,12 +208,7 @@ global {
       // midi stuff
       onSave?: string;
     };
-    range?: {
-      units?: string;
-      reach?: number;
-      value?: number | string;
-      long?: number;
-    };
+    range?: IActivityRangeData;
     healing?: Partial<I5eDamagePart>;
     overTimeProperties?: {
       turnChoice?: string;
@@ -186,41 +224,16 @@ global {
     roll?: {
       name?: string;
       formula?: string;
+      prompt?: boolean;
+      visible?: boolean;
     };
     enchant?: {
       identifier?: string;
       self: boolean;
     };
-    duration?: {
-      concentration?: boolean;
-      override?: boolean;
-      special?: string;
-      units?: string;
-      value?: string;
-    };
-    target?: {
-      template?: {
-        count?: string;
-        contiguous?: boolean;
-        type?: string;
-        size?: string;
-        width?: string;
-        height?: string;
-        units?: string;
-      };
-      affects?: {
-        count?: string;
-        type?: string;
-        choice?: boolean;
-        special?: string;
-      };
-    };
-    activation?: {
-      type?: string;
-      value?: string;
-      condition?: string;
-      cost?: number;
-    };
+    duration?: IActivityDurationData;
+    target?: IActivityTargetData;
+    activation?: IActivityActivationData;
     creatureSizes?: string[];
     macro?: IDDBActivityMacroData;
     save?: IActivitySaveData;

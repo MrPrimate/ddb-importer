@@ -26,8 +26,8 @@ export default class ThunderousSmite extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
-    const activities = [
+  get additionalActivities(): IDDBAdditionalActivity[] {
+    const activities: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Save vs Pushed",
