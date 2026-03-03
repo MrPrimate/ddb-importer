@@ -12,7 +12,7 @@ export default class ExaltedChampion extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Exalted Champion",
@@ -22,9 +22,7 @@ export default class ExaltedChampion extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.wis.check.roll.mode"),
         ],
-        data: {
-          "flags.ddbimporter.activitiesMatch": ["Activate Exalted Champion"],
-        },
+        activitiesMatch: ["Activate Exalted Champion"],
       },
       {
         name: "Exalted Champion: Aura",

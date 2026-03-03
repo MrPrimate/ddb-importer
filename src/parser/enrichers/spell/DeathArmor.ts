@@ -48,7 +48,7 @@ export default class DeathArmor extends DDBEnricherData {
               activityMatch: "Cast",
             },
             ActiveAuras: {
-              aura: "Enemies",
+              aura: "Enemy",
               radius: "5",
               isAura: true,
               ignoreSelf: true,

@@ -65,9 +65,6 @@ export default class SunShield extends DDBEnricherData {
     return [{
       name: `Sun Shield Aura`,
       activityMatch: "Toggle Light/Aura",
-      data: {
-        "flags.ddbimporter.activityMatch": "Toggle Light/Aura",
-      },
       atlChanges: [
         DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "30"),
         DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "60"),

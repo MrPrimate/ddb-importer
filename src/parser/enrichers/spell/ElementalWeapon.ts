@@ -18,7 +18,7 @@ export default class ElementalWeapon extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       { type: "acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
       { type: "cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
@@ -44,15 +44,19 @@ export default class ElementalWeapon extends DDBEnricherData {
           },
           data: {
             img: element.img,
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
             },
           },
           changes: [
             DDBEnricherData.ChangeHelper.unsignedAddChange(`[["${data.bonus}d4[${element.type}]", "${element.type}"]]`, 20, "system.damage.parts"),
           ],
-        };
+        } as IDDBEffectHint;
       });
     }).flat();
   }

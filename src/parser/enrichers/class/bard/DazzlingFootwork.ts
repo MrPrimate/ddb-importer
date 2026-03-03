@@ -29,9 +29,7 @@ export default class DazzlingFootwork extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("unarmoredBard", 10, "system.attributes.ac.calc"),
         ],
-        data: {
-          "flags.ddbimporter.activityMatch": "No Activity",
-        },
+        activityMatch: "No Activity",
       },
       {
         name: "Bardic Damage",
@@ -43,9 +41,7 @@ export default class DazzlingFootwork extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("true", 20, "system.damage.base.custom.enabled"),
           DDBEnricherData.ChangeHelper.overrideChange("@scale.dance.dazzling-footwork + @mod", 20, "system.damage.base.custom.formula"),
         ],
-        data: {
-          "flags.ddbimporter.activityMatch": "Bardic Damage",
-        },
+        activityMatch: "Bardic Damage",
       },
     ];
   }

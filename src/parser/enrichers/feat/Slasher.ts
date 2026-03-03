@@ -51,9 +51,7 @@ export default class Slasher extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.signedAddChange("-10", 20, "system.attributes.speed.walk"),
         ],
-        data: {
-          "flags.ddbimporter.activitiesMatch": ["Hamstring"],
-        },
+        activitiesMatch: ["Hamstring"],
       },
       {
         name: "Slashed: Enhanced Critical",
@@ -61,9 +59,7 @@ export default class Slasher extends DDBEnricherData {
           durationSeconds: 6,
           description: "Disadvantage on attack rolls until the start of the origins next turn",
         },
-        data: {
-          "flags.ddbimporter.activitiesMatch": ["Enhanced Critical"],
-        },
+        activitiesMatch: ["Enhanced Critical"],
         daeSpecialDurations: ["turnStartSource" as const],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),

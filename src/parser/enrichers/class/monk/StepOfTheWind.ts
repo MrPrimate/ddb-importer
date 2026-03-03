@@ -39,9 +39,7 @@ export default class StepOfTheWind extends DDBEnricherData {
             durationSeconds: 6,
           },
           statuses: ["disengaged"],
-          data: {
-            "flags.ddbimporter.activitiesMatch": ["Step of the Wind: Disengage & Dash"],
-          },
+          activitiesMatch: ["Step of the Wind: Disengage & Dash"],
         },
       ];
     }

@@ -20,7 +20,7 @@ export default class PotionOfHealing extends DDBEnricherData {
   }
 
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.ddbParser.ddbDefinition.sources.some((s) => s.sourceId === 1)) {
       return {
         data: {

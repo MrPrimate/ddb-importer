@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PhysiciansTouch extends DDBEnricherData {
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: {
@@ -25,9 +25,7 @@ export default class PhysiciansTouch extends DDBEnricherData {
       {
         name: "Poisoned",
         statuses: ["Poisoned"],
-        data: {
-          "flags.ddbimporter.activitiesMatch": ["Hand of Harm"],
-        },
+        activitiesMatch: ["Hand of Harm"],
       },
     ];
   }

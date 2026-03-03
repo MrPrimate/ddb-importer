@@ -59,9 +59,13 @@ export default class Shillelagh extends DDBEnricherData {
           type: "enchant",
           changes,
           data: {
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
             },
           },
         };

@@ -17,7 +17,7 @@ export default class MagicWeapon extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       { bonus: "1", min: null, max: 3 },
       { bonus: "2", min: 4, max: 5 },
@@ -35,12 +35,16 @@ export default class MagicWeapon extends DDBEnricherData {
           description: `This weapon has become a +${data.bonus} magic weapon, granting a bonus to attack and damage rolls.`,
         },
         data: {
-          "flags.ddbimporter.effectIdLevel": {
-            min: data.min,
-            max: data.max,
+          flags: {
+            ddbimporter: {
+              effectIdLevel: {
+                min: data.min,
+                max: data.max,
+              },
+            },
           },
         },
-      };
+      } as IDDBEffectHint;
     });
   }
 

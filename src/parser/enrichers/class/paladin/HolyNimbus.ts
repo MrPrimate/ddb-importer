@@ -88,9 +88,7 @@ export default class HolyNimbus extends DDBEnricherData {
     const effects = [];
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       effects.push({
-        data: {
-          "flags.ddbimporter.activityMatch": "Use/Apply Light",
-        },
+        activityMatch: "Use/Apply Light",
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "@scale.paladin.aura-of-protection"),
           DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),

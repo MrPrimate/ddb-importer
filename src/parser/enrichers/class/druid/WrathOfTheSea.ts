@@ -61,18 +61,16 @@ export default class WrathOfTheSea extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects():  IDDBEffectHint[] {
     return [
       {
         name: "Ocean Spray",
         options: {
           durationSeconds: 600,
         },
+        activityMatch: "Activate Emanation/Aura",
         data: {
           flags: {
-            ddbimporter: {
-              activityMatch: "Activate Emanation/Aura",
-            },
             ActiveAuras: {
               aura: "Enemy",
               radius: "@scale.sea.wrath-range",

@@ -135,18 +135,14 @@ export default class DeviousStrikes extends DDBEnricherData {
           durationSeconds: 60,
         },
         statuses: ["Unconscious"],
-        data: {
-          "flags.ddbimporter.activityMatch": "Knock Out",
-        },
+        activityMatch: "Knock Out",
       },
       {
         name: "Blinded",
         options: {
         },
         statuses: ["Blinded"],
-        data: {
-          "flags.ddbimporter.activityMatch": "Obscure",
-        },
+        activityMatch: "Obscure",
       },
     ];
   }

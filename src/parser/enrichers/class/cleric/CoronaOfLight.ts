@@ -38,9 +38,7 @@ export default class CoronaOfLight extends DDBEnricherData {
     return [{
       options: {
       },
-      data: {
-        "flags.ddbimporter.activityMatch": "Use/Apply Light",
-      },
+      activityMatch: "Use/Apply Light",
       atlChanges: [
         DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "30"),
         DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "60"),

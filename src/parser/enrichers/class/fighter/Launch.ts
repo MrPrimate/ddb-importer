@@ -51,7 +51,11 @@ export default class Launch extends DDBEnricherData {
     return {
       uses,
       data: {
-        "flags.ddbimporter.skipScale": true,
+        flags: {
+          ddbimporter: {
+            skipScale: true,
+          },
+        },
       },
     };
   }

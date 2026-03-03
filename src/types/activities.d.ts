@@ -124,6 +124,9 @@ global {
     description?: {
       chatFlavor: string;
     };
+    activity: {
+      id?: string;
+    };
     consumption?: {
       scaling?: {
         allowed?: boolean;
@@ -218,6 +221,7 @@ global {
       condition?: string;
       cost?: number;
     };
+    creatureSizes?: string[];
     macro?: IDDBActivityMacroData;
     save?: IActivitySaveData;
     check?: IActivityCheckData;

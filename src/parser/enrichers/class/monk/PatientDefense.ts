@@ -36,9 +36,7 @@ export default class PatientDefense extends DDBEnricherData {
           durationSeconds: 6,
         },
         statuses: ["dodging"],
-        data: {
-          "flags.ddbimporter.activitiesMatch": ["Patient Defense: Dodge"],
-        },
+        activitiesMatch: ["Patient Defense: Dodge"],
       }];
     } else {
       return [
@@ -48,9 +46,7 @@ export default class PatientDefense extends DDBEnricherData {
             durationRounds: 1,
             durationSeconds: 6,
           },
-          data: {
-            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage"],
-          },
+          activitiesMatch: ["Patient Defense: Disengage"],
         },
         {
           name: "Patient Defense: Disengaged & Dodging",
@@ -59,9 +55,7 @@ export default class PatientDefense extends DDBEnricherData {
             durationSeconds: 6,
           },
           statuses: ["dodging"],
-          data: {
-            "flags.ddbimporter.activitiesMatch": ["Patient Defense: Disengage & Dodge"],
-          },
+          activitiesMatch: ["Patient Defense: Disengage & Dodge"],
         },
       ];
     }

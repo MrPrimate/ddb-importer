@@ -46,7 +46,11 @@ export default class HandOfUltimateMercy extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "flags.ddbimporter.skipScale": true,
+        flags: {
+          ddbimporter: {
+            skipScale: true,
+          },
+        },
       },
     };
   }

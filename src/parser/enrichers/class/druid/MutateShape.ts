@@ -80,7 +80,6 @@ export default class MutateShape extends DDBEnricherData {
       max: action?.limitedUse.maxUses ?? "9",
       period: "lr",
       includesName: true,
-      uses: action?.limitedUse.maxUses ?? "9",
     });
 
     return {

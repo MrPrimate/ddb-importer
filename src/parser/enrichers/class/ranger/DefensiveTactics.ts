@@ -20,15 +20,11 @@ export default class DefensiveTactics extends DDBEnricherData {
     return [
       {
         name: "Escape the Horde",
-        data: {
-          "flags.ddbimporter.activityMatch": "Choice",
-        },
+        activityMatch: "Choice",
       },
       {
         name: "Multiattack Defense",
-        data: {
-          "flags.ddbimporter.activityMatch": "Choice",
-        },
+        activityMatch: "Choice",
       },
     ];
   }

@@ -23,16 +23,16 @@ export default class HuntersPrey extends DDBEnricherData {
     return [
       {
         name: "Colossus Slayer",
+        activityMatch: "Choice",
         data: {
           img: "icons/creatures/magical/construct-iron-stomping-yellow.webp",
-          "flags.ddbimporter.activityMatch": "Choice",
         },
       },
       {
         name: "Horde Breaker",
+        activityMatch: "Choice",
         data: {
           img: "icons/creatures/invertebrates/wasp-swarm-movement.webp",
-          "flags.ddbimporter.activityMatch": "Choice",
         },
       },
     ];

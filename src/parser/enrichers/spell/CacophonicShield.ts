@@ -73,7 +73,7 @@ export default class CacophonicShield extends DDBEnricherData {
               activityMatch: "Cast",
             },
             ActiveAuras: {
-              aura: "Enemies",
+              aura: "Enemy",
               radius: "10",
               isAura: true,
               ignoreSelf: true,

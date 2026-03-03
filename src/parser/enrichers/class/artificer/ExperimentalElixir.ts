@@ -372,9 +372,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
               postfix: i,
               prefix: "ef",
             }),
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
             },
           },
         };
@@ -398,9 +402,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
               postfix: i,
               prefix: "ef",
             }),
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
             },
           },
         };
@@ -427,9 +435,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
               postfix: i,
               prefix: "ef",
             }),
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
             },
           },
         };
@@ -451,9 +463,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
               postfix: i,
               prefix: "ef",
             }),
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
             },
           },
         };

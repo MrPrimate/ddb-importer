@@ -48,15 +48,11 @@ export default class TheThirdEye extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Darkvision",
-        options: {
-        },
-        data: {
-          "flags.ddbimporter.activityMatch": "Darkvision",
-        },
+        activityMatch: "Darkvision",
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.darkvision"),
         ],
@@ -67,10 +63,8 @@ export default class TheThirdEye extends DDBEnricherData {
       },
       {
         name: "Greater Comprehension",
-        options: {
-        },
+        activityMatch: "Greater Comprehension",
         data: {
-          "flags.ddbimporter.activityMatch": "Greater Comprehension",
           description: "You can read any language",
         },
         changes: [
@@ -79,11 +73,7 @@ export default class TheThirdEye extends DDBEnricherData {
       },
       {
         name: "See Invisibility",
-        options: {
-        },
-        data: {
-          "flags.ddbimporter.activityMatch": "See Invisibility",
-        },
+        activityMatch: "See Invisibility",
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange(";Invisible Creatures", 20, "system.attributes.senses.special"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(";Ethereal Plane", 20, "system.attributes.senses.special"),

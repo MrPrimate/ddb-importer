@@ -6,12 +6,14 @@ export default class PersistentRage extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "special",
       data: {
-        "range.units": "self",
+        range: {
+          units: "self",
+        },
       },
     };
   }
@@ -27,8 +29,10 @@ export default class PersistentRage extends DDBEnricherData {
       retainOriginalConsumption: true,
       retainChildUses: true,
       data: {
-        "flags.ddbimporter": {
-          consumptionValue: "-@scale.barbarian.rages",
+        flags: {
+          ddbimporter: {
+            consumptionValue: "-@scale.barbarian.rages",
+          },
         },
       },
     };

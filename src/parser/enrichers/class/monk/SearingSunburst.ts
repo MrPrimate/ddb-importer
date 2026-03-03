@@ -23,7 +23,7 @@ export default class SearingSunburst extends Generic {
           parts: [
             Generic.basicDamagePart({
               customFormula: "(1 + @scaling)d6",
-              typees: ["radiant"],
+              types: ["radiant"],
             }),
           ],
         },
@@ -31,10 +31,14 @@ export default class SearingSunburst extends Generic {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
-        "flags.ddbimporter.replaceActivityUses": true,
+        flags: {
+          ddbimporter: {
+            replaceActivityUses: true,
+          },
+        },
       },
     };
   }

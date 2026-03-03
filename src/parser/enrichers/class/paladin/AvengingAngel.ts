@@ -65,9 +65,7 @@ export default class AvengingAngel extends DDBEnricherData {
       options: {
         durationSeconds: 600,
       },
-      data: {
-        "flags.ddbimporter.activitiesMatch": ["Activate"],
-      },
+      activitiesMatch: ["Activate"],
       changes: [
         DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.speed.fly"),
       ],

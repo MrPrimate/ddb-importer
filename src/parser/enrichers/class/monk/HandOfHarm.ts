@@ -26,7 +26,11 @@ export default class HandOfHarm extends DDBEnricherData {
   get override() {
     return {
       data: {
-        "flags.ddbimporter.skipScale": true,
+        flags: {
+          ddbimporter: {
+            skipScale: true,
+          },
+        },
       },
     };
   }

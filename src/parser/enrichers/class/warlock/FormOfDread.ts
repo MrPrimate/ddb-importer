@@ -67,7 +67,7 @@ export default class FormOfDread extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Form of Dread",
@@ -89,9 +89,13 @@ export default class FormOfDread extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("frighened", 20, "system.traits.di.value"),
         ],
         data: {
-          level: {
-            min: 10,
-          }
+          flags: {
+            ddbimporter: {
+              effectIdLevel: {
+                min: 10,
+              },
+            },
+          },
         },
       },
       {

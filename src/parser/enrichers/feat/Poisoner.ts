@@ -26,17 +26,15 @@ export default class Poisoner extends DDBEnricherData {
       {
         name: "Poisoned",
         statuses: ["Poisoned"],
-        data: {
-          "flags.ddbimporter.activitiesMatch": [
-            "Poison Save", "Poison Save (Dexterity)",
-            "Poison Save (Intelligence)",
-          ],
-        },
+        activitiesMatch: [
+          "Poison Save", "Poison Save (Dexterity)",
+          "Poison Save (Intelligence)",
+        ],
       },
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const results = [
       {
         init: {
@@ -78,7 +76,7 @@ export default class Poisoner extends DDBEnricherData {
           },
         },
       },
-    ];
+    ] as IDDBAdditionalActivity[];
     if (this.is2014) {
       results.push({
         init: {

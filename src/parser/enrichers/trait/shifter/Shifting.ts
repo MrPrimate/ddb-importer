@@ -173,7 +173,7 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const results = [
       ...this.enchantEffects,
     ];
@@ -216,7 +216,7 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this.ddbParser.ddbCharacter._ddbRace.isLegacy
       ? {}
       : this._getUsesWithSpent({
@@ -241,7 +241,9 @@ export default class Shifting extends DDBEnricherData {
       uses,
       data: {
         "name": "Shifting",
-        "flags.ddbimporter": flags,
+        flags: {
+          ddbimporter: flags,
+        },
       },
     };
   }

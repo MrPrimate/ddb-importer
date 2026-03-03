@@ -59,38 +59,22 @@ export default class PowerOfTheWilds extends DDBEnricherData {
     return [
       {
         name: "Falcoln",
-        options: {
-        },
-        data: {
-          "flags.ddbimporter.activityMatch": "Falcoln",
-        },
+        activityMatch: "Falcoln",
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.fly"),
         ],
       },
       {
         name: "Lion",
-        options: {
-        },
-        data: {
-          "flags.ddbimporter.activityMatch": "Lion",
-        },
+        activityMatch: "Lion",
       },
       {
         name: "Ram",
-        options: {
-        },
-        data: {
-          "flags.ddbimporter.activityMatch": "Ram",
-        },
+        activityMatch: "Ram",
       },
       {
         name: "Prone",
-        options: {
-        },
-        data: {
-          "flags.ddbimporter.activityMatch": "Ram",
-        },
+        activityMatch: "Ram",
         statuses: ["Prone"],
       },
     ];

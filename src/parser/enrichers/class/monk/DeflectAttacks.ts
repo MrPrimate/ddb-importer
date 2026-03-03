@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DeflectAttacks extends DDBEnricherData {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Deflect Attack", type: "class" } },
       {
@@ -18,12 +18,14 @@ export default class DeflectAttacks extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Reduce Damage"],
       data: {
-        "flags.ddbimporter": {
-          skipScale: true,
+        flags: {
+          ddbimporter: {
+            skipScale: true,
+          },
         },
       },
     };

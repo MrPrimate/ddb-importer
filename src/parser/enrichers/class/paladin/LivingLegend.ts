@@ -11,7 +11,7 @@ export default class LivingLegend extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Embody Legends", type: "class" } },
     ];
@@ -33,9 +33,7 @@ export default class LivingLegend extends DDBEnricherData {
       changes: [
         DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.cha.check.roll.mode"),
       ],
-      data: {
-        "flags.ddbimporter.activitiesMatch": ["Activate Living Legend"],
-      },
+      activitiesMatch: ["Activate Living Legend"],
     }];
   }
 

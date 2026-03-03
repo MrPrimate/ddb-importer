@@ -6,7 +6,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "summonDanciItem1",
       name: "Summon Dancing Item",
@@ -27,7 +27,7 @@ export default class AnimatingPerformance extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

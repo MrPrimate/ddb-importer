@@ -57,7 +57,7 @@ global {
     flags?: {
       ActiveAuras?: {
         ignoreSelf?: boolean;
-        aura: "Allies" | "Enemies" | "All";
+        aura: "Allies" | "Enemy" | "All";
         alignment?: string;
         type?: string;
         height?: boolean;
@@ -84,8 +84,8 @@ global {
         activityRiders?: string[];
         effectRiders?: string[];
         effectIdLevel?: {
-          min: number | null;
-          max: number | null;
+          min?: number | null;
+          max?: number | null;
         };
       };
       "midi-qol"?: {

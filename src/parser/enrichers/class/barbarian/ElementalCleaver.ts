@@ -38,9 +38,13 @@ export default class ElementalCleaver extends DDBEnricherData {
           },
           data: {
             img: element.img,
-            "flags.ddbimporter.effectIdLevel": {
-              min: data.min,
-              max: data.max,
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: data.min,
+                  max: data.max,
+                },
+              },
             },
           },
           changes: [

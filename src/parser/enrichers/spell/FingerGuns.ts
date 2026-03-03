@@ -99,7 +99,7 @@ export default class FingerGuns extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return FingerGuns.RANGE_DATA.map((data) => {
       const changes = [
         DDBEnricherData.ChangeHelper.overrideChange(`Finger Guns`, 20, "name"),
@@ -124,9 +124,13 @@ export default class FingerGuns extends DDBEnricherData {
         type: "enchant",
         changes,
         data: {
-          "flags.ddbimporter.effectIdLevel": {
-            min: data.min,
-            max: data.max,
+          flags: {
+            ddbimporter: {
+              effectIdLevel: {
+                min: data.min,
+                max: data.max,
+              },
+            },
           },
         },
       };

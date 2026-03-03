@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class HeroesFeast extends DDBEnricherData {
 
-  get _healActivity() {
+  get _healActivity(): IDDBActivityData {
     return {
       name: "Consume Feast",
       noConsumeTargets: true,
@@ -25,17 +25,17 @@ export default class HeroesFeast extends DDBEnricherData {
     };
   }
 
-  get _utilityActivity() {
+  get _utilityActivity(): IDDBActivityData {
     return {
       name: "Create Feast",
       noConsumeTargets: true,
       addItemConsume: !this.useMidiAutomations,
       itemConsumeValue: "-12",
-      noEffect: true,
+      noeffect: true,
     };
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return this.ddbEnricher?._originalActivity?.type === "heal"
       ? this._healActivity
       : this._utilityActivity;

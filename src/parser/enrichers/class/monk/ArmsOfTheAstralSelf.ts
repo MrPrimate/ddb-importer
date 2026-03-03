@@ -6,21 +6,25 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       noeffect: true,
       data: {
-        "attack.ability": "",
-        "damage.parts": [DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.monk.die.die + @mod",
-          types: ["force"],
-        })],
+        attack: {
+          ability: "",
+        },
+        damage: {
+          parts: [DDBEnricherData.basicDamagePart({
+            customFormula: "@scale.monk.die.die + @mod",
+            types: ["force"],
+          })],
+        },
       },
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities() : IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [
@@ -98,7 +102,11 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
             value: 10,
           },
         },
-        "flags.ddbimporter.skipScale": true,
+        flags: {
+          ddbimporter: {
+            skipScale: true,
+          },
+        },
       },
     };
   }

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ChannelDivinity extends DDBEnricherData {
 
-  get _activityCleric2024() {
+  get _activityCleric2024(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       name: "Divine Spark (Healing)",
@@ -17,17 +17,17 @@ export default class ChannelDivinity extends DDBEnricherData {
     };
   }
 
-  get _activityPaladin() {
+  get _activityPaladin(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.NONE,
     };
   }
 
 
-  get activity() {
+  get activity(): IDDBActivityData | null {
     if (this.is2014) {
       if (this.isClass("Cleric")) {
-        return this._activityCleric2014;
+        return null;
       } else if (this.isClass("Paladin")) {
         return this._activityPaladin;
       }
@@ -43,7 +43,7 @@ export default class ChannelDivinity extends DDBEnricherData {
 
   }
 
-  get _additionalActivitiesCleric2014() {
+  get _additionalActivitiesCleric2014(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -76,7 +76,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     ];
   }
 
-  get _additionalActivitiesCleric2024() {
+  get _additionalActivitiesCleric2024(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -142,7 +142,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     ];
   }
 
-  get _additionalActivitiesPaladin2024() {
+  get _additionalActivitiesPaladin2024(): IDDBAdditionalActivity[] {
     return [
       {
         action: {
@@ -157,7 +157,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     ];
   }
 
-  get _additionalActivitiesPaladin2014() {
+  get _additionalActivitiesPaladin2014(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Channel Divinity: Sacred Weapon", type: "class" } },
       { action: { name: "Channel Divinity: Turn the Unholy", type: "class" } },
@@ -188,7 +188,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) {
       if (this.ddbParser.klass === "Cleric") {
         return this._additionalActivitiesCleric2014;
@@ -213,9 +213,7 @@ export default class ChannelDivinity extends DDBEnricherData {
         durationSeconds: 60,
         description: "The effect ends if the creature takes damage.",
       },
-      data: {
-        "flags.ddbimporter.activityMatch": "Turn Undead",
-      },
+      activityMatch: "Turn Undead",
       statuses: ["Frightened", "Incapacitated"],
     };
   }

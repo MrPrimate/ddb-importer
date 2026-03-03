@@ -11,7 +11,7 @@ export default class ElderChampion extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -25,11 +25,9 @@ export default class ElderChampion extends DDBEnricherData {
           healingPart: DDBEnricherData.basicDamagePart({ bonus: "10", type: "healing" }),
         },
         overrides: {
-          data: {
-            targetType: "self",
-            activationType: "turnStart",
-            condition: "Start of your turn",
-          },
+          targetType: "self",
+          activationType: "turnStart",
+          activationCondition: "Start of your turn",
         },
       },
       {
@@ -81,9 +79,7 @@ export default class ElderChampion extends DDBEnricherData {
       options: {
         description: "Enemies in the aura have Disadvantage on saving throws against your spells and Channel Divinity options.",
       },
-      data: {
-        "flags.ddbimporter.activitiesMatch": ["Activate Elder Champion"],
-      },
+      activitiesMatch: ["Activate Elder Champion"],
     }];
   }
 

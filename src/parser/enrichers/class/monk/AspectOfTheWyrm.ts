@@ -7,10 +7,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  /**
-   * @returns {DDBActivityData}
-   */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Resistance",
       noConsumeTargets: true,
@@ -23,10 +20,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
     };
   }
 
-  /**
-   * @returns {DDBAdditionalActivity[]}
-   */
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const spend = this.is2014 ? "Ki" : "Monk's Focus";
     return [
       {
@@ -120,9 +114,6 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
   get override() {
     return {
       replaceActivityUses: true,
-    //     data: {
-    //       "flags.ddbimporter.skipScale": true,
-    //     },
     };
   }
 }

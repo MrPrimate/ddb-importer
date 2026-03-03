@@ -20,9 +20,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
-        data: {
-          "flags.ddbimporter.activityMatch": "Assume Unbreakable Majesty",
-        },
+        activityMatch: "Assume Unbreakable Majesty",
       },
     ];
   }
