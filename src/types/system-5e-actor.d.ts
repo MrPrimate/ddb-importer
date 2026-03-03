@@ -944,11 +944,44 @@ global {
 
   // ---- Container item -------------------------------------------------------
 
+  export interface I5eContainerCapacityWeight {
+    value?: number;
+    units?: string;
+  }
+
+  export interface I5eContainerCapacityVolume {
+    units?: string;
+  }
+
+  export interface I5eContainerCapacity {
+    weight?: I5eContainerCapacityWeight;
+    volume?: I5eContainerCapacityVolume;
+  }
+
+  export interface I5eContainerSystemData {
+    description: I5eItemDescription;
+    identifier: string;
+    source: I5eItemSourceRef;
+    identified: boolean;
+    unidentified: { description: string };
+    container: string | null;
+    quantity: number;
+    weight: I5eItemWeight;
+    price: I5ePrice;
+    rarity: string;
+    attunement: string;
+    currency: I5eCurrency;
+    capacity: I5eContainerCapacity;
+    properties: string[];
+    attuned: boolean;
+    equipped: boolean;
+  }
+
   export interface I5eContainerItem {
     _id?: string;
     name: string;
     type: "container";
-    system: Record<string, any>;
+    system: I5eContainerSystemData;
     effects?: IEffectData[];
     flags: IItemFlagConfig;
     sort?: number;
@@ -957,11 +990,35 @@ global {
 
   // ---- Tool item ------------------------------------------------------------
 
+  export interface I5eToolSystemData {
+    activities: Record<string, I5eActivity>;
+    uses: I5eSystemLimitedUses;
+    description: I5eItemDescription;
+    identifier: string;
+    source: I5eItemSourceRef;
+    identified: boolean;
+    unidentified: { description: string };
+    container: string | null;
+    quantity: number;
+    weight: I5eItemWeight;
+    price: I5ePrice;
+    rarity: string;
+    attunement: string;
+    ability: string;
+    bonus: string;
+    chatFlavor: string;
+    proficient: number;
+    properties: string[];
+    type: { value: string; baseItem: string };
+    attuned: boolean;
+    equipped: boolean;
+  }
+
   export interface I5eToolItem {
     _id?: string;
     name: string;
     type: "tool";
-    system: Record<string, any>;
+    system: I5eToolSystemData;
     effects?: IEffectData[];
     flags: IItemFlagConfig;
     sort?: number;
