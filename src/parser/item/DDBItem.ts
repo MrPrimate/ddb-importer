@@ -1761,7 +1761,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         max: "1",
         recovery: [],
         autoDestroy: true,
-        autoUse: false,
       };
     }
     this.data.system.uses.autoDestroy = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value)
@@ -2419,7 +2418,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         max: "1",
         recovery: [],
         autoDestroy: true,
-        autoUse: false,
       };
     }
     this.#generateTargets();
@@ -3244,7 +3242,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     if (this.actionData.save) return "save";
     if (this.actionData.isFlat) return "attack";
     if (this.damageParts.length > 0) return "damage";
-    if (this.actionData.activation?.type === "special" && (!this.data.uses?.max || this.data.uses.max === "")) {
+    if (this.actionData.activation?.type === "special" && (!this.data.system.uses?.max || this.data.system.uses.max === "")) {
       return undefined;
     }
     if (this.actionData.activation?.type

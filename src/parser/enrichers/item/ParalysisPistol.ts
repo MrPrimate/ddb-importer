@@ -49,7 +49,6 @@ export default class ParalysisPistol extends DDBEnricherData {
         max: "6",
         recovery: [],
         autoDestroy: false,
-        autoUse: true,
       },
       retainUseSpent: true,
     };

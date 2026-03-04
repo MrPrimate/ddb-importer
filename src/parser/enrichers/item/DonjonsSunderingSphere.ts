@@ -32,7 +32,6 @@ export default class DonjonsSunderingSphere extends DDBEnricherData {
           usesOverride: {
             max: "1",
             spent: 0,
-            prompt: true,
             recovery: [{ period: "lr", type: "recoverAll" }],
           },
         },

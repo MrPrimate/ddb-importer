@@ -31,7 +31,6 @@ export default class IronBandsOfBinding extends DDBEnricherData {
           type: "recoverAll",
         }],
         autoDestroy: false,
-        autoUse: true,
       },
     };
   }

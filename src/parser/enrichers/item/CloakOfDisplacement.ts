@@ -10,7 +10,11 @@ export default class CloakOfDisplacement extends DDBEnricherData {
           { macroType: "item", macroName: "cloakOfDisplacement.js" },
         ],
         data: {
-          "flags.dae.macroRepeat": "startEveryTurn",
+          flags: {
+            dae: {
+              macroRepeat: "startEveryTurn",
+            },
+          },
         },
       },
     ];

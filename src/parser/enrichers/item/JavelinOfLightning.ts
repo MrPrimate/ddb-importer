@@ -18,7 +18,6 @@ export default class JavelinOfLightning extends DDBEnricherData {
             max: "",
             recovery: [],
             autoDestroy: false,
-            autoUse: true,
           },
         },
       },
@@ -68,9 +67,8 @@ export default class JavelinOfLightning extends DDBEnricherData {
             }),
           ],
           usesOverride: {
-            value: "1",
+            spent: 0,
             max: "1",
-            autoUse: true,
             autoDestroy: true,
             recovery: [
               {

@@ -28,7 +28,6 @@ export default class HealersKit extends DDBEnricherData {
         max: "10",
         recovery: [],
         autoDestroy: false,
-        autoUse: true,
       },
     };
   }

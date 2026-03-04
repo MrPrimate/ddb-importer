@@ -55,7 +55,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
           rangeOverride: {
             override: true,
             value: "20",
-            long: "60",
+            // long: "60",
             units: "ft",
           },
           targetOverride: {

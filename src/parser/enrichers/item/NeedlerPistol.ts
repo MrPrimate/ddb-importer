@@ -35,7 +35,6 @@ export default class NeedlerPistol extends DDBEnricherData {
         max: "10",
         recovery: [],
         autoDestroy: false,
-        autoUse: true,
       },
       retainUseSpent: true,
     };

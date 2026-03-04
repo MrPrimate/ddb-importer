@@ -21,7 +21,6 @@ export default class Waterskin extends DDBEnricherData {
         max: "4",
         recovery: [],
         autoDestroy: false,
-        autoUse: true,
       },
     };
   }

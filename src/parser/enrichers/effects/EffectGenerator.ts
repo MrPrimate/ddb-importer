@@ -740,7 +740,6 @@ export default class EffectGenerator {
     // }
     if (foundry.utils.hasProperty(this.document.system, "uses")) {
       this.document.system.uses.autoDestroy = true;
-      this.document.system.uses.autoUse = true;
     }
   }
 

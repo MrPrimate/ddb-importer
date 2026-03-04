@@ -431,7 +431,7 @@ global {
     rollOverride?: I5eActivityRoll;
 
     // --- Uses ---
-    usesOverride?: I5eSystemLimitedUses;
+    usesOverride?: I5eSystemLimitedUses | I5eConsumableUses;
 
     // --- Macro ---
     ddbMacroOverride?: IDDBActivityMacro;

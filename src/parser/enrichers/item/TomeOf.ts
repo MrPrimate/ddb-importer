@@ -62,7 +62,6 @@ export default class TomeOf extends DDBEnricherData {
         max: "48",
         recovery: [],
         autoDestroy: false,
-        autoUse: true,
       },
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbTomeOf">

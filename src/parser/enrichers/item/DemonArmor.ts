@@ -6,38 +6,15 @@ export default class DemonArmor extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  // get activity() {
-  //   return {
-  //     data: {
-
-  //     },
-  //   };
-  // }
-
-  // "Demon Armor": {
-  // previous DAE/Midi effect
-  //   noCreate: true,
-  //   changes: [
-  //     {
-  //       key: "items.Unarmed Strike.system.attack.bonus",
-  //       value: "1",
-  //       mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-  //       priority: 20,
-  //     },
-  //     {
-  //       key: "items.Unarmed Strike.system.damage.parts.0.0",
-  //       value: "1d8+@mod+1",
-  //       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-  //       priority: 20,
-  //     },
-  //     {
-  //       key: "items.Unarmed Strike.system.properties.mgc",
-  //       value: "true",
-  //       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-  //       priority: 20,
-  //     },
-  //   ],
-  // },
+  get activity(): IDDBActivityData {
+    return {
+      data: {
+        restrictions: {
+          type: "weapon",
+        },
+      }
+    };
+  }
 
   get effects(): IDDBEffectHint[] {
     return [
@@ -53,9 +30,6 @@ export default class DemonArmor extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.overrideChange("8", 20, "system.damage.base.denomination"),
           DDBEnricherData.ChangeHelper.overrideChange("false", 20, "system.damage.base.custom.enabled"),
         ],
-        data: {
-          "restrictions.type": "weapon",
-        },
       },
     ];
   }

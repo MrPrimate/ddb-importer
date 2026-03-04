@@ -328,6 +328,8 @@ global {
     properties: string[];
     attuned: boolean;
     equipped: boolean;
+    // not sure this is right
+    uses?: I5eSystemLimitedUses;
   }
 
   interface I5eContainerItem extends I5eSystemBaseDocumentData {
