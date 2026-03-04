@@ -72,7 +72,7 @@ export default class GraspingArrow extends ArcaneShotOption {
       ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.isAction
       ? []
       : [

@@ -12,7 +12,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Form of the Beast: Tail AC Bonus",

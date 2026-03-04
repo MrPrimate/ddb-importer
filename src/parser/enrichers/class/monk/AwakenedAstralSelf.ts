@@ -10,7 +10,7 @@ export default class AwakenedAstralSelf extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Armor of the Spirit",

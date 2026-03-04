@@ -25,7 +25,7 @@ export default class TeamTactics extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Team Tactics",

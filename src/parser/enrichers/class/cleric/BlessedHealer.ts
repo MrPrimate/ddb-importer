@@ -31,7 +31,7 @@ export default class BlessedHealer extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         type: "item",

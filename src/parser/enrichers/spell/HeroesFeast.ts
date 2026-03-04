@@ -64,7 +64,7 @@ export default class HeroesFeast extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
 
     const extraChanges = this.is2014
       ? [

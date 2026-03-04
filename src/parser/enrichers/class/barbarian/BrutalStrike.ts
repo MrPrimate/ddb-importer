@@ -43,7 +43,7 @@ export default class BrutalStrike extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Hamstrung",

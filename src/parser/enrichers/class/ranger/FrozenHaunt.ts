@@ -101,7 +101,7 @@ export default class FrozenHaunt extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Partially Incorporeal",
       options: {

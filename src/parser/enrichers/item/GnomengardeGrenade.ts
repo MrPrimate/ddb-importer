@@ -15,7 +15,7 @@ export default class GnomengardeGrenade extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       options: {
         transfer: false,

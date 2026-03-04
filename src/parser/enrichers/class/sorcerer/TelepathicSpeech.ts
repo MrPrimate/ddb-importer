@@ -22,7 +22,7 @@ export default class TelepathicSpeech extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Telepathic Speech",
       changes: [],

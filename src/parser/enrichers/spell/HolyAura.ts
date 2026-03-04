@@ -45,7 +45,7 @@ export default class HolyAura extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const lightAnimation = "{\"type\": \"sunburst\", \"speed\": 2,\"intensity\": 4}";
     return [
       {

@@ -24,7 +24,7 @@ export default class SymbioticEntity extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Symbiotic Entity",

@@ -28,7 +28,7 @@ export default class SneakAttack extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Sneak Attack (Automation)",

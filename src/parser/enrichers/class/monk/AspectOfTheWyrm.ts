@@ -78,7 +78,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const resistanceEffects = ["Acid", "Cold", "Fire", "Lightning", "Poison"].map((damageType) => ({
       name: `Aspect of the Wyrm: Resistance (${damageType})`,
       activityMatch: "Resistance",

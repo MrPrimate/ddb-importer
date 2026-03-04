@@ -34,7 +34,7 @@ export default class FlameDamage extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Flaming Sphere: Heat",

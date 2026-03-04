@@ -29,7 +29,7 @@ export default class HadozeeDodge extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {

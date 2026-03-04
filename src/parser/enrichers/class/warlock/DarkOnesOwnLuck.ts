@@ -31,7 +31,7 @@ export default class DarkOnesOwnLuck extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       midiOnly: true,
       options: {

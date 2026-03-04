@@ -22,7 +22,7 @@ export default class ManeuverFeintingAttack extends Maneuver {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Feinting Attack: Extra Damage",

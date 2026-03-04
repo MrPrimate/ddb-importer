@@ -12,7 +12,7 @@ export default class OilOfSharpness extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",

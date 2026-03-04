@@ -42,7 +42,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
 
     if (this.is2014) {
       return [

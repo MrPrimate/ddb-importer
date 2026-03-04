@@ -19,7 +19,7 @@ export default class MoonlightStep extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Moonlight Step: Advantage on Next Attack",

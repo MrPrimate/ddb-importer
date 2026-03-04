@@ -39,7 +39,7 @@ export default class Web extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Restrained",

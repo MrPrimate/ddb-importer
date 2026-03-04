@@ -138,7 +138,7 @@ export default class EyeRays extends DDBEnricherData {
     return [];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const results = [];
 
     this.rayChoices.forEach((ray) => {

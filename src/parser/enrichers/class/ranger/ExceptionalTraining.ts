@@ -21,7 +21,7 @@ export default class ExceptionalTraining extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.is2014
       ? [
         {

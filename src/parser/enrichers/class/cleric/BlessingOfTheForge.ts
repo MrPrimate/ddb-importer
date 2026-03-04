@@ -35,7 +35,7 @@ export default class BlessingOfTheForge extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",

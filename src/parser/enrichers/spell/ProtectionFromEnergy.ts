@@ -8,7 +8,7 @@ export default class ProtectionFromEnergy extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
       return {
         name: `Protection from ${element}`,

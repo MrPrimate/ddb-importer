@@ -68,7 +68,7 @@ export default class StormSphere extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Cast Spell",

@@ -50,7 +50,7 @@ export default class WitchBolt extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       activityMatch: "Cast",
     }];

@@ -31,7 +31,7 @@ export default class Mislead extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Invisible",

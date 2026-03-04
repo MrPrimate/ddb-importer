@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class CrossbowExpert extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

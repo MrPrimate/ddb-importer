@@ -14,7 +14,7 @@ export default class SuperiorHuntersDefense extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const multiple = DDBEnricherData.allDamageTypes().map((damage) => {
       return {
         name: `Superior Hunter's Defense: Resistance to ${utils.capitalize(damage)}`,

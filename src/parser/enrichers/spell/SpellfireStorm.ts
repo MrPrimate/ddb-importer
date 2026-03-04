@@ -33,7 +33,7 @@ export default class SpellfireStorm extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Within Spellfire Storm",

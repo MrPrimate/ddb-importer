@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Regenerate extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Regenerating",

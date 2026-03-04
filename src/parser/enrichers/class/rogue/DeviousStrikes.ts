@@ -127,7 +127,7 @@ export default class DeviousStrikes extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Knocked Out",

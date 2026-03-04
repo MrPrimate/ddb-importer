@@ -17,7 +17,7 @@ export default class RageOfTheGods extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Rage of the Gods",

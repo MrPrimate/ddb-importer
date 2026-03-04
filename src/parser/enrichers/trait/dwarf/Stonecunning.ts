@@ -20,7 +20,7 @@ export default class Stonecunning extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Stonecunning: Tremorsense",

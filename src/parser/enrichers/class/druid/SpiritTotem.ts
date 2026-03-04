@@ -21,7 +21,7 @@ export default class SpiritTotem extends DDBEnricherData {
           generateRange: true,
           targetOverride: {
             affects: {
-              value: "",
+              count: "",
               type: "ally",
             },
             template: {
@@ -54,7 +54,7 @@ export default class SpiritTotem extends DDBEnricherData {
           generateRange: true,
           targetOverride: {
             affects: {
-              value: "",
+              count: "",
               type: "ally",
             },
             template: {
@@ -83,7 +83,7 @@ export default class SpiritTotem extends DDBEnricherData {
           generateRange: true,
           targetOverride: {
             affects: {
-              value: "",
+              count: "",
               type: "ally",
             },
             template: {
@@ -112,7 +112,7 @@ export default class SpiritTotem extends DDBEnricherData {
           generateRange: true,
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "ally",
             },
           },
@@ -129,7 +129,7 @@ export default class SpiritTotem extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Bear Totem",

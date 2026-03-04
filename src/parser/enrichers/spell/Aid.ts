@@ -22,7 +22,7 @@ export default class Aid extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const noMidiEffects = [2, 3, 4, 5, 6, 7, 8, 9].map((level) => {
       return {
         name: `Aid: Level ${level} Max HP Bonus`,

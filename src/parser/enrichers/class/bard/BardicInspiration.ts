@@ -27,7 +27,7 @@ export default class BardicInspiration extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const diceString = "@scale.bard.inspiration";
     const midiOptionalChange = {
       name: "bardicInspiration",

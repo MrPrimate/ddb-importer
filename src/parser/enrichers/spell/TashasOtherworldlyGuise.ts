@@ -16,7 +16,7 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const sharedChanges = [
       DDBEnricherData.ChangeHelper.upgradeChange("40", 20, "system.attributes.movement.fly"),
       DDBEnricherData.ChangeHelper.signedAddChange("2", 20, "system.attributes.ac.bonus"),

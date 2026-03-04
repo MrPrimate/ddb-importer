@@ -82,7 +82,7 @@ export default class VengefulBlade extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Vengeful Blade: RadiatesDark Aura of Energy",
       options: {

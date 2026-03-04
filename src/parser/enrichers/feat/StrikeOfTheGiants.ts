@@ -71,7 +71,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
     return !this.isAction;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     const results = [];
 

@@ -42,7 +42,7 @@ export default class FangsOfTheFireSnake extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",

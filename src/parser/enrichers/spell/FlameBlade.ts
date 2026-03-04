@@ -12,7 +12,7 @@ export default class FlameBlade extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Flame Blade",

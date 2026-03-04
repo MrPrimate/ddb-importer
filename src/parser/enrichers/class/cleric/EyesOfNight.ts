@@ -68,7 +68,7 @@ export default class EyesOfNight extends DDBEnricherData {
 
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Eyes of Night - Darkvision",

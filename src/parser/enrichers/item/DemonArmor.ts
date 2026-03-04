@@ -39,7 +39,7 @@ export default class DemonArmor extends DDBEnricherData {
   //   ],
   // },
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",

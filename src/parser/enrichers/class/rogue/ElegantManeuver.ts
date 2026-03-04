@@ -13,7 +13,7 @@ export default class ElegantManeuver extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         changes: [

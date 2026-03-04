@@ -64,7 +64,7 @@ export default class Bite extends DDBEnricherData {
     return [];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.is2014
       ? [
         {

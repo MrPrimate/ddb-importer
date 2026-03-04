@@ -21,7 +21,7 @@ export default class ManeuverLungingAttack extends Maneuver {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Lunging Attack Bonus Damage",

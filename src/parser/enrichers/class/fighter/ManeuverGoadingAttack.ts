@@ -38,7 +38,7 @@ export default class ManeuverGoadingAttack extends Maneuver {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Goaded",

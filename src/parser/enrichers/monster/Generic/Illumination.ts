@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Illumination extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
 
     // The myrmidon sheds bright light in a 20-foot radius and dim light in a 40-foot radius
     // The councilor magically sheds bright light in a 15-foot radius and dim light for an additional 15 feet

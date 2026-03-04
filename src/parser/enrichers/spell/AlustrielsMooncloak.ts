@@ -60,7 +60,7 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Cast",

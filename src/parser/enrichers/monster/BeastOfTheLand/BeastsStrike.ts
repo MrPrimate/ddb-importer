@@ -35,7 +35,7 @@ export default class BeastsStrike extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Prone",

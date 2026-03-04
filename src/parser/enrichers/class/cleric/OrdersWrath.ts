@@ -45,7 +45,7 @@ export default class OrdersWrath extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Cursed by Order's Wrath",

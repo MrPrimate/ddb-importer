@@ -16,7 +16,7 @@ export default class ChannelDivinityPeerlessAthlete extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Peerless Athlete",
       options: {

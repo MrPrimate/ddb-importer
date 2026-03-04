@@ -14,7 +14,7 @@ export default class UncannyDodge extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

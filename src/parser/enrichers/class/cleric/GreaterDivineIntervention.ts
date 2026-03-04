@@ -19,7 +19,7 @@ export default class GreaterDivineIntervention extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 

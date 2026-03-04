@@ -18,7 +18,7 @@ export default class Resistance extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [
         {

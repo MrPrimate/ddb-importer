@@ -88,7 +88,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const absorb = [
       { type: "Acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
       { type: "Cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },

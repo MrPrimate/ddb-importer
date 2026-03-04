@@ -27,7 +27,7 @@ export default class BlindnessDeafness extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const midiChanges = [
       DDBEnricherData.ChangeHelper.overrideChange(
         `label=${this.data.name} (End of Turn),turn=end,saveDC=@attributes.spell.dc,saveAbility=con,savingThrow=true,saveMagic=true,killAnim=true`,

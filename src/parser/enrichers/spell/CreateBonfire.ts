@@ -12,7 +12,7 @@ export default class CreateBonfire extends DDBEnricherData {
     return this.useMidiAutomations;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Standing in a Bonfire",

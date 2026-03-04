@@ -8,7 +8,7 @@ export default class GhostWalk extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Spectral Form",

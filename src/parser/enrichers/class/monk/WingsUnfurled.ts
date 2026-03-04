@@ -5,7 +5,7 @@ export default class WingsUnfurled extends Generic {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {

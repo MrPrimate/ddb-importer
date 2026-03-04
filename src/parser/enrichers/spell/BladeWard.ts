@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BladeWard extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [
         {

@@ -21,7 +21,7 @@ export default class MetamagicAdept extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Metamagic Adept",

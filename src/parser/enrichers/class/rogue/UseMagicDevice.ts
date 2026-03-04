@@ -13,7 +13,7 @@ export default class UseMagicDevice extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Attunement",
       options: {

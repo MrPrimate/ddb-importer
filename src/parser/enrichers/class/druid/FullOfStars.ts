@@ -13,7 +13,7 @@ export default class FullOfStars extends DDBEnricherData {
   //   };
   // }
 
-  // get effects() {
+  // get effects(): IDDBEffectHint[] {
   //   return [
   //     {
   //       name: "Full of Stars (Level 14)",

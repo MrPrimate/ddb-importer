@@ -24,7 +24,7 @@ export default class Grapple extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Grappled",

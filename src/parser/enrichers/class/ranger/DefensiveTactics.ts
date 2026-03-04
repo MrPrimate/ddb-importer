@@ -16,7 +16,7 @@ export default class DefensiveTactics extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Escape the Horde",

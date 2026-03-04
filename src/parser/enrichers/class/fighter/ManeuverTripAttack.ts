@@ -38,7 +38,7 @@ export default class ManeuverTripAttack extends Maneuver {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Tripped",

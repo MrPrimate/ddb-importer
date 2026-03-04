@@ -16,7 +16,7 @@ export default class Resurrection extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const keys = [
       "system.bonuses.abilities.check",
       "system.bonuses.abilities.save",

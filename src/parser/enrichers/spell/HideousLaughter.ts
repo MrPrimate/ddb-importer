@@ -6,7 +6,7 @@ export default class HideousLaughter extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Laughing Uncontrollably",

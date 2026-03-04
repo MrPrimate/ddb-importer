@@ -108,7 +108,7 @@ export default class PrismaticWall extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Blinded",

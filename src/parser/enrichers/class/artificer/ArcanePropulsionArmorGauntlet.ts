@@ -11,7 +11,7 @@ export default class ArcanePropulsionArmorGauntlet extends DDBEnricherData {
     return null;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 

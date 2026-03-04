@@ -13,7 +13,7 @@ export default class Grease extends DDBEnricherData {
     return this.useMidiAutomations;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Grease",

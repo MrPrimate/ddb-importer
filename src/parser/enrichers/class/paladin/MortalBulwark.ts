@@ -38,7 +38,7 @@ export default class MortalBulwark extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "enemy",
             },
           },
@@ -65,7 +65,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Mortal Bulwark",
       changes: [

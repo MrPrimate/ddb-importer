@@ -19,7 +19,7 @@ export default class ChromaticInfusion extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       { type: "acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
       { type: "cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },

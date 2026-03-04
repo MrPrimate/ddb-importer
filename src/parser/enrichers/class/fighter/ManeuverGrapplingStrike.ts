@@ -7,7 +7,7 @@ export default class ManeuverGrapplingStrike extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Grappling Strike Bonus",

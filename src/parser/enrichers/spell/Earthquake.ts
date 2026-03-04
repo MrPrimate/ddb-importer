@@ -57,7 +57,7 @@ export default class Earthquake extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activitiesMatch: ["Cast", "Damage from Collapsed Structure"],

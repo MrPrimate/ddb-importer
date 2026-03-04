@@ -43,7 +43,7 @@ export default class ShadowBlade extends DDBEnricherData {
   //   ];
   // }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Wielding Shadow Blade",

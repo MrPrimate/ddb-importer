@@ -19,7 +19,7 @@ export default class TotemicAttunementElk extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Totemic Attunement: Elk",

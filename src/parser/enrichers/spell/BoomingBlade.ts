@@ -103,7 +103,7 @@ export default class BoomingBlade extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Booming Blade: Sheaved in Booming Energy",
       options: {

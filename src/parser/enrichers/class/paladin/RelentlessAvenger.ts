@@ -10,7 +10,7 @@ export default class RelentlessAvenger extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Relentless Avenger: Speed Reduction",
       options: {

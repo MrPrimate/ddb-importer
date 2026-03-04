@@ -37,7 +37,7 @@ export default class Rage extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Rage",
       options: {

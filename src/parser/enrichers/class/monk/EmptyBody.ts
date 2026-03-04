@@ -8,7 +8,7 @@ export default class EmptyBody extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

@@ -14,7 +14,7 @@ export default class ShiningSmite extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Shedding Light",

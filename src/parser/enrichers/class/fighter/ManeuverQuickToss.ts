@@ -9,7 +9,7 @@ export default class ManeuverQuickToss extends Maneuver {
       : DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

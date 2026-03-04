@@ -20,7 +20,7 @@ export default class Friends extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const statuses = this.is2014 ? [] : ["Charmed"];
     return [
       {

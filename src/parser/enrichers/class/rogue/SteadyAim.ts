@@ -14,7 +14,7 @@ export default class SteadyAim extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {

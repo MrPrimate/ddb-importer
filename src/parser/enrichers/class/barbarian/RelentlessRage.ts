@@ -32,7 +32,6 @@ export default class RelentlessRage extends DDBEnricherData {
         build: {
           generateConsumption: false,
           generateTarget: true,
-          targetSelf: true,
           generateRange: false,
           generateActivation: true,
           generateDamage: false,
@@ -46,6 +45,9 @@ export default class RelentlessRage extends DDBEnricherData {
             customFormula: this.is2014 ? "1" : "@classes.barbarian.levels * 2",
             type: "healing",
           }),
+        },
+        overrides: {
+          targetSelf: true,
         },
       },
     ];

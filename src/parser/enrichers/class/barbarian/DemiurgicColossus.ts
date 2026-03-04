@@ -13,7 +13,7 @@ export default class DemiurgicColossus extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Demiurgic Colossus",

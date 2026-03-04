@@ -19,7 +19,7 @@ export default class VowOfEnmity extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Vow of Enmity",
       options: {

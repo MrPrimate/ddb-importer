@@ -9,7 +9,7 @@ export default class InnateSorcery extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Innate Sorcery",

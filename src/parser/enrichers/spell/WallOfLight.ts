@@ -88,7 +88,7 @@ export default class WallOfLight extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Blinded",
       statuses: ["Blinded"],

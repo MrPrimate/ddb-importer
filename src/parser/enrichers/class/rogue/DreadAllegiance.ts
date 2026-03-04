@@ -110,7 +110,7 @@ export default class DreadAllegiance extends DDBEnricherData {
     return results;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Dread Allegiance to Bane (Psychic)",

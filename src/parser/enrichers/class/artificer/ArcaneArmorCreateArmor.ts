@@ -27,7 +27,7 @@ export default class ArcaneArmorCreateArmor extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Arcane Armor",

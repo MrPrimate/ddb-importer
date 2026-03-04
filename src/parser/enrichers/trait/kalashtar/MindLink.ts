@@ -14,7 +14,7 @@ export default class MindLink extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     // const value = this.ddbParser.isMuncher ? 10 : "";
     return [
       {

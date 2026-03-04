@@ -19,7 +19,7 @@ export default class TotemicAttunementEagle extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Totemic Attunement: Eagle",

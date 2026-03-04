@@ -19,7 +19,7 @@ export default class StandardBearer extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Bolstered Resolve",

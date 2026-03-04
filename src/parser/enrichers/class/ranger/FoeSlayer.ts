@@ -20,7 +20,7 @@ export default class FoeSlayer extends DDBEnricherData {
       };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.is2014
       ? [{
         name: "Foe Slayer (Automation)",

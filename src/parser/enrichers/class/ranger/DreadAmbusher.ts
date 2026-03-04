@@ -52,7 +52,7 @@ export default class DreadAmbusher extends DDBEnricherData {
       ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Ambusher's Leap",

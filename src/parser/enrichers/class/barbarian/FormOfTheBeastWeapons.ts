@@ -64,7 +64,6 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
             build: {
               generateConsumption: false,
               generateTarget: true,
-              targetSelf: true,
               generateRange: false,
               generateActivation: true,
               generateDamage: false,
@@ -76,6 +75,9 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
               },
               healingPart: DDBEnricherData.basicDamagePart({ customFormula: "@prof", type: "healing" }),
             },
+            overrides: {
+              targetSelf: true,
+            },
           },
         ];
       }
@@ -84,7 +86,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     return [];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.ddbParser.originalName.startsWith("Form of the Beast: Tail")) {
       return [
         {

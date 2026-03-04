@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class UnarmoredMovement extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.isAction) return [];
     const value = this.isClass("Monk")
       ? "@scale.monk.unarmored-movement.value"

@@ -33,7 +33,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [
         {

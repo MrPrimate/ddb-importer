@@ -97,7 +97,7 @@ export default class FeyStep extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Charmed",

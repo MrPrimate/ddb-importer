@@ -104,7 +104,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

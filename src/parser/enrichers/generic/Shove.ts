@@ -24,7 +24,7 @@ export default class Shove extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Prone",

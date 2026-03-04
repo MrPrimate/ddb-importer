@@ -35,7 +35,7 @@ export default class AccursedSpecter extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Accursed Specter - Attack Bonus",

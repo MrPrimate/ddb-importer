@@ -42,7 +42,7 @@ export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Radiant Soul",

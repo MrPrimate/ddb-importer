@@ -21,7 +21,7 @@ export default class Poisoner extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Poisoned",

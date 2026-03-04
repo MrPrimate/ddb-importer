@@ -31,7 +31,7 @@ export default class WardingBond extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const damageChanges = DDBEnricherData.allDamageTypes().map((type) => {
       return DDBEnricherData.ChangeHelper.damageResistanceChange(type, 0);
     });

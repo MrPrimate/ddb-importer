@@ -26,7 +26,7 @@ export default class Fisticuffs extends Generic {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Fisticuffs",

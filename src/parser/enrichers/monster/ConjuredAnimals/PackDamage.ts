@@ -58,7 +58,7 @@ export default class PackDamage extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const flagName = `${utils.idString(this.data.name)}Called`;
     const overtimeOptions = [
       `label=${this.data.name} (End of Turn)`,

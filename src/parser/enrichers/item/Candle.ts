@@ -3,7 +3,7 @@ import GenericLightSource from "./GenericLightSource";
 
 export default class Candle extends GenericLightSource {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         atlOnly: true,

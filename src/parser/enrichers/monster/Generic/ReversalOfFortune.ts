@@ -14,7 +14,7 @@ export default class ReversalOfFortune extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

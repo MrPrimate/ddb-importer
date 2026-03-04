@@ -43,7 +43,7 @@ export default class AbsorbElements extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const noMidiEffects = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
       return {
         midiNever: true,

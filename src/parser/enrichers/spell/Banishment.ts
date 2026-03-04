@@ -35,7 +35,7 @@ export default class Banishment extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Banished",

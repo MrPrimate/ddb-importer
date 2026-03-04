@@ -48,7 +48,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     return "";
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const activeType = this.chosenDamageType ?? "";
 
     return this.damageTypes.map((type) => {

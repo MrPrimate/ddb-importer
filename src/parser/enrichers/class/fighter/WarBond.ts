@@ -15,7 +15,7 @@ export default class WarBond extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Weapon Bond",

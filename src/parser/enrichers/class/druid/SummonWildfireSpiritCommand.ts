@@ -10,7 +10,7 @@ export default class SummonWildfireSpiritCommand extends DDBEnricherData {
     return null;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 

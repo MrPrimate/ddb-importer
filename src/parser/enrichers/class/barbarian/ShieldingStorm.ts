@@ -53,16 +53,13 @@ export default class ShieldingStorm extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Shielding Storm: Desert",
-        options: {},
+        activityMatch: "Shielding Storm: Desert",
         data: {
           flags: {
-            ddbimporter: {
-              activityMatch: "Shielding Storm: Desert",
-            },
             ActiveAuras: {
               aura: "Allies",
               radius: "10",
@@ -91,12 +88,9 @@ export default class ShieldingStorm extends DDBEnricherData {
       },
       {
         name: "Shielding Storm: Sea",
-        options: {},
+        activityMatch: "Shielding Storm: Sea",
         data: {
           flags: {
-            ddbimporter: {
-              activityMatch: "Shielding Storm: Sea",
-            },
             ActiveAuras: {
               aura: "Allies",
               radius: "10",
@@ -125,12 +119,9 @@ export default class ShieldingStorm extends DDBEnricherData {
       },
       {
         name: "Shielding Storm: Tundra",
-        options: {},
+        activityMatch: "Shielding Storm: Tundra",
         data: {
           flags: {
-            ddbimporter: {
-              activityMatch: "Shielding Storm: Tundra",
-            },
             ActiveAuras: {
               aura: "Allies",
               radius: "10",

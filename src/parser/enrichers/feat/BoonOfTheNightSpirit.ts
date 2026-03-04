@@ -21,7 +21,7 @@ export default class BoonOfTheNightSpirit extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const shadow = {
       name: "Shadowy Form",
       changes: [

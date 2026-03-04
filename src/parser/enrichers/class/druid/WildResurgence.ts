@@ -71,7 +71,7 @@ export default class WildResurgence extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "self",
             },
           },

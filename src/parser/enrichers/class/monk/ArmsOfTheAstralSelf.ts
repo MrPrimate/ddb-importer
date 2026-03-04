@@ -73,7 +73,7 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
       ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.isAction
       ? []
       : [

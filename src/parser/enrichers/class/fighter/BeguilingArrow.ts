@@ -49,7 +49,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
       : [];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {

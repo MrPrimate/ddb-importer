@@ -53,7 +53,7 @@ export default class Pyrotechnics extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         statuses: ["Blinded"],

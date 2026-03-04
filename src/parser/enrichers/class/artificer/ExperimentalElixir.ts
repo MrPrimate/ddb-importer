@@ -596,7 +596,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return results;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const baseEffects = [];
 
     baseEffects.push(...this.getElixirEffects);

@@ -30,7 +30,7 @@ export default class Lucky extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.featureType !== "race") return [];
 
     return [

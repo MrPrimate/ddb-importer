@@ -19,7 +19,7 @@ export default class DazzlingFootwork extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Unarmored Defense",

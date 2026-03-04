@@ -6,7 +6,7 @@ export default class DefensiveDuelist extends DDBEnricherData {
   //   return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   // }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

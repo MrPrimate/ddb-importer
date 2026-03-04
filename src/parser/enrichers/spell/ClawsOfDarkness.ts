@@ -46,7 +46,7 @@ export default class ClawsOfDarkness extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Claws of Darkness",

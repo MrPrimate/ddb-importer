@@ -41,7 +41,7 @@ export default class Slasher extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Slashed: Hamstrung",

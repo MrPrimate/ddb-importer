@@ -17,7 +17,7 @@ export default class GuardianArmorDefensiveField extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 }

@@ -24,7 +24,7 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

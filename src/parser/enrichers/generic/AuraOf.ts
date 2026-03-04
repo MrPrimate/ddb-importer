@@ -6,7 +6,7 @@ export default class AuraOf extends DDBEnricherData {
     return ["aura of alacrity"].includes(this.ddbParser.originalName.toLowerCase());
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isClass("Paladin")) return [];
     // const className = !this.ddbParser.subKlass
     //   ? "paladin"

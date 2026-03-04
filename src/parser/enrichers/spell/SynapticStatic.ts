@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SynapticStatic extends DDBEnricherData {
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Synaptic Static: Muddled Thoughts",

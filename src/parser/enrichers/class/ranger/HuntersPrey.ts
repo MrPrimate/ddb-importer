@@ -19,7 +19,7 @@ export default class HuntersPrey extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Colossus Slayer",

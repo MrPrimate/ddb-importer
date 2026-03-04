@@ -65,7 +65,7 @@ export default class ProduceFlame extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Apply Light Effect",

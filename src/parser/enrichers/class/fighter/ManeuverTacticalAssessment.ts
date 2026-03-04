@@ -30,7 +30,7 @@ export default class ManeuverTacticalAssessment extends Maneuver {
       };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Tactical Assessment Bonus",

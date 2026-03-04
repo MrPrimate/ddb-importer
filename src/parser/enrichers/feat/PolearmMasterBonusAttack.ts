@@ -25,7 +25,7 @@ export default class PolearmMasterBonusAttack extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 

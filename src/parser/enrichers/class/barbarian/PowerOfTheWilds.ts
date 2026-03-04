@@ -55,7 +55,7 @@ export default class PowerOfTheWilds extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Falcoln",

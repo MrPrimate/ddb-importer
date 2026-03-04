@@ -56,7 +56,7 @@ export default class AvengingAngel extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.ddbParser.isAction) {
       return [];
     }

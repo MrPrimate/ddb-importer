@@ -13,7 +13,7 @@ export default class ShapeShift extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Shape Shifted",

@@ -24,7 +24,7 @@ export default class DefensiveFlourish extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return utils.arrayRange(12, 1, 1).map((i) => ({
       name: `Defensive Flourish: AC Bonus ${i}`,
       options: {

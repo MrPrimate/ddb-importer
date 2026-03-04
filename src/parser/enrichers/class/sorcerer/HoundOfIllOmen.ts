@@ -26,7 +26,7 @@ export default class HoundOfIllOmen extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 

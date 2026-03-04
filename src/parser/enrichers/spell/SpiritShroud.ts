@@ -36,7 +36,7 @@ export default class SpiritShroud extends DDBEnricherData {
     }];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Surrounded by a Spirit Shroud",

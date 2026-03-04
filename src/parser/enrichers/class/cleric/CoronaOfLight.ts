@@ -33,7 +33,7 @@ export default class CoronaOfLight extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!DDBEnricherData.AutoEffects.effectModules().atlInstalled) return [];
     return [{
       options: {

@@ -15,7 +15,7 @@ export default class InspiredEclipse extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         statuses: ["Invisible"],

@@ -15,7 +15,7 @@ export default class LordsAllianceAgent extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Reassert Honor: Advantage Mark",

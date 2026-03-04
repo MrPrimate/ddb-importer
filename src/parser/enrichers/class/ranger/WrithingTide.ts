@@ -12,7 +12,7 @@ export default class WrithingTide extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

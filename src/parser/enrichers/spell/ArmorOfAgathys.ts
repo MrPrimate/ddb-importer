@@ -43,7 +43,7 @@ export default class ArmorOfAgathys extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     // {
     //   "key": "flags.midi-qol.onUseMacroName",
     //   "mode": 0,

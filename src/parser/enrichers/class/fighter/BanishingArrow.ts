@@ -23,7 +23,7 @@ export default class BanishingArrow extends ArcaneShotOption {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isAction) return [];
     return [
       {

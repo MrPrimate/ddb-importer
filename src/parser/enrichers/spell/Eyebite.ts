@@ -6,7 +6,7 @@ export default class Eyebite extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Asleep",

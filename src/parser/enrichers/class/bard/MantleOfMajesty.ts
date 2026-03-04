@@ -92,7 +92,7 @@ export default class MantleOfMajesty extends DDBEnricherData {
     return results;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Mantle of Majesty",

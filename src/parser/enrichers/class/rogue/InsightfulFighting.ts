@@ -42,7 +42,7 @@ export default class InsightfulFighting extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Insightful Fighting: Target",

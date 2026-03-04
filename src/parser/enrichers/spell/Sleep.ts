@@ -45,7 +45,7 @@ export default class Sleep extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.is2014) return [];
     return [
       {

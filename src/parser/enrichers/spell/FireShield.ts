@@ -49,7 +49,7 @@ export default class FireShield extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       { name: "Chill Shield", damageType: "fire" },
       { name: "Warm Shield", damageType: "cold" },

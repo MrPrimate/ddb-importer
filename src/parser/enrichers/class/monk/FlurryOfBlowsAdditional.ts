@@ -21,7 +21,7 @@ export default class FlurryOfBlowsAdditional extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.ddbParser.originalName === "Flurry of Blows: Topple") {
       return [
         {

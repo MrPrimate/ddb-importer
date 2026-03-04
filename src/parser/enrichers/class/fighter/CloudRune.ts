@@ -12,7 +12,7 @@ export default class CloudRune extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

@@ -15,7 +15,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const activeType = this.ddbParser.isMuncher
       ? ""
       : (this.ddbParser._chosen?.find((a) =>

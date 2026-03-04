@@ -111,7 +111,7 @@ export default class EnhanceAbility extends DDBEnricherData {
     });
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.is2014 ? this._effects2014 : this._effects2024;
   }
 

@@ -55,7 +55,7 @@ export default class AspectOfTheWilds extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Owl",

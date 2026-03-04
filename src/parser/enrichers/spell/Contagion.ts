@@ -13,7 +13,7 @@ export default class Contagion extends DDBEnricherData {
     return this.useMidiAutomations && this.is2014;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: this.is2014 ? "Cast" : "Save",

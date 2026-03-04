@@ -8,7 +8,7 @@ export default class RadiantStrikes extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       options: {
         transfer: true,

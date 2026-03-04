@@ -33,7 +33,7 @@ export default class Doomtide extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Doomed",

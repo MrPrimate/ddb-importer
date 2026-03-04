@@ -4,7 +4,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Taunt extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Taunted",

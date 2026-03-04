@@ -49,7 +49,7 @@ export default class ShadowPuppets extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Cast",

@@ -21,7 +21,7 @@ export default class MartialAdept extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Martial Adept",

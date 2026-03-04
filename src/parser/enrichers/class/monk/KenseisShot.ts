@@ -18,7 +18,7 @@ export default class KenseisShot extends DDBEnricherData {
     };
   }
 
-  // get effects() {
+  // get effects(): IDDBEffectHint[] {
   //   return [
   //     {
   //       midiOnly: true,

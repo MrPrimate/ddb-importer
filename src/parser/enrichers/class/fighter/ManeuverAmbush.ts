@@ -14,7 +14,7 @@ export default class ManeuverAmbush extends Maneuver {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Ambush Bonus",

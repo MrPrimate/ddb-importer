@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DraconicResilience extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const acType = this.is2014 ? "draconic" : "unarmoredBard";
     return [
       {

@@ -23,7 +23,7 @@ export default class ChannelDivinityWatchersWill extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Watcher's Will",
       options: {

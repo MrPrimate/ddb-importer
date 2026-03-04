@@ -16,7 +16,7 @@ export default class TwinklingConstellations extends DDBEnricherData {
   //   };
   // }
 
-  // get effects() {
+  // get effects(): IDDBEffectHint[] {
   //   return [
   //     {
   //       name: "Twinkling Constellations (Level 10)",

@@ -20,7 +20,7 @@ export default class AdventurersAtlas extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Adventurer's Atlas Initiative Bonus",

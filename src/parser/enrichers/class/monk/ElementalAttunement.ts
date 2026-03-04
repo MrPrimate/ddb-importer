@@ -114,7 +114,7 @@ export default class ElementalAttunement extends DDBEnricherData {
       ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.is2014
       ? []
       : [

@@ -36,7 +36,7 @@ export default class RagingStormSea extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Prone",

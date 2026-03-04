@@ -62,7 +62,7 @@ export default class ZealousPresence extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Zealous Presence",

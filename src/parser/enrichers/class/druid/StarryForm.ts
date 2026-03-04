@@ -303,7 +303,7 @@ export default class StarryForm extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const results = [
       ...this.enchantEffects,
       ...this.formEffects,

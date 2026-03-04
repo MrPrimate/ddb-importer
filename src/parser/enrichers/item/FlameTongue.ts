@@ -8,7 +8,7 @@ export default class FlameTongue extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Weapon Aflame",

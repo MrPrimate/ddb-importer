@@ -56,7 +56,7 @@ export default class HuntersMark extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Hunter's Mark: Marked",

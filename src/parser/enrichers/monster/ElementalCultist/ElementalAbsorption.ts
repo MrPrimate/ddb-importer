@@ -29,7 +29,7 @@ export default class ElementalAbsorption extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.damageTypes().map((type) => {
       return {
         name: `Elemental Absorption, Resistance: ${utils.capitalize(type)}`,

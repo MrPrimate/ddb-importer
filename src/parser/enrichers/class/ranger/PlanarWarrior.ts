@@ -67,7 +67,7 @@ export default class PlanarWarrior extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Marked by Planar Warrior",

@@ -19,7 +19,7 @@ export default class VisageOfTheAstralSelf extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

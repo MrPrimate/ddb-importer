@@ -88,7 +88,7 @@ export default class Light extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Apply Light Effect",

@@ -20,7 +20,7 @@ export default class RendMind extends DDBEnricherData {
     }
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 

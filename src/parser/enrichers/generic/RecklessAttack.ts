@@ -16,7 +16,7 @@ export default class RecklessAttack extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const allMWAK = false;
     const key = allMWAK ? "flags.midi-qol.advantage.attack.mwak" : "flags.midi-qol.advantage.attack.str";
     return [

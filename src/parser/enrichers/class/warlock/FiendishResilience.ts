@@ -32,7 +32,7 @@ export default class FiendishResilience extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const activeType = this.ddbParser.isMuncher
       ? null
       : this.ddbParser._chosen?.find((a) =>

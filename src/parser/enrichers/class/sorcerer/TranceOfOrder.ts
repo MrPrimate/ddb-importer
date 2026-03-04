@@ -76,7 +76,7 @@ export default class TranceOfOrder extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Trance of Order",
       options: {

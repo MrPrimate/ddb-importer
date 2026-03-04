@@ -27,7 +27,7 @@ export default class LivingLegend extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Living Legend",
       changes: [

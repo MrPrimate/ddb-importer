@@ -12,7 +12,7 @@ export default class BeadOfForce extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

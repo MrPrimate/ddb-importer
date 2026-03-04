@@ -73,7 +73,7 @@ export default class ElderChampion extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Diminish Defiance",
       options: {

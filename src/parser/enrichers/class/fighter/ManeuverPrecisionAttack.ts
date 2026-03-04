@@ -24,7 +24,7 @@ export default class ManeuverPrecisionAttack extends Maneuver {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Precision Attack Bonus",

@@ -56,7 +56,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Staggered: Opportunity Attacks",

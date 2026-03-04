@@ -51,7 +51,7 @@ export default class ElementalEpitome extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const resistance = ["acid", "cold", "fire", "lightning", "thunder"].map((element) => {
       return {
         name: `${utils.capitalize(element)} Resistance`,

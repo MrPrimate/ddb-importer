@@ -227,7 +227,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [];
     } else if (this.is2024) {

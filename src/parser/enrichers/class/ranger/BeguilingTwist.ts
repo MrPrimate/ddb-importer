@@ -6,7 +6,7 @@ export default class BeguilingTwist extends Generic {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Charmed",

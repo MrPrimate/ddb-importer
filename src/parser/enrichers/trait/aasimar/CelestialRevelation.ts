@@ -101,7 +101,7 @@ export default class CelestialRevelation extends DDBEnricherData {
   //   };
   // }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Heavenly Wings",

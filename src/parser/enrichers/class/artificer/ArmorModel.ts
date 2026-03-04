@@ -716,7 +716,7 @@ export default class ArmorModel extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const results: IDDBEffectHint[] = [
       ...this._guardianEffects,
       ...this._infiltratorEffects,

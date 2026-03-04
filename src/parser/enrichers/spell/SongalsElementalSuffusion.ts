@@ -45,7 +45,7 @@ export default class SongalsElementalSuffusion extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Cast",

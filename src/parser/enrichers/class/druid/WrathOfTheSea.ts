@@ -37,7 +37,7 @@ export default class WrathOfTheSea extends DDBEnricherData {
           generateTarget: true,
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "self",
             },
           },

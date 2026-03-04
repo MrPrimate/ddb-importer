@@ -39,7 +39,7 @@ export default class CacophonicShield extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Save vs Damage and Deafness",

@@ -24,7 +24,7 @@ export default class EncourageAlly extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 }

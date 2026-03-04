@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PactMagic extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!this.isSubclass("Order of the Profane Soul")) return [];
     return [
       {

@@ -16,7 +16,7 @@ export default class BlessingOfTheRavenQueen extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Blessing of the Raven Queen: Resistance",

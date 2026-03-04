@@ -54,7 +54,7 @@ export default class FireRune extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         activityMatch: "Save vs Constrained",

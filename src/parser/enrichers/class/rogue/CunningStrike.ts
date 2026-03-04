@@ -115,7 +115,7 @@ export default class CunningStrike extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Poisoned",

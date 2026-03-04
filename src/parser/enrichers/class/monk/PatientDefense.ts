@@ -27,7 +27,7 @@ export default class PatientDefense extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.is2014) {
       return [{
         name: "Patient Defense: Dodging",

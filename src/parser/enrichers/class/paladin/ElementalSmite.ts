@@ -136,7 +136,7 @@ export default class ElementalSmite extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Dao's Crush: Grappled",

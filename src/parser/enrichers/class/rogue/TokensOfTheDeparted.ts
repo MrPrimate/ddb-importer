@@ -60,7 +60,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

@@ -53,7 +53,7 @@ export default class AlterSelf extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const effects = [];
     const naturalWeaponEffect = {
       name: "Natural Weapons",

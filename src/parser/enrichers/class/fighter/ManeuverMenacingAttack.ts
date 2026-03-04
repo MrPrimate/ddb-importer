@@ -37,7 +37,7 @@ export default class ManeuverMenacingAttack extends Maneuver {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Menaced",

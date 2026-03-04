@@ -24,7 +24,7 @@ export default class FrostsChill extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         changes: [

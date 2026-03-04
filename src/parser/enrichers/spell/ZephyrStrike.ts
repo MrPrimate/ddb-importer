@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ZephyrStrike extends DDBEnricherData {
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

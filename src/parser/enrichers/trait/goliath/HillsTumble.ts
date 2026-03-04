@@ -13,7 +13,7 @@ export default class HillsTumble extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         statuses: ["Prone"],

@@ -16,7 +16,7 @@ export default class SongOfVictory extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.is2014
       ? [
         {

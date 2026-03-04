@@ -20,7 +20,7 @@ export default class ManeuverBaitAndSwitch extends Maneuver {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Maneuver: Bait and Switch",

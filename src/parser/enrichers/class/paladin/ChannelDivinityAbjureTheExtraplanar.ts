@@ -26,7 +26,7 @@ export default class ChannelDivinityAbjureTheExtraplanar extends DDBEnricherData
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Abjured",
       options: {

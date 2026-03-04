@@ -57,7 +57,7 @@ export default class Hex extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return DICTIONARY.actor.abilities.map((ability) => {
       return {
         name: `Hexed - ${utils.capitalize(ability.long)}`,

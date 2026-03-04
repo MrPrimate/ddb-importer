@@ -67,7 +67,7 @@ export default class CircleForms extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Circle Form AC",

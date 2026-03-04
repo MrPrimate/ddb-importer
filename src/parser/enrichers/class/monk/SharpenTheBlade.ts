@@ -21,7 +21,7 @@ export default class SharpenTheBlade extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       { bonus: "1", min: null, max: 3 },
       { bonus: "2", min: 4, max: 5 },

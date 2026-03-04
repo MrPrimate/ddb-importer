@@ -27,7 +27,7 @@ export default class StormRune extends DDBEnricherData {
     return [];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

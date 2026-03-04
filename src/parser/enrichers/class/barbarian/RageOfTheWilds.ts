@@ -37,7 +37,7 @@ export default class RageOfTheWilds extends DDBEnricherData {
     });
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Bear",

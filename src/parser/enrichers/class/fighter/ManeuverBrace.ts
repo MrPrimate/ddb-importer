@@ -31,7 +31,7 @@ export default class ManeuverBrace extends Maneuver {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Brace: Extra Damage (Automation)",

@@ -37,7 +37,7 @@ export default class DeathArmor extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Inky Aura (Death Armor)",

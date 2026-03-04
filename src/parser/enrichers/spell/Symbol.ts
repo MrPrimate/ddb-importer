@@ -157,7 +157,7 @@ export default class Symbol extends DDBEnricherData {
     });
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return (this.is2014 ? this.data2014 : this.data2024).map((symbol) => {
       return foundry.utils.mergeObject({
         name: symbol.name,

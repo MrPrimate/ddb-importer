@@ -45,7 +45,7 @@ export default class VitalityOfTheTree extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "ally",
             },
           },

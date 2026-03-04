@@ -19,7 +19,7 @@ export default class TotemSpiritElk extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Totem Spirit: Elk",

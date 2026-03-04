@@ -17,7 +17,7 @@ export default class InvocationPactOfTheBlade extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",

@@ -13,7 +13,7 @@ export default class Invisibility extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (this.ddbEnricher.originalActivity?.type === "cast") {
       return [];
     }

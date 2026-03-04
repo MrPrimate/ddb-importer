@@ -20,7 +20,7 @@ export default class TomeOf extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const effectData = this.effectData;
 
     return [

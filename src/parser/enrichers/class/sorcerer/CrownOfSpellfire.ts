@@ -136,7 +136,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     return results;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Crown of Spellfire (Flight)",

@@ -19,7 +19,7 @@ export default class HoldBreath extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         data: {

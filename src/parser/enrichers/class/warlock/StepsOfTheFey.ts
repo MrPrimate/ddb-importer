@@ -20,7 +20,7 @@ export default class StepsOfTheFey extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

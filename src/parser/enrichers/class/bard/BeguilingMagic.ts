@@ -48,7 +48,7 @@ export default class BeguilingMagic extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Frightened",

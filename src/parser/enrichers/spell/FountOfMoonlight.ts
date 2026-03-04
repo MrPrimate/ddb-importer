@@ -71,7 +71,7 @@ export default class FountOfMoonlight extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Wreathed in Moonlight",

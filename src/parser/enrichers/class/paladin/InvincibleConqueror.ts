@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class InvincibleConqueror extends Generic {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const damageChanges = Generic.allDamageTypes().map((damage) => {
       return Generic.ChangeHelper.damageResistanceChange(damage);
     });

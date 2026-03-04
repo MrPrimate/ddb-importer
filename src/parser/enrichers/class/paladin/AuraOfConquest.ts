@@ -28,7 +28,7 @@ export default class AuraOfConquest extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Aura of Conquest",

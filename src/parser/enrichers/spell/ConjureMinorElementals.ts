@@ -59,7 +59,7 @@ export default class ConjureMinorElementals extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Conjured Minor Elementals",
       activityMatch: "Cast",

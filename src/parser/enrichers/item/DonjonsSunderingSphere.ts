@@ -6,7 +6,7 @@ export default class DonjonsSunderingSphere extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         type: "enchant",

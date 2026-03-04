@@ -10,7 +10,7 @@ export default class DreadfulStrikeMassFear extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Dreadful Strike: Fear",
       options: {

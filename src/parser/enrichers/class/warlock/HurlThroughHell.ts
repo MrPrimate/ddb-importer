@@ -15,7 +15,7 @@ export default class HurlThroughHell extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Hurl Through Hell: Incapacitated",
       options: {

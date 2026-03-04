@@ -62,7 +62,7 @@ export default class SearingSmite extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "On fire from Searing Smite",

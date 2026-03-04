@@ -57,7 +57,7 @@ export default class SunShield extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     if (!DDBEnricherData.AutoEffects.effectModules().atlInstalled) return [{
       name: `Sun Shield Aura`,
       activityMatch: "Toggle Light/Aura",

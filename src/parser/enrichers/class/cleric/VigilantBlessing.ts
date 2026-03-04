@@ -12,7 +12,7 @@ export default class VigilantBlessing extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         changes: [

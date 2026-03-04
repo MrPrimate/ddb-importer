@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Sharpshooter extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const damageEffects = this.is2014
       ? [
         {

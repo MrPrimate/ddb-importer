@@ -73,7 +73,7 @@ export default class Guidance extends DDBEnricherData {
     });
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.is2014 ? this.effects2014 : this.effects2024;
   }
 

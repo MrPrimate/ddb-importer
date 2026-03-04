@@ -10,7 +10,7 @@ export default class LayOnHandsPool extends DDBEnricherData {
     return null;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [];
   }
 

@@ -69,7 +69,7 @@ export default class UnarmedStrike extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Grappled",

@@ -17,7 +17,7 @@ export default class Shillelagh extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const name = this.data.name.split("(")[0];
     if (this.is2014) {
       const changes = [

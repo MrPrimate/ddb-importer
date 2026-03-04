@@ -34,7 +34,7 @@ export default class StoneRune extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

@@ -32,7 +32,7 @@ export default class ManeuverCommandingPresence extends Maneuver {
       };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Commanding Presence Bonus",

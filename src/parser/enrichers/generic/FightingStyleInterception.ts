@@ -23,7 +23,7 @@ export default class FightingStyleInterception extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

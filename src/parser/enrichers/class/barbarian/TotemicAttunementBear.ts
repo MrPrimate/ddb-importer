@@ -19,7 +19,7 @@ export default class TotemicAttunementBear extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Totemic Attunement: Bear",

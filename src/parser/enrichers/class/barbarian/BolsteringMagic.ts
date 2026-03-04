@@ -33,7 +33,7 @@ export default class BolsteringMagic extends Generic {
             },
             targetOverride: {
               affects: {
-                value: "1",
+                count: "1",
                 type: "ally",
               },
             },
@@ -50,7 +50,7 @@ export default class BolsteringMagic extends Generic {
       ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return this.isAction
       ? [
         {

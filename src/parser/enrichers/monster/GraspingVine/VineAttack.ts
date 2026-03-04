@@ -60,7 +60,7 @@ export default class VineAttack extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         noCreate: true,

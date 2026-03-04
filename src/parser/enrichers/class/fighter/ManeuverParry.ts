@@ -22,7 +22,7 @@ export default class ManeuverParry extends Maneuver {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         midiOnly: true,

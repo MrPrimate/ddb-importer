@@ -14,7 +14,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {
@@ -46,7 +46,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "creatures",
             },
             template: {

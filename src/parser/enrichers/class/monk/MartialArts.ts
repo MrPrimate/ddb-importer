@@ -42,7 +42,7 @@ export default class MartialArts extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Martial Arts",

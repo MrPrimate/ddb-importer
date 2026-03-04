@@ -43,7 +43,7 @@ export default class UnwaveringMark extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Unwavering Mark",

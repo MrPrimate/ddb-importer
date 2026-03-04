@@ -26,7 +26,7 @@ export default class FlusteringStrike extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
 
     const changes = DICTIONARY.actor.abilities.map((ability) => {
       return DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`);

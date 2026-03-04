@@ -13,7 +13,7 @@ export default class IncendiaryCloud extends DDBEnricherData {
     return this.useMidiAutomations;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Within Incendiary Cloud Fog",

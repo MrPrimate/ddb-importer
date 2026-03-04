@@ -71,7 +71,7 @@ export default class DragonWings extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: "Dragon Wings",
       options: {

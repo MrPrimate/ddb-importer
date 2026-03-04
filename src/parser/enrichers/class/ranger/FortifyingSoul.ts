@@ -21,7 +21,7 @@ export default class FortifyingSoul extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [{
       name: `${this.name}: Advantage vs saves against Frightened`,
       options: {

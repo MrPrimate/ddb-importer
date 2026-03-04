@@ -26,7 +26,7 @@ export default class SylunsViper extends DDBEnricherData {
     return true;
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Spectral Snake",

@@ -44,7 +44,7 @@ export default class FuryOfTheSmall extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const midiOptionalChanges = this.useProfDamage
       ? [{
         name: "furyOfTheSmall",

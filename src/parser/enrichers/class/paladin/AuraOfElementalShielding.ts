@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AuraOfElementalShielding extends DDBEnricherData {
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const types = [
       "Acid",
       "Cold",

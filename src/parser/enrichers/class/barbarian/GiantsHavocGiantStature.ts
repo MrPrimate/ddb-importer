@@ -13,7 +13,7 @@ export default class GiantsHavocGiantStature extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Giant Stature",

@@ -7,7 +7,7 @@ export default class HeavyArmorMaster extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
 
     const dmgResistance = this.is2014
       ? "-3"

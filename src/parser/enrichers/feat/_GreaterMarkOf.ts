@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class _GreaterMarkOf extends DDBEnricherData {
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     const parentName = this.name.replace("Greater ", "").trim();
     const id = DDBDataUtils.classIdentifierName(parentName);
     return [

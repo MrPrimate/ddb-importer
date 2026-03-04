@@ -31,7 +31,7 @@ export default class FleshToStone extends DDBEnricherData {
   }
 
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Flesh to Stone (Automation)",

@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SmiteOfProtection extends DDBEnricherData {
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         statuses: ["coverHalf"],

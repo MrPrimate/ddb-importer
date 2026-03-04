@@ -9,7 +9,7 @@ export default class AuraOfTheSentinel extends DDBEnricherData {
   /**
    * @returns {DDBEffectHint[]}
    */
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         options: {

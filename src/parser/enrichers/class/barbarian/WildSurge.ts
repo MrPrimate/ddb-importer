@@ -41,7 +41,7 @@ export default class WildSurge extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "",
+              count: "",
               type: "enemy",
             },
             template: {
@@ -123,7 +123,7 @@ export default class WildSurge extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "",
+              count: "",
               type: "enemy",
             },
             template: {
@@ -213,7 +213,7 @@ export default class WildSurge extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "creature",
             },
           },
@@ -270,7 +270,7 @@ export default class WildSurge extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "",
+              count: "",
               type: "space",
             },
             template: {
@@ -307,7 +307,7 @@ export default class WildSurge extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              value: "1",
+              count: "1",
               type: "enemy",
             },
           },
@@ -340,7 +340,7 @@ export default class WildSurge extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Wild Surge Weapon",

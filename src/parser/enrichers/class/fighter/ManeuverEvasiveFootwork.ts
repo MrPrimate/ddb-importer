@@ -15,7 +15,7 @@ export default class ManeuverEvasiveFootwork extends Maneuver {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         changes: [

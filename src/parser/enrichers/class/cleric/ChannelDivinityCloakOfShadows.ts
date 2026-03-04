@@ -17,7 +17,7 @@ export default class ChannelDivinityCloakOfShadows extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Invisible",

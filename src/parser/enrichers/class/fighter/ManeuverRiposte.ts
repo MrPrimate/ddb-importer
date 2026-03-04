@@ -23,7 +23,7 @@ export default class ManeuverRiposte extends Maneuver {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         daeSpecialDurations: ["1Attack:mwak" as const],

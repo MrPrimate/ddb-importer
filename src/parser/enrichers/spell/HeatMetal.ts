@@ -33,7 +33,7 @@ export default class HeatMetal extends DDBEnricherData {
     ];
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Heat Metal: It's getting real hot",

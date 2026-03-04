@@ -37,7 +37,7 @@ export default class BondOfFangAndScale extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
 
     const activeType = this.ddbParser.isMuncher
       ? null

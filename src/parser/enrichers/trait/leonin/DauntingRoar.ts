@@ -29,7 +29,7 @@ export default class DauntingRoar extends DDBEnricherData {
     };
   }
 
-  get effects() {
+  get effects(): IDDBEffectHint[] {
     return [
       {
         name: "Daunting Roar: Frightened",
