@@ -291,7 +291,7 @@ global {
 
   // -- Override Data ----------------------------------------------------------
 
-  export interface IDDBOverrideData {
+  interface IDDBOverrideData {
     noTemplate?: boolean;
     removeDamage?: boolean;
     rangeSelf?: boolean;
@@ -304,7 +304,7 @@ global {
     retainOriginalConsumption?: boolean;
     retainChildUses?: boolean;
     retainUseSpent?: boolean;
-    uses?: I5eSystemLimitedUses;
+    uses?: I5eSystemLimitedUses | I5eConsumableUses;
     // To Do add a data object here with flags
     data?: Record<string, any>;
     midiManualReaction?: boolean;

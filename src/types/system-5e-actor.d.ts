@@ -799,7 +799,7 @@ global {
     };
   }
 
-  // ---- PC item union --------------------------------------------------------
+  // ---- item union --------------------------------------------------------
 
   export type I5eClassItems = I5eClassItem | I5eSubclassItem;
 
@@ -811,15 +811,15 @@ global {
     | I5eSpellItem
     | I5eInventoryItem;
 
-  export type I5eInventoryItem =
-    | I5eWeaponItem
-    | I5eEquipmentItem
-    | I5eContainerItem
-    | I5eToolItem;
-
   export type I5eFeatureItem =
     | I5eFeatItem
     | I5eWeaponItem;
+
+  export type I5eMonsterItem =
+    | I5eWeaponItem
+    | I5eFeatItem
+    | I5eSpellItem
+    | I5eInventoryItem;
 
   // ---- PC DDB Importer flags ------------------------------------------------
 

@@ -368,14 +368,64 @@ global {
     flags: IItemFlagConfig;
   }
 
+  // ---- Consumable item --------------------------------------------------
+
+  interface I5eConsumableDamageBase {
+    types: I5eDamageType[];
+    custom?: {
+      enabled: boolean;
+    };
+    scaling?: {
+      number: number;
+    };
+  }
+
+  interface I5eConsumableDamage {
+    base: I5eConsumableDamageBase;
+    replace: boolean;
+  }
+
+  interface I5eConsumableUses extends I5eSystemLimitedUses {
+    autoDestroy: boolean;
+  }
+
+  interface I5eConsumableSystemData {
+    activities: Record<string, I5eActivity>;
+    uses: I5eConsumableUses;
+    description: I5eItemDescription;
+    identifier: string;
+    source: I5eItemSourceRef;
+    identified: boolean;
+    unidentified: { description: string };
+    container: string | null;
+    quantity: number;
+    weight: I5eItemWeight;
+    price: I5ePrice;
+    rarity: string;
+    attunement: string;
+    attuned: boolean;
+    equipped: boolean;
+    damage: I5eConsumableDamage;
+    properties: string[];
+    type: { value: string; subtype: string };
+  }
+
+  interface I5eConsumableItem extends I5eSystemBaseDocumentData {
+    type: "consumable";
+    system: I5eConsumableSystemData;
+    flags: IItemFlagConfig & {
+      infusions?: { maps: any[]; applied: any[]; infused: boolean };
+      midiProperties?: I5eMidiItemProperties;
+    };
+  }
+
   // ---- Item union ---------------------------------------------------
 
-  export type I5eMonsterItem =
+    export type I5eInventoryItem =
     | I5eWeaponItem
-    | I5eFeatItem
-    | I5eSpellItem
     | I5eEquipmentItem
     | I5eContainerItem
+    | I5eConsumableItem
     | I5eToolItem;
 
 }
