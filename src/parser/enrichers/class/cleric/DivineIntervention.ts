@@ -24,10 +24,10 @@ export default class DivineIntervention extends DDBEnricherData {
     }
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
-        spent: "0",
+        spent: 0,
         max: "1",
         recovery: [
           { period: "lr", type: "recoverAll", formula: undefined },

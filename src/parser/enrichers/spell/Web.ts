@@ -10,7 +10,7 @@ export default class Web extends DDBEnricherData {
   }
 
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

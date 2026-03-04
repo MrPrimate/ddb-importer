@@ -21,7 +21,7 @@ export default class WardingBond extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbHeroesFeast">

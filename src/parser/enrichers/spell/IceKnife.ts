@@ -35,7 +35,7 @@ export default class IceKnife extends DDBEnricherData {
           generateDamage: true,
           generateConsumption: false,
           generateActivation: true,
-          generateTargets: true,
+          generateTarget: true,
           noSpellslot: true,
           damageParts: [
             DDBEnricherData.basicDamagePart({

@@ -37,7 +37,7 @@ export default class GatheredSwarm extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

@@ -19,7 +19,7 @@ export default class HealersKit extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       retainUseSpent: true,

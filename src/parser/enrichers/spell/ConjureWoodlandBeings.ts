@@ -135,7 +135,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.is2014) return null;
     return {
       data: {

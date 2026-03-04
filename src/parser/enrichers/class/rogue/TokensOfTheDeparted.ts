@@ -38,7 +38,7 @@ export default class TokensOfTheDeparted extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Tokens of the Departed: Create Soul Trinket",

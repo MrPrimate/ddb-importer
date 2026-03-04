@@ -57,7 +57,7 @@ export default class ElementalSmite extends DDBEnricherData {
         },
         build: {
           generateDamage: true,
-          generateTargets: true,
+          generateTarget: true,
           generateRange: true,
         },
         overrides: {
@@ -119,13 +119,13 @@ export default class ElementalSmite extends DDBEnricherData {
         },
         build: {
           generateCheck: true,
-          generateTargets: false,
+          generateTarget: false,
           generateRange: false,
           checkOverride: {
             "associated": [
               "ath",
             ],
-            "ability": "str",
+            "ability": ["str"],
             "dc": {
               "calculation": "int",
               "formula": "",

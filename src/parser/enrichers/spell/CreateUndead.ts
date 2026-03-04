@@ -59,7 +59,7 @@ export default class CreateUndead extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

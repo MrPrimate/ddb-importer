@@ -35,7 +35,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
     ];
   }
 
-  // get override() {
+  // get override(): IDDBOverrideData {
   //   return {
   //     data: {
   //       "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })
@@ -53,7 +53,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
   //   return true;
   // }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbFormOfTheBeast">

@@ -30,7 +30,7 @@ export default class DrakeCompanion extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         max: "",

@@ -66,7 +66,7 @@ export default class BrutalStrike extends DDBEnricherData {
   }
 
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

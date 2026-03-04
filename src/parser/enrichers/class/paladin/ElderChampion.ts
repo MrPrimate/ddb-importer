@@ -66,7 +66,7 @@ export default class ElderChampion extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({ type: "class", name: "Imbue Aura of Protection", max: "1", period: "lr" });
     return {
       uses,

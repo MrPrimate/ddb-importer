@@ -28,7 +28,7 @@ export default class ArcaneFirearm extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

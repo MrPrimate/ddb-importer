@@ -69,7 +69,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     return true;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const activeType = this.chosenDamageType;
     const flags = {
       ddbimporter: {

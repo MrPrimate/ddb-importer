@@ -18,7 +18,7 @@ export default class AberrantFortitude extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const advancement = {
       "type": "ScaleValue",
       "_id": foundry.utils.randomID(),

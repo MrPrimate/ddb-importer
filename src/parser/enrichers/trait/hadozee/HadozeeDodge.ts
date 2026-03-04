@@ -51,7 +51,7 @@ export default class HadozeeDodge extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       midiDamageReaction: true,
     };

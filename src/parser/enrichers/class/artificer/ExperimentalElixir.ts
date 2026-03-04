@@ -24,7 +24,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.is2014) return null;
     return {
       retainResourceConsumption: true,
@@ -248,9 +248,9 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return result;
   }
 
-  generateElixirAdditionalActivity(name) {
+  generateElixirAdditionalActivity(name): IDDBAdditionalActivity[] {
     const results = this.activityMap[name].map((a, i) => {
-      const result = {
+      const result: IDDBAdditionalActivity = {
         init: {
           name: `Use ${name}`,
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
@@ -259,7 +259,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           generateActivation: true,
           generateConsumption: true,
           consumeItem: true,
-          noeffects: true,
+          noeffect: true,
           activationOverride: {
             type: "bonus",
             value: 1,
@@ -280,7 +280,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
             },
           },
         },
-      } as Partial<IDDBAdditionalActivity>;
+      };
 
       if (a.min || a.max) {
         result.overrides.data.visibility = {

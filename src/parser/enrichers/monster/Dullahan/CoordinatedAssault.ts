@@ -8,7 +8,7 @@ export default class CoordinatedAssault extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const value = `
 ${this.ddbParser.data.system.description.value.replace("it can use the options below as legendary actions", "it can use the following as a legendary action")}
 `;

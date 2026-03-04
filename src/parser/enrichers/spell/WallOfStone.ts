@@ -56,7 +56,7 @@ export default class WallOfStone extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       noTemplate: true,
     };

@@ -29,7 +29,7 @@ export default class DeflectAttackRedirectAttack extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

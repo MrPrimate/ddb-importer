@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SwordBurst extends DDBEnricherData {
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

@@ -22,7 +22,7 @@ export default class SpellRefuelingRingReaction extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         name: "Spell-Refueling Ring: Activate",

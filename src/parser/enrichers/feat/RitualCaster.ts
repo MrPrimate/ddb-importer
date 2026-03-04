@@ -69,7 +69,7 @@ export default class RitualCaster extends DDBEnricherData {
     return results;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return this.is2014
       ? null
       : {

@@ -39,7 +39,7 @@ export default class WarBond extends DDBEnricherData {
           generateRange: true,
           generateConsumption: true,
           activationOverride: {
-            value: "1",
+            value: 1,
             type: "hour",
           },
           rangeOverride: {
@@ -73,7 +73,7 @@ export default class WarBond extends DDBEnricherData {
           generateRange: true,
           generateConsumption: true,
           activationOverride: {
-            value: "1",
+            value: 1,
             type: "hour",
           },
           rangeOverride: {
@@ -100,7 +100,7 @@ export default class WarBond extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

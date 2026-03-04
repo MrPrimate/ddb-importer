@@ -91,7 +91,7 @@ export default class ArmsOfTheAstralSelf extends DDBEnricherData {
       ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
       data: {

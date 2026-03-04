@@ -66,7 +66,7 @@ export default class ClockworkCavalcade extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

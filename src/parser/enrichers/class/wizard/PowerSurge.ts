@@ -13,7 +13,7 @@ export default class PowerSurge extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Power Surge",

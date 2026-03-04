@@ -109,7 +109,7 @@ export default class ArcaneWard extends DDBEnricherData {
     return additional;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const descriptionSuffix = `
 <section class="secret ddbSecret" id="secret-ddbArcaneWard">
 <p><strong>Implementation Details</strong></p>

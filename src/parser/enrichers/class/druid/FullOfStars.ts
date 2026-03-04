@@ -26,7 +26,7 @@ export default class FullOfStars extends DDBEnricherData {
   //   ];
   // }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbSecret">

@@ -51,7 +51,7 @@ export default class Poisoner extends DDBEnricherData {
           noeffect: true,
           activationOverride: {
             type: "bonus",
-            value: "1",
+            value: 1,
             condition: "",
           },
           targetOverride: {
@@ -92,7 +92,7 @@ export default class Poisoner extends DDBEnricherData {
           generateDamage: true,
           activationOverride: {
             type: "special",
-            value: "1",
+            value: 1,
             condition: "",
           },
           damageParts: [
@@ -127,7 +127,7 @@ export default class Poisoner extends DDBEnricherData {
             generateDamage: true,
             activationOverride: {
               type: "special",
-              value: "1",
+              value: 1,
               condition: "",
             },
             damageParts: [
@@ -160,7 +160,7 @@ export default class Poisoner extends DDBEnricherData {
             generateDamage: true,
             activationOverride: {
               type: "special",
-              value: "1",
+              value: 1,
               condition: "",
             },
             damageParts: [
@@ -185,7 +185,7 @@ export default class Poisoner extends DDBEnricherData {
     return results;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

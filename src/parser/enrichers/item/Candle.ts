@@ -22,7 +22,7 @@ export default class Candle extends GenericLightSource {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         autoDestroy: true,

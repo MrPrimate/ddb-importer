@@ -68,6 +68,7 @@ global {
         inactive?: boolean;
         hidden?: boolean;
         displayTemp?: boolean;
+        statuses?: string[];
       };
       auraeffects?: IDDBAuraEffects;
       dae?: {

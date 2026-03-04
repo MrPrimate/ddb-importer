@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class MetamagicAdept extends DDBEnricherData {
 
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       uses: this.hasClassFeature({ featureName: "Font of Magic", className: "Sorcerer" })

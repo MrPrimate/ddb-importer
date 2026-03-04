@@ -58,7 +58,7 @@ export default class CreateBonfire extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

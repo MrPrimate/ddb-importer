@@ -40,7 +40,7 @@ export default class ConjureAnimals extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

@@ -59,7 +59,7 @@ export default class UnwaveringMark extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

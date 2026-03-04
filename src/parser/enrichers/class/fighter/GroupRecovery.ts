@@ -35,7 +35,7 @@ export default class GroupRecovery extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getGeneratedUses({
       name: "Second Wind: Group Recovery",
       type: "class",

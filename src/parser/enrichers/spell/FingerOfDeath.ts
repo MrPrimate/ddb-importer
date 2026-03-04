@@ -48,7 +48,7 @@ export default class FingerOfDeath extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

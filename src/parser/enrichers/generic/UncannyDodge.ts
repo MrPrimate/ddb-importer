@@ -28,7 +28,7 @@ export default class UncannyDodge extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       midiDamageReaction: true,
     };

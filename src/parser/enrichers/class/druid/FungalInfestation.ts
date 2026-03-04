@@ -1,3 +1,4 @@
+import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FungalInfestation extends DDBEnricherData {
@@ -19,7 +20,7 @@ export default class FungalInfestation extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       activationType: "reaction",
       noTemplate: true,
-      profileKeys: game.settings.get("ddb-importer", "munching-policy-force-spell-version") === "FORCE_2014"
+      profileKeys: utils.getSetting<string>("munching-policy-force-spell-version") === "FORCE_2014"
         ? [
           { count: 1, name: "AnimatedZombie2024" },
         ]
@@ -43,7 +44,7 @@ export default class FungalInfestation extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Fungal Infestation",

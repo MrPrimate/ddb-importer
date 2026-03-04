@@ -35,7 +35,7 @@ export default class ZealousPresence extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           generateUtility: true,
-          noEffects: true,
+          noeffect: true,
           activationOverride: {
             type: "none",
             value: null,
@@ -78,7 +78,7 @@ export default class ZealousPresence extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

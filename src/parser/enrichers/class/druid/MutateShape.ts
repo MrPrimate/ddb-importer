@@ -70,7 +70,7 @@ export default class MutateShape extends DDBEnricherData {
     return results;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const action = this.ddbParser.ddbData?.character.actions["class"]
       .find((a) => a.name.includes(": Mutation Points"));
 

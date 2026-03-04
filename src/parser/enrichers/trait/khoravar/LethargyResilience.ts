@@ -15,7 +15,7 @@ export default class LethargyResilience extends Generic.Generic {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

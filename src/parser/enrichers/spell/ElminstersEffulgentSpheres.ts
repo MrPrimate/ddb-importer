@@ -135,7 +135,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     return absorb;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

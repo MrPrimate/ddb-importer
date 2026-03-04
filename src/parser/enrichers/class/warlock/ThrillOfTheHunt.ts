@@ -21,7 +21,7 @@ export default class ThrillOfTheHunt extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

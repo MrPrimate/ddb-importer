@@ -16,7 +16,7 @@ export default class DeflectMissilesAttack extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,
     };

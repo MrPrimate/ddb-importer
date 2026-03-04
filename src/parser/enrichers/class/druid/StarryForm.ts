@@ -313,7 +313,7 @@ export default class StarryForm extends DDBEnricherData {
     return results;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Archer Attack", "Chalice Healing", "Dragon Constitution", "Twinkling Constellations (Change Form)"],
     };

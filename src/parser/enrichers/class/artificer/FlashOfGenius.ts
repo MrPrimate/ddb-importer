@@ -23,7 +23,7 @@ export default class FlashOfGenius extends DDBEnricherData {
     return true;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.is2014) return {};
     if (!this.ddbParser.isMuncher) return {};
     return {

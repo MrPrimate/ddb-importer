@@ -25,7 +25,7 @@ export default class Torch extends GenericLightSource {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         autoDestroy: true,

@@ -19,7 +19,7 @@ export default class ArcanePropulsionArmorGauntlet extends DDBEnricherData {
     return [];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.properties": utils.addToProperties(this.data.system.properties, "mgc"),

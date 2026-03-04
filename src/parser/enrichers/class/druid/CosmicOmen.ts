@@ -22,7 +22,7 @@ export default class CosmicOmen extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

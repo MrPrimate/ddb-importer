@@ -21,7 +21,7 @@ export default class HillsTumble extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "race",

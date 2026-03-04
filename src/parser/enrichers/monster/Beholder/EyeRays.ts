@@ -157,7 +157,7 @@ export default class EyeRays extends DDBEnricherData {
     return results;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.is2014) return null;
     return {
       data: {

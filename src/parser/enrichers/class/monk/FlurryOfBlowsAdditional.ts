@@ -15,7 +15,7 @@ export default class FlurryOfBlowsAdditional extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
     };

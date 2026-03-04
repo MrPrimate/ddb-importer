@@ -107,7 +107,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Temp HP"],
     };

@@ -28,7 +28,7 @@ export default class CloudRune extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Cloud Rune",
       type: "class",

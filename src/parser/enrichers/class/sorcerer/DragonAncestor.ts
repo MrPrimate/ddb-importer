@@ -15,7 +15,7 @@ export default class DragonAncestor extends DDBEnricherData {
   }
 
 
-  get override() {
+  get override(): IDDBOverrideData {
     const activeType = this.chosenType;
     const flags = {
       ddbimporter: {

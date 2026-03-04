@@ -82,7 +82,7 @@ export default class DrakesBreath extends DDBEnricherData {
   //   return true;
   // }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

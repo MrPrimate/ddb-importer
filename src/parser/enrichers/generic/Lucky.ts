@@ -16,7 +16,7 @@ export default class Lucky extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.featureType !== "feat") return null;
     const uses = this._getUsesWithSpent({
       type: "feat",

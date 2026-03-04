@@ -69,7 +69,7 @@ export default class IntimidatingPresence extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Save"],
       retainOriginalConsumption: true,

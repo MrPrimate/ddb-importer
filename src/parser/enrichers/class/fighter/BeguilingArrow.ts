@@ -68,7 +68,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
     return true;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Save vs Charmed"],
     };

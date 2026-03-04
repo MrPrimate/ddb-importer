@@ -20,7 +20,7 @@ export default class SlayersPrey extends Generic {
         },
         build: {
           generateDamage: true,
-          generateTargets: true,
+          generateTarget: true,
           generateRange: true,
         },
         overrides: {

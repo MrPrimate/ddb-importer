@@ -9,7 +9,7 @@ export default class UnarmedStrike extends DDBEnricherData {
   get additionalActivities(): IDDBAdditionalActivity[] {
     const martialArtist = this.hasClassFeature({ featureName: "Martial Arts", className: "Monk" });
 
-    const results = martialArtist
+    const results: IDDBAdditionalActivity[] = martialArtist
       ? [{ duplicate: true, overrides: { name: "Attack (Bonus Action)", activationType: "bonus" } }]
       : [];
     results.push(
@@ -84,7 +84,7 @@ export default class UnarmedStrike extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.ddbParser.isMartialArtist()) return null;
 
     const dazzlingFootwork = this.hasClassFeature({ featureName: "Dazzling Footwork", className: "Bard" });

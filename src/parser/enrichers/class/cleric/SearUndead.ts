@@ -23,7 +23,7 @@ export default class SearUndead extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.type.subtype": "channelDivinity",

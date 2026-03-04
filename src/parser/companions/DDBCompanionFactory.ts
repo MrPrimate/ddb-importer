@@ -14,7 +14,6 @@ import { DICTIONARY } from "../../config/_module";
 import { getFindFamiliarActivityData } from "./types/FindFamiliar";
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterImporter from "../../muncher/DDBMonsterImporter";
-import { DDBCompanionSummonsProp } from "./DDBCompanionMixin";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
 
 interface DDBCompanionFactoryOptions {
@@ -51,7 +50,7 @@ export default class DDBCompanionFactory {
   itemHandler: DDBItemImporter | null;
   companions: (DDBCompanion2014 | DDBCompanion2024)[];
   originName: string;
-  summons: DDBCompanionSummonsProp | null;
+  summons: I5eSummonActivity | null;
 
   constructor(html: string, options: DDBCompanionFactoryOptions = {}) {
     const defaultOptions = {

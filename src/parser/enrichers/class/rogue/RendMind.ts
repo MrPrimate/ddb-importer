@@ -62,7 +62,7 @@ export default class RendMind extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Psychic Blades: Rend Mind",

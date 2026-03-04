@@ -230,6 +230,7 @@ global {
 
     // Naming & data
     name?: string;
+    img?: string;
     data?: IEffectData;
     options?: IDDBEffectOptions;
 
@@ -319,6 +320,7 @@ global {
     isAttack?: boolean | null;
     rename?: string[] | null;
     id?: string | null;
+    activityKeysLimited?: string[] | null;
   }
 
   export interface IDDBActivityInit {
@@ -401,11 +403,15 @@ global {
     /** @deprecated use onSave */
     onsave?: boolean | string;
     partialDamageParts?: I5eDamagePart[];
+    includeBase?: boolean;
 
     // --- Description / flavor ---
     chatFlavor?: string | null;
     data?: IActivityData;
     img?: string | null;
+
+    // attacks
+    attackOverride?: I5eActivityAttack;
 
     // --- Duration / range / target ---
     durationOverride?: I5eActivityDuration;

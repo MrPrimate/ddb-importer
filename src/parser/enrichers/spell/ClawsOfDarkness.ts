@@ -55,7 +55,7 @@ export default class ClawsOfDarkness extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       noTemplate: true,
     };

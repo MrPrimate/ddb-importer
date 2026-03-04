@@ -36,7 +36,7 @@ export default class EldritchInvocationsAgonizingBlast extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const name = this.ddbParser.isMuncher
       ? this.name.split("(")[0].trim()
       : this.name;

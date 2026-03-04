@@ -50,7 +50,7 @@ export default class FrostRune extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Frost Rune",
       type: "class",

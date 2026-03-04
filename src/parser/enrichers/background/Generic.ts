@@ -10,7 +10,7 @@ export default class Generic extends DDBEnricherData {
     return true;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return null;
   }
 

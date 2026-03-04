@@ -137,7 +137,7 @@ export default class FingerGuns extends DDBEnricherData {
     });
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const range = this.getRange();
     return {
       data: {

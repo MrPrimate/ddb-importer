@@ -24,7 +24,7 @@ export default class DreadAmbusher extends DDBEnricherData {
           },
           build: {
             generateDamage: true,
-            generateTargets: true,
+            generateTarget: true,
             generateRange: true,
           },
           overrides: {
@@ -36,7 +36,7 @@ export default class DreadAmbusher extends DDBEnricherData {
                   DDBEnricherData.basicDamagePart({
                     number: 1,
                     denomination: 8,
-                    type: DDBEnricherData.allDamageTypes(),
+                    types: DDBEnricherData.allDamageTypes(),
                   }),
                 ],
               },
@@ -63,7 +63,7 @@ export default class DreadAmbusher extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDuration: ["turnEnd" as const],
+        daeSpecialDurations: ["turnEnd" as const],
       },
     ];
   }

@@ -21,7 +21,7 @@ export default class IronBandsOfBinding extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

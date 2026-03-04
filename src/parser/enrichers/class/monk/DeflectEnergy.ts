@@ -10,14 +10,14 @@ export default class DeflectEnergy extends DDBEnricherData {
       { action: { name: "Deflect Attack", type: "class" } },
       {
         action: { name: "Deflect Attack: Redirect Attack", type: "class" },
-        override: { data: {
+        overrides: { data: {
           "damage.types": DDBEnricherData.allDamageTypes(),
         } },
       },
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Reduce Damage"],
     };

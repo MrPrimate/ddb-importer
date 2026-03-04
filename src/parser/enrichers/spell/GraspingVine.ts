@@ -38,7 +38,7 @@ export default class GraspingVine extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

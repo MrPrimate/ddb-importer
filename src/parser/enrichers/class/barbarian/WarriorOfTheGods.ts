@@ -23,7 +23,7 @@ export default class WarriorOfTheGods extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return this.is2014
       ? {}
       : {

@@ -18,7 +18,7 @@ export default class SummonWildfireSpiritCommand extends DDBEnricherData {
     return [];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

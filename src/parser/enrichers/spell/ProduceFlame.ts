@@ -54,7 +54,7 @@ export default class ProduceFlame extends DDBEnricherData {
     }
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.range": {

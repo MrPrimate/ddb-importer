@@ -9,7 +9,7 @@ export default class MageSlayer extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       retainResourceConsumption: true,
       uses: {

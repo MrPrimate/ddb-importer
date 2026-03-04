@@ -21,7 +21,7 @@ export default class SpiritGuardians extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

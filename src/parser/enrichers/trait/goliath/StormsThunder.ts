@@ -24,7 +24,7 @@ export default class StormsThunder extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "race",

@@ -61,7 +61,7 @@ export default class PatientDefense extends DDBEnricherData {
     }
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Patient Defense: Disengage"],
     };

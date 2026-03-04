@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class WarriorsPasskey extends DDBEnricherData {
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.damage.base": {

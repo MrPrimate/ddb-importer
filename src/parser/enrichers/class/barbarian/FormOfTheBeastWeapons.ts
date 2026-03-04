@@ -113,7 +113,7 @@ export default class FormOfTheBeastWeapons extends DDBEnricherData {
     return [];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.properties": (this.hasClassFeature({ featureName: "Bestial Soul" })

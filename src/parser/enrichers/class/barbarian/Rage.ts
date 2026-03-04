@@ -20,7 +20,7 @@ export default class Rage extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         max: "@scale.barbarian.rages",

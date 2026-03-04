@@ -7,7 +7,7 @@ export default class ManeuverRiposte extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,
       ignoredConsumptionActivities: this.ignoredConsumptionActivities,

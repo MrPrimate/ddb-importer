@@ -51,7 +51,7 @@ export default class WallOfWater extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       noTemplate: true,
     };

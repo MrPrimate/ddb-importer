@@ -74,7 +74,7 @@ export default class ConjureFey extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

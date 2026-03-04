@@ -6,7 +6,7 @@ export default class RuneCarver extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.enchant": {

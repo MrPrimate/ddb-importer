@@ -96,7 +96,7 @@ export default class HammerOfThunderbolts extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.range.long": "60",

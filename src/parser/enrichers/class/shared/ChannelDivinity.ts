@@ -241,7 +241,7 @@ export default class ChannelDivinity extends DDBEnricherData {
     return null;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.is2014) return null;
 
     return {

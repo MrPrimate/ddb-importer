@@ -33,7 +33,7 @@ export default class SorceryIncarnate extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

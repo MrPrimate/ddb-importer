@@ -43,7 +43,7 @@ export default class Contagion extends DDBEnricherData {
     };
   }
 
-  // get override() {
+  // get override(): IDDBOverrideData {
   //   if (this.is2014) return null;
   //   return {
   //     data: {

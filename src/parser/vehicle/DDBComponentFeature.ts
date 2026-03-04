@@ -2,8 +2,7 @@ import { utils, logger } from "../../lib/_module";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { DDBMonsterFeatureEnricher, Effects, mixins } from "../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../lib/_module";
-
-import DDBVehicleActivity from "../activities/DDBVehicleActivity";
+import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
 
 export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin {
@@ -315,7 +314,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
 
   }
 
-   
+
   #generateActionData() {
     this.#generateDamageInfo();
 
@@ -411,7 +410,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
         name: `Escape Check`,
         options: {
           generateCheck: true,
-          generateTargets: false,
+          generateTarget: false,
           generateRange: false,
           checkOverride: {
             "associated": [
@@ -635,7 +634,7 @@ ${this.data.system.description.value}
     }
   }
 
-   
+
   async parse() {
 
     await this.enricher.init();

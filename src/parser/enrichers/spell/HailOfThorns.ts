@@ -47,7 +47,7 @@ export default class HailOfThorns extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

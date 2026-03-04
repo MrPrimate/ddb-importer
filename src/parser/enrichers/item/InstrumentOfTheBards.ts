@@ -9,7 +9,7 @@ export default class InstrumentOfTheBards extends DDBEnricherData {
     };
   }
 
-  // get override() {
+  // get override(): IDDBOverrideData {
   //   return {
   //     data: {
   //       "flags.magicitems": {

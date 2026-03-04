@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class PowerWordFortify extends DDBEnricherData {
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <details>

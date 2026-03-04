@@ -133,7 +133,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

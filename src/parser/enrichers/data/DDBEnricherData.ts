@@ -162,7 +162,7 @@ export default abstract class DDBEnricherData {
     return spells;
   }
 
-  _getSpellUsesWithSpent({ type, name, max, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max: any; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any } = { type: "", name: "", max: null }): I5eSystemLimitedUses {
+  _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max?: string | null; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
 
     if (spells.length === 0) {

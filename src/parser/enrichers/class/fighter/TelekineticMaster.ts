@@ -25,7 +25,7 @@ export default class TelekineticMaster extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

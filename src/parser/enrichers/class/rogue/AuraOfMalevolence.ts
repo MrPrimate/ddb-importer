@@ -25,7 +25,7 @@ export default class AuraOfMalevolence extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       descriptionSuffix: `
 <section class="secret ddbSecret" id="secret-ddbAuraOfMalevolence">

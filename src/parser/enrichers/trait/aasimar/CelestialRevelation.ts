@@ -123,7 +123,7 @@ export default class CelestialRevelation extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ddbMacroDescription: true,
     };

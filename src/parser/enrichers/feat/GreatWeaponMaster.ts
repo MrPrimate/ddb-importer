@@ -70,7 +70,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
 
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const description = this.is2014
       ? `
 <section class="secret ddbSecret" id="secret-ddbGreatWeaponMaster">

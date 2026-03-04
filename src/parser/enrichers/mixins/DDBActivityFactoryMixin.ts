@@ -1,9 +1,16 @@
+import { NotifierV1Props } from "../../../apps/DDBAppV2";
 import { DICTIONARY } from "../../../config/_module";
 import { logger } from "../../../lib/_module";
 import SystemHelpers from "../../lib/SystemHelpers";
+import DDBEnricherFactoryMixin from "./DDBEnricherFactoryMixin";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
+interface additionalActivities {
+  type: string;
+  name: string;
+  options: IDDBActivityBuild;
+}
 
 export default abstract class DDBActivityFactoryMixin {
 
@@ -13,22 +20,20 @@ export default abstract class DDBActivityFactoryMixin {
   abstract is2014: boolean;
   abstract is2024: boolean;
   abstract originalName: string;
-  activities: any[] = [];
-  activityType: any = null;
-  activityTypes: any[] = [];
-  additionalActivities: any[] = [];
-  enricher: any = null;
-  activityGenerator: any = null;
+  enricher: DDBEnricherFactoryMixin;
+  activityGenerator: new (...args: any[]) => IDDBActivityTypes;
+  additionalActivities: additionalActivities[] = [];
   documentType: string | null = null;
-  notifier: any = null;
   useMidiAutomations = false;
   usesOnActivity = false;
   ignoreActivityGeneration = false;
   forceDefaultActionBuild = false;
   data: I5eSystemBaseDocumentData = null;
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
   // These properties are used throughout the class but defined in subclasses
   type: string;
+  activityTypes: string[] = [];
   ddbDefinition: IDDBCommonDefinition;
   ddbData: IDDBData;
 
@@ -39,7 +44,7 @@ export default abstract class DDBActivityFactoryMixin {
     enricher?: any;
     activityGenerator?: any;
     documentType?: string | null;
-    notifier?: any;
+    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
     useMidiAutomations?: boolean;
     usesOnActivity?: boolean;
   } = {} as any) {
@@ -367,7 +372,7 @@ export default abstract class DDBActivityFactoryMixin {
     nameIdPostfix?: any;
     typeOverride?: string | null;
     typeFallback?: string | null;
-  } = {}, optionsOverride: any = {},
+  } = {}, optionsOverride: IDDBActivityBuild = {},
   ): Promise<string | undefined> {
     if (this.ignoreActivityGeneration) return undefined;
     if (hintsOnly && !this.enricher.activity) return undefined;
@@ -582,7 +587,7 @@ export default abstract class DDBActivityFactoryMixin {
           name: `Escape Check`,
           options: {
             generateCheck: true,
-            generateTargets: false,
+            generateTarget: false,
             generateRange: false,
             checkOverride: {
               "associated": [
@@ -610,7 +615,7 @@ export default abstract class DDBActivityFactoryMixin {
         name: `Study Check`,
         options: {
           generateCheck: true,
-          generateTargets: false,
+          generateTarget: false,
           generateRange: false,
           checkOverride: {
             "associated": [

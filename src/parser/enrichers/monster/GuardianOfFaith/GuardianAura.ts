@@ -38,12 +38,12 @@ export default class GuardianAura extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {
           uses: {
-            spent: "0",
+            spent: 0,
             max: "60",
             recovery: [],
           },

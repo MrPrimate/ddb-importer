@@ -31,7 +31,7 @@ export default class EldritchCannonProtector extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: { spent: null, max: "" },
     };

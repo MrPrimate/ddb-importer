@@ -63,7 +63,7 @@ export default class SpellfireSpark extends DDBEnricherData {
   //   return true;
   // }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getSpellUsesWithSpent({
         type: "feat",

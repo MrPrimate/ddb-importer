@@ -62,7 +62,6 @@ export default class CunningStrike extends DDBEnricherData {
           generateSave: true,
           generateDamage: false,
           generateTarget: true,
-          targetSelf: true,
           generateRange: false,
           noeffect: true,
           generateActivation: true,
@@ -70,6 +69,9 @@ export default class CunningStrike extends DDBEnricherData {
             type: "",
             condition: "Dealing Sneak Attack damage",
           },
+        },
+        overrides: {
+          targetType: "self",
         },
       },
       {

@@ -6,7 +6,7 @@ export default class TidalWave extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.target": {

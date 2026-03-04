@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BonesOfTheEarth extends DDBEnricherData {
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.target.template": {

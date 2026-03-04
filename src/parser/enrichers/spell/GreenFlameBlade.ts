@@ -72,7 +72,7 @@ export default class GreenFlameBlade extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.range": {

@@ -56,7 +56,7 @@ export default class FlamingSphere extends DDBEnricherData {
     }];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

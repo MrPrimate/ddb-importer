@@ -44,7 +44,7 @@ export default class LayOnHands extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const name = this.is2014 ? "Lay on Hands Pool" : "Lay On Hands: Healing Pool";
     const uses = this._getUsesWithSpent({ type: "class", name, max: "5 * @classes.paladin.levels", period: "lr" });
     return {

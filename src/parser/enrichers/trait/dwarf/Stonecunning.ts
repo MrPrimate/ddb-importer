@@ -42,7 +42,7 @@ export default class Stonecunning extends DDBEnricherData {
     return [];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "race",

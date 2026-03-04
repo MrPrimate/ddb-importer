@@ -21,7 +21,7 @@ export default class FontOfMagic extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

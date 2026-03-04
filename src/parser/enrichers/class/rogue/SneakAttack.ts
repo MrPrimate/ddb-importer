@@ -60,7 +60,7 @@ export default class SneakAttack extends DDBEnricherData {
       : null;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

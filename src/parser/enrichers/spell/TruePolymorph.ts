@@ -47,7 +47,7 @@ export default class TruePolymorph extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

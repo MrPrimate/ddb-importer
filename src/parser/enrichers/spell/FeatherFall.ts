@@ -6,7 +6,7 @@ export default class FeatherFall extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,
     };

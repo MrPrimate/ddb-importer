@@ -14,7 +14,7 @@ export default class ActionSurge extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       removeDamage: true,
     };

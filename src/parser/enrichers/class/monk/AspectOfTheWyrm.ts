@@ -110,7 +110,7 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
     return [...resistanceEffects, ...featEffect];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

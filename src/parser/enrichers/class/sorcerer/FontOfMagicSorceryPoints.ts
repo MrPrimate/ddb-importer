@@ -21,7 +21,7 @@ export default class FontOfMagicSorceryPoints extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "name": "Sorcery Points",

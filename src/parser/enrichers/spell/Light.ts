@@ -80,7 +80,7 @@ export default class Light extends DDBEnricherData {
     }
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "flags.midiProperties.autoFailFriendly": true,

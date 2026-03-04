@@ -9,7 +9,7 @@ export default class HillRune extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Hill Rune",
       type: "class",

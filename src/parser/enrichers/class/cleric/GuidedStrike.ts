@@ -35,7 +35,7 @@ export default class GuidedStrike extends DDBEnricherData {
           targetOverride: {
             affects: {
               type: "ally",
-              value: 1,
+              count: "1",
             },
           },
           rangeOverride: {

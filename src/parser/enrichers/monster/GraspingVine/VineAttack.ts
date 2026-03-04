@@ -42,7 +42,7 @@ export default class VineAttack extends DDBEnricherData {
         },
         build: {
           generateCheck: true,
-          generateTargets: false,
+          generateTarget: false,
           generateRange: false,
           checkOverride: {
             "associated": [

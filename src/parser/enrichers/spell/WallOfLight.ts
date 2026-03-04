@@ -77,7 +77,7 @@ export default class WallOfLight extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       noTemplate: true,
       data: {

@@ -55,7 +55,7 @@ export default class WallOfForce extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       noTemplate: true,
     };

@@ -42,7 +42,7 @@ export default class ConjureConstructs extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

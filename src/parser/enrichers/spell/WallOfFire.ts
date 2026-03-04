@@ -80,7 +80,7 @@ export default class WallOfFire extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       noTemplate: true,
     };

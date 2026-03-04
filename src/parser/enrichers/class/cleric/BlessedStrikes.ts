@@ -28,7 +28,7 @@ export default class BlessedStrikes extends DDBEnricherData {
     return [
       {
         midiOnly: true,
-        optional: {
+        options: {
           transfer: true,
         },
         midiOptionalChanges: [{
@@ -43,7 +43,7 @@ export default class BlessedStrikes extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         "spent": 0,

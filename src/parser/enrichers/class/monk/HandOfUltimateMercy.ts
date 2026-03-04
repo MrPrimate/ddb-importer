@@ -43,7 +43,7 @@ export default class HandOfUltimateMercy extends DDBEnricherData {
   /**
    * @returns {DDBOverrideData | null}
    */
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

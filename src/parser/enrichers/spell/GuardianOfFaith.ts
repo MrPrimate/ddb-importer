@@ -28,7 +28,7 @@ export default class GuardianOfFaith extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

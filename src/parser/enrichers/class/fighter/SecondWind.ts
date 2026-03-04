@@ -20,7 +20,7 @@ export default class SecondWind extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (!this.is2024) return null;
     const uses = foundry.utils.deepClone(this.data.system.uses);
     const recovery = foundry.utils.deepClone(uses.recovery ?? []);

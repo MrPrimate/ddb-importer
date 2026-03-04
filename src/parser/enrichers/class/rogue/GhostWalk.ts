@@ -74,7 +74,7 @@ export default class GhostWalk extends DDBEnricherData {
   //   return true;
   // }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
     };

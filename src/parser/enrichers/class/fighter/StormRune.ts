@@ -11,7 +11,7 @@ export default class StormRune extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Storm Rune",
       type: "class",

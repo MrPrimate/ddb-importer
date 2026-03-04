@@ -62,7 +62,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     let descriptionSuffix = "";
     if (this.ddbParser.itemCompendium?.index) {
       const possibleItems = this.ddbParser.itemCompendium.index

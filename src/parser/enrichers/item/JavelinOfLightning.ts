@@ -8,7 +8,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const override = {
       retainUseSpent: true,
       data: {

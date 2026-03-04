@@ -54,7 +54,7 @@ export default class DragonWings extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Dragon Wings",

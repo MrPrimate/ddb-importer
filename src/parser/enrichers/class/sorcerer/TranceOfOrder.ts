@@ -58,7 +58,7 @@ export default class TranceOfOrder extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       replaceActivityUses: true,
       retainOriginalConsumption: true,

@@ -46,7 +46,7 @@ export default class LandsAid extends DDBEnricherData {
           targetOverride: {
             affects: {
               type: "ally",
-              value: 1,
+              count: "1",
             },
             template: {
               count: "",
@@ -63,7 +63,7 @@ export default class LandsAid extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Healing"],
     };

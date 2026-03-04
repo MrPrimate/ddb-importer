@@ -15,7 +15,7 @@ export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ddbMacroDescription: true,
     };

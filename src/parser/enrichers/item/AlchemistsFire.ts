@@ -52,7 +52,7 @@ export default class AlchemistsFire extends DDBEnricherData {
             generateCheck: true,
             checkOverride: {
               associated: [],
-              ability: "dex",
+              ability: ["dex"],
               dc: {
                 calculation: "",
                 formula: "10",
@@ -66,14 +66,9 @@ export default class AlchemistsFire extends DDBEnricherData {
 
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.is2014) {
-      return {
-        options: {
-          transfer: false,
-          description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
-        },
-      };
+      return null;
     } else {
       return {
         uses: {
@@ -85,7 +80,12 @@ export default class AlchemistsFire extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    if (this.is2014) return [];
+    if (this.is2014) return [{
+      options: {
+        transfer: false,
+        description: "You are on fire, take [[/damage 1d4 fire]] at the start of your turn. You can use an action to distinguish with a [[/check dex 10]].",
+      },
+    }];
 
     return [{
       statuses: ["Burning"],

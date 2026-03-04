@@ -276,7 +276,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         name: `Escape Check`,
         options: {
           generateCheck: true,
-          generateTargets: false,
+          generateTarget: false,
           generateRange: false,
           checkOverride: {
             "associated": [

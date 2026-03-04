@@ -18,7 +18,7 @@ export default class LayOnHandsPool extends DDBEnricherData {
     return [];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         name: "Lay On Hands",

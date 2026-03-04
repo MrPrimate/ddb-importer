@@ -29,7 +29,7 @@ export default class DefensiveTactics extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

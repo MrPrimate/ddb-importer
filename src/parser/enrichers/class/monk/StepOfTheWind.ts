@@ -45,7 +45,7 @@ export default class StepOfTheWind extends DDBEnricherData {
     }
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       ignoredConsumptionActivities: ["Step of the Wind: Dash"],
     };

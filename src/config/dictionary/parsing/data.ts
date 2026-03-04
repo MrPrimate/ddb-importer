@@ -6,6 +6,7 @@ export const ACTIVITY_TYPES = {
   ENCHANT: "enchant",
   FORWARD: "forward",
   HEAL: "heal",
+  HEALING: "heal",
   NONE: "none",
   ORDER: "order",
   SAVE: "save",

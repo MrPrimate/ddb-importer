@@ -181,7 +181,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.originalName = utils.nameString(this.ddbDefinition.name);
     this.name = this.getName();
     this.activities = [];
-    this.activityTypes = [];
     this.activityType = null;
     this.additionalActivities = [];
     this.healingParts = [];

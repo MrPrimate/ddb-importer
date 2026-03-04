@@ -70,7 +70,7 @@ export default class StoneRune extends DDBEnricherData {
   //   return true;
   // }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Stone Rune",
       type: "class",

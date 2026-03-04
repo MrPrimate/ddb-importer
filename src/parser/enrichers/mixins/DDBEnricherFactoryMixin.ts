@@ -4,7 +4,7 @@ import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 
-export default class DDBEnricherFactoryMixin {
+export default abstract class DDBEnricherFactoryMixin {
 
   NAME_HINTS_2014: Record<string, string> = {};
   NAME_HINT_2014_INCLUDES: Record<string, string> = {};
@@ -16,7 +16,7 @@ export default class DDBEnricherFactoryMixin {
   ddbParser: any;
   document: any;
   name: string | null;
-  isCustomAction: any;
+  isCustomAction: boolean;
   activityGenerator: any;
   is2014: boolean | null;
   is2024: boolean | null;
@@ -832,6 +832,10 @@ export default class DDBEnricherFactoryMixin {
 
       if (effectHint.ignoreTransfer) {
         foundry.utils.setProperty(effect, "flags.ddbimporter.ignoreTransfer", effectHint.ignoreTransfer);
+      }
+
+      if (effectHint.img) {
+        effect.img = effectHint.img;
       }
 
       if (effectHint.macroChanges && applyMidiOnlyEffects) {

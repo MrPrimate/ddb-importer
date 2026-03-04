@@ -17,7 +17,7 @@ export default class EyeForWeakness extends DDBEnricherData {
             DDBEnricherData.basicDamagePart({
               number: 3,
               denomination: 6,
-              damageType: DDBEnricherData.allDamageTypes(),
+              types: DDBEnricherData.allDamageTypes(),
             }),
           ],
         },

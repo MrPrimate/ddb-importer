@@ -62,7 +62,7 @@ export default class HurlThroughHell extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         spent: null,

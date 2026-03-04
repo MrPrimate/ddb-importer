@@ -53,7 +53,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.isAction) return null;
     const activity = this.ddbEnricher.defaultActionFeatures[this.defaultActionName][0];
 

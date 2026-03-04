@@ -85,7 +85,7 @@ export default class FireRune extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       name: "Fire Rune",
       type: "class",

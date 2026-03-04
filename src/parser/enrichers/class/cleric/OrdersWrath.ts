@@ -32,10 +32,9 @@ export default class OrdersWrath extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
-          targetType: "creature",
-          activationOverride: "special",
         },
         overrides: {
+          targetType: "creature",
           activationType: "special",
           data: {
             sort: 1,

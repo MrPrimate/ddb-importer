@@ -101,7 +101,7 @@ export default class Shapechange extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

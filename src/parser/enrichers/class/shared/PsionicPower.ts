@@ -57,7 +57,7 @@ export default class PsionicPower extends DDBEnricherData {
     return results;
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const spent = this.isSubclass("Soulknife")
       ? this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Soulknife")
       : this._getSpentValue("class", "Psionic Power: Psionic Energy Dice", "Psi Warrior");

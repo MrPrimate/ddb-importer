@@ -32,7 +32,7 @@ export default class SorcerousRestoration extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       retainChildUses: true,
     };

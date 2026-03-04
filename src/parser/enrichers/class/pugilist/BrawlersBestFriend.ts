@@ -13,7 +13,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       activationType: "action",
       addActivityConsume: true,
-      noeffects: true,
+      noeffect: true,
       data: {
         uses: {
           spent: null,
@@ -40,7 +40,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: {
         max: "",
@@ -62,7 +62,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
           activationType: "action",
           addItemConsume: true,
           itemConsumeTargetName: "Moxie",
-          itemConsumeTargetValue: 2,
+          itemConsumeValue: 2,
           data: {
             activity: {
               id: "restoreHound1111",

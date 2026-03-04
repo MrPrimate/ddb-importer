@@ -63,7 +63,7 @@ export default class Cloudkill extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

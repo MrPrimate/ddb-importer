@@ -8,7 +8,7 @@ export default class HeadlessWail extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const value = `
 <p>If the dullahan’s Headless Summoning trait is active, it can use the following as a legendary action.</p>
 ${this.ddbParser.data.system.description.value}

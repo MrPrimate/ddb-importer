@@ -32,7 +32,7 @@ export default class UncannyMetabolism extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       retainChildUses: true,
     };

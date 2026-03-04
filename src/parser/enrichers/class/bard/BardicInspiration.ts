@@ -65,7 +65,7 @@ export default class BardicInspiration extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         // "system.uses": this._getGeneratedUses({

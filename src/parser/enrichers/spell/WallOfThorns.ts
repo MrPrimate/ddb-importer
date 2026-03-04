@@ -82,7 +82,7 @@ export default class WallOfThorns extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       noTemplate: true,
     };

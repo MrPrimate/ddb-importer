@@ -43,16 +43,14 @@ export default class FaithfulSummons extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getSpellUsesWithSpent({
       type: "class",
       name: "Faithful Summons",
     });
     return {
+      uses,
       data: {
-        system: {
-          uses,
-        },
         flags: {
           ddbimporter: {
             disposition: {

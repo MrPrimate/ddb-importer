@@ -730,7 +730,7 @@ export default class ArmorModel extends DDBEnricherData {
 
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       descriptionSuffix: this.is2014
         ? `

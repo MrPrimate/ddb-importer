@@ -35,7 +35,7 @@ export default class BeguilingMagic extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       uses: this._getUsesWithSpent({
         type: "class",

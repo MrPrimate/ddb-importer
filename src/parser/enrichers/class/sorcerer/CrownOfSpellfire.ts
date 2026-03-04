@@ -170,7 +170,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
 
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Infuse Spellfire",

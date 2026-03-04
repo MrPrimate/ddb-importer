@@ -92,7 +92,7 @@ export default class PrismaticWall extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.target": {

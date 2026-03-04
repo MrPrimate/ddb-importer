@@ -32,7 +32,7 @@ export default class LargeForm extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "race",
       name: "Activate Large Form",

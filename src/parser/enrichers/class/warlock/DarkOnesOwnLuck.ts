@@ -21,7 +21,7 @@ export default class DarkOnesOwnLuck extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     if (this.is2014) return null;
 
     return {

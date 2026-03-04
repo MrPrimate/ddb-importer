@@ -55,13 +55,13 @@ export default class GraspingArrow extends ArcaneShotOption {
           },
           build: {
             generateCheck: true,
-            generateTargets: false,
+            generateTarget: false,
             generateRange: false,
             checkOverride: {
               "associated": [
                 "ath",
               ],
-              "ability": "str",
+              "ability": ["str"],
               "dc": {
                 "calculation": "int",
                 "formula": "",

@@ -33,7 +33,7 @@ export default class PolearmMasterBonusAttack extends DDBEnricherData {
     return [];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return null;
   }
 }

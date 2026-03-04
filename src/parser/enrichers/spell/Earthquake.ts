@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Earthquake extends DDBEnricherData {
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         target: {

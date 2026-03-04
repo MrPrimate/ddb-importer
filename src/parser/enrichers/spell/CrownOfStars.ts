@@ -96,7 +96,7 @@ export default class CrownOfStars extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         system: {

@@ -43,7 +43,7 @@ export default class SacredWeapon extends DDBEnricherData {
       }];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       // ddbMacroDescription: !DDBEnricherData.AutoEffects.effectModules().atlInstalled,
       ignoredConsumptionActivities: ["Sacred Weapon Light Toggle"],

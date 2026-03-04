@@ -36,7 +36,7 @@ export default class FaithfulHound extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

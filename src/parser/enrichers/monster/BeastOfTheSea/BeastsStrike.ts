@@ -14,7 +14,7 @@ export default class BeastsStrike extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.damage.base": {

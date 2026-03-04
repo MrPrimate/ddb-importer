@@ -68,7 +68,7 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Balm of the Summer Court",

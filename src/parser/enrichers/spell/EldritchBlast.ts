@@ -81,7 +81,7 @@ export default class EldritchBlast extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         "system.range.value": this.eldritchBlastRangeAdjustments(this.ddbParser.ddbDefinition?.range?.rangeValue ?? 0),

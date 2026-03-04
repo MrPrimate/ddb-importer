@@ -43,7 +43,7 @@ export default class ConjureElemental extends DDBEnricherData {
     };
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       data: {
         flags: {

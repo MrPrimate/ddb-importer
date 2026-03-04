@@ -21,7 +21,7 @@ export default class ManeuverBrace extends Maneuver {
   }
 
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,
       ignoredConsumptionActivities: this.ignoredConsumptionActivities,

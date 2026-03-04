@@ -19,7 +19,7 @@ export default class WarCaster extends DDBEnricherData {
     ];
   }
 
-  get override() {
+  get override(): IDDBOverrideData {
     return {
       midiManualReaction: true,
     };

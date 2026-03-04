@@ -12,9 +12,7 @@ export default class ArcaneDeflection extends DDBEnricherData {
         tokenMagicChanges: [
           DDBEnricherData.ChangeHelper.tokenMagicFXChange("water-field"),
         ],
-        data: {
-          "flags.dae.specialDuration": ["1Save", "1Attack"],
-        },
+        daeSpecialDurations: ["1Save", "1Attack"],
         options: {
           durationSeconds: 6,
         },

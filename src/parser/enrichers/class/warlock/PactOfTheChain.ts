@@ -31,7 +31,7 @@ export default class PactOfTheChain extends DDBEnricherData {
         build: this.is2014
           ? {
             activationOverride: {
-              value: "1",
+              value: 1,
               type: "hour",
             },
           }
