@@ -33,9 +33,11 @@ export default abstract class DDBActivityFactoryMixin {
 
   // These properties are used throughout the class but defined in subclasses
   type: string;
+  activityType: IDDBActivityType;
   activityTypes: string[] = [];
   ddbDefinition: IDDBCommonDefinition;
   ddbData: IDDBData;
+  activities: IDDBActivityTypes[] = [];
 
   constructor({
     enricher = null, activityGenerator, documentType = null, notifier = null, useMidiAutomations = false,
@@ -594,7 +596,7 @@ export default abstract class DDBActivityFactoryMixin {
                 "acr",
                 "ath",
               ],
-              "ability": "",
+              "ability": [],
               "dc": {
                 "calculation": "",
                 "formula": escape[1],
@@ -621,7 +623,7 @@ export default abstract class DDBActivityFactoryMixin {
             "associated": [
               "inv",
             ],
-            "ability": "",
+            "ability": [],
             "dc": {
               "calculation": "spellcasting",
               "formula": "",
@@ -641,7 +643,7 @@ export default abstract class DDBActivityFactoryMixin {
             "override": true,
           },
           durationOverride: {
-            "type": "inst",
+            "units": "inst",
             "override": true,
           },
         },
