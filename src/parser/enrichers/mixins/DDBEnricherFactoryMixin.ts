@@ -1485,7 +1485,7 @@ export default abstract class DDBEnricherFactoryMixin {
     });
   }
 
-  async customFunction(options: any = {}): Promise<void> {
+  async customFunction(options: { name: string; activity?: IDDBActivityData }): Promise<void> {
     await this.loadedEnricher?.customFunction(options);
   }
 

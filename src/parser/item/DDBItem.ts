@@ -9,6 +9,7 @@ import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   // Properties set in constructor
+  declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
   declare ddbDefinition: IDDBItemDefinition;
   isCompendiumItem: boolean;
@@ -54,6 +55,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   removeWeaponMasteryDescription: boolean;
   versatileDamage: string;
   addMagical: boolean;
+
+  activities: I5eActivity[];
 
   static CLOTHING_ITEMS = [
     "Helm",
@@ -759,6 +762,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
             this.additionalActivities.push({
               name: `Restricted Attack: ${mod.restriction}`,
+              type: "attack",
               options: {
                 generateDamage: true,
                 damageParts: [damage],
@@ -3178,6 +3182,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   #addSaveAdditionalActivity(includeBase = false) {
     this.additionalActivities.push({
+      name: "Save",
       type: "save",
       options: {
         generateDamage: this.damageParts.length > 1,
@@ -3193,6 +3198,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     this.healingParts.forEach((part, i) => {
       if (i !== 0) {
         this.additionalActivities.push({
+          name: "Healing",
           type: "heal",
           options: {
             generateDamage: false,

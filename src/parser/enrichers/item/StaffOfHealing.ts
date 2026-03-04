@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class StaffOfHealing extends DDBEnricherData {
-  async customFunction({ name, activity } = {}) {
+  async customFunction({ name, activity } : { name: string; activity: IDDBActivityData }) {
     if (name === "Cure Wounds") {
       activity.data = foundry.utils.mergeObject(activity.data, {
         consumption: {
@@ -24,6 +24,5 @@ export default class StaffOfHealing extends DDBEnricherData {
         },
       });
     }
-    return activity;
   }
 }
