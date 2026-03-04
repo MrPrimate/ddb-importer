@@ -26,7 +26,7 @@ export default class Pyrotechnics extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

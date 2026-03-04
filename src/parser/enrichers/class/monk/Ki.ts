@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Ki extends DDBEnricherData {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Flurry of Blows", type: "class", rename: ["Flurry of Blows"] }, overrides: { addItemConsume: true } },
       { action: { name: "Patient Defense", type: "class" } },

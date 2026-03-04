@@ -6,7 +6,7 @@ export default class InspiringLeader extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: { name: "Bolstering Performance", type: "feat", rename: ["Temp HP (Wisdom)"] },

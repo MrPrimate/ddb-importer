@@ -12,7 +12,7 @@ export default class ArcaneVigor extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const activities = [4, 6, 8, 10, 12]
       .map((die) => {
         return {

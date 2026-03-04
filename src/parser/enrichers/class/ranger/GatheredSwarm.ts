@@ -14,7 +14,7 @@ export default class GatheredSwarm extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

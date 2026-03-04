@@ -8,7 +8,7 @@ function filterLanguages(languages) {
 
   const systemLanguageValues = new Set();
 
-  const processCategory = (key, data, group) => {
+  const processCategory = (key, data, group = null) => {
 
     if (!data.children) {
       systemLanguageValues.add(key);

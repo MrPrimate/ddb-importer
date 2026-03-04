@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class HeatMetal extends DDBEnricherData {
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,

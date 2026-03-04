@@ -14,7 +14,7 @@ export default class PatientDefense extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [
       {

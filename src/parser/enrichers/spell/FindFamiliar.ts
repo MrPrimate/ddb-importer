@@ -8,7 +8,7 @@ export default class FindFamiliar extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (!["Pact of the Chain"].includes(this.ddbParser.lookupName)) return [];
     return [
       {

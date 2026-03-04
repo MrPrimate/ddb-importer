@@ -36,7 +36,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
     }];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

@@ -27,7 +27,7 @@ export default class ArcaneWard extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const additional = [
       {
         init: {

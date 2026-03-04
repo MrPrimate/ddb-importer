@@ -36,7 +36,7 @@ export default class JavelinOfLightning extends DDBEnricherData {
     return override;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

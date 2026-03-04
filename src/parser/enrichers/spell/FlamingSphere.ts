@@ -40,7 +40,7 @@ export default class FlamingSphere extends DDBEnricherData {
   }
 
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [{
       init: {
         name: "Save vs Damage",

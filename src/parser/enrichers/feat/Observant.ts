@@ -23,7 +23,7 @@ export default class Observant extends DDBEnricherData {
     return true;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Quick Search", type: "feat", rename: ["Quick Search"] } },
     ];

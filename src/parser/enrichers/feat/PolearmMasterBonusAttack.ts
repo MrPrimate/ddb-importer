@@ -29,7 +29,7 @@ export default class PolearmMasterBonusAttack extends DDBEnricherData {
     return [];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [];
   }
 

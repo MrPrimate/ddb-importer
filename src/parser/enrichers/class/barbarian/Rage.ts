@@ -15,7 +15,7 @@ export default class Rage extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
     ];
   }

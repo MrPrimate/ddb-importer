@@ -28,7 +28,7 @@ export default class Sleep extends DDBEnricherData {
     return this.is2024;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return null;
     return [
       {

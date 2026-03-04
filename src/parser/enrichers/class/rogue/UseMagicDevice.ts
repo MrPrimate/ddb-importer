@@ -6,7 +6,7 @@ export default class UseMagicDevice extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Use Magic Device: Charges", type: "class" } },
       { action: { name: "Use Magic Device: Scroll", type: "class" } },

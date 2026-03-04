@@ -11,7 +11,7 @@ export default class SlayersPrey extends Generic {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

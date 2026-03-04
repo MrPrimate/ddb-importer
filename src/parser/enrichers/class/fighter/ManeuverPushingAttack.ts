@@ -2,7 +2,7 @@ import Maneuver from "./Maneuver";
 
 export default class ManeuverPushingAttack extends Maneuver {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

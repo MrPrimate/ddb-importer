@@ -309,13 +309,13 @@ export default class ExperimentalElixir extends DDBEnricherData {
         result.build.generateDuration = true;
         result.build.durationOverride = {
           units: "hour",
-          value: 1,
+          value: "1",
         };
       } else if (name === "Resilience") {
         result.build.generateDuration = true;
         result.build.durationOverride = {
           units: "minute",
-          value: a.minutes ?? 10,
+          value: a.minutes ?? "10",
         };
       } else if (name === "Boldness") {
         result.build.generateRoll = true;
@@ -332,14 +332,14 @@ export default class ExperimentalElixir extends DDBEnricherData {
         result.build.generateDuration = true;
         result.build.durationOverride = {
           units: "minute",
-          value: 10,
+          value: "10",
         };
       } else if (name === "Transformation") {
         result.init.type = "cast";
         result.build.generateDuration = true;
         result.build.durationOverride = {
           units: "minute",
-          value: 10,
+          value: "10",
         };
         result.build.generateSpell = true;
         result.overrides.addSpellUuid = "Alter Self";
@@ -532,7 +532,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return results;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const base : Partial<IDDBAdditionalActivity>[] = [
       {
         init: {

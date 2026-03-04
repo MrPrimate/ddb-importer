@@ -15,7 +15,7 @@ export default class ManeuverFeintingAttack extends Maneuver {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.extraDamageActivity(),
     ];

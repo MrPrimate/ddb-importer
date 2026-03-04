@@ -81,7 +81,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     return base;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const results = this.hdActivities as IDDBAdditionalActivity[];
     results.push(...[
       {

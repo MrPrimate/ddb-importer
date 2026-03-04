@@ -7,7 +7,7 @@ export default class EnhanceAbility extends DDBEnricherData {
   }
 
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { ability: "str", name2014: "Bull's Strength" },
       { ability: "con", name2014: "Bear's Endurance", type: DDBEnricherData.ACTIVITY_TYPES.HEAL },

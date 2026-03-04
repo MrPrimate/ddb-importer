@@ -10,7 +10,7 @@ export default class PsychicVeil extends DDBEnricherData {
     return true;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       {

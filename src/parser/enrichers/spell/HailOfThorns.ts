@@ -19,7 +19,7 @@ export default class HailOfThorns extends DDBEnricherData {
     return null;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

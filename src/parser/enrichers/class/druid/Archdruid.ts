@@ -22,7 +22,7 @@ export default class Archdruid extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Nature Magician", type: "class" } },
     ];

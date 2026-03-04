@@ -10,7 +10,7 @@ export default class PrimalCompanion extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014
       ? [
         {

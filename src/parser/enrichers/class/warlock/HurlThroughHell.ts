@@ -25,7 +25,7 @@ export default class HurlThroughHell extends DDBEnricherData {
     }];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

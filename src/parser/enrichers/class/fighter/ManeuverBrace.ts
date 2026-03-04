@@ -14,7 +14,7 @@ export default class ManeuverBrace extends Maneuver {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.extraDamageActivity(),
     ];

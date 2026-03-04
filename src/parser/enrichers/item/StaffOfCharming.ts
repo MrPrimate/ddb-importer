@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class StaffOfCharming extends DDBEnricherData {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

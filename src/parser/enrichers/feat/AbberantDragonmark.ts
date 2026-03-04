@@ -2,7 +2,7 @@ import Generic from "./Generic";
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AbberantDragonmark extends Generic {
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const hd = this.ddbParser.isMunche
       ? [4, 6, 8, 10, 12]
       : this.ddbParser.ddbCharacter.source.ddb.character.classes

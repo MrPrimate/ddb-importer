@@ -19,7 +19,7 @@ export default class Healer extends DDBEnricherData {
     }
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2024) {
       return [4, 6, 8, 10, 12]
         .map((die) => {

@@ -73,6 +73,7 @@ declare global {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
     DND5E: {
+      activityActivationTypes: "action" | "bonus" | "reaction" | "minute" | "hour" | "day" | "longRest" | "shortRest" | "encounter" | "turnStart" | "turnEnd" | "legendary" | "mythic" | "lair" | "crew" | "special";
       spellPreparationStates: {
         prepared: {
           value: number;
@@ -84,10 +85,42 @@ declare global {
           value: number;
         };
       };
+      languages: Record<string, {
+        label: string;
+        children?: Record<string, {
+          label: string;
+          selectable?: boolean;
+          children?: Record<string, any>;
+        }>;
+      }>;
+      featureTypes: any;
+      spellScrollIds: Record<number, string>;
+      conditionTypes: Record<string, {
+        label: string;
+        icon: string;
+      }>;
+      creatureTypes: Record<string, {
+        label: string;
+      }>;
+      spellComponents: Record<string, {
+        label: string;
+      }>;
+      spellTags: Record<string, {
+        label: string;
+      }>;
+      spellLevels: Record<string, {
+        label: string;
+      }>;
+      rules: Record<string, {
+        label: string;
+        reference?: string;
+      }>;
       dieSteps: number[];
       abilities: Record<string, {
         label: string;
       }>;
+      habitats: Record<string, any>;
+      spellLevels: Record<string, string>;
       abilityActivationTypes: Record<string, string>;
       activityTypes: Record<string, {
         documentClass: Function | Activity;

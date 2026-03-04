@@ -24,7 +24,7 @@ export default class SpiritualFocusBonusDie extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

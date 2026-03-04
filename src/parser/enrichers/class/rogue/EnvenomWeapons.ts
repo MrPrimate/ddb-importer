@@ -7,7 +7,7 @@ export default class EnvenomWeapons extends DDBEnricherData {
   }
 
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Sneak Attack: Poison (Envenom)", type: "class" } },
     ];

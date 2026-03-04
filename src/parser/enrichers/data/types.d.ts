@@ -455,6 +455,7 @@ global {
     generateTarget?: boolean;
     generateUses?: boolean;
     generateUtility?: boolean;
+    generateCast?: boolean;
 
     // --- Misc flags ---
     noeffect?: boolean;

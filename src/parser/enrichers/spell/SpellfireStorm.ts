@@ -8,7 +8,7 @@ export default class SpellfireStorm extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,

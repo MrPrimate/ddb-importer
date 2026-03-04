@@ -6,7 +6,7 @@ export default class SpellfireBurst extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Spellfire Burst: Bolstering Flames", type: "class", rename: ["Bolstering Flames"] } },
       {

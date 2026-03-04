@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class RadiantSunBolt extends Generic {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,

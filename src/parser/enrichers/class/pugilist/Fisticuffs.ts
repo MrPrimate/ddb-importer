@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class Fisticuffs extends Generic {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

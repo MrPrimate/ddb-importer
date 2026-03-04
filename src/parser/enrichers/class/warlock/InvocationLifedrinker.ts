@@ -23,7 +23,7 @@ export default class InvocationLifedrinker extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return ["Smallest", "Largest"].map((size) => {
       return {
         init: {

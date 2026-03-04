@@ -125,8 +125,8 @@ export default abstract class DDBEnricherData {
     return uses;
   }
 
-  _getUsesWithSpent({ type, name, max, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: string; name: string; max: any; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean } = { type: "", name: "", max: null }): any {
-    const uses: any = {
+  _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: string; name: string; max?: string; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean } = { type: "", name: "", max: null }): I5eSystemLimitedUses {
+    const uses: I5eSystemLimitedUses = {
       spent: this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent,
       max,
     };
@@ -138,7 +138,7 @@ export default abstract class DDBEnricherData {
     }
 
     if (!max) {
-      uses.max = this._getMaxValue(type, name, matchSubClass, includesName);
+      uses.max = String(this._getMaxValue(type, name, matchSubClass, includesName));
     }
 
     if (override) {

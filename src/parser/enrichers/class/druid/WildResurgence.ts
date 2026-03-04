@@ -27,7 +27,7 @@ export default class WildResurgence extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Wild Resurgence: Regain Spell Slot",

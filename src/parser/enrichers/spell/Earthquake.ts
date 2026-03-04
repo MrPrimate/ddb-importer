@@ -66,7 +66,7 @@ export default class Earthquake extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,

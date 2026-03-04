@@ -31,7 +31,7 @@ export default class SunShield extends DDBEnricherData {
     }
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

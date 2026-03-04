@@ -5,7 +5,7 @@ export default class SupremeSneak extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Sneak Attack: Supreme Sneak (Cost: 1d6)", type: "class" } },
     ];

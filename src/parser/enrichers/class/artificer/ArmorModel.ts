@@ -515,7 +515,7 @@ export default class ArmorModel extends DDBEnricherData {
     return results;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
 
     const results = [
       ...this._guardianActivities,

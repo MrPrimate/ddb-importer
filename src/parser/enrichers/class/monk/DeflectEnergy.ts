@@ -5,7 +5,7 @@ export default class DeflectEnergy extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Deflect Attack", type: "class" } },
       {

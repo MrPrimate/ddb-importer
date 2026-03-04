@@ -16,7 +16,7 @@ export default class DrakesBreath extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       {

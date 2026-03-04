@@ -41,7 +41,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

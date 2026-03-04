@@ -8,7 +8,7 @@ export default class DefileGround extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: {

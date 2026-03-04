@@ -17,7 +17,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

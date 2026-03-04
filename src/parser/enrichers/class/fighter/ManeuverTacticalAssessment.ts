@@ -49,7 +49,7 @@ export default class ManeuverTacticalAssessment extends Maneuver {
     ];
   }
 
-  // get additionalActivities() {
+  // get additionalActivities(): IDDBAdditionalActivity[] {
   //   return [
   //     {
   //       init: {

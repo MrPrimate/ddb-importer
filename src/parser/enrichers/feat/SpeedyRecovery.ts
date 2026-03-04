@@ -5,7 +5,7 @@ export default class SpeedyRecovery extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return ["Smallest", "Largest"].map((size) => {
       return {
         init: {

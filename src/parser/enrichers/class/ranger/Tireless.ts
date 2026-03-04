@@ -5,7 +5,7 @@ export default class Tireless extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Temporary Hit Points", type: "class" } },
       {

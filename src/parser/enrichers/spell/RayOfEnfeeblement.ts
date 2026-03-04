@@ -12,7 +12,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

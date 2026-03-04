@@ -6,7 +6,7 @@ export default class SpellStoringItem extends DDBEnricherData {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [
       { action: { name: "Spell-Storing Item: Store Spell", type: "class", rename: ["Store Spell"] } },

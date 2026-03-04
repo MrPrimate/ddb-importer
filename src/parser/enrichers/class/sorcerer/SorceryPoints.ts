@@ -6,7 +6,7 @@ export default class SorceryPoints extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014
       ? [{ action: { name: "Font of Magic", type: "class" } }]
       : [{ action: { name: "Font of Magic: Sorcery Points", type: "class" } }];

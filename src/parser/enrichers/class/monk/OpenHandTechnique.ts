@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class OpenHandTechnique extends DDBEnricherData {
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2024) {
       return [
         { action: { name: "Flurry of Blows: Addle", type: "class", rename: ["Addle"] } },

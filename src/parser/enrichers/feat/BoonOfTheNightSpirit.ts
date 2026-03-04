@@ -15,7 +15,7 @@ export default class BoonOfTheNightSpirit extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Merge with Shadows", type: "feat", rename: ["Merge with Shadows"] } },
     ];

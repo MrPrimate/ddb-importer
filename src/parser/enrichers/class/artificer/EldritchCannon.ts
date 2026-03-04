@@ -51,7 +51,7 @@ export default class EldritchCannon extends DDBEnricherData {
   }
 
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: {

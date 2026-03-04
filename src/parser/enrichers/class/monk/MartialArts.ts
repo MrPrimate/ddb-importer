@@ -63,7 +63,7 @@ export default class MartialArts extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

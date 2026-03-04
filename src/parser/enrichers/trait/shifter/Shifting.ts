@@ -118,7 +118,7 @@ export default class Shifting extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const results = [
       ...this.shiftActivities,
       ...this.additionalActivitiesLongtooth,

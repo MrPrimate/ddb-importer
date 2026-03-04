@@ -16,7 +16,7 @@ export default class ManeuverCommandersStrike extends Maneuver {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.extraDamageActivity(),
     ];

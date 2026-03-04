@@ -22,7 +22,7 @@ export default class EyeForDetail extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         duplicate: true,

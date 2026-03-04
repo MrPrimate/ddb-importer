@@ -27,7 +27,7 @@ export default class FireRune extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       {

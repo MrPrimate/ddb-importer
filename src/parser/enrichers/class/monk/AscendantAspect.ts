@@ -10,7 +10,7 @@ export default class AscendantAspect extends DDBEnricherData {
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const spend = this.is2014 ? "Ki" : "Monk's Focus";
     return [
       {

@@ -16,7 +16,7 @@ export default class AlustrielsMooncloak extends DDBEnricherData {
     return false;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

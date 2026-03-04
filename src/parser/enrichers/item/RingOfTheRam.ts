@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class RingOfTheRam extends DDBEnricherData {
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

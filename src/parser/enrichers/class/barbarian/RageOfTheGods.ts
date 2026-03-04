@@ -32,7 +32,7 @@ export default class RageOfTheGods extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

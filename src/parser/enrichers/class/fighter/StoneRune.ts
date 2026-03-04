@@ -22,7 +22,7 @@ export default class StoneRune extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       {

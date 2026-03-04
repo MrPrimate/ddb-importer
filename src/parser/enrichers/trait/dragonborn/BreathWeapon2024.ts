@@ -41,7 +41,7 @@ export default class BreathWeapon2024 extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [
       {

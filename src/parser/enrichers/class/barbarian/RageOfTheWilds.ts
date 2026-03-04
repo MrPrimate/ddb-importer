@@ -14,7 +14,7 @@ export default class RageOfTheWilds extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return ["Bear", "Eagle", "Wolf"].map((name) => {
       return {
         init: {

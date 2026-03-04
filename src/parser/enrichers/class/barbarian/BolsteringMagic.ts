@@ -12,7 +12,7 @@ export default class BolsteringMagic extends Generic {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [

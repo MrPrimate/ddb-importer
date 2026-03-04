@@ -22,7 +22,7 @@ export default class StormRune extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     // to do return a reaction type ability
     return [];
   }

@@ -14,7 +14,7 @@ export default class HuntersMark extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const damageTypes = this.is2014
       ? DDBEnricherData.allDamageTypes()
       : ["force"];

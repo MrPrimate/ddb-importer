@@ -24,7 +24,7 @@ export default class SurpriseAttack extends DDBEnricherData {
     return [];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [];
   }
 

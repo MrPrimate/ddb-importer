@@ -13,7 +13,7 @@ export default class SpiritShroud extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [{
       init: {
         name: "Damage",

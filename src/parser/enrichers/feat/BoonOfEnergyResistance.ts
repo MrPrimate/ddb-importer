@@ -9,7 +9,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Energy Redirection", type: "class" } },
     ];

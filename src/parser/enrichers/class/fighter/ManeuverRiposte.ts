@@ -17,7 +17,7 @@ export default class ManeuverRiposte extends Maneuver {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.extraDamageActivity(),
     ];

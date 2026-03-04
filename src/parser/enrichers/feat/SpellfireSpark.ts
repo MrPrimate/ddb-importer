@@ -11,7 +11,7 @@ export default class SpellfireSpark extends DDBEnricherData {
     return true;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

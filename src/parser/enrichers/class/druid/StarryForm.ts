@@ -159,7 +159,7 @@ export default class StarryForm extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       ...this.formActivities,
     ];

@@ -36,7 +36,7 @@ export default class PsionicPower extends DDBEnricherData {
     return result;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const results = [];
     if (this.isSubclass("Soulknife")) {
       results.push(

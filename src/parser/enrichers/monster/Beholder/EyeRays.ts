@@ -60,7 +60,7 @@ export default class EyeRays extends DDBEnricherData {
       return `${ray.number}: ${ray.title}`;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const rayChoices = this.rayChoices;
 
     // console.warn("ray choices", {

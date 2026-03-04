@@ -7,7 +7,7 @@ global {
   // ---- Activities -----------------------------------------------------------
 
   interface I5eActivityActivation {
-    type: string;
+    type?: string;
     value?: number;
     condition?: string;
     override?: boolean;
@@ -20,23 +20,23 @@ global {
   }
 
   interface I5eActivityTarget {
-    template: {
-      count: string;
-      contiguous: boolean;
-      type: string;
-      size: string;
-      width: string;
-      height: string;
-      units: string;
+    template?: {
+      count?: string;
+      contiguous?: boolean;
+      type?: string;
+      size?: string;
+      width?: string;
+      height?: string;
+      units?: string;
     };
-    affects: {
-      count: string;
-      type: string;
-      choice: boolean;
-      special: string;
+    affects?: {
+      count?: string;
+      type?: string;
+      choice?: boolean;
+      special?: string;
     };
-    prompt: boolean;
-    override: boolean;
+    prompt?: boolean;
+    override?: boolean;
   }
 
   interface I5eActivityRange {

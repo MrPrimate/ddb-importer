@@ -6,7 +6,7 @@ export default class ClairvoyantCombatant extends DDBEnricherData {
     return null;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Awakened Mind: Clairvoyant Combatant", type: "class" } },
       {

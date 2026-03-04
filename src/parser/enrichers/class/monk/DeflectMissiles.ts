@@ -29,7 +29,7 @@ export default class DeflectMissiles extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: { name: "Deflect Missiles Attack", type: "class", rename: ["Deflect Missiles Attack"] },

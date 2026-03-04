@@ -15,7 +15,7 @@ export default class CelestialRevelationRadiantSoul extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

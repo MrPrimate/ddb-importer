@@ -27,7 +27,7 @@ export default class GraspingArrow extends ArcaneShotOption {
   }
 
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return this.isAction
       ? []
       : [

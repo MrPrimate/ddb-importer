@@ -14,7 +14,7 @@ export default class BrandingSmite extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return this.is2014 && this.useMidiAutomations
       ? [
         {

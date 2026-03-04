@@ -6,7 +6,7 @@ export default class UnarmedStrike extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     const martialArtist = this.hasClassFeature({ featureName: "Martial Arts", className: "Monk" });
 
     const results = martialArtist

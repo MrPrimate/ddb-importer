@@ -6,7 +6,7 @@ export default class MonksFocus extends DDBEnricherData {
     return null;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       { action: { name: "Flurry of Blows", type: "class", rename: ["Flurry of Blows"] }, overrides: { addItemConsume: true } },
       { action: { name: "Patient Defense", type: "class" } },

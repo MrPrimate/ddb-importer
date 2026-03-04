@@ -36,7 +36,7 @@ export default class MythalTouched extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return this.ddbParser.isMuncher
       ? [
         {

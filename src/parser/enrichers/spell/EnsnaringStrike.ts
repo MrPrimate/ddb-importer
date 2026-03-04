@@ -15,7 +15,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
     return true;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GiantsHavoc extends DDBEnricherData {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: {

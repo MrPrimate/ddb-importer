@@ -14,7 +14,7 @@ export default class StepOfTheWind extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return [];
     return [
       {

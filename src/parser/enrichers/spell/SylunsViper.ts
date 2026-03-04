@@ -55,7 +55,7 @@ export default class SylunsViper extends DDBEnricherData {
     return false;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

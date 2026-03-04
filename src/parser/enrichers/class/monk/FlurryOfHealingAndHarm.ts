@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FlurryOfHealingAndHarm extends DDBEnricherData {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction) return [];
     return [
       // {

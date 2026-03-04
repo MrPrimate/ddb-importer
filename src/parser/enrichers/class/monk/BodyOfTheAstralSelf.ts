@@ -36,7 +36,7 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
   /**
    * @returns {DDBAdditionalActivity[]}
    */
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

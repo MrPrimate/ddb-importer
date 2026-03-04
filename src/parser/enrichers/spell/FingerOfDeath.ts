@@ -10,7 +10,7 @@ export default class FingerOfDeath extends DDBEnricherData {
     return true;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

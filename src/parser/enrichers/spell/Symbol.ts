@@ -129,7 +129,7 @@ export default class Symbol extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return (this.is2014 ? this.data2014 : this.data2024).map((symbol) => {
       return {
         init: {

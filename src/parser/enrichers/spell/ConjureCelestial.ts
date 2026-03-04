@@ -41,7 +41,7 @@ export default class ConjureCelestial extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) return null;
     return [
       {

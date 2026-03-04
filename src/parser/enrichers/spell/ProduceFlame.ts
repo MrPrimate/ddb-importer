@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ProduceFlame extends DDBEnricherData {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
 
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return [

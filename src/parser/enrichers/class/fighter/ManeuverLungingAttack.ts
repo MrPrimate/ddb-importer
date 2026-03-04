@@ -15,7 +15,7 @@ export default class ManeuverLungingAttack extends Maneuver {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       this.extraDamageActivity(),
     ];

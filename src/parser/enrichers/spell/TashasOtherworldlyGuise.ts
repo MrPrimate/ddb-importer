@@ -56,7 +56,7 @@ export default class TashasOtherworldlyGuise extends DDBEnricherData {
     return effects;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

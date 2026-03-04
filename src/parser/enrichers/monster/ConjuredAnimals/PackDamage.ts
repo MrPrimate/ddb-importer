@@ -29,7 +29,7 @@ export default class PackDamage extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (!this.useMidiAutomations) return [];
     return [
       {

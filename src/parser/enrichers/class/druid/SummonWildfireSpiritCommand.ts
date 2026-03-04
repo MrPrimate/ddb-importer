@@ -14,7 +14,7 @@ export default class SummonWildfireSpiritCommand extends DDBEnricherData {
     return [];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [];
   }
 

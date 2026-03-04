@@ -42,7 +42,7 @@ export default class DivineSmite extends DDBEnricherData {
     };
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2024) return [];
     return [
       {

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TokensOfTheDeparted extends DDBEnricherData {
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         action: {

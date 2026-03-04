@@ -15,7 +15,7 @@ export default class ArcanePropulsionArmorGauntlet extends DDBEnricherData {
     return [];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     return [];
   }
 

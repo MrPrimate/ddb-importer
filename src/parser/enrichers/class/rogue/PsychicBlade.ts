@@ -30,7 +30,7 @@ export default class PsychicBlade extends DDBEnricherData {
     ];
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isClass("Bard")) return this.bardActivities;
     if (!this.isAction) return [];
     if (!this.isClass("Rogue")) return [];

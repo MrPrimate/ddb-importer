@@ -22,7 +22,7 @@ export default class ZealousPresence extends DDBEnricherData {
     return true;
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.isAction || this.is2014) return [];
     return [
       {

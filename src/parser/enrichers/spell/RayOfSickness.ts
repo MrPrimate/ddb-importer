@@ -12,7 +12,7 @@ export default class RayOfSickness extends DDBEnricherData {
     }
   }
 
-  get additionalActivities() {
+  get additionalActivities(): IDDBAdditionalActivity[] {
     if (this.is2014) {
       return [
         {
