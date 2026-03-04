@@ -46,7 +46,7 @@ export default class DDBCompanionFactory {
   badSummons: boolean;
   noCompendiums: boolean;
   indexFilter: { fields: string[] };
-  notifier: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   summonsManager: DDBSummonsManager;
   itemHandler: DDBItemImporter | null;
   companions: (DDBCompanion2014 | DDBCompanion2024)[];

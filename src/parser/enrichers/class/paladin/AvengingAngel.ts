@@ -40,14 +40,14 @@ export default class AvengingAngel extends DDBEnricherData {
               {
                 type: "itemUses",
                 target: "",
-                value: -1,
+                value: "-1",
                 scaling: { mode: "", formula: "" },
               },
               {
                 type: "spellSlots",
                 value: "1",
                 target: "5",
-                scaling: { allowed: false, max: "" },
+                scaling: { mode: "", formula: "" },
               },
             ],
           },

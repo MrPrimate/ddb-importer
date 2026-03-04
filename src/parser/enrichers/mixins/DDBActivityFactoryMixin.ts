@@ -5,8 +5,14 @@ import SystemHelpers from "../../lib/SystemHelpers";
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
 
-export default class DDBActivityFactoryMixin {
+export default abstract class DDBActivityFactoryMixin {
 
+  abstract name: string | null;
+  abstract isAction: boolean | null;
+  abstract legacy: boolean;
+  abstract is2014: boolean;
+  abstract is2024: boolean;
+  abstract originalName: string;
   activities: any[] = [];
   activityType: any = null;
   activityTypes: any[] = [];

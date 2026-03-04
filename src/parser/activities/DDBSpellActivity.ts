@@ -5,6 +5,14 @@ import { SystemHelpers } from "../lib/_module";
 
 
 export default class DDBSpellActivity extends DDBBasicActivity {
+  spellData: IDDBSpellEntry;
+  ddbDefinition: IDDBSpellDefinition;
+  spellEffects: boolean;
+  damageRestrictionHints: boolean;
+  isCantrip: boolean;
+  cantripBoost: boolean;
+  healingBonus: string;
+  additionalActivityDamageParts: I5eDamagePart[];
 
   _init() {
     logger.debug(`Generating DDBSpellActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
@@ -163,7 +171,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   }
 
 
-  getScaling({ damageMod = null } = {}) {
+  getScaling({ damageMod = null }: { damageMod?: IDDBSpellModifier }) {
     let baseDamage = "";
     let scaleDamage = "";
     let scaleType = null; // defaults to null, so will be picked up as a None scaling spell.
@@ -185,7 +193,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
           }
 
           if (mod.die.fixedValue !== null && baseDamage === "") {
-            baseDamage = mod.die.fixedValue;
+            baseDamage = String(mod.die.fixedValue);
           }
         }
 
@@ -284,7 +292,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
-  buildDamagePart({ damageString, type, damageMod = null } = {}) {
+  buildDamagePart({ damageString, type, damageMod = null }: { damageString: string; type?: string; damageMod?: IDDBSpellModifier }) {
     // const damage = {
     //   number: null,
     //   denomination: null,
@@ -371,7 +379,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       });
 
       // This is probably just for Toll the dead.
-      const alternativeFormula = this.#getAlternativeFormula(this.spellData);
+      const alternativeFormula = this.#getAlternativeFormula();
       versatile = this.cantripBoost && alternativeFormula && alternativeFormula != ""
         ? `${alternativeFormula} + @mod`
         : alternativeFormula;
@@ -437,7 +445,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         this.data.save = {
           ability: [saveAbility],
           dc: {
-            formula: this.spellData.overrideSaveDc,
+            formula: String(this.spellData.overrideSaveDc),
             calculation: "",
           },
         };

@@ -7,6 +7,11 @@ import DDBSummonsManager from "../companions/DDBSummonsManager";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 
+interface SpellHealingPart {
+  part: I5eDamagePart;
+  chatFlavor: string;
+};
+
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   declare data: I5eSpellItem;
   isGeneric: boolean;
@@ -15,6 +20,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   nameOverride: string;
   originalName: string;
   name: string;
+  isAction = false;
   addSpellEffects: boolean;
   legacyPostfix: boolean;
   updateExisting: boolean;
@@ -54,6 +60,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   lookup: ParseSpellLookup;
   classPrepMode: import("/home/jack/repos/github.com/MrPrimate/ddb-importer-typescript/src/config/dictionary/spell/spell").ISpellPreparationMode;
   rawCharacter: I5ePCData;
+  healingParts: SpellHealingPart[];
 
   _generateDataStub() {
     this.data = {
@@ -350,7 +357,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       // these have limited uses (set with getUses())
       this.data.system.method = "pact";
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
-    } else if (this.lookup === "item " && !this.isCantrip) {
+    } else if (this.lookup === "item" && !this.isCantrip) {
       this.data.system.method = "atwill";
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.unprepared.value;
     } else {
@@ -424,7 +431,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       }
       this.data.system.duration = {
         concentration: this.ddbDefinition.concentration,
-        value: this.ddbDefinition.duration.durationInterval ?? "",
+        value: this.ddbDefinition.duration.durationInterval
+          ? String(this.ddbDefinition.duration.durationInterval)
+          : "",
         units: units,
       };
     }
@@ -432,9 +441,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   /**
    * Check if the spell targets creatures.
-   * @returns {boolean} true if the spell targets creatures, false otherwise.
+   * @returns {RegExpMatchArray | null} The match array if the spell targets creatures, null otherwise.
    */
-  targetsCreature(): boolean {
+  targetsCreature(): RegExpMatchArray | null {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
     const targets = /spell attack against the target|at a target in range|each creature within|each creature in the/gi;
@@ -485,11 +494,11 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         height: "",
         units: "ft",
       },
-    };
+    } as I5eSystemTargetData;
 
     const thickReg = new RegExp(/ (\d*)(?:[ -])foot(?:[ -])(thick|wide)/);
     const thickMatch = thickReg.exec(this.ddbDefinition.description);
-    if (thickMatch && thickMatch[1] > 5) {
+    if (thickMatch && parseInt(thickMatch[1]) > 5) {
       target.template.width = thickMatch[1];
     }
 
@@ -504,7 +513,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     // if spell is an AOE effect get some details
     if (this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeValue) {
       const type = this.ddbDefinition.range.aoeType.toLowerCase();
-      target.template.size = this.ddbDefinition.range.aoeValue;
+      target.template.size = String(this.ddbDefinition.range.aoeValue);
       target.template.type = type === "emanation" ? "radius" : type;
       if (targetsCreatures) {
         target.affects.type = "creature";
@@ -762,7 +771,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       const healingPart = {
         part: null,
         chatFlavor: null,
-      };
+      } as SpellHealingPart;
       const restrictionText = heal.restriction && heal.restriction !== "" ? heal.restriction : "";
       if (restrictionText !== "") {
         healingPart.chatFlavor = `Restriction: ${restrictionText}`;
@@ -894,7 +903,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     }, optionsOverride);
 
     if (!activity) return undefined;
-    const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
+    const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`) as I5eActivity;
 
     if (activityData.type !== "summon") return activity;
     if (this.isCompanionSpell2014 || this.isCompanionSpell2024)
@@ -955,6 +964,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     if (this.additionalActivities.length === 0) return;
     logger.debug(`Additional Spell Activities for ${this.data.name}`, this.additionalActivities);
     let i = 0;
+    const ids = [];
     for (const activityData of this.additionalActivities) {
       i++;
       const id = await this._generateActivity({
@@ -968,7 +978,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         activityData,
         id,
       });
+      if (id) ids.push(id);
     }
+    return ids;
   }
 
   getRangeAdjustmentMultiplier() {

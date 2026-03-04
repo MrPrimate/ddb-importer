@@ -99,9 +99,19 @@ global {
   }
 
   interface IEffectModules {
+    hasCore: boolean;
+    hasMonster: boolean;
     daeInstalled: boolean;
     midiQolInstalled: boolean;
     atlInstalled: boolean;
+    timesUpInstalled: boolean;
+    atlInstalled: boolean;
+    tokenMagicInstalled: boolean;
+    activeAurasInstalled: boolean;
+    auraeffectsInstalled: boolean;
+    autoAnimationsInstalled: boolean;
+    chrisInstalled: boolean;
+    vision5eInstalled: boolean;
   }
 
   interface IEffectDuration {

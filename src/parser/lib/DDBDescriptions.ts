@@ -2,7 +2,7 @@ import { logger, utils } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 
 export interface IDCParserResult {
-  save: IActivitySaveData;
+  save: I5eActivitySave;
   match: RegExpExecArray | null;
   damageAndSave: boolean;
   check?: boolean;
@@ -369,7 +369,7 @@ export default class DDBDescriptions {
           calculation: "",
         },
         ability: null,
-      } as IActivitySaveData,
+      } as I5eActivitySave,
       condition: null,
       group4: null,
       group4Condition: null,

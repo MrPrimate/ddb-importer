@@ -326,37 +326,138 @@ global {
     type: IDDBActivityType;
   }
 
+
+  //  BuildOptions: {
+  //   activationOverride?: any;
+  //   additionalTargets?: I5eConsumptionTarget[];
+  //   allowCritical?: boolean | null;
+  //   attackData?: any;
+  //   spellOverride?: I5eActivitySpell | null;
+  //   chatFlavor?: string | null;
+  //   checkOverride?: I5eActivityCheck | null;
+  //   consumeActivity?: boolean;
+  //   consumeItem?: boolean;
+  //   consumptionOverride?: I5eActivityConsumption | null;
+  //   consumptionTargetOverrides?: I5eConsumptionTarget[] | null;
+  //   criticalDamage?: string | null;
+  //   damageParts?: I5eDamagePart[] | null;
+  //   damageScalingOverride?: any;
+  //   data?: IActivityData;
+  //   ddbMacroOverride?: IDDBActivityMacro | null;
+  //   durationOverride?: I5eActivityDuration | null;
+  //   generateActivation?: boolean;
+  //   generateAttack?: boolean;
+  //   generateSpell?: boolean;
+  //   generateCheck?: boolean;
+  //   generateConsumption?: boolean;
+  //   generateDamage?: boolean;
+  //   generateDDBMacro?: boolean;
+  //   generateDescription?: boolean;
+  //   generateDuration?: boolean;
+  //   generateEffects?: boolean;
+  //   generateEnchant?: boolean;
+  //   generateHealing?: boolean;
+  //   generateRange?: boolean;
+  //   generateRoll?: boolean;
+  //   generateSave?: boolean;
+  //   generateSummon?: boolean;
+  //   generateTarget?: boolean;
+  //   generateUses?: boolean;
+  //   healingChatFlavor?: string | null;
+  //   healingPart?: I5eDamagePart;
+  //   img?: string | null;
+  //   includeBaseDamage?: boolean;
+  //   noeffect?: boolean;
+  //   noManualActivation?: boolean;
+  //   onSave?: string | null;
+  //   partialDamageParts?: I5eDamagePart[] | null;
+  //   rangeOverride?: I5eActivityRange | null;
+  //   rollOverride?: I5eActivityRoll | null;
+  //   saveOverride?: I5eActivitySpell | null;
+  //   targetOverride?: I5eActivityTarget | null;
+  //   usesOverride?: I5eSystemLimitedUses | null;
+  // }
+
   export interface IDDBActivityBuild {
-    generateConsumption?: boolean;
-    generateTarget?: boolean;
-    generateRange?: boolean;
-    generateActivation?: boolean;
-    generateDamage?: boolean;
-    generateSave?: boolean;
-    generateDuration?: boolean;
-    generateHealing?: boolean;
-    generateUtility?: boolean;
-    generateDDBMacro?: boolean;
-    noeffect?: boolean;
-    noSpellslot?: boolean;
-    allowCritical?: boolean;
+    // --- Activation / attack ---
+    activationOverride?: I5eActivityActivation;
+    attackData?: any;
+    noManualActivation?: boolean;
+
+    // --- Additional targets / consumption ---
+    additionalTargets?: any[];
+    consumeActivity?: any;
+    consumeItem?: any;
+    consumptionOverride?: I5eActivityConsumption;
+    consumptionTargetOverrides?: I5eConsumptionTarget[];
+
+    // --- Damage ---
+    allowCritical?: boolean | null;
+    criticalDamage?: string | null;
+    damageParts?: I5eDamagePart[] | null;
+    damageScalingOverride?: any;
+    includeBaseDamage?: boolean;
+    onSave?: string | null;
+    /** @deprecated use onSave */
     onsave?: boolean | string;
-    onSave?: string;
-    consumptionOverride?: IActivityConsumptionData;
-    activationOverride?: IActivityActivationData;
-    durationOverride?: IActivityDurationData;
-    rangeOverride?: IActivityRangeData;
-    targetOverride?: IActivityTargetData;
-    saveOverride?: IActivitySaveData;
-    spellOverride?: IActivitySpellData;
-    damageParts?: I5eDamagePart[];
-    img?: string;
-    ddbMacroOverride?: {
-      name: string;
-      function: string;
-      visible?: boolean;
-      parameters?: string;
-    };
+    partialDamageParts?: I5eDamagePart[];
+
+    // --- Description / flavor ---
+    chatFlavor?: string | null;
+    data?: IActivityData;
+    img?: string | null;
+
+    // --- Duration / range / target ---
+    durationOverride?: I5eActivityDuration;
+    rangeOverride?: I5eActivityRange;
+    targetOverride?: I5eActivityTarget;
+
+    // --- Save / spell / check ---
+    checkOverride?: I5eActivityCheck;
+    saveOverride?: I5eActivitySave;
+    spellOverride?: I5eActivitySpell;
+
+    // --- Healing ---
+    healingChatFlavor?: string | null;
+    healingPart?: I5eDamagePart;
+
+    // --- Roll ---
+    rollOverride?: I5eActivityRoll;
+
+    // --- Uses ---
+    usesOverride?: I5eSystemLimitedUses;
+
+    // --- Macro ---
+    ddbMacroOverride?: IDDBActivityMacro;
+
+    // --- Spell-specific ---
+    modRestrictionFilter?: any;
+    modRestrictionFilterExcludes?: any;
+    noSpellslot?: boolean;
+
+    // --- Generate flags ---
+    generateActivation?: boolean;
+    generateAttack?: boolean;
+    generateCheck?: boolean;
+    generateConsumption?: boolean;
+    generateDamage?: boolean;
+    generateDDBMacro?: boolean;
+    generateDescription?: boolean;
+    generateDuration?: boolean;
+    generateEffects?: boolean;
+    generateEnchant?: boolean;
+    generateHealing?: boolean;
+    generateRange?: boolean;
+    generateRoll?: boolean;
+    generateSave?: boolean;
+    generateSpell?: boolean;
+    generateSummon?: boolean;
+    generateTarget?: boolean;
+    generateUses?: boolean;
+    generateUtility?: boolean;
+
+    // --- Misc flags ---
+    noeffect?: boolean;
   }
 
   export interface IDDBAdditionalActivity {

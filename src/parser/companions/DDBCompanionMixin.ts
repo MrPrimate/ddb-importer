@@ -6,22 +6,10 @@ import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFacto
 import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
 
-export interface DDBCompanionSummonsProp {
-  match: { proficiency: boolean; attacks: boolean; saves: boolean; disposition: boolean };
-  creatureSizes: any[];
-  creatureTypes: any[];
-  bonuses: { ac: string; hp: string; attackDamage: string; saveDamage: string; healing: string };
-  profiles: any[];
-  summon: {
-    identifier: string; mode: string; // cr for cr based cusooms
-    prompt: boolean;
-  };
-}
-
 export default class DDBCompanionMixin {
   options: object;
   block: any;
-  npc: object | null;
+  npc: I5eMonsterData | null;
   data: object;
   parsed: boolean;
   type: string;
@@ -33,7 +21,7 @@ export default class DDBCompanionMixin {
   removeSplitCreatureActions: boolean;
   removeCreatureOnlyNames: boolean;
   addChrisPremades: boolean;
-  summons: DDBCompanionSummonsProp;
+  summons: I5eSummonActivity;
   name: string;
 
   constructor(block, options = {}, {
@@ -69,6 +57,7 @@ export default class DDBCompanionMixin {
       bonuses: {
         ac: "",
         hp: "",
+        hd: "",
         attackDamage: "",
         saveDamage: "",
         healing: "",

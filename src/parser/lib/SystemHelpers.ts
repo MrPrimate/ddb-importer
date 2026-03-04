@@ -2,7 +2,7 @@ import { utils } from "../../lib/_module";
 
 export default class SystemHelpers {
 
-  static effectModules() {
+  static effectModules(): IEffectModules {
     if (CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules) {
       return CONFIG.DDBI.EFFECT_CONFIG.MODULES.installedModules;
     }

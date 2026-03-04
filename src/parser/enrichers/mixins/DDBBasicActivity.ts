@@ -2,19 +2,22 @@ import { utils, logger } from "../../../lib/_module";
 import { SystemHelpers } from "../../lib/_module";
 import { Effects } from "../_module";
 import DDBEnricherData from "../data/DDBEnricherData";
+import DDBActivityFactoryMixin from "./DDBActivityFactoryMixin";
 
 export default class DDBBasicActivity {
 
   type: IDDBActivityType;
-  activityType: any;
   name: string | null;
-  ddbParent: any;
-  actor: any;
-  foundryFeature: any;
+  foundryFeature: I5eMonsterItem | I5ePCItem | I5eInventoryItem | I5eFeatItem;
   nameIdPrefix: string;
   nameIdPostfix: string;
   id: string | null;
-  data: any;
+  data: IActivityData;
+  actor: I5ePCData | I5eMonsterData | null;
+  // this is one of the implementations of DDBActivityFactoryMixin
+  ddbParent: DDBActivityFactoryMixin | null;
+  // 5e class
+  activityType: any;
 
   _init(): void {
     logger.debug(`Generating DDBBasicActivity ${this.name}`);
@@ -53,7 +56,6 @@ export default class DDBBasicActivity {
       this.data.midiProperties.confirmTargets = "never";
       this.data.midiProperties.forceDialog = true;
     }
-    this.data.otherActivityId = "none"; // auto is clear
   }
 
 
@@ -124,7 +126,7 @@ export default class DDBBasicActivity {
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {
       type: actionType,
-      value: 1,
+      value: "1",
       condition: "",
     };
   }
@@ -199,7 +201,7 @@ export default class DDBBasicActivity {
 
   _generateDescription({ overRide = null }: { overRide?: any } = {}): void {
     this.data.description = {
-      chatFlavor: overRide ?? this.foundryFeature.system?.chatFlavor ?? "",
+      chatFlavor: overRide ?? foundry.utils.getProperty(this.foundryFeature, "system.chatFlavor") ?? "",
     };
   }
 
@@ -376,56 +378,7 @@ export default class DDBBasicActivity {
     }
   }
 
-  declare static BuildOptions: {
-    activationOverride?: any;
-    additionalTargets?: any[];
-    allowCritical?: boolean | null;
-    attackData?: any;
-    spellOverride?: any;
-    chatFlavor?: string | null;
-    checkOverride?: any;
-    consumeActivity?: any;
-    consumeItem?: any;
-    consumptionOverride?: any;
-    consumptionTargetOverrides?: any;
-    criticalDamage?: string | null;
-    damageParts?: any[] | null;
-    damageScalingOverride?: any;
-    data?: any;
-    ddbMacroOverride?: any;
-    durationOverride?: any;
-    generateActivation?: boolean;
-    generateAttack?: boolean;
-    generateSpell?: boolean;
-    generateCheck?: boolean;
-    generateConsumption?: boolean;
-    generateDamage?: boolean;
-    generateDDBMacro?: boolean;
-    generateDescription?: boolean;
-    generateDuration?: boolean;
-    generateEffects?: boolean;
-    generateEnchant?: boolean;
-    generateHealing?: boolean;
-    generateRange?: boolean;
-    generateRoll?: boolean;
-    generateSave?: boolean;
-    generateSummon?: boolean;
-    generateTarget?: boolean;
-    generateUses?: boolean;
-    healingChatFlavor?: string | null;
-    healingPart?: any;
-    img?: string | null;
-    includeBaseDamage?: boolean;
-    noeffect?: boolean;
-    noManualActivation?: boolean;
-    onSave?: string | null;
-    partialDamageParts?: any;
-    rangeOverride?: any;
-    rollOverride?: any;
-    saveOverride?: any;
-    targetOverride?: any;
-    usesOverride?: any;
-  };
+  declare static BuildOptions: IDDBActivityBuild;
 
   // ATTACK has
   // activation

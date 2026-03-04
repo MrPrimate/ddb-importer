@@ -15,12 +15,13 @@ import { SETTINGS } from "../config/_module";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
+import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 
 export default class DDBMonsterFactory {
   extra: boolean;
   keys: { useLocal: boolean; keyPostfix: string };
-  notifier: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   type: string;
   compendiumFolders: DDBCompendiumFolders;
   update: boolean;
@@ -33,6 +34,9 @@ export default class DDBMonsterFactory {
   use2024Spells: boolean | null;
   currentDocument: number;
   totalDocuments: number;
+  source: IDDBMonsterSourceData[];
+  npcs: I5eMonsterData[];
+  monstersParsed: Actor5e[];
 
   static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });

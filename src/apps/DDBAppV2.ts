@@ -29,7 +29,7 @@ export interface NotifierV2Props {
 
 export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
 
-  notifier: (note: any, { nameField, monsterNote, isError, message }: NotifierV1Props) => void;
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
   constructor() {
     super();

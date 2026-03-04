@@ -12,6 +12,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   ddbItem: IDDBInventoryItem;
   declare ddbDefinition: IDDBItemDefinition;
   isCompendiumItem: boolean;
+  isAction = false;
   legacy: boolean;
   is2014: boolean;
   is2024: boolean;

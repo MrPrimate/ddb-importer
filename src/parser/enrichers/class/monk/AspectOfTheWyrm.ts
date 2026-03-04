@@ -44,7 +44,6 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           generateUtility: true,
-          noEffects: true,
           noeffect: true,
           activationOverride: {
             type: "none",
@@ -56,14 +55,14 @@ export default class AspectOfTheWyrm extends DDBEnricherData {
               {
                 type: "itemUses",
                 target: "",
-                value: -1,
+                value: "-1",
                 scaling: { mode: "", formula: "" },
               },
               {
                 type: "itemUses",
                 value: "3",
                 target: spend,
-                scaling: { allowed: false, max: "" },
+                scaling: { mode: "", formula: "" },
               },
             ],
           },

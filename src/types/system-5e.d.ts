@@ -2,21 +2,7 @@ export {};
 
 global {
 
-  // temp until replaced with 5e types
-  export interface I5eSystemLimitedUsesRecovery {
-    period: string;
-    type: string;
-    formula?: string | undefined;
-  }
-
-  export interface I5eSystemLimitedUses {
-    spent?: number | null;
-    max?: string | null;
-    recovery?: I5eSystemLimitedUsesRecovery[];
-    override?: boolean;
-  }
-
-  export interface I5eSystemBaseDocumentData {
+  interface I5eSystemBaseDocumentData {
     _id?: string;
     name: string;
     type: string;
@@ -27,6 +13,27 @@ global {
     sort?: number;
     ownership?: Record<string, number>;
     _stats?: I5eDocumentStats;
+  }
+
+  interface I5eDocumentStats {
+    systemId?: string;
+    systemVersion?: string;
+    coreVersion?: string;
+    compendiumSource?: string | null;
+    duplicateSource?: string | null;
+    exportSource?: string | null;
+    lastModifiedBy?: string | null;
+  }
+
+    // ---- Source ---------------------------------------------------------------
+  interface I5eSourceInfo {
+    book?: string;
+    custom?: string;
+    id?: number;
+    license?: string;
+    page?: string;
+    rules?: string;
+    sourceCategoryId?: number;
   }
 
 }

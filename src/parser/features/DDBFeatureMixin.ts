@@ -87,7 +87,7 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   isSummons: boolean;
   _generatedUses: I5eSystemLimitedUses;
   _actionType: IDDBFeatureMixinActionType;
-  _descriptionSave: IActivitySaveData;
+  _descriptionSave: I5eActivitySave;
   extraFlags: IActorFlagConfig;
 
   _init() {
