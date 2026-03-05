@@ -31,6 +31,8 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
   // go through every ability
   const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
   const proficiencyBonus = cr.proficiencyBonus;
+
+  this.abilities = foundry.utils.deepClone(this.npc.system.abilities);
   DICTIONARY.actor.abilities.forEach((ability) => {
     const value = this.source.stats.find((stat) => stat.statId === ability.id).value || 0;
     const proficient = this.source.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
@@ -48,9 +50,10 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
     }
 
     this.npc.system.abilities[ability.value]["dc"] = mod + proficiencyBonus + 8;
-  });
 
-  this.abilities = this.npc.system.abilities as I5eAbilities;
+    this.abilities[ability.value] = foundry.utils.deepClone(this.npc.system.abilities[ability.value]);
+    this.abilities[ability.value].mod = mod;
+  });
 
   let initBonus = null;
 

@@ -118,7 +118,9 @@ class DDBMonster {
     concentration: boolean;
   };
 
-  abilities: I5eAbilities;
+  abilities: I5eAbilities & Record<string, {
+    mod: number;
+  }>;
 
   setProperty(name, value) {
     if (this.overrides["name"]) {
