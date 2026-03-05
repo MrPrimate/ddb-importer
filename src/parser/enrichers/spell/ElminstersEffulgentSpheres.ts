@@ -73,7 +73,6 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
           },
         },
         overrides: {
-          img: "systems/dnd5e/icons/svg/damage/force.svg",
           overrideActivation: true,
           removeSpellSlotConsume: true,
           noConsumeTargets: true,
@@ -81,6 +80,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
           addItemConsume: true,
           id: "EnergyBlastSpher",
           data: {
+            img: "systems/dnd5e/icons/svg/damage/force.svg",
             sort: 3,
           },
         },

@@ -97,7 +97,6 @@ export default class HuntersMark extends DDBEnricherData {
             "turns": null,
             "startRound": null,
             "startTurn": null,
-            "combat": null,
           },
         },
         daeSpecialDurations: [],

@@ -42,7 +42,13 @@ global {
     | "isSkill.itm"
     | "isSkill.per"
     | "isSkill.prf"
-    | "isSkill.ste";
+    | "isSkill.ste"
+    // attacked
+    | "1Hit"
+    | "1Hit:mwak"
+    | "1Hit:rwak"
+    | "1Hit:msak"
+    | "1Hit:rsak";
 
   export interface IEffectData {
     _id?: string;

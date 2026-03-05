@@ -42,11 +42,9 @@ export default class DeathArmor extends DDBEnricherData {
       {
         name: "Inky Aura (Death Armor)",
         options: {},
+        activityMatch: "Cast",
         data: {
           flags: {
-            ddbimporter: {
-              activityMatch: "Cast",
-            },
             ActiveAuras: {
               aura: "Enemy",
               radius: "5",

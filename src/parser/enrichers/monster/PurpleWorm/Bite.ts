@@ -30,7 +30,7 @@ export default class Bite extends DDBEnricherData {
     };
   }
 
-  get additionalActivities2014() {
+  get additionalActivities2014(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

@@ -35,7 +35,7 @@ export default class Mislead extends DDBEnricherData {
     return [
       {
         name: "Invisible",
-        statuses: "Invisible",
+        statuses: ["Invisible"],
       },
     ];
   }

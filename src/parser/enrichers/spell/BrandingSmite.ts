@@ -60,10 +60,10 @@ export default class BrandingSmite extends DDBEnricherData {
           options: {
             durationSeconds: 60,
           },
+          daeSpecialDurations: ["1Hit:rwak", "1Hit:mwak"],
           data: {
             flags: {
               dae: {
-                specialDurations: ["1Hit:rwak", "1Hit:mwak"],
                 selfTarget: true,
                 selfTargetAlways: true,
               },

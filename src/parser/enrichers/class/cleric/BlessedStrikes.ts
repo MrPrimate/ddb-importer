@@ -9,7 +9,7 @@ export default class BlessedStrikes extends DDBEnricherData {
     return {
       targetType: "creature",
       noeffect: true,
-      activationOverride: "special",
+      activationType: "special",
       addItemConsume: true,
       data: {
         damage: {

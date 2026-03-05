@@ -6,9 +6,7 @@ export default class Invisibility extends DDBEnricherData {
     return [
       {
         noCreate: true,
-        data: {
-          "flags.dae.specialDuration": ["1Attack", "1Spell"],
-        },
+        daeSpecialDurations: ["1Attack", "1Spell"],
       },
     ];
   }

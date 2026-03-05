@@ -19,7 +19,6 @@ export default class StaffOfCharming extends DDBEnricherData {
             override: true,
             max: "1",
             spent: 0,
-            prompt: true,
             recovery: [{ period: "lr", type: "recoverAll" }],
           },
         },

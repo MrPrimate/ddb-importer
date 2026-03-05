@@ -57,7 +57,7 @@ export default class Heroism extends DDBEnricherData {
         noCreate: true,
         midiOnly: true,
         name: "Heroism (Automation)",
-        macroChange: [
+        macroChanges: [
           { macroType: "spell", macroName: "heroism.js" },
         ],
         midiChanges: [

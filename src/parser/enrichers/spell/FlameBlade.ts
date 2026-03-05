@@ -43,7 +43,7 @@ export default class FlameBlade extends DDBEnricherData {
         build: {
           generateAttack: true,
           generateDamage: true,
-          geneateActivation: true,
+          generateActivation: true,
           noSpellslot: true,
           generateRange: true,
           generateTarget: true,

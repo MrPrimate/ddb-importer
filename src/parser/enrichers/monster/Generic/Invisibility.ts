@@ -17,9 +17,9 @@ export default class Invisibility extends DDBEnricherData {
     if (this.ddbEnricher.originalActivity?.type === "cast") {
       return [];
     }
-    const permanent = ["special"].includes(foundry.utils.getProperty(this.data, "flags.monsterMunch.type"));
+    const permanent = ["special"].includes(foundry.utils.getProperty(this.data, "flags.monsterMunch.type") as string);
     const invisRegex = /The ([\w ]+?) is invisible\./ig;
-    const strippedHtml = foundry.utils.getProperty(this, "ddbParser.strippedHtml");
+    const strippedHtml = foundry.utils.getProperty(this, "ddbParser.strippedHtml") as string;
     const improvedEffect = ["Superior Invisibility"].includes(this.data.name)
      || invisRegex.test(strippedHtml);
 

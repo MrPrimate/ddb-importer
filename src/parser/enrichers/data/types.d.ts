@@ -326,6 +326,7 @@ global {
   export interface IDDBActivityInit {
     name: string;
     type: IDDBActivityType;
+    id?: string | null;
   }
 
   export interface IDDBActivityBuild {

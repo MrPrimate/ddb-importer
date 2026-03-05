@@ -8,7 +8,7 @@ export default class ScornfulRebuke extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       targetType: "creature",
-      activationOverride: "special",
+      activationType: "special",
       data: {
         damage: {
           parts: [

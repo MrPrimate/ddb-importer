@@ -5,7 +5,7 @@ export default class DisguiseSelf extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     return [
       {
-        statuses: "Disguised",
+        statuses: ["Disguised"],
       },
     ];
   }

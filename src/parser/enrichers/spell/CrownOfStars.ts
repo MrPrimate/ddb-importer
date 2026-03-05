@@ -34,7 +34,7 @@ export default class CrownOfStars extends DDBEnricherData {
         build: {
           generateAttack: true,
           generateDamage: true,
-          geneateActivation: true,
+          generateActivation: true,
           noSpellslot: true,
           generateRange: true,
           generateConsumption: true,

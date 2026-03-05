@@ -1,8 +1,8 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
-export default class TomeOf extends DDBEnricherData {
+export default abstract class TomeOf extends DDBEnricherData {
 
-  effectData: any;
+  abstract effectData;
 
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;

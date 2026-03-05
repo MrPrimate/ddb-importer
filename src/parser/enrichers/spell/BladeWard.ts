@@ -11,9 +11,7 @@ export default class BladeWard extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.damageResistanceChange("slashing", 10),
             DDBEnricherData.ChangeHelper.damageResistanceChange("piercing", 10),
           ],
-          data: {
-            "flags.dae.specialDuration": ["turnEnd"],
-          },
+          daeSpecialDurations: ["turnEnd"],
         },
       ];
     } else {

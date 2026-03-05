@@ -14,12 +14,14 @@ export default class Counterspell extends DDBEnricherData {
     if (this.is2014) {
       return {
         type: DDBEnricherData.ACTIVITY_TYPES.CHECK,
-        check: {
-          associated: [],
-          ability: "spellcasting",
-          dc: {
-            calculation: "",
-            formula: "",
+        data: {
+          check: {
+            associated: [],
+            ability: "spellcasting",
+            dc: {
+              calculation: "",
+              formula: "",
+            },
           },
         },
       };

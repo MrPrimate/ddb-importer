@@ -49,7 +49,7 @@ export default class VineAttack extends DDBEnricherData {
               "acr",
               "ath",
             ],
-            "ability": "",
+            "ability": [],
             "dc": {
               "calculation": "spellcasting",
               "formula": "",

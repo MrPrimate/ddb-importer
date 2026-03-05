@@ -40,9 +40,9 @@ export default class HungerOfHadar extends DDBEnricherData {
             DDBEnricherData.basicDamagePart({
               number: 2,
               denomination: 6,
-              types: "cold",
+              types: ["cold"],
               scalingMode: this.is2014 ? "" : "whole",
-              scalingNumber: this.is2014 ? "" : "1",
+              scalingNumber: this.is2014 ? null : 1,
             }),
           ],
         },
@@ -70,9 +70,9 @@ export default class HungerOfHadar extends DDBEnricherData {
             DDBEnricherData.basicDamagePart({
               number: 2,
               denomination: 6,
-              types: "acid",
+              types: ["acid"],
               scalingMode: this.is2014 ? "" : "whole",
-              scalingNumber: this.is2014 ? "" : "1",
+              scalingNumber: this.is2014 ? null : 1,
             }),
           ],
         },

@@ -82,11 +82,11 @@ export default class BoomingBlade extends DDBEnricherData {
           onsave: false,
           damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, type: "thunder" })],
           noeffect: true,
-          overrideRange: {
+          rangeOverride: {
             value: "5",
             units: "ft",
           },
-          overrideTarget: {
+          targetOverride: {
             affects: { type: "creature", count: "1" },
             template: {},
           },

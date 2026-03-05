@@ -5,6 +5,19 @@ import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
 import DDBSpell from "../../spells/DDBSpell";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
+
+export interface IDDBBasicDamage {
+  number?: number | null;
+  denomination?: number | null;
+  type?: string | null;
+  types?: string[];
+  bonus?: string;
+  scalingMode?: string;
+  scalingNumber?: number;
+  scalingFormula?: string | number;
+  customFormula?: string | null;
+}
+
 export default abstract class DDBEnricherData {
 
   static AutoEffects = AutoEffects;
@@ -208,17 +221,7 @@ export default abstract class DDBEnricherData {
   static basicDamagePart({
     number = null, denomination = null, type = null, types = [], bonus = "", scalingMode = "whole",
     scalingNumber = 1, scalingFormula = "", customFormula = null,
-  }: {
-    number?: number | null;
-    denomination?: number | null;
-    type?: string | null;
-    types?: string[];
-    bonus?: string;
-    scalingMode?: string;
-    scalingNumber?: number;
-    scalingFormula?: string | number;
-    customFormula?: string | null;
-  } = {}): I5eDamagePart {
+  }: IDDBBasicDamage = {}): I5eDamagePart {
     return {
       number,
       denomination,

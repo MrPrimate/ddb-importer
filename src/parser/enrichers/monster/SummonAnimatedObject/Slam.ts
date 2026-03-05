@@ -1,8 +1,8 @@
-import DDBEnricherData from "../../data/DDBEnricherData";
+import DDBEnricherData, { IDDBBasicDamage } from "../../data/DDBEnricherData";
 
 export default class Slam extends DDBEnricherData {
 
-  get damage() {
+  get damage(): IDDBBasicDamage {
     const name = this.ddbParser.ddbMonster?.npc?.name;
     if (name.includes("Large")) {
       return {

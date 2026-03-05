@@ -31,7 +31,7 @@ export default class FingerGuns extends DDBEnricherData {
       targetType: "creature",
       overrideTarget: true,
       targetCount: "1",
-      activationOverride: true,
+      overrideActivation: true,
       activationType: "action",
       data: {
         sort: 2,
@@ -79,7 +79,7 @@ export default class FingerGuns extends DDBEnricherData {
         build: {
           generateRange: true,
           generateActivation: true,
-          generateEnchantment: true,
+          generateEnchant: true,
         },
         overrides: {
           targetSelf: true,

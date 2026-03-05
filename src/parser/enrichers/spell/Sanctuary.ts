@@ -41,7 +41,7 @@ export default class Sanctuary extends DDBEnricherData {
     return [
       {
         name: "Sanctuary",
-        matchActivity: "Cast",
+        activityMatch: "Cast",
         options: {
           durationSeconds: 60,
         },

@@ -23,7 +23,7 @@ export default class HolyStarOfMystra extends DDBEnricherData {
         build: {
           generateAttack: true,
           generateDamage: true,
-          geneateActivation: true,
+          generateActivation: true,
           noSpellslot: true,
           generateRange: true,
           generateConsumption: true,
@@ -57,7 +57,7 @@ export default class HolyStarOfMystra extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const results = [
+    const results: IDDBEffectHint[] = [
       { type: "Acid", img: "icons/magic/acid/dissolve-bone-white.webp" },
       { type: "Cold", img: "icons/magic/water/barrier-ice-crystal-wall-jagged-blue.webp" },
       { type: "Fire", img: "icons/magic/fire/barrier-wall-flame-ring-yellow.webp" },

@@ -26,7 +26,7 @@ export default class EldritchBlast extends DDBEnricherData {
           break;
         }
         case "bonus-range":
-          range = mod.value;
+          range = parseInt(mod.value);
           break;
         default:
           logger.warn(`Not yet able to process ${mod.subType}, please raise an issue.`);
@@ -46,8 +46,8 @@ export default class EldritchBlast extends DDBEnricherData {
         ? this._getEldritchInvocations()
         : null;
 
-    if (eldritchBlastMods?.range && Number.parseInt(eldritchBlastMods.range)) {
-      const range = Number.parseInt(initialRange) + Number.parseInt(eldritchBlastMods.range);
+    if (eldritchBlastMods && foundry.utils.hasProperty(eldritchBlastMods, "range") && Number.isInteger(eldritchBlastMods.range)) {
+      const range = Number.parseInt(initialRange) + eldritchBlastMods.range;
       return `${range}`;
     }
     return initialRange;

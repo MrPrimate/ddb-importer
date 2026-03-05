@@ -66,12 +66,9 @@ export default class CacophonicShield extends DDBEnricherData {
       },
       {
         name: "Cacophic Shield Aura",
-        options: {},
+        activityMatch: "Cast",
         data: {
           flags: {
-            ddbimporter: {
-              activityMatch: "Cast",
-            },
             ActiveAuras: {
               aura: "Enemy",
               radius: "10",

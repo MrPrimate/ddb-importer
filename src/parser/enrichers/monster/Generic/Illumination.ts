@@ -48,7 +48,7 @@ export default class Illumination extends DDBEnricherData {
       if (match.groups.dim) {
         const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
         effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, parseInt(dim)),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, parseInt(`${dim}`)),
         );
       }
       return [effect];
@@ -59,7 +59,7 @@ export default class Illumination extends DDBEnricherData {
       }
       if (match.groups.dim) {
         const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
-        this.ddbParser.ddbMonster.npc.prototypeToken.light.dim = parseInt(dim);
+        this.ddbParser.ddbMonster.npc.prototypeToken.light.dim = parseInt(`${dim}`);
         // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.dim", dim);
       }
     }

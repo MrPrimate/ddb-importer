@@ -9,7 +9,7 @@ export default class ArmorOfAgathys extends DDBEnricherData {
     return {
       name: "Cast Spell",
       targetType: "self",
-      targetOverride: true,
+      overrideTarget: true,
       data: {
         healing: DDBEnricherData.basicDamagePart({
           bonus: "5",

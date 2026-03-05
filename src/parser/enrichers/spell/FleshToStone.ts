@@ -44,10 +44,10 @@ export default class FleshToStone extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
+        daeSpecialDurations: [],
         data: {
           flags: {
             dae: {
-              specialDurations: [],
               macroRepeat: "endEveryTurn",
             },
           },

@@ -9,7 +9,7 @@ export default class BlessedStrikesDivineStrike extends DDBEnricherData {
     return {
       targetType: "creature",
       noeffect: true,
-      activationOverride: "special",
+      activationType: "special",
       data: {
         damage: {
           parts: [
