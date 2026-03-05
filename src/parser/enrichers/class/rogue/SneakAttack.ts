@@ -5,7 +5,7 @@ export default class SneakAttack extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Sneak Attack Damage",
       targetType: "creature",

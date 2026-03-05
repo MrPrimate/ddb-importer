@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TelekineticThrust extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Telekinetic Thrust",
       activationType: "special",

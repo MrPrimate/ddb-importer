@@ -6,7 +6,7 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       addScalingMode: "amount",

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BlessingOfTheForge extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Weapon Enchantment",
       type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,

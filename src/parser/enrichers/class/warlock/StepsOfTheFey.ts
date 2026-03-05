@@ -5,7 +5,7 @@ export default class StepsOfTheFey extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",
@@ -54,7 +54,7 @@ export default class StepsOfTheFey extends DDBEnricherData {
           },
           targetOverride: {
             affects: {
-              type: "creatures",
+              type: "creature",
             },
             template: {
               contiguous: false,

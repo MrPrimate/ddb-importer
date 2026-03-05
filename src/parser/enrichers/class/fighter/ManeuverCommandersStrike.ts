@@ -7,7 +7,7 @@ export default class ManeuverCommandersStrike extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Commander's Strike",
       targetType: "ally",

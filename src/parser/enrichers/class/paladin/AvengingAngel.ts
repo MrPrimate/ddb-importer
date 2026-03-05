@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class AvengingAngel extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.ddbParser.isAction) {
       return null;
     }

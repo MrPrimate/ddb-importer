@@ -6,7 +6,7 @@ export default class Panache extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         check: {

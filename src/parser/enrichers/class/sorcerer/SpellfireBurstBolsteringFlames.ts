@@ -6,7 +6,7 @@ export default class SpellfireBurstBolsteringFlames extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       noConsumeTargets: true,

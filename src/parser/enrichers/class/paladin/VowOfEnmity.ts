@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class VowOfEnmity extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Activate Vow",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

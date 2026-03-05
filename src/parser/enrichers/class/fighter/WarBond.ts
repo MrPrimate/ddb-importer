@@ -6,7 +6,7 @@ export default class WarBond extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Summon Weapon",
       activationType: "bonus",

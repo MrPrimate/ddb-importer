@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Healer extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2024) {
       return null;
     } else {

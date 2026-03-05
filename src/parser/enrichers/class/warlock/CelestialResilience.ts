@@ -6,7 +6,7 @@ export default class CelestialResilience extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Heal Self",
       activationType: "special",

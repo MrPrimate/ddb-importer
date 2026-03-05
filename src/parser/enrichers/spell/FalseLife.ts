@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FalseLife extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({

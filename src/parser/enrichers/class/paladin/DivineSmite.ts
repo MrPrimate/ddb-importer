@@ -5,7 +5,7 @@ export default class DivineSmite extends DDBEnricherData {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : null;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2024) return null;
     return {
       targetType: "creature",

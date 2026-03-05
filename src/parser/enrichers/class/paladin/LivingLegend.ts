@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class LivingLegend extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Activate Living Legend",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

@@ -5,7 +5,7 @@ export default class RagingStormDesert extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "reaction",
       targetType: "creature",

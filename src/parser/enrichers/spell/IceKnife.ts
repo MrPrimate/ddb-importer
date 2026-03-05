@@ -5,7 +5,7 @@ export default class IceKnife extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Attack",
       targetType: "creature",

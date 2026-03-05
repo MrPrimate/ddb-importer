@@ -14,7 +14,7 @@ export default class ArcaneSword extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [

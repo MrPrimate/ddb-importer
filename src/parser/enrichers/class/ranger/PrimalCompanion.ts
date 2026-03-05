@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PrimalCompanion extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Command",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

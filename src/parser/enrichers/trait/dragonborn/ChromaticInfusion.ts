@@ -7,7 +7,7 @@ export default class ChromaticInfusion extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Chromatic Infusion",
       data: {

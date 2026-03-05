@@ -5,7 +5,7 @@ export default class ImprovedBlessedStrikesPotentSpellcasting extends DDBEnriche
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",

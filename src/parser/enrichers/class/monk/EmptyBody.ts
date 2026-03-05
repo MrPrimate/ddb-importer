@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EmptyBody extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Go Invisible",
       targetType: "self",

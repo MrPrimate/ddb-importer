@@ -6,7 +6,7 @@ export default class PearlOfPower extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Use Pearl of Power",
       addItemConsume: true,

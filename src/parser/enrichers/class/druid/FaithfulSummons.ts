@@ -6,7 +6,7 @@ export default class FaithfulSummons extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       activationType: "special",

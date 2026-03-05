@@ -15,7 +15,7 @@ export default class MageHand extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [

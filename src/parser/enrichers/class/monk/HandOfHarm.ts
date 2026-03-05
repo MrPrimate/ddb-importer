@@ -5,7 +5,7 @@ export default class HandOfHarm extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Hand of Harm",
       targetType: "creature",

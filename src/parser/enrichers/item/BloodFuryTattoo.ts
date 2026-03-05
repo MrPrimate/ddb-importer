@@ -6,7 +6,7 @@ export default class BloodFuryTattoo extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       addItemConsume: true,

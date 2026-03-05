@@ -6,7 +6,7 @@ export default class ProtectiveSpirit extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "turnEnd",

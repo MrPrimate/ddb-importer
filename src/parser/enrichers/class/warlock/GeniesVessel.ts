@@ -6,7 +6,7 @@ export default class GeniesVessel extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const types = [];
     if (this.ddbParser.originalName.includes("Dao")) types.push("bludgeoning");
     else if (this.ddbParser.originalName.includes("Djinni")) types.push("thunder");

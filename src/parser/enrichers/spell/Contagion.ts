@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Contagion extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: this.ddbEnricher?._originalActivity?.type === "save" ? "ddbContagionSave" : "ddbContagionCast",
       name: this.ddbEnricher?._originalActivity?.type === "save" ? "Save" : "Cast",

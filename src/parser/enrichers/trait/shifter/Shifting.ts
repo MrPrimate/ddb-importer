@@ -15,7 +15,7 @@ export default class Shifting extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Shifter Choice",
       targetType: "self",

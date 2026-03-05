@@ -6,7 +6,7 @@ export default class Repair extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       noTemplate: true,

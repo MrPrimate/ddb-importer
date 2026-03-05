@@ -6,7 +6,7 @@ export default class WallOfStone extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Place Square Panels",
       data: {

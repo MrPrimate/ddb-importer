@@ -5,7 +5,7 @@ export default class ChannelDivinityWatchersWill extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
       name: "Activate Watcher's Will",

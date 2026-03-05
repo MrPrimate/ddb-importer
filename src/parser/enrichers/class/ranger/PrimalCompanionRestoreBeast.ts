@@ -5,7 +5,7 @@ export default class PrimalCompanionRestoreBeast extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Restore Beast With Spell Slot",
       activationType: "action",
@@ -43,7 +43,7 @@ export default class PrimalCompanionRestoreBeast extends DDBEnricherData {
   //   return DDBEnricherData.ACTIVITY_TYPES.FORWARD;
   // }
 
-  // get activity() {
+  // get activity(): IDDBActivityData {
   //   return {
   //     name: "Restore Beast With Spell Slot",
   //     activationType: "action",

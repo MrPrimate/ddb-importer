@@ -6,7 +6,7 @@ export default class ThunderousSmite extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noeffect: true,
       allowCritical: true,

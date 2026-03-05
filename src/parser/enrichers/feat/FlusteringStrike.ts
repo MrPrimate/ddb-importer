@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FlusteringStrike extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const data: IActivityData = this.ddbParser.isMuncher
       ? {
         save: {

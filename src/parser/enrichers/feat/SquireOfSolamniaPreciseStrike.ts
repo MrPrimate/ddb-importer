@@ -5,7 +5,7 @@ export default class SquireOfSolamniaPreciseStrike extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       activationType: "special",

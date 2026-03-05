@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class LayOnHands extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
       name: "Healing",

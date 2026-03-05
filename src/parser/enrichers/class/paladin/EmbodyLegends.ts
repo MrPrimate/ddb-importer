@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class EmbodyLegends extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Reroll Saving Throw",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

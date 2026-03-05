@@ -6,7 +6,7 @@ export default class ManeuverManeuveringAttack extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

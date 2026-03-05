@@ -2,7 +2,7 @@ import ArcaneShotOption from "./ArcaneShotOption";
 
 export default class BanishingArrow extends ArcaneShotOption {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

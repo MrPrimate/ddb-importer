@@ -10,7 +10,7 @@ export default class ShadowPuppets extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (!["save", "attack"].includes(this.ddbEnricher?._originalActivity?.type)) return null;
     return {
       name: this.ddbEnricher?._originalActivity?.type === "save" ? "Save vs Incapacitation" : "Bonus Attack",

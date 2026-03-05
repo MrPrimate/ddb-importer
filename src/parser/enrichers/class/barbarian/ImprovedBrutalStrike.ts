@@ -7,7 +7,7 @@ export default class ImprovedBrutalStrike extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       name: "Brutal Strike Damage",

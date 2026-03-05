@@ -6,7 +6,7 @@ export default class VisageOfTheAstralSelf extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       rangeSelf: true,

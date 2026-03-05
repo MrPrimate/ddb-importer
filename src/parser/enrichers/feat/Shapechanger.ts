@@ -5,7 +5,7 @@ export default class Shapechanger extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {

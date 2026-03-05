@@ -6,7 +6,7 @@ export default class CauterizingFlames extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Bonus Healing",
       activationType: "reaction",

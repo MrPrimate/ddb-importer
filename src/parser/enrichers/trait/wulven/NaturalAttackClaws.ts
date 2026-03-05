@@ -7,7 +7,7 @@ export default class NaturalAttackClaws extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

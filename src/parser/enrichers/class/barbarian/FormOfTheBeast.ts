@@ -6,7 +6,7 @@ export default class FormOfTheBeast extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Tail (reaction)",
     };

@@ -6,7 +6,7 @@ export default class TranceOfOrder extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Enter Trance",
       activationType: "bonus",

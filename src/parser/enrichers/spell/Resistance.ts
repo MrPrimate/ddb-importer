@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Resistance extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const rollName = this.is2014 ? "Save Bonus" : "Damage Reduction";
     return {
       name: "Cast",

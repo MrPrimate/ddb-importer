@@ -6,7 +6,7 @@ export default class ForceBallista extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       activationType: "bonus",

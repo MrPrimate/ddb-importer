@@ -14,7 +14,7 @@ export default class FlamingSphere extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Summon Sphere",
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,

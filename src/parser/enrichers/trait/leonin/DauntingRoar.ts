@@ -6,7 +6,7 @@ export default class DauntingRoar extends DDBEnricherData {
   //   return true;
   // }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       rangeSelf: true,
       data: {

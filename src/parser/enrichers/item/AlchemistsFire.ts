@@ -8,7 +8,7 @@ export default class AlchemistsFire extends DDBEnricherData {
       : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         addItemConsume: true,

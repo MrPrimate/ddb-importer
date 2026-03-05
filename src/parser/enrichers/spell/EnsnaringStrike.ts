@@ -5,7 +5,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
     return this.is2014 && this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Cast (Automation)",
     };

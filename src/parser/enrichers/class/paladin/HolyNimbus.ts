@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HolyNimbus extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

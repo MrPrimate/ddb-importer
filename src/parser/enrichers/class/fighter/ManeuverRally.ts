@@ -6,7 +6,7 @@ export default class ManeuverRally extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({

@@ -6,7 +6,7 @@ export default class StepOfTheWind extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: this.is2014 ? "Step of the Wind" : "Step of the Wind: Dash",
       targetType: "self",

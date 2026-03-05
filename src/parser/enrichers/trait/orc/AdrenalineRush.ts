@@ -6,7 +6,7 @@ export default class AdrenalineRush extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetSelf: true,
     };

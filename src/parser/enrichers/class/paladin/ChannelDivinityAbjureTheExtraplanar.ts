@@ -9,7 +9,7 @@ export default class ChannelDivinityAbjureTheExtraplanar extends DDBEnricherData
   /**
    * @returns {DDBActivityData}
    */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Abjure the Extraplanar",
       targetType: "ally",

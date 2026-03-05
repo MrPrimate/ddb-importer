@@ -5,7 +5,7 @@ export default class LunarForm extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Lunar Radiance Damage",
       activationType: "special",

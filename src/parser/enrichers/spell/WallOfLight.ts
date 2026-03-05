@@ -6,7 +6,7 @@ export default class WallOfLight extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Place Wall",
       splitDamage: true,
@@ -38,7 +38,7 @@ export default class WallOfLight extends DDBEnricherData {
           generateTarget: true,
           partialDamageParts: [0],
           noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Ends turn in Light" },
+          activationOverride: { type: "special", condition: "Ends turn in Light" },
           durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
@@ -62,7 +62,7 @@ export default class WallOfLight extends DDBEnricherData {
           partialDamageParts: [0],
           noSpellslot: true,
           rangeOverride: { value: 60, units: "ft" },
-          activationOverride: { type: "spec", condition: "" },
+          activationOverride: { type: "special", condition: "" },
           durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,

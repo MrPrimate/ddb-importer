@@ -6,7 +6,7 @@ export default class SharpenTheBlade extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       itemConsumeValue: "1",

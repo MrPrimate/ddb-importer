@@ -6,7 +6,7 @@ export default class CelestialRevelation extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Unleash Celestial Energy",
       addItemConsume: true,
@@ -88,7 +88,7 @@ export default class CelestialRevelation extends DDBEnricherData {
     ];
   }
 
-  // get activity() {
+  // get activity(): IDDBActivityData {
   //   return {
   //     noTemplate: true,
   //     data: {

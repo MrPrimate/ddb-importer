@@ -5,7 +5,7 @@ export default class HexWarrior extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "special",
       data: {

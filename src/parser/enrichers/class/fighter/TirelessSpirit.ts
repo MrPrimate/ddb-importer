@@ -6,7 +6,7 @@ export default class TirelessSpirit extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Regain 1 Use",
       addItemConsume: true,

@@ -6,7 +6,7 @@ export default class RayOfEnfeeblement extends DDBEnricherData {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.ATTACK : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Cast",
     };

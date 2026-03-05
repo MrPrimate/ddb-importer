@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElderChampion extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Activate Elder Champion",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

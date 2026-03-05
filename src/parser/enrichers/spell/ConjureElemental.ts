@@ -15,7 +15,7 @@ export default class ConjureElemental extends DDBEnricherData {
     return !this.is2014;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return null;
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,

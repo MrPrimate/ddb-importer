@@ -6,7 +6,7 @@ export default class EyesOfNight extends DDBEnricherData {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Activate",
       id: "activateEyesOfNi",

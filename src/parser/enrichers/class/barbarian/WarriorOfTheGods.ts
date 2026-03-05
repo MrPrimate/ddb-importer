@@ -5,7 +5,7 @@ export default class WarriorOfTheGods extends DDBEnricherData {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return {};
     return {
       name: "Heal",

@@ -6,7 +6,7 @@ export default class GroupRecovery extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       targetType: "ally",

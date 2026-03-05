@@ -5,7 +5,7 @@ export default class ShieldingStorm extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Shielding Storm: Desert",
       activationType: "special",

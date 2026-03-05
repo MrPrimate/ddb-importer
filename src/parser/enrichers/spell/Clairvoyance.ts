@@ -14,7 +14,7 @@ export default class Clairvoyance extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [{ count: 1, name: "Clairvoyance" }],

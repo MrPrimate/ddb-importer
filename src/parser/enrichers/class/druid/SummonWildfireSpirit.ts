@@ -6,7 +6,7 @@ export default class SummonWildfireSpirit extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Summon Wildfire Spirit",
       addItemConsume: true,

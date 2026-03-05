@@ -5,7 +5,7 @@ export default class MasteryOfDeath extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
       activationType: "special",

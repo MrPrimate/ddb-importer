@@ -10,7 +10,7 @@ export default class BreathOfTheDragon extends DDBEnricherData {
   /**
    * @returns {DDBActivityData | null}
    */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Breath (Cone)",
       id: "ddbBreathOfCone1",

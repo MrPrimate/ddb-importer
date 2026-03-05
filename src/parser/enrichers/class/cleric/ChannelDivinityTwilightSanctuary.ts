@@ -10,7 +10,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
         : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     // const template = DDBEnricherData.AutoEffects.effectModules().atlInstalled
     //   ? {
     //     count: "",

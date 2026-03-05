@@ -7,7 +7,7 @@ export default class ManeuverParry extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "reaction",
       targetType: "self",

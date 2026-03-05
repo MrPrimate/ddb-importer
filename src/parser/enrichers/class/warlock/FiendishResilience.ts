@@ -11,7 +11,7 @@ export default class FiendishResilience extends DDBEnricherData {
     return DDBEnricherData.allDamageTypes(["force"]);
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Resistance",
       activationType: "special",

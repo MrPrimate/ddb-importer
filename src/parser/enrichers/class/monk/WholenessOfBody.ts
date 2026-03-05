@@ -6,7 +6,7 @@ export default class WholenessOfBody extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const formula = this.is2014
       ? "3 * @classes.monk.levels"
       : "@scale.monk.die.die + @abilities.wis.mod";

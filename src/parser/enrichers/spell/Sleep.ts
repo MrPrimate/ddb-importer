@@ -6,7 +6,7 @@ export default class Sleep extends DDBEnricherData {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : null;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         data: {

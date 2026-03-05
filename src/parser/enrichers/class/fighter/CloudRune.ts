@@ -6,7 +6,7 @@ export default class CloudRune extends DDBEnricherData {
   //   return true;
   // }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Invoke Rune (Redirect Attack)",
     };

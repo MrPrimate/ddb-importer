@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Guidance extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const midiProperties = this.is2014
       ? {}
       : {

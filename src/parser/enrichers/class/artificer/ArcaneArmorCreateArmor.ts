@@ -6,7 +6,7 @@ export default class ArcaneArmorCreateArmor extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Create Armor",
       targetType: "self",

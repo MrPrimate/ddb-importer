@@ -6,7 +6,7 @@ export default class AuraOfMalevolence extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       targetType: "creature",

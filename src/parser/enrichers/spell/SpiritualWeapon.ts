@@ -13,7 +13,7 @@ export default class SpiritualWeapon extends DDBEnricherData {
     return !this.is2014;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return this.is2014
       ? {
         data: {

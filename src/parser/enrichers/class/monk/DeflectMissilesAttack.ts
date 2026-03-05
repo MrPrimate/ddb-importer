@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class DeflectMissilesAttack extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "special",
       targetType: "creature",

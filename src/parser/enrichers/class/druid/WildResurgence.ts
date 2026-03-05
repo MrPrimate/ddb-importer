@@ -6,7 +6,7 @@ export default class WildResurgence extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Spend Spell Slot for Wild Shape Use",
       addItemConsume: true,

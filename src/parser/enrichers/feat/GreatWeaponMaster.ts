@@ -7,7 +7,7 @@ export default class GreatWeaponMaster extends DDBEnricherData {
     return null;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Toggle Effect",
       activationType: "Special",

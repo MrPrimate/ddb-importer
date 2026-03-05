@@ -6,7 +6,7 @@ export default class FeyStep extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Fey Step (Teleport)",
       targetType: "self",

@@ -6,7 +6,7 @@ export default class BeguilingArrow extends ArcaneShotOption {
     return this.isAction ? ArcaneShotOption.ACTIVITY_TYPES.DAMAGE : ArcaneShotOption.ACTIVITY_TYPES.NONE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Extra Damage",
       noTemplate: true,

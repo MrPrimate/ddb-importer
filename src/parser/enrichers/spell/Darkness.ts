@@ -6,7 +6,7 @@ export default class Darkness extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         img: "icons/magic/unholy/orb-glowing-purple.webp",

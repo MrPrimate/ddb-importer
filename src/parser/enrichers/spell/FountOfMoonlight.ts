@@ -6,7 +6,7 @@ export default class FountOfMoonlight extends DDBEnricherData {
     return DDBEnricherData.AutoEffects.effectModules().atlInstalled ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         name: "Cast Spell",

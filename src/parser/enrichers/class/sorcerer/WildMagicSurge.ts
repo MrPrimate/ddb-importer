@@ -6,7 +6,7 @@ export default class WildMagicSurge extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Roll for Surge Change (Nat 20)",
       data: {

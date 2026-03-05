@@ -6,7 +6,7 @@ export default class SearingArcStrike extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.CAST;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addSpellUuid: "Burning Hands",
       addItemConsume: true,

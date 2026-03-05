@@ -6,7 +6,7 @@ export default class SlashingFlourish extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Slashing Flourish: Damage Bonus",
       targetType: "creature",

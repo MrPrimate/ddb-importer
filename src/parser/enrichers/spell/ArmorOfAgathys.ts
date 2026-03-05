@@ -5,7 +5,7 @@ export default class ArmorOfAgathys extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Cast Spell",
       targetType: "self",

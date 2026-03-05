@@ -6,7 +6,7 @@ export default class WallOfIce extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Place Panels",
       splitDamage: true,
@@ -68,7 +68,7 @@ export default class WallOfIce extends DDBEnricherData {
           generateTarget: true,
           partialDamageParts: [1],
           noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Moving through/starting in Frigid Air" },
+          activationOverride: { type: "special", condition: "Moving through/starting in Frigid Air" },
           durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,

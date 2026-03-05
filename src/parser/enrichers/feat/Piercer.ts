@@ -6,7 +6,7 @@ export default class Piercer extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  // get activity() {
+  // get activity(): IDDBActivityData {
   //   return {
   //     noeffect: true,
   //   };

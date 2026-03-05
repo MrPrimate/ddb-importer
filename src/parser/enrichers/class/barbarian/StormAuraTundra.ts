@@ -5,7 +5,7 @@ export default class StormAuraTundra extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       rangeSelf: true,

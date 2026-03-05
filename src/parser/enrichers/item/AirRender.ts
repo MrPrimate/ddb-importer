@@ -6,7 +6,7 @@ export default class AirRender extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Attack as Normal Bow",
       noeffect: true,

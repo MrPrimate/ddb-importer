@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ElementalRebuke extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "reaction",
       targetType: "creature",

@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ClawsOfDarkness extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
       overrideTarget: true,

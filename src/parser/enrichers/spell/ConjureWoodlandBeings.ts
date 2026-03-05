@@ -7,7 +7,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return null;
     return {
       name: "Cast",

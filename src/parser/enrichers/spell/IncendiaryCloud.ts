@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class IncendiaryCloud extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "ddbIncCloSpellSa",
       noeffect: this.useMidiAutomations,

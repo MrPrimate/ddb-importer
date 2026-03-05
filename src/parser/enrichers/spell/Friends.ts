@@ -6,7 +6,7 @@ export default class Friends extends DDBEnricherData {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return null;
     return {
       data: {

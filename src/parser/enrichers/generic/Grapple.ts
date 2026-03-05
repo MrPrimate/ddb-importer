@@ -6,7 +6,7 @@ export default class Grapple extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const martialArtist = this.hasClassFeature({ featureName: "Martial Arts", className: "Monk" });
 
     return {

@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WaterWhip extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addScalingMode: "amount",
       data: {

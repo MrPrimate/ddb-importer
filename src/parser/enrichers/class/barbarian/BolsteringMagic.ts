@@ -6,7 +6,7 @@ export default class BolsteringMagic extends Generic {
     return this.isAction ? Generic.ACTIVITY_TYPES.NONE : Generic.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Bolstering Magic",
     };

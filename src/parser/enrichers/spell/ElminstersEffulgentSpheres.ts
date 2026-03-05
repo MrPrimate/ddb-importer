@@ -6,7 +6,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Cast",
       targetSelf: true,

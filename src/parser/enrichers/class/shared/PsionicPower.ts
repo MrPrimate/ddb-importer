@@ -6,7 +6,7 @@ export default class PsionicPower extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const formula = `1@scale.${this.getClassIdentifier(this.ddbParser.subKlass)}.energy-die.die`;
     const result: IDDBActivityData = {
       name: "",

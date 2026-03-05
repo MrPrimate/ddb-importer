@@ -6,7 +6,7 @@ export default class MythalTouched extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const modId = this.ddbParser.ddbData.character.modifiers.feat.find((mod) =>
       mod.type === "bonus"
       && mod.componentId === this.ddbParser.ddbDefinition.componentId,

@@ -5,7 +5,7 @@ export default class PolearmMasterBonusAttack extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
       activationType: "bonus",

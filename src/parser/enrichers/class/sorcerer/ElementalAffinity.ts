@@ -17,7 +17,7 @@ export default class ElementalAffinity extends DDBEnricherData {
     ];
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Damage bonus",
       type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,

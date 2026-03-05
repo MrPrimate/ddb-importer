@@ -5,7 +5,7 @@ export default class Chef extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Replenishing Meal",
       targetType: "creature",

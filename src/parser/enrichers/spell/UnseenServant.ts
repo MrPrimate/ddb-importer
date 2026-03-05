@@ -14,7 +14,7 @@ export default class UnseenServant extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [

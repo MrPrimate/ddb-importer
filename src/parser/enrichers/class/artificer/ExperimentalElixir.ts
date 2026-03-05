@@ -10,7 +10,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Roll for Experimental Elixir",
       noConsumeTargets: true,

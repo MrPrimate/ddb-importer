@@ -6,7 +6,7 @@ export default class LethargyResilienceRecharge extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         roll: {

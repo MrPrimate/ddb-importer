@@ -10,7 +10,7 @@ export default class ColorSpray extends DDBEnricherData {
     }
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         data: {

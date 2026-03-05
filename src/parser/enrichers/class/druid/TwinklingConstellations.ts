@@ -5,7 +5,7 @@ export default class TwinklingConstellations extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  // get activity() {
+  // get activity(): IDDBActivityData {
   //   return {
   //     noTemplate: true,
   //     targetType: "self",

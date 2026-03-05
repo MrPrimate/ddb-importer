@@ -6,7 +6,7 @@ export default class SorcerousRestoration extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       additionalConsumptionTargets: [

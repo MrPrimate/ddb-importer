@@ -6,11 +6,11 @@ export default class DeviousStrikes extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Daze",
       targetType: "creature",
-      activationType: "spec",
+      activationType: "special",
       activationCondition: "Dealing Sneak Attack damage",
       data: {
         save: {
@@ -99,7 +99,7 @@ export default class DeviousStrikes extends DDBEnricherData {
           generateConsumption: true,
           noeffect: true,
           activationOverride: {
-            type: "spec",
+            type: "special",
             condition: "",
           },
           rangeOverride: {

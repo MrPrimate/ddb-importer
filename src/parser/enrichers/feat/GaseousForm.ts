@@ -10,7 +10,7 @@ export default class GaseousForm extends DDBEnricherData {
   //   return DDBEnricherData.ACTIVITY_TYPES.CAST;
   // }
 
-  // get activity() {
+  // get activity(): IDDBActivityData {
   //   return {
   //     addSpellUuid: "Gaseous Form",
   //     data: {

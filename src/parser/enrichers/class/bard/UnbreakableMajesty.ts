@@ -6,7 +6,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         name: "Assume Unbreakable Majesty",
@@ -47,7 +47,7 @@ export default class UnbreakableMajesty extends DDBEnricherData {
           targetOverride: {
             affects: {
               count: "1",
-              type: "creatures",
+              type: "creature",
             },
             template: {
               contiguous: false,

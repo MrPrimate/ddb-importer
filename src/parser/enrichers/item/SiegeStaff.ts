@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class SiegeStaff extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addItemConsume: false,
       noeffect: true,

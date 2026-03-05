@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class WarpingImplosion extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       // default scrape picks up the 5 sorcery point recharge effect

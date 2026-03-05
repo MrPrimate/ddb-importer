@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       addItemConsume: true,

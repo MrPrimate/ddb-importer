@@ -5,7 +5,7 @@ export default class VitriolicSphere extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         name: "Save",
@@ -51,7 +51,7 @@ export default class VitriolicSphere extends DDBEnricherData {
           generateAttack: false,
           onsave: false,
           noeffect: true,
-          activationOverride: { type: "spec", condition: "End of next turn" },
+          activationOverride: { type: "special", condition: "End of next turn" },
           durationOverride: { units: "inst", concentration: false },
           damageParts: [
             DDBEnricherData.basicDamagePart({

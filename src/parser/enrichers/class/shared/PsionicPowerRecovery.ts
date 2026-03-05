@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PsionicPowerRecovery extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Recovery",
       addActivityConsume: true,

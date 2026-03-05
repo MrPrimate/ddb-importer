@@ -8,7 +8,7 @@ export default class RitualCaster extends DDBEnricherData {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (!this.is2014) {
       return {
         name: "Quick Ritual",

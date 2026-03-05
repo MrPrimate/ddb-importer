@@ -7,7 +7,7 @@ export default class EyeRays extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const rayChoices = this.rayChoices;
     return {
       name: `Roll 1d${rayChoices.length}`,

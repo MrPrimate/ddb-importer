@@ -6,7 +6,7 @@ export default class Flamethrower extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       activationCondition: "Only if the artificer uses a bonus action, in addition the cannon can also move",

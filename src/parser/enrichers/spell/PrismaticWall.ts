@@ -6,7 +6,7 @@ export default class PrismaticWall extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Place Wall",
       data: {
@@ -59,7 +59,7 @@ export default class PrismaticWall extends DDBEnricherData {
           generateSave: true,
           generateTarget: true,
           noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Within 20ft" },
+          activationOverride: { type: "special", condition: "Within 20ft" },
           durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,
@@ -79,7 +79,7 @@ export default class PrismaticWall extends DDBEnricherData {
           generateSave: true,
           generateTarget: true,
           noSpellslot: true,
-          activationOverride: { type: "spec", condition: "Moving through" },
+          activationOverride: { type: "special", condition: "Moving through" },
           durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,

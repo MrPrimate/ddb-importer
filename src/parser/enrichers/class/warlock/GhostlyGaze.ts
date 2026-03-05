@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GhostlyGaze extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) {
       return {
         type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

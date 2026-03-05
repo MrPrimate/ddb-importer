@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Grease extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "ddbGreaseSpellSa",
       noeffect: this.useMidiAutomations,

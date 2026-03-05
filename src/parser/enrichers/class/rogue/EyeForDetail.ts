@@ -6,7 +6,7 @@ export default class EyeForDetail extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Perception",
       data: {

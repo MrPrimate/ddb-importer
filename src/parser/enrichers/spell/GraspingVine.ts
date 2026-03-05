@@ -14,7 +14,7 @@ export default class GraspingVine extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,

@@ -6,7 +6,7 @@ export default class MartialArts extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  // get activity() {
+  // get activity(): IDDBActivityData {
   //   const empowered = this.hasClassFeature({ featureName: "Empowered Strike", className: "Monk" });
 
   //   return {

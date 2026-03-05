@@ -7,7 +7,7 @@ export default class UncannyDodge extends DDBEnricherData {
   }
 
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "reaction",
       targetType: "self",

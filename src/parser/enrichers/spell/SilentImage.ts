@@ -14,7 +14,7 @@ export default class SilentImage extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [

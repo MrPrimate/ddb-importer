@@ -7,7 +7,7 @@ export default class Relentless extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return null;
     return {
       activationType: "special",

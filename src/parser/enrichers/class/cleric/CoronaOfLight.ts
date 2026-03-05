@@ -8,7 +8,7 @@ export default class CoronaOfLight extends DDBEnricherData {
       : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       return {
         type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

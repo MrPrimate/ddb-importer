@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class ProtectionFromEnergy extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: { midiProperties: { chooseEffects: true } },
     };

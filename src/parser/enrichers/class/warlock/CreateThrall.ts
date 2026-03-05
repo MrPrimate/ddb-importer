@@ -6,7 +6,7 @@ export default class CreateThrall extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Hex damage",
       targetType: "creature",

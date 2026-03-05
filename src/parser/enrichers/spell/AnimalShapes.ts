@@ -5,7 +5,7 @@ export default class AnimalShapes extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.TRANSFORM;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "willing",
       name: "Cast",

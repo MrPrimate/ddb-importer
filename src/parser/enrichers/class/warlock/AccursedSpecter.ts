@@ -14,7 +14,7 @@ export default class AccursedSpecter extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noTemplate: true,
       profileKeys: [{ count: 1, name: "Specter2014" }],

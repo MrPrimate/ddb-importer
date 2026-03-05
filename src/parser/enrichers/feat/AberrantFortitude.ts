@@ -5,7 +5,7 @@ export default class AberrantFortitude extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       addActivityConsume: true,

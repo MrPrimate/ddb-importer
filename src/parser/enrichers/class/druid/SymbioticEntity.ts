@@ -6,7 +6,7 @@ export default class SymbioticEntity extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Create Symbiotic Entity",
       targetType: "self",

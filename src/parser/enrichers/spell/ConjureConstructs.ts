@@ -18,7 +18,7 @@ export default class ConjureConstructs extends DDBEnricherData {
     return false;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,
       noTemplate: true,

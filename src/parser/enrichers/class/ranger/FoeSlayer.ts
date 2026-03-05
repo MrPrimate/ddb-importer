@@ -6,7 +6,7 @@ export default class FoeSlayer extends DDBEnricherData {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return this.is2014
       ? {}
       : {

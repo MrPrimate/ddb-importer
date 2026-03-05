@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class InsectPlague extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "ddbInsPlaSpellSa",
       noeffect: this.useMidiAutomations,

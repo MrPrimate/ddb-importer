@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class SoulOfVengeance extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Vengeance Attack",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

@@ -11,7 +11,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
   }
 
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const nameArray = this.nameArray;
     return {
       name: nameArray[1].trim(),

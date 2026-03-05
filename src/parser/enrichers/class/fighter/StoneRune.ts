@@ -6,7 +6,7 @@ export default class StoneRune extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     // if (!this.isAction) return null;
     return {
       name: "Invoke Rune",

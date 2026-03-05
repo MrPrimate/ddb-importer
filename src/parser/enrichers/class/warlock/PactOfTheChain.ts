@@ -7,7 +7,7 @@ export default class PactOfTheChain extends DDBEnricherData {
   }
 
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Summon",
       data: this.is2014

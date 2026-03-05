@@ -6,7 +6,7 @@ export default class PsychicWhispers extends DDBEnricherData {
     return null;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Psychic Whispers",
       addItemConsume: true,

@@ -7,7 +7,7 @@ export default class ManeuverEvasiveFootwork extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       addItemConsumed: true,

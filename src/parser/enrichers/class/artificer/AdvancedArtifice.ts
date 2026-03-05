@@ -6,7 +6,7 @@ export default class AdvancedArtifice extends DDBEnricherData {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return this.is2014
       ? null
       : {

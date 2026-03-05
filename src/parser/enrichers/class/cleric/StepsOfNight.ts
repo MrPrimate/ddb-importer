@@ -6,7 +6,7 @@ export default class StepsOfNight extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
     };

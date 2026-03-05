@@ -6,7 +6,7 @@ export default class RageOfTheWilds extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       name: "Owl",

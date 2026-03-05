@@ -7,7 +7,7 @@ export default class ZealousPresence extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "ally",
       targetCount: 10,

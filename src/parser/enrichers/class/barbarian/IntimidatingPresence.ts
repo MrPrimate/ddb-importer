@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class IntimidatingPresence extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       // type: "save",
       name: "Save",

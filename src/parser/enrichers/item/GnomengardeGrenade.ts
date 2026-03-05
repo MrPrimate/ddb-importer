@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class GnomengardeGrenade extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noeffect: true,
       data: {

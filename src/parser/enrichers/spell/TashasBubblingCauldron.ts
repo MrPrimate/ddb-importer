@@ -14,7 +14,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Create Cauldron",
       noTemplate: true,

@@ -6,7 +6,7 @@ export default class SpellStoringItemStoreSpell extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Spell-Storing Item: Store Spell",

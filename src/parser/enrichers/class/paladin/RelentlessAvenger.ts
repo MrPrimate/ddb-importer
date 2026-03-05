@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class RelentlessAvenger extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Reduce Speed",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

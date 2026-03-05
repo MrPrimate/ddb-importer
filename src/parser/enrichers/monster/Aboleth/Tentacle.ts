@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Tentacle extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     if (!this.is2014) return null;
     if (!this.ddbEnricher.originalActivity) return null;
     const parts = this.ddbEnricher.originalActivity.type === "save"

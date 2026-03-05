@@ -6,10 +6,10 @@ export default class CunningStrike extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "creature",
-      activationType: "spec",
+      activationType: "special",
       activationCondition: "Dealing Sneak Attack damage",
       data: {
         name: "Poison",
@@ -36,7 +36,7 @@ export default class CunningStrike extends DDBEnricherData {
           generateRange: false,
           generateActivation: true,
           activationOverride: {
-            type: "",
+            type: "special",
             condition: "Dealing Sneak Attack damage",
           },
           saveOverride: {
@@ -66,7 +66,7 @@ export default class CunningStrike extends DDBEnricherData {
           noeffect: true,
           generateActivation: true,
           activationOverride: {
-            type: "",
+            type: "special",
             condition: "Dealing Sneak Attack damage",
           },
         },
@@ -86,7 +86,7 @@ export default class CunningStrike extends DDBEnricherData {
           generateConsumption: true,
           noeffect: true,
           activationOverride: {
-            type: "spec",
+            type: "special",
             condition: "",
           },
           rangeOverride: {

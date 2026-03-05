@@ -10,7 +10,7 @@ export default class Shift extends DDBEnricherData {
   //   return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   // }
 
-  // get activity() {
+  // get activity(): IDDBActivityData {
   //   return {
   //     name: "Shift",
   //     targetType: "self",

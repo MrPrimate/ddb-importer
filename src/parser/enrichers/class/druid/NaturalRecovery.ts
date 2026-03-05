@@ -5,7 +5,7 @@ export default class NaturalRecovery extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const uses = this._getUsesWithSpent({
       type: "class",
       name: "Natural Recovery: Cast Circle Spell",

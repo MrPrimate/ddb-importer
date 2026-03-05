@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BrandingSmite extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

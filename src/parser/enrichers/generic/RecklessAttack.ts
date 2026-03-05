@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class RecklessAttack extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "special",
       targetType: "self",

@@ -15,7 +15,7 @@ export default class EldritchCannon extends DDBEnricherData {
       : DDBImporter.lib.DDBSummonsInterface.getEldritchCannons2024;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "summonEldriComp1",
       targetType: "creature",

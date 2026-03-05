@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class DeathArmor extends DDBEnricherData {
 
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Save vs Damage",
       removeSpellSlotConsume: true,

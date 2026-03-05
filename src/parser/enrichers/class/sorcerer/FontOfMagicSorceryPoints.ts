@@ -6,7 +6,7 @@ export default class FontOfMagicSorceryPoints extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       noConsumeTargets: true,
       data: {

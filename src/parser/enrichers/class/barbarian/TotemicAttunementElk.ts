@@ -6,7 +6,7 @@ export default class TotemicAttunementElk extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       name: "Activate",

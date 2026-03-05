@@ -8,7 +8,7 @@ export default class FlurryOfBlowsAdditional extends DDBEnricherData {
     return null;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "special",
       activationCondition: "You hit a creature with a Flurry of Blows strike",

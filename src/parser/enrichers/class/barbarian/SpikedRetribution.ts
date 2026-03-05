@@ -5,7 +5,7 @@ export default class SpikedRetribution extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
       activationType: "bonus",

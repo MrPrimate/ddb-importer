@@ -7,7 +7,7 @@ export default class AnimateObjects extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return null;
     const spellMod = `@attributes.spell.mod`;
     return {

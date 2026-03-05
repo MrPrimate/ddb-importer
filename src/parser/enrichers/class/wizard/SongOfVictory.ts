@@ -10,7 +10,7 @@ export default class SongOfVictory extends DDBEnricherData {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
     };

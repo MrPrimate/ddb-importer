@@ -6,7 +6,7 @@ export default class HarnessDivinePower extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       addItemConsume: true,

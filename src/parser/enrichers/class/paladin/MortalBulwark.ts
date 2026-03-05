@@ -5,7 +5,7 @@ export default class MortalBulwark extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Activate Mortal Bulwark",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

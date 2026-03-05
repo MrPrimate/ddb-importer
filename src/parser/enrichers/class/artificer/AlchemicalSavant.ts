@@ -5,7 +5,7 @@ export default class AlchemicalSavant extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Restore Hit Points Bonus",
       activationType: "special",

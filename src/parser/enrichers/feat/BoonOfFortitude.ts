@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BoonOfFortitude extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Healing Bonus",
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,

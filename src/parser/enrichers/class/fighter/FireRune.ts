@@ -6,7 +6,7 @@ export default class FireRune extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Invoke Rune",
       targetType: "creature",

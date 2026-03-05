@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Web extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "ddbWebSpellSave1",
       noeffect: this.useMidiAutomations,

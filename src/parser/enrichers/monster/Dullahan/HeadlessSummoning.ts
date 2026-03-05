@@ -6,7 +6,7 @@ export default class HeadlessSummoning extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "bonus",
       targetType: "self",

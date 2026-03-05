@@ -6,7 +6,7 @@ export default class TelepathicSpeech extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetCount: "1",
       data: {

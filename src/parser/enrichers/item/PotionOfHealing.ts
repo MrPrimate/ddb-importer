@@ -6,7 +6,7 @@ export default class PotionOfHealing extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       activationType: this.is2014 ? "action" : "bonus",

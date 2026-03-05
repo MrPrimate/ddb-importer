@@ -9,7 +9,7 @@ export default class VigilantRebuke extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "enemy",
       data: {

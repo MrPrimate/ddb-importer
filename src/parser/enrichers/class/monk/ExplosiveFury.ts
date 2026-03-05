@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ExplosiveFury extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "enemy",
       data: {

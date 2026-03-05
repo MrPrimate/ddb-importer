@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Cloudkill extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "ddbCloKilSpellSa",
       noeffect: this.useMidiAutomations,

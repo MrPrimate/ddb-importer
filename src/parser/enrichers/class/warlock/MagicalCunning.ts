@@ -6,7 +6,7 @@ export default class MagicalCunning extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const isEldritchMaster = this.hasClassFeature({
       featureName: "Eldritch Master",
       className: "Warlock",

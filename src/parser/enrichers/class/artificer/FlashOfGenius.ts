@@ -6,7 +6,7 @@ export default class FlashOfGenius extends DDBEnricherData {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (!this.isAction) return {};
     return {
       activationType: "reaction",

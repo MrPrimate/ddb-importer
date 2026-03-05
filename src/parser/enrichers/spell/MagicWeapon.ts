@@ -6,7 +6,7 @@ export default class MagicWeapon extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         restrictions: {

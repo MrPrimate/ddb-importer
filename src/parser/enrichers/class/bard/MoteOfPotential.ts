@@ -6,7 +6,7 @@ export default class MoteOfPotential extends DDBEnricherData {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.NONE : DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Attack Save vs Mote of Potential",
       noConsumeTargets: true,

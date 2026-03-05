@@ -6,7 +6,7 @@ export default class ExceptionalTraining extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
       activationType: "special",

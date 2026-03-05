@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PrimalCompanionSummon extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Summon After Long Rest",
       type: DDBEnricherData.ACTIVITY_TYPES.SUMMON,

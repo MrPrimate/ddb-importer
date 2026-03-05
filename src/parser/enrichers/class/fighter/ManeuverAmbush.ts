@@ -7,7 +7,7 @@ export default class ManeuverAmbush extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "special",
       targetType: "self",

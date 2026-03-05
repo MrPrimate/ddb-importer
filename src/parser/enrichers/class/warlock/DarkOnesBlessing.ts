@@ -6,7 +6,7 @@ export default class DarkOnesBlessing extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationCondition: "Reduce an enemy to 0 HP",

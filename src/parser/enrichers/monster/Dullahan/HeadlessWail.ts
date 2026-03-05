@@ -1,7 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class HeadlessWail extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "legendary",
       activationCondition: "If the Headless Summoning trait is active",

@@ -7,7 +7,7 @@ export default class GraspingArrow extends ArcaneShotOption {
     return this.isAction ? DDBEnricherData.ACTIVITY_TYPES.DAMAGE : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return this.isAction
       ? {
         name: "Cast",

@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class SearingSunburst extends Generic {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (!this.isAction) return null;
     return {
       activationType: "action",

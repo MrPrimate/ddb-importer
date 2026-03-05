@@ -6,7 +6,7 @@ export default class FangsOfTheFireSnake extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Enchant Weapon",
       id: "ddbFireDamage123",

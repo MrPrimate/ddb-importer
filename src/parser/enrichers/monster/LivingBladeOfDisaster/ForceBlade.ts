@@ -2,7 +2,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ForceBlade extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         attack: {

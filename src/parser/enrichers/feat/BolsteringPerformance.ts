@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class BolsteringPerformance extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Temporary Hit Points",
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,

@@ -6,7 +6,7 @@ export default class IrresistibleDance extends DDBEnricherData {
     return this.is2014 ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Cast",
     };

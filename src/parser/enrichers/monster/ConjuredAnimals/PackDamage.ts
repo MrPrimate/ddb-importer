@@ -6,7 +6,7 @@ export default class PackDamage extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "ddbPackDamageSav",
       targetType: "creature",

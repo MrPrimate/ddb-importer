@@ -6,7 +6,7 @@ export default class MistyStep extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         name: "Misty Step",

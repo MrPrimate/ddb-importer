@@ -9,7 +9,7 @@ export default class HandOfUltimateMercy extends DDBEnricherData {
   /**
    * @returns {DDBActivityData | null}
    */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Hand of Ultimate Mercy",
       activationType: "special",

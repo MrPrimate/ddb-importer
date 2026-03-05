@@ -6,7 +6,7 @@ export default class PatientDefense extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: this.is2014 ? "Patient Defense: Dodge" : "Patient Defense: Disengage",
       targetType: "self",

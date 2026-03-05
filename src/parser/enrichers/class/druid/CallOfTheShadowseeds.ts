@@ -6,7 +6,7 @@ export default class CallOfTheShadowseeds extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Summon Blighted Sapling",
       addItemConsume: true,

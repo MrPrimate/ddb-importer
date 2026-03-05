@@ -25,7 +25,7 @@ export default class ElementDamage extends DDBEnricherData {
     },
   ];
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const damageType = ElementDamage.elementals.find((d) => d.name === this.data.name.split("Element")[0].trim())?.type;
     return {
       id: "ddbElemDamageSav",

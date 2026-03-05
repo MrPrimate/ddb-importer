@@ -6,7 +6,7 @@ export default class SummonWildfireSpiritCommand extends DDBEnricherData {
     return null;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return null;
   }
 

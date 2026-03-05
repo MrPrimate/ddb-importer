@@ -7,7 +7,7 @@ export default class ManeuverBaitAndSwitch extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       activationType: "special",
       targetType: "creature",

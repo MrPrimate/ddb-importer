@@ -6,7 +6,7 @@ export default class BrawlersBestFriend extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SUMMON;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "summonHound11111",
       name: "Summon After Long Rest",

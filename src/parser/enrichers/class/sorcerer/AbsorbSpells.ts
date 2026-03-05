@@ -6,7 +6,7 @@ export default class AbsorbSpells extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Regain Sorcery Points",
       activationType: "special",

@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class Banishment extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     const originalName = this.ddbEnricher.originalActivity?.name ?? "";
     return {
       name: originalName === "" ? "Cast" : originalName,

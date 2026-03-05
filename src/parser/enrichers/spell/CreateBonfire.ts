@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class CreateBonfire extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       id: "ddbBonfirSpellSa",
       noeffect: this.useMidiAutomations,

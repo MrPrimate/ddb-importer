@@ -11,7 +11,7 @@ export default class BreathWeapon2024 extends DDBEnricherData {
     return this.ddbParser.originalName.split(")")[0].split("(")[1].trim().toLowerCase();
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) return {
       rangeSelf: true,
     };

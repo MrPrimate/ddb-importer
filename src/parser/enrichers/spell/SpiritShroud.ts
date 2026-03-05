@@ -5,7 +5,7 @@ export default class SpiritShroud extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Cast",
       overrideTarget: true,

@@ -2,7 +2,7 @@ import Generic from "../Generic";
 
 export default class ExplosiveCannon extends Generic {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (!this.isAction) return null;
     return {
       data: {

@@ -17,7 +17,7 @@ export default class ElementalAbsorption extends DDBEnricherData {
     ];
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       data: {

@@ -5,7 +5,7 @@ export default class RaiseDead extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         healing: DDBEnricherData.basicDamagePart({

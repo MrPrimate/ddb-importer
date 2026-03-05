@@ -6,7 +6,7 @@ export default class LethargyResilience extends Generic.Generic {
     return Generic.Generic.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Use Lethargy Resilience",
       addItemConsume: true,

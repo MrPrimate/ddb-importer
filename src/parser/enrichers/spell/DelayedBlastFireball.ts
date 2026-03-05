@@ -6,7 +6,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Create Bead",
       addItemConsume: true,

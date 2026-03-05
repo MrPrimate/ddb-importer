@@ -7,7 +7,7 @@ export default class ManeuverTacticalAssessment extends Maneuver {
     return this.useMidiAutomations ? DDBEnricherData.ACTIVITY_TYPES.UTILITY : DDBEnricherData.ACTIVITY_TYPES.CHECK;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return this.useMidiAutomations
       ? {
         targetType: "self",

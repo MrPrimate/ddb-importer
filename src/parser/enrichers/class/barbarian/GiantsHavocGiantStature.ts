@@ -6,7 +6,7 @@ export default class GiantsHavocGiantStature extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "self",
       activationType: "special",

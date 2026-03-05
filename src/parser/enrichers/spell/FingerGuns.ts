@@ -24,7 +24,7 @@ export default class FingerGuns extends DDBEnricherData {
     };
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Attack",
       noeffect: true,

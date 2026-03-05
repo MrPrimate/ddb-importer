@@ -6,7 +6,7 @@ export default class Heroism extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       stopHealSpellActivity: true,
       name: "Cast",
@@ -28,7 +28,7 @@ export default class Heroism extends DDBEnricherData {
           onsave: false,
           healingPart: DDBEnricherData.basicDamagePart({ customFormula: "@mod", type: "temphp" }),
           noeffect: true,
-          activationOverride: { type: "spec", condition: "Start of each creatures turn" },
+          activationOverride: { type: "special", condition: "Start of each creatures turn" },
           durationOverride: {
             units: "inst",
             concentration: false,

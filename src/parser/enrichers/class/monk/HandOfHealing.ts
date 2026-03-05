@@ -6,7 +6,7 @@ export default class HandOfHealing extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Hand of Healing",
       activationType: "special",

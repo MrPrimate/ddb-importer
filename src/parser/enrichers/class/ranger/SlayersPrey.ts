@@ -5,7 +5,7 @@ export default class SlayersPrey extends Generic {
     return true;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Apply",
     };

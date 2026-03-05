@@ -5,7 +5,7 @@ export default class ArcaneWard extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Create Ward",
       type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,

@@ -5,7 +5,7 @@ export default class Poisoner extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Brew Poisons",
       addItemConsume: true,

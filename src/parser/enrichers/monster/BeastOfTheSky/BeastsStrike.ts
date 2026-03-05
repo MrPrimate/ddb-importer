@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class BeastsStrike extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       data: {
         damage: {

@@ -5,7 +5,7 @@ export default class ChannelDivinityRadianceOfTheDawn extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.SAVE;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       targetType: "enemy",
       data: {

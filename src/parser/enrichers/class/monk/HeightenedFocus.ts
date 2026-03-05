@@ -5,7 +5,7 @@ export default class HeightenedFocus extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Patient Defense Healing",
       data: {

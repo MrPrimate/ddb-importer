@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class TeamTactics extends DDBEnricherData {
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       addItemConsume: true,
       activationCondition: "You use Group Recovery",

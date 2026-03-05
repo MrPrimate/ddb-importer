@@ -6,7 +6,7 @@ export default class NobleScion extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Activate Noble Scion",
       addItemConsume: true,

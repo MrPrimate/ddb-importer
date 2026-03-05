@@ -7,7 +7,7 @@ export default class ManeuverFeintingAttack extends Maneuver {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Feint",
       activationType: "bonus",

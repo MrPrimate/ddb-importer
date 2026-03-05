@@ -6,7 +6,7 @@ export default class TrueStrike extends DDBEnricherData {
     return this.is2014 ? null : DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     if (this.is2014) {
       return null;
     } else {

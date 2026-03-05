@@ -1,7 +1,7 @@
 import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class DivineSmite extends DDBEnricherData {
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       midiUseCondition: `!["fiend", "undead"].includes(raceOrType)`,
       data: {

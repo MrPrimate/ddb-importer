@@ -6,7 +6,7 @@ export default class TelekineticMaster extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Spend Energy Die to Regain Use",
       addItemConsume: true,

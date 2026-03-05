@@ -9,7 +9,7 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
   /**
    * @returns {DDBActivityData}
    */
-  get activity() {
+  get activity(): IDDBActivityData {
     return {
       name: "Reduce Damage",
       targetType: "self",
