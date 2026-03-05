@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 export default class Light extends DDBEnricherData {
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    const template = {
+    const template: IDDBAdditionalActivity = {
       init: {
         name: "Place or Remove Light",
         type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,

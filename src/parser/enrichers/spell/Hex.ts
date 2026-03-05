@@ -34,7 +34,7 @@ export default class Hex extends DDBEnricherData {
           onsave: false,
           damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 6, type: "necrotic" })],
           noeffect: true,
-          activationOverride: { type: "", condition: "When you hit creature with attack" },
+          activationOverride: { type: "special", condition: "When you hit creature with attack" },
         },
       },
       {

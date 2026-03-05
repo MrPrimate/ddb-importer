@@ -25,15 +25,15 @@ export default class VengefulBlade extends DDBEnricherData {
             scalingFormula: "1d8",
           })],
           noeffect: true,
-          overrideRange: {
+          rangeOverride: {
             value: "5",
             units: "ft",
           },
-          overrideTarget: {
+          targetOverride: {
             affects: { type: "creature", count: "1" },
             template: {},
           },
-          activationOverride: { type: "", condition: "Creature moves more than 5 ft" },
+          activationOverride: { type: "special", condition: "Creature moves more than 5 ft" },
         },
         overrides: {
           overrideTemplate: true,
@@ -61,15 +61,15 @@ export default class VengefulBlade extends DDBEnricherData {
           onsave: false,
           damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination: 8, type: "necrotic" })],
           noeffect: true,
-          overrideRange: {
+          rangeOverride: {
             value: "5",
             units: "ft",
           },
-          overrideTarget: {
+          targetOverride: {
             affects: { type: "creature", count: "1" },
             template: {},
           },
-          activationOverride: { type: "", condition: "Target makes an attack or spell" },
+          activationOverride: { type: "special", condition: "Target makes an attack or spell" },
         },
         overrides: {
           overrideTemplate: true,

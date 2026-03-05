@@ -64,7 +64,7 @@ export default class SpellfireStorm extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "All",
-              radius: 20,
+              radius: "20",
               alignment: "",
               type: "",
               ignoreSelf: false,

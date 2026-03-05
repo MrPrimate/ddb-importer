@@ -42,15 +42,15 @@ export default class BoomingBlade extends DDBEnricherData {
             scalingFormula: "1d8",
           })],
           // noeffect: true,
-          overrideRange: {
+          rangeOverride: {
             value: "5",
             units: "ft",
           },
-          overrideTarget: {
+          targetOverride: {
             affects: { type: "creature", count: "1" },
             template: {},
           },
-          activationOverride: { type: "", condition: "Creature moves more than 5 ft" },
+          activationOverride: { type: "special", condition: "Creature moves more than 5 ft" },
         },
         overrides: {
           overrideTemplate: true,
@@ -90,7 +90,7 @@ export default class BoomingBlade extends DDBEnricherData {
             affects: { type: "creature", count: "1" },
             template: {},
           },
-          activationOverride: { type: "", condition: "Creature moves more than 5 ft" },
+          activationOverride: { type: "special", condition: "Creature moves more than 5 ft" },
         },
         overrides: {
           overrideTemplate: true,

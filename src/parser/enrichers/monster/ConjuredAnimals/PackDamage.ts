@@ -103,7 +103,7 @@ export default class PackDamage extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "Enemy",
-              radius: 10,
+              radius: "10",
               alignment: "",
               type: "",
               ignoreSelf: true,

@@ -44,7 +44,7 @@ export default class SearingSmite extends DDBEnricherData {
             }),
           ],
           noeffect: true,
-          activationOverride: { type: "", condition: "Start of the creatures turn" },
+          activationOverride: { type: "special", condition: "Start of the creatures turn" },
         },
         overrides: {
           data: {

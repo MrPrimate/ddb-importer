@@ -66,7 +66,7 @@ export default class WallOfFire extends DDBEnricherData {
           generateTarget: true,
           partialDamageParts: [0],
           noSpellslot: true,
-          activationOverride: { type: "", condition: "" },
+          activationOverride: { type: "special", condition: "" },
           durationOverride: { units: "inst", concentration: false },
           targetOverride: {
             override: true,

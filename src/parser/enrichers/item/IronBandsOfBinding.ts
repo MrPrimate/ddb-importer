@@ -48,7 +48,7 @@ export default class IronBandsOfBinding extends DDBEnricherData {
           generateCheck: true,
           checkOverride: {
             associated: [],
-            ability: "str",
+            ability: ["str"],
             dc: {
               calculation: "",
               formula: "20",

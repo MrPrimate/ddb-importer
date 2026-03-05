@@ -118,7 +118,7 @@ export default class ConjureWoodlandBeings extends DDBEnricherData {
             },
             ActiveAuras: {
               isAura: true,
-              aura: "Enemies" as const,
+              aura: "Enemy",
               radius: "10",
               alignment: "",
               type: "",

@@ -328,58 +328,6 @@ global {
     type: IDDBActivityType;
   }
 
-
-  //  BuildOptions: {
-  //   activationOverride?: any;
-  //   additionalTargets?: I5eConsumptionTarget[];
-  //   allowCritical?: boolean | null;
-  //   attackData?: any;
-  //   spellOverride?: I5eActivitySpell | null;
-  //   chatFlavor?: string | null;
-  //   checkOverride?: I5eActivityCheck | null;
-  //   consumeActivity?: boolean;
-  //   consumeItem?: boolean;
-  //   consumptionOverride?: I5eActivityConsumption | null;
-  //   consumptionTargetOverrides?: I5eConsumptionTarget[] | null;
-  //   criticalDamage?: string | null;
-  //   damageParts?: I5eDamagePart[] | null;
-  //   damageScalingOverride?: any;
-  //   data?: IActivityData;
-  //   ddbMacroOverride?: IDDBActivityMacro | null;
-  //   durationOverride?: I5eActivityDuration | null;
-  //   generateActivation?: boolean;
-  //   generateAttack?: boolean;
-  //   generateSpell?: boolean;
-  //   generateCheck?: boolean;
-  //   generateConsumption?: boolean;
-  //   generateDamage?: boolean;
-  //   generateDDBMacro?: boolean;
-  //   generateDescription?: boolean;
-  //   generateDuration?: boolean;
-  //   generateEffects?: boolean;
-  //   generateEnchant?: boolean;
-  //   generateHealing?: boolean;
-  //   generateRange?: boolean;
-  //   generateRoll?: boolean;
-  //   generateSave?: boolean;
-  //   generateSummon?: boolean;
-  //   generateTarget?: boolean;
-  //   generateUses?: boolean;
-  //   healingChatFlavor?: string | null;
-  //   healingPart?: I5eDamagePart;
-  //   img?: string | null;
-  //   includeBaseDamage?: boolean;
-  //   noeffect?: boolean;
-  //   noManualActivation?: boolean;
-  //   onSave?: string | null;
-  //   partialDamageParts?: I5eDamagePart[] | null;
-  //   rangeOverride?: I5eActivityRange | null;
-  //   rollOverride?: I5eActivityRoll | null;
-  //   saveOverride?: I5eActivitySpell | null;
-  //   targetOverride?: I5eActivityTarget | null;
-  //   usesOverride?: I5eSystemLimitedUses | null;
-  // }
-
   export interface IDDBActivityBuild {
     // --- Activation / attack ---
     activationOverride?: I5eActivityActivation;
@@ -402,7 +350,7 @@ global {
     onSave?: string | null;
     /** @deprecated use onSave */
     onsave?: boolean | string;
-    partialDamageParts?: I5eDamagePart[];
+    partialDamageParts?: number[];
     includeBase?: boolean;
 
     // --- Description / flavor ---

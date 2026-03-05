@@ -65,7 +65,7 @@ export default class SpiritGuardians extends DDBEnricherData {
           ],
           noeffect: true,
           activationOverride: {
-            type: "",
+            type: "special",
             condition: "Enters or ends turn in emanation (1/turn only)",
           },
           durationOverride: {
@@ -92,13 +92,15 @@ export default class SpiritGuardians extends DDBEnricherData {
           },
         },
         overrides: {
-          flags: {
-            midiProperties: {
-              autoTargetAction: "none",
-              triggeredActivityId: "none",
-              triggeredActivityTargets: "targets",
-              forceDialog: false,
-              confirmTargets: "never",
+          data: {
+            flags: {
+              midiProperties: {
+                autoTargetAction: "none",
+                triggeredActivityId: "none",
+                triggeredActivityTargets: "targets",
+                forceDialog: false,
+                confirmTargets: "never",
+              },
             },
           },
         },
@@ -160,7 +162,7 @@ export default class SpiritGuardians extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "Enemy",
-              radius: 15,
+              radius: "15",
               alignment: "",
               type: "",
               ignoreSelf: true,

@@ -25,7 +25,7 @@ export default class SpikeGrowth extends DDBEnricherData {
           noSpellslot: true,
           onsave: false,
           noeffect: true,
-          activationOverride: { type: "", condition: "Moves 5ft" },
+          activationOverride: { type: "special", condition: "Moves 5ft" },
           damageParts: [
             DDBEnricherData.basicDamagePart({
               number: 2,

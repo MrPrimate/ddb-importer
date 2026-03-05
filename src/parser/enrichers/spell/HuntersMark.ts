@@ -38,7 +38,7 @@ export default class HuntersMark extends DDBEnricherData {
           noSpellslot: true,
           onsave: false,
           noeffect: true,
-          activationOverride: { type: "", condition: "When you hit creature with attack" },
+          activationOverride: { type: "special", condition: "When you hit creature with attack" },
           damageParts: [DDBEnricherData.basicDamagePart({ number: 1, denomination, types: damageTypes, scalingFormula: "" })],
         },
       },

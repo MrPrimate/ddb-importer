@@ -16,7 +16,7 @@ export default class AuraOfLife extends DDBEnricherData {
       {
         noCreate: true,
         daeOnly: true,
-        activeAuraOnly: true,
+        activeAurasOnly: true,
         auraeffectsOnly: true,
         macroChanges: [
           { macroValues: "@token", macroType: "spell", macroName: "auraOfLife.js" },
@@ -31,15 +31,13 @@ export default class AuraOfLife extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "Allies",
-              radius: 30,
+              radius: "30",
               alignment: "",
               type: "",
               ignoreSelf: false,
               height: false,
               hidden: false,
               onlyOnce: false,
-              save: false,
-              savedc: null,
               displayTemp: true,
             },
           },

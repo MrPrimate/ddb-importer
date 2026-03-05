@@ -55,7 +55,7 @@ export default class FlameDamage extends DDBEnricherData {
             ActiveAuras: {
               isAura: true,
               aura: "All",
-              radius: 5,
+              radius: "5",
               alignment: "",
               type: "",
               ignoreSelf: true,

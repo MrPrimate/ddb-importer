@@ -74,8 +74,6 @@ export default class Web extends DDBEnricherData {
               height: false,
               hidden: false,
               onlyOnce: false,
-              save: "dex",
-              savedc: null,
               displayTemp: true,
             },
           },

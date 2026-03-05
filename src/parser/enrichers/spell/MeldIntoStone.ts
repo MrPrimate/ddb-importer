@@ -33,7 +33,7 @@ export default class MeldIntoStone extends DDBEnricherData {
           ],
           noeffect: true,
           activationOverride: {
-            type: "",
+            type: "special",
             condition: "",
           },
           durationOverride: {
@@ -60,7 +60,7 @@ export default class MeldIntoStone extends DDBEnricherData {
           ],
           noeffect: true,
           activationOverride: {
-            type: "",
+            type: "special",
             condition: "",
           },
           durationOverride: {
