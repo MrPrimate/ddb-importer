@@ -59,10 +59,19 @@ const flatDirectories = [
 
 for (const directory of flatDirectories) {
   const contents = getContentsOfDirectory(directory);
-  contents.push('\n')
   const outfilePath = path.join(directory, "_module.ts");
   // console.log(`Writing ${outfilePath}`);
-  fs.writeFileSync(outfilePath, contents.join('\n'));
+  writeModuleFile(outfilePath, contents);
+}
+
+function writeModuleFile(outfilePath, contents) {
+  const hasExports = contents.some((line) => line.trim().length > 0);
+  if (!hasExports) {
+    fs.writeFileSync(outfilePath, 'export {};\n');
+  } else {
+    contents.push('\n');
+    fs.writeFileSync(outfilePath, contents.join('\n'));
+  }
 }
 
 function capitalize(s) {
@@ -97,10 +106,9 @@ for (const directory of nestedDirs) {
 
     contents.push(...getContentsOfDirectory(basePath));
 
-    contents.push('\n')
     const outfilePath = path.join(basePath, "_module.ts");
     // console.log(`Writing ${outfilePath}`);
-    fs.writeFileSync(outfilePath, contents.join('\n'));
+    writeModuleFile(outfilePath, contents);
   }
 
 
@@ -109,10 +117,9 @@ for (const directory of nestedDirs) {
     if (fs.lstatSync(fullDirPath).isDirectory()) {
       const contents = getContentsOfDirectory(fullDirPath);
 
-      contents.push('\n')
       const outfilePath = path.join(fullDirPath, "_module.ts");
       // console.log(`Writing ${outfilePath}`);
-      fs.writeFileSync(outfilePath, contents.join('\n'));
+      writeModuleFile(outfilePath, contents);
     }
   }
 }
