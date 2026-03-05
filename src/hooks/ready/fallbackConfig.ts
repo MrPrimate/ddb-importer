@@ -8433,9 +8433,9 @@ export const fallbackDDBConfig: IDDBConfig = {
   sourceCategories: [
     {
       id: 1,
-      name: "2014 Expanded Rules",
+      name: "5e Expanded Rules",
       description:
-        "<p>Character options from supplementary sourcebooks such as&nbsp;<em>Tasha’s Cauldron of Everything</em> and&nbsp;<em>Xanathar’s Guide to Everything</em>, that are&nbsp;beyond the 2014 Core Rules.</p>",
+        "<p>Character options from supplementary sourcebooks such as&nbsp;<em>Tasha’s Cauldron of Everything</em> and&nbsp;<em>Xanathar’s Guide to Everything</em>, that are&nbsp;beyond the&nbsp;5e Core Rules.</p>",
       isHideable: false,
       isEnabledByDefault: true,
       isToggleable: true,
@@ -8629,9 +8629,9 @@ export const fallbackDDBConfig: IDDBConfig = {
     },
     {
       id: 24,
-      name: "Core Rules",
+      name: "5.5e Core Rules",
       description:
-        "<p>Character options from the <em>Player’s Handbook</em>, <em>Dungeon Master’s Guide</em>, <em>Monster Manual</em>,&nbsp;and <em>D&D Beyond Basic Rules</em>.</p>",
+        "<p>Character options from the 5.5e&nbsp;<em>Player’s Handbook</em>, <em>Dungeon Master’s Guide</em>, <em>Monster Manual</em>,&nbsp;and <em>D&D Beyond Basic Rules</em>.</p>",
       isHideable: false,
       isEnabledByDefault: true,
       isToggleable: true,
@@ -8648,9 +8648,9 @@ export const fallbackDDBConfig: IDDBConfig = {
     },
     {
       id: 26,
-      name: "2014 Core Rules",
+      name: "5e Core Rules",
       description:
-        "<p>Character options from the 2014 <em>Player's Handbook</em>, <em>Dungeon Master's Guide</em>, <em>Monster Manual</em>, and&nbsp;<em>Basic Rules</em>.</p>",
+        "<p>Character options from the&nbsp;5e&nbsp;<em>Player's Handbook</em>, <em>Dungeon Master's Guide</em>, <em>Monster Manual</em>, and&nbsp;<em>Basic Rules</em>.</p>",
       isHideable: false,
       isEnabledByDefault: true,
       isToggleable: true,
@@ -8758,14 +8758,14 @@ export const fallbackDDBConfig: IDDBConfig = {
     },
     {
       id: 38,
-      name: "Expanded Rules",
-      description: "<p>Character options from supplementary sourcebooks beyond the Core Rules.</p>",
+      name: "5.5e Expanded Rules",
+      description: "<p>Character options from supplementary sourcebooks beyond the 5.5e Core Rules.</p>",
       isHideable: false,
       isEnabledByDefault: true,
       isToggleable: true,
       avatarUrl: "",
     },
-        {
+    {
       id: 39,
       name: "Visionary Production and Design Inc.",
       description: "<p>This contains content from Visionary Production and Design Inc.</p>",
