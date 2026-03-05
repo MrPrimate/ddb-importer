@@ -7,7 +7,7 @@ global {
   // ---- Activities -----------------------------------------------------------
 
   interface I5eActivityActivation {
-    type?: string;
+    type?: activationCostType;
     value?: number;
     condition?: string;
     override?: boolean;
@@ -19,33 +19,15 @@ global {
     spellSlot?: boolean;
   }
 
-  interface I5eActivityTarget {
-    template?: {
-      count?: string;
-      contiguous?: boolean;
-      type?: string;
-      size?: string;
-      width?: string;
-      height?: string;
-      units?: string;
-    };
-    affects?: {
-      count?: string;
-      type?: string;
-      choice?: boolean;
-      special?: string;
-    };
-    prompt?: boolean;
+  interface I5eActivityTarget extends I5eSystemTargetData {
     override?: boolean;
   }
 
-  interface I5eActivityRange {
-    value?: number | string | null;
+
+  interface I5eActivityRange extends I5eSystemBaseRangeData{
     long?: number | null;
-    units: string;
     reach?: string | null;
     override?: boolean;
-    special?: string;
   }
 
   interface I5eActivityDuration extends I5eSystemDurationData {
@@ -242,8 +224,8 @@ global {
   interface I5eSummonActivity extends I5eActivityBase {
     type?: "summon";
     bonuses?: I5eSummonsBonuses;
-    creatureSizes?: string[];
-    creatureTypes?: string[];
+    creatureSizes?: actorSizes[];
+    creatureTypes?: creatureTypes[];
     match?: I5eSummonsMatch;
     profiles?: any[];
     summon?: I5eActivitiesSummon;

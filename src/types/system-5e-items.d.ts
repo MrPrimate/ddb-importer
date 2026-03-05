@@ -65,28 +65,6 @@ global {
 
   // ---- Damage parts ---------------------------------------------------------
 
-  interface I5eDamageScaling {
-    mode?: string;
-    number?: number | null;
-    formula?: string;
-  }
-
-  interface I5eDamageCustom {
-    enabled: boolean;
-    formula: string;
-  }
-
-  export type I5eDamageType = "acid" | "bludgeoning" | "cold" | "fire" | "force" | "lightning" | "necrotic" | "piercing" | "poison" | "psychic" | "radiant" | "slashing" | "thunder" | string;
-
-  interface I5eDamagePart {
-    number: number;
-    denomination: number;
-    bonus: string;
-    types: I5eDamageType[];
-    custom?: I5eDamageCustom;
-    scaling?: I5eDamageScaling;
-  }
-
   interface I5eDamageBase {
     base?: I5eDamagePart;
     onSave?: string | null;
@@ -127,13 +105,11 @@ global {
     mastery?: string;
     price: I5ePrice;
     proficient: boolean | null;
-    properties: string[];
+    properties: weaponPropertiesType[];
     quantity: number;
-    range: {
-      value: number | null;
+    range: I5eSystemBaseRangeData & {
       long: number | null;
-      units: string;
-      reach: string;
+      reach: string | null;
     };
     rarity: string;
     requirements: string;
@@ -158,13 +134,13 @@ global {
   interface I5eFeatSystemData {
     activities: Record<string, I5eActivity>;
     advancement?: I5eAdvancement[];
-    crewed: boolean;
+    crewed?: boolean;
     description: I5eItemDescription;
-    enchant: Record<string, any>;
+    enchant?: Record<string, any>;
     identifier: string;
     prerequisites: { items: any[]; repeatable: boolean };
     proficient?: boolean;
-    properties: string[];
+    properties: featPropertiesType[];
     requirements: string;
     source: I5eItemSourceRef;
     type: { value: string; subtype: string };
@@ -198,7 +174,7 @@ global {
   interface I5eSystemDurationData {
     concentration?: boolean;
     special?: string;
-    units?: string;
+    units?: durationUnitTypes;
     value?: string;
   }
 
@@ -207,7 +183,7 @@ global {
     template?: {
       count?: string;
       contiguous?: boolean;
-      type?: string;
+      type?: templateType;
       size?: string;
       width?: string;
       height?: string;
@@ -215,15 +191,15 @@ global {
     };
     affects?: {
       count?: string;
-      type?: string;
+      type?: targetType;
       choice?: boolean;
       special?: string;
     };
   }
 
-  interface i5eSystemBaseRangeData {
-    value?: string;
-    units?: string;
+  interface I5eSystemBaseRangeData {
+    value?: string | number | null;
+    units?: distanceUnitTypes;
     special?: string;
   }
 
@@ -238,7 +214,7 @@ global {
     materials: I5eSpellMaterials;
     method: "atwill" | "innate" | "spell" | string;
     prepared: number;
-    properties: string[];
+    properties: spellPropertiesType[];
     range: I5eSystemBaseRangeData;
     school: string;
     source: I5eItemSourceRef;
@@ -275,7 +251,7 @@ global {
     identifier: string;
     price: I5ePrice;
     proficient: boolean | null;
-    properties: string[];
+    properties: equipmentPropertiesType[];
     quantity: number;
     rarity: string;
     source: I5eItemSourceRef;
@@ -325,7 +301,7 @@ global {
     attunement: string;
     currency: I5eCurrency;
     capacity: I5eContainerCapacity;
-    properties: string[];
+    properties: containerPropertiesType[];
     attuned: boolean;
     equipped: boolean;
     // not sure this is right
@@ -358,7 +334,7 @@ global {
     bonus: string;
     chatFlavor: string;
     proficient: number;
-    properties: string[];
+    properties: toolPropertiesType[];
     type: { value: string; baseItem: string };
     attuned: boolean;
     equipped: boolean;
@@ -408,7 +384,7 @@ global {
     attuned: boolean;
     equipped: boolean;
     damage: I5eConsumableDamage;
-    properties: string[];
+    properties: consumablePropertiesType[];
     type: { value: string; subtype: string };
   }
 

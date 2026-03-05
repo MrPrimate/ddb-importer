@@ -27,9 +27,9 @@ export default class CelestialRevelation extends DDBEnricherData {
           generateDamage: true,
           generateConsumption: false,
           noeffect: true,
-          noTemplate: true,
         },
         overrides: {
+          noTemplate: true,
           activationType: "special",
           activationCondition: "1/turn",
           targetType: "creature",

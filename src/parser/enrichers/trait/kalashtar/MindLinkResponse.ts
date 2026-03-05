@@ -19,9 +19,10 @@ export default class MindLinkResponse extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("Telepathy", 10, "system.traits.languages.custom"),
         ],
-        duration: {
-          seconds: 3600,
-          hour: 1,
+        data: {
+          duration: {
+            seconds: 3600,
+          },
         },
       },
     ];

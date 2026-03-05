@@ -73,7 +73,7 @@ declare global {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
     DND5E: {
-      activityActivationTypes: "action" | "bonus" | "reaction" | "minute" | "hour" | "day" | "longRest" | "shortRest" | "encounter" | "turnStart" | "turnEnd" | "legendary" | "mythic" | "lair" | "crew" | "special";
+      activityActivationTypes: activationCostType;
       spellPreparationStates: {
         prepared: {
           value: number;

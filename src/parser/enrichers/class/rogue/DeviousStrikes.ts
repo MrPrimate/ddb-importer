@@ -36,7 +36,7 @@ export default class DeviousStrikes extends DDBEnricherData {
           generateRange: false,
           generateActivation: true,
           activationOverride: {
-            type: "",
+            type: "special",
             condition: "Dealing Sneak Attack damage",
           },
           saveOverride: {
@@ -67,10 +67,10 @@ export default class DeviousStrikes extends DDBEnricherData {
           generateDuration: true,
           durationOverride: {
             value: "1",
-            units: "min",
+            units: "minute",
           },
           activationOverride: {
-            type: "",
+            type: "special",
             condition: "Dealing Sneak Attack damage",
           },
           saveOverride: {

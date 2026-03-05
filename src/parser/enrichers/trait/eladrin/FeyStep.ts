@@ -40,7 +40,6 @@ export default class FeyStep extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
-          noConsumeTargets: true,
           generateSave: true,
           generateActivation: true,
           generateConsumption: false,
@@ -48,6 +47,7 @@ export default class FeyStep extends DDBEnricherData {
           generateTarget: true,
         },
         overrides: {
+          noConsumeTargets: true,
           targetType: "creature",
           activationType: "special",
         },
@@ -58,13 +58,13 @@ export default class FeyStep extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
-          noConsumeTargets: true,
           generateActivation: true,
           generateConsumption: false,
           generateDamage: true,
           generateTarget: true,
         },
         overrides: {
+          noConsumeTargets: true,
           rangeSelf: true,
           activationType: "special",
           data: {

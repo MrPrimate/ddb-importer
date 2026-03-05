@@ -6,6 +6,11 @@ export interface ISpellPreparationMode {
   cantripsPrepared?: () => number;
 }
 
+interface ISpellProgression {
+  name: string;
+  value: "full" | "half" | "third" | "pact" | "artificer";
+}
+
 export const SPELL = {
   components: {
     MATERIAL: "material",
@@ -74,7 +79,7 @@ export const SPELL = {
     { name: "Warlock", value: "pact" },
     { name: "Wizard", value: "full" },
     { name: "Monk", value: "none" },
-  ],
+  ] as ISpellProgression[],
   preparationModes: [
     {
       name: "Artificer",

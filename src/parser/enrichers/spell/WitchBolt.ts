@@ -22,7 +22,7 @@ export default class WitchBolt extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           activationOverride: {
-            value: "1",
+            value: 1,
             type: this.is2014 ? "action" : "bonus",
           },
           targetOverride: {

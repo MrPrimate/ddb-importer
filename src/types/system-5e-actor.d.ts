@@ -314,7 +314,7 @@ global {
     dv?: I5eDamageTraitSet;
     important?: boolean;
     languages?: I5eLanguages;
-    size?: string;
+    size?: actorSizes;
   }
 
   // ---- System (top-level) ---------------------------------------------------
@@ -570,8 +570,8 @@ global {
 
   interface I5eAdvancementSize extends I5eAdvancementBase {
     type: "Size";
-    configuration: { sizes?: string[] };
-    value: { size?: string };
+    configuration: { sizes?: actorSizes[] };
+    value: { size?: actorSizes };
   }
 
   export type I5eAdvancement =
@@ -704,7 +704,7 @@ global {
   }
 
   interface I5eClassSpellcasting {
-    progression?: "full" | "half" | "third" | "pact" | null;
+    progression?: "full" | "half" | "third" | "pact" | "artificer" | null;
     preparation?: {
       formula?: string;[];
     };
