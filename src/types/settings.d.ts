@@ -217,7 +217,7 @@ declare global {
     "ddb-importer.munching-policy-spell-exact-match": boolean;
     "ddb-importer.munching-policy-use-source-filter": boolean;
     "ddb-importer.munching-policy-muncher-sources": any[];
-    "ddb-importer.munching-policy-muncher-excluded-source-categories": any[];
+    "ddb-importer.munching-policy-muncher-included-source-categories": any[];
     "ddb-importer.munching-policy-muncher-monster-types": any[];
     "ddb-importer.munching-policy-monster-use-item-ac": boolean;
     "ddb-importer.munching-policy-monster-retain-biography": boolean;

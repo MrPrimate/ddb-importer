@@ -1,17 +1,17 @@
 <section id="ddb-importer-muncher-sources" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
 
     <fieldset>
-    <legend>Excluded Flavour Profiles (Categories)</legend>
+    <legend>Included Flavour Profiles (Categories)</legend>
     <p>By default DDB Importer <strong>excludes</strong> third party categories from being imported.</p>
-    <p>The following categories will be excluded. Please adjust to taste.</p>
+    <p>The following categories will be included. Please adjust to taste.</p>
     <p>Categories are used on D&D Beyond to filter content.
 These are groups of books.
-The 2024 PHB, MM and DMG are considered "Core Rules".
+The 2024 PHB, MM and DMG are considered "5.5e Core Rules". 2014 Books are 5e.
 Expanded content are books like XGtE.
 Legacy/non-core are books that were replaced in the 2014 ruleset lifecycle like Mordenkainen’s Tome of Foes.</p>
-    <div class="form-fields" id="munch-excluded-config">
-      <multi-select id="muncher-excluded-source-categories" name="muncher-excluded-source-categories">
-        {{#each excludedCategories}}
+    <div class="form-fields" id="munch-included-config">
+      <multi-select id="muncher-included-source-categories" name="muncher-included-source-categories">
+        {{#each includedCategories}}
         <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
         {{/each}}
       </multi-select>

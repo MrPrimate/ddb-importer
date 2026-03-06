@@ -814,6 +814,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
+    const includedCategories = MuncherSettings.getIncludedCategoriesLookup();
     const excludedCategories = MuncherSettings.getExcludedCategoriesLookup();
     const bookSources = MuncherSettings.getSourcesLookups();
 
@@ -890,6 +891,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       sourceConfig,
       selectedSources,
       monsterTypes,
+      includedCategories,
       excludedCategories,
       basicMonsterConfig,
       filterMonsterConfig,
@@ -1034,6 +1036,21 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
+  getIncludedCategoriesLookup: () => {
+    const includedCatIds = DDBSources.getIncludedCategoryIds();
+    const availableCats = DDBSources.getDisplaySourceCategories();
+
+    const includedCategories = availableCats.map((cat) => {
+      return {
+        id: cat.id,
+        selected: includedCatIds.includes(cat.id) ? "selected" : "",
+        label: cat.name,
+      };
+    });
+    return includedCategories.sort((a, b) => {
+      return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+    });
+  },
 
   updateMuncherSettings: async (_html, event) => {
     const selection = event.target.dataset.section;

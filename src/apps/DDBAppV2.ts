@@ -27,7 +27,7 @@ export interface NotifierV2Props {
 }
 
 
-export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
+export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
 
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
@@ -68,7 +68,7 @@ export default class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) 
     const primary = this.element.querySelector(".window-content > [data-application-part=\"tabs\"]");
     const active = this.element.querySelector(".tab.active[data-group=\"sheet\"]");
     if (!primary || !active) return;
-    primary.classList.toggle("nested-tabs", active.querySelector(`:scope > .sheet-tabs`));
+    primary.classList.toggle("nested-tabs", !!active.querySelector(`:scope > .sheet-tabs`));
   }
 
   /* -------------------------------------------- */

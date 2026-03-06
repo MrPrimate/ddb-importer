@@ -54,7 +54,7 @@ global {
     page?: string;
     license?: string;
     custom?: string;
-    revision: number;
+    revision?: number;
     rules: string;
   }
 

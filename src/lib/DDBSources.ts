@@ -1,4 +1,18 @@
 import { DICTIONARY, SETTINGS } from "../config/_module";
+import { utils } from "./_module";
+
+export interface IDDBSourceDefinition {
+  sources?: IDDBSource[];
+  sourceId?: number;
+  sourceIds?: number[];
+  sourcePageNumber?: string;
+  isHomebrew?: boolean;
+}
+
+export interface IDDBSourceResponse extends I5eItemSourceRef {
+  id?: number;
+  categoryId?: number;
+}
 
 export default class DDBSources {
 
@@ -15,7 +29,7 @@ export default class DDBSources {
     const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
     if (force2024) return false;
     // if game is set to modern rules force items that have a 2024 source to be 2024
-    if (game.settings.get("dnd5e", "rulesVersion") === "modern") {
+    if (utils.getSetting<string>("rulesVersion", "dnd5e") === "modern") {
       if (force2024) return false;
     }
     const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
@@ -28,7 +42,7 @@ export default class DDBSources {
     const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
     if (force2014) return false;
     // if game is set to modern rules force items that have a 2024 source to be 2024
-    if (game.settings.get("dnd5e", "rulesVersion") === "modern") {
+    if (utils.getSetting<string>("rulesVersion", "dnd5e") === "modern") {
       if (force2014) return false;
     }
     const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
@@ -78,11 +92,11 @@ export default class DDBSources {
    * If the definition has a sourceId, it will return an array with one sourcebook object.
    * If the definition has a sourceIds array, it will return an array with one sourcebook object for each sourceId.
    * If the definition has no source information, it will return an empty array.
-   * @param {obj} definition item definition
+   * @param {IDDBSourceDefinition} definition item definition
    * @returns {Array} an array of sourcebook objects
    */
-   
-  static getSourceData(definition) {
+
+  static getSourceData(definition: IDDBSourceDefinition): IDDBSourceResponse[] {
     const results = [];
     if (definition.sources?.length > 0) {
       const typeOneSources = definition.sources.filter((source) => source.sourceType === 1);
@@ -93,8 +107,8 @@ export default class DDBSources {
       const basicRules2024 = definition.sources.filter((source) => source.sourceId === 148);
       const coreRules = definition.sources.filter((source) => source.sourceId === 198);
       const hasPage = definition.sources.some((source) => source.pageNumber !== null);
-      const usePages = game.settings.get(SETTINGS.MODULE_ID, "no-source-book-pages") === false;
-      const useBasicRules = game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules");
+      const usePages = utils.getSetting<boolean>("no-source-book-pages") === false;
+      const useBasicRules = utils.getSetting<boolean>("use-basic-rules");
 
       let sources = definition.sources;
       if (usePages && hasPage) {
@@ -103,13 +117,13 @@ export default class DDBSources {
 
       // if just SRD on a source, lets add the PHB as well to avoid some _issues_
       if (sources.length === 1 && sources.find((s) => s.sourceType === 1 && s.sourceId === 1)) {
-        sources.push({ "sourceId": 2, "sourceType": 1 });
+        sources.push({ sourceId: 2, sourceType: 1, pageNumber: null });
       }
 
       if (useBasicRules && coreRules.length > 0) {
         sources = coreRules;
       } else if (useBasicRules
-        && game.settings.get("dnd5e", "rulesVersion") === "modern" && basicRules2024.length > 0
+        && utils.getSetting<string>("rulesVersion", "dnd5e") === "modern" && basicRules2024.length > 0
       ) {
         sources = basicRules2024;
       } else if (useBasicRules && basicRules2014.length > 0) {
@@ -121,13 +135,14 @@ export default class DDBSources {
       for (const ds of sources) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === ds.sourceId);
 
-        const source = {
+        const source: IDDBSourceResponse = {
           book: ddbSource ? ddbSource.name : "Homebrew",
-          page: ds.pageNumber ?? "",
+          page: String(ds.pageNumber ?? ""),
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
           categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
+          rules: "",
         };
         DDBSources.tweakSourceData(source);
         results.push(source);
@@ -135,13 +150,14 @@ export default class DDBSources {
     } else if (definition.sourceIds) {
       for (const sourceId of definition.sourceIds) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === sourceId);
-        const source = {
+        const source: IDDBSourceResponse = {
           book: ddbSource ? ddbSource.name : "Homebrew",
           page: definition.sourcePageNumber ?? "",
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
           categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
+          rules: "",
         };
 
         DDBSources.tweakSourceData(source);
@@ -149,24 +165,26 @@ export default class DDBSources {
       }
     } else if (definition.sourceId) {
       const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === definition.sourceId);
-      const source = {
+      const source: IDDBSourceResponse = {
         book: ddbSource ? ddbSource.name : "Homebrew",
         page: definition.sourcePageNumber ?? "",
         license: "",
         custom: "",
         id: ddbSource ? ddbSource.id : 9999999,
         categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
+        rules: "",
       };
       DDBSources.tweakSourceData(source);
       results.push(source);
     } else if (definition.isHomebrew) {
-      const source = {
+      const source: IDDBSourceResponse = {
         book: "Homebrew",
         page: "",
         license: "",
         custom: "",
         id: 9999999,
         categoryId: 9999999,
+        rules: "",
       };
       results.push(source);
     }
@@ -175,10 +193,10 @@ export default class DDBSources {
 
   /**
    * Parses the source data of a definition into a single source object
-   * @param {obj} definition definition to parse
+   * @param {IDDBSourceDefinition} definition definition to parse
    * @returns {obj} a source object with the following properties: name, page, license, and custom
    */
-  static parseSource(definition) {
+  static parseSource(definition: IDDBSourceDefinition): IDDBSourceResponse {
     const sources = DDBSources.getSourceData(definition);
     const latestSource = sources.length > 0
       ? sources.reduce((prev, current) => {
@@ -191,6 +209,7 @@ export default class DDBSources {
       page: "",
       license: "",
       custom: "",
+      rules: "",
     };
     delete latestSource.id;
     return latestSource;
@@ -199,7 +218,7 @@ export default class DDBSources {
   static addSourcesHook() {
     if (!game.settings.get(SETTINGS.MODULE_ID, "register-source-books")) return;
 
-    const ddbRaw = foundry.utils.getProperty(CONFIG, "DDB.sources");
+    const ddbRaw: IDDBConfigSource[] = foundry.utils.getProperty(CONFIG, "DDB.sources") as IDDBConfigSource[];
     if (!ddbRaw) return;
 
     const sources = {};
@@ -231,29 +250,33 @@ export default class DDBSources {
     });
   }
 
-  static getSelectedSourceIds() {
-    return game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources")
-      .map((id) => parseInt(id));
+  static getSelectedSourceIds(): number[] {
+    return utils.getSetting<number[]>("munching-policy-muncher-sources")
+      .map((id) => parseInt(`${id}`));
   }
 
-  static getExcludedCategoryIds() {
-    return game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories")
-      .map((id) => parseInt(id));
+  static getExcludedCategoryIds(): number[] {
+    const includedCategoryIds = DDBSources.getIncludedCategoryIds();
+    return CONFIG.DDB.sourceCategories.map((category) => category.id)
+      .filter((id) => !includedCategoryIds.includes(id));
   }
 
-  static getSelectedMonsterTypeIds() {
-    const chosenMonsterTypeIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types").map((id) => parseInt(id));
+  static getIncludedCategoryIds(): number[] {
+    return utils.getSetting<number[]>("munching-policy-muncher-included-source-categories")
+      .map((id) => parseInt(`${id}`));
+  }
+
+
+  static getSelectedMonsterTypeIds(): number[] {
+    const chosenMonsterTypeIds = utils.getSetting<number[]>("munching-policy-muncher-monster-types")
+      .map((id) => parseInt(`${id}`));
     return chosenMonsterTypeIds;
   }
 
-   
   static AlwaysExcludedCategoryIds = DICTIONARY.sourceCategories.excluded;
-
-   
   static AlwaysHiddenCategoryIds = DICTIONARY.sourceCategories.hidden;
 
-
-  static getAllExcludedCategoryIds() {
+  static getAllExcludedCategoryIds(): number[] {
     return Array.from(new Set([
       ...DDBSources.AlwaysHiddenCategoryIds,
       ...DDBSources.AlwaysExcludedCategoryIds,
@@ -261,30 +284,30 @@ export default class DDBSources {
     ]));
   }
 
-  static getCategoriesWithBooks() {
+  static getCategoriesWithBooks(): IDDBConfigSourceCategory[] {
     const sourceCategories = new Set(CONFIG.DDB.sources.map((s) => s.sourceCategoryId));
     return CONFIG.DDB.sourceCategories
       .filter((cat) => sourceCategories.has(cat.id));
   }
 
-  static getAvailableCategories() {
+  static getAvailableCategories(): IDDBConfigSourceCategory[] {
     const cats = DDBSources.getCategoriesWithBooks()
       .filter((cat) => !DDBSources.AlwaysExcludedCategoryIds.includes(cat.id));
     return cats;
   }
 
-  static getAvailableCategoryIds() {
+  static getAvailableCategoryIds(): number[] {
     return DDBSources.getAvailableCategories()
       .map((source) => source.id);
   }
 
-  static getDisplaySourceCategories(includeHomebrew = false) {
+  static getDisplaySourceCategories(includeHomebrew = false): IDDBConfigSourceCategory[] {
     return DDBSources.getAvailableCategories()
       .filter((c) => !DDBSources.AlwaysHiddenCategoryIds.includes(c.id)
       || (includeHomebrew && c.id === 9999999));
   }
 
-  static getAllowedSources() {
+  static getAllowedSources(): IDDBConfigSource[] {
     const excludedIds = DDBSources.getAllExcludedCategoryIds();
     const availableSources = CONFIG.DDB.sources
       .filter((source) => source.isReleased
@@ -293,47 +316,49 @@ export default class DDBSources {
     return availableSources;
   }
 
-  static getAllowedSourceIds() {
+  static getAllowedSourceIds(): number[] {
     return DDBSources.getAllowedSources()
       .map((source) => source.id);
   }
 
-  static getAllowedSourceCategoryIds() {
+  static getAllowedSourceCategoryIds(): number[] {
     const sourceSet = new Set(DDBSources.getAllowedSources()
       .map((source) => source.sourceCategoryId));
     return Array.from(sourceSet);
   }
 
   // sources to use in ui
-  static getDisplaySources() {
+  static getDisplaySources(): IDDBConfigSource[] {
     const excludedIds = [...DDBSources.AlwaysExcludedCategoryIds, ...DDBSources.AlwaysHiddenCategoryIds];
     const availableSources = CONFIG.DDB.sources
       .filter((source) => source.isReleased && !excludedIds.includes(source.sourceCategoryId));
     return availableSources;
   }
 
-  static isSourceInAllowedCategory(source) {
+  static isSourceInAllowedCategory(source: IDDBSource): boolean {
     const sourceCategory = CONFIG.DDB.sources.find((s) => s.id == source.sourceId);
     if (!sourceCategory) return false;
     return !DDBSources.getAllExcludedCategoryIds().includes(sourceCategory.sourceCategoryId);
   }
 
-  static async updateSelectedSources(ids) {
-    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-sources", ids.map((id) => parseInt(id)));
+  static async updateSelectedSources(ids: (number|string)[]) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-sources", ids.map((id) => parseInt(`${id}`)));
   }
 
-  static async updateExcludedCategories(ids) {
-    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-excluded-source-categories", ids.map((id) => parseInt(id)));
+  static async updateIncludedCategories(ids: (number|string)[]) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-included-source-categories", ids.map((id) => parseInt(`${id}`)));
   }
 
-  static async updateSelectedMonsterTypes(ids) {
-    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types", ids.map((id) => parseInt(id)));
+  static async updateSelectedMonsterTypes(ids: (number|string)[]) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types", ids.map((id) => parseInt(`${id}`)));
   }
 
   static async updateAllowedWeaponPropertySources() {
-    const allowedSourceIds = new Set(game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources").map((id) => parseInt(id)));
+    const allowedSourceIds = new Set(utils.getSetting<number[]>("allowed-weapon-property-sources")
+      .map((id) => parseInt(`${id}`)));
 
-    const selectedAllowedSourceIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-sources").map((id) => parseInt(id));
+    const selectedAllowedSourceIds = utils.getSetting<number[]>("munching-policy-muncher-sources")
+      .map((id) => parseInt(`${id}`));
     selectedAllowedSourceIds.forEach((id) => allowedSourceIds.add(id));
 
     const sourcesNotExcluded = CONFIG.DDB.sources
@@ -341,23 +366,23 @@ export default class DDBSources {
 
     sourcesNotExcluded.forEach((s) => allowedSourceIds.add(s.id));
 
-    await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", Array.from(allowedSourceIds).map((id) => parseInt(id)));
+    await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", Array.from(allowedSourceIds));
   }
 
-  static getBooksInCategories(categoryIds) {
+  static getBooksInCategories(categoryIds: number[]): IDDBConfigSource[] {
     const books = CONFIG.DDB.sources.filter((book) => categoryIds.includes(book.sourceCategoryId));
     return books;
   }
 
-  static getBookIdsInCategories(categories) {
+  static getBookIdsInCategories(categories: number[]): number[] {
     const books = DDBSources.getBooksInCategories(categories);
     return books.map((book) => book.id);
   }
 
-  static getChosenCategoriesAndBooks(useOverride = true) {
-    const sourceIdArrays = [];
+  static getChosenCategoriesAndBooks(useOverride = true): { categoryId: number; sourceIds: number[] }[] {
+    const sourceIdArrays: { categoryId: number; sourceIds: number[] }[] = [];
     const sourceCategoryIds = DDBSources.getAllowedSourceCategoryIds();
-    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
     const overrideSources = useOverride && enableSources ? DDBSources.getSelectedSourceIds() : [];
 
     for (const sourceCategoryId of sourceCategoryIds) {

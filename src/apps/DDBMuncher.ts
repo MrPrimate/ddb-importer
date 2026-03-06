@@ -29,23 +29,14 @@ import DDBSetup from "./DDBSetup";
 export default class DDBMuncher extends DDBAppV2 {
 
   processErrors = [];
-
   subClassMap = {};
-
   homebrewClasses = new Set();
-
   encounterId = null;
-
   encounter = null;
-
   searchTermMonster = "";
-
   searchTermItem = "";
-
   searchTermSpell = "";
-
   muleURL = "";
-
   characterId = null;
 
 
@@ -229,7 +220,7 @@ export default class DDBMuncher extends DDBAppV2 {
     const munchActive = this.element.querySelector(".tab.active[data-group=\"munch\"]");
     if (munch && munchActive) {
       const monstersActive = this.element.querySelector(".tab.active[data-tab=\"monsters\"]");
-      munch.classList.toggle("nested-tabs", monstersActive ?? false);
+      munch.classList.toggle("nested-tabs", !!monstersActive);
     }
     super._toggleNestedTabs();
   }
@@ -244,8 +235,8 @@ export default class DDBMuncher extends DDBAppV2 {
 
     // custom listeners
     // multi-selects
-    this.element.querySelector("#muncher-excluded-source-categories")?.addEventListener("change", async (event) => {
-      await DDBSources.updateExcludedCategories(Array.from(event.target._value));
+    this.element.querySelector("#muncher-included-source-categories")?.addEventListener("change", async (event) => {
+      await DDBSources.updateIncludedCategories(Array.from(event.target._value));
     });
 
     this.element.querySelector("#muncher-source-select")?.addEventListener("change", async (event) => {
