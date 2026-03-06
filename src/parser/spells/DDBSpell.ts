@@ -700,13 +700,11 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
         switch (limitedUse.operator) {
           case 2: {
-            // maxUses *= character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
             maxUses = `${maxUses} * @abilities.${ability}.mod`;
             break;
           }
           case 1:
           default:
-            // maxUses += character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
             maxUses = `${maxUses} + @abilities.${ability}.mod`;
         }
       }

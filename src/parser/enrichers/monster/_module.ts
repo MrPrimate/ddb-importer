@@ -33,4 +33,5 @@ export * as Stirge from "./Stirge/_module";
 export * as SummonAnimatedObject from "./SummonAnimatedObject/_module";
 export * as SummonConstruct from "./SummonConstruct/_module";
 export * as SwarmOfStirges from "./SwarmOfStirges/_module";
+export * as VampireFamiliar from "./VampireFamiliar/_module";
 

@@ -73,23 +73,6 @@ export class DDBMonsterDamage {
     return Array.from(result);
   }
 
-  damageModReplace(text) {
-    let result;
-    const diceParse = utils.parseDiceString(text, null);
-    if (this.baseAbility) {
-      const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
-      const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
-      const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
-      const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
-      result = reParse.diceString;
-    } else {
-      result = diceParse.diceString;
-    }
-
-    return result;
-  }
-
-
   _generateHitMatches() {
     const startEndRegex = /At the (start|end) of/ig;
     this.hitsMatch = this.hit.split(startEndRegex);

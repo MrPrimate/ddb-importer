@@ -1,5 +1,9 @@
 import { SETTINGS } from "../config/_module";
 
+interface DiceParserDice { sign: string; count: number; die: number };
+interface DiceParserBonus { sign: string; count: number };
+interface DiceParserResult {};
+
 const Range = function *(total = 0, step = 1, from = 0) {
   // eslint-disable-next-line no-empty
   for (let i = 0; i < total; yield from + i++ * step) {}
@@ -176,11 +180,11 @@ export default class Utils {
     return Utils.renderLesserString(a) === Utils.renderLesserString(b);
   }
 
-  static calculateModifier(val) {
-    return Math.floor((val - 10) / 2);
+  static calculateModifier(value) {
+    return Math.floor((value - 10) / 2);
   }
 
-  static diceStringResultBuild(diceMap, dice, bonus = "", mods = "", diceHint = "", specialFlags = "", addHint = false) {
+  static diceStringResultBuild(diceMap: DiceParserDice[], dice: DiceParserDice[], bonus = 0, mods = "", diceHint = "", specialFlags = "", addHint = false) {
     const globalDamageHints = addHint;
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? " +" : " "} ${bonus}`;
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
@@ -203,14 +207,14 @@ export default class Utils {
     return result;
   }
 
-  static parseDiceString(inStr, mods = "", diceHint = "", specialFlags = "") {
+  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = "") {
     // sanitizing possible inputs a bit
     const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
     // all found dice strings, e.g. 1d8, 4d6
-    const dice = [];
+    const dice: DiceParserDice[] = [];
     // all bonuses, e.g. -1+8
-    const bonuses = [];
+    const bonuses: DiceParserBonus[] = [];
 
     const diceRegex = /(?<rawSign>[+-]*)(?<count>\d+)(?:d(?<die>\d+))?/gu;
 
@@ -240,13 +244,13 @@ export default class Utils {
     }
 
     // sum up the bonus
-    const bonus = bonuses.reduce((prev, cur) => prev + cur.count, 0);
+    const bonus: number = bonuses.reduce((prev, cur) => prev + cur.count, 0);
 
     // group the dice, so that all the same dice are summed up if they have the same sign
     // e.g.
     // +1d8+2d8 => 3d8
     // +1d8-2d8 => +1d8 -2d8 will remain as-is
-    const diceMap = [];
+    const diceMap: DiceParserDice[] = [];
 
     const groupBySign = Utils.groupBy(dice, "sign");
     for (const group of groupBySign.values()) {

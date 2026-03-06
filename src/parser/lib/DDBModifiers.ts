@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger, Utils } from "../../lib/_module";
+import { logger, utils, Utils } from "../../lib/_module";
 import DDBDataUtils from "./DDBDataUtils";
 
 export default class DDBModifiers {
@@ -391,7 +391,7 @@ export default class DDBModifiers {
           : null;
       if (Number.isInteger(statBonus)) {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === modifier.statId);
-        modBonus += character.system.abilities[ability.value].mod;
+        modBonus += utils.calculateModifier(character.system.abilities[ability.value]);
       }
       if (die) {
         const mod = die.diceString;

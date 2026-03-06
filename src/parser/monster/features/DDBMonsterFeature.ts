@@ -257,7 +257,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     const diceParse = utils.parseDiceString(text, null);
     if (this.actionData.baseAbility) {
       const baseAbilityMod = this.ddbMonster.abilities[this.actionData.baseAbility].mod;
-      const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
+      const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : 0;
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
       result = reParse.diceString;

@@ -1,4 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
+import { utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 
 DDBCharacter.prototype.resourceList = function resourceList() {
@@ -26,12 +27,12 @@ DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedRes
 
         switch (action.limitedUse.operator) {
           case 2: {
-            maxUses *= this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+            maxUses *= utils.calculateModifier(this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].value);
             break;
           }
           case 1:
           default:
-            maxUses += this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].mod;
+            maxUses += utils.calculateModifier(this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities[ability].value);
         }
       }
 

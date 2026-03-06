@@ -247,7 +247,7 @@ class DDBCharacter {
   private _itemCurrency: I5eCurrency;
   itemCompendium: CompendiumCollection.Any;
   spellCompendium: CompendiumCollection.Any;
-  possibleFeatures: any[] | Actor.Embedded.CollectionFor<"Item">;
+  possibleFeatures: Actor.Embedded.CollectionFor<"Item">;
   proficiencyFinder: ProficiencyFinder;
   companionFactories: any[];
   isMuncher: boolean;

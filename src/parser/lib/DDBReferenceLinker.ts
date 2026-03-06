@@ -320,8 +320,8 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
   const mods = extraMods.join(" + ");
 
   if (baseAbility) {
-    const baseAbilityMod = actor ? actor.system.abilities[baseAbility].mod : diceParse.bonus;
-    const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : "";
+    const baseAbilityMod = actor ? utils.calculateModifier(actor.system.abilities[baseAbility].value) : diceParse.bonus;
+    const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : 0;
     const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? ` + @abilities.${baseAbility}.mod ` : "";
     const finalMods = extraMods.length > 0
       ? `${useMod} + ${mods}`
