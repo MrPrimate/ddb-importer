@@ -8,7 +8,7 @@ export default class UndyingSentinel extends DDBEnricherData {
       addItemConsume: true,
       targetType: "self",
       activationType: "special",
-      condition: "Reduced to 0 HP",
+      activationCondition: "Reduced to 0 HP",
       data: {
         healing: DDBEnricherData.basicDamagePart({ customFormula: "3 * @classes.paladin.levels", types: ["healing"] }),
       },

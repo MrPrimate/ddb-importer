@@ -10,7 +10,7 @@ export default class ProtectiveSpirit extends DDBEnricherData {
     return {
       targetType: "self",
       activationType: "turnEnd",
-      condition: "Reduced to half HP",
+      activationCondition: "Reduced to half HP",
       data: {
         healing: DDBEnricherData.basicDamagePart({
           customFormula: "1d6 + (@classes.paladin.levels / 2)",

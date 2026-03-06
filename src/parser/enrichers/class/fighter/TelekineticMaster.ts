@@ -10,7 +10,7 @@ export default class TelekineticMaster extends DDBEnricherData {
     return {
       name: "Spend Energy Die to Regain Use",
       addItemConsume: true,
-      activationType: "",
+      activationType: "special",
       additionalConsumptionTargets: [
         {
           type: "itemUses",

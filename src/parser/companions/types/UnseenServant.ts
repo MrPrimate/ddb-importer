@@ -32,8 +32,8 @@ export async function getUnseenServant(name = "Unseen Servant", postfix = "") {
       version: "1",
       required: null,
       isJB2A: true,
-      needsJB2A: data.needsJB2A ?? false,
-      needsJB2APatreon: data.needsJB2APatreon ?? false,
+      needsJB2A: false,
+      needsJB2APatreon: false,
       folderName: name,
       data: actorData,
     };

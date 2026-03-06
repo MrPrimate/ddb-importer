@@ -5,7 +5,7 @@ export default class Maneuver extends DDBEnricherData {
   //   return true;
   // }
 
-  extraDamageActivity() {
+  extraDamageActivity(): IDDBAdditionalActivity {
     return {
       init: {
         name: "Damage",

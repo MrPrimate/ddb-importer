@@ -82,8 +82,8 @@ export default class CrownOfSpellfire extends DDBEnricherData {
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    const results = this.hdActivities as IDDBAdditionalActivity[];
-    results.push(...[
+    const results: IDDBAdditionalActivity[] = this.hdActivities as IDDBAdditionalActivity[];
+    results.push(
       {
         init: {
           name: "Spell Avoidance",
@@ -132,7 +132,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
           },
         },
       },
-    ]);
+    );
     return results;
   }
 

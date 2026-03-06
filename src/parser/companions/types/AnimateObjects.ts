@@ -18,7 +18,7 @@ export async function getAnimateObjects2014({
     text,
   });
 
-  const summonHints = [
+  const summonHints: { size: actorSizes; img: string; hp: number; suffix?: string }[] = [
     {
       size: "tiny",
       img: "icons/sundries/misc/key-short-glowing.webp",
@@ -55,7 +55,7 @@ export async function getAnimateObjects2014({
 
     const size = CONFIG.DND5E.actorSizes[data.size];
 
-    let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
+    let stub: I5eMonsterData = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
       "name": `Animated Object (${size.label})`,
       "prototypeToken": {
         name: `Animated Object (${size.label})`,

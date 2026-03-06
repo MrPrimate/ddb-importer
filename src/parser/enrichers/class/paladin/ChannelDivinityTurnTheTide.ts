@@ -9,7 +9,7 @@ export default class ChannelDivinityTurnTheTide extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       targetType: "ally",
-      condition: "Reduced to half HP",
+      activationCondition: "Reduced to half HP",
       data: {
         healing: DDBEnricherData.basicDamagePart({
           number: 1,

@@ -39,7 +39,7 @@ export default class StarryForm extends DDBEnricherData {
     return "Unknown";
   }
 
-  get formActivities() {
+  get formActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {

@@ -7,7 +7,7 @@ export default class MutateShape extends DDBEnricherData {
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    const results = [
+    const results: IDDBAdditionalActivity[] = [
       {
         init: {
           name: "Clear Mutation Point",

@@ -13,9 +13,11 @@ export default class TranceOfOrder extends DDBEnricherData {
       noConsumeTargets: true,
       // default scrape picks up the 5 sorcery point recharge effect
       addItemConsume: true,
-      duration: {
-        value: 1,
-        units: "minute",
+      data: {
+        duration: {
+          value: 1,
+          units: "minute",
+        },
       },
     };
   }

@@ -21,7 +21,7 @@ export async function getFaithfulHound({
   const version = ddbParser.is2014 ? "2014" : "2024";
   const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
 
-  let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
+  let stub: I5eMonsterData = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     "name": "Faithful Hound",
     "prototypeToken": {
       name: "Faithful Hound",
@@ -48,7 +48,7 @@ export async function getFaithfulHound({
       },
     },
     "effects": [
-      (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject(),
+      (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject() as unknown as IEffectData,
     ],
   });
 

@@ -7,7 +7,7 @@ import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
 
 export default class DDBCompanionMixin {
-  npc: I5eMonsterData | null;
+  npc: I5eMonsterData;
   data: I5eMonsterData;
   parsed: boolean;
   type: string;
@@ -29,7 +29,6 @@ export default class DDBCompanionMixin {
     // console.warn("DDBCompanion", { block });
     this.options = options;
     this.block = block;
-    this.npc = null;
     this.parsed = false;
     this.type = this.options.type;
     this.subType = this.options.subType;

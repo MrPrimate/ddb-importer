@@ -1,6 +1,7 @@
 
-export function SUMMONS_ACTOR_STUB() {
+export function SUMMONS_ACTOR_STUB(): I5eMonsterData {
   return {
+    "name": "Summoned Creature",
     "type": "npc",
     "system": {
       "abilities": {
@@ -42,9 +43,9 @@ export function SUMMONS_ACTOR_STUB() {
           "max": 1000,
           "temp": 0,
           "tempmax": 0,
-          "bonuses": {},
         },
       },
+      "bonuses": {},
       "traits": {
         "size": "tiny",
         ci: {
@@ -76,7 +77,6 @@ export function SUMMONS_ACTOR_STUB() {
         "tint": "#ffffff",
         "alphaThreshold": 0.75,
       },
-      "hexagonalShape": 0,
       "lockRotation": false,
       "rotation": 0,
       "alpha": 1,

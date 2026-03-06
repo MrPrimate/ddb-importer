@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class PsychicBlade extends DDBEnricherData {
 
-  get bardActivities() {
+  get bardActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
