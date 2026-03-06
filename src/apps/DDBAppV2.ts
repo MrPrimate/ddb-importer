@@ -1,3 +1,4 @@
+import { DeepPartial } from "fvtt-types/utils";
 import { DICTIONARY } from "../config/_module";
 import {
   logger,
@@ -6,6 +7,12 @@ import {
 import { DDBReferenceLinker } from "../parser/lib/_module";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+export interface IDDBTab extends foundry.applications.api.Application.Tab {
+  tabs?: DeepPartial<IDDBTabs>;
+}
+
+export type IDDBTabs = Record<string, DeepPartial<IDDBTab>>;
 
 export interface NotifierV1Props {
   nameField?: boolean;
@@ -39,7 +46,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /** @override */
   tabGroups = {};
 
-  _markTabs(tabs) {
+  _markTabs(tabs: IDDBTabs): IDDBTabs {
     for (const v of Object.values(tabs)) {
       v.active = this.tabGroups[v.group] === v.id;
       v.cssClass = v.active ? "active" : "";
@@ -49,10 +56,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   }
 
   // override this
-
-  _getTabs() {
-    return {};
-  }
+  abstract _getTabs(): IDDBTabs;
 
   /**
    * Expanded states for additional settings sections.
@@ -76,10 +80,10 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _onRender(context, options) {
-    super._onRender(context, options);
+  async _onRender(context: DeepPartial<foundry.applications.api.Application.RenderContext>, options: foundry.applications.api.Application.RenderOptions) {
+    await super._onRender(context, options);
     // Allow multi-select tags to be removed when the whole tag is clicked.
-    this.element.querySelectorAll("multi-select").forEach((select) => {
+    this.element.querySelectorAll<HTMLSelectElement>("multi-select").forEach((select) => {
       if (select.disabled) return;
       select.querySelectorAll(".tag").forEach((tag) => {
         tag.classList.add("remove");
@@ -88,7 +92,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
     });
 
     // Add special styling for label-top hints.
-    this.element.querySelectorAll(".label-top > p.hint").forEach((hint) => {
+    this.element.querySelectorAll<HTMLElement>(".label-top > p.hint").forEach((hint) => {
       const label = hint.parentElement.querySelector(":scope > label");
       if (!label) return;
       hint.ariaLabel = hint.innerText;
@@ -96,7 +100,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
       hint.innerHTML = "";
       label.insertAdjacentElement("beforeend", hint);
     });
-    for (const element of this.element.querySelectorAll("[data-expand-id]")) {
+    for (const element of this.element.querySelectorAll("[data-expand-id]") as NodeListOf<HTMLElement>) {
       element.querySelector(".collapsible")?.classList
         .toggle("collapsed", !this.#expandedSections.get(element.dataset.expandId));
     }
@@ -122,7 +126,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
     const noCacheLoad = options?.noCacheLoad ?? false;
     if (!noCacheLoad) await DDBReferenceLinker.importCacheLoad();
     const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false });
-    context.tabs = this._getTabs();
+    context.tabs = this._getTabs() as Record<string, IDDBTab>;
     logger.debug("DDBAppV2: _prepareContext", context);
     return context;
   }
@@ -148,8 +152,8 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _onFirstRender(context, options) {
-    super._onFirstRender(context, options);
+  async _onFirstRender(context, options) {
+    await super._onFirstRender(context, options);
     const containers = {};
     for (const [part, config] of Object.entries(this.constructor.PARTS)) {
       if (!config.container?.id) continue;

@@ -11,20 +11,26 @@ import { updateDDBCharacter } from "../updater/character";
 import { generateCharacterExtras } from "../parser/DDBExtras";
 import { SETTINGS } from "../config/_module";
 import DDBCookie from "../apps/DDBCookie";
-import DDBAppV2 from "./DDBAppV2";
+import DDBAppV2, { IDDBTabs } from "./DDBAppV2";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 import DDBDebugger from "./DDBDebugger";
 import DDBKeyChangeDialog from "./DDBKeyChangeDialog";
+import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 
 export default class DDBCharacterManager extends DDBAppV2 {
-  constructor(options, actor, ddbCharacter = null) {
+  actor: Actor5e;
+  actorOriginal: I5ePCData;
+  characterImporter: DDBCharacterImporter;
+  ddbCharacter: DDBCharacter;
+  _debugContext: {};
+
+  constructor(options, actor: Actor5e | I5ePCData, ddbCharacter: DDBCharacter = null) {
     super(options);
-    this.actor = game.actors.get(actor._id);
+    this.actor = game.actors.get(actor._id) as Actor5e;
     this.actorOriginal = foundry.utils.duplicate(this.actor);
     logger.debug("Current Actor (Original):", this.actorOriginal);
     this.result = {};
-    this.nonMatchedItemIds = [];
     this.settings = {};
     this.ddbCharacter = ddbCharacter;
     this.characterImporter = new DDBCharacterImporter({
@@ -116,7 +122,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   };
 
 
-  _getTabs() {
+  _getTabs(): IDDBTabs {
     const tabs = this._markTabs({
       import: {
         id: "import", group: "sheet", label: "Import Character", icon: "fas fa-arrow-alt-circle-down",
@@ -157,8 +163,8 @@ export default class DDBCharacterManager extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _onRender(context, options) {
-    super._onRender(context, options);
+  async _onRender(context, options) {
+    await super._onRender(context, options);
     // custom listeners
     // watch the change of the muncher-policy-selector checkboxes
     this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
@@ -282,7 +288,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   /** @override */
-   
+
   async _preparePartContext(partId, context) {
     switch (partId) {
       default: {
