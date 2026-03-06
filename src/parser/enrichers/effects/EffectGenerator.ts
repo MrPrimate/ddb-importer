@@ -313,9 +313,9 @@ export default class EffectGenerator {
         .reduce((a, b) => a + b.value, 0);
       if (bonus > 0) {
         logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(Math.max(bonus), 20, `system.attributes.senses.${sense}`));
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.${sense}`));
         if (AutoEffects.effectModules().atlInstalled) {
-          this.effect.changes.push(ChangeHelper.unsignedAddChange(Math.max(bonus), 20, "ATL.sight.range"));
+          this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, "ATL.sight.range"));
           this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 6));
         }
       }
@@ -844,29 +844,33 @@ export default class EffectGenerator {
 
 
   _addACSetChange(subType) {
-    let bonuses;
+    let bonuses: string | number;
 
-    if (this.grantedModifiers.some((mod) => mod.statId !== null && mod.type === "set" && mod.subType === subType)) {
-      this.grantedModifiers.filter((mod) => mod.statId !== null && mod.type === "set" && mod.subType === subType)
-        .forEach((mod) => {
-          const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
-          if (bonuses) {
-            bonuses += " ";
-          } else {
-            bonuses = "";
-          }
-          bonuses += `@abilities.${ability.value}.mod`;
-        });
-    } else {
+    const setMods = this.grantedModifiers.filter((mod) => mod.type === "set" && mod.subType === subType);
+    const grantedStatMods = setMods.filter((mod) => mod.statId !== null);
+
+    if (grantedStatMods.length > 0) {
+      grantedStatMods.forEach((mod) => {
+        const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
+        if (bonuses) {
+        bonuses += " ";
+        } else {
+          bonuses = "";
+        }
+        bonuses += `@abilities.${ability.value}.mod`;
+      });
+    } else if (setMods.length > 0) {
       // others are picked up here e.g. Draconic Resilience
-      const fixedValues = this.grantedModifiers.filter((mod) => mod.type === "set" && mod.subType === subType).map((mod) => mod.value);
-      bonuses = Math.max(...fixedValues);
+      const fixedValues = setMods
+        .filter((mod) => Number.isInteger(mod.value))
+        .map((mod) => mod.value);
+      if (fixedValues.length > 0) bonuses = Math.max(...fixedValues);
     }
 
     const maxDexTypes = ["ac-max-dex-unarmored-modifier", "ac-max-dex-modifier"];
 
-    if (bonuses && bonuses != 0) {
-      const bonusSum = Number.isInteger(bonuses) ? 10 + bonuses : `10 + ${bonuses}`;
+    if (bonuses && bonuses !== 0) {
+      const bonusSum = Number.isInteger(bonuses) ? 10 + parseInt(String(bonuses)) : `10 + ${bonuses}`;
       // eslint-disable-next-line no-useless-assignment
       let formula = "";
       switch (subType) {
@@ -876,7 +880,7 @@ export default class EffectGenerator {
           const maxDexArray = this.grantedModifiers
             .filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
             .map((mod) => mod.value);
-          if (maxDexArray.length > 0) maxDexMod = Math.min(maxDexArray);
+          if (maxDexArray.length > 0) maxDexMod = Math.min(...maxDexArray);
           if (ignoreDexMod) {
             formula = `${bonusSum}`;
           } else if (maxDexMod === 99) {

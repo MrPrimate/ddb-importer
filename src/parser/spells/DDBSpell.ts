@@ -180,9 +180,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.nameOverride = nameOverride ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.nameOverride") as string;
     this.originalName = utils.nameString(this.ddbDefinition.name);
     this.name = this.getName();
-    this.activities = [];
     this.activityType = null;
-    this.additionalActivities = [];
     this.healingParts = [];
 
     this.isGeneric = generic ?? false;

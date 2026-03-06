@@ -6,7 +6,7 @@ import DDBEnricherFactoryMixin from "./DDBEnricherFactoryMixin";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
-interface additionalActivities {
+export interface IAdditionalActivityOutline {
   type: string;
   name: string;
   options: IDDBActivityBuild;
@@ -22,7 +22,7 @@ export default abstract class DDBActivityFactoryMixin {
   abstract originalName: string;
   enricher: DDBEnricherFactoryMixin;
   activityGenerator: new (...args: any[]) => IDDBActivityTypes;
-  additionalActivities: additionalActivities[] = [];
+  additionalActivities: IAdditionalActivityOutline[] = [];
   documentType: string | null = null;
   useMidiAutomations = false;
   usesOnActivity = false;

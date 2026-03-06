@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import { utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 
-DDBCharacter.prototype.resourceList = function resourceList() {
+DDBCharacter.prototype.resourceList = function resourceList(this: DDBCharacter) {
   const resources = [this.source.ddb.character.actions.race, this.source.ddb.character.actions.class, this.source.ddb.character.actions.feat]
     .flat()
     .filter((action) =>
@@ -13,7 +13,7 @@ DDBCharacter.prototype.resourceList = function resourceList() {
   return resources;
 };
 
-DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedResourceList() {
+DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedResourceList(this: DDBCharacter) {
   // get all resources
   const allResources = this.resourceList();
   const resources = allResources
@@ -88,7 +88,7 @@ const sheetResources = [
   "twentieth",
 ];
 
-DDBCharacter.prototype._generateResources = function _generateResources(numberOfResources = 3) {
+DDBCharacter.prototype._generateResources = function _generateResources(this: DDBCharacter, numberOfResources = 3) {
   // get all resources
   const allResources = this.getSortedByUsedResourceList();
 
@@ -133,11 +133,11 @@ DDBCharacter.prototype._generateResources = function _generateResources(numberOf
   foundry.utils.setProperty(this.raw.character, "system.resources", result);
 };
 
-DDBCharacter.prototype.getResourceList = function getResourceList() {
+DDBCharacter.prototype.getResourceList = function getResourceList(this: DDBCharacter) {
   return this.getSortedByUsedResourceList();
 };
 
-DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateResourceSelectionFromForm(formData, type) {
+DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateResourceSelectionFromForm(this: DDBCharacter, formData, type) {
   const primary = formData.find((r) => r.name === "primary-select" && r.value !== "");
   const secondary = formData.find((r) => r.name === "secondary-select" && r.value !== "");
   const tertiary = formData.find((r) => r.name === "tertiary-select" && r.value !== "");
@@ -154,7 +154,7 @@ DDBCharacter.prototype._generateResourceSelectionFromForm = function _generateRe
   this.resourceChoices = resourceSelection;
 };
 
-DDBCharacter.prototype.setDefaultResources = function setDefaultResources(sortedResources) {
+DDBCharacter.prototype.setDefaultResources = function setDefaultResources(this: DDBCharacter, sortedResources) {
   if (sortedResources.length >= 1) {
     this.resourceChoices.primary = sortedResources[0].label;
   }
@@ -167,7 +167,7 @@ DDBCharacter.prototype.setDefaultResources = function setDefaultResources(sorted
 };
 
 // this.source.ddb, this.raw.character
-DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog() {
+DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog(this: DDBCharacter) {
   return new Promise((resolve) => {
     const sortedResources = this.getSortedByUsedResourceList();
 

@@ -1,6 +1,6 @@
 import DDBMonster from "../DDBMonster";
 
-DDBMonster.prototype._generateTreasure = function _generateTreasure() {
+DDBMonster.prototype._generateTreasure = function _generateTreasure(this: DDBMonster) {
 
   const result = new Set();
   // console.warn("extraTreasure", { treasure: this.source.extraTreasure });

@@ -1,7 +1,7 @@
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags() {
+DDBCharacter.prototype._setSpecialTraitFlags = function _setSpecialTraitFlags(this: DDBCharacter) {
   this.raw.character.flags.dnd5e = {
     powerfulBuild: false,
     savageAttacks: false,

@@ -4,8 +4,8 @@ import ACBonusEffects from "../enrichers/effects/ACBonusEffects";
 
 DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 
- 
-DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = []) {
+
+DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, additionalItems = []) {
   const originalAc = this.source.armorClass;
   const ac = {
     flat: originalAc,
@@ -43,7 +43,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(additionalItems = 
   descriptionItems.push(...additionalItems.map((item) => item));
 
   if (descriptionItems.length > 0) {
-     
+
     descriptionItems.forEach((item) => {
       let lowerItem = item.toLowerCase();
       if (lowerItem == "natural" || lowerItem == "natural armor") {

@@ -1,12 +1,12 @@
- 
+
 import DDBCharacter from "../DDBCharacter";
 import { logger, CompendiumHelper } from "../../lib/_module";
 import GenericSpellFactory from "../spells/GenericSpellFactory";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import DDBItem from "../item/DDBItem";
 
- 
-DDBCharacter.prototype.getInventory = async function getInventory(notifier = null) {
+
+DDBCharacter.prototype.getInventory = async function getInventory(this: DDBCharacter, notifier = null) {
 
   const items = [];
 
@@ -65,7 +65,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(notifier = nul
 };
 
 
-DDBCharacter.prototype._generateInventory = async function _generateInventory() {
+DDBCharacter.prototype._generateInventory = async function _generateInventory(this: DDBCharacter) {
   this.raw.itemSpells = await GenericSpellFactory.getItemSpells(this.source.ddb, this.raw.character, {
     generateSummons: this.generateSummons,
   });

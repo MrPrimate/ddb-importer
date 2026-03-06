@@ -1,6 +1,6 @@
 import DDBCharacter from "../../DDBCharacter";
 
-DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions() {
+DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions(this: DDBCharacter) {
   const checkList = this.data.features.concat(this.data.actions);
 
   const sleepFeatures = [

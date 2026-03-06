@@ -10,7 +10,7 @@ import DDBMonster from "../DDBMonster";
 //   "custom": ""
 
 
-DDBMonster.prototype._generateType = function _generateType() {
+DDBMonster.prototype._generateType = function _generateType(this: DDBMonster) {
 
   if (this.source.swarm) {
     // result.swarm.isSwarm = true;

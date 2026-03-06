@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype._generateSpeed = function _generateSpeed() {
+DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharacter) {
 
   // For all processing, we take into account the regular movement types of this character
   const movementTypes = {};

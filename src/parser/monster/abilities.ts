@@ -4,7 +4,7 @@ import DDBMonster from "../DDBMonster";
 /**
  * Retrieves character abilities, including proficiency on saving throws
  */
-DDBMonster.prototype._generateAbilities = function _generateAbilities() {
+DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBMonster) {
   // go through every ability
   const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
   const proficiencyBonus = cr.proficiencyBonus;
@@ -22,13 +22,13 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities() {
       this.npc.system.abilities[ability.value]["prof"] = proficiencyBonus;
       const saveBonus = this.source.savingThrows.find((stat) => stat.statId === ability.id).bonusModifier || 0;
       if (saveBonus !== 0) {
-        this.npc.system.abilities[ability.value].bonuses.save = saveBonus;
+        this.npc.system.abilities[ability.value].bonuses.save = String(saveBonus);
       }
     }
 
     this.npc.system.abilities[ability.value]["dc"] = mod + proficiencyBonus + 8;
 
-    this.abilities[ability.value] = foundry.utils.deepClone(this.npc.system.abilities[ability.value]);
+    this.abilities[ability.value] = foundry.utils.deepClone(this.npc.system.abilities[ability.value]) as any;
     this.abilities[ability.value].mod = mod;
   });
 

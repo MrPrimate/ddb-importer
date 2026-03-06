@@ -2,7 +2,7 @@ import DDBCharacter from "../DDBCharacter";
 import { DICTIONARY } from "../../config/_module";
 import { utils } from "../../lib/_module";
 
-DDBCharacter.prototype.getBackgroundName = function getBackgroundName() {
+DDBCharacter.prototype.getBackgroundName = function getBackgroundName(this: DDBCharacter) {
   if (this.source.ddb.character.background.hasCustomBackground === false) {
     if (this.source.ddb.character.background.definition !== null) {
       return this.source.ddb.character.background.definition.name || "";
@@ -14,23 +14,23 @@ DDBCharacter.prototype.getBackgroundName = function getBackgroundName() {
   }
 };
 
-DDBCharacter.prototype._generateTrait = function _generateTrait() {
+DDBCharacter.prototype._generateTrait = function _generateTrait(this: DDBCharacter) {
   this.raw.character.system.details.trait = this.source.ddb.character.traits.personalityTraits ?? "";
 };
 
-DDBCharacter.prototype._generateIdeal = function _generateIdeal() {
+DDBCharacter.prototype._generateIdeal = function _generateIdeal(this: DDBCharacter) {
   this.raw.character.system.details.ideal = this.source.ddb.character.traits.ideals ?? "";
 };
 
-DDBCharacter.prototype._generateBond = function _generateBond() {
+DDBCharacter.prototype._generateBond = function _generateBond(this: DDBCharacter) {
   this.raw.character.system.details.bond = this.source.ddb.character.traits.bonds ?? "";
 };
 
-DDBCharacter.prototype._generateFlaw = function _generateFlaw() {
+DDBCharacter.prototype._generateFlaw = function _generateFlaw(this: DDBCharacter) {
   this.raw.character.system.details.flaw = this.source.ddb.character.traits.flaws ?? "";
 };
 
-DDBCharacter.prototype.getCharacteristics = function getCharacteristics() {
+DDBCharacter.prototype.getCharacteristics = function getCharacteristics(this: DDBCharacter) {
   let characteristicBlurb = "";
   if (this.source.ddb.character.gender) characteristicBlurb += `Gender: ${this.source.ddb.character.gender}\n`;
   if (this.source.ddb.character.eyes) characteristicBlurb += `Eyes: ${this.source.ddb.character.eyes}\n`;
@@ -43,7 +43,7 @@ DDBCharacter.prototype.getCharacteristics = function getCharacteristics() {
   return characteristicBlurb;
 };
 
-DDBCharacter.prototype._generateAppearance = function _generateAppearance() {
+DDBCharacter.prototype._generateAppearance = function _generateAppearance(this: DDBCharacter) {
   let result = this.getCharacteristics();
   if (result && result !== "") result += "\n";
   if (this.source.ddb.character.traits.appearance) result += this.source.ddb.character.traits.appearance;
@@ -55,7 +55,7 @@ DDBCharacter.prototype._generateAppearance = function _generateAppearance() {
  * Defaults to Neutral, if not set in DDB
  * returns .name right now, should switch to .value once the DND5E options are fully implemented
  */
-DDBCharacter.prototype._generateAlignment = function _generateAlignment() {
+DDBCharacter.prototype._generateAlignment = function _generateAlignment(this: DDBCharacter) {
   const alignmentID = this.source.ddb.character.alignmentId || 5;
   const alignment = DICTIONARY.actor.alignments.find((alignment) => alignment.id === alignmentID);
   if (alignment) this.raw.character.system.details.alignment = alignment.name;
@@ -142,7 +142,7 @@ export function generateBackground(bg) {
   return result;
 }
 
-DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
+DDBCharacter.prototype.getBackgroundData = function getBackgroundData(this: DDBCharacter) {
   let bg;
   if (this.source.ddb.character.background.hasCustomBackground === true) {
     bg = this.source.ddb.character.background.customBackground;
@@ -166,7 +166,7 @@ DDBCharacter.prototype.getBackgroundData = function getBackgroundData() {
   return generateBackground(bg);
 };
 
-DDBCharacter.prototype._generateBiography = function _generateBiography() {
+DDBCharacter.prototype._generateBiography = function _generateBiography(this: DDBCharacter) {
   const backstory = this.source.ddb.character.notes.backstory
     ? "<h1>Backstory</h1><p>" + this.source.ddb.character.notes.backstory + "</p>"
     : "";
@@ -177,7 +177,7 @@ DDBCharacter.prototype._generateBiography = function _generateBiography() {
   };
 };
 
-DDBCharacter.prototype._generateDescription = function _generateDescription() {
+DDBCharacter.prototype._generateDescription = function _generateDescription(this: DDBCharacter) {
   this.raw.character.system.details["gender"] = this.source.ddb.character.gender || "";
   this.raw.character.system.details["age"] = this.source.ddb.character.age || "";
   this.raw.character.system.details["height"] = this.source.ddb.character.height || "";

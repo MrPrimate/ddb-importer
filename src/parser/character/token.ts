@@ -2,7 +2,7 @@ import { logger } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 import DDBCharacter from "../DDBCharacter";
 
-DDBCharacter.prototype._generateToken = function _generateToken() {
+DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharacter) {
   try {
     // Default to the most basic token setup.
     // everything else can be handled by the user / Token Mold

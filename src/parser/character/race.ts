@@ -3,7 +3,7 @@ import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 import DDBRace from "../race/DDBRace";
 
-DDBCharacter.prototype._generateRace = async function _generateRace(addToCompendium = false) {
+DDBCharacter.prototype._generateRace = async function _generateRace(this: DDBCharacter, addToCompendium = false) {
   const traits = this.source.ddb.character.race.racialTraits.map((r) => r.definition);
   const compendiumRacialTraits = await DDBRace.getRacialTraitsLookup(traits, false);
   this._ddbRace = new DDBRace({

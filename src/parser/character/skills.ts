@@ -4,7 +4,7 @@ import DDBCharacter from "../DDBCharacter";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill, modifiers = null) {
+DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (this: DDBCharacter, skill, modifiers = null) {
   if (!modifiers) {
     modifiers = DDBModifiers.getAllModifiers(this.source.ddb, { includeExcludedEffects: true });
   }
@@ -28,7 +28,7 @@ DDBCharacter.prototype.getSkillProficiency = function getSkillProficiency (skill
   return proficient;
 };
 
-DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProficiency(skill) {
+DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProficiency(this: DDBCharacter, skill) {
   // Overwrite the proficient value with any custom set over rides
   if (this.source.ddb.character.characterValues) {
     const customProficiency = this.source.ddb.character.characterValues.find(
@@ -42,7 +42,7 @@ DDBCharacter.prototype.getCustomSkillProficiency = function getCustomSkillProfic
   return undefined;
 };
 
-DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(skill) {
+DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(this: DDBCharacter, skill) {
   // Overwrite the proficient value with any custom set over rides
   let mod;
   if (this.source.ddb.character.characterValues) {
@@ -58,7 +58,7 @@ DDBCharacter.prototype.getCustomSkillAbility = function getCustomSkillAbility(sk
   return mod;
 };
 
-DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(skill) {
+DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(this: DDBCharacter, skill) {
   // Get any custom skill bonuses
   if (this.source.ddb.character.characterValues) {
     const customBonus = this.source.ddb.character.characterValues.filter(
@@ -74,7 +74,7 @@ DDBCharacter.prototype.getCustomSkillBonus = function getCustomSkillBonus(skill)
   return 0;
 };
 
-DDBCharacter.prototype._setSpecialSkills = function _setSpecialSkills() {
+DDBCharacter.prototype._setSpecialSkills = function _setSpecialSkills(this: DDBCharacter) {
   this.source.ddb.character.classes.forEach((klass) => {
     if (klass.subclassDefinition) {
       const silverTongue = klass.subclassDefinition.classFeatures.some(
@@ -88,7 +88,7 @@ DDBCharacter.prototype._setSpecialSkills = function _setSpecialSkills() {
   });
 };
 
-DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSkills() {
+DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSkills(this: DDBCharacter) {
   if (!game.modules.get("dnd5e-custom-skills")?.active) return;
   const version = game.modules.get("dnd5e-custom-skills")?.version;
   const newEnough = foundry.utils.isNewerVersion(version, "1.1.2");
@@ -151,7 +151,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
   }
 };
 
-DDBCharacter.prototype._generateSkills = async function _generateSkills() {
+DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DDBCharacter) {
   const addEffects = game.modules.get("dae")?.active;
 
   if (!addEffects) this.raw.character.flags["skill-customization-5e"] = {};

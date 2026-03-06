@@ -9,7 +9,7 @@ import { DDBDataUtils, DDBModifiers, FilterModifiers } from "../lib/_module";
  *
  * @returns {boolean} - Whether the character is armored.
  */
-DDBCharacter.prototype.isArmored = function isArmored() {
+DDBCharacter.prototype.isArmored = function isArmored(this: DDBCharacter) {
   return (
     this.source.ddb.character.inventory.filter(
       (item) => item.equipped && item.definition.armorClass && item.definition.armorTypeId !== 4,
@@ -22,7 +22,7 @@ DDBCharacter.prototype.isArmored = function isArmored() {
  *
  * @returns {boolean} - Whether the character is unarmored.
  */
-DDBCharacter.prototype.isUnArmored = function isUnArmored() {
+DDBCharacter.prototype.isUnArmored = function isUnArmored(this: DDBCharacter) {
   return !this.isArmored();
 };
 
@@ -370,7 +370,7 @@ function calculateACOptions(data, character, calculatedArmor) {
 }
 
 
-DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideArmorClass(overRideAC) {
+DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideArmorClass(this: DDBCharacter, overRideAC) {
   const overRideEffect = ACBonusEffects.generateFixedACEffect(overRideAC.value, `AC Override: ${overRideAC.value}`);
 
   this.raw.character.system.attributes.ac = {
@@ -406,7 +406,7 @@ DDBCharacter.prototype._generateOverrideArmorClass = function _generateOverrideA
 };
 
 
-DDBCharacter.prototype._generateArmorClass = function _generateArmorClass() {
+DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: DDBCharacter) {
   const overRideAC = this.source.ddb.character.characterValues.find((val) => val.typeId === 1);
 
   if (overRideAC) {

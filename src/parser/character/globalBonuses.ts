@@ -11,7 +11,7 @@ import { DDBModifiers } from "../lib/_module";
  * @param {Array} lookupTable list of lookup tables
  * @returns {object} { attack: string, damage: string }
  */
-DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
+DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(this: DDBCharacter, lookupTable) {
   const result = {
     attack: "",
     damage: "",
@@ -67,7 +67,7 @@ DDBCharacter.prototype.getGlobalBonusAttackModifiers = function(lookupTable) {
  * @param {string} type The type of spell attack, either 'ranged' or 'melee'.
  * @returns {object} An object containing the calculated global bonus for spell attacks.
  */
-DDBCharacter.prototype.getBonusSpellAttacks = function(type) {
+DDBCharacter.prototype.getBonusSpellAttacks = function(this: DDBCharacter, type) {
   // I haven't found any matching global spell damage boosting mods in ddb
   const bonusLookups = [
     { fvttType: "attack", ddbSubType: "spell-attacks" },
@@ -79,7 +79,7 @@ DDBCharacter.prototype.getBonusSpellAttacks = function(type) {
   return this.getGlobalBonusAttackModifiers(bonusLookups);
 };
 
-DDBCharacter.prototype._generateBonusSpellAttacks = function() {
+DDBCharacter.prototype._generateBonusSpellAttacks = function(this: DDBCharacter) {
   this.raw.character.system.bonuses.rsak = this.getBonusSpellAttacks("ranged");
   this.raw.character.system.bonuses.msak = this.getBonusSpellAttacks("melee");
 };
@@ -92,7 +92,7 @@ DDBCharacter.prototype._generateBonusSpellAttacks = function() {
  * @param {string} type The type of attack, either 'ranged' or 'melee'.
  * @returns {object} An object containing the calculated global bonus for the given attack type.
  */
-DDBCharacter.prototype.getBonusWeaponAttacks = function(type) {
+DDBCharacter.prototype.getBonusWeaponAttacks = function(this: DDBCharacter, type) {
   // global melee damage is not a ddb type, in that it's likely to be
   // type specific. The only class one I know of is the Paladin Improved Smite
   // which will be handled in the weapon import later.
@@ -105,7 +105,7 @@ DDBCharacter.prototype.getBonusWeaponAttacks = function(type) {
   return this.getGlobalBonusAttackModifiers(bonusLookups);
 };
 
-DDBCharacter.prototype._generateBonusWeaponAttacks = function() {
+DDBCharacter.prototype._generateBonusWeaponAttacks = function(this: DDBCharacter) {
   this.raw.character.system.bonuses.mwak = this.getBonusWeaponAttacks("melee");
   this.raw.character.system.bonuses.rwak = this.getBonusWeaponAttacks("ranged");
 };
@@ -121,7 +121,7 @@ DDBCharacter.prototype._generateBonusWeaponAttacks = function() {
  * The resulting bonuses are stored in the character's data in the
  * "system.bonuses.abilities" property.
  */
-DDBCharacter.prototype._generateBonusAbilities = function() {
+DDBCharacter.prototype._generateBonusAbilities = function(this: DDBCharacter) {
   const result = {
     "check": "",
     "save": "",
@@ -151,7 +151,7 @@ DDBCharacter.prototype._generateBonusAbilities = function() {
  * The resulting bonuses are stored in the character's data in the
  * "system.bonuses.spell.dc" property.
  */
-DDBCharacter.prototype._generateBonusSpellDC = function() {
+DDBCharacter.prototype._generateBonusSpellDC = function(this: DDBCharacter) {
   const result = {
     "dc": "",
   };

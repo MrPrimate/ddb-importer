@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false } = {}) {
+DDBCharacter.prototype.getSenses = function getSenses(this: DDBCharacter, { includeEffects = false } = {}) {
   const senses = {
     darkvision: 0,
     blindsight: 0,
@@ -90,6 +90,6 @@ DDBCharacter.prototype.getSenses = function getSenses({ includeEffects = false }
 
 };
 
-DDBCharacter.prototype._generateSenses = function _generateSenses() {
+DDBCharacter.prototype._generateSenses = function _generateSenses(this: DDBCharacter) {
   this.raw.character.system.attributes.senses = this.getSenses();
 };

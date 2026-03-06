@@ -8,7 +8,7 @@ import { DDBReferenceLinker } from "../lib/_module";
 // feature parsing is handled in a separate class, the DDBFeatureFactory
 // that class breaks down the html into possible actions which it passes to the
 // DDBFeature class which tries to parse the feature for details
-DDBMonster.prototype._generateFeatures = async function () {
+DDBMonster.prototype._generateFeatures = async function (this: DDBMonster) {
 
   await this.featureFactory.generateActions(this.source.actionsDescription, "action");
 

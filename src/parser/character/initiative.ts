@@ -1,7 +1,7 @@
 import { DDBModifiers } from "../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 
-DDBCharacter.prototype._generateInitiative = function _generateInitiative() {
+DDBCharacter.prototype._generateInitiative = function _generateInitiative(this: DDBCharacter) {
   const initMods = DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: "initiative" });
   // const initiativeBonus = DDBModifiers.getModifierSum(initMods, this.raw.character);
 

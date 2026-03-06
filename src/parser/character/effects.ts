@@ -4,21 +4,21 @@ import DDBCharacter from "../DDBCharacter";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype._generateDeathSaves = function _generateDeathSaves () {
+DDBCharacter.prototype._generateDeathSaves = function _generateDeathSaves (this: DDBCharacter) {
   this.raw.character.system.attributes.death = {
     success: this.source.ddb.character.deathSaves.successCount || 0,
     failure: this.source.ddb.character.deathSaves.failCount || 0,
   };
 };
 
-DDBCharacter.prototype._generateExhaustion = function _generateExhaustion() {
+DDBCharacter.prototype._generateExhaustion = function _generateExhaustion(this: DDBCharacter) {
   const condition = this.source.ddb.character.conditions.find((condition) => parseInt(condition.id) === 4);
   this.raw.character.system.attributes.exhaustion = condition
     ? parseInt(condition.level)
     : 0;
 };
 
-DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(condition, typeId) {
+DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(this: DDBCharacter, condition, typeId) {
 
   const modifiers = DDBModifiers.filterBaseModifiers(this.source.ddb, condition);
   const standardResults = AutoEffects.getGenericConditionAffectData(modifiers, condition, typeId);
@@ -66,7 +66,7 @@ DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getChar
   };
 };
 
-DDBCharacter.prototype._generateConditions = function _generateConditions() {
+DDBCharacter.prototype._generateConditions = function _generateConditions(this: DDBCharacter) {
   this.raw.character.system.traits.di = this.getCharacterGenericConditionAffectData("immunity", 2);
   this.raw.character.system.traits.dr = this.getCharacterGenericConditionAffectData("resistance", 1);
   this.raw.character.system.traits.dv = this.getCharacterGenericConditionAffectData("vulnerability", 3);

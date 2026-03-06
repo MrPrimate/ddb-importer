@@ -56,8 +56,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   versatileDamage: string;
   addMagical: boolean;
 
-  activities: I5eActivity[];
-
   static CLOTHING_ITEMS = [
     "Helm",
     "Boots",

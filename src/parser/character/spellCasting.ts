@@ -21,7 +21,7 @@ function getSpellCastingAbility(klass) {
   return undefined;
 }
 
-DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting() {
+DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting(this: DDBCharacter) {
   const result = [];
   this.source.ddb.character.classSpells.forEach((playerClass) => {
     const classInfo = this.source.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
@@ -46,7 +46,7 @@ DDBCharacter.prototype._generateSpellCasting = function _generateSpellCasting() 
   }
 };
 
-DDBCharacter.prototype.getCasterInfo = function getCasterInfo() {
+DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter) {
   return this.source.ddb.character.classes
     .filter((cls) => {
       return cls.definition.canCastSpells || (cls.subclassDefinition && cls.subclassDefinition.canCastSpells);
@@ -104,7 +104,7 @@ DDBCharacter.prototype.getCasterInfo = function getCasterInfo() {
     });
 };
 
-DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots() {
+DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: DDBCharacter) {
   // get the caster information from all classes and subclasses
   const casterInfo = this.getCasterInfo();
 
@@ -150,7 +150,7 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots() {
   this.raw.character.system.spells = this.spellSlots;
 };
 
-DDBCharacter.prototype._generateMaxPreparedSpells = function _generateMaxPreparedSpells() {
+DDBCharacter.prototype._generateMaxPreparedSpells = function _generateMaxPreparedSpells(this: DDBCharacter) {
   let max = 0;
 
   this.source.ddb.character.classes

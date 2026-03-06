@@ -17,7 +17,7 @@ import DDBMonster from "../DDBMonster";
 //   "diceString": "21d20 + 147"
 // },
 
-DDBMonster.prototype._generateHitPoints = function _generateHitPoints () {
+DDBMonster.prototype._generateHitPoints = function _generateHitPoints (this: DDBMonster) {
   this.npc.system.attributes.hp = {
     value: this.source.averageHitPoints - (this.removedHitPoints ?? 0),
     min: 0,

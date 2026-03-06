@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import { DDBSources } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
-DDBMonster.prototype._generateSource = function _generateSource() {
+DDBMonster.prototype._generateSource = function _generateSource(this: DDBMonster) {
 
   let ddbSource = CONFIG.DDB.sources.find((cnf) => cnf.id == this.source.sourceId);
   const ddbSources = (this.source.sources ?? []).filter((s) => s.sourceType === 1);

@@ -1,6 +1,6 @@
 import DDBCharacter from "../DDBCharacter";
 
-DDBCharacter.prototype._generateCurrency = function _generateCurrency() {
+DDBCharacter.prototype._generateCurrency = function _generateCurrency(this: DDBCharacter) {
   this.raw.character.system.currency = {
     pp: this.source.ddb.character.currencies.pp,
     gp: this.source.ddb.character.currencies.gp,

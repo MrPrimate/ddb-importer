@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
 import DDBMonster from "../DDBMonster";
 
-DDBMonster.prototype.getTextSenses = function getTextSenses() {
+DDBMonster.prototype.getTextSenses = function getTextSenses(this: DDBMonster) {
   return this.source.sensesHtml;
 };
 
@@ -27,7 +27,7 @@ DDBMonster.prototype.getTextSenses = function getTextSenses() {
 //   "name": "Unknown"
 // }],
 
-DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
+DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: DDBMonster) {
   const senseLookup = CONFIG.DDB.senses;
 
   this.source.senses.forEach((sense) => {
@@ -75,7 +75,7 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses() {
 };
 
 
-DDBMonster.prototype._generateSenses = function _generateSenses() {
+DDBMonster.prototype._generateSenses = function _generateSenses(this: DDBMonster) {
   const senses = {
     darkvision: 0,
     blindsight: 0,

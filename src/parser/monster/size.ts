@@ -13,7 +13,7 @@ import { DICTIONARY } from "../../config/_module";
 import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
-DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {
+DDBMonster.prototype.getSizeFromId = function getSizeFromId(this: DDBMonster, sizeId) {
   const size = CONFIG.DDB.creatureSizes.find((s) => s.id == sizeId).name;
   const sizeData = DICTIONARY.sizes.find((s) => size == s.name);
 
@@ -24,7 +24,7 @@ DDBMonster.prototype.getSizeFromId = function getSizeFromId(sizeId) {
   return sizeData;
 };
 
-DDBMonster.prototype._generateSize = function _generateSize () {
+DDBMonster.prototype._generateSize = function _generateSize (this: DDBMonster) {
   const sizeData = this.getSizeFromId(this.source.sizeId);
 
   this.npc.system.traits.size = sizeData.value;

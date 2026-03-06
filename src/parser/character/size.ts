@@ -2,7 +2,7 @@ import { DICTIONARY } from "../../config/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype._generateSize = function _generateSize() {
+DDBCharacter.prototype._generateSize = function _generateSize(this: DDBCharacter) {
   const sizeMods = DDBModifiers.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
   const size = (sizeMods.length > 0)
     ? DICTIONARY.sizes.find((size) => sizeMods.some((mod) => mod.subType === size.name.toLowerCase()))

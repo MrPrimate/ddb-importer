@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
 import DDBMonster from "../DDBMonster";
 
-DDBMonster.prototype.getAdjustmentsConfig = function getAdjustmentsConfig(type) {
+DDBMonster.prototype.getAdjustmentsConfig = function getAdjustmentsConfig(this: DDBMonster, type: string) {
   const damageAdjustments = CONFIG.DDB.damageAdjustments;
 
   switch (type) {
@@ -25,7 +25,7 @@ DDBMonster.prototype.getAdjustmentsConfig = function getAdjustmentsConfig(type) 
   }
 };
 
-DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(type) {
+DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(this: DDBMonster, type: string) {
   const config = this.getAdjustmentsConfig(type);
   const values = new Set();
   const custom = [];
@@ -64,19 +64,19 @@ DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(type) 
   return adjustments;
 };
 
-DDBMonster.prototype._generateDamageImmunities = function _generateDamageImmunities() {
+DDBMonster.prototype._generateDamageImmunities = function _generateDamageImmunities(this: DDBMonster) {
   this.npc.system.traits.di = this.getDamageAdjustments("immunities");
 };
 
-DDBMonster.prototype._generateDamageResistances = function _generateDamageResistances() {
+DDBMonster.prototype._generateDamageResistances = function _generateDamageResistances(this: DDBMonster) {
   this.npc.system.traits.dr = this.getDamageAdjustments("resistances");
 };
 
-DDBMonster.prototype._generateDamageVulnerabilities = function _generateDamageVulnerabilities() {
+DDBMonster.prototype._generateDamageVulnerabilities = function _generateDamageVulnerabilities(this: DDBMonster) {
   this.npc.system.traits.dv = this.getDamageAdjustments("vulnerabilities");
 };
 
-DDBMonster.prototype._generateConditionImmunities = function _generateConditionImmunities() {
+DDBMonster.prototype._generateConditionImmunities = function _generateConditionImmunities(this: DDBMonster) {
   const config = this.getAdjustmentsConfig("conditions");
 
   const values = new Set();

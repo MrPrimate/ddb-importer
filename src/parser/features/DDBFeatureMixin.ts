@@ -302,7 +302,6 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
     this.scaleValueUsesLink = "";
     this.useUsesScaleValueLink = false;
     this.tagType = "other";
-    this.activities = [];
     this.data = {};
     this.snippet = "";
     this.description = "";

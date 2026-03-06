@@ -2,7 +2,7 @@ import { SETTINGS, DICTIONARY } from "../../config/_module";
 import DDBMonster from "../DDBMonster";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 
-DDBMonster.prototype.parseOutInnateSpells = function(text) {
+DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
   // handle innate style spells here
   // 3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)
   // console.log(text);
@@ -43,7 +43,7 @@ DDBMonster.prototype.parseOutInnateSpells = function(text) {
 
 
 // e.g. The archmage can cast disguise self and invisibility at will and has the following wizard spells prepared:
-DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
+DDBMonster.prototype.parseAdditionalAtWillSpells = function(this: DDBMonster,text) {
   const atWillSearch = /can cast (.*?) at will/i;
   const atWillMatch = text.match(atWillSearch);
   let atWillSpells = [];
@@ -63,7 +63,7 @@ DDBMonster.prototype.parseAdditionalAtWillSpells = function(text) {
  * @returns {void}
  */
 
-DDBMonster.prototype.parseOutSpells = function(text, { pactText = null } = {}) {
+DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text, { pactText = null } = {}) {
   // console.log(text);
   const spellLevelSearch = /^(Cantrip|\d)(?:st|th|nd|rd)?(?:\s*(?:Level|level))?(?:s)?\s+\((at will|at-will|\d)\s*(?:slot|slots)?\):\s+(.*$)/;
   const match = text.match(spellLevelSearch);
@@ -150,7 +150,7 @@ function splitEdgeCase(spell) {
   return result;
 }
 
-DDBMonster.prototype._generateSpellEdgeCases = function() {
+DDBMonster.prototype._generateSpellEdgeCases = function(this: DDBMonster) {
   ["pact", "class", "atwill"].forEach((spellType) => {
     for (const spellName of this.spellList[spellType]) {
       const edgeCheck = splitEdgeCase(`${spellName}`);
@@ -202,7 +202,7 @@ DDBMonster.prototype._generateSpellEdgeCases = function() {
 
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
-DDBMonster.prototype._generateSpells = function() {
+DDBMonster.prototype._generateSpells = function(this: DDBMonster) {
   if (this.useCastActivity) return;
 
   // some monsters have poor spell formating, reported and might be able to remove in future
@@ -279,7 +279,7 @@ DDBMonster.prototype._generateSpells = function() {
  * @param {string[]} spells List of spell names to search for.
  * @returns {<Item[]>} A list of spells objects that were found.
  */
-DDBMonster.prototype.retrieveCompendiumSpells = async function(spells) {
+DDBMonster.prototype.retrieveCompendiumSpells = async function(this: DDBMonster, spells) {
   const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
   const compendiumSpells = await CompendiumHelper.retrieveMatchingCompendiumItems(spells, compendiumName, {
     "system.source.rules": this.use2024Spells ? "2024" : "2014",
@@ -293,7 +293,7 @@ DDBMonster.prototype.retrieveCompendiumSpells = async function(spells) {
   return itemData;
 };
 
-DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
+DDBMonster.prototype.getSpellEdgeCase = function(this: DDBMonster, spell, type, spellList) {
   const edgeCases = spellList.edgeCases;
   const edgeCase = edgeCases.find((edge) => edge.name.toLowerCase() === spell.name.toLowerCase() && edge.type === type);
 
@@ -369,7 +369,7 @@ DDBMonster.prototype.getSpellEdgeCase = function(spell, type, spellList) {
 
 // temporary spell hints
 // these covercurrent gaps in teh parser, or blocks that are impossible to parse
-DDBMonster.prototype._addSpellHints = function() {
+DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
   switch (this.name) {
     case "Faerie Dragon (Younger)":
     case " Faerie Dragon (Younger)": {
@@ -457,7 +457,7 @@ DDBMonster.prototype._addSpellHints = function() {
   }
 };
 
-DDBMonster.prototype.addSpells = async function() {
+DDBMonster.prototype.addSpells = async function(this: DDBMonster) {
   if (this.useCastActivity) return;
   this._addSpellHints();
   // check to see if we have munched flags to work on

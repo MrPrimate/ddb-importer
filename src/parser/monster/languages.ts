@@ -9,7 +9,7 @@ import { ProficiencyFinder } from "../lib/_module";
 //   "custom": ""
 // },
 
-DDBMonster.prototype._generateLanguages = function _generateLanguages () {
+DDBMonster.prototype._generateLanguages = function _generateLanguages (this: DDBMonster) {
   const config = CONFIG.DDB.languages;
 
   const values = [];

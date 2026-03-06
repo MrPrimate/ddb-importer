@@ -3,7 +3,7 @@ import { utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
-DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilitiesOverrides() {
+DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilitiesOverrides(this: DDBCharacter) {
   DICTIONARY.actor.abilities.forEach((ability) => {
     this.abilities.overrides[ability.value]
       = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
@@ -11,7 +11,7 @@ DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilities
   this.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides = this.abilities.overrides;
 };
 
-DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProficiency(ability) {
+DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProficiency(this: DDBCharacter, ability) {
   // Overwrite the proficient value with any custom set over rides
   if (this.source.ddb.character.characterValues) {
     const customProficiency = this.source.ddb.character.characterValues.find(
@@ -28,7 +28,7 @@ DDBCharacter.prototype._getCustomSaveProficiency = function _getCustomSaveProfic
   return undefined;
 };
 
-DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(ability) {
+DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(this: DDBCharacter, ability) {
   // Get any custom skill bonuses
   if (this.source.ddb.character.characterValues) {
     const customBonus = this.source.ddb.character.characterValues
@@ -44,7 +44,7 @@ DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(abilit
   return 0;
 };
 
-DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityLongName, type,
+DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DDBCharacter, abilityLongName, type,
   { restriction = ["", null], includeExcludedEffects = false, effectOnly = false,
     classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {},
 ) {
@@ -90,7 +90,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(abilityL
  * @param {boolean} [includeExcludedEffects=false] Include bonuses from generated effects?
  * @returns {object} abilities populated with character abilities
  */
-DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEffects = false) {
+DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter, includeExcludedEffects = false) {
   const result = {};
   DICTIONARY.actor.abilities.forEach((ability) => {
     result[ability.value] = {
@@ -188,7 +188,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(includeExcludedEff
  * @property {number} [bonuses.checkMinimum] The minimum bonus to ability checks.
  * @property {number} [bonuses.saveMinimum] The minimum bonus to saving throws.
  */
-DDBCharacter.prototype._getAbilitiesBonuses = function (includeExcludedEffects = false) {
+DDBCharacter.prototype._getAbilitiesBonuses = function (this: DDBCharacter, includeExcludedEffects = false) {
 
   const result = {};
   DICTIONARY.actor.abilities.forEach((ability) => {
@@ -239,7 +239,7 @@ DDBCharacter.prototype._getAbilitiesBonuses = function (includeExcludedEffects =
  * Retrieves character abilities, including proficiency on saving throws
  * @param {obj} includeExcludedEffects Include effects from dae added items?
  */
-DDBCharacter.prototype._generateBaseAbilities = function (includeExcludedEffects = false) {
+DDBCharacter.prototype._generateBaseAbilities = function (this: DDBCharacter, includeExcludedEffects = false) {
   this.raw.character.system.abilities = this._getAbilities(includeExcludedEffects);
 };
 
@@ -247,7 +247,7 @@ DDBCharacter.prototype._generateBaseAbilities = function (includeExcludedEffects
 /**
  * Generates character abilities, including proficiency on saving throws
  */
-DDBCharacter.prototype._generateAbilities = function _generateAbilities() {
+DDBCharacter.prototype._generateAbilities = function _generateAbilities(this: DDBCharacter) {
   // go through every ability
 
   // we need to populate some base abilities to work out bonuses

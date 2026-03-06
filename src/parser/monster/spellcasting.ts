@@ -4,7 +4,7 @@ import { utils } from "../../lib/_module";
 
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
-DDBMonster.prototype.getSpellcasting = function(text) {
+DDBMonster.prototype.getSpellcasting = function(this: DDBMonster, text) {
   let spellcasting = "";
   const abilitySearch = /((?:spellcasting ability) (?:is|uses|using) (\w+)| (\w+)(?: as \w+ spellcasting ability))/;
   const match = text.match(abilitySearch);
@@ -15,13 +15,13 @@ DDBMonster.prototype.getSpellcasting = function(text) {
   return spellcasting;
 };
 
-DDBMonster.prototype._generateSpellcastingAbility = function(text) {
+DDBMonster.prototype._generateSpellcastingAbility = function(this: DDBMonster, text) {
   const spellcasting = this.getSpellcasting(text);
   this.spellcasting.spellcasting = spellcasting;
   this.npc.system.attributes.spellcasting = spellcasting;
 };
 
-DDBMonster.prototype._generateSpellLevel = function(text) {
+DDBMonster.prototype._generateSpellLevel = function(this: DDBMonster, text) {
   let spellLevel = 0;
   const levelSearch = /is (?:a|an) (\d+)(?:th|nd|rd|st)(?:-| )level spellcaster/i;
   const match = text.match(levelSearch);
@@ -32,7 +32,7 @@ DDBMonster.prototype._generateSpellLevel = function(text) {
   this.npc.system.attributes.spell.level = spellLevel;
 };
 
-DDBMonster.prototype._generateSpelldc = function(text) {
+DDBMonster.prototype._generateSpelldc = function(this: DDBMonster, text) {
   let dc = 10;
   const dcSearch = "spell\\s+save\\s+DC\\s*(\\d+)(?:,|\\)|\\s)";
   const match = text.match(dcSearch);
@@ -44,7 +44,7 @@ DDBMonster.prototype._generateSpelldc = function(text) {
   this.spellcasting.spelldc = dc;
 };
 
-DDBMonster.prototype._generateSpellAttackBonus = function(text) {
+DDBMonster.prototype._generateSpellAttackBonus = function(this: DDBMonster, text) {
   let spellAttackBonus = 0;
   const dcSearch = "([+-]\\d+)\\s+to\\s+hit\\s+with\\s+spell\\s+attacks";
   const match = text.match(dcSearch);
@@ -77,7 +77,7 @@ DDBMonster.prototype._generateSpellAttackBonus = function(text) {
 // };
 
 
-DDBMonster.prototype._generateSpellcasting = function() {
+DDBMonster.prototype._generateSpellcasting = function(this: DDBMonster) {
   // some monsters have poor spell formating, reported and might be able to remove in future
   // https://www.dndbeyond.com/forums/d-d-beyond-general/bugs-support/91228-sir-godfrey-gwilyms-spell-statblock
   const possibleSpellSources = this.source.specialTraitsDescription + this.source.actionsDescription;

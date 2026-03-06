@@ -7,7 +7,7 @@ const notReplace = {
 };
 
 
-DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async function _getAutoLinkActivityDictionarySpellLinkUpdates() {
+DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async function _getAutoLinkActivityDictionarySpellLinkUpdates(this: DDBCharacter) {
   const possibleItems = this.currentActor.items.toObject();
   const toUpdate = [];
 
@@ -50,11 +50,11 @@ DDBCharacter.prototype._getAutoLinkActivityDictionarySpellLinkUpdates = async fu
       if (spellData.cost !== 0) {
         const ignoredConsumptionActivities = foundry.utils.getProperty(child, "flags.ddbimporter.ignoredConsumptionActivities");
         for (const id of Object.keys(child.system.activities)) {
-           
+
           if (ignoredConsumptionActivities?.includes(child.system.activities[id].name)) continue;
           const targets = child.system.activities[id].consumption.targets;
           const cost = foundry.utils.getProperty(child, "flags.ddbimporter.consumptionValue") ?? spellData.cost;
-           
+
           if (foundry.utils.getProperty(child, "flags.ddbimporter.retainOriginalConsumption")) {
             targets.push(
               {
@@ -162,7 +162,7 @@ function _findChildUpdates({ consumingDocs, possibleItems, parent } = {}) {
 }
 
 
-DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _getAutoLinkActivityDictionaryUpdates() {
+DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _getAutoLinkActivityDictionaryUpdates(this: DDBCharacter) {
   const possibleItems = this.currentActor.items.toObject();
   const toUpdate = [];
 
@@ -182,7 +182,7 @@ DDBCharacter.prototype._getAutoLinkActivityDictionaryUpdates = async function _g
   return toUpdate;
 };
 
-DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getAutoLinkActivityFlagDocUpdates() {
+DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getAutoLinkActivityFlagDocUpdates(this: DDBCharacter) {
   const possibleItems = this.currentActor.items.toObject();
   const toUpdate = [];
 
@@ -223,7 +223,7 @@ DDBCharacter.prototype._getAutoLinkActivityFlagDocUpdates = async function _getA
   return toUpdate;
 };
 
-DDBCharacter.prototype._flagCleanup = async function _flagCleanup() {
+DDBCharacter.prototype._flagCleanup = async function _flagCleanup(this: DDBCharacter) {
   const possibleItems = this.currentActor.items.toObject();
   const toUpdate = possibleItems
     .filter((doc) => foundry.utils.hasProperty(doc, "flags.ddbimporter.defaultAdditionalActivities"))
@@ -242,7 +242,7 @@ DDBCharacter.prototype._flagCleanup = async function _flagCleanup() {
   logger.debug("Flag cleanup updates", toUpdate);
 };
 
-DDBCharacter.prototype.autoLinkConsumption = async function autoLinkConsumption() {
+DDBCharacter.prototype.autoLinkConsumption = async function autoLinkConsumption(this: DDBCharacter) {
   const toUpdate = [];
 
   const activityFlagUpdates = await this._getAutoLinkActivityFlagDocUpdates();

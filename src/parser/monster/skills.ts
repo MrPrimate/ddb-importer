@@ -26,7 +26,7 @@ import DDBMonster from "../DDBMonster";
 //   "prof": 7,
 //   "total": 9
 // },
-DDBMonster.prototype._generateSkills = function _generateSkills () {
+DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonster) {
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
   const validSkills = DICTIONARY.actor.skills.map((skill) => skill.name);
 
@@ -75,7 +75,7 @@ DDBMonster.prototype._generateSkills = function _generateSkills () {
 };
 
 
-DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML () {
+DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: DDBMonster) {
   const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
   //  "skillsHtml": "History + 12, Perception + 10"
   const skillsHTML = utils.stripHtml(this.source.skillsHtml).split(",");

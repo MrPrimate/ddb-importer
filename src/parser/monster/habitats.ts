@@ -1,6 +1,6 @@
 import DDBMonster from "../DDBMonster";
 
-DDBMonster.prototype._generateHabitats = function _generateHabitats() {
+DDBMonster.prototype._generateHabitats = function _generateHabitats(this: DDBMonster) {
 
   const ddbValues = this.source.environments.filter((env) =>
     CONFIG.DDB.environments.some((c) => env == c.id),
