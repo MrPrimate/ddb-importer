@@ -4,8 +4,18 @@ import { DDBMonsterFeatureActivity } from "../../activities/_module";
 import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
+import DDBMonster from "../../DDBMonster";
 
 export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
+
+  name: string;
+  isAction: null;
+  legacy: boolean;
+  is2014: boolean;
+  is2024: boolean;
+  originalName: string;
+  ddbMonster: DDBMonster;
+  html: string;
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;

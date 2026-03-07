@@ -1,7 +1,55 @@
 import { utils, logger } from "../../../lib/_module";
+import DDBMonster from "../../DDBMonster";
 import DDBMonsterFeature from "./DDBMonsterFeature";
 
+type TFeatureBlockType = "action" | "reaction" | "bonus" | "mythic" | "lair" | "legendary" | "special" | "villain";
+
+interface IFeatureTextStore {
+  action: string;
+  reaction: string;
+  bonus: string;
+  mythic: string;
+  lair: string;
+  legendary: string;
+  special: string;
+  villain: string;
+  unexpected?: string | null;
+}
+
+interface IFeatureBlockOptions {
+  html: string;
+  ddbMonster: DDBMonster;
+  type: TFeatureBlockType;
+  titleHTML?: string;
+  fullName?: string;
+  actionCopy?: boolean;
+  sort?: number;
+  hideDescription?: boolean;
+  updateExisting?: boolean;
+}
+
+interface IFeatureBlock {
+  name: string;
+  options: IFeatureBlockOptions;
+}
+
+interface IResourceStore {
+  lair: I5eLairResource;
+  legendary: I5eLegendaryResource;
+  resistance: I5eLegendaryResource;
+}
+
 export default class DDBMonsterFeatureFactory {
+
+  ddbMonster: DDBMonster;
+  hideDescription: boolean;
+  updateExisting: boolean;
+  characterDescription: IFeatureTextStore;
+  html: IFeatureTextStore;
+  resources: IResourceStore;
+  features: Record<string, DDBMonsterFeature[]>;
+  featureBlocks: Record<TFeatureBlockType, IFeatureBlock[]>;
+  gear: string[] = [];
 
   // some monsters now have [rollable] tags - if these exist we need to parse them out
   // in the future we may be able to use them, but not consistent yet
@@ -76,9 +124,7 @@ export default class DDBMonsterFeatureFactory {
       },
     };
 
-    this.resistance = {};
-
-    this.gear = [];
+    // this.resistance = {};
   }
 
   getFeatures(type) {
@@ -254,10 +300,10 @@ export default class DDBMonsterFeatureFactory {
 
       if (!action) return;
 
-      if (node.outerHTML) {
+      if ("outerHTML" in node && node.outerHTML) {
         let outerHTML = `${node.outerHTML}`;
         if (switchAction && startFlag) {
-          const replaceName = foundry.utils.getProperty(action, "fullName") ?? nodeName;
+          const replaceName = (foundry.utils.getProperty(action, "fullName") ?? nodeName) as string;
           outerHTML = outerHTML.replace(replaceName, "");
           const titleDom = utils.htmlToDocumentFragment(outerHTML);
           if (titleDom.textContent.startsWith(".")) outerHTML = outerHTML.replace(".", "");
@@ -316,8 +362,8 @@ export default class DDBMonsterFeatureFactory {
         action = switchAction;
         if (action.options.html === "") startFlag = true;
       }
-      if (node.outerHTML) {
-        let outerHTML = node.outerHTML;
+      if ("outerHTML" in node && node.outerHTML) {
+        let outerHTML = node.outerHTML as string;
         if (switchAction && startFlag) {
           outerHTML = outerHTML.replace(`${nodeName}.`, "");
         }
@@ -402,8 +448,8 @@ export default class DDBMonsterFeatureFactory {
           }
 
           if (action.options.actionCopy) return;
-          if (node.outerHTML) {
-            let outerHTML = node.outerHTML;
+          if ("outerHTML" in node && node.outerHTML) {
+            let outerHTML = node.outerHTML as string;
             if (switchAction && startFlag) {
               outerHTML = outerHTML.replace(`${nodeName}.`, "");
             }
@@ -449,8 +495,8 @@ export default class DDBMonsterFeatureFactory {
             }
           }
 
-          if (node.outerHTML) {
-            let outerHTML = node.outerHTML;
+          if ("outerHTML" in node && node.outerHTML) {
+            let outerHTML = node.outerHTML as string;
             if (switchAction && startFlag) {
               outerHTML = outerHTML.replace(`${nodeName}.`, "").replace(`${nodeName}`, "");
             }
@@ -477,7 +523,7 @@ export default class DDBMonsterFeatureFactory {
     }
   }
 
-  #generateGear(text) {
+  #generateGear(text: string) {
     const plain = utils.stripHtml(text);
     const gearArray = plain.replace("Gear.", "").split(",").map((g) => g.trim());
     this.gear.push(...gearArray);
@@ -564,8 +610,8 @@ export default class DDBMonsterFeatureFactory {
         }
       }
 
-      if (node.outerHTML) {
-        let outerHTML = node.outerHTML;
+      if ("outerHTML" in node && node.outerHTML) {
+        let outerHTML = node.outerHTML as string;
         if (switchAction && startFlag) {
           if (action.options.fullName) {
             outerHTML = outerHTML.replace(action.fullName, "");
@@ -633,8 +679,8 @@ export default class DDBMonsterFeatureFactory {
         this.#generateVillainActions(type);
         break;
       default:
-        logger.error(`Unknown action parsing type ${this.type}`, { DDBFeatureFactory: this });
-        throw new Error(`Unknown action parsing type ${this.type}`);
+        logger.error(`Unknown action parsing type ${type}`, { DDBFeatureFactory: this });
+        throw new Error(`Unknown action parsing type ${type}`);
     }
 
     // some features are duplicated and we parse these first

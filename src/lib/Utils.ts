@@ -2,7 +2,13 @@ import { SETTINGS } from "../config/_module";
 
 interface DiceParserDice { sign: string; count: number; die: number };
 interface DiceParserBonus { sign: string; count: number };
-interface DiceParserResult {};
+interface DiceParserResult {
+  dice: DiceParserDice[];
+  diceMap: DiceParserDice[];
+  diceHintString: string;
+  bonus: number;
+  diceString: string;
+};
 
 const Range = function *(total = 0, step = 1, from = 0) {
   // eslint-disable-next-line no-empty
@@ -13,12 +19,12 @@ const signed = new Intl.NumberFormat(undefined, { signDisplay: "always" });
 
 export default class Utils {
 
-  static debug() {
+  static debug(): boolean {
     return true;
   }
 
 
-  static capitalize(s) {
+  static capitalize(s: string): string {
     if (typeof s !== "string") return "";
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
@@ -38,11 +44,11 @@ export default class Utils {
 
   static _range = Range;
 
-  static arrayRange(total = 0, step = 1, from = 0) {
+  static arrayRange(total = 0, step = 1, from = 0): number[] {
     return Array.from(Utils._range(total, step, from));
   }
 
-  static removeCompendiumLinks(text) {
+  static removeCompendiumLinks(text: string): string {
     const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;
     const linkRegExNoTag = /@\w+\[(.*)\]/g;
     function replaceRule(_match, p1, p2) {
@@ -55,24 +61,24 @@ export default class Utils {
     return text.replaceAll(linkRegExTag, replaceRule).replaceAll(linkRegExNoTag, replaceRule);
   }
 
-  static normalizeString(str) {
+  static normalizeString(str: string): string {
     return str.toLowerCase().replace(/\W/g, "");
   }
 
-  static referenceNameString(str) {
+  static referenceNameString(str: string): string {
     const identifier = Utils.nameString(str).replaceAll("'", "").replaceAll(/(\w+)([\\|/])(\w+)/g, "$1-$3");
     return identifier.slugify({ strict: true });
   }
 
-  static idString(str) {
+  static idString(str: string): string {
     return str.replace(/[^a-zA-Z0-9]/g, "");
   }
 
-  static pascalCase(str) {
+  static pascalCase(str: string): string {
     return str.split(" ").map((s) => Utils.capitalize(Utils.idString(s))).join("");
   }
 
-  static camelCase(str) {
+  static camelCase(str: string): string {
     const pascal = Utils.pascalCase(str);
     return pascal.charAt(0).toLowerCase() + pascal.slice(1);
   }
@@ -116,7 +122,7 @@ export default class Utils {
     return result;
   }
 
-  static nameString(str) {
+  static nameString(str: string): string {
     return str
       .replaceAll("&amp;", "&")
       .replaceAll("&nbsp;", " ")
@@ -132,14 +138,14 @@ export default class Utils {
       .replaceAll("  ", " ").trim();
   }
 
-  static regexSanitizeString(str) {
+  static regexSanitizeString(str: string): string {
     // eslint-disable-next-line no-useless-escape
     return str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, (x) => {
       return `\\${x}`;
     }).trim();
   }
 
-  static stripHtml(html, preferInnerText = false) {
+  static stripHtml(html: string, preferInnerText = false) {
     const tmp = document.createElement("DIV");
     tmp.innerHTML = html;
     if (preferInnerText) {
@@ -148,19 +154,19 @@ export default class Utils {
     return tmp.textContent || tmp.innerText || "";
   }
 
-  static htmlToElement(html) {
+  static htmlToElement(html: string): ChildNode | null {
     const template = document.createElement("template");
     html = html.trim(); // Never return a text node of whitespace as the result
     template.innerHTML = html;
     return template.content.firstChild;
   }
 
-  static htmlToDoc(text) {
+  static htmlToDoc(text: string): Document {
     const parser = new DOMParser();
     return parser.parseFromString(text, "text/html");
   }
 
-  static htmlToDocumentFragment(text) {
+  static htmlToDocumentFragment(text: string): DocumentFragment {
     const dom = new DocumentFragment();
     $.parseHTML(text).forEach((element) => {
       dom.appendChild(element);
@@ -168,23 +174,23 @@ export default class Utils {
     return dom;
   }
 
-  static replaceHtmlSpaces(str) {
+  static replaceHtmlSpaces(str: string): string {
     return str.replace(/&nbsp;/g, " ").replace(/\xA0/g, " ").replace(/\s\s+/g, " ").trim();
   }
 
-  static renderLesserString(str) {
+  static renderLesserString(str: string): string {
     return Utils.replaceHtmlSpaces(Utils.stripHtml(str)).trim().toLowerCase();
   }
 
-  static stringKindaEqual(a, b) {
+  static stringKindaEqual(a: string, b: string): boolean {
     return Utils.renderLesserString(a) === Utils.renderLesserString(b);
   }
 
-  static calculateModifier(value) {
+  static calculateModifier(value: number): number {
     return Math.floor((value - 10) / 2);
   }
 
-  static diceStringResultBuild(diceMap: DiceParserDice[], dice: DiceParserDice[], bonus = 0, mods = "", diceHint = "", specialFlags = "", addHint = false) {
+  static diceStringResultBuild(diceMap: DiceParserDice[], dice: DiceParserDice[], bonus = 0, mods = "", diceHint = "", specialFlags = "", addHint = false): DiceParserResult {
     const globalDamageHints = addHint;
     const resultBonus = bonus === 0 ? "" : `${bonus > 0 ? " +" : " "} ${bonus}`;
     const diceHintAdd = globalDamageHints && diceHint && diceMap;
@@ -207,7 +213,7 @@ export default class Utils {
     return result;
   }
 
-  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = "") {
+  static parseDiceString(inStr: string, mods = "", diceHint = "", specialFlags = ""): DiceParserResult {
     // sanitizing possible inputs a bit
     const str = `${inStr}`.toLowerCase().replace(/[–-–−]/gu, "-").replace(/\s+/gu, "");
 
