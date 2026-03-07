@@ -1,6 +1,49 @@
 import { logger, utils } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 
+export interface IFeatureBasicsSave {
+  ability: string[];
+  dc: {
+    calculation: string;
+    formula: string;
+  };
+  half: boolean;
+}
+
+export interface IFeatureBasicsResult {
+  matches: {
+    attackMatches: RegExpExecArray | null;
+    summonAttackMatches: RegExpExecArray | null;
+    healingMatch: boolean;
+    spellSave: RegExpMatchArray | null;
+    saveSearchMatch: RegExpMatchArray | null;
+    saveSearchNewMatch: RegExpMatchArray | null;
+    halfMatch: boolean;
+  };
+  save: IFeatureBasicsSave;
+  midiProperties: { otherSaveDamage: string } | { saveDamage: string };
+  properties: {
+    isAttack: boolean;
+    isSummonAttack: boolean;
+    spellSaveRegExpMatchArray: RegExpMatchArray | null;
+    isSpellSave: boolean;
+    savingThrowRegExpMatchArray: RegExpMatchArray | null;
+    isSavingThrow: boolean;
+    summonSaveRegExpMatchArray: RegExpMatchArray | null;
+    isSummonSave: boolean;
+    isSave: boolean;
+    halfDamage: boolean;
+    pbToAttack: boolean;
+    weaponAttack: boolean;
+    spellAttack: boolean;
+    meleeAttack: boolean;
+    rangedAttack: boolean;
+    healingAction: boolean;
+    toHit: number;
+    yourSpellAttackModToHit: boolean;
+  };
+}
+
 export interface IDCParserResult {
   save: I5eActivitySave;
   match: RegExpExecArray | null;
@@ -39,6 +82,9 @@ export default class DDBDescriptions {
       second: returnDefault ? defaultDurationSeconds : null,
       round: returnDefault ? (defaultDurationSeconds / 6) : null,
       minute: null,
+      day: null,
+      year: null,
+      month: null,
       turns: null,
       hour: null,
       special: "",
@@ -55,36 +101,36 @@ export default class DDBDescriptions {
       result.value = match[1];
       switch (match[2]) {
         case "minute": {
-          result.minute = match[1];
+          result.minute = parseInt(match[1]);
           seconds *= 60;
           break;
         }
         case "hour": {
-          result.hour = match[1];
+          result.hour = parseInt(match[1]);
           seconds *= 60 * 60;
           break;
         }
         case "round": {
           seconds *= 6;
-          result.round = match[1];
+          result.round = parseInt(match[1]);
           break;
         }
         case "turn": {
-          result.turns = match[1];
+          result.turns = parseInt(match[1]);
           break;
         }
         case "day": {
-          result.day = match[1];
+          result.day = parseInt(match[1]);
           seconds *= 60 * 60 * 24;
           break;
         }
         case "year": {
-          result.year = match[1];
+          result.year = parseInt(match[1]);
           seconds *= 60 * 60 * 24 * 365;
           break;
         }
         case "month": {
-          result.month = match[1];
+          result.month = parseInt(match[1]);
           seconds *= 60 * 60 * 24 * 30;
           break;
         }
@@ -296,9 +342,9 @@ export default class DDBDescriptions {
       results.save = {
         dc: {
           formula: match.groups["dc"] ?? "",
-          calculation: match.groups["spellcasting"] ? "spellcasting" : (match.groups["modifier"]?.toLowerCase().substr(0, 3) ?? ""),
+          calculation: match.groups["spellcasting"] ? "spellcasting" : (match.groups["modifier"]?.toLowerCase().substring(0, 3) ?? ""),
         },
-        ability: match.groups["ability"] ? [match.groups["ability"].toLowerCase().substr(0, 3)] : [],
+        ability: match.groups["ability"] ? [match.groups["ability"].toLowerCase().substring(0, 3)] : [],
       };
       if (results.save.dc.calculation === "" && results.save.dc.formula === "") {
         if (parserText.toLowerCase().includes("channel divinity)")) {
@@ -424,10 +470,8 @@ export default class DDBDescriptions {
       const duration = DDBDescriptions.getDuration(parserText);
 
       if (duration.type) {
-        result.duration = {
-          seconds: duration.second,
-          rounds: duration.round,
-        };
+        result.duration.seconds = duration.second;
+        result.duration.rounds = duration.round;
       }
       result.specialDurations = duration.dae ?? [];
     }
@@ -438,7 +482,7 @@ export default class DDBDescriptions {
   }
 
 
-  static featureBasics({ text } : { text: string }) {
+  static featureBasics({ text } : { text: string }): IFeatureBasicsResult {
 
     const standardMatchRegex = /(?<range>Melee|Ranged|Melee\s+or\s+Ranged)\s+(?<type>|Weapon|Spell)\s*(?<attackRoll>Attack|Attack Roll):\s*(?<bonus>[+-]\d+|your (?:\w+\s*)*)\s*(?<pb>plus PB\s|\+ PB\s)?(?:to\s+hit|,|\(|\.)/i;
     const standardAttackMatches = standardMatchRegex.exec(text);
@@ -485,8 +529,8 @@ export default class DDBDescriptions {
 
     const spellSaveSearch = /(?<ability>\w+) saving throw against your spell save DC/i;
     const spellSave = text.match(spellSaveSearch);
-    const summonSaveSearc = /(?<ability>\w+) Saving Throw: DC equals your spell save DC/i;
-    const summonSave = text.match(summonSaveSearc);
+    const summonSaveSearch = /(?<ability>\w+) Saving Throw: DC equals your spell save DC/i;
+    const summonSave = text.match(summonSaveSearch);
 
     const saveSearch = /DC (?<dc>\d+) (?<ability>\w+) (?<type>saving throw|check)/i;
     const saveSearchMatch = text.match(saveSearch);
@@ -501,19 +545,19 @@ export default class DDBDescriptions {
     if (savingThrow) {
       save.dc.formula = savingThrow.groups.dc;
       save.dc.calculation = "";
-      save.ability = [savingThrow.groups.ability.toLowerCase().substr(0, 3)];
+      save.ability = [savingThrow.groups.ability.toLowerCase().substring(0, 3)];
     } else if (spellSave || summonSave) {
       // save.dc = 10;
       save.ability = spellSave
-        ? [spellSave.groups.ability.toLowerCase().substr(0, 3)]
-        : [summonSave.groups.ability.toLowerCase().substr(0, 3)];
+        ? [spellSave.groups.ability.toLowerCase().substring(0, 3)]
+        : [summonSave.groups.ability.toLowerCase().substring(0, 3)];
       save.dc.calculation = "spellcasting";
     }
 
     const healingRegex = /(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i;
     const healingMatch = healingRegex.test(text);
 
-    const result = {
+    const result: IFeatureBasicsResult = {
       matches: {
         attackMatches: standardAttackMatches,
         summonAttackMatches,
@@ -530,9 +574,12 @@ export default class DDBDescriptions {
       properties: {
         isAttack,
         isSummonAttack,
-        spellSave,
-        savingThrow,
-        summonSave,
+        spellSaveRegExpMatchArray: spellSave,
+        isSpellSave: Boolean(spellSave),
+        savingThrowRegExpMatchArray: savingThrow,
+        isSavingThrow: Boolean(savingThrow),
+        summonSaveRegExpMatchArray: summonSave,
+        isSummonSave: Boolean(summonSave),
         isSave: Boolean(spellSave || savingThrow || summonSave),
         halfDamage: halfMatch,
         pbToAttack,

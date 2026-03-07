@@ -74,7 +74,7 @@ declare global {
     // Temp, until we use dnd5e-types
     DND5E: {
       sourceBooks: Record<string, string>;
-      activityActivationTypes: activationCostType;
+      activityActivationTypes: TActivationCost;
       spellPreparationStates: {
         prepared: {
           value: number;

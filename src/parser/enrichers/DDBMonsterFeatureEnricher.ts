@@ -1,8 +1,16 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { GenericEnrichers, MonsterEnrichers } from "./_module";
 import { logger, utils } from "../../lib/_module";
+import DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
 
 export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
+  monster: I5eMonsterData;
+  monsterName: string;
+  monsterHintName: string | null;
+  hints: {
+    monsterHintName: string;
+    featName: string;
+  };
 
   _splitNameLoader(): any {
     this.name = this.name.split("(")[0].trim();
@@ -119,7 +127,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     this.monsterHintName = null;
   }
 
-  async load({ ddbParser, document, name = null, monster, is2014 = null }: { ddbParser: any; document: any; name?: any; monster: any; is2014?: any } = {} as any): Promise<void> {
+  async load({ ddbParser, document, name = null, monster, is2014 = null }: { ddbParser: DDBMonsterFeature; document?: I5eWeaponItem | I5eFeatItem | I5eInventoryItem; name?: any; monster: I5eMonsterData; is2014?: any }): Promise<void> {
     this.monster = monster;
     this.monsterName = this.monster.name;
     await super.load({ ddbParser, document, name, is2014 });

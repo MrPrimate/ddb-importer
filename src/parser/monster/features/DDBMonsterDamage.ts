@@ -1,7 +1,19 @@
 import { logger, utils } from "../../../lib/_module";
 import { SystemHelpers } from "../../lib/_module";
+import DDBMonsterFeature from "./DDBMonsterFeature";
 
 export class DDBMonsterDamage {
+
+  ddbMonsterFeature: DDBMonsterFeature;
+  versatile: boolean;
+  levelBonus: boolean;
+  profBonus: boolean;
+  damageParts: IDDBMonsterActionDataDamagePart[];
+  healingParts: IDDBMonsterActionDataHealingPart[];
+  versatileParts: I5eDamagePart[];
+  saveParts: I5eDamagePart[];
+  additionalActivities: IAdditionalActivityOutline[];
+
 
   // Adjustments
   // removed space in damage detection this might be a problem, for 2024 Summon Construct
@@ -9,8 +21,14 @@ export class DDBMonsterDamage {
   static DAMAGE_EXPRESSION = new RegExp(/(?<prefix>(?:takes|saving throw or take\s+)|(?:[\w]*\s+))(?:(?<diceminor>[0-9]+))?(?:\s*\(?(?<dice>[0-9]*d[0-9]+(?:\s*(?:[-+]|plus)\s*(?:[0-9]+|PB|the spell[’']s level))*(?:\s+plus [^\)]+)?)\)?)?\s*(?<type>[\w]*?|[\w]* or [\w]*?)\s*damage(?: when used with | if (?:used|wielded) with )?(?<suffix>\s?two hands|\s?at the start of|\son a failed save)?/gi);
 
   static REGAIN_EXPRESSION = new RegExp(/(regains|regain)\s+?(?:([0-9]+))?(?: *\(?([0-9]*d[0-9]+(?:\s*[-+]\s*[0-9]+)??)\)?)?\s+hit\s+points/i);
+  hit: string;
+  splitSaves: boolean;
+  templateType: string;
+  saves: { type: string; hit: string };
+  hitsMatch: string[];
+  hitMatches: RegExpExecArray[];
 
-  constructor(hit, { ddbMonsterFeature, splitSaves = false } = {}) {
+  constructor(hit: string, { ddbMonsterFeature, splitSaves = false } : { ddbMonsterFeature: DDBMonsterFeature; splitSaves?: boolean }) {
     this.hit = hit;
 
     this.versatile = false;
@@ -46,11 +64,11 @@ export class DDBMonsterDamage {
     return null;
   }
 
-  static _getDamageTypes(text, dmgMatch) {
+  static _getDamageTypes(text: string, dmgMatch: string): string[] {
     const typesRegex = /damage of a type chosen by the (?:.*?): (.*?)\./i;
     const typesMatch = typesRegex.exec(text);
 
-    const result = new Set();
+    const result = new Set<string>();
 
     const processMatches = ((str) => {
       const matches = str.replace(", or ", ",").replace(" or ", ",").split(",").map((d) => d.trim().toLowerCase());
@@ -127,7 +145,7 @@ export class DDBMonsterDamage {
   }
 
 
-  _generateHitMatch(dmg) {
+  _generateHitMatch(dmg: RegExpExecArray) {
     let other = false;
     let save = null;
     if (dmg.groups.prefix == "DC " || dmg.groups.type == "hit points by this") {
@@ -209,7 +227,7 @@ export class DDBMonsterDamage {
     }
   }
 
-  _generateSaveParts(matches) {
+  _generateSaveParts(matches: RegExpExecArray[]) {
     for (const dmg of matches) {
       const { finalDamage } = this._getHitMatchDamage(dmg);
       if (!finalDamage) continue;

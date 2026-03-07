@@ -6,6 +6,7 @@ import { DDBSpellEnricher, mixins } from "../enrichers/_module";
 import DDBSummonsManager from "../companions/DDBSummonsManager";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
+import { ISpellPreparationMode } from "../../config/dictionary/spell/spell";
 
 interface SpellHealingPart {
   part: I5eDamagePart;
@@ -58,7 +59,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   flagData: IParseSpellFlagData;
   limitedUse: I5eSystemLimitedUses | null;
   lookup: ParseSpellLookup;
-  classPrepMode: import("/home/jack/repos/github.com/MrPrimate/ddb-importer-typescript/src/config/dictionary/spell/spell").ISpellPreparationMode;
+  classPrepMode: ISpellPreparationMode;;
   rawCharacter: I5ePCData;
   healingParts: SpellHealingPart[];
 

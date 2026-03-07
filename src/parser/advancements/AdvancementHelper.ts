@@ -2152,7 +2152,7 @@ export default class AdvancementHelper {
         result.hint = "You can choose Intelligence, Wisdom, or Charisma as your spellcasting ability for these spells.";
       }
       result.abilities = abilityMatches[1].replace(" or ", ",").replaceAll(",,", ",").split(",").map((ability) =>
-        ability.trim().toLowerCase().substr(0, 3),
+        ability.trim().toLowerCase().substring(0, 3),
       );
     } else {
       // the spell uses the same spellcasting ability

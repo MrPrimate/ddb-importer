@@ -470,7 +470,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     const spellSaveCheck = (this.ddbDefinition.description ?? "").match(/succeed on a (.*?) saving throw (against your spell save DC)?/);
     if (spellSaveCheck && spellSaveCheck[1]) {
-      save.ability = spellSaveCheck[1].toLowerCase().substr(0, 3);
+      save.ability = spellSaveCheck[1].toLowerCase().substring(0, 3);
       if (spellSaveCheck[2]) {
         save.dc.calculation = "spellcasting";
       }
@@ -479,7 +479,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     const saveCheck = (this.ddbDefinition.description ?? "").match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
     if (saveCheck && saveCheck[2]) {
-      save.ability = saveCheck[2].toLowerCase().substr(0, 3);
+      save.ability = saveCheck[2].toLowerCase().substring(0, 3);
       save.dc.formula = `${saveCheck[1]}`;
       save.dc.calculation = "";
       this.actionData.save = save;
@@ -582,7 +582,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
                 ? {
                   formula: `${saveMatch[1]}`,
                   calculation: "",
-                  ability: [saveMatch[2].toLowerCase().substr(0, 3)],
+                  ability: [saveMatch[2].toLowerCase().substring(0, 3)],
                 }
                 : null,
             },

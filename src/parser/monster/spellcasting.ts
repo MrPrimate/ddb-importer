@@ -10,7 +10,7 @@ DDBMonster.prototype.getSpellcasting = function(this: DDBMonster, text) {
   const match = text.match(abilitySearch);
   if (match) {
     const abilityMatch = match[2] || match[3];
-    spellcasting = abilityMatch.toLowerCase().substr(0, 3);
+    spellcasting = abilityMatch.toLowerCase().substring(0, 3);
   }
   return spellcasting;
 };

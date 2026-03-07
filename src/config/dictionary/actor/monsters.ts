@@ -1,4 +1,23 @@
-export const MONSTERS = {
+export type TMonsterWeaponActionType = "mwak" | "rwak";
+
+export interface IMonsterWeaponDictionary {
+  name: string;
+  actionType: TMonsterWeaponActionType;
+  weaponType: TWeaponType;
+  properties: Partial<Record<TWeaponProperties, boolean>>;
+}
+
+export interface IMonsterResetDictionary {
+  id: number | string;
+  value: TLimitedUsePeriod | null;
+}
+
+export interface IMonsterDictionary {
+  weapons: IMonsterWeaponDictionary[];
+  resets: IMonsterResetDictionary[];
+}
+
+export const MONSTERS: IMonsterDictionary = {
   weapons: [
     // simple
     { name: "Boomerang", actionType: "rwak", weaponType: "simpleR", properties: { ret: true } },
@@ -48,7 +67,7 @@ export const MONSTERS = {
     { name: "Maul", actionType: "mwak", weaponType: "martialM", properties: { hvy: true, two: true } },
     { name: "Morningstar", actionType: "mwak", weaponType: "martialM", properties: {} },
     { name: "Musket", actionType: "rwak", weaponType: "martialR", properties: { amm: true, lod: true, fir: true } },
-    { name: "Net", actionType: "mwak", weaponType: "martialR", properties: { spc: true, thw: true } },
+    { name: "Net", actionType: "mwak", weaponType: "martialR", properties: { spc: true, thr: true } },
     { name: "Pike", actionType: "mwak", weaponType: "martialM", properties: { hvy: true, two: true, rch: true } },
     { name: "Pistol", actionType: "rwak", weaponType: "martialR", properties: { amm: true, lod: true, fir: true } },
     { name: "Rapier", actionType: "mwak", weaponType: "martialM", properties: { fin: true } },
@@ -86,7 +105,7 @@ export const MONSTERS = {
     { id: "day", value: "day" },
     { id: "Dawn", value: "day" },
     { id: "dusk", value: "day" },
-    { id: "Consumable", value: "charges" },
-    { id: "Other", value: "charges" },
+    { id: "Consumable", value: null },
+    { id: "Other", value: null },
   ],
 };

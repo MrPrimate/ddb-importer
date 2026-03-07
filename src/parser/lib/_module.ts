@@ -3,6 +3,7 @@ export * as DDBTable from "./DDBTable";
 export * as DDBReferenceLinker from "./DDBReferenceLinker";
 export * as DDBTemplateStrings from "./DDBTemplateStrings";
 export { default as DDBDescriptions } from "./DDBDescriptions";
+export type { IFeatureBasicsResult, IFeatureBasicsSave } from "./DDBDescriptions";
 export * as FilterModifiers from "./FilterModifiers";
 export { default as DDBModifiers } from "./DDBModifiers";
 export { default as DDBDataUtils } from "./DDBDataUtils";

@@ -3,11 +3,32 @@ import { DICTIONARY, SETTINGS } from "../../../config/_module";
 import { DDBMonsterFeatureActivity } from "../../activities/_module";
 import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
+import type { IFeatureBasicsResult, IFeatureBasicsSave } from "../../lib/_module";
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
 import DDBMonster from "../../DDBMonster";
+import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
+
+
+interface IDDBMonsterFeature {
+  ddbMonster: DDBMonster;
+  html?: string;
+  type: TDDBMonsterActionType;
+  titleHTML?: string;
+  fullName?: string;
+  actionCopy?: boolean;
+  updateExisting?: boolean;
+  hideDescription?: boolean;
+  sort?: number | null;
+}
 
 export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
+  declare data: I5eWeaponItem | I5eFeatItem | I5eInventoryItem;
+  declare enricher: DDBMonsterFeatureEnricher;
+  declare type: TDDBMonsterActionType;
+  actionData: IDDBMonsterActionData;
+  descriptionParse: IFeatureBasicsResult;
+  descriptionSave: IFeatureBasicsSave;
   name: string;
   isAction: null;
   legacy: boolean;
@@ -16,6 +37,41 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   originalName: string;
   ddbMonster: DDBMonster;
   html: string;
+  strippedHtml: string;
+  levelBonus: boolean;
+  profBonus: boolean;
+  sort: number | null;
+  isAttack: boolean;
+  isSummonAttack: boolean;
+  isSave: boolean;
+  isRecharge: RegExpMatchArray | null;
+  fullName: string;
+  stripName: boolean;
+  hideDescription: boolean;
+  updateExisting: boolean;
+  stripFlagData: boolean;
+  titleHTML: string;
+  actionCopy: boolean;
+  isSpellSave: boolean;
+  isSavingThrow: boolean;
+  isSummonSave: boolean;
+  halfDamage: boolean;
+  pbToAttack: boolean;
+  weaponAttack: boolean;
+  spellAttack: boolean;
+  meleeAttack: boolean;
+  rangedAttack: boolean;
+  healingAction: boolean;
+  toHit: number;
+  yourSpellAttackModToHit: boolean;
+  templateType: "feat" | "weapon";
+  weaponLookup: IMonsterWeaponDictionary;
+  identifier: string;
+  isCompanion: boolean;
+  nameSplit: string;
+  use2024Spells: boolean;
+  useCastActivity: boolean;
+  ddbMonsterDamage: DDBMonsterDamage;
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
@@ -55,12 +111,14 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
           fullName: this.fullName,
           actionCopy: this.actionCopy,
           type: this.type,
+          // @ts-expect-error this is removed later
           description: this.html,
         },
       },
     };
     // these templates not good
-    this.data.system.requirements = "";
+    if ("requirements" in this.data.system)
+      this.data.system.requirements = "";
     this.data.sort = this.sort;
     this.levelBonus = false;
     this.profBonus = false;
@@ -70,15 +128,15 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   prepare() {
     this.strippedHtml = utils.stripHtml(`${this.html}`).trim();
 
-    const descriptionParse = DDBDescriptions.featureBasics({ text: this.strippedHtml });
+    const descriptionParse: IFeatureBasicsResult = DDBDescriptions.featureBasics({ text: this.strippedHtml });
     this.descriptionParse = descriptionParse;
 
     // set calc flags
     this.isAttack = descriptionParse.properties.isAttack;
     this.isSummonAttack = descriptionParse.properties.isSummonAttack;
-    this.spellSave = descriptionParse.properties.spellSave;
-    this.savingThrow = descriptionParse.properties.savingThrow;
-    this.summonSave = descriptionParse.properties.summonSave;
+    this.isSpellSave = descriptionParse.properties.isSpellSave;
+    this.isSavingThrow = descriptionParse.properties.isSavingThrow;
+    this.isSummonSave = descriptionParse.properties.isSummonSave;
     this.isSave = descriptionParse.properties.isSave;
     this.halfDamage = descriptionParse.properties.halfDamage;
     this.pbToAttack = descriptionParse.properties.pbToAttack;
@@ -116,7 +174,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
     this.isCompanion = foundry.utils.getProperty(this.ddbMonster, "npc.flags.ddbimporter.entityTypeId") === "companion-feature";
 
-    if (this.summonSave) {
+    if (this.isSummonSave) {
       foundry.utils.setProperty(this.data, "flags.ddbimporter.spellSave", true);
     }
     if (this.isSummonAttack) {
@@ -137,7 +195,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
   resetActionData() {
     this.actionData = {
-      baseItem: null,
+      baseWeapon: null,
       baseTool: null,
       damage: {
         base: null,
@@ -223,7 +281,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     };
   }
 
-  constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } = {}) {
+  constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } : IDDBMonsterFeature) {
 
     const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBMonsterFeatureActivity });
     super({
@@ -246,18 +304,22 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     this.actionCopy = actionCopy ?? false;
     this.sort = sort ?? null;
 
-    this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
-    this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-    this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
-    this.stripFlagData = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-flag-data");
+    this.hideDescription = hideDescription ?? utils.getSetting<boolean>("munching-policy-hide-description");
+    this.updateExisting = updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing");
+    this.stripName = utils.getSetting<boolean>("munching-policy-monster-strip-name");
+    this.stripFlagData = utils.getSetting<boolean>("munching-policy-monster-strip-flag-data");
 
     this.prepare();
 
     // copy source details from parent
-    if (this.ddbMonster?.npc?.system.details?.source)
-      this.data.system.source = this.ddbMonster.npc.system.details.source;
+    const oldSource = foundry.utils.getProperty(this, "ddbMonster.npc.system.details.source");
+    if (oldSource)
+      foundry.utils.setProperty(this, "data.system.source", oldSource);
 
-    this.actionData = {};
+    const source = foundry.utils.getProperty(this, "data.system.source");
+    if (source) foundry.utils.setProperty(this.data, "system.source", source);
+
+    this.actionData = {} as any;
     this.resetActionData();
 
   }
@@ -293,7 +355,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
               "acr",
               "ath",
             ],
-            "ability": "",
+            "ability": [],
             "dc": {
               "calculation": "",
               "formula": escape[1],
@@ -329,6 +391,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     } else if (this.templateType !== "weapon" && this.actionData.versatileParts.length > 0 && !this.enricher.noVersatile) {
       this.additionalActivities.push({
         name: `Versatile`,
+        type: "attack",
         options: {
           generateDamage: true,
           damageParts: this.actionData.versatileParts,
@@ -338,8 +401,10 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  getActionType() {
-    let action = `${this.type}`;
+  getActionType(): TActivationCost {
+    let action: TActivationCost;
+    // @ts-expect-error this complains about villain being set, but we handle that use case later
+    action = `${this.type}`;
     const actionAction = this.strippedHtml.toLowerCase().match(/as (a|an) action/);
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
@@ -362,7 +427,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
 
-  #matchRecharge() {
+  #matchRecharge(): RegExpMatchArray | null {
     const matches = this.fullName.toLowerCase().match(/(?:\(|; )recharge ([0-9––−-]+)\)/);
     return matches;
   }
@@ -406,7 +471,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       uses.max = `${usesMatch[1]}`;
       recovery.period = "day";
       const perMatch = DICTIONARY.monsters.resets.find((reset) => reset.id === usesMatch[2]);
-      if (perMatch) recovery.period = perMatch.value;
+      if (perMatch && perMatch.value) recovery.period = perMatch.value;
     } else {
       const shortLongRegex = (/Recharges after a (Short or Long|Long) Rest/i);
       const rechargeMatch = matchString.match(shortLongRegex);
@@ -598,12 +663,11 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
           foundry.utils.setProperty(this.data, "system.mastery", characterWeapon.mastery);
         }
         if (characterWeapon?.foundryValue) {
+          this.actionData.baseWeapon = characterWeapon.foundryValue;
           foundry.utils.setProperty(this.data, "system.type.baseItem", characterWeapon.foundryValue);
         }
       }
 
-      // const baseItem = this.ddbDefinition.type.toLowerCase().split(",").reverse().join("").replace(/\s/g, "");
-      // if (baseItem) foundry.utils.setProperty(this.data, "system.type.baseItem", baseItem);
     } else if (this.meleeAttack) {
       this.actionData.weaponType = "simpleM";
     } else if (this.rangedAttack) {
@@ -815,7 +879,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     if (this.activityType === "attack" && !this.spellAttack) {
       const featureName = hideItemName ? "" : ` with its [[lookup @item.name]]`;
       description += `\n</section>\nThe ${actorDescriptor} attacks${featureName}.`;
-    } else if (this.spellAttack || this.spellSave) {
+    } else if (this.spellAttack || this.isSpellSave) {
       const featureName = hideItemName ? "a spell" : "[[lookup @item.name]]";
       description += `\n</section>\nThe ${actorDescriptor} casts ${featureName}.`;
     } else if (this.activityType === "save") {
@@ -1389,7 +1453,7 @@ ${this.data.system.description.value}
     const abilityMatch = this.strippedHtml.match(abilitySearch);
     if (abilityMatch) {
       const ability = abilityMatch[2] ?? abilityMatch[3];
-      result.ability = ability.toLowerCase().substr(0, 3);
+      result.ability = ability.toLowerCase().substring(0, 3);
     }
 
     const dcSearch = /spell\s+save\s+DC\s*(\d+)(?:,|\)|\s)/i;

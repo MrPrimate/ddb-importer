@@ -1321,7 +1321,7 @@ export default class AdventureMunch {
                   for (let i = 0; i < formData.length; i++) {
                     const key = formData[i].name;
                     if (key.startsWith("new_")) {
-                      ids.push(key.substr(4));
+                      ids.push(key.substring(4));
                     } else if (key === "type") {
                       dataType = formData[i].value;
                     }

@@ -1,9 +1,10 @@
 import { logger } from "../../../lib/_module";
-import DDBDescriptions from "../../lib/DDBDescriptions";
+import DDBDescriptions, { IFeatureBasicsResult } from "../../lib/DDBDescriptions";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 
 export default class MidiOverTimeEffect {
+  parsedDescription: IFeatureBasicsResult;
 
   constructor({ document, actor, otherDescription = null, flags = {}, addToMonster = true } = {}) {
     this.document = document;
@@ -87,7 +88,7 @@ export default class MidiOverTimeEffect {
     }
 
     const save = this.parsedDescription.save;
-    if (!Number.isInteger(Number.parseInt(save.dc))) {
+    if (!Number.isInteger(Number.parseInt(String(save.dc)))) {
       this.effectCleanup();
       return;
     }

@@ -314,7 +314,7 @@ global {
     dv?: I5eDamageTraitSet;
     important?: boolean;
     languages?: I5eLanguages;
-    size?: actorSizes;
+    size?: TActorSizes;
   }
 
   // ---- System (top-level) ---------------------------------------------------
@@ -570,8 +570,8 @@ global {
 
   interface I5eAdvancementSize extends I5eAdvancementBase {
     type: "Size";
-    configuration: { sizes?: actorSizes[] };
-    value: { size?: actorSizes };
+    configuration: { sizes?: TActorSizes[] };
+    value: { size?: TActorSizes };
   }
 
   export type I5eAdvancement =

@@ -2,9 +2,9 @@ export {};
 
 global {
 
-  type distanceUnitTypes = "" | "ft" | "mi" | "self" | "touch" | "spec" | "any";
+  type TDistanceUnit = "" | "ft" | "mi" | "self" | "touch" | "spec" | "any";
 
-  type activationCostType = "none"
+  type TActivationCost = "none"
     | "action"
     | "bonus"
     | "reaction"
@@ -22,7 +22,7 @@ global {
     | "crew"
     | "special";
 
-  type targetType = ""
+  type TTarget = ""
     | "ally"
     | "any"
     | "creature"
@@ -33,7 +33,7 @@ global {
     | "space"
     | "willing";
 
-  type templateType = ""
+  type TTemplate = ""
     | "circle"
     | "cone"
     | "cube"
@@ -44,25 +44,27 @@ global {
     | "square"
     | "wall";
 
-  type durationUnitTypes = "" | "inst" | "spec" | "disp" | "dstr" | "perm" | "turn" | "round" | "minute" | "hour" | "day" | "month" | "year";
+  type TDurationUnit = "" | "inst" | "spec" | "disp" | "dstr" | "perm" | "turn" | "round" | "minute" | "hour" | "day" | "month" | "year";
 
-  type actorSizes = "tiny" | "sm" | "med" | "lg" | "huge" | "grg";
+  type TActorSizes = "tiny" | "sm" | "med" | "lg" | "huge" | "grg";
 
-  type creatureTypes = "aberration" | "beast" | "celestial" | "construct" | "dragon" | "elemental" | "fey" | "fiend" | "giant" | "humanoid" | "monstrosity" | "ooze" | "plant" | "undead";
+  type TCreatureTypes = "aberration" | "beast" | "celestial" | "construct" | "dragon" | "elemental" | "fey" | "fiend" | "giant" | "humanoid" | "monstrosity" | "ooze" | "plant" | "undead";
 
-  type weaponPropertiesType = "ada" | "amm" | "fin" | "fir" | "foc" | "hvy" | "lgt" | "lod" | "mgc" | "rch" | "rel" | "ret" | "sil" | "spc" | "thr" | "two" | "ver" | "burstfire" | "hafted" | "momentum" | "armorpiercing" | "blackpowder" | "cumbersome" | "magazine" | "repeater" | "double" | "damage";
+  type TWeaponProperties = "ada" | "amm" | "fin" | "fir" | "foc" | "hvy" | "lgt" | "lod" | "mgc" | "rch" | "rel" | "ret" | "sil" | "spc" | "thr" | "two" | "ver" | "burstfire" | "hafted" | "momentum" | "armorpiercing" | "blackpowder" | "cumbersome" | "magazine" | "repeater" | "double" | "damage";
 
-  type consumablePropertiesType = "mgc";
+  type TConsumableProperties = "mgc";
 
-  type containerPropertiesType = "mgc" | "weightlessContents";
+  type TContainerProperties = "mgc" | "weightlessContents";
 
-  type equipmentPropertiesType = "ada" | "foc" | "mgc" | "stealthDisadvantage";
+  type TEquipmentProperties = "ada" | "foc" | "mgc" | "stealthDisadvantage";
 
-  type spellPropertiesType = "vocal" | "somatic" | "material" | "concentration" | "ritual";
+  type TSpellProperties = "vocal" | "somatic" | "material" | "concentration" | "ritual";
 
-  type toolPropertiesType = "foc" | "mgc";
+  type TToolProperties = "foc" | "mgc";
 
-  type featPropertiesType = "mgc" | "trait";
+  type TFeatProperties = "mgc" | "trait";
+
+  type TLimitedUsePeriod = "lr" | "sr" | "day" | "dawn" | "dusk" | "initiative" | "turnStart" | "turnEnd" | "turn";
 
   interface I5eSystemBaseDocumentData {
     _id?: string;

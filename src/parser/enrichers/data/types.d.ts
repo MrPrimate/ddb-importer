@@ -94,7 +94,7 @@ global {
     overrideRange?: boolean;
 
     // Activation
-    activationType?: activationCostType;
+    activationType?: TActivationCost;
     activationValue?: number;
     activationCondition?: string;
     overrideActivation?: boolean;

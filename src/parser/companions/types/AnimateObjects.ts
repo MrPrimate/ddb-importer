@@ -18,7 +18,7 @@ export async function getAnimateObjects2014({
     text,
   });
 
-  const summonHints: { size: actorSizes; img: string; hp: number; suffix?: string }[] = [
+  const summonHints: { size: TActorSizes; img: string; hp: number; suffix?: string }[] = [
     {
       size: "tiny",
       img: "icons/sundries/misc/key-short-glowing.webp",

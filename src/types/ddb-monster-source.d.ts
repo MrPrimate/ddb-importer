@@ -8,6 +8,8 @@ export {};
 
 global {
 
+  type TDDBMonsterActionType = "action" | "reaction" | "bonus" | "mythic" | "lair" | "legendary" | "special" | "villain";
+
   // ---- Sub-structures -------------------------------------------------------
 
   export interface IDDBMonsterHitPointDice {

@@ -1,9 +1,6 @@
 import { utils, logger } from "../../../lib/_module";
 import DDBMonster from "../../DDBMonster";
 import DDBMonsterFeature from "./DDBMonsterFeature";
-
-type TFeatureBlockType = "action" | "reaction" | "bonus" | "mythic" | "lair" | "legendary" | "special" | "villain";
-
 interface IFeatureTextStore {
   action: string;
   reaction: string;
@@ -19,7 +16,7 @@ interface IFeatureTextStore {
 interface IFeatureBlockOptions {
   html: string;
   ddbMonster: DDBMonster;
-  type: TFeatureBlockType;
+  type: TDDBMonsterActionType;
   titleHTML?: string;
   fullName?: string;
   actionCopy?: boolean;
@@ -48,7 +45,7 @@ export default class DDBMonsterFeatureFactory {
   html: IFeatureTextStore;
   resources: IResourceStore;
   features: Record<string, DDBMonsterFeature[]>;
-  featureBlocks: Record<TFeatureBlockType, IFeatureBlock[]>;
+  featureBlocks: Record<TDDBMonsterActionType, IFeatureBlock[]>;
   gear: string[] = [];
 
   // some monsters now have [rollable] tags - if these exist we need to parse them out

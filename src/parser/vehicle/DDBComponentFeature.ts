@@ -1,11 +1,18 @@
 import { utils, logger } from "../../lib/_module";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { DDBMonsterFeatureEnricher, Effects, mixins } from "../enrichers/_module";
-import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../lib/_module";
+import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers, IFeatureBasicsResult, IFeatureBasicsSave } from "../lib/_module";
 import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
 
 export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin {
+
+  declare name: string;
+  declare isAction: null;
+  declare legacy: boolean;
+  declare is2014: boolean;
+  declare is2024: boolean;
+  declare originalName: string;
 
   static TYPE_MAPPING = {
     hull: "equipment",
@@ -18,6 +25,29 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     feature: "feat",
     // "loot": loot
   };
+  descriptionParse: IFeatureBasicsResult;
+  strippedHtml: string;
+  isAttack: boolean;
+  isSpellSave: boolean;
+  isSavingThrow: boolean;
+  isSave: boolean;
+  halfDamage: boolean;
+  pbToAttack: boolean;
+  weaponAttack: boolean;
+  spellAttack: boolean;
+  meleeAttack: boolean;
+  rangedAttack: boolean;
+  healingAction: boolean;
+  toHit: number;
+  descriptionSave: IFeatureBasicsSave;
+  count: number;
+  html: string;
+  parseHtml: string;
+  sort: number | null;
+  hideDescription: boolean;
+  updateExisting: boolean;
+  stripName: boolean;
+  nameSplit: string;
 
   constructor({ ddbVehicle, updateExisting, hideDescription, sort, component, action } = {}) {
 
@@ -47,9 +77,9 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
 
     this.sort = sort ?? null;
 
-    this.hideDescription = hideDescription ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description");
-    this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-    this.stripName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-strip-name");
+    this.hideDescription = hideDescription ?? utils.getSetting<boolean>("munching-policy-hide-description");
+    this.updateExisting = updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing");
+    this.stripName = utils.getSetting<boolean>("munching-policy-monster-strip-name");
 
     this.prepare();
 
@@ -106,7 +136,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
   prepare() {
     this.strippedHtml = utils.stripHtml(`${this.parseHtml}`).trim();
 
-    const descriptionParse = DDBDescriptions.featureBasics({ text: this.strippedHtml });
+    const descriptionParse: IFeatureBasicsResult = DDBDescriptions.featureBasics({ text: this.strippedHtml });
     this.descriptionParse = descriptionParse;
 
     this.types = this.component.definition.types.map((t) => t.type);
@@ -114,8 +144,8 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
 
     // set calc flags
     this.isAttack = descriptionParse.properties.isAttack;
-    this.spellSave = descriptionParse.properties.spellSave;
-    this.savingThrow = descriptionParse.properties.savingThrow;
+    this.isSpellSave = descriptionParse.properties.isSpellSave;
+    this.isSavingThrow = descriptionParse.properties.isSavingThrow;
     this.isSave = descriptionParse.properties.isSave;
     this.halfDamage = descriptionParse.properties.halfDamage;
     this.pbToAttack = descriptionParse.properties.pbToAttack;
@@ -543,7 +573,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     if (this.activityType === "attack" && !this.spellAttack) {
       const featureName = hideItemName ? "" : ` with its [[lookup @item.name]]`;
       description += `\n</section>\nThe ${actorDescriptor} attacks${featureName}.`;
-    } else if (this.spellAttack || this.spellSave) {
+    } else if (this.spellAttack || this.isSpellSave) {
       const featureName = hideItemName ? "a spell" : "[[lookup @item.name]]";
       description += `\n</section>\nThe ${actorDescriptor} casts ${featureName}.`;
     } else if (this.activityType === "save") {

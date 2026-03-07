@@ -6,12 +6,6 @@ import DDBEnricherFactoryMixin from "./DDBEnricherFactoryMixin";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
-export interface IAdditionalActivityOutline {
-  type: string;
-  name: string;
-  options: IDDBActivityBuild;
-}
-
 export default abstract class DDBActivityFactoryMixin {
 
   abstract name: string | null;

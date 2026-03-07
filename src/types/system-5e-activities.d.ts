@@ -7,7 +7,7 @@ global {
   // ---- Activities -----------------------------------------------------------
 
   interface I5eActivityActivation {
-    type?: activationCostType;
+    type?: TActivationCost;
     value?: number;
     condition?: string;
     override?: boolean;
@@ -224,8 +224,8 @@ global {
   interface I5eSummonActivity extends I5eActivityBase {
     type?: "summon";
     bonuses?: I5eSummonsBonuses;
-    creatureSizes?: actorSizes[];
-    creatureTypes?: creatureTypes[];
+    creatureSizes?: TActorSizes[];
+    creatureTypes?: TCreatureTypes[];
     match?: I5eSummonsMatch;
     profiles?: any[];
     summon?: I5eActivitiesSummon;

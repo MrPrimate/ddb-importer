@@ -7,13 +7,64 @@ export {};
 
 global {
 
+  type TWeaponType = "simpleM"
+    | "simpleR"
+    | "martialM"
+    | "martialR"
+    | "natural"
+    | "improv"
+    | "siege"
+    | "advancedM"
+    | "advancedR";
+
+  type baseWeapon = ""
+     | "club"
+     | "lightcrossbow"
+     | "dagger"
+     | "dart"
+     | "greatclub"
+     | "handaxe"
+     | "javelin"
+     | "lighthammer"
+     | "mace"
+     | "quarterstaff"
+     | "shortbow"
+     | "sickle"
+     | "sling"
+     | "spear"
+     | "battleaxe"
+     | "blowgun"
+     | "handcrossbow"
+     | "heavycrossbow"
+     | "flail"
+     | "glaive"
+     | "greataxe"
+     | "greatsword"
+     | "halberd"
+     | "lance"
+     | "longbow"
+     | "longsword"
+     | "maul"
+     | "morningstar"
+     | "musket"
+     | "net"
+     | "pike"
+     | "pistol"
+     | "rapier"
+     | "scimitar"
+     | "shortsword"
+     | "trident"
+     | "warpick"
+     | "warhammer"
+     | "whip";
+
     // ---- Item flag sub-types --------------------------------------------------
 
   interface I5eMonsterMunchItemFlags {
     titleHTML: string;
     fullName: string;
     actionCopy: boolean;
-    type: "action" | "special" | "legendary" | "bonus" | "reaction" | "lair" | "mythic";
+    type: TDDBMonsterActionType;
     actionData: Record<string, any>;
   }
 
@@ -27,7 +78,7 @@ global {
   }
 
   interface I5eSystemLimitedUsesRecovery {
-    period: string;
+    period: TLimitedUsePeriod;
     type: string;
     formula?: string | undefined;
   }
@@ -105,7 +156,7 @@ global {
     mastery?: string;
     price: I5ePrice;
     proficient: boolean | null;
-    properties: weaponPropertiesType[];
+    properties: TWeaponProperties[];
     quantity: number;
     range: I5eSystemBaseRangeData & {
       long: number | null;
@@ -114,7 +165,10 @@ global {
     rarity: string;
     requirements: string;
     source: I5eItemSourceRef;
-    type: { value: string; baseItem: string };
+    type: {
+      value: TWeaponType;
+      baseItem: baseWeapon;
+    };
     unidentified: { description: string };
     uses: I5eSystemLimitedUses;
     weight: I5eItemWeight;
@@ -140,7 +194,7 @@ global {
     identifier: string;
     prerequisites: { items: any[]; repeatable: boolean };
     proficient?: boolean;
-    properties: featPropertiesType[];
+    properties: TFeatProperties[];
     requirements: string;
     source: I5eItemSourceRef;
     type: { value: string; subtype: string };
@@ -174,7 +228,7 @@ global {
   interface I5eSystemDurationData {
     concentration?: boolean;
     special?: string;
-    units?: durationUnitTypes;
+    units?: TDurationUnit;
     value?: string;
   }
 
@@ -183,7 +237,7 @@ global {
     template?: {
       count?: string;
       contiguous?: boolean;
-      type?: templateType;
+      type?: TTemplate;
       size?: string;
       width?: string;
       height?: string;
@@ -191,7 +245,7 @@ global {
     };
     affects?: {
       count?: string;
-      type?: targetType;
+      type?: TTarget;
       choice?: boolean;
       special?: string;
     };
@@ -199,7 +253,7 @@ global {
 
   interface I5eSystemBaseRangeData {
     value?: string | number | null;
-    units?: distanceUnitTypes;
+    units?: TDistanceUnit;
     special?: string;
   }
 
@@ -214,7 +268,7 @@ global {
     materials: I5eSpellMaterials;
     method: "atwill" | "innate" | "spell" | string;
     prepared: number;
-    properties: spellPropertiesType[];
+    properties: TSpellProperties[];
     range: I5eSystemBaseRangeData;
     school: string;
     source: I5eItemSourceRef;
@@ -251,7 +305,7 @@ global {
     identifier: string;
     price: I5ePrice;
     proficient: boolean | null;
-    properties: equipmentPropertiesType[];
+    properties: TEquipmentProperties[];
     quantity: number;
     rarity: string;
     source: I5eItemSourceRef;
@@ -301,7 +355,7 @@ global {
     attunement: string;
     currency: I5eCurrency;
     capacity: I5eContainerCapacity;
-    properties: containerPropertiesType[];
+    properties: TContainerProperties[];
     attuned: boolean;
     equipped: boolean;
     // not sure this is right
@@ -334,7 +388,7 @@ global {
     bonus: string;
     chatFlavor: string;
     proficient: number;
-    properties: toolPropertiesType[];
+    properties: TToolProperties[];
     type: { value: string; baseItem: string };
     attuned: boolean;
     equipped: boolean;
@@ -384,7 +438,7 @@ global {
     attuned: boolean;
     equipped: boolean;
     damage: I5eConsumableDamage;
-    properties: consumablePropertiesType[];
+    properties: TConsumableProperties[];
     type: { value: string; subtype: string };
   }
 
