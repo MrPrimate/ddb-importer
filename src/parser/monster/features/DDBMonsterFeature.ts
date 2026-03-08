@@ -1,5 +1,5 @@
 import { utils, logger, CompendiumHelper } from "../../../lib/_module";
-import { DICTIONARY, SETTINGS } from "../../../config/_module";
+import { DICTIONARY } from "../../../config/_module";
 import { DDBMonsterFeatureActivity } from "../../activities/_module";
 import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
@@ -23,7 +23,7 @@ interface IDDBMonsterFeature {
 
 export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
-  declare data: I5eWeaponItem | I5eFeatItem | I5eInventoryItem;
+  declare data: I5eWeaponItem | I5eFeatItem;
   declare enricher: DDBMonsterFeatureEnricher;
   declare type: TDDBMonsterActionType;
   actionData: IDDBMonsterActionData;
@@ -258,7 +258,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         reach: null,
       },
       activation: {
-        type: "",
+        type: null,
         value: null,
         condition: "",
       },
@@ -508,8 +508,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     return null;
   }
 
-  getActivation() {
-    const activation = foundry.utils.deepClone(this.actionData.activation);
+  getActivation(): I5eActivityActivation {
+    const activation: I5eActivityActivation = foundry.utils.deepClone(this.actionData.activation);
     activation.value = this.getActivationValue();
     activation.type = this.getActionType();
     return activation;
@@ -520,15 +520,17 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     return this.actionData.save;
   }
 
-  getReach() {
+  getReach(): number | null {
     const reachSearch = /reach\s*(\s*\d+\s*)\s*ft/;
     const match = this.strippedHtml.match(reachSearch);
     if (!match) return null;
-    return match[1].trim();
+    const value = parseInt(match[1].trim());
+    if (value === 5) return null;
+    return value;
   }
 
-  getRange() {
-    const range = {
+  getRange(): I5eWeaponRange {
+    const range: I5eWeaponRange = {
       value: null,
       long: null,
       units: "",
@@ -571,7 +573,6 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       range.value = parseInt(withinMatch[1]);
       range.units = "ft";
     } else {
-
       if (this.meleeAttack) {
         range.value = 5;
         range.units = "ft";
@@ -617,7 +618,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         result.success = true;
         result.proficient = true;
         result.bonus = this.toHit - this.ddbMonster.proficiencyBonus - this.ddbMonster.abilities[ability].mod;
-      } else if (result.toHit > this.ddbMonster.abilities[ability].mod) {
+      } else if (this.toHit > this.ddbMonster.abilities[ability].mod) {
         result.success = true;
         result.proficient = false;
         result.bonus = this.toHit - this.ddbMonster.abilities[ability].mod;
@@ -770,8 +771,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
 
-  getTarget() {
-    const target = {
+  getTarget(): I5eActivityTarget {
+    const target: I5eActivityTarget = {
       template: {
         count: "",
         contiguous: false,
@@ -833,7 +834,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
 
       if (aoeSizeMatch) {
         const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-        target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+        target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
         target.template.size = aoeSizeMatch[1] ?? "";
         target.template.units = "ft";
         if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
@@ -863,8 +864,8 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
   #getHiddenDescription() {
-    const nameChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description-choice");
-    const hideItemName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-item-name");
+    const nameChoice = utils.getSetting<string>("munching-policy-hide-description-choice");
+    const hideItemName = utils.getSetting<boolean>("munching-policy-hide-item-name");
     let actorDescriptor = `[[lookup @name]]`;
 
     if (nameChoice === "TYPE") {
@@ -892,11 +893,11 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   }
 
 
-  #processMultiAttack(description) {
+  #processMultiAttack(description: string) {
     if (this.is2014) return description;
 
-    const actionNames = new Set();
-    const extractActions = ((str) => {
+    const actionNames = new Set<string>();
+    const extractActions = ((str: string) => {
       return str
         .replace("many Bite", "Bite")
         .replace("if available", "")
@@ -922,7 +923,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
         .map((s) => s.trim());
     });
 
-    const handleReplaceNames = ((str) => {
+    const handleReplaceNames = ((str: string) => {
       const replaceNames = extractActions(str);
       // console.warn("Replace names", replaceNames);
       for (const name of replaceNames) {
@@ -1013,7 +1014,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
       handleReplaceNames(usesMatch.groups.attackNames);
     }
 
-    if (CONFIG.debug.ddbimporter.multiattack) {
+    if (CONFIG.DDBI.DEV.multiattackNotes) {
       if (actionNames.size === 0) {
         if (!CONFIG.DDBI.NO_MULTIATTACK) {
           CONFIG.DDBI.NO_MULTIATTACK = [];
@@ -1081,19 +1082,23 @@ ${this.data.system.description.value}
   }
 
   #buildAction() {
-    if (Number.isInteger(parseInt(this.actionData.activation.value))) {
+    if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
       this.actionData.consumptionValue = this.actionData.activation.value;
     } else {
       this.actionData.activation.value = 1;
     }
 
     if (this.templateType === "weapon") {
+      // @ts-expect-error the template type weapon always has damage
       this.data.system.damage = this.actionData.damage;
     }
 
-    this.data.system.proficient = this.actionData.proficient;
+    if ("proficient" in this.data.system) {
+      this.data.system.proficient = this.actionData.proficient;
+    }
 
     if (this.templateType === "weapon" && (this.weaponAttack || this.spellAttack)) {
+      // @ts-expect-error the template type weapon always has equipped
       this.data.system.equipped = true;
     }
 
@@ -1112,12 +1117,15 @@ ${this.data.system.description.value}
     }
 
     if (this.templateType === "weapon") {
+      // @ts-expect-error the template type weapon always has damage
       this.data.system.damage = this.actionData.damage;
+      // @ts-expect-error the template type weapon always has range
       this.data.system.range = this.actionData.range;
     }
     this.data.system.uses = this.actionData.uses;
 
-    for (const [key, value] of Object.entries(this.actionData.properties)) {
+    for (const [key, value] of Object.entries(this.actionData.properties) as [(TWeaponProperties | TFeatProperties), boolean][]) {
+      // @ts-expect-error can't figure out this
       if (value) this.data.system.properties.push(key);
     }
 
@@ -1133,7 +1141,7 @@ ${this.data.system.description.value}
     if (this.data.name.trim() === "Lair Actions") {
       this.actionData.activation.value = 1;
     } else if (this.data.name.trim() === "Regional Effects") {
-      this.actionData.activation.type = "";
+      this.actionData.activation.type = null;
     }
     return this.data;
   }
@@ -1142,7 +1150,7 @@ ${this.data.system.description.value}
     // for the legendary actions feature itself we don't want to do most processing
     if (this.name === "Legendary Actions") {
       this.activityType = "none";
-      this.actionData.activation.type = "";
+      this.actionData.activation.type = null;
       return;
     }
 
@@ -1158,7 +1166,7 @@ ${this.data.system.description.value}
       },
     });
 
-    if (Number.isInteger(parseInt(this.actionData.activation.value))) {
+    if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
       this.actionData.consumptionValue = this.actionData.activation.value;
     } else {
       // this.data.system.activation.cost = 1;
@@ -1171,7 +1179,9 @@ ${this.data.system.description.value}
     if (!this.actionCopy) {
       this.data.system.uses = this.actionData.uses;
       if (this.templateType === "weapon") {
+        // @ts-expect-error the template type weapon always has damage
         this.data.system.damage = this.actionData.damage;
+        // @ts-expect-error the template type weapon always has range
         this.data.system.range = this.actionData.range;
       }
     } else {
@@ -1184,7 +1194,7 @@ ${this.data.system.description.value}
   }
 
   #buildSpecial() {
-    if (Number.isInteger(parseInt(this.actionData.activation.value))) {
+    if (Number.isInteger(parseInt(String(this.actionData.activation.value)))) {
       this.actionData.consumptionValue = this.actionData.activation.value;
     } else {
       this.actionData.activation.value = 1;
@@ -1193,7 +1203,9 @@ ${this.data.system.description.value}
     this.data.system.uses = this.actionData.uses;
 
     if (this.templateType === "weapon") {
+      // @ts-expect-error the template type weapon always has damage
       this.data.system.damage = this.actionData.damage;
+      // @ts-expect-error the template type weapon always has range
       this.data.system.range = this.actionData.range;
     }
 
@@ -1213,7 +1225,7 @@ ${this.data.system.description.value}
       });
       this.data.system.uses = {
         max: null,
-        value: null,
+        spent: null,
       };
     }
 
@@ -1243,7 +1255,9 @@ ${this.data.system.description.value}
     }
 
     if (this.templateType === "weapon") {
+      // @ts-expect-error the template type weapon always has damage
       this.data.system.damage = this.actionData.damage;
+      // @ts-expect-error the template type weapon always has range
       this.data.system.range = this.actionData.range;
     }
 

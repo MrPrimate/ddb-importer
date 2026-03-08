@@ -32,14 +32,9 @@ global {
     extraAttackBonus: number;
     baseAbility: string | null;
     proficient: boolean;
-    properties: Record<string, boolean>;
-    range: {
-      value: number | null;
-      long: number | null;
-      units: TDistanceUnit | string;
-      reach: number | null;
-    };
-    activation: Omit<I5eActivityActivation, "type"> & { type: TActivationCost | "" };
+    properties: Partial<Record<TWeaponProperties | TFeatProperties, boolean>>;
+    range: I5eWeaponRange;
+    activation: I5eActivityActivation;
     save: I5eActivitySave;
     uses: I5eSystemLimitedUses;
     consumptionValue: string | number | null;

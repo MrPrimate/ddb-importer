@@ -44,6 +44,7 @@ interface IDDBIDev {
   downloadUpdateJSON: boolean;
   downloadFinalActorJSON: boolean;
   itemImportSingle: boolean;
+  multiattackNotes: boolean;
 }
 
 interface IDDBIEffectConfigModules {
@@ -79,6 +80,10 @@ export interface IDDBIConfig {
   useLocal?: boolean;
   monsterURL?: string;
   version?: string;
+  NO_MULTIATTACK?: string[];
+  NO_MULTIATTACK_DETAILS?: Record<string, any>[];
+  MULTIATTACK_MATCHES?: Set<string>[];
+  MULTIATTACK_MATCHES_DETAILS?: Record<string, any>[];
 }
 
 if (!(CONFIG as any).DDBI) {
@@ -127,6 +132,7 @@ if (!(CONFIG as any).DDBI) {
       downloadUpdateJSON: false,
       downloadFinalActorJSON: false,
       itemImportSingle: false,
+      multiattackNotes: false,
     },
     EFFECT_CONFIG: {
       MODULES: {

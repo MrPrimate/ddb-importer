@@ -139,6 +139,13 @@ global {
 
   // ---- Weapon item ----------------------------------------------------------
 
+  interface I5eWeaponRange {
+    long?: number | null;
+    reach?: number | null;
+    value?: number | null;
+    units: TDistanceUnit;
+  }
+
   interface I5eWeaponSystemData {
     activities: Record<string, I5eActivity>;
     advancement?: I5eAdvancement[];
@@ -158,10 +165,7 @@ global {
     proficient: boolean | null;
     properties: TWeaponProperties[];
     quantity: number;
-    range: I5eSystemBaseRangeData & {
-      long: number | null;
-      reach: string | null;
-    };
+    range: I5eWeaponRange;
     rarity: string;
     requirements: string;
     source: I5eItemSourceRef;
