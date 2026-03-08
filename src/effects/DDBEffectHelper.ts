@@ -24,8 +24,8 @@ export default class DDBEffectHelper {
 
   static generateATLChange = ChangeHelper.atlChange;
 
-  static getMonsterFeatureDamage(damageText, featureDoc = null) {
-    const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage");
+  static getMonsterFeatureDamage(damageText, featureDoc = null): IDDBMonsterActionDataDamagePart[] {
+    const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage") as IDDBMonsterActionDataDamagePart[] | undefined;
     if (preParsed) return preParsed;
     logger.debug("Monster feature damage miss", { damageText, featureDoc });
     const feature = new DDBMonsterFeature("overTimeFeature", { html: damageText });
@@ -34,7 +34,7 @@ export default class DDBEffectHelper {
     return feature.actionData.damageParts;
   }
 
-  static getOvertimeDamage(text, featureDoc = null) {
+  static getOvertimeDamage(text, featureDoc = null): IDDBMonsterActionDataDamagePart[] | undefined {
     if (text.includes("taking") && (text.includes("on a failed save") || text.includes("damage on a failure"))) {
       const damageText = text.split("taking")[1];
       return DDBEffectHelper.getMonsterFeatureDamage(damageText, featureDoc);

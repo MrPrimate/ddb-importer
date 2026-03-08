@@ -203,6 +203,8 @@ export class DDBMonsterDamage {
       if (dmg.groups.prefix.trim() == "plus") {
         this.versatileParts.push(part);
         this.damageParts.push({
+          damageString: finalDamage,
+          damageTypes,
           profBonus,
           levelBonus,
           versatile: this.versatile,
@@ -215,6 +217,8 @@ export class DDBMonsterDamage {
       }
     } else {
       this.damageParts.push({
+        damageString: finalDamage,
+        damageTypes,
         profBonus,
         levelBonus,
         versatile: this.versatile,

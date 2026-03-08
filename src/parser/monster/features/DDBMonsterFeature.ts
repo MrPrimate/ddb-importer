@@ -10,9 +10,9 @@ import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monst
 
 
 interface IDDBMonsterFeature {
-  ddbMonster: DDBMonster;
+  ddbMonster?: DDBMonster;
   html?: string;
-  type: TDDBMonsterActionType;
+  type?: TDDBMonsterActionType;
   titleHTML?: string;
   fullName?: string;
   actionCopy?: boolean;
@@ -72,6 +72,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
   use2024Spells: boolean;
   useCastActivity: boolean;
   ddbMonsterDamage: DDBMonsterDamage;
+  spellCastingData: IMonsterSpellcastingData;
 
   #generateAdjustedName() {
     this.originalName = `${this.name}`;
@@ -844,7 +845,7 @@ export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
     }
 
     if (target.template.type === "" && this.healingAction) {
-      target.template.type = "self";
+      target.affects.type = "self";
     }
 
     const targetsCreature = this._targetsCreature();
@@ -1454,7 +1455,7 @@ ${this.data.system.description.value}
     Effects.AutoEffects.forceDocumentEffect(this.data);
   }
 
-  #getSpellcastingData() {
+  #getSpellcastingData(): IMonsterSpellcastingData {
     const result = {
       dc: null,
       ability: null, // ability associated
@@ -1500,8 +1501,8 @@ ${this.data.system.description.value}
     this.spellCastingData = this.#getSpellcastingData();
   }
 
-  async #getCastSpellActivitySpellData(spellData, compendiumSpell) {
-    const spellOverride = {
+  async #getCastSpellActivitySpellData(spellData: IMonsterSpellcastingSpell, compendiumSpell) {
+    const spellOverride: I5eActivitySpell = {
       uuid: compendiumSpell.uuid,
       properties: [],
       level: null,
@@ -1534,7 +1535,7 @@ ${this.data.system.description.value}
     if (!this.spellCastingData.concentration || spellData.noConcentration)
       spellOverride.properties.push("concentration");
     if (!this.spellCastingData.material) spellOverride.properties.push("material");
-    if (spellData.level) spellOverride.level = spellData.level;
+    if (spellData.level) spellOverride.level = parseInt(spellData.level);
 
     if (spellData.consumeType || spellData.period) {
       generateConsumption = true;
@@ -1575,7 +1576,7 @@ ${this.data.system.description.value}
     }
 
     if (this.spellCastingData.dc
-      && parseInt(this.spellCastingData.dc) !== parseInt(this.ddbMonster.spellcasting.spelldc)
+      && parseInt(String(this.spellCastingData.dc)) !== parseInt(String(this.ddbMonster.spellcasting.spelldc))
     ) {
       spellOverride.challenge.override = true;
       spellOverride.challenge.save = this.spellCastingData.dc;
@@ -1672,7 +1673,7 @@ ${this.data.system.description.value}
   //   noComponents: true,
   //   duration: {},
   // }
-  async #buildSpellcastingActivities(spells) {
+  async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[]) {
 
     const compendiumSpellsIndex = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
 
@@ -1705,7 +1706,7 @@ ${this.data.system.description.value}
     const lairMatch = this.strippedHtml.match(lairRegex);
 
     const matches = basicMatch ?? useMatch ?? canCastMatch ?? lairMatch;
-    const spells = [];
+    const spells: IMonsterSpellcastingSpell[] = [];
     if (matches) {
       // console.warn(`Other spell casting match for ${this.name} for ${this.ddbMonster.name}`, {
       //   matches,
@@ -1721,7 +1722,7 @@ ${this.data.system.description.value}
         .splitStringByComma(matches.groups.spells.replace(", or ", ", ").replace(" or ", ", "))
         .filter((n) => n.trim() !== "");
       for (const name of names) {
-        const spell = {
+        const spell: IMonsterSpellcastingSpell = {
           name: name, // required
           // level: "5", // optional
           // extra: null, // extra to append to name string
@@ -1793,6 +1794,7 @@ ${this.data.system.description.value}
 
   flagCleanup() {
     delete this.data.flags.ddbimporter?.defaultAdditionalActivities;
+    // @ts-expect-error this is a flag we set on the item for use in the enricher, but it shouldn't be kept long term
     delete this.data.flags.monsterMunch?.description;
     if (this.stripFlagData) {
       delete this.data.flags.monsterMunch?.actionData;

@@ -11,11 +11,40 @@ global {
     includesDice: boolean;
     noBonus: boolean;
     damageHasMod: boolean;
+    damageString: string;
+    damageTypes: I5eDamageType[];
   }
 
   interface IDDBMonsterActionDataHealingPart {
     versatile: boolean;
     part: I5eDamagePart;
+  }
+
+  interface IMonsterSpellcastingSpell {
+    name: string;
+    level?: string | null;
+    extra?: string | null;
+    period?: string;
+    quantity?: string;
+    consumeType?: "activityUses" | "itemUses";
+    targetSelf?: boolean | null;
+    noComponents?: boolean;
+    noConcentration?: boolean;
+    ability?: string;
+    duration?: {
+      override: boolean;
+      value: string;
+      units: string;
+    };
+  }
+
+  interface IMonsterSpellcastingData {
+    dc: number | null;
+    ability: string | null;
+    material: boolean;
+    innateMatch: boolean;
+    concentration: boolean;
+    innate: boolean;
   }
 
   interface IDDBMonsterActionData {

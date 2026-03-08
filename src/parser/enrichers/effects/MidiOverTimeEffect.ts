@@ -1,3 +1,4 @@
+import DDBEffectHelper from "../../../effects/DDBEffectHelper";
 import { logger } from "../../../lib/_module";
 import DDBDescriptions, { IFeatureBasicsResult } from "../../lib/DDBDescriptions";
 import AutoEffects from "./AutoEffects";
@@ -112,27 +113,29 @@ export default class MidiOverTimeEffect {
     const saveAbility = save.ability;
     const dc = save.dc;
 
-    const dmg = ChangeHelper.overTimeDamageChange(this.description, this.document);
+    const dmg = DDBEffectHelper.getOvertimeDamage(this.description, this.document);
     if (!dmg) {
       logger.debug(`Adding non damage Overtime effect for ${this.document.name} on ${this.actor.name}`);
       this.effectCleanup();
       return;
     }
 
+    const dmgParts = dmg.map((dp) => dp.damageString);
+
     // overtime damage, revert any full damage flag, reset to default on save
     foundry.utils.setProperty(this.document, "flags.midiProperties.fulldam", false);
 
     const damage = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damage")
       ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damage")
-      ?? dmg.parts.reduce((total, current) => {
+      ?? dmgParts.reduce((total, current) => {
         total = [total, `${current[0]}[${current[1]}]`].join(" + ");
         return total;
       }, "");
 
-    const damageType = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damageType")
+    const damageType: string = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damageType")
       ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damageType")
-      ?? (dmg.parts.length > 0
-        ? dmg.parts[0][1]
+      ?? (dmgParts.length > 0
+        ? dmg[0].damageTypes[0]
         : "");
 
     const saveRemove = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.saveRemove")

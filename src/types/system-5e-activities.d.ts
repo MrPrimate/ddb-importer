@@ -186,8 +186,11 @@ global {
   type I5eActivityCastSpellProperties = typeof DICTIONARY.spell.components[keyof typeof DICTIONARY.spell.components];
   interface I5eActivitySpell {
     challenge?: {
-        override: boolean;
+      attack?: number;
+      save?: number;
+      override: boolean;
     };
+    level?: number | null;
     properties?: I5eActivityCastSpellProperties[];
     spellbook?: boolean;
     uuid?: string;
