@@ -1365,6 +1365,7 @@ ${this.data.system.description.value}
   #addHealAdditionalActivities() {
     for (const part of this.actionData.healingParts) {
       this.additionalActivities.push({
+        name: "Heal",
         type: "heal",
         options: {
           generateDamage: false,
@@ -1413,8 +1414,8 @@ ${this.data.system.description.value}
     return this.#determineLegendaryActionTypeFallback();
   }
 
-  _generateAutoEffects({ html, addToMonster = true } = {}) {
-    const flags = {
+  _generateAutoEffects({ html, addToMonster = true }: { html: string; addToMonster?: boolean }) {
+    const flags: IActorFlagConfig = {
       ddbimporter: {},
     };
 

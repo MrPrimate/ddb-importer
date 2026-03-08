@@ -3,10 +3,26 @@ import DDBDescriptions, { IFeatureBasicsResult } from "../../lib/DDBDescriptions
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 
+interface IMidiOverTimeEffectOptions {
+  document: I5ePCItem | I5eMonsterItem;
+  actor: I5eActorData;
+  otherDescription?: string | null;
+  flags?: Record<string, any>;
+  addToMonster?: boolean;
+}
+
 export default class MidiOverTimeEffect {
   parsedDescription: IFeatureBasicsResult;
+  document: I5ePCItem | I5eMonsterItem;
+  actor: I5eActorData;
+  effect: IEffectData;
+  conditionStatus: ReturnType<typeof DDBDescriptions.parseStatusCondition>;
+  conditionEffect: ReturnType<typeof AutoEffects.getStatusConditionEffect> | null;
+  description: string;
+  flags: Record<string, any>;
+  addToMonster: boolean;
 
-  constructor({ document, actor, otherDescription = null, flags = {}, addToMonster = true } = {}) {
+  constructor({ document, actor, otherDescription = null, flags = {}, addToMonster = true }: IMidiOverTimeEffectOptions) {
     this.document = document;
     this.actor = actor;
     this.effect = AutoEffects.MonsterFeatureEffect(document, `${document.name}`);
@@ -46,8 +62,8 @@ export default class MidiOverTimeEffect {
     if (!this.addToMonster) return;
     if (this.effect.changes.length > 0 || this.effect.statuses.length > 0) {
       this.document.effects.push(this.effect);
-      const overTimeFlags = foundry.utils.hasProperty(this.actor, "flags.monsterMunch.overTime")
-        ? foundry.utils.getProperty(this.actor, "flags.monsterMunch.overTime")
+      const overTimeFlags: string[] = foundry.utils.hasProperty(this.actor, "flags.monsterMunch.overTime")
+        ? foundry.utils.getProperty(this.actor, "flags.monsterMunch.overTime") as string[]
         : [];
       overTimeFlags.push(this.document.name);
       foundry.utils.setProperty(this.actor, "flags.monsterMunch.overTime", overTimeFlags);
@@ -62,7 +78,7 @@ export default class MidiOverTimeEffect {
     }
   }
 
-    generateOverTimeEffect() {
+  generateOverTimeEffect() {
     logger.debug(`Checking for over time effects for ${this.document.name} on ${this.actor.name}`);
     if (!this.document.effects) this.document.effects = [];
     // add any condition effects

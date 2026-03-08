@@ -768,8 +768,8 @@ export default abstract class DDBEnricherFactoryMixin {
         if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
           const duration = DDBDescriptions.getDuration(this.data.system.description.value, false);
           if (duration.type) {
-            foundry.utils.setProperty(effect, "duration.seconds", duration.second);
-            foundry.utils.setProperty(effect, "duration.rounds", duration.round);
+            foundry.utils.setProperty(effect, "duration.seconds", duration.seconds);
+            foundry.utils.setProperty(effect, "duration.rounds", duration.rounds);
           }
           const specialDurations: DAESpecialDuration[] = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []) as DAESpecialDuration[];
           foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);

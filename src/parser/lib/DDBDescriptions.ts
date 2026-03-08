@@ -79,14 +79,14 @@ export default class DDBDescriptions {
     const defaultDurationSeconds = 60;
     const result = {
       type: returnDefault ? "second" : null,
-      second: returnDefault ? defaultDurationSeconds : null,
-      round: returnDefault ? (defaultDurationSeconds / 6) : null,
-      minute: null,
-      day: null,
-      year: null,
-      month: null,
+      seconds: returnDefault ? defaultDurationSeconds : null,
+      rounds: returnDefault ? (defaultDurationSeconds / 6) : null,
+      minutes: null,
+      days: null,
+      years: null,
+      months: null,
       turns: null,
-      hour: null,
+      hours: null,
       special: "",
       value: null,
       units: "inst",
@@ -101,18 +101,18 @@ export default class DDBDescriptions {
       result.value = match[1];
       switch (match[2]) {
         case "minute": {
-          result.minute = parseInt(match[1]);
+          result.minutes = parseInt(match[1]);
           seconds *= 60;
           break;
         }
         case "hour": {
-          result.hour = parseInt(match[1]);
+          result.hours = parseInt(match[1]);
           seconds *= 60 * 60;
           break;
         }
         case "round": {
           seconds *= 6;
-          result.round = parseInt(match[1]);
+          result.rounds = parseInt(match[1]);
           break;
         }
         case "turn": {
@@ -120,24 +120,24 @@ export default class DDBDescriptions {
           break;
         }
         case "day": {
-          result.day = parseInt(match[1]);
+          result.days = parseInt(match[1]);
           seconds *= 60 * 60 * 24;
           break;
         }
         case "year": {
-          result.year = parseInt(match[1]);
+          result.years = parseInt(match[1]);
           seconds *= 60 * 60 * 24 * 365;
           break;
         }
         case "month": {
-          result.month = parseInt(match[1]);
+          result.months = parseInt(match[1]);
           seconds *= 60 * 60 * 24 * 30;
           break;
         }
         // no default
       }
 
-      result.second = seconds;
+      result.seconds = seconds;
       return result;
     }
 
@@ -149,8 +149,8 @@ export default class DDBDescriptions {
     if (smallMatch) {
       result.type = "special";
       result.units = "spec";
-      result.second = 6;
-      result.round = 1;
+      result.seconds = 6;
+      result.rounds = 1;
       result.special = smallMatch[0];
       // "turnStart" - expires at the start of the targets next turn
       // "turnEnd" - expires at the end of the targets next turn
@@ -426,7 +426,7 @@ export default class DDBDescriptions {
         turns: null,
         startRound: null,
         startTurn: null,
-      },
+      } as IEffectDuration,
       specialDurations: [],
       match: null,
       riderStatuses: [],
@@ -470,8 +470,8 @@ export default class DDBDescriptions {
       const duration = DDBDescriptions.getDuration(parserText);
 
       if (duration.type) {
-        result.duration.seconds = duration.second;
-        result.duration.rounds = duration.round;
+        result.duration.seconds = duration.seconds;
+        result.duration.rounds = duration.rounds;
       }
       result.specialDurations = duration.dae ?? [];
     }

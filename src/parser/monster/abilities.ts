@@ -9,7 +9,7 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBM
   const cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
   const proficiencyBonus = cr.proficiencyBonus;
 
-  this.abilities = foundry.utils.deepClone(this.npc.system.abilities);
+  this.abilities = foundry.utils.deepClone(this.npc.system.abilities) as any;
   DICTIONARY.actor.abilities.forEach((ability) => {
     const value = this.source.stats.find((stat) => stat.statId === ability.id).value || 0;
     const proficient = this.source.savingThrows.find((stat) => stat.statId === ability.id) ? 1 : 0;
@@ -34,13 +34,13 @@ DDBMonster.prototype._generateAbilities = function _generateAbilities(this: DDBM
 
   let initBonus = null;
 
-  if (foundry.utils.hasProperty(this.source, "initiativeBonus") && Number.isInteger(parseInt(this.source.initiativeBonus))) {
-    initBonus = parseInt(this.source.initiativeBonus) - this.abilities.dex.mod;
-  } else if (foundry.utils.hasProperty(this.source, "extraInitiative") && Number.isInteger(parseInt(this.source.extraInitiative))) {
-    initBonus = parseInt(this.source.extraInitiative) - this.abilities.dex.mod;
+  if (foundry.utils.hasProperty(this.source, "initiativeBonus") && Number.isInteger(parseInt(String(this.source.initiativeBonus)))) {
+    initBonus = parseInt(String(this.source.initiativeBonus)) - this.abilities.dex.mod;
+  } else if (foundry.utils.hasProperty(this.source, "extraInitiative") && Number.isInteger(parseInt(String(this.source.extraInitiative)))) {
+    initBonus = parseInt(String(this.source.extraInitiative)) - this.abilities.dex.mod;
   }
 
-  if (initBonus !== null && Number.isInteger(parseInt(initBonus))) {
+  if (initBonus !== null && Number.isInteger(parseInt(String(initBonus)))) {
     if ((initBonus / 2) === proficiencyBonus) {
       this.npc.system.attributes.init.bonus = "2 * @prof";
     } else if (initBonus === proficiencyBonus) {

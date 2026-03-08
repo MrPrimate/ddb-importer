@@ -4,6 +4,7 @@ import { DDBBasicActivity } from "../enrichers/mixins/_module";
 import { DDBDescriptions } from "../lib/_module";
 
 export default class DDBFeatureActivity extends DDBBasicActivity {
+  ddbDefinition: IDDBCommonDefinition;
 
   _init() {
     logger.debug(`Generating DDBFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
