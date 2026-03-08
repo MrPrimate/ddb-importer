@@ -4,6 +4,18 @@ import DDBDescriptions, { IFeatureBasicsResult } from "../../lib/DDBDescriptions
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 
+interface IGenerateDamageOverTimeEffectOptions {
+  startTurn?: boolean;
+  endTurn?: boolean;
+  durationSeconds?: number;
+  damage?: string;
+  damageType?: string;
+  saveAbility?: string | string[];
+  saveRemove?: boolean;
+  saveDamage?: string;
+  dc?: number;
+}
+
 interface IMidiOverTimeEffectOptions {
   document: I5ePCItem | I5eMonsterItem;
   actor: I5eActorData;
@@ -125,29 +137,38 @@ export default class MidiOverTimeEffect {
     // overtime damage, revert any full damage flag, reset to default on save
     foundry.utils.setProperty(this.document, "flags.midiProperties.fulldam", false);
 
-    const damage = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damage")
-      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damage")
+    const damage: string = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damage") as string
+      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damage") as string
       ?? dmgParts.reduce((total, current) => {
         total = [total, `${current[0]}[${current[1]}]`].join(" + ");
         return total;
-      }, "");
+      }, "") as string;
 
-    const damageType: string = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damageType")
-      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damageType")
+    const damageType: string = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.damageType") as string
+      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.damageType") as string
       ?? (dmgParts.length > 0
         ? dmg[0].damageTypes[0]
         : "");
 
-    const saveRemove = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.saveRemove")
-      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.saveRemove")
+    const saveRemove: boolean = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.saveRemove") as boolean
+      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.saveRemove") as boolean
       ?? true;
 
-    const saveDamage = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.saveDamage")
-      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.saveDamage")
+    const saveDamage: string = foundry.utils.getProperty(this.document.flags, "monsterMunch.overTime.saveDamage") as string
+      ?? foundry.utils.getProperty(this.document.flags, "ddbimporter.overTime.saveDamage") as string
       ?? "nodamage";
 
     logger.debug(`generateOverTimeEffect: Generated over time effect for ${this.actor.name}, ${this.document.name}`);
-    this.effect.changes.push(ChangeHelper.overTimeDamageChange({ document: this.document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }));
+    this.effect.changes.push(ChangeHelper.overTimeDamageChange({
+      document: this.document,
+      turn,
+      damage,
+      damageType,
+      saveAbility,
+      saveRemove,
+      saveDamage,
+      dc,
+    }));
 
     this.effectCleanup();
   }
@@ -183,7 +204,7 @@ export default class MidiOverTimeEffect {
   }
 
   generateDamageOverTimeEffect({ startTurn = false, endTurn = false, durationSeconds, damage,
-    damageType, saveAbility, saveRemove = true, saveDamage = "nodamage", dc } = {},
+    damageType, saveAbility, saveRemove = true, saveDamage = "nodamage", dc }: IGenerateDamageOverTimeEffectOptions,
   ) {
     if (!startTurn && !endTurn) return;
 

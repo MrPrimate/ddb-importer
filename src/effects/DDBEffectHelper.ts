@@ -10,6 +10,19 @@ import DDBMonsterFeature from "../parser/monster/features/DDBMonsterFeature";
 import { DDBDescriptions } from "../parser/lib/_module";
 import { AutoEffects, ChangeHelper, MidiOverTimeEffect } from "../parser/enrichers/effects/_module";
 
+interface IDamageOverTimeEffectOptions {
+  document: I5ePCItem | I5eMonsterItem;
+  startTurn?: boolean;
+  endTurn?: boolean;
+  durationSeconds?: number;
+  damage?: string;
+  damageType?: string;
+  saveAbility?: string | string[];
+  saveRemove?: boolean;
+  saveDamage?: string;
+  dc?: number;
+}
+
 export default class DDBEffectHelper {
 
   static baseEffect = AutoEffects.BaseEffect;
@@ -64,21 +77,36 @@ export default class DDBEffectHelper {
   }
 
   static damageOverTimeEffect({ document, startTurn = false, endTurn = false, durationSeconds, damage,
-    damageType, saveAbility, saveRemove = true, saveDamage = "nodamage", dc } = {},
+    damageType, saveAbility, saveRemove = true, saveDamage = "nodamage", dc }: IDamageOverTimeEffectOptions,
   ) {
-    return MidiOverTimeEffect.damageOverTimeEffect({ document, startTurn, endTurn, durationSeconds, damage, damageType, saveAbility, saveRemove, saveDamage, dc });
+    const generator = new MidiOverTimeEffect({
+      document,
+      actor: null,
+      otherDescription: null,
+    });
+    return generator.generateDamageOverTimeEffect({
+      startTurn,
+      endTurn,
+      durationSeconds,
+      damage,
+      damageType,
+      saveAbility,
+      saveRemove,
+      saveDamage,
+      dc,
+    });
   }
 
 
-  static addToProperties(properties, value) {
+  static addToProperties(properties: string[], value: string): string[] {
     return utils.addToProperties(properties, value);
   }
 
-  static removeFromProperties(properties, value) {
-    utils.removeFromProperties(properties, value);
+  static removeFromProperties(properties: string[], value: string): string[] {
+    return utils.removeFromProperties(properties, value);
   }
 
-  static async wait(ms) {
+  static async wait(ms: number) {
     return utils.wait(ms);
   }
 
@@ -94,7 +122,7 @@ export default class DDBEffectHelper {
    */
   static async addSaveAdvantageToTarget(targetActor, originItem, ability, additionLabel = "", icon = null) {
 
-    const effectData = {
+    const effectData: IEffectData = {
       _id: foundry.utils.randomID(),
       changes: [
         {
@@ -107,12 +135,11 @@ export default class DDBEffectHelper {
       origin: originItem.uuid,
       disabled: false,
       transfer: false,
-      icon,
       img: icon,
       duration: { turns: 1 },
       flags: {
         dae: {
-          specialDuration: [`isSave.${ability}`],
+          specialDuration: [`isSave.${ability}` as any],
         },
       },
     };

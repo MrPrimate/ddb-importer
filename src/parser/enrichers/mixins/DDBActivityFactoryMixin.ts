@@ -14,6 +14,7 @@ export default abstract class DDBActivityFactoryMixin {
   abstract is2014: boolean;
   abstract is2024: boolean;
   abstract originalName: string;
+  abstract rawCharacter: I5ePCData;
   enricher: DDBEnricherFactoryMixin;
   activityGenerator: new (...args: any[]) => IDDBActivityTypes;
   additionalActivities: IAdditionalActivityOutline[] = [];

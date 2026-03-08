@@ -9,6 +9,11 @@ import type DDBCharacter from "../DDBCharacter";
 
 export default class DDBClassFeatures {
 
+  rawCharacter: I5ePCData;
+  ddbCharacter: DDBCharacter | null;
+  ddbData: IDDBData;
+  excludedFeatures: number[];
+
   static EXCLUDED_FEATURES = [
     "Expertise",
   ];
@@ -21,10 +26,6 @@ export default class DDBClassFeatures {
   ];
 
   static DISCARD_BASE_FEATURE = DICTIONARY.parsing.choiceFeatures.DISCARD_FEATURE_AFTER_CHOICES;
-
-  ddbCharacter: DDBCharacter | null;
-  ddbData: IDDBData;
-  excludedFeatures: number[];
 
   deriveFeatures() {
     this.ddbData.character.classes.forEach((klass) => {

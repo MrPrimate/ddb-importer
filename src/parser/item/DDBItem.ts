@@ -11,6 +11,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   // Properties set in constructor
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
+  rawCharacter: I5ePCData;
   declare ddbDefinition: IDDBItemDefinition;
   isCompendiumItem: boolean;
   isAction = false;
@@ -191,8 +192,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
   constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
     const addEffects = isCompendium
-      ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
-      : game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
+      ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
+      : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
 
     super({
       enricher,

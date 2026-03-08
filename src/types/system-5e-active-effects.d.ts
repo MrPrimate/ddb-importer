@@ -52,6 +52,7 @@ global {
 
   export interface IEffectData {
     _id?: string;
+    origin?: string;
     img?: string;
     name?: string;
     statuses?: typeof STATUSES;

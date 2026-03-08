@@ -477,23 +477,23 @@ export default class Utils {
     return true;
   }
 
-  static addToProperties(properties, value) {
+  static addToProperties(properties: string[], value: string): string[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set(properties)
+        ? new Set<string>(properties)
         : properties
-      : new Set();
+      : new Set<string>();
 
     setProperties.add(value);
     return Array.from(setProperties);
   }
 
-  static addArrayToProperties(properties, values) {
+  static addArrayToProperties(properties: string[], values: string[]): string[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set(properties)
+        ? new Set<string>(properties)
         : properties
-      : new Set();
+      : new Set<string>();
 
     values.forEach((value) => {
       setProperties.add(value);
@@ -501,23 +501,23 @@ export default class Utils {
     return Array.from(setProperties);
   }
 
-  static removeFromProperties(properties, value) {
+  static removeFromProperties(properties: string[], value: string): string[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set(properties)
+        ? new Set<string>(properties)
         : properties
-      : new Set();
+      : new Set<string>();
 
     setProperties.delete(value);
     return Array.from(setProperties);
   }
 
-  static removeArrayFromProperties(properties, values) {
+  static removeArrayFromProperties(properties: string[], values: string[]): string[] {
     const setProperties = properties
       ? Utils.isArray(properties)
-        ? new Set(properties)
+        ? new Set<string>(properties)
         : properties
-      : new Set();
+      : new Set<string>();
 
     values.forEach((value) => {
       setProperties.delete(value);
@@ -535,7 +535,7 @@ export default class Utils {
     return true;
   }
 
-  static ordinalSuffixOf(i) {
+  static ordinalSuffixOf(i: number): string {
     const j = i % 10,
       k = i % 100;
     if (j === 1 && k !== 11) {
