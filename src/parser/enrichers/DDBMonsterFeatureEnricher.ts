@@ -224,6 +224,14 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
       "Eye Ray": MonsterEnrichers.Beholder.EyeRays,
       "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
     },
+    "Xanathar (Beholder)": {
+      "Eye Ray": MonsterEnrichers.Beholder.EyeRays,
+      "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
+    "Xanathar": {
+      "Eye Ray": MonsterEnrichers.Beholder.EyeRays,
+      "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
+    },
     "Spectator": {
       "Eye Rays": MonsterEnrichers.Beholder.EyeRays,
     },
