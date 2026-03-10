@@ -617,7 +617,7 @@ export default class DDBSetup extends DDBAppV2 {
       } catch (error) {
         if (cobaltCookie !== "") {
           ui.notifications.error("Error validating your cobalt cookie!");
-          console.error("Error validating cobalt cookie", { error });
+          logger.error("Error validating cobalt cookie", { error });
         }
       }
     }

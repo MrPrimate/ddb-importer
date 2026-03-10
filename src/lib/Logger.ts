@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 
 import { FileHelper } from "./_module";
 
