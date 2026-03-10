@@ -28,7 +28,7 @@ const renderPopup = (type, url) => {
 };
 
 function callDDBCharacterManager(actor) {
-  const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, actor);
+  const characterImport = new DDBCharacterManager(actor);
   characterImport.render(true);
 }
 
@@ -98,7 +98,7 @@ async function characterButtonClick(event, document, actor) {
 }
 
 function characterButtonClickV2(event, _target) {
-   
+
   characterButtonClick(event, this.document, this.actor);
 }
 
@@ -128,13 +128,13 @@ function npcButtonClick(event, document) {
 }
 
 function npcButtonClickV2(event, _target) {
-   
+
   npcButtonClick(event, this.document);
 }
 
 function getNPCButton(document) {
   const button = $("<button type=\"button\" id=\"ddbImporterButton\"><i class=\"fab fa-d-and-d-beyond\"></button>");
-   
+
   button.click((event) => npcButtonClick(event, document));
 
   return button;

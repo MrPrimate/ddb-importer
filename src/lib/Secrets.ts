@@ -1,7 +1,7 @@
-import { logger, DDBProxy, PatreonHelper } from "./_module";
+import { logger, DDBProxy, PatreonHelper, utils } from "./_module";
 import { SETTINGS } from "../config/_module";
 
-function isJSON(str) {
+function isJSON(str: string): boolean {
   try {
     return (JSON.parse(str) && !!str && str !== null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -10,13 +10,13 @@ function isJSON(str) {
   }
 }
 
-export function isLocalCobalt(keyPostfix) {
+export function isLocalCobalt(keyPostfix: string | null): boolean {
   return keyPostfix && keyPostfix !== "" && localStorage.getItem(`ddb-cobalt-cookie-${keyPostfix}`) !== null;
 }
 
-export function getCobalt(keyPostfix = "") {
-  let cobalt;
-  const localCookie = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+export function getCobalt(keyPostfix = ""): string {
+  let cobalt: string;
+  const localCookie = utils.getSetting<boolean>("cobalt-cookie-local");
   const characterCookie = isLocalCobalt(keyPostfix);
 
   logger.debug(`Getting Cookie: Key postfix? "${keyPostfix}" -  Local? ${localCookie} - Character? ${characterCookie}`);
@@ -25,14 +25,14 @@ export function getCobalt(keyPostfix = "") {
   } else if (localCookie) {
     cobalt = localStorage.getItem("ddb-cobalt-cookie");
   } else {
-    cobalt = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie");
+    cobalt = utils.getSetting<string>("cobalt-cookie");
   }
 
   return cobalt;
 }
 
-export async function setCobalt(value, keyPostfix = "") {
-  const localCookie = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+export async function setCobalt(value: string, keyPostfix = "") {
+  const localCookie = utils.getSetting<boolean>("cobalt-cookie-local");
   const characterCookie = keyPostfix && keyPostfix !== "";
 
   let cobaltValue = value;
@@ -50,7 +50,7 @@ export async function setCobalt(value, keyPostfix = "") {
   }
 }
 
-export function deleteLocalCobalt(keyPostfix) {
+export function deleteLocalCobalt(keyPostfix: string | null) {
   const localCookie = isLocalCobalt(keyPostfix);
 
   if (localCookie) {
@@ -59,7 +59,7 @@ export function deleteLocalCobalt(keyPostfix) {
 }
 
 export async function moveCobaltToLocal() {
-  localStorage.setItem("ddb-cobalt-cookie", game.settings.get("ddb-importer", "cobalt-cookie"));
+  localStorage.setItem("ddb-cobalt-cookie", utils.getSetting<string>("cobalt-cookie"));
   await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie", "");
   game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", true);
 }
@@ -69,7 +69,7 @@ export async function moveCobaltToSettings() {
   game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
 }
 
-export async function checkCobalt(keyPostfix = "", alternativeKey = null) {
+export async function checkCobalt(keyPostfix = "", alternativeKey = null) : Promise<{ success: boolean; message: string }> {
   const cobaltCookie = alternativeKey
     ? isJSON(alternativeKey)
       ? JSON.parse(alternativeKey).cbt
@@ -100,7 +100,31 @@ export async function checkCobalt(keyPostfix = "", alternativeKey = null) {
   }
 }
 
-export async function getUserData(keyPostfix = "", alternativeKey = null) {
+interface IDDBUserDataResponse {
+  success: boolean;
+  message: string;
+  data: {
+    status: string;
+    userId: number;
+    userDisplayName: string;
+    twitchUserName: string;
+    AvatarUrl: string;
+    firstName: string;
+    lastName: string | null;
+    subscriptionPaidThruDate: number;
+    subscriptionPlan: string;
+    subscriptionTierName: string;
+    subscriptionProvider: string;
+    subscriptionStatus: string;
+    isLegendaryBundleBuyer: boolean;
+    isSourcebookBundleBuyer: boolean;
+    isAdventureBundleBuyer: boolean;
+    isAdventureLeagueBundleBuyer: boolean;
+    isMapBundleBuyer: boolean;
+  };
+}
+
+export async function getUserData(keyPostfix = "", alternativeKey = null): Promise<IDDBUserDataResponse> {
   const cobaltCookie = alternativeKey
     ? isJSON(alternativeKey)
       ? JSON.parse(alternativeKey).cbt

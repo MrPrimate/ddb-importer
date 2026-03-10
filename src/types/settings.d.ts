@@ -2,7 +2,47 @@ export {};
 
 declare global {
 
-  interface PartialSettingConfig {
+  interface ISettingsPolicyItem {
+    name: string;
+    isChecked: boolean;
+    label: string;
+  }
+
+  interface ISettingsPolicyExpandedItem extends ISettingsPolicyItem {
+    hint?: string;
+    enabled: boolean;
+  }
+
+  interface IPatreonAccessMatrix {
+    god: boolean;
+    undying: boolean;
+    custom: boolean;
+    coffee: boolean;
+    source: boolean;
+    experimentalMid: boolean;
+    homebrew: boolean;
+    all: boolean;
+    supporter: boolean;
+    not: boolean;
+  }
+
+  interface ICharacterImportSettings {
+    installedModulesText: string;
+    importPolicies: ISettingsPolicyItem[];
+    importConfig: ISettingsPolicyExpandedItem[];
+    extrasConfig: ISettingsPolicyExpandedItem[];
+    sourcesConfig: ISettingsPolicyExpandedItem[];
+    devMode: boolean;
+    devConfig: ISettingsPolicyExpandedItem[];
+    effectImportConfig: ISettingsPolicyExpandedItem[];
+    compendiumSourcesConfig: ISettingsPolicyExpandedItem[];
+    dataDirSet: boolean;
+    syncConfig: ISettingsPolicyExpandedItem[];
+    tiers: IPatreonAccessMatrix;
+    version: string;
+  }
+
+  interface IPartialSettingConfig {
     name?: string;
     hint?: string;
     scope?: string;
@@ -16,12 +56,12 @@ declare global {
     [key: string]: any;
   }
 
-  interface CompleteSettingConfig extends PartialSettingConfig {
+  interface CompleteSettingConfig extends IPartialSettingConfig {
     scope: string;
     config: boolean;
   }
 
-  type SettingsRecord = Record<string, PartialSettingConfig>;
+  type SettingsRecord = Record<string, IPartialSettingConfig>;
   type RegisteredSettingsRecord = Record<string, CompleteSettingConfig>;
 
   // Declaration merging for ddb-importer settings.

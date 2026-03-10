@@ -45,6 +45,7 @@ interface IDDBIDev {
   downloadFinalActorJSON: boolean;
   itemImportSingle: boolean;
   multiattackNotes: boolean;
+  customCors: boolean;
 }
 
 interface IDDBIEffectConfigModules {
@@ -133,6 +134,7 @@ if (!(CONFIG as any).DDBI) {
       downloadFinalActorJSON: false,
       itemImportSingle: false,
       multiattackNotes: false,
+      customCors: false,
     },
     EFFECT_CONFIG: {
       MODULES: {

@@ -23,10 +23,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
   actorOriginal: I5ePCData;
   characterImporter: DDBCharacterImporter;
   ddbCharacter: DDBCharacter;
-  _debugContext: {};
+  private _debugContext: any;
+  importSettings: ICharacterImportSettings;
 
-  constructor(options, actor: Actor5e | I5ePCData, ddbCharacter: DDBCharacter = null) {
-    super(options);
+  constructor(actor: Actor5e | I5ePCData, ddbCharacter: DDBCharacter = null) {
+    super();
     this.actor = game.actors.get(actor._id) as Actor5e;
     this.actorOriginal = foundry.utils.duplicate(this.actor);
     logger.debug("Current Actor (Original):", this.actorOriginal);
@@ -74,8 +75,8 @@ export default class DDBCharacterManager extends DDBAppV2 {
       openDebug: DDBCharacterManager.openDebug,
     },
     position: {
-      width: "900",
-      height: "auto",
+      width: 900,
+      height: "auto" as const,
     },
     window: {
       icon: "fab fa-d-and-d-beyond",

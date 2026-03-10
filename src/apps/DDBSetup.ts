@@ -13,9 +13,20 @@ import { SETTINGS } from "../config/_module";
 import DDBAppV2 from "./DDBAppV2";
 import DDBCharacterManager from "./DDBCharacterManager";
 import DDBDebugger from "./DDBDebugger";
+import { IPatreonLinkResponse } from "../lib/PatreonHelper";
 
 
 export default class DDBSetup extends DDBAppV2 {
+  static patreonKey: string;
+  static patreonTier: string;
+  callMuncher: boolean;
+  sheetTab: string;
+  coreTab: string;
+  infoTab: string;
+  showDiscouraged: boolean;
+  cobaltCheckMessage: string;
+  cobalt: string;
+
   constructor({
     actor = null, callMuncher = false, sheetTab = "info", coreTab = "cobalt", infoTab = "intro",
     showDiscouraged = false,
@@ -453,11 +464,11 @@ export default class DDBSetup extends DDBAppV2 {
 
   static async connectToPatreonButton(event) {
     event.preventDefault();
-    await PatreonHelper.linkToPatreon(async (data) => {
+    await PatreonHelper.linkToPatreon(async (data: IPatreonLinkResponse) => {
       // Callback after linking to Patreon
       this.patreonKey = data.key;
       this.patreonTier = data.tier;
-      this.patreonUser = data.email;
+      this.patreonTier = data.email;
       this.render();
     });
   }
@@ -632,7 +643,7 @@ export default class DDBSetup extends DDBAppV2 {
     } else if (this.callMuncher) {
       new DDBMuncher().render(true);
     } else if (this.actor) {
-      const characterImport = new DDBCharacterManager(DDBCharacterManager.defaultOptions, this.actor);
+      const characterImport = new DDBCharacterManager(this.actor);
       characterImport.render(true);
     }
   }

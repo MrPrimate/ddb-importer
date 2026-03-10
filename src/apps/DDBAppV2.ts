@@ -33,8 +33,18 @@ export interface NotifierV2Props {
   clear?: boolean;
 }
 
+interface DDBApplicationPart extends foundry.applications.api.HandlebarsApplicationMixin.HandlebarsTemplatePart {
+  container?: {
+    id: string;
+    classes?: string[];
+  };
+}
 
 export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
+
+  static override get PARTS(): Record<string, DDBApplicationPart> {
+    return super.PARTS;
+  }
 
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
@@ -155,7 +165,8 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   async _onFirstRender(context, options) {
     await super._onFirstRender(context, options);
     const containers = {};
-    for (const [part, config] of Object.entries(this.constructor.PARTS)) {
+    const ctor = this.constructor as typeof DDBAppV2;
+    for (const [part, config] of Object.entries(ctor.PARTS)) {
       if (!config.container?.id) continue;
       const element = this.element.querySelector(`[data-application-part="${part}"]`);
       if (!element) continue;
