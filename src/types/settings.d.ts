@@ -26,6 +26,59 @@ declare global {
     not: boolean;
   }
 
+  interface ICompendiumFolderStyle {
+    key: string;
+    label: string;
+    selected: boolean;
+  }
+
+  interface ISourceLookup extends ISelectedSource {
+    selected: boolean;
+  }
+
+  interface ISelectedSource extends IIdLabelSelectedLookup {
+    acronym: string;
+  }
+
+  interface IIdLabelSelectedLookup {
+    id: number;
+    selected: string;
+    label: string;
+  }
+
+  interface IMuncherSettings {
+    characterMunch: boolean;
+    adventureOptions: ISettingsPolicyExpandedItem[];
+    bookSources: ISourceLookup[];
+    cobalt: boolean;
+    genericConfig: ISettingsPolicyExpandedItem[];
+    sourceConfig: ISettingsPolicyExpandedItem[];
+    selectedSources: ISelectedSource[];
+    monsterTypes: IIdLabelSelectedLookup[];
+    includedCategories: IIdLabelSelectedLookup[];
+    excludedCategories: IIdLabelSelectedLookup[];
+    basicMonsterConfig: ISettingsPolicyExpandedItem[];
+    filterMonsterConfig: ISettingsPolicyExpandedItem[];
+    filterSpellConfig: ISettingsPolicyExpandedItem[];
+    filterItemConfig: ISettingsPolicyExpandedItem[];
+    artMonsterConfig: ISettingsPolicyExpandedItem[];
+    homebrewMonsterConfig: ISettingsPolicyExpandedItem[];
+    spellConfig: ISettingsPolicyExpandedItem[];
+    itemConfig: ISettingsPolicyExpandedItem[];
+    worldUpdateConfig: ISettingsPolicyExpandedItem[];
+    beta: boolean;
+    tiers: IPatreonAccessMatrix;
+    compendiumFolderMonsterStyles: ICompendiumFolderStyle[];
+    compendiumFolderItemStyles: ICompendiumFolderStyle[];
+    compendiumFolderSpellStyles: ICompendiumFolderStyle[];
+    sourcesSelected: boolean;
+    sourceDescription: string;
+    enableSources: boolean;
+    version: string;
+    campaignId: string;
+    isCampaign: string | boolean;
+  }
+
   interface ICharacterImportSettings {
     installedModulesText: string;
     importPolicies: ISettingsPolicyItem[];

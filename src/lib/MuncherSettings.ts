@@ -462,7 +462,7 @@ const MuncherSettings = {
     return selections;
   },
 
-  getMuncherSettings: (includeHomebrew = true) => {
+  getMuncherSettings: (includeHomebrew = true): IMuncherSettings => {
     const cobalt = Secrets.getCobalt() != "";
     const betaKey = PatreonHelper.getPatreonKey() != "";
     const tier = PatreonHelper.getPatreonTier();
@@ -481,12 +481,12 @@ These require the following modules: DAE${MuncherSettings.getInstalledIcon("daeI
 Effects can also be created to use Active Auras${MuncherSettings.getInstalledIcon("activeAurasInstalled")} or Aura Effects${MuncherSettings.getInstalledIcon("auraeffectsInstalled")}, and Active Token Effects${MuncherSettings.getInstalledIcon("atlInstalled")}.
 `;
 
-    const generateMidiEffects = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects");
+    const generateMidiEffects = utils.getSetting<boolean>("munching-policy-add-midi-effects");
     if (generateMidiEffects && !effectModulesAvailable.hasCore) {
       game.settings.set(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects", false);
     }
 
-    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
     const sourceArray = enableSources
       ? DDBSources.getSelectedSourceIds()
       : [];
@@ -566,7 +566,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
-    const tokenizerReady = game.modules.get("vtta-tokenizer")?.active;
+    const tokenizerReady = game.modules.get("vtta-tokenizer")?.active ?? false;
 
     const basicMonsterConfig = [
       {
@@ -620,7 +620,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
-    const artDisabled = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-disable-monster-art");
+    const artDisabled = utils.getSetting<boolean>("munching-policy-disable-monster-art");
     const artMonsterConfig = [
       {
         name: "munching-policy-disable-monster-art",
@@ -921,7 +921,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
   },
 
   getEncounterSettings: () => {
-    const encounterConfig = [
+    const encounterConfig: ISettingsPolicyExpandedItem[] = [
       {
         name: "encounter-import-policy-missing-characters",
         isChecked: utils.getSetting<boolean>("encounter-import-policy-missing-characters"),
@@ -966,7 +966,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
-    const scenes = game.scenes.filter((scene) => !scene.flags?.ddbimporter?.encounters)
+    const scenes = game.scenes.filter((scene) => !foundry.utils.hasProperty(scene, "flags.ddbimporter.encounters"))
       .map((scene) => {
         const folderName = scene.folder ? `[${scene.folder.name}] ` : "";
         const s = {
@@ -981,8 +981,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       encounterConfig,
       scenes,
       sceneImg: DICTIONARY.encounters.SCENE_IMG,
-      createSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene"),
-      existingSceneSelect: game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene"),
+      createSceneSelect: utils.getSetting<boolean>("encounter-import-policy-create-scene"),
+      existingSceneSelect: utils.getSetting<boolean>("encounter-import-policy-existing-scene"),
     };
 
     return encounterSettings;
