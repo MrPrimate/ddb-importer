@@ -81,7 +81,7 @@ global {
       dae?: {
         selfTarget?: boolean;
         selfTargetAlways?: boolean;
-        macroRepeat?: "startEndEveryTurn" | "startEveryTurn" | "endEveryTurn" | "startEndTurn" | "startTurn" | "endTurn"| string;
+        macroRepeat?: "startEndEveryTurn" | "startEveryTurn" | "endEveryTurn" | "startEndTurn" | "startTurn" | "endTurn" | string;
         showIcon?: boolean | null;
         transfer?: boolean;
         stackable?: string;

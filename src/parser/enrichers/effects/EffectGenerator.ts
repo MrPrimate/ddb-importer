@@ -773,7 +773,7 @@ export default class EffectGenerator {
     } else if (
       this.isCompendiumItem
       || this.document.type === "feat"
-      || ( "isAttuned" in this.ddbItem && this.ddbItem.isAttuned && this.ddbItem.equipped) // if it is attuned and equipped
+      || ("isAttuned" in this.ddbItem && this.ddbItem.isAttuned && this.ddbItem.equipped) // if it is attuned and equipped
       || ("isAttuned" in this.ddbItem && this.ddbItem.isAttuned && !this.ddbItem.definition?.canEquip) // if it is attuned but can't equip
       || (!this.ddbItem.definition?.canAttune && this.ddbItem.equipped) // can't attune but is equipped
     ) {
@@ -867,7 +867,7 @@ export default class EffectGenerator {
       grantedStatMods.forEach((mod) => {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
         if (bonuses) {
-        bonuses += " ";
+          bonuses += " ";
         } else {
           bonuses = "";
         }

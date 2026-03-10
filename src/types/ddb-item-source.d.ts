@@ -8,7 +8,7 @@ export {};
 
 global {
 
-// ---- Inventory ------------------------------------------------------------
+  // ---- Inventory ------------------------------------------------------------
 
   export interface IDDBItemProperty {
     id: number;

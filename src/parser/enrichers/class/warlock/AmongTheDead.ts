@@ -14,8 +14,8 @@ export default class AmongTheDead extends DDBEnricherData {
           ability: "wis",
           dc: {
             calculation: "spellcasting",
-          }
-        }
+          },
+        },
       },
     };
   }

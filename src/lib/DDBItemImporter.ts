@@ -91,7 +91,7 @@ export default class DDBItemImporter {
 
   async buildIndex(indexFilter: CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName> = {}) {
     const flagSet = new Set<string>(indexFilter.fields ?? []);
-     const hasDDBImporterFlags = [...flagSet].some((f) => f.startsWith("flags.ddbimporter"));
+    const hasDDBImporterFlags = [...flagSet].some((f) => f.startsWith("flags.ddbimporter"));
     if (!hasDDBImporterFlags) {
       for (const flagMatch of this.matchFlags) {
         flagSet.add(`flags.ddbimporter.${flagMatch}`);

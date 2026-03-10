@@ -52,7 +52,7 @@ export default class AutoEffects {
       durationRounds = null,
       durationTurns = null,
       showIcon = false,
-    }: IBaseEffectOptions = {}
+    }: IBaseEffectOptions = {},
   ): IEffectData {
     const effect: IEffectData = {
       img: document.img,

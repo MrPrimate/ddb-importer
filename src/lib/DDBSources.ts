@@ -341,15 +341,15 @@ export default class DDBSources {
     return !DDBSources.getAllExcludedCategoryIds().includes(sourceCategory.sourceCategoryId);
   }
 
-  static async updateSelectedSources(ids: (number|string)[]) {
+  static async updateSelectedSources(ids: (number | string)[]) {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-sources", ids.map((id) => parseInt(`${id}`)));
   }
 
-  static async updateIncludedCategories(ids: (number|string)[]) {
+  static async updateIncludedCategories(ids: (number | string)[]) {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-included-source-categories", ids.map((id) => parseInt(`${id}`)));
   }
 
-  static async updateSelectedMonsterTypes(ids: (number|string)[]) {
+  static async updateSelectedMonsterTypes(ids: (number | string)[]) {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-muncher-monster-types", ids.map((id) => parseInt(`${id}`)));
   }
 

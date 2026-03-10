@@ -20,7 +20,7 @@ export default class TentacleOfTheDeepsAttack extends DDBEnricherData {
             classification: "spell",
           },
         },
-      }
+      },
     };
   }
 

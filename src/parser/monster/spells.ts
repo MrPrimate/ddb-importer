@@ -43,7 +43,7 @@ DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
 
 
 // e.g. The archmage can cast disguise self and invisibility at will and has the following wizard spells prepared:
-DDBMonster.prototype.parseAdditionalAtWillSpells = function(this: DDBMonster,text) {
+DDBMonster.prototype.parseAdditionalAtWillSpells = function(this: DDBMonster, text) {
   const atWillSearch = /can cast (.*?) at will/i;
   const atWillMatch = text.match(atWillSearch);
   let atWillSpells = [];

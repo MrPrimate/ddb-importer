@@ -157,10 +157,10 @@ class DDBMonster {
     this.name = overrides["name"] ?? (existingNpc ? existingNpc.name : null);
     this.proficiencyBonus = null;
     this.cr = {
-        "id": 1,
-        "value": 0,
-        "proficiencyBonus": 2,
-        "xp": 10
+      "id": 1,
+      "value": 0,
+      "proficiencyBonus": 2,
+      "xp": 10,
     };
     this.typeName = "";
     this.items = [];

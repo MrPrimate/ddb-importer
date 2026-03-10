@@ -568,7 +568,7 @@ export default class CharacterSpellFactory {
         if (parsedSpell.flags.ddbimporter.is2024
           && CharacterSpellFactory.CLASS_GRANTED_SPELLS_2024.includes(parsedSpell.flags.ddbimporter.originalName)
         ) {
-          await this.handleGrantedSpells(spell, "class", flagData,{
+          await this.handleGrantedSpells(spell, "class", flagData, {
             forceCopy: true,
             flags: {
               lookup: "classFeature",

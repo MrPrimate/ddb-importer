@@ -118,11 +118,11 @@ export default class LunarEmpowerment extends DDBEnricherData {
           script: "",
         },
       },
-       {
+      {
         name: "New Moon",
         activityMatch: "New Moon",
         changes: [
-          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode")
+          DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.skills.ste.roll.mode"),
         ],
       },
       {
@@ -131,7 +131,7 @@ export default class LunarEmpowerment extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.damageResistanceChange("necrotic"),
         ],
-      }
+      },
     ];
     if (DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
       effects.push({

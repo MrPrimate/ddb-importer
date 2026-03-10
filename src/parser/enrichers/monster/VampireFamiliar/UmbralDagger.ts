@@ -21,7 +21,7 @@ export default class UmbralDagger extends DDBEnricherData {
         overrides: {
           targetType: "creature",
           activationType: "special",
-          activationCondition: "Target reduced to 0 HP"
+          activationCondition: "Target reduced to 0 HP",
         },
       },
     ];

@@ -41,7 +41,7 @@ global {
       activity?: string[];
       effect?: string[];
     };
-     level?: {
+    level?: {
       min: number | null;
       max: number | null;
     };
@@ -102,7 +102,7 @@ global {
     };
     duration?: I5eActivityDuration;
     effects?: I5eActivityEffect[];
-     flags?: {
+    flags?: {
       ddbimporter?: {
         isElixirAdditionalActivity?: boolean;
       };

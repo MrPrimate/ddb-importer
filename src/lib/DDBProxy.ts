@@ -19,7 +19,7 @@ const DDBProxy = {
   },
 
   getDynamicProxy: (): string => {
-    if (CONFIG.DDBI.DEV.enabled) return utils.getSetting<string>( "dynamic-api-endpoint");
+    if (CONFIG.DDBI.DEV.enabled) return utils.getSetting<string>("dynamic-api-endpoint");
     else return SETTINGS.URLS.DYNAMIC;
   },
 

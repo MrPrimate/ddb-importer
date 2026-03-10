@@ -12,7 +12,7 @@ export default class DemonArmor extends DDBEnricherData {
         restrictions: {
           type: "weapon",
         },
-      }
+      },
     };
   }
 

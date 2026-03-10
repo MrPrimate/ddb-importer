@@ -21,7 +21,7 @@ export default class BeadOfForce extends DDBEnricherData {
           durationRounds: 10,
           durationSeconds: 60,
         },
-      }
+      },
     ];
   }
 

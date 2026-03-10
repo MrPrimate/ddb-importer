@@ -118,7 +118,7 @@ export default class DDBDataUtils {
             ) {
               activity.attack.bonus = toHitBonus;
             } else if (existingBonus) {
-                activity.attack.bonus += ` + ${toHitBonus}`;
+              activity.attack.bonus += ` + ${toHitBonus}`;
             } else {
               foundry.utils.setProperty(activity, "attack.bonus", toHitBonus);
             }
@@ -705,7 +705,7 @@ export default class DDBDataUtils {
   }
 
 
-  static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses ): I5eSystemLimitedUses {
+  static getLimitedUses({ data, description = "", scaleValue = null } : IDDBDataUtilsLimitedUses): I5eSystemLimitedUses {
     let resetType: IResetType | undefined;
 
     if (foundry.utils.hasProperty(data, "resetType")) {

@@ -703,7 +703,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       const uuid = this.handler.compendiumIndex.find((e) => e._id === elixir._id)?.uuid
         ?? this.handler.compendiumIndex.find((e) =>
           foundry.utils.getProperty(e, "name") === elixir.name
-          && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === elixir.flags?.ddbimporter?.is2014
+          && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === elixir.flags?.ddbimporter?.is2014,
         )?.uuid;
       if (!uuid) continue;
       updates.push({ name: elixir.name.split(":").pop().trim(), uuid });

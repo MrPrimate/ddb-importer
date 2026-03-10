@@ -436,7 +436,7 @@ global {
       reaction?: boolean;
       reactionsUsed?: number;
       reactionsMax?: number;
-      reactionsReset?: "eachTurn"| "onTurnStart" | "rest" | "never"; // When reactions reset default: onTurnStart
+      reactionsReset?: "eachTurn" | "onTurnStart" | "rest" | "never"; // When reactions reset default: onTurnStart
       action?: boolean;
       bonus?: boolean;
       bonusActionsUsed?: number;

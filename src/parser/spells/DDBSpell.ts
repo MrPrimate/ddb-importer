@@ -59,7 +59,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   flagData: IParseSpellFlagData;
   limitedUse: I5eSystemLimitedUses | null;
   lookup: ParseSpellLookup;
-  classPrepMode: ISpellPreparationMode;;
+  classPrepMode: ISpellPreparationMode; ;
   rawCharacter: I5ePCData;
   healingParts: SpellHealingPart[];
 
@@ -1074,7 +1074,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   static async parseSpell(data: IDDBSpellEntry, character,
     {
       namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null,
-      unPreparedCantrip = null, noSpellcasting = false, flagData = {}
+      unPreparedCantrip = null, noSpellcasting = false, flagData = {},
     } = {},
   ) {
     const spell = new DDBSpell({

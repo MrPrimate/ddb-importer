@@ -1052,7 +1052,7 @@ const SETTINGS = {
           "munching-policy-muncher-included-source-categories": {
             type: Array,
             // 2014 core/expanded and 2024 core/expanded only enabled by default
-            default: [1,24,26,38],
+            default: [1, 24, 26, 38],
           },
           "munching-policy-muncher-monster-types": {
             type: Array,
