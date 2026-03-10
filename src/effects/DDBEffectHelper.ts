@@ -839,7 +839,7 @@ export default class DDBEffectHelper {
 
   /**
    * Gets actor size value.
-   * @param {Actor5e} actor actor for which to get the size value.
+   * @param {Actor.Implementation} actor actor for which to get the size value.
    * @returns {number} the numeric value of the specified actor's size.
    */
   static getActorSizeValue(actor) {

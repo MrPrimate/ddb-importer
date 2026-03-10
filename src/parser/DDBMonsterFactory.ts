@@ -15,7 +15,6 @@ import { SETTINGS } from "../config/_module";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
-import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 
 export default class DDBMonsterFactory {
@@ -36,13 +35,13 @@ export default class DDBMonsterFactory {
   totalDocuments: number;
   source: IDDBMonsterSourceData[];
   npcs: I5eMonsterData[];
-  monstersParsed: Actor5e[];
+  monstersParsed: Actor.Implementation[];
 
   static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
   }
 
-  static defaultFetchOptions(ids, searchTerm = null) {
+  static defaultFetchOptions(ids: number[], searchTerm: string | null = null) {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
     const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
@@ -120,7 +119,7 @@ export default class DDBMonsterFactory {
    * @returns {Promise<object[]>} a promise that resolves with an array of monsters
    */
   async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] }: { ids?: number[] | number; searchTerm?: string; sources?: string[]; homebrew?: boolean; homebrewOnly?: boolean; exactMatch?: boolean; excludeLegacy?: boolean; excludedCategories?: number[]; monsterTypes?: number[] } = {},
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] }: { ids?: number[] | number; searchTerm?: string; sources?: number[]; homebrew?: boolean; homebrewOnly?: boolean; exactMatch?: boolean; excludeLegacy?: boolean; excludedCategories?: number[]; monsterTypes?: number[] } = {},
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
@@ -393,7 +392,7 @@ export default class DDBMonsterFactory {
    * @returns {Promise<number|Array>} If ids is null, returns the total number of monsters processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed monster documents
    */
-  async processIntoCompendium(ids: any[] = null, searchTerm: string = null): Promise<number | any[]> {
+  async processIntoCompendium(ids: number[] = null, searchTerm: string = null): Promise<number | any[]> {
 
     logger.time("Monster Import Time");
     await this.#prepareImporter();

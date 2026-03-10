@@ -1,6 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
+import { IDDBListCampaign } from "../../lib/DDBCampaigns";
 
 interface IDDBIMacros {
   spell: Record<string, any>;
@@ -85,6 +86,7 @@ export interface IDDBIConfig {
   NO_MULTIATTACK_DETAILS?: Record<string, any>[];
   MULTIATTACK_MATCHES?: Set<string>[];
   MULTIATTACK_MATCHES_DETAILS?: Record<string, any>[];
+  CAMPAIGNS?: IDDBListCampaign[] | null;
 }
 
 if (!(CONFIG as any).DDBI) {

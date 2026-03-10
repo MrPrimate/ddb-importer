@@ -103,7 +103,7 @@ export default class DDBMuleHandler {
   async _loadCharacterIntoFoundryWorld(ddbCharacter: DDBCharacter) {
     if (!CONFIG.DDBI.DEV.downloadFinalActorJSON) return;
     try {
-      const actor = await Actor.create({
+      const characterData = {
         name: "New Actor",
         type: "character",
         folder: this.folder,
@@ -115,7 +115,9 @@ export default class DDBMuleHandler {
             },
           },
         },
-      });
+      };
+      // @ts-expect-error - 5e types error - wants more fields, but not needed
+      const actor: Actor.Implementation = await Actor.create(characterData) as Actor.Implementation;
       const actorData = actor.toObject();
       ddbCharacter.currentActor = actor;
       const importer = new DDBCharacterImporter({

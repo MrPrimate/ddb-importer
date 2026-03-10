@@ -706,7 +706,7 @@ global {
   interface I5eClassSpellcasting {
     progression?: "full" | "half" | "third" | "pact" | "artificer" | null;
     preparation?: {
-      formula?: string;[];
+      formula?: string;
     };
     ability?: "str" | "dex" | "con" | "int" | "wis" | "cha" | null;
   }

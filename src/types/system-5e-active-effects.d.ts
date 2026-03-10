@@ -89,6 +89,9 @@ global {
       };
       ddbimporter?: {
         disabled?: boolean;
+        characterEffect?: boolean;
+        entityTypeId?: string | null;
+        itemId?: string | null;
         activityRiders?: string[];
         effectRiders?: string[];
         effectIdLevel?: {

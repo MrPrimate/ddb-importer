@@ -38,7 +38,7 @@ export function getActorConditionStates(actor, ddb: IDDBData, keepLocal = false)
           needsAdd: ddbCondition && !conditionApplied,
           needsRemove: !ddbCondition && conditionApplied && !keepLocal,
           needsUpdate: (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal),
-        }
+        },
       ) as DDBConditionState;
       return conditionState;
     });
@@ -47,7 +47,7 @@ export function getActorConditionStates(actor, ddb: IDDBData, keepLocal = false)
 
 /**
  * Syncs the conditions between the actor and DDB
- * @param {Actor5e} actor the actor to sync
+ * @param {Actor.Implementation} actor the actor to sync
  * @param {object} ddb the DDB data
  * @param {boolean} [keepLocal=false] if true, will not remove conditions that are not in DDB
  * @returns {Promise<void>}

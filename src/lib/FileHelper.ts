@@ -3,36 +3,24 @@ import { SETTINGS } from "../config/_module";
 
 const FPClass = foundry.applications.apps.FilePicker.implementation;
 
+interface ParsedDirectory {
+  activeSource: string;
+  bucket: string | null;
+  current: string;
+  fullPath?: string;
+}
+
 export class FileHelper {
 
   static BAD_DIRS = ["[data]", "[data] ", "", null];
 
-  static removeFileExtension(name) {
+  static removeFileExtension(name: string): string {
     const nameArray = name.split(".");
     nameArray.pop();
     return nameArray.join(".");
   }
 
-  /**
-   * Read data from a user provided File object
-   * @param {File} file           A File object
-   * @returns {Promise.<>}   A Promise which resolves to the loaded text data
-   */
-  static readBlobFromFile(file) {
-    const reader = new FileReader();
-    return new Promise((resolve, reject) => {
-      reader.onload = () => {
-        resolve(reader.result);
-      };
-      reader.onerror = () => {
-        reader.abort();
-        reject();
-      };
-      reader.readAsBinaryString(file);
-    });
-  }
-
-  static download(content, fileName, contentType) {
+  static download(content: any, fileName: string, contentType: string) {
     const a = document.createElement("a");
     const file = new Blob([content], { type: contentType });
     a.href = URL.createObjectURL(file);
@@ -87,12 +75,14 @@ export class FileHelper {
     try {
       const fileList = await FPClass.browse(parsedDir.activeSource, parsedDir.current, {
         bucket: parsedDir.bucket,
+        // @ts-expect-error no types for this option --- IGNORE ---
         recursive: true,
       });
       FileHelper.fileExistsUpdate(parsedDir, fileList.files);
       FileHelper.dirExistsUpdate(fileList.dirs);
       // lets do some forge fun because
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
+        // @ts-expect-error bazaar is not in types --- IGNORE ---
         if (fileList.bazaar) {
           CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath] = {};
           fileList.files.forEach((file) => {
@@ -114,7 +104,7 @@ export class FileHelper {
 
   }
 
-  static async generateCurrentFiles(directoryPath) {
+  static async generateCurrentFiles(directoryPath: string): Promise<void> {
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
       logger.verbose(`Checking for files in directoryPath ${directoryPath}...`);
       const dir = FileHelper.parseDirectory(directoryPath);
@@ -125,7 +115,7 @@ export class FileHelper {
     }
   }
 
-  static async fileExists(directoryPath, filename) {
+  static async fileExists(directoryPath: string, filename: string): Promise<boolean> {
     const fileRef = `${directoryPath}/${filename}`;
     const existingFile = CONFIG.DDBI.KNOWN.FILES.has(fileRef);
     if (existingFile) return true;
@@ -148,7 +138,7 @@ export class FileHelper {
     return filePresent;
   }
 
-  static async convertImageToWebp(file, filename) {
+  static async convertImageToWebp(file, filename): Promise<BlobPart> {
     logger.info(`Converting file ${filename} to webp`);
 
     // Load the data into an image
@@ -161,12 +151,12 @@ export class FileHelper {
 
       rawImage.src = URL.createObjectURL(file);
     })
-      .then((rawImage) => {
+      .then((rawImage: HTMLImageElement) => {
         // Convert image to webp ObjectURL via a canvas blob
         return new Promise((resolve) => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-          const quality = game.settings.get(SETTINGS.MODULE_ID, "webp-quality");
+          const quality = utils.getSetting<number>("webp-quality");
 
           canvas.width = rawImage.width;
           canvas.height = rawImage.height;
@@ -176,14 +166,14 @@ export class FileHelper {
             resolve(blob);
           }, "image/webp", quality);
         });
-      }).then((blob) => {
+      }).then((blob: Blob) => {
         return blob;
       });
 
     return result;
   }
 
-  static async uploadFile(data, path, filename, forceWebp = false) {
+  static async uploadFile(data, path, filename, forceWebp = false): Promise<FilePicker.UploadReturn> {
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
     const file = new File([data], filename, { type: data.type });
     const imageType = data.type.startsWith("image") && data.type !== "image/webp";
@@ -195,10 +185,11 @@ export class FileHelper {
     return result;
   }
 
-  static async uploadImage(data, path, filename, forceWebp = false) {
+  static async uploadImage(data, path: string, filename: string, forceWebp = false): Promise<string> {
     return new Promise((resolve, reject) => {
       FileHelper.uploadFile(data, path, filename, forceWebp)
         .then((result) => {
+          // @ts-expect-error yes it does
           resolve(result.path);
         })
         .catch((error) => {
@@ -208,7 +199,7 @@ export class FileHelper {
     });
   }
 
-  static async downloadImage(url) {
+  static async downloadImage(url: string): Promise<Blob> {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: "GET",
@@ -227,19 +218,19 @@ export class FileHelper {
     });
   }
 
-  static async uploadRemoteImage(originalUrl, targetDirectory, baseFilename, useProxy = true) {
+  static async uploadRemoteImage(originalUrl: string, targetDirectory: string, baseFilename: string, useProxy = true): Promise<string> {
     // prepare filenames
     const filename = baseFilename;
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    const useWebP = utils.getSetting<boolean>("use-webp");
     const ext = useWebP
       ? "webp"
       : originalUrl
         .split(".")
         .pop()
         .split(/#|\?|&/)[0];
-    const urlEncode = game.settings.get(SETTINGS.MODULE_ID, "cors-encode");
-    const stripProtocol = game.settings.get(SETTINGS.MODULE_ID, "cors-strip-protocol");
-    const corsPathPrefix = game.settings.get(SETTINGS.MODULE_ID, "cors-path-prefix");
+    const urlEncode = utils.getSetting<boolean>("cors-encode");
+    const stripProtocol = utils.getSetting<boolean>("cors-strip-protocol");
+    const corsPathPrefix = utils.getSetting<string>("cors-path-prefix");
     let url = originalUrl.split("?")[0];
 
     try {
@@ -261,7 +252,7 @@ export class FileHelper {
     }
   }
 
-  static async getForgeUrl(directoryPath, filename) {
+  static async getForgeUrl(directoryPath: string, filename: string): Promise<string> {
     let uri;
     if (!CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(directoryPath)) {
       await FileHelper.generateCurrentFiles(directoryPath);
@@ -288,7 +279,7 @@ export class FileHelper {
     return uri;
   }
 
-  static async getFileUrl(directoryPath, filename) {
+  static async getFileUrl(directoryPath: string, filename: string): Promise<string> {
     let uri;
     try {
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
@@ -466,7 +457,7 @@ export class FileHelper {
     return FPClass.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
   }
 
-  static parseDirectory(str) {
+  static parseDirectory(str: string): ParsedDirectory {
     // parses the string back to something the FilePicker can understand as an option
     const matches = str.match(/\[(.+)\]\s*(.+)/);
     if (matches) {
@@ -497,10 +488,10 @@ export class FileHelper {
     };
   }
 
-  static formatDirectoryPath(data) {
+  static formatDirectoryPath(data: ParsedDirectory): string {
     return data.bucket !== null && data.bucket !== ""
-      ? `[${data.activeSource}:${data.bucket}] ${data.path ?? data.current ?? ""}`
-      : `[${data.activeSource}] ${data.path ?? data.current ?? ""}`;
+      ? `[${data.activeSource}:${data.bucket}] ${data.current ?? ""}`
+      : `[${data.activeSource}] ${data.current ?? ""}`;
   }
 
 };

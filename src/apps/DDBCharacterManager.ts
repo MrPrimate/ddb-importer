@@ -5,6 +5,7 @@ import {
   MuncherSettings,
   PatreonHelper,
   Secrets,
+  utils,
 } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { updateDDBCharacter } from "../updater/character";
@@ -15,21 +16,24 @@ import DDBAppV2, { IDDBTabs } from "./DDBAppV2";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 import DDBDebugger from "./DDBDebugger";
 import DDBKeyChangeDialog from "./DDBKeyChangeDialog";
-import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 
 export default class DDBCharacterManager extends DDBAppV2 {
-  actor: Actor5e;
+  actor: Actor.Implementation;
   actorOriginal: I5ePCData;
   characterImporter: DDBCharacterImporter;
   ddbCharacter: DDBCharacter;
   private _debugContext: any;
   importSettings: ICharacterImportSettings;
+  dmSyncEnabled: boolean;
+  playerSyncEnabled: boolean;
 
-  constructor(actor: Actor5e | I5ePCData, ddbCharacter: DDBCharacter = null) {
+  constructor(actor: Actor.Implementation | I5ePCData, ddbCharacter: DDBCharacter = null) {
     super();
-    this.actor = game.actors.get(actor._id) as Actor5e;
-    this.actorOriginal = foundry.utils.duplicate(this.actor);
+    // @ts-expect-error - 5e types error
+    this.actor = game.actors.get(actor._id) as Actor.Implementation;
+    // I5ePCData is our own type definition
+    this.actorOriginal = foundry.utils.duplicate(this.actor) as unknown as I5ePCData;
     logger.debug("Current Actor (Original):", this.actorOriginal);
     this.result = {};
     this.settings = {};
@@ -243,16 +247,16 @@ export default class DDBCharacterManager extends DDBAppV2 {
       ? (await PatreonHelper.isValidKey(true, false))
       : true;
 
-    const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
-    const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
+    const trustedUsersOnly = utils.getSetting<boolean>("restrict-to-trusted");
+    const allowAllSync = utils.getSetting<boolean>("allow-all-sync");
     const syncOnly = trustedUsersOnly && allowAllSync && !game.user.isTrusted;
 
     const localCobalt = Secrets.isLocalCobalt(this.actor.id);
     const cobaltCookie = Secrets.getCobalt(this.actor.id);
     const cobaltSet = localCobalt && cobaltCookie && cobaltCookie != "";
 
-    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
-    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    const dynamicSync = utils.getSetting<boolean>("dynamic-sync");
+    const updateUser = utils.getSetting<string>("dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
     const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
@@ -498,7 +502,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         this.close();
       } else {
         this.showCurrentTask(this.ddbCharacter.source.message, { message: null, isError: true });
-        return false;
+        return;
       }
     } catch (error) {
       switch (error.message) {
@@ -514,12 +518,12 @@ export default class DDBCharacterManager extends DDBAppV2 {
           this.showCurrentTask("Error processing Character: " + error, { message: error, isError: true });
           break;
       }
-      return false;
+      return;
     } finally {
       delete CONFIG.DDBI.keyPostfix;
       delete CONFIG.DDBI.useLocal;
     }
-    return true;
+    return;
   }
 
   static async importCharacterClickEvent(_event, _target) {
@@ -547,14 +551,14 @@ export default class DDBCharacterManager extends DDBAppV2 {
           logger.error("Failure", { ddbCharacter: this.ddbCharacter, result: this.result });
           break;
       }
-      return false;
+      return;
     } finally {
       delete CONFIG.DDBI.keyPostfix;
       delete CONFIG.DDBI.useLocal;
     }
 
     this.element.querySelector("#dndbeyond-character-import-start").disabled = false;
-    return true;
+    return;
   }
 
   static openDebug(_event, _target) {

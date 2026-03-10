@@ -187,11 +187,11 @@ export default class DDBItemImporter {
 
   static updateMatchingItems(oldItems, newItems,
     { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {},
-  ) {
+  ): I5ePCItem[] | I5eMonsterItem[] {
     const results = [];
 
     for (const newItem of newItems) {
-      let item = foundry.utils.duplicate(newItem);
+      let item: I5ePCItem = foundry.utils.duplicate(newItem);
       const compendiumIdMatch = oldItems.find((oldItem) =>
         item._id
         && foundry.utils.getProperty(oldItem, "flags.ddbimporter.compendiumId") == item._id,
@@ -213,7 +213,10 @@ export default class DDBItemImporter {
           const mergedFlags = foundry.utils.mergeObject(item.flags.ddbimporter, match.flags.ddbimporter);
           foundry.utils.setProperty(item, "flags.ddbimporter", mergedFlags);
         }
-        if (!item.flags.monsterMunch && match.flags.monsterMunch) {
+        if ("monsterMunch" in match.flags
+          && !foundry.utils.hasProperty(item, "flags.monsterMunch")
+          && match.flags.monsterMunch
+        ) {
           foundry.utils.setProperty(item, "flags.monsterMunch", match.flags.monsterMunch);
         }
         foundry.utils.setProperty(item, "flags.ddbimporter.originalItemName", match.name);

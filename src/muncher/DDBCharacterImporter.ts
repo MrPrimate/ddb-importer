@@ -8,30 +8,57 @@ import {
   DDBMacros,
 } from "../lib/_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import DDBCharacter from "../parser/DDBCharacter";
+import DDBCharacter, { IDDBCharacterDataStub } from "../parser/DDBCharacter";
 import { DDBDataUtils } from "../parser/lib/_module";
-import { abilityOverrideEffects } from "../effects/abilityOverrides";
+import { abilityOverrideEffect } from "../effects/abilityOverrides";
 import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions";
 import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module";
-import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 import { NotifierV1Props } from "../apps/DDBAppV2";
+
+interface IDDBCharacterImporter {
+  actorId: string;
+  ddbCharacter?: DDBCharacter | null;
+  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+}
 
 export default class DDBCharacterImporter {
 
-  actor: Actor5e;
+  actor: Actor.Implementation;
+  actorOriginal: I5ePCData | null;
   ddbCharacter: DDBCharacter;
-  notifier: (title: any, { message, isError }: NotifierV1Props) => void;
-  settings: Record<string, any>;
+  notifier: (title: any, { message, isError }?: NotifierV1Props) => void;
+  settings: {
+    updatePolicyName: boolean;
+    updatePolicyHP: boolean;
+    updatePolicyHitDie: boolean;
+    updatePolicyCurrency: boolean;
+    updatePolicyBio: boolean;
+    updatePolicyXP: boolean;
+    updatePolicySpellUse: boolean;
+    updatePolicyLanguages: boolean;
+    updatePolicyImage: boolean;
+    activeEffectCopy: boolean;
+    addCharacterEffects: boolean;
+    ignoreNonDDBItems: boolean;
+    useExistingCompendiumItems: boolean;
+    useOverrideCompendiumItems: boolean;
+    useChrisPremades: boolean;
+    midiConfig: any;
+  };
+  nonMatchedItemIds: string[];
+  result: IDDBCharacterDataStub;
+  effectBackup: IEffectData[];
+  importId: string;
 
-  constructor({ actorId, ddbCharacter = null, notifier } = {}) {
-    this.actor = game.actors.get(actorId) as Actor5e;
+  constructor({ actorId, ddbCharacter = null, notifier }: IDDBCharacterImporter) {
+    this.actor = game.actors.get(actorId) as Actor.Implementation;
     this.migrateMetadata();
-    this.actorOriginal = foundry.utils.duplicate(this.actor);
+    // I5ePCData is our own type definition
+    this.actorOriginal = foundry.utils.duplicate(this.actor) as unknown as I5ePCData;
     logger.debug("Current Actor (Original):", this.actorOriginal);
-    this.result = {};
     this.nonMatchedItemIds = [];
-    this.settings = {};
+    this.getSettings();
     this.ddbCharacter = ddbCharacter;
     this.notifier = notifier;
 
@@ -220,9 +247,7 @@ export default class DDBCharacterImporter {
 
     logger.debug("Removing the following character items", toRemove);
     if (toRemove.length > 0) {
-      await this.actor.deleteEmbeddedDocuments("Item", toRemove, {
-        itemsWithSpells5e: { alsoDeleteChildSpells: false },
-      });
+      await this.actor.deleteEmbeddedDocuments("Item", toRemove);
     }
     return toRemove;
   }
@@ -233,7 +258,7 @@ export default class DDBCharacterImporter {
     // updating the image?
     let imagePath = this.actor.img;
     const decorations = data.character.decorations;
-    const userHasPermission = !(game.settings.get("ddb-importer", "restrict-to-trusted") && !game.user.isTrusted);
+    const userHasPermission = !(utils.getSetting<boolean>("restrict-to-trusted") && !game.user.isTrusted);
     if (
       userHasPermission
       && decorations?.avatarUrl
@@ -245,7 +270,7 @@ export default class DDBCharacterImporter {
       this.notifier("Uploading avatar image");
       const filename = utils.referenceNameString(`${data.character.id}-${data.character.name}`);
 
-      const uploadDirectory = game.settings.get("ddb-importer", "image-upload-directory").replace(/^\/|\/$/g, "");
+      const uploadDirectory = utils.getSetting<string>("image-upload-directory").replace(/^\/|\/$/g, "");
       imagePath = await FileHelper.uploadRemoteImage(decorations.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
       if (decorations?.frameAvatarUrl && decorations.frameAvatarUrl !== "") {
@@ -263,8 +288,9 @@ export default class DDBCharacterImporter {
       foundry.utils.setProperty(this.result.character, "prototypeToken.texture.src", this.actorOriginal.prototypeToken.texture.src);
       foundry.utils.setProperty(this.result.character, "prototypeToken.texture.scaleX", this.actorOriginal.prototypeToken.texture.scaleX);
       foundry.utils.setProperty(this.result.character, "prototypeToken.texture.scaleY", this.actorOriginal.prototypeToken.texture.scaleY);
-      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.width", this.actorOriginal.prototypeToken.texture.width);
-      foundry.utils.setProperty(this.result.character, "prototypeToken.texture.height", this.actorOriginal.prototypeToken.texture.height);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.width", this.actorOriginal.prototypeToken.width);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.height", this.actorOriginal.prototypeToken.height);
+      foundry.utils.setProperty(this.result.character, "prototypeToken.ring", this.actorOriginal.prototypeToken.ring);
     }
   }
 
@@ -284,18 +310,18 @@ export default class DDBCharacterImporter {
       }
 
       const iconizerSettings = {
-        ddbItem: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-item-icons"),
-        inBuilt: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-inbuilt-icons"),
-        srdIcons: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons"),
-        ddbSpell: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-spell-icons"),
-        ddbGenericItem: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-ddb-generic-item-icons"),
+        ddbItem: utils.getSetting<boolean>("character-update-policy-use-ddb-item-icons"),
+        inBuilt: utils.getSetting<boolean>("character-update-policy-use-inbuilt-icons"),
+        srdIcons: utils.getSetting<boolean>("character-update-policy-use-srd-icons"),
+        ddbSpell: utils.getSetting<boolean>("character-update-policy-use-ddb-spell-icons"),
+        ddbGenericItem: utils.getSetting<boolean>("character-update-policy-use-ddb-generic-item-icons"),
         excludeCheck: true,
       };
 
       items = await Iconizer.updateIcons({
         settings: iconizerSettings,
         documents: items,
-        srdIconUpdate: game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-srd-icons"),
+        srdIconUpdate: utils.getSetting<boolean>("character-update-policy-use-srd-icons"),
       });
     }
 
@@ -319,7 +345,12 @@ ${item.system.description.chat}
   }
 
   async createCharacterItems(items, keepIds) {
-    const options = foundry.utils.duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
+    const options: {
+      keepId?: boolean;
+      applyFeatures?: boolean;
+      addFeatures?: boolean;
+      promptAddFeatures?: boolean;
+    } = foundry.utils.duplicate(SETTINGS.DISABLE_FOUNDRY_UPGRADE);
     if (keepIds) options["keepId"] = true;
 
     // we have to break these out into class and non-class because of
@@ -384,13 +415,15 @@ ${item.system.description.chat}
     const label = CompendiumHelper.getCompendiumLabel("custom");
     const compendium = CompendiumHelper.getCompendium(label);
 
-    const compendiumItems = await Promise.all(overrideItems
-      .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.overrideId") && compendium.index.has(item.flags.ddbimporter.overrideId))
+    const compendiumItems: I5ePCItem[] = await Promise.all(overrideItems
+      .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.overrideId")
+        && compendium.index.has(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string))
       .map(async (item) => {
-        const compendiumItem = foundry.utils.duplicate(await compendium.getDocument(item.flags.ddbimporter.overrideId));
+        const doc = await compendium.getDocument(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string);
+        const compendiumItem = foundry.utils.duplicate(doc);
         foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
         if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {
-          foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", item.flags.ddbimporter.overrideItem);
+          foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", foundry.utils.getProperty(item, "flags.ddbimporter.overrideItem"));
         } else {
           foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", {
             name: item.name,
@@ -410,13 +443,13 @@ ${item.system.description.chat}
       overrideId: true,
       linkItemFlags: true,
     };
-    const remappedItems = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
+    const remappedItems: I5ePCItem[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
 
     return remappedItems;
   }
 
-  static restoreDDBMatchedFlags(existingItem, item) {
-    const ddbItemFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter");
+  static restoreDDBMatchedFlags(existingItem: I5ePCItem, item: I5ePCItem) {
+    const ddbItemFlags = foundry.utils.getProperty(existingItem, "flags.ddbimporter") as IDDBImporterFlags;
     logger.debug(`Item flags for ${existingItem.name}`, ddbItemFlags);
     // we retain some flags that might change the nature of the import for this item
     // these flags are used elsewhere
@@ -444,32 +477,38 @@ ${item.system.description.chat}
       }
       if (foundry.utils.getProperty(ddbItemFlags, "retainResourceConsumption") ?? false) {
         logger.debug(`Retaining resources for ${item.name}`);
-        for (const [key, activity] of Object.entries(item.system.activities)) {
-          const original = foundry.utils.getProperty(existingItem.system.activities[key]);
-          if (original) {
-            activity.consumption = original.consumption;
-            item.system.activities[key] = activity;
+        if ("activities" in item.system && "activities" in existingItem.system) {
+          for (const [key, activity] of Object.entries(item.system.activities)) {
+            const original = existingItem.system.activities[key];
+            if (original) {
+              activity.consumption = original.consumption;
+              item.system.activities[key] = activity;
+            }
           }
         }
-        item.system.uses.recovery = foundry.utils.deepClone(existingItem.system.uses.recovery);
+        if (foundry.utils.hasProperty(existingItem.system, "uses") && foundry.utils.hasProperty(item.system, "uses")) {
+          item.system.uses.recovery = foundry.utils.deepClone(existingItem.system.uses.recovery);
+        }
         item.flags.ddbimporter.retainResourceConsumption = true;
         if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e") ?? false) {
           foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
         }
       }
-      if (foundry.utils.getProperty(ddbItemFlags, "retainUseSpent") ?? false) {
-        item.system.uses.spent = foundry.utils.deepClone(existingItem.system.uses.spent);
+      if (foundry.utils.hasProperty(existingItem.system, "uses") && foundry.utils.hasProperty(item.system, "uses")) {
+        if (foundry.utils.getProperty(ddbItemFlags, "retainUseSpent") ?? false) {
+          item.system.uses.spent = foundry.utils.deepClone(existingItem.system.uses.spent);
+        }
       }
     }
     if (foundry.utils.getProperty(ddbItemFlags, "ddbCustomAdded") ?? false) {
-      item.system = foundry.utils.deepClone(existingItem.system);
-      item.type = foundry.utils.deepClone(existingItem.type);
+      item.system = foundry.utils.deepClone(existingItem.system) as any;
+      item.type = foundry.utils.deepClone(existingItem.type) as any;
     }
     return item;
   }
 
   // checks for existing items, and depending on options will keep or replace with imported item
-  async mergeExistingItems(items) {
+  async mergeExistingItems(items: I5ePCItem[]) {
     if (this.actorOriginal.flags.ddbimporter) {
       const ownedItems = this.actor.getEmbeddedCollection("Item");
 
@@ -483,7 +522,7 @@ ${item.system.description.chat}
         if (existingItem) {
           // we use flags on the item to determine if we keep various properties
           // NOW IS THE TIME!
-          item = DDBCharacterImporter.restoreDDBMatchedFlags(existingItem, item);
+          item = DDBCharacterImporter.restoreDDBMatchedFlags(existingItem as unknown as I5ePCItem, item);
           // we can now determine if we are going to ignore this item or not,
           // this effectively filters out the items we don't want and they don't
           // get returned from this function
@@ -623,10 +662,10 @@ ${item.system.description.chat}
   }
 
   async preActiveEffects() {
-    this.effectBackup = foundry.utils.duplicate(this.actor.effects);
+    this.effectBackup = foundry.utils.duplicate(this.actor.effects) as unknown as IEffectData[];
     for (const e of this.effectBackup) {
       if (e.origin?.includes(".Item.")) {
-        const parent = await fromUuid(e.origin);
+        const parent: I5ePCItem | undefined = await fromUuid(e.origin) as unknown as I5ePCItem;
         logger.debug("Effect Backup flags", { e, parent });
         if (parent) foundry.utils.setProperty(e, "flags.ddbimporter.type", parent.type);
       }
@@ -666,7 +705,7 @@ ${item.system.description.chat}
     const charEffects = this.effectBackup.filter((ae) =>
       !ignoredItemIds.some((id) => ae._id === id)
       && !ae.flags.ddbimporter?.characterEffect
-      && !ae.statuses.length > 0
+      && !(ae.statuses.length > 0)
       && !ae.origin?.includes(".Item."),
     );
     // effects that are added by the ddb importer that are not item effects
@@ -717,7 +756,7 @@ ${item.system.description.chat}
 
   fixUpCharacterEffects() {
     // if (!CONFIG.ActiveEffect.legacyTransferral) return;
-    const abilityOverrides = abilityOverrideEffects(this.result.character.flags.ddbimporter.dndbeyond.abilityOverrides);
+    const abilityOverrides = abilityOverrideEffect(this.result.character.flags.ddbimporter.dndbeyond.abilityOverrides);
     if (abilityOverrides.changes.length > 0) {
       this.result.character.effects = this.result.character.effects.concat(abilityOverrides);
     }
@@ -749,29 +788,29 @@ ${item.system.description.chat}
   async resetActor() {
     await this.actor.deleteEmbeddedDocuments("Item", [], {
       deleteAll: true,
-      itemsWithSpells5e: { alsoDeleteChildSpells: false },
     });
     await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    // @ts-expect-error - not as UpdateData
     await this.actor.update(this.actorOriginal, { recursive: true, keepId: true });
   }
 
   getSettings() {
     this.settings = {
-      updatePolicyName: game.settings.get("ddb-importer", "character-update-policy-name"),
-      updatePolicyHP: game.settings.get("ddb-importer", "character-update-policy-hp"),
-      updatePolicyHitDie: game.settings.get("ddb-importer", "character-update-policy-hit-die"),
-      updatePolicyCurrency: game.settings.get("ddb-importer", "character-update-policy-currency"),
-      updatePolicyBio: game.settings.get("ddb-importer", "character-update-policy-bio"),
-      updatePolicyXP: game.settings.get("ddb-importer", "character-update-policy-xp"),
-      updatePolicySpellUse: game.settings.get("ddb-importer", "character-update-policy-spell-use"),
-      updatePolicyLanguages: game.settings.get("ddb-importer", "character-update-policy-languages"),
-      updatePolicyImage: game.settings.get("ddb-importer", "character-update-policy-image"),
-      activeEffectCopy: game.settings.get("ddb-importer", "character-update-policy-active-effect-copy"),
-      addCharacterEffects: game.settings.get("ddb-importer", "character-update-policy-add-midi-effects"),
-      ignoreNonDDBItems: game.settings.get("ddb-importer", "character-update-policy-ignore-non-ddb-items"),
-      useExistingCompendiumItems: false, // game.settings.get("ddb-importer", "character-update-policy-use-existing"),
-      useOverrideCompendiumItems: game.settings.get("ddb-importer", "character-update-policy-use-override"),
-      useChrisPremades: game.settings.get("ddb-importer", "character-update-policy-use-chris-premades")
+      updatePolicyName: utils.getSetting<boolean>("character-update-policy-name"),
+      updatePolicyHP: utils.getSetting<boolean>("character-update-policy-hp"),
+      updatePolicyHitDie: utils.getSetting<boolean>("character-update-policy-hit-die"),
+      updatePolicyCurrency: utils.getSetting<boolean>("character-update-policy-currency"),
+      updatePolicyBio: utils.getSetting<boolean>("character-update-policy-bio"),
+      updatePolicyXP: utils.getSetting<boolean>("character-update-policy-xp"),
+      updatePolicySpellUse: utils.getSetting<boolean>("character-update-policy-spell-use"),
+      updatePolicyLanguages: utils.getSetting<boolean>("character-update-policy-languages"),
+      updatePolicyImage: utils.getSetting<boolean>("character-update-policy-image"),
+      activeEffectCopy: utils.getSetting<boolean>("character-update-policy-active-effect-copy"),
+      addCharacterEffects: utils.getSetting<boolean>("character-update-policy-add-midi-effects"),
+      ignoreNonDDBItems: utils.getSetting<boolean>("character-update-policy-ignore-non-ddb-items"),
+      useExistingCompendiumItems: false, // utils.getSetting<boolean>("character-update-policy-use-existing"),
+      useOverrideCompendiumItems: utils.getSetting<boolean>("character-update-policy-use-override"),
+      useChrisPremades: utils.getSetting<boolean>("character-update-policy-use-chris-premades")
         && (game.modules.get("chris-premades")?.active ?? false),
       midiConfig: game.modules.get("midi-qol")?.active
         ? foundry.utils.deepClone(game.settings.get("midi-qol", "ConfigSettings"))
@@ -791,6 +830,7 @@ ${item.system.description.chat}
     }
 
     await this.actor.update({
+      // @ts-expect-error - this is allowed
       "system.attributes.hp": hp,
     });
   }
@@ -801,6 +841,7 @@ ${item.system.description.chat}
     hp.bonuses.overall = `${hp.bonuses.overall ?? 0} + 1`;
     hp.value += 1;
     await this.actor.update({
+      // @ts-expect-error - this is allowed
       "system.attributes.hp": hp,
     });
   }
@@ -870,11 +911,10 @@ ${item.system.description.chat}
         this.result.character.system.details.xp = this.actorOriginal.system.details.xp;
       }
       if (!this.settings.updatePolicyHitDie) {
-        this.result.character.system.attributes.hd = this.actorOriginal.system.attributes.hd;
         this.result.classes = this.result.classes.map((klass) => {
-          const originalKlass = this.actorOriginal.items.find(
+          const originalKlass: I5eClassItem = this.actorOriginal.items.find(
             (original) => original.name === klass.name && original.type === "class",
-          );
+          ) as I5eClassItem;
           if (originalKlass) {
             klass.system.hd.spent = originalKlass.system.hd.spent;
           }
@@ -897,7 +937,7 @@ ${item.system.description.chat}
         this.result.character.system.traits.languages = this.actorOriginal.system.traits.languages;
       }
       // if resource mode is in disable and not asking, then we use the previous resources
-      const resourceFlags = foundry.utils.getProperty(this.result.character, "flags.ddbimporter.resources");
+      const resourceFlags = foundry.utils.getProperty(this.result.character, "flags.ddbimporter.resources") as IDDBImporterFlagsResources;
       if (resourceFlags.type === "disable") {
         this.result.character.system.resources = foundry.utils.duplicate(this.actorOriginal.system.resources);
       }
@@ -929,6 +969,7 @@ ${item.system.description.chat}
       // basic import
       this.notifier("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
+      // @ts-expect-error - not as UpdateData
       await this.actor.update(this.result.character);
 
       // copy existing journal
@@ -950,10 +991,10 @@ ${item.system.description.chat}
           if (previousEffectDiff) return true;
           return false;
         });
-        const updatedEffects = targetEffects.map((ae) => {
+        const updatedEffects: IEffectData[] = targetEffects.map((ae) => {
           return { _id: ae._id, disabled: !ae.disabled };
         });
-        await this.actor.updateEmbeddedDocuments("ActiveEffect", updatedEffects);
+        await this.actor.updateEmbeddedDocuments("ActiveEffect", updatedEffects as unknown as any);
       }
 
       const favorites = foundry.utils.deepClone(this.actorOriginal.system.favorites ?? []);
@@ -1003,7 +1044,7 @@ ${item.system.description.chat}
   }
 
 
-  async importCharacter({ characterId } = {}) {
+  async importCharacter({ characterId }: { characterId?: string }) {
 
     try {
       this.notifier("Getting Character data");

@@ -1,11 +1,21 @@
-import { logger, DDBProxy, PatreonHelper, Secrets } from "./_module";
+import { logger, DDBProxy, PatreonHelper, Secrets, utils } from "./_module";
+
+export interface IDDBListCampaign {
+  id: number;
+  name: string;
+  dmUsername: string;
+  dateCreated: string;
+  playerCount: number;
+  dmId: number;
+  selected?: boolean;
+};
 
 
 export default class DDBCampaigns {
 
 
-  static getCampaignId(notifier = null) {
-    const campaignId = game.settings.get("ddb-importer", "campaign-id").split("/").pop();
+  static getCampaignId(notifier = null): string {
+    const campaignId = utils.getSetting<string>("campaign-id").split("/").pop();
 
     if (campaignId && campaignId !== "" && !Number.isInteger(parseInt(campaignId))) {
       if (notifier) notifier(`Campaign Id is invalid! Set to "${campaignId}", using empty string`, { nameField: true });
@@ -19,7 +29,7 @@ export default class DDBCampaigns {
     return campaignId;
   }
 
-  static getDDBCampaigns(cobalt = null) {
+  static getDDBCampaigns(cobalt: string | null = null): Promise<IDDBListCampaign[]> {
     const cobaltCookie = cobalt ? cobalt : Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
@@ -37,7 +47,7 @@ export default class DDBCampaigns {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            resolve(data.data);
+            resolve(data.data as IDDBListCampaign[]);
           } else {
             logger.error(`Campaign fetch failed, got the following message: ${data.message}`, data);
             resolve([]);
@@ -74,6 +84,9 @@ export default class DDBCampaigns {
             id: campaignId,
             name: "Unable to fetch campaigns, showing only selected",
             dmUsername: campaignId,
+            dateCreated: null,
+            playerCount: null,
+            dmId: null,
           },
         ];
       }
@@ -82,7 +95,7 @@ export default class DDBCampaigns {
     }
 
     CONFIG.DDBI.CAMPAIGNS.forEach((campaign) => {
-      const selected = parseInt(campaign.id) === parseInt(campaignId);
+      const selected = parseInt(String(campaign.id)) === parseInt(campaignId);
       campaign.selected = selected;
     });
 

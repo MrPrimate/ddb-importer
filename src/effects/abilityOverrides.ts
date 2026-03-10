@@ -1,8 +1,8 @@
 import { DICTIONARY } from "../config/_module";
 import { generateOverrideChange } from "./effects";
 
-function buildBaseOverrideEffect(label) {
-  const effect = {
+function buildBaseOverrideEffect(label): IEffectData {
+  const effect: IEffectData = {
     changes: [],
     duration: {
       seconds: null,
@@ -16,7 +16,6 @@ function buildBaseOverrideEffect(label) {
     tint: "",
     disabled: false,
     transfer: true,
-    selectedKey: [],
     img: "icons/svg/anchor.svg",
     flags: {
       dae: { transfer: true },
@@ -28,13 +27,13 @@ function buildBaseOverrideEffect(label) {
 }
 
 
-export function abilityOverrideEffects(overrides) {
-  const effects = buildBaseOverrideEffect("Ability Overrides");
+export function abilityOverrideEffect(overrides): IEffectData {
+  const effect = buildBaseOverrideEffect("Ability Overrides");
 
   DICTIONARY.actor.abilities.forEach((ability) => {
     if (overrides[ability.value] === 0) return;
-    effects.changes.push(generateOverrideChange(overrides[ability.value], 50, `system.abilities.${ability.value}.value`));
+    effect.changes.push(generateOverrideChange(overrides[ability.value], 50, `system.abilities.${ability.value}.value`));
   });
 
-  return effects;
+  return effect;
 }

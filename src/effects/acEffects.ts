@@ -9,8 +9,8 @@ import { addAddBonusChanges } from "./effects";
 // // bracers of defence
 // { type: "bonus", subType: "unarmored-armor-class" },
 
-function buildBaseACEffect(name) {
-  const effect = {
+function buildBaseACEffect(name: string): IEffectData {
+  const effect: IEffectData = {
     name,
     changes: [],
     duration: {
@@ -25,7 +25,6 @@ function buildBaseACEffect(name) {
     tint: "",
     disabled: true,
     transfer: true,
-    selectedKey: [],
     img: "icons/svg/shield.svg",
   };
   return effect;

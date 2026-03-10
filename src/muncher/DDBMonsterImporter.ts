@@ -7,10 +7,9 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
-import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 export default class DDBMonsterImporter {
-  compendiumActor: Actor5e | null;
+  compendiumActor: Actor.Implementation | null;
   itemImporter: DDBItemImporter;
   type: string;
   fullWipe: boolean;

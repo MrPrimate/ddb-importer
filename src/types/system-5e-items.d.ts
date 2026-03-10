@@ -58,7 +58,7 @@ global {
      | "warhammer"
      | "whip";
 
-    // ---- Item flag sub-types --------------------------------------------------
+  // ---- Item flag sub-types --------------------------------------------------
 
   interface I5eMonsterMunchItemFlags {
     titleHTML: string;
@@ -457,7 +457,7 @@ global {
 
   // ---- Item union ---------------------------------------------------
 
-    export type I5eInventoryItem =
+  export type I5eInventoryItem =
     | I5eWeaponItem
     | I5eEquipmentItem
     | I5eContainerItem

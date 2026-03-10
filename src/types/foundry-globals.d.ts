@@ -13,6 +13,17 @@ export {};
 
 declare global {
 
+  // Bridge dnd5e DataModelConfig registrations to the global interface.
+  // The dnd5e types augment "fvtt-types/configuration" which doesn't reach
+  // the global DataModelConfig from @league-of-foundry-developers/foundry-vtt-types.
+  interface DataModelConfig {
+    Actor: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.Actor>;
+    Item: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.Item>;
+    ActiveEffect: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.ActiveEffect>;
+    ChatMessage: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.ChatMessage>;
+    JournalEntryPage: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.Journal>;
+  }
+
   type IndexTypeForMetadata<Type extends CompendiumCollection.DocumentName> = foundry.utils.Collection<CompendiumCollection.IndexEntry<Type>>;
 
   // interface IndexTypeForMetadata<Type extends CompendiumCollection.DocumentName> extends foundry.utils.Collection<CompendiumCollection.IndexEntry<Type>> {

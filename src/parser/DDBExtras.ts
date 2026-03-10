@@ -59,7 +59,6 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
     },
     tint: "",
     disabled: false,
-    selectedKey: [],
     name: "Beast Companion Effects",
   };
   DICTIONARY.actor.abilities.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
@@ -69,7 +68,6 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
       value: characterProficiencyBonus,
       priority: 20,
     };
-    effect.selectedKey.push(`data.abilities.${ability.value}.save`);
     effect.changes.push(boost);
   });
   DICTIONARY.actor.skills.filter((skill) => extra.system.skills[skill.name].prof >= 1).forEach((skill) => {
@@ -79,14 +77,13 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
       value: characterProficiencyBonus,
       priority: 20,
     };
-    effect.selectedKey.push(`data.skills.${skill.name}.mod`);
     effect.changes.push(boost);
   });
   extra.effects = [effect];
   return extra;
 }
 
-function generateArtificerDamageEffect(actor, extra) {
+function generateArtificerDamageEffect(actor, extra): IEffectData {
   // artificer uses the actors spell attack bonus, so is a bit trickier
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
   extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
@@ -116,7 +113,6 @@ function generateArtificerDamageEffect(actor, extra) {
     },
     tint: "",
     disabled: false,
-    selectedKey: [],
     name: "Artificer Extra Effects",
   };
   extra.effects = [effect];

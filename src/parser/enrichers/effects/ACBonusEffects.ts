@@ -4,8 +4,8 @@ import ChangeHelper from "./ChangeHelper";
 
 export default class ACBonusEffects {
 
-  static ACEffect(name) {
-    const effect = {
+  static ACEffect(name: string): IEffectData {
+    const effect: IEffectData = {
       name,
       changes: [],
       duration: {
@@ -20,7 +20,6 @@ export default class ACBonusEffects {
       tint: "",
       disabled: true,
       transfer: true,
-      selectedKey: [],
       img: "icons/svg/shield.svg",
     };
     return effect;

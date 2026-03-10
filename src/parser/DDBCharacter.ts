@@ -18,6 +18,7 @@ import {
   DDBDataUtils,
 } from "./lib/_module";
 import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
+import DDBRace from "./race/DDBRace";
 
 /** A single computed AC option from the armor calculation. */
 export interface IDDBACValue {
@@ -98,8 +99,8 @@ export interface ResourceChoices {
 }
 
 export interface DDBCharacterImportOptions {
-  currentActor?: Actor;
-  characterId?: string;
+  currentActor?: Actor.Implementation | null;
+  characterId?: string | null;
   selectResources?: boolean;
   enableCompanions?: boolean;
   isMuncher?: boolean;
@@ -213,6 +214,18 @@ interface DDBCharacter {
   autoLinkConsumption(): Promise<void>;
 }
 
+export interface IDDBCharacterDataStub {
+  character: I5ePCData;
+  features: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem)[];
+  race: I5eRaceItem;
+  classes: I5eClassItem[];
+  inventory: (I5eWeaponItem | I5eEquipmentItem | I5eContainerItem | I5eToolItem)[];
+  spells: I5eSpellItem[];
+  actions: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem)[];
+  itemSpells: I5eSpellItem[];
+}
+
+
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 class DDBCharacter {
 
@@ -221,20 +234,11 @@ class DDBCharacter {
   forceCompendiumUpdate: boolean;
   addToCompendiums: boolean;
   characterId: string;
-  currentActor: Actor;
+  currentActor: Actor.Implementation | null;
   currentActorId: string | null;
   selectResources: boolean;
   resourceChoices: ResourceChoices;
-  raw: {
-    character: I5ePCData;
-    features: (I5eFeatItem | I5eWeaponItem| I5eEquipmentItem)[];
-    race: I5eRaceItem;
-    classes: I5eClassItem[];
-    inventory: (I5eWeaponItem | I5eEquipmentItem | I5eContainerItem | I5eToolItem)[];
-    spells: I5eSpellItem[];
-    actions: (I5eFeatItem | I5eWeaponItem| I5eEquipmentItem)[];
-    itemSpells: I5eSpellItem[];
-  };
+  raw: IDDBCharacterDataStub;
   abilities: {
     overrides:  Record<string, number>;
     core: I5eAbilities;
@@ -255,16 +259,8 @@ class DDBCharacter {
   _infusionFactory: DDBInfusionFactory;
   _characterFeatureFactory: CharacterFeatureFactory;
   _classParser: CharacterClassFactory;
-  data: {
-    character: I5ePCData;
-    features: (I5eFeatItem | I5eWeaponItem| I5eEquipmentItem)[];
-    race: I5eRaceItem;
-    classes: I5eClassItem[];
-    inventory: (I5eWeaponItem | I5eEquipmentItem | I5eContainerItem | I5eToolItem)[];
-    spells: I5eSpellItem[];
-    actions: (I5eFeatItem | I5eWeaponItem| I5eEquipmentItem)[];
-    itemSpells: I5eSpellItem[];
-  };
+  _ddbRace: DDBRace;
+  data: IDDBCharacterDataStub;
   matchedFeatures: Item5e[];
   resources: I5ePCResources;
   spellSlots: I5eSpellSlots;
@@ -338,6 +334,7 @@ class DDBCharacter {
     this.armor = {};
 
     this.matchedFeatures = [];
+    // @ts-expect-error - circular error in 5e types
     this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.isMuncher = isMuncher;
@@ -538,16 +535,7 @@ class DDBCharacter {
       await this._addFeatureFactoryDocuments();
 
       // generate data stub to link
-      this.data = foundry.utils.duplicate({
-        character: this.raw.character,
-        features: this.raw.features,
-        race: this.raw.race,
-        classes: this.raw.classes,
-        inventory: this.raw.inventory,
-        spells: this.raw.spells,
-        actions: this.raw.actions,
-        itemSpells: this.raw.itemSpells,
-      });
+      this.data = foundry.utils.duplicate(this.raw) as unknown as IDDBCharacterDataStub;
 
       // regenerate classes now we have generated features in compendium
       if (this.addToCompendiums) {
@@ -681,16 +669,16 @@ class DDBCharacter {
         item.type === "container"
         && foundry.utils.hasProperty(item, "flags.ddbimporter.id")
         && foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-        && parseInt(item.flags.ddbimporter.containerEntityId) === parseInt(this.source.ddb.character.id)
+        && parseInt(String(item.flags.ddbimporter.containerEntityId)) === parseInt(String(this.source.ddb.character.id))
         && !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport"),
       );
 
     this.data.inventory.forEach((item) => {
       if (foundry.utils.hasProperty(item, "flags.ddbimporter.containerEntityId")
-        && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(this.source.ddb.character.id)
+        && parseInt(String(item.flags.ddbimporter.containerEntityId)) !== parseInt(String(this.source.ddb.character.id))
       ) {
         const containerItem = containerItems.find((container) =>
-          parseInt(container.flags.ddbimporter.id) === parseInt(item.flags.ddbimporter.containerEntityId),
+          parseInt(String(container.flags.ddbimporter.id)) === parseInt(String(item.flags.ddbimporter.containerEntityId)),
         );
         if (containerItem) {
           foundry.utils.setProperty(item, "system.container", containerItem._id);
