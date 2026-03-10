@@ -820,15 +820,12 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const excludedCategories = MuncherSettings.getExcludedCategoriesLookup();
     const bookSources = MuncherSettings.getSourcesLookups();
 
-    const selectedSources = MuncherSettings.getSourcesLookups().map((source) => {
-      const data = foundry.utils.deepClone(source);
-      if (source.selected) {
-        data.selected = "selected";
-      } else {
-        data.selected = "";
-      }
-      return data;
-    });
+    const selectedSources = MuncherSettings.getSourcesLookups().map((source) => ({
+      id: source.id,
+      label: source.label,
+      acronym: source.acronym,
+      selected: source.selected ? "selected" : "",
+    }));
 
     const monsterTypes = MuncherSettings.getMonsterTypeLookups();
 
@@ -920,7 +917,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     return resultData;
   },
 
-  getEncounterSettings: () => {
+  getEncounterSettings: (): IEncounterSettings => {
     const encounterConfig: ISettingsPolicyExpandedItem[] = [
       {
         name: "encounter-import-policy-missing-characters",
@@ -988,7 +985,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     return encounterSettings;
   },
 
-  getSourcesLookups: (overrideSelected = null) => {
+  getSourcesLookups: (overrideSelected = null): IIdLabelBoolAcronymLookup[] => {
     const selected = (overrideSelected ?? DDBSources.getSelectedSourceIds()).map((id) => parseInt(id));
     const selections = DDBSources.getDisplaySources()
       .map((source) => {
@@ -1006,7 +1003,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
-  getMonsterTypeLookups: () => {
+  getMonsterTypeLookups: (): IIdLabelSelectedLookup[] => {
     const chosenMonsterTypeIds = DDBSources.getSelectedMonsterTypeIds();
     const monsterTypes = CONFIG.DDB.monsterTypes;
 
@@ -1022,7 +1019,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
-  getExcludedCategoriesLookup: () => {
+  getExcludedCategoriesLookup: (): IIdLabelSelectedLookup[] => {
     const excludedCatIds = DDBSources.getExcludedCategoryIds();
     const availableCats = DDBSources.getDisplaySourceCategories();
 
@@ -1038,7 +1035,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
-  getIncludedCategoriesLookup: () => {
+  getIncludedCategoriesLookup: (): IIdLabelSelectedLookup[] => {
     const includedCatIds = DDBSources.getIncludedCategoryIds();
     const availableCats = DDBSources.getDisplaySourceCategories();
 
@@ -1054,12 +1051,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     });
   },
 
-  updateMuncherSettings: async (_html, event) => {
-    const selection = event.target.dataset.section;
-    const checked = event.target.checked;
+  updateMuncherSettings: async (_html: string, event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const selection = target.dataset.section;
+    const checked = target.checked;
     logger.debug(`Updating ${selection} to ${checked}`);
 
-    await game.settings.set(SETTINGS.MODULE_ID, selection, checked);
+    await game.settings.set(SETTINGS.MODULE_ID, selection as any, checked);
 
     switch (selection) {
       case "encounter-import-policy-create-scene": {
@@ -1205,9 +1203,9 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const disableUse = !tiers.experimentalMid;
     const useClassFilter = disableUse
       ? false
-      : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter");
+      : utils.getSetting<boolean>("munching-policy-character-use-class-filter");
 
-    const muleURL = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-url");
+    const muleURL = utils.getSetting<string>("munching-policy-character-url");
     const result = {
       characterSourceConfig: [
         {
@@ -1226,8 +1224,8 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     if (disableUse) return result;
 
     const classes = await DDBMuleHandler.getList("class", []);
-    const selectedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")
-      .map((id) => parseInt(id));
+    const selectedClassIds = utils.getSetting<number[]>("munching-policy-character-classes")
+      .map((id) => parseInt(String(id)));
 
     result.selectedClasses = classes
       .map((klass) => {

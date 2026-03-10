@@ -607,7 +607,7 @@ export default class DDBMuleHandler {
   // Life domain parsing errors
   // Light domain parsing errors
 
-  static async getList(type, sources) {
+  static async getList(type: string, sources: number[] | null = null) {
     const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, `MULE_LISTS.${type}.${sources ? sources.join("_") : "all"}`);
     if (cacheHit) {
       return cacheHit;

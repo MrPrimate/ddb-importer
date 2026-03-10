@@ -32,11 +32,11 @@ declare global {
     selected: boolean;
   }
 
-  interface ISourceLookup extends ISelectedSource {
+  interface IIdLabelBoolAcronymLookup extends IIdLabelAcronymLookup {
     selected: boolean;
   }
 
-  interface ISelectedSource extends IIdLabelSelectedLookup {
+  interface IIdLabelAcronymLookup extends IIdLabelSelectedLookup {
     acronym: string;
   }
 
@@ -49,11 +49,11 @@ declare global {
   interface IMuncherSettings {
     characterMunch: boolean;
     adventureOptions: ISettingsPolicyExpandedItem[];
-    bookSources: ISourceLookup[];
+    bookSources: IIdLabelBoolAcronymLookup[];
     cobalt: boolean;
     genericConfig: ISettingsPolicyExpandedItem[];
     sourceConfig: ISettingsPolicyExpandedItem[];
-    selectedSources: ISelectedSource[];
+    selectedSources: IIdLabelAcronymLookup[];
     monsterTypes: IIdLabelSelectedLookup[];
     includedCategories: IIdLabelSelectedLookup[];
     excludedCategories: IIdLabelSelectedLookup[];
@@ -77,6 +77,14 @@ declare global {
     version: string;
     campaignId: string;
     isCampaign: string | boolean;
+  }
+
+  interface IEncounterSettings {
+    encounterConfig: ISettingsPolicyExpandedItem[];
+    scenes: { name: string; id: string }[];
+    sceneImg: { name: string; img: string }[];
+    createSceneSelect: boolean;
+    existingSceneSelect: boolean;
   }
 
   interface ICharacterImportSettings {
