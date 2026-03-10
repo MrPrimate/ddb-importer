@@ -999,7 +999,7 @@ ${item.system.description.chat}
 
       const favorites = foundry.utils.deepClone(this.actorOriginal.system.favorites ?? []);
       if (favorites.length > 0) {
-        await this.actor.update({ system: { favorites } });
+        await this.actor.update({ system: { favorites } } as any);
       }
 
       this.notifier(`Consumption linking...`);
@@ -1060,7 +1060,7 @@ ${item.system.description.chat}
         localCobaltPostFix: this.actor.id,
       };
       CONFIG.DDBI.keyPostfix = this.actor.id;
-      CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+      CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") as boolean | undefined ?? false;
       this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
       await this.ddbCharacter.getCharacterData(getOptions);
       logger.debug("import.js getCharacterData result", this.ddbCharacter);
@@ -1074,6 +1074,7 @@ ${item.system.description.chat}
         this.notifier("Loading Character data", { message: "Done." });
         logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
       } else {
+        // @ts-expect-error - there will be a message here if success is false, but we need to check for it first
         this.notifier(this.ddbCharacter.source.message, { message: null, isError: true });
         return false;
       }
@@ -1100,8 +1101,7 @@ ${item.system.description.chat}
     return true;
   }
 
-
-  static async importCharacter({ actor, notifier } = {}) {
+  static async importCharacter({ actor, notifier } : { actor: Actor.Implementation; notifier: (title: any, { message, isError }?: NotifierV1Props) => void }) {
     try {
       const actorData = actor.toObject();
       const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
@@ -1137,6 +1137,7 @@ ${item.system.description.chat}
         logger.info("Loading Character data");
         return true;
       } else {
+        // @ts-expect-error - there will be a message here if success is false, but we need to check for it first
         logger.error("Error Loading Character data", { message: ddbCharacter.source.message, ddbCharacter });
         return false;
       }
@@ -1158,7 +1159,7 @@ ${item.system.description.chat}
   }
 
   static async importCharacterById(characterId, notifier, folderId = null) {
-    const actor = await Actor.create({
+    const createData = {
       name: "New Actor",
       type: "character",
       folder: folderId,
@@ -1170,7 +1171,9 @@ ${item.system.description.chat}
           },
         },
       },
-    });
+    };
+    // @ts-expect-error - not as I5ePCData
+    const actor = await Actor.create(createData);
 
     const result = await DDBCharacterImporter.importCharacter({ actor, notifier });
     return result;

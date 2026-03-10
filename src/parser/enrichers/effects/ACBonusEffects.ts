@@ -25,8 +25,8 @@ export default class ACBonusEffects {
     return effect;
   }
 
-  static addAddBonusChanges(modifiers, name, type, key) {
-    const changes = [];
+  static addAddBonusChanges(modifiers: IDDBModifier[], name: string, type: string, key: string): IActiveEffectChangeData[] {
+    const changes: IActiveEffectChangeData[] = [];
     // const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, name, type, "bonus");
     if (bonus) {
@@ -36,7 +36,7 @@ export default class ACBonusEffects {
     return changes;
   }
 
-  static addACBonusEffect(modifiers, name, subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
+  static addACBonusEffect(modifiers: IDDBModifier[], name: string, subType: string, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]): IActiveEffectChangeData[] {
     const bonusModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", subType, restrictions);
     const changes = ACBonusEffects.addAddBonusChanges(bonusModifiers, name, subType, "system.attributes.ac.bonus");
     if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
@@ -44,7 +44,7 @@ export default class ACBonusEffects {
     return changes;
   }
 
-  static generateBonusACEffect(modifiers, label, subType, restrictions = [], alwaysActive = true) {
+  static generateBonusACEffect(modifiers: IDDBModifier[], label: string, subType: string, restrictions: string[] = [], alwaysActive = true): IEffectData {
     const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {
@@ -72,7 +72,7 @@ export default class ACBonusEffects {
    * @param {number} mode
    * @returns {object} effect
    */
-  static generateFixedACEffect(formula, label, alwaysActive = false, priority = 30, mode = CONST.ACTIVE_EFFECT_MODES.OVERRIDE) {
+  static generateFixedACEffect(formula: string, label: string, alwaysActive = false, priority = 30, mode: number = CONST.ACTIVE_EFFECT_MODES.OVERRIDE): IEffectData {
     const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {

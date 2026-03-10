@@ -2,6 +2,10 @@ import { DICTIONARY } from "../../config/_module";
 import { utils } from "../../lib/_module";
 import DDBModifiers from "./DDBModifiers";
 
+interface IProficiencyBasic {
+  name: string;
+}
+
 export default class ProficiencyFinder {
 
   ddb: IDDBData | null;
@@ -40,7 +44,7 @@ export default class ProficiencyFinder {
     return customProfs;
   }
 
-  getArmorProficiencies(proficiencyArray) {
+  getArmorProficiencies(proficiencyArray: IProficiencyBasic[]) {
     const values = new Set();
     const custom = [];
 
@@ -75,7 +79,7 @@ export default class ProficiencyFinder {
     };
   }
 
-  getToolProficiencies(proficiencyArray) {
+  getToolProficiencies(proficiencyArray: IProficiencyBasic[]) {
     const results = {};
 
     // lookup the characters's proficiencies in the DICT
@@ -165,7 +169,7 @@ export default class ProficiencyFinder {
     // }
   }
 
-  getWeaponProficiencies(proficiencyArray, masteriesArray = []) {
+  getWeaponProficiencies(proficiencyArray: IProficiencyBasic[], masteriesArray = []) {
     const values = new Set();
     const custom = [];
     const masteries = [];
@@ -225,7 +229,7 @@ export default class ProficiencyFinder {
    * @param {string} [options.key] key of language to match
    * @returns {string|null} key of matched language, or null if no match
    */
-  static getMappedLanguage({ name = null, key = null } = {}) {
+  static getMappedLanguage({ name = null, key = null }: { name?: string | null; key?: string | null }): string | null {
 
     // Quick name Match
     if (name) {
@@ -245,21 +249,21 @@ export default class ProficiencyFinder {
 
     // final fallback, does the key not match the generated key, check name match
     for (const [k, v] of Object.entries(CONFIG.DND5E.languages.ddb.children)) {
-      if (utils.nameString(v) === utils.nameString(name)) return k;
+      if (utils.nameString(v.label) === utils.nameString(name)) return k;
     }
     // must be a custom language, return null
     return null;
 
   }
 
-  getLanguagesFromModifiers(modifiers) {
-    const languages = new Set();
-    const custom = new Set();
+  getLanguagesFromModifiers(modifiers: IDDBModifier[]) {
+    const languages = new Set<string>();
+    const custom = new Set<string>();
 
     modifiers
       .filter((mod) => mod.type === "language")
       .forEach((language) => {
-        const result = ProficiencyFinder.getMappedLanguage({ name: language.friendlySubtypeName, key: language.value });
+        const result = ProficiencyFinder.getMappedLanguage({ name: language.friendlySubtypeName, key: String(language.value) });
         if (result) {
           languages.add(result);
         } else if (language.friendlySubtypeName !== "Choose a Language") {
@@ -298,7 +302,7 @@ export default class ProficiencyFinder {
     };
   }
 
-  getSkillProficiency(skill, modifiers = null) {
+  getSkillProficiency(skill, modifiers: IDDBModifier[] | null = null) {
     if (!modifiers && !this.ddb) return false;
     if (!modifiers) {
       modifiers = DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true });

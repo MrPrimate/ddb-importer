@@ -1,10 +1,14 @@
-import DDBCharacter from "../parser/DDBCharacter";
+import type DDBCharacter from "../parser/DDBCharacter";
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 export {};
 
-global {
-
+// Bridge custom hooks into the configuration HookConfig.
+// fvtt-types resolves HookName = keyof HookConfig.HookConfig where HookConfig
+// is `import { Hooks as HookConfig } from "#configuration"`. The Hooks namespace
+// comes from `export * as Hooks from "./hooks.mjs"` in configuration/index.d.mts.
+// We augment the source module so the interface merge reaches the correct type.
+declare module "fvtt-types/configuration" {
   namespace Hooks {
     interface HookConfig {
       "dae.addSpecialDurations": (daeSpecialDurations: Record<string, string>) => void;
@@ -67,19 +71,18 @@ global {
       "midi-qol.targeted": (targets: Set<Token.Implementation> | undefined) => void;
       "midi-qol.dependentsRegistryChanged": (event: RegistryChangeEvent) => void;
       "midi-qol-setup-wizard.launch": () => void;
-      "getHeaderControlsActivitySheet": (app: foundry.applications.api.Application /* dnd5e.applications.activity.activitySheet */ , buttons: any[]) => void;
+      "getHeaderControlsActivitySheet": (app: foundry.applications.api.Application /* dnd5e.applications.activity.activitySheet */, buttons: any[]) => void;
       "tidy5e-sheet.ready": (api: any) => void;
       "simplecover5eReady": () => void;
       // ddb importer
-      "ddb-importer.monsterAddToCompendiumComplete": [data: { actor: Actor5e | null }];
-      "ddb-importer.spellsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
-      "ddb-importer.classCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
-      "ddb-importer.spellsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
-      "ddb-importer.summonsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
-      "ddb-importer.featuresCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
-      "ddb-importer.vehiclesCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
-      "ddb-importer.itemsCompendiumUpdateComplete": [data: { results: Item5e[] | null }];
-      "ddb-importer.characterProcessDataComplete": [data: { actor: Actor5e | null; ddbCharacter: DDBCharacter }];
+      "ddb-importer.monsterAddToCompendiumComplete": (data: { actor: Actor.Implementation | null }) => void;
+      "ddb-importer.spellsCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
+      "ddb-importer.classCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
+      "ddb-importer.summonsCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
+      "ddb-importer.featuresCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
+      "ddb-importer.vehiclesCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
+      "ddb-importer.itemsCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
+      "ddb-importer.characterProcessDataComplete": (data: { actor: Actor.Implementation; ddbCharacter: DDBCharacter }) => void;
     }
   }
 }

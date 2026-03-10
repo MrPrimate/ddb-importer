@@ -5,11 +5,23 @@ import MidiEffects from "./MidiEffects";
 import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module";
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
-import { DDBCharacterData } from "../../../types/ddb-character-source";
+
+interface IEffectGenerator {
+  ddb: IDDBCharacterData;
+  character: I5eActorData;
+  ddbItem: IDDBInventoryItem | IDDBClassFeature | IDDBBackground | IDDBRacialTrait | IDDBFeat;
+  document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
+  isCompendiumItem: boolean;
+  labelOverride: string | null;
+  labelSuffix: string;
+  type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
+  description: string;
+  separateACEffects: boolean;
+}
 
 export default class EffectGenerator {
   effect: IEffectData;
-  ddb: DDBCharacterData;
+  ddb: IDDBCharacterData;
   character: I5eActorData;
   document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
   proficiencyFinder: ProficiencyFinder;
@@ -43,7 +55,7 @@ export default class EffectGenerator {
   constructor({
     ddb, character, ddbItem, document, isCompendiumItem, labelOverride, labelSuffix = "", type, description = "",
     separateACEffects,
-  } = {}) {
+  }: IEffectGenerator) {
     this.ddb = ddb;
     this.type = type;
     this.character = character;
@@ -59,7 +71,9 @@ export default class EffectGenerator {
     }
 
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.isCompendiumItem ? null : this.ddb, excludeCustom: true });
-    this.grantedModifiers = ddbItem.definition?.grantedModifiers;
+    if ("grantedModifiers" in ddbItem.definition) {
+      this.grantedModifiers = ddbItem.definition.grantedModifiers;
+    }
 
     if (this.grantedModifiers && type === "item") {
       this.grantedModifiers = this.grantedModifiers.filter((modifier) =>

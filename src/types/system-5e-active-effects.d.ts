@@ -86,6 +86,7 @@ global {
         transfer?: boolean;
         stackable?: string;
         specialDuration?: DAESpecialDuration[];
+        armorEffect?: boolean;
       };
       ddbimporter?: {
         disabled?: boolean;

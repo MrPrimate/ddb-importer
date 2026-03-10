@@ -18,7 +18,7 @@ global {
     diceString: string;
   }
 
-    // ---- Source info (shared by classes, races, backgrounds) -------------------
+  // ---- Source info (shared by classes, races, backgrounds) -------------------
 
   export interface IDDBSource {
     sourceId: number;
@@ -26,7 +26,7 @@ global {
     sourceType: number;
   }
 
-    // ---- Modifiers ------------------------------------------------------------
+  // ---- Modifiers ------------------------------------------------------------
 
   export interface IDDBBaseModifier {
     id: string;
@@ -42,7 +42,7 @@ global {
     friendlySubtypeName: string;
     isGranted: boolean;
     bonusTypes: any[];
-    value: number | null;
+    value: string | number | null;
     fixedValue: number | null;
     availableToMulticlass: boolean | null;
     modifierTypeId: number;
