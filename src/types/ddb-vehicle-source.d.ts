@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------
 // DDB Vehicle Source Interfaces
 // Models the JSON returned by the DDB proxy API for vehicles.
-// Derived from 31 vehicle entries in diff/vehicles/ddb-vehicles-source-.json.
 // ---------------------------------------------------------------------------
 
 export {};

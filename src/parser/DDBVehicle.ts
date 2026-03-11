@@ -131,17 +131,32 @@ const MOVEMENT_ID = {
   5: "swim",
 };
 
+interface IDDBVehicle {
+  ddbVehicle: IDDBVehicleSourceData;
+  legacyName?: boolean;
+  addMonsterEffects?: boolean;
+  addChrisPremades?: boolean;
+}
 export default class DDBVehicle {
 
   static ACTION_THRESHOLDS = ACTION_THRESHOLDS;
-
   static SIZES = SIZES;
-
   static FLIGHT_IDS = FLIGHT_IDS;
-
   static MOVEMENT_DICT = MOVEMENT_DICT;
 
-  constructor({ ddbVehicle, legacyName = false, addMonsterEffects = false, addChrisPremades = false } = {}) {
+  source: IDDBVehicleSourceData;
+  configurations: Record<string, string | boolean>;
+  legacyName: boolean;
+  addMonsterEffects: boolean;
+  addChrisPremades: boolean;
+  primaryComponent: IDDBVehicleComponent;
+  mods: Record<string, number>;
+  legacy: boolean;
+  is2014: boolean;
+  is2024: boolean;
+
+
+  constructor({ ddbVehicle, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle) {
     this.source = ddbVehicle;
 
     this.configurations = {};
@@ -163,7 +178,7 @@ export default class DDBVehicle {
 
 
   #generateSource() {
-    let ddbSource = CONFIG.DDB.sources.find((cnf) => cnf.id == this.source.sourceId);
+    let ddbSource: IDDBConfigSource | undefined;
     const ddbSources = (this.source.sources ?? []).filter((s) => s.sourceType === 1);
     if (this.source.sources && ddbSources.length > 0) {
       const highestSource = ddbSources.reduce((prev, current) => {
@@ -174,7 +189,7 @@ export default class DDBVehicle {
 
     const source = {
       book: ddbSource ? ddbSource.name : "Homebrew",
-      page: this.source.sourcePageNumber ?? "",
+      page: "",
       custom: "",
       license: "",
       id: ddbSource ? ddbSource.id : 9999999,
@@ -183,15 +198,15 @@ export default class DDBVehicle {
 
     DDBSources.tweakSourceData(source);
 
-    this.data.system.source = source;
+    this.data.system.source = DDBSources.parseSource(this.source);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceId", source.id);
     foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceCategory", source.sourceCategoryId);
 
     this.legacy = CONFIG.DDB.sources.some((ds) =>
       DICTIONARY.sourceCategories.legacy.includes(ds.sourceCategoryId),
     );
-    const force2014 = DICTIONARY.source.is2014.includes(source.sourceId ?? source.id);
-    const force2024 = DICTIONARY.source.is2024.includes(source.sourceId ?? source.id);
+    const force2014 = DICTIONARY.source.is2014.includes(source.id);
+    const force2024 = DICTIONARY.source.is2024.includes(source.id);
     this.is2014 = force2014
       ? true
       : force2024
@@ -282,8 +297,8 @@ export default class DDBVehicle {
     foundry.utils.setProperty(this.data, "flags.dnd5e.showVehicleAbilities", true);
   }
 
-  getAbilityMods() {
-    const abilities = {};
+  getAbilityMods(): Record<string, number> {
+    const abilities: Record<string, number> = {};
 
     DICTIONARY.actor.abilities.forEach((ability) => {
       const value = this.source.stats.find((stat) => stat.id === ability.id)?.value || 10;
@@ -494,9 +509,10 @@ export default class DDBVehicle {
 
   #generateHitPoints() {
     // if we are using actor level HP apply
-    if ((!this.configurations.ECCR
-      || this.configurations.DT === "elemental-airship"
-    )
+    if (
+      (!this.configurations.ECCR
+      || ["spelljammer", "elemental-airship"].includes(String(this.configurations.DT))
+      )
       && this.primaryComponent
     ) {
       this.data.system.attributes.hp.value = this.primaryComponent.definition.hitPoints;
@@ -505,7 +521,7 @@ export default class DDBVehicle {
         this.data.system.attributes.hp.mt = this.primaryComponent.definition.mishapThreshold;
       }
       if ((!this.configurations.ECDT
-        || this.configurations.DT === "elemental-airship"
+        || ["spelljammer", "elemental-airship"].includes(String(this.configurations.DT))
       ) && Number.isInteger(this.primaryComponent.definition.damageThreshold)) {
         this.data.system.attributes.hp.dt = this.primaryComponent.definition.damageThreshold;
       }
@@ -696,5 +712,7 @@ export default class DDBVehicle {
 
     // finally check for existing actor
     this.data = await CompendiumHelper.existingActorCheck("vehicle", this.data);
+
+    logger.debug("Finished parsing vehicle", this);
   }
 }

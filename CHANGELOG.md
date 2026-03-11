@@ -13,6 +13,7 @@
 - Some improvements to auto generated advancement identifiers for class scale features, to reduce duplication of SRD identifiers with alternative names.
 - Some improvements to spell activities and advancements and detection of appropriate spells to place here for feats.
 - When you have Pact spells based casting and are granted spells that are available to cast via warlock spellcasting, say from Fiendish Legacy, these will now be marked as always prepared.
+- Some vehicles such as those from Spelljammer, did not parse HP correctly.
 
 # 6.6.54
 
