@@ -80,6 +80,12 @@ declare global {
     }
   }
 
+  interface I5eLanguageGroup {
+    label: string;
+    selectable?: boolean;
+    children?: Record<string, I5eLanguageGroup | string>;
+  }
+
   interface CONFIG extends CONFIG {
     DDBI: IDDBIConfig;
     // Temp, until we use dnd5e-types
@@ -97,14 +103,8 @@ declare global {
           value: number;
         };
       };
-      languages: Record<string, {
-        label: string;
-        children?: Record<string, {
-          label: string;
-          selectable?: boolean;
-          children?: Record<string, any>;
-        }>;
-      }>;
+      languages: Record<string, I5eLanguageGroup>;
+      weaponIds: Record<string, string>;
       featureTypes: any;
       spellScrollIds: Record<number, string>;
       conditionTypes: Record<string, {

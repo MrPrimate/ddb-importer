@@ -87,6 +87,7 @@ export interface IDDBIConfig {
   MULTIATTACK_MATCHES?: Set<string>[];
   MULTIATTACK_MATCHES_DETAILS?: Record<string, any>[];
   CAMPAIGNS?: IDDBListCampaign[] | null;
+  vehicleURL?: string;
 }
 
 if (!(CONFIG as any).DDBI) {

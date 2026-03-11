@@ -9,6 +9,7 @@ import {
   DDBSources,
   Iconizer,
   DDBCampaigns,
+  utils,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
@@ -16,13 +17,43 @@ import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import DDBVehicle from "./DDBVehicle";
 
+interface IDDBVehicleFactoryOptions {
+  extra?: boolean;
+  notifier?: (message: string, options?: { nameField?: boolean; monsterNote?: boolean }) => void;
+  forceUpdate?: boolean;
+  useLocalKey?: boolean;
+  keyPostfix?: string;
+};
+
+interface IFetchDDBVehicleSourceData {
+  ids?: number[];
+  searchTerm?: string;
+  sources?: number[];
+  homebrew?: boolean;
+  homebrewOnly?: boolean;
+  exactMatch?: boolean;
+  excludeLegacy?: boolean;
+  excludedCategories?: number[];
+};
 
 export default class DDBVehicleFactory {
+  extra: boolean;
+  keys: { useLocal: boolean; keyPostfix: string };
+  notifier: (message: string, options?: { nameField?: boolean; monsterNote?: boolean }) => void;
+  type: "vehicles";
+  compendiumFolders: DDBCompendiumFolders;
+  update: boolean;
+  updateImages: boolean;
+  addMonsterEffects: boolean;
+  uploadDirectory: string;
+  addChrisPremades: boolean;
+  totalDocuments: number;
+  currentDocument: number;
 
   constructor ({
     ddbData = null, extra = false, notifier = null, forceUpdate = null,
     useLocalKey = null, keyPostfix = null,
-  } = {}) {
+  }: IDDBVehicleFactoryOptions = {}) {
     this.extra = extra;
     this.keys = {
       useLocal: useLocalKey,
@@ -33,12 +64,12 @@ export default class DDBVehicleFactory {
     this.notifier = notifier ?? DDBVehicleFactory.#noteStub;
     this.type = "vehicles";
     this.compendiumFolders = new DDBCompendiumFolders("vehicles");
-    this.update = forceUpdate ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-    this.updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
-    this.uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+    this.update = forceUpdate ?? utils.getSetting<boolean>("munching-policy-update-existing");
+    this.updateImages = utils.getSetting<boolean>("munching-policy-update-images");
+    this.uploadDirectory = (utils.getSetting<string>("other-image-upload-directory")).replace(/^\/|\/$/g, "");
 
-    this.addMonsterEffects = game.settings.get("ddb-importer", "munching-policy-add-monster-midi-effects");
-    this.addChrisPremades = game.settings.get("ddb-importer", "munching-policy-use-chris-premades");
+    this.addMonsterEffects = utils.getSetting<boolean>("munching-policy-add-monster-midi-effects");
+    this.addChrisPremades = utils.getSetting<boolean>("munching-policy-use-chris-premades");
 
     this.currentDocument = 1;
     this.totalDocuments = 0;
@@ -96,7 +127,7 @@ export default class DDBVehicleFactory {
    * @returns {Promise<object[]>} a promise that resolves with an array of vehicles
    */
   async fetchDDBVehicleSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [] } = {},
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [] }: IFetchDDBVehicleSourceData,
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
@@ -109,7 +140,7 @@ export default class DDBVehicleFactory {
       cobalt: cobaltCookie,
       betaKey,
       campaignId,
-    };
+    } as Record<string, any>;
 
     if (ids && !Array.isArray(ids)) {
       ids = [ids];
@@ -128,7 +159,7 @@ export default class DDBVehicleFactory {
       body.excludedCategories = excludedCategories;
     }
 
-    const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+    const debugJson = utils.getSetting<boolean>("debug-json");
 
     const defaultUrl = ids && ids.length > 0
       ? `${parsingApi}/proxy/vehicles/ids`
@@ -162,6 +193,9 @@ export default class DDBVehicleFactory {
           return result.data;
         })
         .then((data) => {
+          if (CONFIG.DDBI.DEV.downloadJSONExamples) {
+            FileHelper.download(JSON.stringify(data), `ddb-vehicles-source-${sources.join("_")}.json`, "application/json");
+          }
           // handle category filtering
           if (ids && ids.length > 0) {
             this.source = data;

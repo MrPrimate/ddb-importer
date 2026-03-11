@@ -249,7 +249,7 @@ export default class ProficiencyFinder {
 
     // final fallback, does the key not match the generated key, check name match
     for (const [k, v] of Object.entries(CONFIG.DND5E.languages.ddb.children)) {
-      if (utils.nameString(v.label) === utils.nameString(name)) return k;
+      if (utils.isString(v) && utils.nameString(v) === utils.nameString(name)) return k;
     }
     // must be a custom language, return null
     return null;
