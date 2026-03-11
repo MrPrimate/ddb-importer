@@ -18,6 +18,7 @@ import { DDBReferenceLinker } from "./lib/_module";
 import DDBVehicle from "./DDBVehicle";
 
 interface IDDBVehicleFactoryOptions {
+  ddbData?: IDDBVehicleSourceData[] | null;
   extra?: boolean;
   notifier?: (message: string, options?: { nameField?: boolean; monsterNote?: boolean }) => void;
   forceUpdate?: boolean;
@@ -49,6 +50,7 @@ export default class DDBVehicleFactory {
   addChrisPremades: boolean;
   totalDocuments: number;
   currentDocument: number;
+  source: IDDBVehicleSourceData[] | null;
 
   constructor ({
     ddbData = null, extra = false, notifier = null, forceUpdate = null,
