@@ -34,9 +34,9 @@ export class DDBCompendiumFolders {
     // this.spellFolders = {};
     // this.itemFolders = {};
 
-    this.compendiumFolderTypeMonster = game.settings.get("ddb-importer", "munching-selection-compendium-folders-monster");
-    this.compendiumFolderTypeSpell = game.settings.get("ddb-importer", "munching-selection-compendium-folders-spell");
-    this.compendiumFolderTypeItem = game.settings.get("ddb-importer", "munching-selection-compendium-folders-item");
+    this.compendiumFolderTypeMonster = utils.getSetting<string>("munching-selection-compendium-folders-monster");
+    this.compendiumFolderTypeSpell = utils.getSetting<string>("munching-selection-compendium-folders-spell");
+    this.compendiumFolderTypeItem = utils.getSetting<string>("munching-selection-compendium-folders-item");
   }
 
   async addCompendiumFolderIds(documents) {
@@ -840,7 +840,7 @@ export class DDBCompendiumFolders {
   //   this.validFolderIds.push(folder._id);
   // }
 
-   
+
   async createCompendiumFolders() {
     logger.debug(`Checking and creating Compendium folder structure for ${this.type}`);
 
@@ -961,7 +961,7 @@ export class DDBCompendiumFolders {
     return { name, flagTag: name };
   }
 
-   
+
   static getItemFolderNameForType(document) {
     const ddbType = document.flags?.ddbimporter?.dndbeyond?.type;
     const ddbTypeId = utils.idString(ddbType ?? "").toLowerCase();
@@ -1093,7 +1093,7 @@ export class DDBCompendiumFolders {
     return name;
   }
 
-   
+
   getClassFeatureFolderName(document) {
     const result = {
       name: undefined,
@@ -1161,7 +1161,7 @@ export class DDBCompendiumFolders {
     else return undefined;
   }
 
-   
+
   getRaceTraitFolderName(document) {
     // "flags.ddbimporter.baseRaceName",
     // "flags.ddbimporter.baseName",
@@ -1197,7 +1197,7 @@ export class DDBCompendiumFolders {
     });
   }
 
-   
+
   getRaceFolderName(document) {
     const fullRaceName = foundry.utils.getProperty(document, "flags.ddbimporter.fullRaceName");
     const groupName = foundry.utils.getProperty(document, "flags.ddbimporter.groupName");
@@ -1211,7 +1211,7 @@ export class DDBCompendiumFolders {
     });
   }
 
-   
+
   getSummonFolderName(document) {
     const result = {
       name: undefined,
@@ -1229,7 +1229,7 @@ export class DDBCompendiumFolders {
     return result;
   }
 
-   
+
   getClassFolderName(document) {
     const result = {
       name: undefined,
@@ -1404,7 +1404,7 @@ export class DDBCompendiumFolders {
     return DDBCompendiumFolders.getSourceFolderNameFromDocument({ document, type: "vehicle" });
   }
 
-   
+
   getCompendiumFolderData(document) {
     let data;
     switch (this.type) {
@@ -1569,7 +1569,7 @@ export class DDBCompendiumFolders {
     }
   }
 
-   
+
   #getIndexFields() {
     switch (this.type) {
       case "spells":
@@ -1700,7 +1700,7 @@ export class DDBCompendiumFolders {
     }
   }
 
-   
+
   async _migrateExistingCompendium({ deleteExisting = true, cleanup = true } = {}) {
     if (!this.compendium) {
       this.loadCompendium(this.type, true);

@@ -1,3 +1,4 @@
+import { NotifierV1Props } from "../apps/DDBAppV2";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { logger, utils, CompendiumHelper, FileHelper, NameMatcher } from "./_module";
 
@@ -43,6 +44,24 @@ const FILE_MAP = {
   monster: ["named-monster-features.json", "generic-monster-features.json", "spells.json", "items.json", "general.json"],
   backgrounds: ["backgrounds.json", "feats.json", "class-features.json", "races.json", "general.json"],
 };
+
+const ICON_MAP_INDICIES = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
+
+export interface IIconMapEntry {
+  type: string;
+  folder: string | null;
+  _id: string;
+  uuid: string;
+  name: string;
+  img: string;
+  prototypeToken?: {
+    texture: {
+      src: string;
+      scaleY: number;
+      scaleX: number;
+    };
+  };
+}
 
 function sanitiseName(name) {
   return utils.nameString(name).toLowerCase();
@@ -205,14 +224,19 @@ function unPad(_match, p1) {
 }
 
 export default class Iconizer {
+  documents: TAll5eItemDocuments[] | TAll5eActorDocuments[];
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  isMonster: boolean;
+  monsterName: string;
+  srdIconUpdate: boolean;
 
   static SETTINGS() {
     return {
-      ddbItem: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-item-icons"),
-      inBuilt: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-inbuilt-icons"),
-      srdIcons: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"),
-      ddbSpell: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-spell-icons"),
-      ddbGenericItem: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-ddb-generic-item-icons"),
+      ddbItem: utils.getSetting<boolean>("munching-policy-use-ddb-item-icons"),
+      inBuilt: utils.getSetting<boolean>("munching-policy-use-inbuilt-icons"),
+      srdIcons: utils.getSetting<boolean>("munching-policy-use-srd-icons"),
+      ddbSpell: utils.getSetting<boolean>("munching-policy-use-ddb-spell-icons"),
+      ddbGenericItem: utils.getSetting<boolean>("munching-policy-use-ddb-generic-item-icons"),
       excludeCheck: true,
     };
   }
@@ -363,32 +387,30 @@ export default class Iconizer {
     });
   }
 
-  static async getSRDIconMatch(type, version = "2014") {
+  static async getSRDIconMatch(type: string, version: "2014" | "2024" = "2014"): Promise<IIconMapEntry[]> {
     const compendiumName = SETTINGS.SRD_COMPENDIUMS[version].find((c) => c.type == type).name;
     const srdPack = CompendiumHelper.getCompendium(compendiumName, false);
     if (!srdPack) return [];
-    const srdIndices = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
-    const index = await srdPack.getIndex({ fields: srdIndices });
-    return index;
+    const index = await srdPack.getIndex({ fields: ICON_MAP_INDICIES });
+    return index as unknown as IIconMapEntry[];
   }
 
-  static async getOfficialIconMatch(type) {
-    const indexes = [];
+  static async getOfficialIconMatch(type: string): Promise<IIconMapEntry[]> {
+    const indexes: IIconMapEntry[] = [];
     for (const bookKey of Object.keys(SETTINGS.FOUNDRY_COMPENDIUMS)) {
       const compendiumName = SETTINGS.FOUNDRY_COMPENDIUMS[bookKey].find((c) => c.type == type)?.name;
       if (!compendiumName) continue;
       const officialPack = CompendiumHelper.getCompendium(compendiumName, false);
       if (!officialPack) continue;
-      const indices = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
-      const index = await officialPack.getIndex({ fields: indices });
-      indexes.push(...index);
+      const index = await officialPack.getIndex({ fields: ICON_MAP_INDICIES });
+      indexes.push(...(index as unknown as IIconMapEntry[]));
     }
 
-    return Array.from(new Set(indexes));
+    return Array.from(new Set(indexes)) as unknown as IIconMapEntry[];
   }
 
-  static async getSRDImageLibrary(version = "2014") {
-    const mapLoaded = foundry.utils.getProperty(CONFIG.DDBI, `SRD_LOAD.mapLoaded.${version}`);
+  static async getSRDImageLibrary(version: "2014" | "2024" = "2014"): Promise<IIconMapEntry[]> {
+    const mapLoaded = foundry.utils.getProperty(CONFIG.DDBI, `SRD_LOAD.mapLoaded.${version}`) as boolean;
     if (mapLoaded) return CONFIG.DDBI.SRD_LOAD.iconMap[version];
     const officialFeatureItems = await Iconizer.getOfficialIconMatch("features");
     const officialOriginItems = await Iconizer.getOfficialIconMatch("backgrounds");

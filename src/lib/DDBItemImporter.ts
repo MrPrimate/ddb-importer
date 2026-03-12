@@ -9,14 +9,36 @@ import {
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
+import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
+import { IIconMapEntry } from "./Iconizer";
 
-interface DDBItemImporterOptions {
+interface IDDBItemImporterOptions {
   matchFlags?: string[];
   deleteBeforeUpdate?: boolean | null;
-  indexFilter?: { fields: string[] } | null;
+  indexFilter?: CompendiumCollection.GetIndexOptions | null;
   useCompendiumFolders?: boolean | null;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
+
+interface IDDBItemImporterLoadPassedItemsFromCompendiumOptions extends IDDBItemImporterGetCompendiumItemsOptions {
+  indexFilter?: CompendiumCollection.GetIndexOptions;
+  overrideId?: boolean;
+}
+
+interface IDDBItemImporterGetCompendiumItemsOptions {
+  looseMatch?: boolean;
+  monsterMatch?: boolean;
+  keepId?: boolean;
+  deleteCompendiumId?: boolean;
+  keepDDBId?: boolean;
+  linkItemFlags?: boolean;
+}
+
+type TDDBImporterDocument = TAll5eItemDocuments | TAll5eActorDocuments | I5eTableData;
+
+type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
+
+type TFlagType = TDDBImporterDocument | TIndexEntry;
 
 export default class DDBItemImporter {
 
@@ -27,10 +49,8 @@ export default class DDBItemImporter {
       "flags.ddbimporter.is2024",
       "flags.ddbimporter.dndbeyond.alternativeNames",
     ],
-  } as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>;
+  } as CompendiumCollection.GetIndexOptions;
 
-  type: string;
-  _documents: object[];
   useCompendiumFolders: boolean;
   matchFlags: string[];
   compendium: CompendiumCollection.Any;
@@ -43,16 +63,18 @@ export default class DDBItemImporter {
   totalDocuments: number;
   currentDocumentCount: number;
   compendiumFolders: DDBCompendiumFolders;
-  srdImageLibrary2014: boolean;
-  srdImageLibrary2024: boolean;
+  srdImageLibrary2014: IIconMapEntry[] | null;
+  srdImageLibrary2024: IIconMapEntry[] | null;
+  _documents: TDDBImporterDocument[];
+  type: string;
 
-  constructor(type: string, documents: object[], {
+  constructor(type: string, documents: TDDBImporterDocument[], {
     matchFlags = [],
     deleteBeforeUpdate = null,
     indexFilter = null,
     useCompendiumFolders = null,
     notifier = null,
-  }: DDBItemImporterOptions = {}) {
+  }: IDDBItemImporterOptions = {}) {
     this.type = type;
     this._documents = documents;
     this.useCompendiumFolders = useCompendiumFolders ?? true;
@@ -80,16 +102,16 @@ export default class DDBItemImporter {
     this.compendiumFolders = new DDBCompendiumFolders(this.type);
   }
 
-  get documents() {
+  get documents(): TDDBImporterDocument[] {
     return this._documents;
   }
 
-  set documents(docs) {
+  set documents(docs: TDDBImporterDocument[]) {
     this._documents = docs;
     this.totalDocuments = this._documents?.length ?? 0;
   }
 
-  async buildIndex(indexFilter: CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName> = {}) {
+  async buildIndex(indexFilter: CompendiumCollection.GetIndexOptions = {}) {
     const flagSet = new Set<string>(indexFilter.fields ?? []);
     const hasDDBImporterFlags = [...flagSet].some((f) => f.startsWith("flags.ddbimporter"));
     if (!hasDDBImporterFlags) {
@@ -98,7 +120,7 @@ export default class DDBItemImporter {
       }
     }
     this.indexFilter = indexFilter;
-    this.indexFilter.fields = Array.from(flagSet) as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>["fields"];
+    this.indexFilter.fields = Array.from(flagSet) as CompendiumCollection.GetIndexOptions["fields"];
     this.compendiumIndex = await this.compendium.getIndex(this.indexFilter);
   }
 
@@ -111,7 +133,7 @@ export default class DDBItemImporter {
     if (!this.srdImageLibrary2024) this.srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
   }
 
-  #flagMatch(item1, item2) {
+  #flagMatch(item1: TFlagType, item2: TDDBImporterDocument): boolean {
     if (this.matchFlags.length === 0) return true;
     // let fs = {};
     const matched = this.matchFlags.every((flag) => {
@@ -185,13 +207,13 @@ export default class DDBItemImporter {
     return replaceData;
   }
 
-  static updateMatchingItems(oldItems, newItems,
+  static updateMatchingItems(oldItems: TDDBImporterDocument[], newItems: TDDBImporterDocument[],
     { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {},
-  ): I5ePCItem[] | I5eMonsterItem[] {
+  ): TDDBImporterDocument[] {
     const results = [];
 
     for (const newItem of newItems) {
-      let item: I5ePCItem = foundry.utils.duplicate(newItem);
+      let item: TDDBImporterDocument = foundry.utils.duplicate(newItem) as unknown as TDDBImporterDocument;
       const compendiumIdMatch = oldItems.find((oldItem) =>
         item._id
         && foundry.utils.getProperty(oldItem, "flags.ddbimporter.compendiumId") == item._id,
@@ -236,21 +258,21 @@ export default class DDBItemImporter {
 
   /**
    * Removes items from the documents collection that match the given criteria.
-   * @param {Array} itemsToRemove array of objects to remove from the documents collection
+   * @param {TDDBImporterDocument[]} itemsToRemove array of objects to remove from the documents collection
    * @param {boolean} matchDDBId if true, only remove items where the ddb id matches
    */
-  removeItems(itemsToRemove, matchDDBId = false) {
+  removeItems(itemsToRemove: TDDBImporterDocument[], matchDDBId = false) {
     this.documents = this.documents.filter((item) =>
       !itemsToRemove.some((originalItem) =>
-        (item.name === originalItem.name || item.flags?.ddbimporter?.originalName === originalItem.name)
+        (item.name === originalItem.name || foundry.utils.getProperty(item, "flags.ddbimporter.originalName") === originalItem.name)
         && item.type === originalItem.type
-        && (!matchDDBId || (matchDDBId && item.flags?.ddbimporter?.id === originalItem.flags?.ddbimporter?.id)),
+        && (!matchDDBId || (matchDDBId && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(originalItem, "flags.ddbimporter.id"))),
       ),
     );
   }
 
 
-  async addCompendiumFolderIds(documents) {
+  async addCompendiumFolderIds(documents: TDDBImporterDocument[]): Promise<TDDBImporterDocument[]> {
     if (this.useCompendiumFolders) {
       await this.compendiumFolders.loadCompendium(this.type, true);
       const results = await this.compendiumFolders.addCompendiumFolderIds(documents);
@@ -260,8 +282,9 @@ export default class DDBItemImporter {
     }
   }
 
-  async getFilteredItemIndexes(item) {
-    const indexEntries = this.compendiumIndex.filter((idx) => idx.name === item.name);
+  async getFilteredItemIndexes(item: TDDBImporterDocument): Promise<TIndexEntry[]> {
+    const indexEntries: TIndexEntry[] =
+      this.compendiumIndex.filter((idx) => idx.name === item.name) as unknown as TIndexEntry[];
 
     const flagFiltered = indexEntries.filter((idx) => {
       const nameMatch = idx.name === item.name;
@@ -273,10 +296,10 @@ export default class DDBItemImporter {
     return flagFiltered;
   }
 
-  async getFilteredItemDocuments(item) {
+  async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item5e[]> {
     const indexEntries = await this.getFilteredItemIndexes(item);
     const mapped = await Promise.all(indexEntries.map((idx) => {
-      const entry = this.compendium.getDocument(idx._id).then((doc) => doc);
+      const entry = this.compendium.getDocument(idx._id).then((doc) => doc) as Promise<Item5e>;
       return entry;
     }));
     return mapped;
@@ -284,14 +307,15 @@ export default class DDBItemImporter {
 
   /**
    * Asynchronously creates a new item to be added to a compendium based on its type.
-   * @param {object} item the data for the new item to be created
-   * @returns {Promise<object|null>} a Promise that resolves with the imported item or null if import failed
+   * @param {TDDBImporterDocument} item the data for the new item to be created
+   * @returns {Promise<Item5e | RollTable ||null>} a Promise that resolves with the imported item or null if import failed
    */
-  async createCompendiumItem(item) {
+  async createCompendiumItem(item: TDDBImporterDocument): Promise<Item5e | RollTable | null> {
     let newItem;
     switch (this.type) {
       case "table":
       case "tables": {
+        // @ts-expect-error - we know this is the correct type for this compendium
         newItem = new RollTable(item);
         break;
       }
@@ -322,8 +346,9 @@ export default class DDBItemImporter {
     return newItem.constructor.create(data, { pack: this.compendium.collection, keepId: true });
   }
 
-  async updateCompendiumItem(updateItem, existingItem) {
+  async updateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item5e): Promise<Item5e | RollTable> {
     // purge existing active effects on this item
+    // @ts-expect-error - results on this item allows for TableResult delete
     if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
     if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
@@ -335,12 +360,12 @@ export default class DDBItemImporter {
       packId: this.compendium.metadata.id,
     });
 
-    const update = existingItem.update(updateItem, { pack: this.compendium.metadata.id, render: false });
+    const update = existingItem.update(updateItem as any, { pack: this.compendium.metadata.id, render: false });
     // const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
     return update;
   }
 
-  async deleteCreateCompendiumItem(updateItem, existingItem) {
+  async deleteCreateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item5e): Promise<Item5e | RollTable | null> {
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Removing and Recreating ${updateItem.name} compendium entry`);
     logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
@@ -350,10 +375,10 @@ export default class DDBItemImporter {
   }
 
 
-  async updateCompendiumItems(inputItems) {
+  async updateCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item5e | RollTable)[]> {
     const results = [];
     for (const item of inputItems) {
-      const existingItems = await this.getFilteredItemDocuments(item);
+      const existingItems: Item5e[] = await this.getFilteredItemDocuments(item);
       // we have a match, update first match
       if (existingItems.length >= 1) {
         if (existingItems.length > 1) {
@@ -381,7 +406,7 @@ export default class DDBItemImporter {
     return Promise.all(results);
   }
 
-  async createCompendiumItems(inputItems) {
+  async createCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item5e | RollTable)[]> {
     const results = [];
     for (const item of inputItems) {
       try {
@@ -399,7 +424,7 @@ export default class DDBItemImporter {
     return results;
   }
 
-  async updateCompendium(updateExisting = false, filterDuplicates = true) {
+  async updateCompendium(updateExisting = false, filterDuplicates = true): Promise<(Item5e | RollTable)[]> {
     if (!game.user.isGM) return [];
     logger.debug(`Getting compendium for update of ${this.type} documents (checking ${this.documents.length} docs)`);
 
@@ -453,11 +478,11 @@ ${item.system.description.chat}
     return this.results;
   }
 
-  async loadPassedItemsFromCompendium(items,
+  async loadPassedItemsFromCompendium(items: TDDBImporterDocument[],
     { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
       indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
-      keepDDBId = false, linkItemFlags = false, overrideId = false } = {},
-  ) {
+      keepDDBId = false, linkItemFlags = false, overrideId = false }: IDDBItemImporterLoadPassedItemsFromCompendiumOptions,
+  ): Promise<TDDBImporterDocument[]> {
 
     await this.buildIndex(indexFilter);
 
@@ -519,7 +544,7 @@ ${item.system.description.chat}
 
   /**
    * loads items from compendium
-   * @param {<Item[]>} items items to search for
+   * @param {<TDDBImporterDocument[]>} items items to search for
    * @param {string} type type of item to search for
    * @param {object} options
    * @param {boolean} [options.looseMatch=false] whether to match item names loosely
@@ -530,10 +555,10 @@ ${item.system.description.chat}
    * @param {boolean} [options.linkItemFlags=false] whether to link item flags
    * @returns {<Document[]>} documents loaded from compendium
    */
-  static async getCompendiumItems(items, type,
+  static async getCompendiumItems(items: TDDBImporterDocument[], type: string,
     { looseMatch = false, monsterMatch = false, keepId = false,
-      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false } = {},
-  ) {
+      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions,
+  ): Promise<TDDBImporterDocument[]> {
 
     const itemImporter = new DDBItemImporter(type, [], {
       indexFilter: { fields: [
@@ -569,19 +594,21 @@ ${item.system.description.chat}
   }
 
 
-  async useSRDMonsterImages() {
+  async useSRDMonsterImages(): Promise<TDDBImporterDocument[]> {
     if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
     await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 
 
     for (const monster of this.documents) {
+      if (!("prototypeToken" in monster)) continue;
       logger.debug(`Checking ${monster.name} for srd images`);
       const srdImageLibrary = foundry.utils.getProperty(monster, "flags.ddbimporter.is2014") ? this.srdImageLibrary2014 : this.srdImageLibrary2024;
       const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
       if (nameMatch) {
         logger.debug(`Updating monster ${monster.name} to srd images`, nameMatch);
-        const compendiumName = SETTINGS.SRD_COMPENDIUMS[monster.system?.source?.rules ?? "2024"].find((c) => c.type == "monsters").name;
+        const rulesVersion = foundry.utils.getProperty(monster, "system.source.rules") as string ?? "2014";
+        const compendiumName = SETTINGS.SRD_COMPENDIUMS[rulesVersion].find((c) => c.type == "monsters").name;
         const moduleArt = game.compendiumArt.get(nameMatch.uuid ?? `Compendium.${compendiumName}.Actor.${nameMatch._id}`);
         logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
         monster.prototypeToken.texture.scaleY = nameMatch.prototypeToken.texture.scaleY;
@@ -595,9 +622,9 @@ ${item.system.description.chat}
           foundry.utils.setProperty(monster, "flags.monsterMunch.imgSet", true);
         }
 
-        const tokenSrcTexture = foundry.utils.getProperty(moduleArt, "token.texture.src");
+        const tokenSrcTexture = foundry.utils.getProperty(moduleArt, "token.texture.src") as string;
 
-        if (moduleArt?.token && !tokenSrcTexture) {
+        if (moduleArt?.token && !tokenSrcTexture && utils.isString(moduleArt.token)) {
           monster.prototypeToken.texture.src = moduleArt.token;
         } else if (moduleArt?.token
           && tokenSrcTexture
@@ -605,8 +632,11 @@ ${item.system.description.chat}
         ) {
           monster.prototypeToken.texture.src = tokenSrcTexture;
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
-          if (moduleArt.token.texture.scaleY) monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY;
+          if (foundry.utils.hasProperty(moduleArt, "token.texture.scaleY"))
+            monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY as number;
+          // @ts-expect-error - pretty sure this is correct
           if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
+          // @ts-expect-error - pretty sure this is correct
           if (moduleArt.token.ring) monster.prototypeToken.ring = moduleArt.token.ring;
         } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(nameMatch, "prototypeToken.texture.src"))
           && foundry.utils.hasProperty(nameMatch, "prototypeToken.texture.src")
@@ -623,7 +653,7 @@ ${item.system.description.chat}
   async generateIconMap() {
     const promises = [];
 
-    const srdIcons = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons");
+    const srdIcons = utils.getSetting<boolean>("munching-policy-use-srd-icons");
     if (srdIcons) {
       const srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
       const srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");

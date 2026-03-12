@@ -2,6 +2,7 @@ import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 import { IDDBListCampaign } from "../../lib/DDBCampaigns";
+import { IIconMapEntry } from "../../lib/Iconizer";
 
 interface IDDBIMacros {
   spell: Record<string, any>;
@@ -30,7 +31,7 @@ interface IDDBISRDLoad {
     "2014": boolean;
     "2024": boolean;
   };
-  iconMap: Record<string, any>;
+  iconMap: Record<"2014" | "2024", IIconMapEntry[]>;
   packsLoaded: Record<string, any>;
   packs: Record<string, any>;
 }

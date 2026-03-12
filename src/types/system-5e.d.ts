@@ -2,6 +2,10 @@ export {};
 
 global {
 
+  type TAll5eActorDocuments = I5ePCData | I5eMonsterData | I5eVehicleData;
+
+  type TAll5eItemDocuments = I5ePCItem | I5eMonsterItem | I5eVehicleItem;
+
   type TDistanceUnit = "" | "ft" | "mi" | "self" | "touch" | "spec" | "any";
 
   type TActivationCost = "none"
@@ -97,6 +101,7 @@ global {
     license?: string;
     page?: string;
     rules?: string;
+    revision?: number;
     sourceCategoryId?: number;
   }
 

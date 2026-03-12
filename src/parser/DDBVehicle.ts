@@ -100,7 +100,13 @@ const ACTION_THRESHOLDS = [
       2: 20,
     },
   },
-];
+] as { id: string; thresholds: I5eVehicleActionThresholds }[];
+
+interface IDDBVehicleSizeData {
+  name: string;
+  value: TActorSizes;
+  size: number;
+}
 
 const SIZES = [
   { name: "Tiny", value: "tiny", size: 0.5 },
@@ -109,7 +115,7 @@ const SIZES = [
   { name: "Large", value: "lg", size: 2 },
   { name: "Huge", value: "huge", size: 3 },
   { name: "Gargantuan", value: "grg", size: 4 },
-];
+] as IDDBVehicleSizeData[];
 
 export const FLIGHT_IDS = [
   "7",
@@ -131,6 +137,13 @@ const MOVEMENT_ID = {
   5: "swim",
 };
 
+export interface IDDBVehicleFeatureComponent extends IDDBVehicleFeature {
+  definition: {
+    name: string;
+    types: { type: "feature" }[];
+  };
+}
+
 interface IDDBVehicle {
   ddbVehicle: IDDBVehicleSourceData;
   legacyName?: boolean;
@@ -139,8 +152,8 @@ interface IDDBVehicle {
 }
 export default class DDBVehicle {
 
-  static ACTION_THRESHOLDS = ACTION_THRESHOLDS;
-  static SIZES = SIZES;
+  static ACTION_THRESHOLDS: { id: string; thresholds: I5eVehicleActionThresholds }[] = ACTION_THRESHOLDS;
+  static SIZES: IDDBVehicleSizeData[] = SIZES;
   static FLIGHT_IDS = FLIGHT_IDS;
   static MOVEMENT_DICT = MOVEMENT_DICT;
 
@@ -154,9 +167,10 @@ export default class DDBVehicle {
   legacy: boolean;
   is2014: boolean;
   is2024: boolean;
+  data: I5eVehicleData;
 
 
-  constructor({ ddbVehicle, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle) {
+  constructor({ ddbVehicle = null, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle) {
     this.source = ddbVehicle;
 
     this.configurations = {};
@@ -218,7 +232,7 @@ export default class DDBVehicle {
   }
 
 
-  _generateDataStub(ddbId = null) {
+  _generateDataStub(ddbId: number = null) {
     const options = {
       temporary: true,
       displaySheet: false,
@@ -255,13 +269,13 @@ export default class DDBVehicle {
   }
 
 
-  static getSizeFromId(sizeId) {
+  static getSizeFromId(sizeId: number): IDDBVehicleSizeData {
     const size = CONFIG.DDB.creatureSizes.find((s) => s.id == sizeId).name;
     const sizeData = DDBVehicle.SIZES.find((s) => size == s.name);
 
     if (!sizeData) {
       logger.warn(`No size found, using medium`, size);
-      return { name: "Medium", value: "med", size: 1 };
+      return { name: "Medium", value: "med", size: 1 } as IDDBVehicleSizeData;
     }
     return sizeData;
   }
@@ -276,7 +290,8 @@ export default class DDBVehicle {
     this.data.system.traits.size = sizeData.value;
     this.data.prototypeToken.width = token.value;
     this.data.prototypeToken.height = token.value;
-    this.data.prototypeToken.scale = token.scale;
+    this.data.prototypeToken.texture.scaleX = token.scale;
+    this.data.prototypeToken.texture.scaleY = token.scale;
 
   }
 
@@ -314,7 +329,7 @@ export default class DDBVehicle {
 
 
   #generateDamageImmunities() {
-    const config = CONFIG.DDB.damageTypes;
+    const config = CONFIG.DDB.damageAdjustments.filter((adj) => adj.type == 2);
 
     const values = [];
     const custom = [];
@@ -430,7 +445,7 @@ export default class DDBVehicle {
   #generateMovement() {
 
     const movement = foundry.utils.duplicate(this.data.system.attributes.movement);
-    const travel = foundry.utils.duplicate(this.data.system.attributes.travel);
+    const travel: I5eVehicleTravel = foundry.utils.duplicate(this.data.system.attributes.travel);
 
     // is it travel pace?
     if (this.configurations.ETP) {
@@ -442,11 +457,11 @@ export default class DDBVehicle {
         || this.configurations.DT === "spelljammer"
         || this.configurations.DT === "elemental-airship"
       ) {
-        travel.speeds["air"] = travelPaceMilesPerHour;
-        travel.paces["air"] = travelPaceMilesPerDay;
+        travel.speeds["air"] = String(travelPaceMilesPerHour);
+        travel.paces["air"] = String(travelPaceMilesPerDay);
       } else {
-        travel.speeds["water"] = travelPaceMilesPerHour;
-        travel.paces["water"] = travelPaceMilesPerDay;
+        travel.speeds["water"] = String(travelPaceMilesPerHour);
+        travel.paces["water"] = String(travelPaceMilesPerDay);
       }
 
       // this.data.system.attributes.travel = {
@@ -532,9 +547,11 @@ export default class DDBVehicle {
     // if we are using actor level AC apply
     if (this.configurations.PCMT === "vehicle" && this.primaryComponent) {
       if (this.configurations.DT === "spelljammer") {
+        // @ts-expect-error -this gets calculated dynamically now, I might need to change somestuff
         this.data.system.attributes.ac.motionless = this.primaryComponent.definition.armorClassDescription;
         this.data.system.attributes.ac.flat = this.primaryComponent.definition.armorClass;
       } else {
+        // @ts-expect-error -this gets calculated dynamically now, I might need to change somestuff
         this.data.system.attributes.ac.motionless = this.primaryComponent.definition.armorClass;
         this.data.system.attributes.ac.flat = this.primaryComponent.definition.armorClass + this.mods["dex"];
       }
@@ -569,9 +586,9 @@ export default class DDBVehicle {
       const actionsMatch = this.source.actionsText.match(actionsRegex);
       const numberOfActions = actionsMatch ? parseInt(actionsMatch[1]) : 1;
 
-      this.data.system.attributes.actions.value = numberOfActions;
+      this.data.system.attributes.actions.max = numberOfActions;
       const actionThreshold = DDBVehicle.ACTION_THRESHOLDS.find((t) => t.id === this.source.id);
-      this.data.system.attributes.actions.thresholds = actionThreshold ? actionThreshold.thresholds : [];
+      this.data.system.attributes.actions.thresholds = actionThreshold ? actionThreshold.thresholds : {};
 
     } else if (this.source.features.length > 0) {
       const featuresText = this.source.features.map((feature) => {
@@ -613,7 +630,7 @@ export default class DDBVehicle {
           if (ddbFeature.data.system.activities[key] && ddbFeature.data.system.activities[key].effects?.length === 0) {
             actionFeature.data.system.activities[key].effects = ddbFeature.data.system.activities[key].effects;
 
-            const effects = ddbFeature.data.effects.filter((e) => ddbFeature.data.system.activities[key].effects.includes(e._id));
+            const effects = ddbFeature.data.effects.filter((e) => ddbFeature.data.system.activities[key].effects.some((effect) => effect._id === e._id));
             actionFeature.data.effects.push(...effects);
           }
         }
@@ -651,7 +668,7 @@ export default class DDBVehicle {
       }
     }
 
-    for (const feature of this.source.features.filter((f) => f.name)) {
+    for (const feature of this.source.features.filter((f) => f.name) as IDDBVehicleFeatureComponent[]) {
       foundry.utils.setProperty(feature, "definition.types", [{ type: "feature" }]);
       foundry.utils.setProperty(feature, "definition.name", feature.name);
       const builtItems = await this.#buildComponent(feature);
@@ -685,7 +702,7 @@ export default class DDBVehicle {
       id: this.source.id,
       version: CONFIG.DDBI.version,
       configurations: this.configurations,
-    };
+    } as any;
 
     this.#generateAbilities();
     this.#generateDamageImmunities();

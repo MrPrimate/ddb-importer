@@ -340,7 +340,7 @@ export default class Utils {
   }
 
   static entityMap() {
-    const entityTypes = new Map();
+    const entityTypes = new Map<string, string>();
     entityTypes.set("npc", "Actor");
     entityTypes.set("character", "Actor");
     entityTypes.set("monsters", "Actor");

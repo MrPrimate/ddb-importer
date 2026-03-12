@@ -17,6 +17,28 @@ import { DDBReferenceLinker } from "./lib/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
 
 
+interface IDDBMonsterFactory {
+  ddbData: IDDBMonsterSourceData[] | null;
+  extra: boolean;
+  notifier: (note: any, options?: NotifierV1Props) => void;
+  type: "monsters";
+  forceUpdate: boolean | null;
+  useLocalKey: boolean | null;
+  keyPostfix: string | null;
+}
+
+interface IDDBMonsterFactoryFetchOptions {
+  ids?: number[] | number;
+  searchTerm?: string;
+  sources?: number[];
+  homebrew?: boolean;
+  homebrewOnly?: boolean;
+  exactMatch?: boolean;
+  excludeLegacy?: boolean;
+  excludedCategories?: number[];
+  monsterTypes?: number[];
+}
+
 export default class DDBMonsterFactory {
   extra: boolean;
   keys: { useLocal: boolean; keyPostfix: string };
@@ -41,7 +63,7 @@ export default class DDBMonsterFactory {
     logger.info(note, { nameField, monsterNote });
   }
 
-  static defaultFetchOptions(ids: number[], searchTerm: string | null = null) {
+  static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IDDBMonsterFactoryFetchOptions {
     const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
     const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
@@ -76,7 +98,7 @@ export default class DDBMonsterFactory {
   constructor ({
     ddbData = null, extra = false, notifier = null, type = "monsters", forceUpdate = null,
     useLocalKey = null, keyPostfix = null,
-  } = {}) {
+  }: IDDBMonsterFactory) {
     this.extra = extra;
     this.keys = {
       useLocal: useLocalKey,
@@ -118,8 +140,10 @@ export default class DDBMonsterFactory {
    * @param {number[]} [options.monsterTypes] monster type IDs to include
    * @returns {Promise<object[]>} a promise that resolves with an array of monsters
    */
-  async fetchDDBMonsterSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
-    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [], monsterTypes = [] }: { ids?: number[] | number; searchTerm?: string; sources?: number[]; homebrew?: boolean; homebrewOnly?: boolean; exactMatch?: boolean; excludeLegacy?: boolean; excludedCategories?: number[]; monsterTypes?: number[] } = {},
+  async fetchDDBMonsterSourceData({
+    ids = [], searchTerm = "", sources = [], homebrew = false,
+    homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [],
+    monsterTypes = [] }: IDDBMonsterFactoryFetchOptions,
   ) {
     const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
     const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
@@ -158,7 +182,7 @@ export default class DDBMonsterFactory {
       body.monsterTypes = monsterTypes;
     }
 
-    const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+    const debugJson = utils.getSetting<boolean>("debug-json");
 
     const defaultUrl = ids && Array.isArray(ids) && ids.length > 0
       ? `${parsingApi}/proxy/monsters/ids`

@@ -734,7 +734,7 @@ global {
     levels?: number;
     primaryAbility?: I5eClassPrimaryAbility;
     properties?: string[];
-    source?: I5eItemSourceRef;
+    source?: I5eSourceInfo;
     spellcasting?: I5eClassSpellcasting;
     startingEquipment?: I5eClassStartingEquipment[];
     wealth?: string;
@@ -753,7 +753,7 @@ global {
     classIdentifier?: string;
     description?: I5eItemDescription;
     identifier?: string;
-    source?: I5eItemSourceRef;
+    source?: I5eSourceInfo;
     spellcasting?: I5eClassSpellcasting;
   }
 
@@ -771,7 +771,7 @@ global {
     identifier?: string;
     movement?: I5eMovement;
     senses?: I5eSenses;
-    source?: I5eItemSourceRef;
+    source?: I5eSourceInfo;
     type?: I5eCreatureType;
   }
 
@@ -787,7 +787,7 @@ global {
     advancement?: I5eAdvancement[];
     description?: I5eItemDescription;
     identifier?: string;
-    source?: I5eItemSourceRef;
+    source?: I5eSourceInfo;
     startingEquipment?: I5eClassStartingEquipment[];
   }
 

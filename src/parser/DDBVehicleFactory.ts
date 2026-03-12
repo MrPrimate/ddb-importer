@@ -11,11 +11,11 @@ import {
   DDBCampaigns,
   utils,
 } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import DDBVehicle from "./DDBVehicle";
+import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 interface IDDBVehicleFactoryOptions {
   ddbData?: IDDBVehicleSourceData[] | null;
@@ -25,6 +25,11 @@ interface IDDBVehicleFactoryOptions {
   useLocalKey?: boolean;
   keyPostfix?: string;
 };
+
+interface IDDBVehicleParseResult {
+  actors: I5eVehicleData[];
+  failedVehicleNames: string[];
+}
 
 interface IFetchDDBVehicleSourceData {
   ids?: number[];
@@ -51,6 +56,9 @@ export default class DDBVehicleFactory {
   totalDocuments: number;
   currentDocument: number;
   source: IDDBVehicleSourceData[] | null;
+  legacyName = false;
+  vehicles: I5eVehicleData[];
+  vehiclesParsed: Actor5e[];
 
   constructor ({
     ddbData = null, extra = false, notifier = null, forceUpdate = null,
@@ -82,10 +90,10 @@ export default class DDBVehicleFactory {
     logger.info(note, { nameField, monsterNote });
   }
 
-  static defaultFetchOptions(ids, searchTerm = null) {
-    const searchFilter = $("#monster-munch-filter")[0];
+  static defaultFetchOptions(ids: number[], searchTerm: string | null = null): IFetchDDBVehicleSourceData {
+    const searchFilter = $("#monster-munch-filter")[0] as HTMLInputElement;
     const finalSearchTerm = searchTerm ?? (searchFilter?.value ?? "");
-    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
     const sources = enableSources
       ? DDBSources.getSelectedSourceIds()
       : [];
@@ -94,11 +102,11 @@ export default class DDBVehicleFactory {
     // vehicles do not have homebrew filtering yet
     // const homebrew = sources.length > 0
     //   ? false
-    //   : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew");
+    //   : utils.getSetting<boolean>("munching-policy-monster-homebrew");
     // const homebrewOnly = sources.length > 0
     //   ? false
-    //   : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-homebrew-only");
-    const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-exact-match");
+    //   : utils.getSetting<boolean>("munching-policy-monster-homebrew-only");
+    const exactMatch = utils.getSetting<boolean>("munching-policy-monster-exact-match");
     const excludedCategories = DDBSources.getAllExcludedCategoryIds();
 
     const options = {
@@ -236,9 +244,9 @@ export default class DDBVehicleFactory {
     await FileHelper.generateCurrentFiles(this.uploadDirectory);
     await FileHelper.generateCurrentFiles("[data] modules/ddb-importer/data");
 
-    if (game.canvas3D?.CONFIG?.UI?.TokenBrowser) {
+    if ((game as any).canvas3D?.CONFIG?.UI?.TokenBrowser) {
       // generate 3d model cache
-      await game.canvas3D.CONFIG.UI.TokenBrowser.preloadData();
+      await (game as any).canvas3D.CONFIG.UI.TokenBrowser.preloadData();
     }
   }
 
@@ -363,12 +371,12 @@ export default class DDBVehicleFactory {
   /**
    * Parses the downloaded (or provided) DDB Source data for vehicles and generates actors
    * Use this.fetchDDBVehicleSourceData() if you need to get vehicle data from ddb
-   * @param {object[]} [vehicles] Optional vehicle data to parse. If not provided, will use data from fetchDDBVehicleSourceData()
-   * @returns {object} Object with two properties: actors (an array of parsed actor documents) and failedVehicleNames (an array of names of vehicles that failed to parse)
+   * @param {IDDBVehicleSourceData[]} [vehicles] Optional vehicle data to parse. If not provided, will use data from fetchDDBVehicleSourceData()
+   * @returns {IDDBVehicleParseResult} Object with two properties: actors (an array of parsed actor documents) and failedVehicleNames (an array of names of vehicles that failed to parse)
    */
-  async parse(vehicles = []) {
-    const foundryActors = [];
-    const failedVehicleNames = [];
+  async parse(vehicles: IDDBVehicleSourceData[] = []): Promise<IDDBVehicleParseResult> {
+    const foundryActors: I5eVehicleData[] = [];
+    const failedVehicleNames: string[] = [];
 
     const vehicleSource = vehicles.length > 0 ? vehicles : this.source;
 
@@ -376,7 +384,7 @@ export default class DDBVehicleFactory {
     let i = this.currentDocument;
     logger.time("Vehicle Parsing");
     for (const vehicle of vehicleSource) {
-      const name = `${vehicle.name}${vehicle.isLegacy ? " legacy" : ""}`;
+      const name = `${vehicle.name}`;
       try {
         this.notifier(`[${i}/${this.currentDocument + vehicleSource.length - 1} of ${totalVehicles}] Parsing data for guest ${name}`, { nameField: false, monsterNote: true });
         i++;
@@ -384,13 +392,12 @@ export default class DDBVehicleFactory {
         logger.time(`Vehicle Parse ${name}`);
         const ddbVehicle = new DDBVehicle({
           ddbVehicle: vehicle,
-          extra: this.extra,
           legacyName: this.legacyName,
           addMonsterEffects: this.addMonsterEffects,
           addChrisPremades: this.addChrisPremades,
         });
         await ddbVehicle.parse();
-        foundryActors.push(foundry.utils.duplicate(ddbVehicle.data));
+        foundryActors.push(foundry.utils.duplicate(ddbVehicle.data) as unknown as I5eVehicleData);
         logger.timeEnd(`Vehicle Parse ${name}`);
       } catch (err) {
         logger.error(`Failed parsing ${name}`);
@@ -403,7 +410,7 @@ export default class DDBVehicleFactory {
     const result = {
       actors: await Promise.all(foundryActors),
       failedVehicleNames,
-    };
+    } as IDDBVehicleParseResult;
 
     logger.timeEnd("Vehicle Parsing");
 

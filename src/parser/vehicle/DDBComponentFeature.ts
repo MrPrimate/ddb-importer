@@ -4,6 +4,16 @@ import { DDBMonsterFeatureEnricher, Effects, mixins } from "../enrichers/_module
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers, IFeatureBasicsResult, IFeatureBasicsSave } from "../lib/_module";
 import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
+import DDBVehicle, { IDDBVehicleFeatureComponent } from "../DDBVehicle";
+
+interface IDDBComponentFeature {
+  ddbVehicle: DDBVehicle;
+  component: IDDBVehicleComponent | IDDBVehicleFeatureComponent;
+  updateExisting?: boolean;
+  hideDescription?: boolean;
+  sort?: number;
+  action?: IDDBVehicleAction;
+}
 
 export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin {
 
@@ -13,6 +23,7 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
   declare is2014: boolean;
   declare is2024: boolean;
   declare originalName: string;
+  declare rawCharacter: null;
 
   static TYPE_MAPPING = {
     hull: "equipment",
@@ -48,8 +59,12 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
   updateExisting: boolean;
   stripName: boolean;
   nameSplit: string;
+  ddbVehicle: DDBVehicle;
+  declare data: I5eVehicleItem;
+  component: IDDBVehicleComponent | IDDBVehicleFeatureComponent;
+  action: IDDBVehicleAction;
 
-  constructor({ ddbVehicle, updateExisting, hideDescription, sort, component, action } = {}) {
+  constructor({ ddbVehicle, updateExisting, hideDescription, sort, component, action }: IDDBComponentFeature) {
 
     const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBVehicleActivity });
     super({
@@ -84,8 +99,8 @@ export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin 
     this.prepare();
 
     // copy source details from parent
-    if (this.ddbVehicle.data.system.details?.source)
-      this.data.system.source = this.ddbVehicle.data.system.details.source;
+    if (this.ddbVehicle.data.system?.source)
+      this.data.system.source = this.ddbVehicle.data.system.source;
 
     this.#generateActionDataStub();
 

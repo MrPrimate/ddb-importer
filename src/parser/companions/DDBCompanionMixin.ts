@@ -5,6 +5,7 @@ import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory";
 import { newNPC } from "../monster/templates/monster";
 import { DDBMonsterFeatureEnricher } from "../enrichers/_module";
+import { IDDBActorSizeData } from "../../config/dictionary/actor/sizes";
 
 export default class DDBCompanionMixin {
   npc: I5eMonsterData;
@@ -413,7 +414,7 @@ export default class DDBCompanionMixin {
     }
   }
 
-  _handleSize(sizeString) {
+  _handleSize(sizeString: string) {
     const subType = this.subType?.toLowerCase();
     const baseString = subType && sizeString.toLowerCase().includes(subType)
       ? sizeString.toLowerCase().replaceAll(" (", " or ").split(" or ").find((s) => s.includes(subType))
@@ -423,15 +424,16 @@ export default class DDBCompanionMixin {
     const nameSize = this.subType
       ? DICTIONARY.sizes.find((s) => this.subType.toLowerCase() == s.name.toLowerCase())
       : null;
-    const sizeData = DICTIONARY.sizes.find((s) => size.toLowerCase() == s.name.toLowerCase())
-      ?? { name: "Medium", value: "med", size: 1, scale: 1 };
+    const sizeData: IDDBActorSizeData = DICTIONARY.sizes.find((s) => size.toLowerCase() == s.name.toLowerCase())
+      ?? { name: "Medium", value: "med", size: 1, scale: 1 } as IDDBActorSizeData;
 
     const finalSize = nameSize ?? sizeData;
 
     this.npc.system.traits.size = finalSize.value;
     this.npc.prototypeToken.width = finalSize.size;
     this.npc.prototypeToken.height = finalSize.size;
-    this.npc.prototypeToken.scale = finalSize.scale;
+    this.npc.prototypeToken.texture.scaleX = finalSize.scale;
+    this.npc.prototypeToken.texture.scaleY = finalSize.scale;
   }
 
   _handleType(typeString) {

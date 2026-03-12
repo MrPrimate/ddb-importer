@@ -100,15 +100,6 @@ global {
   // Uses I5eSystemLimitedUsesRecovery from system-5e.d.ts (identical shape)
   // Uses I5eSystemLimitedUses from system-5e.d.ts (identical shape)
 
-  interface I5eItemSourceRef {
-    book?: string;
-    page?: string;
-    license?: string;
-    custom?: string;
-    revision?: number;
-    rules: string;
-  }
-
   interface I5eItemWeight {
     value: number;
     units: string;
@@ -168,7 +159,7 @@ global {
     range: I5eWeaponRange;
     rarity: string;
     requirements: string;
-    source: I5eItemSourceRef;
+    source: I5eSourceInfo;
     type: {
       value: TWeaponType;
       baseItem: baseWeapon;
@@ -200,7 +191,7 @@ global {
     proficient?: boolean;
     properties: TFeatProperties[];
     requirements: string;
-    source: I5eItemSourceRef;
+    source: I5eSourceInfo;
     type: { value: string; subtype: string };
     uses: I5eSystemLimitedUses;
   }
@@ -275,7 +266,7 @@ global {
     properties: TSpellProperties[];
     range: I5eSystemBaseRangeData;
     school: string;
-    source: I5eItemSourceRef;
+    source: I5eSourceInfo;
     target: I5eSystemTargetData;
     uses: I5eSystemLimitedUses;
     sourceClass?: string;
@@ -312,7 +303,7 @@ global {
     properties: TEquipmentProperties[];
     quantity: number;
     rarity: string;
-    source: I5eItemSourceRef;
+    source: I5eSourceInfo;
     strength: number;
     type: { value: string; baseItem: string };
     unidentified: { description: string };
@@ -348,7 +339,7 @@ global {
   interface I5eContainerSystemData {
     description: I5eItemDescription;
     identifier: string;
-    source: I5eItemSourceRef;
+    source: I5eSourceInfo;
     identified: boolean;
     unidentified: { description: string };
     container: string | null;
@@ -379,7 +370,7 @@ global {
     uses: I5eSystemLimitedUses;
     description: I5eItemDescription;
     identifier: string;
-    source: I5eItemSourceRef;
+    source: I5eSourceInfo;
     identified: boolean;
     unidentified: { description: string };
     container: string | null;
@@ -430,7 +421,7 @@ global {
     uses: I5eConsumableUses;
     description: I5eItemDescription;
     identifier: string;
-    source: I5eItemSourceRef;
+    source: I5eSourceInfo;
     identified: boolean;
     unidentified: { description: string };
     container: string | null;

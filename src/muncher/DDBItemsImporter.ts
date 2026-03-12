@@ -67,8 +67,8 @@ export default class DDBItemsImporter {
     this.useSourceFilter = useSourceFilter;
     this.ids = ids;
     this.searchFilter = searchFilter;
-    this.updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-    this.uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+    this.updateBool = utils.getSetting<boolean>("munching-policy-update-existing");
+    this.uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
   }
 
   async init() {
@@ -275,7 +275,7 @@ export default class DDBItemsImporter {
           },
         },
       },
-    };
+    } as I5ePCData;
     const mockDDB = {
       character: {
         classes: [],
@@ -303,10 +303,11 @@ export default class DDBItemsImporter {
         },
         feats: [],
       },
-    };
-    const ddbCharacter = new DDBCharacter(mockDDB);
+    } as IDDBData;
+    const ddbCharacter = new DDBCharacter();
     ddbCharacter.raw.character = mockCharacter;
     ddbCharacter.source = {
+      success: true,
       ddb: mockDDB,
     };
 

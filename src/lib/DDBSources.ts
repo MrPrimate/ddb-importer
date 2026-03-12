@@ -9,7 +9,7 @@ export interface IDDBSourceDefinition {
   isHomebrew?: boolean;
 }
 
-export interface IDDBSourceResponse extends I5eItemSourceRef {
+export interface IDDBSourceResponse extends I5eSourceInfo {
   id?: number;
   categoryId?: number;
 }
