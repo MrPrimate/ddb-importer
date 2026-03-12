@@ -1,13 +1,20 @@
-import { logger, PatreonHelper } from "../../lib/_module";
+import { logger, PatreonHelper, utils } from "../../lib/_module";
 import { SETTINGS } from "../../config/_module";
 import ChrisPremadesHelper from "./ChrisPremadesHelper";
+import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
+
+type TExternalAutomationDocuments = TAll5eItemDocuments | TAll5eActorDocuments;
 
 export default class ExternalAutomations {
 
-  constructor(actor) {
+  actor: Actor5e;
+  dynamicUpdateAllowed: boolean;
+  dynamicUpdateStatus: boolean;
+
+  constructor(actor: Actor5e) {
     this.actor = actor;
-    const dynamicSync = game.settings.get("ddb-importer", "dynamic-sync");
-    const updateUser = game.settings.get("ddb-importer", "dynamic-sync-user");
+    const dynamicSync = utils.getSetting<boolean>("dynamic-sync");
+    const updateUser = utils.getSetting<string>("dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
@@ -40,7 +47,7 @@ export default class ExternalAutomations {
     });
   }
 
-  static async applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, monsterName = null } = {}) {
+  static async applyChrisPremadeEffects({ documents, compendiumItem = false, force = false, monsterName = null }: { documents: TExternalAutomationDocuments[]; compendiumItem?: boolean; force?: boolean; monsterName?: string | null }): Promise<TExternalAutomationDocuments[]> {
     if (!game.modules.get("chris-premades")?.active) {
       logger.debug("Cauldron of Plentiful Resources not active");
       return documents;

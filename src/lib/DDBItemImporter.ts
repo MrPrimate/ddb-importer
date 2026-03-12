@@ -34,6 +34,18 @@ interface IDDBItemImporterGetCompendiumItemsOptions {
   linkItemFlags?: boolean;
 }
 
+interface IDDBItemImporterBuildHandlerOptions {
+  ids?: string[] | null;
+  chrisPremades?: boolean;
+  matchFlags?: string[];
+  indexFilter?: CompendiumCollection.GetIndexOptions | null;
+  deleteBeforeUpdate?: boolean | null;
+  filterDuplicates?: boolean;
+  useCompendiumFolders?: boolean | null;
+  updateIcons?: boolean;
+  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+}
+
 type TDDBImporterDocument = TAll5eItemDocuments | TAll5eActorDocuments | I5eTableData;
 
 type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
@@ -677,11 +689,11 @@ ${item.system.description.chat}
     return Promise.all(promises);
   }
 
-  static async buildHandler(type, documents, updateBool,
+  static async buildHandler(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
-      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null } = {},
-    overrideHandler = null,
-  ) {
+      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null }: IDDBItemImporterBuildHandlerOptions,
+    overrideHandler: DDBItemImporter | null = null,
+  ): Promise<DDBItemImporter> {
     const handler = overrideHandler ?? new DDBItemImporter(type, documents, {
       matchFlags,
       deleteBeforeUpdate,
@@ -693,11 +705,14 @@ ${item.system.description.chat}
     await handler.init();
     if (updateIcons) await handler.iconAdditions();
     const filteredItems = (ids !== null && ids.length > 0)
-      ? handler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
+      ? handler.documents.filter((s) =>
+        foundry.utils.hasProperty(s, "flags.ddbimporter.definitionId")
+        && ids.includes(String(foundry.utils.getProperty(s, "flags.ddbimporter.definitionId"))))
       : handler.documents;
 
     handler.documents = filteredItems;
     if (chrisPremades) {
+      // @ts-expect-error - correct, but tables never pass chris premades so this is fine
       handler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
     }
     if (notifier) notifier(`Importing ${handler.documents.length} ${type} documents!`, { nameField: true });
