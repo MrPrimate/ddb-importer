@@ -650,7 +650,7 @@ ${item.system.description.chat}
     return this.documents;
   }
 
-  async generateIconMap() {
+  async generateIconMap():  Promise<TDDBImporterDocument[]> {
     const promises = [];
 
     const srdIcons = utils.getSetting<boolean>("munching-policy-use-srd-icons");
@@ -660,15 +660,18 @@ ${item.system.description.chat}
       this.notifier(`Updating SRD Icons`, { nameField: true });
       const itemMap = [];
 
-      this.documents.forEach((monster) => {
-        this.notifier(`Processing ${monster.name}`);
-        const srdImageLibrary = foundry.utils.getProperty(monster, "flags.ddbimporter.is2014") ? srdImageLibrary2014 : srdImageLibrary2024;
+      for (const doc of this.documents) {
+        if (!("items" in doc)) continue;
+        this.notifier(`Processing ${doc.name}`);
+        const srdImageLibrary = foundry.utils.getProperty(doc, "flags.ddbimporter.is2014") as boolean
+          ? srdImageLibrary2014
+          : srdImageLibrary2024;
         promises.push(
-          Iconizer.copySRDIcons(monster.items, srdImageLibrary, itemMap).then((items) => {
-            monster.items = items;
+          Iconizer.copySRDIcons(doc.items, srdImageLibrary, itemMap).then((items) => {
+            doc.items = items;
           }),
         );
-      });
+      }
     }
 
     return Promise.all(promises);
