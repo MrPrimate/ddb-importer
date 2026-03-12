@@ -1,16 +1,29 @@
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger } from "../../lib/_module";
 import { DDBBasicActivity } from "../enrichers/mixins/_module";
+import DDBFeature from "../features/DDBFeature";
 import { DDBDescriptions } from "../lib/_module";
 
+type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition;
+
+interface IDDBFeatureActivity {
+  name?: string;
+  type: IDDBActivityType;
+  ddbParent?: DDBFeature;
+  nameIdPrefix?: string | null;
+  nameIdPostfix?: string | null;
+  id?: string | null;
+}
+
 export default class DDBFeatureActivity extends DDBBasicActivity {
-  ddbDefinition: IDDBCommonDefinition;
+  declare ddbParent: DDBFeature;
+  declare ddbDefinition: TDefinitions;
 
   _init() {
     logger.debug(`Generating DDBFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
-  constructor({ type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
+  constructor({ type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null }: IDDBFeatureActivity) {
     super({
       type,
       name,
@@ -21,6 +34,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       id,
     });
 
+    // @ts-expect-error - backgrounds don't build activities so we can ignore this for now
     this.ddbDefinition = this.ddbParent.ddbDefinition;
 
   }
@@ -127,7 +141,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
           formula: "",
         },
       });
-    } else if (this.ddbParent.data.system.uses.max) {
+    } else if (foundry.utils.hasProperty(this.ddbParent, "data.system.uses.max")) {
       targets.push({
         type: consumptionType,
         target: "", // adjusted later

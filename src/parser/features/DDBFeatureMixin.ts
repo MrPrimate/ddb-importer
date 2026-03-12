@@ -30,6 +30,10 @@ interface IDDBFeatureMixinActionType {
   feat?: boolean | object;
 }
 
+type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
+
+type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
+
 export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
 
   static LEVEL_SCALE_EXCLUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS;
@@ -69,7 +73,8 @@ export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
   snippet: string;
   description: string;
   resourceCharges: number | null;
-  ddbFeature: IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
+  ddbFeature: TFeatures | TDefinitions;
+  declare ddbDefinition: TDefinitions;
   declare data: I5eRaceItem | I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
   rawCharacter: I5ePCData;
 
