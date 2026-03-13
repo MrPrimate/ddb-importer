@@ -1,6 +1,17 @@
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
+interface IProficiency {
+  name: string;
+  custom: boolean;
+}
+
+interface IWeaponMastery {
+  weapon: string;
+  mastery: string;
+  dnd5eName: string;
+}
+
 DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(this: DDBCharacter, includeItemEffects = false) {
   return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "proficiency", { restriction: null, includeExcludedEffects: includeItemEffects })

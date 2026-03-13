@@ -42,7 +42,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
 
     if (notifier) notifier(`Parsing item ${++i} of ${length}: ${ddbItem.definition.name}`, { nameField: true });
     const itemParser = new DDBItem({
-      characterManager: this,
+      ddbCharacter: this,
       ddbItem,
       isCompendium: isCompendiumItem,
       spellCompendium,

@@ -97,7 +97,7 @@ global {
     profBonus?: number;
     proficiencies?: string[];
     proficienciesIncludingEffects?: string[];
-    effectAbilities?: Record<string, { value?: number }>;
+    effectAbilities?: I5eAbilities;
     characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[];
     templateStrings?: string[];
     campaign?: { id?: number; name?: string };

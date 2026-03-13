@@ -1041,6 +1041,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
   adjustRange(multiplier, spell) {
     // this needs to be adjusted and implemented for 2024 and 2014, not currently called
+    // @ts-expect-error - TO DO here
     if (this.data.spell.system.actionType === "rsak" && Number.isInteger(spell.system.range?.value)) {
       foundry.utils.setProperty(spell, "system.range.value", spell.system.range.value * multiplier);
     }
@@ -1050,9 +1051,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   async parse() {
     this.data.system.level = this.ddbDefinition.level;
     this.data.system.school = (this.school) ? this.school.id : null;
-    this.data.system.source = DDBSources.parseSource(this.ddbDefinition);
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceId", this.data.system.source.id);
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceCategoryId", this.data.system.source.categoryIdid);
+    const source = DDBSources.parseSource(this.ddbDefinition);
+    this.data.system.source = source;
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceId", source.id);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceCategoryId", source.categoryId);
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {

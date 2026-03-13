@@ -267,7 +267,7 @@ export default class DDBItemsImporter {
         ddbimporter: {
           compendium: true,
           dndbeyond: {
-            effectAbilities: [],
+            effectAbilities: {},
             totalLevels: 0,
             proficiencies: [],
             proficienciesIncludingEffects: [],

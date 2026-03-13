@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { ACBonusEffects } from "../enrichers/effects/_module";
 import { DDBDataUtils, DDBModifiers, FilterModifiers } from "../lib/_module";
@@ -111,13 +111,13 @@ function getUnarmoredAC(modifiers, character): number[] {
   const maxUnamoredDexMod = ignoreDex ? 0 : Math.min(...maxUnamoredDexMods, 20);
 
   // console.log(`Max Dex: ${maxUnamoredDexMod}`);
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  const characterAbilities: I5eAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
 
   isUnarmored.forEach((unarmored) => {
     let unarmoredACValue = 10;
     // +DEX
     // for a case of setting unarmoured ac, the dex won't detract
-    unarmoredACValue += Math.max(0, Math.min(characterAbilities.dex.mod, maxUnamoredDexMod));
+    unarmoredACValue += Math.max(0, Math.min(utils.calculateModifier(characterAbilities.dex.value), maxUnamoredDexMod));
     // +WIS or +CON, if monk or barbarian, draconic resilience === null
 
     // console.log(`Unarmoured AC Value: ${unarmoredACValue}`);
@@ -125,7 +125,7 @@ function getUnarmoredAC(modifiers, character): number[] {
 
     if (unarmored.statId !== null) {
       const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === unarmored.statId);
-      unarmoredACValue += characterAbilities[ability.value].mod;
+      unarmoredACValue += utils.calculateModifier(characterAbilities[ability.value].value);
     }
     if (unarmored.value) unarmoredACValue += unarmored.value;
     unarmoredACValues.push(unarmoredACValue);
@@ -154,8 +154,8 @@ function getDualWieldAC(data, modifiers) {
 // To Do: Rework AC functions as class functions to help reduce complexity in calculation.
 
 function calculateACOptions(data, character, calculatedArmor) {
-  const characterAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
-  let actorBase = 10 + characterAbilities.dex.mod;
+  const characterAbilities: I5eAbilities = character.flags.ddbimporter.dndbeyond.effectAbilities;
+  let actorBase = 10 + utils.calculateModifier(characterAbilities.dex.value);
   // generated AC effects
   const effects = [];
   // array to assemble possible AC values
@@ -244,7 +244,7 @@ function calculateACOptions(data, character, calculatedArmor) {
       }
       case "Unarmored": {
         const base = armorAC + calculatedArmor.miscACBonus + calculatedArmor.unarmoredACBonus;
-        const acCalc = base + characterAbilities.dex.mod;
+        const acCalc = base + utils.calculateModifier(characterAbilities.dex.value);
         acValue = {
           name: calculatedArmor.armors[armor].definition.name,
           value: acCalc + calculatedArmor.gearAC,
@@ -279,7 +279,7 @@ function calculateACOptions(data, character, calculatedArmor) {
         const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
         acValue = {
           name: calculatedArmor.armors[armor].definition.name,
-          value: acCalc + Math.min(maxDexMedium, characterAbilities.dex.mod),
+          value: acCalc + Math.min(maxDexMedium, utils.calculateModifier(characterAbilities.dex.value)),
           type: "Medium",
           acCalc,
           shieldMod,
@@ -292,7 +292,7 @@ function calculateACOptions(data, character, calculatedArmor) {
         const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
         acValue = {
           name: calculatedArmor.armors[armor].definition.name,
-          value: acCalc + characterAbilities.dex.mod,
+          value: acCalc + utils.calculateModifier(characterAbilities.dex.value),
           type: "Light",
           acCalc,
           shieldMod,
@@ -319,7 +319,7 @@ function calculateACOptions(data, character, calculatedArmor) {
         const acCalc = armorAC + calculatedArmor.gearAC + calculatedArmor.miscACBonus;
         acValue = {
           name: calculatedArmor.armors[armor].definition.name,
-          value: acCalc + characterAbilities.dex.mod,
+          value: acCalc + utils.calculateModifier(characterAbilities.dex.value),
           type: "Other",
           acCalc,
           shieldMod,

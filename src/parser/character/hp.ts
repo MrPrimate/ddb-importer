@@ -1,8 +1,10 @@
 import DDBCharacter from "../DDBCharacter";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module";
+import { utils } from "../../lib/_module";
 
 DDBCharacter.prototype._generateHitPoints = function _generateHitPoints(this: DDBCharacter) {
-  const constitutionHP = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities.con.mod * this.raw.character.flags.ddbimporter.dndbeyond.totalLevels;
+  const abilities: I5eAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
+  const constitutionHP = utils.calculateModifier(abilities.con.value) * this.raw.character.flags.ddbimporter.dndbeyond.totalLevels;
   const baseHitPoints = this.source.ddb.character.baseHitPoints || 0;
   const tempMaxHitPoints = this.source.ddb.character.bonusHitPoints || 0;
   const overrideHitPoints = this.source.ddb.character.overrideHitPoints || 0;

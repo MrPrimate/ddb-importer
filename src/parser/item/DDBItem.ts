@@ -5,6 +5,7 @@ import { DDBItemEnricher, mixins, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
 import { addRestrictionFlags } from "../../effects/restrictions";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
+import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
@@ -12,6 +13,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
   rawCharacter: I5ePCData;
+  raw: IDDBCharacterDataStub;
   declare ddbDefinition: IDDBItemDefinition;
   isCompendiumItem: boolean;
   isAction = false;
@@ -56,6 +58,8 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   removeWeaponMasteryDescription: boolean;
   versatileDamage: string;
   addMagical: boolean;
+  characterEffectAbilities: I5eAbilities;
+  ddbCharacter: DDBCharacter;
 
   static CLOTHING_ITEMS = [
     "Helm",
@@ -190,7 +194,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   ];
 
 
-  constructor({ characterManager, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
+  constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
     const addEffects = isCompendium
       ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
       : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
@@ -205,12 +209,12 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     });
 
     this.notifier = notifier;
-    this.characterManager = characterManager;
-    this.ddbData = characterManager.source.ddb;
+    this.ddbCharacter = ddbCharacter as DDBCharacter;
+    this.ddbData = ddbCharacter.source.ddb;
     this.ddbItem = ddbItem;
     this.ddbDefinition = ddbItem.definition;
     if (!this.ddbDefinition.description && !this.ddbDefinition.snippet) this.ddbDefinition.description = "";
-    this.raw = characterManager.raw;
+    this.raw = ddbCharacter.raw;
     this.isCompendiumItem = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
 
@@ -239,7 +243,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     this.characterProficiencies = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects")
       ?? [];
-    this.characterEffectAbilities = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.effectAbilities");
+    this.characterEffectAbilities = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.effectAbilities") as I5eAbilities;
 
     this.isContainer = this.ddbDefinition.isContainer && !DDBItem.NON_CONTAINERS.includes(this.ddbDefinition.name);
     this.isContainerTag = this.ddbDefinition.tags.includes("Container");
@@ -2979,7 +2983,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       if (this.addMagical)
         this.data.system.properties = utils.addToProperties(this.data.system.properties, "mgc");
 
-      this.characterManager.updateItemId(this.data);
+      this.ddbCharacter.updateItemId(this.data);
 
       const statusEffect = Effects.AutoEffects.getStatusEffect({ ddbDefinition: this.ddbDefinition, foundryItem: this.data });
       if (statusEffect) this.data.effects.push(statusEffect);

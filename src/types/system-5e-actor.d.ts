@@ -876,7 +876,7 @@ global {
     campaign?: IDDBPCDnDBeyondCampaignFlags;
     profBonus?: number;
     weaponMasteries?: any[];
-    effectAbilities?: any;
+    effectAbilities?: I5eAbilities;
     abilityOverrides?: Record<string, number>;
   }
 
