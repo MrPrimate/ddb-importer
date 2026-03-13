@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { logger, utils, CompendiumHelper, DDBSources } from "../../lib/_module";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory";
 import { DDBSpellActivity } from "../activities/_module";
@@ -7,11 +7,54 @@ import DDBSummonsManager from "../companions/DDBSummonsManager";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 import { ISpellPreparationMode } from "../../config/dictionary/spell/spell";
+import { NotifierV1Props } from "../../apps/DDBAppV2";
 
 interface SpellHealingPart {
   part: I5eDamagePart;
   chatFlavor: string;
 };
+
+interface IDDBSpell {
+  ddbData: IDDBData;
+  spellData: IDDBSpellEntry;
+  rawCharacter: I5ePCData;
+  namePrefix?: string;
+  namePostfix?: string;
+  isGeneric?: boolean;
+  updateExisting?: boolean;
+  limitedUse?: IDDBSpellLimitedUse | null;
+  forceMaterial?: boolean;
+  klass?: string;
+  lookup?: ParseSpellLookup;
+  lookupName?: string;
+  ability?: string;
+  spellClass?: string;
+  dc?: string;
+  overrideDC?: boolean;
+  nameOverride?: string;
+  isHomebrew?: boolean;
+  enricher?: DDBSpellEnricher;
+  generateSummons?: boolean;
+  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  healingBoost?: number | string | null;
+  cantripBoost?: boolean;
+  unPreparedCantrip?: boolean;
+  noSpellcasting?: boolean;
+  is2014Class?: boolean;
+  flagData?: IParseSpellFlagData;
+}
+
+interface IDDBSpellParseSpell {
+  namePrefix?: string;
+  namePostfix?: string;
+  ddbData?: IDDBData;
+  enricher?: DDBSpellEnricher;
+  generateSummons?: boolean;
+  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  unPreparedCantrip?: boolean;
+  noSpellcasting?: boolean;
+  flagData?: IParseSpellFlagData;
+}
 
 export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   declare data: I5eSpellItem;
@@ -57,11 +100,12 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   declare ddbDefinition: IDDBSpellDefinition;
   ddbCompanionFactory: DDBCompanionFactory;
   flagData: IParseSpellFlagData;
-  limitedUse: I5eSystemLimitedUses | null;
+  limitedUse: IDDBSpellLimitedUse | null;
   lookup: ParseSpellLookup;
   classPrepMode: ISpellPreparationMode; ;
   rawCharacter: I5ePCData;
   healingParts: SpellHealingPart[];
+  declare enricher: DDBSpellEnricher;
 
   _generateDataStub() {
     this.data = {
@@ -155,9 +199,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     spellClass = null, dc = null, overrideDC = null, nameOverride = null, isHomebrew = null, enricher = null,
     generateSummons = null, notifier = null, healingBoost = null, cantripBoost = null, unPreparedCantrip = null,
     noSpellcasting = false, is2014Class = null, flagData = {} as IParseSpellFlagData,
-  } = {}) {
+  }: IDDBSpell) {
 
-    const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic");
+    const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic") as boolean;
     const addEffects = generic
       ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
       : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
@@ -194,18 +238,18 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       ? utils.getSetting<boolean>("munching-policy-update-existing")
       : false;
     this.pactSpellsPrepared = utils.getSetting<boolean>("pact-spells-prepared");
-    this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.limitedUse") as I5eSystemLimitedUses;
-    this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forceMaterial");
+    this.limitedUse = limitedUse ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.limitedUse") as IDDBSpellLimitedUse | null;
+    this.forceMaterial = forceMaterial ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forceMaterial") as boolean;
     this.forcePact = foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forcePact") as boolean;
-    this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.class");
-    this.is2014Class = is2014Class ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.is2014Class");
-    this.lookup = lookup ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookup");
-    this.lookupName = lookupName ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookupName");
-    this.ability = ability ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.ability");
+    this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.class") as string;
+    this.is2014Class = is2014Class ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.is2014Class") as boolean;
+    this.lookup = lookup ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookup") as ParseSpellLookup;
+    this.lookupName = lookupName ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookupName") as string;
+    this.ability = ability ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.ability") as string;
     this.school = DICTIONARY.spell.schools.find((s) => s.name === this.ddbDefinition.school.toLowerCase());
-    this.dc = dc ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.dc");
-    this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.overrideDC");
-    this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.homebrew");
+    this.dc = dc ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.dc") as string;
+    this.overrideDC = overrideDC ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.overrideDC") as boolean;
+    this.isHomebrew = isHomebrew ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.homebrew") as boolean;
 
     this.onlyPactMagic = this.ddbData?.character?.classes?.length === 1
       && this.ddbData.character.classes[0].definition.name === "Warlock";
@@ -234,10 +278,10 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     this.isCantrip = this.ddbDefinition.level === 0;
     this.unPreparedCantrip = this.isCantrip && unPreparedCantrip;
-    const boost = cantripBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.cantripBoost");
+    const boost = cantripBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.cantripBoost")as boolean;
     this.cantripBoost = this.isCantrip && boost;
 
-    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.healingBoost");
+    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.healingBoost") as string;
     this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
     this.noSpellcasting = noSpellcasting;
 
@@ -432,7 +476,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         value: this.ddbDefinition.duration.durationInterval
           ? String(this.ddbDefinition.duration.durationInterval)
           : "",
-        units: units,
+        units: units as TDurationUnit,
       };
     }
   }
@@ -512,7 +556,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     if (this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeValue) {
       const type = this.ddbDefinition.range.aoeType.toLowerCase();
       target.template.size = String(this.ddbDefinition.range.aoeValue);
-      target.template.type = type === "emanation" ? "radius" : type;
+      target.template.type = type === "emanation" ? "radius" : type as TTemplate;
       if (targetsCreatures) {
         target.affects.type = "creature";
       }
@@ -526,7 +570,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       target.affects.count = count ? `${count}` : "";
     }
 
-    const rangeValue = foundry.utils.getProperty(this.ddbDefinition, "range.rangeValue");
+    const rangeValue = foundry.utils.getProperty(this.ddbDefinition, "range.rangeValue") as number;
 
     switch (this.ddbDefinition.range.origin) {
       case "Touch":
@@ -549,7 +593,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
         break;
       }
       case "None":
-        target.affects.type = "none";
+        target.affects.type = "";
         break;
       case "Ranged":
         if (targetsCreatures) target.affects.type = "creature";
@@ -620,8 +664,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       className: "Wizard",
       subClassName: "Illusionist",
     });
-    if (hasIllusionSavant && this.school.id === "ill" && Number.parseInt(this.data.system.range.value) >= 10) {
-      this.data.system.range.value = Number.parseInt(this.data.system.range.value) + 60;
+    if (hasIllusionSavant && this.school.id === "ill" && Number.parseInt(String(this.data.system.range.value)) >= 10) {
+      this.data.system.range.value = Number.parseInt(String(this.data.system.range.value)) + 60;
     }
 
   }
@@ -666,13 +710,13 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
 
     this.data.system.range = {
       value: value,
-      units: units,
+      units: units as TDistanceUnit,
     };
 
     this.#specialRange();
   }
 
-  static getUses(limitedUse) : I5eSystemLimitedUses{
+  static getUses(limitedUse: IDDBSpellLimitedUse) : I5eSystemLimitedUses{
     let uses: I5eSystemLimitedUses = {
       spent: null,
       max: "",
@@ -729,10 +773,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       uses = {
         spent: limitedUse.numberUsed ?? null,
         max: `${finalMaxUses}`,
-        recovery: resetType
+        recovery: resetType && !["charges", ""].includes(resetType.value)
           ? [{
-            // KNOWN_ISSUE_4_0: if charges returned here maybe don't?
-            period: resetType.value,
+            period: resetType.value as TLimitedUsePeriod,
             type: "recoverAll",
           }]
           : [],
@@ -754,7 +797,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     const activityParser = new DDBSpellActivity({
       type: "heal",
       ddbParent: this,
-      healingBoost: this.healingBoost,
+      healingBoost: this.healingBonus,
       cantripBoost: this.cantripBoost,
     });
 
@@ -808,8 +851,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   async _generateCompanions() {
     if (!this.isSummons) return;
     const createOrUpdate = this.isGeneric
-      || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")
-      || this.ddbCharacter?.enableCompanions;
+      || utils.getSetting<boolean>("character-update-policy-create-companions")
+      || this.generateSummons;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "spell",
       originDocument: this.data,
@@ -949,7 +992,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
           generateDamage: false,
           includeBaseDamage: false,
           generateHealing: true,
-          healingPart: part,
+          healingPart: part.part,
+          healingChatFlavor: part.chatFlavor,
           noSpellslot: this.activityType !== "heal",
         },
       });
@@ -980,8 +1024,8 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   }
 
   getRangeAdjustmentMultiplier() {
-    if (!this.ddbParser?.ddbData) return 1;
-    const rangeAdjustmentMods = DDBModifiers.filterBaseModifiers(this.ddbParser.ddbData, "bonus", { subType: "spell-attack-range-multiplier" }).filter((modifier) => modifier.isGranted);
+    if (!this.ddbData) return 1;
+    const rangeAdjustmentMods = DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "spell-attack-range-multiplier" }).filter((modifier) => modifier.isGranted);
 
     const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
       if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
@@ -1048,8 +1092,13 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     // this.data.system.spellcasting = {
     // progression: spellProgression.value,
     // ability: spellCastingAbility,
+    // TODO; we should check that spells/classes that generate spells with abilities not spellcasting, that these
+    // are set properly
     if (this.rawCharacter && !this.spellClass) {
-      this.data.system.ability = [this.ability];
+      logger.warn("Spell without class, defaulting to spellcasting ability", {
+        spell: this,
+      });
+      // this.data.system.ability = [this.ability];
       // if (this.data.system.save.scaling == "spell") {
       //   this.data.system.save.scaling = this.ability;
       // }
@@ -1071,11 +1120,11 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     await this.enricher.cleanup();
   }
 
-  static async parseSpell(data: IDDBSpellEntry, character,
+  static async parseSpell(data: IDDBSpellEntry, character: I5ePCData,
     {
       namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null,
-      unPreparedCantrip = null, noSpellcasting = false, flagData = {},
-    } = {},
+      unPreparedCantrip = null, noSpellcasting = false, flagData = { ddbimporter: { dndbeyond: {} } },
+    }: IDDBSpellParseSpell,
   ) {
     const spell = new DDBSpell({
       ddbData,

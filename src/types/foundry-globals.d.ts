@@ -50,10 +50,7 @@ declare global {
       [key: string]: any;
     };
   }
-  let DDBImporter: {
-    lib: Record<string, any>;
-    [key: string]: any;
-  };
+  var DDBImporter: Window["DDBImporter"];
 
   // Third-party Foundry module globals
   const MidiQOL: any;

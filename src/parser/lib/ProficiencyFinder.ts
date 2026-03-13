@@ -44,9 +44,9 @@ export default class ProficiencyFinder {
     return customProfs;
   }
 
-  getArmorProficiencies(proficiencyArray: IProficiencyBasic[]) {
-    const values = new Set();
-    const custom = [];
+  getArmorProficiencies(proficiencyArray: IProficiencyBasic[]): I5eArmorProf {
+    const values = new Set<string>();
+    const custom: string[] = [];
 
     // lookup the characters's proficiencies in the DICT
     const allProficiencies = DICTIONARY.actor.proficiencies.filter((prof) =>
@@ -73,14 +73,16 @@ export default class ProficiencyFinder {
       processArmorProficiency({ name: prof });
     });
 
-    return {
+    const result: I5eArmorProf = {
       value: [...values],
       custom: [...new Set(custom)].join(";"),
     };
+
+    return result;
   }
 
-  getToolProficiencies(proficiencyArray: IProficiencyBasic[]) {
-    const results = {};
+  getToolProficiencies(proficiencyArray: IProficiencyBasic[]): Record<string, I5eToolProficiency> {
+    const results: Record<string, I5eToolProficiency> = {};
 
     // lookup the characters's proficiencies in the DICT
     const allToolProficiencies = DICTIONARY.actor.proficiencies
@@ -169,10 +171,10 @@ export default class ProficiencyFinder {
     // }
   }
 
-  getWeaponProficiencies(proficiencyArray: IProficiencyBasic[], masteriesArray = []) {
-    const values = new Set();
-    const custom = [];
-    const masteries = [];
+  getWeaponProficiencies(proficiencyArray: IProficiencyBasic[], masteriesArray = []): I5eWeaponProf {
+    const values = new Set<string>();
+    const custom: string[] = [];
+    const masteries: string[] = [];
 
     // lookup the characters's proficiencies in the DICT
     const allProficiencies = DICTIONARY.actor.proficiencies.filter((prof) => prof.type === "Weapon");

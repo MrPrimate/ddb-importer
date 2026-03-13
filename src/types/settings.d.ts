@@ -416,6 +416,7 @@ declare global {
     "midi-qol.last-run-version": string;
     "midi-qol.instanceId": string;
     "chris-premades.effectInterface": boolean;
+    "itemacro.defaultmacro": boolean;
 
   }
 

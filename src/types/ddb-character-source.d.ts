@@ -252,7 +252,7 @@ global {
     featuresSectionType: number | null;
   }
 
-  export interface IDDBClassDefinition {
+  export interface IDDBClassDefinition extends IDDBSourcesDefinition {
     id: number;
     definitionKey: string;
     name: string;
@@ -265,7 +265,6 @@ global {
     portraitAvatarUrl: string | null;
     moreDetailsUrl: string;
     spellCastingAbilityId: number | null;
-    sources: IDDBSource[];
     classFeatures: IDDBClassDefinitionFeature[];
     hitDice: number;
     wealthDice: IDDBWealthDice | null;
@@ -274,9 +273,7 @@ global {
     spellPrepareType: number | null;
     spellCastingLearningStyle: number | null;
     spellContainerName: string | null;
-    sourcePageNumber: number | null;
     subclassDefinition: IDDBClassDefinition | null;
-    isHomebrew: boolean;
     primaryAbilities: number[] | null;
     // Card / UI fields
     cardDescription: string | null;
@@ -326,7 +323,7 @@ global {
     featIds: number[];
   }
 
-  export interface IDDBClassFeatureDefinition extends IDDBCommonDefinition {
+  export interface IDDBClassFeatureDefinition extends IDDBCommonDefinition, IDDBSourcesDefinition {
     definitionKey: string;
     entityID: string;
     entityType: string;
@@ -342,9 +339,6 @@ global {
     hasItemMappings: boolean;
     multiClassDescription: string;
     activation: any | null;
-    sourceId: number | null;
-    sourcePageNumber: number | null;
-    sources: IDDBSource[];
     grantedFeats: IDDBClassFeatureGrantedFeat[];
     affectedFeatureDefinitionKeys: string[];
     levelScales: IDDBClassFeatureLevelScale[];
@@ -406,19 +400,16 @@ global {
     CLASSFEATURE: number;
   }
 
-  export interface IDDBRacialTraitDefinition extends IDDBCommonDefinition {
+  export interface IDDBRacialTraitDefinition extends IDDBCommonDefinition, IDDBSourcesDefinition {
     definitionKey: string;
     entityTypeId: number;
     displayOrder: number | null;
     hideInBuilder: boolean;
     hideInSheet: boolean;
     activation: unknown;
-    sourceId: number;
-    sourcePageNumber: number | null;
     creatureRules: unknown[];
     spellListIds: number[];
     featureType: number;
-    sources: IDDBSource[];
     affectedFeatureDefinitionKeys: string[];
     isCalledOut: boolean;
     entityType: string;
@@ -551,17 +542,13 @@ global {
     hidePrerequisite: boolean;
   }
 
-  export interface IDDBFeatDefinition extends IDDBCommonDefinition {
+  export interface IDDBFeatDefinition extends IDDBCommonDefinition, IDDBSourcesDefinition {
     entityTypeId: number;
     definitionKey: string;
     snippet: string;
     activation: IDDBFeatActivation;
-    sourceId: number | null;
-    sourcePageNumber: number | null;
     creatureRules: unknown[];
     prerequisites: IDDBFeatPrerequisite[];
-    isHomebrew: boolean;
-    sources: IDDBSource[];
     spellListIds: number[];
     isRepeatable: boolean;
     repeatableParentId: number | null;
@@ -588,12 +575,9 @@ global {
 
   // ---- Options (source-categorized) -----------------------------------------
 
-  export interface IDDBOptionDefinition extends IDDBCommonDefinition {
+  export interface IDDBOptionDefinition extends IDDBCommonDefinition, IDDBSourceIdAndPageDefinition {
     entityTypeId: number;
-    snippet: string;
     activation: any | null;
-    sourceId: number | null;
-    sourcePageNumber: number | null;
     creatureRules: any[];
     spellListIds: any[];
   }

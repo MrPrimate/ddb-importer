@@ -66,14 +66,13 @@ global {
     atHigherLevels: IDDBAtHigherLevels;
   }
 
-  export interface IDDBSpellDefinition extends IDDBCommonDefinition {
+  export interface IDDBSpellDefinition extends IDDBCommonDefinition, IDDBSourcesDefinition {
     definitionKey: string;
     snippet: string;
     level: number;
     school: string;
     ritual: boolean;
     concentration: boolean;
-    isHomebrew: boolean;
     isLegacy: boolean;
     // Casting
     activation: IDDBSpellActivation;
@@ -104,11 +103,7 @@ global {
     conditions: IDDBSpellCondition[];
     // Tags & sources
     tags: string[];
-    sources: IDDBSource[];
     spellGroups: any[];
-    // Misc
-    sourceId: number | null;
-    sourcePageNumber: number | null;
     version: string | null;
   }
 

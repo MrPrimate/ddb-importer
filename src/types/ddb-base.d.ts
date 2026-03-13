@@ -63,5 +63,20 @@ global {
     condition: IDDBModifier[];
   }
 
+  export interface IDDBBaseSourcesDefinition {
+    sources?: IDDBSource[];
+    isHomebrew?: boolean;
+  }
+
+  interface IDDBSourceIdAndPageDefinition {
+    sourceId?: number;
+    sourcePageNumber?: string;
+  }
+
+  export interface IDDBSourcesDefinition extends IDDBSourceIdAndPageDefinition, IDDBBaseSourcesDefinition {}
+
+  export interface IDDBSourceIdsDefinition extends IDDBBaseSourcesDefinition {
+    sourceIds?: number[];
+  }
 
 }

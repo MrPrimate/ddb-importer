@@ -15,14 +15,17 @@ import { getFindFamiliarActivityData } from "./types/FindFamiliar";
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterImporter from "../../muncher/DDBMonsterImporter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
+import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
+
+type TDDBOriginDocument = TAll5eItemDocuments | TAll5eActorDocuments;
 
 interface DDBCompanionFactoryOptions {
-  originDocument?: any;
+  originDocument?: TDDBOriginDocument;
   is2014?: boolean;
   is2024?: boolean;
   notifier?: any;
-  actor?: any;
-  data?: any;
+  actor?: Actor5e | null;
+  data?: I5eMonsterData[];
   folderHint?: string;
   createCompanions?: boolean;
   updateCompanions?: boolean;
@@ -32,6 +35,8 @@ interface DDBCompanionFactoryOptions {
 }
 
 export default class DDBCompanionFactory {
+  actor: Actor5e | null;
+  originDocument: TDDBOriginDocument | null;
   options: DDBCompanionFactoryOptions;
   doc: Document;
   html: string;
@@ -53,7 +58,7 @@ export default class DDBCompanionFactory {
   summons: I5eSummonActivity | null;
 
   constructor(html: string, options: DDBCompanionFactoryOptions = {}) {
-    const defaultOptions = {
+    const defaultOptions: DDBCompanionFactoryOptions = {
       originDocument: null,
       is2014: null,
       is2024: null,
@@ -80,7 +85,7 @@ export default class DDBCompanionFactory {
       updated: [],
     };
     this.originDocument = this.options.originDocument;
-    this.originName = foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName")
+    this.originName = foundry.utils.getProperty(this.originDocument, "flags.ddbimporter.originalName") as string
       ?? this.originDocument?.name
       ?? null;
     this.is2014 = this.options.is2014;
@@ -105,7 +110,7 @@ export default class DDBCompanionFactory {
     this.itemHandler = this.summonsManager.itemHandler;
   }
 
-  get data() {
+  get data(): I5eMonsterData[] {
     return this.options.data ?? this.companions.map((c) => c.data);
   }
 
@@ -273,7 +278,7 @@ export default class DDBCompanionFactory {
       update,
       addToWorld: true,
     });
-    const npc = this.data;
+    const npc = npcBuilder.data;
     results.push(npc);
     return results;
   }

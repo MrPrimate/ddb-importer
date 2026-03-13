@@ -62,7 +62,7 @@ global {
   // ---- Monster source data --------------------------------------------------
 
   /** A single monster entry from the DDB proxy API. */
-  export interface IDDBMonsterSourceData {
+  export interface IDDBMonsterSourceData extends IDDBSourcesDefinition {
     // Identification
     id: number;
     entityTypeId: number;
@@ -70,10 +70,6 @@ global {
     url: string;
 
     // Publishing / metadata
-    sourceId: number;
-    sourcePageNumber: number | null;
-    sources: IDDBSource[];
-    isHomebrew: boolean;
     homebrewStatus: number;
     isReleased: boolean;
     isLegacy: boolean;

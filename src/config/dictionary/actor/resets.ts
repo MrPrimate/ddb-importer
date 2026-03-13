@@ -1,6 +1,6 @@
 export interface IResetType {
   id: string | number | null;
-  value: string;
+  value: "sr" | "lr" | "day" | "dawn" | "dusk" | "charges" | "";
 }
 
 export const RESETS = [

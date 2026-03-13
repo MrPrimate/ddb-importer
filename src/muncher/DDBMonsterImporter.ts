@@ -7,6 +7,15 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
+import { NotifierV1Props } from "../apps/DDBAppV2";
+
+interface IDDBMonsterImporter {
+  monster?: I5eMonsterData;
+  type?: string;
+  updateExisting?: boolean;
+  fullWipe?: boolean;
+  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+}
 
 export default class DDBMonsterImporter {
   compendiumActor: Actor.Implementation | null;
@@ -16,11 +25,11 @@ export default class DDBMonsterImporter {
   updateExisting: boolean;
   monster: I5eMonsterData;
 
-  constructor({ monster, type, updateExisting, notifier, fullWipe = false } = {}) {
+  constructor({ monster, type, updateExisting, notifier, fullWipe = false }: IDDBMonsterImporter) {
     this.monster = monster;
     this.type = type;
     this.fullWipe = fullWipe;
-    this.updateExisting = updateExisting ?? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
+    this.updateExisting = updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing");
 
     this.compendiumActor = null;
 

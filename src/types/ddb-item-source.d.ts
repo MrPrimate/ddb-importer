@@ -31,7 +31,7 @@ global {
     isMonkWeapon: boolean;
   }
 
-  export interface IDDBItemDefinition extends IDDBCommonDefinition {
+  export interface IDDBItemDefinition extends IDDBCommonDefinition, IDDBSourcesDefinition {
     entityTypeId: number;
     definitionKey: string;
     snippet: string;
@@ -40,7 +40,6 @@ global {
     subType: string | null;
     rarity: string;
     magic: boolean;
-    isHomebrew: boolean;
     isLegacy: boolean;
     isCustomItem: boolean;
     isConsumable: boolean;
@@ -86,13 +85,10 @@ global {
     largeAvatarUrl: string | null;
     // Modifiers & sources
     grantedModifiers: IDDBModifier[];
-    sources: IDDBSource[];
     tags: string[];
     // Infusion
     levelInfusionGranted: number | null;
     version: string | null;
-    sourceId: number | null;
-    sourcePageNumber: number | null;
   }
 
   export interface IDDBInventoryLimitedUse {

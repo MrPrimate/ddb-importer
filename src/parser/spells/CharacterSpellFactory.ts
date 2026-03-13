@@ -44,6 +44,7 @@ export default class CharacterSpellFactory {
   pactSlots: boolean;
   hasSlots: boolean;
   generateSummons: boolean;
+  character: I5ePCData;
 
   constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;

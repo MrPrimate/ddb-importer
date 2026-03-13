@@ -7,21 +7,21 @@ import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 
 interface IEffectGenerator {
-  ddb: IDDBCharacterData;
+  ddb: IDDBData;
   character: I5eActorData;
   ddbItem: IDDBInventoryItem | IDDBClassFeature | IDDBBackground | IDDBRacialTrait | IDDBFeat;
   document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
-  isCompendiumItem: boolean;
-  labelOverride: string | null;
-  labelSuffix: string;
+  isCompendiumItem?: boolean;
+  labelOverride?: string | null;
+  labelSuffix?: string;
   type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
-  description: string;
-  separateACEffects: boolean;
+  description?: string;
+  separateACEffects?: boolean;
 }
 
 export default class EffectGenerator {
   effect: IEffectData;
-  ddb: IDDBCharacterData;
+  ddb: IDDBData;
   character: I5eActorData;
   document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
   proficiencyFinder: ProficiencyFinder;
@@ -313,7 +313,7 @@ export default class EffectGenerator {
     senses.forEach((sense) => {
       const base = this.grantedModifiers
         .filter((modifier) => modifier.type === "set-base" && modifier.subType === sense)
-        .map((mod) => mod.value);
+        .map((mod) => parseInt(String(mod.value)));
       if (base.length > 0) {
         logger.debug(`Generating ${sense} base for ${this.document.name}`);
         this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.${sense}`));
@@ -324,7 +324,7 @@ export default class EffectGenerator {
       }
       const bonus = this.grantedModifiers
         .filter((modifier) => modifier.type === "sense" && modifier.subType === sense)
-        .reduce((a, b) => a + b.value, 0);
+        .reduce((a, b) => a + parseInt(String(b.value)), 0);
       if (bonus > 0) {
         logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
         this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.${sense}`));
@@ -753,6 +753,7 @@ export default class EffectGenerator {
     //   };
     // }
     if (foundry.utils.hasProperty(this.document.system, "uses")) {
+      // @ts-expect-error - this only gets called for consumables
       this.document.system.uses.autoDestroy = true;
     }
   }
@@ -1060,7 +1061,15 @@ export default class EffectGenerator {
     }
   }
 
-  static generateEffects({ ddb, character, ddbItem, document, isCompendiumItem, type, description = "" } = {}) {
+  static generateEffects({ ddb, character, ddbItem, document, isCompendiumItem, type, description = "" }: {
+    ddb: IDDBData;
+    character: I5eActorData;
+    ddbItem: IDDBInventoryItem | IDDBClassFeature | IDDBBackground | IDDBRacialTrait | IDDBFeat;
+    document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
+    isCompendiumItem: boolean;
+    type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
+    description: string;
+  }) {
     const generator = new EffectGenerator({
       ddb,
       character,

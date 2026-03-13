@@ -1,4 +1,5 @@
 import { parseTable, getHeadings } from "../../../vendor/parseTable";
+import { NotifierV1Props } from "../../apps/DDBAppV2";
 import {
   utils,
   logger,
@@ -241,7 +242,13 @@ async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, nam
   return handler.results;
 }
 
-export async function generateTable({ parentName, html, updateExisting, type = "", notifier = null } = {}) {
+export async function generateTable({ parentName, html, updateExisting, type = "", notifier = null }: {
+  parentName: string;
+  html: string;
+  updateExisting?: boolean;
+  type?: string;
+  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+}): Promise<string> {
   let name = `${parentName}`;
   const document = utils.htmlToDoc(html);
   const tableNodes = document.querySelectorAll("table");

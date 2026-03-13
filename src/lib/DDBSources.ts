@@ -1,13 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { utils } from "./_module";
 
-export interface IDDBSourceDefinition {
-  sources?: IDDBSource[];
-  sourceId?: number;
-  sourceIds?: number[];
-  sourcePageNumber?: string;
-  isHomebrew?: boolean;
-}
+type TDDBSourceTypes = IDDBBaseSourcesDefinition | IDDBSourceIdAndPageDefinition | IDDBSourcesDefinition | IDDBSourceIdsDefinition;
 
 export interface IDDBSourceResponse extends I5eSourceInfo {
   id?: number;
@@ -92,13 +86,13 @@ export default class DDBSources {
    * If the definition has a sourceId, it will return an array with one sourcebook object.
    * If the definition has a sourceIds array, it will return an array with one sourcebook object for each sourceId.
    * If the definition has no source information, it will return an empty array.
-   * @param {IDDBSourceDefinition} definition item definition
+   * @param {TDDBSourceTypes} definition item definition
    * @returns {Array} an array of sourcebook objects
    */
 
-  static getSourceData(definition: IDDBSourceDefinition): IDDBSourceResponse[] {
+  static getSourceData(definition: TDDBSourceTypes): IDDBSourceResponse[] {
     const results = [];
-    if (definition.sources?.length > 0) {
+    if ("sources" in definition && definition.sources?.length > 0) {
       const typeOneSources = definition.sources.filter((source) => source.sourceType === 1);
       const typeTwoSources = definition.sources.filter((source) => source.sourceType === 2);
       // is basic rules (e.g. SRD)
@@ -147,12 +141,13 @@ export default class DDBSources {
         DDBSources.tweakSourceData(source);
         results.push(source);
       }
-    } else if (definition.sourceIds) {
+    } else if ("sourceIds" in definition && definition.sourceIds) {
       for (const sourceId of definition.sourceIds) {
         const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === sourceId);
+        const page = "sourcePageNumber" in definition && definition.sourcePageNumber ? String(definition.sourcePageNumber) : "";
         const source: IDDBSourceResponse = {
           book: ddbSource ? ddbSource.name : "Homebrew",
-          page: definition.sourcePageNumber ?? "",
+          page,
           license: "",
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
@@ -163,7 +158,7 @@ export default class DDBSources {
         DDBSources.tweakSourceData(source);
         results.push(source);
       }
-    } else if (definition.sourceId) {
+    } else if ("sourceId" in definition && definition.sourceId) {
       const ddbSource = CONFIG.DDB.sources.find((ddb) => ddb.id === definition.sourceId);
       const source: IDDBSourceResponse = {
         book: ddbSource ? ddbSource.name : "Homebrew",
@@ -176,7 +171,7 @@ export default class DDBSources {
       };
       DDBSources.tweakSourceData(source);
       results.push(source);
-    } else if (definition.isHomebrew) {
+    } else if ("isHomebrew" in definition && definition.isHomebrew) {
       const source: IDDBSourceResponse = {
         book: "Homebrew",
         page: "",
@@ -193,10 +188,10 @@ export default class DDBSources {
 
   /**
    * Parses the source data of a definition into a single source object
-   * @param {IDDBSourceDefinition} definition definition to parse
+   * @param {TDDBSourceTypes} definition definition to parse
    * @returns {obj} a source object with the following properties: name, page, license, and custom
    */
-  static parseSource(definition: IDDBSourceDefinition): IDDBSourceResponse {
+  static parseSource(definition: TDDBSourceTypes): IDDBSourceResponse {
     const sources = DDBSources.getSourceData(definition);
     const latestSource = sources.length > 0
       ? sources.reduce((prev, current) => {

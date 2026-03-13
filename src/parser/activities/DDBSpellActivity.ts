@@ -2,7 +2,19 @@ import { DICTIONARY } from "../../config/_module";
 import { utils, logger } from "../../lib/_module";
 import { DDBBasicActivity } from "../enrichers/mixins/_module";
 import { SystemHelpers } from "../lib/_module";
+import DDBSpell from "../spells/DDBSpell";
 
+interface IDDBSpellActivity {
+  type: IDDBActivityType;
+  name?: string;
+  ddbParent: DDBSpell;
+  nameIdPrefix?: string | null;
+  nameIdPostfix?: string | null;
+  spellEffects?: boolean;
+  cantripBoost?: boolean;
+  healingBoost?: string;
+  id?: string | null;
+}
 
 export default class DDBSpellActivity extends DDBBasicActivity {
   spellData: IDDBSpellEntry;
@@ -13,6 +25,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   cantripBoost: boolean;
   healingBonus: string;
   additionalActivityDamageParts: I5eDamagePart[];
+  declare ddbParent: DDBSpell;
 
   _init() {
     logger.debug(`Generating DDBSpellActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
@@ -21,7 +34,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   constructor({
     type, name = null, ddbParent, nameIdPrefix = null, nameIdPostfix = null, spellEffects = null,
     cantripBoost = null, healingBoost = null, id = null,
-  } = {}) {
+  }: IDDBSpellActivity) {
 
     super({
       type,
@@ -36,14 +49,14 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     this.spellData = ddbParent.spellData;
     this.ddbDefinition = this.spellData.definition;
 
-    this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.addSpellEffects");
+    this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.addSpellEffects") as boolean;
     this.damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !this.spellEffects;
 
     this.isCantrip = this.ddbDefinition.level === 0;
-    const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost");
+    const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost") as boolean;
     this.cantripBoost = this.isCantrip && boost;
 
-    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.healingBoost");
+    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.healingBoost") as string;
     this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
 
     this.additionalActivityDamageParts = [];
@@ -329,7 +342,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   }
 
 
-  _generateDamage({ damageParts = null, onSave = null, partialDamageParts, modRestrictionFilter = null,
+  _generateDamage({ damageParts = null, onSave = null, partialDamageParts = null, modRestrictionFilter = null,
     modRestrictionFilterExcludes = null, allowCritical = null } = {},
   ) {
 
@@ -503,6 +516,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     generateTarget = false,
     generateUses = false,
     healingPart = null,
+    healingChatFlavor = null,
     img = null,
     includeBaseDamage = false,
     noeffect = false,
@@ -589,8 +603,8 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       includeBaseDamage,
       criticalDamage,
       damageScalingOverride,
-      healingPart: healingPart?.part ?? healingPart ?? null,
-      healingChatFlavor: healingPart?.chatFlavor ?? null,
+      healingPart,
+      healingChatFlavor,
       damageParts,
       allowCritical,
     });

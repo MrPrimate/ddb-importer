@@ -306,6 +306,22 @@ global {
     custom?: string;
   }
 
+  interface I5eWeaponMastery {
+    value?: string[];
+    bonus?: string[];
+  }
+
+  interface I5eWeaponProf {
+    custom?: string;
+    mastery?: I5eWeaponMastery;
+    value?: string[];
+  }
+
+  interface I5eArmorProf {
+    custom?: string;
+    value?: string[];
+  }
+
   interface I5eTraits {
     ci?: I5eConditionTraitSet;
     di?: I5eDamageTraitSet;
@@ -315,6 +331,8 @@ global {
     important?: boolean;
     languages?: I5eLanguages;
     size?: TActorSizes;
+    weaponProf?: I5eWeaponProf;
+    armorProf?: I5eArmorProf;
   }
 
   // ---- System (top-level) ---------------------------------------------------

@@ -539,7 +539,7 @@ export async function generateCharacterExtras(_html, ddbCharacter, actor) {
 
     logger.debug("Extracted creatures", foundry.utils.duplicate(extractedCreatures));
     const keyPostfix = actor.id;
-    const useLocalKey = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
+    const useLocalKey = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") as boolean ?? false;
 
     const monsterFactory = new DDBMonsterFactory({
       ddbData: extractedCreatures,
