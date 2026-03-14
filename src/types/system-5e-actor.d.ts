@@ -285,10 +285,8 @@ global {
 
   // ---- Traits ---------------------------------------------------------------
 
-  interface I5eDamageTraitSet {
-    value?: string[];
+  interface I5eDamageTraitSet extends I5eBaseProficiency {
     bypasses?: string[];
-    custom?: string;
   }
 
   interface I5eDamageModification {
@@ -301,7 +299,7 @@ global {
     custom?: string;
   }
 
-  interface I5eLanguages {
+  interface I5eBaseProficiency {
     value?: string[];
     custom?: string;
   }
@@ -311,15 +309,8 @@ global {
     bonus?: string[];
   }
 
-  interface I5eWeaponProf {
-    custom?: string;
+  interface I5eWeaponProf extends I5eBaseProficiency {
     mastery?: I5eWeaponMastery;
-    value?: string[];
-  }
-
-  interface I5eArmorProf {
-    custom?: string;
-    value?: string[];
   }
 
   interface I5eTraits {
@@ -329,10 +320,10 @@ global {
     dr?: I5eDamageTraitSet;
     dv?: I5eDamageTraitSet;
     important?: boolean;
-    languages?: I5eLanguages;
+    languages?: I5eBaseProficiency;
     size?: TActorSizes;
     weaponProf?: I5eWeaponProf;
-    armorProf?: I5eArmorProf;
+    armorProf?: I5eBaseProficiency;
   }
 
   // ---- System (top-level) ---------------------------------------------------
@@ -864,18 +855,29 @@ global {
     characters?: IDDBPCDnDBeyondCampaignCharacterFlags[];
   }
 
+  interface IDDBPCDnDBeyondProficiencyFlags {
+    name: string;
+    custom: boolean;
+  }
+
+  interface IDDBPCDnDBeyondWeaponMasteryFlags {
+    weapon: string;
+    mastery: string;
+    dnd5eName: string;
+  }
+
   interface IDDBPCDnDBeyondFlags {
     characterId?: string;
     url?: string;
     totalLevels?: number;
-    proficiencies?: any;
-    proficienciesIncludingEffects?: any;
+    proficiencies?: IDDBPCDnDBeyondProficiencyFlags[];
+    proficienciesIncludingEffects?: IDDBPCDnDBeyondProficiencyFlags[];
     roUrl?: string | null;
     characterValues?: any;
     templateStrings?: any;
     campaign?: IDDBPCDnDBeyondCampaignFlags;
     profBonus?: number;
-    weaponMasteries?: any[];
+    weaponMasteries?: IDDBPCDnDBeyondWeaponMasteryFlags[];
     effectAbilities?: I5eAbilities;
     abilityOverrides?: Record<string, number>;
   }

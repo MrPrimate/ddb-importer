@@ -1,18 +1,7 @@
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
-interface IProficiency {
-  name: string;
-  custom: boolean;
-}
-
-interface IWeaponMastery {
-  weapon: string;
-  mastery: string;
-  dnd5eName: string;
-}
-
-DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(this: DDBCharacter, includeItemEffects = false) {
+DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(this: DDBCharacter, includeItemEffects = false): IDDBPCDnDBeyondProficiencyFlags[] {
   return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "proficiency", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((proficiency) => {
@@ -20,7 +9,7 @@ DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(th
     });
 };
 
-DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(this: DDBCharacter, includeItemEffects = false) {
+DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(this: DDBCharacter, includeItemEffects = false): IDDBPCDnDBeyondWeaponMasteryFlags[] {
   return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((prof) => {
@@ -40,7 +29,7 @@ DDBCharacter.prototype._generateLanguages = function _generateLanguages(this: DD
 };
 
 DDBCharacter.prototype._generateProficiencies = function _generateProficiencies(this: DDBCharacter) {
-  const customProficiencies = [
+  const customProficiencies: IDDBPCDnDBeyondProficiencyFlags[] = [
     ...this.proficiencyFinder.getCustomProficiencies("Armor"),
     ...this.proficiencyFinder.getCustomProficiencies("Tools"),
     ...this.proficiencyFinder.getCustomProficiencies("Weapons"),

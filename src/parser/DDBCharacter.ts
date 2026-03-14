@@ -265,6 +265,9 @@ class DDBCharacter {
   resources: I5ePCResources;
   spellSlots: I5eSpellSlots;
   armor: IDDBCharacterArmor;
+  proficiencies: IDDBPCDnDBeyondProficiencyFlags[];
+  proficienciesIncludingEffects: IDDBPCDnDBeyondProficiencyFlags[];
+  weaponMasteries: IDDBPCDnDBeyondWeaponMasteryFlags[];
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,

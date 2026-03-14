@@ -44,7 +44,7 @@ export default class ProficiencyFinder {
     return customProfs;
   }
 
-  getArmorProficiencies(proficiencyArray: IProficiencyBasic[]): I5eArmorProf {
+  getArmorProficiencies(proficiencyArray: IProficiencyBasic[]): I5eBaseProficiency {
     const values = new Set<string>();
     const custom: string[] = [];
 
@@ -73,7 +73,7 @@ export default class ProficiencyFinder {
       processArmorProficiency({ name: prof });
     });
 
-    const result: I5eArmorProf = {
+    const result: I5eBaseProficiency = {
       value: [...values],
       custom: [...new Set(custom)].join(";"),
     };
