@@ -21,7 +21,7 @@ This will ensure you get all the spells, items and monsters you are expecting.
     </div>
     {{/each}}
     <div id="munch-source-div" {{#if enableSources}}{{else}}class="ddbimporter-hidden"{{/if}}>
-      <multi-select id="muncher-source-select" name="muncher-source-select">
+      <multi-select id="muncher-source-select" name="muncher-source-select" class="ddb-source-select">
         {{#each selectedSources}}
         <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
         {{/each}}

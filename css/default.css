@@ -142,3 +142,7 @@ header > a.header-button.control.ddb-open-url {
   margin: -1px 0 -1px 4px;
   order: 99;
 }
+
+.ddb-source-select span {
+  font-size: small;
+}
