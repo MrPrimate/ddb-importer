@@ -266,14 +266,6 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
-    console.warn(`Parsing spell: ${this.name} (${this.originalName})`, {
-      this: this,
-      isGeneric,
-      postfix: utils.getSetting<boolean>("munching-policy-legacy-postfix"),
-      spellData,
-      getISGeneric: foundry.utils.getProperty(flagData, "ddbimporter.generic") as boolean,
-    });
-
     this._generateDataStub();
 
     this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
