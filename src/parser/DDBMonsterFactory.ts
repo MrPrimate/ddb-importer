@@ -11,20 +11,19 @@ import {
   utils,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
-import { SETTINGS } from "../config/_module";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
 
 
 interface IDDBMonsterFactory {
-  ddbData: IDDBMonsterSourceData[] | null;
-  extra: boolean;
-  notifier: (note: any, options?: NotifierV1Props) => void;
-  type: "monsters";
-  forceUpdate: boolean | null;
-  useLocalKey: boolean | null;
-  keyPostfix: string | null;
+  ddbData?: IDDBMonsterSourceData[] | null;
+  extra?: boolean;
+  notifier?: (note: any, options?: NotifierV1Props) => void;
+  type?: string;
+  forceUpdate?: boolean | null;
+  useLocalKey?: boolean | null;
+  keyPostfix?: string | null;
 }
 
 interface IDDBMonsterFactoryFetchOptions {
@@ -98,7 +97,7 @@ export default class DDBMonsterFactory {
   constructor ({
     ddbData = null, extra = false, notifier = null, type = "monsters", forceUpdate = null,
     useLocalKey = null, keyPostfix = null,
-  }: IDDBMonsterFactory) {
+  }: IDDBMonsterFactory = {}) {
     this.extra = extra;
     this.keys = {
       useLocal: useLocalKey,

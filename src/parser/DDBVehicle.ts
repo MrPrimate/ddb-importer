@@ -145,7 +145,7 @@ export interface IDDBVehicleFeatureComponent extends IDDBVehicleFeature {
 }
 
 interface IDDBVehicle {
-  ddbVehicle: IDDBVehicleSourceData;
+  ddbVehicle?: IDDBVehicleSourceData;
   legacyName?: boolean;
   addMonsterEffects?: boolean;
   addChrisPremades?: boolean;
@@ -170,7 +170,7 @@ export default class DDBVehicle {
   data: I5eVehicleData;
 
 
-  constructor({ ddbVehicle = null, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle) {
+  constructor({ ddbVehicle = null, legacyName = false, addMonsterEffects = false, addChrisPremades = false }: IDDBVehicle = {}) {
     this.source = ddbVehicle;
 
     this.configurations = {};

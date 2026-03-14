@@ -48,6 +48,7 @@ interface IDDBSpellParseSpell {
   namePrefix?: string;
   namePostfix?: string;
   ddbData?: IDDBData;
+  isGeneric?: boolean;
   enricher?: DDBSpellEnricher;
   generateSummons?: boolean;
   notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
@@ -108,6 +109,9 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   declare enricher: DDBSpellEnricher;
 
   _generateDataStub() {
+
+    const idPostfix = this.is2014 ? `${this.namePostfix ?? ""}14` : `${this.namePostfix ?? ""}24`;
+
     this.data = {
       _id: utils.namedIDStub(this.name, { prefix: this.namePrefix, postfix: this.namePostfix }),
       type: "spell",
@@ -201,7 +205,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     noSpellcasting = false, is2014Class = null, flagData = {} as IParseSpellFlagData,
   }: IDDBSpell) {
 
-    const generic = isGeneric ?? foundry.utils.getProperty(spellData, "flags.ddbimporter.generic") as boolean;
+    const generic = isGeneric ?? foundry.utils.getProperty(flagData, "ddbimporter.generic") as boolean;
     const addEffects = generic
       ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
       : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
@@ -261,6 +265,14 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     );
     this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
+
+    console.warn(`Parsing spell: ${this.name} (${this.originalName})`, {
+      this: this,
+      isGeneric,
+      postfix: utils.getSetting<boolean>("munching-policy-legacy-postfix"),
+      spellData,
+      getISGeneric: foundry.utils.getProperty(flagData, "ddbimporter.generic") as boolean,
+    });
 
     this._generateDataStub();
 
@@ -1125,13 +1137,14 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   static async parseSpell(data: IDDBSpellEntry, character: I5ePCData,
     {
       namePrefix = null, namePostfix = null, ddbData = null, enricher = null, generateSummons = null, notifier = null,
-      unPreparedCantrip = null, noSpellcasting = false, flagData = { ddbimporter: { dndbeyond: {} } },
-    }: IDDBSpellParseSpell,
+      isGeneric = null, unPreparedCantrip = null, noSpellcasting = false, flagData = { ddbimporter: { dndbeyond: {} } },
+    }: IDDBSpellParseSpell = {},
   ) {
     const spell = new DDBSpell({
       ddbData,
       spellData: data,
       rawCharacter: character,
+      isGeneric,
       namePrefix,
       namePostfix,
       enricher,
