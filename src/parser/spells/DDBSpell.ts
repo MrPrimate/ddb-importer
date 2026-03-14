@@ -1100,7 +1100,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     // ability: spellCastingAbility,
     // TODO; we should check that spells/classes that generate spells with abilities not spellcasting, that these
     // are set properly
-    if (this.rawCharacter && !this.spellClass) {
+    if (this.rawCharacter && !this.spellClass && !this.isGeneric) {
       logger.warn("Spell without class, defaulting to spellcasting ability", {
         spell: this,
       });
