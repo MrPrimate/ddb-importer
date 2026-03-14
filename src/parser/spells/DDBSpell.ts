@@ -74,7 +74,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
   forcePact: boolean;
   spellClass: string;
   is2014Class: boolean;
-  lookupName: string;
+  lookupName: string | null;
   ability: string;
   school: { id: string; name: string; img: string };
   dc: string;
@@ -398,7 +398,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
       }
     } else if (
       // Warlock Mystic Arcanum are passed in as Features
-      this.lookupName.startsWith("Mystic Arcanum")
+      this.lookupName?.startsWith("Mystic Arcanum")
     ) {
       // these have limited uses (set with getUses())
       this.data.system.method = "pact";

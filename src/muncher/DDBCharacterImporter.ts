@@ -1105,7 +1105,7 @@ ${item.system.description.chat}
     return true;
   }
 
-  static async importCharacter({ actor, notifier } : { actor: Actor.Implementation; notifier: (title: any, { message, isError }?: NotifierV1Props) => void }) {
+  static async importCharacter({ actor, notifier } : { actor: Actor.Implementation; notifier?: (title: any, { message, isError }?: NotifierV1Props) => void }) {
     try {
       const actorData = actor.toObject();
       const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;

@@ -71,21 +71,23 @@ function simpleTest(...params) {
   lib.logger.warn(`running simple test with params`, { params });
 }
 
-async function updateFoundryCharacters() {
+async function updateFoundryCharacters(debug = false) {
   for (const actor of game.actors.values()) {
     const ddbImported = "ddbimporter" in actor.flags;
     if (ddbImported && actor.type === "character") {
-      lib.logger.info(`Updating ${actor.name} to DDB`);
+      lib.logger.info(`Updating ${actor.name} from DDB`);
+      if (debug) lib.logger.error(`Importing ${actor.name} from DDB`, { actor });
       await DDBCharacterImporter.importCharacter({ actor });
     }
   }
 }
 
-async function updateDDBCharacters() {
+async function updateDDBCharacters(debug = false) {
   for (const actor of game.actors.values()) {
     const ddbImported = "ddbimporter" in actor.flags;
     if (ddbImported && actor.type === "character") {
       lib.logger.info(`Updating ${actor.name} to DDB`);
+      if (debug) lib.logger.error(`Updating ${actor.name} to DDB`, { actor });
       await updateDDBCharacter(actor);
     }
   }
