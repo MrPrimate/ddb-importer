@@ -15,6 +15,7 @@ import { createInfusedItems, linkSelectedEnchantments } from "../parser/characte
 import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
+import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
 
 interface IDDBCharacterImporter {
   actorId: string;
@@ -174,7 +175,7 @@ export default class DDBCharacterImporter {
     });
   }
 
-  async copyCharacterItemEffects(items) {
+  async copyCharacterItemEffects(items: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
     return new Promise((resolve) => {
       resolve(
         items.map((item) => {
@@ -199,7 +200,7 @@ export default class DDBCharacterImporter {
     });
   }
 
-  static async removeItems(itemList, itemsToRemove) {
+  static async removeItems(itemList: TAll5eItemDocuments[], itemsToRemove: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
     return new Promise((resolve) => {
       resolve(
         itemList.filter(
@@ -231,7 +232,7 @@ export default class DDBCharacterImporter {
    * @param {Array} excludedList list of items to not remove
    * @returns {Promise<Array<string>>} list of item ids removed
    */
-  async clearItemsByUserSelection(excludedList = []) {
+  async clearItemsByUserSelection(excludedList: Item5e[] = []): Promise<string[]> {
     const includedItems = DDBCharacterImporter.getCharacterUpdatePolicyTypes();
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("Item");
@@ -242,7 +243,7 @@ export default class DDBCharacterImporter {
           && !excludedList.some((excluded) => excluded._id === item.id)
           && !this.nonMatchedItemIds.includes(item.id),
       )
-      .filter((item) => !item.flags.ddbimporter?.ignoreItemImport)
+      .filter((item) => !foundry.utils.getProperty(item, "flags.ddbimporter.ignoreItemImport"))
       .map((item) => item.id);
 
     logger.debug("Removing the following character items", toRemove);
@@ -295,7 +296,7 @@ export default class DDBCharacterImporter {
   }
 
 
-  async enrichCharacterItems(items) {
+  async enrichCharacterItems(items: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
 
     await Iconizer.preFetchDDBIconImages();
 
@@ -322,7 +323,7 @@ export default class DDBCharacterImporter {
         settings: iconizerSettings,
         documents: items,
         srdIconUpdate: utils.getSetting<boolean>("character-update-policy-use-srd-icons"),
-      });
+      }) as TAll5eItemDocuments[]; // we know these are right, as we pass in the same docs
     }
 
     items = items.map((item) => {
@@ -344,7 +345,7 @@ ${item.system.description.chat}
     return items;
   }
 
-  async createCharacterItems(items, keepIds) {
+  async createCharacterItems(items: TAll5eItemDocuments[], keepIds = false) {
     const options: {
       keepId?: boolean;
       applyFeatures?: boolean;
@@ -362,6 +363,7 @@ ${item.system.description.chat}
       logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(klassItems) });
       for (const klassItem of klassItems) {
         // console.warn(`Importing ${klassItem.name}`, klassItem);
+        // @ts-expect-error er know these types are right
         await this.actor.createEmbeddedDocuments("Item", [klassItem], options);
       }
     }
@@ -370,16 +372,18 @@ ${item.system.description.chat}
       if (CONFIG.DDBI.DEV.enabled && CONFIG.DDBI.DEV.itemImportSingle) {
         for (const nonKlassItem of nonKlassItems) {
           logger.info(`Importing ${nonKlassItem.name}`, nonKlassItem);
+          // @ts-expect-error er know these types are right
           await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
         }
       } else {
+        // @ts-expect-error er know these types are right
         await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
       }
 
     }
   }
 
-  async importCharacterItems(items, keepIds = false) {
+  async importCharacterItems(items: TAll5eItemDocuments[], keepIds = false) {
     if (items.length > 0) {
       this.notifier("Adding items to character");
 
@@ -391,7 +395,7 @@ ${item.system.description.chat}
     }
   }
 
-  async keepNonDDBItems(ddbItems) {
+  async keepNonDDBItems(ddbItems: TAll5eItemDocuments[]) {
     const lastImportId = foundry.utils.getProperty(this.actorOriginal, "flags.ddbimporter.importId");
     if (this.settings.ignoreNonDDBItems) {
       const items = this.actor.getEmbeddedCollection("Item");
@@ -399,11 +403,11 @@ ${item.system.description.chat}
         const ddbMatchedItem = ddbItems.some((ddbItem) =>
           item.name === ddbItem.name
           && item.type === ddbItem.type
-          && item.flags?.ddbimporter?.id === ddbItem.flags?.ddbimporter?.id,
+          && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(ddbItem, "flags.ddbimporter.id"),
         );
         if (!ddbMatchedItem) {
           // if item not replaced by compendium swap or
-          if (item.flags?.ddbimporter?.importId !== lastImportId) {
+          if (foundry.utils.getProperty(item, "flags.ddbimporter.importId") !== lastImportId) {
             this.nonMatchedItemIds.push(item.id);
           }
         }
@@ -411,7 +415,7 @@ ${item.system.description.chat}
     }
   }
 
-  static async getIndividualOverrideItems(overrideItems) {
+  static async getIndividualOverrideItems(overrideItems: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
     const label = CompendiumHelper.getCompendiumLabel("custom");
     const compendium = CompendiumHelper.getCompendium(label);
 
@@ -443,7 +447,7 @@ ${item.system.description.chat}
       overrideId: true,
       linkItemFlags: true,
     };
-    const remappedItems: I5ePCItem[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
+    const remappedItems: TAll5eItemDocuments[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions) as TAll5eItemDocuments[]; // we know there are no table documents imported into characters
 
     return remappedItems;
   }
@@ -1044,11 +1048,11 @@ ${item.system.description.chat}
   }
 
 
-  async importCharacter({ characterId }: { characterId?: string }) {
+  async importCharacter({ characterId = null }: { characterId?: string } = {}) {
 
     try {
       this.notifier("Getting Character data");
-      const derivedCharacterId = characterId ?? this.actor.flags.ddbimporter.dndbeyond.characterId;
+      const derivedCharacterId = characterId ?? this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
       const ddbCharacterOptions = {
         currentActor: this.actor,
         characterId: derivedCharacterId,

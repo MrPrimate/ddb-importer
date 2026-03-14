@@ -569,7 +569,7 @@ ${item.system.description.chat}
    */
   static async getCompendiumItems(items: TDDBImporterDocument[], type: string,
     { looseMatch = false, monsterMatch = false, keepId = false,
-      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions,
+      deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions = {},
   ): Promise<TDDBImporterDocument[]> {
 
     const itemImporter = new DDBItemImporter(type, [], {
