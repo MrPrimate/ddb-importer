@@ -107,7 +107,7 @@ export default class GenericSpellFactory {
         },
       };
       const namePostfix = `It${GenericSpellFactory.getSpellCount(spellCountDict, spell.definition.name)}`;
-      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix, generateSummons, notifier, flagData, isGeneric: true }));
+      items.push(await DDBSpell.parseSpell(spell, character, { namePostfix, generateSummons, notifier, flagData }));
     }
 
     return items;

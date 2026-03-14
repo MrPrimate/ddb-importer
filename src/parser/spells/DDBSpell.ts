@@ -113,7 +113,7 @@ export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
     const idPostfix = this.is2014 ? `${this.namePostfix ?? ""}14` : `${this.namePostfix ?? ""}24`;
 
     this.data = {
-      _id: utils.namedIDStub(this.name, { prefix: this.namePrefix, postfix: this.namePostfix }),
+      _id: utils.namedIDStub(this.name, { prefix: this.namePrefix, postfix: idPostfix }),
       type: "spell",
       system: SystemHelpers.getTemplate("spell"),
       effects: [],
