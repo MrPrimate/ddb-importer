@@ -8,6 +8,7 @@ import {
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
+import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
 
 interface IDDBMonsterImporter {
   monster?: I5eMonsterData;
@@ -25,7 +26,7 @@ export default class DDBMonsterImporter {
   updateExisting: boolean;
   monster: I5eMonsterData;
 
-  constructor({ monster, type, updateExisting, notifier, fullWipe = false }: IDDBMonsterImporter) {
+  constructor({ monster, type, updateExisting, notifier, fullWipe = false }: IDDBMonsterImporter = {}) {
     this.monster = monster;
     this.type = type;
     this.fullWipe = fullWipe;
@@ -43,7 +44,9 @@ export default class DDBMonsterImporter {
   // this generates any missing spell data for actors
   // it wont appear in the compendium but will upon import
   async generateCastSpells() {
-    for (const item of this.compendiumActor.items) {
+    // @ts-expect-error - fvtt types circular
+    const items = this.compendiumActor.items as unknown as Item5e[];
+    for (const item of items) {
       if (!item.system.activities) continue;
       const spells = (
         await Promise.all(
@@ -88,7 +91,7 @@ export default class DDBMonsterImporter {
             foundry.utils.setProperty(item, "flags.ddbimporter.ignoreIcon", true);
           }
           if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
-            item.system.consume = existingItem.system.consume;
+            if ("consume" in item.system) item.system.consume = existingItem.system.consume;
             item.system.uses.recovery = existingItem.system.uses.recovery;
             foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
             if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e")) {
@@ -97,9 +100,9 @@ export default class DDBMonsterImporter {
           }
 
           if (!item.effects
-            || (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.length > 0)
+            || (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.size > 0)
           ) {
-            item.effects = foundry.utils.duplicate(existingItem.getEmbeddedCollection("ActiveEffect"));
+            item.effects = foundry.utils.duplicate(existingItem.getEmbeddedCollection("ActiveEffect")) as unknown as IEffectData[];
           }
 
           fiddledItems.push(item);
@@ -119,16 +122,22 @@ export default class DDBMonsterImporter {
       return;
     }
 
-    this.monster = (await this.itemImporter.addCompendiumFolderIds([foundry.utils.duplicate(this.monster)]))[0];
+    const duplicate: I5eMonsterData = foundry.utils.duplicate(this.monster) as unknown as I5eMonsterData;
+    this.monster = (await this.itemImporter.addCompendiumFolderIds([duplicate]))[0] as I5eMonsterData;
 
     if (foundry.utils.hasProperty(this.monster, "_id") && this.itemImporter.compendium.index.has(this.monster._id)) {
       if (this.updateExisting) {
-        this.compendiumActor = await this.itemImporter.compendium.getDocument(this.monster._id);
+        this.compendiumActor = await this.itemImporter.compendium.getDocument(this.monster._id) as Actor.Implementation;
 
         if (foundry.utils.hasProperty(this.monster, "prototypeToken.flags.tagger.tags")
           && foundry.utils.hasProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags")
         ) {
-          const newTags = [...new Set([...this.monster.prototypeToken.flags.tagger.tags, ...this.compendiumActor.prototypeToken.flags.tagger.tags])];
+          const newTags = [...new Set([
+            // @ts-expect-error this is an array
+            ...this.monster.prototypeToken.flags.tagger.tags,
+            // @ts-expect-error this is an array
+            ...this.compendiumActor.prototypeToken.flags.tagger.tags,
+          ])];
           foundry.utils.setProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags", newTags);
         }
 

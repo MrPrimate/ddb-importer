@@ -170,7 +170,7 @@ export default class DDBCharacterImporter {
     ];
     journalFields.forEach((field) => {
       if (this.actorOriginal.system.details[field]) {
-        this.actor.system.details[field] = this.actorOriginal.system.details[field];
+        this.result.character.system.details[field] = this.actorOriginal.system.details[field];
       }
     });
   }
@@ -419,12 +419,12 @@ ${item.system.description.chat}
     const label = CompendiumHelper.getCompendiumLabel("custom");
     const compendium = CompendiumHelper.getCompendium(label);
 
-    const compendiumItems: I5ePCItem[] = await Promise.all(overrideItems
+    const compendiumItems: TAll5eItemDocuments[] = await Promise.all(overrideItems
       .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.overrideId")
         && compendium.index.has(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string))
       .map(async (item) => {
-        const doc = await compendium.getDocument(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string);
-        const compendiumItem = foundry.utils.duplicate(doc);
+        const doc = await compendium.getDocument(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string)as Item5e;
+        const compendiumItem: TAll5eItemDocuments = foundry.utils.duplicate(doc) as unknown as TAll5eItemDocuments;
         foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
         if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {
           foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", foundry.utils.getProperty(item, "flags.ddbimporter.overrideItem"));
@@ -970,15 +970,15 @@ ${item.system.description.chat}
         foundry.utils.setProperty(this.result.character, "flags.midi-qol.onUseMacroName", "[postActiveEffects]");
       }
 
+      // copy existing journal
+      logger.debug("Copying existing journal notes");
+      this.copyExistingJournalNotes();
+
       // basic import
       this.notifier("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
       // @ts-expect-error - not as UpdateData
       await this.actor.update(this.result.character);
-
-      // copy existing journal
-      logger.debug("Copying existing journal notes");
-      this.copyExistingJournalNotes();
 
       // items import
       logger.debug("Processing character items");
