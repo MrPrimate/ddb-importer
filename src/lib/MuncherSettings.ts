@@ -1040,10 +1040,13 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const availableCats = DDBSources.getDisplaySourceCategories();
 
     const includedCategories = availableCats.map((cat) => {
+      const doc = utils.htmlToDoc(cat.description);
+      doc.querySelectorAll("span").forEach((el) => el.removeAttribute("style"));
       return {
         id: cat.id,
         selected: includedCatIds.includes(cat.id) ? "selected" : "",
         label: cat.name,
+        description: doc.body.innerHTML,
       };
     });
     return includedCategories.sort((a, b) => {

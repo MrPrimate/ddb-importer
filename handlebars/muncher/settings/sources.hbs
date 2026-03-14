@@ -12,7 +12,7 @@ Legacy/non-core are books that were replaced in the 2014 ruleset lifecycle like 
     <div class="form-fields" id="munch-included-config">
       <multi-select id="muncher-included-source-categories" name="muncher-included-source-categories" class="ddb-source-select">
         {{#each includedCategories}}
-        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        <option value="{{this.id}}" data-tooltip="{{this.description}}" {{this.selected}}> {{this.label}}</option>
         {{/each}}
       </multi-select>
     </div>

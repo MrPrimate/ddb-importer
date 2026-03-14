@@ -25,9 +25,9 @@
   <legend>Monster Type Filter</legend>
   <p>Filter by Monster Type (Leave blank for all)</p>
   <div class="form-fields" id="munch-excluded-config">
-    <multi-select id="muncher-monster-types-select" name="muncher-monster-types-select">
+    <multi-select id="muncher-monster-types-select" name="muncher-monster-types-select" class="ddb-source-select">
       {{#each monsterTypes}}
-      <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+      <option value="{{this.id}}" {{this.selected}}"> {{this.label}}</option>
       {{/each}}
     </multi-select>
   </div>

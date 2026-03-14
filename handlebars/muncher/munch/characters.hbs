@@ -63,7 +63,7 @@
     {{/each}}
 
     <div id="munch-source-div" {{#if enableClassSources}}{{else}}class="ddbimporter-hidden ddbimporter-none"{{/if}}>
-      <multi-select id="muncher-class-source-select" name="muncher-source-select">
+      <multi-select id="muncher-class-source-select" name="muncher-source-select" class="ddb-source-select">
         {{#each selectedClasses}}
         <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
         {{/each}}

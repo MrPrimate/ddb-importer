@@ -36,6 +36,7 @@ import { DDBEnhancers } from "./effects/_module";
 import { addTattooConsumable } from "./hooks/tattoo/main";
 import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
+import { multiSelectHover } from "./hooks/ready/multiSelectHover";
 // import { createStorage } from "./hooks/ready/storage";
 
 // foundry is initializing
@@ -63,6 +64,7 @@ export async function onceReady() {
   // check for valid compendiums
   await checkCompendiums();
   DDBEnhancers.loadEnhancers();
+  multiSelectHover();
 
   // notifications
   Notifications.registerNotifications();
