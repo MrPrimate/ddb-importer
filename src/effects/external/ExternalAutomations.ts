@@ -1,17 +1,16 @@
 import { logger, PatreonHelper, utils } from "../../lib/_module";
 import { SETTINGS } from "../../config/_module";
 import ChrisPremadesHelper from "./ChrisPremadesHelper";
-import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 type TExternalAutomationDocuments = TAll5eItemDocuments | TAll5eActorDocuments;
 
 export default class ExternalAutomations {
 
-  actor: Actor5e;
+  actor: Actor.Implementation;
   dynamicUpdateAllowed: boolean;
   dynamicUpdateStatus: boolean;
 
-  constructor(actor: Actor5e) {
+  constructor(actor: Actor.Implementation) {
     this.actor = actor;
     const dynamicSync = utils.getSetting<boolean>("dynamic-sync");
     const updateUser = utils.getSetting<string>("dynamic-sync-user");

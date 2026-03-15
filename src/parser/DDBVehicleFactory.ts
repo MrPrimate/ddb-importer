@@ -15,7 +15,6 @@ import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
 import DDBVehicle from "./DDBVehicle";
-import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 interface IDDBVehicleFactoryOptions {
   ddbData?: IDDBVehicleSourceData[] | null;
@@ -58,7 +57,7 @@ export default class DDBVehicleFactory {
   source: IDDBVehicleSourceData[] | null;
   legacyName = false;
   vehicles: I5eVehicleData[];
-  vehiclesParsed: Actor5e[];
+  vehiclesParsed: Actor.Implementation[];
 
   constructor ({
     ddbData = null, extra = false, notifier = null, forceUpdate = null,
@@ -274,7 +273,7 @@ export default class DDBVehicleFactory {
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
       this.notifier(`Calculating which vehicles to update...`, { nameField: true });
-      const existingVehicles = await vehicleHandler.loadPassedItemsFromCompendium(vehicleHandler.documents, "npc", {
+      const existingVehicles = await vehicleHandler.loadPassedItemsFromCompendium(vehicleHandler.documents, {
         keepDDBId: true,
         indexFilter: { fields: ["name", "flags.ddbimporter.id"] },
       });

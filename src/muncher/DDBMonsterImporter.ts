@@ -8,7 +8,6 @@ import {
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
-import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
 
 interface IDDBMonsterImporter {
   monster?: I5eMonsterData;
@@ -25,6 +24,7 @@ export default class DDBMonsterImporter {
   fullWipe: boolean;
   updateExisting: boolean;
   monster: I5eMonsterData;
+  data: Actor.Implementation | null;
 
   constructor({ monster, type, updateExisting, notifier, fullWipe = false }: IDDBMonsterImporter = {}) {
     this.monster = monster;
@@ -44,10 +44,9 @@ export default class DDBMonsterImporter {
   // this generates any missing spell data for actors
   // it wont appear in the compendium but will upon import
   async generateCastSpells() {
-    // @ts-expect-error - fvtt types circular
-    const items = this.compendiumActor.items as unknown as Item5e[];
+    const items = this.compendiumActor.items as unknown as Item.Implementation[];
     for (const item of items) {
-      if (!item.system.activities) continue;
+      if (!("activities" in item.system)) continue;
       const spells = (
         await Promise.all(
           item.system.activities.getByType("cast").map((a) => a.getCachedSpellData()),
@@ -67,7 +66,7 @@ export default class DDBMonsterImporter {
       return item;
     });
 
-    const currentItems = this.compendiumActor.getEmbeddedCollection("Item");
+    const currentItems = this.compendiumActor.getEmbeddedCollection("Item") as unknown as Item.Implementation[];
     const fiddledItems = [];
 
     await newItems.forEach((item) => {
@@ -76,7 +75,9 @@ export default class DDBMonsterImporter {
           = item.name === owned.name
           && item.type === owned.type
           // && item.system.activation?.type === owned.system.activation?.type
-          && ((checkId && item.flags?.ddbimporter?.id === owned.flags?.ddbimporter?.id) || !checkId);
+          && ((checkId
+            && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(owned, "flags.ddbimporter.id")
+          ) || !checkId);
 
         return simpleMatch;
       });
@@ -141,7 +142,7 @@ export default class DDBMonsterImporter {
           foundry.utils.setProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags", newTags);
         }
 
-        const existing3dModel = foundry.utils.getProperty(this.compendiumActor.prototypeToken, "flags.levels-3d-preview.model3d");
+        const existing3dModel: string = foundry.utils.getProperty(this.compendiumActor.prototypeToken, "flags.levels-3d-preview.model3d") as string;
         if (existing3dModel && existing3dModel.trim() !== "") {
           foundry.utils.setProperty(this.monster.prototypeToken, "flags.levels-3d-preview.model3d", existing3dModel);
         }
@@ -160,16 +161,16 @@ export default class DDBMonsterImporter {
         await this.compendiumActor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
 
         // console.warn("ExistingNPC", { existingNPC: this.compendiumActor.toObject() });
-        const items = foundry.utils.deepClone(this.monster.items);
+        const items = foundry.utils.deepClone(this.monster.items) as I5eMonsterItem[];
         this.monster.items = [];
 
-        const updatedNPC = await this.compendiumActor.update(this.monster, {
+        const updatedNPC = await this.compendiumActor.update(this.monster as any, {
           pack: this.itemImporter.compendium.collection,
           render: false,
-          keepId: true,
+          // keepId: true,
         });
         // console.warn("UpdatedNPC", { updatedNPC: updatedNPC.toObject(), items });
-        await updatedNPC.createEmbeddedDocuments("Item", items, { keepId: true });
+        await updatedNPC.createEmbeddedDocuments("Item", items as any, { keepId: true });
 
         // await existingNPC.createEmbeddedDocuments("Item", items, { keepId: true });
         await this.generateCastSpells();
@@ -193,7 +194,6 @@ export default class DDBMonsterImporter {
       await this.generateCastSpells();
     }
 
-    // @ts-expect-error - for some reason it doesnt recognize this as a valid hook, but it is
     await Hooks.callAll("ddb-importer.monsterAddToCompendiumComplete", { actor: this.compendiumActor });
 
   }
@@ -219,21 +219,21 @@ export default class DDBMonsterImporter {
       return this.monster;
     }
 
-    const updateImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-images");
+    const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
     if (!forceUpdate && !updateImages && !utils.isDefaultOrPlaceholderImage(this.monster.img)) {
       return this.monster;
     }
 
     const isStock = this.monster.flags.monsterMunch.isStockImg;
-    const useAvatarAsToken = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-full-token-image") || forceUseFullToken;
-    const useTokenAsAvatar = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
+    const useAvatarAsToken = utils.getSetting<boolean>("munching-policy-use-full-token-image") || forceUseFullToken;
+    const useTokenAsAvatar = utils.getSetting<boolean>("munching-policy-use-token-avatar-image") || forceUseTokenAvatar;
 
-    let ddbAvatarUrl = useTokenAsAvatar
-      ? foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImg")
-      : foundry.utils.getProperty(this.monster, "flags.monsterMunch.img");
-    let ddbTokenUrl = useAvatarAsToken
-      ? foundry.utils.getProperty(this.monster, "flags.monsterMunch.img")
-      : foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImg");
+    let ddbAvatarUrl: string = useTokenAsAvatar
+      ? foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImg") as string
+      : foundry.utils.getProperty(this.monster, "flags.monsterMunch.img") as string;
+    let ddbTokenUrl: string = useAvatarAsToken
+      ? foundry.utils.getProperty(this.monster, "flags.monsterMunch.img") as string
+      : foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImg") as string;
 
     if (!ddbAvatarUrl && ddbTokenUrl) ddbAvatarUrl = ddbTokenUrl;
     if (!ddbTokenUrl && ddbAvatarUrl) ddbTokenUrl = ddbAvatarUrl;
@@ -250,10 +250,10 @@ export default class DDBMonsterImporter {
     const genericNPCName = utils.referenceNameString(npcType);
     const npcName = utils.referenceNameString(this.monster.name);
 
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const subType = foundry.utils.getProperty(this.monster, "system.details.type.value") ?? "other";
-    const useWildcard = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-wildcard");
-    const useDeepPaths = useWildcard || game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const subType: string = foundry.utils.getProperty(this.monster, "system.details.type.value") as string ?? "other";
+    const useWildcard = utils.getSetting<boolean>("munching-policy-monster-wildcard");
+    const useDeepPaths = useWildcard || utils.getSetting<boolean>("use-deep-file-paths");
 
     const rules = this.monster.system.source?.rules ?? "2024";
     const book = utils.normalizeString(this.monster.system.source?.book ?? "");
@@ -270,7 +270,14 @@ export default class DDBMonsterImporter {
         const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${nameType}`;
         // const imageNamePrefix = useDeepPaths ? "" : nameType;
         const pathPostfix = useDeepPaths ? `/monster/avatar/${subType}` : "";
-        const downloadOptions = { type: nameType, name, targetDirectory, pathPostfix, imageNamePrefix, force: forceUpdate || updateImages };
+        const downloadOptions = {
+          type: nameType,
+          name,
+          targetDirectory,
+          pathPostfix,
+          imageNamePrefix,
+          force: forceUpdate || updateImages,
+        };
         this.monster.img = await FileHelper.getImagePath(ddbAvatarUrl, downloadOptions);
       }
     }
@@ -324,11 +331,18 @@ export default class DDBMonsterImporter {
     }
 
     // check avatar, if not use token image
-    if (!this.monster.img && this.monster.prototypeToken.texture.src) this.monster.img = monsterTokenImgPath;
+    if (!this.monster.img && this.monster.prototypeToken.texture.src) {
+      this.monster.img = monsterTokenImgPath;
+    }
 
     // final check if image comes back as null
-    if (this.monster.img === null) this.monster.img = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
-    if (monsterTokenImgPath === null && tokenImgSet !== true) this.monster.prototypeToken.texture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
+    if (this.monster.img === null) {
+      this.monster.img = CONFIG.DND5E.defaultArtwork.Actor[this.type] ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
+    }
+    if (monsterTokenImgPath === null && tokenImgSet !== true) {
+      this.monster.prototypeToken.texture.src = CONFIG.DND5E.defaultArtwork.Actor[this.type]
+        ?? CONFIG.DND5E.defaultArtwork.Actor["npc"];
+    }
 
     // do we now want to tokenize that?
     // we don't tokenize if this path was already looked up, as it will already be done
@@ -394,10 +408,10 @@ export default class DDBMonsterImporter {
     logger.debug("Importing Icons");
     this.monster.items = await Iconizer.updateIcons({
       documents: this.monster.items,
-      srdIconUpdate: game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-icons"), // "munching-policy-use-srd-monster-images"
+      srdIconUpdate: utils.getSetting<boolean>("munching-policy-use-srd-icons"), // "munching-policy-use-srd-monster-images"
       monster: true,
       monsterName: this.monster.name,
-    });
+    }) as unknown as I5eMonsterItem[]; // we know these are all the correct item type as they are passed in here
     this.monster = Iconizer.addActorEffectIcons(this.monster);
 
     if (!addToWorld) return;
@@ -407,17 +421,18 @@ export default class DDBMonsterImporter {
     if (update) {
       const npc = game.actors.get(this.monster._id);
       await npc.deleteEmbeddedDocuments("Item", [], { deleteAll: true });
-      await Actor.updateDocuments([this.monster]);
-      this.data = npc;
+      await Actor.updateDocuments([this.monster as any]);
+      this.data = npc as Actor.Implementation;
     } else {
       const options = {
         displaySheet: false,
+        temporary: false, // default
       };
       if (temporary) options.temporary = true;
       const npc = temporary
         ? new (Actor.implementation as any)(this.monster, options)
-        : await Actor.create(this.monster, options);
-      this.data = npc;
+        : await Actor.create(this.monster as any, options);
+      this.data = npc as Actor.Implementation;
     }
 
   }

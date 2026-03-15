@@ -68,7 +68,7 @@ global {
 
   type TFeatProperties = "mgc" | "trait";
 
-  type TLimitedUsePeriod = "lr" | "sr" | "day" | "dawn" | "dusk" | "initiative" | "turnStart" | "turnEnd" | "turn";
+  type TLimitedUsePeriod = "" | "lr" | "sr" | "day" | "dawn" | "dusk" | "initiative" | "turnStart" | "turnEnd" | "turn";
 
   interface I5eSystemBaseDocumentData {
     _id?: string;

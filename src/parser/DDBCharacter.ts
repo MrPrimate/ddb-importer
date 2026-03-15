@@ -17,7 +17,6 @@ import {
   FilterModifiers,
   DDBDataUtils,
 } from "./lib/_module";
-import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
 import DDBRace from "./race/DDBRace";
 
 /** A single computed AC option from the armor calculation. */
@@ -261,7 +260,7 @@ class DDBCharacter {
   _classParser: CharacterClassFactory;
   _ddbRace: DDBRace;
   data: IDDBCharacterDataStub;
-  matchedFeatures: Item5e[];
+  matchedFeatures: Item.Implementation[];
   resources: I5ePCResources;
   spellSlots: I5eSpellSlots;
   armor: IDDBCharacterArmor;
@@ -611,21 +610,21 @@ class DDBCharacter {
   async disableDynamicUpdates() {
     if (!this.currentActor) return;
     foundry.utils.setProperty(this.currentActor.flags, "ddbimporter.activeUpdate", false);
-    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: false } } };
+    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: false } } } as Actor.UpdateData;
     await this.currentActor.update(activeUpdateData);
   }
 
   async enableDynamicUpdates() {
     if (!this.currentActor) return;
     foundry.utils.setProperty(this.currentActor.flags, "ddbimporter.activeUpdate", true);
-    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: true } } };
+    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: true } } } as Actor.UpdateData;
     await this.currentActor.update(activeUpdateData);
   }
 
   async updateDynamicUpdates(state: boolean) {
     if (!this.currentActor) return;
     foundry.utils.setProperty(this.currentActor.flags, "ddbimporter.activeUpdate", state);
-    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: state } } };
+    const activeUpdateData = { flags: { ddbimporter: { activeUpdate: state } } } as Actor.UpdateData;
     await this.currentActor.update(activeUpdateData);
   }
 
@@ -641,7 +640,7 @@ class DDBCharacter {
     if (!this.currentActor) return;
     this.currentActor.flags.ddbimporter.activeSyncSpells = state;
     const activeUpdateData = { flags: { ddbimporter: { activeSyncSpells: state } } };
-    await this.currentActor.update(activeUpdateData);
+    await this.currentActor.update(activeUpdateData as Actor.UpdateData);
   }
 
   isMartialArtist() {

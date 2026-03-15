@@ -16,7 +16,7 @@
 /**
  * Returns a temporary spell item data for the Ensnaring Strike effect.
  *
- * @param {Item5e} originItem the origin spell item that was cast.
+ * @param {Item.Implementation} originItem the origin spell item that was cast.
 * @returns temporary spell item data for Ensnaring Strike effect.
  */
 function getTempSpellData(originItem, spellLevel) {

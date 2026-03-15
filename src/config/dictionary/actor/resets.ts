@@ -1,6 +1,7 @@
 export interface IResetType {
   id: string | number | null;
-  value: "sr" | "lr" | "day" | "dawn" | "dusk" | "charges" | "";
+  value: TLimitedUsePeriod;
+  isCharges?: boolean;
 }
 
 export const RESETS = [
@@ -16,10 +17,10 @@ export const RESETS = [
   { id: "day", value: "day" },
   { id: "Dawn", value: "dawn" },
   { id: "dusk", value: "dusk" },
-  { id: "Consumable", value: "charges" },
-  { id: "Other", value: "charges" },
+  { id: "Consumable", value: "", isCharges: true },
+  { id: "Other", value: "", isCharges: true },
   { id: "", value: "" },
   { id: null, value: "" },
   { id: 3, value: "day" },
-  { id: 4, value: "charges" },
-];
+  { id: 4, value: "", isCharges: true },
+] as IResetType[];

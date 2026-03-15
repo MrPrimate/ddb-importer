@@ -180,7 +180,9 @@ global {
 
   interface I5eCreatureType {
     value?: string;
-    subtype?: string;
+    subtype?: string | null;
+    swarm?: TActorSizes | null;
+    custom?: string | null;
   }
 
   interface I5eXP {

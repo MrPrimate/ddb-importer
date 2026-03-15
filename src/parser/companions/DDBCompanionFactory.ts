@@ -15,7 +15,6 @@ import { getFindFamiliarActivityData } from "./types/FindFamiliar";
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterImporter from "../../muncher/DDBMonsterImporter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
-import { Actor5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 type TDDBOriginDocument = TAll5eItemDocuments | TAll5eActorDocuments;
 
@@ -24,7 +23,7 @@ interface DDBCompanionFactoryOptions {
   is2014?: boolean;
   is2024?: boolean;
   notifier?: any;
-  actor?: Actor5e | null;
+  actor?: Actor.Implementation | null;
   data?: I5eMonsterData[];
   folderHint?: string;
   createCompanions?: boolean;
@@ -35,7 +34,7 @@ interface DDBCompanionFactoryOptions {
 }
 
 export default class DDBCompanionFactory {
-  actor: Actor5e | null;
+  actor: Actor.Implementation | null;
   originDocument: TDDBOriginDocument | null;
   options: DDBCompanionFactoryOptions;
   doc: Document;
@@ -458,12 +457,14 @@ export default class DDBCompanionFactory {
     logger.debug("Final Activity Data", {
       activityData: foundry.utils.deepClone(activityData),
     });
-    delete this.originDocument.system.activities[activityData._id];
-    updateDocument.system.activities[activityData._id] = activityData;
+    if ("activities" in this.originDocument.system) {
+      delete this.originDocument.system.activities[activityData._id];
+      updateDocument.system.activities[activityData._id] = activityData;
+    }
 
   }
 
-  async addCRSummoning(activity) {
+  async addCRSummoning(activity: I5eSummonActivity) {
     // console.warn("Adding CR Summoning", {
     //   this: this,
     //   originName: this.originName,
@@ -485,8 +486,10 @@ export default class DDBCompanionFactory {
     if (!summonsData) return;
     const activityData = foundry.utils.mergeObject(activity, summonsData);
     // console.warn("Final summons Activity Data", foundry.utils.deepClone(activityData));
-    delete this.originDocument.system.activities[activity._id];
-    this.originDocument.system.activities[activity._id] = activityData;
+    if ("activities" in this.originDocument.system) {
+      delete this.originDocument.system.activities[activity._id];
+      this.originDocument.system.activities[activity._id] = activityData;
+    }
   }
 
 }

@@ -36,7 +36,7 @@ async function getBaseTattooData(level) {
  * Create a consumable spell tattoo Item from a spell Item.
  * @param {string} uuid                           UUID of the spell to add to the tattoo.
  * @param {SpellTattooConfiguration} [config={}]  Configuration options for tattoo creation.
- * @returns {Promise<Item5e|void>}                The created tattoo consumable item.
+ * @returns {Promise<Item.Implementation|void>}   The created tattoo consumable item.
  */
 async function createTattooFromSpellUuid(uuid, config = {}) {
   const spell = await fromUuid(uuid);
@@ -59,7 +59,7 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
    * A hook event that fires before the item data for a tattoo is created for a compendium spell.
    * @function dnd5e.preCreateTattooFromCompendiumSpell
    * @memberof hookEvents
-   * @param {Item5e} spell                     Spell to add to the tattoo.
+   * @param {Item.Implementation} spell        Spell to add to the tattoo.
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    * @returns {boolean}                        Explicitly return `false` to prevent the tattoo to be created.
    */
@@ -125,7 +125,7 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
    * A hook event that fires after the item data for a tattoo is created but before the item is returned.
    * @function dnd5e.createTattooFromSpell
    * @memberof hookEvents
-   * @param {Item5e} spell                     The spell or item data to be made into a tattoo.
+   * @param {Item.Implementation} spell        The spell or item data to be made into a tattoo.
    * @param {object} spellTattooData           The final item data used to make the tattoo.
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    */

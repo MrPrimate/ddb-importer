@@ -1,8 +1,5 @@
-import ActiveEffect5e from "dnd5e/dnd5e/module/documents/active-effect.mjs";
 import { SETTINGS } from "../config/_module";
 import { logger, FileHelper, utils } from "../lib/_module";
-import Token5e from "dnd5e/dnd5e/module/canvas/token.mjs";
-import { Actor5e, Item5e } from "dnd5e/dnd5e/module/documents/_module.mjs";
 
 type TDDBImporterDocument = TAll5eItemDocuments | TAll5eActorDocuments;
 
@@ -428,18 +425,17 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
    * @param {ActiveEffect} effect
    * @returns {object}
    */
-  static _getEffectVariables(effect: ActiveEffect5e): {
-    actor: Actor5e | null;
-    token: Token5e | null;
-    speaker: Token5e | null;
+  static _getEffectVariables(effect: ActiveEffect.Implementation): {
+    actor: Actor.Implementation | null;
+    token: Token.Implementation | null;
+    speaker: Token.Implementation | null;
     scene: Scene | null;
     origin: any;
-    effect: ActiveEffect5e;
-    item: Item5e | null;
+    effect: ActiveEffect.Implementation | null;
+    item: Item.Implementation | null;
   } {
     const actor = effect.parent instanceof Actor
       ? effect.parent
-      // @ts-expect-error - correct, circular reference
       : (effect.parent.parent ?? null);
     const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
     const scene = token?.scene ?? game.scenes.active ?? null;
@@ -448,8 +444,8 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     const item = effect.parent instanceof Item ? effect.parent : null;
     return {
       actor,
-      token: token as Token5e | null,
-      speaker: speaker as Token5e | null,
+      token: token as Token.Implementation | null,
+      speaker: speaker as Token.Implementation | null,
       scene,
       origin,
       effect,

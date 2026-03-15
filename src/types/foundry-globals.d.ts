@@ -45,6 +45,9 @@ declare global {
 
   // ddb-importer module global
   interface Window {
+    Tokenizer: {
+      autoToken: any;
+    };
     DDBImporter: {
       lib: Record<string, any>;
       [key: string]: any;
@@ -89,6 +92,10 @@ declare global {
     DND5E: {
       sourceBooks: Record<string, string>;
       activityActivationTypes: TActivationCost;
+      defaultArtwork: {
+        Actor: Record<string, string>;
+        Item: Record<string, string>;
+      };
       spellPreparationStates: {
         prepared: {
           value: number;

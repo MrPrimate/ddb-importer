@@ -116,7 +116,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
 
   /**
    * Display the create spell scroll dialog.
-   * @param {Item5e|object} spell              The spell or item data to be made into a tattoo.
+   * @param {Item.Implementation|object} spell The spell or item data to be made into a tattoo.
    * @param {SpellScrollConfiguration} config  Configuration options for tattoo creation.
    * @param {object} [options={}]              Additional options for the application.
    * @returns {Promise<object|null>}           Form data object with results of the dialog.

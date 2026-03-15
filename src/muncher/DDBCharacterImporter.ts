@@ -15,7 +15,6 @@ import { createInfusedItems, linkSelectedEnchantments } from "../parser/characte
 import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
-import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
 
 interface IDDBCharacterImporter {
   actorId: string;
@@ -232,7 +231,7 @@ export default class DDBCharacterImporter {
    * @param {Array} excludedList list of items to not remove
    * @returns {Promise<Array<string>>} list of item ids removed
    */
-  async clearItemsByUserSelection(excludedList: Item5e[] = []): Promise<string[]> {
+  async clearItemsByUserSelection(excludedList: Item.Implementation[] = []): Promise<string[]> {
     const includedItems = DDBCharacterImporter.getCharacterUpdatePolicyTypes();
     // collect all items belonging to one of those inventory item categories
     const ownedItems = this.actor.getEmbeddedCollection("Item");
@@ -423,7 +422,7 @@ ${item.system.description.chat}
       .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.overrideId")
         && compendium.index.has(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string))
       .map(async (item) => {
-        const doc = await compendium.getDocument(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string)as Item5e;
+        const doc = await compendium.getDocument(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string) as Item.Implementation;
         const compendiumItem: TAll5eItemDocuments = foundry.utils.duplicate(doc) as unknown as TAll5eItemDocuments;
         foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
         if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {

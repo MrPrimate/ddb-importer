@@ -6,6 +6,21 @@ import MagicItemMaker from "./MagicItemMaker";
 import { addRestrictionFlags } from "../../effects/restrictions";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
+import { NotifierV1Props } from "../../apps/DDBAppV2";
+
+interface IPerSpell {
+  isPerSpell: boolean;
+  charges: number | null;
+}
+
+interface IDDBItem {
+  ddbCharacter: DDBCharacter;
+  ddbItem: IDDBInventoryItem;
+  isCompendium?: boolean;
+  enricher?: DDBItemEnricher | null;
+  spellCompendium?: any;
+  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+}
 
 export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
@@ -60,6 +75,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   addMagical: boolean;
   characterEffectAbilities: I5eAbilities;
   ddbCharacter: DDBCharacter;
+  characterProficiencies: IDDBPCDnDBeyondProficiencyFlags[];
 
   static CLOTHING_ITEMS = [
     "Helm",
@@ -193,8 +209,13 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     "Bag of Bellstones",
   ];
 
+  perSpell: IPerSpell;
 
-  constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null } = {}) {
+  constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null }: IDDBItem) {
+    if (!ddbCharacter || !ddbItem) {
+      logger.error("DDBCharacter and DDBItem are required to create DDBItem");
+      throw new Error("DDBCharacter and DDBItem are required to create DDBItem");
+    }
     const addEffects = isCompendium
       ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
       : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
@@ -241,7 +262,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       earlyProperties: new Set(),
     };
 
-    this.characterProficiencies = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects")
+    this.characterProficiencies = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.proficienciesIncludingEffects") as IDDBPCDnDBeyondProficiencyFlags[]
       ?? [];
     this.characterEffectAbilities = foundry.utils.getProperty(this.raw?.character, "flags.ddbimporter.dndbeyond.effectAbilities") as I5eAbilities;
 
@@ -267,11 +288,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     // this.ddbDefinition.isConsumable; // this adds too many
 
     // if the item is x per spell
-    this.isPerSpell = this.ddbItem.limitedUse
-      ? this.parsePerSpellMagicItem(this.ddbItem.limitedUse.resetTypeDescription ?? "")
-      : false;
+    this.perSpell = this.parsePerSpellMagicItem(this.ddbItem.limitedUse?.resetTypeDescription ?? "");
 
-    this.magicChargeType = this.isPerSpell
+    this.magicChargeType = this.perSpell.isPerSpell
       ? MagicItemMaker.MAGICITEMS.CHARGE_TYPE_PER_SPELL
       : MagicItemMaker.MAGICITEMS.CHARGE_TYPE_WHOLE_ITEM;
 
@@ -290,21 +309,19 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     };
 
     this.addAutomationEffects = this.isCompendiumItem
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-add-midi-effects")
-      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects");
+      ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
+      : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
 
     this.updateExisting = this.isCompendiumItem
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing")
+      ? utils.getSetting<boolean>("munching-policy-update-existing")
       : false;
     this.spellsAsCastActivity = true;
     this.spellsAsActivities = isCompendium
-      || game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
+      || utils.getSetting<boolean>("spells-on-items-as-activities");
 
     this.removeWeaponMasteryDescription = this.is2014
-      || game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remove-weapon-mastery-description");
+      || utils.getSetting<boolean>("munching-policy-remove-weapon-mastery-description");
     this._init();
-
-    this.data = {};
 
     this.#determineType();
 
@@ -1646,7 +1663,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
 
       const recovery = [];
-      if (resetType.value && !["", "charges"].includes(resetType.value)) {
+      if (!resetType.isCharges && resetType.value && ![""].includes(resetType.value)) {
         recovery.push({
           period: resetType.value,
           type: recoveryIsMax ? "recoverAll" : "formula",
@@ -2498,7 +2515,11 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
   }
 
-  parsePerSpellMagicItem(useDescription) {
+  parsePerSpellMagicItem(useDescription = ""): IPerSpell {
+    const result: IPerSpell = {
+      isPerSpell: false,
+      charges: null,
+    };
     const limitedUseRegex = /can't be used this way again until the next|can't be used to cast that spell again until the next/i;
     if (useDescription === "") {
       // some times 1 use per day items, like circlet of blasting have nothing in
@@ -2506,26 +2527,28 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       // can’t be used to cast that spell again until the next
       // can't be used this way again until the next dawn.
       if (limitedUseRegex.test(this.ddbDefinition.description.replace("’", "'"))) {
-        return true;
+        result.isPerSpell = true;
+        result.charges = 1;
+        return result;
       }
-      return false;
+      return result;
     }
 
     const perSpell = /each ([A-z]*|\n*) per/i;
-    let match = perSpell.exec(useDescription);
+    const match = perSpell.exec(useDescription);
     if (match) {
-      match = DICTIONARY.magicitems.nums.find((num) => num.id == match[1]).value;
-    } else {
-      match = false;
+      result.isPerSpell = true;
+      result.charges = DICTIONARY.magicitems.nums.find((num) => num.id == match[1])?.value ?? null;
     }
 
     if (!match) {
       if (limitedUseRegex.test(useDescription.replace("’", "'"))) {
-        return true;
+        result.isPerSpell = true;
+        result.charges = 1;
       }
     }
 
-    return match;
+    return result;
   }
 
 
@@ -2563,7 +2586,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       recovery: [],
       max: "",
     };
-    const generateActivityUses = this.isPerSpell;
+    const generateActivityUses = this.perSpell.isPerSpell;
     const consumptionOverride = {
       spellSlot: false,
       targets: [],
@@ -2596,7 +2619,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     const scalingAmount = maxNumberConsumed > minNumberConsumed;
 
-    const activityConsumptionTarget = this.isPerSpell
+    const activityConsumptionTarget = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
         value: `${spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1}`,
@@ -2624,7 +2647,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       spellOverride.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel");
     }
 
-    const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
 
     if (activityConsumptionTarget) {
       consumptionOverride.targets = [activityConsumptionTarget];
@@ -2694,7 +2717,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       max: `${spellData.charges}`,
     };
 
-    const activityConsumptionTarget = this.isPerSpell
+    const activityConsumptionTarget = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
         value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
@@ -2716,7 +2739,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
       : { calculation: "spellcasting", formula: "" };
 
-    const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
     const scalingValue = this.data.system.uses.max ?? "";
     let i = 0;
     for (const id of Object.keys(spell.system.activities)) {
@@ -2760,7 +2783,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
         : "";
       activity.consumption.spellSlot = false;
 
-      if (this.isPerSpell && ["", "charges"].includes(resetType)) {
+      if (this.perSpell.isPerSpell && ["", "charges"].includes(resetType)) {
         activity.uses = activityUses;
       }
 
@@ -2786,7 +2809,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       i++;
     }
 
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.isItemCharge", !this.isPerSpell);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.isItemCharge", !this.perSpell.isPerSpell);
   }
 
   async #spellsAsSpells(spell) {
@@ -2806,7 +2829,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       max: null,
     };
 
-    if (this.isPerSpell) {
+    if (this.perSpell.isPerSpell) {
       // spells manage charges
       uses.max = spellData.limitedUse.maxNumberConsumed ? `${spellData.limitedUse.maxNumberConsumed}` : "1";
       uses.recovery.push({
@@ -2821,7 +2844,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
       foundry.utils.setProperty(spell, "system.uses.spent", null);
     }
 
-    const activityConsumptionTarget = this.isPerSpell
+    const activityConsumptionTarget = this.perSpell.isPerSpell
       ? {
         type: "itemUses",
         value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
@@ -2853,7 +2876,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
 
     foundry.utils.setProperty(spell, "system.level", Number.parseInt(spellData.level));
 
-    const scalingAllowed = !this.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
+    const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
     const scalingValue = this.data.system.uses.max ?? "";
     for (const id of Object.keys(spell.system.activities)) {
       if (activityConsumptionTarget)
@@ -2888,7 +2911,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     }
     if (!this.ddbDefinition.magic) return;
 
-    if (this.isPerSpell) {
+    if (this.perSpell.isPerSpell) {
       this.data.system.uses = {
         spent: null,
         recovery: [

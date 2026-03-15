@@ -9,7 +9,6 @@ import {
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
 import { NotifierV1Props } from "../apps/DDBAppV2";
-import Item5e from "dnd5e/dnd5e/module/documents/item.mjs";
 import { IIconMapEntry } from "./Iconizer";
 
 interface IDDBItemImporterOptions {
@@ -308,10 +307,10 @@ export default class DDBItemImporter {
     return flagFiltered;
   }
 
-  async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item5e[]> {
+  async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item.Implementation[]> {
     const indexEntries = await this.getFilteredItemIndexes(item);
     const mapped = await Promise.all(indexEntries.map((idx) => {
-      const entry = this.compendium.getDocument(idx._id).then((doc) => doc) as Promise<Item5e>;
+      const entry = this.compendium.getDocument(idx._id).then((doc) => doc) as Promise<Item.Implementation>;
       return entry;
     }));
     return mapped;
@@ -320,9 +319,9 @@ export default class DDBItemImporter {
   /**
    * Asynchronously creates a new item to be added to a compendium based on its type.
    * @param {TDDBImporterDocument} item the data for the new item to be created
-   * @returns {Promise<Item5e | RollTable ||null>} a Promise that resolves with the imported item or null if import failed
+   * @returns {Promise<Item.Implementation | RollTable.Implementation ||null>} a Promise that resolves with the imported item or null if import failed
    */
-  async createCompendiumItem(item: TDDBImporterDocument): Promise<Item5e | RollTable | null> {
+  async createCompendiumItem(item: TDDBImporterDocument): Promise<Item.Implementation | RollTable.Implementation | null> {
     let newItem;
     switch (this.type) {
       case "table":
@@ -358,7 +357,7 @@ export default class DDBItemImporter {
     return newItem.constructor.create(data, { pack: this.compendium.collection, keepId: true });
   }
 
-  async updateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item5e): Promise<Item5e | RollTable> {
+  async updateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation> {
     // purge existing active effects on this item
     // @ts-expect-error - results on this item allows for TableResult delete
     if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
@@ -377,7 +376,7 @@ export default class DDBItemImporter {
     return update;
   }
 
-  async deleteCreateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item5e): Promise<Item5e | RollTable | null> {
+  async deleteCreateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation | null> {
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Removing and Recreating ${updateItem.name} compendium entry`);
     logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
@@ -387,10 +386,10 @@ export default class DDBItemImporter {
   }
 
 
-  async updateCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item5e | RollTable)[]> {
+  async updateCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
     const results = [];
     for (const item of inputItems) {
-      const existingItems: Item5e[] = await this.getFilteredItemDocuments(item);
+      const existingItems: Item.Implementation[] = await this.getFilteredItemDocuments(item);
       // we have a match, update first match
       if (existingItems.length >= 1) {
         if (existingItems.length > 1) {
@@ -418,7 +417,7 @@ export default class DDBItemImporter {
     return Promise.all(results);
   }
 
-  async createCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item5e | RollTable)[]> {
+  async createCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
     const results = [];
     for (const item of inputItems) {
       try {
@@ -436,7 +435,7 @@ export default class DDBItemImporter {
     return results;
   }
 
-  async updateCompendium(updateExisting = false, filterDuplicates = true): Promise<(Item5e | RollTable)[]> {
+  async updateCompendium(updateExisting = false, filterDuplicates = true): Promise<(Item.Implementation | RollTable.Implementation)[]> {
     if (!game.user.isGM) return [];
     logger.debug(`Getting compendium for update of ${this.type} documents (checking ${this.documents.length} docs)`);
 

@@ -76,12 +76,12 @@ declare module "fvtt-types/configuration" {
       "simplecover5eReady": () => void;
       // ddb importer
       "ddb-importer.monsterAddToCompendiumComplete": (data: { actor: Actor.Implementation | null }) => void;
-      "ddb-importer.spellsCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
-      "ddb-importer.classCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
-      "ddb-importer.summonsCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
-      "ddb-importer.featuresCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
-      "ddb-importer.vehiclesCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
-      "ddb-importer.itemsCompendiumUpdateComplete": (data: { results: Item5e[] | null }) => void;
+      "ddb-importer.spellsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.classCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.summonsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.featuresCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.vehiclesCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.itemsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.characterProcessDataComplete": (data: { actor: Actor.Implementation; ddbCharacter: DDBCharacter }) => void;
     }
   }
