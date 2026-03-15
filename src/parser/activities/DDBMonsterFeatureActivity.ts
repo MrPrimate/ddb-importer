@@ -1,5 +1,5 @@
 import { logger } from "../../lib/_module";
-import { DDBBasicActivity } from "../enrichers/mixins/_module";
+import DDBBasicActivity from "./DDBItemActivity";
 
 export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 

@@ -1,12 +1,13 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { utils, logger, Iconizer, CompendiumHelper, DDBSources } from "../../lib/_module";
 import { DDBItemActivity } from "../activities/_module";
-import { DDBItemEnricher, mixins, Effects } from "../enrichers/_module";
+import { DDBItemEnricher, Effects } from "../enrichers/_module";
 import MagicItemMaker from "./MagicItemMaker";
 import { addRestrictionFlags } from "../../effects/restrictions";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
+import { mixins as ActivityMixins } from "../activities/_module";
 
 interface IPerSpell {
   isPerSpell: boolean;
@@ -49,9 +50,18 @@ interface IDDBItem {
   notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
 }
 
-export default class DDBItem extends mixins.DDBActivityFactoryMixin {
+export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
-  // Properties set in constructor
+  static CLOTHING_ITEMS = DICTIONARY.equipment.CLOTHING_ITEMS;
+  static EQUIPMENT_TRINKET = DICTIONARY.equipment.EQUIPMENT_TRINKET;
+  static LOOT_ITEM = DICTIONARY.equipment.LOOT_ITEM;
+  static LOOT_TYPES = DICTIONARY.equipment.LOOT_TYPES;
+  static NON_CONTAINERS = DICTIONARY.equipment.NON_CONTAINERS;
+  static CONSUMABLE_WONDROUS_ITEMS = DICTIONARY.equipment.CONSUMABLE_WONDROUS_ITEMS;
+  static CONSUMABLE_TRINKETS = DICTIONARY.equipment.CONSUMABLE_TRINKETS;
+  static POTIONS = DICTIONARY.equipment.POTIONS;
+  static AMMUNITION = DICTIONARY.equipment.AMMUNITION;
+
   declare data: I5eInventoryItem;
   ddbItem: IDDBInventoryItem;
   rawCharacter: I5ePCData;
@@ -72,7 +82,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     custom: boolean;
     earlyProperties: Set<string>;
   };
-
   isContainer: boolean;
   isContainerTag: boolean;
   isOuterwearTag: boolean;
@@ -92,7 +101,6 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
     subtype: string | null;
     baseItem: string | null;
   };
-
   addAutomationEffects: boolean;
   updateExisting: boolean;
   spellsAsCastActivity: boolean;
@@ -104,140 +112,9 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   ddbCharacter: DDBCharacter;
   characterProficiencies: IDDBPCDnDBeyondProficiencyFlags[];
   actionData: IActionData;
-
-  static CLOTHING_ITEMS = [
-    "Helm",
-    "Boots",
-    "Snowshoes",
-    "Vestments",
-    "Saddle, Exotic",
-    "Saddle, Military",
-    "Saddle, Pack",
-    "Saddle, Riding",
-  ];
-
-  static EQUIPMENT_TRINKET = [
-    "Canoe",
-    "Censer",
-    "Crowbar",
-    "Grenade Launcher",
-    "Hammer",
-    "Hammer, Sledge",
-    "Hourglass",
-    "Ladder (10 foot)",
-    "Mess Kit",
-    "Mirror, Steel",
-    "Pick, Miner's",
-    "Pole (10-foot)",
-    "Shovel",
-    "Signal Whistle",
-    "Small Knife",
-    "Spellbook",
-    "Spyglass",
-    "Tent, Two-Person",
-    "Whetstone",
-  ];
-
-  static LOOT_ITEM = [
-    "Abacus",
-    "Barding",
-    "Basic Fishing Equipment",
-    "Bedroll",
-    "Bell",
-    "Bit and Bridle",
-    "Blanket",
-    "Block and Tackle",
-    "Book",
-    "Magnifying Glass",
-    "Scale, Merchant's",
-    "Signet Ring",
-    "String",
-  ];
-
-  static LOOT_TYPES = {
-    "Gemstone": "gem",
-    "Gem": "gem",
-    "Art Object": "art",
-    "Art": "art",
-    "Material": "material",
-    "Resource": "resource",
-    "Treasure": "treasure",
-    "Adventuring Gear": "gear",
-    "Junk": "junk",
-  };
-
-  static NON_CONTAINERS = [
-    "Apparatus of the Crab",
-    "Folding Boat",
-    "Instant Fortress",
-    "Carpet of Flying (3 ft. x 5 ft.)",
-    "Carpet of Flying (4 ft. x 6 ft.)",
-    "Carpet of Flying (5 ft. x 7 ft.)",
-    "Carpet of Flying (6 ft. x 9 ft.)",
-    "Apparatus of Kwalish",
-    "Daern's Instant Fortress",
-    // "Flying Chariot",
-    "Cauldron of Plenty",
-    "Flying Broomstick",
-  ];
-
-  static CONSUMABLE_WONDROUS_ITEMS = [
-
-  ];
-
-  static CONSUMABLE_TRINKETS = [
-    "Perfume of Bewitching",
-    "Ale Seed",
-    "Pressure Capsule",
-    "Bonfire Seed",
-    "Feather Token",
-    "Rain and Thunder Seed",
-    "Stallion Seed",
-    "Pot of Awakening",
-    "Moodmark Paint",
-    "Planter Kernels",
-    "Tossable Kernels",
-    "Orchard Seed",
-    "Luckleaf",
-    "Poison Popper",
-    "Aurora Dust",
-    "Quaal's Feather Token",
-    "Paper Bird",
-    "Deck of Illusions",
-    "Baffled Candle",
-    "Egg of Primal Water",
-    "Gnashing Key",
-    "Balloon Pack",
-    "Pixie Dust",
-    "Life Tether Ankh",
-    "Road Seed",
-    "Knightly Seed",
-    // "Wind Fan",
-    "Tossable Kernels",
-    "Tavern Seed",
-    "Bridge Seed",
-    "Instaprint Camera",
-    // "Guardian Spheres",
-    "Planter Kernels",
-    "Deck of Miscellany",
-    "Smokepowder",
-    // "Propeller Helm",
-  ];
-
-  static POTIONS = [
-    "Melon Soda",
-    "Cola Soda",
-    "Fish Sauce Soda",
-    "Canister of Vreyval's Soothing Tea",
-    "Eyedrops of Clarity",
-    "Flask",
-  ];
-
-  static AMMUNITION = [
-    "Bag of Bellstones",
-  ];
-
   perSpell: IPerSpell;
+  damageParts: I5eDamagePart[];
+  healingParts: I5eDamagePart[];
 
   constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null }: IDDBItem) {
     if (!ddbCharacter || !ddbItem) {

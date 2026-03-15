@@ -1,10 +1,11 @@
 import { utils, logger } from "../../lib/_module";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
-import { DDBMonsterFeatureEnricher, Effects, mixins } from "../enrichers/_module";
+import { DDBMonsterFeatureEnricher, Effects } from "../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers, IFeatureBasicsResult, IFeatureBasicsSave } from "../lib/_module";
 import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
 import DDBVehicle, { IDDBVehicleFeatureComponent } from "../DDBVehicle";
+import { mixins as ActivityMixins } from "../activities/_module";
 
 interface IDDBComponentFeature {
   ddbVehicle: DDBVehicle;
@@ -15,7 +16,7 @@ interface IDDBComponentFeature {
   action?: IDDBVehicleAction;
 }
 
-export default class DDBComponentFeature extends mixins.DDBActivityFactoryMixin {
+export default class DDBComponentFeature extends ActivityMixins.DDBActivityFactoryMixin {
 
   declare name: string;
   declare isAction: null;

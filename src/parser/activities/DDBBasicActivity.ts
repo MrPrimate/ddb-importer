@@ -1,8 +1,8 @@
-import { utils, logger } from "../../../lib/_module";
-import { SystemHelpers } from "../../lib/_module";
-import { Effects } from "../_module";
-import DDBEnricherData from "../data/DDBEnricherData";
-import DDBActivityFactoryMixin from "./DDBActivityFactoryMixin";
+import { utils, logger } from "../../lib/_module";
+import { SystemHelpers } from "../lib/_module";
+import { Effects } from "../enrichers/_module";
+import DDBEnricherData from "../enrichers/data/DDBEnricherData";
+import DDBActivityFactoryMixin from "./mixins/DDBActivityFactoryMixin";
 
 export default class DDBBasicActivity {
 

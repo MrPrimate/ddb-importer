@@ -7,7 +7,7 @@ import {
 import DDBCompanion2014 from "./DDBCompanion2014";
 import { isEqual } from "../../../vendor/lowdash/_module.mjs";
 import DDBSummonsManager from "./DDBSummonsManager";
-import { DDBBasicActivity } from "../enrichers/mixins/_module";
+import { DDBBasicActivity } from "../activities/_module";
 import DDBCompanion2024 from "./DDBCompanion2024";
 import { CR_DATA } from "./types/CRSRD";
 import { DICTIONARY } from "../../config/_module";

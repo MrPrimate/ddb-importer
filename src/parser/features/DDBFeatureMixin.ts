@@ -5,13 +5,13 @@ import DDBCompanionFactory from "../companions/DDBCompanionFactory";
 import DDBSummonsManager from "../companions/DDBSummonsManager";
 import {
   DDBGenericEnricher,
-  mixins,
   Effects,
   DDBFeatEnricher,
   DDBSpeciesTraitEnricher,
   DDBClassFeatureEnricher,
   DDBBackgroundEnricher,
 } from "../enrichers/_module";
+import { mixins as ActivityMixins } from "../activities/_module";
 import {
   DDBDataUtils,
   DDBDescriptions,
@@ -34,7 +34,7 @@ type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDD
 
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
 
-export default class DDBFeatureMixin extends mixins.DDBActivityFactoryMixin {
+export default class DDBFeatureMixin extends ActivityMixins.DDBActivityFactoryMixin {
 
   static LEVEL_SCALE_EXCLUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS;
   static LEVEL_SCALE_INFUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_INFUSIONS;

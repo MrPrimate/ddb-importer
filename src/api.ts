@@ -15,6 +15,7 @@ import DDBCompanionFactory from "./parser/companions/DDBCompanionFactory";
 import { calculatePrice, updateItemPrices } from "./muncher/prices";
 import DDBSummonsManager from "./parser/companions/DDBSummonsManager";
 import * as Enrichers from "./parser/enrichers/_module";
+import * as Activities from "./parser/activities/_module";
 import * as ParserLib from "./parser/lib/_module";
 import DDBSummonsInterface from "./parser/companions/DDBSummonsInterface";
 import { isEqual, uniq } from "../vendor/lowdash/_module.mjs";
@@ -158,6 +159,7 @@ export function registerApi() {
       OriginFixer: lib.OriginFixer,
       Crosshairs: lib.Crosshairs,
       Enrichers,
+      Activities,
       ParserLib,
       DDBDebug: lib.DDBDebug,
       SpellLists: {

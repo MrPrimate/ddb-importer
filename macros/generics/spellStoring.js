@@ -87,7 +87,7 @@ if (scopeParameters.action === "store-spell") {
   const rollData = parentActor.getRollData();
 
 
-  const castActivityId = await DDBImporter.lib.Enrichers.mixins.DDBBasicActivity.addQuickCastActivity({
+  const castActivityId = await DDBImporter.lib.Activities.DDBBasicActivity.addQuickCastActivity({
     uuid,
     actor: parentActor,
     document: sourceItem,
@@ -122,7 +122,7 @@ if (scopeParameters.action === "store-spell") {
     },
   });
 
-  const enchantId = await DDBImporter.lib.Enrichers.mixins.DDBBasicActivity.addQuickEnchantmentActivity({
+  const enchantId = await DDBImporter.lib.Activities.DDBBasicActivity.addQuickEnchantmentActivity({
     riderActionIds: [castActivityId],
     actor: parentActor,
     document: sourceItem,
@@ -137,7 +137,7 @@ if (scopeParameters.action === "store-spell") {
     ],
   });
 
-    await parentActor.update({
+  await parentActor.update({
     [`flags.world.${flag}`]: {
       uuid,
       castActivityId,

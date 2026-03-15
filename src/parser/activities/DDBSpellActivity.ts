@@ -1,6 +1,6 @@
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger } from "../../lib/_module";
-import { DDBBasicActivity } from "../enrichers/mixins/_module";
+import DDBBasicActivity from "./DDBItemActivity";
 import { SystemHelpers } from "../lib/_module";
 import DDBSpell from "../spells/DDBSpell";
 

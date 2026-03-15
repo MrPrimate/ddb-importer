@@ -2,12 +2,13 @@ import { DICTIONARY } from "../../config/_module";
 import { logger, utils, CompendiumHelper, DDBSources } from "../../lib/_module";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory";
 import { DDBSpellActivity } from "../activities/_module";
-import { DDBSpellEnricher, mixins } from "../enrichers/_module";
+import { DDBSpellEnricher } from "../enrichers/_module";
 import DDBSummonsManager from "../companions/DDBSummonsManager";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 import { ISpellPreparationMode } from "../../config/dictionary/spell/spell";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
+import { mixins as ActivityMixins } from "../activities/_module";
 
 interface SpellHealingPart {
   part: I5eDamagePart;
@@ -57,7 +58,7 @@ interface IDDBSpellParseSpell {
   flagData?: IParseSpellFlagData;
 }
 
-export default class DDBSpell extends mixins.DDBActivityFactoryMixin {
+export default class DDBSpell extends ActivityMixins.DDBActivityFactoryMixin {
   declare data: I5eSpellItem;
   isGeneric: boolean;
   namePrefix: string;

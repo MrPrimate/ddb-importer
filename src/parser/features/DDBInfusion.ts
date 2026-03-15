@@ -7,10 +7,10 @@ import {
   DDBSources,
 } from "../../lib/_module";
 import {
-  mixins as EnricherMixins,
   Effects,
   DDBClassFeatureEnricher,
 } from "../enrichers/_module";
+import { DDBBasicActivity } from "../activities/_module";
 import { DDBFeatureActivity } from "../activities/_module";
 import DDBAction from "./DDBAction";
 import DDBAttackAction from "./DDBAttackAction";
@@ -33,7 +33,7 @@ export class DDBInfusion {
   isMuncher: boolean;
   snippet = "";
   addToCompendium: boolean;
-  activity: EnricherMixins.DDBBasicActivity;
+  activity: DDBBasicActivity;
   enricher: DDBClassFeatureEnricher;
   activityType: IDDBActivityType;
   compendiumFolders: DDBCompendiumFolders;
@@ -123,7 +123,7 @@ export class DDBInfusion {
   }
 
   _buildBaseActivity() {
-    this.activity = new EnricherMixins.DDBBasicActivity({
+    this.activity = new DDBBasicActivity({
       type: this.activityType,
       actor: this.rawCharacter,
       foundryFeature: this.data,

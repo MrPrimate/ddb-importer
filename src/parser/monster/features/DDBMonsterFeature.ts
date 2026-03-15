@@ -1,12 +1,13 @@
 import { utils, logger, CompendiumHelper } from "../../../lib/_module";
 import { DICTIONARY } from "../../../config/_module";
 import { DDBMonsterFeatureActivity } from "../../activities/_module";
-import { DDBMonsterFeatureEnricher, mixins, Effects } from "../../enrichers/_module";
+import { DDBMonsterFeatureEnricher, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
 import type { IFeatureBasicsResult, IFeatureBasicsSave } from "../../lib/_module";
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
 import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
+import { mixins as ActivityMixins } from "../../activities/_module";
 
 
 interface IDDBMonsterFeature {
@@ -21,7 +22,7 @@ interface IDDBMonsterFeature {
   sort?: number | null;
 }
 
-export default class DDBMonsterFeature extends mixins.DDBActivityFactoryMixin {
+export default class DDBMonsterFeature extends ActivityMixins.DDBActivityFactoryMixin {
 
   declare data: I5eWeaponItem | I5eFeatItem;
   declare enricher: DDBMonsterFeatureEnricher;

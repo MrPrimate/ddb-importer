@@ -1,8 +1,8 @@
 import { NotifierV1Props } from "../../../apps/DDBAppV2";
 import { DICTIONARY } from "../../../config/_module";
 import { logger } from "../../../lib/_module";
+import DDBEnricherFactoryMixin from "../../enrichers/mixins/DDBEnricherFactoryMixin";
 import SystemHelpers from "../../lib/SystemHelpers";
-import DDBEnricherFactoryMixin from "./DDBEnricherFactoryMixin";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 

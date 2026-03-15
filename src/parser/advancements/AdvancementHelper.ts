@@ -1,7 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
-import DDBBasicActivity from "../enrichers/mixins/DDBBasicActivity";
+import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
 
 function htmlToText(html) {
