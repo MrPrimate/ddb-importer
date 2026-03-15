@@ -482,7 +482,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
 
-  #generateAmmunitionDamage(magicalDamageBonus: string | number) {
+  #generateAmmunitionDamage() {
     // first damage part
     // blowguns and other weapons rely on ammunition that provides the damage parts
     if (this.ddbDefinition.damage && this.ddbDefinition.damage.diceString && this.ddbDefinition.damageType) {
@@ -491,7 +491,6 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         damageString,
         type: this.ddbDefinition.damageType.toLowerCase(),
       });
-      damage.bonus = damage.bonus === "" ? String(magicalDamageBonus) : ` + ${magicalDamageBonus}`;
       this.damageParts.push(damage);
     }
 
