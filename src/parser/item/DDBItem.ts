@@ -9,7 +9,7 @@ import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
 import { mixins as ActivityMixins } from "../activities/_module";
 
-interface IDDBItemFlagsMartialArtsDie {
+interface IDDBItemMartialArtsDie {
   diceCount: number | null;
   diceMultiplier: number | null;
   diceString: string | null;
@@ -22,7 +22,7 @@ interface IDDBItemFlags {
     parts: [string | number | null, string | null][];
   };
   classFeatures: string[];
-  martialArtsDie: IDDBItemFlagsMartialArtsDie;
+  martialArtsDie: IDDBItemMartialArtsDie;
   maxMediumArmorDex: number;
   magicItemAttackInt: boolean;
 }
@@ -624,7 +624,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
     if (Number.isInteger(this.ddbDefinition.fixedDamage)) {
       const damage = SystemHelpers.buildDamagePart({
-        damageString: utils.parseDiceString(this.ddbDefinition.fixedDamage, "", "", fightingStyleDiceMod).diceString,
+        damageString: utils.parseDiceString(String(this.ddbDefinition.fixedDamage), "", "", fightingStyleDiceMod).diceString,
         stripMod: true,
         type: damageType,
       });
@@ -729,7 +729,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     if (this.flags.damage.parts) {
       this.flags.damage.parts.forEach((part) => {
         const damage = SystemHelpers.buildDamagePart({
-          damageString: part[0],
+          damageString: String(part[0]),
           stripMod: true,
           type: part[1],
         });
@@ -1146,7 +1146,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
   }
 
-  #getWarlockFeatures() {
+  #getWarlockFeatures(): string[] {
     // Some features, notably hexblade abilities we scrape out here
     const warlockFeatures = this.ddbData.character.characterValues
       .filter(
@@ -1178,11 +1178,11 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     return features;
   }
 
-  isMartialArtists() {
+  isMartialArtists(): boolean {
     return this.ddbData.character.classes.some((cls) => cls.classFeatures.some((feature) => feature.definition.name === "Martial Arts"));
   }
 
-  #getMonkFeatures() {
+  #getMonkFeatures(): string[] {
     const kenseiWeapon = DDBModifiers.getChosenClassModifiers(this.ddbData).some((mod) =>
       mod.friendlySubtypeName === this.ddbDefinition.type
       && mod.type === "kensei",
@@ -1201,8 +1201,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     return features;
   }
 
-  #getMartialArtsDie() {
-    let result = {
+  #getMartialArtsDie(): IDDBItemMartialArtsDie {
+    let result: IDDBItemMartialArtsDie = {
       diceCount: null,
       diceMultiplier: null,
       diceString: null,
@@ -1236,7 +1236,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
    *                  [diceString or value, subType]. If no matching die or value is found,
    *                  returns [null, null].
    */
-  #getExtraDamage(restrictions) {
+  #getExtraDamage(restrictions: string[]): [string | number | null, string | null][] {
     return DDBModifiers.filterBaseModifiers(this.ddbData, "damage", { restriction: restrictions }).map((mod) => {
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
       if (die) {
@@ -1256,6 +1256,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateItemFlags() {
+    // @ts-expect-error grantedModifiers can be injected I think - confirm
+    const grantedModifiers = this.ddbDefinition.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [];
     this.flags = {
       damage: {
         parts: [],
@@ -1265,8 +1267,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       martialArtsDie: this.#getMartialArtsDie(),
       maxMediumArmorDex: Math.max(
         ...DDBModifiers.filterBaseModifiers(this.ddbData, "set", { subType: "ac-max-dex-armored-modifier", includeExcludedEffects: true }).map((mod) => mod.value),
-        ...DDBModifiers.filterModifiersOld(this.ddbDefinition?.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-armored-modifier", ["", null], true).map((mod) => mod.value),
-        ...DDBModifiers.filterModifiersOld(this.ddbDefinition?.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [], "set", "ac-max-dex-modifier", ["", null], true).map((mod) => mod.value),
+        ...DDBModifiers.filterModifiersOld(grantedModifiers, "set", "ac-max-dex-armored-modifier", ["", null]).map((mod) => mod.value),
+        ...DDBModifiers.filterModifiersOld(grantedModifiers, "set", "ac-max-dex-modifier", ["", null]).map((mod) => mod.value),
         2,
       ),
       magicItemAttackInt: DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
@@ -1281,7 +1283,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       // get improved divine smite etc for melee attacks
       const extraDamage = this.#getExtraDamage(["Melee Weapon Attacks"]);
 
-      if (!!extraDamage.length > 0) {
+      if (extraDamage.length > 0) {
         this.flags.damage.parts = this.flags.damage.parts.concat(extraDamage);
       }
       // do we have great weapon fighting?
@@ -1299,7 +1301,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     // ranged fighting style is added as a global modifier elsewhere
     // as is defensive style
 
-    logger.debug(`Flags for ${this.ddbItem.name ?? this.ddbDefinition.name}`, { ddbItem: this.ddbItem, flags: this.flags });
+    logger.debug(`Flags for ${this.ddbDefinition.name}`, { ddbItem: this.ddbItem, flags: this.flags });
   };
 
 
@@ -1311,7 +1313,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     this.#generateDamageParts();
   }
 
-  #getDescription() {
+  #getDescription(): I5eItemDescription {
     const chatSnippet = this.ddbDefinition.snippet ? this.ddbDefinition.snippet : "";
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
 
@@ -1328,14 +1330,16 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateQuantity() {
+    // @ts-expect-error quantity can be injected I think - confirm
     this.data.system.quantity = this.ddbDefinition.quantity
+      // @ts-expect-error quantity can be injected I think - confirm
       ? this.ddbDefinition.quantity
       : this.ddbItem.quantity
         ? this.ddbItem.quantity
         : 1;
   }
 
-  #getSingleItemWeight() {
+  #getSingleItemWeight(): I5eItemWeight {
     const bundleSize = this.ddbDefinition?.bundleSize ? this.ddbDefinition.bundleSize : 1;
     const totalWeight = this.ddbDefinition?.weight ? this.ddbDefinition.weight : 0;
     const weight = totalWeight / bundleSize;
@@ -1346,6 +1350,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateEquipped() {
+    if (!("equipped" in this.data.system)) return;
     if (this.ddbDefinition.canEquip !== undefined && this.ddbDefinition.canEquip === true) {
       this.data.system.equipped = this.ddbItem.equipped;
     } else {
@@ -1356,8 +1361,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   #generateItemRarity() {
     const tmpRarity = this.ddbDefinition.rarity;
     const isMundaneItem = this.ddbDefinition?.rarity === "Common" && !this.ddbDefinition.magic;
-    const rarity = this.ddbDefinition.rarity && !isMundaneItem
-      ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "")
+    const rarity: TItemRarity = this.ddbDefinition.rarity && !isMundaneItem
+      ? tmpRarity.charAt(0).toLowerCase() + tmpRarity.slice(1).replace(/\s/g, "") as TItemRarity
       : "";
     this.data.system.rarity = rarity;
   }
@@ -1391,21 +1396,22 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     return range;
   }
 
-  #getWeaponRange() {
+  #getWeaponRange(): I5eWeaponRange {
     // sometimes reach weapons have their range set as 5. it's not clear why.
     const shortRange = this.ddbDefinition.range ? this.ddbDefinition.range : 5;
+    // @ts-expect-error properties here is greater than mgc because of interfaces
     const reach = this.data.system.properties.includes("rch") && this.ddbDefinition.range == 5 ? 5 : 0;
     return {
       value: shortRange + reach,
       long: (this.ddbDefinition.longRange && this.ddbDefinition.longRange != this.ddbDefinition.range)
         ? this.ddbDefinition.longRange + reach
-        : "",
+        : null,
       units: "ft",
       reach: null,
     };
   }
 
-  #getWeaponBehaviourRange() {
+  #getWeaponBehaviourRange(): I5eWeaponRange {
     // range: { value: null, long: null, units: '' },
     const weaponBehavior = this.ddbDefinition.weaponBehaviors[0];
     return {
@@ -1415,16 +1421,17 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     };
   }
 
-  #getMagicalBonus(returnZero = false) {
+  #getMagicalBonus(returnZero = false): number | "" {
     const bonus = this.ddbDefinition.grantedModifiers
       .filter(
-        (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0,
+        (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
+      // @ts-expect-error we confirm this is an integer in the filter, so value should be number here
       .reduce((prev, cur) => prev + cur.value, 0);
     return bonus === 0 && !returnZero ? "" : bonus;
   }
 
-  #getWeaponMagicalBonus(returnZero = false) {
+  #getWeaponMagicalBonus(returnZero = false): number | "" {
     const bonus = this.#getMagicalBonus(returnZero);
     if (this.flags.classFeatures.includes("Improved Pact Weapon") && bonus === 0) {
       return 1;
@@ -1433,11 +1440,12 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     }
   };
 
-  #getMagicalArmorBonus() {
+  #getMagicalArmorBonus(): number {
     const bonus = this.ddbDefinition.grantedModifiers
       .filter(
-        (mod) => mod.type === "bonus" && mod.subType === "armor-class" && mod.value && mod.value !== 0,
+        (mod) => mod.type === "bonus" && mod.subType === "armor-class" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
+      // @ts-expect-error we confirm this is an integer in the filter, so value should be number here
       .reduce((prev, cur) => prev + cur.value, 0);
     return bonus;
   }
@@ -1479,6 +1487,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateProficient() {
+    if (!("proficient" in this.data.system)) return;
     if (this.characterProficiencies.some((proficiency) =>
       proficiency.name === this.ddbDefinition.type
       || proficiency.name === this.ddbDefinition.baseArmorName)

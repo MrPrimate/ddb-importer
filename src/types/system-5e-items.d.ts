@@ -19,9 +19,11 @@ global {
 
   type TArmorType = "light" | "medium" | "heavy" | "shield" | "natural";
 
-  type TItemRarity = "common" | "uncommon" | "rare" | "veryRare" | "legendary" | "artifact";
+  type TItemRarity = "" | "common" | "uncommon" | "rare" | "veryRare" | "legendary" | "artifact";
 
-  type IWeaponMastery = "cleave" | "graze" | "nick" | "push" | "sap" | "slow" | "topple" | "vex";
+  type TWeaponMastery = "cleave" | "graze" | "nick" | "push" | "sap" | "slow" | "topple" | "vex";
+
+  type TLootTypes = "art" | "gear" | "gem" | "junk" | "material" | "resource" | "trade" | "treasure";
 
   type TEquipmentTypes = TArmorType &
     "clothing" | "ring" | "rod" | "trinket" | "vehicle" | "wand" | "wondrous";
@@ -172,7 +174,7 @@ global {
     equipped: boolean;
     identified: boolean;
     identifier: string;
-    mastery?: IWeaponMastery | null;
+    mastery?: TWeaponMastery | null;
     price: I5ePrice;
     proficient: boolean | null;
     properties: TWeaponProperties[];
@@ -328,7 +330,7 @@ global {
     proficient: boolean | null;
     properties: TEquipmentProperties[];
     quantity: number;
-    rarity: string;
+    rarity: TItemRarity;
     source: I5eSourceInfo;
     strength: number;
     type: {
@@ -376,7 +378,7 @@ global {
     quantity: number;
     weight: I5eItemWeight;
     price: I5ePrice;
-    rarity: string;
+    rarity: TItemRarity;
     attunement: string;
     currency: I5eCurrency;
     capacity: I5eContainerCapacity;
@@ -407,7 +409,7 @@ global {
     quantity: number;
     weight: I5eItemWeight;
     price: I5ePrice;
-    rarity: string;
+    rarity: TItemRarity;
     attunement: string;
     ability: string;
     bonus: string;
@@ -458,7 +460,7 @@ global {
     quantity: number;
     weight: I5eItemWeight;
     price: I5ePrice;
-    rarity: string;
+    rarity: TItemRarity;
     attunement: string;
     attuned: boolean;
     equipped: boolean;
@@ -476,6 +478,32 @@ global {
     };
   }
 
+  // ---- Loot item ------------------------------------------------------------
+
+  interface I5eLootSystemData {
+    description: I5eItemDescription;
+    identifier: string;
+    source: I5eSourceInfo;
+    identified: boolean;
+    unidentified: { description: string };
+    container: string | null;
+    quantity: number;
+    weight: I5eItemWeight;
+    price: I5ePrice;
+    rarity: TItemRarity;
+    properties: string[];
+    type: {
+      value: TLootTypes;
+      subtype: string;
+    };
+  }
+
+  interface I5eLootItem extends I5eSystemBaseDocumentData {
+    type: "loot";
+    system: I5eLootSystemData;
+    flags: IItemFlagConfig;
+  }
+
   // ---- Item union ---------------------------------------------------
 
   export type I5eInventoryItem =
@@ -483,6 +511,7 @@ global {
     | I5eEquipmentItem
     | I5eContainerItem
     | I5eConsumableItem
-    | I5eToolItem;
+    | I5eToolItem
+    | I5eLootItem;
 
 }
