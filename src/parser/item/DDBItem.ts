@@ -13,6 +13,33 @@ interface IPerSpell {
   charges: number | null;
 }
 
+interface IActionDataMagicBonus {
+  null: number | null;
+  zero: number;
+}
+
+interface IActionData {
+  associatedToolsOrAbilities: string[];
+  ability: string | null;
+  activation: I5eActivityActivation | null;
+  consumption: unknown | null;
+  effects: unknown | null;
+  range: I5eActivityRange | null;
+  target: I5eActivityTarget | null;
+  save: I5eActivitySave | null;
+  duration: I5eActivityDuration | null;
+  attack: unknown | null;
+  magicBonus: IActionDataMagicBonus;
+  isFlat: boolean;
+  extraAttackBonus: string;
+  meleeAttack: boolean;
+  spellAttack: boolean;
+  consumptionValue: number | null;
+  rangedAttack?: boolean;
+  consumptionTargets?: I5eConsumptionTarget[];
+  uses?: I5eSystemLimitedUses;
+}
+
 interface IDDBItem {
   ddbCharacter: DDBCharacter;
   ddbItem: IDDBInventoryItem;
@@ -76,6 +103,7 @@ export default class DDBItem extends mixins.DDBActivityFactoryMixin {
   characterEffectAbilities: I5eAbilities;
   ddbCharacter: DDBCharacter;
   characterProficiencies: IDDBPCDnDBeyondProficiencyFlags[];
+  actionData: IActionData;
 
   static CLOTHING_ITEMS = [
     "Helm",
