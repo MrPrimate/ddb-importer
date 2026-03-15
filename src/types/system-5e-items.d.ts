@@ -7,6 +7,25 @@ export {};
 
 global {
 
+  type TFeatureType = "background" | "class" | "feat" | "race" | "supernaturalGift" | "vehicle" | "enchantment";
+
+  type TFeatureClassSubtype = "arcaneShot" | "artificerInfusion" | "channelDivinity" | "constellation" | "defensiveTactic" | "eldritchInvocation" | "elementalDiscipline" | "fightingStyle" | "huntersPrey" | "ki" | "maneuver" | "metamagic" | "multiattack" | "pact" | "psionicPower" | "rune" | "superiorHuntersDefense";
+
+  type TFeatureEnchantmentSubtype = "artificerInfusion" | "rune";
+
+  type TFeatureFeatSubtype = "dragonmark" | "epicBoon" | "fightingStyle" | "general" | "origin";
+
+  type TFeatureSupernaturalGiftSubtype = "blessing" | "charm" | "epicBoon";
+
+  type TArmorType = "light" | "medium" | "heavy" | "shield" | "natural";
+
+  type TItemRarity = "common" | "uncommon" | "rare" | "veryRare" | "legendary" | "artifact";
+
+  type IWeaponMastery = "cleave" | "graze" | "nick" | "push" | "sap" | "slow" | "topple" | "vex";
+
+  type TEquipmentTypes = TArmorType &
+    "clothing" | "ring" | "rod" | "trinket" | "vehicle" | "wand" | "wondrous";
+
   type TWeaponType = "simpleM"
     | "simpleR"
     | "martialM"
@@ -57,6 +76,8 @@ global {
      | "warpick"
      | "warhammer"
      | "whip";
+
+  type T5eInventoryTypes = "weapon" | "equipment" | "container" | "consumable" | "tool";
 
   // ---- Item flag sub-types --------------------------------------------------
 
@@ -140,24 +161,24 @@ global {
   interface I5eWeaponSystemData {
     activities: Record<string, I5eActivity>;
     advancement?: I5eAdvancement[];
-    ammunition: Record<string, any>;
-    armor: Record<string, any>;
+    ammunition?: Record<string, any>;
+    armor?: Record<string, any>;
     attuned: boolean;
     attunement: string;
-    container: string | null;
-    crew: { value: any[] };
+    container?: string | null;
+    crew?: { value: any[] };
     damage: I5eDamageBase;
     description: I5eItemDescription;
     equipped: boolean;
     identified: boolean;
     identifier: string;
-    mastery?: string;
+    mastery?: IWeaponMastery | null;
     price: I5ePrice;
     proficient: boolean | null;
     properties: TWeaponProperties[];
     quantity: number;
     range: I5eWeaponRange;
-    rarity: string;
+    rarity: TItemRarity;
     requirements: string;
     source: I5eSourceInfo;
     type: {
@@ -175,6 +196,7 @@ global {
     flags: IItemFlagConfig & {
       monsterMunch?: I5eMonsterMunchItemFlags;
       midiProperties?: I5eMidiItemProperties;
+      infusions?: { infused: boolean };
     };
   }
 
@@ -192,7 +214,10 @@ global {
     properties: TFeatProperties[];
     requirements: string;
     source: I5eSourceInfo;
-    type: { value: string; subtype: string };
+    type: {
+      value: TFeatureType;
+      subtype: TFeatureClassSubtype | TFeatureEnchantmentSubtype | TFeatureFeatSubtype | TFeatureSupernaturalGiftSubtype;
+    };
     uses: I5eSystemLimitedUses;
   }
 
@@ -202,6 +227,7 @@ global {
     flags: IItemFlagConfig & {
       monsterMunch?: I5eMonsterMunchItemFlags;
       midiProperties?: I5eMidiItemProperties;
+      infusions?: { infused: boolean };
     };
   }
 
@@ -305,7 +331,10 @@ global {
     rarity: string;
     source: I5eSourceInfo;
     strength: number;
-    type: { value: string; baseItem: string };
+    type: {
+      value: TEquipmentTypes;
+      baseItem: string;
+    };
     unidentified: { description: string };
     uses: I5eSystemLimitedUses;
     weight: I5eItemWeight;
@@ -317,6 +346,7 @@ global {
     flags: IItemFlagConfig & {
       infusions?: { maps: any[]; applied: any[]; infused: boolean };
       midiProperties?: I5eMidiItemProperties;
+      infusions?: { infused: boolean };
     };
   }
 

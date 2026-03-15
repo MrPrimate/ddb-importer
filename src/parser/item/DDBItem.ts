@@ -9,6 +9,24 @@ import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
 import { mixins as ActivityMixins } from "../activities/_module";
 
+interface IDDBItemFlagsMartialArtsDie {
+  diceCount: number | null;
+  diceMultiplier: number | null;
+  diceString: string | null;
+  diceValue: number | null;
+  fixedValue: number | null;
+}
+
+interface IDDBItemFlags {
+  damage: {
+    parts: [string | number | null, string | null][];
+  };
+  classFeatures: string[];
+  martialArtsDie: IDDBItemFlagsMartialArtsDie;
+  maxMediumArmorDex: number;
+  magicItemAttackInt: boolean;
+}
+
 interface IPerSpell {
   isPerSpell: boolean;
   charges: number | null;
@@ -115,6 +133,9 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   perSpell: IPerSpell;
   damageParts: I5eDamagePart[];
   healingParts: I5eDamagePart[];
+  spellCompendium: CompendiumCollection<"Item"> | null;
+  activityOptions: IDDBActivityBuild;
+  flags: IDDBItemFlags;
 
   constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null }: IDDBItem) {
     if (!ddbCharacter || !ddbItem) {
@@ -284,6 +305,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         this: this,
       });
       throw Error("Document type must be set", {
+        // @ts-expect-error - don't care
         this: this,
       });
     }
@@ -291,7 +313,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     this.data = {
       _id: foundry.utils.randomID(),
       name: this.name,
-      type: this.documentType,
+      type: this.documentType as T5eInventoryTypes,
       effects: [],
       system: SystemHelpers.getTemplate(this.documentType),
       flags: {
@@ -310,14 +332,18 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
     if (this.enricher.documentStub?.copySRD) {
       const srdDoc = await fromUuid(this.enricher.documentStub.copySRD.uuid);
-      const systemData = srdDoc.toObject().system;
+      const systemData = (srdDoc.toObject() as I5eInventoryItem).system;
       systemData.source.book = "";
       systemData.source.license = "";
       this.data.system = systemData;
     }
 
     if (this.enricher.documentStub?.replaceDefaultActivity) {
-      this.data.system.activities = {};
+      if ("activities" in this.data.system) {
+        this.data.system.activities = {};
+      } else {
+        logger.error(`Unable to replace default activity for ${this.ddbDefinition.name} as no activities property found`);
+      }
     }
 
     // Spells will still have activation/duration/range/target,
@@ -339,6 +365,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     }
 
     for (const value of Array.from(this.overrides.earlyProperties)) {
+      // @ts-expect-error - we are ignoring this, and setting properties that don;t exist doesnt cause a problem
       this.data.system.properties = utils.addToProperties(this.data.system.properties, value);
     }
 
@@ -346,48 +373,39 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     this.#enrichFlags();
   }
 
-  #getActivityDuration() {
-    const duration = {
+  #getActivityDuration(): I5eActivityDuration {
+    const duration: I5eActivityDuration = {
       value: null,
       units: "",
       special: "",
     };
 
-    if (this.ddbDefinition.duration) {
-      if (this.ddbDefinition.duration.durationUnit !== null) {
-        duration.units = this.ddbDefinition.duration.durationUnit.toLowerCase();
-      } else {
-        duration.units = this.ddbDefinition.duration.durationType.toLowerCase().substring(0, 4);
-      }
-      if (this.ddbDefinition.duration.durationInterval) duration.value = this.ddbDefinition.duration.durationInterval;
-    } else {
-      const durationArray = [
-        { foundryUnit: "day", descriptionMatches: ["day", "days"] },
-        { foundryUnit: "hour", descriptionMatches: ["hour", "hours"] },
-        { foundryUnit: "inst", descriptionMatches: ["instant", "instantaneous"] },
-        { foundryUnit: "minute", descriptionMatches: ["minute", "minutes"] },
-        { foundryUnit: "month", descriptionMatches: ["month", "months"] },
-        { foundryUnit: "perm", descriptionMatches: ["permanent"] },
-        { foundryUnit: "round", descriptionMatches: ["round", "rounds"] },
-        // { foundryUnit: "spec", descriptionMatches: [null] },
-        { foundryUnit: "turn", descriptionMatches: ["turn", "turns"] },
-        { foundryUnit: "year", descriptionMatches: ["year", "years"] },
-      ];
-      // attempt to parse duration
-      const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
-      const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
-      const durationMatch = (this.ddbDefinition.description ?? "").match(durationExpression);
+    const durationArray: { foundryUnit: TDurationUnit; descriptionMatches: string[] }[] = [
+      { foundryUnit: "day", descriptionMatches: ["day", "days"] },
+      { foundryUnit: "hour", descriptionMatches: ["hour", "hours"] },
+      { foundryUnit: "inst", descriptionMatches: ["instant", "instantaneous"] },
+      { foundryUnit: "minute", descriptionMatches: ["minute", "minutes"] },
+      { foundryUnit: "month", descriptionMatches: ["month", "months"] },
+      { foundryUnit: "perm", descriptionMatches: ["permanent"] },
+      { foundryUnit: "round", descriptionMatches: ["round", "rounds"] },
+      // { foundryUnit: "spec", descriptionMatches: [null] },
+      { foundryUnit: "turn", descriptionMatches: ["turn", "turns"] },
+      { foundryUnit: "year", descriptionMatches: ["year", "years"] },
+    ];
+    // attempt to parse duration
+    const descriptionUnits = durationArray.map((unit) => unit.descriptionMatches).flat().join("|");
+    const durationExpression = new RegExp(`(\\d*)(?:\\s)(${descriptionUnits})`);
+    const durationMatch = (this.ddbDefinition.description ?? "").match(durationExpression);
 
-      if (durationMatch) {
-        duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
-        duration.value = durationMatch[1];
-      }
+    if (durationMatch) {
+      duration.units = durationArray.find((duration) => duration.descriptionMatches.includes(durationMatch[2])).foundryUnit;
+      duration.value = durationMatch[1];
     }
     return duration;
   }
 
   #generateSave() {
-    const save = {
+    const save: I5eActivitySave = {
       ability: [],
       dc: {
         calculation: "",
@@ -397,7 +415,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
     const spellSaveCheck = (this.ddbDefinition.description ?? "").match(/succeed on a (.*?) saving throw (against your spell save DC)?/);
     if (spellSaveCheck && spellSaveCheck[1]) {
-      save.ability = spellSaveCheck[1].toLowerCase().substring(0, 3);
+      save.ability.push(spellSaveCheck[1].toLowerCase().substring(0, 3));
       if (spellSaveCheck[2]) {
         save.dc.calculation = "spellcasting";
       }
@@ -406,7 +424,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
     const saveCheck = (this.ddbDefinition.description ?? "").match(/DC ([0-9]+) (.*?) saving throw|\(save DC ([0-9]+)\)/);
     if (saveCheck && saveCheck[2]) {
-      save.ability = saveCheck[2].toLowerCase().substring(0, 3);
+      save.ability.push(saveCheck[2].toLowerCase().substring(0, 3));
       save.dc.formula = `${saveCheck[1]}`;
       save.dc.calculation = "";
       this.actionData.save = save;
@@ -416,11 +434,11 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   #generateActivityActivation() {
     // default
     this.actionData.activation = ["armor"].includes(this.parsingType)
-      ? { type: "", value: 1, condition: "" }
+      ? { type: "none", value: 1, condition: "" }
       : { type: "action", value: 1, condition: "" };
 
     if (["wondrous", "armor"].includes(this.parsingType)) {
-      let action = ["wondrous"].includes(this.parsingType) ? "special" : "";
+      let action: TActivationCost = ["wondrous"].includes(this.parsingType) ? "special" : "none";
       const actionRegex = /(bonus) action|(reaction)|as (?:an|a|a magic) (action)/i;
 
       const match = (this.ddbDefinition.description ?? "").match(actionRegex);
@@ -430,7 +448,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         else if (match[3]) action = "action";
       }
 
-      this.actionData.activation = { type: action ?? "", value: action ? 1 : null, condition: "" };
+      this.actionData.activation = { type: action ?? "none", value: action ? 1 : null, condition: "" };
     }
 
   }
@@ -464,7 +482,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
 
-  #generateAmmunitionDamage(magicalDamageBonus) {
+  #generateAmmunitionDamage(magicalDamageBonus: string | number) {
     // first damage part
     // blowguns and other weapons rely on ammunition that provides the damage parts
     if (this.ddbDefinition.damage && this.ddbDefinition.damage.diceString && this.ddbDefinition.damageType) {
@@ -473,7 +491,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         damageString,
         type: this.ddbDefinition.damageType.toLowerCase(),
       });
-      damage.bonus = damage.bonus === "" ? magicalDamageBonus : ` + ${magicalDamageBonus}`;
+      damage.bonus = damage.bonus === "" ? String(magicalDamageBonus) : ` + ${magicalDamageBonus}`;
       this.damageParts.push(damage);
     }
 
@@ -500,15 +518,18 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
           const saveMatch = mod.restriction.match(saveSearch);
 
           this.additionalActivities.push({
-            type: this.saveMatch ? "save" : "damage",
+            name: saveMatch ? `Save` : "Additional Damage",
+            type: saveMatch ? "save" : "damage",
             options: {
               generateDamage: true,
               damageParts,
               includeBaseDamage: false,
               saveOverride: saveMatch
                 ? {
-                  formula: `${saveMatch[1]}`,
-                  calculation: "",
+                  dc: {
+                    formula: `${saveMatch[1]}`,
+                    calculation: "",
+                  },
                   ability: [saveMatch[2].toLowerCase().substring(0, 3)],
                 }
                 : null,
@@ -565,16 +586,16 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
   }
 
-  getDamageType() {
+  getDamageType(): I5eDamageType | undefined {
     if (this.ddbDefinition.damageType) {
       const damageTypeReplace = this.ddbDefinition.grantedModifiers.find((mod) =>
         mod.type === "replace-damage-type"
         && (!mod.restriction || mod.restriction === ""),
       );
 
-      const damageType = damageTypeReplace
-        ? damageTypeReplace.subType.toLowerCase()
-        : this.ddbDefinition.damageType.toLowerCase();
+      const damageType: I5eDamageType = damageTypeReplace
+        ? damageTypeReplace.subType.toLowerCase() as I5eDamageType
+        : this.ddbDefinition.damageType.toLowerCase() as I5eDamageType;
       return damageType;
     } else {
       return undefined;
@@ -703,7 +724,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         }
       });
 
-    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.restrictions");
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.restrictions", restrictions);
     // add damage modifiers from other sources like improved divine smite
     if (this.flags.damage.parts) {
       this.flags.damage.parts.forEach((part) => {
@@ -722,7 +743,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
    * Supported Types only: Simple/Martial Melee/Ranged and Ammunition (Firearms in D&DBeyond)
    * @returns {string} WeaponType
    */
-  #getWeaponType() {
+  #getWeaponType(): TWeaponType {
     const type = DICTIONARY.weapon.weaponType.find(
       (type) => type.categoryId === this.ddbDefinition.categoryId,
     );
@@ -732,18 +753,18 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
     const isAdvancedWeapon = (this.ddbDefinition.description ?? "").includes("Mastery of Advanced Weapons requires military training and skill");
     if (isAdvancedWeapon) {
-      if (range) return `advanced${range.value}`;
+      if (range) return `advanced${range.value}` as TWeaponType;
       else return "advancedM";
     }
 
     if (type && range) {
-      return `${type.value}${range.value}`;
+      return `${type.value}${range.value}` as TWeaponType;
     } else {
       return "simpleM";
     }
   }
 
-  #getArmorType() {
+  #getArmorType(): TArmorType | "clothing" | "bonus" | null {
     // get the generic armor type
     const nameEntry = DICTIONARY.equipment.armorType.find((type) => type.name === this.ddbDefinition.type);
     const idEntry = DICTIONARY.equipment.armorType.find((type) => type.id === this.ddbDefinition.armorTypeId);
@@ -758,6 +779,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateArmorMaxDex() {
+    if (!("armor" in this.data.system)) return;
     let maxDexModifier;
     switch (this.systemType.value) {
       case "heavy":
@@ -1340,8 +1362,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     this.data.system.rarity = rarity;
   }
 
-  #getActivityRange() {
-    const range = {
+  #getActivityRange(): I5eActivityRange {
+    const range: I5eActivityRange = {
       value: this.ddbDefinition.range ? this.ddbDefinition.range : null,
       long: this.ddbDefinition.longRange ? this.ddbDefinition.longRange : null,
       units: (this.ddbDefinition.range || this.ddbDefinition.range) ? "ft" : "",

@@ -661,6 +661,7 @@ global {
   };
 
   interface IItemFlagConfig {
+    infusions?: { infused: boolean };
     ddbimporter?: IDDBImporterFlags;
     dnd5e?: I5eItemFlags;
     "midi-qol"?: {

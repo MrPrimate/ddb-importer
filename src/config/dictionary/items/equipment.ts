@@ -1,7 +1,7 @@
 interface ArmorType {
   name: string;
   id: number;
-  value: string | null;
+  value: TArmorType | "bonus" | "clothing" | null;
 }
 
 export interface Equipment {
