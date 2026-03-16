@@ -55,7 +55,7 @@ export default class FountOfMoonlight extends DDBEnricherData {
               size: "",
               width: "",
               height: "",
-              units: "",
+              units: "ft",
             },
           },
           durationOverride: {

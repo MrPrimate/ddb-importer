@@ -180,7 +180,7 @@ global {
     macroPass?: string;
     macroType?: string;
     macroName?: string;
-    document: any;
+    document: TDDBImporterDocument;
     priority?: number;
     macroParams?: string;
     functionCall?: string | null;

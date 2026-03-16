@@ -170,7 +170,7 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static addSpecialDurationFlagsToEffect(effect, match) {
+  static addSpecialDurationFlagsToEffect(effect: IEffectData, match) {
     const durations = [];
     // minutes
     if (match[7]
@@ -182,7 +182,7 @@ export default class DDBDescriptions {
       durations.push("turnStartSource");
     }
 
-    const currentSpecialDurations = foundry.utils.getProperty(effect, "flags.dae.specialDuration") ?? [];
+    const currentSpecialDurations: string[] = foundry.utils.getProperty(effect, "flags.dae.specialDuration") as string[] ?? [];
     const specialDurations = utils.addArrayToProperties(currentSpecialDurations, durations ?? []);
     foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
     return effect;

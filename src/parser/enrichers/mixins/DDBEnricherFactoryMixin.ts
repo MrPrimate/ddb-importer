@@ -880,6 +880,7 @@ export default abstract class DDBEnricherFactoryMixin {
 
       if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
         foundry.utils.setProperty(effect, "system", effectHint.auraeffects);
+        // @ts-expect-error - this is allowed
         effect.type = "auraeffects.aura";
       }
 

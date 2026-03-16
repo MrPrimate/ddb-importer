@@ -122,6 +122,11 @@ class DDBMonster {
     mod: number;
   }>;
 
+  movement: {
+    movement: I5eMovement;
+    special: string[];
+  };
+
   setProperty(name, value) {
     if (this.overrides["name"]) {
       this[name] = this.overrides["name"];

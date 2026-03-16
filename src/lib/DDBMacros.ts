@@ -260,10 +260,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateTargetUpdateMacroChange({
     macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
     functionCall = null, functionParams = "",
-  }: { macroPass: string; macroType?: string | null; macroName?: string | null; priority?: number;
-    document: TDDBImporterDocument; macroParams?: string; functionCall?: string | null;
-    functionParams?: string; },
-  ): IActiveEffectChangeData {
+  }: IDDBTargetUpdateMacroChange): IActiveEffectChangeData {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const valueStub = useDDBFunctions || functionCall
       ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
@@ -281,10 +278,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static generateSourceUpdateMacroChange({
     macroPass, macroType = null, macroName = null, priority = 20, document, macroParams = "",
     functionCall = null, functionParams = "",
-  }: { macroPass: string; macroType?: string | null; macroName?: string | null; priority?: number;
-    document: TDDBImporterDocument; macroParams?: string; functionCall?: string | null;
-    functionParams?: string; },
-  ): IActiveEffectChangeData {
+  }: IDDBTargetUpdateMacroChange): IActiveEffectChangeData {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const valueStub = useDDBFunctions || functionCall
       ? DDBMacros.generateItemMacroValue({ macroType, macroName, document, functionCall })
