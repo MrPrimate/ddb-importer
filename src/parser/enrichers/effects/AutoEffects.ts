@@ -269,7 +269,7 @@ export default class AutoEffects {
 
     const text = ddbDefinition.description ?? ddbDefinition.snippet ?? "";
 
-    const conditionResult = DDBDescriptions.parseStatusCondition({ text, nameHint: labelOverride });
+    const conditionResult = DDBDescriptions.parseStatusCondition({ text });
 
     if (!conditionResult.success) return null;
     const conditionEffect = AutoEffects.getStatusConditionEffect({ status: conditionResult, nameHint: labelOverride });

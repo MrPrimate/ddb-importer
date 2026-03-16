@@ -464,7 +464,7 @@ export default class EffectGenerator {
     });
 
     const hpBonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "hit-points");
-    if (hpBonusModifiers.length > 0 && !this.ddbItem.definition.isConsumable) {
+    if (hpBonusModifiers.length > 0 && (!("isConsumable" in this.ddbItem.definition) || !this.ddbItem.definition.isConsumable)) {
       let hpBonus = "";
       hpBonusModifiers.forEach((modifier) => {
         const hpParse = DDBModifiers.extractModifierValue(modifier);
@@ -588,7 +588,7 @@ export default class EffectGenerator {
         const innate = subType.split("-").slice(-1)[0];
         speedType = DICTIONARY.actor.speeds.find((s) => s.innate === innate).type;
       }
-      const bonusValue = bonuses.reduce((speed, mod) => speed + mod.value, 0);
+      const bonusValue = bonuses.reduce((speed, mod) => speed + parseInt(String(mod.value)), 0);
       if (speedType === "all") {
         this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
       } else {

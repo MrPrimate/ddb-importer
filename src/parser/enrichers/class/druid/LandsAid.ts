@@ -55,7 +55,7 @@ export default class LandsAid extends DDBEnricherData {
               size: "",
               width: "",
               height: "",
-              units: "",
+              units: "ft",
             },
           },
         },

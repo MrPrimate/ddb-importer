@@ -138,7 +138,7 @@ export default abstract class DDBEnricherData {
     return uses;
   }
 
-  _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: string; name: string; max?: string; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean } = { type: "", name: "", max: null }): I5eSystemLimitedUses {
+  _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: string; name: string; max?: string; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
     const uses: I5eSystemLimitedUses = {
       spent: this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent,
       max,
@@ -175,7 +175,7 @@ export default abstract class DDBEnricherData {
     return spells;
   }
 
-  _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max?: string | null; defaultSpent?: number | null; period?: string; formula?: string | null; override?: any }): I5eSystemLimitedUses {
+  _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
 
     if (spells.length === 0) {
