@@ -25,8 +25,13 @@ global {
 
   type TLootTypes = "art" | "gear" | "gem" | "junk" | "material" | "resource" | "trade" | "treasure";
 
-  type TEquipmentTypes = TArmorType &
-    "clothing" | "ring" | "rod" | "trinket" | "vehicle" | "wand" | "wondrous";
+  type TWeightUnits = "lb" | "kg" | "tn" | "Mg";
+
+  type TVolumeUnits = "cubicFoot" | "litre";
+
+  type TTemplateUnits = "ft" | "mi";
+
+  type TEquipmentTypes = TArmorType | "clothing" | "ring" | "rod" | "trinket" | "vehicle" | "wand" | "wondrous";
 
   type TWeaponType = "simpleM"
     | "simpleR"
@@ -125,7 +130,7 @@ global {
 
   interface I5eItemWeight {
     value: number;
-    units: string;
+    units: TWeightUnits;
   }
 
   // ---- Damage parts ---------------------------------------------------------
@@ -264,7 +269,7 @@ global {
       size?: string;
       width?: string;
       height?: string;
-      units?: string;
+      units?: TTemplateUnits;
     };
     affects?: {
       count?: string;
@@ -356,14 +361,16 @@ global {
 
   interface I5eContainerCapacityWeight {
     value?: number;
-    units?: string;
+    units?: TWeightUnits;
   }
 
   interface I5eContainerCapacityVolume {
-    units?: string;
+    units?: TVolumeUnits;
+    value?: number;
   }
 
   interface I5eContainerCapacity {
+    count?: number;
     weight?: I5eContainerCapacityWeight;
     volume?: I5eContainerCapacityVolume;
   }

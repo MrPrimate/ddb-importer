@@ -65,10 +65,103 @@ global {
     slots: any[];
   }
 
+  export interface IDDBInfusionKnown {
+    id: number;
+    characterId: number;
+    definitionKey: string;
+    itemId: string | null;
+    itemName: string | null;
+    itemTypeId: string;
+    choiceKey: string;
+    legacyItemTypeId: number;
+  }
+
+  export interface IDDBInfusionItem {
+    definitionKey: string;
+    characterId: number;
+    inventoryMappingId: number;
+    creatureMappingId: number | null;
+    modifierGroupId: string | null;
+    choiceKey: string;
+    itemTypeId: number;
+    itemId: number;
+    monsterId: number | null;
+  }
+
+  export interface IDDBInfusionItemRuleEntry {
+    type: string;
+    entityTypeId: number;
+    entityId: number;
+    definitionKey: string | null;
+    value: string | null;
+    costMinimum: number | null;
+  }
+
+  export interface IDDBInfusionItemRule {
+    name: string;
+    rules: IDDBInfusionItemRuleEntry[];
+  }
+
+  export interface IDDBInfusionItemRuleData {
+    text: string;
+    itemRules: IDDBInfusionItemRule[];
+  }
+
+  export interface IDDBInfusionModifier extends Omit<IDDBBaseModifier, "restriction"> {
+    dice: IDDBDamageDice | null;
+    restriction: string | null;
+    tagConstraints: any[];
+  }
+
+  export interface IDDBInfusionModifierData {
+    id: string;
+    name: string;
+    value: number;
+    modifiers: IDDBInfusionModifier[];
+  }
+
+  export interface IDDBInfusionCreatureData {
+    monsterId: number;
+    creatureGroupId: number;
+    flags: string[];
+  }
+
+  export interface IDDBInfusionEntitlementGranter {
+    entityType: string;
+    entityID: string;
+  }
+
+  export interface IDDBInfusionDefinition {
+    id: string;
+    definitionKey: string;
+    name: string;
+    sources: IDDBSource[];
+    sourceIds: number[];
+    description: string;
+    snippet: string;
+    type: string;
+    itemRuleData: IDDBInfusionItemRuleData | null;
+    modifierDataType: string | null;
+    modifierData: IDDBInfusionModifierData[];
+    actions: any[];
+    level: number;
+    creatureData: IDDBInfusionCreatureData[];
+    requiresAttunement: boolean;
+    allowDuplicates: boolean;
+    entitlementGranters: IDDBInfusionEntitlementGranter[];
+    isHomebrew: boolean;
+    featureFlagKey: string | null;
+  }
+
+  export interface IDDBInfusionData {
+    definitionData: IDDBInfusionDefinition[];
+    accessTypes: Record<string, number>;
+  }
+
   export interface IDDBInfusions {
-    known: any[];
-    items: any[];
-    infusions: any[];
+    known: IDDBInfusionKnown[];
+    item: IDDBInfusionItem[];
+    infusions: IDDBInfusionData;
   }
 
   // ---- Ability scores -------------------------------------------------------

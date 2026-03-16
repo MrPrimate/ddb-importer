@@ -719,11 +719,11 @@ global {
     preparation?: {
       formula?: string;
     };
-    ability?: "str" | "dex" | "con" | "int" | "wis" | "cha" | null;
+    ability?: T5eAbility | null;
   }
 
   interface I5eClassPrimaryAbility {
-    value?: ("str" | "dex" | "con" | "int" | "wis" | "cha")[];
+    value?: T5eAbility[];
     all?: boolean;
   }
 

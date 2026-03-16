@@ -11,7 +11,7 @@ import {
   DDBClassFeatureEnricher,
   DDBBackgroundEnricher,
 } from "../enrichers/_module";
-import { mixins as ActivityMixins } from "../activities/_module";
+import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 import {
   DDBDataUtils,
   DDBDescriptions,
@@ -34,7 +34,7 @@ type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDD
 
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
 
-export default class DDBFeatureMixin extends ActivityMixins.DDBActivityFactoryMixin {
+export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
 
   static LEVEL_SCALE_EXCLUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS;
   static LEVEL_SCALE_INFUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_INFUSIONS;

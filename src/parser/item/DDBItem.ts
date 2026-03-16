@@ -7,7 +7,7 @@ import { addRestrictionFlags } from "../../effects/restrictions";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
 import { NotifierV1Props } from "../../apps/DDBAppV2";
-import { mixins as ActivityMixins } from "../activities/_module";
+import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 
 interface IDDBItemMartialArtsDie {
   diceCount: number | null;
@@ -33,7 +33,7 @@ interface IPerSpell {
 }
 
 interface IActionDataMagicBonus {
-  null: number | null;
+  null: number | null | "";
   zero: number;
 }
 
@@ -68,7 +68,7 @@ interface IDDBItem {
   notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
 }
 
-export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
+export default class DDBItem extends DDBActivityFactoryMixin {
 
   static CLOTHING_ITEMS = DICTIONARY.equipment.CLOTHING_ITEMS;
   static EQUIPMENT_TRINKET = DICTIONARY.equipment.EQUIPMENT_TRINKET;
@@ -95,7 +95,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   parsingType: string | null;
   overrides: {
     ddbType: string | null;
-    armorType: string | null;
+    armorType: TEquipmentTypes | null;
     name: string | null;
     custom: boolean;
     earlyProperties: Set<string>;
@@ -136,6 +136,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   spellCompendium: CompendiumCollection<"Item"> | null;
   activityOptions: IDDBActivityBuild;
   flags: IDDBItemFlags;
+  infusionItemMap: IDDBInfusionItem;
+  infusionDetail: IDDBInfusionDefinition;
 
   constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null }: IDDBItem) {
     if (!ddbCharacter || !ddbItem) {
@@ -160,6 +162,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     this.ddbData = ddbCharacter.source.ddb;
     this.ddbItem = ddbItem;
     this.ddbDefinition = ddbItem.definition;
+    this.data = {} as any;
     if (!this.ddbDefinition.description && !this.ddbDefinition.snippet) this.ddbDefinition.description = "";
     this.raw = ddbCharacter.raw;
     this.isCompendiumItem = isCompendium;
@@ -365,7 +368,6 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     }
 
     for (const value of Array.from(this.overrides.earlyProperties)) {
-      // @ts-expect-error - we are ignoring this, and setting properties that don;t exist doesnt cause a problem
       this.data.system.properties = utils.addToProperties(this.data.system.properties, value);
     }
 
@@ -1523,11 +1525,12 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
   #generateMagicalBonus() {
     this.actionData.magicBonus.null = this.#getMagicalBonus();
-    this.actionData.magicBonus.zero = this.#getMagicalBonus(true);
+    this.actionData.magicBonus.zero = this.#getMagicalBonus(true) as number;
     switch (this.parsingType) {
       case "armor": {
         const magicBonus = this.#getMagicalArmorBonus();
         if (magicBonus > 0) {
+          // @ts-expect-error we know this exists for these parsing types
           this.data.system.armor.magicalBonus = magicBonus;
           this.addMagical = true;
         }
@@ -1537,14 +1540,16 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       case "ammunition": {
         if (this.actionData.magicBonus.zero > 0) {
           this.addMagical = true;
+          // @ts-expect-error we know this exists for these parsing types
           this.data.system.magicalBonus = this.actionData.magicBonus.zero;
         }
         break;
       }
       case "weapon": {
-        const magicalBonus = this.#getWeaponMagicalBonus(true);
+        const magicalBonus = this.#getWeaponMagicalBonus(true) as number;
         this.actionData.magicBonus.zero = magicalBonus;
         if (magicalBonus > 0) {
+          // @ts-expect-error we know this exists for these parsing types
           this.data.system.magicalBonus = magicalBonus;
           this.addMagical = true;
         }
@@ -1562,7 +1567,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     }
   }
 
-  static getRechargeFormula(description, maxCharges) {
+  static getRechargeFormula(description: string, maxCharges: number): string {
     if (description === "" || !description) {
       return `${maxCharges}`;
     }
@@ -1576,21 +1581,21 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     const matchFixed = chargeMatchFixed.exec(description);
     const matchLastDitch = chargeMatchLastDitch.exec(description);
 
-    let match = maxCharges;
+    let match = String(maxCharges);
     if (matchFormula && matchFormula[1]) {
-      match = matchFormula[1];
+      match = String(matchFormula[1]);
     } else if (matchFixed && matchFixed[1]) {
-      match = matchFixed[1];
+      match = String(matchFixed[1]);
     } else if (matchLastDitch && matchLastDitch[1]) {
-      match = matchLastDitch[1];
+      match = String(matchLastDitch[1]);
     } else if (description.search(chargeNextDawn) !== -1) {
-      match = maxCharges;
+      match = String(maxCharges);
     }
 
     return `${match}`;
   }
 
-  _getUses(prompt = false) {
+  _getUses(): I5eSystemLimitedUses {
     if (this.ddbItem.limitedUse !== undefined && this.ddbItem.limitedUse !== null && this.ddbItem.limitedUse.resetTypeDescription !== null) {
       const resetType = DICTIONARY.resets.find((reset) => reset.id == this.ddbItem.limitedUse.resetType);
 
@@ -1609,14 +1614,13 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         max: `${this.ddbItem.limitedUse.maxUses}`,
         spent: this.ddbItem.limitedUse.numberUsed ?? 0,
         recovery,
-        prompt,
       };
     } else {
-      return { spent: 0, max: null, recovery: [], prompt };
+      return { spent: 0, max: null, recovery: [] };
     }
   }
 
-  static getMagicItemResetType(description) {
+  static getMagicItemResetType(description: string): TActivationCost {
     let resetType = null;
 
     const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
@@ -1656,12 +1660,12 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     return resetType;
   }
 
-  _getCompendiumUses(defaultMax = null) {
-    if (!this.isCompendiumItem) return { spent: 0, max: null, recovery: [], prompt };
+  _getCompendiumUses(defaultMax: string | null = null): I5eSystemLimitedUses {
+    if (!this.isCompendiumItem) return { spent: 0, max: null, recovery: [] };
     const maxUses = /has (\d*) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
     const limitedUse = {
-      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? maxUsesMatches[1] : null,
+      maxUses: (maxUsesMatches && maxUsesMatches[1]) ? parseInt(maxUsesMatches[1]) : null,
       numberUsed: 0,
       resetType: DDBItem.getMagicItemResetType(this.ddbItem.definition.description),
       resetTypeDescription: this.ddbItem.definition.description,
@@ -1685,20 +1689,20 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         max: `${limitedUse.maxUses}`,
         spent: 0,
         recovery,
-        prompt,
       };
     } else {
-      return { spent: null, max: defaultMax, recovery: [], prompt };
+      return { spent: null, max: defaultMax, recovery: [] };
     }
   }
 
   // { value: "recoverAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.RecoverAll") },
   // { value: "loseAll", label: game.i18n.localize("DND5E.USES.Recovery.Type.LoseAll") },
   // { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
-  _generateUses(prompt = false, defaultMax = null) {
+  _generateUses(defaultMax: string = null) {
+    if (!("uses" in this.data.system)) return;
     this.data.system.uses = this.isCompendiumItem
       ? this._getCompendiumUses(defaultMax)
-      : this._getUses(prompt);
+      : this._getUses();
 
     if (!this.data.system.uses.max || this.data.system.uses.max === "") {
       this.data.system.uses.spent = null;
@@ -1706,9 +1710,10 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   _generateConsumableUses() {
+    if (!("uses" in this.data.system)) return;
     this.actionData.consumptionValue = 1;
     if (this.ddbItem.limitedUse) {
-      this._generateUses(true, "1");
+      this._generateUses("1");
     } else {
       // default
       this.data.system.uses = {
@@ -1718,17 +1723,18 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         autoDestroy: true,
       };
     }
+    // @ts-expect-error this is available on consumable types when generating consumables
     this.data.system.uses.autoDestroy = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value)
       || this.isSpellwrought;
   }
 
-  targetsCreature() {
+  targetsCreature(): boolean {
     const creature = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
     const creaturesRange = /(humanoid|monster|creature|target|beast)(s)? (or loose object )?(of your choice )?(that )?(you can see )?within range/gi;
     const targets = /attack against the target|at a target in range/gi;
-    return this.ddbDefinition.description.match(creature)
+    return !!(this.ddbDefinition.description.match(creature)
       || this.ddbDefinition.description.match(creaturesRange)
-      || this.ddbDefinition.description.match(targets);
+      || this.ddbDefinition.description.match(targets));
   }
 
 
@@ -1794,17 +1800,17 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       this.healingParts.push(part);
     }
 
-    if (otherParts.length > 0 && !this.enricher.activity?.other?.prevent) {
+    if (otherParts.length > 0) {
       this.additionalActivities.push({
-        name: this.enricher.activity?.other?.name ?? `Damage`,
+        name: `Damage`,
         type: "damage",
         options: {
           generateDamage: true,
           damageParts: otherParts,
           includeBaseDamage: false,
           activationOverride: {
-            type: this.enricher.activity?.other?.activationType ?? "special",
-            value: this.enricher.activity?.other?.activationValue ?? null,
+            type: "special",
+            value: null,
             condition: "",
           },
           durationOverride: {
@@ -1858,7 +1864,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
     if (aoeSizeMatch) {
       const type = aoeSizeMatch[3]?.trim() ?? aoeSizeMatch[2]?.trim() ?? "radius";
-      this.actionData.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type : "radius";
+      this.actionData.target.template.type = ["cone", "radius", "sphere", "line", "cube"].includes(type) ? type as TTemplate : "radius";
       this.actionData.target.template.size = aoeSizeMatch[1] ?? "";
       if (aoeSizeMatch[2] && aoeSizeMatch[2].trim() === "of you") {
         this.actionData.range.units = "self";
@@ -1866,7 +1872,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     }
   }
 
-  #removeMasteryContainer(text) {
+  #removeMasteryContainer(text: string): string {
     if (!this.removeWeaponMasteryDescription) return text;
     if (this.documentType !== "weapon") return text;
     const parser = new DOMParser();
@@ -1884,7 +1890,9 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       let description = this.ddbDefinition.description && this.ddbDefinition.description !== "null"
         ? this.ddbDefinition.description
         : "";
+      // @ts-expect-error custom items will have notes
       description = this.ddbDefinition.notes
+        // @ts-expect-error custom items will have notes
         ? description + `<p><blockquote>${this.ddbDefinition.notes}</blockquote></p>`
         : description;
 
@@ -1985,7 +1993,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
   #generatePrice() {
     let value = this.ddbDefinition.cost
-      ? Number.parseFloat(this.ddbDefinition.cost)
+      ? Number.parseFloat(String(this.ddbDefinition.cost))
       : 0;
 
     if (value === 0) value = this.#get2024Price();
@@ -1997,15 +2005,17 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateCapacity() {
-    this.data.system.capacity = (this.ddbDefinition.capacityWeight !== null)
-      ? {
-        "type": "weight",
-        "value": this.ddbDefinition.capacityWeight,
-      }
-      : {};
+    if (!("capacity" in this.data.system)) return;
+    if (this.ddbDefinition.capacityWeight) {
+      this.data.system.capacity.weight = {
+        units: "lb",
+        value: this.ddbDefinition.capacityWeight,
+      };
+    }
   }
 
   #generateCurrency() {
+    if (!("currency" in this.data.system)) return;
     if (!this.ddbItem.currency) return;
     this.data.system.currency = {
       cp: this.ddbItem.currency?.cp ?? 0,
@@ -2060,7 +2070,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       .map((property) => property.value);
   }
 
-  #getWeaponProficient() {
+  #getWeaponProficient(): boolean | null {
+    if (!("type" in this.data.system)) return null;
     // if it's a simple weapon and the character is proficient in simple weapons:
     if (
       this.characterProficiencies.some((proficiency) => proficiency.name === "Simple Weapons")
@@ -2081,18 +2092,21 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     return null;
   };
 
-  #getAbility() {
+  #getAbility(): T5eAbility | null {
     // finesse weapons can choose freely, and is now automated
+    // @ts-expect-error properties here is greater than mgc because of interfaces
     if (this.data.system.properties.includes("fin")) {
       return null;
     }
 
     // thrown, but not finesse weapon: STR
+    // @ts-expect-error properties here is greater than mgc because of interfaces
     if (this.data.system.properties.includes("thr")) {
       return "str";
     }
 
     // if it's a ranged weapon, and mot a reach weapon (long = 10 (?))
+    // @ts-expect-error properties here is greater than mgc because of interfaces
     if (this.data.system.range?.long > 5 && !this.data.system.properties.includes("rch")) {
       return "dex";
     }
@@ -2101,10 +2115,11 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     return null;
   }
 
-  #getWeaponAbility() {
-    let result = "";
+  #getWeaponAbility(): T5eAbility | "" {
+    let result: T5eAbility | "" = "";
     const ability = this.#getAbility();
     const mockAbility = ability === null
+      // @ts-expect-error properties here is greater than mgc because of interfaces
       ? this.data.system.properties.includes("fin") ? "dex" : "str"
       : ability;
 
@@ -2125,7 +2140,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         result = "int";
       }
     }
-    const setAbility = result && result !== ""
+    const setAbility = result !== ""
       ? result
       : mockAbility;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.ability", setAbility);
@@ -2176,6 +2191,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateAmmunitionSpecifics() {
+    if (!("damage" in this.data.system)) return;
     this.activityOptions.generateRange = true;
 
     if (this.damageParts.length > 0) {
@@ -2201,9 +2217,12 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateArmorSpecifics() {
+    if (!("armor" in this.data.system)) return;
     this.data.system.armor.value = this.ddbDefinition.armorClass;
+    // @ts-expect-error strength is there if we have armor
     this.data.system.strength = this.ddbDefinition.strengthRequirement ?? 0;
     if (this.ddbDefinition.stealthCheck === 2)
+      // @ts-expect-error properties overlap
       this.data.system.properties = utils.addToProperties(this.data.system.properties, "stealthDisadvantage");
     this.#generateArmorMaxDex();
     this.#generateProficient();
@@ -2214,6 +2233,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateConsumableSpecifics() {
+    if (!("type" in this.data.system)) return;
     if (this.data.system.type.value === "wand") this.addMagical = true;
     this._generateConsumableUses();
     if (["Potion", "Poison"].includes((this.overrides.ddbType ?? this.ddbDefinition.subType))) {
@@ -2263,14 +2283,17 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   #generateStaffSpecifics() {
     this.activityOptions.generateAttack = true;
     this.#generateStaffProperties();
-    this.data.system.proficient = this.#getWeaponProficient();
-    this.data.system.range = this.#getWeaponBehaviourRange();
+    if ("proficient" in this.data.system)
+      this.data.system.proficient = this.#getWeaponProficient();
+    if ("range" in this.data.system)
+      this.data.system.range = this.#getWeaponBehaviourRange();
     this.actionData.ability = this.#getAbility();
-    this.actionData.meleeAttack = this.data.system.range.long === 5;
+    if ("range" in this.data.system)
+      this.actionData.meleeAttack = this.data.system.range.long === 5;
     if (!game.modules.get("magicitems")?.active && !game.modules.get("items-with-spells-5e")?.active) {
       this._generateUses();
     }
-    if (this.damageParts.length > 0) {
+    if (this.damageParts.length > 0 && "damage" in this.data.system) {
       this.data.system.damage = {
         base: this.damageParts[0],
         versatile: this.versatileDamage,
@@ -2285,7 +2308,10 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     this.activityOptions.generateCheck = true;
     const defaultAbility = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
     this.actionData.ability = defaultAbility?.ability ?? "dex";
-    this.data.system.proficient = this.ddbData ? this.#getToolProficiency(this.ddbDefinition.name, this.actionData.ability) : 0;
+    if ("proficient" in this.data.system)
+      this.data.system.proficient = this.ddbData
+        ? this.#getToolProficiency(this.ddbDefinition.name, this.actionData.ability)
+        : 0;
     this._generateUses();
   }
 
@@ -2295,21 +2321,22 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.classFeatures", this.flags.classFeatures);
     this.#generateWeaponProperties();
     const proficientFeatures = ["pactWeapon", "kensaiWeapon"];
-    this.data.system.proficient = this.flags.classFeatures.some((feat) => proficientFeatures.includes(feat))
-      ? true
-      : this.#getWeaponProficient();
+    if ("proficient" in this.data.system)
+      this.data.system.proficient = this.flags.classFeatures.some((feat) => proficientFeatures.includes(feat))
+        ? true
+        : this.#getWeaponProficient();
 
     if (this.flags.classFeatures.includes("OffHand")) this.actionData.activation.type = "bonus";
-    this.data.system.range = this.#getWeaponRange();
-    this._generateUses(false);
-    this.data.system.uses.prompt = false;
+    if ("range" in this.data.system)
+      this.data.system.range = this.#getWeaponRange();
+    this._generateUses();
     this.actionData.ability = this.#getWeaponAbility();
     if (this.ddbDefinition.attackType === 1) {
       this.actionData.meleeAttack = true;
     } else {
       this.actionData.meleeAttack = false;
     }
-    if (this.damageParts.length > 0) {
+    if (this.damageParts.length > 0 && "damage" in this.data.system) {
       this.data.system.damage = {
         base: this.damageParts[0],
         versatile: this.versatileDamage,
@@ -2341,7 +2368,10 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         foundry.utils.setProperty(this.data, "system.mastery", masteryPropertyKey);
       }
     }
-    if (dictionaryWeapon?.properties.fir && this.characterProficiencies.some((proficiency) => proficiency.name === "Firearms")) {
+    if (dictionaryWeapon?.properties.fir
+      && this.characterProficiencies.some((proficiency) => proficiency.name === "Firearms")
+      && "proficient" in this.data.system
+    ) {
       this.data.system.proficient = 1;
     }
 
@@ -2352,7 +2382,10 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       this.#generateCurrency();
       this.#generateWeightless();
     }
-    if (!this.isContainer && !this.tattooType && !this.isSpellwrought) {
+    if (!this.isContainer && !this.tattooType && !this.isSpellwrought
+      && "armor" in this.data.system && "type" in this.data.system
+      && "strength" in this.data.system && "properties" in this.data.system
+    ) {
       this.data.system.armor = {
         value: null,
         dex: null,
@@ -2360,14 +2393,14 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       this.data.system.type.value = this.overrides.armorType
         ?? (this.isClothingTag ? "clothing" : "trinket");
       this.data.system.strength = 0;
-      this.data.system.properties = utils.removeFromProperties(this.data.system.properties, "stealthDisadvantage");
+      this.data.system.properties = utils.removeFromProperties(this.data.system.properties, "stealthDisadvantage") as TEquipmentProperties[];
       this.data.system.proficient = null;
     }
-    this._generateUses(true);
+    this._generateUses();
     if (!this.isTattoo && !this.isSpellwrought) {
       this.#generateCapacity();
     }
-    if (this.isSpellwrought && !this.tattooType) {
+    if (this.isSpellwrought && !this.tattooType && "uses" in this.data.system) {
       this.data.system.uses = {
         spent: 0,
         max: "1",
@@ -2380,6 +2413,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   #generateAttunement() {
+    if (!("attunement" in this.data.system)) return;
     if (this.ddbItem.isAttuned || this.ddbDefinition.canAttune) {
       if (this.ddbDefinition.name.startsWith("Spell Gem")) {
         this.data.system.attunement = "optional";
@@ -2444,7 +2478,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       default: {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.id", this.ddbItem.id);
         foundry.utils.setProperty(this.data, "flags.ddbimporter.custom", true);
-        this.data.system.source = "Custom item";
+        // this.data.system.source = "Custom item";
         // no matching case, try custom item parse
       }
     }
@@ -2531,7 +2565,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       },
     };
 
-    if (generateActivityUses) {
+    if (generateActivityUses && "uses" in this.data.system) {
       this.data.system.uses = foundry.utils.deepClone(usesOverride);
     }
 
@@ -2632,20 +2666,22 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   // if this.spellsAsActivities
 
   async #addSpellAsActivity(spell) {
+    if (!("activities" in this.data.system)) return;
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
     const resetType = this.ddbItem.limitedUse?.resetType
       ? DICTIONARY.resets.find((reset) =>
         reset.id == this.ddbItem.limitedUse.resetType,
-      )?.value ?? undefined
+      )
       : undefined;
+
 
     const activityUses = {
       spent: 0,
       recovery: [
         {
-          period: resetType,
+          period: resetType?.value,
           type: "recoverAll",
         },
       ],
@@ -2718,7 +2754,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         : "";
       activity.consumption.spellSlot = false;
 
-      if (this.perSpell.isPerSpell && ["", "charges"].includes(resetType)) {
+      if (this.perSpell.isPerSpell && resetType?.isCharges) {
         activity.uses = activityUses;
       }
 
@@ -2748,6 +2784,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
   }
 
   async #spellsAsSpells(spell) {
+    if (!("uses" in this.data.system)) return;
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -2846,7 +2883,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     }
     if (!this.ddbDefinition.magic) return;
 
-    if (this.perSpell.isPerSpell) {
+    if (this.perSpell.isPerSpell && "uses" in this.data.system) {
       this.data.system.uses = {
         spent: null,
         recovery: [
@@ -2905,7 +2942,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
       description: this.data.system.description.chat !== ""
         ? this.data.system.description.chat
         : this.data.system.description.value,
-    });
+    }) as I5eInventoryItem;
     this.data = await addRestrictionFlags(this.data, this.addAutomationEffects);
 
     const effects = await this.enricher.createEffects();
@@ -2960,7 +2997,8 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
       this.#generatePrice();
 
-      this.data.system.attuned = this.ddbItem.isAttuned;
+      if ("attuned" in this.data.system)
+        this.data.system.attuned = this.ddbItem.isAttuned;
       this.#generateAttunement();
 
       // should be one of the last things to do
@@ -2990,7 +3028,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
   }
 
-  #getInfusionItemMap() {
+  #getInfusionItemMap(): IDDBInfusionItem | undefined {
     if (!this.ddbData.infusions?.item) return undefined;
     return this.ddbData.infusions.item.find((mapping) =>
       mapping.itemId === this.ddbDefinition.id
@@ -2999,7 +3037,7 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     );
   }
 
-  getInfusionDetail(definitionKey) {
+  getInfusionDetail(definitionKey: string): IDDBInfusionDefinition | undefined {
     if (!this.ddbData.infusions?.infusions?.definitionData) return undefined;
     return this.ddbData.infusions.infusions.definitionData.find(
       (infusion) => infusion.definitionKey === definitionKey,
@@ -3049,13 +3087,16 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
 
       // if item is loot, lets move it to equipment/trinket so effects will apply
       if (this.data.type === "loot") {
+        // @ts-expect-error - ugly ugly
         this.data.type = "equipment";
+        // @ts-expect-error - ugly ugly
         this.data.system.armor = {
           type: "trinket",
           value: 10,
           dex: null,
         };
         // infusions will over ride the can equip status, so just check for equipped
+        // @ts-expect-error - ugly ugly
         this.data.system.equipped = this.ddbItem.equipped;
       }
 
@@ -3065,8 +3106,9 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
         const intSwap = DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0;
         if (intSwap) {
           const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
-          const mockAbility = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.ability");
+          const mockAbility = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.ability") as T5eAbility;
           if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
+            // TODO this has moved toactivities now
             this.data.system.ability = "int";
           }
         }
@@ -3203,15 +3245,16 @@ export default class DDBItem extends ActivityMixins.DDBActivityFactoryMixin {
     if (this.actionData.save) return "save";
     if (this.actionData.isFlat) return "attack";
     if (this.damageParts.length > 0) return "damage";
-    if (this.actionData.activation?.type === "special" && (!this.data.system.uses?.max || this.data.system.uses.max === "")) {
-      return undefined;
+    if (this.actionData.activation?.type === "special"
+      && (!("uses" in this.data.system) || this.data.system.uses.max === "")
+    ) {
+      return null;
     }
     if (this.actionData.activation?.type
-      && !this.healingAction
       && !["wand", "scroll"].includes(this.systemType.value)
       && this.parsingType !== "armor"
     ) return "utility";
-    if (this.parsingType === "armor" && this.actionData.activation?.type && this.actionData.activation.type !== "") return "utility";
+    if (this.parsingType === "armor" && this.actionData.activation?.type && this.actionData.activation.type !== "none") return "utility";
     if (this.parsingType === "consumable" && !["wand", "scroll"].includes(this.systemType.value)) return "utility";
     if (this.data.effects.length > 0) return "utility";
     if (["cone", "radius", "sphere", "line", "cube"].includes(this.actionData.target?.template?.type)) return "utility";

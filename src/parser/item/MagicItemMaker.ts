@@ -42,7 +42,7 @@ export default class MagicItemMaker {
       : itemSpell.system.level;
     let castLevel = itemSpell.system.level;
     let upcast = itemSpell.system.level;
-    const limitedUse = foundry.utils.getProperty(itemSpell, "flags.ddbimporter.dndbeyond.spellLimitedUse");
+    const limitedUse: IDDBSpellLimitedUse | undefined = foundry.utils.getProperty(itemSpell, "flags.ddbimporter.dndbeyond.spellLimitedUse") as IDDBSpellLimitedUse | undefined;
 
     // Do we have charge use data on spell?
     if (limitedUse) {
@@ -61,7 +61,7 @@ export default class MagicItemMaker {
         castLevel = itemSpell.flags.ddbimporter.dndbeyond.castAtLevel;
       }
     }
-    const spellName = foundry.utils.hasProperty(itemSpell, "flags.ddbimporter.originalName")
+    const spellName: string = foundry.utils.hasProperty(itemSpell, "flags.ddbimporter.originalName")
       ? itemSpell.flags.ddbimporter.originalName
       : itemSpell.name;
 

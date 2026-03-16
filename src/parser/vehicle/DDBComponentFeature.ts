@@ -5,7 +5,7 @@ import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers, IFeatureB
 import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
 import DDBVehicle, { IDDBVehicleFeatureComponent } from "../DDBVehicle";
-import { mixins as ActivityMixins } from "../activities/_module";
+import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 
 interface IDDBComponentFeature {
   ddbVehicle: DDBVehicle;
@@ -16,7 +16,7 @@ interface IDDBComponentFeature {
   action?: IDDBVehicleAction;
 }
 
-export default class DDBComponentFeature extends ActivityMixins.DDBActivityFactoryMixin {
+export default class DDBComponentFeature extends DDBActivityFactoryMixin {
 
   declare name: string;
   declare isAction: null;

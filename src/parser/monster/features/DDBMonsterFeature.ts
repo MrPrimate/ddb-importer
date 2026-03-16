@@ -7,7 +7,7 @@ import type { IFeatureBasicsResult, IFeatureBasicsSave } from "../../lib/_module
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
 import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
-import { mixins as ActivityMixins } from "../../activities/_module";
+import DDBActivityFactoryMixin from "../../activities/mixins/DDBActivityFactoryMixin";
 
 
 interface IDDBMonsterFeature {
@@ -22,7 +22,7 @@ interface IDDBMonsterFeature {
   sort?: number | null;
 }
 
-export default class DDBMonsterFeature extends ActivityMixins.DDBActivityFactoryMixin {
+export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
 
   declare data: I5eWeaponItem | I5eFeatItem;
   declare enricher: DDBMonsterFeatureEnricher;

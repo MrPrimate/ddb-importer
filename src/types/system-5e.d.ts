@@ -2,6 +2,8 @@ export {};
 
 global {
 
+  type T5eAbility = "str" | "dex" | "con" | "int" | "wis" | "cha";
+
   type TAll5eActorDocuments = I5ePCData | I5eMonsterData | I5eVehicleData;
 
   type TAll5eItemDocuments = I5ePCItem | I5eMonsterItem | I5eVehicleItem;
