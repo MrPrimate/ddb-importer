@@ -124,7 +124,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
   spellsAsCastActivity: boolean;
   spellsAsActivities: boolean;
   removeWeaponMasteryDescription: boolean;
-  versatileDamage: string;
+  versatileDamage: I5eDamagePart | null;
   addMagical: boolean;
   characterEffectAbilities: I5eAbilities;
   ddbCharacter: DDBCharacter;
@@ -280,7 +280,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
 
     this.damageParts = [];
     this.healingParts = [];
-    this.versatileDamage = "";
+    this.versatileDamage = null;
     this.addMagical = false;
 
     this.enricher = enricher ?? new DDBItemEnricher({ activityGenerator: DDBItemActivity, notifier: this.notifier });
@@ -566,7 +566,9 @@ export default class DDBItem extends DDBActivityFactoryMixin {
     if (weaponBehavior) {
       const versatile = (weaponBehavior.properties ?? []).find((property) => property.name === "Versatile");
       if (versatile && versatile.notes) {
-        this.versatileDamage = utils.parseDiceString(versatile.notes).diceString;
+        this.versatileDamage = SystemHelpers.buildDamagePart({
+          damageString: utils.parseDiceString(versatile.notes).diceString,
+        });
       }
 
       // first damage part
@@ -613,7 +615,9 @@ export default class DDBItem extends DDBActivityFactoryMixin {
 
     const versatile = (this.ddbDefinition.properties ?? []).find((property) => property.name === "Versatile");
     if (versatile && versatile.notes) {
-      this.versatileDamage = utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString;
+      this.versatileDamage = SystemHelpers.buildDamagePart({
+        damageString: utils.parseDiceString(versatile.notes, null, "", greatWeaponFighting).diceString,
+      });
     }
 
     // if we have greatweapon fighting style and this is two handed, add the roll tweak
@@ -2297,9 +2301,9 @@ export default class DDBItem extends DDBActivityFactoryMixin {
       this.data.system.damage = {
         base: this.damageParts[0],
         versatile: this.versatileDamage,
-        parts: this.actionData.save
-          ? []
-          : this.damageParts.slice(1),
+        // parts: this.actionData.save
+        //   ? []
+        //   : this.damageParts.slice(1),
       };
     }
   }
@@ -2340,9 +2344,9 @@ export default class DDBItem extends DDBActivityFactoryMixin {
       this.data.system.damage = {
         base: this.damageParts[0],
         versatile: this.versatileDamage,
-        parts: this.actionData.save
-          ? []
-          : this.damageParts.slice(1),
+        // parts: this.actionData.save
+        //   ? []
+        //   : this.damageParts.slice(1),
       };
     }
 
@@ -2676,6 +2680,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
       )
       : undefined;
 
+    const maxActivityUses = spellData.limitedUse?.maxUses && spellData.limitedUse?.maxUses > 0 ? `${spellData.limitedUse.maxUses}` : "1";
 
     const activityUses = {
       spent: 0,
@@ -2685,7 +2690,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
           type: "recoverAll",
         },
       ],
-      max: `${spellData.charges}`,
+      max: maxActivityUses,
     };
 
     const activityConsumptionTarget = this.perSpell.isPerSpell
