@@ -2961,9 +2961,10 @@ export default class DDBItem extends DDBActivityFactoryMixin {
     try {
       await this.#prepare();
 
-      this.data.system.source = DDBSources.parseSource(this.ddbDefinition);
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceId", this.data.system.source.id);
-      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceCategoryId", this.data.system.source.categoryIdid);
+      const source = DDBSources.parseSource(this.ddbDefinition);
+      this.data.system.source = source;
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceId", source.id);
+      foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.sourceCategoryId", source.categoryId);
       this.data.system.source.rules = this.is2014 ? "2014" : "2024";
       this.data.system.weight = this.#getSingleItemWeight();
 
@@ -3114,7 +3115,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
           const mockAbility = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.ability") as T5eAbility;
           if (characterAbilities.int.value > characterAbilities[mockAbility].value) {
             // TODO this has moved toactivities now
-            this.data.system.ability = "int";
+            // this.data.system.ability = "int";
           }
         }
       }
