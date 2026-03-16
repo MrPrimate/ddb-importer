@@ -165,6 +165,10 @@ global {
     units: TDistanceUnit;
   }
 
+  interface I5eWeaponDamageBase extends I5eDamageBase {
+    versatile?: I5eDamagePart;
+  }
+
   interface I5eWeaponSystemData {
     activities: Record<string, I5eActivity>;
     advancement?: I5eAdvancement[];
@@ -174,7 +178,7 @@ global {
     attunement: string;
     container?: string | null;
     crew?: { value: any[] };
-    damage: I5eDamageBase;
+    damage: I5eWeaponDamageBase;
     description: I5eItemDescription;
     equipped: boolean;
     identified: boolean;
