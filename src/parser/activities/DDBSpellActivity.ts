@@ -1,8 +1,8 @@
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger } from "../../lib/_module";
-import DDBBasicActivity from "./DDBItemActivity";
+import DDBBasicActivity from "./DDBBasicActivity";
 import { SystemHelpers } from "../lib/_module";
-import DDBSpell from "../spells/DDBSpell";
+import type DDBSpell from "../spells/DDBSpell";
 
 interface IDDBSpellActivity {
   type: IDDBActivityType;
@@ -474,12 +474,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     }
   }
 
-  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
-    noSpellslot?: boolean;
-    modRestrictionFilter?: any;
-    modRestrictionFilterExcludes?: any;
-  };
-
   build({
     activationOverride = null,
     additionalTargets = [],
@@ -530,7 +524,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     usesOverride = null,
     modRestrictionFilter = null,
     modRestrictionFilterExcludes = null,
-  }: typeof DDBSpellActivity.BuildOptions = {}) {
+  }: IDDBSpellActivityBuild = {}) {
 
     if (generateConsumption) this._generateConsumption({
       consumptionOverride,

@@ -1,5 +1,5 @@
 import { logger } from "../../lib/_module";
-import DDBBasicActivity from "./DDBItemActivity";
+import DDBBasicActivity from "./DDBBasicActivity";
 
 
 export default class DDBItemActivity extends DDBBasicActivity {
@@ -100,10 +100,6 @@ export default class DDBItemActivity extends DDBBasicActivity {
     };
   }
 
-  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
-    criticalThreshold?: number | undefined;
-  };
-
   build({
     activationOverride = null,
     additionalTargets = null,
@@ -151,7 +147,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
     targetOverride = null,
     usesOverride = null,
     consumptionOverride = null,
-  }: typeof DDBItemActivity.BuildOptions = {}) {
+  }: IDDBItemActivityBuild = {}) {
 
     if (generateConsumption) this._generateConsumption({
       targetOverrides: consumptionTargetOverrides,

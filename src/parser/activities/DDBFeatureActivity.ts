@@ -1,7 +1,7 @@
 import { DICTIONARY } from "../../config/_module";
 import { utils, logger } from "../../lib/_module";
-import DDBBasicActivity from "./DDBItemActivity";
-import DDBFeature from "../features/DDBFeature";
+import DDBBasicActivity from "./DDBBasicActivity";
+import type DDBFeature from "../features/DDBFeature";
 import { DDBDescriptions } from "../lib/_module";
 
 type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition;
@@ -563,14 +563,6 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   }
 
-  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
-    attackOverride?: any;
-    includeBase?: boolean;
-    noTemplate?: any;
-    targetSelf?: any;
-    rollOverrideName?: string | null;
-  };
-
   build({
     activationOverride = null,
     additionalTargets = null,
@@ -620,7 +612,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     usesOverride = null,
     rollOverride = null,
     rollOverrideName = null,
-  }: typeof DDBFeatureActivity.BuildOptions = {}) {
+  }: IDDBFeatureActivityBuild = {}) {
 
     if (generateActivation) this._generateActivation({ activationOverride });
     if (generateAttack) this._generateAttack({ attackOverride, unarmed: null, spell: null });

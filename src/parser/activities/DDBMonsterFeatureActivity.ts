@@ -1,5 +1,5 @@
 import { logger } from "../../lib/_module";
-import DDBBasicActivity from "./DDBItemActivity";
+import DDBBasicActivity from "./DDBBasicActivity";
 
 export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
@@ -185,8 +185,6 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     };
   }
 
-  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions;
-
   build({
     activationOverride,
     allowCritical,
@@ -234,7 +232,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     targetOverride,
     usesOverride,
     consumptionOverride = null,
-  }: typeof DDBMonsterFeatureActivity.BuildOptions = {}) {
+  }: IDDBItemActivityBuild = {}) {
 
     // override set to false on object if overriding
 

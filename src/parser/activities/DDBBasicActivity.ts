@@ -2,7 +2,7 @@ import { utils, logger } from "../../lib/_module";
 import { SystemHelpers } from "../lib/_module";
 import { Effects } from "../enrichers/_module";
 import DDBEnricherData from "../enrichers/data/DDBEnricherData";
-import DDBActivityFactoryMixin from "./mixins/DDBActivityFactoryMixin";
+import type DDBActivityFactoryMixin from "./mixins/DDBActivityFactoryMixin";
 
 export default class DDBBasicActivity {
 
@@ -378,8 +378,6 @@ export default class DDBBasicActivity {
     }
   }
 
-  declare static BuildOptions: IDDBActivityBuild;
-
   // ATTACK has
   // activation
   // attack
@@ -510,7 +508,7 @@ export default class DDBBasicActivity {
     saveOverride = null,
     targetOverride = null,
     usesOverride = null,
-  }: typeof DDBBasicActivity.BuildOptions = {}): void {
+  }: IDDBActivityBuild = {}): void {
 
     if (generateActivation) this._generateActivation({ activationOverride, noManual: noManualActivation });
     if (generateAttack) this._generateAttack(attackData);

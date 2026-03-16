@@ -1,5 +1,5 @@
 import { logger } from "../../lib/_module";
-import DDBBasicActivity from "./DDBItemActivity";
+import DDBBasicActivity from "./DDBBasicActivity";
 
 export default class DDBVehicleActivity extends DDBBasicActivity {
 
@@ -36,10 +36,6 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
       },
     };
   }
-
-  declare static BuildOptions: typeof DDBBasicActivity.BuildOptions & {
-    saveData?: any;
-  };
 
   build({
     activationOverride,
@@ -88,7 +84,7 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
     usesOverride,
     consumptionOverride = null,
     saveData = {},
-  }: typeof DDBVehicleActivity.BuildOptions = {}) {
+  }: IDDBVehicleActivityBuild = {}) {
 
     this._generateSave(foundry.utils.mergeObject({
       saveOverride,
