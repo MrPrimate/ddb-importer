@@ -24,6 +24,7 @@ interface IDDBMonsterFeature {
 
 export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
 
+  declare rawCharacter: I5eMonsterData | null;
   declare data: I5eWeaponItem | I5eFeatItem;
   declare enricher: DDBMonsterFeatureEnricher;
   declare type: TDDBMonsterActionType;
@@ -218,7 +219,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
           size: "", // 60
           width: "",
           height: "",
-          units: "", // ft
+          units: "ft", // ft
         },
         affects: {
           count: "",
@@ -294,6 +295,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
 
     this.name = utils.nameString(name);
     this.ddbMonster = ddbMonster;
+    this.rawCharacter = ddbMonster.npc;
     this.is2014 = ddbMonster.is2014;
     this.is2024 = !this.is2014;
     this.useCastActivity = ddbMonster.useCastActivity;
@@ -782,7 +784,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
         size: "", // 60
         width: "",
         height: "",
-        units: "", // ft
+        units: "ft", // ft
       },
       affects: {
         count: "",
