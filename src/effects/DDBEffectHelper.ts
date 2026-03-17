@@ -122,7 +122,7 @@ export default class DDBEffectHelper {
    */
   static async addSaveAdvantageToTarget(targetActor, originItem, ability, additionLabel = "", icon = null) {
 
-    const effectData: IEffectData = {
+    const effectData: I5eEffectData = {
       _id: foundry.utils.randomID(),
       changes: [
         {

@@ -53,8 +53,8 @@ export default class AutoEffects {
       durationTurns = null,
       showIcon = false,
     }: IBaseEffectOptions = {},
-  ): IEffectData {
-    const effect: IEffectData = {
+  ): I5eEffectData {
+    const effect: I5eEffectData = {
       img: document.img,
       name,
       statuses: [],

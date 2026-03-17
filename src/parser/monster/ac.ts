@@ -6,7 +6,7 @@ DDBMonster.prototype.BAD_AC_MONSTERS = ["arkhan the cruel"];
 
 
 DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, additionalItems = []) {
-  const originalAc = this.source.armorClass;
+  const originalAc = parseInt(String(this.source.armorClass));
   const ac = {
     flat: originalAc,
     calc: "",
@@ -18,7 +18,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
 
   const stat = this.source.stats.find((stat) => stat.statId === 2).value || 10;
   const dexBonus = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
-  const baseAc = 10 + parseInt(dexBonus);
+  const baseAc = 10 + dexBonus;
 
   const lowerDescription = this.source.armorClassDescription ? this.source.armorClassDescription.toLowerCase() : "";
   const descriptionItems = this.source.armorClassDescription
@@ -50,12 +50,12 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
         ac.calc = "natural";
         flatAC = false;
 
-        if (lowerDescription.includes("shield")) ac.flat = parseInt(ac.flat) - 2;
-        if (lowerDescription.includes("ring of protection")) ac.flat = parseInt(ac.flat) - 1;
-        if (lowerDescription.includes("cloak of protection")) ac.flat = parseInt(ac.flat) - 1;
-        if (lowerDescription.includes("+1") || lowerDescription.includes("+ 1")) ac.flat = parseInt(ac.flat) - 1;
-        if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = parseInt(ac.flat) - 2;
-        if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = parseInt(ac.flat) - 3;
+        if (lowerDescription.includes("shield")) ac.flat = ac.flat - 2;
+        if (lowerDescription.includes("ring of protection")) ac.flat = ac.flat - 1;
+        if (lowerDescription.includes("cloak of protection")) ac.flat = ac.flat - 1;
+        if (lowerDescription.includes("+1") || lowerDescription.includes("+ 1")) ac.flat = ac.flat - 1;
+        if (lowerDescription.includes("+2") || lowerDescription.includes("+ 2")) ac.flat = ac.flat - 2;
+        if (lowerDescription.includes("+3") || lowerDescription.includes("+ 3")) ac.flat = ac.flat - 3;
       } else if (!lowerItem.includes("with mage armor")) {
         lowerItem = lowerItem
           .replace("leather armor", "leather")
@@ -100,25 +100,26 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const rawItems = await DDBItemImporter.getCompendiumItems(itemsToCheck, "equipment", {
+  const rawItems: I5eMonsterItem[] = await DDBItemImporter.getCompendiumItems(itemsToCheck, "equipment", {
     looseMatch: true,
     monsterMatch: true,
-  });
+  }) as I5eMonsterItem[];
   const adjustedItems = rawItems
     .filter((item) => item.type !== "weapon")
     .map((item) => {
-      if (item.system.attunement === "required") item.system.attuned = true;
-      if (foundry.utils.hasProperty(item.system.equipped)) item.system.equipped = true;
+      if ("attunement" in item.system && item.system.attunement === "required") item.system.attuned = true;
+      if (foundry.utils.hasProperty(item, "system.equipped")) item.system.equipped = true;
       const check = itemsToCheck.find((i) => i.name.toLowerCase() === item.name.toLowerCase());
-      if (check) {
+      if (check && "quantity" in item.system) {
         item.system.quantity = check.system.quantity;
       }
       return item;
     });
 
   const acItems = adjustedItems.filter((i) => {
-    if (["light", "medium", "heavy", "shield"].includes(i.system.type?.value)) return true;
-    if (i.system.type?.value === "trinket") {
+    if (!("type" in i.system)) return false;
+    if (["light", "medium", "heavy", "shield"].includes(i.system.type.value)) return true;
+    if (i.system.type.value === "trinket") {
       const effectHasACChanges = (i.effects ?? []).some((e) => {
         const changeACKey = e.changes.some((c) => c.key.includes("system.attributes.ac"));
         return changeACKey;
@@ -146,7 +147,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     (i) => i.name.includes("Spellcasting") && i.system.description.value.includes("Mage Armor (included in AC)"),
   );
 
-  const effects = [];
+  const effects: I5eEffectData[] = [];
 
   if (spellCastingAC) {
     const compendium = CompendiumHelper.getCompendiumLabel("monster");
@@ -169,7 +170,6 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
         turns: null,
         startRound: null,
         startTurn: null,
-        combat: null,
       },
       transfer: false,
       disabled: false,
@@ -185,10 +185,9 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
       },
       _id: "Md6K6TE3a5buYstn",
       type: "base",
-      system: {},
       origin: `Compendium.${compendium}.Actor.${this.npc._id}.Item.${spellCastingAC._id}`,
     });
-    const maAC = 13 + parseInt(dexBonus);
+    const maAC = 13 + dexBonus;
     if (acItems.length === 0 && ac.flat > maAC) {
       const effect = ACBonusEffects.ACEffect("AC Bonus");
       effect.disabled = false;

@@ -135,7 +135,7 @@ DDBMonster.prototype.parseOutSpells = function(this: DDBMonster, text, { pactTex
 };
 
 
-function splitEdgeCase(spell) {
+function splitEdgeCase(spell: string): { name: string; edge: string | null } {
   const result = {
     name: spell,
     edge: null,

@@ -20,7 +20,7 @@ interface IEffectGenerator {
 }
 
 export default class EffectGenerator {
-  effect: IEffectData;
+  effect: I5eEffectData;
   ddb: IDDBData;
   character: I5eActorData;
   document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;

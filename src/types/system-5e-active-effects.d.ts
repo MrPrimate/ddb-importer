@@ -50,8 +50,11 @@ global {
     | "1Hit:msak"
     | "1Hit:rsak";
 
-  export interface IEffectData {
+  type TEffectType = "base" | "enchant";
+
+  export interface I5eEffectData {
     _id?: string;
+    type?: TEffectType;
     origin?: string;
     img?: string;
     name?: string;

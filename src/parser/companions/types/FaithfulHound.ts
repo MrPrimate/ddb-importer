@@ -48,7 +48,7 @@ export async function getFaithfulHound({
       },
     },
     "effects": [
-      (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject() as unknown as IEffectData,
+      (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject() as unknown as I5eEffectData,
     ],
   });
 

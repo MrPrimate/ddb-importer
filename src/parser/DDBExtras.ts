@@ -22,7 +22,7 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   // and saving throws and skills it is proficient in.
   // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
-  const effect: IEffectData = {
+  const effect: I5eEffectData = {
     changes: [
       {
         key: "system.bonuses.rwak.attack",
@@ -83,12 +83,12 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   return extra;
 }
 
-function generateArtificerDamageEffect(actor, extra): IEffectData {
+function generateArtificerDamageEffect(actor, extra): I5eEffectData {
   // artificer uses the actors spell attack bonus, so is a bit trickier
   // we remove damage bonus later, and will also have to calculate additional attack bonus for each attack
   extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
 
-  const effect: IEffectData = {
+  const effect: I5eEffectData = {
     changes: [
       {
         key: "data.bonuses.rwak.damage",

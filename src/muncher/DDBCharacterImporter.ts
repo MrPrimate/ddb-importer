@@ -48,7 +48,7 @@ export default class DDBCharacterImporter {
   };
   nonMatchedItemIds: string[];
   result: IDDBCharacterDataStub;
-  effectBackup: IEffectData[];
+  effectBackup: I5eEffectData[];
   importId: string;
 
   constructor({ actorId, ddbCharacter = null, notifier }: IDDBCharacterImporter) {
@@ -665,7 +665,7 @@ ${item.system.description.chat}
   }
 
   async preActiveEffects() {
-    this.effectBackup = foundry.utils.duplicate(this.actor.effects) as unknown as IEffectData[];
+    this.effectBackup = foundry.utils.duplicate(this.actor.effects) as unknown as I5eEffectData[];
     for (const e of this.effectBackup) {
       if (e.origin?.includes(".Item.")) {
         const parent: I5ePCItem | undefined = await fromUuid(e.origin) as unknown as I5ePCItem;
@@ -994,7 +994,7 @@ ${item.system.description.chat}
           if (previousEffectDiff) return true;
           return false;
         });
-        const updatedEffects: IEffectData[] = targetEffects.map((ae) => {
+        const updatedEffects: I5eEffectData[] = targetEffects.map((ae) => {
           return { _id: ae._id, disabled: !ae.disabled };
         });
         await this.actor.updateEmbeddedDocuments("ActiveEffect", updatedEffects as unknown as any);

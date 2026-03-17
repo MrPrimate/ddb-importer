@@ -720,7 +720,7 @@ export default abstract class DDBEnricherFactoryMixin {
       const name = effectHint.name ?? this.name;
       const effectOptions = effectHint.options ?? {};
 
-      let effect: IEffectData;
+      let effect: I5eEffectData;
       let useExistingEffect = false;
       if (effectHint.noCreate && this.data.effects.length > 0) {
         effect = this.data.effects[0];

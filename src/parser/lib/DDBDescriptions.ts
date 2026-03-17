@@ -170,7 +170,7 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static addSpecialDurationFlagsToEffect(effect: IEffectData, match) {
+  static addSpecialDurationFlagsToEffect(effect: I5eEffectData, match) {
     const durations = [];
     // minutes
     if (match[7]

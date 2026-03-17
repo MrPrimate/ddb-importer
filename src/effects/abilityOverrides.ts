@@ -1,8 +1,8 @@
 import { DICTIONARY } from "../config/_module";
 import { generateOverrideChange } from "./effects";
 
-function buildBaseOverrideEffect(label): IEffectData {
-  const effect: IEffectData = {
+function buildBaseOverrideEffect(label): I5eEffectData {
+  const effect: I5eEffectData = {
     changes: [],
     duration: {
       seconds: null,
@@ -27,7 +27,7 @@ function buildBaseOverrideEffect(label): IEffectData {
 }
 
 
-export function abilityOverrideEffect(overrides): IEffectData {
+export function abilityOverrideEffect(overrides): I5eEffectData {
   const effect = buildBaseOverrideEffect("Ability Overrides");
 
   DICTIONARY.actor.abilities.forEach((ability) => {

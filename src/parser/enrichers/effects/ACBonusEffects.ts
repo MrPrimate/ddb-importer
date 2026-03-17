@@ -4,8 +4,8 @@ import ChangeHelper from "./ChangeHelper";
 
 export default class ACBonusEffects {
 
-  static ACEffect(name: string): IEffectData {
-    const effect: IEffectData = {
+  static ACEffect(name: string): I5eEffectData {
+    const effect: I5eEffectData = {
       name,
       changes: [],
       duration: {
@@ -44,7 +44,7 @@ export default class ACBonusEffects {
     return changes;
   }
 
-  static generateBonusACEffect(modifiers: IDDBModifier[], label: string, subType: string, restrictions: string[] = [], alwaysActive = true): IEffectData {
+  static generateBonusACEffect(modifiers: IDDBModifier[], label: string, subType: string, restrictions: string[] = [], alwaysActive = true): I5eEffectData {
     const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {
@@ -72,7 +72,7 @@ export default class ACBonusEffects {
    * @param {number} mode
    * @returns {object} effect
    */
-  static generateFixedACEffect(formula: string, label: string, alwaysActive = false, priority = 30, mode: number = CONST.ACTIVE_EFFECT_MODES.OVERRIDE): IEffectData {
+  static generateFixedACEffect(formula: string, label: string, alwaysActive = false, priority = 30, mode: number = CONST.ACTIVE_EFFECT_MODES.OVERRIDE): I5eEffectData {
     const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {

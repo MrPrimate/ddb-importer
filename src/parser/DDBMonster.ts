@@ -88,25 +88,23 @@ class DDBMonster {
     proficiencyBonus: number;
     xp: number;
   };
-
   typeName: string;
   img: string;
   stockImage: boolean;
   featureFactory: DDBMonsterFeatureFactory;
   is2014: boolean;
   is2024: boolean;
+  legacy: boolean;
   use2024Spells: boolean;
   useCastActivity: boolean;
   forceRulesVersion: boolean;
   extra: boolean;
-
   spellcasting: {
     spelldc: number;
     spellcasting: "str" | "dex" | "con" | "int" | "wis" | "cha" | string;
     spellLevel: number;
     spellAttackBonus: number;
   };
-
   spellList: {
     class: any[];
     pact: any[];
@@ -117,14 +115,25 @@ class DDBMonster {
     innateMatch: boolean;
     concentration: boolean;
   };
-
   abilities: I5eAbilities & Record<string, {
     mod: number;
   }>;
-
   movement: {
     movement: I5eMovement;
     special: string[];
+  };
+  items: I5eMonsterItem[];
+  ac: {
+    ac: I5eArmorClass;
+    flatAC: boolean;
+    acItems: I5eMonsterItem[];
+    dexBonus: number;
+    ddbItems: I5eMonsterItem[];
+    adjustedItems: I5eMonsterItem[];
+    allItemsMatched: boolean;
+    badACMonster: boolean;
+    rawItems: I5eMonsterItem[];
+    effects: I5eEffectData[];
   };
 
   setProperty(name, value) {
@@ -366,7 +375,7 @@ class DDBMonster {
       this.npc.prototypeToken.name += " (Legacy)";
     }
 
-    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc);
+    this.npc = await CompendiumHelper.existingActorCheck("monster", this.npc) as I5eMonsterData;
     this.npc = await monsterFeatureEffectAdjustment(this, this.addMonsterEffects);
     this.npc = specialCases(this.npc);
 

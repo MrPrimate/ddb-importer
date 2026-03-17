@@ -231,7 +231,7 @@ global {
     // Naming & data
     name?: string;
     img?: string;
-    data?: IEffectData;
+    data?: I5eEffectData;
     options?: IDDBEffectOptions;
 
     // Changes

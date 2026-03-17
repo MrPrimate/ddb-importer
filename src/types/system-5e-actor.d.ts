@@ -117,7 +117,7 @@ global {
     level?: number;
   }
 
-  interface I5eAttributes {
+  interface I5eMonsterAttributes {
     ac?: I5eArmorClass;
     attunement?: I5eAttunement;
     concentration?: I5eConcentration;
@@ -332,7 +332,7 @@ global {
 
   interface I5eMonsterSystemData {
     abilities?: I5eAbilities;
-    attributes?: I5eAttributes;
+    attributes?: I5eMonsterAttributes;
     bonuses?: I5eBonuses;
     currency?: I5eCurrency;
     details?: I5eDetails;
@@ -894,7 +894,7 @@ global {
     dndbeyond?: IDDBPCDnDBeyondFlags;
     activeUpdate?: boolean;
     compendium?: boolean;
-    acEffects?: IEffectData[];
+    acEffects?: I5eEffectData[];
     baseAC?: number;
     autoAC?: IDDBPCAutoAC;
     overrideAC?: IDDBPCAutoAC;

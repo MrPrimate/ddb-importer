@@ -2,31 +2,33 @@
 // these are non-compliant monsters that currently don't meet parsing requirements
 
 import { utils } from "../../lib/_module";
-import DDBMonster from "../DDBMonster";
 
 
-function isAttack({
-  activity, classification = null, type = null, orHasProperties = [], andHasProperties = [],
-} = {}) {
+function isAttack({ activity, classification = null, type = null }:
+{ activity: I5eActivity; classification?: string | null; type?: string | null;
+}) {
   if (activity.type !== "attack") return false;
   if (classification && activity.attack?.type?.classification !== classification) return false;
-  if (andHasProperties.length > 0 && !andHasProperties.every((p) => activity.parent.properties.has(p))) return false;
-  const orHas = orHasProperties.some((p) => activity.parent.properties.has(p));
-  if ((type && activity.attack?.type?.value !== type)
-    || (orHas.length > 0 && !orHas)) return false;
+  if (type && activity.attack?.type?.value !== type) return false;
 
   return true;
 }
 
+function hasAttackActivity(item: I5eMonsterItem) {
+  if (!("activities" in item.system)) return false;
+  return Object.values(item.system.activities).some((activity) => isAttack({
+    activity,
+    classification: "weapon",
+  }));
+
+}
+
 // these are temporary work arounds till parsing is fixed.
-export function specialCases(monster) {
+export function specialCases(monster: I5eMonsterData) {
   const magicWeapons = monster.items.some((item) => item.name === "Magic Weapons");
   if (magicWeapons) {
     monster.items.forEach(function (item, index) {
-      const applyMagic = item.type === "weapon" || Object.values(item.system.activities).some((activity) => isAttack({
-        activity,
-        classification: "weapon",
-      }));
+      const applyMagic = item.type === "weapon" || hasAttackActivity(item);
       if (applyMagic) {
         this[index].system.properties = utils.addToProperties(this[index].system.properties, "mgc");
       }

@@ -78,7 +78,7 @@ global {
     type: string;
     img?: string;
     flags?: Record<string, any>;
-    effects: IEffectData[];
+    effects: I5eEffectData[];
     folder?: string | null;
     sort?: number;
     ownership?: Record<string, number>;

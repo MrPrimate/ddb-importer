@@ -28,7 +28,7 @@ export default class MidiOverTimeEffect {
   parsedDescription: IFeatureBasicsResult;
   document: I5ePCItem | I5eMonsterItem;
   actor: I5eActorData;
-  effect: IEffectData;
+  effect: I5eEffectData;
   conditionStatus: ReturnType<typeof DDBDescriptions.parseStatusCondition>;
   conditionEffect: ReturnType<typeof AutoEffects.getStatusConditionEffect> | null;
   description: string;

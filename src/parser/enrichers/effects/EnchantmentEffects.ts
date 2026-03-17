@@ -6,7 +6,7 @@ export default class EnchantmentEffects {
     { transfer = false, disabled = false, origin = null, id = null, description = null, durationSeconds = null,
       durationRounds = null, durationTurns = null } = {},
   ) {
-    const effect: IEffectData = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
+    const effect: I5eEffectData = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
     foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");
     effect._id = id ?? foundry.utils.randomID();
     effect.origin = origin ?? null;
@@ -15,7 +15,7 @@ export default class EnchantmentEffects {
 
 
   static addMagicalBonus({ effect, nameAddition = null, bonus = null, bonusMode = "OVERRIDE",
-    makeMagical = true }: { effect: IEffectData; nameAddition?: string | null; bonus?: string | null; bonusMode?: string; makeMagical?: boolean },
+    makeMagical = true }: { effect: I5eEffectData; nameAddition?: string | null; bonus?: string | null; bonusMode?: string; makeMagical?: boolean },
   ) {
     const name = nameAddition
       ? `, ${nameAddition}`

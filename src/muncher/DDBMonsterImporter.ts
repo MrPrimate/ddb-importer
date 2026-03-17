@@ -103,7 +103,7 @@ export default class DDBMonsterImporter {
           if (!item.effects
             || (item.effects && item.effects.length == 0 && existingItem.effects && existingItem.effects.size > 0)
           ) {
-            item.effects = foundry.utils.duplicate(existingItem.getEmbeddedCollection("ActiveEffect")) as unknown as IEffectData[];
+            item.effects = foundry.utils.duplicate(existingItem.getEmbeddedCollection("ActiveEffect")) as unknown as I5eEffectData[];
           }
 
           fiddledItems.push(item);
