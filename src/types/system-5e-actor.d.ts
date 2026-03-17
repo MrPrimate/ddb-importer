@@ -241,9 +241,9 @@ global {
   interface I5eSkill {
     ability?: string;
     value?: number;
-    mod?: number;
-    passive?: number | null;
-    total?: number | null;
+    // mod?: number;
+    // passive?: number | null;
+    // total?: number | null;
     bonuses?: {
       check?: string;
       passive?: string;
