@@ -5,6 +5,22 @@ import { logger, utils, CompendiumHelper } from "../lib/_module";
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory";
 import { ExternalAutomations } from "../effects/_module";
 
+interface IMonsterSpellInnate {
+  name: string;
+  type: string;
+  value: string | number | null;
+  innate?: boolean;
+  edge?: string;
+  edgeDescription?: string;
+}
+
+export interface IMonsterSpellEdgeCase {
+  name: string;
+  type: string;   // "atwill" | "class" | "pact" | "innate"
+  edge: string;
+  edgeDescription?: string;
+}
+
 // Declaration merging: these methods are added to DDBMonster.prototype
 // by the files imported via extendParsers.ts
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -106,14 +122,15 @@ class DDBMonster {
     spellAttackBonus: number;
   };
   spellList: {
-    class: any[];
-    pact: any[];
-    atwill: any[];
-    innate: any[];
-    edgeCases: { name: string; type: string; edge: string }[];
+    atwill: string[];
+    class: string[];
+    pact: string[];
+    innate: IMonsterSpellInnate[];
+    edgeCases: IMonsterSpellEdgeCase[];
     material: boolean;
     innateMatch: boolean;
     concentration: boolean;
+    overrideData?: DeepPartial<I5eSpellItem> | null;
   };
   abilities: I5eAbilities & Record<string, {
     mod: number;

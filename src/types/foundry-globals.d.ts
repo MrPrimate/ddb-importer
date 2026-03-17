@@ -13,6 +13,14 @@ export {};
 
 declare global {
 
+  type DeepPartial<T> = {
+    [K in keyof T]?: T[K] extends Array<infer U>
+      ? Array<DeepPartial<U>>
+      : T[K] extends object
+        ? DeepPartial<T[K]>
+        : T[K];
+  };
+
   // Bridge dnd5e DataModelConfig registrations to the global interface.
   // The dnd5e types augment "fvtt-types/configuration" which doesn't reach
   // the global DataModelConfig from @league-of-foundry-developers/foundry-vtt-types.

@@ -1,5 +1,5 @@
 import { SETTINGS, DICTIONARY } from "../../config/_module";
-import DDBMonster from "../DDBMonster";
+import DDBMonster, { IMonsterSpellEdgeCase } from "../DDBMonster";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 
 DDBMonster.prototype.parseOutInnateSpells = function(this: DDBMonster, text) {
@@ -383,7 +383,7 @@ DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
       this.spellList.edgeCases = foundry.utils.deepClone(this.spellList.innate).map((s) => {
         s.type = "innate";
         return s;
-      });
+      }) as  IMonsterSpellEdgeCase[];
       this.spellList.material = false;
       break;
     }
@@ -404,7 +404,7 @@ DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
       this.spellList.edgeCases = foundry.utils.deepClone(this.spellList.innate).map((s) => {
         s.type = "innate";
         return s;
-      });
+      }) as IMonsterSpellEdgeCase[];
       this.spellList.material = false;
       break;
     }
@@ -443,7 +443,7 @@ DDBMonster.prototype._addSpellHints = function(this: DDBMonster) {
       this.spellList.overrideData = {
         system: {
           range: {
-            value: 120,
+            value: "120",
           },
         },
       };
@@ -543,16 +543,16 @@ DDBMonster.prototype.addSpells = async function(this: DDBMonster) {
             };
           } else if (spellInfo.value) {
             const perLookup = DICTIONARY.resets.find((d) => d.id == spellInfo.type);
-            const per = spellInfo.type === "atwill"
+            const period = spellInfo.type === "atwill"
               ? null
-              : (perLookup && perLookup.type)
-                ? perLookup.type
+              : (perLookup && !perLookup.isCharges)
+                ? perLookup.value
                 : "day";
             spell.system.uses = {
               spent: 0,
               max: `${spellInfo.value}`,
               recovery: [
-                { period: per, type: "recoverAll", formula: undefined },
+                { period, type: "recoverAll", formula: undefined },
               ],
             };
             for (const key of Object.keys(spell.system.activities)) {
