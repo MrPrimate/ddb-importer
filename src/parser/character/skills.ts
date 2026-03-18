@@ -117,9 +117,12 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
   const customSkills = await window.dnd5eCustomSkills("add", { skills: skillData });
 
   for (const [key, value] of Object.entries(customSkills.skills.list)) {
+    // @ts-expect-error - we have not checked this for some time
     if (value.applied || value.applied === 1) {
+      // @ts-expect-error - we have not checked this for some time
       const customSkillMatch = customSkillData.find((customSkill) => customSkill.label === value.label);
       if (customSkillMatch) {
+        // @ts-expect-error - we have not checked this for some time
         logger.debug(`Adding custom skill ${value.label}`, { key, value, customSkillMatch });
         const prof = DICTIONARY.actor.customSkillProficiencies.find((proficiency) =>
           proficiency.value === customSkillMatch.proficiencyLevel,
@@ -133,6 +136,7 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
         if (customSkillMatch) {
           const checkBonus = (miscBonus + magicBonus).trim();
           this.raw.character.system.skills[key] = {
+            // @ts-expect-error - we have not checked this for some time
             ability: value.ability,
             value: prof,
             bonuses: {
@@ -163,12 +167,12 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DD
     // Skill bonuses
     const skillModifierBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: skill.subType })
-      .map((skl) => skl.value)
-      .reduce((a, b) => a + b, 0) ?? "";
+      .map((skl) => parseInt(String(skl.value)))
+      .reduce((a, b) => a + b, 0) ?? 0;
     const passiveBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `passive-${skill.subType}` })
-      .map((skl) => skl.value)
-      .reduce((a, b) => a + b, 0) ?? "";
+      .map((skl) => parseInt(String(skl.value)))
+      .reduce((a, b) => a + b, 0) ?? 0;
     const customSkillBonus = this.getCustomSkillBonus(skill);
     const skillBonus = skillModifierBonus + customSkillBonus;
     const customAbility = this.getCustomSkillAbility(skill);
@@ -177,11 +181,11 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DD
     // custom skill ability over ride effects
     if (customAbility) {
       const label = "Skill Ability Changes";
-      const change = {
+      const change: IActiveEffectChangeData = {
         key: `system.skills.${skill.name}.ability`,
         mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         value: `${customAbility}`,
-        priority: "20",
+        priority: 20,
       };
 
       const changeIndex = this.raw.character.effects.findIndex((effect) => effect.name === label);
@@ -199,7 +203,7 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DD
       ability: ability,
       bonuses: {
         check: `${parseInt(skillBonus) === 0 ? "" : skillBonus}`,
-        passive: `${parseInt(passiveBonus) === 0 ? "" : passiveBonus}`,
+        passive: passiveBonus === 0 ? "" : String(passiveBonus),
       },
       roll: {
         min: null,

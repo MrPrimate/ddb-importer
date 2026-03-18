@@ -303,7 +303,7 @@ export default class AutoEffects {
     return document;
   }
 
-  static generateBaseSkillEffect(id: string, label: string): any {
+  static generateBaseSkillEffect(id: number, label: string): any {
     const mockItem = {
       img: "icons/svg/up.svg",
     };

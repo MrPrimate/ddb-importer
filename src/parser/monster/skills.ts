@@ -36,18 +36,6 @@ DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonste
       const calculatedScore = proficiencyBonus + mod;
       const additionalBonus = monsterSkill?.additionalBonus || 0;
 
-      if (additionalBonus > 0) {
-        console.warn(`Additional bonus of ${additionalBonus} found for skill ${lookupSkill.label} on monster ${this.source.name}.`, {
-          this: this,
-          skill,
-          ability,
-          stat,
-          mod,
-          lookupSkill,
-          monsterSkill,
-        });
-      }
-
       if (monsterSkill) {
         this.npc.system.skills[key].value = 1;
         if (additionalBonus > 0) {
@@ -61,6 +49,16 @@ DDBMonster.prototype._generateSkills = function _generateSkills (this: DDBMonste
           || monsterSkill.value == calculatedScore + proficiencyBonus + additionalBonus
         ) {
           this.npc.system.skills[key].value = 2;
+        } else {
+          logger.warn(`Calculated skill value of ${calculatedScore} for ${lookupSkill.label} on monster ${this.source.name} does not match source value of ${monsterSkill.value}.`, {
+            this: this,
+            skill,
+            ability,
+            stat,
+            mod,
+            lookupSkill,
+            monsterSkill,
+          });
         }
       }
 
@@ -104,18 +102,6 @@ DDBMonster.prototype._generateSkillsHTML = function _generateSkillsHTML (this: D
       const lookupSkill = DICTIONARY.actor.skills.find((s) => s.name == key);
       const monsterSkill = this.source.skills.find((s) => s.skillId == lookupSkill.valueId);
       const additionalBonus = monsterSkill?.additionalBonus || 0;
-
-      if (additionalBonus > 0) {
-        console.warn(`Additional bonus of ${additionalBonus} found for skill ${lookupSkill.label} on monster ${this.source.name}.`, {
-          this: this,
-          skill,
-          ability,
-          stat,
-          mod,
-          lookupSkill,
-          monsterSkill,
-        });
-      }
 
       if (monsterSkill) {
         this.npc.system.skills[key].value = 1;

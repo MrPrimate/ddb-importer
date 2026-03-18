@@ -8,7 +8,7 @@ function convertSpellCastingAbilityId(spellCastingAbilityId) {
   return DICTIONARY.actor.abilities.find((ability) => ability.id === spellCastingAbilityId)?.value;
 };
 
-function getSpellCastingAbility(klass) {
+function getSpellCastingAbility(klass: IDDBClass): string | undefined {
   const subClassAbilityId = foundry.utils.getProperty(klass, "subclassDefinition.spellCastingAbilityId");
   const subClassAbility = subClassAbilityId ? convertSpellCastingAbilityId(subClassAbilityId) : undefined;
   if (subClassAbility) return subClassAbility;

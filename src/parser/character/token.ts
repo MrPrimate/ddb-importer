@@ -1,13 +1,14 @@
 import { logger } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 import DDBCharacter from "../DDBCharacter";
+import { IDDBPCSenses } from "./senses";
 
 DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharacter) {
   try {
     // Default to the most basic token setup.
     // everything else can be handled by the user / Token Mold
-    const existingData = foundry.utils.duplicate(this.currentActor.prototypeToken);
-    const tokenData = foundry.utils.mergeObject(existingData, {
+    const existingData: I5ePrototypeToken = foundry.utils.duplicate(this.currentActor.prototypeToken) as unknown as I5ePrototypeToken;
+    const tokenData: I5ePrototypeToken = foundry.utils.mergeObject(existingData, {
       actorLink: true,
       name: this.raw.character.name,
       sight: {
@@ -19,7 +20,7 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
     });
     const atlActive = game.modules.get("ATL")?.active;
     // if atl is active it can add vision upgrade effects, otherwise we don't take effects into account
-    const senses = this.getSenses({ includeEffects: !atlActive });
+    const senses = this.getSenses({ includeEffects: !atlActive }) as IDDBPCSenses;
     // darkvision: 0,
     // blindsight: 0,
     // tremorsense: 0,
@@ -53,6 +54,7 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
     const devilSight = senses.special.includes("You can see normally in darkness");
     if (devilSight && game.modules.get("vision-5e")?.active) {
       foundry.utils.setProperty(tokenData, "sight.visionMode", "devilsSight");
+      // @ts-expect-error - provided by vision-5e
       tokenData.sight = foundry.utils.mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.devilsSight.vision.defaults);
     } else if (devilSight) {
       foundry.utils.setProperty(tokenData, "sight.visionMode", "basic");

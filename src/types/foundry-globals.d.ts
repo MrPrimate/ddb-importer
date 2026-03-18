@@ -60,6 +60,7 @@ declare global {
       lib: Record<string, any>;
       [key: string]: any;
     };
+    dnd5eCustomSkills: any;
   }
   var DDBImporter: Window["DDBImporter"];
 
