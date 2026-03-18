@@ -5631,6 +5631,15 @@ export const fallbackDDBConfig: IDDBConfig = {
       sourceURL: "sources/dnd/oswhap",
     },
     {
+      id: 224,
+      name: "HGtMH2",
+      description: "Heliana’s Guide to Monster Hunting: Part 2",
+      sourceCategoryId: 31,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/55300/534/639085005894216266.jpeg",
+      sourceURL: "sources/dnd/hgtmh2",
+    },
+    {
       id: 225,
       name: "ExEb",
       description: "Exploring Eberron (2024)",
