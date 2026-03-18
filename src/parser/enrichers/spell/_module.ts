@@ -229,5 +229,6 @@ export { default as WaterBullet } from "./WaterBullet";
 export { default as Web } from "./Web";
 export { default as WindWall } from "./WindWall";
 export { default as WitchBolt } from "./WitchBolt";
+export { default as WordOfRadiance } from "./WordOfRadiance";
 export { default as ZephyrStrike } from "./ZephyrStrike";
 
