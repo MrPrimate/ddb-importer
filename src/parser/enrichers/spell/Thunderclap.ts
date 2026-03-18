@@ -7,12 +7,12 @@ export default class Thunderclap extends DDBEnricherData {
       data: {
         system: {
           range: {
-            units: "spec",
+            units: this.is2014 ? "spec" : "self",
           },
           target: {
             template: {
-              size: "15",
-              type: "cube",
+              size: this.is2014 ? "15" : "5",
+              type: this.is2014 ? "cube" : "radius",
             },
           },
         },

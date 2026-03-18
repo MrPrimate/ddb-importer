@@ -5,6 +5,11 @@ import { logger, utils, CompendiumHelper } from "../lib/_module";
 import DDBMonsterFeatureFactory from "./monster/features/DDBMonsterFeatureFactory";
 import { ExternalAutomations } from "../effects/_module";
 
+export interface IDDBMonsterOverrides {
+  name?: string;
+  [key: string]: any;
+}
+
 interface IMonsterSpellInnate {
   name: string;
   type: string;
@@ -152,6 +157,7 @@ class DDBMonster {
     rawItems: I5eMonsterItem[];
     effects: I5eEffectData[];
   };
+  overrides: IDDBMonsterOverrides;
 
   setProperty(name, value) {
     if (this.overrides["name"]) {
@@ -163,7 +169,7 @@ class DDBMonster {
 
   constructor(ddbObject = null, { existingNpc = null, extra = false, useItemAC = true,
     legacyName = true, addMonsterEffects = false, addChrisPremades = false, use2024Spells = null,
-    useCastActivity = null, forceRulesVersion = null } = {}, overrides = {},
+    useCastActivity = null, forceRulesVersion = null } = {}, overrides: IDDBMonsterOverrides = {},
   ) {
     this.source = ddbObject;
 

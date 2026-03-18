@@ -36,11 +36,17 @@ interface IResourceStore {
   resistance: I5eLegendaryResource;
 }
 
+interface IDDBMonsterFeatureFactory {
+  ddbMonster: DDBMonster;
+  hideDescription?: boolean | null;
+  updateExisting?: boolean | null;
+}
+
 export default class DDBMonsterFeatureFactory {
 
   ddbMonster: DDBMonster;
-  hideDescription: boolean;
-  updateExisting: boolean;
+  hideDescription: boolean | null;
+  updateExisting: boolean | null;
   characterDescription: IFeatureTextStore;
   html: IFeatureTextStore;
   resources: IResourceStore;
@@ -55,7 +61,7 @@ export default class DDBMonsterFeatureFactory {
     return text.replaceAll(rollableRegex, "$2");
   }
 
-  constructor({ ddbMonster, hideDescription, updateExisting } = {}) {
+  constructor({ ddbMonster, hideDescription = null, updateExisting = null }: IDDBMonsterFeatureFactory) {
     this.ddbMonster = ddbMonster;
 
     this.hideDescription = hideDescription;
@@ -250,6 +256,7 @@ export default class DDBMonsterFeatureFactory {
         const name = title.trim();
         if (name && name.length > 0) {
           if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
+          // @ts-expect-error - TODO loop back to this, it's been here for a long time
           const titleHTML = pDom.outerHTML ? pDom.outerHTML.split(".")[0] : undefined;
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
@@ -264,6 +271,7 @@ export default class DDBMonsterFeatureFactory {
         const title = pDom.textContent.split(".")[0];
         const name = title.trim();
         if (name && name.length > 0) {
+          // @ts-expect-error - TO DO: loop back to this, it's been here for a long time
           const titleHTML = pDom.outerHTML ? pDom.outerHTML.split(".")[0] : undefined;
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
@@ -405,7 +413,7 @@ export default class DDBMonsterFeatureFactory {
 
       if (actionMatch) {
         const dupFeature = new DDBMonsterFeature(name, { ddbMonster: this.ddbMonster, html: actionMatch.html, type, actionCopy: true });
-        dupFeature.data = foundry.utils.duplicate(actionMatch.data);
+        dupFeature.data = foundry.utils.duplicate(actionMatch.data) as any;
         dupFeature.data._id = foundry.utils.randomID();
         dupFeature.data.name = action.name; // fix up name to make sure things like Attack are included
         Object.keys(dupFeature.data.system.activities).forEach((id) => {

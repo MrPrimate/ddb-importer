@@ -25,7 +25,7 @@ export default class ACBonusEffects {
     return effect;
   }
 
-  static addAddBonusChanges(modifiers: IDDBModifier[], name: string, type: string, key: string): IActiveEffectChangeData[] {
+  static addAddBonusChanges(modifiers: (IDDBModifier | IDDBSpellModifier)[], name: string, type: string, key: string): IActiveEffectChangeData[] {
     const changes: IActiveEffectChangeData[] = [];
     // const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, name, type, "bonus");

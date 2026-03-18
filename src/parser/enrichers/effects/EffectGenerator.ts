@@ -103,7 +103,7 @@ export default class EffectGenerator {
   }
 
   _addCustomChange(modifiers, type, key, extra = "") {
-    const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
+    const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + parseInt(String(b.value)), 0);
     if (bonus !== 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.customChange(`${bonus}${(extra) ? extra : ""}`, 18, key));
@@ -337,7 +337,7 @@ export default class EffectGenerator {
   }
 
   _addProficiencyBonus() {
-    const bonus = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + b.value, 0);
+    const bonus = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + parseInt(String(b.value)), 0);
     if (bonus) {
       logger.debug(`Generating proficiency bonus for ${this.document.name}`);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 0, "system.attributes.prof"));
@@ -682,6 +682,7 @@ export default class EffectGenerator {
 
     const allBonusMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)
       .filter((mod) => !Object.keys(DAMAGE_SUBTYPE_MAP).includes(mod.subType))
+      // @ts-expect-error - filter for mods with damage bonus
       .filter((mod) => mod.dice || mod.die || mod.value);
     if (allBonusMods.length > 0) {
       logger.debug(`Generating all damage for ${this.document.name}`);
@@ -981,7 +982,7 @@ export default class EffectGenerator {
   }
 
   _generateBaseACItemEffect() {
-    const noACValue = !this.document.system?.armor?.value;
+    const noACValue = !("armor" in this.document.system) || !this.document.system?.armor?.value;
 
     if (this.noGenerate && noACValue) return;
     logger.debug(`Generating supported AC effects for ${this.document.name}`);
@@ -1089,7 +1090,8 @@ export default class EffectGenerator {
 
     generator.generate();
 
-    logger.debug(`Adding effects to ${ddbItem.name}`, {
+    // @ts-expect-error - for debugging purposes
+    logger.debug(`Adding effects to ${ddbItem.name ?? ddbItem.definition.name}`, {
       generator,
       ddbItem,
     });
