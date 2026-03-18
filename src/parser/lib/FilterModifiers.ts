@@ -168,7 +168,7 @@ function filterModifiers(data, classInfo) {
  * @param {object} data character data
  * @returns {object} the same character data, but with modifiers fixed
  */
-export function fixCharacterLevels(data) {
+export function fixCharacterLevels(data: IDDBData): IDDBData {
   data.unfilteredModifiers = foundry.utils.deepClone(data.character.modifiers);
   const classInfo = getClassInfo(data.character);
   const filteredClassInfo = filterModifiers(data.character, classInfo);

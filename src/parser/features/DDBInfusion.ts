@@ -495,7 +495,7 @@ export class DDBInfusion {
     const acMagicalBonus = DDBModifiers.getModifierSum(acFilteredModifiers, this.rawCharacter);
 
     const changes = [];
-    if (magicBonus && magicBonus !== 0 && magicBonus !== "") {
+    if (magicBonus && magicBonus !== "") {
       changes.push(
         {
           key: "system.magicalBonus",
@@ -505,7 +505,7 @@ export class DDBInfusion {
         },
       );
     }
-    if (acMagicalBonus && acMagicalBonus !== 0 && acMagicalBonus !== "") {
+    if (acMagicalBonus && acMagicalBonus !== "") {
       changes.push(
         {
           key: "system.armor.magicalBonus",

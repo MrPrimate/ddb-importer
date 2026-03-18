@@ -19,6 +19,7 @@ global {
   export interface IDDBData {
     name: string;
     character: IDDBCharacterData;
+    unfilteredModifiers: IDDBModifiers;
     decorations: IDDBDecorations;
     backgroundEquipment: IDDBEquipmentSlots;
     startingEquipment: IDDBEquipmentSlots;

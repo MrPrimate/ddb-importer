@@ -10,7 +10,7 @@ export default class NaturalRecovery extends DDBEnricherData {
       type: "class",
       name: "Natural Recovery: Cast Circle Spell",
       max: "1",
-      period: "1r",
+      period: "lr",
     });
 
     return {

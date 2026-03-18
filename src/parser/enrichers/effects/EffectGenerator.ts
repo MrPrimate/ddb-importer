@@ -760,11 +760,15 @@ export default class EffectGenerator {
 
   _addEffectFlags(effect) {
     // check attunement status etc
+    const canEquip = ("canEquip" in this.ddbItem.definition && this.ddbItem.definition?.canEquip) ?? false;
+    const canAttune = ("canAttune" in this.ddbItem.definition && this.ddbItem.definition?.canAttune) ?? false;
+    const isConsumable = ("isConsumable" in this.ddbItem.definition && this.ddbItem.definition?.isConsumable) ?? false;
+    const isEquipped = ("equipped" in this.ddbItem && this.ddbItem.equipped) ?? false;
+    const isAttuned = ("attuned" in this.ddbItem && this.ddbItem.attuned) ?? false;
+    const filterType = ("filterType" in this.ddbItem.definition && this.ddbItem.definition?.filterType) ?? null;
 
     if (
-      !this.ddbItem.definition?.canEquip
-      && !this.ddbItem.definition?.canAttune
-      && !this.ddbItem.definition?.isConsumable
+      !canEquip && !canAttune && !isConsumable
       && DICTIONARY.types.inventory.includes(this.document.type)
     ) {
       // if item just gives a thing and not potion/scroll
@@ -774,9 +778,9 @@ export default class EffectGenerator {
     } else if (
       this.isCompendiumItem
       || this.document.type === "feat"
-      || ("isAttuned" in this.ddbItem && this.ddbItem.isAttuned && this.ddbItem.equipped) // if it is attuned and equipped
-      || ("isAttuned" in this.ddbItem && this.ddbItem.isAttuned && !this.ddbItem.definition?.canEquip) // if it is attuned but can't equip
-      || (!this.ddbItem.definition?.canAttune && this.ddbItem.equipped) // can't attune but is equipped
+      || (isAttuned && isEquipped) // if it is attuned and equipped
+      || (isAttuned && !canEquip) // if it is attuned but can't equip
+      || (!canAttune && isEquipped) // can't attune but is equipped
     ) {
       foundry.utils.setProperty(this.document, "flags.dae.alwaysActive", false);
       foundry.utils.setProperty(effect, "flags.ddbimporter.disabled", false);
@@ -787,16 +791,18 @@ export default class EffectGenerator {
       foundry.utils.setProperty(this.document, "flags.dae.alwaysActive", false);
     }
 
-    foundry.utils.setProperty(effect, "flags.ddbimporter.itemId", this.ddbItem.id);
-    foundry.utils.setProperty(effect, "flags.ddbimporter.itemEntityTypeId", this.ddbItem.entityTypeId);
+    if ("id" in this.ddbItem)
+      foundry.utils.setProperty(effect, "flags.ddbimporter.itemId", this.ddbItem.id);
+    if ("entityTypeId" in this.ddbItem)
+      foundry.utils.setProperty(effect, "flags.ddbimporter.itemEntityTypeId", this.ddbItem.entityTypeId);
     // set dae flag for active equipped
-    if (this.ddbItem.definition?.canEquip || this.ddbItem.definition?.canAttune) {
+    if (canEquip || canAttune) {
       foundry.utils.setProperty(this.document, "flags.dae.activeEquipped", true);
     } else {
       foundry.utils.setProperty(this.document, "flags.dae.activeEquipped", false);
     }
 
-    if (this.ddbItem.definition?.filterType === "Potion") {
+    if (filterType === "Potion") {
       effect = this._processConsumableEffect();
     }
 
@@ -878,7 +884,7 @@ export default class EffectGenerator {
       // others are picked up here e.g. Draconic Resilience
       const fixedValues = setMods
         .filter((mod) => Number.isInteger(mod.value))
-        .map((mod) => mod.value);
+        .map((mod) => parseInt(String(mod.value)));
       if (fixedValues.length > 0) bonuses = Math.max(...fixedValues);
     }
 
@@ -894,7 +900,7 @@ export default class EffectGenerator {
           const ignoreDexMod = this.grantedModifiers.some((mod) => mod.type === "ignore" && mod.subType === "unarmored-dex-ac-bonus");
           const maxDexArray = this.grantedModifiers
             .filter((mod) => mod.type === "set" && maxDexTypes.includes(mod.subType))
-            .map((mod) => mod.value);
+            .map((mod) => parseInt(String(mod.value)));
           if (maxDexArray.length > 0) maxDexMod = Math.min(...maxDexArray);
           if (ignoreDexMod) {
             formula = `${bonusSum}`;
@@ -950,9 +956,10 @@ export default class EffectGenerator {
   }
 
 
-  _addACBonusChanges(subType, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
+  _addACBonusChanges(subType: string, restrictions: (string | null)[] = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
     const bonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", subType, restrictions);
-    const bonus = DDBModifiers.getValueFromModifiers(bonusModifiers, "bonus");
+    // I added subtype here, but this might need to be null
+    const bonus = DDBModifiers.getValueFromModifiers(bonusModifiers, "bonus", subType);
     if (bonus) {
       logger.debug(`Generating ${subType} bonus for ${this.document.name}: ${bonus}`);
       this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, "system.attributes.ac.bonus"));
