@@ -668,6 +668,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
     unfilteredDamageMods
       .filter((mod) => !mod.restriction || mod.restriction === "")
       .forEach((mod) => {
+        // @ts-expect-error - TODO sometimes it can be different, especially on spell mods. we can probably change that here
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die ? die.diceString : mod.value;
         if (damagePart) {
@@ -693,6 +694,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
     unfilteredDamageMods
       .filter((mod) => mod.restriction && mod.restriction !== "")
       .forEach((mod) => {
+        // @ts-expect-error - TODO sometimes it can be different, especially on spell mods. we can probably change that here
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die
           ? die.diceString
@@ -1243,6 +1245,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
    */
   #getExtraDamage(restrictions: string[]): [string | number | null, string | null][] {
     return DDBModifiers.filterBaseModifiers(this.ddbData, "damage", { restriction: restrictions }).map((mod) => {
+      // @ts-expect-error - TODO sometimes it can be different, especially on spell mods. we can probably change that here
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
       if (die) {
         return [die.diceString, mod.subType];
@@ -1271,9 +1274,9 @@ export default class DDBItem extends DDBActivityFactoryMixin {
       classFeatures: this.#getClassFeatures(),
       martialArtsDie: this.#getMartialArtsDie(),
       maxMediumArmorDex: Math.max(
-        ...DDBModifiers.filterBaseModifiers(this.ddbData, "set", { subType: "ac-max-dex-armored-modifier", includeExcludedEffects: true }).map((mod) => mod.value),
-        ...DDBModifiers.filterModifiersOld(grantedModifiers, "set", "ac-max-dex-armored-modifier", ["", null]).map((mod) => mod.value),
-        ...DDBModifiers.filterModifiersOld(grantedModifiers, "set", "ac-max-dex-modifier", ["", null]).map((mod) => mod.value),
+        ...DDBModifiers.filterBaseModifiers(this.ddbData, "set", { subType: "ac-max-dex-armored-modifier", includeExcludedEffects: true }).map((mod) => parseInt(String(mod.value))),
+        ...DDBModifiers.filterModifiersOld(grantedModifiers, "set", "ac-max-dex-armored-modifier", ["", null]).map((mod) => parseInt(String(mod.value))),
+        ...DDBModifiers.filterModifiersOld(grantedModifiers, "set", "ac-max-dex-modifier", ["", null]).map((mod) => parseInt(String(mod.value))),
         2,
       ),
       magicItemAttackInt: DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,

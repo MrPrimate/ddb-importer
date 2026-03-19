@@ -2,8 +2,6 @@ import { logger, PatreonHelper, utils } from "../../lib/_module";
 import { SETTINGS } from "../../config/_module";
 import ChrisPremadesHelper from "./ChrisPremadesHelper";
 
-type TExternalAutomationDocuments = TAll5eItemDocuments | TAll5eActorDocuments;
-
 export default class ExternalAutomations {
 
   actor: Actor.Implementation;
@@ -37,7 +35,7 @@ export default class ExternalAutomations {
     await this.actor.update(activeUpdateData);
   }
 
-  static async applyChrisPremadeEffect({ document, type, monsterName = null, chrisNameOverride = null } = {}) {
+  static async applyChrisPremadeEffect({ document, type, monsterName = null, chrisNameOverride = null }: { document: TExternalAutomationDocuments; type: string; monsterName?: string | null; chrisNameOverride?: string | null }): Promise<TExternalAutomationDocuments> {
     return ChrisPremadesHelper.findAndUpdate({
       document,
       type,

@@ -14,8 +14,8 @@ export {};
 declare global {
 
   type DeepPartial<T> = {
-    [K in keyof T]?: T[K] extends Array<infer U>
-      ? Array<DeepPartial<U>>
+    [K in keyof T]?: T[K] extends (infer U)[]
+      ? DeepPartial<U>[]
       : T[K] extends object
         ? DeepPartial<T[K]>
         : T[K];
@@ -232,6 +232,9 @@ declare global {
       weaponTypes: Record<string, string>;
     };
     DDB: IDDBConfig;
+    chrisPremades: {
+      renamedItems: Record<string, string>;
+    };
   }
 
 }

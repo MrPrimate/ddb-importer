@@ -4,8 +4,31 @@ import {
   utils,
 } from "../../lib/_module";
 
+interface IChrisPremadesHelper {
+  chrisNameOverride?: string | null;
+  monsterName?: string | null;
+  ignoreNotFound?: boolean;
+  type?: string | null;
+  rules?: "2014" | "2024" | null;
+  documentType?: string | null;
+  featType?: string | null;
+}
 
 export default class ChrisPremadesHelper {
+
+  document: TExternalAutomationDocuments;
+  original: TExternalAutomationDocuments;
+  isMonster: boolean;
+  chrisNameOverride: string | null;
+  monsterName: string | null;
+  ignoreNotFound: boolean;
+  type: string | null;
+  ddbName: string;
+  chrisName: string;
+  chrisDoc: TExternalAutomationDocuments | null;
+  rules: "2014" | "2024";
+  featType: string | null;
+  documentType: string;
 
   static DDB_FLAGS_TO_REMOVE = [
     "midi-qol",
@@ -43,8 +66,8 @@ export default class ChrisPremadesHelper {
     "flags.chris-premades",
   ];
 
-  static getOriginalName(document, trimOption = false) {
-    const flagName = document.flags.ddbimporter?.originalName ?? document.name;
+  static getOriginalName(document: TExternalAutomationDocuments, trimOption = false): string {
+    const flagName = foundry.utils.getProperty(document, "flags.ddbimporter.originalName") as string ?? document.name;
 
     const regex = /(.*)\s*\((:?costs \d actions|\d\/Turn|Recharges after a Short or Long Rest|\d\/day|recharge \d-\d)\)/i;
     const nameMatch = flagName.replace(/[–-–−]/g, "-").match(regex);
@@ -52,10 +75,9 @@ export default class ChrisPremadesHelper {
     if (!trimOption) return longName;
 
     return longName.split(":")[0].trim();
-
   }
 
-  static getTypeMatch(doc, isMonster = false) {
+  static getTypeMatch(doc: TExternalAutomationDocuments, isMonster = false): string {
     if (DICTIONARY.types.inventory.includes(doc.type)) {
       return "inventory";
     }
@@ -65,7 +87,7 @@ export default class ChrisPremadesHelper {
     if (isMonster) return "monsterfeature";
 
     // lets see if we have marked this as a class or race type
-    const systemTypeValue = foundry.utils.getProperty(doc, "system.type.value");
+    const systemTypeValue = foundry.utils.getProperty(doc, "system.type.value") as string;
     if (systemTypeValue && systemTypeValue !== "") {
       if (systemTypeValue === "class") return "feature";
       if (systemTypeValue === "race") return "trait";
@@ -73,25 +95,21 @@ export default class ChrisPremadesHelper {
     }
 
     // can we derive the type from the ddb importer type flag?
-    const ddbType = foundry.utils.getProperty(doc, "flags.ddbimporter.type");
+    const ddbType = foundry.utils.getProperty(doc, "flags.ddbimporter.type") as string;
     if (ddbType && !["", "other"].includes(ddbType)) {
       if (ddbType === "class") return "feature";
       if (ddbType === "race") return "trait";
       return ddbType;
     }
 
-    if (doc.type === "feat") {
-      return "feature";
-    }
-
-    return doc.type;
+    return "feature";
   }
 
 
   static async getDocumentFromName({
     documentName, documentType,
     rules = "2014", monsterName = null, actorType = "character", featType = null,
-  } = {},
+  }: { documentName: string; documentType: string; rules?: "2014" | "2024"; monsterName?: string | null; actorType?: string; featType?: string | null },
   ) {
 
     const itemData = await chrisPremades.integration.ddbi(documentName, {
@@ -115,9 +133,9 @@ export default class ChrisPremadesHelper {
   }
 
 
-  constructor(document,
+  constructor(document: TExternalAutomationDocuments,
     { chrisNameOverride = null, monsterName = null, ignoreNotFound = true, type = null,
-      rules = null, documentType = null, featType = null } = {},
+      rules = null, documentType = null, featType = null }: IChrisPremadesHelper = {},
   ) {
     this.original = foundry.utils.deepClone(document);
     this.document = document;
@@ -129,8 +147,8 @@ export default class ChrisPremadesHelper {
     this.ddbName = ChrisPremadesHelper.getOriginalName(document);
     this.chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[this.ddbName] ?? this.ddbName;
     this.chrisDoc = null;
-    this.rules = rules ?? document.system.source.rules ?? "2014";
-    this.featType = featType ?? document.system.type?.value;
+    this.rules = rules ?? foundry.utils.getProperty(document, "system.source.rules") as "2014" | "2024" ?? "2014";
+    this.featType = featType ?? foundry.utils.getProperty(document, "system.type.value") as string;
     this.documentType = documentType ?? this.document.type;
   }
 
@@ -163,7 +181,7 @@ export default class ChrisPremadesHelper {
     });
     if (this.type === chrisType) {
       if (!chrisDoc.flags["chris-premades"].info.rules) {
-        chrisDoc.flags["chris-premades"].info.rules = this.original.system.source.rules === "2014" ? "legacy" : "";
+        chrisDoc.flags["chris-premades"].info.rules = foundry.utils.getProperty(this.original, "system.source.rules") === "2014" ? "legacy" : "";
       }
       this.chrisDoc = chrisDoc;
       return chrisDoc;
@@ -180,29 +198,17 @@ export default class ChrisPremadesHelper {
 
   }
 
-  static copyDescription(source, target, { appendSourceDescription = false, prependSourceDescription = false } = {}) {
-    const sourceDescription = foundry.utils.getProperty(source, "system.description");
+  static copyDescription(source: TExternalAutomationDocuments, target: TExternalAutomationDocuments): TExternalAutomationDocuments {
+    if (!("description" in source.system) || !("description" in target.system)) return target;
+    const sourceDescription = foundry.utils.getProperty(source, "system.description") as I5eItemDescription;
     if (!sourceDescription || sourceDescription.value.trim() === "") return target;
-
-    if (appendSourceDescription) {
-      ChrisPremadesHelper.appendDescription(source, target);
-    } else if (prependSourceDescription) {
-      const mockSource = foundry.utils.deepClone(target);
-      const mockDescription = foundry.utils.getProperty(source, "flags.ddbimporter.initialFeature")
-        ?? foundry.utils.getProperty(source, "system.description");
-
-      mockSource.system.description = foundry.utils.deepClone(foundry.utils.getProperty(target, "system.description"));
-      target.system.description = foundry.utils.deepClone(mockDescription);
-      ChrisPremadesHelper.appendDescription(mockSource, target);
-    } else {
-      target.system.description = foundry.utils.deepClone(sourceDescription);
-    }
-
+    target.system.description = foundry.utils.deepClone(sourceDescription);
     return target;
   }
 
   removeDDBImplementationNotes() {
-    const description = foundry.utils.getProperty(this.document, "system.description.value");
+    if (!("description" in this.document.system)) return;
+    const description = foundry.utils.getProperty(this.document, "system.description.value") as string;
     if (!description || description.trim() === "") return;
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = description;
@@ -222,12 +228,12 @@ export default class ChrisPremadesHelper {
       delete this.chrisDoc.flags[flagName];
     });
 
-    this.document.flags = foundry.utils.mergeObject(this.document.flags, this.chrisDoc.flags);
+    this.document.flags = foundry.utils.mergeObject(this.document.flags, this.chrisDoc.flags) as unknown as typeof this.document.flags;
 
     ChrisPremadesHelper.CP_FIELDS_TO_COPY.forEach((field) => {
-      const values = foundry.utils.getProperty(this.chrisDoc, field);
+      const values = foundry.utils.getProperty(this.chrisDoc, field) as any;
       if (field === "effects") {
-        values.forEach((effect) => {
+        values.forEach((effect: I5eEffectData) => {
           if (!effect._id) effect._id = foundry.utils.randomID();
         });
       }
@@ -242,10 +248,10 @@ export default class ChrisPremadesHelper {
       this.document.img = this.chrisDoc.img;
     }
 
-    const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${this.chrisName}`);
+    const correctionProperties = foundry.utils.getProperty(CONFIG, `chrisPremades.correctedItems.${this.chrisName}`) as unknown as any;
     if (correctionProperties) {
       logger.debug(`Updating ${this.original.name} with a CPR correction properties`);
-      this.document = foundry.utils.mergeObject(this.document, correctionProperties);
+      this.document = foundry.utils.mergeObject(this.document, correctionProperties) as typeof this.document;
     }
 
     this.removeDDBImplementationNotes();
@@ -255,7 +261,7 @@ export default class ChrisPremadesHelper {
 
   }
 
-  static async findAndUpdate({ document, type, monsterName = null, chrisNameOverride = null } = {}) {
+  static async findAndUpdate({ document, type, monsterName = null, chrisNameOverride = null }: { document: TExternalAutomationDocuments; type: string; monsterName?: string | null; chrisNameOverride?: string | null }): Promise<TExternalAutomationDocuments> {
     if (!game.modules.get("chris-premades")?.active) return document;
     if (foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true) {
       logger.info(`${document.name} set to ignore Cauldron of Plentiful Resources effect application`);
@@ -267,7 +273,7 @@ export default class ChrisPremadesHelper {
       chrisNameOverride,
       ignoreNotFound: true,
       monsterName,
-      rules: document.system.source.rules,
+      rules: foundry.utils.getProperty(document, "system.source.rules") as "2014" | "2024",
     });
     const chrisDoc = await chrisHelper.findReplacement();
 
@@ -287,14 +293,14 @@ export default class ChrisPremadesHelper {
     return chrisHelper.document;
   }
 
-   
+
   static async addAndReplaceRedundantChrisDocuments(actor, monsterName = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of extra effects.");
     const documents = actor.getEmbeddedCollection("Item").toObject();
     const toAdd = [];
     const toDelete = new Set();
-    const choiceRemovals = foundry.utils.getProperty(CONFIG, "chrisPremades.removeChoices") ?? [];
+    const choiceRemovals = foundry.utils.getProperty(CONFIG, "chrisPremades.removeChoices") as string[] ?? [];
     const choiceAdditions = new Set();
 
     for (const doc of documents) {
@@ -303,10 +309,11 @@ export default class ChrisPremadesHelper {
       const ddbName = ChrisPremadesHelper.getOriginalName(doc);
       const chrisName = CONFIG.chrisPremades?.renamedItems[ddbName] ?? ddbName;
       const noChoiceName = ddbName.split(":")[0].trim();
-      const newItemNames = new Set(foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`) ?? []);
+      const newItemsArray = foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${chrisName}`) as string[] ?? [];
+      const newItemNames = new Set(newItemsArray);
 
       if (ddbName !== noChoiceName) {
-        const noChoiceNewNames = foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${noChoiceName}`);
+        const noChoiceNewNames = foundry.utils.getProperty(CONFIG, `chrisPremades.additionalItems.${noChoiceName}`) as string[];
         if (noChoiceNewNames && !choiceAdditions.has(noChoiceName)) {
           noChoiceNewNames.forEach((i) => newItemNames.add(i));
           choiceAdditions.add(noChoiceName);
@@ -335,14 +342,15 @@ export default class ChrisPremadesHelper {
               chrisDoc,
             });
           } else if (!documents.some((d) => d.name === chrisDoc.name)) {
-            ChrisPremadesHelper.copyDescription(doc, chrisDoc, { prependSourceDescription: this.appendDescription });
+            ChrisPremadesHelper.copyDescription(doc, chrisDoc);
             foundry.utils.setProperty(chrisDoc, "flags.ddbimporter.ignoreItemUpdate", true);
             toAdd.push(chrisDoc);
           }
         }
       }
 
-      const itemsToRemoveNames = new Set(foundry.utils.getProperty(CONFIG, `chrisPremades.removedItems.${chrisName}`) ?? []);
+      const itemsToRemoveNamesArray = foundry.utils.getProperty(CONFIG, `chrisPremades.removedItems.${chrisName}`) as string[] ?? [];
+      const itemsToRemoveNames = new Set(itemsToRemoveNamesArray);
       if (choiceRemovals.includes(noChoiceName)) {
         itemsToRemoveNames.add(ddbName);
       }
@@ -365,8 +373,8 @@ export default class ChrisPremadesHelper {
 
   }
 
-   
-  static async restrictedItemReplacer(actor, monsterName = null) {
+
+  static async restrictedItemReplacer(actor: Actor.Implementation, monsterName: string = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of restricted effects.");
 
@@ -379,18 +387,18 @@ export default class ChrisPremadesHelper {
       return data;
     }).sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
     const toAdd = [];
-    const toDelete = new Set();
+    const toDelete = new Set<string>();
 
     for (const restrictedItem of sortedItems) {
       logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
       const doc = documents.find((d) => {
-        const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d);
+        const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments);
         const retainDoc = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true;
         return ddbName === restrictedItem.originalName && !retainDoc;
       });
       if (!doc) continue;
       if (["class", "subclass", "background"].includes(doc.type)) continue;
-      const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(doc);
+      const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(doc as unknown as TExternalAutomationDocuments);
 
       const rollData = actor.getRollData();
 
@@ -409,7 +417,7 @@ export default class ChrisPremadesHelper {
         const itemMatch = restrictedItem.requiredEquipment
           .every((requiredEquipment) =>
             documents.some((d) =>
-              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment
+              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredEquipment
               && DICTIONARY.types.inventory.includes(d.type),
             ));
         if (!itemMatch) continue;
@@ -419,7 +427,7 @@ export default class ChrisPremadesHelper {
         const itemMatch = restrictedItem.requiredFeatures
           .every((requiredFeature) =>
             documents.some((d) =>
-              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature
+              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredFeature
               && d.type === "feat",
             ));
         if (!itemMatch) continue;
@@ -429,13 +437,14 @@ export default class ChrisPremadesHelper {
       if (restrictedItem.replacedItemName && restrictedItem.replacedItemName !== "") {
         logger.debug(`Replacing item data for ${ddbName}, using restricted data from ${restrictedItem.key}`);
         const updateDocument = await ChrisPremadesHelper.findAndUpdate({
-          document: foundry.utils.duplicate(doc),
+          document: foundry.utils.duplicate(doc) as unknown as TExternalAutomationDocuments,
+          type: doc.type,
           monsterName,
           chrisNameOverride: restrictedItem.replacedItemName,
         });
         if (updateDocument) {
           await actor.deleteEmbeddedDocuments("Item", [doc._id]);
-          await actor.createEmbeddedDocuments("Item", [updateDocument], { keepId: true });
+          await actor.createEmbeddedDocuments("Item", [updateDocument as any], { keepId: true });
         }
       }
 
@@ -455,7 +464,7 @@ export default class ChrisPremadesHelper {
               monsterName,
             });
 
-             
+
             if (!chrisDoc) {
               logger.error(`DDB Importer expected to find an item in Chris's Premades for ${newItemName} but did not`, {
                 ddbName,
@@ -476,7 +485,7 @@ export default class ChrisPremadesHelper {
         logger.debug(`Removing items for ${ddbName}, using restricted data from ${restrictedItem.key}`);
         for (const removeItemName of restrictedItem.removedItems) {
           logger.debug(`Removing item ${removeItemName}`);
-          const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
+          const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments) === removeItemName);
           if (deleteDoc) toDelete.add(deleteDoc._id);
         }
       }
