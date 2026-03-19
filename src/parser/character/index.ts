@@ -52,9 +52,6 @@ DDBCharacter.prototype._generateCharacter = async function _generateCharacter(th
   this.raw.character.flags.ddbimporter.dndbeyond.profBonus = this.profBonus;
   this._generateProficiencies();
 
-  // proficiency
-  this.raw.character.system.attributes.prof = this.profBonus;
-
   // Get supported 5e feats and abilities
   // We do this first so we can check for them later
   this._setSpecialTraitFlags();

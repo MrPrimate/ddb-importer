@@ -267,6 +267,7 @@ class DDBCharacter {
   proficiencies: IDDBPCDnDBeyondProficiencyFlags[];
   proficienciesIncludingEffects: IDDBPCDnDBeyondProficiencyFlags[];
   weaponMasteries: IDDBPCDnDBeyondWeaponMasteryFlags[];
+  profBonus: number;
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,

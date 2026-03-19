@@ -46,13 +46,13 @@ DDBCharacter.prototype._generateSpeed = function _generateSpeed(this: DDBCharact
 
   const bonusSpeed = DDBModifiers
     .filterBaseModifiers(this.source.ddb, "bonus", { subType: "speed", restriction })
-    .reduce((speed, feat) => speed + feat.value, 0);
+    .reduce((speed, feat) => speed + parseInt(String(feat.value)), 0);
 
   // speed bonuses
   for (const type in movementTypes) {
     const innateBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: `speed-${type}ing`, restriction })
-      .reduce((speed, feat) => speed + feat.value, 0);
+      .reduce((speed, feat) => speed + parseInt(String(feat.value)), 0);
 
     // overwrite the (perhaps) changed value
     if (movementTypes[type] !== 0) movementTypes[type] += bonusSpeed + innateBonus;

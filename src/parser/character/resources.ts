@@ -39,12 +39,12 @@ DDBCharacter.prototype.getSortedByUsedResourceList = function getSortedByUsedRes
       if (action.limitedUse.useProficiencyBonus) {
         switch (action.limitedUse.proficiencyBonusOperator) {
           case 2: {
-            maxUses *= this.raw.character.system.attributes.prof;
+            maxUses *= this.profBonus;
             break;
           }
           case 1:
           default:
-            maxUses += this.raw.character.system.attributes.prof;
+            maxUses += this.profBonus;
         }
       }
 
@@ -167,7 +167,7 @@ DDBCharacter.prototype.setDefaultResources = function setDefaultResources(this: 
 };
 
 // this.source.ddb, this.raw.character
-DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog(this: DDBCharacter) {
+DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectionDialog(this: DDBCharacter): Promise<I5ePCData> {
   return new Promise((resolve) => {
     const sortedResources = this.getSortedByUsedResourceList();
 
@@ -199,6 +199,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
 
       const dialog = new Dialog({
         title: `Choose Resources for ${this.raw.character.name}`,
+        // @ts-expect-error - we have not checked this for some time
         content: {
           "resources": resources,
           "character": this.raw.character.name,
@@ -208,6 +209,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
           "cssClass": "character-resource-selection sheet",
         },
         buttons: {
+          // @ts-expect-error - we have not checked this for some time
           default: {
             // icon: '<i class="fas fa-list-ol"></i>',
             // label: "Auto",
@@ -219,6 +221,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               resolve(this.raw.character);
             },
           },
+          // @ts-expect-error - we have not checked this for some time
           custom: {
             // icon: '<i class="fas fa-sort"></i>',
             // label: "Custom",
@@ -228,6 +231,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               resolve(this.raw.character);
             },
           },
+          // @ts-expect-error - we have not checked this for some time
           disable: {
             callback: async () => {
               const formData = $(".character-resource-selection").serializeArray();
@@ -236,6 +240,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               resolve(this.raw.character);
             },
           },
+          // @ts-expect-error - we have not checked this for some time
           remove: {
             callback: async () => {
               const formData = $(".character-resource-selection").serializeArray();

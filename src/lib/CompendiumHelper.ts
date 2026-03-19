@@ -54,9 +54,9 @@ const CompendiumHelper = {
     { type: "weapon", compendium: "entity-item-compendium" },
   ],
 
-  getCompendiumLabel: (type) => {
+  getCompendiumLabel: (type): string => {
     const compendiumName = CompendiumHelper.LOOKUP.find((c) => c.type == type).compendium;
-    const compendiumLabel = game.settings.get("ddb-importer", compendiumName);
+    const compendiumLabel = utils.getSetting<string>(compendiumName);
     return compendiumLabel;
   },
 

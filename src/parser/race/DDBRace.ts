@@ -1,12 +1,14 @@
 import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { utils, logger, CompendiumHelper, FileHelper, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
+import type DDBCharacter from "../DDBCharacter";
 import { DDBModifiers, DDBReferenceLinker, DDBDataUtils, SystemHelpers } from "../lib/_module";
 
 
 export default class DDBRace {
 
   // Properties set in constructor
+  ddbCharacter: DDBCharacter;
   ddbData: IDDBData;
   isMuncher: boolean;
   race: IDDBRace;
@@ -23,6 +25,8 @@ export default class DDBRace {
   legacy: boolean;
   advancementHelper: AdvancementHelper;
   name: string;
+  data: I5eRaceItem;
+  lineageTrait: IDDBChoiceResult;
 
   static SPECIAL_ADVANCEMENTS = {};
 
@@ -70,6 +74,7 @@ export default class DDBRace {
       _id: foundry.utils.randomID(),
       name: "",
       type: "race",
+      effects: [],
       system: SystemHelpers.getTemplate("race"),
       flags: {
         ddbimporter: {
@@ -108,7 +113,7 @@ export default class DDBRace {
     return null;
   }
 
-  #getFullName() {
+  #getFullName(): string {
     const baseName = this.race.fullName ?? this.race.name;
     const lineageName = this.lineageName;
     const legacyName = this.isMuncher && this.isLegacy && this.data.system.source.book

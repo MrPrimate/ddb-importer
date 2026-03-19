@@ -11,7 +11,7 @@ DDBCharacter.prototype._addSpecialAdditions = function _addSpecialAdditions(this
   const features = checkList.filter((f) => sleepFeatures.includes(f.name) && f.type === "feat");
   const customs = new Set(this.data.character.system.traits.ci.custom.split(":"));
   for (const sleepFeature of features) {
-    if (sleepFeature && (foundry.utils.getProperty(sleepFeature, "system.description.value") ?? "").includes("magic can’t put you to sleep")) {
+    if (sleepFeature && ((foundry.utils.getProperty(sleepFeature, "system.description.value") ?? "") as string).includes("magic can’t put you to sleep")) {
       customs.add("Sleep");
     }
   }

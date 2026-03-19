@@ -83,9 +83,9 @@ DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter
         const maxSlots = Math.max(...levelSpellSlots);
         const currentSlots = this.source.ddb.character.pactMagic.find((pact) => pact.level === maxLevel).used;
         if (["Blood Hunter"].includes(name)) {
-          this.spellSlots.pact = { value: maxSlots - currentSlots, max: maxSlots, override: maxSlots };
+          this.spellSlots.pact = { value: maxSlots - currentSlots, max: String(maxSlots), override: maxSlots };
         } else {
-          this.spellSlots.pact = { value: maxSlots - currentSlots, max: maxSlots };
+          this.spellSlots.pact = { value: maxSlots - currentSlots, max: String(maxSlots) };
         }
         return {
           name,
@@ -141,7 +141,7 @@ DDBCharacter.prototype._generateSpellSlots = function _generateSpellSlots(this: 
   }
 
   for (let i = 1; i < result.length; i++) {
-    const currentSlots = this.source.ddb.character.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used) || 0;
+    const currentSlots = this.source.ddb.character.spellSlots.filter((slot) => slot.level === i).map((slot) => slot.used).reduce((a, b) => a + b, 0) ?? 0;
     this.spellSlots["spell" + i] = {
       value: result[i] ? (result[i] - currentSlots) : 0,
       max: result[i] ?? 0,
@@ -171,7 +171,7 @@ DDBCharacter.prototype._generateMaxPreparedSpells = function _generateMaxPrepare
       }
     });
 
-  this.raw.character.system.details.maxPreparedSpells = max;
+  // this.raw.character.system.details.maxPreparedSpells = max;
   foundry.utils.setProperty(this.raw.character, "flags.tidy5e-sheet.maxPreparedSpells", max);
   foundry.utils.setProperty(this.raw.character, "flags.tidy5e-sheet-kgar.maxPreparedSpells", max);
 };
