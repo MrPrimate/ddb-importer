@@ -1,5 +1,6 @@
 import { utils } from "../../../lib/_module";
 import { SUMMONS_ACTOR_STUB } from "./_data";
+
 const DANCING_LIGHTS_BASE = {
   "name": "Dancing Lights",
   "img": "modules/ddb-importer/img/jb2a/DancingLights_01_Yellow_Thumb.webp",
@@ -47,10 +48,10 @@ const DANCING_LIGHTS_BASE = {
 };
 
 
-export function getDancingLights() {
+export function getDancingLights(): ICompanionResult {
 
   const dancingLightsBase = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), foundry.utils.deepClone(DANCING_LIGHTS_BASE));
-  const results = {
+  const results: ICompanionResult = {
     DancingLightsYellow: {
       name: "Dancing Lights (Yellow)",
       version: "1",

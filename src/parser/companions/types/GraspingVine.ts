@@ -1,15 +1,13 @@
 import logger from "../../../lib/Logger";
 import DDBCompanionMixin from "../DDBCompanionMixin";
 import { SUMMONS_ACTOR_STUB } from "./_data";
-import { ICompanionData } from "./types";
-
 
 export async function getGraspingVines({
   ddbParser, // this,
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-}: ICompanionData) {
+}: ICompanionData): Promise<ICompanionResult> {
 
   logger.verbose("getGraspingVines", {
     ddbParser,

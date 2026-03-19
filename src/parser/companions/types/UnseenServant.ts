@@ -4,12 +4,11 @@ import {
 } from "../../../lib/_module";
 import { SRDExtractor } from "../SRDExtractor";
 
-
 const UNSEEN_SERVANT_INSTANCES = [
   { name: "SRD", token: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp", actor: "systems/dnd5e/tokens/elemental/InvisibleStalker.webp" },
 ];
 
-export async function getUnseenServant(name = "Unseen Servant", postfix = "") {
+export async function getUnseenServant(name = "Unseen Servant", postfix = ""): Promise<ICompanionResult> {
 
   const results = {};
   const pack = game.packs.get("dnd5e.monsters");

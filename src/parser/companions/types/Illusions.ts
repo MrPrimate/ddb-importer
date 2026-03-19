@@ -1,6 +1,6 @@
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
-export async function getIllusions() {
+export async function getIllusions(): Promise<ICompanionResult> {
 
   if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Illusions")) return {};
 

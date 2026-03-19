@@ -171,7 +171,7 @@ const animals2024 = [
   },
 ];
 
-export async function getFindFamiliarActivityData(activity: I5eActivity, options: any) {
+export async function getFindFamiliarActivityData(activity: I5eActivity, options: any): Promise<IFindFamiliarActivityData> {
   const is2014 = options.is2014;
   const rules = is2014 ? "2014" : "2024";
 
@@ -190,7 +190,7 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
   if (game.user.isGM) await monsterFactory.processIntoCompendium(mapInUse.map((i) => i.id));
 
   const ddbCompendium = CompendiumHelper.getCompendiumType("monster", false);
-  const indexOptions = { fields: ["name", "system.source.rules"] } as CompendiumCollection.GetIndexOptions<"Actor">;
+  const indexOptions = { fields: ["name", "system.source.rules"] }; // as CompendiumCollection.GetIndexOptions<"Actor">;
   await ddbCompendium?.getIndex(indexOptions);
 
   const profiles = [];

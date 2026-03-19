@@ -1,7 +1,7 @@
 import { utils } from "../../../lib/_module";
 import { SRDExtractor } from "../SRDExtractor";
 
-export async function getArcaneSwords() {
+export async function getArcaneSwords(): Promise<ICompanionResult> {
   const results = {};
 
   const pack = game.packs.get("dnd5e.monsters");

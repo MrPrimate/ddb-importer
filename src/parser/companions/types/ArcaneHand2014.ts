@@ -3,7 +3,6 @@ import {
   utils,
 } from "../../../lib/_module";
 import { SRDExtractor } from "../SRDExtractor";
-import { IArcaneHandData } from "./types";
 
 const EXTRA_ARCANE_HAND_INSTANCES = () => {
   return [
@@ -23,7 +22,7 @@ export async function getArcaneHands2014({
   text, // this.data.system.description,
   name = "Arcane Hand",
   postfix = "",
-}: IArcaneHandData) {
+}: IArcaneHandData): Promise<ICompanionResult> {
 
   logger.verbose("getArcaneHands2014", {
     ddbParser,

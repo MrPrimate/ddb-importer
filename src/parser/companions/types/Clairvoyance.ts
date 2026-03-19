@@ -1,10 +1,10 @@
 import DDBEffectHelper from "../../../effects/DDBEffectHelper";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
-export async function getClairvoyance() {
-  if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Clairvoyance")) return {};
+export async function getClairvoyance(): Promise<ICompanionResult> {
+  if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Clairvoyance")) return {} as ICompanionResult;
   const condition = DDBEffectHelper.findCondition({ conditionName: "Invisible" });
-  const results = {
+  const results: ICompanionResult = {
     Clairvoyance: {
       name: "Invisible Sensor",
       version: "1",
@@ -20,7 +20,7 @@ export async function getClairvoyance() {
         "effects": [
           (await ActiveEffect.implementation.fromStatusEffect(condition.id)).toObject(),
         ],
-      }),
+      }) as unknown as I5eMonsterData,
     },
   };
 

@@ -1,3 +1,4 @@
+import { NotifierV1Props } from "../../apps/DDBAppV2";
 import {
   utils,
   logger,
@@ -37,11 +38,14 @@ export default class DDBSummonsManager {
 
   itemHandler: DDBItemImporter;
   ddbData: IDDBData;
-  notifier: ((message: string) => void) | null;
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   indexFilter: { fields: string[] };
   compendiumFolders: DDBCompendiumFolders;
 
-  constructor({ ddbData, notifier = null } = {}) {
+  constructor({ ddbData = null, notifier = null }: {
+    ddbData?: IDDBData;
+    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  } = {}) {
     this.ddbData = ddbData;
     this.indexFilter = { fields: [
       "name",
@@ -85,11 +89,11 @@ export default class DDBSummonsManager {
     const keys = summonsKeys.map((s) => s.name);
 
     const summonActors = this.itemHandler.compendium.index.filter((i) =>
-      keys.includes(i.flags?.ddbimporter?.summons?.summonsKey),
+      keys.includes(foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") as string),
     );
     const profiles = summonActors
       .map((actor) => {
-        const flag = actor.flags.ddbimporter.summons.summonsKey;
+        const flag = foundry.utils.getProperty(actor, "flags.ddbimporter.summons.summonsKey") as string;
         return {
           _id: actor._id,
           name: actor.name,
@@ -107,7 +111,7 @@ export default class DDBSummonsManager {
     return activity;
   }
 
-  static async addGeneratedSummons(generatedSummonedActors, { notifier = null } = {}) {
+  static async addGeneratedSummons(generatedSummonedActors, { notifier = null }: { notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void } = {}) {
     if (!game.user.isGM) return;
     const manager = new DDBSummonsManager({ notifier });
     await manager.init();

@@ -1,6 +1,6 @@
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
-export async function getTentacleOfTheDeeps() {
+export async function getTentacleOfTheDeeps(): Promise<ICompanionResult> {
 
   if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.TentacleOfTheDeeps")) return {};
 

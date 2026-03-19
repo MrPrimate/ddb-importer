@@ -1,6 +1,6 @@
 import { SUMMONS_ACTOR_STUB } from "./_data";
 
-export async function getDuplicate() {
+export async function getDuplicate(): Promise<ICompanionResult> {
 
   if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Duplicate")) return {};
 

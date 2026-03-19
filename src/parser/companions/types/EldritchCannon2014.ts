@@ -1,14 +1,13 @@
 import { logger, utils } from "../../../lib/_module";
 import { SUMMONS_ACTOR_STUB } from "./_data";
 import DDBCompanionMixin from "../DDBCompanionMixin";
-import { ICompanionData } from "./types";
 
 export async function getEldritchCannons2014({
   ddbParser, // this,
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-}: ICompanionData) {
+}: ICompanionData): Promise<ICompanionResult> {
   logger.verbose("getEldritchCannon", {
     ddbParser,
     document,

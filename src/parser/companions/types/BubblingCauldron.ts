@@ -1,5 +1,6 @@
 import { SUMMONS_ACTOR_STUB } from "./_data";
-export function getBubblingCauldrons() {
+
+export function getBubblingCauldrons(): ICompanionResult {
   return {
     TashasBubblingCauldron: {
       name: "Tasha's Bubbling Cauldron",
@@ -23,7 +24,7 @@ export function getBubblingCauldrons() {
         },
         "system.traits.size": "sm",
         img: "icons/skills/toxins/cauldron-pot-bubbles-green.webp",
-      }),
+      }) as unknown as I5eMonsterData,
     },
   };
 }

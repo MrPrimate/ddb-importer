@@ -1,8 +1,7 @@
 import CompendiumHelper from "../../../lib/CompendiumHelper";
 import { SRDExtractor } from "../SRDExtractor";
 
-
-export async function getHoundOfIllOmen() {
+export async function getHoundOfIllOmen(): Promise<ICompanionResult> {
 
   const results = {};
   const pack = game.packs.get("dnd5e.monsters");
@@ -14,7 +13,7 @@ export async function getHoundOfIllOmen() {
   let direWolfVersion = 2;
 
   if (!direWolf) {
-     
+
     direWolf = await SRDExtractor.getCompendiumDocument({ pack, name: "Dire Wolf" });
     direWolfVersion = 1;
   }

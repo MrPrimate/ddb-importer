@@ -26,7 +26,7 @@ export default class EldritchBlast extends DDBEnricherData {
           break;
         }
         case "bonus-range":
-          range = parseInt(mod.value);
+          range = parseInt(String(mod.value));
           break;
         default:
           logger.warn(`Not yet able to process ${mod.subType}, please raise an issue.`);

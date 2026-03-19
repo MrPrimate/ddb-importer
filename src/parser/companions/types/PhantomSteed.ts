@@ -2,15 +2,13 @@ import logger from "../../../lib/Logger";
 
 import DDBCompanionMixin from "../DDBCompanionMixin";
 import DDBMonsterFactory from "../../DDBMonsterFactory";
-import { ICompanionData } from "./types";
-
 
 export async function getPhantomSteed({
   ddbParser, // this,
   document, // this.data,
   raw, // this.ddbDefinition.description,
   text, // this.data.system.description,
-}: ICompanionData) {
+}: ICompanionData): Promise<ICompanionResult> {
 
   logger.verbose("getPhantomSteed", {
     ddbParser,
