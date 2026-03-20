@@ -258,7 +258,7 @@ export default class ProficiencyFinder {
 
   }
 
-  getLanguagesFromModifiers(modifiers: IDDBModifier[]) {
+  getLanguagesFromModifiers(modifiers: IModifiersMod[]): I5eBaseProficiency {
     const languages = new Set<string>();
     const custom = new Set<string>();
 
@@ -304,8 +304,8 @@ export default class ProficiencyFinder {
     };
   }
 
-  getSkillProficiency(skill, modifiers: IDDBModifier[] | null = null) {
-    if (!modifiers && !this.ddb) return false;
+  getSkillProficiency(skill, modifiers: IModifiersMod[] | null = null): number {
+    if (!modifiers && !this.ddb) return null;
     if (!modifiers) {
       modifiers = DDBModifiers.getAllModifiers(this.ddb, { includeExcludedEffects: true });
     }

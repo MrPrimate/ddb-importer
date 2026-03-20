@@ -114,7 +114,7 @@ export interface DDBCharacterImportOptions {
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 interface DDBCharacter {
   // index.ts
-  _newPCSkeleton(): Promise<void>;
+  _newPCSkeleton(): Promise<I5ePCData>;
   _generateCharacter(): Promise<void>;
   // token.ts
   _generateToken(): void;
@@ -191,7 +191,7 @@ interface DDBCharacter {
   getResourceList(): any;
   _generateResourceSelectionFromForm(formData: any, type: any): void;
   setDefaultResources(sortedResources: any): void;
-  resourceSelectionDialog(): Promise<void>;
+  resourceSelectionDialog(): Promise<I5ePCData>;
   // inventory.ts
   getInventory(notifier?: any): Promise<any>;
   _generateInventory(): Promise<void>;

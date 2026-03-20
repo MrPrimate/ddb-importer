@@ -2,7 +2,7 @@ import DDBCharacter from "../DDBCharacter";
 import { SystemHelpers } from "../lib/_module";
 // import { fixCharacterLevels } from "./filterModifiers";
 
-DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton(this: DDBCharacter) {
+DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton(this: DDBCharacter): Promise<I5ePCData> {
   const name = (this.source.ddb.character.name === "") ? "Hero With No Name" : this.source.ddb.character.name;
 
   this.raw.character = {
@@ -27,7 +27,7 @@ DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton(this: DDBC
         },
       },
     },
-  };
+  } as any;
 
   // generate a prototype token
   this._generateToken();
