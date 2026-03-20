@@ -79,4 +79,6 @@ global {
     sourceIds?: number[];
   }
 
+  type IModifiersMod = IDDBModifier | IDDBSpellModifier;
+
 }

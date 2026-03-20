@@ -47,7 +47,7 @@ DDBCharacter.prototype._getCustomSaveBonus = function _getCustomSaveBonus(this: 
 DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DDBCharacter, abilityLongName, type,
   { restriction = ["", null], includeExcludedEffects = false, effectOnly = false,
     classId = null, availableToMulticlass = null, useUnfilteredModifiers = null } = {},
-) {
+): IDDBModifier[] {
 
   const subType = `${abilityLongName}-score`;
 
@@ -76,7 +76,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DD
     modifiers.push(featMods.filter((mod) => !backgroundFeatIds.includes(mod.componentId)));
   }
 
-  return DDBModifiers.filterModifiers(modifiers, type, { subType, restriction });
+  return DDBModifiers.filterModifiers(modifiers.flat(), type, { subType, restriction }) as IDDBModifier[];
 };
 
 /**
@@ -104,7 +104,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
     const abilityScoreMaxBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: "ability-score-maximum", restriction: ["", null], includeExcludedEffects: true })
       .filter((mod) => mod.statId === ability.id)
-      .reduce((prev, cur) => prev + cur.value, 0);
+      .reduce((prev, cur) => prev + parseInt(String(cur.value)), 0);
     const bonusStatRestrictions = [
       null,
       "",
@@ -135,7 +135,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
       .reduce(
         (prev, cur) => {
           const restricted = cur.restriction ? cappedBonusExp.exec(cur.restriction) : undefined;
-          const max = restricted ? restricted[1] : 20;
+          const max = restricted ? parseInt(restricted[1]) : 20;
           return {
             value: prev.value + cur.value,
             cap: Math.max(prev.cap, max),

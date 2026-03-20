@@ -18,12 +18,16 @@ DDBCharacter.prototype._generateExhaustion = function _generateExhaustion(this: 
     : 0;
 };
 
+interface IMidiValueAdjustment extends I5eDamageTraitSet {
+  midiValues?: string[];
+}
+
 DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getCharacterGenericConditionAffectData(this: DDBCharacter, condition, typeId) {
 
   const modifiers = DDBModifiers.filterBaseModifiers(this.source.ddb, condition);
   const standardResults = AutoEffects.getGenericConditionAffectData(modifiers, condition, typeId);
 
-  const customResults = this.source.ddb.character.customDefenseAdjustments
+  const customResults: IMidiValueAdjustment[] = this.source.ddb.character.customDefenseAdjustments
     .filter((adjustment) => adjustment.type === (typeId === 4 ? 1 : 2))
     .map((adjustment) => {
       const entry = DICTIONARY.actor.damageAdjustments.find((type) =>
@@ -31,20 +35,22 @@ DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getChar
         && type.type === typeId,
       );
       if (!entry) return undefined;
-      const valueData = foundry.utils.hasProperty(entry, "foundryValues")
-        ? foundry.utils.getProperty(entry, "foundryValues")
+      const valueData: IMidiValueAdjustment = foundry.utils.hasProperty(entry, "foundryValues")
+        ? foundry.utils.getProperty(entry, "foundryValues") as IMidiValueAdjustment
         : foundry.utils.hasProperty(entry, "foundryValue")
-          ? { value: entry.foundryValue }
+          ? { value: [entry.foundryValue], bypasses: [] }
           : undefined;
-      return valueData;
+      valueData.midiValues = entry.midiValues;
+      return valueData as IMidiValueAdjustment;
     })
     .filter((adjustment) => adjustment !== undefined);
 
-  const results = customResults.concat(standardResults).map((result) => {
+  const combined = [...customResults, ...standardResults];
+  const results = combined.map((result) => {
     if (game.modules.get("midi-qol")?.active && result.midiValues) {
       return {
         value: result.value.concat(result.midiValues),
-        bypass: result.bypass,
+        bypasses: result.bypasses,
       };
     } else {
       return result;
@@ -62,7 +68,7 @@ DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getChar
   return {
     custom: "",
     value: [...new Set(results.map((result) => result.value).flat())],
-    bypasses: [...new Set(results.map((result) => result.bypass).flat())],
+    bypasses: [...new Set(results.map((result) => result.bypasses).flat())],
   };
 };
 

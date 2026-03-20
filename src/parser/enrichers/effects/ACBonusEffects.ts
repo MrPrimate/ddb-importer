@@ -25,7 +25,7 @@ export default class ACBonusEffects {
     return effect;
   }
 
-  static addAddBonusChanges(modifiers: (IDDBModifier | IDDBSpellModifier)[], name: string, type: string, key: string): IActiveEffectChangeData[] {
+  static addAddBonusChanges(modifiers: IModifiersMod[], name: string, type: string, key: string): IActiveEffectChangeData[] {
     const changes: IActiveEffectChangeData[] = [];
     // const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, name, type, "bonus");
@@ -36,7 +36,7 @@ export default class ACBonusEffects {
     return changes;
   }
 
-  static addACBonusEffect(modifiers: IDDBModifier[], name: string, subType: string, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]): IActiveEffectChangeData[] {
+  static addACBonusEffect(modifiers: IModifiersMod[], name: string, subType: string, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]): IActiveEffectChangeData[] {
     const bonusModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", subType, restrictions);
     const changes = ACBonusEffects.addAddBonusChanges(bonusModifiers, name, subType, "system.attributes.ac.bonus");
     if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);
@@ -44,7 +44,7 @@ export default class ACBonusEffects {
     return changes;
   }
 
-  static generateBonusACEffect(modifiers: IDDBModifier[], label: string, subType: string, restrictions: string[] = [], alwaysActive = true): I5eEffectData {
+  static generateBonusACEffect(modifiers: IModifiersMod[], label: string, subType: string, restrictions: string[] = [], alwaysActive = true): I5eEffectData {
     const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {

@@ -168,11 +168,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
     this.isCompendiumItem = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
 
-    const sourceIds = this.ddbDefinition.sources.map((sm) => sm.sourceId);
-    this.legacy = this.ddbDefinition.isLegacy || CONFIG.DDB.sources.some((ddbSource) =>
-      sourceIds.includes(ddbSource.id)
-      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
-    );
+    this.legacy = this.ddbDefinition.isLegacy;
     this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 

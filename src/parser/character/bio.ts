@@ -74,8 +74,10 @@ function getBackgroundTemplate() {
     definition: {
       name: "Background",
       description: "",
+      originalDescription: null,
       id: null,
       entityTypeId: null,
+      sources: null,
     },
   };
 }

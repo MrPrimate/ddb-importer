@@ -138,7 +138,7 @@ const CompendiumHelper = {
 
   },
 
-  getActorIndexActor: async (type: string, npc: I5eMonsterData | I5ePCData) => {
+  getActorIndexActor: async (type: string, npc: I5eMonsterData | I5ePCData | I5eVehicleData) => {
     const monsterIndexFields = ["name", "flags.ddbimporter.id", "system.source.rules"];
     const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
@@ -152,7 +152,7 @@ const CompendiumHelper = {
     return npcMatch;
   },
 
-  existingActorCheck: async (type: string, foundryActor: I5eMonsterData | I5ePCData): Promise<I5eMonsterData | I5ePCData> => {
+  existingActorCheck: async (type: string, foundryActor: I5eMonsterData | I5ePCData | I5eVehicleData): Promise<I5eMonsterData | I5ePCData | I5eVehicleData> => {
     const matchingActor = await CompendiumHelper.getActorIndexActor(type, foundryActor);
     if (matchingActor) {
       logger.debug(`Found existing ${type}, updating: ${matchingActor.name}`);
@@ -161,7 +161,7 @@ const CompendiumHelper = {
     } else {
       logger.debug(`No existing compendium match for ${foundryActor.name}`);
     }
-    return foundryActor;
+    return foundryActor as I5eMonsterData | I5ePCData | I5eVehicleData;
   },
 
   sanitize: (text) => {

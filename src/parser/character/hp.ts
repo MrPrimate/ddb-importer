@@ -20,23 +20,23 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints(this: DD
   const bonusHitPointValues = bonusHitPointFeaturesPerLevel.map((bonus) => {
     const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
-      return cls.level * bonus.value;
+      return cls.level * parseInt(String(bonus.value));
     } else {
-      return this.raw.character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
+      return this.raw.character.flags.ddbimporter.dndbeyond.totalLevels * parseInt(String(bonus.value));
     }
   });
 
   const bonusHitPointValuesWithEffects = bonusHitPointFeaturesPerLevelWithEffects.map((bonus) => {
     const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     if (cls) {
-      return cls.level * bonus.value;
+      return cls.level * parseInt(String(bonus.value));
     } else {
-      return this.raw.character.flags.ddbimporter.dndbeyond.totalLevels * bonus.value;
+      return this.raw.character.flags.ddbimporter.dndbeyond.totalLevels * parseInt(String(bonus.value));
     }
   });
 
   const fixedBonusHitPointValuesWithEffects = bonusHitPointModifiersWithEffects
-    .map((bonus) => bonus.value)
+    .map((bonus) => parseInt(String(bonus.value)))
     .reduce((prev, cur) => prev + cur, 0);
 
   // sum up the bonus HP per class level
@@ -47,7 +47,7 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints(this: DD
     const cls = DDBDataUtils.findClassByFeatureId(this.source.ddb, bonus.componentId);
     // console.warn("cls hp", { bonus, cls});
     if (!cls) {
-      return bonus.value;
+      return parseInt(String(bonus.value));
     } else {
       return 0;
     }
@@ -83,15 +83,15 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints(this: DD
     temp: temporaryHitPoints ?? 0,
     tempmax: tempMaxHitPoints ?? 0,
     bonuses: {
-      level: bonusPerLevelValue !== 0 ? bonusPerLevelValue : "",
-      overall: overallBonus !== 0 ? overallBonus : "",
+      level: bonusPerLevelValue !== 0 ? String(bonusPerLevelValue) : "",
+      overall: overallBonus !== 0 ? String(overallBonus) : "",
     },
   };
 
   this.raw.character.flags.ddbimporter.rolledHP = rolledHP;
   this.raw.character.flags.ddbimporter.baseHitPoints = baseHitPoints;
-  this.raw.character.flags.ddbimporter.fixedBonusHitPointValuesWithEffects = parseInt(fixedBonusHitPointValuesWithEffects);
-  this.raw.character.flags.ddbimporter.totalHP = maxHitPoints + tempMaxHitPoints + parseInt(fixedBonusHitPointValuesWithEffects);
+  this.raw.character.flags.ddbimporter.fixedBonusHitPointValuesWithEffects = parseInt(String(fixedBonusHitPointValuesWithEffects));
+  this.raw.character.flags.ddbimporter.totalHP = maxHitPoints + tempMaxHitPoints + parseInt(String(fixedBonusHitPointValuesWithEffects));
   this.raw.character.flags.ddbimporter.removedHitPoints = removedHitPoints;
   // "hp": {
   //   "value": 23,

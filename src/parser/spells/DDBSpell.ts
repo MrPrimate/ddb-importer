@@ -259,11 +259,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin {
     this.onlyPactMagic = this.ddbData?.character?.classes?.length === 1
       && this.ddbData.character.classes[0].definition.name === "Warlock";
 
-    const sourceIds = this.ddbDefinition.sources.map((sm) => sm.sourceId);
-    this.legacy = this.ddbDefinition.isLegacy || CONFIG.DDB.sources.some((ddbSource) =>
-      sourceIds.includes(ddbSource.id)
-      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
-    );
+    this.legacy = this.ddbDefinition.isLegacy;
     this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
@@ -1035,8 +1031,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin {
     const multiplier = rangeAdjustmentMods.reduce((current, mod) => {
       if (Number.isInteger(mod.fixedValue) && mod.fixedValue > current) {
         current = mod.fixedValue;
-      } else if (Number.isInteger(mod.value) && mod.value > current) {
-        current = mod.value;
+      } else if (Number.isInteger(mod.value) && parseInt(String(mod.value)) > current) {
+        current = parseInt(String(mod.value));
       }
       return current;
     }, 1);

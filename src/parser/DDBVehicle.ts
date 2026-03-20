@@ -728,7 +728,7 @@ export default class DDBVehicle {
     await this.#generateComponents();
 
     // finally check for existing actor
-    this.data = await CompendiumHelper.existingActorCheck("vehicle", this.data);
+    this.data = await CompendiumHelper.existingActorCheck("vehicle", this.data) as I5eVehicleData;
 
     logger.debug("Finished parsing vehicle", this);
   }

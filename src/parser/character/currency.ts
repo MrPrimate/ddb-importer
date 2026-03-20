@@ -9,5 +9,5 @@ DDBCharacter.prototype._generateCurrency = function _generateCurrency(this: DDBC
     cp: this.source.ddb.character.currencies.cp,
   };
 
-  this._currency = foundry.utils.deepClone(this.raw.character.system.currency);
+  this._currency = foundry.utils.deepClone(this.raw.character.system.currency) as I5eCurrency;
 };

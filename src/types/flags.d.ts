@@ -236,6 +236,12 @@ global {
     revisitUuids?: string[];
   }
 
+  interface IDDBImporterTransferEnchantmentFlags {
+    targetItemId: string;
+    effectId: string;
+    activityId: string;
+  }
+
   interface IDDBImporterFlags {
     // Core identifiers
     id?: number;
@@ -400,6 +406,9 @@ global {
     summons?: IDDBImporterFlagsSummons;
     effect?: IDDBImporterFlagsEffect;
     disposition?: IDDBImporterFlagsDisposition;
+
+    // enchantment transfer
+    transferEnchantment?: IDDBImporterTransferEnchantmentFlags;
 
     [key: string]: unknown;
   }

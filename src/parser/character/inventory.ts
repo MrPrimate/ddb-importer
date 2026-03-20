@@ -6,9 +6,9 @@ import { DICTIONARY, SETTINGS } from "../../config/_module";
 import DDBItem from "../item/DDBItem";
 
 
-DDBCharacter.prototype.getInventory = async function getInventory(this: DDBCharacter, notifier = null) {
+DDBCharacter.prototype.getInventory = async function getInventory(this: DDBCharacter, notifier = null): Promise<I5eInventoryItem[]> {
 
-  const items = [];
+  const items: I5eInventoryItem[] = [];
 
   // first, check custom name, price or weight
   this.source.ddb.character.characterValues.forEach((cv) => {
@@ -23,7 +23,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   });
 
   // now parse all items
-  const isCompendiumItem = foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") ?? false;
+  const isCompendiumItem = foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") as boolean ?? false;
   const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
 
   const discardMissingContainerItems = game.settings.get(SETTINGS.MODULE_ID, "character-import-policy-ignore-items-with-non-existing-containers");

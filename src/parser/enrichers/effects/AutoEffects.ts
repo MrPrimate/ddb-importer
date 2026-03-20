@@ -4,6 +4,11 @@ import { DDBDescriptions, DDBModifiers, SystemHelpers } from "../../lib/_module"
 import ChangeHelper from "./ChangeHelper";
 import MidiEffects from "./MidiEffects";
 
+interface IGenericConditionAdjustment {
+  value: string[] | any[];
+  bypasses?: string[] | any[];
+  midiValues?: any[];
+}
 
 export default class AutoEffects {
 
@@ -152,7 +157,7 @@ export default class AutoEffects {
   }
 
 
-  static getGenericConditionAffectData(modifiers: any[], condition: string, typeId: number, forceNoMidi = false): any[] {
+  static getGenericConditionAffectData(modifiers: IModifiersMod[], condition: string, typeId: number, forceNoMidi = false): IGenericConditionAdjustment[] {
     const restrictions = [
       "",
       null,
@@ -184,7 +189,7 @@ export default class AutoEffects {
 
     const result = DDBModifiers
       .filterModifiersOld(modifiers, condition, null, restrictions)
-      .filter((modifier: any) => {
+      .filter((modifier: IModifiersMod) => {
         const ddbLookup = ddbAdjustments.find((d: any) => d.type == typeId && d.slug === modifier.subType);
         if (!ddbLookup) return false;
         return DICTIONARY.actor.damageAdjustments.some((adj: any) =>
@@ -193,17 +198,17 @@ export default class AutoEffects {
           && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
         );
       })
-      .map((modifier: any) => {
+      .map((modifier: IModifiersMod) => {
         const ddbLookup = ddbAdjustments.find((d: any) => d.type == typeId && d.slug === modifier.subType);
         const entry = DICTIONARY.actor.damageAdjustments.find((adj: any) =>
           adj.type === typeId
           && ddbLookup.id === adj.id,
         );
         if (!entry) return undefined;
-        const valueData = foundry.utils.hasProperty(entry, "foundryValues")
-          ? foundry.utils.getProperty(entry, "foundryValues")
+        const valueData: IGenericConditionAdjustment = foundry.utils.hasProperty(entry, "foundryValues")
+          ? foundry.utils.getProperty(entry, "foundryValues") as IGenericConditionAdjustment
           : foundry.utils.hasProperty(entry, "foundryValue")
-            ? { value: entry.foundryValue }
+            ? { value: [entry.foundryValue], bypasses: [] }
             : undefined;
         return valueData;
       })
@@ -212,7 +217,7 @@ export default class AutoEffects {
         if (game.modules.get("midi-qol")?.active && result.midiValues && !forceNoMidi) {
           return {
             value: result.value.concat(result.midiValues),
-            bypass: result.bypass,
+            bypasses: result.bypasses,
           };
         } else {
           return result;

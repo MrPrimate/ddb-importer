@@ -164,7 +164,7 @@ DDBCharacter.prototype._generateBonusSpellDC = function(this: DDBCharacter) {
   const bonus = bonusLookup.map((b) => {
     return DDBModifiers.getModifierSum(DDBModifiers.filterBaseModifiers(this.source.ddb, "bonus", { subType: b.ddbSubType }), this.raw.character);
   })
-    .filter((b) => b && b !== 0 && String(b).trim() !== "")
+    .filter((b) => b && parseInt(String(b)) !== 0 && String(b).trim() !== "")
     .reduce((previous, current) => {
       return previous !== "" ? [previous, current].join(" + ") : current;
     }, "");

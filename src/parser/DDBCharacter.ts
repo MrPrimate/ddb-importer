@@ -82,7 +82,7 @@ export interface IDDBCharacterArmor {
   equippedGear?: IDDBArmorEntry[];
   unarmoredACBonus?: number;
   gearAC?: number;
-  miscModifiers?: IDDBModifier[][];
+  miscModifiers?: IDDBModifier[];
   shields?: IDDBArmorEntry[];
   armors?: IDDBArmorEntry[];
   calculatedArmor?: IDDBCalculatedArmor;
@@ -246,8 +246,7 @@ class DDBCharacter {
   totalLevels: number;
   enableCompanions: boolean;
   enableSummons: boolean;
-  private _currency: I5eCurrency;
-  private _itemCurrency: I5eCurrency;
+  _itemCurrency: I5eCurrency;
   itemCompendium: CompendiumCollection.Any;
   spellCompendium: CompendiumCollection.Any;
   possibleFeatures: Actor.Embedded.CollectionFor<"Item">;
@@ -268,6 +267,8 @@ class DDBCharacter {
   proficienciesIncludingEffects: IDDBPCDnDBeyondProficiencyFlags[];
   weaponMasteries: IDDBPCDnDBeyondWeaponMasteryFlags[];
   profBonus: number;
+  generateSummons: boolean;
+  _currency: I5eCurrency;
 
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,

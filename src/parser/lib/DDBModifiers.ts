@@ -2,8 +2,6 @@ import { DICTIONARY } from "../../config/_module";
 import { logger, utils, Utils } from "../../lib/_module";
 import DDBDataUtils from "./DDBDataUtils";
 
-type IModifiersMod = IDDBModifier | IDDBSpellModifier;
-
 interface IModFilterOptions {
   classFeatureIds?: number[] | null;
   classId?: number | null;

@@ -1,34 +1,37 @@
 import { logger } from "../../lib/_module";
 
-async function linkSelectedEnchantment(item, effect, activity, featureName) {
-  const effectData = effect.toObject();
+async function linkSelectedEnchantment(item: Item.Implementation, effect: ActiveEffect.Implementation, activity: any, featureName: string) {
+  const effectData = effect.toObject() as unknown as any;
   effectData.origin = activity.uuid;
 
-  const applied = await ActiveEffect.create(effectData, {
+  const createOperation = {
     parent: item,
     keepOrigin: true,
     dnd5e: {
       enchantmentProfile: effectData._id,
       activityId: activity._id,
     },
-  });
-  logger.debug(`Applied enchantment effect from ${featureName.name} to ${item.name}`, {
+  } as unknown as any;
+
+  const applied = await ActiveEffect.create(effectData, createOperation);
+  logger.debug(`Applied enchantment effect from ${featureName} to ${item.name}`, {
     effect: effectData,
     applied,
   });
 }
 
-export async function linkSelectedEnchantments(actor) {
+export async function linkSelectedEnchantments(actor: Actor.Implementation) {
   const items = actor.getEmbeddedCollection("Item");
 
   for (const item of items) {
-    const enchantmentFlag = foundry.utils.getProperty(item, "flags.ddbimporter.transferEnchantment");
+    const enchantmentFlag = foundry.utils.getProperty(item, "flags.ddbimporter.transferEnchantment") as IDDBImporterTransferEnchantmentFlags;
     if (!enchantmentFlag) continue;
 
     const effect = item.getEmbeddedCollection("ActiveEffect")
       .find((e) => e._id === enchantmentFlag.effectId);
 
     if (!effect) continue;
+    // @ts-expect-error - flipping fvtt types
     const activity = item.system.activities.getByType("enchant")
       .find((a) => a._id === enchantmentFlag.activityId);
 
@@ -40,7 +43,7 @@ export async function linkSelectedEnchantments(actor) {
         i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId);
     if (!targetItem) continue;
 
-    await linkSelectedEnchantment(targetItem, effect, activity, item.name);
+    await linkSelectedEnchantment(targetItem as Item.Implementation, effect, activity, item.name);
   }
 }
 

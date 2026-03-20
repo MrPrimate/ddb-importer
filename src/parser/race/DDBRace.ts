@@ -207,11 +207,7 @@ export default class DDBRace {
     this.groupName = DDBRace.getGroupName(this.race.groupIds, this.baseRaceName);
     this.isSubRace = this.race.isSubRace || this.groupName !== this.fullName;
 
-    const sourceIds = this.race.sources.map((sm) => sm.sourceId);
-    this.legacy = this.race.isLegacy || CONFIG.DDB.sources.some((ddbSource) =>
-      sourceIds.includes(ddbSource.id)
-      && DICTIONARY.sourceCategories.legacy.includes(ddbSource.sourceCategoryId),
-    );
+    this.legacy = this.race.isLegacy;
 
     this.data.flags.ddbimporter = {
       type: "race",
