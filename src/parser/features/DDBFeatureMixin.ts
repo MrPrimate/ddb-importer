@@ -37,12 +37,15 @@ type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
 
 type TEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
 
+type TDocumentType = Extract<TFeatureType, "race" | "background" | "feat"> | "weapon";
+
+
 interface IDDBFeatureMixin {
   ddbData: IDDBData;
   ddbDefinition: TDefinitions;
   type: string;
   source: IDDBSourceResponse;
-  documentType?: "feat" | "weapon" | "equipment";
+  documentType?: TDocumentType;
   rawCharacter?: I5ePCData | null;
   activityType?: IDDBActivityType | null;
   extraFlags?: IActorFlagConfig;
@@ -53,7 +56,7 @@ interface IDDBFeatureMixin {
   isMuncher?: boolean;
 }
 
-export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
+export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentType> {
 
   static LEVEL_SCALE_EXCLUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_EXCLUSIONS;
   static LEVEL_SCALE_INFUSIONS = DICTIONARY.parsing.levelScale.LEVEL_SCALE_INFUSIONS;
@@ -114,6 +117,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
   _actionType: IDDBFeatureMixinActionType;
   _descriptionSave: I5eActivitySave;
   extraFlags: IActorFlagConfig;
+  declare documentType: TDocumentType;
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);

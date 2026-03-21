@@ -22,7 +22,9 @@ interface IDDBMonsterFeature {
   sort?: number | null;
 }
 
-export default class DDBMonsterFeature extends DDBActivityFactoryMixin {
+type TDDBMonsterFeatureDocumentType = "feat" | "weapon";
+
+export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonsterFeatureDocumentType> {
 
   declare rawCharacter: I5eMonsterData | null;
   declare data: I5eWeaponItem | I5eFeatItem;

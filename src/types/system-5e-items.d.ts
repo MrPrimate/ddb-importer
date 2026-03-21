@@ -84,7 +84,7 @@ global {
      | "warhammer"
      | "whip";
 
-  type T5eInventoryTypes = "weapon" | "equipment" | "container" | "consumable" | "tool";
+  type T5eInventoryTypes = "weapon" | "equipment" | "container" | "consumable" | "tool" | "loot";
 
   // ---- Item flag sub-types --------------------------------------------------
 

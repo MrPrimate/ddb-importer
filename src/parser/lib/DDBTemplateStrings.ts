@@ -419,6 +419,8 @@ function rollMatch(text: string, matchString: string): string {
   return text.replace(rollMatch, (m) => `[[/roll ${m[1] !== undefined ? m[1] : ""}${m[2]}]`);
 }
 
+type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
+
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground | IDDBClass | IDDBInfusionDefinition;
 
 /**
@@ -427,10 +429,10 @@ type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground 
  * @param {IDDBData} ddb The ddb object.
  * @param {I5ePCData} character The character object.
  * @param {string} text The template string to parse.
- * @param {TFeatures} feature The feature object.
+ * @param {TFeatures | TDefinitions} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures): IDDBTemplateStringResult | undefined {
+export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions): IDDBTemplateStringResult | undefined {
   if (!text) return;
   // @ts-expect-error - ignore this check
   const featureDefinition = feature.definition ?? feature;

@@ -351,7 +351,7 @@ global {
     stopDefaultActivity?: boolean;
     replaceDefaultActivity?: boolean;
     data?: Record<string, any>;
-    documentType?: string;
+    documentType?: T5eInventoryTypes | TFeatureType | "spell";
     parsingType?: string;
     systemType?: {
       value: string;

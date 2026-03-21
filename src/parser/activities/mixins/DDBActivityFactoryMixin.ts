@@ -6,7 +6,18 @@ import SystemHelpers from "../../lib/SystemHelpers";
 
 const ACTIVITY_TYPES =  DICTIONARY.parsing.activity.types;
 
-export default abstract class DDBActivityFactoryMixin {
+type TAFMDocTypes = TFeatureType | T5eInventoryTypes | "spell";
+
+interface IDDBActivityFactoryMixin<TDoc extends string = TAFMDocTypes> {
+  enricher?: any;
+  activityGenerator?: any;
+  documentType?: TDoc | null;
+  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  useMidiAutomations?: boolean;
+  usesOnActivity?: boolean;
+}
+
+export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFMDocTypes> {
 
   abstract name: string | null;
   abstract isAction: boolean | null;
@@ -18,7 +29,7 @@ export default abstract class DDBActivityFactoryMixin {
   enricher: DDBEnricherFactoryMixin;
   activityGenerator: new (...args: any[]) => IDDBActivityTypes;
   additionalActivities: IAdditionalActivityOutline[] = [];
-  documentType: string | null = null;
+  documentType: TDoc | null = null;
   useMidiAutomations = false;
   usesOnActivity = false;
   ignoreActivityGeneration = false;
@@ -37,17 +48,10 @@ export default abstract class DDBActivityFactoryMixin {
   constructor({
     enricher = null, activityGenerator, documentType = null, notifier = null, useMidiAutomations = false,
     usesOnActivity = false,
-  }: {
-    enricher?: any;
-    activityGenerator?: any;
-    documentType?: string | null;
-    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
-    useMidiAutomations?: boolean;
-    usesOnActivity?: boolean;
-  } = {} as any) {
+  }: IDDBActivityFactoryMixin = {}) {
     this.enricher = enricher;
     this.activityGenerator = activityGenerator;
-    this.documentType = documentType;
+    this.documentType = documentType as TDoc;
     this.notifier = notifier;
     this.useMidiAutomations = useMidiAutomations;
     this.usesOnActivity = usesOnActivity;
@@ -625,7 +629,7 @@ export default abstract class DDBActivityFactoryMixin {
             },
           },
           activationOverride: {
-            "type": "",
+            "type": "special",
             "override": true,
             "condition": "Study Action to Investigate",
           },
@@ -633,8 +637,10 @@ export default abstract class DDBActivityFactoryMixin {
             units: "any",
             "override": true,
           },
-          targetsOverride: {
-            "type": "",
+          targetOverride: {
+            affects: {
+              "type": "self",
+            },
             "override": true,
           },
           durationOverride: {

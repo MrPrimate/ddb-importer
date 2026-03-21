@@ -16,7 +16,7 @@ interface IDDBComponentFeature {
   action?: IDDBVehicleAction;
 }
 
-export default class DDBComponentFeature extends DDBActivityFactoryMixin {
+export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicle" | "feat"| "weapon"> {
 
   declare name: string;
   declare isAction: null;

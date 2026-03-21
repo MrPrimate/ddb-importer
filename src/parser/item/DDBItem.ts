@@ -68,7 +68,7 @@ interface IDDBItem {
   notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
 }
 
-export default class DDBItem extends DDBActivityFactoryMixin {
+export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> {
 
   static CLOTHING_ITEMS = DICTIONARY.equipment.CLOTHING_ITEMS;
   static EQUIPMENT_TRINKET = DICTIONARY.equipment.EQUIPMENT_TRINKET;
@@ -138,6 +138,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
   flags: IDDBItemFlags;
   infusionItemMap: IDDBInfusionItem;
   infusionDetail: IDDBInfusionDefinition;
+  declare documentType: T5eInventoryTypes;
 
   constructor({ ddbCharacter, ddbItem, isCompendium = false, enricher = null, spellCompendium = null, notifier = null }: IDDBItem) {
     if (!ddbCharacter || !ddbItem) {
@@ -151,7 +152,6 @@ export default class DDBItem extends DDBActivityFactoryMixin {
     super({
       enricher,
       activityGenerator: DDBItemActivity,
-      documentType: "item",
       notifier,
       useMidiAutomations: addEffects,
       usesOnActivity: false,
@@ -295,7 +295,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
   }
 
   async #generateDataStub() {
-    if (this.enricher.documentStub?.documentType) this.documentType = this.enricher.documentStub.documentType;
+    if (this.enricher.documentStub?.documentType) this.documentType = this.enricher.documentStub.documentType as T5eInventoryTypes;
     if (this.enricher.documentStub?.systemType) this.systemType = foundry.utils.mergeObject(this.systemType, this.enricher.documentStub.systemType);
     if (this.enricher.documentStub?.parsingType) this.parsingType = this.enricher.documentStub.parsingType;
 
@@ -909,7 +909,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
       return;
     }
 
-    let itemType = this.itemTagTypes
+    let itemType: T5eInventoryTypes = this.itemTagTypes
       .map((itemType) => {
         if (itemType === "container") return "container";
         if (itemType === "consumable") return "consumable";
@@ -918,7 +918,7 @@ export default class DDBItem extends DDBActivityFactoryMixin {
       .reduce(
         (itemType, currentType) => (currentType !== undefined && itemType === undefined ? currentType : itemType),
         undefined,
-      );
+      ) as T5eInventoryTypes;
 
     if (!itemType && this.ddbDefinition.type === "Gear"
       && ["Adventuring Gear"].includes(this.ddbDefinition.subType)
@@ -1076,7 +1076,8 @@ export default class DDBItem extends DDBActivityFactoryMixin {
             : this.isContainer
               ? "container"
               : this.isSpellwrought ? "consumable" : "equipment";
-          this.documentType = type;
+          // in this instance we know tashsa's is valid
+          this.documentType = type as T5eInventoryTypes;
           this.parsingType = "wondrous";
           if (this.isSpellwrought) {
             this.systemType.value = "tattoo";

@@ -58,7 +58,7 @@ interface IDDBSpellParseSpell {
   flagData?: IParseSpellFlagData;
 }
 
-export default class DDBSpell extends DDBActivityFactoryMixin {
+export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   declare data: I5eSpellItem;
   isGeneric: boolean;
   namePrefix: string;
