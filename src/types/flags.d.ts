@@ -99,7 +99,7 @@ global {
     proficienciesIncludingEffects?: string[];
     effectAbilities?: I5eAbilities;
     characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[];
-    templateStrings?: string[];
+    templateStrings?: IDDBTemplateStringResult[];
     campaign?: { id?: number; name?: string };
 
     // Spell flags

@@ -2,6 +2,35 @@ import { utils, logger } from "../../lib/_module";
 import DDBDataUtils from "./DDBDataUtils";
 import { parseTags } from "./DDBReferenceLinker";
 
+interface IDDBTemplateStringDisplayString {
+  parsed: string;
+  linktext: string;
+}
+
+interface IDDBTemplateStringDefinition {
+  parsed: string | null;
+  match: string;
+  replacePattern: RegExp;
+  rollMatch: RegExp;
+  rollMatchTest: boolean;
+  type: string | null;
+  subType: string | null;
+  evalString?: string;
+  evalConstraint?: string;
+}
+
+interface IDDBTemplateStringResult {
+  id: number;
+  entityTypeId: number;
+  componentId: number | null;
+  componentTypeId: number | null;
+  damageTypeId: number | null;
+  text: string;
+  resultStrings: string[];
+  displayStrings: IDDBTemplateStringDisplayString[];
+  definitions: IDDBTemplateStringDefinition[];
+}
+
 
 function evaluateMath(obj: string): number {
   return Function("\"use strict\";return " + obj.replace(/\+\s*\+/g, "+"))();
@@ -15,14 +44,14 @@ function evaluateMath(obj: string): number {
  * fixed values. The function generates a parsed string for computation
  * and a link text for display.
  *
- * @param {object} ddb The DDB data object.
- * @param {object} _character The character data object.
+ * @param {IDDBData} ddb The DDB data object.
+ * @param {I5ePCData} _character The character data object.
  * @param {string} match The match string containing template values.
  * @param {object} feature The feature object associated with the match.
- * @returns {object} An object containing the parsed string and link text.
+ * @returns {IDDBTemplateStringDisplayString} An object containing the parsed string and link text.
  */
-
-function parseMatch(ddb: object, _character: object, match: string, feature: object): object {
+function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature: object): IDDBTemplateStringDisplayString {
+  // @ts-expect-error - ignore this check for now, revisit when we refactor the template string parsing and can properly type the feature object
   const featureDef = feature.definition ?? feature;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
@@ -390,17 +419,20 @@ function rollMatch(text: string, matchString: string): string {
   return text.replace(rollMatch, (m) => `[[/roll ${m[1] !== undefined ? m[1] : ""}${m[2]}]`);
 }
 
+type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground | IDDBClass | IDDBInfusionDefinition;
+
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
- * @param {object} ddb The ddb object.
- * @param {object} character The character object.
+ * @param {IDDBData} ddb The ddb object.
+ * @param {I5ePCData} character The character object.
  * @param {string} text The template string to parse.
- * @param {object} feature The feature object.
+ * @param {TFeatures} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export function parse(ddb: object, character: object, text: string, feature: object): object {
+export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures): IDDBTemplateStringResult | undefined {
   if (!text) return;
+  // @ts-expect-error - ignore this check
   const featureDefinition = feature.definition ?? feature;
 
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
@@ -422,7 +454,7 @@ export function parse(ddb: object, character: object, text: string, feature: obj
 
 
   matches.forEach((match) => {
-    const entry = {
+    const entry: IDDBTemplateStringDefinition = {
       parsed: null,
       match,
       replacePattern: new RegExp(`{{${escapeRegExp(match)}}}`, "g"),

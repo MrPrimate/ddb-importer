@@ -92,6 +92,7 @@ global {
         armorEffect?: boolean;
       };
       ddbimporter?: {
+        infusion?: boolean;
         disabled?: boolean;
         characterEffect?: boolean;
         entityTypeId?: string | null;

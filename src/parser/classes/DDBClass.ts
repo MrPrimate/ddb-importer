@@ -499,7 +499,7 @@ export default class DDBClass {
         this.ddbData,
         character,
         this.data.system.description.value,
-        this.data,
+        this.ddbClass,
       ).text;
     }
   }

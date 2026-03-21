@@ -21,6 +21,7 @@ import {
   SystemHelpers,
 } from "../lib/_module";
 import type DDBCharacter from "../DDBCharacter";
+import { IDDBSourceResponse } from "../../lib/DDBSources";
 
 interface IDDBFeatureMixinActionType {
   class?: {
@@ -33,6 +34,24 @@ interface IDDBFeatureMixinActionType {
 type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
 
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
+
+type TEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
+
+interface IDDBFeatureMixin {
+  ddbData: IDDBData;
+  ddbDefinition: TDefinitions;
+  type: string;
+  source: IDDBSourceResponse;
+  documentType?: "feat" | "weapon" | "equipment";
+  rawCharacter?: I5ePCData | null;
+  activityType?: IDDBActivityType | null;
+  extraFlags?: IActorFlagConfig;
+  enricher?: TEnrichers | null;
+  ddbCharacter?: DDBCharacter | null;
+  fallbackEnricher?: string | null;
+  usesOnActivity?: boolean;
+  isMuncher?: boolean;
+}
 
 export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
 
@@ -77,8 +96,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
   declare ddbDefinition: TDefinitions;
   declare data: I5eRaceItem | I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
   rawCharacter: I5ePCData;
-
-  // Set in _getRules / _generateActionTypes / _checkSummons
+  source: IDDBSourceResponse;
+  fallbackEnricher: string | null;
+  _parent: IDDBClassFeature | IDDBRacialTrait | undefined;
   _class: IDDBClass | undefined;
   klass: string | undefined;
   subKlass: string | undefined;
@@ -214,7 +234,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
   }
 
   _prepare() {
+    // @ts-expect-error - TODO - I think I can remove this as I can't see where these are injected
     if (this.ddbDefinition.infusionFlags) {
+      // @ts-expect-error - ignore, see above
       foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
     }
 
@@ -223,7 +245,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
     this._generateFlagHints();
   }
 
-  _getActionParent() {
+  _getActionParent(): IDDBClassFeature | IDDBRacialTrait | undefined {
     let parent = null;
     if (this.ddbDefinition.componentId) {
       parent = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
@@ -284,10 +306,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
     fallbackEnricher = null,
     usesOnActivity = false,
     isMuncher = false,
-  } = {}) {
+  }: IDDBFeatureMixin) {
     const addEffects = isMuncher
-      ? game.settings.get("ddb-importer", "munching-policy-add-midi-effects")
-      : game.settings.get("ddb-importer", "character-update-policy-add-midi-effects");
+      ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
+      : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
 
     super({
       enricher,
@@ -307,7 +329,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
     this.scaleValueUsesLink = "";
     this.useUsesScaleValueLink = false;
     this.tagType = "other";
-    this.data = {};
+    this.data = {} as any;
     this.snippet = "";
     this.description = "";
     this.resourceCharges = null;
@@ -317,6 +339,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
     this.extraFlags = extraFlags;
+    // @ts-expect-error - TODO refactor
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
     this.name = utils.nameString(this.ddbDefinition.name);
     this.originalName = this.ddbData
@@ -412,7 +435,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
           this.ddbData,
           this.rawCharacter,
           feature.definition.description,
-          this.ddbFeature,
+          this.ddbFeature as any,
         ).text;
       }
     }
@@ -421,6 +444,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
 
   _getRaceFeatureDescription() {
     const componentId = this.ddbDefinition.componentId;
+    // @ts-expect-error - TODO pretty sure this exists on race features, might need some refactoring
     const componentTypeId = this.ddbDefinition.componentTypeId;
 
     const feature = this.ddbData.character.race.racialTraits.find(
@@ -454,7 +478,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
     return undefined;
   }
 
-  static buildFullDescription(main, summary, title) {
+  static buildFullDescription(main: string, summary: string, title: string | null = null): string {
     let result = "";
 
     if (summary && !utils.stringKindaEqual(main, summary) && summary.trim() !== "" && main.trim() !== "") {
@@ -477,7 +501,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin {
     return result;
   }
 
-  getDescription({ forceFull = false, extra = "" } = {}) {
+  getDescription({ forceFull = false, extra = "" } = {}): I5eItemDescription {
     // for now none actions probably always want the full text
     const useCombinedSetting = game.settings.get("ddb-importer", "character-update-policy-use-combined-description");
     const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");

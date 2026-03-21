@@ -1,11 +1,17 @@
 import { logger } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
-import { DDBInfusion } from "./DDBInfusion";
+import { DDBInfusion, IDDBSupportedInfusionDocuments } from "./DDBInfusion";
 
 export class DDBInfusionFactory {
   ddbCharacter: DDBCharacter;
   ddbData: IDDBData;
   rawCharacter: I5ePCData;
+  infusionCount: Record<string, number>;
+  processed: {
+    activityActions: IDDBSupportedInfusionDocuments[];
+    actions: IDDBSupportedInfusionDocuments[];
+    infusions: IDDBSupportedInfusionDocuments[];
+  };
 
   constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
@@ -18,13 +24,11 @@ export class DDBInfusionFactory {
       infusions: [],
     };
 
-    this.infusionCount = {
-
-    };
+    this.infusionCount = {};
   }
 
 
-  _getInfusionCount(name) {
+  _getInfusionCount(name: string): number {
     if (!this.infusionCount[name]) {
       this.infusionCount[name] = 0;
     }
@@ -37,8 +41,8 @@ export class DDBInfusionFactory {
 
   async processInfusions() {
     logger.debug("Parsing infusions");
-    for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") ?? [])) {
-      const infusionNum = Number.parseInt(this._getInfusionCount(infusion.name));
+    for (const infusion of (foundry.utils.getProperty(this.ddbData, "infusions.infusions.definitionData") as IDDBInfusionDefinition[] ?? [])) {
+      const infusionNum = this._getInfusionCount(infusion.name);
       const addToCompendium = infusionNum === 1;
       // console.warn(`Infusion ${infusionNum}: ${infusion.name}`, {
       //   addToCompendium,
@@ -47,7 +51,7 @@ export class DDBInfusionFactory {
         ddbData: this.ddbData,
         ddbInfusion: infusion,
         rawCharacter: this.rawCharacter,
-        nameIdPostfix: infusionNum > 1 ? infusionNum : null,
+        nameIdPostfix: infusionNum > 1 ? String(infusionNum) : null,
         addToCompendium,
         isMuncher: this.ddbCharacter.isMuncher,
       });

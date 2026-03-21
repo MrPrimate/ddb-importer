@@ -16,10 +16,28 @@ import DDBAction from "./DDBAction";
 import DDBAttackAction from "./DDBAttackAction";
 import { DDBTemplateStrings, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 
-type IDDBSupportedInfusionDocuments = I5eFeatItem | I5eWeaponItem | I5eEquipmentItem;
+export type IDDBSupportedInfusionDocuments = I5eFeatItem | I5eWeaponItem | I5eEquipmentItem;
+
+export interface IDDBInfusionItemMock {
+  definition: {
+    name: string;
+    grantedModifiers: IDDBModifier[];
+  };
+}
+
+interface IDDBInfusion {
+  ddbData: IDDBData;
+  ddbInfusion: IDDBInfusionDefinition;
+  documentType?: "feat" | "weapon" | "equipment";
+  rawCharacter?: I5ePCData | null;
+  isMuncher?: boolean;
+  addToCompendium?: boolean;
+  nameIdPostfix?: string | null;
+}
 
 export class DDBInfusion {
   ddbData: IDDBData;
+  ddbInfusion: IDDBInfusionDefinition;
   documentType: "feat" | "weapon" | "equipment";
   rawCharacter: I5ePCData | null;
   name: string;
@@ -72,7 +90,7 @@ export class DDBInfusion {
     };
 
     this.requiredLevel = null;
-    const requiredLevel = foundry.utils.getProperty(this.ddbInfusion, "level");
+    const requiredLevel = foundry.utils.getProperty(this.ddbInfusion, "level") as string;
     if (Number.isInteger(Number.parseInt(requiredLevel))) {
       foundry.utils.setProperty(this.data, "system.prerequisites.level", Number.parseInt(requiredLevel));
       this.requiredLevel = Number.parseInt(requiredLevel);
@@ -81,7 +99,7 @@ export class DDBInfusion {
     this.data.system.source = DDBSources.parseSource(this.ddbInfusion);
     this.data.system.source.rules = "2014";
 
-    if (this.requiredLevel && this.requiredLevel > 1) {
+    if (this.requiredLevel && this.requiredLevel > 1 && "requirements" in this.data.system) {
       this.data.system.requirements = ` ${utils.ordinalSuffixOf(this.requiredLevel)}-level ${this.originClass}`;
     }
   }
@@ -95,7 +113,7 @@ export class DDBInfusion {
     return undefined;
   }
 
-  constructor({ ddbData, ddbInfusion, documentType = "feat" as const, rawCharacter = null, isMuncher = false, addToCompendium = true, nameIdPostfix = null } = {}) {
+  constructor({ ddbData, ddbInfusion, documentType = "feat" as const, rawCharacter = null, isMuncher = false, addToCompendium = true, nameIdPostfix = null }: IDDBInfusion) {
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbInfusion = ddbInfusion;
@@ -107,10 +125,10 @@ export class DDBInfusion {
     this.tagType = "infusion";
     this.actions = [];
     this.actionsToAddToCompendium = [];
-    this.grantedItems = [];
+    // this.grantedItems = [];
     this.isMuncher = isMuncher;
-    this.idNames = [];
-    this.compendium = null;
+    // this.idNames = [];
+    // this.compendium = null;
     this._init();
     this._generateDataStub();
     this.addToCompendium = addToCompendium;
@@ -313,6 +331,7 @@ export class DDBInfusion {
         key: "system.description.value",
         mode: CONST.ACTIVE_EFFECT_MODES.ADD,
         value: `<hr><h2>Infusion Actions</h2><p> ${descriptions.join(", ")} </p>`,
+        priority: 20,
       });
     });
   }
@@ -352,7 +371,7 @@ export class DDBInfusion {
     });
     effect.flags.ddbimporter.infusion = true;
     const modifiers = foundry.utils.deepClone(modifierData.modifiers) ?? [];
-    const modifierItem = {
+    const modifierItem : IDDBInfusionItemMock = {
       definition: {
         name: this.name,
         grantedModifiers: modifiers.filter((mod) =>
@@ -365,6 +384,7 @@ export class DDBInfusion {
     const mockItem = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
       character: this.rawCharacter,
+      // @ts-expect-error - TODO, revisit this and abstract out an effects interface across the various items
       ddbItem: modifierItem,
       document: foundryItem,
       isCompendiumItem: false, // isGeneric or isMuncher

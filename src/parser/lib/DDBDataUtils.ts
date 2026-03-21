@@ -30,7 +30,7 @@ export default class DDBDataUtils {
     }
   }
 
-  static isComponentIdInClassFeatures(ddb, componentId, classId) {
+  static isComponentIdInClassFeatures(ddb: IDDBData, componentId: number, classId: number): boolean {
     return ddb.character.classes
       .filter((klass) => classId === klass.definition?.id || classId === klass.subclassDefinition?.id)
       .some((klass) =>
@@ -38,7 +38,7 @@ export default class DDBDataUtils {
       );
   }
 
-  static getClassFeatureIds(ddb, { classId = null, requiredLevel = null, exactLevel = null } = {}) {
+  static getClassFeatureIds(ddb: IDDBData, { classId = null, requiredLevel = null, exactLevel = null }: { classId?: number | null; requiredLevel?: number | null; exactLevel?: number | null } = {}): number[] {
     return ddb.character.classes
       .filter((klass) =>
         (classId === null
@@ -52,7 +52,7 @@ export default class DDBDataUtils {
       ).map((feat) => feat.definition.id);
   }
 
-  static getCustomValueFromCharacter(ddbItem, character, type) {
+  static getCustomValueFromCharacter(ddbItem, character: I5ePCData, type: number) {
     if (!character) return null;
     const characterValues = character.flags.ddbimporter.dndbeyond.characterValues;
     const customValue = characterValues.filter((value) =>
@@ -86,7 +86,7 @@ export default class DDBDataUtils {
   }
 
 
-  static addCustomValues(ddb, foundryItem) {
+  static addCustomValues(ddb: IDDBData, foundryItem) {
     // to hit override requires a lot of crunching
     // const toHitOverride = DDBDataUtils.getCustomValue(item, character, 13);
     const toHitBonus = DDBDataUtils.getCustomValue(foundryItem, ddb, 12);
@@ -155,7 +155,7 @@ export default class DDBDataUtils {
     return foundryItem;
   }
 
-  static displayAsAttack(ddb, item, character = null) {
+  static displayAsAttack(ddb: IDDBData, item, character = null) {
     const customDisplay = character
       ? DDBDataUtils.getCustomValueFromCharacter(item, character, 16)
       : DDBDataUtils.getCustomValue(item, ddb, 16);
@@ -168,14 +168,14 @@ export default class DDBDataUtils {
     }
   }
 
-  static hasChosenCharacterOption(ddb, optionName) {
+  static hasChosenCharacterOption(ddb: IDDBData, optionName: string): boolean {
     const hasClassOptions = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
       .flat()
       .some((option) => option.definition.name === optionName);
     return hasClassOptions;
   }
 
-  static getClassFromOptionID(ddb, optionId) {
+  static getClassFromOptionID(ddb: IDDBData, optionId: number): IDDBClass | undefined {
     // Use case class spell - which class?
     // componentId on spells.class[0].componentId = options.class[0].definition.id
     // options.class[0].definition.componentId = classes[0].classFeatures[0].definition.id
@@ -200,7 +200,7 @@ export default class DDBDataUtils {
     return undefined;
   }
 
-  static getFeatureFromOptionId(ddb, optionId, type) {
+  static getFeatureFromOptionId(ddb: IDDBData, optionId: number, type: "race" | "class" | "feat"): IDDBOptionEntry | IDDBRacialTrait {
     const option = ddb.character.options[type].find((option) => option.definition.id === optionId);
 
     if (!option) return undefined;
@@ -221,7 +221,7 @@ export default class DDBDataUtils {
    * @param {*} featureId
    */
 
-  static findComponentByComponentId(ddb, componentId) {
+  static findComponentByComponentId(ddb: IDDBData, componentId: number): IDDBClassFeature | IDDBRacialTrait | undefined {
     let result;
 
     ddb.character.classes.forEach((cls) => {
@@ -306,14 +306,14 @@ export default class DDBDataUtils {
 
   }
 
-  static getScaleValueString(ddb, feature) {
+  static getScaleValueString(ddb: IDDBData, feature) {
     const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
       .flat()
       .find((option) => option.definition.id === feature.componentId);
 
     let feat = feature.levelScale ? feature : DDBDataUtils.findComponentByComponentId(ddb, feature.componentId);
     if (!feat && foundry.utils.hasProperty(feature, "flags.ddbimporter.dndbeyond.choice")) {
-      const componentId = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.componentId");
+      const componentId = foundry.utils.getProperty(feature, "flags.ddbimporter.dndbeyond.choice.componentId") as number;
       feat = DDBDataUtils.findComponentByComponentId(ddb, componentId);
     }
     if (!feat && classOption) {

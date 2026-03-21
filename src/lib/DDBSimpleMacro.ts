@@ -15,7 +15,7 @@ export default class DDBSimpleMacro {
     },
   };
 
-  static getDescriptionAddition(name, type, params) {
+  static getDescriptionAddition(name: string, type: string, params = null): string {
     const safeName = utils.referenceNameString(name).toLowerCase();
     const macroDetails = foundry.utils.getProperty(DDBSimpleMacro.MACROS, `${type}.${safeName}`);
     if (!macroDetails) return "";
