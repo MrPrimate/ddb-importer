@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FlyingBroomstick extends DDBEnricherData {
 
-  get documentStub() {
+  get documentStub(): IDDBDocumentStub {
     return {
       documentType: "equipment",
       parsingType: "wondrous",

@@ -18,7 +18,7 @@ export default class NeedlerPistol extends DDBEnricherData {
     };
   }
 
-  get documentStub() {
+  get documentStub(): IDDBDocumentStub {
     return {
       documentType: "consumable",
       parsingType: "wondrous",

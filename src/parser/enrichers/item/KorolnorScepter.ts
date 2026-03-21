@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class KorolnorScepter extends DDBEnricherData {
 
-  get documentStub() {
+  get documentStub(): IDDBDocumentStub {
     return {
       // scepter can be used as a regular club
       documentType: "weapon",

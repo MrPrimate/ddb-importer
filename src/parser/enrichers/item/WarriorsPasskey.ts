@@ -15,7 +15,7 @@ export default class WarriorsPasskey extends DDBEnricherData {
     };
   }
 
-  get documentStub() {
+  get documentStub(): IDDBDocumentStub {
     return {
       documentType: "weapon",
       parsingType: "weapon",

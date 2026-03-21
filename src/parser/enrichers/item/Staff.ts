@@ -10,7 +10,7 @@ export default class Staff extends DDBEnricherData {
     return true;
   }
 
-  get documentStub() {
+  get documentStub(): IDDBDocumentStub {
     return {
       documentType: "weapon",
       parsingType: "staff",

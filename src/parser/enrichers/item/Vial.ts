@@ -6,7 +6,7 @@ export default class Vial extends DDBEnricherData {
     return DDBEnricherData.ACTIVITY_TYPES.NONE;
   }
 
-  get documentStub() {
+  get documentStub(): IDDBDocumentStub {
     return {
       documentType: "consumable",
       parsingType: "consumable",
