@@ -1,5 +1,9 @@
 # Next Up
 
+MASSIVE UNDER THE HOOD CHANGES!
+
+I have almost certainly, catastrophically broken at least one thing. Please log an issue. If it is real bad you can roll back to the latest version using https://docs.ddb.mrprimate.co.uk/docs/faqs/ddb-importer#how-do-i-install-an-older-version-of-ddb-importer
+
 - BREAKING CHANGE: Source Categories have moved to INCLUDED rather than EXCLUDED. This has reset your setting.
 - Under the hood: Key portions of DDB Importer code have been migrated to Typescript. This has allowed my to improve the detection of errors within the config generation for features/items etc. This has resulted in a _HUGE_ number of small corrections to many features.
 - 2014 Subclasss parsing improvements for Expanded 2014 content now complete: Twilight Domain, Hexblade Warlock, Wizard War Mage, Barbarian Wild Magic, Battlerager, Path of the Giant, Creation Bard, Eloquence Bard, Spirits Bard, Arcana Domain, Order Domain, Peace Domain, Ascendant Dragon Monk, Astral Monk, Long Death Monk, Glory Paladin, Crown Paladin, Watchers Paladin, Lunar Sorcery, The Fathoms, Genie, Undead, Undying.
