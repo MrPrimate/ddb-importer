@@ -136,9 +136,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           entityTypeId: this.ddbDefinition.entityTypeId,
           action: this.isAction,
           componentId: this.ddbDefinition.componentId,
+          // @ts-expect-error - TODO - this is a mess, need to refactor how these are set and used
           componentTypeId: this.ddbDefinition.componentTypeId,
           originalName: this.originalName,
           type: this.tagType,
+          // @ts-expect-error - TODO - this is a mess, need to refactor how these are set and used
           isCustomAction: this.ddbDefinition.isCustomAction,
           is2014: this.type === "class" && this._class ? this.isClass2014 : this.is2014,
           is2024: this.type === "class" && this._class ? !this.isClass2014 : !this.is2014,
@@ -165,7 +167,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _generateFlagHints() {
-    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags) as FlagConfig;
+    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags) as IItemFlagConfig;
 
     if (this._actionType.class) {
       const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);
@@ -193,17 +195,23 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       = DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.id)
       ?? DDBDataUtils.findComponentByComponentId(this.ddbData, this.ddbDefinition.componentId);
     if (klassActionComponent) {
-      foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
-      foundry.utils.setProperty(
-        this.data.flags,
-        "ddbimporter.dndbeyond.levelScales",
-        klassActionComponent.definition?.levelScales,
-      );
-      foundry.utils.setProperty(
-        this.data.flags,
-        "ddbimporter.dndbeyond.limitedUse",
-        klassActionComponent.definition?.limitedUse,
-      );
+      if ("levelScale" in klassActionComponent) {
+        foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
+      }
+      if ("levelScales" in klassActionComponent.definition) {
+        foundry.utils.setProperty(
+          this.data.flags,
+          "ddbimporter.dndbeyond.levelScales",
+          klassActionComponent.definition?.levelScales,
+        );
+      }
+      if ("limitedUse" in klassActionComponent.definition) {
+        foundry.utils.setProperty(
+          this.data.flags,
+          "ddbimporter.dndbeyond.limitedUse",
+          klassActionComponent.definition?.limitedUse,
+        );
+      }
     }
   }
 

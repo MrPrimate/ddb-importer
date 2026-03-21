@@ -379,6 +379,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     if (hintsOnly && !this.enricher.activity) return undefined;
     if (this.enricher.type === "none" || this.enricher.activity?.type === "none") return undefined;
 
+    // @ts-expect-error - we might not actually have any of these. TODO: revist and type if needed
     const activityOptions = this.enricher.activity?.options ?? {};
     const options = foundry.utils.mergeObject(
       foundry.utils.deepClone(optionsOverride),
