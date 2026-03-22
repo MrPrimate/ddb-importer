@@ -655,7 +655,7 @@ export default class DDBRace {
 
     const uuids = this._compendiums.feats.index
       .filter((i) => {
-        const prerequisite = foundry.utils.getProperty(i, "system.prerequisites.level");
+        const prerequisite = foundry.utils.getProperty(i, "system.prerequisites.level") as string;
         if (prerequisite && prerequisite !== "") {
           if (parseInt(prerequisite) > 1) return false;
         }
@@ -742,7 +742,7 @@ export default class DDBRace {
   }
 
 
-  async #generateTraitChoiceAdvancement(trait: IDDBRacialTraitDefinition, choices: IDDBChoiceDefinition[]) {
+  async #generateTraitChoiceAdvancement(trait: IDDBRacialTraitDefinition, choices: IDDBChoiceEntry[]) {
     logger.debug(`Generating choice trait advancement for trait ${trait.name} with ${choices.length} choices`);
     const keys = new Set();
     const uuids = new Set();
