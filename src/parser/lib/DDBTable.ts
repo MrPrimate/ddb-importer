@@ -247,7 +247,7 @@ export async function generateTable({ parentName, html, updateExisting, type = "
   html: string;
   updateExisting?: boolean;
   type?: string;
-  notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
+  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }): Promise<string> {
   let name = `${parentName}`;
   const document = utils.htmlToDoc(html);

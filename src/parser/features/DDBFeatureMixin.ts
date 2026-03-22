@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { utils, logger, DDBSources, DDBSimpleMacro } from "../../lib/_module";
 import { DDBFeatureActivity } from "../activities/_module";
 import DDBCompanionFactory from "../companions/DDBCompanionFactory";
@@ -37,7 +37,7 @@ type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
 
 type TEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
 
-type TDocumentType = Extract<TFeatureType, "race" | "background" | "feat"> | "weapon";
+type TDocumentType = Extract<TFeatureType, "background" | "feat"> | "weapon";
 
 
 interface IDDBFeatureMixin {
@@ -97,7 +97,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   resourceCharges: number | null;
   ddbFeature: TFeatures | TDefinitions;
   declare ddbDefinition: TDefinitions;
-  declare data: I5eRaceItem | I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
+  declare data: I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
   rawCharacter: I5ePCData;
   source: IDDBSourceResponse;
   fallbackEnricher: string | null;
@@ -118,6 +118,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _descriptionSave: I5eActivitySave;
   extraFlags: IActorFlagConfig;
   declare documentType: TDocumentType;
+  companionFeatureOption: { parentFeature: string; childName: string };
+  ddbCompanionFactory: DDBCompanionFactory;
+  spellLinks: IDDBSpellLink[];
 
   _init() {
     logger.debug(`Generating Base Feature ${this.ddbDefinition.name}`);
@@ -363,8 +366,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this._init();
     this.activityType = activityType;
 
+    // @ts-expect-error - TODO - tactually missing or bad type?
     this.klass = this.extraFlags.ddbimporter?.class ?? this.extraFlags.class;
+    // @ts-expect-error - TODO - tactually missing or bad type?
     this.subKlass = this.extraFlags.ddbimporter?.subClass ?? this.extraFlags.subClass;
+    // @ts-expect-error - TODO - tactually missing or bad type?
     this.species = this.extraFlags.ddbimporter?.species ?? this.extraFlags.species;
 
     this._parent = this._getActionParent();
@@ -383,7 +389,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     // Grim Hollow puts points in names. WHY
     const namePointRegex = /(.*) \((\d) points?\)/i;
-    const nameMatch = namePointRegex.exec(this.name.match);
+    const nameMatch = namePointRegex.exec(this.name);
     if (nameMatch) {
       this.data.name = nameMatch[1];
       this.resourceCharges = Number.parseInt(nameMatch[2]);
@@ -415,7 +421,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       });
   }
 
-  hasClassFeature({ featureName, className = null, subClassName = null } = {}) {
+  hasClassFeature({ featureName, className = null, subClassName = null }: { featureName: string; className?: string | null; subClassName?: string | null }) {
     return DDBDataUtils.hasClassFeature({
       ddbData: this.ddbData,
       featureName,
@@ -424,9 +430,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     });
   }
 
-  _getClassFeatureDescription(nameMatch = false) {
+  _getClassFeatureDescription(nameMatch = false): string {
     if (!this.ddbData) return "";
     const componentId = this.ddbDefinition.componentId;
+    // @ts-expect-error - TODO pretty sure this exists on class features, might need some refactoring
     const componentTypeId = this.ddbDefinition.componentTypeId;
 
     const findFeatureKlass = this.ddbData.character.classes.find((cls) =>
@@ -454,7 +461,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return "";
   }
 
-  _getRaceFeatureDescription() {
+  _getRaceFeatureDescription(): string {
     const componentId = this.ddbDefinition.componentId;
     // @ts-expect-error - TODO pretty sure this exists on race features, might need some refactoring
     const componentTypeId = this.ddbDefinition.componentTypeId;
@@ -562,6 +569,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _generateDescription({ forceFull = false, extra = "" }: { forceFull?: boolean; extra?: string } = {}) {
     this.data.system.description = this.getDescription({ forceFull, extra });
 
+    if (!("prerequisites" in this.data.system)) return;
     const repeatableRegex = /<strong>Repeatable\.<\/strong>/i;
     if (repeatableRegex.test(this.data.system.description.value)) {
       this.data.system.prerequisites.repeatable = true;
@@ -569,14 +577,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _generatePrerequisites() {
-    if (this.ddbDefinition.isRepeatable) {
+    if ("isRepeatable" in this.ddbDefinition && this.ddbDefinition.isRepeatable) {
       foundry.utils.setProperty(this.data, "system.prerequisites.repeatable", true);
     }
 
-    const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel");
+    const requiredLevel = foundry.utils.getProperty(this.ddbDefinition, "requiredLevel") as string;
     if (Number.isInteger(Number.parseInt(requiredLevel))) {
       foundry.utils.setProperty(this.data, "system.prerequisites.level", Number.parseInt(requiredLevel));
-    } else if (this.ddbDefinition.prerequisites) {
+    } else if ("prerequisites" in this.ddbDefinition && this.ddbDefinition.prerequisites) {
       for (const prereq of this.ddbDefinition.prerequisites) {
         for (const mapping of prereq.prerequisiteMappings.filter((m) => m.type === "level")) {
           foundry.utils.setProperty(this.data, "system.prerequisites.level", mapping.value);
@@ -585,10 +593,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       }
     }
 
-    if (this.ddbDefinition.prerequisites) {
+    if ("prerequisites" in this.ddbDefinition && this.ddbDefinition.prerequisites) {
       for (const prereq of this.ddbDefinition.prerequisites) {
         for (const mapping of prereq.prerequisiteMappings.filter((m) => m.type === "feat")) {
           if (mapping.shouldExclude) continue;
+          if (!("prerequisites" in this.data.system)) {
+            logger.error(`Prerequisites not set up correctly for ${this.data.name}`, this.ddbDefinition);
+            continue;
+          }
           this.data.system.prerequisites.items.push(utils.referenceNameString(mapping.friendlySubTypeName.toLowerCase()));
         }
       }
@@ -598,8 +610,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
 
   _generateLimitedUse() {
+    if (!("uses" in this.data.system)) return;
+    const rawLimitedUse = "limitedUse" in this.ddbDefinition ? this.ddbDefinition.limitedUse : null;
+    const limitedUse: TDDBLimitedUses | null = Array.isArray(rawLimitedUse)
+      ? (rawLimitedUse[0] ?? null)
+      : rawLimitedUse ?? null;
+
     const uses: I5eSystemLimitedUses = DDBDataUtils.getLimitedUses({
-      data: this.ddbDefinition.limitedUse,
+      data: limitedUse,
       description: this.ddbDefinition.description ?? "",
       scaleValue: this.useUsesScaleValueLink && this.scaleValueUsesLink ? this.scaleValueUsesLink : null,
     });
@@ -621,27 +639,31 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   // weapons still have range
   _generateRange() {
     if (this.documentType !== "weapon") return;
-    if (this.ddbDefinition.range && this.ddbDefinition.range.aoeType && this.ddbDefinition.range.aoeSize) {
-      this.data.system.range = { value: null, units: "self", long: "" };
+    if (!("range" in this.data.system)) return;
+    const actionRange: IDDBActionRange = foundry.utils.getProperty(this.ddbDefinition, "range") as IDDBActionRange;
+    if (actionRange && actionRange.aoeType && actionRange.aoeSize) {
+      this.data.system.range = { value: null, units: "self", long: null };
+      if (!("target" in this.data.system)) return;
       this.data.system.target = {
-        value: this.ddbDefinition.range.aoeSize,
-        type: DICTIONARY.actions.aoeType.find((type) => type.id === this.ddbDefinition.range.aoeType)?.value,
+        value: actionRange.aoeSize,
+        type: DICTIONARY.actions.aoeType.find((type) => type.id === actionRange.aoeType)?.value,
         units: "ft",
         reach: null,
       };
-    } else if (this.ddbDefinition.range && this.ddbDefinition.range.range) {
+    } else if (actionRange && actionRange.range) {
       this.data.system.range = {
-        value: this.ddbDefinition.range.range,
+        value: actionRange.range,
         units: "ft",
-        long: this.ddbDefinition.range.long || "",
+        // @ts-expect-error - TODO - unsure, this might be an error, change in ddb data, or from spells
+        long: actionRange.long || null,
         reach: null,
       };
     } else {
-      this.data.system.range = { value: 5, units: "ft", long: "" };
+      this.data.system.range = { value: 5, units: "ft", long: null };
     }
   }
 
-  isMartialArtist(klass = null) {
+  isMartialArtist(klass: IDDBClass = null) {
     if (klass) {
       return klass.classFeatures.some((feature) => feature.definition.name === "Martial Arts");
     } else {
@@ -652,22 +674,27 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   getDamageType() {
-    return this.ddbDefinition.damageTypeId
+    return "damageTypeId" in this.ddbDefinition && this.ddbDefinition.damageTypeId
+      // @ts-expect-error - not detecting my guard here
       ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
       : null;
   }
 
   getDamageDie() {
+    // @ts-expect-error - dice and die are a mess in data.
     return this.ddbDefinition.dice
+    // @ts-expect-error - dice and die are a mess in data.
       ? this.ddbDefinition.dice
+      // @ts-expect-error - dice and die are a mess in data.
       : this.ddbDefinition.die
+        // @ts-expect-error - dice and die are a mess in data.
         ? this.ddbDefinition.die
         : undefined;
   }
 
-  getDamage(bonuses = []) {
+  getDamage(bonuses = []): I5eDamagePart {
     const damageType = this.getDamageType();
-    const damage = {
+    const damage: I5eDamagePart = {
       number: null,
       denomination: null,
       bonus: "",
@@ -700,7 +727,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         )?.bonus;
         const replaceProf
           = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
-          && Number.parseInt(die.fixedValue) === Number.parseInt(profBonus);
+          && Number.parseInt(die.fixedValue) === Number.parseInt(String(profBonus));
         const diceString = replaceProf ? die.diceString.replace(`+ ${profBonus}`, "") : die.diceString;
         const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
         const damageString = utils.parseDiceString(diceString, mods).diceString;
@@ -717,22 +744,26 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     if (this.documentType !== "weapon") return;
     const damage = this.getDamage();
     if (!damage) return;
+    if (!("damage" in this.data.system)) return;
     this.data.system.damage = {
       base: damage,
-      versatile: "",
     };
   }
 
-  getMartialArtsDamage(bonuses = []) {
+  getMartialArtsDamage(bonuses = []): I5eDamagePart {
     const damageType = this.getDamageType();
+    // @ts-expect-error - dice and die are a mess in data.
     const actionDie = this.ddbDefinition.dice
+      // @ts-expect-error - dice and die are a mess in data.
       ? this.ddbDefinition.dice
+      // @ts-expect-error - dice and die are a mess in data.
       : this.ddbDefinition.die
+        // @ts-expect-error - dice and die are a mess in data.
         ? this.ddbDefinition.die
         : undefined;
     const bonusString = bonuses.join(" ");
 
-    const damage = {
+    const damage: I5eDamagePart = {
       number: null,
       denomination: null,
       bonus: "",
@@ -821,11 +852,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
 
-  getActionAttackAbility() {
+  getActionAttackAbility(): string {
     return "";
   }
 
-  _filterModForChoice(mod, choice, type) {
+  _filterModForChoice(mod: IModifiersMod, choice, type: string) {
     if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId)
       return true;
     if (choice && this.ddbData.character.options[type]?.length > 0) {
@@ -875,9 +906,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return false;
   }
 
-  _getFeatModifierItem(choice, type) {
-    if (this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
-    const modifierItem = foundry.utils.duplicate(this.ddbDefinition);
+  _getFeatModifierItem(choice, type: string) {
+    if ("grantedModifiers" in this.ddbDefinition && this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
+    const modifierItem = foundry.utils.duplicate(this.ddbDefinition) as any;
     const modifiers = [
       DDBModifiers.getChosenClassModifiers(this.ddbData, { includeExcludedEffects: true, effectOnly: true }),
       DDBModifiers.getModifiers(this.ddbData, "race", true, true),
@@ -905,7 +936,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return modifierItem;
   }
 
-  async _addEffects(choice, type) {
+  async _addEffects(choice, type: string) {
     // can we apply any auto-generated effects to this feature
     const compendiumItem = this.rawCharacter.flags.ddbimporter.compendium;
     const modifierItem = this._getFeatModifierItem(choice, type);
@@ -917,7 +948,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       isCompendiumItem: compendiumItem,
       type: "feat",
       description: this.snippet !== "" ? this.snippet : this.description,
-    });
+    }) as typeof this.data;
 
     if (this.enricher.clearAutoEffects) this.data.effects = [];
     const effects = await this.enricher.createEffects();
@@ -931,7 +962,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
 
-  static getFeatureSubtype(name: string, type: string, includePartial = true, categories = null) {
+  static getFeatureSubtype(name: string, type: string, includePartial = true, categories: IDDBEntityCategory[] = null) {
     if (type === "class") {
       if (name === "Ki") return "ki";
       // many ki abilities do not start with ki
@@ -992,7 +1023,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
 
   _generateSystemSubType() {
-    const subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, this.ddbDefinition.categories);
+    const categories = "categories" in this.ddbDefinition && this.ddbDefinition.categories ? this.ddbDefinition.categories : null;
+    const subType = DDBFeatureMixin.getFeatureSubtype(this.data.name, this.type, true, categories);
     if (subType) {
       foundry.utils.setProperty(this.data, "system.type.subtype", subType);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.subType", subType);
@@ -1001,12 +1033,20 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   _generateWeaponType() {
     if (this.documentType !== "weapon") return;
+    if (!("type" in this.data.system)) return;
+    const attackSubType = "attackSubtype" in this.ddbDefinition && this.ddbDefinition.attackSubtype
+      ? this.ddbDefinition.attackSubtype
+      : null;
 
-    const entry = this.naturalWeapon
+    const attackTypeRange = "attackTypeRange" in this.ddbDefinition && this.ddbDefinition.attackTypeRange
+      ? this.ddbDefinition.attackTypeRange
+      : null;
+
+    const entry: TWeaponType | undefined = this.naturalWeapon
       ? "natural"
-      : DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === this.ddbDefinition.attackSubtype)?.value;
-    const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === this.ddbDefinition.attackTypeRange);
-    this.data.system.type.value = entry ? entry : range ? `simple${range.value}` : "simpleM";
+      : DICTIONARY.actions.attackTypes.find((type) => type.attackSubtype === attackSubType)?.value as TWeaponType;
+    const range = DICTIONARY.weapon.weaponRange.find((type) => type.attackType === attackTypeRange);
+    this.data.system.type.value = entry ? entry : range ? `simple${range.value}` as TWeaponType : "simpleM";
   }
 
   _generateSystemType() {
@@ -1017,7 +1057,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
-  _isCompanionFeature() {
+  _isCompanionFeature(): boolean {
     return (
       DICTIONARY.companions.COMPANION_FEATURES.includes(this.originalName)
       // only run this on class features
@@ -1025,7 +1065,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     );
   }
 
-  _isCompanionFeatureOption() {
+  _isCompanionFeatureOption(): boolean {
     for (const [parentFeature, childNames] of Object.entries(DICTIONARY.companions.COMPANION_OPTIONS)) {
       for (const childName of childNames) {
         if (this.originalName === parentFeature || this.originalName === `${parentFeature}: ${childName}`) {
@@ -1040,7 +1080,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return foundry.utils.hasProperty(this, "companionFeatureOption.childName");
   }
 
-  _getFullSummonsDescription() {
+  _getFullSummonsDescription(): string | null {
     if (this.isCompanionFeatureOption) {
       const ddbOption = this.ddbData.character.options.class.find(
         (o) => o.definition.name == this.companionFeatureOption.childName,
@@ -1052,7 +1092,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     }
   }
 
-  isForceResourceLinked() {
+  isForceResourceLinked(): boolean {
     for (const linkedFeatures of Object.values(DICTIONARY.CONSUMPTION_LINKS)) {
       if (linkedFeatures.some((child) => this.originalName.startsWith(child))) {
         return true;
@@ -1061,7 +1101,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return false;
   }
 
-  targetsCreature() {
+  targetsCreature(): RegExpMatchArray | null {
     const description = this.ddbDefinition.description ?? this.ddbDefinition.snippet ?? "";
     const creature
       = /You touch (?:a|one) (?:willing |living )?creature|affecting one creature|creature you touch|a creature you|creature( that)? you can see|interrupt a creature|would strike a creature|creature of your choice|creature or object within range|cause a creature|creature must be within range|a creature in range|each creature within/gi;
@@ -1073,19 +1113,20 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   /** @override */
 
-  _getActivitiesType() {
+  _getActivitiesType(): IDDBActivityType | "roll" | null {
     if (this.isSummons) return "summon";
     // lets see if we have a save stat for things like Dragon born Breath Weapon
-    if (typeof this.ddbDefinition.saveStatId === "number" || this._descriptionSave) return "save";
-    if (this.ddbDefinition.actionType === 1) return "attack"; // attack action (3 is general)
-    if (this.ddbDefinition.actionType === 2 && this.ddbDefinition.abilityModifierStatId) return "attack"; // spell action
-    if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 1) return "attack";
-    if (this.ddbDefinition.rangeId && this.ddbDefinition.rangeId === 2) return "attack";
+    if (("saveStatId" in this.ddbDefinition && typeof this.ddbDefinition.saveStatId === "number")
+      || this._descriptionSave) return "save";
+    if ("actionType" in this.ddbDefinition && this.ddbDefinition.actionType === 1) return "attack"; // attack action (3 is general)
+    if ("actionType" in this.ddbDefinition && this.ddbDefinition.actionType === 2 && "abilityModifierStatId" in this.ddbDefinition && this.ddbDefinition.abilityModifierStatId) return "attack"; // spell action
+    if ("rangeId" in this.ddbDefinition && this.ddbDefinition.rangeId === 1) return "attack";
+    if ("rangeId" in this.ddbDefinition && this.ddbDefinition.rangeId === 2) return "attack";
     if (this.isAction && this.getDamageDie()) {
       if (this.getDamageType()) return "damage";
       else return "roll";
     }
-    if (this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
+    if ("uses" in this.data.system && this.data.system.uses?.max && this.data.system.uses.max !== "0") return "utility";
     if (this.data.effects.length > 0 || this.enricher.effects?.length > 0) return "utility";
     if (DDBFeatureMixin.UTILITY_FEATURES.some((f) => this.originalName.startsWith(f))) return "utility";
     if (this.isForceResourceLinked()) return "utility";
@@ -1133,12 +1174,12 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     await this.enricher.customFunction({
       name,
-      activity,
+      activity: activity && "activities" in this.data.system ? this.data.system.activities[activity] : undefined,
     });
 
     if (!activity) return undefined;
 
-    const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`);
+    const activityData = foundry.utils.getProperty(this.data, `system.activities.${activity}`) as I5eActivity | undefined;
     if (activityData?.type === "summon") {
       if (this.isCompanionFeature2014 || this.isCompanionFeature2024) {
         await this.ddbCompanionFactory.addCompanionsToDocuments([], activityData, this.enricher.activity);
@@ -1160,13 +1201,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return false;
   }
 
-  static async finalFixes(feature) {
+  static async finalFixes(feature, notifier = null) {
     const tableDescription = await DDBTable.generateTable({
       parentName: feature.name,
       html: feature.system.description.value,
       updateExisting: true,
       type: feature.type,
-      notifier: this.notifier,
+      notifier,
     });
     feature.system.description.value = tableDescription;
   }
@@ -1187,14 +1228,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   createCompanionFactory() {
     const createOrUpdate
       = this.isMuncher
-      || game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-create-companions")
+      || utils.getSetting<boolean>("character-update-policy-create-companions")
       || this.ddbCharacter.enableCompanions;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
       type: "feature",
       originDocument: this.data,
       is2014: this.is2014,
       notifier: this.notifier,
-      folderHint: foundry.utils.getProperty(this.data, "flags.ddbimporter.summons.folder"),
+      folderHint: foundry.utils.getProperty(this.data, "flags.ddbimporter.summons.folder") as string,
       createCompanions: createOrUpdate,
       updateCompanions: createOrUpdate,
     });
@@ -1223,7 +1264,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this.data.system.identifier = this.identifier;
 
+    // @ts-expect-error - is this proxy injected? TODO
     if (this.ddbDefinition.hintImage) {
+      // @ts-expect-error - is this proxy injected? TODO
       foundry.utils.setProperty(this.data, "flags.ddbimporter.ddbImg", this.ddbDefinition.hintImage.split("?")[0]);
     }
   }

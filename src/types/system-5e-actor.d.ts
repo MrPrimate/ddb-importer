@@ -464,14 +464,16 @@ global {
   // ---- Advancement types ----------------------------------------------------
 
   interface I5eAdvancementBase {
-    _id: string;
-    type: string;
+    _id?: string;
+    type?: string;
     title?: string;
     hint?: string;
     level?: number;
-    classRestriction?: "primary" | "secondary";
+    classRestriction?: "primary" | "secondary" | "";
     icon?: string | null;
   }
+
+  interface I5eAdvancementPool { uuid: string };
 
   export type I5eAdvScaleValueType =
     "number" | "dice" | "string" | "boolean" | "distance" | "cr" | string;
@@ -499,17 +501,17 @@ global {
     value: Record<string, never>;
   }
 
-  interface I5eAdvItemGrantItem { uuid: string; optional?: boolean }
+  interface I5eAdvItemGrantItem extends I5eAdvancementPool { optional?: boolean }
   interface I5eAdvItemGrantConfig {
     items?: I5eAdvItemGrantItem[];
     optional?: boolean;
     spell?: Record<string, any> | null;
   }
   interface I5eAdvancementItemGrant extends I5eAdvancementBase {
-    type: "ItemGrant";
+    type?: "ItemGrant";
     configuration: I5eAdvItemGrantConfig;
     /** Keys are local item IDs; values are compendium UUIDs, populated after grant. */
-    value: { added?: Record<string, string> };
+    value?: { added?: Record<string, string> };
   }
 
   interface I5eAdvASIConfig {
@@ -563,14 +565,14 @@ global {
     choices?: Record<string, I5eAdvItemChoiceLevelConfig>;
     allowDrops?: boolean;
     type?: string;
-    pool?: { uuid: string }[];
+    pool?: I5eAdvancementPool[];
     spell?: Record<string, any> | null;
     restriction?: I5eAdvItemChoiceRestriction;
   }
   interface I5eAdvancementItemChoice extends I5eAdvancementBase {
-    type: "ItemChoice";
+    type?: "ItemChoice";
     configuration: I5eAdvItemChoiceConfig;
-    value: { added?: Record<string, string>; replaced?: Record<string, string> };
+    value?: { added?: Record<string, string>; replaced?: Record<string, string> };
   }
 
   interface I5eAdvancementSubclass extends I5eAdvancementBase {

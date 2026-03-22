@@ -6,7 +6,7 @@ import DDBSubClass from "../classes/DDBSubClass";
 import { IResetType } from "../../config/dictionary/actor/resets";
 
 interface IDDBDataUtilsLimitedUses {
-  data: IDDBActionLimitedUse | IDDBInventoryLimitedUse | IDDBClassFeatureLimitedUse | IDDBSpellLimitedUse;
+  data: TDDBLimitedUses;
   description?: string;
   scaleValue?: string | null;
 }

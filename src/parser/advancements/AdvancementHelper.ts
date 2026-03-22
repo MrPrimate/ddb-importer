@@ -361,7 +361,7 @@ export default class AdvancementHelper {
   }
 
 
-  getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level } = {}) {
+  getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level }: { mods: IModifiersMod[]; feature: IFeature; availableToMulticlass?: boolean; level: number }) {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const skillsFromMods = mods
       .filter((mod) =>

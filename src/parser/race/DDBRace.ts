@@ -285,7 +285,7 @@ export default class DDBRace {
   }
 
 
-  async _generateRaceImage() {
+  async _generateRaceImage(): string {
     let avatarUrl;
     let largeAvatarUrl;
     let portraitAvatarUrl;
@@ -338,7 +338,7 @@ export default class DDBRace {
     return image;
   }
 
-  #typeCheck(trait) {
+  #typeCheck(trait: IDDBRacialTraitDefinition) {
     if (trait.name.trim() !== "Creature Type") return;
     const typeRegex = /(?:You are|You're) an? (\S*)\./i;
     const typeMatch = trait.description.match(typeRegex);
@@ -348,7 +348,7 @@ export default class DDBRace {
     }
   }
 
-  #addFeatureDescription(trait) {
+  #addFeatureDescription(trait: IDDBRacialTraitDefinition) {
     // for whatever reason 2024 races still have a hidden ability score entry
     if (!this.is2014 && trait.name.startsWith("Ability Score ")) return;
     const featureMatch = this.compendiumRacialTraits?.find((match) => {
@@ -391,7 +391,7 @@ export default class DDBRace {
     this._addAdvancement(advancement.toObject());
   }
 
-  #flightCheck(trait) {
+  #flightCheck(trait: IDDBRacialTraitDefinition) {
     if (trait.name.trim() === "Flight" && foundry.utils.getProperty(this.race, "weightSpeeds.normal.fly") === 0) {
       const typeRegex = /you have a flying speed equal to your walking speed/i;
       const flightMatch = trait.description.match(typeRegex);
@@ -402,7 +402,7 @@ export default class DDBRace {
     }
   }
 
-  #addAbilityScoreAdvancement(trait) {
+  #addAbilityScoreAdvancement(trait: IDDBRacialTraitDefinition) {
     if (!["Ability Score Increase", "Ability Score Increases"].includes(trait.name.trim())) return;
     const pointMatchRegex = /Your ability scores each increase by 1|or increase three different scores by 1/i;
     if (pointMatchRegex.test(trait.description)) {
@@ -464,7 +464,7 @@ export default class DDBRace {
   }
 
   // skills, e.g. variant human
-  #generateSkillAdvancement(trait) {
+  #generateSkillAdvancement(trait: IDDBRacialTraitDefinition) {
     // if (!["Skills"].includes(trait.name.trim())) return;
 
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
@@ -482,7 +482,7 @@ export default class DDBRace {
     if (advancement) this._addAdvancement(advancement.toObject());
   }
 
-  #generateLanguageAdvancement(trait) {
+  #generateLanguageAdvancement(trait: IDDBRacialTraitDefinition) {
     // if (!["Languages"].includes(trait.name.trim())) return;
 
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
@@ -492,7 +492,7 @@ export default class DDBRace {
     if (advancement) this._addAdvancement(advancement.toObject());
   }
 
-  #generateToolAdvancement(trait) {
+  #generateToolAdvancement(trait: IDDBRacialTraitDefinition) {
     // if (!["Tools"].includes(trait.name.trim())) return;
 
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
@@ -506,7 +506,7 @@ export default class DDBRace {
     if (advancement) this._addAdvancement(advancement.toObject());
   }
 
-  async #generateSpellAdvancement(trait) {
+  async #generateSpellAdvancement(trait: IDDBRacialTraitDefinition) {
     const advancements = [];
 
     const htmlData = trait.description.includes("Choose a lineage from the")
@@ -648,7 +648,7 @@ export default class DDBRace {
 
   }
 
-  async #generateFeatAdvancement(trait) {
+  async #generateFeatAdvancement(trait: IDDBRacialTraitDefinition) {
     if (!["Feats", "Feat", "Versatile"].includes(trait.name.trim())) return;
 
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
@@ -669,7 +669,8 @@ export default class DDBRace {
       })
       .map((i) => i.uuid);
 
-    advancement.updateSource({
+    // use our advancement mock to validate the update before we update advancement
+    const update: I5eAdvancementItemChoice = {
       title: trait.name,
       hint: trait.snippet ?? trait.description ?? undefined,
       configuration: {
@@ -689,7 +690,8 @@ export default class DDBRace {
           subtype: this.is2014 ? undefined : "origin",
         },
       },
-    });
+    };
+    advancement.updateSource(update as any);
 
     this._addAdvancement(advancement.toObject());
 
@@ -740,7 +742,7 @@ export default class DDBRace {
   }
 
 
-  async #generateTraitChoiceAdvancement(trait, choices) {
+  async #generateTraitChoiceAdvancement(trait: IDDBRacialTraitDefinition, choices: IDDBChoiceDefinition[]) {
     logger.debug(`Generating choice trait advancement for trait ${trait.name} with ${choices.length} choices`);
     const keys = new Set();
     const uuids = new Set();
@@ -862,7 +864,7 @@ export default class DDBRace {
   }
 
 
-  async #generateTraitOptionAdvancement(trait, options) {
+  async #generateTraitOptionAdvancement(trait: IDDBRacialTraitDefinition, options: IDDBOptionEntry[]) {
     logger.debug(`Generating choice trait option advancement for trait ${trait.name} with ${options.length} options`);
 
     const uuids = new Set();
@@ -964,7 +966,7 @@ export default class DDBRace {
 
   }
 
-  async #generateTraitAdvancementChoicesIfOption(trait) {
+  async #generateTraitAdvancementChoicesIfOption(trait: IDDBRacialTraitDefinition) {
     logger.verbose(`Attempting to generate choice advancement for trait ${trait.name} without explicit choices`);
     const optionMatches = this.ddbData.character.options["race"]
       .filter(
@@ -976,7 +978,7 @@ export default class DDBRace {
     await this.#generateTraitOptionAdvancement(trait, optionMatches);
   }
 
-  async #generateTraitAdvancementChoices(raceTraits) {
+  async #generateTraitAdvancementChoices(raceTraits: IDDBRacialTraitDefinition[]) {
     // for choice traits such as fighting styles:
     // for each trait with typ3 choices, build an item choice advancement
     // then search for matching traits from the choicedefintiions.
@@ -1037,7 +1039,7 @@ export default class DDBRace {
 
   }
 
-  #generateConditionAdvancement(trait) {
+  #generateConditionAdvancement(trait: IDDBRacialTraitDefinition) {
     // TO DO: Dragonborn Resistance choice advancement
     const mods = DDBModifiers.getModifiers(this.ddbData, "race")
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
@@ -1049,10 +1051,10 @@ export default class DDBRace {
   /**
    * Finds a match in the compendium trait for the given feature.
    *
-   * @param {object} trait The trait to find a match for.
+   * @param {IDDBRacialTraitDefinition} trait The trait to find a match for.
    * @returns {object|undefined} - The matched feature, or undefined if no match is found.
    */
-  #getTraitCompendiumMatch(trait) {
+  #getTraitCompendiumMatch(trait: IDDBRacialTraitDefinition): TIndexEntry | null {
     if (!this._compendiums.traits) {
       return null;
     }
@@ -1061,11 +1063,11 @@ export default class DDBRace {
 
     const findTraits = (excludeFlags = {}, looseMatch = true, choiceMatch = false) => {
       const results = this._compendiums.traits.index.filter((match) => {
-        const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta")
-          ?? foundry.utils.getProperty(match, "flags.ddbimporter");
+        const matchFlags: IDDBImporterFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta") as any
+          ?? foundry.utils.getProperty(match, "flags.ddbimporter") as any;
         if (!matchFlags) return false;
-        const matchName = foundry.utils.getProperty(matchFlags, "originalName")?.trim()
-          ?? match.name.trim();
+        const matchName = (foundry.utils.getProperty(matchFlags, "originalName") as string)?.trim()
+          ?? (match.name as string)?.trim();
         const nameMatch = traitName.toLowerCase() === matchName.toLowerCase();
         const isIdMatch = trait.id === matchFlags.id;
         if (!nameMatch && looseMatch) {
@@ -1153,7 +1155,7 @@ export default class DDBRace {
   }
 
 
-  async #generateTraitAdvancementFromCompendiumMatch(trait) {
+  async #generateTraitAdvancementFromCompendiumMatch(trait: IDDBRacialTraitDefinition) {
     const traitMatch = this.#getTraitCompendiumMatch(trait);
 
     if (!traitMatch) return;
@@ -1173,7 +1175,7 @@ export default class DDBRace {
       this._advancementMatches.traits[advancement._id] = {};
       this._advancementMatches.traits[advancement._id][traitMatch.name] = traitMatch.uuid;
 
-      const update = {
+      const update: I5eAdvancementItemGrant = {
         configuration: {
           items: [{ uuid: traitMatch.uuid }],
         },
@@ -1183,7 +1185,7 @@ export default class DDBRace {
         icon: "",
         classRestriction: "",
       };
-      advancement.updateSource(update);
+      advancement.updateSource(update as unknown as any);
       const obj = advancement.toObject();
       this.traitAdvancements.push(obj);
       this._addAdvancement(obj);
@@ -1193,7 +1195,7 @@ export default class DDBRace {
     }
   }
 
-  linkSpells(ddbCharacter) {
+  linkSpells(ddbCharacter: DDBCharacter) {
     logger.warn("Linking Spells to Race", {
       DDBRace: this,
       ddbCharacter,
@@ -1327,7 +1329,7 @@ export default class DDBRace {
         })
         .forEach((mod) => {
           if (Number.isInteger(mod.value) && mod.value > this.data.system.senses[senseName]) {
-            this.data.system.senses[senseName] = parseInt(mod.value);
+            this.data.system.senses[senseName] = parseInt(String(mod.value));
           }
         });
     }
@@ -1373,9 +1375,13 @@ export default class DDBRace {
     for (const advancement of this.data.system.advancement) {
       if (advancement.title !== "Celestial Revelation") continue;
       advancement.type = "ItemGrant";
+      // @ts-expect-error - we know the structure of the configuration here and need to move some things around, TODO, we should maybe revisit to force a proper advancement object for ItemGrant
       advancement.configuration.items = foundry.utils.deepClone(advancement.configuration.pool);
+      // @ts-expect-error - see above
       delete advancement.configuration.pool;
+      // @ts-expect-error - see above
       delete advancement.configuration.choices;
+      // @ts-expect-error - see above
       delete advancement.configuration.allowDrops;
     }
   }
@@ -1429,7 +1435,7 @@ export default class DDBRace {
     logger.debug("Race generated", { DDBRace: this });
   }
 
-  static async getRacialTraitsLookup(racialTraits, fail = true): Promise<TIndexEntry[]> {
+  static async getRacialTraitsLookup(racialTraits: IDDBRacialTraitDefinition[], fail = true): Promise<TIndexEntry[]> {
     const compendium = CompendiumHelper.getCompendiumType("traits", fail);
     if (compendium) {
       const flags = ["name", "flags.ddbimporter.entityRaceId", "flags.ddbimporter.baseName"];
@@ -1441,9 +1447,9 @@ export default class DDBRace {
     }
   }
 
-  async addToCompendium(update = null, compendiumImportTypes = ["species"]) {
+  async addToCompendium(update: boolean | null = null, compendiumImportTypes: string[] = ["species"]) {
     if (!compendiumImportTypes.includes("species")) return;
-    const updateFeatures = update ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+    const updateFeatures = update ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
     const traitHandlerOptions = {
       chrisPremades: true,
