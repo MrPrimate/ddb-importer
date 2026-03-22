@@ -1,4 +1,4 @@
-import { SETTINGS, DICTIONARY } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { utils, logger, CompendiumHelper, FileHelper, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import type DDBCharacter from "../DDBCharacter";
@@ -285,7 +285,7 @@ export default class DDBRace {
   }
 
 
-  async _generateRaceImage(): string {
+  async _generateRaceImage(): Promise<string> {
     let avatarUrl;
     let largeAvatarUrl;
     let portraitAvatarUrl;

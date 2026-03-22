@@ -1122,7 +1122,7 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
-    return this.advancementHelper.getSaveAdvancement(feature, mods, availableToMulticlass, level);
+    return this.advancementHelper.getSaveAdvancement({ feature, mods, availableToMulticlass, level });
   }
 
   _generateSaveAdvancements() {
@@ -1302,7 +1302,7 @@ export default class DDBClass {
       filterOnFeatureIds: [feature.id],
     };
     const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
-    return this.advancementHelper.getArmorAdvancement(mods, feature, availableToMulticlass, level);
+    return this.advancementHelper.getArmorAdvancement({ mods, feature, availableToMulticlass, level });
   }
 
   _generateArmorAdvancements() {

@@ -3,6 +3,7 @@ import { utils, logger, CompendiumHelper } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
+import TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trait.mjs";
 
 function htmlToText(html) {
   // keep html brakes and tabs
@@ -15,6 +16,15 @@ function htmlToText(html) {
     .replace(/<br>/g, "\n")
     .replace(/<br( )*\/>/g, "\n")
     .replace(/<[A-Za-z/][^<>]*>/g, "");
+}
+
+type TFeature = IDDBRacialTraitDefinition | IDDBClassFeatureDefinition | IDDBBackgroundDefinition | IDDBFeatDefinition;
+
+interface IAdvancementGetterOptions  {
+  mods: IModifiersMod[];
+  feature: TFeature;
+  availableToMulticlass?: boolean;
+  level: number;
 }
 
 export default class AdvancementHelper {
@@ -34,7 +44,7 @@ export default class AdvancementHelper {
     this.isSubclass = isSubclass;
   }
 
-  static stripDescription(description) {
+  static stripDescription(description: string): string {
     const descriptionReplaced = description
       .replaceAll(/<br \/>(?:\s*)*/g, "<br />\n")
       .replaceAll(/<\/p>(?:\s*)*/g, "</p>\n")
@@ -50,7 +60,7 @@ export default class AdvancementHelper {
 
     if (replace || forceReplace) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(level) < parseInt(lowestLevel)) continue;
+        if (parseInt(String(level)) < parseInt(lowestLevel)) continue;
         foundry.utils.setProperty(choices, `${level}.replacement`, true);
       }
     } else {
@@ -63,17 +73,17 @@ export default class AdvancementHelper {
   }
 
 
-  getSkillChoicesFromOptions(feature, level, proficiencyFeatures = []) {
-    const skillsChosen = new Set();
-    const skillChoices = new Set();
+  getSkillChoicesFromOptions(feature: TFeature, level: number, proficiencyFeatures: TFeature[] = []) {
+    const skillsChosen = new Set<string>();
+    const skillChoices = new Set<string>();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices[this.type].filter((choice) =>
       // check all features
-      ((feature === null && proficiencyFeatures.some((f) => f.id === choice.componentId && f.requiredLevel === level))
+      ((feature === null && proficiencyFeatures.some((f) => f.id === choice.componentId && "requiredLevel" in f && f.requiredLevel === level))
       // check specific feature
-       || (feature && feature.id === choice.componentId && feature.requiredLevel === level))
+       || (feature && feature.id === choice.componentId && "requiredLevel" in feature && feature.requiredLevel === level))
       && choice.subType === 1
       && choice.type === 2,
     ).forEach((choice) => {
@@ -100,15 +110,15 @@ export default class AdvancementHelper {
     };
   }
 
-  getToolChoicesFromOptions(feature, level) {
-    const toolsChosen = new Set();
-    const toolChoices = new Set();
+  getToolChoicesFromOptions(feature: TFeature, level: number) {
+    const toolsChosen = new Set<string>();
+    const toolChoices = new Set<string>();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices[this.type].filter((choice) =>
       feature.id === choice.componentId
-      && feature.requiredLevel === level
+      && "requiredLevel" in feature && feature.requiredLevel === level
       && choice.subType === 1
       && choice.type === 2,
     ).forEach((choice) => {
@@ -149,15 +159,15 @@ export default class AdvancementHelper {
     };
   }
 
-  getLanguageChoicesFromOptions(feature, level) {
-    const languagesChosen = new Set();
-    const languageChoices = new Set();
+  getLanguageChoicesFromOptions(feature: TFeature, level: number) {
+    const languagesChosen = new Set<string>();
+    const languageChoices = new Set<string>();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices[this.type].filter((choice) =>
       feature.id === choice.componentId
-      && feature.requiredLevel === level
+      && "requiredLevel" in feature && feature.requiredLevel === level
       && choice.subType === 3
       && choice.type === 2,
     ).forEach((choice) => {
@@ -184,15 +194,15 @@ export default class AdvancementHelper {
     };
   }
 
-  getChoicesFromOptions(feature, type, level, choiceType = null) {
-    const chosen = new Set();
-    const choices = new Set();
+  getChoicesFromOptions(feature: TFeature, type: string, level: number, choiceType: string | null = null) {
+    const chosen = new Set<string>();
+    const choices = new Set<string>();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices[choiceType ?? this.type].filter((choice) => {
       return feature.id === choice.componentId
-        && feature.requiredLevel === level
+        && "requiredLevel" in feature && feature.requiredLevel === level
         && choice.subType === 1
         && choice.type === 2;
     }).forEach((choice) => {
@@ -229,17 +239,17 @@ export default class AdvancementHelper {
     };
   }
 
-  getExpertiseChoicesFromOptions(feature, level) {
-    const skillsChosen = new Set();
-    const skillChoices = new Set();
-    const toolsChosen = new Set();
-    const toolChoices = new Set();
+  getExpertiseChoicesFromOptions(feature: TFeature, level: number) {
+    const skillsChosen = new Set<string>();
+    const skillChoices = new Set<string>();
+    const toolsChosen = new Set<string>();
+    const toolChoices = new Set<string>();
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices[this.type].filter((choice) =>
       feature.id === choice.componentId
-      && feature.requiredLevel === level
+      && "requiredLevel" in feature && feature.requiredLevel === level
       && choice.subType === 2
       && choice.type === 2,
     ).forEach((choice) => {
@@ -285,7 +295,7 @@ export default class AdvancementHelper {
     };
   }
 
-  static advancementUpdate(advancement, { pool = [], chosen = [], count = 0, grants = [] } = {}) {
+  static advancementUpdate(advancement: TraitAdvancement, { pool = [], chosen = [], count = 0, grants = [] } = {}) {
     if (grants.length > 0) {
       advancement.updateSource({
         configuration: {
@@ -316,7 +326,7 @@ export default class AdvancementHelper {
     }
   }
 
-  getSaveAdvancement(feature, mods, availableToMulticlass, level) {
+  getSaveAdvancement({feature, mods, availableToMulticlass, level}: IAdvancementGetterOptions): TraitAdvancement {
     const updates = DICTIONARY.actor.abilities
       .filter((ability) => {
         return DDBModifiers.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
@@ -361,7 +371,7 @@ export default class AdvancementHelper {
   }
 
 
-  getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level }: { mods: IModifiersMod[]; feature: IFeature; availableToMulticlass?: boolean; level: number }) {
+  getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level }: IAdvancementGetterOptions): TraitAdvancement {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const skillsFromMods = mods
       .filter((mod) =>
@@ -455,7 +465,7 @@ export default class AdvancementHelper {
   }
 
 
-  getLanguageAdvancement(mods, feature, level) {
+  getLanguageAdvancement(mods: IModifiersMod[], feature: TFeature, level: number): TraitAdvancement {
     const languagesMods = DDBModifiers.filterModifiers(mods, "language");
 
     const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
@@ -519,7 +529,7 @@ export default class AdvancementHelper {
   }
 
 
-  getToolAdvancement({ mods, feature, availableToMulticlass = undefined, level } = {}) {
+  getToolAdvancement({ mods, feature, availableToMulticlass = undefined, level }: IAdvancementGetterOptions): TraitAdvancement {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const toolMods = proficiencyMods
@@ -613,7 +623,7 @@ export default class AdvancementHelper {
   }
 
 
-  getArmorAdvancement(mods, feature, availableToMulticlass, level) {
+  getArmorAdvancement({ mods, feature, availableToMulticlass, level }: IAdvancementGetterOptions): TraitAdvancement {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const armorMods = proficiencyMods
