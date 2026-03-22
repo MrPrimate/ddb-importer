@@ -4,6 +4,7 @@ import AdvancementHelper from "../advancements/AdvancementHelper";
 import type DDBCharacter from "../DDBCharacter";
 import { DDBModifiers, DDBReferenceLinker, DDBDataUtils, SystemHelpers } from "../lib/_module";
 
+type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
 
 export default class DDBRace {
 
@@ -27,6 +28,7 @@ export default class DDBRace {
   name: string;
   data: I5eRaceItem;
   lineageTrait: IDDBChoiceResult;
+  compendiumRacialTraits: CompendiumCollection.Any;
 
   static SPECIAL_ADVANCEMENTS = {};
 
@@ -180,7 +182,7 @@ export default class DDBRace {
 
   abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
 
-  constructor({ ddbCharacter, compendiumRacialTraits } = {}) {
+  constructor({ ddbCharacter, compendiumRacialTraits }: { ddbCharacter: DDBCharacter; compendiumRacialTraits: CompendiumCollection.Any }) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
     this.isMuncher = ddbCharacter.isMuncher ?? false;
@@ -213,7 +215,7 @@ export default class DDBRace {
       type: "race",
       entityRaceId: this.race.entityRaceId,
       version: CONFIG.DDBI.version,
-      sourceId: this.race.sources.length > 0 ? [0].sourceId : -1, // is homebrew
+      sourceId: this.race.sources.length > 0 ? this.race.sources[0].sourceId : -1, // is homebrew
       baseName: this.race.baseName,
       baseRaceId: this.race.baseRaceId,
       baseRaceName: this.race.baseRaceName,
@@ -238,7 +240,8 @@ export default class DDBRace {
       this.data.flags.ddbimporter["moreDetailsUrl"] = this.race.moreDetailsUrl;
     }
 
-    if (this.race.isSubRace && this.race.baseRaceName) this.data.system.requirements = this.race.baseRaceName;
+    // if (this.race.isSubRace && this.race.baseRaceName)
+    //   this.data.system.requirements = this.race.baseRaceName;
 
     this.#addWeightSpeeds();
     this.#addSizeAdvancement();
@@ -287,8 +290,8 @@ export default class DDBRace {
     let largeAvatarUrl;
     let portraitAvatarUrl;
 
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useDeepPaths = utils.getSetting<boolean>("use-deep-file-paths");
 
     const rules = this.data.system.source?.rules ?? "2024";
     const book = utils.normalizeString(this.data.system.source?.book ?? "");
@@ -349,9 +352,9 @@ export default class DDBRace {
     // for whatever reason 2024 races still have a hidden ability score entry
     if (!this.is2014 && trait.name.startsWith("Ability Score ")) return;
     const featureMatch = this.compendiumRacialTraits?.find((match) => {
-      const baseName = foundry.utils.getProperty(match, "flags.ddbimporter.baseName");
+      const baseName = foundry.utils.getProperty(match, "flags.ddbimporter.baseName") as string;
       if (!baseName) return false;
-      const entityRaceId = foundry.utils.getProperty(match, "flags.ddbimporter.entityRaceId");
+      const entityRaceId = foundry.utils.getProperty(match, "flags.ddbimporter.entityRaceId") as number;
       if (!entityRaceId) return false;
       return utils.nameString(trait.name) === utils.nameString(baseName)
       && entityRaceId === trait.entityRaceId;
@@ -380,7 +383,7 @@ export default class DDBRace {
     const ddbSizeData = CONFIG.DDB.creatureSizes.find((s) => s.id === this.race.sizeId);
     if (ddbSizeData.id === 10) {
       advancement.updateSource({ configuration: { sizes: ["med", "sm"] } });
-    } else if (ddbSizeData !== 4) {
+    } else if (ddbSizeData.id !== 4) {
       const size = DICTIONARY.sizes.find((s) => s.id === this.race.sizeId);
       advancement.updateSource({ configuration: { sizes: [size.value] } });
     }
@@ -1426,12 +1429,12 @@ export default class DDBRace {
     logger.debug("Race generated", { DDBRace: this });
   }
 
-  static async getRacialTraitsLookup(racialTraits, fail = true) {
+  static async getRacialTraitsLookup(racialTraits, fail = true): Promise<TIndexEntry[]> {
     const compendium = CompendiumHelper.getCompendiumType("traits", fail);
     if (compendium) {
       const flags = ["name", "flags.ddbimporter.entityRaceId", "flags.ddbimporter.baseName"];
       const index = await compendium.getIndex({ fields: flags });
-      const traitIndex = await index.filter((i) => racialTraits.some((orig) => i.name === orig.name));
+      const traitIndex = await index.filter((i) => racialTraits.some((orig) => i.name === orig.name)) as unknown as TIndexEntry[];
       return traitIndex;
     } else {
       return [];
