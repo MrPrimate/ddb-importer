@@ -47,7 +47,7 @@ DDBMonster.prototype.getDamageAdjustments = function getDamageAdjustments(this: 
     const ddbValue = DICTIONARY.actor.damageAdjustments.find((d) => d.id === adjustment.id);
     if (ddbValue?.foundryValues) {
       if (ddbValue.foundryValues.value.length > 0) ddbValue.foundryValues.value.forEach(values.add, values);
-      if (ddbValue.foundryValues.bypass.length > 0) ddbValue.foundryValues.bypass.forEach(bypass.add, bypass);
+      if (ddbValue.foundryValues.bypasses?.length > 0) ddbValue.foundryValues.bypasses.forEach(bypass.add, bypass);
       if (midiQolInstalled && ddbValue.midiValues) {
         for (const value of ddbValue.midiValues) {
           values.add(value);
