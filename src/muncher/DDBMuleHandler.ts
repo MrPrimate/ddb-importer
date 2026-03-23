@@ -1,7 +1,7 @@
 import { NotifierV2Props } from "../apps/DDBAppV2";
 import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, Secrets } from "../lib/_module";
+import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, Secrets, utils } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBCharacterImporter from "./DDBCharacterImporter";
@@ -28,6 +28,21 @@ interface IDDBGetSubClasses {
   rulesVersion?: string;
   includeHomebrew?: boolean;
   campaignId?: string | null;
+}
+
+interface IDDBMuleRequestBody {
+  cobalt: string;
+  betaKey: string;
+  characterId: string | null;
+  campaignId: string | null;
+  filterModifiers: boolean;
+  splitSpells: boolean;
+  sources: number[];
+  includeHomebrew: boolean;
+  onlyHomebrew: boolean;
+  filterIds: number[];
+  cleanup: boolean;
+  backgroundId: string | null;
 }
 
 interface DDBMuleHandlerOptions {
@@ -172,13 +187,62 @@ export default class DDBMuleHandler {
 
   }
 
-  async #fetchMuleData() {
+  async #fetchMuleData(url: string, body: IDDBMuleRequestBody, attempt = 1) {
+    const attempts = 5;
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        redirect: "follow",
+        body: JSON.stringify(body),
+      });
+
+      const jsonResponse = await response.json();
+      if (jsonResponse.success) {
+        this.source = jsonResponse.data;
+        if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
+          FileHelper.download(JSON.stringify(jsonResponse.data), `RAW-${this.characterId}-${this.type}-${this.filterIds.join("_")}-${this.allowedSourceIds.join("_")}.json`, "application/json");
+        }
+      } else {
+        if (attempt === 5) {
+          logger.error(`Final attempt failed on ${attempt}/${attempts}. No more retries.`, {
+            url,
+            jsonResponse,
+          });
+          throw new Error(`Mule fetch failed: ${jsonResponse.message}`);
+        }
+        const delay = 1000 * Math.pow(2, attempt - 1);
+        logger.error(`Proxy Parse was not successful on attempt ${attempt}/${attempts}, retrying in ${delay}ms`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return this.#fetchMuleData(url, body, attempt + 1);
+      }
+    } catch (error) {
+      if (attempt === 5) {
+        logger.error(`Final attempt failed on ${attempt}/${attempts}. No more retries.`, {
+          url,
+          error,
+        });
+        logger.error(error.stack);
+        throw error;
+      }
+      const delay = 1000 * Math.pow(2, attempt - 1);
+      logger.error(`Proxy fetch was not successful on attempt ${attempt}/${attempts}, retrying in ${delay}ms`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return this.#fetchMuleData(url, body, attempt + 1);
+    }
+
+  }
+
+  async _fetchMuleData() {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
-    const body = {
+    const body: IDDBMuleRequestBody = {
       cobalt: Secrets.getCobalt(),
-      betaKey: game.settings.get(SETTINGS.MODULE_ID, "beta-key"),
+      betaKey: utils.getSetting<string>("beta-key"),
       characterId: this.characterId,
       campaignId: proxyCampaignId,
       filterModifiers: false,
@@ -191,46 +255,8 @@ export default class DDBMuleHandler {
       backgroundId: this.backgroundId,
     };
 
-    try {
-      const response = await fetch(`${parsingApi}${this.URL}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow", // manual, *follow, error
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      });
-
-      const jsonResponse = await response.json();
-      if (jsonResponse.success) {
-        this.source = jsonResponse.data;
-        if (CONFIG.DDBI.DEV.downloadRAWJSONExamples) {
-          FileHelper.download(JSON.stringify(jsonResponse.data), `RAW-${this.characterId}-${this.type}-${this.filterIds.join("_")}-${this.allowedSourceIds.join("_")}.json`, "application/json");
-        }
-      } else {
-        logger.error(jsonResponse);
-        throw new Error(`Mule fetch failed: ${jsonResponse.message}`);
-      }
-    } catch (error) {
-      logger.error("JSON Fetch Error");
-      logger.error(error);
-      logger.error(error.stack);
-      throw error;
-    }
-  }
-
-  async _fetchMuleData() {
-    for (let attempt = 1; attempt <= 5; attempt++) {
-      try {
-        await this.#fetchMuleData();
-        break; // If successful, exit the loop
-      } catch (error) {
-        logger.error(`Attempt ${attempt} failed: ${error.message}`);
-        if (attempt === 5) {
-          throw error; // Rethrow after 5 attempts
-        }
-      }
-    }
+    const url = `${parsingApi}${this.URL}`;
+    await this.#fetchMuleData(url, body);
   }
 
   async _buildDDBStub(): Promise<IDDBData> {
