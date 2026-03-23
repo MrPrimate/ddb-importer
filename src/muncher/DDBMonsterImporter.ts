@@ -318,7 +318,7 @@ export default class DDBMonsterImporter {
         };
         monsterTokenImgPath = await FileHelper.getImagePath(ddbTokenUrl, downloadOptions);
         this.monster.prototypeToken.texture.src = monsterTokenImgPath;
-        if (useWildcard && !useTokenizer) {
+        if (monsterTokenImgPath && useWildcard && !useTokenizer) {
           const lastSlashIndex = monsterTokenImgPath.lastIndexOf("/");
           if (lastSlashIndex !== -1) {
             // const postFix = useTokenizer ? `/${name}/*` : "/*";

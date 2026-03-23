@@ -55,7 +55,7 @@ export const CONSUMPTION_LINKS = {
   ],
   "Ki": [
     "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
-    "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
+    "Deflect Missiles Attack", "Arms of the Astral Self: Summon",
     "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",
     "Focused Aim", "Sharpen the Blade", "Deft Strike", "Shadow Arts",
     "Extort Truth", "Mind of Mercury", "Debilitating Barrage", "Tipsy Sway",
@@ -71,7 +71,7 @@ export const CONSUMPTION_LINKS = {
   ],
   "Monk's Focus": [
     "Ki-Fueled Attack", "Flurry of Blows", "Patient Defense", "Step of the Wind",
-    "Deflect Missiles Attack", "Arms of the Astral Self: Summon", "Stunning Strike",
+    "Deflect Missiles Attack", "Arms of the Astral Self: Summon",
     "Empty Body", "Diamond Soul", "Visage of the Astral Self", "Quickened Healing",
     "Focused Aim", "Sharpen the Blade", "Deft Strike", "Shadow Arts",
     "Extort Truth", "Mind of Mercury", "Debilitating Barrage", "Tipsy Sway",

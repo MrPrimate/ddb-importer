@@ -18,4 +18,10 @@ export default class MasteryOfDeath extends DDBEnricherData {
     };
   }
 
+  get override(): IDDBOverrideData {
+    return {
+      replaceActivityUses: true,
+    };
+  }
+
 }

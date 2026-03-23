@@ -36,4 +36,10 @@ export default class TouchOfTheLongDeath extends DDBEnricherData {
     };
   }
 
+  get override(): IDDBOverrideData {
+    return {
+      replaceActivityUses: true,
+    };
+  }
+
 }

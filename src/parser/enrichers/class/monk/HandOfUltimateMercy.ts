@@ -45,6 +45,7 @@ export default class HandOfUltimateMercy extends DDBEnricherData {
    */
   get override(): IDDBOverrideData {
     return {
+      replaceActivityUses: true,
       data: {
         flags: {
           ddbimporter: {
