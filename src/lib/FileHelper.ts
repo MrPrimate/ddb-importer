@@ -199,23 +199,23 @@ export class FileHelper {
     });
   }
 
-  static async downloadImage(url: string): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-      fetch(url, {
+  static async downloadImage(url: string, attempt = 1): Promise<Blob> {
+    try {
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           "x-requested-with": "foundry",
         },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            reject("Could not retrieve image");
-          }
-          return response.blob();
-        })
-        .then((blob) => resolve(blob))
-        .catch((error) => reject(error.message));
-    });
+      });
+      if (!response.ok) throw new Error("Could not retrieve image");
+      return response.blob();
+    } catch (error) {
+      if (attempt >= 5) throw error;
+      const delay = 1000 * Math.pow(2, attempt - 1);
+      logger.warn(`Image download attempt ${attempt} failed, retrying in ${delay}ms: ${url}`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return FileHelper.downloadImage(url, attempt + 1);
+    }
   }
 
   static async uploadRemoteImage(originalUrl: string, targetDirectory: string, baseFilename: string, useProxy = true): Promise<string> {
