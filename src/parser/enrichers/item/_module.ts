@@ -19,6 +19,7 @@ export { default as DemonArmor } from "./DemonArmor";
 export { default as DonjonsSunderingSphere } from "./DonjonsSunderingSphere";
 export { default as DragonWing } from "./DragonWing";
 export { default as DustOfSneezingAndChoking } from "./DustOfSneezingAndChoking";
+export { default as EldritchClawTattoo } from "./EldritchClawTattoo";
 export { default as FarRealmShard } from "./FarRealmShard";
 export { default as FlameTongue } from "./FlameTongue";
 export { default as FlyingBroomstick } from "./FlyingBroomstick";

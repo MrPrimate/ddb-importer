@@ -15,7 +15,7 @@
     "clear": "rm -rf dist/*",
     "createSymlinks": "node ./tools/create-symlinks.mjs",
     "link": "cd src/parser/enrichers && node _linkBuilder.js",
-    "dev-link": "node ./tools/foundry-dev-link.mjs"
+    "dev:link": "node ./tools/foundry-dev-link.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
