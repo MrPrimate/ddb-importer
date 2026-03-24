@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.0.1
+
 - Adventure import could fail when parsing vehicles.
 
 # 7.0.0
