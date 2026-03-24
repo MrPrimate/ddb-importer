@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.0.0
+
 MASSIVE UNDER THE HOOD CHANGES!
 
 I have almost certainly, catastrophically broken at least one thing. Please log an issue. If it is real bad you can roll back to the latest version using https://docs.ddb.mrprimate.co.uk/docs/faqs/ddb-importer#how-do-i-install-an-older-version-of-ddb-importer
@@ -18,6 +20,7 @@ I have almost certainly, catastrophically broken at least one thing. Please log 
 - Some improvements to spell activities and advancements and detection of appropriate spells to place here for feats.
 - When you have Pact spells based casting and are granted spells that are available to cast via warlock spellcasting, say from Fiendish Legacy, these will now be marked as always prepared.
 - Some vehicles such as those from Spelljammer, did not parse HP correctly.
+- Eldrich Claw Tattoo enchantment.
 
 # 6.6.54
 
