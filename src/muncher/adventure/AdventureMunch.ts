@@ -6,6 +6,8 @@ import { createDDBCompendium } from "../../hooks/ready/checkCompendiums";
 import { DDBReferenceLinker } from "../../parser/lib/_module";
 import MonsterReplacer from "../../apps/MonsterReplacer";
 
+const DEFAULT_LEVEL_ID = "defaultLevel0000";
+
 export default class AdventureMunch {
 
   static COMPENDIUM_MAP = {
@@ -949,11 +951,103 @@ export default class AdventureMunch {
     return results;
   }
 
+  static _migrateSceneDataToV14(data) {
+    // Only migrate if there is no levels array (v13 format)
+    if (data.levels?.length) return data;
+
+    const bg = data.background ?? {};
+
+    // Build the default level from v13 top-level fields
+    const level = {
+      _id: DEFAULT_LEVEL_ID,
+      name: "Level",
+      background: {
+        src: bg.src ?? null,
+        color: data.backgroundColor ?? "#999999",
+        tint: bg.tint ?? "#ffffff",
+        alphaThreshold: bg.alphaThreshold ?? 0.75,
+      },
+      foreground: data.foreground ?? null,
+      textures: {
+        anchorX: bg.anchorX ?? 0.5,
+        anchorY: bg.anchorY ?? 0.5,
+        offsetX: 0,
+        offsetY: 0,
+        fit: bg.fit ?? "fill",
+        scaleX: bg.scaleX ?? 1,
+        scaleY: bg.scaleY ?? 1,
+        rotation: bg.rotation ?? 0,
+      },
+    };
+
+    data.levels = [level];
+    data.initialLevel = DEFAULT_LEVEL_ID;
+
+    // v13 background.offsetX/Y → v14 top-level shiftX/Y
+    data.shiftX = bg.offsetX ?? data.shiftX ?? 0;
+    data.shiftY = bg.offsetY ?? data.shiftY ?? 0;
+
+    // Fog format: { exploration, overlay, colors } → { mode, colors }
+    if (data.fog && !("mode" in data.fog)) {
+      data.fog = {
+        mode: data.fog.exploration ? 1 : 0,
+        colors: data.fog.colors ?? {},
+      };
+    }
+
+    // Transition block (new in v14)
+    if (!data.transition) {
+      data.transition = { type: "fade", duration: 1500, activeOnly: true };
+    }
+
+    // Add level/depth to tokens
+    if (Array.isArray(data.tokens)) {
+      for (const token of data.tokens) {
+        token.level ??= DEFAULT_LEVEL_ID;
+        token.depth ??= 1;
+      }
+    }
+
+    // Add levels array to walls
+    if (Array.isArray(data.walls)) {
+      for (const wall of data.walls) {
+        wall.levels ??= [];
+      }
+    }
+
+    // Add levels array and locked flag to lights
+    if (Array.isArray(data.lights)) {
+      for (const light of data.lights) {
+        light.levels ??= [];
+        light.locked ??= false;
+      }
+    }
+
+    // Remove deprecated v13 top-level fields
+    delete data.background;
+    delete data.backgroundColor;
+    delete data.foreground;
+    delete data.foregroundElevation;
+
+    logger.debug("Migrated scene data from v13 to v14 levels format", data);
+    return data;
+  }
+
   async _loadDocumentAssets(data, importType) {
 
     data.flags.importid = data._id;
 
-    if (data.background?.src) {
+    if (importType === "Scene") {
+      data = AdventureMunch._migrateSceneDataToV14(data);
+    }
+
+    if (data.levels) {
+      for (const level of data.levels) {
+        if (level.background?.src) {
+          level.background.src = await this.importImage(level.background.src);
+        }
+      }
+    } else if (data.background?.src) {
       data.background.src = await this.importImage(data.background.src);
     } else if (data.img) {
       data.img = await this.importImage(data.img);
@@ -1002,6 +1096,8 @@ export default class AdventureMunch {
         for (const drawing of data.drawings) {
           if (!foundry.utils.hasProperty(drawing, "interface"))
             drawing.interface = true;
+          if (!foundry.utils.hasProperty(drawing, "levels"))
+            drawing.levels = [DEFAULT_LEVEL_ID];
           if (!drawing.shape) {
             drawing.shape = {
               type: drawing.type,
