@@ -4,7 +4,7 @@ import { PatreonHelper, Secrets } from "../../lib/_module";
 import DDBMuncher from "../../apps/DDBMuncher";
 
 export function addMuncher(app, html) {
-  if (app.options.id !== "compendium" || !game.user.isGM) return;
+  if (app.id !== "compendium" || !game.user.isGM) return;
   const button = document.createElement("button");
   button.type = "button";
   button.classList.add("ddb-muncher");
@@ -37,7 +37,7 @@ export function addMuncher(app, html) {
     const headerActions = html.querySelector(".header-actions");
     headerActions.append(button);
   } else {
-    const headerActions = html.querySelector(".footer-actions");
+    const headerActions = html.querySelector(".directory-footer");
     headerActions.append(button);
   }
 }
