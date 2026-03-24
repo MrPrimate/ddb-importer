@@ -201,14 +201,14 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       if ("levelScale" in klassActionComponent) {
         foundry.utils.setProperty(this.data.flags, "ddbimporter.dndbeyond.levelScale", klassActionComponent.levelScale);
       }
-      if ("levelScales" in klassActionComponent.definition) {
+      if (klassActionComponent.definition && "levelScales" in klassActionComponent.definition) {
         foundry.utils.setProperty(
           this.data.flags,
           "ddbimporter.dndbeyond.levelScales",
           klassActionComponent.definition?.levelScales,
         );
       }
-      if ("limitedUse" in klassActionComponent.definition) {
+      if (klassActionComponent.definition && "limitedUse" in klassActionComponent.definition) {
         foundry.utils.setProperty(
           this.data.flags,
           "ddbimporter.dndbeyond.limitedUse",

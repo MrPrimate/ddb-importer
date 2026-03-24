@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.2
+
+- Some DDB Features would fail to generate.
+
 # 7.0.1
 
 - Adventure import could fail when parsing vehicles.
