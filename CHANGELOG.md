@@ -1,5 +1,7 @@
 # Next Up
 
+- Fix some drawing import errors on scenes
+
 # 7.0.2
 
 - Some DDB Features would fail to generate.

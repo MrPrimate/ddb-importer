@@ -998,6 +998,26 @@ export default class AdventureMunch {
       if (data.flags["perfect-vision"] && Array.isArray(data.flags["perfect-vision"])) {
         data.flags["perfect-vision"] = {};
       }
+      if (data.drawings) {
+        for (const drawing of data.drawings) {
+          if (!foundry.utils.hasProperty(drawing, "interface"))
+            drawing.interface = true;
+          if (!drawing.shape) {
+            drawing.shape = {
+              type: drawing.type,
+              height: drawing.height,
+              width: drawing.width,
+              points: drawing.points,
+              radius: drawing.radius ?? null,
+            };
+            // delete drawing.type;
+            // delete drawing.height;
+            // delete drawing.width;
+            // delete drawing.points;
+            // delete drawing.radius;
+          }
+        }
+      }
     } else if (importType === "Playlist") {
       await utils.asyncForEach(data.sounds, async (sound) => {
         if (sound.path) {
