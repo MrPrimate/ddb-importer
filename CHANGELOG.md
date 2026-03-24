@@ -1,5 +1,7 @@
 # Next Up
 
+- Adventure import could fail when parsing vehicles.
+
 # 7.0.0
 
 MASSIVE UNDER THE HOOD CHANGES!
