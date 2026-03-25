@@ -53,7 +53,7 @@ export default class GenericSpellFactory {
     // console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
 
     const items = [];
-    const proficiencyModifier = character.system.attributes.prof;
+    const proficiencyModifier = character.flags.ddbimporter.dndbeyond.profBonus;
     const spellCountDict = {};
 
     // feat spells are handled slightly differently

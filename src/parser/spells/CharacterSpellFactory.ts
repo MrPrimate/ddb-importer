@@ -45,21 +45,23 @@ export default class CharacterSpellFactory {
   hasSlots: boolean;
   generateSummons: boolean;
   character: I5ePCData;
+  characterAbilities: I5eAbilities;
+  slots: I5eSpellSlots;
 
   constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
     this.ddb = ddbCharacter.source.ddb;
     this.character = ddbCharacter.raw.character;
-    this.proficiencyModifier = this.character.system.attributes.prof;
+    this.proficiencyModifier = this.character.flags.ddbimporter.dndbeyond.profBonus;
     this.characterAbilities = this.character.flags.ddbimporter.dndbeyond.effectAbilities;
     this.healingBoost = DDBModifiers
       .filterBaseModifiers(this.ddb, "bonus", { subType: "spell-group-healing" })
-      .reduce((a, b) => a + b.value, 0);
-    this.slots = foundry.utils.getProperty(this.character, "system.spells");
+      .reduce((a, b) => a + parseInt(String(b.value)), 0);
+    this.slots = foundry.utils.getProperty(this.character, "system.spells") as I5eSpellSlots;
     this.levelSlots = utils.arrayRange(9, 1, 1).some((i) => {
       return this.slots[`spell${i}`] && this.slots[`spell${i}`].max !== 0;
     });
-    this.pactSlots = this.slots.pact?.max && this.slots.pact.max > 0;
+    this.pactSlots = this.slots.pact?.max && parseInt(this.slots.pact.max) > 0;
     this.hasSlots = this.levelSlots || this.pactSlots;
     this.generateSummons = ddbCharacter.enableSummons;
   }
@@ -658,7 +660,7 @@ export default class CharacterSpellFactory {
     });
 
     if (parsedSpell.system.source.rules === "2014"
-      && DICTIONARY.parsing.spellListGrantsIgnore["2014"].some((i) => spell.flags.ddbimporter.dndbeyond.lookupName.includes(i))
+      && DICTIONARY.parsing.spellListGrantsIgnore["2014"].some((i) => unlimitedFlags.ddbimporter.dndbeyond.lookupName.includes(i))
     ) {
       logger.debug(`Ignoring 2014 granted spell as not a spell list grant ${parsedSpell.flags.ddbimporter.originalName}`);
       return;

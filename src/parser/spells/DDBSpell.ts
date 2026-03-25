@@ -756,13 +756,11 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       if (limitedUse.useProficiencyBonus) {
         switch (limitedUse.proficiencyBonusOperator) {
           case 2: {
-            // maxUses *= character.system.attributes.prof;
             maxUses = `${maxUses} * @prof`;
             break;
           }
           case 1:
           default:
-            // maxUses += character.system.attributes.prof;
             maxUses = `${maxUses} + @prof`;
         }
       }
