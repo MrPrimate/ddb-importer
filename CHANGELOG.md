@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.4
+
+- Some feats on characters could cause the import to fail. @screamndethmnky1219
+
 # 7.0.3
 
 - Fix some drawing import errors on scenes
