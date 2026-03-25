@@ -7,7 +7,7 @@ export default class SearingSunburst extends Generic {
     return {
       activationType: "action",
       itemConsumeValue: 0,
-      itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
       addItemConsume: true,
       addScalingMode: "amount",
       addScalingFormula: "1",

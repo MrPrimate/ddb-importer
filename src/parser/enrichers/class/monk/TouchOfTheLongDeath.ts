@@ -9,7 +9,7 @@ export default class TouchOfTheLongDeath extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       addScalingMode: "amount",
-      itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
       addItemConsume: true,
       addScalingFormula: "1",
       data: {

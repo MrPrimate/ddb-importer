@@ -7,7 +7,7 @@ export default class MasteryOfDeath extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
-      itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
       activationType: "special",
       data: {
         healing: DDBEnricherData.basicDamagePart({

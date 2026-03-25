@@ -35,7 +35,7 @@ export default class DeflectMissiles extends DDBEnricherData {
         action: { name: "Deflect Missiles Attack", type: "class", rename: ["Deflect Missiles Attack"] },
         overrides: {
           addItemConsume: true,
-          itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
+          itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
         },
       },
     ];

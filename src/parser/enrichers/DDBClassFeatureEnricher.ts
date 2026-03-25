@@ -1,6 +1,6 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module";
-import { utils } from "../../lib/_module";
+import { DDBSources, utils } from "../../lib/_module";
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
@@ -12,6 +12,18 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
       notifier,
       ddbActionType: "class",
     });
+  }
+
+  get isParentClass2014(): boolean {
+    const klass = this.ddbParser.ddbData.character.classes.find((klass) =>
+      (this.ddbParser._parent?.definition && this.ddbParser._parent.definition.classId
+        && (klass.definition.id === this.ddbParser._parent.definition.classId || klass.subclassDefinition?.id === this.ddbParser._parent.definition.classId))
+      || (this.ddbParser._parent?.definition && this.ddbParser._parent.definition.className && klass.definition.name === this.ddbParser._parent.definition.className
+        && ((!this.ddbParser._parent.definition.subclassName || this.ddbParser._parent.definition.subclassName === "")
+          || (this.ddbParser._parent.definition.subclassName && klass.subclassDefinition?.name === this.ddbParser._parent.definition.subclassName))
+      ),
+    );
+    return klass?.definition?.sources.every((s) => DDBSources.is2014Source(s));
   }
 
   get className(): any {

@@ -304,7 +304,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.is2014 = sources.every((s) => DDBSources.is2014Source(s));
     this.is2024 = !this.is2014;
 
-    this.isClass2014 = this.type === "class" && this._class && this._class.definition?.sources.every((s) => DDBSources.is2014Source(s));
+    this.isClass2014 = this.type === "class"
+      && this._class
+      && this._class.definition?.sources.every((s) => DDBSources.is2014Source(s));
   }
 
   constructor({
@@ -363,6 +365,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.type = type;
     this.source = source;
     this.isMuncher = isMuncher || this.isMuncher || this.ddbCharacter?.isMuncher;
+    this._parent = this._getActionParent();
     this._init();
     this.activityType = activityType;
 
@@ -372,8 +375,6 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.subKlass = this.extraFlags.ddbimporter?.subClass ?? this.extraFlags.subClass;
     // @ts-expect-error - TODO - tactually missing or bad type?
     this.species = this.extraFlags.ddbimporter?.species ?? this.extraFlags.species;
-
-    this._parent = this._getActionParent();
 
     this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this._getRules();

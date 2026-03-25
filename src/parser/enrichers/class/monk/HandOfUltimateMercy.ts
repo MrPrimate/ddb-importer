@@ -15,7 +15,7 @@ export default class HandOfUltimateMercy extends DDBEnricherData {
       activationType: "special",
       targetType: "creature",
       addItemConsume: true,
-      itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
+      itemConsumeTargetName: this.ddbEnricher.isParentClass2014 ? "Ki" : "Monk's Focus",
       itemConsumeValue: 5,
       additionalConsumptionTargets: [
         {
