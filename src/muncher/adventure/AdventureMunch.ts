@@ -194,7 +194,7 @@ export default class AdventureMunch {
    * @param  {boolean} misc Miscellaneous import type/location?
    * @returns {Promise<string>} Path to file within VTT
    */
-  async importImage(path, misc = false) {
+  async importImage(path: string, misc = false) {
     try {
       if (path[0] === "*") {
         // this file was flagged as core data, just replace name.
