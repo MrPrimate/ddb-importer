@@ -8,6 +8,7 @@ import {
   CompendiumHelper,
   DDBProxy,
   MuncherSettings,
+  utils,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBAppV2 from "./DDBAppV2";
@@ -26,6 +27,23 @@ export default class DDBSetup extends DDBAppV2 {
   showDiscouraged: boolean;
   cobaltCheckMessage: string;
   cobalt: string;
+  closeOnSave: boolean;
+  useWebP: boolean;
+  useDeepFilePaths: boolean;
+  dynamicEnabled: boolean;
+  actor: Actor.Implementation | null;
+  campaignId: string;
+  reloadApplication: boolean;
+  isLocalCobalt: boolean;
+  patreonCheckMessage: string;
+  patreonKey: string;
+  patreonTier: string;
+  patreonUser: string;
+  useCustomProxy: boolean;
+  defaultAddress: string;
+  proxyAddress: string;
+  allowedWeaponPropertySources: string[];
+  campaignFallback: boolean;
 
   constructor({
     actor = null, callMuncher = false, sheetTab = "info", coreTab = "cobalt", infoTab = "intro",
@@ -48,15 +66,15 @@ export default class DDBSetup extends DDBAppV2 {
     this.campaignId = DDBCampaigns.getCampaignId();
     this.closeOnSave = true; // close on save by default
     this.reloadApplication = false; // reload the application after saving
-    this.isLocalCobalt = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+    this.isLocalCobalt = utils.getSetting<boolean>("cobalt-cookie-local");
     this.patreonCheckMessage = "";
     this.patreonKey = PatreonHelper.getPatreonKey();
     this.patreonTier = PatreonHelper.getPatreonTier();
     this.patreonUser = PatreonHelper.getPatreonUser();
 
     // LOCATIONS
-    this.useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
-    this.useDeepFilePaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    this.useWebP = utils.getSetting<boolean>("use-webp");
+    this.useDeepFilePaths = utils.getSetting<boolean>("use-deep-file-paths");
     this.directories = [];
     for (const [key, value] of Object.entries(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
       this.directories.push({
@@ -108,10 +126,10 @@ export default class DDBSetup extends DDBAppV2 {
     // PROXY
     this.useCustomProxy = DDBProxy.isCustom();
     this.defaultAddress = SETTINGS.URLS.PROXY;
-    this.proxyAddress = game.settings.get(SETTINGS.MODULE_ID, "api-endpoint");
+    this.proxyAddress = utils.getSetting<string>("api-endpoint");
 
     // enhancements
-    this.allowedWeaponPropertySources = game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources");
+    this.allowedWeaponPropertySources = utils.getSetting<string[]>("allowed-weapon-property-sources");
     this.enhancementConfig = MuncherSettings.getEnhancementSettings();
   }
 
@@ -136,8 +154,8 @@ export default class DDBSetup extends DDBAppV2 {
       openDebug: DDBSetup.openDebug,
     },
     position: {
-      width: "962",
-      height: "auto",
+      width: 962,
+      height: "auto" as const,
     },
     tag: "form",
     form: {
@@ -283,8 +301,8 @@ export default class DDBSetup extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _onRender(context, options) {
-    super._onRender(context, options);
+  async _onRender(context, options): Promise<void> {
+    await super._onRender(context, options);
   }
 
   async _prepareContext(options) {
@@ -434,7 +452,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
 
-  static async checkCobaltCookie(value) {
+  static async checkCobaltCookie(value: string) {
     const cookieStatus = await Secrets.checkCobalt("", value);
     if (value !== "" && !cookieStatus.success) {
       $("#munching-task-setup").text(`Your Cobalt Cookie is invalid, please check that you pasted the right information.`);
@@ -444,7 +462,7 @@ export default class DDBSetup extends DDBAppV2 {
     return cookieStatus;
   }
 
-  static async setCobaltCookie(value, local) {
+  static async setCobaltCookie(value: string, local: boolean) {
     await DDBSetup.checkCobaltCookie(value);
     await Secrets.setCobalt(value);
     await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", local);
@@ -462,7 +480,7 @@ export default class DDBSetup extends DDBAppV2 {
     this.patreonUser = tierData.email;
   }
 
-  static async connectToPatreonButton(event) {
+  static async connectToPatreonButton(this: DDBSetup, event: Event) {
     event.preventDefault();
     await PatreonHelper.linkToPatreon(async (data: IPatreonLinkResponse) => {
       // Callback after linking to Patreon
@@ -473,7 +491,7 @@ export default class DDBSetup extends DDBAppV2 {
     });
   }
 
-  static async fetchCampaignsButton(event) {
+  static async fetchCampaignsButton(this: DDBSetup, event: Event) {
     event.preventDefault();
     const cookie = this.element.querySelector("#cobalt-cookie-input");
     const cookieStatus = await DDBSetup.checkCobaltCookie(cookie.value);
@@ -498,7 +516,7 @@ export default class DDBSetup extends DDBAppV2 {
     }
   }
 
-  static async checkCobaltButton(event) {
+  static async checkCobaltButton(this: DDBSetup, event: Event) {
     event.preventDefault();
     const cookie = this.element.querySelector("#cobalt-cookie-input");
     if (cookie.value === undefined) throw new Error("undefined");
@@ -512,7 +530,7 @@ export default class DDBSetup extends DDBAppV2 {
     }
   }
 
-  static async checkPatreonButton(event) {
+  static async checkPatreonButton(this: DDBSetup, event: Event) {
     event.preventDefault();
     const key = this.element.querySelector("#ddb-patreon-key").value;
     this.patreonKey = key;
@@ -522,25 +540,25 @@ export default class DDBSetup extends DDBAppV2 {
     await this.render();
   }
 
-  static goToCobaltTab(event) {
+  static goToCobaltTab(this: DDBSetup, event: Event) {
     event.preventDefault();
     this.changeTab("core", "sheet", {});
     this.changeTab("cobalt", "core", {});
   }
 
-  static goToCampaignTab(event) {
+  static goToCampaignTab(this: DDBSetup, event: Event) {
     event.preventDefault();
     this.changeTab("core", "sheet", {});
     this.changeTab("campaign", "core", {});
   }
 
-  static goToPatreonTab(event) {
+  static goToPatreonTab(this: DDBSetup, event: Event) {
     event.preventDefault();
     this.changeTab("core", "sheet", {});
     this.changeTab("patreon", "core", {});
   }
 
-  static async resetSettingsDialog(event) {
+  static async resetSettingsDialog(this: DDBSetup, event: Event) {
     event.preventDefault();
 
     const dialog = await foundry.applications.api.DialogV2.confirm({
@@ -557,9 +575,11 @@ export default class DDBSetup extends DDBAppV2 {
 
     if (dialog) {
       for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS())) {
+        // @ts-expect-error -- we know this is the correct type
         await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
       }
       for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS(true))) {
+        // @ts-expect-error -- we know this is the correct type
         await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
       }
       window.location.reload();
@@ -567,10 +587,9 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
-  static async selectDirectory(_event, target) {
+  static async selectDirectory(this: DDBSetup, _event, target) {
     const targetDirSetting = target.dataset.target;
-    const currentDir = game.settings.get(SETTINGS.MODULE_ID, targetDirSetting);
-    // const parsedDir = FileHelper.parseDirectory(currentDir);
+    const currentDir = utils.getSetting<string>(targetDirSetting);
     const current = await FileHelper.getFileUrl(currentDir, "");
 
     const filePicker = new foundry.applications.apps.FilePicker.implementation({
@@ -588,7 +607,7 @@ export default class DDBSetup extends DDBAppV2 {
         const formattedPath = FileHelper.formatDirectoryPath({
           activeSource,
           bucket,
-          path,
+          current: path,
         });
 
         this.element.querySelector(`input[name='${targetDirSetting}']`).value = formattedPath;
@@ -765,7 +784,7 @@ export default class DDBSetup extends DDBAppV2 {
    * @param {FormDataExtended} formData           Processed data for the submitted form
    * @returns {Promise<void>}
    */
-  static async formHandler(event, _form, formData) {
+  static async formHandler(this: DDBSetup, event: SubmitEvent, _form: HTMLFormElement, formData: FormDataExtended) {
     event.preventDefault();
 
     await this._saveProxy(formData);

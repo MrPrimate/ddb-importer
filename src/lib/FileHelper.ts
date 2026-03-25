@@ -403,11 +403,11 @@ export class FileHelper {
   /**
    * Verifies server path exists, and if it doesn't creates it.
    *
-   * @param  {object} parsedPath output from FilePicker, parsed
+   * @param  {ParsedDirectory} parsedPath output from FilePicker, parsed
    * @param  {string} targetPath if set will check this path, else check parsedPath.current
    * @returns {boolean} true if verified, false if unable to create/verify
    */
-  static async verifyPath(parsedPath, targetPath = null) {
+  static async verifyPath(parsedPath: ParsedDirectory, targetPath: string = null) {
     try {
       if (CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(parsedPath.fullPath)) return true;
       const paths = (targetPath) ? targetPath.split("/") : parsedPath.current.split("/");
@@ -420,7 +420,7 @@ export class FileHelper {
           }
 
           const tempParsed = foundry.utils.deepClone(parsedPath);
-          tempParsed.path = currentSource;
+          tempParsed.fullPath = currentSource;
           const possiblePath = FileHelper.formatDirectoryPath(tempParsed);
           const newPathed = FileHelper.parseDirectory(possiblePath);
 
