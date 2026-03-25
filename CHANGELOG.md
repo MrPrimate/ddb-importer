@@ -1,6 +1,9 @@
 # Next Up
 
+# 7.0.3
+
 - Fix some drawing import errors on scenes
+- Location settings would not save.
 
 # 7.0.2
 
