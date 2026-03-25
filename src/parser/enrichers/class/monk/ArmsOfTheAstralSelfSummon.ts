@@ -6,7 +6,7 @@ export default class ArmsOfTheAstralSelfSummon extends DDBEnricherData {
     return {
       noConsumeTargets: true,
       addItemConsume: true,
-      itemConsumeTargetName: "Ki",
+      itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
       rangeSelf: true,
       data: {
         target: {

@@ -1,5 +1,7 @@
 # Next Up
 
+- Some monk features like Arms of the Astral Self summon would not link correctly to focus if on a 2024 monk.
+
 # 7.0.4
 
 - Some feats on characters could cause the import to fail. @screamndethmnky1219

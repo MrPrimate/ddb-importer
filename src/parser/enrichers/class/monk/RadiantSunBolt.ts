@@ -10,7 +10,7 @@ export default class RadiantSunBolt extends Generic {
           name: "Radiant Sun Bolt (Bonus Action)",
           activationType: "bonus",
           itemConsumeValue: 1,
-          itemConsumeTargetName: "Ki",
+          itemConsumeTargetName: this.is2014 ? "Ki" : "Monk's Focus",
           addItemConsume: true,
         },
       },
