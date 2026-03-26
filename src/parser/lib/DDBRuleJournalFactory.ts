@@ -309,6 +309,7 @@ export default class DDBRuleJournalFactory {
     );
 
     for (const journal of ruleJournals) {
+      logger.debug(`Processing journal ${journal.name} with ID ${journal._id} for rule injection`);
       const journalEntry = await this.journalCompendium.getDocument(journal._id);
       const sourceId = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceId");
       const allowedSourceIds = getAllowedSourceIds();
@@ -329,7 +330,8 @@ export default class DDBRuleJournalFactory {
         case "weapon-properties": {
           for (const page of rulePages) {
             const propertyId = page.name.toLowerCase().replaceAll(" ", "").replaceAll("-", "");
-            const shortId = propertyId.slice(0, 3);
+            const shortId = DICTIONARY.weapon.properties.find((p) => p.name.toLowerCase() === propertyId)?.value
+              ?? propertyId.slice(0, 3);
             const isPHBProperty = ["PHB 2024", "BR", "PHB", "SRD 5.1", "SRD 5.2"].includes(foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceCode"));
 
             logger.verbose(`Adding ${page.name} as ${propertyId} (short: ${shortId}), isPHBProperty: ${isPHBProperty}`, {
@@ -346,12 +348,10 @@ export default class DDBRuleJournalFactory {
               };
               CONFIG.DND5E.validProperties["weapon"].add(propertyId);
             } else if (CONFIG.DND5E.itemProperties[shortId]) {
-               
               if (!CONFIG.DND5E.itemProperties[shortId].reference) {
                 CONFIG.DND5E.itemProperties[shortId].reference = page.uuid;
               }
             } else if (CONFIG.DND5E.itemProperties[propertyId]) {
-               
               if (!CONFIG.DND5E.itemProperties[propertyId].reference) {
                 CONFIG.DND5E.itemProperties[propertyId].reference = page.uuid;
               }
