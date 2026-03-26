@@ -1037,7 +1037,7 @@ export default class AdventureMunch {
 
     data.flags.importid = data._id;
 
-    if (importType === "Scene") {
+    if (importType === "Scene" && parseInt(game.version) >= 14) {
       data = AdventureMunch._migrateSceneDataToV14(data);
     }
 
@@ -1099,8 +1099,12 @@ export default class AdventureMunch {
           if (!foundry.utils.hasProperty(drawing, "levels"))
             drawing.levels = [DEFAULT_LEVEL_ID];
           if (!drawing.shape) {
+            let type = "r";
+            if (Object.values(CONFIG.Drawing.objectClass.SHAPE_TYPES).includes(drawing.type)) {
+              type = drawing.type;
+            }
             drawing.shape = {
-              type: drawing.type,
+              type: type,
               height: drawing.height,
               width: drawing.width,
               points: drawing.points,
