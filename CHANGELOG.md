@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.0.5
+
 - Some monk features like Arms of the Astral Self summon would not link correctly to focus if on a 2024 monk.
 - More drawing fixes when importing adventures, some v14 compatibility code was incorrectly triggered on v13 @thenonplayercharacter
 
