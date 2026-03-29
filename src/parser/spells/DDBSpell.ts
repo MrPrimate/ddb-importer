@@ -1156,8 +1156,8 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   /** @override */
   _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const spellOptions = foundry.utils.mergeObject({
-      healingPart: this.healingParts[0].part,
-      healingChatFlavor: this.healingParts[0].chatFlavor,
+      healingPart: this.healingParts.length > 0 ? this.healingParts[0].part : null,
+      healingChatFlavor: this.healingParts.length > 0 ? this.healingParts[0].chatFlavor : null,
     }, options);
 
     return super._getHealActivity({ name, nameIdPostfix }, spellOptions);
