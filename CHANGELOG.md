@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.6
+
+- Healing spell activities did not generate healing dice element. @motomoto0295 @booboobubby
+
 # 7.0.5
 
 - Some monk features like Arms of the Astral Self summon would not link correctly to focus if on a 2024 monk.

@@ -1144,13 +1144,20 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     await spell.init();
     await spell.parse();
 
+    logger.verbose(`Parsed spell ${spell.data.name}`, {
+      spell,
+      ddbData,
+      flagData,
+    });
+
     return spell.data;
   }
 
   /** @override */
   _getHealActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const spellOptions = foundry.utils.mergeObject({
-      healingPart: this.healingParts[0],
+      healingPart: this.healingParts[0].part,
+      healingChatFlavor: this.healingParts[0].chatFlavor,
     }, options);
 
     return super._getHealActivity({ name, nameIdPostfix }, spellOptions);
