@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.7
+
+- Some spells like Raise Dead would hang on import.
+
 # 7.0.6
 
 - Healing spell activities did not generate healing dice element. @motomoto0295 @booboobubby
