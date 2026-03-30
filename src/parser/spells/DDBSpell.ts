@@ -392,6 +392,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       if (this.spellData.usesSpellSlot) {
         // some racial spells allow the spell to also be added to spell lists
         this.data.system.method = this.onlyPactMagic ? "pact" : "spell";
+        this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
       }
     } else if (
       // Warlock Mystic Arcanum are passed in as Features
