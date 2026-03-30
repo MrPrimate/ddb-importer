@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.0.8
+
 - Some spells granted by features were not coming through on chracter sheets. @drakaina_1 @crimsonedge
 - Fix a regression where Tiefling spells would not be marked as prepared in Pact spell lists @severin.fall
 - Corrections to Wand of Magic Missiles consumption. @crimsonedge
