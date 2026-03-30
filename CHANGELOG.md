@@ -1,5 +1,7 @@
 # Next Up
 
+- Some spells granted by features were not coming through on chracter sheets. @drakaina_1 @crimsonedge
+
 # 7.0.7
 
 - Some spells like Raise Dead would hang on import.

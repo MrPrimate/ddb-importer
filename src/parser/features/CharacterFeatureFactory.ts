@@ -1228,7 +1228,8 @@ export default class CharacterFeatureFactory {
     }
   }
 
-  async addSpellAdvancements(types = []) {
+  async addSpellAdvancements() {
+    const types = Object.keys(this.ddbCharacter._spellParser._granted);
     logger.debug("Adding Spell Advancements from Feature Factory", { types, this: this });
     for (const type of types) {
       this.spellsGranted[type] = [];

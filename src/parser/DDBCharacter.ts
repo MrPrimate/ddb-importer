@@ -478,10 +478,10 @@ class DDBCharacter {
     logger.debug("Action parse complete");
   }
 
-  async _generateFeatureSpellAdvancements({ types = ["feat", "race"] } = {}) {
+  async _generateFeatureSpellAdvancements() {
     if (!this._characterFeatureFactory)
       this._characterFeatureFactory = new CharacterFeatureFactory(this);
-    await this._characterFeatureFactory.addSpellAdvancements(types);
+    await this._characterFeatureFactory.addSpellAdvancements();
     logger.debug("Feature Spell Advancement parse complete");
   }
 

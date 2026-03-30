@@ -588,7 +588,7 @@ export default class CharacterSpellFactory {
           generateSummons: this.generateSummons,
         });
         if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", flagData.ddbimporter.dndbeyond.class.toLowerCase());
-        this._granted.class[duplicateSpell] = parsedSpell;
+        this._generated.class[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
         logger.info(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.name}.`);

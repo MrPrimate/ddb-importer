@@ -3158,7 +3158,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       // }
     }
 
-    const isItemConsume = !feature.system.uses.max
+    const isItemConsume = !foundry.utils.hasProperty(feature, "system.uses.max")
       || feature.system.uses.max === ""
       || feature.system.uses.max === 0
       || feature.system.uses.max === "0";
