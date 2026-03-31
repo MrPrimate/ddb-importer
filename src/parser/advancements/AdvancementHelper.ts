@@ -2267,8 +2267,9 @@ export default class AdvancementHelper {
 
     // learn a cantrip of your choice: either druidcraft or thaumaturgy.
     if (strippedDescription.includes("learn a cantrip of your choice")) {
-      const choices = strippedDescription.split("learn a cantrip of your choice:")[1]
+      const choices = strippedDescription.split("learn a cantrip of your choice")[1]
         .split(".")[0]
+        .replace(":", "")
         .replace(" either ", "")
         .replace(" or ", ",")
         .replaceAll(",,", ",")
