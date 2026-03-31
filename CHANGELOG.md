@@ -1,5 +1,7 @@
 # Next Up
 
+- Hells lash activation cost adjustment.
+
 # 7.0.8
 
 - Some spells granted by features were not coming through on chracter sheets. @drakaina_1 @crimsonedge

@@ -23,7 +23,8 @@ export default class HellsLash extends DDBEnricherData {
           generateActivation: true,
           noSpellslot: true,
           activationOverride: {
-            type: "turnStart",
+            type: "special",
+            condition: "Turn Start",
           },
           damageParts: [
             DDBEnricherData.basicDamagePart({
@@ -48,7 +49,8 @@ export default class HellsLash extends DDBEnricherData {
           generateTarget: true,
           generateActivation: true,
           activationOverride: {
-            type: "turnEnd",
+            type: "special",
+            condition: "Turn End",
           },
         },
       },
