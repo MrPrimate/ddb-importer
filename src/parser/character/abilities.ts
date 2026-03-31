@@ -66,7 +66,7 @@ DDBCharacter.prototype._filterAbilityMods = function _filterAbilityMods(this: DD
   ];
 
   const backgroundFeatIds = this.source.ddb.character.background.definition?.grantedFeats.filter((f) => {
-    return f.name === "Ability Scores";
+    return f.name.includes("Ability Score");
   }).map((f) => f.featIds).flat() ?? [];
 
   if (backgroundFeatIds.length > 0) {
@@ -112,6 +112,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
       "+4 to score maximum",
       "+2 to maximum score",
       "+4 to maximum score",
+      "maximum of 20",
       "Can't be an Ability Score you already increased with this trait.",
       "That you do not have Saving Throw Proficiency in.",
     ];
@@ -123,7 +124,7 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
     const setAbilities = this._filterAbilityMods(ability.long, "set", { restriction: [null, "", "if not already higher"], includeExcludedEffects })
       .map((mod) => mod.value);
 
-    const modRestrictions = ["Your maximum is now ", "Maximum of "];
+    const modRestrictions = ["Your maximum is now ", "Maximum of ", "maximum of "];
     const cappedBonusExp = new RegExp(`(?:${modRestrictions.join("|")})(\\d*)`);
     const cappedBonus = this._filterAbilityMods(ability.long, "bonus", { restriction: false, includeExcludedEffects })
       .filter(

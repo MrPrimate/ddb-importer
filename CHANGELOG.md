@@ -1,6 +1,8 @@
 # Next Up
 
 - Hells lash activation cost adjustment.
+- Some feats would fail spell advancement parsing @sacred2717
+- Fix for some backgrounds not filtering bonuses to abilities properly.  @crimsonedge @motomoto0295
 
 # 7.0.8
 
