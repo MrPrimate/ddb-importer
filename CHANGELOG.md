@@ -1,8 +1,9 @@
 # Next Up
 
-- Hells lash activation cost adjustment.
-- Some feats would fail spell advancement parsing @sacred2717
+- Hells lash activation cost adjustment. @crimsonedge
+- Some feats would fail spell advancement parsing @sacred2717 @pirim0334
 - Fix for some backgrounds not filtering bonuses to abilities properly.  @crimsonedge @motomoto0295
+- Fix Cat Claws on Tabaxi @crimsonedge
 
 # 7.0.8
 

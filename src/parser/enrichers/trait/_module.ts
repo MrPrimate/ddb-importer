@@ -19,6 +19,7 @@ export * as Leonin from "./leonin/_module";
 export * as Orc from "./orc/_module";
 export * as Shadarkai from "./shadar-kai/_module";
 export * as Shifter from "./shifter/_module";
+export * as Tabaxi from "./tabaxi/_module";
 export * as Tiefling from "./tiefling/_module";
 export * as Tortle from "./tortle/_module";
 export * as Vedalken from "./vedalken/_module";

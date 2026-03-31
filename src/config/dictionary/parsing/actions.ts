@@ -7,7 +7,7 @@ export const PARSING_ACTIONS = {
     "Form of the Beast: Bite",
     "Form of the Beast: Claws",
     "Form of the Beast: Tail",
-    "Cat's Claws",
+    // "Cat's Claws",
   ],
   KEEP_ACTIONS_2024: [
     "Psychic Blades",
@@ -56,7 +56,7 @@ export const PARSING_ATTACK_ACTIONS = {
     "Talon",
     "Trunk",
     "Claws",
-    // "Cat's Claws",
+    "Cat's Claws",
     "Fangs",
     "Form of the Beast: Bite",
     "Form of the Beast: Claws",
@@ -72,6 +72,6 @@ export const PARSING_ATTACK_ACTIONS = {
     "Psychic Blades: Bonus Attack (STR)",
     "Psychic Blades",
     "Psychic Blade",
-    "Cat's Claws",
+    // "Cat's Claws",
   ],
 };
