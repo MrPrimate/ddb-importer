@@ -914,15 +914,17 @@ export default abstract class DDBEnricherFactoryMixin {
     return effects;
   }
 
-  async addDocumentAdvancements(advancementsOverride: any = null): Promise<any> {
+  async addDocumentAdvancements(advancementsOverride: I5eAdvancement[] = null): Promise<any> {
     const additionalAdvancements = advancementsOverride ?? this.additionalAdvancements;
 
     if (!additionalAdvancements) return this.data;
-    if (!Array.isArray(this.data.system.advancement)) {
-      this.data.system.advancement = [];
+    if (!this.data.system.advancement) {
+      this.data.system.advancement = {};
     }
 
-    this.data.system.advancement.push(...(additionalAdvancements).flat());
+    for (const advancement of (additionalAdvancements).flat()) {
+      this.data.system.advancement[advancement._id] = advancement;
+    }
     return this.data;
   }
 
@@ -1200,7 +1202,7 @@ export default abstract class DDBEnricherFactoryMixin {
         activityData.effects.push(...foundry.utils.deepClone(feature.effects));
 
         if (feature.system.advancement) {
-          activityData.advancements.push(...foundry.utils.deepClone(feature.system.advancement));
+          activityData.advancements.push(...foundry.utils.deepClone(Object.values(feature.system.advancement)));
         }
 
         // console.warn(`Final activity map`,{

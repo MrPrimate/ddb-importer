@@ -12,6 +12,7 @@ export default class CharacterClassFactory {
   updateCompendiumItems = null;
   source: IDDBData;
   ddbCharacter: DDBCharacter;
+  character: I5ePCData;
   ddbClasses: Record<string, DDBClass | DDBSubClass>;
   originalClass: string | null;
 
@@ -62,17 +63,17 @@ export default class CharacterClassFactory {
     return documents;
   }
 
-  #itemGrantLink(ddbClass, klass, advancementIndex) {
+  #itemGrantLink(ddbClass: DDBClass | DDBSubClass, klass: I5eClassItem, id: string) {
     // "added": {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
     //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
     // }
-    const advancement = klass.system.advancement[advancementIndex];
-    const aData = ddbClass._advancementMatches.features[advancement._id];
+    const advancement = klass.system.advancement[id];
+    const aData = ddbClass._advancementMatches.features[id];
     const added = {};
 
     if (!aData || !advancement) {
-      logger.warn(`Advancement for ${klass.name} (idx ${advancementIndex}) missing required data for linking`, {
+      logger.warn(`Advancement for ${klass.name} (id ${id}) missing required data for linking`, {
         advancement,
         aData,
         klass,
@@ -101,23 +102,23 @@ export default class CharacterClassFactory {
       advancement.value = {
         added,
       };
-      klass.system.advancement[advancementIndex] = advancement;
+      klass.system.advancement[id] = advancement;
     }
   }
 
-  #abilityScoreFeatLink(ddbClass, klass, advancementIndex) {
+  #abilityScoreFeatLink(ddbClass: DDBClass | DDBSubClass, klass: I5eClassItem, id: string) {
     // "value": {
     //   "type": "feat",
     //   "feat": {
     //     "B09QLNujzaGh6zt7": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
     //   }
     // }
-    const advancement = klass.system.advancement[advancementIndex];
-    const aData = ddbClass._advancementMatches.features[advancement._id];
+    const advancement = klass.system.advancement[id];
+    const aData = ddbClass._advancementMatches.features[id];
     const feats = {};
 
     if (!aData || !advancement) {
-      logger.debug(`Advancement for ${klass.name} (idx ${advancementIndex}) missing required data for linking ${advancement?.type}`, {
+      logger.debug(`Advancement for ${klass.name} (id ${id}) missing required data for linking ${advancement?.type}`, {
         advancement,
         aData,
         klass,
@@ -144,7 +145,7 @@ export default class CharacterClassFactory {
     }
 
     if (Object.keys(feats).length > 0) {
-      klass.system.advancement[advancementIndex].value = {
+      klass.system.advancement[id].value = {
         type: "feat",
         feat: feats,
       };
@@ -162,12 +163,11 @@ export default class CharacterClassFactory {
         ddbClass,
       });
 
-      for (let idx = 0; idx < klass.system.advancement.length; idx++) {
-        const a = klass.system.advancement[idx];
+      for (const [id, a] of Object.entries(klass.system.advancement)) {
         if (a.type === "ItemGrant" && a.level <= ddbClass.ddbClass.level) {
-          this.#itemGrantLink(ddbClass, klass, idx);
+          this.#itemGrantLink(ddbClass, klass, id);
         } else if (a.type === "AbilityScoreImprovement" && a.value.type === "feat") {
-          this.#abilityScoreFeatLink(ddbClass, klass, idx);
+          this.#abilityScoreFeatLink(ddbClass, klass, id);
         }
       }
       logger.debug(`Processed ${klass.name} class advancements`, klass.system.advancement);

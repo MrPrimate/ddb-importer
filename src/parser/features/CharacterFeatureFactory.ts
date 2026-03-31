@@ -18,6 +18,12 @@ import { DDBDataUtils, SystemHelpers } from "../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import DDBCharacter from "../DDBCharacter";
 
+interface ISpellsGranted {
+  feature: string;
+  spells: string[];
+  use2024Spells: boolean;
+}
+
 export default class CharacterFeatureFactory {
 
   // feature parsing hints
@@ -43,6 +49,27 @@ export default class CharacterFeatureFactory {
   ddbData: IDDBData;
   excludedOriginFeatures: number[];
   _ddbClassFeatures: DDBClassFeatures;
+  parsed: {
+    actions: T5eFeatureMixinDataTypes[];
+    features: T5eFeatureMixinDataTypes[];
+  };
+  processed: {
+    actions: T5eFeatureMixinDataTypes[];
+    features: T5eFeatureMixinDataTypes[];
+  };
+  data: {
+    actions: T5eFeatureMixinDataTypes[];
+    features: T5eFeatureMixinDataTypes[];
+  };
+  rawCharacter: I5ePCData;
+  spellLinks: IDDBSpellLink[];
+  spellAdvancementsForce: {
+    class: string[];
+    background: string[];
+    race: string[];
+    feat: string[];
+  };
+  spellsGranted: Record<string, ISpellsGranted[]>;
 
   constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
@@ -394,17 +421,17 @@ export default class CharacterFeatureFactory {
     this.ddbCharacter.updateItemIds(this.processed[type]);
   }
 
-  #itemGrantLink(feature, advancementIndex) {
+  #itemGrantLink(feature: T5eFeatureMixinDataTypes, id:string) {
     // "added": {
     //   "TlT20Gh1RofymIDY": "Compendium.dnd5e.classfeatures.Item.u4NLajXETJhJU31v",
     //   "2PZlmOVkOn2TbR1O": "Compendium.dnd5e.classfeatures.Item.hpLNiGq7y67d2EHA"
     // }
     const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink");
-    const advancement = feature.system.advancement[advancementIndex];
+    const advancement = feature.system.advancement[id];
     const dataLink = linkingData.find((d) => d._id === advancement._id);
 
     if (!dataLink || !linkingData || !advancement) {
-      logger.warn(`Advancement for ${feature.name} (idx ${advancementIndex}) missing required data for linking`, {
+      logger.warn(`Advancement for ${feature.name} (id ${id}) missing required data for linking`, {
         advancement,
         linkingData,
         dataLink,
@@ -437,7 +464,7 @@ export default class CharacterFeatureFactory {
       advancement.value = {
         added,
       };
-      feature.system.advancement[advancementIndex] = advancement;
+      feature.system.advancement[id] = advancement;
     }
   }
 
@@ -483,12 +510,11 @@ export default class CharacterFeatureFactory {
             feature,
             linkingData,
           });
-          for (let idx = 0; idx < feature.system.advancement.length; idx++) {
-            const a = feature.system.advancement[idx];
+          for (const [id, a] of Object.entries(feature.system.advancement)) {
             const dataLink = linkingData.find((d) => d._id === a._id);
 
             if (a.type === "ItemGrant" && dataLink) {
-              this.#itemGrantLink(feature, idx);
+              this.#itemGrantLink(feature, id);
             }
           }
         }
@@ -711,7 +737,7 @@ export default class CharacterFeatureFactory {
 
       const featureName = utils.referenceNameString(feature.name).toLowerCase();
       const scaleKlass = this.ddbCharacter.raw.classes.find((klass) =>
-        klass.system.advancement
+        Object.values(klass.system.advancement)
           .some((advancement) => advancement.type === "ScaleValue"
             && advancement.configuration.identifier === featureName,
           ));
@@ -911,8 +937,9 @@ export default class CharacterFeatureFactory {
           || klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.class")),
         ).map((doc) => {
           if (!doc.system.advancement) return doc;
-          for (const advancement of doc.system.advancement) {
+          for (const [id, advancement] of Object.entries(doc.system.advancement)) {
             delete advancement.value;
+            doc.system.advancement[id] = advancement;
           }
           return doc;
         });
@@ -936,8 +963,9 @@ export default class CharacterFeatureFactory {
         // && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
       ).map((doc) => {
         if (!doc.system.advancement) return doc;
-        for (const advancement of doc.system.advancement) {
+        for (const [id, advancement] of Object.entries(doc.system.advancement)) {
           delete advancement.value;
+          doc.system.advancement[id] = advancement;
         }
         return doc;
       });
@@ -997,8 +1025,9 @@ export default class CharacterFeatureFactory {
         && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
       ).map((doc) => {
         if (!doc.system.advancement) return doc;
-        for (const advancement of doc.system.advancement) {
+        for (const [id, advancement] of Object.entries(doc.system.advancement)) {
           delete advancement.value;
+          doc.system.advancement[id] = advancement;
         }
         return doc;
       });
@@ -1020,8 +1049,9 @@ export default class CharacterFeatureFactory {
         && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
       ).map((doc) => {
         if (!doc.system.advancement) return doc;
-        for (const advancement of doc.system.advancement) {
+        for (const [id, advancement] of Object.entries(doc.system.advancement)) {
           delete advancement.value;
+          doc.system.advancement[id] = advancement;
         }
         return doc;
       });
@@ -1176,7 +1206,7 @@ export default class CharacterFeatureFactory {
   }
 
 
-  async addSpellAdvancement({ feature, type } = {}) {
+  async addSpellAdvancement({ feature, type }: { feature: T5eFeatureMixinDataTypes; type: string }) {
     await AdvancementHelper.addSpellAdvancement({
       ddbParser: this,
       feature,

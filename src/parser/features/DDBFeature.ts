@@ -179,13 +179,13 @@ export default class DDBFeature extends DDBFeatureMixin {
       || advancementData.configuration.grants.length !== 0
       || (advancementData.value && Object.keys(advancementData.value).length !== 0)
     ) {
-      this.data.system.advancement.push(advancementData);
+      this.data.system.advancement[advancementData._id] = advancementData;
     }
   }
 
 
   generateBackgroundAbilityScoreAdvancement() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     // this.ddbDefinition.grantedFeats
     //   [
@@ -285,9 +285,12 @@ export default class DDBFeature extends DDBFeatureMixin {
         assignments,
       },
     });
-    advancements.push(advancement.toObject());
+    advancements.push(advancement.toObject() as I5eAdvancement);
 
-    this.data.system.advancement = this.data.system.advancement.concat(advancements);
+    for (const advancement of advancements) {
+      if (!advancement._id) advancement._id = foundry.utils.randomID();
+      this.data.system.advancement[advancement._id] = advancement;
+    }
   }
 
 
@@ -314,7 +317,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       }
     }
 
-    this.data.system.advancement.push(advancement.toObject());
+    this.data.system.advancement[advancement._id] = advancement.toObject() as I5eAdvancement;
   }
 
 
@@ -499,7 +502,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       },
       title: "Feat",
     });
-    this.data.system.advancement.push(advancement.toObject());
+    this.data.system.advancement[advancement._id] = advancement.toObject() as I5eAdvancement;
 
     const advancementLinkData = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") ?? [];
     const advancementData = {

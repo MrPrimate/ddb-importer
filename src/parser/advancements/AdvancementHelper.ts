@@ -4,6 +4,7 @@ import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
 import TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trait.mjs";
+import type CharacterFeatureFactory from "../features/CharacterFeatureFactory";
 
 function htmlToText(html) {
   // keep html brakes and tabs
@@ -20,11 +21,50 @@ function htmlToText(html) {
 
 type TFeature = IDDBRacialTraitDefinition | IDDBClassFeatureDefinition | IDDBBackgroundDefinition | IDDBFeatDefinition;
 
+interface ISpellAdvancementGrant {
+  level: number;
+  name: string;
+  amount?: string;
+}
+
+interface ISpellAdvancementChoice {
+  level: number;
+  spellList: string;
+  amount: string;
+}
+
+interface IParsedSpellAdvancementData {
+  spellListCantripChoice: string | null;
+  cantripChoices: string[];
+  cantripGrants: string[];
+  spellGrants: ISpellAdvancementGrant[];
+  spellChoices: ISpellAdvancementChoice[];
+  hint: string;
+}
+
 interface IAdvancementGetterOptions  {
   mods: IModifiersMod[];
   feature: TFeature;
   availableToMulticlass?: boolean;
   level: number;
+}
+
+interface IAdvancementGetterCantripGrantAdvancement {
+  choices?: string[];
+  abilities?: string[];
+  hint?: string;
+  name: string;
+  spellLinks?: TSpellLinks;
+  is2024?: boolean;
+  spellData?: I5eSpellItem[];
+}
+
+interface IAdvancementGetterCantripChoiceAdvancement extends IAdvancementGetterCantripGrantAdvancement {
+  grants?: string[];
+  spellListChoice?: string | null;
+  choiceLevel?: number;
+  count?: number;
+  allowReplacements?: boolean;
 }
 
 export default class AdvancementHelper {
@@ -1046,7 +1086,9 @@ export default class AdvancementHelper {
   // Feats with multichoices
   // You gain proficiency in any combination of three skills or tools of your choice.
 
-  static convertToSingularDie(advancement) {
+  static convertToSingularDie(advancement: I5eAdvancement): I5eAdvancement {
+    if (!("configuration" in advancement)) return advancement;
+    if (!("scale" in advancement.configuration)) return advancement;
     advancement.title += ` (Die)`;
     for (const key of Object.keys(advancement.configuration.scale)) {
       advancement.configuration.scale[key].n = 1;
@@ -1054,18 +1096,18 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  static renameTotal(advancement) {
+  static renameTotal(advancement: I5eAdvancement) {
     advancement.title += ` (Total)`;
     return advancement;
   }
 
-  static rename(advancement, { newName = null, identifier = null } = {}) {
+  static rename(advancement: I5eAdvancement, { newName = null, identifier = null } = {}) {
     if (newName) advancement.title = newName;
     if (identifier) advancement.configuration.identifier = identifier;
     return advancement;
   }
 
-  static addAdditionalUses(advancement) {
+  static addAdditionalUses(advancement: I5eAdvancement) {
     const adv = new game.dnd5e.documents.advancement.ScaleValueAdvancement();
     const update = {
       configuration: {
@@ -1087,11 +1129,11 @@ export default class AdvancementHelper {
     return adv.toObject();
   }
 
-  static addSingularDie(advancement) {
-    const scaleValue = AdvancementHelper.convertToSingularDie(foundry.utils.duplicate(advancement));
+  static addSingularDie(advancement: I5eAdvancement): I5eAdvancement {
+    const scaleValue: I5eAdvancement = AdvancementHelper.convertToSingularDie(foundry.utils.duplicate(advancement) as I5eAdvancement);
 
     scaleValue._id = foundry.utils.randomID();
-    scaleValue.configuration.identifier = `${advancement.configuration.identifier}-die`;
+    foundry.utils.setProperty(scaleValue, `configuration.identifier`, `${advancement.configuration.identifier}-die`);
 
     return scaleValue;
   }
@@ -2370,8 +2412,8 @@ export default class AdvancementHelper {
     return result;
   }
 
-  static parseHTMLSpellAdvancementData(description) {
-    const result = {
+  static parseHTMLSpellAdvancementData(description: string): IParsedSpellAdvancementData {
+    const result: IParsedSpellAdvancementData = {
       spellListCantripChoice: null,
       cantripChoices: [],
       cantripGrants: [],
@@ -2502,7 +2544,7 @@ export default class AdvancementHelper {
     return result;
   }
 
-  static parseHTMLPTagSpellAdvancementData({ description, species } = {}) {
+  static parseHTMLPTagSpellAdvancementData({ description, species }: { description: string; species: string }): IParsedSpellAdvancementData {
 
     const dom = utils.htmlToDocumentFragment(description);
 
@@ -2520,7 +2562,7 @@ export default class AdvancementHelper {
 
   }
 
-  static parseHTMLTableSpellAdvancementData({ description, species } = {}) {
+  static parseHTMLTableSpellAdvancementData({ description, species }: { description: string; species: string }): IParsedSpellAdvancementData {
     const dom = utils.htmlToDocumentFragment(description);
 
     const rows = dom.querySelectorAll("table tbody tr");
@@ -2563,7 +2605,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   };
 
 
-  static parseHTMLConditions(description) {
+  static parseHTMLConditions(description: string) {
     const grants = new Set();
     const choices = new Set();
     const parsedConditions = {
@@ -2791,7 +2833,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return spells;
   }
 
-  static async _getSpellUuidsFromFeatureSpellData(names, spellData, is2024) {
+  static async _getSpellUuidsFromFeatureSpellData(names: string[], spellData: I5eSpellItem[], is2024: boolean) {
     const lookupSpellNames = [];
     const uuids = [];
     for (const spell of names) {
@@ -2819,7 +2861,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   static async getCantripChoiceAdvancement({
     choices = [], abilities = [], hint = "", name, spellListChoice = null, spellLinks,
     is2024, choiceLevel = 0, count = 1, allowReplacements = false, spellData = [],
-  } = {}) {
+  }: IAdvancementGetterCantripChoiceAdvancement) {
     if (choices.length === 0 && !spellListChoice) return undefined;
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
     const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
@@ -2845,12 +2887,12 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
     if (allowReplacements) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(level) < parseInt(choiceLevel)) continue;
+        if (parseInt(String(level)) < parseInt(String(choiceLevel))) continue;
         foundry.utils.setProperty(levelChoices, `${level}.replacement`, true);
       }
     }
 
-    advancement.updateSource({
+    const update: I5eAdvancementItemChoice = {
       title: name,
       hint,
       configuration: {
@@ -2875,7 +2917,9 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           },
         },
       },
-    });
+    };
+
+    advancement.updateSource(update as any);
     if (uuids.length > 0 || spellListChoice) return advancement;
 
     return undefined;
@@ -2957,7 +3001,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   static async getCantripGrantAdvancement({
     choices = [], abilities = [], hint = "", name, spellLinks, is2024, spellData = [],
-  } = {}) {
+  }: IAdvancementGetterCantripGrantAdvancement) {
     if (choices.length === 0) return undefined;
     const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
     const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
@@ -2970,7 +3014,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       level: 1,
     });
 
-    advancement.updateSource({
+    const update: I5eAdvancementItemGrant = {
       title: name,
       level: 1,
       configuration: {
@@ -2993,7 +3037,9 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         },
       },
       hint,
-    });
+    };
+
+    advancement.updateSource(update as any);
     if (uuids.length > 0) return advancement;
 
     return undefined;
@@ -3053,7 +3099,9 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   }
 
 
-  static async addSpellAdvancement({ ddbParser, feature, type } = {}) {
+  static async addSpellAdvancement({ ddbParser, feature, type }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string }) {
+    if (!("advancements" in feature.system)) return;
+    if (!("activities" in feature.system)) return;
     const advancements = [];
 
     const htmlData = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(feature.system.description.value);
@@ -3067,7 +3115,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       : `${feature.name} (Cantrips)`;
 
     const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
-    const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
+    const spellChoice = utils.getSetting<string>("munching-policy-force-spell-version");
     const use2024Spells = spellChoice === "FORCE_2024" || feature.system.source.rules === "2024";
 
     const spellData = ddbParser.ddbCharacter._spellParser._granted[type]
@@ -3109,7 +3157,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       hint,
       name: cantripName,
       spellLinks: ddbParser.spellLinks,
-      is2024: ddbParser.is2024,
+      is2024: use2024Spells,
       spellData,
     });
     if (cantripGrantAdvancement) {
@@ -3161,8 +3209,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
     const isItemConsume = !foundry.utils.hasProperty(feature, "system.uses.max")
       || feature.system.uses.max === ""
-      || feature.system.uses.max === 0
-      || feature.system.uses.max === "0";
+      || String(feature.system.uses.max) === "0";
 
     for (const spellGrant of htmlData.spellGrants) {
       const spellGrantAdvancement = await AdvancementHelper.getSpellGrantAdvancement({
@@ -3171,7 +3218,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         hint,
         name,
         spellLinks: ddbParser.spellLinks,
-        is2024: ddbParser.is2024,
+        is2024: use2024Spells,
         requireSlot: true,
         forceNoAmount: true,
         method: "spell",
@@ -3246,7 +3293,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         hint,
         name,
         spellLinks: ddbParser.spellLinks,
-        is2024: ddbParser.is2024,
+        is2024: use2024Spells,
         allowReplacements: htmlData.spellListChoiceReplace,
         spellData,
       });
@@ -3261,7 +3308,8 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     });
 
     advancements.forEach((advancement) => {
-      feature.system.advancement.push(advancement.toObject());
+      const a = advancement.toObject();
+      feature.system.advancement[a._id] = a;
     });
   }
 

@@ -20,8 +20,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(this: DDBCha
   // update character race value with race type
   foundry.utils.setProperty(this.raw.character, "system.details.type.value", this.raw.race.type);
 
-  // console.warn("Race Advancement", JSON.parse(JSON.stringify(this.raw.race.system.advancement)));
-  this.raw.race.system.advancement.forEach((a) => {
+  for (const [id, a] of Object.entries(this.raw.race.system.advancement)) {
     switch (a.type) {
       case "AbilityScoreImprovement": {
         a.value = {
@@ -51,5 +50,6 @@ DDBCharacter.prototype._generateRace = async function _generateRace(this: DDBCha
       }
       // no default
     }
-  });
+    this.raw.race.system.advancement[id] = a;
+  };
 };

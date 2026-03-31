@@ -104,11 +104,15 @@ global {
     value?: number | null;
   }
 
-  interface I5eSenses {
-    blindsight?: number;
+  interface I5eSenseRanges {
     darkvision?: number;
+    blindsight?: number;
     tremorsense?: number;
     truesight?: number;
+  }
+
+  interface I5eSenses {
+    ranges?: I5eSenseRanges;
     special?: string;
     units?: string;
   }
@@ -304,6 +308,7 @@ global {
   interface I5eBaseProficiency {
     value?: string[];
     custom?: string;
+    communication?: Record<string, any>;
   }
 
   interface I5eWeaponMastery {
@@ -489,16 +494,19 @@ global {
   export type I5eAdvScaleValueEntry =
     I5eAdvScaleValueNumericEntry | I5eAdvScaleValueDiceEntry;
 
-  interface I5eAdvScaleValueConfig {
+  interface I5eAdvConfig {
     identifier?: string;
+  }
+
+  interface I5eAdvScaleValueConfig extends I5eAdvConfig {
     type?: I5eAdvScaleValueType;
     distance?: { units?: string };
     scale?: Record<string, I5eAdvScaleValueEntry>;
   }
   interface I5eAdvancementScaleValue extends I5eAdvancementBase {
-    type: "ScaleValue";
-    configuration: I5eAdvScaleValueConfig;
-    value: Record<string, never>;
+    type?: "ScaleValue";
+    configuration?: I5eAdvScaleValueConfig;
+    value?: Record<string, never>;
   }
 
   interface I5eAdvItemGrantItem extends I5eAdvancementPool { optional?: boolean }
@@ -523,16 +531,16 @@ global {
     max?: number | null;
   }
   interface I5eAdvancementAbilityScoreImprovement extends I5eAdvancementBase {
-    type: "AbilityScoreImprovement";
-    configuration: I5eAdvASIConfig;
-    value: { type?: "asi" | "feat"; feat?: Record<string, string> };
+    type?: "AbilityScoreImprovement";
+    configuration?: I5eAdvASIConfig;
+    value?: { type?: "asi" | "feat"; feat?: Record<string, string> };
   }
 
   interface I5eAdvancementHitPoints extends I5eAdvancementBase {
-    type: "HitPoints";
-    configuration: Record<string, never>;
+    type?: "HitPoints";
+    configuration?: Record<string, never>;
     /** Keys are level strings ("1"–"20"); values are "max", "avg", or a rolled number. */
-    value: Record<string, "max" | "avg" | number>;
+    value?: Record<string, "max" | "avg" | number>;
   }
 
   interface I5eAdvTraitChoice {
@@ -572,7 +580,10 @@ global {
   interface I5eAdvancementItemChoice extends I5eAdvancementBase {
     type?: "ItemChoice";
     configuration: I5eAdvItemChoiceConfig;
-    value?: { added?: Record<string, string>; replaced?: Record<string, string> };
+    value?: {
+      added?: Record<string, Record<string, string>>;
+      replaced?: Record<string, string>;
+    };
   }
 
   interface I5eAdvancementSubclass extends I5eAdvancementBase {
@@ -740,7 +751,7 @@ global {
   }
 
   interface I5eClassSystemData {
-    advancement?: I5eAdvancement[];
+    advancement?: Record<string, I5eAdvancement>;
     description?: I5eItemDescription;
     hd?: I5eClassHitDice;
     identifier?: string;
@@ -762,7 +773,7 @@ global {
   // ---- Subclass item --------------------------------------------------------
 
   interface I5eSubclassSystemData {
-    advancement?: I5eAdvancement[];
+    advancement?: Record<string, I5eAdvancement>;
     classIdentifier?: string;
     description?: I5eItemDescription;
     identifier?: string;
@@ -779,7 +790,7 @@ global {
   // ---- Race item ------------------------------------------------------------
 
   interface I5eRaceSystemData {
-    advancement?: I5eAdvancement[];
+    advancement?: Record<string, I5eAdvancement>;
     description?: I5eItemDescription;
     identifier?: string;
     movement?: I5eMovement;
@@ -797,7 +808,7 @@ global {
   // ---- Background item ------------------------------------------------------
 
   interface I5eBackgroundSystemData {
-    advancement?: I5eAdvancement[];
+    advancement?: Record<string, I5eAdvancement>;
     description?: I5eItemDescription;
     identifier?: string;
     source?: I5eSourceInfo;

@@ -31,25 +31,19 @@ interface IDDBFeatureMixinActionType {
   feat?: boolean | object;
 }
 
-type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
-
-type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
-
-type TEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
-
 type TDocumentType = Extract<TFeatureType, "background" | "feat"> | "weapon";
 
 
 interface IDDBFeatureMixin {
   ddbData: IDDBData;
-  ddbDefinition: TDefinitions;
+  ddbDefinition: TDDBFeatureMixinDefinitions;
   type: string;
   source: IDDBSourceResponse;
   documentType?: TDocumentType;
   rawCharacter?: I5ePCData | null;
   activityType?: IDDBActivityType | null;
   extraFlags?: IActorFlagConfig;
-  enricher?: TEnrichers | null;
+  enricher?: TDDBFeatureMixinEnrichers | null;
   ddbCharacter?: DDBCharacter | null;
   fallbackEnricher?: string | null;
   usesOnActivity?: boolean;
@@ -95,9 +89,9 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   snippet: string;
   description: string;
   resourceCharges: number | null;
-  ddbFeature: TFeatures | TDefinitions;
-  declare ddbDefinition: TDefinitions;
-  declare data: I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
+  ddbFeature: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions;
+  declare ddbDefinition: TDDBFeatureMixinDefinitions;
+  declare data: T5eFeatureMixinDataTypes;
   rawCharacter: I5ePCData;
   source: IDDBSourceResponse;
   fallbackEnricher: string | null;

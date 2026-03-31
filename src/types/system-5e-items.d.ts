@@ -171,7 +171,7 @@ global {
 
   interface I5eWeaponSystemData {
     activities: Record<string, I5eActivity>;
-    advancement?: I5eAdvancement[];
+    advancement?: Record<string, I5eAdvancement>;
     ammunition?: Record<string, any>;
     armor?: Record<string, any>;
     attuned: boolean;
@@ -215,7 +215,7 @@ global {
 
   interface I5eFeatSystemData {
     activities: Record<string, I5eActivity>;
-    advancement?: I5eAdvancement[];
+    advancement?: Record<string, I5eAdvancement>;
     crewed?: boolean;
     description: I5eItemDescription;
     enchant?: Record<string, any>;

@@ -254,8 +254,11 @@ export default class DDBRace {
 
   }
 
-  _addAdvancement(...advancements) {
-    this.data.system.advancement.push(...advancements.flat());
+  _addAdvancement(advancements: I5eAdvancement | I5eAdvancement[]) {
+    if (!Array.isArray(advancements)) advancements = [advancements];
+    for (const advancement of advancements) {
+      this.data.system.advancement[advancement._id] = advancement;
+    }
   }
 
   getCompendiumIxByFlags(compendiums: string[], flags: Record<string, unknown>, findAll = false) {
@@ -388,7 +391,7 @@ export default class DDBRace {
       advancement.updateSource({ configuration: { sizes: [size.value] } });
     }
 
-    this._addAdvancement(advancement.toObject());
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
   #flightCheck(trait: IDDBRacialTraitDefinition) {
@@ -460,7 +463,7 @@ export default class DDBRace {
       .forEach((t) => {
         this.#addAbilityScoreAdvancement(t.definition);
       });
-    this._addAdvancement(this.abilityAdvancement.toObject());
+    this._addAdvancement(this.abilityAdvancement.toObject() as I5eAdvancement);
   }
 
   // skills, e.g. variant human
@@ -479,7 +482,7 @@ export default class DDBRace {
       level: 0,
     });
 
-    if (advancement) this._addAdvancement(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
   #generateLanguageAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -489,7 +492,7 @@ export default class DDBRace {
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getLanguageAdvancement(mods, trait, 0);
-    if (advancement) this._addAdvancement(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
   #generateToolAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -503,7 +506,7 @@ export default class DDBRace {
       feature: trait,
       level: 0,
     });
-    if (advancement) this._addAdvancement(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
   async #generateSpellAdvancement(trait: IDDBRacialTraitDefinition) {
@@ -643,7 +646,7 @@ export default class DDBRace {
     });
 
     advancements.forEach((advancement) => {
-      this._addAdvancement(advancement.toObject());
+      this._addAdvancement(advancement.toObject() as I5eAdvancement);
     });
 
   }
@@ -693,7 +696,7 @@ export default class DDBRace {
     };
     advancement.updateSource(update as any);
 
-    this._addAdvancement(advancement.toObject());
+    this._addAdvancement(advancement.toObject() as I5eAdvancementItemChoice);
 
     const feat = this.ddbData?.character?.feats?.find((f) =>
       f.componentId === trait.id
@@ -744,8 +747,8 @@ export default class DDBRace {
 
   async #generateTraitChoiceAdvancement(trait: IDDBRacialTraitDefinition, choices: IDDBChoiceEntry[]) {
     logger.debug(`Generating choice trait advancement for trait ${trait.name} with ${choices.length} choices`);
-    const keys = new Set();
-    const uuids = new Set();
+    const keys = new Set<string>();
+    const uuids = new Set<string>();
     const configChoices = {};
     let lowestLevel = 0;
 
@@ -832,7 +835,7 @@ export default class DDBRace {
     this.configChoices[trait.name] = AdvancementHelper.getChoiceReplacements(trait.description ?? trait.snippet ?? "", lowestLevel, configChoices, forceReplace);
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
-    advancement.updateSource({
+    const updateData: I5eAdvancementItemChoice = {
       title: utils.nameString(trait.name),
       hint: trait.snippet ?? trait.description ?? "",
       configuration: {
@@ -846,8 +849,10 @@ export default class DDBRace {
         }),
         allowDrops: true,
       },
-      icons: "icons/magic/symbols/cog-orange-red.webp",
-    });
+      icon: "icons/magic/symbols/cog-orange-red.webp",
+    };
+
+    advancement.updateSource(updateData as any);
 
     // console.warn(`Generated choice advancement for feature ${feature.name}:`, {
     //   advancement,
@@ -859,7 +864,7 @@ export default class DDBRace {
 
 
     // TODO: handle chosen advancements on non muncher races
-    this._addAdvancement(advancement.toObject());
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
 
   }
 
@@ -867,7 +872,7 @@ export default class DDBRace {
   async #generateTraitOptionAdvancement(trait: IDDBRacialTraitDefinition, options: IDDBOptionEntry[]) {
     logger.debug(`Generating choice trait option advancement for trait ${trait.name} with ${options.length} options`);
 
-    const uuids = new Set();
+    const uuids = new Set<string>();
     const configChoices = {};
     const lowestLevel = 0;
 
@@ -935,7 +940,7 @@ export default class DDBRace {
     this.configChoices[trait.name] = AdvancementHelper.getChoiceReplacements(trait.description ?? trait.snippet ?? "", lowestLevel, configChoices, forceReplace);
     const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
 
-    advancement.updateSource({
+    const advancementData: I5eAdvancementItemChoice = {
       title: utils.nameString(trait.name),
       hint: trait.snippet ?? trait.description ?? "",
       configuration: {
@@ -949,8 +954,9 @@ export default class DDBRace {
         }),
         allowDrops: true,
       },
-      icons: "icons/magic/symbols/cog-orange-red.webp",
-    });
+      icon: "icons/magic/symbols/cog-orange-red.webp",
+    };
+    advancement.updateSource(advancementData as any);
 
     // console.warn(`Generated choice advancement for feature ${feature.name}:`, {
     //   advancement,
@@ -962,7 +968,7 @@ export default class DDBRace {
 
 
     // TODO: handle chosen advancements on non muncher races
-    this._addAdvancement(advancement.toObject());
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
 
   }
 
@@ -1018,7 +1024,6 @@ export default class DDBRace {
 
   async #generateTraitAdvancements() {
     logger.debug(`Parsing ${this.name} traits for advancement`);
-    this.featureAdvancements = [];
     const raceTraits = this.race.racialTraits
       .map((t) => t.definition)
       .filter((trait) =>
@@ -1027,7 +1032,6 @@ export default class DDBRace {
     for (const trait of raceTraits) {
       await this.#generateTraitAdvancementFromCompendiumMatch(trait);
     }
-    this.data.system.advancement = this.data.system.advancement.concat(this.featureAdvancements);
 
     // for choice traits such as fighting styles:
     // for each trait with typ3 choices, build an item choice advancement
@@ -1045,7 +1049,7 @@ export default class DDBRace {
       .filter((mod) => mod.componentId === trait.id && mod.componentTypeId === trait.entityTypeId);
 
     const advancement = this.advancementHelper.getConditionAdvancement(mods, trait, 0);
-    if (advancement) this._addAdvancement(advancement.toObject());
+    if (advancement) this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
   /**
@@ -1186,7 +1190,7 @@ export default class DDBRace {
         classRestriction: "",
       };
       advancement.updateSource(update as unknown as any);
-      const obj = advancement.toObject();
+      const obj = advancement.toObject() as I5eAdvancement;
       this.traitAdvancements.push(obj);
       this._addAdvancement(obj);
     } else {
@@ -1206,44 +1210,45 @@ export default class DDBRace {
         && !spell.flags.ddbimporter.dndbeyond.usesSpellSlot;
     });
 
-    ddbCharacter.data.race.system.advancement
-      .filter((a) =>
-        foundry.utils.hasProperty(a, "configuration.spell")
-        && this.spellLinks.some((l) => l.advancementId === a._id),
-      )
-      .forEach((a, idx, advancements) => {
-        const addedSpells = {};
-        let ability;
-        const spellLinkMatch = this.spellLinks.find((l) => l.advancementId === a._id);
+    for (const [id, advancement] of Object.entries(ddbCharacter.data.race.system.advancement)) {
+      if (!foundry.utils.hasProperty(advancement, "configuration.spell")) continue;
+      const spellLinkMatch = this.spellLinks.find((l) => l.advancementId === id);
+      if (!spellLinkMatch) continue;
 
-        for (const spell of validSpells) {
-          const spellUuidMatch = spellLinkMatch.uuids.find((l) =>
-            l.name.toLowerCase() === spell.flags.ddbimporter.originalName.toLowerCase(),
-          );
-          if (!spellUuidMatch) continue;
+      const a = advancement as I5eAdvancement; // restore full advancement shape
 
-          if (spell.flags.ddbimporter.dndbeyond.ability) ability = spell.flags.ddbimporter.dndbeyond.ability;
-          logger.debug(`Advancement Race ${a._id} found Spell ${spell.name} (${spellUuidMatch.uuid})`);
+      const addedSpells = {};
+      let ability;
 
-          if (a.type === "ItemChoice") {
-            if (!foundry.utils.hasProperty(addedSpells, "0")) {
-              addedSpells["0"] = {};
-            }
-            addedSpells["0"][spell._id] = spellUuidMatch.uuid;
-          } else {
-            addedSpells[spell._id] = spellUuidMatch.uuid;
+      for (const spell of validSpells) {
+        const spellUuidMatch = spellLinkMatch.uuids.find((l) =>
+          l.name.toLowerCase() === spell.flags.ddbimporter.originalName.toLowerCase(),
+        );
+        if (!spellUuidMatch) continue;
+
+        if (spell.flags.ddbimporter.dndbeyond.ability) ability = spell.flags.ddbimporter.dndbeyond.ability;
+        logger.debug(`Advancement Race ${a._id} found Spell ${spell.name} (${spellUuidMatch.uuid})`);
+
+        if (a.type === "ItemChoice") {
+          if (!foundry.utils.hasProperty(addedSpells, "0")) {
+            addedSpells["0"] = {};
           }
-          foundry.utils.setProperty(spell, "flags.dnd5e.sourceId", spellUuidMatch.uuid);
-          foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+          addedSpells["0"][spell._id] = spellUuidMatch.uuid;
+        } else {
+          addedSpells[spell._id] = spellUuidMatch.uuid;
         }
+        foundry.utils.setProperty(spell, "flags.dnd5e.sourceId", spellUuidMatch.uuid);
+        foundry.utils.setProperty(spell, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+      }
 
-        a.value = {
-          ability,
-          added: addedSpells,
-        };
+      a.value = {
+        ability,
+        added: addedSpells,
+      };
 
-        advancements[idx] = a;
-      });
+      ddbCharacter.data.race.system.advancement[id] = a;
+
+    }
 
   }
 
@@ -1254,46 +1259,46 @@ export default class DDBRace {
     });
 
 
-    this.ddbCharacter.data.race.system.advancement.forEach((a, idx, advancements) => {
-      if (["ItemChoice", "ItemGrant"].includes(a.type) && (!a.level || a.level <= this.ddbCharacter.totalLevels)) {
-        const addedFeats = {};
+    for (const [id, a] of Object.entries(this.ddbCharacter.data.race.system.advancement)) {
+      const isValid = ["ItemChoice", "ItemGrant"].includes(a.type) && (!a.level || a.level <= this.ddbCharacter.totalLevels);
+      if (!isValid) continue;
+      const addedFeats = {};
 
-        for (const type of ["features"]) {
-          for (const feat of this.ddbCharacter.data[type]) {
-            const isMatch = feat.type === "feat"
-              && feat.system.type.value === "feat"
-              && feat.flags.ddbimporter.type === "feat"
-              && feat.name.startsWith(this.featLink.name);
+      for (const type of ["features"]) {
+        for (const feat of this.ddbCharacter.data[type]) {
+          const isMatch = feat.type === "feat"
+            && feat.system.type.value === "feat"
+            && feat.flags.ddbimporter.type === "feat"
+            && feat.name.startsWith(this.featLink.name);
 
 
-            if (!isMatch) continue;
+          if (!isMatch) continue;
 
-            logger.debug(`Advancement Race ${a._id} found Feature ${feat.name} (${this.featLink.uuid})`);
-            addedFeats[feat._id] = this.featLink.uuid;
-            foundry.utils.setProperty(feat, "flags.dnd5e.sourceId", this.featLink.uuid);
-            foundry.utils.setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
-          }
+          logger.debug(`Advancement Race ${a._id} found Feature ${feat.name} (${this.featLink.uuid})`);
+          addedFeats[feat._id] = this.featLink.uuid;
+          foundry.utils.setProperty(feat, "flags.dnd5e.sourceId", this.featLink.uuid);
+          foundry.utils.setProperty(feat, "flags.dnd5e.advancementOrigin", `${this.data._id}.${a._id}`);
+        }
 
-          // console.warn("Post feat match for advancement", {
-          //   addedFeats,
-          // });
+        // console.warn("Post feat match for advancement", {
+        //   addedFeats,
+        // });
 
-          if (Object.keys(addedFeats).length > 0) {
-            const added = {
-              "0": addedFeats,
-              // {
-              //   "IRs6OOXQk3AvK3GW": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
-              // },
-            };
+        if (Object.keys(addedFeats).length > 0) {
+          const added = {
+            "0": addedFeats,
+            // {
+            //   "IRs6OOXQk3AvK3GW": "Compendium.world.ddb-test2-ddb-feats.Item.cHie2wNgxBG9m62F"
+            // },
+          };
 
-            a.value = {
-              added,
-            };
-            advancements[idx] = a;
-          }
+          a.value = {
+            added,
+          };
+          this.ddbCharacter.data.race.system.advancement[id] = a;
         }
       }
-    });
+    };
     logger.debug("Processed race advancements", this.ddbCharacter.data.race.system.advancement);
   }
 
@@ -1337,7 +1342,7 @@ export default class DDBRace {
 
   #fix2024DragonBorn() {
     if (!this.data.name.startsWith("Dragonborn")) return;
-    const breathWeapon = {
+    const breathWeapon: I5eAdvancementScaleValue = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
       configuration: {
@@ -1367,12 +1372,13 @@ export default class DDBRace {
       title: `Breath Weapon Dice`,
       icon: null,
     };
-    this._addAdvancement(breathWeapon);
+    this._addAdvancement(breathWeapon as unknown as I5eAdvancement);
   }
 
   #fix2024Aasimar() {
     if (!this.data.name.startsWith("Aasimar")) return;
-    for (const advancement of this.data.system.advancement) {
+    for (const key of Object.keys(this.data.system.advancement)) {
+      const advancement = this.data.system.advancement[key];
       if (advancement.title !== "Celestial Revelation") continue;
       advancement.type = "ItemGrant";
       // @ts-expect-error - we know the structure of the configuration here and need to move some things around, TODO, we should maybe revisit to force a proper advancement object for ItemGrant
@@ -1383,6 +1389,7 @@ export default class DDBRace {
       delete advancement.configuration.choices;
       // @ts-expect-error - see above
       delete advancement.configuration.allowDrops;
+      this.data.system.advancement[key] = advancement;
     }
   }
 
@@ -1469,8 +1476,9 @@ export default class DDBRace {
     await traitCompendiumFolders.createSubTraitFolders(this.data);
     const race = foundry.utils.deepClone(this.data);
 
-    for (const advancement of race.system.advancement) {
+    for (const [id, advancement] of Object.entries(race.system.advancement)) {
       delete advancement.value;
+      race.system.advancement[id] = advancement;
     }
 
     const speciesHandler = await DDBItemImporter.buildHandler("race", [race], updateFeatures, traitHandlerOptions);

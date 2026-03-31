@@ -12,6 +12,7 @@ import { SETTINGS, DICTIONARY } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from "../lib/_module";
 import DDBFeatureMixin from "../features/DDBFeatureMixin";
 
+
 export default class DDBClass {
 
   data: I5eClassItem;
@@ -27,6 +28,7 @@ export default class DDBClass {
   featureAdvancementUuids = new Set();
   spellLinks = [];
   configChoices = {};
+  featureAdvancements: I5eAdvancement[] = [];
 
   _indexFilter = {
     features: {
@@ -71,7 +73,7 @@ export default class DDBClass {
     subclasses: CompendiumHelper.getCompendiumType("subclasses", false),
   };
 
-  static SPECIAL_ADVANCEMENTS = {
+  static SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
     "Wild Shape": {
       fix: true,
       fixFunction: AdvancementHelper.rename,
@@ -317,6 +319,37 @@ export default class DDBClass {
     "Magic Resistance",
   ];
 
+  // don't generate feature advancements for these features
+  static EXCLUDED_FEATURE_ADVANCEMENTS = [
+    "4: Ability Score Improvement",
+    "6: Ability Score Improvement",
+    "8: Ability Score Improvement",
+    "12: Ability Score Improvement",
+    "14: Ability Score Improvement",
+    "16: Ability Score Improvement",
+    "Ability Score Improvement",
+    "Expertise",
+    "Bonus Proficiencies",
+    "Bonus Proficiency",
+    "Tool Proficiency",
+    "Weapon Mastery",
+
+    "Speed",
+    "Size",
+    "Feat",
+    "Languages",
+    "Hit Points",
+    "Proficiencies",
+    "Fighting Style feat",
+
+    // tashas
+    "Martial Versatility",
+  ];
+
+  static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [
+    "Primal Knowledge",
+  ];
+
   ddbData: IDDBData;
   ddbClass: IDDBClass;
   ddbClassDefinition: IDDBClassDefinition;
@@ -352,6 +385,7 @@ export default class DDBClass {
   NOT_ADVANCEMENT_FOR_FEATURE: string[];
   NO_ADVANCEMENT_2014: string[];
   NO_ADVANCEMENT_2024: string[];
+  SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements;
 
   _generateSource() {
     const classSource = DDBSources.parseSource(this.ddbClassDefinition);
@@ -474,8 +508,14 @@ export default class DDBClass {
     }
   }
 
-  _addAdvancement(...advancements) {
-    this.data.system.advancement.push(...advancements.flat());
+  _addAdvancement(advancement: I5eAdvancement) {
+    this.data.system.advancement[advancement._id] = advancement;
+  }
+
+  _addAdvancements(advancements: I5eAdvancement[]) {
+    advancements.forEach((advancement) => {
+      this._addAdvancement(advancement);
+    });
   }
 
   async _buildCompendiumIndex(type: string, indexFilter = {}) {
@@ -582,7 +622,7 @@ export default class DDBClass {
    * @param {Array} excludedIds An array of IDs of class features to exclude (default: [])
    * @returns {Array} An array of class features
    */
-  getClassFeatures(excludedIds = []) {
+  getClassFeatures(excludedIds: number[] = []): IDDBClassDefinitionFeature[] | any[] { // TODO classOptions on ddbData
     const excludedFeatures = this.ddbData.character.optionalClassFeatures
       .filter((f) => f.affectedClassFeatureId)
       .map((f) => f.affectedClassFeatureId);
@@ -749,38 +789,7 @@ export default class DDBClass {
 
   // ADVANCEMENT FUNCTIONS
 
-  // don't generate feature advancements for these features
-  static EXCLUDED_FEATURE_ADVANCEMENTS = [
-    "4: Ability Score Improvement",
-    "6: Ability Score Improvement",
-    "8: Ability Score Improvement",
-    "12: Ability Score Improvement",
-    "14: Ability Score Improvement",
-    "16: Ability Score Improvement",
-    "Ability Score Improvement",
-    "Expertise",
-    "Bonus Proficiencies",
-    "Bonus Proficiency",
-    "Tool Proficiency",
-    "Weapon Mastery",
 
-    "Speed",
-    "Size",
-    "Feat",
-    "Languages",
-    "Hit Points",
-    "Proficiencies",
-    "Fighting Style feat",
-
-    // tashas
-    "Martial Versatility",
-  ];
-
-  static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [
-    "Primal Knowledge",
-  ];
-
-  featureAdvancements = [];
 
   async _generateFeatureAdvancementFromCompendiumMatch(feature) {
     logger.debug(`Trying to generate advancement for feature: ${feature.name}`);
@@ -941,7 +950,7 @@ export default class DDBClass {
 
 
     // TODO: handle chosen advancements on non muncher classes
-    this._addAdvancement(advancement.toObject());
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
 
   }
 
@@ -957,7 +966,7 @@ export default class DDBClass {
     for (const feature of classFeatures) {
       await this._generateFeatureAdvancementFromCompendiumMatch(feature);
     }
-    this._addAdvancement(this.featureAdvancements);
+    this._addAdvancements(this.featureAdvancements);
 
     // console.warn({
     //   this: this,
@@ -1476,24 +1485,24 @@ export default class DDBClass {
         && k.type === "class",
       );
       if (!klassMatch) continue;
-      const foundryKlass = await pack.getDocument(klassMatch._id);
-      const scaleAdvancements = foundryKlass.system.advancement.filter((foundryA) => {
+      const foundryKlass: I5eClassItem = await pack.getDocument(klassMatch._id) as any;
+      const scaleAdvancements: I5eAdvancement[] = Object.values(foundryKlass.system.advancement).filter((foundryA) => {
         let identifier = foundry.utils.getProperty(foundryA, "configuration.identifier");
         if (!identifier || identifier === "") {
           identifier = DDBDataUtils.classIdentifierName(foundryA.title);
         }
         return foundryA.type === "ScaleValue"
-          && !this.data.system.advancement.some((ddbA) => ddbA.configuration.identifier === identifier);
+          && !Object.values(this.data.system.advancement).some((ddbA) => ddbA.configuration.identifier === identifier);
       }).map((advancement) => {
         return advancement.toObject();
       });
-      this._addAdvancement(scaleAdvancements);
+      this._addAdvancements(scaleAdvancements);
       return;
     }
   }
 
   _generateAbilityScoreAdvancement() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       const abilityAdvancementFeature = this.classFeatures.find((f) =>
@@ -1511,10 +1520,11 @@ export default class DDBClass {
       });
 
       if (abilityAdvancementFeature.name === "Epic Boon") {
-        advancement.updateSource({
+        const update: I5eAdvancementAbilityScoreImprovement = {
           title: "Epic Boon",
           hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
-        });
+        };
+        advancement.updateSource(update as any);
       }
 
       // if advancement has taken ability improvements
@@ -1526,7 +1536,7 @@ export default class DDBClass {
       };
       const mods = DDBModifiers.getChosenClassModifiers(this.ddbData, modFilters);
 
-      const assignments = {};
+      const assignments: Record<string, number> = {};
       DICTIONARY.actor.abilities.forEach((ability) => {
         const count = DDBModifiers.filterModifiers(mods, "bonus", { subType: `${ability.long}-score` }).length;
         if (count > 0) assignments[ability.value] = count;
@@ -1568,10 +1578,10 @@ export default class DDBClass {
 
       }
 
-      advancements.push(advancement.toObject());
+      advancements.push(advancement.toObject() as I5eAdvancement);
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateWealth() {
@@ -1626,8 +1636,8 @@ export default class DDBClass {
       title: subClassFeature.name,
       hint: subClassFeature.snippet ?? subClassFeature.description ?? "",
       level: subClassFeature.requiredLevel,
-    });
-    this._addAdvancement(advancement.toObject());
+    } as any);
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
   async _generateCommonAdvancements() {
@@ -1656,12 +1666,13 @@ export default class DDBClass {
       "Fighting Style",
       "Additional Fighting Style",
     ];
-    const advancementFound = this.data.system.advancement.some((a) => FIGHTING_STYLE_FEATURES.includes(a.title));
+    const advancementFound = Object.values(this.data.system.advancement)
+      .some((a) => FIGHTING_STYLE_FEATURES.includes(a.title));
     const feature = this.classFeatures.find((f) => FIGHTING_STYLE_FEATURES.includes(f.name));
     if (!advancementFound && !feature) return;
     if (!advancementFound && feature) {
       const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
-      advancement.updateSource({
+      const update: I5eAdvancementItemChoice = {
         title: feature.name,
         hint: feature.snippet ?? feature.description ?? "",
         configuration: {
@@ -1673,12 +1684,13 @@ export default class DDBClass {
           type: "feat",
           allowDrops: true,
         },
-        icons: "icons/magic/symbols/cog-orange-red.webp",
-      });
-      this._addAdvancement(advancement.toObject());
+        icon: "icons/magic/symbols/cog-orange-red.webp",
+      };
+      advancement.updateSource(update as any);
+      this._addAdvancement(advancement.toObject() as I5eAdvancement);
     }
 
-    for (const advancement of this.data.system.advancement) {
+    for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (!FIGHTING_STYLE_FEATURES.includes(advancement.title)) continue;
       const flags = {
         "flags.ddbimporter.is2014": this.is2014,
@@ -1723,6 +1735,7 @@ export default class DDBClass {
           advancement.configuration.pool.push({ uuid: special.uuid });
         }
       }
+      this.data.system.advancement[id] = advancement;
     }
   }
 
@@ -1736,7 +1749,7 @@ export default class DDBClass {
 
   _druidFixes() {
     if (this.data.name !== "Druid") return;
-    for (const advancement of this.data.system.advancement) {
+    for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title !== "Wild Shape CR") continue;
       advancement.configuration.type = "cr";
       advancement.configuration.scale = {
@@ -1744,9 +1757,10 @@ export default class DDBClass {
         4: { value: 0.5 },
         8: { value: 1 },
       };
+      this.data.system.advancement[id] = advancement;
     };
     if (this.is2014) {
-      const wildshape = {
+      const wildshape: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1764,7 +1778,7 @@ export default class DDBClass {
       };
       this._addAdvancement(wildshape);
     } else {
-      const wildshape = {
+      const wildshape: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1782,7 +1796,7 @@ export default class DDBClass {
         icon: null,
       };
       this._addAdvancement(wildshape);
-      const elementalFury = {
+      const elementalFury: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1799,7 +1813,7 @@ export default class DDBClass {
         icon: null,
       };
       this._addAdvancement(elementalFury);
-      const knownForms = {
+      const knownForms: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1822,7 +1836,7 @@ export default class DDBClass {
 
   _monkFixes() {
     if (this.data.name !== "Monk") return;
-    const ki = {
+    const ki: I5eAdvancement = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
       configuration: {
@@ -1846,7 +1860,7 @@ export default class DDBClass {
   _rogueFixes() {
     if (this.data.name !== "Rogue") return;
     if (this.is2014) return;
-    const cunningStrike = {
+    const cunningStrike: I5eAdvancement = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
       configuration: {
@@ -1863,7 +1877,8 @@ export default class DDBClass {
       icon: null,
     };
     this._addAdvancement(cunningStrike);
-    const sneakAttack = {
+    const sneakAttack: I5eAdvancement = {
+      _id: foundry.utils.randomID(),
       type: "ScaleValue",
       configuration: {
         distance: { units: "" },
@@ -1892,8 +1907,10 @@ export default class DDBClass {
   _barbarianFixes() {
     if (this.data.name !== "Barbarian") return;
 
-    if (!this.data.system.advancement.some((a) => a.configuration.identifier === "rage-damage")) {
-      const damage = {
+    if (!Object.values(this.data.system.advancement).some((a) =>
+      foundry.utils.getProperty(a, "configuration.identifier") === "rage-damage")
+    ) {
+      const damage: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1914,21 +1931,25 @@ export default class DDBClass {
     }
 
     if (this.is2014) return;
-    for (const advancement of this.data.system.advancement) {
+    for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title !== "Brutal Strike") continue;
       advancement.configuration.type = "dice";
       advancement.configuration.scale = {
         9: { number: 1, faces: 10 },
         17: { number: 2, faces: 10 },
       };
+      this.data.system.advancement[id] = advancement;
     };
 
   }
 
   _bardFixes() {
     if (this.data.name !== "Bard") return;
-    if (!this.data.system.advancement.some((a) => a.configuration.identifier === "inspiration")) {
-      const bardicInspiration = {
+    if (!Object.values(this.data.system.advancement).some((a) =>
+      foundry.utils.getProperty(a, "configuration.identifier") === "inspiration")
+    ) {
+      const bardicInspiration: I5eAdvancement = {
+        _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
           distance: { units: "" },
@@ -1951,7 +1972,7 @@ export default class DDBClass {
 
   _sorcererFixes() {
     if (this.data.name !== "Sorcerer") return;
-    const points = {
+    const points: I5eAdvancement = {
       _id: foundry.utils.randomID(),
       type: "ScaleValue",
       configuration: {
@@ -1976,19 +1997,19 @@ export default class DDBClass {
   _spellFixes() {
     // only run on non-spellcasting classes
     if (!["Fighter", "Rogue", "Barbarian", "Monk", "Gunslinger", "Monster Hunter", "Pugilist", "Illrigger", "Blood Hunter"].includes(this.data.name)) return;
-    const foundCantripsIndex = this.data.system.advancement.findIndex((a) => a.title === "Cantrips Known");
-    if (foundCantripsIndex !== -1) {
-      this.data.system.advancement.splice(foundCantripsIndex, 1);
+    const foundCantrips = Object.values(this.data.system.advancement).find((a) => a.title === "Cantrips Known");
+    if (foundCantrips) {
+      delete this.data.system.advancement[foundCantrips._id];
     }
-    const foundSpellsIndex = this.data.system.advancement.findIndex((a) => a.title === "Spells Known");
-    if (foundSpellsIndex !== -1) {
-      this.data.system.advancement.splice(foundSpellsIndex, 1);
+    const foundSpells = Object.values(this.data.system.advancement).find((a) => a.title === "Spells Known");
+    if (foundSpells) {
+      delete this.data.system.advancement[foundSpells._id];
     }
   }
 
   _artificerFixes() {
     if (this.data.name !== "Artificer") return;
-    for (const advancement of this.data.system.advancement) {
+    for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title !== "Tool Proficiencies") continue;
       advancement.configuration = {
         "allowReplacements": true,
@@ -2004,6 +2025,7 @@ export default class DDBClass {
         ],
         "mode": "default",
       };
+      this.data.system.advancement[id] = advancement;
       // const chosen = new Set(advancement.value?.chosen || []);
       // if (chosen.size !== 3) {
       //   chosen.add("tool:art:tinker");
@@ -2063,7 +2085,8 @@ export default class DDBClass {
     // only add full level 20 classes
     if (this.ddbClass.level !== 20) return;
 
-    const updateFeatures = this.updateCompendiumItems ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+    const updateFeatures = this.updateCompendiumItems
+      ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
     const type = this.isSubClass ? "subclass" : "class";
     const featureCompendiumFolders = new DDBCompendiumFolders(type);
@@ -2088,8 +2111,9 @@ export default class DDBClass {
 
     const data = foundry.utils.deepClone(this.data);
 
-    for (const advancement of data.system.advancement) {
+    for (const [id, advancement] of Object.entries(data.system.advancement)) {
       delete advancement.value;
+      data.system.advancement[id] = advancement;
     }
     if (data.system.levels) data.system.levels = 1;
     if (data.system.hd) data.system.hd.spent = 0;

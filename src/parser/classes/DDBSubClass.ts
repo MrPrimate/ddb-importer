@@ -6,7 +6,7 @@ import DDBClass from "./DDBClass";
 
 export default class DDBSubClass extends DDBClass {
   // these are advancement helpers
-  static SPECIAL_ADVANCEMENTS = {
+  static SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
     "Combat Superiority": {
       fix: true,
       fixFunction: AdvancementHelper.renameTotal,
@@ -306,7 +306,7 @@ export default class DDBSubClass extends DDBClass {
 
   _fighterFixes() {
     if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
-      for (const advancement of this.data.system.advancement) {
+      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
         if (advancement.title !== "Energy Die") continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
           3: { number: 4, faces: 6 },
@@ -316,9 +316,10 @@ export default class DDBSubClass extends DDBClass {
           13: { number: 10, faces: 10 },
           17: { number: 12, faces: 12 },
         });
+        this.data.system.advancement[id] = advancement;
       }
     } else if (this.data.name.startsWith("Rune Knight")) {
-      const number = {
+      const number: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -337,7 +338,7 @@ export default class DDBSubClass extends DDBClass {
 
       this._addAdvancement(number);
     } else if (this.data.name.startsWith("Steel Hawk")) {
-      for (const advancement of this.data.system.advancement) {
+      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
         if (advancement.title !== "Launch") continue;
         advancement.configuration.scale = {
           3: { number: 3, faces: 8 },
@@ -346,9 +347,10 @@ export default class DDBSubClass extends DDBClass {
           15: { number: 5, faces: 10 },
           18: { number: 5, faces: 12 },
         };
+        this.data.system.advancement[id] = advancement;
       }
     } else if (this.data.name.startsWith("Arcane Archer") && this.is2014) {
-      const secondary = {
+      const secondary: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -364,7 +366,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
       this._addAdvancement(secondary);
-      const minor = {
+      const minor: I5eAdvancementScaleValue = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -386,13 +388,14 @@ export default class DDBSubClass extends DDBClass {
 
   _rangerFixes() {
     if (this.data.name.startsWith("Drake Warden")) {
-      for (const advancement of this.data.system.advancement) {
+      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
         if (advancement.title !== "Drake Companion") continue;
-        advancement.configuration.type = "dice";
-        advancement.configuration.scale = {
+        (advancement as I5eAdvancementScaleValue).configuration.type = "dice";
+        (advancement as I5eAdvancementScaleValue).configuration.scale = {
           7: { number: 1, faces: 6 },
           15: { number: 2, faces: 6 },
         };
+        this.data.system.advancement[id] = advancement;
       }
     }
   }
@@ -410,7 +413,7 @@ export default class DDBSubClass extends DDBClass {
         choiceLevel: 3,
       });
       if (cantripChoiceAdvancement) {
-        cantripChoiceAdvancement.updateSource({
+        const update: I5eAdvancementItemChoice = {
           configuration: {
             restriction: {
               list: [
@@ -418,15 +421,16 @@ export default class DDBSubClass extends DDBClass {
               ],
             },
           },
-        });
-        this._addAdvancement(cantripChoiceAdvancement.toObject());
+        };
+        cantripChoiceAdvancement.updateSource(update as any);
+        this._addAdvancement(cantripChoiceAdvancement.toObject() as I5eAdvancement);
       }
     }
   }
 
   _sorcererFixes() {
     if (this.data.name.startsWith("Spellfire Sorcery")) {
-      const dice = {
+      const dice: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -449,7 +453,7 @@ export default class DDBSubClass extends DDBClass {
   _artificerFixes() {
     if (this.data.name.startsWith("Alchemist")) {
       if (this.is2024) {
-        const elixir = {
+        const elixir: I5eAdvancementScaleValue = {
           type: "ScaleValue",
           configuration: {
             identifier: "experimental-elixir",
@@ -474,11 +478,12 @@ export default class DDBSubClass extends DDBClass {
         this._addAdvancement(elixir);
       }
     } else if (this.data.name.startsWith("Armorer") && this.is2024) {
-      for (const advancement of this.data.system.advancement) {
+      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
         if (advancement.title !== "Improved Armorer") continue;
-        advancement.configuration.scale[3] = { value: 0 };
+        (advancement as I5eAdvancementScaleValue).configuration.scale[3] = { value: 0 };
+        this.data.system.advancement[id] = advancement;
       }
-      const forceDemolisher = {
+      const forceDemolisher: I5eAdvancement = {
         type: "ScaleValue",
         configuration: {
           identifier: "force-demolisher",
@@ -491,7 +496,7 @@ export default class DDBSubClass extends DDBClass {
         title: "Force Demolisher",
       };
       this._addAdvancement(forceDemolisher);
-      const lightningLauncher = {
+      const lightningLauncher: I5eAdvancement = {
         type: "ScaleValue",
         configuration: {
           identifier: "lightning-launcher",
@@ -504,7 +509,7 @@ export default class DDBSubClass extends DDBClass {
         title: "Lightning Launcher",
       };
       this._addAdvancement(lightningLauncher);
-      const thunderPulse = {
+      const thunderPulse: I5eAdvancement = {
         type: "ScaleValue",
         configuration: {
           identifier: "thunder-pulse",
@@ -518,7 +523,7 @@ export default class DDBSubClass extends DDBClass {
       };
       this._addAdvancement(thunderPulse);
     } else if (this.data.name.startsWith("Artillerist") && this.is2024) {
-      const damage = {
+      const damage: I5eAdvancement = {
         type: "ScaleValue",
         configuration: {
           identifier: "eldritch-cannon",
@@ -531,7 +536,7 @@ export default class DDBSubClass extends DDBClass {
         title: "Eldritch Cannon Damage Dice",
       };
       this._addAdvancement(damage);
-      const healing = {
+      const healing: I5eAdvancement = {
         type: "ScaleValue",
         configuration: {
           identifier: "healing-dice",
@@ -616,7 +621,7 @@ export default class DDBSubClass extends DDBClass {
   }
 
   async _generateSpellListAdvancement(feature) {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     const extractor = new SpellListExtractor({
       name: feature.name,
@@ -661,7 +666,7 @@ export default class DDBSubClass extends DDBClass {
       const grantAdvancement = await AdvancementHelper.getSpellGrantAdvancement(options);
 
       if (grantAdvancement) {
-        advancements.push(grantAdvancement);
+        advancements.push(grantAdvancement.toObject() as I5eAdvancement);
       }
     }
 
@@ -669,9 +674,7 @@ export default class DDBSubClass extends DDBClass {
       advancements,
     });
 
-    advancements.forEach((advancement) => {
-      this._addAdvancement(advancement.toObject());
-    });
+    this._addAdvancements(advancements);
   }
 
   async _generateSpellListAdvancements() {
