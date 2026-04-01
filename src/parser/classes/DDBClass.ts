@@ -791,7 +791,6 @@ export default class DDBClass {
   // ADVANCEMENT FUNCTIONS
 
 
-
   async _generateFeatureAdvancementFromCompendiumMatch(feature) {
     logger.debug(`Trying to generate advancement for feature: ${feature.name}`);
     const featureMatch = this.getFeatureCompendiumMatch(feature);
@@ -1522,11 +1521,6 @@ export default class DDBClass {
         level: i,
         value: { type: "asi" },
       };
-      console.warn(`Generating ability score improvement advancement for feature ${abilityAdvancementFeature.name} at level ${i}`, {
-        abilityAdvancementFeature,
-        update,
-        advancement,
-      });
       advancement.updateSource(update as any);
 
       // if (abilityAdvancementFeature.name === "Epic Boon") {

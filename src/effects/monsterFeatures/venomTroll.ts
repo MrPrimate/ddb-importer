@@ -32,19 +32,8 @@ export async function venomTrollEffects(npc) {
       );
       effect.transfer = true;
       foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
-
       await DDBMacros.setItemMacroFlag(item, "monsterFeature", "poisonSplash.js");
-
       item.effects.push(effect);
-
-      item.system.target = {
-        "value": 5,
-        "width": null,
-        "units": "ft",
-        "type": "creature",
-      };
-      item.system.range.units = "spec";
-      item.system.duration.units = "inst";
 
     } else if (item.name === "Regeneration") {
       const effect = baseMonsterFeatureEffect(item, item.name);
