@@ -54,7 +54,7 @@ export default class TheThirdEye extends DDBEnricherData {
         name: "Darkvision",
         activityMatch: "Darkvision",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.darkvision"),
+          DDBEnricherData.ChangeHelper.upgradeChange("120", 20, "system.attributes.senses.ranges.darkvision"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 120, 5),

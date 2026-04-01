@@ -28,7 +28,7 @@ export default class Stonecunning extends DDBEnricherData {
           durationSeconds: 600,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("60", 20, "system.attributes.senses.tremorsense"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("60", 20, "system.attributes.senses.ranges.tremorsense"),
         ],
         atlChanges: [
           DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.ADD, 60, 5),

@@ -75,7 +75,7 @@ export default class EyesOfNight extends DDBEnricherData {
         activityMatch: "Activate",
         img: "icons/magic/perception/silhouette-stealth-shadow.webp",
         changes: [
-          DDBEnricherData.ChangeHelper.upgradeChange("300", 20, "system.attributes.senses.darkvision"),
+          DDBEnricherData.ChangeHelper.upgradeChange("300", 20, "system.attributes.senses.ranges.darkvision"),
         ],
         options: {
           durationSeconds: 3600,
