@@ -316,7 +316,7 @@ export default class EffectGenerator {
         .map((mod) => parseInt(String(mod.value)));
       if (base.length > 0) {
         logger.debug(`Generating ${sense} base for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.${sense}`));
+        this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.ranges.${sense}`));
         if (AutoEffects.effectModules().atlInstalled) {
           this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, "ATL.sight.range"));
           this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 5));
@@ -327,7 +327,7 @@ export default class EffectGenerator {
         .reduce((a, b) => a + parseInt(String(b.value)), 0);
       if (bonus > 0) {
         logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.${sense}`));
+        this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.ranges.${sense}`));
         if (AutoEffects.effectModules().atlInstalled) {
           this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, "ATL.sight.range"));
           this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 6));

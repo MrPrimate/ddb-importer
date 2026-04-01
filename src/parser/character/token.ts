@@ -1,7 +1,6 @@
 import { logger } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 import DDBCharacter from "../DDBCharacter";
-import { IDDBPCSenses } from "./senses";
 
 DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharacter) {
   try {
@@ -20,13 +19,13 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
     });
     const atlActive = game.modules.get("ATL")?.active;
     // if atl is active it can add vision upgrade effects, otherwise we don't take effects into account
-    const senses = this.getSenses({ includeEffects: !atlActive }) as IDDBPCSenses;
+    const senses = this.getSenses({ includeEffects: !atlActive }) as I5eSenses;
     // darkvision: 0,
     // blindsight: 0,
     // tremorsense: 0,
     // truesight: 0,
 
-    for (const [key, value] of Object.entries(senses)) {
+    for (const [key, value] of Object.entries(senses.ranges)) {
       if (value > 0 && value > tokenData.sight.range && foundry.utils.hasProperty(DICTIONARY.senseMap(), key)) {
         const visionMode = DICTIONARY.senseMap()[key];
         foundry.utils.setProperty(tokenData, "sight.visionMode", visionMode);

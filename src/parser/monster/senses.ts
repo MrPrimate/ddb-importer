@@ -76,11 +76,13 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: 
 
 
 DDBMonster.prototype._generateSenses = function _generateSenses(this: DDBMonster) {
-  const senses = {
-    darkvision: 0,
-    blindsight: 0,
-    tremorsense: 0,
-    truesight: 0,
+  const senses: I5eSenses = {
+    ranges: {
+      darkvision: 0,
+      blindsight: 0,
+      tremorsense: 0,
+      truesight: 0,
+    },
     units: "ft",
     special: "",
   };
@@ -89,10 +91,10 @@ DDBMonster.prototype._generateSenses = function _generateSenses(this: DDBMonster
 
   this.source.senses.forEach((sense) => {
     const senseMatch = senseLookup.find((l) => l.id == sense.senseId);
-    if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in senses) {
+    if (senseMatch && sense.notes && senseMatch.name.toLowerCase() in senses.ranges) {
       const rangeMatch = sense.notes.trim().match(/^(\d+)/);
       if (rangeMatch) {
-        senses[senseMatch.name.toLowerCase()] = parseInt(rangeMatch[1]);
+        senses.ranges[senseMatch.name.toLowerCase()] = parseInt(rangeMatch[1]);
         if (sense.notes.includes("blind beyond this radius")) {
           special.push(`Blind beyond this radius`);
         }
