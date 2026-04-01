@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.10
+
+- Some drawings would cause adventure imports to fail.
+
 # 7.0.9
 
 - Hells lash activation cost adjustment. @crimsonedge

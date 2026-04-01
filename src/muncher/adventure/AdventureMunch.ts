@@ -1103,11 +1103,13 @@ export default class AdventureMunch {
             if (Object.values(CONFIG.Drawing.objectClass.SHAPE_TYPES).includes(drawing.type)) {
               type = drawing.type;
             }
+            const migratePoints = (t) => Array.isArray(t.points) ? t.points.flat() : t.points;
+            const points = migratePoints(drawing);
             drawing.shape = {
               type: type,
               height: drawing.height,
               width: drawing.width,
-              points: drawing.points,
+              points,
               radius: drawing.radius ?? null,
             };
             // delete drawing.type;
