@@ -388,17 +388,19 @@ export default class AdventureMunch {
   }
 
   _renderCompleteDialog() {
-    new Dialog(
-      {
+    logger.info(`Adventure import complete for ${this.adventure.name}`, {
+      this: this,
+    });
+    foundry.applications.api.DialogV2.prompt({
+      window: {
         title: `Successful Import of ${this.adventure.name}`,
-        content: { adventure: this.adventure },
-        buttons: { two: { label: "OK" } },
       },
-      {
-        classes: ["dialog", "adventure-import-export"],
-        template: "modules/ddb-importer/handlebars/adventure/import-complete.hbs",
+      content: `<h1>${this.adventure.name}</h1><h3>${this.adventure.description}</h3>`,
+      ok: {
+        label: "OK",
       },
-    ).render(true);
+      classes: ["adventure-import-export"],
+    });
   }
 
   /**
