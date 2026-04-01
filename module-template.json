@@ -12,7 +12,7 @@
   "compatibility": {
     "minimum": "13.346",
     "verified": "13.351",
-    "maximum": 13
+    "maximum": 14
   },
   "authors": [
     {
@@ -35,9 +35,9 @@
       "id": "dnd5e",
       "type": "system",
       "compatibility": {
-        "minimum": "5.2.0",
-        "verified": "5.2.2",
-        "maximum": "5.2.99"
+        "minimum": "5.3.0",
+        "verified": "5.3.0",
+        "maximum": "5.3.99"
       }
     }]
   },
