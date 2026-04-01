@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.0
+
+- Support for D&D System 5.3.0. This does not support earlier versions of the D&D System.
+
 # 7.0.10
 
 - Some drawings would cause adventure imports to fail.

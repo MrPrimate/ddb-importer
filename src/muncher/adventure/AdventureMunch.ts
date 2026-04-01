@@ -687,48 +687,58 @@ export default class AdventureMunch {
       fileData.push(scene);
     });
 
-    return new Promise((resolve) => {
-      new Dialog(
+    const checkboxes = fileData
+      .filter((scene) => scene.flags?.ddb?.versions)
+      .map((scene) =>
+        `<div>`
+        + `<input id="scene_${scene._id}" name="${scene._id}" type="checkbox" value="">`
+        + `<label for="scene_${scene._id}">${scene.name} : <i>v${scene.flags.ddb.versions.ddbMetaData.lastUpdate}</i></label>`
+        + `</div>`,
+      ).join("");
+
+    const content = `<form class="import-data-selection" autocomplete="off" onsubmit="event.preventDefault();">`
+      + `<div>`
+      + `<p class="notes">The following scenes are available for import.</p>`
+      + `<p class="notes">Select required scenes or All button.</p>`
+      + `<div class="form-description">${checkboxes}</div>`
+      + `</div>`
+      + `</form>`;
+
+    const response = await foundry.applications.api.DialogV2.wait({
+      rejectClose: false,
+      window: { title: "Choose Scenes to Import" },
+      content,
+      classes: ["adventure-import-selection"],
+      position: { width: 700 },
+      buttons: [
         {
-          title: "Choose Scenes to Import",
-          content: {
-            fileData: fileData,
-            cssClass: "import-data-selection",
-          },
-          buttons: {
-            selection: {
-              label: "Selected",
-              callback: async () => {
-                const formData = $(".import-data-selection").serializeArray();
-                const scenes = [];
-                for (let i = 0; i < formData.length; i++) {
-                  const key = formData[i].name;
-                  scenes.push(this.raw.scene.find((s) => s.name.includes(key)));
-                }
-                logger.debug("scenes to import", scenes);
-                this.raw.scene = scenes;
-                resolve(this);
-              },
-            },
-            all: {
-              label: "All",
-              callback: async () => {
-                resolve(this);
-              },
-            },
-          },
-          default: "all",
-          close: async () => {
-            resolve(this);
+          action: "selection",
+          label: "Selected",
+          icon: "fas fa-list-check",
+          callback: (_event, button, _dialog) => {
+            const formData = new FormDataExtended(button.form);
+            return Object.keys(formData.object);
           },
         },
         {
-          width: 700,
-          classes: ["dialog", "adventure-import-selection"],
-          template: "modules/ddb-importer/handlebars/adventure/choose-scenes.hbs",
+          action: "all",
+          label: "All",
+          icon: "fas fa-check-double",
+          callback: () => null,
         },
-      ).render(true);
+      ],
     });
+
+    if (response) {
+      const scenes = [];
+      for (const key of response) {
+        scenes.push(this.raw.scene.find((s) => s.filename.includes(key)));
+      }
+      logger.debug("scenes to import", scenes);
+      this.raw.scene = scenes;
+    }
+
+    return this;
 
   }
 
@@ -1424,51 +1434,83 @@ export default class AdventureMunch {
 
     logger.debug("Scene update choices", fileData);
 
-    return new Promise((resolve) => {
-      if (hasVersions && fileData.length > 0) {
-        new Dialog(
+    if (hasVersions && fileData.length > 0) {
+      const checkboxes = fileData
+        .filter((scene) => scene.flags?.ddb?.versions)
+        .map((scene) => {
+          const versions = scene.flags.ddb.versions;
+          const importer = versions.importer;
+          const oldVersions = scene.flags.ddb.oldVersions;
+          let label;
+
+          if (importer.foundryVersionNewer) {
+            label = `<label for="new_${scene._id}">${scene.name} : <i style="color:red">Foundry v${versions.ddbMetaData.foundry} used to generate this scene!</i></label>`;
+          } else if (importer.metaVersionChanged) {
+            const fromVersion = oldVersions?.ddbMetaData?.lastUpdate ? `v${oldVersions.ddbMetaData.lastUpdate}` : "unknown version";
+            const icons = [
+              versions.ddbMetaData.tokenVersionChanged ? `<i class="fa fa-pastafarianism" title="Tokens changed"></i>` : "",
+              versions.wallVersionChanged ? `<i class="fa fa-door-closed" title="Walls changed"></i>` : "",
+              versions.noteVersionChanged ? `<i class="fa fa-map-pin" title="Note pins changed"></i>` : "",
+              versions.lightVersionChanged ? `<i class="fa fa-lightbulb" title="Lights changed"></i>` : "",
+              versions.drawingVersionChanged ? `<i class="fa fa-pen" title="Drawings changed"></i>` : "",
+            ].filter(Boolean).join(" ");
+            label = `<label for="new_${scene._id}">${scene.name} : <i>from ${fromVersion} to v${versions.ddbMetaData.lastUpdate}</i> ${icons}</label>`;
+          } else {
+            const tooltipParts = [
+              importer.importerVersionChanged
+                ? `DDB-Importer ${versions.ddbImporter} (previous: ${oldVersions?.ddbImporter ? `v${oldVersions.ddbImporter}` : "unknown"})`
+                : "",
+              importer.muncherVersionChanged
+                ? `DDB Adventure Muncher ${versions.adventureMuncher} (previous: ${oldVersions?.adventureMuncher ? `v${oldVersions.adventureMuncher}` : "unknown"})`
+                : "",
+            ].filter(Boolean).join("\n");
+            label = `<label for="new_${scene._id}">${scene.name} : <i>v${versions.ddbMetaData.lastUpdate}</i> <i class="fa fa-info" title="${tooltipParts}"></i></label>`;
+          }
+
+          return `<div><input id="new_${scene._id}" name="new_${scene._id}" type="checkbox" value="">${label}</div>`;
+        }).join("");
+
+      const content = `<form class="import-data-updates" autocomplete="off" onsubmit="event.preventDefault();">`
+        + `<div>`
+        + `<p class="notes">The following ${importType} data has updates available, please choose which ones you want to apply by ticking the corresponding checkbox.</p>`
+        + `<p class="notes">Meta Data changes effect scenes, walls and tokens on the scene. Adventure Muncher Update can effect a wide variety of resources. DDB Importer version change is unlikely to effect anything.</p>`
+        + `<p class="notes">Foundry version change is dangerous, and means that scenes are likely to import correctly. This means the scene was generated with a later version of Foundry.</p>`
+        + `<div class="form-description">${checkboxes}</div>`
+        + `</div>`
+        + `</form>`;
+
+      const response = await foundry.applications.api.DialogV2.wait({
+        rejectClose: false,
+        window: { title: `${importType} updates` },
+        content,
+        classes: ["adventure-import-updates"],
+        position: { width: 700 },
+        buttons: [
           {
-            title: `${importType} updates`,
-            content: {
-              dataType: type,
-              dataTypeDisplay: importType,
-              fileData,
-              cssClass: "import-data-updates",
-            },
-            buttons: {
-              confirm: {
-                label: "Confirm",
-                callback: async () => {
-                  const formData = $(".import-data-updates").serializeArray();
-                  const ids = [];
-                  let dataType = "";
-                  for (let i = 0; i < formData.length; i++) {
-                    const key = formData[i].name;
-                    if (key.startsWith("new_")) {
-                      ids.push(key.substring(4));
-                    } else if (key === "type") {
-                      dataType = formData[i].value;
-                    }
-                  }
-                  resolve(this._importFile(dataType, { overwriteIds: ids }));
-                },
-              },
-            },
-            default: "confirm",
-            close: async () => {
-              resolve(this._importFile(type));
+            action: "confirm",
+            label: "Confirm",
+            icon: "fas fa-check",
+            callback: (_event, button, _dialog) => {
+              const formData = new FormDataExtended(button.form);
+              const ids = [];
+              for (const key of Object.keys(formData.object)) {
+                if (key.startsWith("new_")) {
+                  ids.push(key.substring(4));
+                }
+              }
+              return ids;
             },
           },
-          {
-            width: 700,
-            classes: ["dialog", "adventure-import-updates"],
-            template: "modules/ddb-importer/handlebars/adventure/import-updates.hbs",
-          },
-        ).render(true);
-      } else {
-        resolve(this._importFile(type));
+        ],
+      });
+
+      if (response) {
+        return this._importFile(type, { overwriteIds: response });
       }
-    });
+      return this._importFile(type);
+    } else {
+      return this._importFile(type);
+    }
   }
 
   async _importTokenImage(tokenType, data, { img = false, texture = true } = {}) {
