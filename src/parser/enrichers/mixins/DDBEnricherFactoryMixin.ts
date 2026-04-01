@@ -1082,7 +1082,7 @@ export default abstract class DDBEnricherFactoryMixin {
         }
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
-      result.advancements.push(...(foundry.utils.deepClone(feature.system.advancement)));
+      result.advancements.push(...(foundry.utils.deepClone(Object.values(feature.system.advancement))));
     });
     this.customActionFeatures[name] = actionFeatures;
     logger.debug(`Additional Activities from Action ${name}`, { result });

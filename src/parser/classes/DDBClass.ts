@@ -509,6 +509,7 @@ export default class DDBClass {
   }
 
   _addAdvancement(advancement: I5eAdvancement) {
+    if (!advancement._id) advancement._id = foundry.utils.randomID();
     this.data.system.advancement[advancement._id] = advancement;
   }
 
@@ -997,8 +998,8 @@ export default class DDBClass {
   }
 
   _generateScaleValueAdvancementsFromFeatures() {
-    const specialFeatures = [];
-    const advancements = this.classFeatures
+    const specialFeatures: I5eAdvancement[] = [];
+    const advancements: I5eAdvancement[] = this.classFeatures
       .filter((feature) => feature.levelScales?.length > 0)
       .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
       .map((feature) => {
@@ -1025,7 +1026,8 @@ export default class DDBClass {
         || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(a.configuration?.identifier)),
       );
 
-    this._addAdvancement(...advancements, ...specialFeatures);
+    this._addAdvancements(advancements);
+    this._addAdvancements(specialFeatures);
   }
 
   _generateScaleValueSpellAdvancements() {
@@ -1513,19 +1515,32 @@ export default class DDBClass {
 
       if (!abilityAdvancementFeature) continue;
       const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-      advancement.updateSource({
+      const update: I5eAdvancementAbilityScoreImprovement = {
+        title: abilityAdvancementFeature.name,
+        hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
         configuration: { points: 2 },
         level: i,
         value: { type: "asi" },
+      };
+      console.warn(`Generating ability score improvement advancement for feature ${abilityAdvancementFeature.name} at level ${i}`, {
+        abilityAdvancementFeature,
+        update,
+        advancement,
       });
+      advancement.updateSource(update as any);
 
-      if (abilityAdvancementFeature.name === "Epic Boon") {
-        const update: I5eAdvancementAbilityScoreImprovement = {
-          title: "Epic Boon",
-          hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
-        };
-        advancement.updateSource(update as any);
-      }
+      // if (abilityAdvancementFeature.name === "Epic Boon") {
+      //   const update: I5eAdvancementAbilityScoreImprovement = {
+      //     title: "Epic Boon",
+      //     hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
+      //   };
+      //   console.warn(`Updating epic boon advancement for feature ${abilityAdvancementFeature.name} at level ${i}`, {
+      //     abilityAdvancementFeature,
+      //     update,
+      //     advancement,
+      //   });
+      //   advancement.updateSource(update as any);
+      // }
 
       // if advancement has taken ability improvements
       const modFilters = {
