@@ -10994,5 +10994,21 @@
   {
     "name": "Helm",
     "path": "icons/tools/nautical/steering-wheel.webp"
+  },
+  {
+    "name": "Celestial Radiance",
+    "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
+  },
+  {
+    "name": "Raise the Dead",
+    "path": "icons/magic/death/hand-dirt-undead-zombie.webp"
+  },
+  {
+    "name": "Chaos Blast",
+    "path": "icons/magic/symbols/rune-sigil-green-purple.webp"
+  },
+  {
+    "name": "Sinister Command",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
   }
 ]

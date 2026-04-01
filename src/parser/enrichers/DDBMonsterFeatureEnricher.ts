@@ -242,5 +242,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Spiritual Weapon": {
       "Move and Attack": MonsterEnrichers.SpiritualWeapon.Attack,
     },
+    "Venom Troll": {
+      "Venom Spray": MonsterEnrichers.VenomTroll.VenomSpray,
+      "Venom Spray (Recharge 6)": MonsterEnrichers.VenomTroll.VenomSpray,
+    },
   };
 }

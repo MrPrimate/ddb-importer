@@ -5675,6 +5675,15 @@ export const fallbackDDBConfig: IDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/54296/216/639046483090649923.jpeg",
       sourceURL: "sources/dnd/tpc",
     },
+    {
+      id: 229,
+      name: "GSB1",
+      description: "The Griffon’s Saddlebag: Book One",
+      sourceCategoryId: 27,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/55529/865/639094550191215856.jpeg",
+      sourceURL: "sources/dnd/gsb1",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
