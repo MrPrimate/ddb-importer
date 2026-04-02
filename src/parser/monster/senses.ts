@@ -45,29 +45,21 @@ DDBMonster.prototype._generateTokenSenses = function _generateTokenSenses(this: 
           this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
         }
         if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, senseMatch.name.toLowerCase())) {
-          const detectionMode = {
-            id: DICTIONARY.detectionMap[senseMatch.name.toLowerCase()],
-            range: value,
-            enabled: true,
-          };
-          // only add duplicate modes if they don't exist
+          const detectionModeId = DICTIONARY.detectionMap[senseMatch.name.toLowerCase()];
           // don't add if vision 5e is installed, as it can handle these detection modes.
-          if (!vision5eInstalled && !this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
-            this.npc.prototypeToken.detectionModes.push(detectionMode);
+          if (!vision5eInstalled) {
+            this.npc.prototypeToken.detectionModes[detectionModeId] = {
+              range: value,
+              enabled: true,
+            };
           }
         }
         // add these modes if supported by vision 5e
         if (vision5eInstalled && blindBeyondMatch) {
-          this.npc.prototypeToken.detectionModes = this.npc.prototypeToken.detectionModes.filter((m) =>
-            m.id !== "lightPerception",
-          );
-          this.npc.prototypeToken.detectionModes.push(
-            {
-              "id": "lightPerception",
-              "range": value,
-              "enabled": true,
-            },
-          );
+          this.npc.prototypeToken.detectionModes["lightPerception"] = {
+            range: value,
+            enabled: true,
+          };
         }
       }
     }

@@ -510,16 +510,11 @@ export default class DDBCompanionMixin {
           this.npc.prototypeToken.sight = foundry.utils.mergeObject(this.npc.prototypeToken.sight, CONFIG.Canvas.visionModes[senseType].vision.defaults);
         }
         if (value > 0 && foundry.utils.hasProperty(DICTIONARY.detectionMap, match[1].toLowerCase())) {
-          const detectionMode = {
-            id: DICTIONARY.detectionMap[match[1].toLowerCase()],
+          const detectionModeId = DICTIONARY.detectionMap[match[1].toLowerCase()];
+          this.npc.prototypeToken.detectionModes[detectionModeId] = {
             range: value,
             enabled: true,
           };
-
-          // only add duplicate modes if they don't exist
-          if (!this.npc.prototypeToken.detectionModes.some((mode) => mode.id === detectionMode.id)) {
-            this.npc.prototypeToken.detectionModes.push(detectionMode);
-          }
         }
       }
     });

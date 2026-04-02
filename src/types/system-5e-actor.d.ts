@@ -353,7 +353,6 @@ global {
   // ---- Prototype Token ------------------------------------------------------
 
   interface I5eTokenDetectionMode {
-    id: string;
     range: number;
     enabled: boolean;
   }
@@ -445,7 +444,7 @@ global {
     sight?: I5eTokenSight;
     texture?: I5eTokenTexture;
     ring?: I5eTokenRing;
-    detectionModes?: I5eTokenDetectionMode[];
+    detectionModes?: Record<string, I5eTokenDetectionMode>;
     occludable?: { radius: number };
     randomImg?: boolean;
     movementAction?: string | null;

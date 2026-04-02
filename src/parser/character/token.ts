@@ -15,7 +15,7 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
         range: 0,
         visionMode: "basic",
       },
-      detectionModes: [],
+      detectionModes: {},
     });
     const atlActive = game.modules.get("ATL")?.active;
     // if atl is active it can add vision upgrade effects, otherwise we don't take effects into account
@@ -36,16 +36,11 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
         && value > 0
         && foundry.utils.hasProperty(DICTIONARY.detectionMap, key)
       ) {
-        const detectionMode = {
-          id: DICTIONARY.detectionMap[key],
+        const detectionModeId = DICTIONARY.detectionMap[key];
+        tokenData.detectionModes[detectionModeId] = {
           range: value,
           enabled: true,
         };
-
-        // only add duplicate modes if they don't exist
-        if (!tokenData.detectionModes.some((mode) => mode.id === detectionMode.id)) {
-          tokenData.detectionModes.push(detectionMode);
-        }
       }
     }
 
