@@ -180,7 +180,7 @@ export default class DDBRace {
     feats: CompendiumHelper.getCompendiumType("feats", false),
   };
 
-  abilityAdvancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+  abilityAdvancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
 
   constructor({ ddbCharacter, compendiumRacialTraits }: { ddbCharacter: DDBCharacter; compendiumRacialTraits: CompendiumCollection.Any }) {
     this.ddbCharacter = ddbCharacter;
@@ -381,7 +381,7 @@ export default class DDBRace {
   }
 
   #addSizeAdvancement() {
-    const advancement = new game.dnd5e.documents.advancement.SizeAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.SizeAdvancement);
 
     const ddbSizeData = CONFIG.DDB.creatureSizes.find((s) => s.id === this.race.sizeId);
     if (ddbSizeData.id === 10) {
@@ -420,7 +420,7 @@ export default class DDBRace {
       // Your Charisma score increases by 2. In addition, one other ability score of your choice increases by 1.
       // Your Constitution score increases by 2, and      one other ability score of your choice increases by 1.
 
-      const update = this.abilityAdvancement.configuration.toObject();
+      const update = foundry.utils.duplicate(this.abilityAdvancement.configuration);
       const fixedRegex = /Your (\w+) score increases by (\d)/i;
       const fixedMatch = trait.description.match(fixedRegex);
       if (fixedMatch) {
@@ -654,7 +654,7 @@ export default class DDBRace {
   async #generateFeatAdvancement(trait: IDDBRacialTraitDefinition) {
     if (!["Feats", "Feat", "Versatile"].includes(trait.name.trim())) return;
 
-    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
 
     const uuids = this._compendiums.feats.index
       .filter((i) => {
@@ -833,7 +833,7 @@ export default class DDBRace {
 
     const forceReplace = DDBRace.FORCE_ADVANCEMENT_REPLACE.includes(trait.name);
     this.configChoices[trait.name] = AdvancementHelper.getChoiceReplacements(trait.description ?? trait.snippet ?? "", lowestLevel, configChoices, forceReplace);
-    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
 
     const updateData: I5eAdvancementItemChoice = {
       title: utils.nameString(trait.name),
@@ -938,7 +938,7 @@ export default class DDBRace {
 
     const forceReplace = DDBRace.FORCE_ADVANCEMENT_REPLACE.includes(trait.name);
     this.configChoices[trait.name] = AdvancementHelper.getChoiceReplacements(trait.description ?? trait.snippet ?? "", lowestLevel, configChoices, forceReplace);
-    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
 
     const advancementData: I5eAdvancementItemChoice = {
       title: utils.nameString(trait.name),
@@ -1175,7 +1175,7 @@ export default class DDBRace {
     const levelAdvancement = this.traitAdvancements.findIndex((advancement) => advancement.level === requiredLevel);
 
     if (levelAdvancement == -1) {
-      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+      const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
       this._advancementMatches.traits[advancement._id] = {};
       this._advancementMatches.traits[advancement._id][traitMatch.name] = traitMatch.uuid;
 

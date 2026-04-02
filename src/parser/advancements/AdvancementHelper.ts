@@ -3,7 +3,8 @@ import { utils, logger, CompendiumHelper } from "../../lib/_module";
 import { AutoEffects } from "../enrichers/effects/_module";
 import { DDBBasicActivity } from "../activities/_module";
 import { DDBModifiers } from "../lib/_module";
-import TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trait.mjs";
+import type TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trait.mjs";
+import AdvancementWrapper from "./AdvancementWrapper";
 import type CharacterFeatureFactory from "../features/CharacterFeatureFactory";
 
 function htmlToText(html) {
@@ -82,6 +83,10 @@ export default class AdvancementHelper {
       multiclassTool: 0,
     };
     this.isSubclass = isSubclass;
+  }
+
+  static createAdvancement<T>(AdvancementClass: new () => T): T {
+    return new AdvancementWrapper(AdvancementClass) as unknown as T;
   }
 
   static stripDescription(description: string): string {
@@ -366,7 +371,7 @@ export default class AdvancementHelper {
     }
   }
 
-  getSaveAdvancement({feature, mods, availableToMulticlass, level}: IAdvancementGetterOptions): TraitAdvancement {
+  getSaveAdvancement({feature, mods, availableToMulticlass, level}: IAdvancementGetterOptions): TraitAdvancement | null {
     const updates = DICTIONARY.actor.abilities
       .filter((ability) => {
         return DDBModifiers.filterModifiers(mods, "proficiency", { subType: `${ability.long}-saving-throws` }).length > 0;
@@ -381,7 +386,7 @@ export default class AdvancementHelper {
     ]
       .some((text) => feature.description.includes(text));
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
     advancement.updateSource({
       classRestriction: (level > 1 || this.isSubclass)
         ? ""
@@ -411,7 +416,7 @@ export default class AdvancementHelper {
   }
 
 
-  getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level }: IAdvancementGetterOptions): TraitAdvancement {
+  getSkillAdvancement({ mods, feature, availableToMulticlass = undefined, level }: IAdvancementGetterOptions): TraitAdvancement | null {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const skillsFromMods = mods
       .filter((mod) =>
@@ -421,7 +426,7 @@ export default class AdvancementHelper {
         DICTIONARY.actor.skills.find((s) => s.label === mod.friendlySubtypeName).name,
       );
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
     const parsedSkills = AdvancementHelper.parseHTMLSkills(feature.description);
     const chosenSkills = this.getSkillChoicesFromOptions(feature, level);
@@ -505,10 +510,10 @@ export default class AdvancementHelper {
   }
 
 
-  getLanguageAdvancement(mods: IModifiersMod[], feature: TFeature, level: number): TraitAdvancement {
+  getLanguageAdvancement(mods: IModifiersMod[], feature: TFeature, level: number): TraitAdvancement | null {
     const languagesMods = DDBModifiers.filterModifiers(mods, "language");
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
     const parsedLanguages = AdvancementHelper.parseHTMLLanguages(feature.description);
     const chosenLanguages = this.getLanguageChoicesFromOptions(feature, level);
@@ -570,7 +575,7 @@ export default class AdvancementHelper {
   }
 
 
-  getToolAdvancement({ mods, feature, availableToMulticlass = undefined, level }: IAdvancementGetterOptions): TraitAdvancement {
+  getToolAdvancement({ mods, feature, availableToMulticlass = undefined, level }: IAdvancementGetterOptions): TraitAdvancement | null {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const toolMods = proficiencyMods
@@ -579,7 +584,7 @@ export default class AdvancementHelper {
           .some((prof) => prof.type === "Tool" && prof.name === mod.friendlySubtypeName),
       );
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
     const parsedTools = AdvancementHelper.parseHTMLTools(feature.description);
     const chosenTools = this.getToolChoicesFromOptions(feature, level);
@@ -664,7 +669,7 @@ export default class AdvancementHelper {
   }
 
 
-  getArmorAdvancement({ mods, feature, availableToMulticlass, level }: IAdvancementGetterOptions): TraitAdvancement {
+  getArmorAdvancement({ mods, feature, availableToMulticlass, level }: IAdvancementGetterOptions): TraitAdvancement | null {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const armorMods = proficiencyMods
@@ -673,7 +678,7 @@ export default class AdvancementHelper {
           .some((prof) => prof.type === "Armor" && prof.name === mod.friendlySubtypeName),
       );
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
     const parsedArmors = AdvancementHelper.parseHTMLArmorProficiencies(feature.description);
     const chosenArmors = this.getChoicesFromOptions(feature, "Armor", level);
@@ -764,7 +769,7 @@ export default class AdvancementHelper {
           .some((prof) => prof.type === "Weapon" && prof.name === mod.friendlySubtypeName),
       );
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
     const parsedWeapons = this.isMuncher && availableToMulticlass
       ? { number: 0, choices: [], grants: [] }
@@ -887,7 +892,7 @@ export default class AdvancementHelper {
           }),
       );
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
     const parsedWeapons = AdvancementHelper.parseHTMLWeaponMasteryProficiencies(feature.description);
     const chosenWeapons = this.getChoicesFromOptions(feature, "Weapon", level);
@@ -964,7 +969,7 @@ export default class AdvancementHelper {
   }
 
   getExpertiseAdvancement(feature, level) {
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
     const expertiseOptions = this.getExpertiseChoicesFromOptions(feature, level);
 
     // add HTML Parsing to improve this at a later date
@@ -1036,7 +1041,7 @@ export default class AdvancementHelper {
       conditionsFromMods.push(...conditionValues);
     });
 
-    const advancement = new game.dnd5e.documents.advancement.TraitAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
 
     const parsedConditions = AdvancementHelper.parseHTMLConditions(feature.description);
 
@@ -1109,7 +1114,7 @@ export default class AdvancementHelper {
   }
 
   static addAdditionalUses(advancement: I5eAdvancement) {
-    const adv = new game.dnd5e.documents.advancement.ScaleValueAdvancement();
+    const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
     const update = {
       configuration: {
         identifier: `${advancement.configuration.identifier}-uses`,
@@ -1157,7 +1162,7 @@ export default class AdvancementHelper {
       type = "number";
     }
 
-    const advancement = new game.dnd5e.documents.advancement.ScaleValueAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
 
     const name = utils.nameString(feature.name);
 
@@ -2864,7 +2869,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     is2024, choiceLevel = 0, count = 1, allowReplacements = false, spellData = [],
   }: IAdvancementGetterCantripChoiceAdvancement) {
     if (choices.length === 0 && !spellListChoice) return undefined;
-    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
     const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
 
     spellLinks.push({
@@ -2931,7 +2936,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
     level, choiceLevel = 0, choices = [], is2024, allowReplacements = false, count = 1, spellData = [],
   } = {}) {
-    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
     const spellListChoice = spellChoice.spellList || null;
 
     const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
@@ -3004,7 +3009,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     choices = [], abilities = [], hint = "", name, spellLinks, is2024, spellData = [],
   }: IAdvancementGetterCantripGrantAdvancement) {
     if (choices.length === 0) return undefined;
-    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
     const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(choices, spellData, is2024);
 
     spellLinks.push({
@@ -3055,7 +3060,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(spellGrants.map((g) => g.name), spellData, is2024);
 
     if (uuids.length === 0) return null;
-    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
 
     spellLinks.push({
       type: "grant",

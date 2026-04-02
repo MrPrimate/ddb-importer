@@ -807,7 +807,7 @@ export default class DDBClass {
     const levelAdvancement = this.featureAdvancements.findIndex((advancement) => advancement.level === feature.requiredLevel);
 
     if (levelAdvancement == -1) {
-      const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+      const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
       this._advancementMatches.features[advancement._id] = {};
       this._advancementMatches.features[advancement._id][featureMatch.name] = featureMatch.uuid;
 
@@ -920,7 +920,7 @@ export default class DDBClass {
 
     const forceReplace = DDBClass.FORCE_ADVANCEMENT_REPLACE.includes(feature.name);
     this.configChoices[feature.name] = AdvancementHelper.getChoiceReplacements(feature.description ?? feature.snippet ?? "", lowestLevel, configChoices, forceReplace);
-    const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
 
     advancement.updateSource({
       title: utils.nameString(feature.name),
@@ -1467,7 +1467,7 @@ export default class DDBClass {
       }
     };
 
-    const advancement = new game.dnd5e.documents.advancement.HitPointsAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.HitPointsAdvancement);
     advancement.updateSource({ value });
     this._addAdvancement(advancement.toObject());
   }
@@ -1513,7 +1513,7 @@ export default class DDBClass {
 
 
       if (!abilityAdvancementFeature) continue;
-      const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+      const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
       const update: I5eAdvancementAbilityScoreImprovement = {
         title: abilityAdvancementFeature.name,
         hint: abilityAdvancementFeature.snippet ?? abilityAdvancementFeature.description ?? "",
@@ -1640,7 +1640,7 @@ export default class DDBClass {
       });
       return;
     }
-    const advancement = new game.dnd5e.documents.advancement.SubclassAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.SubclassAdvancement);
     advancement.updateSource({
       title: subClassFeature.name,
       hint: subClassFeature.snippet ?? subClassFeature.description ?? "",
@@ -1680,7 +1680,7 @@ export default class DDBClass {
     const feature = this.classFeatures.find((f) => FIGHTING_STYLE_FEATURES.includes(f.name));
     if (!advancementFound && !feature) return;
     if (!advancementFound && feature) {
-      const advancement = new game.dnd5e.documents.advancement.ItemChoiceAdvancement();
+      const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
       const update: I5eAdvancementItemChoice = {
         title: feature.name,
         hint: feature.snippet ?? feature.description ?? "",

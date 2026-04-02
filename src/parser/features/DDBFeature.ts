@@ -271,7 +271,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     if (modifiers.length === 0) return;
 
     // KNOWN_ISSUE_4_0: revist this to use the race/species advancement detection.
-    const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
     advancement.updateSource({ configuration: { points: 3 }, level: 0, value: { type: "asi" } });
 
     const assignments = {};
@@ -322,8 +322,8 @@ export default class DDBFeature extends DDBFeatureMixin {
 
 
   generateFeatAbilityScoreAdvancement() {
-    const advancement = new game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement();
-    const configuration = advancement.configuration.toObject();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
+    const configuration = foundry.utils.duplicate(advancement.configuration);
     configuration.points = 0;
     configuration.cap = 1;
     configuration.level = 0;
@@ -472,7 +472,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     if (featIds.length === 0) return;
 
-    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
     const indexFilter = {
       fields: [
         "name",
