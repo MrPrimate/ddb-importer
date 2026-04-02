@@ -548,7 +548,7 @@ export default class AdvancementHelper {
         .concat(parsedLanguages.grants.map((grant) => `languages:${grant}`))
       : languagesFromMods.map((choice) => `languages:${choice}`);
 
-    advancement.updateSource({
+    const update: I5eAdvancementTrait = {
       title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
         ? feature.name
         : "Languages",
@@ -556,7 +556,8 @@ export default class AdvancementHelper {
         allowReplacements: true,
       },
       level: level,
-    });
+    };
+    advancement.updateSource(update as any);
 
     AdvancementHelper.advancementUpdate(advancement, {
       pool,

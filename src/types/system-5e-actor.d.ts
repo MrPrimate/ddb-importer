@@ -555,9 +555,9 @@ global {
     choices?: I5eAdvTraitChoice[];
   }
   interface I5eAdvancementTrait extends I5eAdvancementBase {
-    type: "Trait";
-    configuration: I5eAdvTraitConfig;
-    value: { chosen?: string[] };
+    type?: "Trait";
+    configuration?: I5eAdvTraitConfig;
+    value?: { chosen?: string[] };
   }
 
   interface I5eAdvItemChoiceLevelConfig {
