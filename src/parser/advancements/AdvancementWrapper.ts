@@ -2,8 +2,8 @@ export default class AdvancementWrapper {
 
   _data: Record<string, any>;
 
-  constructor(AdvancementClass: new () => any) {
-    const instance = new AdvancementClass();
+  constructor(AdvancementClass: new (data?: any) => any) {
+    const instance = new AdvancementClass({ configuration: {}, value: {} });
     this._data = instance.toObject();
   }
 
@@ -21,6 +21,10 @@ export default class AdvancementWrapper {
 
   toObject(): Record<string, any> {
     return foundry.utils.duplicate(this._data);
+  }
+
+  static createAdvancement<T>(AdvancementClass: new () => T): T {
+    return new AdvancementWrapper(AdvancementClass) as unknown as T;
   }
 
 }

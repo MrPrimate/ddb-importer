@@ -86,7 +86,15 @@ export default class AdvancementHelper {
   }
 
   static createAdvancement<T>(AdvancementClass: new () => T): T {
-    return new AdvancementWrapper(AdvancementClass) as unknown as T;
+    try {
+      return new AdvancementWrapper(AdvancementClass) as unknown as T;
+    } catch (error) {
+      logger.error("Error creating advancement:", {
+        AdvancementClass,
+        error,
+      });
+      throw error;
+    }
   }
 
   static stripDescription(description: string): string {
