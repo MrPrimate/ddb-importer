@@ -177,7 +177,6 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
     parsedTable.forEach((entry) => {
       const result = {
         flags: {},
-        type: 0,
         text: "",
         img: "icons/svg/d20-black.svg",
         resultId: null,

@@ -29,6 +29,7 @@ export class FileHelper {
   }
 
   static addFileToKnown(parsedDir, file) {
+    if (!file) return;
     CONFIG.DDBI.KNOWN.FILES.add(file);
     const split = file.split(parsedDir.current);
     if (split.length > 1) {
