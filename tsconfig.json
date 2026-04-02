@@ -13,6 +13,7 @@
     "types": [
       "@league-of-foundry-developers/foundry-vtt-types",
       "dnd5e/dnd5e/dnd5e.d.mts",
+      "vitest/globals",
     ],
     "paths": {
       "@client/*": ["./foundry/client/*"],
@@ -22,7 +23,8 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.mjs",
-    "src/**/*.js"
+    "src/**/*.js",
+    "tests/**/*.ts",
   ],
-  "exclude": ["node_modules", "dist", "vendor"]
+  "exclude": ["node_modules", "dist", "vendor", "src/vendor"]
 }

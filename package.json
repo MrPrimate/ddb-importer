@@ -8,12 +8,13 @@
     "lint": "npx eslint src/",
     "lint-fix": "npx eslint src/ --fix",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "build": "npm run clear; npm run link; webpack",
     "dev": "npm run link && node esbuild.config.mjs --watch",
     "dev:build": "npm run clear && npm run link && node esbuild.config.mjs",
     "clear": "rm -rf dist/*",
-    "createSymlinks": "node ./tools/create-symlinks.mjs",
+    "dev:foundryLinks": "node ./tools/create-symlinks.mjs",
     "link": "cd src/parser/enrichers && node _linkBuilder.js",
     "dev:link": "node ./tools/foundry-dev-link.mjs"
   },
@@ -37,6 +38,7 @@
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.0",
+    "vitest": "^4.1.2",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.7.2"
   }

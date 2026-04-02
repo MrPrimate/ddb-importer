@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "@league-of-foundry-developers/foundry-vtt-types",
+      "dnd5e/dnd5e/dnd5e.d.mts",
+      "vitest/globals"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.mjs",
+    "src/**/*.js",
+    "tests/**/*.ts"
+  ]
+}
