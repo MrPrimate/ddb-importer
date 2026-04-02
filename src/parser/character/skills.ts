@@ -183,17 +183,17 @@ DDBCharacter.prototype._generateSkills = async function _generateSkills(this: DD
       const label = "Skill Ability Changes";
       const change: IActiveEffectChangeData = {
         key: `system.skills.${skill.name}.ability`,
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        type: "override",
         value: `${customAbility}`,
         priority: 20,
       };
 
       const changeIndex = this.raw.character.effects.findIndex((effect) => effect.name === label);
       if (changeIndex >= 0) {
-        this.raw.character.effects[changeIndex].changes.push(change);
+        this.raw.character.effects[changeIndex].system.changes.push(change);
       } else {
         const skillEffect = AutoEffects.generateBaseSkillEffect(this.source.ddb.character.id, label);
-        skillEffect.changes.push(change);
+        skillEffect.system.changes.push(change);
         this.raw.character.effects.push(skillEffect);
       }
     }

@@ -93,11 +93,11 @@ export default class Light extends DDBEnricherData {
       {
         activityMatch: "Apply Light Effect",
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "40"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "20"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "{\"type\": \"pulse\", \"speed\": 3,\"intensity\": 1}"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "override", "40"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "override", "20"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#ffffff"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.25"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "override", "{\"type\": \"pulse\", \"speed\": 3,\"intensity\": 1}"),
         ],
       },
     ];

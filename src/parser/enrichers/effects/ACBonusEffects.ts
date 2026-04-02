@@ -7,14 +7,12 @@ export default class ACBonusEffects {
   static ACEffect(name: string): I5eEffectData {
     const effect: I5eEffectData = {
       name,
-      changes: [],
+      system: { changes: [] },
       duration: {
-        seconds: null,
-        startTime: null,
-        rounds: null,
-        turns: null,
-        startRound: null,
-        startTurn: null,
+        value: null,
+        units: "seconds",
+        expiry: null,
+        expired: false,
       },
       origin: null,
       tint: "",
@@ -56,7 +54,7 @@ export default class ACBonusEffects {
     effect.origin = "AC";
 
     const changes = ACBonusEffects.addACBonusEffect(modifiers, label, subType, restrictions);
-    if (changes.length > 0) effect.changes = changes;
+    if (changes.length > 0) effect.system.changes = changes;
 
     return effect;
   }
@@ -69,10 +67,10 @@ export default class ACBonusEffects {
    * @param {string} label
    * @param {boolean} alwaysActive
    * @param {number} priority
-   * @param {number} mode
+   * @param {TActiveEffectChangeType} type
    * @returns {object} effect
    */
-  static generateFixedACEffect(formula: string, label: string, alwaysActive = false, priority = 30, mode: number = CONST.ACTIVE_EFFECT_MODES.OVERRIDE): I5eEffectData {
+  static generateFixedACEffect(formula: string, label: string, alwaysActive = false, priority = 30, type: TActiveEffectChangeType = "override"): I5eEffectData {
     const effect = ACBonusEffects.ACEffect(label);
 
     effect.flags = {
@@ -83,9 +81,9 @@ export default class ACBonusEffects {
     effect.disabled = false;
     effect.origin = "AC";
 
-    const formulaChange = { key: "system.attributes.ac.formula", value: formula, mode, priority };
-    const calcChange = { key: "system.attributes.ac.calc", value: "custom", mode, priority };
-    effect.changes.push(calcChange, formulaChange);
+    const formulaChange: IActiveEffectChangeData = { key: "system.attributes.ac.formula", value: formula, type, priority };
+    const calcChange: IActiveEffectChangeData = { key: "system.attributes.ac.calc", value: "custom", type, priority };
+    effect.system.changes.push(calcChange, formulaChange);
 
     return effect;
   }

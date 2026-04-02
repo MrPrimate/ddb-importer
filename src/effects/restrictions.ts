@@ -9,16 +9,12 @@ async function woundingWeaponEffect(document) {
   effect.flags.dae.stackable = "count";
   effect.flags.dae.transfer = false;
   effect.duration = {
-    startTime: null,
-    seconds: null,
-    rounds: 400,
-    turns: null,
-    startRound: null,
-    startTurn: null,
+    value: 400,
+    units: "rounds",
   };
 
   await DDBMacros.setItemMacroFlag(document, "item", "wounding.js");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "item", macroName: "wounding.js" }));
+  effect.system.changes.push(DDBMacros.generateMacroChange({ macroType: "item", macroName: "wounding.js" }));
   document.effects.push(effect);
 
   return document;

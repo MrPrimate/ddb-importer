@@ -7,23 +7,23 @@ export function giantSpiderEffects(npc) {
     if (item.name.startsWith("Web")) {
       const effect = baseMonsterFeatureEffect(item, item.name);
       addStatusEffectChange({ effect, statusName: "Restrained" });
-      effect.changes.push(
+      effect.system.changes.push(
         {
           key: "flags.midi-qol.OverTime",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          type: "custom",
           value: "turn=start,name=You can take an action to break free of the web by rolling a Strength Ability Check",
           priority: "20",
         },
         {
           key: "flags.midi-qol.OverTime",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          type: "custom",
           value: "turn=end, rollType=check, actionSave=true, saveAbility=str, saveDC=@abilities.str.dc, label=Restrained by Web",
           priority: "20",
         },
       );
 
-      foundry.utils.setProperty(effect, "duration.seconds", 60);
-      foundry.utils.setProperty(effect, "duration.rounds", 10);
+      foundry.utils.setProperty(effect, "duration.value", 60);
+      foundry.utils.setProperty(effect, "duration.units", "seconds");
       foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
       item.effects.push(effect);

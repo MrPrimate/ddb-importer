@@ -121,7 +121,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
     if (["light", "medium", "heavy", "shield"].includes(i.system.type.value)) return true;
     if (i.system.type.value === "trinket") {
       const effectHasACChanges = (i.effects ?? []).some((e) => {
-        const changeACKey = e.changes.some((c) => c.key.includes("system.attributes.ac"));
+        const changeACKey = e.system.changes.some((c) => c.key.includes("system.attributes.ac"));
         return changeACKey;
       });
       if (effectHasACChanges) return true;
@@ -155,21 +155,19 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
       img: "icons/equipment/chest/breastplate-helmet-metal.webp",
       name: "Mage Armor",
       statuses: [],
-      changes: [
-        {
-          key: "system.attributes.ac.calc",
-          value: "mage",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-          priority: 5,
-        },
-      ],
+      system: {
+        changes: [
+          {
+            key: "system.attributes.ac.calc",
+            value: "mage",
+            type: "override",
+            priority: 5,
+          },
+        ],
+      },
       duration: {
-        seconds: 28800,
-        startTime: 0,
-        rounds: null,
-        turns: null,
-        startRound: null,
-        startTurn: null,
+        value: 8,
+        units: "hours",
       },
       transfer: false,
       disabled: false,
@@ -192,10 +190,10 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
       const effect = ACBonusEffects.ACEffect("AC Bonus");
       effect.disabled = false;
       effect.transfer = true;
-      effect.changes.push({
+      effect.system.changes.push({
         key: "system.attributes.ac.bonus",
         value: `${ac.flat - maAC}`,
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        type: "add",
         priority: 30,
       });
       effects.push(effect);

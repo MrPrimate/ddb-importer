@@ -86,10 +86,10 @@ export default class FountOfMoonlight extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange("2d6[radiant]", 20, "system.bonuses.msak.damage"),
         ],
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "40"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "20"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "override", "40"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "override", "20"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#ffffff"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.25"),
         ],
       },
       {

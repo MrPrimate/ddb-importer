@@ -73,7 +73,7 @@ export default class MidiOverTimeEffect {
 
   effectCleanup() {
     if (!this.addToMonster) return;
-    if (this.effect.changes.length > 0 || this.effect.statuses.length > 0) {
+    if (this.effect.system.changes.length > 0 || this.effect.statuses.length > 0) {
       this.document.effects.push(this.effect);
       const overTimeFlags: string[] = foundry.utils.hasProperty(this.actor, "flags.monsterMunch.overTime")
         ? foundry.utils.getProperty(this.actor, "flags.monsterMunch.overTime") as string[]
@@ -84,7 +84,7 @@ export default class MidiOverTimeEffect {
       if (foundry.utils.getProperty(this.document, "system.duration.units") === "inst") {
         foundry.utils.setProperty(this.document, "system.duration", {
           units: "round",
-          value: this.effect.duration.rounds,
+          value: this.effect.duration.value,
         });
       }
       logger.debug(`Cleanup of over time effect for ${this.actor.name}, ${this.actor.name} for ${this.document.name}`, this.effect);
@@ -96,18 +96,23 @@ export default class MidiOverTimeEffect {
     if (!this.document.effects) this.document.effects = [];
     // add any condition effects
     if (this.conditionEffect) {
-      this.effect.changes.push(...this.conditionEffect.changes);
+      this.effect.system.changes.push(...this.conditionEffect.system.changes);
       this.effect.statuses.push(...this.conditionEffect.statuses);
       if (this.conditionEffect.name) this.effect.name = this.conditionEffect.name;
       this.effect.flags = foundry.utils.mergeObject(this.effect.flags, this.conditionEffect.flags);
       foundry.utils.setProperty(this.document, "flags.midiProperties.fulldam", true);
       const change = MidiOverTimeEffect.getOverTimeSaveEndChange({ document: this.document, save: this.conditionStatus.save, text: this.description });
-      if (change) this.effect.changes.push(change);
+      if (change) this.effect.system.changes.push(change);
     }
 
     const duration = this.conditionStatus.duration ?? DDBDescriptions.getDuration(this.description);
-    if (duration.seconds) foundry.utils.setProperty(this.effect, "duration.seconds", duration.seconds);
-    if (duration.rounds) foundry.utils.setProperty(this.effect, "duration.rounds", duration.rounds);
+    if (duration.rounds) {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.rounds);
+      foundry.utils.setProperty(this.effect, "duration.units", "rounds");
+    } else if (duration.seconds) {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.seconds);
+      foundry.utils.setProperty(this.effect, "duration.units", "seconds");
+    }
 
     const turn = DDBDescriptions.startOrEnd(this.description);
     if (!turn) {
@@ -159,7 +164,7 @@ export default class MidiOverTimeEffect {
       ?? "nodamage";
 
     logger.debug(`generateOverTimeEffect: Generated over time effect for ${this.actor.name}, ${this.document.name}`);
-    this.effect.changes.push(ChangeHelper.overTimeDamageChange({
+    this.effect.system.changes.push(ChangeHelper.overTimeDamageChange({
       document: this.document,
       turn,
       damage,
@@ -181,14 +186,19 @@ export default class MidiOverTimeEffect {
     if (!this.conditionEffect) {
       return;
     }
-    this.effect.changes.push(...this.conditionEffect.changes);
+    this.effect.system.changes.push(...this.conditionEffect.system.changes);
     this.effect.statuses.push(...this.conditionEffect.statuses);
     if (this.conditionEffect.name && this.conditionEffect.name !== "") this.effect.name = this.conditionEffect.name;
     this.effect.flags = foundry.utils.mergeObject(this.effect.flags, this.conditionEffect.flags);
 
     const duration = this.conditionEffect.duration;
-    if (duration.seconds) foundry.utils.setProperty(this.effect, "duration.seconds", duration.seconds);
-    if (duration.rounds) foundry.utils.setProperty(this.effect, "duration.rounds", duration.rounds);
+    if (duration.rounds) {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.rounds);
+      foundry.utils.setProperty(this.effect, "duration.units", "rounds");
+    } else if (duration.seconds) {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.seconds);
+      foundry.utils.setProperty(this.effect, "duration.units", "seconds");
+    }
 
     // Object.keys(this.document.system.activities).forEach((id) => {
     //   this.document.system.activities[id].effects.push(
@@ -210,18 +220,19 @@ export default class MidiOverTimeEffect {
 
     if (startTurn) {
       logger.debug(`damageOverTimeEffect: Generating damage over time effect START for ${this.document.name}`);
-      this.effect.changes.push(
+      this.effect.system.changes.push(
         ChangeHelper.overTimeDamageChange({ document: this.document, turn: "start", damage, damageType, saveAbility, saveRemove, saveDamage, dc }),
       );
     }
     if (endTurn) {
       logger.debug(`damageOverTimeEffect: Generating damage over time effect END for ${this.document.name}`);
-      this.effect.changes.push(
+      this.effect.system.changes.push(
         ChangeHelper.overTimeDamageChange({ document: this.document, turn: "end", damage, damageType, saveAbility, saveRemove, saveDamage, dc }),
       );
     }
 
-    foundry.utils.setProperty(this.effect, "duration.seconds", durationSeconds);
+    foundry.utils.setProperty(this.effect, "duration.value", durationSeconds);
+    foundry.utils.setProperty(this.effect, "duration.units", "seconds");
 
     this.document.effects.push(this.effect);
   }

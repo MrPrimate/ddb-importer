@@ -2,9 +2,9 @@ import { effectModules } from "../effects";
 
 export async function phantasmalKillerEffect(document) {
   if (effectModules().midiQolInstalled) {
-    document.effects[0].changes.push({
+    document.effects[0].system.changes.push({
       key: "flags.midi-qol.OverTime",
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      type: "override",
       value:
         "label=Phantasmal Killer (End of Turn),turn=end,saveAbility=wis,saveDC=@attributes.spell.dc,saveMagic=true,damageRoll=(@item.level)d10,damageType=psychic,savingThrow=true,damageBeforeSave=false,killAnim=true",
       priority: "20",

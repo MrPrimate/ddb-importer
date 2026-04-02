@@ -574,11 +574,11 @@ export default class CharacterFeatureFactory {
         if (
           !["Custom", "Unarmored"].includes(this.ddbCharacter.armor.results.maxType)
           && (
-            (effect.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length >= 2
-            && effect.changes.some((change) => change.key === "system.attributes.ac.formula")
-            && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
-            || (effect.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length === 1
-              && effect.changes.some((change) => change.key === "system.attributes.ac.calc"))
+            (effect.system.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length >= 2
+            && effect.system.changes.some((change) => change.key === "system.attributes.ac.formula")
+            && effect.system.changes.some((change) => change.key === "system.attributes.ac.calc"))
+            || (effect.system.changes.filter((c) => c.key.startsWith("system.attributes.ac")).length === 1
+              && effect.system.changes.some((change) => change.key === "system.attributes.ac.calc"))
           )
         ) {
           if ((feature.flags.ddbimporter.type === "race" && this.ddbCharacter.armor.results.maxType === "Natural")

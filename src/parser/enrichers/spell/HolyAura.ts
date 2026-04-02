@@ -71,10 +71,10 @@ export default class HolyAura extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability}.save.roll.mode`),
         ),
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "5"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, lightAnimation),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "5"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#ffffff"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.25"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "override", lightAnimation),
         ],
         data: {
           flags: {

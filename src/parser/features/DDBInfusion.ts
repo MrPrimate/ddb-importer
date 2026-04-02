@@ -327,9 +327,9 @@ export class DDBInfusion {
       this.activity.data.effects[0].riders.item = uuids;
     this.data.effects.forEach((e) => {
       // if (e.flags.ddbimporter?.infusion) e.flags.dnd5e.enchantment.riders.item.push(...uuids);
-      e.changes.push({
+      e.system.changes.push({
         key: "system.description.value",
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        type: "add",
         value: `<hr><h2>Infusion Actions</h2><p> ${descriptions.join(", ")} </p>`,
         priority: 20,
       });
@@ -391,14 +391,14 @@ export class DDBInfusion {
       type: "infusion",
       description: this.snippet,
     });
-    if (mockItem.effects.length > 0) effect.changes = mockItem.effects.map((e) => e.changes).flat(1);
+    if (mockItem.effects.length > 0) effect.system.changes = mockItem.effects.map((e) => e.system.changes).flat(1);
 
-    effect.changes.push(...this._getMagicBonusChanges(modifiers));
+    effect.system.changes.push(...this._getMagicBonusChanges(modifiers));
 
     if (this.ddbInfusion.requiresAttunement) {
-      effect.changes.push({
+      effect.system.changes.push({
         key: "system.attunement",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        type: "override",
         value: "required",
         priority: 20,
       });
@@ -407,10 +407,10 @@ export class DDBInfusion {
     const nameLabel = this.ddbInfusion.type === "replicate"
       ? `: Replicated [Infusion]`
       : `: ${useModifierLabelName ? label : this.name} [Infusion]`;
-    effect.changes.push(
+    effect.system.changes.push(
       {
         key: "name",
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        type: "add",
         value: nameLabel,
         priority: 20,
       },
@@ -441,9 +441,9 @@ export class DDBInfusion {
 
   _addDescriptionToEffect(effect) {
     const description = DDBTemplateStrings.parse(this.ddbData, this.rawCharacter, this.ddbInfusion.description, this.ddbInfusion).text;
-    effect.changes.push({
+    effect.system.changes.push({
       key: "system.description.value",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add",
       value: `<hr> <h5>Infusion Details</h5>${description}`,
     });
   }
@@ -519,7 +519,7 @@ export class DDBInfusion {
       changes.push(
         {
           key: "system.magicalBonus",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          type: "override" as const,
           value: magicBonus,
           priority: 20,
         },
@@ -529,7 +529,7 @@ export class DDBInfusion {
       changes.push(
         {
           key: "system.armor.magicalBonus",
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          type: "override" as const,
           value: acMagicalBonus,
           priority: 20,
         },
@@ -539,7 +539,7 @@ export class DDBInfusion {
     // all items infused become magical
     changes.push({
       key: "system.properties",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add" as const,
       value: "mgc",
       priority: 20,
     });

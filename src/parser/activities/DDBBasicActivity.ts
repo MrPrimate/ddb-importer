@@ -682,7 +682,7 @@ export default class DDBBasicActivity {
     const enchantmentEffect = Effects.EnchantmentEffects.EnchantmentEffect(foundryData, label, {
       origin: document.uuid,
     });
-    enchantmentEffect.changes.push(...changes);
+    enchantmentEffect.system.changes.push(...changes);
     foundry.utils.mergeObject(activity.data, activityData);
 
     const effectLink = {

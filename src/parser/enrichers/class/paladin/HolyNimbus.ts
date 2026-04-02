@@ -90,9 +90,9 @@ export default class HolyNimbus extends DDBEnricherData {
       effects.push({
         activityMatch: "Use/Apply Light",
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "@scale.paladin.aura-of-protection"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.25"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "override", "@scale.paladin.aura-of-protection"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#ffffff"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.25"),
         ],
       });
     }

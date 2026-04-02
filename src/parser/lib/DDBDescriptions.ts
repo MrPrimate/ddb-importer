@@ -470,8 +470,8 @@ export default class DDBDescriptions {
       const duration = DDBDescriptions.getDuration(parserText);
 
       if (duration.type) {
-        result.duration.seconds = duration.seconds;
-        result.duration.rounds = duration.rounds;
+        result.duration.value = duration.value;
+        result.duration.units = duration.units;
       }
       result.specialDurations = duration.dae ?? [];
     }

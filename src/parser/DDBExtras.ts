@@ -23,39 +23,37 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   // extra.system.details.cr = actor.system.flags.ddbimporter.dndbeyond.totalLevels;
 
   const effect: I5eEffectData = {
-    changes: [
-      {
-        key: "system.bonuses.rwak.attack",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `+${characterProficiencyBonus}`,
-        priority: 20,
-      },
-      {
-        key: "system.bonuses.rwak.damage",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `+${characterProficiencyBonus}`,
-        priority: 20,
-      },
-      {
-        key: "system.bonuses.mwak.attack",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `+${characterProficiencyBonus}`,
-        priority: 20,
-      },
-      {
-        key: "system.bonuses.mwak.damage",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: `+${characterProficiencyBonus}`,
-        priority: 20,
-      },
-    ],
+    system: {
+      changes: [
+        {
+          key: "system.bonuses.rwak.attack",
+          type: "custom",
+          value: `+${characterProficiencyBonus}`,
+          priority: 20,
+        },
+        {
+          key: "system.bonuses.rwak.damage",
+          type: "custom",
+          value: `+${characterProficiencyBonus}`,
+          priority: 20,
+        },
+        {
+          key: "system.bonuses.mwak.attack",
+          type: "custom",
+          value: `+${characterProficiencyBonus}`,
+          priority: 20,
+        },
+        {
+          key: "system.bonuses.mwak.damage",
+          type: "custom",
+          value: `+${characterProficiencyBonus}`,
+          priority: 20,
+        },
+      ],
+    },
     duration: {
-      seconds: null,
-      startTime: null,
-      rounds: null,
-      turns: null,
-      startRound: null,
-      startTurn: null,
+      value: null,
+      units: "seconds",
     },
     tint: "",
     disabled: false,
@@ -64,20 +62,20 @@ function generateBeastCompanionEffects(extra, characterProficiencyBonus) {
   DICTIONARY.actor.abilities.filter((ability) => extra.system.abilities[ability.value].proficient >= 1).forEach((ability) => {
     const boost = {
       key: `data.abilities.${ability.value}.save`,
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add" as const,
       value: characterProficiencyBonus,
       priority: 20,
     };
-    effect.changes.push(boost);
+    effect.system.changes.push(boost);
   });
   DICTIONARY.actor.skills.filter((skill) => extra.system.skills[skill.name].prof >= 1).forEach((skill) => {
     const boost = {
       key: `data.skills.${skill.name}.mod`,
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add" as const,
       value: characterProficiencyBonus,
       priority: 20,
     };
-    effect.changes.push(boost);
+    effect.system.changes.push(boost);
   });
   extra.effects = [effect];
   return extra;
@@ -89,27 +87,25 @@ function generateArtificerDamageEffect(actor, extra): I5eEffectData {
   extra.system.details.cr = actor.flags.ddbimporter.dndbeyond.totalLevels;
 
   const effect: I5eEffectData = {
-    changes: [
-      {
-        key: "data.bonuses.rwak.damage",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: "+ @prof",
-        priority: 20,
-      },
-      {
-        key: "data.bonuses.mwak.damage",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-        value: "+ @prof",
-        priority: 20,
-      },
-    ],
+    system: {
+      changes: [
+        {
+          key: "data.bonuses.rwak.damage",
+          type: "custom",
+          value: "+ @prof",
+          priority: 20,
+        },
+        {
+          key: "data.bonuses.mwak.damage",
+          type: "custom",
+          value: "+ @prof",
+          priority: 20,
+        },
+      ],
+    },
     duration: {
-      seconds: null,
-      startTime: null,
-      rounds: null,
-      turns: null,
-      startRound: null,
-      startTurn: null,
+      value: null,
+      units: "seconds",
     },
     tint: "",
     disabled: false,

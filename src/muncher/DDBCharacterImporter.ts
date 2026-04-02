@@ -760,7 +760,7 @@ ${item.system.description.chat}
   fixUpCharacterEffects() {
     // if (!CONFIG.ActiveEffect.legacyTransferral) return;
     const abilityOverrides = abilityOverrideEffect(this.result.character.flags.ddbimporter.dndbeyond.abilityOverrides);
-    if (abilityOverrides.changes.length > 0) {
+    if (abilityOverrides.system.changes.length > 0) {
       this.result.character.effects = this.result.character.effects.concat(abilityOverrides);
     }
     this.result.character.effects = this.result.character.effects.filter((e) => e !== undefined);

@@ -124,19 +124,21 @@ export default class DDBEffectHelper {
 
     const effectData: I5eEffectData = {
       _id: foundry.utils.randomID(),
-      changes: [
-        {
-          key: `system.abilities.${ability}.advantage.roll.mode`,
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-          value: `${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`,
-          priority: 20,
-        },
-      ],
+      system: {
+        changes: [
+          {
+            key: `system.abilities.${ability}.advantage.roll.mode`,
+            type: "custom",
+            value: `${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`,
+            priority: 20,
+          },
+        ],
+      },
       origin: originItem.uuid,
       disabled: false,
       transfer: false,
       img: icon,
-      duration: { turns: 1 },
+      duration: { value: 1, units: "turns" },
       flags: {
         dae: {
           specialDuration: [`isSave.${ability}` as any],
@@ -1229,7 +1231,7 @@ export default class DDBEffectHelper {
 
   static overTimeSaveEnd({ document, effect, save, text }) {
     const change = MidiOverTimeEffect.getOverTimeSaveEndChange({ document, save, text });
-    if (change) effect.changes.push(change);
+    if (change) effect.system.changes.push(change);
   }
 
 

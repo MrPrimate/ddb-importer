@@ -5,22 +5,23 @@ import { DDBMacros } from "../../lib/_module";
 // the Marked effect gets applied to the target
 export async function slayersPreyEffect(document) {
   const effect = baseFeatEffect(document, `Marked by ${document.name}`, { transfer: true });
-  effect.changes.push(
+  effect.system.changes.push(
     {
       key: "flags.dae.onUpdateSource",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       value: document.name,
       priority: 20,
     },
   );
-  effect.duration.seconds = 60;
+  effect.duration.value = 60;
+  effect.duration.units = "seconds";
   document.effects.push(effect);
 
   const damageBonusEffect = baseFeatEffect(document, document.name, { transfer: true });
-  damageBonusEffect.changes.push({
+  damageBonusEffect.system.changes.push({
     key: "flags.dnd5e.DamageBonusMacro",
     value: DDBMacros.generateItemMacroValue({ macroType: "feat", macroName: "slayersPrey.js", document }),
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+    type: "custom",
     priority: 20,
   });
   document.effects.push(damageBonusEffect);

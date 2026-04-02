@@ -3,10 +3,10 @@ import { baseItemEffect } from "../effects";
 
 export function generateSuaveDefenseEffect(ddbMonster, document) {
   const effect = baseItemEffect(document, document.name);
-  effect.changes.push(
+  effect.system.changes.push(
     {
       key: "system.attributes.ac.bonus",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add",
       value: `+ ${ddbMonster.npc.system.abilities.cha.mod}`,
       priority: "20",
     },

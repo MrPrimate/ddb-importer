@@ -6,16 +6,17 @@ import { baseSpellEffect } from "../specialSpells";
 export function vitriolicSphereEffect(document) {
 
   const effect = baseSpellEffect(document, document.name);
-  effect.changes.push(
+  effect.system.changes.push(
     {
       key: "flags.midi-qol.OverTime",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       value: `turn=end,label=${document.name} (End of Turn),damageRoll=5d4,damageType=acid,removeCondition=true,killAnim=true`,
       priority: "20",
     },
   );
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["turnEnd"]);
-  foundry.utils.setProperty(effect, "duration.rounds", 1);
+  foundry.utils.setProperty(effect, "duration.value", 1);
+  foundry.utils.setProperty(effect, "duration.units", "rounds");
   document.effects.push(effect);
 
   const damageOne = foundry.utils.duplicate(document.system.damage.parts[0]);

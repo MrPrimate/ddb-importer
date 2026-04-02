@@ -89,10 +89,10 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     const lightAnimation = "{\"type\": \"sunburst\", \"speed\": 2,\"intensity\": 4}";
     const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "30"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "#ffffff"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "0.25"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.UPGRADE, lightAnimation),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "30"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "upgrade", "#ffffff"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "upgrade", "0.25"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "upgrade", lightAnimation),
     ];
 
     return [

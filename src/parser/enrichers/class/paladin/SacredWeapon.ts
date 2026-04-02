@@ -70,11 +70,11 @@ export default class SacredWeapon extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     const lightAnimation = `{"type": "sunburst", "speed": 2,"intensity": 4}`;
     const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, (this.is2014 ? "5" : "40")),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, (this.is2014 ? "0" : "20")),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "#ffffff"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "0.25"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.UPGRADE, lightAnimation),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", (this.is2014 ? "5" : "40")),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", (this.is2014 ? "0" : "20")),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "upgrade", "#ffffff"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "upgrade", "0.25"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "upgrade", lightAnimation),
     ];
 
     const descriptionChanges = DDBEnricherData.AutoEffects.effectModules().atlInstalled

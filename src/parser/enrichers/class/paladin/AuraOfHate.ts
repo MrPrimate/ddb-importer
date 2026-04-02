@@ -8,9 +8,11 @@ export default class AuraOfHate extends DDBEnricherData {
         name: "Aura of Hate (Self)",
         daeStackable: "none",
         data: {
-          changes: [
-            DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.bonuses.mwak.damage"),
-          ],
+          system: {
+            changes: [
+              DDBEnricherData.ChangeHelper.unsignedAddChange("+@abilities.cha.mod", 20, "system.bonuses.mwak.damage"),
+            ],
+          },
         },
         statuses: ["Aura of Hate (Self)"],
         options: {

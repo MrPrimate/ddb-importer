@@ -10,8 +10,8 @@ export default class Darkvision extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.upgradeChange(`${value}`, 20, "system.attributes.senses.ranges.darkvision"),
         ],
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", CONST.ACTIVE_EFFECT_MODES.UPGRADE, value, 5),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "darkvision", 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.range", "upgrade", value, 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.sight.visionMode", "override", "darkvision", 5),
         ],
       },
     ];

@@ -50,8 +50,8 @@ export default class GiantsMight extends DDBEnricherData {
           durationSeconds: 60,
         },
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.width", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.height", CONST.ACTIVE_EFFECT_MODES.UPGRADE, 2, 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.width", "upgrade", 2, 5),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.height", "upgrade", 2, 5),
         ],
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange("lg", 25, "system.traits.size"),

@@ -86,7 +86,7 @@ export default class DDBEffectHooks {
 
   static processCustomApplyEffectHooks(_actor, change, _current, _delta, _changes) {
 
-    if (change.mode !== CONST.ACTIVE_EFFECT_MODES.CUSTOM) return;
+    if (change.type !== "custom") return;
 
   }
 

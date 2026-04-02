@@ -6,18 +6,18 @@ export function quasitEffects(npc) {
   for (let item of npc.items) {
     if (item.name.startsWith("Claws")) {
       const effect = baseMonsterFeatureEffect(item, item.name);
-      effect.changes.push(
+      effect.system.changes.push(
         {
           key: "flags.midi-qol.OverTime",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          type: "custom",
           value: "turn=end, saveAbility=con, saveDC=@abilities.con.dc, label=Poisoned by Quasit Claws",
           priority: "20",
         },
       );
       addStatusEffectChange({ effect, statusName: "Poisoned" });
 
-      foundry.utils.setProperty(effect, "duration.seconds", 60);
-      foundry.utils.setProperty(effect, "duration.rounds", 10);
+      foundry.utils.setProperty(effect, "duration.value", 60);
+      foundry.utils.setProperty(effect, "duration.units", "seconds");
       foundry.utils.setProperty(effect, "flags.dae.stackable", "noneNameOnly");
 
       item.effects.push(effect);

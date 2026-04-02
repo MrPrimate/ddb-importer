@@ -4,11 +4,18 @@ export {};
 
 global {
 
+  type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override";
+  type TActiveEffectChangePhase = "initial" | "final";
+  type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
+  type TEffectDurationExpiry = "combatStart" | "roundStart" | "turnStart" | "combatEnd" | "roundEnd" | "turnEnd";
+  type TEffectShowIcon = 0 | 1 | 2; // NEVER | CONDITIONAL | ALWAYS
+
   interface IActiveEffectChangeData {
     key: string;
-    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM | CONST.ACTIVE_EFFECT_MODES.ADD | CONST.ACTIVE_EFFECT_MODES.MULTIPLY | CONST.ACTIVE_EFFECT_MODES.OVERRIDE | CONST.ACTIVE_EFFECT_MODES.DOWNGRADE | CONST.ACTIVE_EFFECT_MODES.UPGRADE;
+    type: TActiveEffectChangeType;
     value: any;
-    priority: number;
+    phase?: TActiveEffectChangePhase;
+    priority?: number;
   }
 
   type DAESpecialDuration =
@@ -52,6 +59,10 @@ global {
 
   type TEffectType = "base" | "enchant";
 
+  interface I5eEffectSystem {
+    changes?: IActiveEffectChangeData[];
+  }
+
   export interface I5eEffectData {
     _id?: string;
     type?: TEffectType;
@@ -59,11 +70,13 @@ global {
     img?: string;
     name?: string;
     statuses?: typeof STATUSES;
-    changes?: IActiveEffectChangeData[];
+    system?: I5eEffectSystem;
     duration?: IEffectDuration;
+    start?: IEffectStartData | null;
     tint?: string;
     transfer?: boolean;
     disabled?: boolean;
+    showIcon?: TEffectShowIcon;
     flags?: {
       ActiveAuras?: {
         ignoreSelf?: boolean;
@@ -111,7 +124,6 @@ global {
       [key: string]: any;
     };
     description?: string;
-    // [key: string]: any;
   }
 
   interface IEffectModules {
@@ -131,12 +143,19 @@ global {
   }
 
   interface IEffectDuration {
-    seconds?: number | null;
-    startTime?: number | null;
-    rounds?: number | null;
-    turns?: number | null;
-    startRound?: number | null;
-    startTurn?: number | null;
+    value?: number | null;
+    units?: TEffectDurationUnit;
+    expiry?: TEffectDurationExpiry | null;
+    expired?: boolean;
+  }
+
+  interface IEffectStartData {
+    combat?: string | null;
+    combatant?: string | null;
+    initiative?: number;
+    round?: number;
+    turn?: number;
+    time?: number;
   }
 
   interface IBaseEffectOptions {
@@ -146,7 +165,7 @@ global {
     durationSeconds?: number | null;
     durationRounds?: number | null;
     durationTurns?: number | null;
-    showIcon?: boolean | null;
+    showIcon?: TEffectShowIcon;
   }
 
   interface IStatusConditionEffectOptions {

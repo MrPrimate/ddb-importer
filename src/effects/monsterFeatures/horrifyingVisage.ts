@@ -6,10 +6,10 @@ export function horrifyingVisageEffect(document) {
   foundry.utils.setProperty(document, "system.range", { value: 60, long: null, units: "spec" });
 
   const effect = baseFeatEffect(document, document.name);
-  effect.changes.push(
+  effect.system.changes.push(
     {
       "key": "flags.midi-qol.OverTime",
-      "mode": CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      "type": "override",
       "value": "turn=end,saveAbility=wis,saveDC=13,saveMagic=true,label=Frightened,killAnim=true",
       "priority": "20",
     },

@@ -14,25 +14,25 @@ export default class EnchantmentEffects {
   }
 
 
-  static addMagicalBonus({ effect, nameAddition = null, bonus = null, bonusMode = "OVERRIDE",
-    makeMagical = true }: { effect: I5eEffectData; nameAddition?: string | null; bonus?: string | null; bonusMode?: string; makeMagical?: boolean },
+  static addMagicalBonus({ effect, nameAddition = null, bonus = null, bonusMode = "override",
+    makeMagical = true }: { effect: I5eEffectData; nameAddition?: string | null; bonus?: string | null; bonusMode?: TActiveEffectChangeType; makeMagical?: boolean },
   ) {
     const name = nameAddition
       ? `, ${nameAddition}`
       : ` (${effect.name})`;
-    effect.changes.push(
+    effect.system.changes.push(
       {
         key: "name",
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        type: "override" as TActiveEffectChangeType,
         value: `{}${name}`,
         priority: 20,
       },
     );
     if (bonus !== null) {
-      effect.changes.push(
+      effect.system.changes.push(
         {
           key: "system.magicalBonus",
-          mode: CONST.ACTIVE_EFFECT_MODES[bonusMode],
+          type: bonusMode,
           value: `${bonus}`,
           priority: 20,
         },
@@ -40,10 +40,10 @@ export default class EnchantmentEffects {
     }
 
     if (makeMagical) {
-      effect.changes.push(
+      effect.system.changes.push(
         {
           key: "system.properties",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          type: "add" as TActiveEffectChangeType,
           value: "mgc",
           priority: 20,
         },

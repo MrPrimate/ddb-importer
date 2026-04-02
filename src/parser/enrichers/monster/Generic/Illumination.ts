@@ -42,13 +42,13 @@ export default class Illumination extends DDBEnricherData {
       };
       if (match.groups.bright) {
         effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, match.groups.bright),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "override", match.groups.bright),
         );
       }
       if (match.groups.dim) {
         const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
         effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, parseInt(`${dim}`)),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "override", parseInt(`${dim}`)),
         );
       }
       return [effect];

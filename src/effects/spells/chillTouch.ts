@@ -3,10 +3,10 @@ import { effectModules } from "../effects";
 
 export async function chillTouchEffect(document) {
   if (effectModules().midiQolInstalled) {
-    document.effect[0].changes.push(
+    document.effect[0].system.changes.push(
       {
         key: "flags.midi-qol.onUseMacroName",
-        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+        type: "custom",
         value: `function.DDBImporter.lib.DDBMacros.macroFunction.spell("chillTouchDisadvantage"),preAttackRoll`,
         // value: "Chill Touch (Target effect),preAttackRoll",
         priority: "30",

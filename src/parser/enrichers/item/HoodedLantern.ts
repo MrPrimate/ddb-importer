@@ -14,11 +14,11 @@ export default class HoodedLantern extends GenericLightSource {
           transfer: false,
         },
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "60"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "30"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "#f8c377"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "0.4"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", CONST.ACTIVE_EFFECT_MODES.UPGRADE, lightAnimation),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "60"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "30"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "upgrade", "#f8c377"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "upgrade", "0.4"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "upgrade", lightAnimation),
         ],
       },
     ];

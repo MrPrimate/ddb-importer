@@ -458,7 +458,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
       (modifier) => modifier.subType === "armored-armor-class" && modifier.isGranted,
     );
     const effect = ACBonusEffects.generateBonusACEffect(armoredBonuses, "AC: Armored Misc Bonuses", "armored-armor-class", null);
-    if (effect.changes.length > 0) this.armor.bonusEffects.push(effect);
+    if (effect.system.changes.length > 0) this.armor.bonusEffects.push(effect);
   }
 
   // Generic AC bonuses like Warforfed Integrated Protection
@@ -474,7 +474,7 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
     const component = DDBDataUtils.findComponentByComponentId(this.source.ddb, bonus.componentId);
     const name = component ? component.definition?.name ?? component.name : `AC: Misc (${bonus.friendlySubtypeName})`;
     const effect = ACBonusEffects.generateBonusACEffect([bonus], name, "armor-class", null);
-    if (effect.changes.length > 0) this.armor.bonusEffects.push(effect);
+    if (effect.system.changes.length > 0) this.armor.bonusEffects.push(effect);
   });
 
   this.source.ddb.character.characterValues.filter((value) =>
@@ -484,14 +484,14 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
     const name = custom.notes && custom.notes.trim() !== "" ? custom.notes : "AC: Custom Bonus";
     const effect = ACBonusEffects.generateBonusACEffect([], name, "custom", null);
     if (custom.value && ((Number.isInteger(custom.value) && Number.parseInt(custom.value) !== 0) || `${custom.value}`.trim() !== "")) {
-      effect.changes.push({
+      effect.system.changes.push({
         key: "system.attributes.ac.bonus",
         value: `+ ${custom.value}`,
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        type: "add",
         priority: 30,
       });
     }
-    if (effect.changes.length > 0) this.armor.bonusEffects.push(effect);
+    if (effect.system.changes.length > 0) this.armor.bonusEffects.push(effect);
   });
 
   this.armor.miscACBonus += getDualWieldAC(this.source.ddb, this.armor.miscModifiers);

@@ -768,8 +768,15 @@ export default abstract class DDBEnricherFactoryMixin {
         if (!effectOptions.durationSeconds && !effectOptions.durationRounds) {
           const duration = DDBDescriptions.getDuration(this.data.system.description.value, false);
           if (duration.type) {
-            foundry.utils.setProperty(effect, "duration.seconds", duration.seconds);
-            foundry.utils.setProperty(effect, "duration.rounds", duration.rounds);
+            if (duration.seconds) {
+              foundry.utils.setProperty(effect, "duration.value", duration.seconds);
+              foundry.utils.setProperty(effect, "duration.units", "seconds");
+              foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
+            } else if (duration.rounds) {
+              foundry.utils.setProperty(effect, "duration.value", duration.rounds);
+              foundry.utils.setProperty(effect, "duration.units", "rounds");
+              foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
+            }
           }
           const specialDurations: DAESpecialDuration[] = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []) as DAESpecialDuration[];
           foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
@@ -790,31 +797,31 @@ export default abstract class DDBEnricherFactoryMixin {
 
       if (effectHint.changes) {
         const changes = effectHint.changes;
-        if (effectHint.changesOverwrite) effect.changes = changes;
-        else effect.changes.push(...changes);
+        if (effectHint.changesOverwrite) effect.system.changes = changes;
+        else effect.system.changes.push(...changes);
       }
 
       if (effectHint.atlChanges && AutoEffects.effectModules().atlInstalled) {
-        effect.changes.push(...effectHint.atlChanges);
+        effect.system.changes.push(...effectHint.atlChanges);
       }
 
       if (effectHint.tokenMagicChanges && AutoEffects.effectModules().tokenMagicInstalled) {
-        effect.changes.push(...effectHint.tokenMagicChanges);
+        effect.system.changes.push(...effectHint.tokenMagicChanges);
       }
 
       if (effectHint.midiChanges && applyMidiOnlyEffects) {
-        effect.changes.push(...effectHint.midiChanges);
+        effect.system.changes.push(...effectHint.midiChanges);
       }
 
       if (effectHint.daeChanges && AutoEffects.effectModules().daeInstalled) {
-        effect.changes.push(...effectHint.daeChanges);
+        effect.system.changes.push(...effectHint.daeChanges);
       }
 
-      if (effectHint.daeStackable && AutoEffects.effectModules().daeInstalled) {
+      if (effectHint.daeStackable) {
         foundry.utils.setProperty(effect, "flags.dae.stackable", effectHint.daeStackable);
       }
 
-      if (effectHint.daeSpecialDurations && AutoEffects.effectModules().daeInstalled) {
+      if (effectHint.daeSpecialDurations) {
         foundry.utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
       }
 
@@ -840,38 +847,38 @@ export default abstract class DDBEnricherFactoryMixin {
 
       if (effectHint.macroChanges && applyMidiOnlyEffects) {
         for (const macroChange of effectHint.macroChanges) {
-          effect.changes.push(DDBMacros.generateMacroChange(macroChange));
+          effect.system.changes.push(DDBMacros.generateMacroChange(macroChange));
         }
       }
 
       if (effectHint.onUseMacroChanges && applyMidiOnlyEffects) {
         for (const macroChange of effectHint.onUseMacroChanges) {
-          effect.changes.push(DDBMacros.generateOnUseMacroChange(macroChange));
+          effect.system.changes.push(DDBMacros.generateOnUseMacroChange(macroChange));
         }
       }
 
       if (effectHint.targetUpdateMacroChanges && applyMidiOnlyEffects) {
         for (const macroChange of effectHint.targetUpdateMacroChanges) {
-          effect.changes.push(DDBMacros.generateTargetUpdateMacroChange(macroChange));
+          effect.system.changes.push(DDBMacros.generateTargetUpdateMacroChange(macroChange));
         }
       }
 
       if (effectHint.damageBonusMacroChanges && applyMidiOnlyEffects) {
         for (const macroChange of effectHint.damageBonusMacroChanges) {
-          effect.changes.push(DDBMacros.generateDamageBonusMacroChange(macroChange));
+          effect.system.changes.push(DDBMacros.generateDamageBonusMacroChange(macroChange));
         }
       }
 
       if (effectHint.optionalMacroChanges && applyMidiOnlyEffects) {
         for (const macroChange of effectHint.optionalMacroChanges) {
-          effect.changes.push(DDBMacros.generateOptionalMacroChange(macroChange));
+          effect.system.changes.push(DDBMacros.generateOptionalMacroChange(macroChange));
         }
       }
 
       if (effectHint.midiOptionalChanges && applyMidiOnlyEffects) {
         for (const midiChange of effectHint.midiOptionalChanges) {
           for (const [key, value] of Object.entries(midiChange.data)) {
-            effect.changes.push(
+            effect.system.changes.push(
               ChangeHelper.customChange(value, midiChange.priority ?? 5, `flags.midi-qol.optional.${midiChange.name}.${key}`),
             );
           }
@@ -879,7 +886,7 @@ export default abstract class DDBEnricherFactoryMixin {
       }
 
       if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
-        foundry.utils.setProperty(effect, "system", effectHint.auraeffects);
+        foundry.utils.mergeObject(effect.system, effectHint.auraeffects);
         // @ts-expect-error - this is allowed
         effect.type = "auraeffects.aura";
       }

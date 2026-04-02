@@ -18,31 +18,36 @@ export default class AutoEffects {
 
   static generateBasicEffectDuration(document: any, activity?: any): IEffectDuration {
     const duration: IEffectDuration = {
-      seconds: null,
-      startTime: null,
-      rounds: null,
-      turns: null,
-      startRound: null,
-      startTurn: null,
+      value: null,
+      units: "seconds",
+      expiry: null,
+      expired: false,
     };
     const docData = document?.system?.duration ?? activity?.duration;
     if (!docData) return duration;
 
-    switch (docData?.units) {
-      case "turn":
-        duration.turns = docData.value;
-        break;
-      case "round":
-        duration.rounds = docData.value;
-        break;
-      case "hour":
-        duration.seconds = docData.value * 60 * 60;
-        break;
-      case "minute":
-        duration.rounds = docData.value * 10;
-        break;
-      // no default
+    const unitMap: Record<string, TEffectDurationUnit> = {
+      turn: "turns",
+      turns: "turns",
+      round: "rounds",
+      rounds: "rounds",
+      hour: "hours",
+      hours: "hours",
+      minute: "minutes",
+      minutes: "minutes",
+      second: "seconds",
+      seconds: "seconds",
+      day: "days",
+      days: "days",
+    };
+
+    const mappedUnit = unitMap[docData?.units];
+    if (mappedUnit && docData.value) {
+      duration.value = docData.value;
+      duration.units = mappedUnit;
+      duration.expiry = "turnStart";
     }
+
     return duration;
   }
 
@@ -56,21 +61,21 @@ export default class AutoEffects {
       durationSeconds = null,
       durationRounds = null,
       durationTurns = null,
-      showIcon = false,
+      showIcon,
     }: IBaseEffectOptions = {},
   ): I5eEffectData {
     const effect: I5eEffectData = {
       img: document.img,
       name,
       statuses: [],
-      changes: [],
+      system: { changes: [] },
       duration: {} as IEffectDuration,
       tint: "",
       transfer,
       disabled,
+      showIcon: showIcon ?? 1,
       flags: {
         dae: {
-          showIcon,
           transfer,
           stackable: "noneNameOnly",
         },
@@ -85,9 +90,21 @@ export default class AutoEffects {
     };
     effect.duration = AutoEffects.generateBasicEffectDuration(document);
     effect.description = description ?? "";
-    if (durationSeconds) effect.duration.seconds = durationSeconds;
-    if (durationRounds) effect.duration.rounds = durationRounds;
-    if (durationTurns) effect.duration.turns = durationTurns;
+    if (durationSeconds) {
+      effect.duration.value = durationSeconds;
+      effect.duration.units = "seconds";
+      effect.duration.expiry = "turnStart";
+    }
+    if (durationRounds) {
+      effect.duration.value = durationRounds;
+      effect.duration.units = "rounds";
+      effect.duration.expiry = "turnStart";
+    }
+    if (durationTurns) {
+      effect.duration.value = durationTurns;
+      effect.duration.units = "turns";
+      effect.duration.expiry = "turnStart";
+    }
     return effect;
   }
 
@@ -234,7 +251,7 @@ export default class AutoEffects {
 
     const effect: any = {
       name: "",
-      changes: [],
+      system: { changes: [] },
       flags: foundry.utils.mergeObject({
         dae: {
           specialDuration: parsedStatus.specialDurations,
@@ -285,12 +302,15 @@ export default class AutoEffects {
       transfer: false,
       description: `Apply status ${conditionResult.condition}`,
     });
-    effect.changes.push(...conditionEffect.changes);
+    effect.system.changes.push(...conditionEffect.system.changes);
     effect.statuses.push(...conditionEffect.statuses);
     if (conditionEffect.name && conditionEffect.name !== "") effect.name = conditionEffect.name;
     effect.flags = foundry.utils.mergeObject(effect.flags, conditionEffect.flags);
-    if (conditionEffect.duration.seconds) effect.duration.seconds = conditionEffect.duration.seconds;
-    if (conditionEffect.duration.rounds) effect.duration.rounds = conditionEffect.duration.rounds;
+    if (conditionEffect.duration?.value != null) {
+      effect.duration.value = conditionEffect.duration.value;
+      effect.duration.units = conditionEffect.duration.units;
+      effect.duration.expiry = conditionEffect.duration.expiry;
+    }
 
     if (!effect.name || effect.name === "") {
       const condition = utils.capitalize(conditionResult.condition);

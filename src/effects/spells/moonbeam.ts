@@ -5,7 +5,7 @@ export async function moonbeamEffect(document) {
   const effect = baseSpellEffect(document, document.name);
   effect.flags.dae.macroRepeat = "startEveryTurn";
   await DDBMacros.setItemMacroFlag(document, "spell", "moonbeam.js");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "moonbeam.js" }));
+  effect.system.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "moonbeam.js" }));
   foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
   foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);

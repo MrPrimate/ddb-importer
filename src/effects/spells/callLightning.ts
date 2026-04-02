@@ -6,7 +6,7 @@ export async function callLightningEffect(document) {
   document.system.damage = { parts: [], versatile: "", value: "" };
   document.system.save.ability = "";
 
-  effect.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "callLightning.js" }));
+  effect.system.changes.push(DDBMacros.generateMacroChange({ macroValues: "@spellLevel", macroType: "spell", macroName: "callLightning.js" }));
   foundry.utils.setProperty(effect, "flags.dae.selfTarget", true);
   foundry.utils.setProperty(effect, "flags.dae.selfTargetAlways", true);
   document.effects.push(effect);

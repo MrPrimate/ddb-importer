@@ -21,9 +21,10 @@ export async function blackTentaclesEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  foundry.utils.setProperty(effect, "duration.seconds", 60);
+  foundry.utils.setProperty(effect, "duration.value", 60);
+  foundry.utils.setProperty(effect, "duration.units", "seconds");
   foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: "activeAuraDamageAndConditionOnEntry.js" }));
+  effect.system.changes.push(DDBMacros.generateMacroChange({ macroType: "generic", macroName: "activeAuraDamageAndConditionOnEntry.js" }));
   DDBMacros.setMidiOnUseMacroFlag(document, "generic", "activeAuraDamageAndConditionOnEntry.js", ["preActiveEffects"]);
 
   const aaMacroFlags = {

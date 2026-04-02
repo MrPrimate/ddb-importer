@@ -7,16 +7,16 @@ export async function stormSphereEffect(document) {
   if (!effectModules().activeAurasInstalled) return document;
 
   const effect = baseSpellEffect(document, document.name);
-  effect.changes.push(
+  effect.system.changes.push(
     {
       key: "system.skills.prc.roll.mode",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add",
       priority: 20,
       value: `${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`,
     },
     {
       key: "flags.midi-qol.OverTime",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       value:
         "turn=end,label=Storm Sphere (End of Turn),damageRoll=(@item.level - 2)d6,damageType=bludgeoning,saveRemove=false,saveDC=@attributes.spell.dc,saveAbility=str,saveDamage=nodamage,killAnim=true",
       priority: "20",
@@ -38,9 +38,10 @@ export async function stormSphereEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  foundry.utils.setProperty(effect, "duration.seconds", 60);
+  foundry.utils.setProperty(effect, "duration.value", 60);
+  foundry.utils.setProperty(effect, "duration.units", "seconds");
   foundry.utils.setProperty(effect, "flags.dae.macroRepeat", "startEveryTurn");
-  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "stormSphere.js" }));
+  effect.system.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "stormSphere.js" }));
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "stormSphere.js", ["preActiveEffects"]);
 
   document.effects.push(effect);

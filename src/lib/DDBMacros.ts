@@ -165,7 +165,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return {
       key: `${macroKey}${keyPostfix}`,
       value: `${macroValuePrefix}${macroValues}${functionParams}`,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       priority,
     };
   }
@@ -237,7 +237,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return {
       key: "flags.midi-qol.onUseMacroName",
       value: valueContent,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       priority,
     };
   }
@@ -252,7 +252,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return {
       key: "flags.dnd5e.DamageBonusMacro",
       value,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       priority,
     };
   }
@@ -270,7 +270,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return {
       key: "flags.dae.onUpdateTarget",
       value: valueContent,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       priority,
     };
   }
@@ -288,7 +288,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return {
       key: "flags.dae.onUpdateSource",
       value: valueContent,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       priority,
     };
   }
@@ -308,7 +308,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return {
       key: `flags.midi-qol.optional.${optionPostfix}`,
       value: valueContent,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       priority,
     };
   }

@@ -3,15 +3,10 @@ import { generateOverrideChange } from "./effects";
 
 function buildBaseOverrideEffect(label): I5eEffectData {
   const effect: I5eEffectData = {
-    changes: [],
-    duration: {
-      seconds: null,
-      startTime: null,
-      rounds: null,
-      turns: null,
-      startRound: null,
-      startTurn: null,
+    system: {
+      changes: [],
     },
+    duration: {},
     origin: "Ability.Override",
     tint: "",
     disabled: false,
@@ -32,7 +27,7 @@ export function abilityOverrideEffect(overrides): I5eEffectData {
 
   DICTIONARY.actor.abilities.forEach((ability) => {
     if (overrides[ability.value] === 0) return;
-    effect.changes.push(generateOverrideChange(overrides[ability.value], 50, `system.abilities.${ability.value}.value`));
+    effect.system.changes.push(generateOverrideChange(overrides[ability.value], 50, `system.abilities.${ability.value}.value`));
   });
 
   return effect;

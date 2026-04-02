@@ -5,7 +5,7 @@ interface ChangeParams {
   value: any;
   priority: any;
   key: string;
-  type: string;
+  type: TActiveEffectChangeType;
 }
 
 interface StatusEffectChangeParams {
@@ -40,7 +40,7 @@ export default class ChangeHelper {
     return {
       key,
       value,
-      mode: CONST.ACTIVE_EFFECT_MODES[type],
+      type,
       priority,
     };
   }
@@ -55,7 +55,7 @@ export default class ChangeHelper {
     return {
       key,
       value: bonusValue,
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add",
       priority,
     };
   }
@@ -65,7 +65,7 @@ export default class ChangeHelper {
     return {
       key,
       value: bonusValue.trim(),
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add",
       priority,
     };
   }
@@ -78,7 +78,7 @@ export default class ChangeHelper {
     return {
       key,
       value,
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       priority,
     };
   }
@@ -95,7 +95,7 @@ export default class ChangeHelper {
     return {
       key,
       value,
-      mode: CONST.ACTIVE_EFFECT_MODES.UPGRADE,
+      type: "upgrade",
       priority,
     };
   }
@@ -104,7 +104,7 @@ export default class ChangeHelper {
     return {
       key,
       value,
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      type: "override",
       priority,
     };
   }
@@ -113,7 +113,7 @@ export default class ChangeHelper {
     return {
       key,
       value,
-      mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY,
+      type: "multiply",
       priority,
     };
   }
@@ -122,7 +122,7 @@ export default class ChangeHelper {
     return {
       key,
       value,
-      mode: CONST.ACTIVE_EFFECT_MODES.DOWNGRADE,
+      type: "downgrade",
       priority,
     };
   }
@@ -130,7 +130,7 @@ export default class ChangeHelper {
   static tokenMagicFXChange(macroValue: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "macro.tokenMagic",
-      mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+      type: "custom",
       value: macroValue,
       priority: priority,
     };
@@ -139,14 +139,13 @@ export default class ChangeHelper {
   static damageResistanceChange(damageType: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "system.traits.dr.value",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add",
       value: damageType.toLowerCase(),
       priority,
     };
   }
 
-  // this can now be removed once changes refactored
-  static atlChange(atlKey: string, mode: number, value: any, priority = 20): IActiveEffectChangeData {
+  static atlChange(atlKey: string, type: TActiveEffectChangeType, value: any, priority = 20): IActiveEffectChangeData {
     let key = atlKey;
 
     switch (atlKey) {
@@ -173,7 +172,7 @@ export default class ChangeHelper {
 
     return {
       key,
-      mode,
+      type,
       value,
       priority,
     };
@@ -182,7 +181,7 @@ export default class ChangeHelper {
   static daeStatusEffectChange(statusName: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "macro.StatusEffect",
-      mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+      type: "add",
       value: statusName.toLowerCase(),
       priority: priority,
     };
@@ -191,7 +190,7 @@ export default class ChangeHelper {
   static addStatusEffectChange({ effect, statusName, priority = 20, level = null }: StatusEffectChangeParams): any {
     if (AutoEffects.effectModules().daeInstalled && game.settings.get("ddb-importer", "effects-uses-macro-status-effects")) {
       const key = ChangeHelper.daeStatusEffectChange(statusName, priority);
-      effect.changes.push(key);
+      effect.system.changes.push(key);
     } else {
       if (effect.description && effect.description.trim() === "") {
         effect.description = `You have the &Reference[${statusName.toLowerCase()}] status condition.`;
@@ -209,7 +208,7 @@ export default class ChangeHelper {
     const ability = Array.isArray(saveAbility) ? saveAbility[0] : saveAbility;
     return {
       key: "flags.midi-qol.OverTime",
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      type: "override",
       value: `turn=${turn},label=${document.name} (${utils.capitalize(turn)} of Turn),damageRoll=${damage},damageType=${damageType},saveRemove=${saveRemove},saveDC=${dc},saveAbility=${ability},saveDamage=${saveDamage},killAnim=true`,
       priority: 20,
     };
@@ -221,7 +220,7 @@ export default class ChangeHelper {
     const ability = Array.isArray(saveAbility) ? saveAbility[0] : saveAbility;
     return {
       key: "flags.midi-qol.OverTime",
-      mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+      type: "override",
       value: `turn=${turnValue},label=${document.name} (${utils.capitalize(turn)} of Turn),saveRemove=${saveRemove},saveDC=${dc},saveAbility=${ability},killAnim=true${actionSave}`,
       priority: 20,
     };

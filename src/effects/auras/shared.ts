@@ -339,7 +339,7 @@ export async function applyAuraToTemplate(returnArgs, {
     const cantripDice = DDBEffectHelper.getCantripDice(originDocument.actor);
     returnArgs[0].spellLevel = cantripDice;
     const newEffects = returnArgs[0].item.effects.map((effect) => {
-      effect.changes = effect.changes.map((change) => {
+      effect.system.changes = effect.system.changes.map((change) => {
         change.value = change.value.replaceAll("@cantripDice", cantripDice);
         return change;
       });

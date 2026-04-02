@@ -2,20 +2,16 @@ import { baseSpellEffect } from "../specialSpells";
 
 export function guidingBoltEffect(document) {
   const effect = baseSpellEffect(document, document.name);
-  effect.changes.push({
+  effect.system.changes.push({
     key: "flags.midi-qol.grants.advantage.attack.all",
     value: "1",
-    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+    type: "override",
     priority: 20,
   });
   effect.flags.dae.specialDuration = ["isAttacked"];
   effect.duration = {
-    startTime: null,
-    seconds: null,
-    rounds: 1,
-    turns: null,
-    startRound: null,
-    startTurn: null,
+    value: 1,
+    units: "rounds",
   };
   document.effects.push(effect);
 

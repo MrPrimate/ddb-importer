@@ -28,7 +28,7 @@ export default class MightySummoner {
           _id: dnd5e.utils.staticID("dnd5eHPBonus"),
           changes: [{
             key: `system.attributes.hp.${hpField}`,
-            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            type: "add",
             value: hpBonus.total,
           }],
           disabled: false,

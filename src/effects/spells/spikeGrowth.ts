@@ -9,15 +9,15 @@ export async function spikeGrowthEffect(document) {
   await DDBMacros.setItemMacroFlag(document, "spell", "spikeGrowth.js");
 
   const effect = baseSpellEffect(document, document.name);
-  effect.changes.push(
+  effect.system.changes.push(
     {
       key: "system.attributes.movement.walk",
       value: "0.5",
-      mode: CONST.ACTIVE_EFFECT_MODES.MULTIPLY,
+      type: "multiply",
       priority: 30,
     },
   );
-  effect.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "spikeGrowth.js" }));
+  effect.system.changes.push(DDBMacros.generateMacroChange({ macroType: "spell", macroName: "spikeGrowth.js" }));
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
@@ -33,7 +33,8 @@ export async function spikeGrowthEffect(document) {
     savedc: null,
     displayTemp: true,
   };
-  foundry.utils.setProperty(effect, "duration.seconds", 600);
+  foundry.utils.setProperty(effect, "duration.value", 600);
+  foundry.utils.setProperty(effect, "duration.units", "seconds");
   foundry.utils.setProperty(effect, "flags.dae.specialDuration", ["isMoved"]);
   DDBMacros.setMidiOnUseMacroFlag(document, "spell", "spikeGrowth.js", ["preActiveEffects"]);
 

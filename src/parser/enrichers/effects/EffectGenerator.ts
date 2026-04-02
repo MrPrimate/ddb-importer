@@ -98,7 +98,7 @@ export default class EffectGenerator {
     if (bonus) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`, bonus);
       this.changeAdded.bonus[key] = true;
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, key));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, key));
     }
   }
 
@@ -106,7 +106,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + parseInt(String(b.value)), 0);
     if (bonus !== 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.customChange(`${bonus}${(extra) ? extra : ""}`, 18, key));
+      this.effect.system.changes.push(ChangeHelper.customChange(`${bonus}${(extra) ? extra : ""}`, 18, key));
     }
   }
 
@@ -115,11 +115,11 @@ export default class EffectGenerator {
 
     languages.value.forEach((prof) => {
       logger.debug(`Generating language ${prof} for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(prof, 0, "system.traits.languages.value"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(prof, 0, "system.traits.languages.value"));
     });
     if (languages?.custom != "") {
       logger.debug(`Generating language ${languages.custom} for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(languages.custom, 0, "system.traits.languages.custom"));
     }
   }
 
@@ -149,7 +149,7 @@ export default class EffectGenerator {
       logger.debug(`Changes for ${type} bonus for ${this.document.name}`, changes);
     }
 
-    this.effect.changes.push(...changes);
+    this.effect.system.changes.push(...changes);
 
   }
 
@@ -165,43 +165,43 @@ export default class EffectGenerator {
 
     damageImmunityData.forEach((data) => {
       if (data.value && data.value.length > 0)
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.di.value"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.di.value"));
       if (data.bypass && data.bypass.length > 0)
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
     });
     damageResistanceData.forEach((data) => {
       if (data.value && data.value.length > 0) {
         if (Array.isArray(data.value)) {
           data.value.forEach((damageType) => {
-            this.effect.changes.push(ChangeHelper.damageResistanceChange(damageType, 1));
+            this.effect.system.changes.push(ChangeHelper.damageResistanceChange(damageType, 1));
           });
         } else {
-          this.effect.changes.push(ChangeHelper.damageResistanceChange(data.value, 1));
+          this.effect.system.changes.push(ChangeHelper.damageResistanceChange(data.value, 1));
         }
       }
       if (data.bypass && data.bypass.length > 0)
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
     });
     damageVulnerabilityData.forEach((data) => {
       if (data.value && data.value.length > 0)
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.dv.value"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.dv.value"));
       if (data.bypass && data.bypass.length > 0)
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
     });
 
     const conditionImmunityData = this._getGenericConditionAffectData("immunity", 4);
 
     conditionImmunityData.forEach((data) => {
       if (data.value && data.value.length > 0)
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.ci.value"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.ci.value"));
       if (data.bypass && data.bypass.length > 0)
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
     });
 
     // system.traits.di.all
     const allDamageImmunity = DDBModifiers.filterModifiersOld(this.grantedModifiers, "immunity", "all");
     if (allDamageImmunity?.length > 0) {
-      this.effect.changes.push(ChangeHelper.unsignedAddChange("all", 1, "system.traits.di.value"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange("all", 1, "system.traits.di.value"));
     }
   }
 
@@ -212,7 +212,7 @@ export default class EffectGenerator {
     if (result.length > 0) {
       logger.debug(`Generating critical hit immunity for ${this.document.name}`);
       const change = ChangeHelper.customChange(1, 1, "flags.midi-qol.grants.noCritical.all");
-      this.effect.changes.push(change);
+      this.effect.system.changes.push(change);
     }
   }
 
@@ -226,7 +226,7 @@ export default class EffectGenerator {
     if (bonuses.length > 0) {
       logger.debug(`Generating ${subType} ${type} ${mode} for ${this.document.name}`);
       const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-      this.effect.changes.push(ChangeHelper.addChange(modifier, 8, `system.abilities.${ability}.${type}.roll.mode`));
+      this.effect.system.changes.push(ChangeHelper.addChange(modifier, 8, `system.abilities.${ability}.${type}.roll.mode`));
     }
   }
 
@@ -237,7 +237,7 @@ export default class EffectGenerator {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat set for ${this.document.name}`);
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-        this.effect.changes.push(ChangeHelper.upgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
+        this.effect.system.changes.push(ChangeHelper.upgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
       });
     }
   }
@@ -253,7 +253,7 @@ export default class EffectGenerator {
     if (bonuses.length > 0) {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat max for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.addChange(bonus.value, 3, `system.abilities.${ability.value}.max`));
+        this.effect.system.changes.push(ChangeHelper.addChange(bonus.value, 3, `system.abilities.${ability.value}.max`));
       });
     }
   }
@@ -286,9 +286,9 @@ export default class EffectGenerator {
         if (game.modules.get("dae")?.active) {
           const bonusString = `min(@abilities.${ability.value}.max, @abilities.${ability.value}.value + ${bonus.value})`;
           // min(20, @abilities.con.value + 2)
-          this.effect.changes.push(ChangeHelper.overrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
+          this.effect.system.changes.push(ChangeHelper.overrideChange(bonusString, 5, `system.abilities.${ability.value}.value`));
         } else {
-          this.effect.changes.push(ChangeHelper.signedAddChange(bonus.value, 5, `system.abilities.${ability.value}.value`));
+          this.effect.system.changes.push(ChangeHelper.signedAddChange(bonus.value, 5, `system.abilities.${ability.value}.value`));
         }
       });
     }
@@ -316,10 +316,10 @@ export default class EffectGenerator {
         .map((mod) => parseInt(String(mod.value)));
       if (base.length > 0) {
         logger.debug(`Generating ${sense} base for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.ranges.${sense}`));
+        this.effect.system.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, `system.attributes.senses.ranges.${sense}`));
         if (AutoEffects.effectModules().atlInstalled) {
-          this.effect.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, "ATL.sight.range"));
-          this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 5));
+          this.effect.system.changes.push(ChangeHelper.upgradeChange(Math.max(...base), 10, "ATL.sight.range"));
+          this.effect.system.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", "override", sense, 5));
         }
       }
       const bonus = this.grantedModifiers
@@ -327,10 +327,10 @@ export default class EffectGenerator {
         .reduce((a, b) => a + parseInt(String(b.value)), 0);
       if (bonus > 0) {
         logger.debug(`Generating ${sense} bonus for ${this.document.name}`);
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.ranges.${sense}`));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, `system.attributes.senses.ranges.${sense}`));
         if (AutoEffects.effectModules().atlInstalled) {
-          this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, "ATL.sight.range"));
-          this.effect.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, sense, 6));
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 20, "ATL.sight.range"));
+          this.effect.system.changes.push(ChangeHelper.atlChange("ATL.sight.visionMode", "override", sense, 6));
         }
       }
     });
@@ -340,7 +340,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", "proficiency-bonus").reduce((a, b) => a + parseInt(String(b.value)), 0);
     if (bonus) {
       logger.debug(`Generating proficiency bonus for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 0, "system.attributes.prof"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 0, "system.attributes.prof"));
     }
   }
 
@@ -359,7 +359,7 @@ export default class EffectGenerator {
           : game.modules.get("dae")?.active
             ? "##attributes.movement.walk"
             : "@attributes.movement.walk";
-        this.effect.changes.push(ChangeHelper.upgradeChange(speed, 5, `system.attributes.movement.${speedType}`));
+        this.effect.system.changes.push(ChangeHelper.upgradeChange(speed, 5, `system.attributes.movement.${speedType}`));
       });
     }
   }
@@ -409,7 +409,7 @@ export default class EffectGenerator {
     DICTIONARY.actor.skills.forEach((skill) => {
       const prof = this.proficiencyFinder.getSkillProficiency(skill, this.grantedModifiers);
       if (prof != 0) {
-        this.effect.changes.push(ChangeHelper.upgradeChange(prof, 9, `system.skills.${skill.name}.value`));
+        this.effect.system.changes.push(ChangeHelper.upgradeChange(prof, 9, `system.skills.${skill.name}.value`));
       }
     });
   }
@@ -429,24 +429,24 @@ export default class EffectGenerator {
 
     for (const [key, value] of Object.entries(toolProf)) {
       logger.debug(`Generating tool proficiencies for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.customChange(value.value, 8, `system.tools.${key}.value`));
-      this.effect.changes.push(ChangeHelper.customChange(`${value.ability}`, 8, `system.tools.${key}.ability`));
-      this.effect.changes.push(ChangeHelper.customChange("0", 8, `system.tools.${key}.bonuses.check`));
+      this.effect.system.changes.push(ChangeHelper.customChange(value.value, 8, `system.tools.${key}.value`));
+      this.effect.system.changes.push(ChangeHelper.customChange(`${value.ability}`, 8, `system.tools.${key}.ability`));
+      this.effect.system.changes.push(ChangeHelper.customChange("0", 8, `system.tools.${key}.bonuses.check`));
     }
     weaponProf.value.forEach((prof) => {
       logger.debug(`Generating weapon proficiencies for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(prof, 8, "system.traits.weaponProf.value"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(prof, 8, "system.traits.weaponProf.value"));
     });
     armorProf.value.forEach((prof) => {
       logger.debug(`Generating armor proficiencies for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(prof, 8, "system.traits.armorProf.value"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(prof, 8, "system.traits.armorProf.value"));
     });
     // if (toolProf?.custom != "") changes.push(generateCustomChange(toolProf.custom, 8, "system.traits.toolProf.custom"));
     if (weaponProf?.custom != "") {
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(weaponProf.custom, 8, "system.traits.weaponProf.custom"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(weaponProf.custom, 8, "system.traits.weaponProf.custom"));
     }
     if (armorProf?.custom != "") {
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(armorProf.custom, 8, "system.traits.armorProf.custom"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(armorProf.custom, 8, "system.traits.armorProf.custom"));
     }
   }
 
@@ -456,10 +456,10 @@ export default class EffectGenerator {
       const cls = DDBDataUtils.findClassByFeatureId(this.ddb, bonus.componentId);
       if (cls) {
         logger.debug(`Generating HP Per Level effects for ${this.document.name} for class ${cls.definition.name}`);
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.bonuses.overall"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`${bonus.value} * @classes.${cls.definition.name.toLowerCase()}.levels`, 14, "system.attributes.hp.bonuses.overall"));
       } else {
         logger.debug(`Generating HP Per Level effects for ${this.document.name} for all levels`);
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus.value, 14, "system.attributes.hp.bonuses.level"));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus.value, 14, "system.attributes.hp.bonuses.level"));
       }
     });
 
@@ -471,7 +471,7 @@ export default class EffectGenerator {
         if (hpBonus !== "") hpBonus += " + ";
         hpBonus += hpParse;
       });
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(`${hpBonus}`, 14, "system.attributes.hp.bonuses.overall"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`${hpBonus}`, 14, "system.attributes.hp.bonuses.overall"));
     }
   }
 
@@ -479,7 +479,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, skill.subType, "bonus");
     if (bonus) {
       logger.debug(`Generating ${skill.subType} skill bonus for ${this.document.name}`, bonus);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.check`));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.check`));
     }
   }
 
@@ -498,7 +498,7 @@ export default class EffectGenerator {
       const modifier = mode === "advantage"
         ? CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE
         : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
-      this.effect.changes.push(ChangeHelper.addChange(modifier, 10, `system.skills.${skill.name}.roll.mode`));
+      this.effect.system.changes.push(ChangeHelper.addChange(modifier, 10, `system.skills.${skill.name}.roll.mode`));
       // handled by midi already
       // advantage/disadvantage on skill grants +/-5 passive bonus, https://www.dndbeyond.com/sources/phb/using-ability-scores#PassiveChecks
       // if (midiEffect === "advantage") {
@@ -513,7 +513,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, `passive-${skill.subType}`, "bonus");
     if (bonus) {
       logger.debug(`Generating ${skill.subType} skill bonus for ${this.document.name}`, bonus);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.passive`));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonus, 12, `system.skills.${skill.name}.bonuses.passive`));
     }
   }
 
@@ -540,14 +540,14 @@ export default class EffectGenerator {
     const advantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "advantage", "initiative");
     if (advantage.length > 0) {
       logger.debug(`Generating Initiative advantage for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(1, 20, "flags.dnd5e.initiativeAdv"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(1, 20, "flags.dnd5e.initiativeAdv"));
     }
 
     const advantageBonus = DDBModifiers.getValueFromModifiers(this.grantedModifiers, "initiative", "initiative", "bonus");
     // alert feet gets special bonus
     if (advantageBonus && this.document.name !== "Alert") {
       logger.debug(`Generating Initiative bonus for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(advantageBonus, 20, "system.attributes.init.bonus"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(advantageBonus, 20, "system.attributes.init.bonus"));
     }
   }
 
@@ -556,7 +556,7 @@ export default class EffectGenerator {
     const disadvantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "disadvantage", "attack-rolls-against-you");
     if (disadvantage.length > 0) {
       logger.debug(`Generating disadvantage for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.customChange(1, 5, "flags.midi-qol.grants.disadvantage.attack.all"));
+      this.effect.system.changes.push(ChangeHelper.customChange(1, 5, "flags.midi-qol.grants.disadvantage.attack.all"));
     }
   }
 
@@ -573,7 +573,7 @@ export default class EffectGenerator {
     const advantage = DDBModifiers.filterModifiersOld(this.grantedModifiers, "advantage", "saving-throws", restrictions);
     if (advantage.length > 0) {
       logger.debug(`Generating magical advantage on saving throws for ${this.document.name}`);
-      this.effect.changes.push(ChangeHelper.customChange("1", 5, "flags.midi-qol.magicResistance.all"));
+      this.effect.system.changes.push(ChangeHelper.customChange("1", 5, "flags.midi-qol.magicResistance.all"));
       // changes.push(generateCustomChange("magic-resistant", 5, "system.traits.dr.custom"));
     }
   }
@@ -590,9 +590,9 @@ export default class EffectGenerator {
       }
       const bonusValue = bonuses.reduce((speed, mod) => speed + parseInt(String(mod.value)), 0);
       if (speedType === "all") {
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonusValue}`, 9, `system.attributes.movement.${speedType}`));
       } else {
-        this.effect.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
+        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bonusValue, 9, `system.attributes.movement.${speedType}`));
       }
     }
   }
@@ -655,7 +655,7 @@ export default class EffectGenerator {
     if (bonus && bonus.length > 0) {
       logger.debug(`Generating ${type} damage for ${this.document.name}`);
       const change = ChangeHelper.unsignedAddChange(`${bonus.join(" + ")}`, 22, `system.bonuses.${type}.damage`);
-      this.effect.changes.push(change);
+      this.effect.system.changes.push(change);
     }
   }
 
@@ -695,7 +695,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.getValueFromModifiers(this.grantedModifiers, this.document.name, "attunement-slots", "set");
     if (bonus) {
       logger.debug(`Generating Attunement bonus for ${this.document.name}`, bonus);
-      this.effect.changes.push(ChangeHelper.upgradeChange(bonus, 11, "system.attributes.attunement.max"));
+      this.effect.system.changes.push(ChangeHelper.upgradeChange(bonus, 11, "system.attributes.attunement.max"));
     }
   }
 
@@ -843,19 +843,19 @@ export default class EffectGenerator {
     this._addGlobalDamageBonus();
     this._addAttunementSlots();
 
-    const hasInitiative = this.effect.changes.find((c) => c.key === "system.attributes.init.bonus"
-      && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD);
-    const hasCheck = this.effect.changes.find((c) => c.key === "system.bonuses.abilities.check"
-      && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD);
+    const hasInitiative = this.effect.system.changes.find((c) => c.key === "system.attributes.init.bonus"
+      && c.type === "add");
+    const hasCheck = this.effect.system.changes.find((c) => c.key === "system.bonuses.abilities.check"
+      && c.type === "add");
 
     if (hasInitiative && hasCheck) {
-      this.effect.changes = this.effect.changes.filter((c) => !(c.key === "system.attributes.init.bonus"
-        && c.mode === CONST.ACTIVE_EFFECT_MODES.ADD
+      this.effect.system.changes = this.effect.system.changes.filter((c) => !(c.key === "system.attributes.init.bonus"
+        && c.type === "add"
         && c.value === hasCheck.value));
     }
 
     // if we don't have effects, lets return the item
-    if (this.effect.changes.length === 0) return;
+    if (this.effect.system.changes.length === 0) return;
 
     this._addEffectFlags(this.effect);
     this.document.effects.push(this.effect);
@@ -919,28 +919,28 @@ export default class EffectGenerator {
       }
 
       logger.debug(`Generating ${subType} AC set for ${this.document.name}: ${formula}`);
-      this.effect.changes.push(
+      this.effect.system.changes.push(
         {
           key: "system.attributes.ac.min",
           value: formula,
-          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          type: "override",
           priority: 15,
         },
       );
 
       if ("entityType" in this.ddbItem && this.ddbItem.entityType === "racial-trait") {
-        this.effect.changes.push(
+        this.effect.system.changes.push(
           {
             key: "system.attributes.ac.calc",
             value: "natural",
-            mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+            type: "override",
             priority: 10,
           },
           // this now only works with DAE installed
           // {
           //   key: "system.attributes.ac.flat",
           //   value: formula,
-          //   mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          //   type: "override",
           //   priority: 10,
           // },
         );
@@ -963,7 +963,7 @@ export default class EffectGenerator {
     const bonus = DDBModifiers.getValueFromModifiers(bonusModifiers, "bonus", subType);
     if (bonus) {
       logger.debug(`Generating ${subType} bonus for ${this.document.name}: ${bonus}`);
-      this.effect.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, "system.attributes.ac.bonus"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, "system.attributes.ac.bonus"));
     }
   }
 
@@ -1016,7 +1016,7 @@ export default class EffectGenerator {
       // no default
     }
 
-    if (this.effect.changes.length === 0) return;
+    if (this.effect.system.changes.length === 0) return;
     // generate flags for effect (e.g. checking attunement and equipped status)
     this._addEffectFlags(this.effect);
     this.document.effects.push(this.effect);
@@ -1052,7 +1052,7 @@ export default class EffectGenerator {
         && isEqual(e.duration, this.document.effects[0].duration))
       ) {
         const baseEffect = this.document.effects[0];
-        baseEffect.changes = this.document.effects.flatMap((e) => e.changes);
+        baseEffect.system.changes = this.document.effects.flatMap((e) => e.system?.changes ?? []);
         baseEffect.statuses = Array.from(new Set(this.document.effects.flatMap((e) => e.statuses)));
         const flags = {};
         this.document.effects.forEach((e) => {

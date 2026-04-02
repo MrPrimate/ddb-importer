@@ -232,13 +232,13 @@ export default class StarryForm extends DDBEnricherData {
 
 
     const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "20"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "10"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "#f3f5e5"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", CONST.ACTIVE_EFFECT_MODES.OVERRIDE, "0.35"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "20"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "10"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#f3f5e5"),
+      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.35"),
       DDBEnricherData.ChangeHelper.atlChange(
         "ATL.light.animation",
-        CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        "override",
         "{\"type\": \"\"starlight\"\", \"speed\": 5,\"intensity\": 5}",
       ),
     ];

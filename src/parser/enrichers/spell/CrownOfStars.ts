@@ -70,8 +70,8 @@ export default class CrownOfStars extends DDBEnricherData {
           description: "Star-like motes of light orbit your head",
         },
         atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "60"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", CONST.ACTIVE_EFFECT_MODES.UPGRADE, "30"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "60"),
+          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "30"),
         ],
         macroChanges: [
           { macroType: "spell", macroName: "crownOfStars.js" },
