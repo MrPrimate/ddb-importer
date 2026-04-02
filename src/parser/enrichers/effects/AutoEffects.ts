@@ -10,10 +10,38 @@ interface IGenericConditionAdjustment {
   midiValues?: any[];
 }
 
+const UNIT_MAP: Record<string, TEffectDurationUnit> = {
+  turn: "turns",
+  turns: "turns",
+  round: "rounds",
+  rounds: "rounds",
+  hour: "hours",
+  hours: "hours",
+  minute: "minutes",
+  minutes: "minutes",
+  second: "seconds",
+  seconds: "seconds",
+  day: "days",
+  days: "days",
+};
+
 export default class AutoEffects {
+
+  static UNIT_MAP = UNIT_MAP;
 
   static effectModules(): IEffectModules {
     return SystemHelpers.effectModules();
+  }
+
+  static adjustDurationUnits(units: string): TEffectDurationUnit | null {
+    if (units && UNIT_MAP[units]) {
+      return UNIT_MAP[units];
+    }
+    return null;
+  }
+
+  static adjustDuration(duration: IEffectDuration) {
+    duration.units = AutoEffects.adjustDurationUnits(duration.units ?? "");
   }
 
   static generateBasicEffectDuration(document: any, activity?: any): IEffectDuration {
@@ -26,25 +54,10 @@ export default class AutoEffects {
     const docData = document?.system?.duration ?? activity?.duration;
     if (!docData) return duration;
 
-    const unitMap: Record<string, TEffectDurationUnit> = {
-      turn: "turns",
-      turns: "turns",
-      round: "rounds",
-      rounds: "rounds",
-      hour: "hours",
-      hours: "hours",
-      minute: "minutes",
-      minutes: "minutes",
-      second: "seconds",
-      seconds: "seconds",
-      day: "days",
-      days: "days",
-    };
-
-    const mappedUnit = unitMap[docData?.units];
+    const mappedUnit = UNIT_MAP[docData?.units];
     if (mappedUnit && docData.value) {
       duration.value = docData.value;
-      duration.units = mappedUnit;
+      AutoEffects.adjustDuration(duration);
       duration.expiry = "turnStart";
     }
 
@@ -308,7 +321,7 @@ export default class AutoEffects {
     effect.flags = foundry.utils.mergeObject(effect.flags, conditionEffect.flags);
     if (conditionEffect.duration?.value != null) {
       effect.duration.value = conditionEffect.duration.value;
-      effect.duration.units = conditionEffect.duration.units;
+      effect.duration.units = AutoEffects.adjustDurationUnits(conditionEffect.duration.units);
       effect.duration.expiry = conditionEffect.duration.expiry;
     }
 

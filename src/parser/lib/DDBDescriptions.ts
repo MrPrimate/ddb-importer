@@ -1,5 +1,6 @@
 import { logger, utils } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
+import AutoEffects from "../enrichers/effects/AutoEffects";
 
 export interface IFeatureBasicsSave {
   ability: string[];
@@ -405,7 +406,7 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static parseStatusCondition({ text } : { text: string }) {
+  static parseStatusCondition({ text } : { text: string }): IParseStatusConditionResult {
     const result = {
       success: false,
       check: false,
@@ -471,7 +472,7 @@ export default class DDBDescriptions {
 
       if (duration.type) {
         result.duration.value = duration.value;
-        result.duration.units = duration.units;
+        result.duration.units = AutoEffects.adjustDurationUnits(duration.units);
       }
       result.specialDurations = duration.dae ?? [];
     }
