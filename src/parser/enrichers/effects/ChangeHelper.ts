@@ -70,8 +70,22 @@ export default class ChangeHelper {
     };
   }
 
-  static addChange(value: any, priority: any, key: string): IActiveEffectChangeData {
-    return ChangeHelper.unsignedAddChange(value, priority, key);
+  static addChange(value: string, priority: any, key: string): IActiveEffectChangeData {
+    return {
+      key,
+      value: value.trim(),
+      type: "add",
+      priority,
+    };
+  }
+
+  static subtractChange(value: string, priority: any, key: string): IActiveEffectChangeData {
+    return {
+      key,
+      value: value.trim(),
+      type: "subtract",
+      priority,
+    };
   }
 
   static customChange(value: any, priority: any, key: string): IActiveEffectChangeData {
