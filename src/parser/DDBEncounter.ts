@@ -8,6 +8,8 @@ import { SETTINGS } from "../config/_module";
 import DDBMonsterFactory from "./DDBMonsterFactory";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 
+const DEFAULT_LEVEL_ID = "defaultLevel0000";
+
 export default class DDBEncounter {
 
   constructor({ ddbEncounterData, notifier, img = "", sceneId = "" } = {}) {
@@ -306,12 +308,41 @@ export default class DDBEncounter {
         y: 500,
         scale: 0.57,
       },
-      // img: this.img,
-      background: {
-        src: this.img,
+      levels: [
+        {
+          _id: DEFAULT_LEVEL_ID,
+          name: "Level",
+          background: {
+            src: this.img ?? null,
+            color: "#999999",
+            tint: "#ffffff",
+            alphaThreshold: 0.75,
+          },
+          foreground: null,
+          textures: {
+            anchorX: 0.5,
+            anchorY: 0.5,
+            offsetX: 0,
+            offsetY: 0,
+            fit: "fill",
+            scaleX: 1,
+            scaleY: 1,
+            rotation: 0,
+          },
+        },
+      ],
+      initialLevel: DEFAULT_LEVEL_ID,
+      shiftX: 0,
+      shiftY: 0,
+      fog: {
+        mode: 0,
+        colors: {},
       },
-      tokenVision: false,
-      fogExploration: false,
+      transition: {
+        type: "fade",
+        duration: 1500,
+        activeOnly: true,
+      },
       folder: this.folders["scene"].id,
     };
 
@@ -321,7 +352,7 @@ export default class DDBEncounter {
 
   }
 
-   
+
   async #createScene() {
     const importDDBIScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene");
     const useExistingScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
@@ -375,6 +406,7 @@ export default class DDBEncounter {
 
             if (!onScene) {
               const linkedToken = foundry.utils.duplicate(await characterInGame.getTokenDocument());
+              linkedToken.delta ??= {};
               if (useDDBSave) {
                 foundry.utils.setProperty(linkedToken, "flags.ddbimporter.dndbeyond.initiative", character.initiative);
               }
@@ -396,6 +428,7 @@ export default class DDBEncounter {
         logger.info(`Generating token ${worldMonster.ddbName} (${worldMonster.name}) for ${this.data.name}`);
         const monster = game.actors.get(worldMonster.id);
         const linkedToken = foundry.utils.duplicate(await monster.getTokenDocument());
+        linkedToken.delta ??= {};
         if (monsterDepth + linkedToken.height > ySquares) {
           monsterDepth = 0;
           monsterRows += rowMonsterWidth;

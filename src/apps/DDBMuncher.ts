@@ -1151,10 +1151,19 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.info("Preparing for encounter munch.");
       this._disableButtons();
       await this.encounterFactory.importEncounter(id, { img, sceneId });
-      const campaignFluff = this.encounterFactory.data.campaign?.name && this.encounterFactory.data.campaign.name.trim() !== ""
-        ? ` of ${this.encounterFactory.data.name}`
+      console.warn("Encounter munched!", {
+        encounterFactory: this.encounterFactory,
+        event: _event,
+        target: _target,
+        img,
+        sceneId,
+        id,
+        this: this,
+      });
+      const campaignFluff = this.encounter.campaign?.name && this.encounter.campaign.name.trim() !== ""
+        ? ` of ${this.encounter.name}`
         : "";
-      ui.notifications.warn(`Prepare to battle heroes${campaignFluff}, your doom awaits in ${this.encounterFactory.data.name}!`);
+      ui.notifications.warn(`Prepare to battle heroes${campaignFluff}, your doom awaits in ${this.encounter.name}!`);
 
       this.notifier("Encounter munched!", { nameField: true });
     } catch (error) {
