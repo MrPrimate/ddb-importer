@@ -1146,6 +1146,9 @@ export default class AdventureMunch {
         if (result.resultId) {
           data.flags.ddb.needRevisit = true;
         }
+        if (foundry.utils.hasProperty(result, "type")) {
+          delete result.type;
+        }
         logger.debug(`Updating DDB links for ${data.name}`);
         data.text = this.foundryCompendiumReplace(data.text);
       });
