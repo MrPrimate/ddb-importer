@@ -10,9 +10,17 @@ export default class EnlargeReduce extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("+1d4", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.bonuses.rwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "token.width"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "token.height"),
         ],
-        atlNever: true,
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "ATL.width"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "ATL.height"),
+        ],
       },
       {
         name: "Reduced",
@@ -20,28 +28,19 @@ export default class EnlargeReduce extends DDBEnricherData {
           durationSeconds: 60,
         },
         changes: [
-          DDBEnricherData.ChangeHelper.unsignedAddChange("-1d4", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.subtractChange("1d4", 20, "system.bonuses.mwak.damage"),
+          DDBEnricherData.ChangeHelper.subtractChange("1d4", 20, "system.bonuses.rwak.damage"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.str.check.roll.mode"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, "system.abilities.str.save.roll.mode"),
+          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "token.width"),
+          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "token.height"),
         ],
-        atlNever: true,
-      },
-      {
-        name: "Enlarged/Reduced",
-        atlOnly: true,
-        options: {
-          durationSeconds: 60,
-        },
-        macroChanges: [
-          { macroType: "spell", macroName: "enlargeReduce.js", priority: 0 },
+        atlChanges: [
+          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "ATL.width"),
+          DDBEnricherData.ChangeHelper.subtractChange("1", 20, "ATL.height"),
         ],
       },
     ];
-  }
-
-  get itemMacro() {
-    return {
-      name: "enlargeReduce.js",
-      type: "spell",
-    };
   }
 
 }
