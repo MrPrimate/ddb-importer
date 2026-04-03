@@ -10,8 +10,8 @@
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "compatibility": {
-    "minimum": "13.346",
-    "verified": "13.351",
+    "minimum": "14.359",
+    "verified": "14.359",
     "maximum": 14
   },
   "authors": [

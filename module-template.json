@@ -10,9 +10,9 @@
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
   "url": "https://github.com/mrprimate/ddb-importer",
   "compatibility": {
-    "minimum": "13.346",
-    "verified": "13.351",
-    "maximum": 13
+    "minimum": "14.359",
+    "verified": "14.359",
+    "maximum": 14
   },
   "authors": [
     {
