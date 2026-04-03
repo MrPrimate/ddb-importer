@@ -146,3 +146,25 @@ header > a.header-button.control.ddb-open-url {
 .ddb-source-select span {
   font-size: small;
 }
+
+.ddb-category-books-details {
+  margin-top: 0.5rem;
+}
+
+.ddb-category-books-details summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.ddb-category-books-content {
+  margin-top: 0.5rem;
+}
+
+.ddb-category-group h4 {
+  margin-bottom: 0.25rem;
+}
+
+.ddb-category-group ul {
+  margin-top: 0;
+  padding-left: 1.5rem;
+}

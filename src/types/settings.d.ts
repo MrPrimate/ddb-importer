@@ -77,6 +77,7 @@ declare global {
     version: string;
     campaignId: string;
     isCampaign: string | boolean;
+    categoryBooks: { categoryName: string; books: { name: string; description: string }[] }[];
   }
 
   interface IEncounterSettings {

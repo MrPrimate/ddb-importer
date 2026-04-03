@@ -18,4 +18,22 @@ Legacy/non-core are books that were replaced in the 2014 ruleset lifecycle like 
     </div>
     </fieldset>
 
+    {{#if categoryBooks.length}}
+    <details class="ddb-category-books-details">
+      <summary>Source Books by Category</summary>
+      <div class="ddb-category-books-content">
+        {{#each categoryBooks}}
+        <div class="ddb-category-group">
+          <h4>{{this.categoryName}}</h4>
+          <ul>
+            {{#each this.books}}
+            <li><strong>{{this.name}}</strong> - {{this.description}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/each}}
+      </div>
+    </details>
+    {{/if}}
+
 </section>

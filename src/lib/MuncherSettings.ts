@@ -818,6 +818,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
 
     const includedCategories = MuncherSettings.getIncludedCategoriesLookup();
     const excludedCategories = MuncherSettings.getExcludedCategoriesLookup();
+    const categoryBooks = MuncherSettings.getCategoryBookMapping();
     const bookSources = MuncherSettings.getSourcesLookups();
 
     const selectedSources = MuncherSettings.getSourcesLookups().map((source) => ({
@@ -892,6 +893,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       monsterTypes,
       includedCategories,
       excludedCategories,
+      categoryBooks,
       basicMonsterConfig,
       filterMonsterConfig,
       filterSpellConfig,
@@ -1052,6 +1054,22 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     return includedCategories.sort((a, b) => {
       return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
     });
+  },
+
+  getCategoryBookMapping: (): { categoryName: string; books: { name: string; description: string }[] }[] => {
+    const categories = DDBSources.getDisplaySourceCategories();
+    return categories
+      .map((cat) => {
+        const books = DDBSources.getBooksInCategories([cat.id])
+          .filter((book) => book.isReleased)
+          .sort((a, b) => a.name.localeCompare(b.name));
+        return {
+          categoryName: cat.name,
+          books: books.map((b) => ({ name: b.name, description: b.description })),
+        };
+      })
+      .filter((entry) => entry.books.length > 0)
+      .sort((a, b) => a.categoryName.localeCompare(b.categoryName));
   },
 
   updateMuncherSettings: async (_html: string, event: Event) => {
