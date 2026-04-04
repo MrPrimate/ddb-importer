@@ -811,7 +811,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       // set the weapon damage
       SystemHelpers.parseBasicDamageFormula(damage, damageString);
 
-      const empowered = this.hasClassFeature({ featureName: "Empowered Strike", className: "Monk" });
+      const empowered = this.hasClassFeature({ featureName: "Empowered Strikes", className: "Monk" });
       // handle 2024 empowered strike adding force damage to unarmed strikes
       if (this.is2024 && this.originalName === "Unarmed Strike" && empowered) {
         damage.types.push("force");
