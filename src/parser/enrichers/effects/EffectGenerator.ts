@@ -871,16 +871,19 @@ export default class EffectGenerator {
     const setMods = this.grantedModifiers.filter((mod) => mod.type === "set" && mod.subType === subType);
     const grantedStatMods = setMods.filter((mod) => mod.statId !== null);
 
+    let acBase = 10;
+    const bonusStats: string[] = [];
+    const bonusValues: number[] = [];
     if (grantedStatMods.length > 0) {
       grantedStatMods.forEach((mod) => {
         const ability = DICTIONARY.actor.abilities.find((ability) => ability.id === mod.statId);
-        if (bonuses) {
-          bonuses += " ";
-        } else {
-          bonuses = "";
+        bonusStats.push(`@abilities.${ability.value}.mod`);
+        if (mod.value && Number.isInteger(mod.value)) {
+          bonusValues.push(parseInt(String(mod.value)));
         }
-        bonuses += `@abilities.${ability.value}.mod`;
       });
+      acBase += bonusValues.reduce((a, b) => a + b, 0);
+      bonuses = bonusStats.join(" + ");
     } else if (setMods.length > 0) {
       // others are picked up here e.g. Draconic Resilience
       const fixedValues = setMods
@@ -892,7 +895,7 @@ export default class EffectGenerator {
     const maxDexTypes = ["ac-max-dex-unarmored-modifier", "ac-max-dex-modifier"];
 
     if (bonuses && bonuses !== 0) {
-      const bonusSum = Number.isInteger(bonuses) ? 10 + parseInt(String(bonuses)) : `10 + ${bonuses}`;
+      const bonusSum = Number.isInteger(bonuses) ? 10 + parseInt(String(bonuses)) : `${acBase} + ${bonuses}`;
       // eslint-disable-next-line no-useless-assignment
       let formula = "";
       switch (subType) {
