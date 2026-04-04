@@ -914,6 +914,7 @@ export default class CharacterFeatureFactory {
       }
 
       const featureHandlerOptions = {
+        recursive: false,
         chrisPremades: true,
         filterDuplicates: false,
         deleteBeforeUpdate: false,
@@ -982,6 +983,7 @@ export default class CharacterFeatureFactory {
       }
 
       const traitHandlerOptions = {
+        recursive: false,
         chrisPremades: true,
         matchFlags: ["id", "groupName", "isLineage", "is2014"],
 
@@ -1012,6 +1014,7 @@ export default class CharacterFeatureFactory {
     }
 
     const featHandlerOptions = {
+      recursive: false,
       chrisPremades: true,
       deleteBeforeUpdate: false,
       matchFlags: ["id", "is2014"],

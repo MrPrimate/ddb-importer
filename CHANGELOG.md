@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.1
+
+- Advancements could be duplicated when importing using the Character Options muncher.
+
 # 7.1.0
 
 - Support for D&D System 5.3.0. This does not support earlier versions of the D&D System.
