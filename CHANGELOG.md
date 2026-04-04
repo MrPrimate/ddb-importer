@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.2.2
+
 - Wraps of Unarmed Power
 - Empowered Strikes was not adding damage type to Unarmed Strike
 - Many features without uses would generate a consumption type incorrectly on the activity. e.g. Unarmed Strikes.
@@ -21,6 +23,7 @@
 - Empowered Strikes was not adding damage type to Unarmed Strike
 - Many features without uses would generate a consumption type incorrectly on the activity. e.g. Unarmed Strikes.
 - Fix Iron Chin AC effect value. @thechrippler
+- Muroosa Balm parsing fixes.
 
 # 7.1.1
 
