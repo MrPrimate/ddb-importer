@@ -526,7 +526,7 @@ export default class Utils {
   }
 
   // matchedProperties = { "system.activation.type": "bonus" }
-  static matchProperties(document, matchedProperties = {}) {
+  static matchProperties(document: TAll5eItemDocuments | TAll5eActorDocuments, matchedProperties: Record<string, any>) {
     for (const [key, value] of Object.entries(matchedProperties)) {
       if (foundry.utils.getProperty(document, key) !== value) {
         return false;

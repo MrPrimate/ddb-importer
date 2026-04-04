@@ -1,5 +1,5 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
-import { ItemEnrichers } from "./_module";
+import { GenericEnrichers, ItemEnrichers } from "./_module";
 import { utils } from "../../lib/_module";
 
 export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
@@ -63,5 +63,6 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Spell-Refueling Ring (Reaction)": ItemEnrichers.SpellRefuelingRingReaction,
     "Warrior's Passkey": ItemEnrichers.WarriorsPasskey,
     "Wraps of Unarmed Power": ItemEnrichers.WrapsOfUnarmedPower,
+    "Unarmed Strike": GenericEnrichers.UnarmedStrike,
   };
 }

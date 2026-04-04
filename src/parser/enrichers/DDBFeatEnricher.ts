@@ -38,6 +38,7 @@ export default class DDBFeatEnricher extends DDBEnricherFactoryMixin {
   ENRICHERS: Record<string, any> = {
     None: GenericEnrichers.None,
     Generic: FeatEnrichers.Generic,
+    "Unarmed Strike": GenericEnrichers.UnarmedStrike,
     "Greater Mark of": FeatEnrichers._GreaterMarkOf,
     "Greater Aberrant Mark": FeatEnrichers._GreaterMarkOf,
     "Epic Boon: Choose an Epic Boon feat": FeatEnrichers.EpicBoon,

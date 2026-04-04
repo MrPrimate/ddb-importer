@@ -1,5 +1,7 @@
 # Next Up
 
+- Wraps of Unarmed Power
+
 # 7.1.1
 
 - Advancements could be duplicated when importing using the Character Options muncher.

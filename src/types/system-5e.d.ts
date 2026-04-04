@@ -8,6 +8,8 @@ global {
 
   type TAll5eItemDocuments = I5ePCItem | I5eMonsterItem | I5eVehicleItem;
 
+  type TAll5eDocuments = TAll5eActorDocuments | TAll5eItemDocuments;
+
   type TDistanceUnit = "" | "ft" | "mi" | "self" | "touch" | "spec" | "any";
 
   type TActivationCost = "none"

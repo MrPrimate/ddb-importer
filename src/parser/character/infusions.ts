@@ -20,12 +20,27 @@ async function linkSelectedEnchantment(item: Item.Implementation, effect: Active
   });
 }
 
+function matchFields(item: TAll5eDocuments, flags: IDDBImporterTransferEnchantmentTargetItemMatches[]): boolean {
+  for (const flag of flags) {
+    const itemValue = foundry.utils.getProperty(item, flag.field);
+    if (itemValue === undefined) return false;
+    if (itemValue !== flag.value) return false;
+  }
+  return true;
+}
+
+
 export async function linkSelectedEnchantments(actor: Actor.Implementation) {
   const items = actor.getEmbeddedCollection("Item");
 
   for (const item of items) {
     const enchantmentFlag = foundry.utils.getProperty(item, "flags.ddbimporter.transferEnchantment") as IDDBImporterTransferEnchantmentFlags;
     if (!enchantmentFlag) continue;
+
+    logger.debug(`Found enchantment transfer flag on item ${item.name}`, {
+      item,
+      enchantmentFlag,
+    });
 
     const effect = item.getEmbeddedCollection("ActiveEffect")
       .find((e) => e._id === enchantmentFlag.effectId);
@@ -37,13 +52,42 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
 
     if (!activity) continue;
 
-    const targetItem = enchantmentFlag.targetItemId === "self"
-      ? item
-      : items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
-        i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId);
+    let targetItem: Item.Implementation | null = null;
+
+    if (enchantmentFlag) {
+      if ("equipped" in item.system && item.system.equipped === false) continue;
+      if ("attuned" in item.system && item.system.attuned === false) {
+        if (item.system.attunement === "required") continue;
+      }
+      if (enchantmentFlag.targetItemId === "self") {
+        targetItem = item;
+      } else if (enchantmentFlag.targetItemName) {
+        targetItem = items.find((i) => (i.flags.ddbimporter?.originalName ?? i.name) === enchantmentFlag.targetItemName) ?? null;
+      } else if (enchantmentFlag.targetItemMatches) {
+        const matchedFields = enchantmentFlag.targetItemMatches;
+        // @ts-expect-error - flipping fvtt types
+        const targetItems = items.filter((i) => matchFields(i, matchedFields));
+        if (targetItems.length === 0) {
+          logger.warn(`No items matched for enchantment transfer on ${item.name}. Skipping enchantment transfer.`, {
+            item,
+            enchantmentFlag,
+            items,
+          });
+        } else {
+          for (const matchedItem of targetItems) {
+            await linkSelectedEnchantment(matchedItem, effect, activity, item.name);
+          }
+          continue;
+        }
+      }
+    } else {
+      targetItem = (items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
+        i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId)) as Item.Implementation | null;
+    }
+
     if (!targetItem) continue;
 
-    await linkSelectedEnchantment(targetItem as Item.Implementation, effect, activity, item.name);
+    await linkSelectedEnchantment(targetItem, effect, activity, item.name);
   }
 }
 
