@@ -16,6 +16,7 @@ interface IDDBItemImporterOptions {
   deleteBeforeUpdate?: boolean | null;
   indexFilter?: CompendiumCollection.GetIndexOptions | null;
   useCompendiumFolders?: boolean | null;
+  recursive?: boolean | null;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
@@ -42,6 +43,7 @@ interface IDDBItemImporterBuildHandlerOptions {
   filterDuplicates?: boolean;
   useCompendiumFolders?: boolean | null;
   updateIcons?: boolean;
+  recursive?: boolean | null;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
@@ -78,18 +80,21 @@ export default class DDBItemImporter {
   srdImageLibrary2024: IIconMapEntry[] | null;
   _documents: TDDBImporterDocument[];
   type: string;
+  recursive: boolean | null;
 
   constructor(type: string, documents: TDDBImporterDocument[], {
     matchFlags = [],
     deleteBeforeUpdate = null,
     indexFilter = null,
     useCompendiumFolders = null,
+    recursive = null,
     notifier = null,
   }: IDDBItemImporterOptions = {}) {
     this.type = type;
     this._documents = documents;
     this.useCompendiumFolders = useCompendiumFolders ?? true;
     this.matchFlags = matchFlags;
+    this.recursive = recursive;
 
     this.compendium = CompendiumHelper.getCompendiumType(this.type);
     this.compendium.configure({ locked: false });
@@ -371,7 +376,7 @@ export default class DDBItemImporter {
       packId: this.compendium.metadata.id,
     });
 
-    const update = existingItem.update(updateItem as any, { pack: this.compendium.metadata.id, render: false });
+    const update = existingItem.update(updateItem as any, { pack: this.compendium.metadata.id, render: false, recursive: this.recursive });
     // const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
     return update;
   }
@@ -690,7 +695,7 @@ ${item.system.description.chat}
 
   static async buildHandler(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
-      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null }: IDDBItemImporterBuildHandlerOptions,
+      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,
   ): Promise<DDBItemImporter> {
     const handler = overrideHandler ?? new DDBItemImporter(type, documents, {
@@ -699,6 +704,7 @@ ${item.system.description.chat}
       useCompendiumFolders,
       notifier,
       indexFilter,
+      recursive,
     });
     if (overrideHandler) handler.documents = documents;
     await handler.init();

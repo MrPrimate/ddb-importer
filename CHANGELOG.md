@@ -2,8 +2,16 @@
 
 # 7.2.0
 
+- Advancements could be duplicated when importing using the Character Options muncher.
+
+# 7.2.0
+
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.1
+
+- Advancements could be duplicated when importing using the Character Options muncher.
 
 # 7.1.0
 

@@ -1036,7 +1036,7 @@ export default class DDBClass {
     if (this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes
       && this.ddbClassDefinition.spellRules.levelPreparedSpellMaxes.filter((a) => a).length > 1
     ) {
-      const advancement = {
+      const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1063,7 +1063,7 @@ export default class DDBClass {
 
     // cantrips-known
     if (this.ddbClassDefinition.spellRules.levelCantripsKnownMaxes) {
-      const advancement = {
+      const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1090,7 +1090,7 @@ export default class DDBClass {
 
     // spells-known
     if (this.ddbClassDefinition.spellRules.levelSpellKnownMaxes) {
-      const advancement = {
+      const advancement: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -1117,7 +1117,7 @@ export default class DDBClass {
   }
 
   _generateHTMLSaveAdvancement() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
     // FUTURE ENHANCEMENT FOR BULK: Add what to do if no mods supplied
     this._addAdvancement(advancements);
   }
@@ -1136,7 +1136,7 @@ export default class DDBClass {
   }
 
   _generateSaveAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
         if (!availableToMulticlass && i > 1) return;
@@ -1144,12 +1144,12 @@ export default class DDBClass {
 
         for (const proficiencyFeature of proficiencyFeatures) {
           const advancement = this._generateSaveAdvancement(proficiencyFeature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject());
+          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
         }
       });
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateSkillAdvancement(feature, availableToMulticlass, i) {
@@ -1179,7 +1179,7 @@ export default class DDBClass {
   }
 
   _generateSkillAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       [true, false].forEach((availableToMulticlass) => {
@@ -1195,12 +1195,12 @@ export default class DDBClass {
 
           ) continue;
           const advancement = this._generateSkillAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject());
+          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
         }
       });
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateLanguageAdvancement(feature, level) {
@@ -1217,22 +1217,22 @@ export default class DDBClass {
   }
 
   _generateLanguageAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       const languageFeatures = this._languageFeatures.filter((f) => f.requiredLevel === i);
 
       for (const feature of languageFeatures) {
         const advancement = this._generateLanguageAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject());
+        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
       }
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateSkillOrLanguageAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       const skillFeatures = this._languageOrSkillFeatures.filter((f) => f.requiredLevel === i);
@@ -1247,7 +1247,7 @@ export default class DDBClass {
         //   languageAdvancement,
         // });
         if (skillAdvancement && languageAdvancement && skillAdvancement.configuration.choices.length > 0) {
-          const advancement = skillAdvancement.toObject();
+          const advancement = skillAdvancement.toObject() as I5eAdvancement;
           advancement.configuration.choices[0].pool.push(...languageAdvancement.toObject().configuration.choices[0].pool);
           advancements.push(advancement);
         } else {
@@ -1261,7 +1261,7 @@ export default class DDBClass {
       }
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateToolAdvancement(feature, availableToMulticlass, level) {
@@ -1283,7 +1283,7 @@ export default class DDBClass {
   }
 
   _generateToolAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       for (const availableToMulticlass of [true, false]) {
@@ -1294,12 +1294,12 @@ export default class DDBClass {
 
         for (const feature of toolFeatures) {
           const advancement = this._generateToolAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject());
+          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
         }
       }
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateArmorAdvancement(feature, availableToMulticlass, level) {
@@ -1316,7 +1316,7 @@ export default class DDBClass {
   }
 
   _generateArmorAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       for (const availableToMulticlass of [true, false]) {
@@ -1327,12 +1327,12 @@ export default class DDBClass {
 
         for (const feature of armorFeatures) {
           const advancement = this._generateArmorAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject());
+          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
         }
       }
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateWeaponAdvancement(feature, availableToMulticlass, level) {
@@ -1349,7 +1349,7 @@ export default class DDBClass {
   }
 
   _generateWeaponAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       for (const availableToMulticlass of [true, false]) {
@@ -1360,12 +1360,12 @@ export default class DDBClass {
 
         for (const feature of weaponFeatures) {
           const advancement = this._generateWeaponAdvancement(feature, availableToMulticlass, i);
-          if (advancement) advancements.push(advancement.toObject());
+          if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
         }
       }
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateWeaponMasteryAdvancement(feature, level) {
@@ -1382,7 +1382,7 @@ export default class DDBClass {
   }
 
   _generateWeaponMasteryAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     // console.warn("Weapon Mastery Advancements", {
     //   this: this,
@@ -1393,15 +1393,15 @@ export default class DDBClass {
 
       for (const feature of weaponFeatures) {
         const advancement = this._generateWeaponMasteryAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject());
+        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
       }
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateExpertiseAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       const expertiseFeature = this._expertiseFeatures.find((f) => f.requiredLevel === i);
@@ -1409,10 +1409,10 @@ export default class DDBClass {
       if (!expertiseFeature) continue;
 
       const advancement = this.advancementHelper.getExpertiseAdvancement(expertiseFeature, i);
-      if (advancement) advancements.push(advancement.toObject());
+      if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateConditionAdvancement(feature, level) {
@@ -1429,17 +1429,17 @@ export default class DDBClass {
   }
 
   _generateConditionAdvancements() {
-    const advancements = [];
+    const advancements: I5eAdvancement[] = [];
 
     for (let i = 0; i <= 20; i++) {
       const conditionAdvancements = this._conditionFeatures.filter((f) => f.requiredLevel === i);
       for (const feature of conditionAdvancements) {
         const advancement = this._generateConditionAdvancement(feature, i);
-        if (advancement) advancements.push(advancement.toObject());
+        if (advancement) advancements.push(advancement.toObject() as I5eAdvancement);
       }
     }
 
-    this._addAdvancement(advancements);
+    this._addAdvancements(advancements);
   }
 
   _generateHPAdvancement(character) {
@@ -1469,7 +1469,7 @@ export default class DDBClass {
 
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.HitPointsAdvancement);
     advancement.updateSource({ value });
-    this._addAdvancement(advancement.toObject());
+    this._addAdvancement(advancement.toObject() as I5eAdvancement);
   }
 
 
@@ -2116,6 +2116,7 @@ export default class DDBClass {
       useCompendiumFolders: true,
       notifier: null,
       matchFlags: ["definitionId", "is2014"],
+      recursive: false,
     };
 
     const data = foundry.utils.deepClone(this.data);

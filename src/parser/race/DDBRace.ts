@@ -257,6 +257,7 @@ export default class DDBRace {
   _addAdvancement(advancements: I5eAdvancement | I5eAdvancement[]) {
     if (!Array.isArray(advancements)) advancements = [advancements];
     for (const advancement of advancements) {
+      if (!advancement._id) advancement._id = foundry.utils.randomID();
       this.data.system.advancement[advancement._id] = advancement;
     }
   }
@@ -1469,6 +1470,7 @@ export default class DDBRace {
           "flags.ddbimporter",
         ],
       },
+      recursive: false,
     };
 
     const traitCompendiumFolders = new DDBCompendiumFolders("traits");
