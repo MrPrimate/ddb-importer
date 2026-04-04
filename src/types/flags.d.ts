@@ -236,10 +236,17 @@ global {
     revisitUuids?: string[];
   }
 
+  interface IDDBImporterTransferEnchantmentTargetItemMatches {
+    field: string;
+    value: string;
+  }
+
   interface IDDBImporterTransferEnchantmentFlags {
-    targetItemId: string;
     effectId: string;
     activityId: string;
+    targetItemId?: string;
+    targetItemName?: string;
+    targetItemMatches?: IDDBImporterTransferEnchantmentTargetItemMatches[];
   }
 
   interface IDDBImporterFlags {

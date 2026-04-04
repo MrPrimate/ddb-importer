@@ -85,7 +85,16 @@ export default class UnarmedStrike extends DDBEnricherData {
   }
 
   get override(): IDDBOverrideData {
-    if (this.ddbParser.isMartialArtist()) return null;
+    const base: IDDBOverrideData = {
+      data: {
+        system: {
+          type: {
+            value: "natural",
+          },
+        },
+      },
+    };
+    if (this.ddbParser.isMartialArtist()) return base;
 
     const dazzlingFootwork = this.hasClassFeature({ featureName: "Dazzling Footwork", className: "Bard" });
 
@@ -93,18 +102,14 @@ export default class UnarmedStrike extends DDBEnricherData {
       ? "@scale.dance.dazzling-footwork + @abilities.dex.mod"
       : "1 + @abilities.str.mod";
 
-    return {
-      data: {
-        system: {
-          damage: {
-            base: DDBEnricherData.basicDamagePart({
-              customFormula: formula,
-              type: "bludgeoning",
-            }),
-          },
-        },
-      },
+    base.data.system.damage = {
+      base: DDBEnricherData.basicDamagePart({
+        customFormula: formula,
+        type: "bludgeoning",
+      }),
     };
+
+    return base;
   }
 
 }

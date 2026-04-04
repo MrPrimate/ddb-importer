@@ -473,6 +473,14 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
         ? "spell"
         : "weapon"; // unarmed, weapon, spell
 
+    if (!unarmed && !spell) {
+      if (this.ddbDefinition.attackSubtype === 3) {
+        classification = "unarmed";
+      } else if (this.ddbDefinition.attackSubtype === 2) {
+        classification = "natural";
+      }
+    }
+
     if (this.ddbDefinition.actionType === 2) {
       classification = "spell";
     }
