@@ -1,6 +1,6 @@
 # Next Up
 
-# 7.2.0
+# 7.2.1
 
 - Advancements could be duplicated when importing using the Character Options muncher.
 
