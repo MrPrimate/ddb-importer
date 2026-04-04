@@ -35,6 +35,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Flame Tongue": "Flame Tongue",
     "Moon Sickle": "Moon Sickle",
     "Dragon Wing": "Dragon Wing",
+    "Wraps of Unarmed Power": "Wraps of Unarmed Power",
   };
 
   ENRICHERS: Record<string, any> = {
@@ -61,5 +62,6 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Potion of Healing (Supreme)": ItemEnrichers.PotionOfHealingSupreme,
     "Spell-Refueling Ring (Reaction)": ItemEnrichers.SpellRefuelingRingReaction,
     "Warrior's Passkey": ItemEnrichers.WarriorsPasskey,
+    "Wraps of Unarmed Power": ItemEnrichers.WrapsOfUnarmedPower,
   };
 }
