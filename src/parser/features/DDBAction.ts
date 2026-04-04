@@ -75,7 +75,7 @@ export default class DDBAction extends DDBFeatureMixin {
       && meleeOrRangedAction
       ? " + @mod"
       : "";
-    const unarmedDamageBonus = DDBModifiers.filterBaseModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" })
+    const unarmedDamageBonus = DDBModifiers.filterBaseCharacterModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" })
       .reduce((prev, cur) => prev + cur.value, 0);
 
     const damage = this.ddbDefinition.isMartialArts
@@ -115,7 +115,7 @@ export default class DDBAction extends DDBFeatureMixin {
 
   getBonusDamage() {
     if (this.ddbDefinition.isMartialArts) {
-      return DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
+      return DDBModifiers.filterBaseCharacterModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
     }
     return "";
   }
