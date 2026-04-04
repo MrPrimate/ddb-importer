@@ -1,6 +1,8 @@
 # Next Up
 
 - Wraps of Unarmed Power
+- Empowered Strikes was not adding damage type to Unarmed Strike
+- Many features without uses would generate a consumption type incorrectly on the activity. e.g. Unarmed Strikes.
 
 # 7.2.1
 

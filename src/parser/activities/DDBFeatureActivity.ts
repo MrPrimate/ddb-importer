@@ -121,6 +121,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       ? "activityUses"
       : "itemUses";
 
+    const maxUses = foundry.utils.getProperty(this.ddbParent, "data.system.uses.max") as string;
     if (match) {
       targets.push({
         type: consumptionType,
@@ -141,7 +142,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
           formula: "",
         },
       });
-    } else if (foundry.utils.hasProperty(this.ddbParent, "data.system.uses.max")) {
+    } else if (maxUses && maxUses !== "" && maxUses !== "0") {
       targets.push({
         type: consumptionType,
         target: "", // adjusted later
