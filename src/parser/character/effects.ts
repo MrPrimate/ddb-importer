@@ -40,7 +40,7 @@ DDBCharacter.prototype.getCharacterGenericConditionAffectData = function getChar
         : foundry.utils.hasProperty(entry, "foundryValue")
           ? { value: [entry.foundryValue], bypasses: [] }
           : undefined;
-      valueData.midiValues = entry.midiValues;
+      if (valueData && entry.midiValues) valueData.midiValues = entry.midiValues;
       return valueData as IMidiValueAdjustment;
     })
     .filter((adjustment) => adjustment !== undefined);

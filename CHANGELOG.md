@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.2.3
+
+- Actors with some conditions on DDB would fail to import. @trogbd @catacomb_dragon
+
 # 7.2.2
 
 - Wraps of Unarmed Power
