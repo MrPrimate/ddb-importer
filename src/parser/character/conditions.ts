@@ -30,16 +30,15 @@ export function getActorConditionStates(actor, ddb: IDDBData, keepLocal = false)
         conditionState.id === condition.ddbId
         && conditionState.level === condition.levelId,
       );
-      const conditionState: DDBConditionState = foundry.utils.mergeObject(condition,
-        {
-          ddbCondition: ddbCondition,
-          applied: conditionApplied !== undefined,
-          conditionApplied: conditionApplied,
-          needsAdd: ddbCondition && !conditionApplied,
-          needsRemove: !ddbCondition && conditionApplied && !keepLocal,
-          needsUpdate: (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal),
-        },
-      ) as DDBConditionState;
+      const conditionData = {
+        ddbCondition: ddbCondition,
+        applied: conditionApplied !== undefined,
+        conditionApplied: conditionApplied !== undefined ? foundry.utils.duplicate(conditionApplied) : undefined,
+        needsAdd: ddbCondition && !conditionApplied,
+        needsRemove: !ddbCondition && conditionApplied && !keepLocal,
+        needsUpdate: (ddbCondition && !conditionApplied) || (!ddbCondition && conditionApplied && !keepLocal),
+      };
+      const conditionState: DDBConditionState = foundry.utils.mergeObject(condition, conditionData) as DDBConditionState;
       return conditionState;
     });
   return conditions;
