@@ -1,5 +1,7 @@
 # Next Up
 
+- Background bulk processing would fail.
+
 # 7.2.3
 
 - Actors with some conditions on DDB would fail to import. @trogbd @catacomb_dragon
