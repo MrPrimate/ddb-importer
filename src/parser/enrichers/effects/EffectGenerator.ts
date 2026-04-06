@@ -201,7 +201,7 @@ export default class EffectGenerator {
     // system.traits.di.all
     const allDamageImmunity = DDBModifiers.filterModifiersOld(this.grantedModifiers, "immunity", "all");
     if (allDamageImmunity?.length > 0) {
-      this.effect.system.changes.push(ChangeHelper.unsignedAddChange("all", 1, "system.traits.di.value"));
+      this.effect.system.changes.push(ChangeHelper.unsignedAddChange("ALL", 1, "system.traits.di.value"));
     }
   }
 
