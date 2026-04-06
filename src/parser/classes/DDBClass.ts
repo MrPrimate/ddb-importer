@@ -2019,22 +2019,33 @@ export default class DDBClass {
   _artificerFixes() {
     if (this.data.name !== "Artificer") return;
     for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
-      if (advancement.title !== "Tool Proficiencies") continue;
-      advancement.configuration = {
-        "allowReplacements": true,
-        "choices": [{
-          "count": 1,
-          "pool": [
-            "tool:art:*",
+      if (advancement.title === "Magic Item Plans") {
+        // @ts-expect-error - we know this is the right kind
+        advancement.configuration.scale = {
+          2: { value: 4 },
+          6: { value: 5 },
+          10: { value: 6 },
+          14: { value: 7 },
+          18: { value: 8 },
+        };
+        this.data.system.advancement[id] = advancement;
+      } else if (advancement.title === "Tool Proficiencies") {
+        advancement.configuration = {
+          "allowReplacements": true,
+          "choices": [{
+            "count": 1,
+            "pool": [
+              "tool:art:*",
+            ],
+          }],
+          "grants": [
+            "tool:art:tinker",
+            "tool:thief",
           ],
-        }],
-        "grants": [
-          "tool:art:tinker",
-          "tool:thief",
-        ],
-        "mode": "default",
-      };
-      this.data.system.advancement[id] = advancement;
+          "mode": "default",
+        };
+        this.data.system.advancement[id] = advancement;
+      }
       // const chosen = new Set(advancement.value?.chosen || []);
       // if (chosen.size !== 3) {
       //   chosen.add("tool:art:tinker");
@@ -2044,7 +2055,6 @@ export default class DDBClass {
       // advancement.value = {
       //   chosen: Array.from(chosen),
       // };
-      break;
     }
   }
 
