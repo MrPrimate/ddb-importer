@@ -1,4 +1,3 @@
-import { NotifierV2Props } from "../apps/DDBAppV2";
 import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY } from "../config/_module";
 import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, Secrets, utils } from "../lib/_module";

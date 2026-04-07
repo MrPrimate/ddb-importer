@@ -1,4 +1,3 @@
-import { NotifierV1Props } from "../../../apps/DDBAppV2";
 import { DICTIONARY } from "../../../config/_module";
 import { logger } from "../../../lib/_module";
 import DDBEnricherFactoryMixin from "../../enrichers/mixins/DDBEnricherFactoryMixin";

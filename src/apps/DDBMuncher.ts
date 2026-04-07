@@ -13,6 +13,7 @@ import { downloadAdventureConfig } from "../muncher/adventure";
 import AdventureMunch from "../muncher/adventure/AdventureMunch";
 import ThirdPartyMunch from "../muncher/adventure/ThirdPartyMunch";
 import { updateWorldMonsters, resetCompendiumActorImages } from "../muncher/tools";
+import DDBSelectiveMonsterUpdate from "./DDBSelectiveMonsterUpdate";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import { updateItemPrices } from "../muncher/prices";
 import DDBAppV2 from "./DDBAppV2";
@@ -66,6 +67,7 @@ export default class DDBMuncher extends DDBAppV2 {
       importAdventure: DDBMuncher.importAdventure,
       importThirdParty: DDBMuncher.importThirdParty,
       updateWorldActors: DDBMuncher.updateWorldMonsters,
+      selectiveUpdateWorldActors: DDBMuncher.selectiveUpdateWorldMonsters,
       migrateCompendiumMonster: DDBMuncher.migrateCompendiumFolders,
       migrateCompendiumSpell: DDBMuncher.migrateCompendiumFolders,
       migrateCompendiumItem: DDBMuncher.migrateCompendiumFolders,
@@ -1044,6 +1046,10 @@ export default class DDBMuncher extends DDBAppV2 {
     } finally {
       this._enableButtons();
     }
+  }
+
+  static async selectiveUpdateWorldMonsters(_event, _target) {
+    new DDBSelectiveMonsterUpdate().render(true);
   }
 
   static async migrateCompendiumFolders(_event, target) {

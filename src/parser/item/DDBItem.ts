@@ -6,7 +6,6 @@ import MagicItemMaker from "./MagicItemMaker";
 import { addRestrictionFlags } from "../../effects/restrictions";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../DDBCharacter";
-import { NotifierV1Props } from "../../apps/DDBAppV2";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
 
 interface IDDBItemMartialArtsDie {

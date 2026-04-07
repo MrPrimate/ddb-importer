@@ -1,4 +1,3 @@
-import { NotifierV1Props } from "../../apps/DDBAppV2";
 import {
   utils,
   logger,

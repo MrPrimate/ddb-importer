@@ -1,4 +1,3 @@
-import { NotifierV1Props } from "../apps/DDBAppV2";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { logger, utils, CompendiumHelper, FileHelper, NameMatcher } from "./_module";
 

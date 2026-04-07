@@ -13,7 +13,6 @@ import {
 import DDBMonster from "./DDBMonster";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
-import { NotifierV1Props } from "../apps/DDBAppV2";
 
 
 interface IDDBMonsterFactory {

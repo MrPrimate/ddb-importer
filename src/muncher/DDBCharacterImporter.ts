@@ -14,7 +14,6 @@ import { abilityOverrideEffect } from "../effects/abilityOverrides";
 import { createInfusedItems, linkSelectedEnchantments } from "../parser/character/infusions";
 import { setConditions } from "../parser/character/conditions";
 import { ExternalAutomations } from "../effects/_module";
-import { NotifierV1Props } from "../apps/DDBAppV2";
 
 interface IDDBCharacterImporter {
   actorId: string;
