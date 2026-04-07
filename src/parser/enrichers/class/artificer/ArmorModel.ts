@@ -383,12 +383,34 @@ export default class ArmorModel extends DDBEnricherData {
           },
         },
       },
+      // TODO: We should create a Force Demolisher item in the compendium and link instead of building this activity
       {
-        action: { name: "Dreadnaught: Force Demolisher", type: "class" },
+        init: {
+          name: "Dreadnaught: Force Demolisher",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
+        },
+        build: {
+          generateTarget: true,
+          generateRange: true,
+          generateAttack: true,
+          generateDamage: true,
+          generateActivation: true,
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+          },
+          activationOverride: {
+            type: "special",
+          },
+        },
         overrides: {
           id: "ddbForceDemolish",
           targetType: "creature",
           data: {
+            range: {
+              value: 10,
+              units: "ft",
+            },
             attack: {
               ability: "",
               bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
