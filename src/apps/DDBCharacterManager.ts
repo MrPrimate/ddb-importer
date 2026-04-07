@@ -12,7 +12,7 @@ import { updateDDBCharacter } from "../updater/character";
 import { generateCharacterExtras } from "../parser/DDBExtras";
 import { SETTINGS } from "../config/_module";
 import DDBCookie from "../apps/DDBCookie";
-import DDBAppV2, { IDDBTabs } from "./DDBAppV2";
+import DDBAppV2 from "./DDBAppV2";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 import DDBDebugger from "./DDBDebugger";
 import DDBKeyChangeDialog from "./DDBKeyChangeDialog";

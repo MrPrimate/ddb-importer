@@ -7,7 +7,6 @@ import {
   CompendiumHelper,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
-import { NotifierV1Props } from "../apps/DDBAppV2";
 
 interface IDDBMonsterImporter {
   monster?: I5eMonsterData;

@@ -14,7 +14,6 @@ import { DICTIONARY } from "../../config/_module";
 import { getFindFamiliarActivityData } from "./types/FindFamiliar";
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterImporter from "../../muncher/DDBMonsterImporter";
-import { NotifierV1Props } from "../../apps/DDBAppV2";
 
 type TDDBOriginDocument = TAll5eItemDocuments | TAll5eActorDocuments;
 

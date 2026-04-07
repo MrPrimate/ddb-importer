@@ -1,5 +1,4 @@
 import { parseTable, getHeadings } from "../../../vendor/parseTable";
-import { NotifierV1Props } from "../../apps/DDBAppV2";
 import {
   utils,
   logger,

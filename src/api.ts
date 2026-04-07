@@ -5,6 +5,7 @@ import DDBMonsterFactory from "./parser/DDBMonsterFactory";
 import { parseSpells } from "./muncher/spells";
 import DDBItemsImporter from "./muncher/DDBItemsImporter";
 import { updateWorldMonsters, resetCompendiumActorImages, parseCritters, parseTransports } from "./muncher/tools";
+import DDBSelectiveMonsterUpdate from "./apps/DDBSelectiveMonsterUpdate";
 import DDBEncounterFactory from "./parser/DDBEncounterFactory";
 import { generateAdventureConfig, downloadAdventureConfig } from "./muncher/adventure";
 import { updateDDBCharacter } from "./updater/character";
@@ -205,6 +206,7 @@ export function registerApi() {
     },
 
     updateWorldMonsters,
+    DDBSelectiveMonsterUpdate,
 
     getIconPath: lib.Iconizer.iconPath,
     iconPath: lib.Iconizer.iconPath,

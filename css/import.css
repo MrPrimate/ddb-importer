@@ -132,3 +132,17 @@ header.ddbcharacter {
 dialog.ddb-monster-select-dialog > section {
   overflow: scroll !important;
 }
+
+.ddb-monster-select-dialog .ddb-monster-filter-selects {
+  display: flex;
+  gap: 8px;
+}
+
+.ddb-monster-select-dialog .ddb-monster-filter-selects .form-group {
+  flex: 1;
+}
+
+.ddb-monster-select-dialog .ddb-monster-checklist {
+  max-height: 400px;
+  overflow-y: auto;
+}

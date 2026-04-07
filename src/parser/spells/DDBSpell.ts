@@ -8,7 +8,6 @@ import DDBSummonsManager from "../companions/DDBSummonsManager";
 import { DDBTable, DDBReferenceLinker, DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
 import { AutoEffects, ChangeHelper } from "../enrichers/effects/_module";
 import { ISpellPreparationMode } from "../../config/dictionary/spell/spell";
-import { NotifierV1Props } from "../../apps/DDBAppV2";
 
 interface SpellHealingPart {
   part: I5eDamagePart;

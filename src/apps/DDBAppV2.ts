@@ -8,37 +8,6 @@ import { DDBReferenceLinker } from "../parser/lib/_module";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export interface IDDBTab extends foundry.applications.api.Application.Tab {
-  tabs?: DeepPartial<IDDBTabs>;
-}
-
-export type IDDBTabs = Record<string, DeepPartial<IDDBTab>>;
-
-export interface NotifierV1Props {
-  nameField?: boolean;
-  monsterNote?: boolean;
-  isError?: boolean;
-  message?: string;
-}
-
-export interface NotifierV2Props {
-  progress?: {
-    current: number;
-    total: number;
-  };
-  section?: string;
-  message: string;
-  suppress?: boolean;
-  isError?: boolean;
-  clear?: boolean;
-}
-
-interface DDBApplicationPart extends foundry.applications.api.HandlebarsApplicationMixin.HandlebarsTemplatePart {
-  container?: {
-    id: string;
-    classes?: string[];
-  };
-}
 
 export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
 
@@ -132,10 +101,11 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
     }
   }
 
-  async _prepareContext(options) {
+  // @ts-expect-error - we use deep nested tabs
+  async _prepareContext(options): Promise<DDBAppV2Context> {
     const noCacheLoad = options?.noCacheLoad ?? false;
     if (!noCacheLoad) await DDBReferenceLinker.importCacheLoad();
-    const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false });
+    const context = foundry.utils.mergeObject(await super._prepareContext(options), {}, { inplace: false }) as DDBAppV2Context;
     context.tabs = this._getTabs() as Record<string, IDDBTab>;
     logger.debug("DDBAppV2: _prepareContext", context);
     return context;

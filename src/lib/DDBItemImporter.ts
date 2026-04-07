@@ -8,7 +8,6 @@ import {
 } from "./_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
-import { NotifierV1Props } from "../apps/DDBAppV2";
 import { IIconMapEntry } from "./Iconizer";
 
 interface IDDBItemImporterOptions {
