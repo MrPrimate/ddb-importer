@@ -391,11 +391,26 @@ export default class AdventureMunch {
     logger.info(`Adventure import complete for ${this.adventure.name}`, {
       this: this,
     });
+
+    const summaryItems = [
+      { key: "scenes", label: "Scenes", icon: "fa-solid fa-map" },
+      { key: "journals", label: "Journal Entries", icon: "fa-solid fa-book-open" },
+      { key: "actors", label: "Actors", icon: "fa-solid fa-users" },
+      { key: "items", label: "Items", icon: "fa-solid fa-suitcase" },
+      { key: "tables", label: "Roll Tables", icon: "fa-solid fa-th-list" },
+      { key: "playlists", label: "Playlists", icon: "fa-solid fa-music" },
+      { key: "macros", label: "Macros", icon: "fa-solid fa-code" },
+      { key: "folders", label: "Folders", icon: "fa-solid fa-folder" },
+    ]
+      .filter((entry) => this.temporary[entry.key]?.length > 0)
+      .map((entry) => `<li><i class="${entry.icon}"></i> ${this.temporary[entry.key].length} ${entry.label}</li>`)
+      .join("");
+
     foundry.applications.api.DialogV2.prompt({
       window: {
         title: `Successful Import of ${this.adventure.name}`,
       },
-      content: `<h1>${this.adventure.name}</h1><h3>${this.adventure.description}</h3>`,
+      content: `<h1>${this.adventure.name}</h1><ul>${summaryItems}</ul>`,
       ok: {
         label: "OK",
       },
