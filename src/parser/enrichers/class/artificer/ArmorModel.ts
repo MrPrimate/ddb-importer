@@ -432,7 +432,7 @@ export default class ArmorModel extends DDBEnricherData {
       },
       {
         init: {
-          name: "Dreadnaught: Giant Statue (Large)",
+          name: "Dreadnaught: Giant Stature (Large)",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
@@ -476,7 +476,7 @@ export default class ArmorModel extends DDBEnricherData {
       },
       {
         init: {
-          name: "Dreadnaught: Giant Statue (Huge)",
+          name: "Dreadnaught: Giant Stature (Huge)",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
