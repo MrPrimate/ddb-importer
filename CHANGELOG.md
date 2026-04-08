@@ -1,5 +1,8 @@
 # Next Up
 
+- Typo in Artificer Armorer Demolisher model
+- SMall tweak to adventure muncher final import dialog
+
 # 7.2.5
 
 - Artificer Armorer Demolisher model lacked attack activity. @andrewblass
