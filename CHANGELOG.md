@@ -1,7 +1,8 @@
 # Next Up
 
 - Typo in Artificer Armorer Demolisher model
-- SMall tweak to adventure muncher final import dialog
+- Small tweak to adventure muncher final import dialog
+- Warlock Cantrips would be marked as Pact Spells rather than as Spellcasting spells, causing them to show up in the Pact Magic leveled section, rather than Cantrips on the spellcasting sheet.
 
 # 7.2.5
 
