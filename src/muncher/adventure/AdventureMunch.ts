@@ -890,7 +890,7 @@ export default class AdventureMunch {
         }
       }
       if (worldActor) results.push(worldActor);
-      if (this.addToAdventureCompendium && !this.temporary.actors.some((a) => a._id === actor.actorId)) {
+      if (!this.temporary.actors.some((a) => a._id === actor.actorId)) {
         this.temporary.actors.push(worldActor);
       }
     });
@@ -943,7 +943,7 @@ export default class AdventureMunch {
         }
       }
       if (worldActor) results.push(worldActor);
-      if (worldActor && this.addToAdventureCompendium && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+      if (worldActor && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
         this.temporary.actors.push(worldActor);
       }
     });
@@ -1325,9 +1325,7 @@ export default class AdventureMunch {
       const sceneTokens = await scene.createEmbeddedDocuments("Token", tokenUpdates, { keepId: false });
       logger.debug(`Token update response for ${data.name}`, sceneTokens);
       this._itemsToRevisit.push(`Scene.${scene.id}`);
-      if (this.addToAdventureCompendium) {
-        this.temporary.scenes.push(scene);
-      }
+      this.temporary.scenes.push(scene);
     }
   }
 
@@ -1354,14 +1352,14 @@ export default class AdventureMunch {
           const actor = await Actor.create(data, options);
           await actor.update({ [`prototypeToken.actorId`]: actor.id });
           if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
-          if (this.addToAdventureCompendium) this.temporary.actors.push(actor);
+          this.temporary.actors.push(actor);
         }
         break;
       case "Item":
         if (!AdventureMunchHelpers.findEntityByImportId("items", data._id)) {
           const item = await Item.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
-          if (this.addToAdventureCompendium) this.temporary.items.push(item);
+          this.temporary.items.push(item);
         }
         break;
       case "JournalEntry":
@@ -1369,7 +1367,7 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("journal", data._id)) {
           const journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
-          if (this.addToAdventureCompendium) this.temporary.journals.push(journal);
+          this.temporary.journals.push(journal);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.journal.metadata.id });
@@ -1386,7 +1384,7 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("tables", data._id)) {
           const rolltable = await RollTable.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
-          if (this.addToAdventureCompendium) this.temporary.tables.push(rolltable);
+          this.temporary.tables.push(rolltable);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.table.metadata.id });
@@ -1398,14 +1396,14 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
           const playlist = await Playlist.create(data, options);
-          if (this.addToAdventureCompendium) this.temporary.playlists.push(playlist);
+          this.temporary.playlists.push(playlist);
         }
         break;
       case "Macro":
         if (!AdventureMunchHelpers.findEntityByImportId("macros", data._id)) {
           const macro = await Macro.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Macro.${macro.id}`);
-          if (this.addToAdventureCompendium) this.temporary.macros.push(macro);
+          this.temporary.macros.push(macro);
         }
         break;
       // no default
