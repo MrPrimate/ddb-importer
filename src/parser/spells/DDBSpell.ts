@@ -356,9 +356,6 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     if (this.data.system.method === "pact" && this.pactSpellsPrepared) {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
     }
-    if (this.data.system.method === "pact" && this.isCantrip) {
-      this.data.system.method = "spell";
-    }
   }
 
 
