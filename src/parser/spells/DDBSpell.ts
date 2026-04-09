@@ -343,7 +343,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       // at the lowest level. for these we add as an innate.
       this.data.system.method = "innate";
     } else if (this.spellData.alwaysPrepared) {
-      this.data.system.method = this.forcePact ? "pact" : "spell";
+      this.data.system.method = this.forcePact && !this.isCantrip ? "pact" : "spell";
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
     } else if (this.data.system.method && this.data.system.method !== "" && this.classPrepMode) {
       this.data.system.method = this.classPrepMode.method;
@@ -355,6 +355,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     }
     if (this.data.system.method === "pact" && this.pactSpellsPrepared) {
       this.data.system.prepared = CONFIG.DND5E.spellPreparationStates.always.value;
+    }
+    if (this.data.system.method === "pact" && this.isCantrip) {
+      this.data.system.method = "spell";
     }
   }
 
