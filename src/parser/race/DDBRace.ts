@@ -998,7 +998,7 @@ export default class DDBRace {
         selectionOnly: false,
       });
 
-      if ((this.isLineage && this.lineageTrait.componentId === trait.id)
+      if ((this.isLineage && this.lineageTrait?.componentId === trait.id)
         || (DDBRace.FORCE_TRAIT_GRANT.includes(trait.name))) {
         logger.debug(`Skipping trait for choice advancement: ${trait.name}`);
         continue;
@@ -1104,7 +1104,7 @@ export default class DDBRace {
     const exactMach = findTraits.call(this, {}, false);
     const firstPass = findTraits.call(this);
 
-    if (this.isLineage && this.lineageTrait.componentId === trait.id) {
+    if (this.isLineage && this.lineageTrait?.componentId === trait.id) {
       const lineageMatch = findTraits.call(this, {}, false, true);
       if (lineageMatch.length === 0) {
         logger.warn(`No compendium trait match found for lineage trait ${trait.name}`, {
