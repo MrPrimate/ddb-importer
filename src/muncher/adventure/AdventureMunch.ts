@@ -983,6 +983,10 @@ export default class AdventureMunch {
     if (data.levels?.length) return data;
 
     const bg = data.background ?? {};
+    logger.debug(`Scene ${data.name} is in v13 format, migrating to v14 levels format.`, {
+      bg: foundry.utils.deepClone(bg),
+      data: foundry.utils.deepClone(data),
+    });
 
     // Build the default level from v13 top-level fields
     const level = {
@@ -996,14 +1000,17 @@ export default class AdventureMunch {
       },
       foreground: data.foreground ?? null,
       textures: {
-        anchorX: bg.anchorX ?? 0.5,
-        anchorY: bg.anchorY ?? 0.5,
+        // In some adventure exports this is set, but I don't think accessible/used previously
+        // anchorX: foundry.utils.getProperty(bg, "anchorX") ?? 0.5,
+        // anchorY: foundry.utils.getProperty(bg, "anchorY") ?? 0.5,
+        anchorX: 0.5,
+        anchorY: 0.5,
         offsetX: 0,
         offsetY: 0,
-        fit: bg.fit ?? "fill",
-        scaleX: bg.scaleX ?? 1,
-        scaleY: bg.scaleY ?? 1,
-        rotation: bg.rotation ?? 0,
+        fit: foundry.utils.getProperty(bg, "fit") ?? "fill",
+        scaleX: foundry.utils.getProperty(bg, "scaleX") ?? 1,
+        scaleY: foundry.utils.getProperty(bg, "scaleY") ?? 1,
+        rotation: foundry.utils.getProperty(bg, "rotation") ?? 0,
       },
     };
 
@@ -1011,8 +1018,8 @@ export default class AdventureMunch {
     data.initialLevel = DEFAULT_LEVEL_ID;
 
     // v13 background.offsetX/Y → v14 top-level shiftX/Y
-    data.shiftX = bg.offsetX ?? data.shiftX ?? 0;
-    data.shiftY = bg.offsetY ?? data.shiftY ?? 0;
+    data.shiftX = foundry.utils.getProperty(bg, "offsetX") ?? data.shiftX ?? 0;
+    data.shiftY = foundry.utils.getProperty(bg, "offsetY") ?? data.shiftY ?? 0;
 
     // Fog format: { exploration, overlay, colors } → { mode, colors }
     if (data.fog && !("mode" in data.fog)) {
