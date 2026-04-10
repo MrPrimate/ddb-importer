@@ -61,7 +61,7 @@ export function anchorInjection() {
 
   // when we render a note we add the anchor links box
   Hooks.on("renderNoteConfig", (noteConfig, form, data) => {
-    const slug = getSlug(noteConfig.document);
+    const slug = getSlug(noteConfig.document) as string;
 
     if (!form.querySelector(`input[name='flags.ddb.slugLink']`)) {
       addSlugField(form, slug, data.document);
@@ -81,12 +81,13 @@ export function anchorInjection() {
     pageIdSelect.addEventListener("change", () => updateNotePage(noteConfig, slug));
 
     if (isExistingNote) {
+      // @ts-expect-error - urgh
       const closeHookId = Hooks.on("closeDocumentSheetV2", async (documentSheet) => {
         if (!(documentSheet instanceof foundry.applications.sheets.NoteConfig)) return;
         if (noteConfig.document.id !== documentSheet.document.id) return;
         Hooks.off("closeDocumentSheetV2", closeHookId);
-        const selectedSlug = documentSheet.document.getFlag("ddb", "slugLink");
-        if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== documentSheet.document.flags.ddb?.slugLink) {
+        const selectedSlug = foundry.utils.getProperty(documentSheet.document, "flags.ddb.slugLink") as string;
+        if (selectedSlug && selectedSlug.trim() !== "" && selectedSlug !== slug) {
           const update = setSlugProperties({ _id: documentSheet.document.id }, selectedSlug, documentSheet.document.label);
           await canvas.scene.updateEmbeddedDocuments("Note", [update]);
         }
