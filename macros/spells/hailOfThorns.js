@@ -5,7 +5,7 @@ const DEFAULT_ITEM_NAME = "Hail of Thorns";
 // Set to false to remove debug logging
 const debug = true;
 
-const dependencies = ["dae", "times-up", "midi-qol"];
+const dependencies = ["dae", "midi-qol"];
 if (!DDBImporter?.EffectHelper.requirementsSatisfied(DEFAULT_ITEM_NAME, dependencies)) {
   return;
 }

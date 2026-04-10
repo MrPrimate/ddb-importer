@@ -132,7 +132,6 @@ global {
     daeInstalled: boolean;
     midiQolInstalled: boolean;
     atlInstalled: boolean;
-    timesUpInstalled: boolean;
     atlInstalled: boolean;
     tokenMagicInstalled: boolean;
     activeAurasInstalled: boolean;
