@@ -1,5 +1,7 @@
 # Next Up
 
+- Guard against No Lineage choice
+
 # 7.2.6
 
 - Typo in Artificer Armorer Demolisher model
