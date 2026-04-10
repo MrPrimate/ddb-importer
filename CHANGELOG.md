@@ -1,7 +1,10 @@
 # Next Up
 
+# 7.2.6
+
 - Typo in Artificer Armorer Demolisher model
 - Small tweak to adventure muncher final import dialog
+- Some adventures would not import with their anchorX/Y set. If you need to manually adjust imported adventures, adjust the AnchorX/AnchorY to 0.5 in the level config. This might impact adventures migrated from v13 to v14 although I have not validated this.
 
 # 7.2.5
 
