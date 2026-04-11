@@ -68,7 +68,7 @@ function makeSpellMock(props: Record<string, any> = {}) {
 }
 
 // =============================================================================
-// getUses — static method for building limited use formulas
+// getUses - static method for building limited use formulas
 // =============================================================================
 describe("DDBSpell.getUses", () => {
   it("returns empty uses for null limitedUse", () => {
@@ -153,7 +153,7 @@ describe("DDBSpell.getUses", () => {
 });
 
 // =============================================================================
-// _generateProperties — sets spell component properties
+// _generateProperties - sets spell component properties
 // =============================================================================
 describe("DDBSpell.prototype._generateProperties", () => {
   it("sets vocal, somatic, material for components [1,2,3]", () => {
@@ -196,7 +196,7 @@ describe("DDBSpell.prototype._generateProperties", () => {
 });
 
 // =============================================================================
-// _generateMaterials — extracts material costs from description
+// _generateMaterials - extracts material costs from description
 // =============================================================================
 describe("DDBSpell.prototype._generateMaterials", () => {
   it("extracts GP cost and consumed flag", () => {
@@ -238,7 +238,7 @@ describe("DDBSpell.prototype._generateMaterials", () => {
 });
 
 // =============================================================================
-// _generateActivation — determines activation type from DICTIONARY
+// _generateActivation - determines activation type from DICTIONARY
 // =============================================================================
 describe("DDBSpell.prototype._generateActivation", () => {
   it("maps activationType 1 to 'action'", () => {
@@ -294,7 +294,7 @@ describe("DDBSpell.prototype._generateActivation", () => {
 });
 
 // =============================================================================
-// _generateDuration — maps duration fields to Foundry format
+// _generateDuration - maps duration fields to Foundry format
 // =============================================================================
 describe("DDBSpell.prototype._generateDuration", () => {
   it("maps Minute duration with concentration", () => {
@@ -344,11 +344,11 @@ describe("DDBSpell.prototype._generateDuration", () => {
   });
 });
 
-// NOTE: _generateRange tests omitted — calls private #specialRange() which
+// NOTE: _generateRange tests omitted - calls private #specialRange() which
 // cannot be bypassed on Object.create() mocks (receiver check fails).
 
 // =============================================================================
-// targetsCreature — regex detection of creature targeting
+// targetsCreature - regex detection of creature targeting
 // =============================================================================
 describe("DDBSpell.prototype.targetsCreature", () => {
   it("matches 'You touch one willing creature'", () => {

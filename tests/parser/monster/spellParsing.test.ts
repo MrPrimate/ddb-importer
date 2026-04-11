@@ -37,7 +37,7 @@ function makeSpellMock(overrides: Record<string, any> = {}): any {
 }
 
 // =============================================================================
-// parseOutInnateSpells — regex extraction of innate spell lists
+// parseOutInnateSpells - regex extraction of innate spell lists
 // =============================================================================
 describe("DDBMonster.prototype.parseOutInnateSpells", () => {
   const parseOutInnateSpells = DDBMonster.prototype.parseOutInnateSpells;
@@ -93,7 +93,7 @@ describe("DDBMonster.prototype.parseOutInnateSpells", () => {
 });
 
 // =============================================================================
-// parseAdditionalAtWillSpells — extracts "can cast X at will" spells
+// parseAdditionalAtWillSpells - extracts "can cast X at will" spells
 // =============================================================================
 describe("DDBMonster.prototype.parseAdditionalAtWillSpells", () => {
   const parseAdditionalAtWillSpells = DDBMonster.prototype.parseAdditionalAtWillSpells;
@@ -123,7 +123,7 @@ describe("DDBMonster.prototype.parseAdditionalAtWillSpells", () => {
 });
 
 // =============================================================================
-// parseOutSpells — main spell slot/level parsing
+// parseOutSpells - main spell slot/level parsing
 // =============================================================================
 describe("DDBMonster.prototype.parseOutSpells", () => {
   const parseOutSpells = DDBMonster.prototype.parseOutSpells;
@@ -191,7 +191,7 @@ describe("DDBMonster.prototype.parseOutSpells", () => {
 });
 
 // =============================================================================
-// _generateSpellEdgeCases — extracts parenthetical edge cases from spell names
+// _generateSpellEdgeCases - extracts parenthetical edge cases from spell names
 // =============================================================================
 describe("DDBMonster.prototype._generateSpellEdgeCases", () => {
   const generateSpellEdgeCases = DDBMonster.prototype._generateSpellEdgeCases;

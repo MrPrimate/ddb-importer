@@ -4,7 +4,7 @@ vi.mock("../../../src/config/_module", async () => {
 });
 vi.mock("../../../src/effects/_module", () => ({}));
 vi.mock("../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
-// DDBMonsterDamage imports DDBMonsterFeature — mock it to avoid the full chain
+// DDBMonsterDamage imports DDBMonsterFeature - mock it to avoid the full chain
 vi.mock("../../../src/parser/monster/features/DDBMonsterFeature", () => ({
   default: class DDBMonsterFeature {},
 }));
@@ -12,7 +12,7 @@ vi.mock("../../../src/parser/monster/features/DDBMonsterFeature", () => ({
 import { DDBMonsterDamage } from "../../../src/parser/monster/features/DDBMonsterDamage";
 
 // =============================================================================
-// DAMAGE_EXPRESSION — regex for matching damage in monster descriptions
+// DAMAGE_EXPRESSION - regex for matching damage in monster descriptions
 // =============================================================================
 describe("DDBMonsterDamage.DAMAGE_EXPRESSION", () => {
   function firstMatch(text: string) {
@@ -83,7 +83,7 @@ describe("DDBMonsterDamage.DAMAGE_EXPRESSION", () => {
 });
 
 // =============================================================================
-// REGAIN_EXPRESSION — regex for matching healing/regain
+// REGAIN_EXPRESSION - regex for matching healing/regain
 // =============================================================================
 describe("DDBMonsterDamage.REGAIN_EXPRESSION", () => {
   it("matches 'regains 10 (2d8 + 1) hit points'", () => {
@@ -118,7 +118,7 @@ describe("DDBMonsterDamage.REGAIN_EXPRESSION", () => {
 });
 
 // =============================================================================
-// damageMatchSave — detects save-based damage from match groups
+// damageMatchSave - detects save-based damage from match groups
 // =============================================================================
 describe("DDBMonsterDamage.damageMatchSave", () => {
   it("returns truthy when prefix includes 'saving throw'", () => {
@@ -143,7 +143,7 @@ describe("DDBMonsterDamage.damageMatchSave", () => {
 });
 
 // =============================================================================
-// _getDamageTypes — extracts damage types from match text
+// _getDamageTypes - extracts damage types from match text
 // =============================================================================
 describe("DDBMonsterDamage._getDamageTypes", () => {
   it("extracts single damage type", () => {

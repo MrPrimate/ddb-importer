@@ -63,7 +63,7 @@ describe("DDBModifiers.filterModifiers", () => {
   });
 
   it("with restriction null excludes restricted modifiers", () => {
-    // restriction: null means "no restriction filter" — includes all
+    // restriction: null means "no restriction filter" - includes all
     const result = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: "armor-class", restriction: null });
     expect(result).toHaveLength(2); // both AC modifiers
   });

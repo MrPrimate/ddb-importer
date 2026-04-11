@@ -11,7 +11,7 @@ vi.mock("../../../src/parser/monster/features/DDBMonsterFeature", () => ({
 import DDBMonsterFeatureFactory from "../../../src/parser/monster/features/DDBMonsterFeatureFactory";
 
 // =============================================================================
-// replaceRollable — removes [rollable]...[/rollable] tags, keeps content
+// replaceRollable - removes [rollable]...[/rollable] tags, keeps content
 // =============================================================================
 describe("DDBMonsterFeatureFactory.replaceRollable", () => {
   it("removes rollable tags keeping content before semicolon", () => {
@@ -41,7 +41,7 @@ describe("DDBMonsterFeatureFactory.replaceRollable", () => {
 });
 
 // =============================================================================
-// namePassMatch — detects dice ranges and spell frequency prefixes
+// namePassMatch - detects dice ranges and spell frequency prefixes
 // =============================================================================
 describe("DDBMonsterFeatureFactory.namePassMatch", () => {
   it("matches en-dash dice range '1–2'", () => {
@@ -70,7 +70,7 @@ describe("DDBMonsterFeatureFactory.namePassMatch", () => {
 });
 
 // =============================================================================
-// splitName — extracts action name from concatenated formats
+// splitName - extracts action name from concatenated formats
 // =============================================================================
 describe("DDBMonsterFeatureFactory.splitName", () => {
   it("returns name unchanged when no semicolons", () => {

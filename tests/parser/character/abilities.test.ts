@@ -233,7 +233,7 @@ describe("DDBCharacter._getAbilities", () => {
     const result = getAbilities.call(mock);
 
     expect(result.str.min).toBe(3);
-    // max is Math.max(cappedBonus.cap, overRiddenStat) — cap defaults to 20+abilityScoreMaxBonus
+    // max is Math.max(cappedBonus.cap, overRiddenStat) - cap defaults to 20+abilityScoreMaxBonus
     expect(result.str.max).toBeGreaterThanOrEqual(10);
   });
 

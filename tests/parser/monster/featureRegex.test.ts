@@ -49,7 +49,7 @@ function makeFeatureMock(props: Record<string, any>) {
 }
 
 // =============================================================================
-// getReach — regex extraction of weapon reach
+// getReach - regex extraction of weapon reach
 // =============================================================================
 describe("DDBMonsterFeature.prototype.getReach", () => {
   it("extracts 10 ft reach", () => {
@@ -79,7 +79,7 @@ describe("DDBMonsterFeature.prototype.getReach", () => {
 });
 
 // =============================================================================
-// getRange — regex extraction of weapon range
+// getRange - regex extraction of weapon range
 // =============================================================================
 describe("DDBMonsterFeature.prototype.getRange", () => {
   it("parses 'range 80/320 ft'", () => {
@@ -152,7 +152,7 @@ describe("DDBMonsterFeature.prototype.getRange", () => {
 });
 
 // =============================================================================
-// getActionType — determines activation cost from type and text
+// getActionType - determines activation cost from type and text
 // =============================================================================
 describe("DDBMonsterFeature.prototype.getActionType", () => {
   it("detects 'as a bonus action'", () => {
@@ -197,7 +197,7 @@ describe("DDBMonsterFeature.prototype.getActionType", () => {
 });
 
 // =============================================================================
-// getTarget — template and creature targeting extraction
+// getTarget - template and creature targeting extraction
 // =============================================================================
 describe("DDBMonsterFeature.prototype.getTarget", () => {
   it("parses '60-foot cone'", () => {

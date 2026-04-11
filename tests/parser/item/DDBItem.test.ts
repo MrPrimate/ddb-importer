@@ -34,7 +34,7 @@ vi.mock("../../../src/effects/restrictions", () => ({
 import DDBItem from "../../../src/parser/item/DDBItem";
 
 // =============================================================================
-// getRechargeFormula — static method for parsing charge recharge formulas
+// getRechargeFormula - static method for parsing charge recharge formulas
 // =============================================================================
 describe("DDBItem.getRechargeFormula", () => {
   it("returns maxCharges for empty description", () => {
@@ -67,7 +67,7 @@ describe("DDBItem.getRechargeFormula", () => {
 });
 
 // =============================================================================
-// getMagicItemResetType — static method for determining reset period
+// getMagicItemResetType - static method for determining reset period
 // =============================================================================
 describe("DDBItem.getMagicItemResetType", () => {
   it("detects dawn reset from 'expended charges daily at dawn'", () => {
@@ -100,7 +100,7 @@ describe("DDBItem.getMagicItemResetType", () => {
 });
 
 // =============================================================================
-// parsePerSpellMagicItem — per-spell charge detection
+// parsePerSpellMagicItem - per-spell charge detection
 // =============================================================================
 describe("DDBItem.prototype.parsePerSpellMagicItem", () => {
   function makeItemMock(description: string) {

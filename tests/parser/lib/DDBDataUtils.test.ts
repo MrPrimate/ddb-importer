@@ -235,10 +235,10 @@ describe("DDBDataUtils.hasClassFeature", () => {
   });
 
   it("respects required level vs character level", () => {
-    // Character is level 5, Improved Critical requires level 3 — should be available
+    // Character is level 5, Improved Critical requires level 3 - should be available
     expect(DDBDataUtils.hasClassFeature({ ddbData: ddb, featureName: "Improved Critical" })).toBe(true);
 
-    // Make a level 2 character — Improved Critical (level 3) should NOT be available
+    // Make a level 2 character - Improved Critical (level 3) should NOT be available
     const lowLevelDdb = makeDDB();
     lowLevelDdb.character.classes[0].level = 2;
     expect(DDBDataUtils.hasClassFeature({ ddbData: lowLevelDdb, featureName: "Improved Critical" })).toBe(false);

@@ -6,7 +6,7 @@ vi.mock("../../../src/config/_module", async () => {
 vi.mock("../../../src/effects/_module", () => ({}));
 vi.mock("../../../src/effects/DDBEffectHelper", () => ({ default: {} }));
 
-// Mock ACBonusEffects used by ac.ts — keep other exports from the real module
+// Mock ACBonusEffects used by ac.ts - keep other exports from the real module
 vi.mock("../../../src/parser/enrichers/effects/_module", async (importOriginal) => {
   const actual = await importOriginal<any>();
   return {
@@ -185,7 +185,7 @@ describe("DDBCharacter._generateOverrideArmorClass", () => {
 });
 
 // =============================================================================
-// _generateArmorClass — override path
+// _generateArmorClass - override path
 // =============================================================================
 describe("DDBCharacter._generateArmorClass (override path)", () => {
   const generateAC = DDBCharacter.prototype._generateArmorClass;
@@ -215,7 +215,7 @@ describe("DDBCharacter._generateArmorClass (override path)", () => {
 });
 
 // =============================================================================
-// _generateArmorClass — unarmored default path
+// _generateArmorClass - unarmored default path
 // =============================================================================
 describe("DDBCharacter._generateArmorClass (unarmored default)", () => {
   const generateAC = DDBCharacter.prototype._generateArmorClass;
