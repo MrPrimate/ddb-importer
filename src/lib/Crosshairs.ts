@@ -186,7 +186,7 @@ export default class Crosshairs extends Sheet {
     this.clear();
     const texture = this.document.texture;
     if (texture) {
-      this._texture = await loadTexture(texture, { fallback: "icons/svg/hazard.svg" }); // Update to be the setting
+      this._texture = await foundry.canvas.loadTexture(texture, { fallback: "icons/svg/hazard.svg" }); // Update to be the setting
     } else {
       this._texture = null;
     }
