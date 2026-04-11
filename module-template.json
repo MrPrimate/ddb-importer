@@ -8,7 +8,7 @@
   "manifest": "https://github.com/mrprimate/ddb-importer/releases/download/latest/module.json",
   "readme": "https://github.com/MrPrimate/ddb-importer/blob/main/README.md",
   "changelog": "https://github.com/MrPrimate/ddb-importer/blob/main/CHANGELOG.md",
-  "url": "https://github.com/mrprimate/ddb-importer",
+  "url": "https://docs.ddb.mrprimate.co.uk",
   "compatibility": {
     "minimum": "14.359",
     "verified": "14.359",
@@ -18,7 +18,7 @@
     {
       "name": "MrPrimate",
       "email": "jack@mrprimate.co.uk",
-      "url": "https://mrprimate.co.uk",
+      "url": "https://docs.ddb.mrprimate.co.uk",
       "patreon": "https://www.patreon.com/MrPrimate",
       "discord": "https://discord.gg/WzPuRuDJVP"
     }
