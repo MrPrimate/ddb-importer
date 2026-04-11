@@ -1,6 +1,8 @@
 # Next Up
 
 - Guard against No Lineage choice
+- v14 Adventure Import improvements
+- Guard against empty monster images when using auto-tokenize
 
 # 7.2.6
 
