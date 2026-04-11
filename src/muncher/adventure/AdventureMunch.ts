@@ -5,6 +5,7 @@ import { SETTINGS } from "../../config/_module";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums";
 import { DDBReferenceLinker } from "../../parser/lib/_module";
 import MonsterReplacer from "../../apps/MonsterReplacer";
+import SceneSnipProcessor from "../../lib/SceneSnipProcessor";
 
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
@@ -557,6 +558,7 @@ export default class AdventureMunch {
         const worldActor = game.actors.get(token.actorId);
         if (worldActor) {
           const updateData = await this._getTokenUpdateData(worldActor, sceneToken);
+          updateData.hidden = true;
           tokenResults.push(updateData);
         } else {
           deadTokens.push(token._id);
@@ -1052,8 +1054,14 @@ export default class AdventureMunch {
     // Add levels array and locked flag to lights
     if (Array.isArray(data.lights)) {
       for (const light of data.lights) {
-        light.levels ??= [];
+        light.levels ??= [DEFAULT_LEVEL_ID];
         light.locked ??= false;
+      }
+    }
+
+    if (Array.isArray(data.notes)) {
+      for (const note of data.notes) {
+        note.levels ??= [DEFAULT_LEVEL_ID];
       }
     }
 
@@ -1320,7 +1328,16 @@ export default class AdventureMunch {
         }
       }
 
-      if (overwriteEntity) await Scene.deleteDocuments([data._id]);
+      // Preserve existing snip configurations before overwriting
+      let preservedSnips: ReturnType<typeof SceneSnipProcessor.getSnips> = [];
+      if (overwriteEntity) {
+        const existingScene = AdventureMunchHelpers.findEntityByImportId("scenes", data._id) as Scene | undefined;
+        if (existingScene) {
+          preservedSnips = SceneSnipProcessor.getSnips(existingScene as Scene);
+        }
+        await Scene.deleteDocuments([data._id]);
+      }
+
       const options = { keepId: true, keepEmbeddedIds: true };
       logger.debug(`Creating Scene ${data.name}`, foundry.utils.deepClone(data));
       const tokens = foundry.utils.deepClone(data.tokens);
@@ -1331,6 +1348,13 @@ export default class AdventureMunch {
       logger.debug(`Token Updates for ${data.name}`, tokenUpdates);
       const sceneTokens = await scene.createEmbeddedDocuments("Token", tokenUpdates, { keepId: false });
       logger.debug(`Token update response for ${data.name}`, sceneTokens);
+
+      // Reapply snips after scene recreation
+      if (preservedSnips.length > 0) {
+        logger.info(`Reapplying ${preservedSnips.length} snips for scene "${data.name}"`);
+        await SceneSnipProcessor.reapplySnips(scene, preservedSnips);
+      }
+
       this._itemsToRevisit.push(`Scene.${scene.id}`);
       this.temporary.scenes.push(scene);
     }
