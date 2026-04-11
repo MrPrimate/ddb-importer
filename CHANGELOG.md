@@ -3,6 +3,7 @@
 - Typo in Artificer Armorer Demolisher model
 - Small tweak to adventure muncher final import dialog
 - Guard against No Lineage choice
+- Guard against some failures using auto-tokenise when there is no image for a monster
 
 # 7.1.4
 
