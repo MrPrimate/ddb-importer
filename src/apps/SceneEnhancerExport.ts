@@ -65,6 +65,7 @@ function getNotes(scene, bookCode) {
         flags: {
           ddb: flags,
         },
+        levels: Array.from(note.levels ?? []),
         iconSize: note.iconSize,
         iconTint: note.iconTint,
         textColor: note.textColor,
@@ -82,6 +83,7 @@ function getNotes(scene, bookCode) {
           label: note.label,
           texture: note.texture,
           flags: note.flags,
+          levels: note.levels,
           index: note.index,
           iconSize: note.iconSize,
           iconTint: note.iconTint,
@@ -105,6 +107,7 @@ function getNotes(scene, bookCode) {
       flags: { ddb: {
         noLink: true,
       } },
+      levels: Array.from(note.levels ?? []),
       iconSize: note.iconSize,
       iconTint: note.iconTint,
       textColor: note.textColor,
@@ -116,6 +119,7 @@ function getNotes(scene, bookCode) {
     .map((note) => ({
       label: note.label,
       flags: note.flags,
+      levels: note.levels,
       texture: note.texture,
       positions: note.positions,
       iconSize: note.iconSize,
@@ -131,29 +135,40 @@ function getNotes(scene, bookCode) {
 export function collectSceneData(scene, bookCode) {
   const notes = getNotes(scene, bookCode);
 
+  // Export levels from scene, stripping background.src from each
+  const levels = scene.levels.map((level) => {
+    const l = level.toObject();
+    delete l.background.src;
+    return l;
+  });
+
   const data = {
     flags: scene.flags,
-    background: foundry.utils.deepClone(scene.background),
     name: scene.name,
     navName: scene.navName,
     navOrder: scene.navOrder,
     // dimensions
     width: scene.width,
     height: scene.height,
+    shiftX: scene.shiftX,
+    shiftY: scene.shiftY,
     // grid
     grid: scene.grid,
     padding: scene.padding,
     // initial
     initial: scene.initial,
-    // customization
-    backgroundColor: scene.backgroundColor,
+    initialLevel: scene._source.initialLevel,
+    // levels
+    levels,
     walls: scene.walls.map((wall) => {
       const w = wall.toObject();
       delete w._id;
       return w;
     }),
-    //
-    drawings: scene.drawings,
+    drawings: scene.drawings.map((drawing) => {
+      const d = drawing.toObject();
+      return d;
+    }),
     weather: scene.weather,
     // environment
     tokenVision: scene.tokenVision,
@@ -162,22 +177,18 @@ export function collectSceneData(scene, bookCode) {
       delete l._id;
       return l;
     }),
-    regions: scene.regions ?? [],
+    regions: scene.regions.map((region) => {
+      const r = region.toObject();
+      return r;
+    }),
     environment: scene.environment
       ? foundry.utils.deepClone(scene.environment)
       : undefined,
     fog: {
+      mode: scene.fog.mode,
       colors: scene.fog.colors,
-      exploration: scene.fog.exploration,
-      overlay: scene.fog.overlay,
     },
-    foreground: scene.foreground
-      ? foundry.utils.deepClone(scene.foreground)
-      : undefined,
-    foregroundElevation: scene.foregroundElevation,
   };
-
-  delete data.background.src;
 
   if (!data.flags.ddb) data.flags.ddb = {};
   data.flags.ddb.foundryVersion = game.version;
@@ -200,6 +211,8 @@ export function collectSceneData(scene, bookCode) {
         bar1: { attribute: "attributes.hp" },
         effects: [],
         elevation: token.elevation,
+        level: token.level,
+        depth: token.depth,
         hidden: token.hidden,
         tint: token.tint,
         actorData: token.delta.toObject(),
@@ -245,6 +258,12 @@ export function collectSceneData(scene, bookCode) {
 
   data.flags.ddb.notes = notes;
   data.flags.ddb.img = `assets/${scene.background.src.split("assets/").pop()}`;
+  data.flags.ddb.levelImages = {};
+  for (const level of scene.levels) {
+    if (level.background?.src) {
+      data.flags.ddb.levelImages[level.id] = `assets/${level.background.src.split("assets/").pop()}`;
+    }
+  }
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
   data.flags.ddbimporter["version"] = game.modules.get("ddb-importer").version;
@@ -274,7 +293,6 @@ const allowedFlags = ["stairways", "perfect-vision", "dynamic-illumination"];
 
 export class SceneEnhancerExport extends Application {
 
-   
   constructor(scene) {
     super();
     this.sceneSet = false;
@@ -466,7 +484,7 @@ export class SceneEnhancerExport extends Application {
   }
 
 
-  async buttonClick(event, formData) {  
+  async buttonClick(event, formData) {
     event.preventDefault();
 
     const sceneFlags = foundry.utils.duplicate(this.scene.flags);
@@ -510,20 +528,18 @@ export class SceneEnhancerExport extends Application {
       delete sceneData.navName;
       delete sceneData.width;
       delete sceneData.height;
-      delete sceneData.grid;
-      delete sceneData.gridDistance;
-      delete sceneData.gridType;
-      delete sceneData.gridUnits;
       delete sceneData.shiftX;
       delete sceneData.shiftY;
+      delete sceneData.grid;
       delete sceneData.padding;
-      delete sceneData.weather;
-      delete sceneData.darkness;
-      delete sceneData.tokenVision;
-      delete sceneData.globalLight;
-      delete sceneData.globalLightThreshold;
-      delete sceneData.backgroundColor;
       delete sceneData.initial;
+      delete sceneData.initialLevel;
+      delete sceneData.levels;
+      delete sceneData.weather;
+      delete sceneData.tokenVision;
+      delete sceneData.fog;
+      delete sceneData.environment;
+      delete sceneData.regions;
       Object.keys(sceneData.flags).forEach((flag) => {
         if (!ddbFlags.includes(flag)) delete sceneData.flags[flag];
       });
