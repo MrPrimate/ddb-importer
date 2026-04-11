@@ -2,6 +2,7 @@
 
 - Typo in Artificer Armorer Demolisher model
 - Small tweak to adventure muncher final import dialog
+- Guard against No Lineage choice
 
 # 7.1.4
 
