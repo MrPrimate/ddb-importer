@@ -345,7 +345,7 @@ export default class DDBMonsterImporter {
 
     // do we now want to tokenize that?
     // we don't tokenize if this path was already looked up, as it will already be done
-    if (useTokenizer && !hasTokenProcessedAlready) {
+    if (useTokenizer && !hasTokenProcessedAlready && monsterTokenImgPath) {
       const compendiumLabel = useWildcard ? "" : CompendiumHelper.getCompendiumLabel(this.type);
       const tokenizerName = isStock
         ? npcType
