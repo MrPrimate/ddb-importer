@@ -313,6 +313,7 @@ export default class DDBItemImporter {
 
   async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item.Implementation[]> {
     const indexEntries = await this.getFilteredItemIndexes(item);
+    // @ts-expect-error - urgh foundry
     const mapped = await Promise.all(indexEntries.map((idx) => {
       const entry = this.compendium.getDocument(idx._id).then((doc) => doc) as Promise<Item.Implementation>;
       return entry;
@@ -363,9 +364,6 @@ export default class DDBItemImporter {
 
   async updateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation> {
     // purge existing active effects on this item
-    // @ts-expect-error - results on this item allows for TableResult delete
-    if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-    if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.currentDocumentCount++;
     this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
@@ -375,7 +373,23 @@ export default class DDBItemImporter {
       packId: this.compendium.metadata.id,
     });
 
-    const update = existingItem.update(updateItem as any, { pack: this.compendium.metadata.id, render: false, recursive: this.recursive });
+    // @ts-expect-error - results on this item allows for TableResult delete
+    if (existingItem.results) {
+      logger.debug(`Deleting existing table results on ${existingItem.name} before update`);
+      // @ts-expect-error - results on this item allows for TableResult delete
+      await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
+    }
+    // @ts-expect-error - we know effects exist and can be deleted on this item
+    if (existingItem.effects) {
+      logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
+      await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    }
+
+    const update = existingItem.update(updateItem as any, {
+      pack: this.compendium.metadata.id,
+      render: false,
+      recursive: this.recursive,
+    });
     // const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
     return update;
   }

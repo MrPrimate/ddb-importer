@@ -1470,7 +1470,7 @@ export default class DDBRace {
           "flags.ddbimporter",
         ],
       },
-      recursive: false,
+      recursive: true,
     };
 
     const traitCompendiumFolders = new DDBCompendiumFolders("traits");

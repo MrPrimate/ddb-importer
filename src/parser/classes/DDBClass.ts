@@ -2126,7 +2126,7 @@ export default class DDBClass {
       useCompendiumFolders: true,
       notifier: null,
       matchFlags: ["definitionId", "is2014"],
-      recursive: false,
+      recursive: true,
     };
 
     const data = foundry.utils.deepClone(this.data);
