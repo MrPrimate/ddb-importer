@@ -1,8 +1,11 @@
 # Next Up
 
+# 7.2.7
+
 - Guard against No Lineage choice
 - v14 Adventure Import improvements
-- Guard against empty monster images when using auto-tokenize
+- Guard against some failures using auto-tokenise when there is no image for a monster
+- Character option imports would fail in D&D 5.3.0 for some options.
 
 # 7.2.6
 
