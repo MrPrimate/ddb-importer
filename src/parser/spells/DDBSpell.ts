@@ -1057,7 +1057,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";
 
     if (this.spellClass) {
-      this.data.system.sourceClass = this.spellClass;
+      this.data.system.sourceClass = DDBDataUtils.classIdentifierName(this.spellClass);
     }
     this._generateProperties();
     this._generateMaterials();

@@ -273,7 +273,7 @@ export default class CharacterSpellFactory {
       unPreparedCantrip,
       flagData,
     });
-    foundry.utils.setProperty(parsedSpell, "system.sourceClass", classInfo.definition.name.toLowerCase());
+    foundry.utils.setProperty(parsedSpell, "system.sourceClass", DDBDataUtils.classIdentifierName(classInfo.definition.name));
     const duplicateSpell = this._generated.class.findIndex(
       (existingSpell) => {
         const existingName = (existingSpell.flags.ddbimporter.originalName ?? existingSpell.name);
@@ -564,7 +564,7 @@ export default class CharacterSpellFactory {
           generateSummons: this.generateSummons,
           flagData,
         });
-        if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", flagData.ddbimporter.dndbeyond.class.toLowerCase());
+        if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class));
         this._granted.class.push(parsedSpell);
 
         // check for class granted spells here
@@ -587,7 +587,8 @@ export default class CharacterSpellFactory {
           namePostfix: `${this._getSpellCount(spell.definition.name)}`,
           generateSummons: this.generateSummons,
         });
-        if (flagData.ddbimporter.dndbeyond.class) foundry.utils.setProperty(parsedSpell, "system.sourceClass", flagData.ddbimporter.dndbeyond.class.toLowerCase());
+        if (flagData.ddbimporter.dndbeyond.class)
+          foundry.utils.setProperty(parsedSpell, "system.sourceClass", DDBDataUtils.classIdentifierName(flagData.ddbimporter.dndbeyond.class));
         this._generated.class[duplicateSpell] = parsedSpell;
       } else {
         // we'll emit a console message if it doesn't match this case for future debugging
