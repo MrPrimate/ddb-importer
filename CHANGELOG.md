@@ -1,5 +1,7 @@
 # Next Up
 
+- Blood Hunter would not import spells.
+
 # 7.2.7
 
 - Guard against No Lineage choice
