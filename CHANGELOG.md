@@ -1,5 +1,7 @@
 # Next Up
 
+- Blood Hunter would not import spells.
+
 # 7.1.5
 
 - Typo in Artificer Armorer Demolisher model
