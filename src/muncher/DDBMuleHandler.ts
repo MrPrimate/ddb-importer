@@ -55,6 +55,7 @@ interface DDBMuleHandlerOptions {
   cleanup?: boolean;
   backgroundId?: string | null;
   ddbMuncher?: DDBMuncher | null;
+  attempts?: number;
 }
 
 export default class DDBMuleHandler {
@@ -72,6 +73,7 @@ export default class DDBMuleHandler {
   backgroundId: string | null = null;
   ddbMuncher: DDBMuncher | null = null;
   folder: string | null = null;
+  attempts = 5;
 
   constructor({
     characterId,
@@ -84,6 +86,7 @@ export default class DDBMuleHandler {
     cleanup = true,
     backgroundId = null,
     ddbMuncher = null,
+    attempts = null,
   }: DDBMuleHandlerOptions) {
     if (!characterId) {
       throw new Error("characterId is required");
@@ -100,6 +103,9 @@ export default class DDBMuleHandler {
     this.filterIds = filterIds;
     this.cleanup = cleanup;
     this.backgroundId = backgroundId;
+    if (attempts) {
+      this.attempts = attempts;
+    }
     foundry.utils.setProperty(CONFIG, `DDB.MULE.${this.type}`, this);
     this.ddbMuncher = ddbMuncher;
   }
@@ -187,8 +193,6 @@ export default class DDBMuleHandler {
   }
 
   async #fetchMuleData(url: string, body: IDDBMuleRequestBody, attempt = 1) {
-    const attempts = 5;
-
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -206,21 +210,21 @@ export default class DDBMuleHandler {
           FileHelper.download(JSON.stringify(jsonResponse.data), `RAW-${this.characterId}-${this.type}-${this.filterIds.join("_")}-${this.allowedSourceIds.join("_")}.json`, "application/json");
         }
       } else {
-        if (attempt === 5) {
-          logger.error(`Final attempt failed on ${attempt}/${attempts}. No more retries.`, {
+        if (attempt === this.attempts) {
+          logger.error(`Final attempt failed on ${attempt}/${this.attempts}. No more retries.`, {
             url,
             jsonResponse,
           });
           throw new Error(`Mule fetch failed: ${jsonResponse.message}`);
         }
         const delay = 1000 * Math.pow(2, attempt - 1);
-        logger.error(`Proxy Parse was not successful on attempt ${attempt}/${attempts}, retrying in ${delay}ms`);
+        logger.error(`Proxy Parse was not successful on attempt ${attempt}/${this.attempts}, retrying in ${delay}ms`);
         await new Promise((resolve) => setTimeout(resolve, delay));
         return this.#fetchMuleData(url, body, attempt + 1);
       }
     } catch (error) {
-      if (attempt === 5) {
-        logger.error(`Final attempt failed on ${attempt}/${attempts}. No more retries.`, {
+      if (attempt === this.attempts) {
+        logger.error(`Final attempt failed on ${attempt}/${this.attempts}. No more retries.`, {
           url,
           error,
         });
@@ -228,7 +232,7 @@ export default class DDBMuleHandler {
         throw error;
       }
       const delay = 1000 * Math.pow(2, attempt - 1);
-      logger.error(`Proxy fetch was not successful on attempt ${attempt}/${attempts}, retrying in ${delay}ms`);
+      logger.error(`Proxy fetch was not successful on attempt ${attempt}/${this.attempts}, retrying in ${delay}ms`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return this.#fetchMuleData(url, body, attempt + 1);
     }
