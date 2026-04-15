@@ -1,6 +1,7 @@
 # Next Up
 
 - Blood Hunter would not import spells.
+- Rework of the Character Options parser for 5.3.0 to reduce duplicate advancements. This now captures a few more things that were missed previously like some nested options on Warlock invocations. Some folks may see a small performance improvement here, but the overhead is mostly in the proxy.
 
 # 7.2.7
 
