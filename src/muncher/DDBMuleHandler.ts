@@ -7,7 +7,6 @@ import DDBClass from "../parser/classes/DDBClass";
 import DDBRace from "../parser/race/DDBRace";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBCharacterImporter from "./DDBCharacterImporter";
-import DDBSubClass from "../parser/classes/DDBSubClass";
 
 interface IDDBMuleHandlerQuickBase {
   characterId: string;
