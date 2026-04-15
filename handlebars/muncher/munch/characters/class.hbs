@@ -1,0 +1,44 @@
+<section id="ddb-importer-muncher-characters-class" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <fieldset {{#if classFilterEnabled}}{{else}}disabled{{/if}}>
+    <legend>Classes &amp; Subclasses</legend>
+    <p>Please import Feats before Backgrounds and Classes/Class Features.</p>
+    <p class="hint">Select at least one class to munch. Optionally pick specific subclasses per class &mdash; leaving a class's subclass picker empty imports all its subclasses.</p>
+
+    <div class="form-group">
+      <label>Rules Version</label>
+      <div class="form-fields">
+        <button type="button" id="muncher-class-rules-toggle" class="ddbimporter-small-button">
+          {{rulesVersion}}
+        </button>
+        <button type="button" id="muncher-class-select-core" class="ddbimporter-small-button">
+          Select Core Classes
+        </button>
+      </div>
+    </div>
+
+    <div id="munch-source-div">
+      <label>Classes</label>
+      <multi-select id="muncher-class-source-select" name="muncher-source-select" class="ddb-source-select">
+        {{#each selectedClasses}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+
+    {{#each subclassSelection}}
+    <div class="form-group">
+      <label>{{this.className}} subclasses {{#if this.allSelected}}<em>(ALL)</em>{{/if}}</label>
+      <multi-select class="ddb-subclass-select ddb-source-select" data-class-id="{{this.classId}}">
+        {{#each this.subclasses}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+    {{/each}}
+  </fieldset>
+
+  <fieldset>
+    <button data-action="parseClasses" type="button" id="munch-classes-start" class="munch-button"
+      {{#if classMunchEnabled}}enabled{{else}}disabled{{/if}}>Class Munch</button>
+  </fieldset>
+</section>
