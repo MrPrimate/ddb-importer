@@ -121,6 +121,11 @@ export default class DDBMuncher extends DDBAppV2 {
         "modules/ddb-importer/handlebars/muncher/munch/adventures.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/encounters.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/characters/settings.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/characters/feat.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/characters/backgrounds.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/characters/species.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/characters/class.hbs",
       ],
     },
     tools: {
@@ -142,6 +147,7 @@ export default class DDBMuncher extends DDBAppV2 {
     munch: "spells",
     tools: "tools",
     monsters: "monsterMain",
+    characters: "characterSettings",
   };
 
   /** @override */
@@ -195,6 +201,23 @@ export default class DDBMuncher extends DDBAppV2 {
           },
           characters: {
             id: "characters", group: "munch", label: "Characters", icon: "fas fa-users ",
+            tabs: {
+              settings: {
+                id: "characterSettings", group: "characters", label: "Settings", icon: "fas fa-cogs",
+              },
+              feat: {
+                id: "characterFeat", group: "characters", label: "Feats", icon: "fas fa-star",
+              },
+              backgrounds: {
+                id: "characterBackgrounds", group: "characters", label: "Backgrounds", icon: "fas fa-scroll",
+              },
+              species: {
+                id: "characterSpecies", group: "characters", label: "Species", icon: "fas fa-dragon",
+              },
+              class: {
+                id: "characterClass", group: "characters", label: "Classes", icon: "fas fa-hat-wizard",
+              },
+            },
           },
         },
       },
@@ -221,8 +244,10 @@ export default class DDBMuncher extends DDBAppV2 {
     const munch = this.element.querySelector(".munch-munch > [data-application-part=\"muncherTabs\"]");
     const munchActive = this.element.querySelector(".tab.active[data-group=\"munch\"]");
     if (munch && munchActive) {
-      const monstersActive = this.element.querySelector(".tab.active[data-tab=\"monsters\"]");
-      munch.classList.toggle("nested-tabs", !!monstersActive);
+      const hasNested = this.element.querySelector(
+        ".tab.active[data-tab=\"monsters\"], .tab.active[data-tab=\"characters\"]",
+      );
+      munch.classList.toggle("nested-tabs", !!hasNested);
     }
     super._toggleNestedTabs();
   }
@@ -250,7 +275,68 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.element.querySelector("#muncher-class-source-select")?.addEventListener("change", async (event) => {
-      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", Array.from(event.target._value).map((id) => parseInt(id)));
+      const newClassIds = Array.from(event.target._value).map((id) => parseInt(id));
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", newClassIds);
+      const currentSubclassMap = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-subclasses") ?? {};
+      const prunedSubclassMap = {};
+      for (const classId of newClassIds) {
+        if (currentSubclassMap[classId]) prunedSubclassMap[classId] = currentSubclassMap[classId];
+      }
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", prunedSubclassMap);
+      await this.render();
+    });
+
+    this.element.querySelector("#muncher-class-select-core")?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const rulesVersion = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version") ?? "2024";
+      const coreCategoryId = rulesVersion === "2014" ? 26 : 24;
+      const coreSourceIds = new Set(
+        CONFIG.DDB.sources
+          .filter((s) => s.sourceCategoryId === coreCategoryId)
+          .map((s) => s.id),
+      );
+      // ensure the core category is active in the source filter so core classes are visible
+      const includedCategories = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-included-source-categories")
+        .map((id) => parseInt(id));
+      if (!includedCategories.includes(coreCategoryId)) {
+        await DDBSources.updateIncludedCategories([...includedCategories, coreCategoryId]);
+      }
+      const classes = await DDBMuleHandler.getList("class", []);
+      const coreClassIds = classes
+        .filter((klass) => klass.sources.some((s) => coreSourceIds.has(s.sourceId)))
+        .filter((klass) => {
+          const is2014 = klass.sources.every((s) => DDBSources.is2014Source(s));
+          return rulesVersion === "2014" ? is2014 : !is2014;
+        })
+        .map((klass) => parseInt(klass.id));
+      const existing = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")
+        .map((id) => parseInt(id));
+      const merged = Array.from(new Set([...existing, ...coreClassIds]));
+      logger.info(`Select Core Classes: selecting ${coreClassIds.length} classes for ${rulesVersion}`, { coreClassIds, merged });
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", merged);
+      await this.render();
+    });
+
+    this.element.querySelector("#muncher-class-rules-toggle")?.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const current = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version") ?? "2024";
+      const next = current === "2024" ? "2014" : "2024";
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version", next);
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", []);
+      await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", {});
+      this.subClassMap = {};
+      await this.render();
+    });
+
+    this.element.querySelectorAll(".ddb-subclass-select").forEach((el) => {
+      el.addEventListener("change", async (event) => {
+        const classId = parseInt(event.currentTarget.dataset.classId);
+        const selectedSubIds = Array.from(event.target._value).map((id) => parseInt(id));
+        const currentMap = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-subclasses") ?? {};
+        const nextMap = { ...currentMap, [classId]: selectedSubIds };
+        await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", nextMap);
+        await this.render();
+      });
     });
 
     this.element.querySelector("#monster-munch-filter")?.addEventListener("change", async (event) => {
@@ -389,7 +475,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
 
   async _prepareCharacterContext(context) {
-    const characterContext = await MuncherSettings.getCharacterMuncherSettings();
+    const characterContext = await MuncherSettings.getCharacterMuncherSettings(this);
     context = foundry.utils.mergeObject(context, characterContext);
     return context;
   }
@@ -668,7 +754,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async #parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList } = {}) {
+  async #parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections } = {}) {
     for (const sourceIdArray of sourceIdArrays) {
       const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
       const options = foundry.utils.deepClone(baseOptions);
@@ -677,6 +763,10 @@ export default class DDBMuncher extends DDBAppV2 {
         this.autoRotateMessage("class", klass.name.toLowerCase());
         logger.info(`Munching class ${klass.name} (${klass.id}) in ${category?.name ?? sourceIdArray.categoryId}`);
         options.classId = klass.id;
+        const selections = subclassSelections ?? {};
+        const selectedSubIds = (selections[klass.id] ?? selections[String(klass.id)] ?? [])
+          .map((id) => parseInt(id));
+        options.filterIds = selectedSubIds;
 
         const version = klass.sources.every((s) => DDBSources.is2014Source(s)) ? "2014" : "2024";
         const subClasses = this.subClassMap[klass.id];
@@ -742,9 +832,16 @@ export default class DDBMuncher extends DDBAppV2 {
     };
     const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
-    const allowedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-use-class-filter")
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes").map((id) => parseInt(id))
-      : [];
+    const allowedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")
+      .map((id) => parseInt(id));
+
+    if (allowedClassIds.length === 0) {
+      this.notifier("Select at least one class to munch.", { nameField: true });
+      this.stopAutoRotateMessage();
+      return;
+    }
+
+    const subclassSelections = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-subclasses") ?? {};
 
     const allSourceIds = sourceIdArrays.reduce((acc, curr) => {
       for (const sourceId of curr.sourceIds) {
@@ -755,7 +852,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
     // determine classes to parse
     const classList = (await DDBMuleHandler.getList("class", Array.from(allSourceIds)))
-      .filter((c) => (allowedClassIds.length === 0 ? true : allowedClassIds.includes(parseInt(c.id))));
+      .filter((c) => allowedClassIds.includes(parseInt(c.id)));
 
     logger.info(`Found ${classList.length} classes to munch`, {
       classList,
@@ -765,37 +862,35 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.processErrors = [];
-    // reset classes to process
+    // reset homebrew tracking; keep subclass cache populated during render
     this.homebrewClasses = new Set();
-    this.subClassMap = {};
 
     try {
       // determine campaign id for the character to fetch appropriate subclass list
       const slimData = await DDBMuleHandler.getSlimCharacters([this.characterId]);
       const campaignId = slimData && slimData.length > 0 ? slimData[0]?.campaign?.id : null;
 
-      // generate subclasses to parse
-      for (const klass of classList) {
+      // generate subclasses to parse (parallel, using the cached helper)
+      await Promise.all(classList.map(async (klass) => {
         const version = klass.sources.every((s) => DDBSources.is2014Source(s))
           ? "2014"
           : "2024";
         if (!this.subClassMap[klass.id]) {
-          const subClasses = await DDBMuleHandler.getSubclasses({
+          this.subClassMap[klass.id] = await DDBMuleHandler.getSubclassesCached({
             className: klass.name,
             classId: klass.id,
             rulesVersion: version,
             includeHomebrew: true,
             campaignId,
           });
-          this.subClassMap[klass.id] = subClasses;
-          if (subClasses.some((subKlass) => subKlass.isHomebrew)) {
-            this.homebrewClasses.add(klass.id);
-          }
         }
-      }
+        if (this.subClassMap[klass.id].some((subKlass) => subKlass.isHomebrew)) {
+          this.homebrewClasses.add(klass.id);
+        }
+      }));
 
       if (!onlyHomebrew) {
-        await this.#parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList });
+        await this.#parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections });
       }
 
       if (allowHomebrew && this.homebrewClasses.size > 0) {

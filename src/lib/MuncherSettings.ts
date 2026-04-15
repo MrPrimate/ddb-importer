@@ -1200,52 +1200,119 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     return enhancementConfig;
   },
 
-  async getCharacterMuncherSettings() {
+  async getCharacterMuncherSettings(app?: { subClassMap?: Record<number, any[]> }) {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     const disableUse = !tiers.experimentalMid;
-    const useClassFilter = disableUse
-      ? false
-      : utils.getSetting<boolean>("munching-policy-character-use-class-filter");
 
     const muleURL = utils.getSetting<string>("munching-policy-character-url");
-    const result = {
-      characterSourceConfig: [
-        {
-          name: "munching-policy-character-use-class-filter",
-          isChecked: useClassFilter,
-          label: "Use class filter?",
-          hint: "Restrict import to specific character class(es)?",
-          enabled: !disableUse,
-        },
-      ],
-      enableClassSources: useClassFilter,
+    let rulesVersion = utils.getSetting<"2014" | "2024" | "">("munching-policy-character-class-rules-version") ?? "";
+    if (rulesVersion === "") {
+      rulesVersion = utils.getSetting<string>("rulesVersion", "dnd5e") === "modern"
+        ? "2024"
+        : "2014";
+    }
+    const otherRulesVersion = rulesVersion === "2024" ? "2014" : "2024";
+
+    const result: {
+      selectedClasses: any[];
+      subclassSelection: any[];
+      rulesVersion: "2014" | "2024";
+      otherRulesVersion: "2014" | "2024";
+      classFilterEnabled: boolean;
+      muleURL: string;
+      classMunchEnabled: boolean;
+    } = {
       selectedClasses: [],
+      subclassSelection: [],
+      rulesVersion,
+      otherRulesVersion,
+      classFilterEnabled: !disableUse,
       muleURL,
+      classMunchEnabled: false,
     };
 
     if (disableUse) return result;
 
+    const chosenSourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
+    const chosenSourceIds = new Set<number>([1, 2, 148, 145]);
+    for (const arr of chosenSourceIdArrays) {
+      for (const sid of arr.sourceIds) chosenSourceIds.add(sid);
+    }
+    const klassInChosenSources = (klass: any) =>
+      klass.sources.some((s: any) => chosenSourceIds.has(s.sourceId));
+
     const classes = await DDBMuleHandler.getList("class", []);
     const selectedClassIds = utils.getSetting<number[]>("munching-policy-character-classes")
       .map((id) => parseInt(String(id)));
+    const subclassSelections = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
+
+    const isKlass2014 = (klass: any) => klass.sources.every((s: any) => DDBSources.is2014Source(s));
 
     result.selectedClasses = classes
+      .filter((klass) => (rulesVersion === "2014" ? isKlass2014(klass) : !isKlass2014(klass)))
+      .filter((klass) => klassInChosenSources(klass))
       .map((klass) => {
-        const is2014 = klass.sources.some((s) => DDBSources.is2014Source(s));
-        const sourceId = klass.sources.find((s) => s.sourceType === 1)?.sourceId;
-        const source = CONFIG.DDB.sources.find((s) => s.id === sourceId);
+        const sourceId = klass.sources.find((s: any) => s.sourceType === 1)?.sourceId;
+        const source = CONFIG.DDB.sources.find((s: any) => s.id === sourceId);
         const label = `${klass.name} (${source ? source.name : "Unknown Source"})`;
-
         return {
           id: klass.id,
-          label: is2014 ? `${label} - 2014` : label,
+          label,
           selected: selectedClassIds.includes(klass.id) ? "selected" : "",
         };
       })
-      .sort((a, b) => {
-        return (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0);
+      .sort((a, b) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
+
+    const cache = app?.subClassMap ?? {};
+
+    const relevantClasses = selectedClassIds
+      .map((classId) => classes.find((c) => c.id === classId))
+      .filter((klass): klass is any => !!klass)
+      .filter((klass) => (isKlass2014(klass) ? "2014" : "2024") === rulesVersion);
+
+    await Promise.all(
+      relevantClasses
+        .filter((klass) => !cache[klass.id])
+        .map(async (klass) => {
+          try {
+            cache[klass.id] = await DDBMuleHandler.getSubclassesCached({
+              className: klass.name,
+              classId: klass.id,
+              rulesVersion,
+              includeHomebrew: true,
+              campaignId: null,
+            });
+          } catch (err) {
+            logger.error(`Failed fetching subclasses for ${klass.name}`, err);
+            cache[klass.id] = [];
+          }
+        }),
+    );
+
+    const subclassSelection: any[] = [];
+    for (const klass of relevantClasses) {
+      const classId = klass.id;
+      const selectedSubIds = (subclassSelections[String(classId)] ?? []).map((id) => parseInt(String(id)));
+      const subclasses = (cache[classId] ?? [])
+        .filter((sc: any) => sc.isHomebrew || !sc.sources?.length
+          || sc.sources.some((s: any) => chosenSourceIds.has(s.sourceId)))
+        .map((sc: any) => ({
+          id: sc.id,
+          label: sc.isHomebrew ? `${sc.name} (Homebrew)` : sc.name,
+          selected: selectedSubIds.includes(parseInt(sc.id)) ? "selected" : "",
+        }))
+        .sort((a: any, b: any) => ((a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0)));
+      subclassSelection.push({
+        classId,
+        className: klass.name,
+        subclasses,
+        allSelected: selectedSubIds.length === 0,
       });
+    }
+    if (app) app.subClassMap = cache;
+    result.subclassSelection = subclassSelection;
+    result.classMunchEnabled = relevantClasses.length > 0;
 
     return result;
   },

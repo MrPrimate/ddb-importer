@@ -875,6 +875,15 @@ export default class DDBMuleHandler {
 
   }
 
+  static async getSubclassesCached({ className, classId, rulesVersion = "2024", includeHomebrew = false, campaignId = null }: IDDBGetSubClasses & { classId: number | string }) {
+    const cacheKey = `SUBCLASSES.${classId}.${rulesVersion}`;
+    const cacheHit = foundry.utils.getProperty(CONFIG.DDBI.KNOWN, cacheKey);
+    if (cacheHit) return cacheHit;
+    const data = await DDBMuleHandler.getSubclasses({ className, rulesVersion, includeHomebrew, campaignId });
+    await foundry.utils.setProperty(CONFIG.DDBI.KNOWN, cacheKey, data);
+    return data;
+  }
+
   static async getSlimCharacters(ids = []) {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();

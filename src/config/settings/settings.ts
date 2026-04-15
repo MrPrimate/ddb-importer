@@ -1114,10 +1114,6 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
-          "munching-policy-character-use-class-filter": {
-            type: Boolean,
-            default: true,
-          },
           "munching-policy-character-url": {
             type: String,
             default: "",
@@ -1125,6 +1121,14 @@ const SETTINGS = {
           "munching-policy-character-classes": {
             type: Array,
             default: [],
+          },
+          "munching-policy-character-subclasses": {
+            type: Object,
+            default: {},
+          },
+          "munching-policy-character-class-rules-version": {
+            type: String,
+            default: "",
           },
           "munching-policy-disable-monster-art": {
             type: Boolean,
