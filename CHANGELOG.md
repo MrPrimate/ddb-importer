@@ -1,7 +1,10 @@
 # Next Up
 
+# 7.2.8
+
 - Blood Hunter would not import spells.
 - Rework of the Character Options parser for 5.3.0 to reduce duplicate advancements. This now captures a few more things that were missed previously like some nested options on Warlock invocations. Some folks may see a small performance improvement here, but the overhead is mostly in the proxy.
+- Class munch now has an improved class and subclass filter, and you can only import 2014 or 2024 classes at once.
 
 # 7.2.7
 
