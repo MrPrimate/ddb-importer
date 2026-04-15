@@ -5684,6 +5684,15 @@ export const fallbackDDBConfig: IDDBConfig = {
       avatarURL: "https://www.dndbeyond.com/avatars/55529/865/639094550191215856.jpeg",
       sourceURL: "sources/dnd/gsb1",
     },
+    {
+      id: 230,
+      name: "DDDoD",
+      description: "Dr Dhrolin’s Dictionary of Dinosaurs",
+      sourceCategoryId: 41,
+      isReleased: true,
+      avatarURL: "https://www.dndbeyond.com/avatars/55776/422/639105203709505694.jpeg",
+      sourceURL: "sources/dnd/dddod",
+    },
   ],
   levelProficiencyBonuses: [
     { level: 1, bonus: 2 },
@@ -8804,10 +8813,10 @@ export const fallbackDDBConfig: IDDBConfig = {
     {
       id: 41,
       name: "Palaeo Games",
-      description: "<p>This contains content from Palaeo Games.</p>",
-      isHideable: false,
-      isEnabledByDefault: false,
-      isToggleable: false,
+      description: "<p>This contains content from Palaeo Games.</p>\n<div id=\"tooltip-tag-f3a23x80\">&nbsp;</div>",
+      isHideable: true,
+      isEnabledByDefault: true,
+      isToggleable: true,
       avatarUrl: "",
     },
     {
