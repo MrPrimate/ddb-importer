@@ -1,5 +1,10 @@
 # Next Up
 
+# 7.0.11
+
+- The DDB Importer show image in chat feature could spam multiple images into chat.
+- Some features would get uses when they shouldn't
+
 # 7.0.10
 
 - Some drawings would cause adventure imports to fail.
