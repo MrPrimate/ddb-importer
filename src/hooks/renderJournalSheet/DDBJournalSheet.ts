@@ -11,6 +11,8 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
   async _linkImages() {
     const data = this.document;
     this.element.querySelectorAll("img").forEach((element) => {
+      if ((element.parentNode as HTMLElement | null)?.classList?.contains("ddbimporter-image-container")) return;
+
       // Create buttons
       const showPlayersButton = document.createElement("a");
       showPlayersButton.className = "ddbimporter-show-image";
@@ -20,6 +22,34 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
       toChatButton.className = "ddbimporter-to-chat";
       toChatButton.innerHTML = "<i class=\"fas fa-comment\"></i>&nbsp;To Chat";
 
+      showPlayersButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const src = element.getAttribute("src");
+        Dialog.confirm({
+          title: "Would you like to create a handout for the image?",
+          content: "<p>Create a player viewable handout? (No will show the image only)</p>",
+          yes: async () => {
+            const name = await utils.namePrompt("What would you like to call the Handout?");
+            if (name && name !== "") {
+              const bookCode = data.flags?.ddb?.bookCode;
+              createAndShowPlayerHandout(name, src, "image", bookCode);
+            }
+          },
+          no: () => {
+            const popOut = new ImagePopout(src, { shareable: true });
+            popOut.shareImage();
+          },
+          defaultYes: true,
+        });
+      });
+
+      toChatButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        imageToChat(element.getAttribute("src"));
+      });
+
       // Wrap image in container
       const container = document.createElement("div");
       container.className = "ddbimporter-image-container";
@@ -28,40 +58,8 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
 
       // Mouse enter event
       container.addEventListener("mouseenter", function addHover() {
-         
         this.appendChild(showPlayersButton);
-         
         this.appendChild(toChatButton);
-
-        // Show players button click handler
-        showPlayersButton.addEventListener("click", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          const src = element.getAttribute("src");
-          Dialog.confirm({
-            title: "Would you like to create a handout for the image?",
-            content: "<p>Create a player viewable handout? (No will show the image only)</p>",
-            yes: async () => {
-              const name = await utils.namePrompt("What would you like to call the Handout?");
-              if (name && name !== "") {
-                const bookCode = data.flags?.ddb?.bookCode;
-                createAndShowPlayerHandout(name, src, "image", bookCode);
-              }
-            },
-            no: () => {
-              const popOut = new ImagePopout(src, { shareable: true });
-              popOut.shareImage();
-            },
-            defaultYes: true,
-          });
-        });
-
-        // To chat button click handler
-        toChatButton.addEventListener("click", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          imageToChat(element.getAttribute("src"));
-        });
       });
 
       // Mouse leave event
