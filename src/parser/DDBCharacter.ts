@@ -105,6 +105,7 @@ export interface DDBCharacterImportOptions {
   isMuncher?: boolean;
   enableSummons?: boolean;
   addToCompendiums?: boolean;
+  collectCompendiumDocumentsOnly?: boolean;
   compendiumImportTypes?: string[];
   forceCompendiumUpdate?: boolean;
 }
@@ -232,6 +233,7 @@ class DDBCharacter {
   compendiumImportTypes = ["classes", "subclasses", "backgrounds", "feats", "species", "features", "traits"];
   forceCompendiumUpdate: boolean;
   addToCompendiums: boolean;
+  collectCompendiumDocumentsOnly: boolean;
   characterId: string;
   currentActor: Actor.Implementation | null;
   currentActorId: string | null;
@@ -273,6 +275,7 @@ class DDBCharacter {
   constructor({
     currentActor = null, characterId = null, selectResources = true, enableCompanions = false, isMuncher = false,
     enableSummons = false, addToCompendiums = null, compendiumImportTypes = null, forceCompendiumUpdate = null,
+    collectCompendiumDocumentsOnly = false,
   }: DDBCharacterImportOptions = {}) {
     // the actor the data will be imported into/currently exists
     this.currentActor = currentActor;
@@ -343,6 +346,7 @@ class DDBCharacter {
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.isMuncher = isMuncher;
     this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("character-update-policy-add-features-to-compendiums-dev");
+    this.collectCompendiumDocumentsOnly = collectCompendiumDocumentsOnly;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.forceCompendiumUpdate = forceCompendiumUpdate;
     this._infusionFactory = null;
@@ -454,11 +458,33 @@ class DDBCharacter {
     }
   }
 
+  /**
+   * Second-pass relink used after a collect-only parse + bulk compendium
+   * flush. Re-runs race and class generation with addToCompendium=true so
+   * that class/subclass items can resolve their advancement links against
+   * the now-populated feature compendium and get written to the
+   * classes/subclasses compendiums themselves.
+   *
+   * Only meaningful when the character was parsed with
+   * collectCompendiumDocumentsOnly=true and the caller has already flushed
+   * the pending feature documents to their compendiums.
+   */
+  async _finalizeCompendiumLinks() {
+    await this._generateRace(true);
+    await this._generateClass(true);
+    this.data.classes = this.raw.classes;
+    this.data.race = this.raw.race;
+    this._classParser.linkFeatures();
+    this._ddbRace.linkFeatures();
+    this._ddbRace.linkSpells(this);
+  }
+
   async _generateClass(addToCompendium = false) {
     this._classParser = new CharacterClassFactory(this, {
       addToCompendium,
       compendiumImportTypes: this.compendiumImportTypes,
       updateCompendiumItems: this.forceCompendiumUpdate,
+      collectOnly: this.collectCompendiumDocumentsOnly,
     });
     this.raw.classes = await this._classParser.processCharacter();
     logger.debug(`Classes parse complete (With Compendium: ${addToCompendium})`);
@@ -489,7 +515,13 @@ class DDBCharacter {
     this._characterFeatureFactory.filterActionFeatures();
     this.raw.features.push(...this._characterFeatureFactory.data.features);
     this.raw.actions.push(...this._characterFeatureFactory.data.actions);
-    if (this.addToCompendiums) await this._characterFeatureFactory.addToCompendiums(this.forceCompendiumUpdate, this.compendiumImportTypes);
+    if (this.addToCompendiums) {
+      await this._characterFeatureFactory.addToCompendiums(
+        this.forceCompendiumUpdate,
+        this.compendiumImportTypes,
+        { collectOnly: this.collectCompendiumDocumentsOnly },
+      );
+    }
   }
 
   async _generateInfusions() {
@@ -542,12 +574,20 @@ class DDBCharacter {
       this.data = foundry.utils.duplicate(this.raw) as unknown as IDDBCharacterDataStub;
 
       // regenerate classes now we have generated features in compendium
-      if (this.addToCompendiums) {
+      if (this.addToCompendiums && !this.collectCompendiumDocumentsOnly) {
         await this._generateRace(true);
         await this._generateClass(true);
 
         this.data.classes = this.raw.classes;
         this.data.race = this.raw.race;
+      } else if (this.addToCompendiums && this.collectCompendiumDocumentsOnly) {
+        // collect-only: skip the heavy regen pass, but still gather the
+        // species/race document for the later bulk flush.
+        await this._ddbRace.addToCompendium(
+          this.forceCompendiumUpdate,
+          this.compendiumImportTypes,
+          { collectOnly: true },
+        );
       }
 
       this._classParser.linkFeatures();

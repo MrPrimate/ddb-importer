@@ -19,6 +19,8 @@ export default class DDBClass {
   addToCompendium = null;
   compendiumImportTypes = ["classes", "subclasses"];
   updateCompendiumItems = null;
+  collectOnly = false;
+  pendingClassDocument: IDBClassPendingClassDocument | null = null;
   rules = "2014";
   name: string;
   className: string;
@@ -478,7 +480,7 @@ export default class DDBClass {
         },
       },
       img: null,
-    };
+    } as I5eClassItem;
   }
 
   _generateSpellCastingProgression() {
@@ -525,7 +527,7 @@ export default class DDBClass {
     await this._compendiums[type].getIndex(this._indexFilter[type]);
   }
 
-  async _generateDescriptionStub(character) {
+  async _generateDescriptionStub(character: I5ePCData) {
     this.data.system.description.value = "<h1>Description</h1>";
     this.data.system.description.value += this.ddbClass.definition.description;
     // this excludes the subclass features
@@ -557,11 +559,12 @@ export default class DDBClass {
 
   constructor(ddbData: IDDBData, classId: number,
     { addToCompendium = null, compendiumImportTypes = null,
-      updateCompendiumItems = null, isMuncher }: { addToCompendium?: boolean | null; compendiumImportTypes?: string[] | null; updateCompendiumItems?: boolean | null; isMuncher?: boolean } = {},
+      updateCompendiumItems = null, isMuncher, collectOnly = false }: { addToCompendium?: boolean | null; compendiumImportTypes?: string[] | null; updateCompendiumItems?: boolean | null; isMuncher?: boolean; collectOnly?: boolean } = {},
   ) {
     this.addToCompendium = addToCompendium ?? false;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.updateCompendiumItems = updateCompendiumItems ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
+    this.collectOnly = collectOnly;
 
     // setup ddb source
     this.isMuncher = isMuncher ?? this.isMuncher;
@@ -1442,7 +1445,7 @@ export default class DDBClass {
     this._addAdvancements(advancements);
   }
 
-  _generateHPAdvancement(character) {
+  _generateHPAdvancement(character: I5ePCData) {
     // const value = "value": {
     //   "1": "max",
     //   "2": "avg"
@@ -2090,19 +2093,47 @@ export default class DDBClass {
     };
   };
 
+  static CLASS_HANDLER_OPTIONS = {
+    chrisPremades: false,
+    filterDuplicates: false,
+    deleteBeforeUpdate: false,
+    useCompendiumFolders: true,
+    notifier: null,
+    matchFlags: ["definitionId", "is2014"],
+    recursive: false,
+  };
+
+  _buildPendingClassDocument() {
+    const data: I5eClassItem = foundry.utils.deepClone(this.data) as I5eClassItem;
+    for (const [id, advancement] of Object.entries(data.system.advancement)) {
+      delete (advancement as any).value;
+      data.system.advancement[id] = advancement;
+    }
+    if (data.system.levels) data.system.levels = 1;
+    if (data.system.hd) data.system.hd.spent = 0;
+    const versionStub = this.data.system.source.rules;
+    return {
+      data,
+      isSubClass: this.isSubClass,
+      className: this.className,
+      name: this.name,
+      versionStub,
+    };
+  }
+
   async _addToCompendium() {
-    // console.warn("add to compendium", {
-    //   addToCompendium: this.addToCompendium,
-    //   compendiumImportTypes: this.compendiumImportTypes,
-    //   ddbClassLevel: this.ddbClass.level,
-    //   import: this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t)),
-    //   level20: this.ddbClass.level === 20,
-    // });
     if (!this.addToCompendium) return;
     if (!this.compendiumImportTypes.some((t) => ["classes", "subclasses"].includes(t))) return;
 
     // only add full level 20 classes
     if (this.ddbClass.level !== 20) return;
+
+    const prepared = this._buildPendingClassDocument();
+
+    if (this.collectOnly) {
+      this.pendingClassDocument = prepared;
+      return;
+    }
 
     const updateFeatures = this.updateCompendiumItems
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
@@ -2111,40 +2142,56 @@ export default class DDBClass {
     const featureCompendiumFolders = new DDBCompendiumFolders(type);
     await featureCompendiumFolders.loadCompendium(type);
 
-    const versionStub = this.data.system.source.rules;
-
     if (this.isSubClass) {
-      await featureCompendiumFolders.createSubClassFeatureFolder(this.name, this.className, versionStub);
+      await featureCompendiumFolders.createSubClassFeatureFolder(prepared.name, prepared.className, prepared.versionStub);
     } else {
-      await featureCompendiumFolders.createClassFeatureFolder(this.name, versionStub);
+      await featureCompendiumFolders.createClassFeatureFolder(prepared.name, prepared.versionStub);
     }
 
-    const handlerOptions = {
-      chrisPremades: false,
-      filterDuplicates: false,
-      deleteBeforeUpdate: false,
-      useCompendiumFolders: true,
-      notifier: null,
-      matchFlags: ["definitionId", "is2014"],
-      recursive: true,
-    };
-
-    const data = foundry.utils.deepClone(this.data);
-
-    for (const [id, advancement] of Object.entries(data.system.advancement)) {
-      delete advancement.value;
-      data.system.advancement[id] = advancement;
-    }
-    if (data.system.levels) data.system.levels = 1;
-    if (data.system.hd) data.system.hd.spent = 0;
-
-    const handler = await DDBItemImporter.buildHandler(type, [data], updateFeatures, handlerOptions);
+    const handler = await DDBItemImporter.buildHandler(type, [prepared.data], updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
     await handler.buildIndex();
+  }
+
+  static async writePendingClassDocuments(
+    pending: { classes: IDBClassPendingClassDocument[]; subclasses: IDBClassPendingClassDocument[] },
+    updateFeatures: boolean,
+  ) {
+    if (pending.classes.length > 0) {
+      const folders = new DDBCompendiumFolders("class");
+      await folders.loadCompendium("class");
+      const seen = new Set<string>();
+      for (const entry of pending.classes) {
+        const key = `${entry.name}|${entry.versionStub}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        await folders.createClassFeatureFolder(entry.name, entry.versionStub);
+      }
+      const docs = pending.classes.map((e) => e.data);
+      logger.info(`Importing ${docs.length} class documents!`);
+      const handler = await DDBItemImporter.buildHandler("class", docs, updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
+      await handler.buildIndex();
+    }
+
+    if (pending.subclasses.length > 0) {
+      const folders = new DDBCompendiumFolders("subclass");
+      await folders.loadCompendium("subclass");
+      const seen = new Set<string>();
+      for (const entry of pending.subclasses) {
+        const key = `${entry.name}|${entry.className}|${entry.versionStub}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        await folders.createSubClassFeatureFolder(entry.name, entry.className, entry.versionStub);
+      }
+      const docs = pending.subclasses.map((e) => e.data);
+      logger.info(`Importing ${docs.length} subclass documents!`);
+      const handler = await DDBItemImporter.buildHandler("subclass", docs, updateFeatures, DDBClass.CLASS_HANDLER_OPTIONS);
+      await handler.buildIndex();
+    }
   }
 
   // GENERATE CLASS
 
-  async generateFromCharacter(character) {
+  async generateFromCharacter(character: I5ePCData) {
     await this._buildCompendiumIndex("features");
     await this._buildCompendiumIndex("feats");
     this._setClassLevel();
