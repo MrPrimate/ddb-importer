@@ -2,6 +2,9 @@ import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY } from "../config/_module";
 import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, Secrets, utils } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
+import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
+import DDBClass from "../parser/classes/DDBClass";
+import DDBRace from "../parser/race/DDBRace";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBCharacterImporter from "./DDBCharacterImporter";
 
@@ -72,6 +75,30 @@ export default class DDBMuleHandler {
   backgroundId: string | null = null;
   ddbMuncher: DDBMuncher | null = null;
   folder: string | null = null;
+  attempts = 5;
+  pendingDocs: {
+    features: Map<string, any>;
+    traits: Map<string, any>;
+    feats: Map<string, any>;
+    backgrounds: Map<string, any>;
+    species: Map<string, any>;
+    classMeta: Map<string, { name: string; version: string; subclassName: string | null }>;
+    raceFolderSources: Map<string, any>;
+    classes: Map<string, { data: any; className: string; name: string; versionStub: string }>;
+    subclasses: Map<string, { data: any; className: string; name: string; versionStub: string }>;
+  } = {
+    features: new Map(),
+    traits: new Map(),
+    feats: new Map(),
+    backgrounds: new Map(),
+    species: new Map(),
+    classMeta: new Map(),
+    raceFolderSources: new Map(),
+    classes: new Map(),
+    subclasses: new Map(),
+  };
+
+  cachedClassCharacters: DDBCharacter[] = [];
 
   constructor({
     characterId,
@@ -155,6 +182,69 @@ export default class DDBMuleHandler {
           break;
       }
     }
+  }
+
+  static #docKey(doc: any, type: "features" | "traits" | "feats" | "backgrounds"): string {
+    const flags = (foundry.utils.getProperty(doc, "flags.ddbimporter") ?? {}) as IDDBImporterFlags;
+    const id = flags.id ?? doc._id ?? doc.name;
+    const is2014 = flags.is2014 ?? true;
+    const ddbType = flags.type ?? "";
+    // Choice features (e.g. warlock invocations, fighting styles) all share
+    // the parent feature's ddbDefinition.id; they are only distinguished by
+    // the rewritten document name. Always include the name so distinct
+    // choices are not collapsed together by the dedup map.
+    const name = doc.name ?? "";
+    if (type === "traits") {
+      const groupName = flags.groupName ?? "";
+      const isLineage = flags.isLineage ?? false;
+      return `${ddbType}|${id}|${name}|${groupName}|${isLineage}|${is2014}`;
+    }
+    return `${ddbType}|${id}|${name}|${is2014}`;
+  }
+
+  #mergePendingDocs(ddbCharacter: DDBCharacter) {
+    const pending = ddbCharacter._characterFeatureFactory.pendingCompendiumDocuments;
+    for (const type of ["features", "traits", "feats", "backgrounds"] as const) {
+      for (const doc of pending[type]) {
+        const key = DDBMuleHandler.#docKey(doc, type);
+        this.pendingDocs[type].set(key, doc);
+      }
+    }
+    for (const meta of pending.classMeta) {
+      const key = `${meta.name}|${meta.version}|${meta.subclassName ?? ""}`;
+      this.pendingDocs.classMeta.set(key, meta);
+    }
+    for (const source of pending.raceFolderSources) {
+      if (!source) continue;
+      const flags = (foundry.utils.getProperty(source, "flags.ddbimporter") ?? {}) as IDDBImporterFlags;
+      const key = `${flags.id ?? source._id ?? source.name ?? ""}|${flags.groupName ?? ""}|${flags.isLineage ?? false}`;
+      this.pendingDocs.raceFolderSources.set(key, source);
+    }
+    const speciesDoc = ddbCharacter._ddbRace?.pendingSpeciesDocument;
+    if (speciesDoc) {
+      const flags = (foundry.utils.getProperty(speciesDoc, "flags.ddbimporter") ?? {}) as IDDBImporterFlags;
+      const key = `${flags.baseRaceId ?? ""}|${flags.fullRaceName ?? speciesDoc.name}|${flags.groupName ?? ""}|${flags.isLineage ?? false}|${flags.is2014 ?? true}|${flags.isLegacy ?? false}`;
+      this.pendingDocs.species.set(key, speciesDoc);
+    }
+  }
+
+  async _flushCompendiumDocuments() {
+    const total = this.pendingDocs.features.size + this.pendingDocs.traits.size
+      + this.pendingDocs.feats.size + this.pendingDocs.backgrounds.size + this.pendingDocs.species.size;
+    if (total === 0) return;
+    this.notifier({ message: `Writing ${total} merged documents to compendiums` });
+    await CharacterFeatureFactory.writePendingCompendiumDocuments({
+      features: Array.from(this.pendingDocs.features.values()),
+      traits: Array.from(this.pendingDocs.traits.values()),
+      feats: Array.from(this.pendingDocs.feats.values()),
+      backgrounds: Array.from(this.pendingDocs.backgrounds.values()),
+      classMeta: Array.from(this.pendingDocs.classMeta.values()),
+      raceFolderSources: Array.from(this.pendingDocs.raceFolderSources.values()),
+    }, true);
+    await DDBRace.writePendingSpeciesDocuments(
+      Array.from(this.pendingDocs.species.values()),
+      true,
+    );
   }
 
   notifier({ progress, section, message }: NotifierV2Props) {
@@ -330,6 +420,7 @@ export default class DDBMuleHandler {
           selectResources: false,
           enableSummons: true,
           addToCompendiums: true,
+          collectCompendiumDocumentsOnly: true,
           compendiumImportTypes: ["classes", "features", "subclasses", "feats"],
           isMuncher: true,
         });
@@ -338,9 +429,59 @@ export default class DDBMuleHandler {
           FileHelper.download(JSON.stringify(newStub), `${this.characterId}-${classCurrent}-${subClassData.debug.subclassName}-${current}.json`, "application/json");
         }
         await ddbCharacter.process();
+        this.#mergePendingDocs(ddbCharacter);
+        this.cachedClassCharacters.push(ddbCharacter);
         await this._loadCharacterIntoFoundryWorld(ddbCharacter);
       }
     }
+  }
+
+  async _finalizeClassCompendiumLinks() {
+    if (this.cachedClassCharacters.length === 0) return;
+    this.notifier({
+      message: `Finalizing class/subclass compendium links for ${this.cachedClassCharacters.length} entries`,
+    });
+    let current = 0;
+    for (const ddbCharacter of this.cachedClassCharacters) {
+      current++;
+      this.notifier({
+        message: `Finalizing class/subclass ${current} of ${this.cachedClassCharacters.length}`,
+      });
+      try {
+        await ddbCharacter._finalizeCompendiumLinks();
+        this.#mergePendingClassDocs(ddbCharacter);
+      } catch (error) {
+        logger.error("Error finalizing class compendium links", { error, ddbCharacter });
+        logger.error((error as Error).stack);
+      }
+    }
+  }
+
+  #mergePendingClassDocs(ddbCharacter: DDBCharacter) {
+    const ddbClasses = ddbCharacter._classParser?.ddbClasses ?? {};
+    for (const ddbClass of Object.values(ddbClasses)) {
+      const pending = ddbClass.pendingClassDocument;
+      if (!pending) continue;
+      const flags = (foundry.utils.getProperty(pending.data, "flags.ddbimporter") ?? {}) as IDDBImporterFlags;
+      const definitionId = flags.definitionId ?? pending.name;
+      const is2014 = flags.is2014 ?? true;
+      const key = `${pending.className}|${pending.name}|${definitionId}|${is2014}|${pending.versionStub}`;
+      if (pending.isSubClass) {
+        this.pendingDocs.subclasses.set(key, pending);
+      } else {
+        this.pendingDocs.classes.set(key, pending);
+      }
+    }
+  }
+
+  async _flushClassCompendiumDocuments() {
+    const total = this.pendingDocs.classes.size + this.pendingDocs.subclasses.size;
+    if (total === 0) return;
+    this.notifier({ message: `Writing ${total} class/subclass documents to compendiums` });
+    await DDBClass.writePendingClassDocuments({
+      classes: Array.from(this.pendingDocs.classes.values()),
+      subclasses: Array.from(this.pendingDocs.subclasses.values()),
+    }, true);
   }
 
 
@@ -390,11 +531,13 @@ export default class DDBMuleHandler {
         selectResources: false,
         enableSummons: true,
         addToCompendiums: true,
+        collectCompendiumDocumentsOnly: true,
         compendiumImportTypes: ["feats"],
         isMuncher: true,
       });
       ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
+      this.#mergePendingDocs(ddbCharacter);
       current = count + 1;
       await this._loadCharacterIntoFoundryWorld(ddbCharacter);
     }
@@ -447,6 +590,7 @@ export default class DDBMuleHandler {
         selectResources: false,
         enableSummons: true,
         addToCompendiums: true,
+        collectCompendiumDocumentsOnly: true,
         compendiumImportTypes: ["backgrounds", "feats"],
         isMuncher: true,
       });
@@ -456,6 +600,7 @@ export default class DDBMuleHandler {
       }
       ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
+      this.#mergePendingDocs(ddbCharacter);
       current++;
       await this._loadCharacterIntoFoundryWorld(ddbCharacter);
     }
@@ -506,11 +651,13 @@ export default class DDBMuleHandler {
         selectResources: false,
         enableSummons: true,
         addToCompendiums: true,
+        collectCompendiumDocumentsOnly: true,
         compendiumImportTypes: ["species", "traits", "feats"],
         isMuncher: true,
       });
       ddbCharacter.source = { success: true, ddb: newStub };
       await ddbCharacter.process();
+      this.#mergePendingDocs(ddbCharacter);
       current++;
       await this._loadCharacterIntoFoundryWorld(ddbCharacter);
     }
@@ -537,6 +684,11 @@ export default class DDBMuleHandler {
         break;
       default:
         throw new Error(`Unknown munch type ${this.type}`);
+    }
+    await this._flushCompendiumDocuments();
+    if (this.type === "class") {
+      await this._finalizeClassCompendiumLinks();
+      await this._flushClassCompendiumDocuments();
     }
   }
 

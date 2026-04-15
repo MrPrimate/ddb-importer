@@ -29,6 +29,21 @@ export default class DDBRace {
   data: I5eRaceItem;
   lineageTrait: IDDBChoiceResult;
   compendiumRacialTraits: CompendiumCollection.Any;
+  pendingSpeciesDocument: I5eRaceItem | null = null;
+
+  static SPECIES_HANDLER_OPTIONS = {
+    chrisPremades: true,
+    matchFlags: ["baseRaceId", "fullRaceName", "groupName", "isLineage", "is2014", "isLegacy"],
+    useCompendiumFolders: true,
+    deleteBeforeUpdate: false,
+    indexFilter: {
+      fields: [
+        "name",
+        "flags.ddbimporter",
+      ],
+    },
+    recursive: false,
+  };
 
   static SPECIAL_ADVANCEMENTS = {};
 
@@ -1455,37 +1470,35 @@ export default class DDBRace {
     }
   }
 
-  async addToCompendium(update: boolean | null = null, compendiumImportTypes: string[] = ["species"]) {
-    if (!compendiumImportTypes.includes("species")) return;
-    const updateFeatures = update ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
-
-    const traitHandlerOptions = {
-      chrisPremades: true,
-      matchFlags: ["baseRaceId", "fullRaceName", "groupName", "isLineage", "is2014", "isLegacy"],
-      useCompendiumFolders: true,
-      deleteBeforeUpdate: false,
-      indexFilter: {
-        fields: [
-          "name",
-          "flags.ddbimporter",
-        ],
-      },
-      recursive: true,
-    };
-
-    const traitCompendiumFolders = new DDBCompendiumFolders("traits");
-    await traitCompendiumFolders.loadCompendium("traits");
-    await traitCompendiumFolders.createSubTraitFolders(this.data);
+  _buildPendingSpeciesDocument(): I5eRaceItem {
     const race = foundry.utils.deepClone(this.data);
-
-    for (const [id, advancement] of Object.entries(race.system.advancement)) {
+    for (const [id, advancement] of Object.entries(race.system.advancement) as [string, any][]) {
       delete advancement.value;
       race.system.advancement[id] = advancement;
     }
+    return race;
+  }
 
-    const speciesHandler = await DDBItemImporter.buildHandler("race", [race], updateFeatures, traitHandlerOptions);
-    await speciesHandler.buildIndex(traitHandlerOptions.indexFilter);
+  static async writePendingSpeciesDocuments(races: I5eRaceItem[], update: boolean) {
+    if (!races || races.length === 0) return;
+    const traitCompendiumFolders = new DDBCompendiumFolders("traits");
+    await traitCompendiumFolders.loadCompendium("traits");
+    for (const race of races) {
+      await traitCompendiumFolders.createSubTraitFolders(race);
+    }
+    const speciesHandler = await DDBItemImporter.buildHandler(
+      "race", races, update, DDBRace.SPECIES_HANDLER_OPTIONS,
+    );
+    await speciesHandler.buildIndex(DDBRace.SPECIES_HANDLER_OPTIONS.indexFilter);
+  }
 
+  async addToCompendium(update: boolean, compendiumImportTypes: string[] = ["species"], { collectOnly = false } = {}) {
+    if (!compendiumImportTypes.includes("species")) return;
+    const race = this._buildPendingSpeciesDocument();
+    this.pendingSpeciesDocument = race;
+    if (collectOnly) return;
+
+    await DDBRace.writePendingSpeciesDocuments([race], update);
   }
 
 }

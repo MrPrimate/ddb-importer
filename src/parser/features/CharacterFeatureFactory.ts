@@ -70,6 +70,14 @@ export default class CharacterFeatureFactory {
     feat: string[];
   };
   spellsGranted: Record<string, ISpellsGranted[]>;
+  pendingCompendiumDocuments: {
+    features: T5eFeatureMixinDataTypes[];
+    traits: T5eFeatureMixinDataTypes[];
+    feats: T5eFeatureMixinDataTypes[];
+    backgrounds: T5eFeatureMixinDataTypes[];
+    classMeta: { name: string; version: string; subclassName: string | null }[];
+    raceFolderSources: any[];
+  };
 
   constructor(ddbCharacter: DDBCharacter) {
     this.ddbCharacter = ddbCharacter;
@@ -105,6 +113,15 @@ export default class CharacterFeatureFactory {
     this.excludedOriginFeatures = this.ddbData.character.optionalOrigins
       .filter((f) => f.affectedRacialTraitId)
       .map((f) => f.affectedRacialTraitId);
+
+    this.pendingCompendiumDocuments = {
+      features: [],
+      traits: [],
+      feats: [],
+      backgrounds: [],
+      classMeta: [],
+      raceFolderSources: [],
+    };
   }
 
   static isDuplicateFeature(items, item, { matchClass = false } = {}) {
@@ -877,197 +894,213 @@ export default class CharacterFeatureFactory {
 
   // compendium additions
 
-  async addToCompendiums(update = null, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"]) {
-    logger.verbose("Adding features to compendiums", { update, compendiumImportTypes, this: this });
-    const updateFeatures = update ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+  static FEATURE_HANDLER_OPTIONS = {
+    recursive: false,
+    chrisPremades: true,
+    filterDuplicates: false,
+    deleteBeforeUpdate: false,
+    matchFlags: ["id", "is2014"],
+    useCompendiumFolders: true,
+    indexFilter: {
+      fields: [
+        "name",
+        "flags.ddbimporter",
+        "system.type.subtype",
+      ],
+    },
+  };
 
+  static TRAIT_HANDLER_OPTIONS = {
+    recursive: false,
+    chrisPremades: true,
+    matchFlags: ["id", "groupName", "isLineage", "is2014"],
+    useCompendiumFolders: true,
+    deleteBeforeUpdate: false,
+    filterDuplicates: false,
+    indexFilter: {
+      fields: [
+        "name",
+        "flags.ddbimporter",
+      ],
+    },
+  };
+
+  static FEAT_HANDLER_OPTIONS = {
+    recursive: false,
+    chrisPremades: true,
+    deleteBeforeUpdate: false,
+    matchFlags: ["id", "is2014"],
+  };
+
+  static _stripAdvancementValues(doc) {
+    if (!doc.system.advancement) return doc;
+    for (const [id, advancement] of Object.entries(doc.system.advancement) as [string, any][]) {
+      delete advancement.value;
+      doc.system.advancement[id] = advancement;
+    }
+    return doc;
+  }
+
+  /**
+   * Filter & clean documents into per-type buckets and store on
+   * pendingCompendiumDocuments. Does not touch any compendium.
+   */
+  collectCompendiumDocuments(compendiumImportTypes = ["features", "traits", "feats", "backgrounds"]) {
     const documents = [];
     documents.push(...foundry.utils.deepClone(this.data.features));
     documents.push(...foundry.utils.deepClone(this.data.actions));
 
     const featTypeDocs = documents.filter((doc) => ["feat", "weapon"].includes(doc.type));
 
-    // console.warn(`Processing ${featTypeDocs.length} feats into the feat compendium`, {
-    //   featTypeDocs,
-    //   documents,
-    //   this: this,
-    //   // data: foundry.utils.deepClone(this.data),
-    //   updateFeatures,
-    //   update,
-    //   compendiumImportTypes,
-    // });
     if (compendiumImportTypes.some((c) => ["features"].includes(c))) {
-
-      const featureCompendiumFolders = new DDBCompendiumFolders("features");
-      await featureCompendiumFolders.loadCompendium("features");
-
-      const klassNames = [];
       for (const classDef of this.ddbData.character.classes) {
-        klassNames.push(classDef.definition.name);
         const version = classDef.definition.sources.every((s) => DDBSources.is2014Source(s))
           ? "2014"
           : "2024";
-        await featureCompendiumFolders.createClassFeatureFolder(classDef.definition.name, version);
-        if (classDef.subclassDefinition) {
-          await featureCompendiumFolders.createSubClassFeatureFolder(classDef.subclassDefinition.name.replace("(2014)", "").trim(), classDef.definition.name, version);
-        }
+        this.pendingCompendiumDocuments.classMeta.push({
+          name: classDef.definition.name,
+          version,
+          subclassName: classDef.subclassDefinition
+            ? classDef.subclassDefinition.name.replace("(2014)", "").trim()
+            : null,
+        });
       }
 
-      const featureHandlerOptions = {
-        recursive: true,
-        chrisPremades: true,
-        filterDuplicates: false,
-        deleteBeforeUpdate: false,
-        matchFlags: ["id", "is2014"],
-        useCompendiumFolders: true,
-        indexFilter: {
-          fields: [
-            "name",
-            "flags.ddbimporter",
-            "system.type.subtype",
-          ],
-        },
-      };
-
-      for (const klassName of klassNames) {
-        logger.debug(`Processing class ${klassName} into the class compendium`);
-        const classFeatures = featTypeDocs.filter((doc) =>
-          ["class", "subclass"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
-          && !foundry.utils.getProperty(doc, "flags.ddbimporter.infusionFeature")
-          && (klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class")
-          || klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.class")),
-        ).map((doc) => {
-          if (!doc.system.advancement) return doc;
-          for (const [id, advancement] of Object.entries(doc.system.advancement)) {
-            delete advancement.value;
-            doc.system.advancement[id] = advancement;
-          }
-          return doc;
-        });
-
-        logger.debug(`Adding class features for ${klassName} to the class compendium`, {
-          classFeatures,
-        });
-
-        const featureHandler = await DDBItemImporter.buildHandler("features", classFeatures, updateFeatures, featureHandlerOptions);
-        await featureHandler.buildIndex(featureHandlerOptions.indexFilter);
-      }
+      const classFeatures = featTypeDocs.filter((doc) =>
+        ["class", "subclass"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type") as string)
+        && !foundry.utils.getProperty(doc, "flags.ddbimporter.infusionFeature"),
+      ).map((doc) => CharacterFeatureFactory._stripAdvancementValues(doc));
+      this.pendingCompendiumDocuments.features.push(...classFeatures);
     }
 
     if (compendiumImportTypes.some((c) => ["traits", "species"].includes(c))) {
-
-      const traitCompendiumFolders = new DDBCompendiumFolders("traits");
-      await traitCompendiumFolders.loadCompendium("traits");
-
       const traitFeatures = featTypeDocs.filter((doc) =>
-        ["race", "trait", "species"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type")),
-        // && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
-      ).map((doc) => {
-        if (!doc.system.advancement) return doc;
-        for (const [id, advancement] of Object.entries(doc.system.advancement)) {
-          delete advancement.value;
-          doc.system.advancement[id] = advancement;
-        }
-        return doc;
-      });
-      logger.debug(`Adding species traits to the species compendium`, {
-        traitFeatures,
-      });
-
-      // const isLineageOld = this.ddbCharacter._ddbRace.isLineage;
-      // const isLineage = foundry.utils.getProperty(this.ddbCharacter, "raw.race.flags.ddbimporter.isLineage") ?? false;
-      await traitCompendiumFolders.createSubTraitFolders(this.ddbCharacter.raw.race);
-
-      for (const feature of traitFeatures) {
-        await traitCompendiumFolders.createSubTraitFolders(feature);
-      }
-
-      const traitHandlerOptions = {
-        recursive: true,
-        chrisPremades: true,
-        matchFlags: ["id", "groupName", "isLineage", "is2014"],
-
-        // isLineage ||
-        //   ? ["id", "groupName", "isLineage", "is2014"]
-        //   : ["id", "fullRaceName", "groupName", "isLineage", "is2014"],
-        useCompendiumFolders: true,
-        deleteBeforeUpdate: false,
-        filterDuplicates: false,
-        indexFilter: {
-          fields: [
-            "name",
-            "flags.ddbimporter",
-          ],
-        },
-      };
-
-      // console.warn(`Processing ${traitFeatures.length} traits into the trait compendium`, {
-      //   rawRace: this.ddbCharacter.raw.race,
-      //   this: this,
-      //   isLineage,
-      //   isLineageOld,
-      //   traitHandlerOptions,
-      // });
-
-      const traitHandler = await DDBItemImporter.buildHandler("trait", traitFeatures, updateFeatures, traitHandlerOptions);
-      await traitHandler.buildIndex(traitHandlerOptions.indexFilter);
+        ["race", "trait", "species"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type") as string),
+      ).map((doc) => CharacterFeatureFactory._stripAdvancementValues(doc));
+      this.pendingCompendiumDocuments.traits.push(...traitFeatures);
+      this.pendingCompendiumDocuments.raceFolderSources.push(this.ddbCharacter.raw.race);
+      this.pendingCompendiumDocuments.raceFolderSources.push(...traitFeatures);
     }
 
-    const featHandlerOptions = {
-      recursive: true,
-      chrisPremades: true,
-      deleteBeforeUpdate: false,
-      matchFlags: ["id", "is2014"],
-    };
-
     if (compendiumImportTypes.includes("feats")) {
-      const featCompendiumFolders = new DDBCompendiumFolders("feats");
-      await featCompendiumFolders.loadCompendium("feats");
       const featFeatures = featTypeDocs.filter((doc) =>
-        ["feat"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
+        ["feat"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type") as string)
         && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
-      ).map((doc) => {
-        if (!doc.system.advancement) return doc;
-        for (const [id, advancement] of Object.entries(doc.system.advancement)) {
-          delete advancement.value;
-          doc.system.advancement[id] = advancement;
-        }
-        return doc;
-      });
-      logger.debug(`Adding feats to the feats compendium`, {
-        featFeatures,
-      });
-      for (const feat of featFeatures) {
-        await featCompendiumFolders.createFeatFolder(feat);
-      }
-      const featHandler = await DDBItemImporter.buildHandler("feats", featFeatures, updateFeatures, featHandlerOptions);
-      await featHandler.buildIndex(featHandlerOptions.indexFilter);
+      ).map((doc) => CharacterFeatureFactory._stripAdvancementValues(doc));
+      this.pendingCompendiumDocuments.feats.push(...featFeatures);
     }
 
     if (compendiumImportTypes.includes("backgrounds")) {
-      const backgroundCompendiumFolders = new DDBCompendiumFolders("backgrounds");
-      await backgroundCompendiumFolders.loadCompendium("backgrounds");
       const backgroundFeatures = documents.filter((doc) =>
-        ["background"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type"))
+        ["background"].includes(foundry.utils.getProperty(doc, "flags.ddbimporter.type") as string)
         && !foundry.utils.hasProperty(doc, "flags.ddbimporter.dndbeyond.choice"),
-      ).map((doc) => {
-        if (!doc.system.advancement) return doc;
-        for (const [id, advancement] of Object.entries(doc.system.advancement)) {
-          delete advancement.value;
-          doc.system.advancement[id] = advancement;
-        }
-        return doc;
-      });
-      logger.debug(`Adding backgrounds to the backgrounds compendium`, {
-        backgroundFeatures,
-      });
-      for (const feature of backgroundFeatures) {
-        await backgroundCompendiumFolders.createBackgroundFolder(feature);
-      }
-      const backgroundHandler = await DDBItemImporter.buildHandler("background", backgroundFeatures, updateFeatures, featHandlerOptions);
-      await backgroundHandler.buildIndex(featHandlerOptions.indexFilter);
+      ).map((doc) => CharacterFeatureFactory._stripAdvancementValues(doc));
+      this.pendingCompendiumDocuments.backgrounds.push(...backgroundFeatures);
     }
 
+    return this.pendingCompendiumDocuments;
+  }
+
+  /**
+   * Write a previously-collected pending bundle to the compendiums.
+   * Used by both per-character imports and the bulk DDBMuleHandler flush.
+   */
+  static async writePendingCompendiumDocuments(pending: {
+    features: T5eFeatureMixinDataTypes[];
+    traits: T5eFeatureMixinDataTypes[];
+    feats: T5eFeatureMixinDataTypes[];
+    backgrounds: T5eFeatureMixinDataTypes[];
+    classMeta: { name: string; version: string; subclassName: string | null }[];
+    raceFolderSources: any[];
+  }, updateFeatures: boolean, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"]) {
+    if (compendiumImportTypes.some((c) => ["features"].includes(c)) && pending.features.length > 0) {
+      const featureCompendiumFolders = new DDBCompendiumFolders("features");
+      await featureCompendiumFolders.loadCompendium("features");
+
+      const seenClassFolders = new Set<string>();
+      const seenSubclassFolders = new Set<string>();
+      for (const meta of pending.classMeta) {
+        const classKey = `${meta.name}|${meta.version}`;
+        if (!seenClassFolders.has(classKey)) {
+          seenClassFolders.add(classKey);
+          await featureCompendiumFolders.createClassFeatureFolder(meta.name, meta.version);
+        }
+        if (meta.subclassName) {
+          const subKey = `${meta.subclassName}|${meta.name}|${meta.version}`;
+          if (!seenSubclassFolders.has(subKey)) {
+            seenSubclassFolders.add(subKey);
+            await featureCompendiumFolders.createSubClassFeatureFolder(meta.subclassName, meta.name, meta.version);
+          }
+        }
+      }
+
+      const klassNames = Array.from(new Set(pending.classMeta.map((m) => m.name)));
+      for (const klassName of klassNames) {
+        const classFeatures = pending.features.filter((doc) =>
+          klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.class")
+          || klassName === foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.class"),
+        );
+        if (classFeatures.length === 0) continue;
+        logger.debug(`Adding class features for ${klassName} to the class compendium`, { classFeatures });
+        const featureHandler = await DDBItemImporter.buildHandler(
+          "features", classFeatures, updateFeatures, CharacterFeatureFactory.FEATURE_HANDLER_OPTIONS,
+        );
+        await featureHandler.buildIndex(CharacterFeatureFactory.FEATURE_HANDLER_OPTIONS.indexFilter);
+      }
+    }
+
+    if (compendiumImportTypes.some((c) => ["traits", "species"].includes(c)) && pending.traits.length > 0) {
+      const traitCompendiumFolders = new DDBCompendiumFolders("traits");
+      await traitCompendiumFolders.loadCompendium("traits");
+      for (const source of pending.raceFolderSources) {
+        if (!source) continue;
+        await traitCompendiumFolders.createSubTraitFolders(source);
+      }
+      logger.debug(`Adding species traits to the species compendium`, { traitFeatures: pending.traits });
+      const traitHandler = await DDBItemImporter.buildHandler(
+        "trait", pending.traits, updateFeatures, CharacterFeatureFactory.TRAIT_HANDLER_OPTIONS,
+      );
+      await traitHandler.buildIndex(CharacterFeatureFactory.TRAIT_HANDLER_OPTIONS.indexFilter);
+    }
+
+    if (compendiumImportTypes.includes("feats") && pending.feats.length > 0) {
+      const featCompendiumFolders = new DDBCompendiumFolders("feats");
+      await featCompendiumFolders.loadCompendium("feats");
+      for (const feat of pending.feats) {
+        await featCompendiumFolders.createFeatFolder(feat);
+      }
+      logger.debug(`Adding feats to the feats compendium`, { featFeatures: pending.feats });
+      const featHandler = await DDBItemImporter.buildHandler(
+        "feats", pending.feats, updateFeatures, CharacterFeatureFactory.FEAT_HANDLER_OPTIONS,
+      );
+      await featHandler.buildIndex();
+    }
+
+    if (compendiumImportTypes.includes("backgrounds") && pending.backgrounds.length > 0) {
+      const backgroundCompendiumFolders = new DDBCompendiumFolders("backgrounds");
+      await backgroundCompendiumFolders.loadCompendium("backgrounds");
+      for (const feature of pending.backgrounds) {
+        await backgroundCompendiumFolders.createBackgroundFolder(feature);
+      }
+      logger.debug(`Adding backgrounds to the backgrounds compendium`, { backgroundFeatures: pending.backgrounds });
+      const backgroundHandler = await DDBItemImporter.buildHandler(
+        "background", pending.backgrounds, updateFeatures, CharacterFeatureFactory.FEAT_HANDLER_OPTIONS,
+      );
+      await backgroundHandler.buildIndex();
+    }
+  }
+
+  async addToCompendiums(update = null, compendiumImportTypes = ["features", "traits", "feats", "backgrounds"], { collectOnly = false } = {}) {
+    logger.verbose("Adding features to compendiums", { update, compendiumImportTypes, collectOnly, this: this });
+
+    this.collectCompendiumDocuments(compendiumImportTypes);
+    if (collectOnly) return;
+
+    await CharacterFeatureFactory.writePendingCompendiumDocuments(
+      this.pendingCompendiumDocuments,
+      update,
+      compendiumImportTypes,
+    );
   }
 
 
