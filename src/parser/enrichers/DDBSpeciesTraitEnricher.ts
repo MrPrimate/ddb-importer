@@ -43,7 +43,6 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
   }
 
   NAME_HINTS: Record<string, any> = {
-    "Halfling Lucky": "Lucky",
     "Powerful Build, Hippo Build": "Hippo Build",
     "Gnomish Lineage": "Generic",
     "Gnomish Lineage: Rock Gnome": "Generic",
@@ -93,7 +92,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Hold Breath": SpeciesEnrichers.Generic.HoldBreath,
     "Large Form": SpeciesEnrichers.Goliath.LargeForm,
     "Little Giant": SpeciesEnrichers.Generic.PowerfulBuild,
-    "Lucky": GenericEnrichers.Lucky,
+    "Halfling Lucky": SpeciesEnrichers.Halfling.Luck,
     "Mind Link Response": SpeciesEnrichers.Kalashtar.MindLinkResponse,
     "Partially Amphibious": SpeciesEnrichers.Vedalken.PartiallyAmphibious,
     "Powerful Build": SpeciesEnrichers.Generic.PowerfulBuild,
