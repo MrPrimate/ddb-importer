@@ -639,6 +639,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         "name",
         "flags.ddbimporter",
         "system.type.subtype",
+        "system.source.rules",
       ],
     },
   };
