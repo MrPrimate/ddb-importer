@@ -45,6 +45,7 @@ interface IDDBMuleRequestBody {
   filterIds: number[];
   cleanup: boolean;
   backgroundId: string | null;
+  systemRules: string;
 }
 
 interface DDBMuleHandlerOptions {
@@ -345,6 +346,7 @@ export default class DDBMuleHandler {
       filterIds: this.filterIds,
       cleanup: this.cleanup,
       backgroundId: this.backgroundId,
+      systemRules: utils.getSetting<string>("rulesVersion", "dnd5e") === "modern" ? "2024" : "2014",
     };
 
     const url = `${parsingApi}${this.URL}`;
