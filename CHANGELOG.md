@@ -1,5 +1,9 @@
 # Next Up
 
+- 2014 subclasses with 2024 versions can now be imported with Character Options.
+- Character options now warns when importing content from the a version which does not reflect your system settings.
+- Halfling Luck 2024 fix. @severin.fall
+
 # 7.1.6
 
 - Blood Hunter would not import spells.
