@@ -1,5 +1,13 @@
 # Next Up
 
+# 7.2.9
+
+- Character options now warns when importing content from the a version which does not reflect your system settings.
+- Halfling Luck 2024 fix. @severin.fall
+- 2014 subclasses with 2024 adaptions/adjustments can now be imported as 2024 versions with DDB Importer Character Options importer.
+- Savagae Attacker 2024 no longer generated uses and activity. @severin.fall
+- Some new utilities for recreating missing compendiums, or clearing existing ones.
+
 # 7.2.8
 
 - Blood Hunter would not import spells.
@@ -49,6 +57,14 @@
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.7
+
+- Character options now warns when importing content from the a version which does not reflect your system settings.
+- Halfling Luck 2024 fix. @severin.fall
+- 2014 subclasses with 2024 adaptions/adjustments can now be imported as 2024 versions with DDB Importer Character Options importer.
+- Savagae Attacker 2024 no longer generated uses and activity. @severin.fall
+- Some new utilities for recreating missing compendiums, or clearing existing ones.
 
 # 7.1.6
 
