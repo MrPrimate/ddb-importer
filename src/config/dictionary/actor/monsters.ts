@@ -79,6 +79,7 @@ export const MONSTERS: IMonsterDictionary = {
     { name: "Whip", actionType: "mwak", weaponType: "martialM", properties: { fin: true, rch: true } },
     // natural
     { name: "Bite", actionType: "mwak", weaponType: "natural", properties: {} },
+    { name: "Rend", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Claw", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Talons", actionType: "mwak", weaponType: "natural", properties: {} },
     { name: "Teeth", actionType: "mwak", weaponType: "natural", properties: {} },
