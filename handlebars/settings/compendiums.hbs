@@ -14,10 +14,27 @@
             <option value="{{@key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
           {{/each}}
         </select>
+        <button data-action="emptyCompendium" data-setting="{{this.setting}}" type="button" title="Empty this compendium" {{#unless this.hasCompendium}}disabled{{/unless}}>
+          <i class="fas fa-trash"></i>
+        </button>
       </div>
     </div>
     <hr>
   {{/each}}
+  </fieldset>
+
+  <fieldset>
+    <legend>Compendium Management</legend>
+    <div class="form-group">
+      <button data-action="deleteAndRecreateCompendiums" type="button">
+        <i class="fas fa-recycle"></i> Delete and Recreate DDB Compendiums
+      </button>
+    </div>
+    <div class="form-group">
+      <button data-action="recreateMissingCompendiums" type="button">
+        <i class="fas fa-plus-circle"></i> Recreate Missing Compendiums
+      </button>
+    </div>
   </fieldset>
 
   <fieldset>

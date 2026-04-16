@@ -1,5 +1,6 @@
 import { logger, utils, DDBItemImporter, FileHelper } from "./_module";
 import { SETTINGS } from "../config/_module";
+import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 
 const CompendiumHelper = {
 
@@ -178,7 +179,7 @@ const CompendiumHelper = {
   },
 
   async getCompendiumBannerImage(url, name) {
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+    const targetDirectory = utils.getSetting<string>("persistent-storage-location").replace(/^\/|\/$/g, "");
 
     const downloadOptions = {
       type: "banner",
@@ -266,24 +267,26 @@ const CompendiumHelper = {
 
   getCompendiumNames: () => {
     return SETTINGS.COMPENDIUMS.map((ddbCompendium) => {
-      return game.settings.get(SETTINGS.MODULE_ID, ddbCompendium.setting);
+      return utils.getSetting<string>(ddbCompendium.setting);
     });
   },
 
-  deleteDefaultCompendiums: (force = true) => {
+  deleteDefaultCompendiums: async (force = true) => {
     if (!force) {
       logger.warn("Pass 'true' to this function to force deletion.");
     }
-    game.settings.set(SETTINGS.MODULE_ID, "auto-create-compendium", false);
+    await game.settings.set(SETTINGS.MODULE_ID, "auto-create-compendium", false);
 
     const clone = foundry.utils.deepClone(SETTINGS.DEFAULT_SETTINGS);
     const compendiumSettings = SETTINGS.APPLY_GLOBAL_DEFAULTS(clone.READY.COMPENDIUMS);
 
     for (const [name, data] of Object.entries(compendiumSettings)) {
       const compendiumName = CompendiumHelper.getDefaultCompendiumName(data.default);
-
-      logger.warn(`Setting: ${name} : Deleting compendium ${data.name} with key world.${compendiumName}}`);
-      game.packs.delete(`world.${compendiumName}`);
+      const pack = game.packs.get(`world.${compendiumName}`);
+      if (pack) {
+        logger.warn(`Setting: ${name} : Deleting compendium ${data.name} with key world.${compendiumName}}`);
+        await pack.deleteCompendium();
+      }
     }
   },
 
@@ -496,7 +499,7 @@ const CompendiumHelper = {
   },
 
   async retrieveCompendiumSpellReferences(spellNames, { use2024Spells = false, getDocuments = false } = {}) {
-    const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
+    const compendiumName = utils.getSetting<string>("entity-spell-compendium");
 
     const results = await CompendiumHelper.queryCompendiumEntries({
       compendiumName,
@@ -509,6 +512,83 @@ const CompendiumHelper = {
     const cleanResults = results.filter((item) => item !== null);
 
     return cleanResults;
+  },
+
+  getConfiguredCompendiums() {
+    return SETTINGS.COMPENDIUMS.map((comp) => {
+      const settingValue = utils.getSetting<string>(comp.setting);
+      const pack = game.packs.get(settingValue);
+      return {
+        setting: comp.setting,
+        title: comp.title,
+        type: comp.type,
+        auto: comp.auto,
+        settingValue,
+        pack,
+        comp,
+      };
+    });
+  },
+
+  async emptyCompendiums(selectedSettings: string[]) {
+    const configured = CompendiumHelper.getConfiguredCompendiums();
+    let count = 0;
+    for (const entry of configured) {
+      if (!selectedSettings.includes(entry.setting) || !entry.pack) continue;
+      logger.info(`Emptying compendium ${entry.pack.metadata.label}`);
+      await entry.pack.documentClass.deleteDocuments([], { pack: entry.pack.metadata.id, deleteAll: true });
+      count++;
+    }
+    return count;
+  },
+
+  getDeleteRecreateInfo() {
+    const configured = CompendiumHelper.getConfiguredCompendiums();
+    const worldCompendiums = [];
+    const skippedCompendiums = [];
+
+    for (const entry of configured) {
+      if (!entry.pack) {
+        skippedCompendiums.push({ ...entry, reason: "not found" });
+        continue;
+      }
+      if (entry.pack.metadata.packageType !== "world") {
+        skippedCompendiums.push({ ...entry, reason: "module/system compendium" });
+        continue;
+      }
+      const defaultName = `DDB ${entry.title}`;
+      const isDefault = entry.settingValue === defaultName
+        || entry.settingValue === entry.pack.metadata.id;
+      worldCompendiums.push({ ...entry, isDefault });
+    }
+
+    const nonDefaultCompendiums = worldCompendiums.filter((c) => !c.isDefault);
+    return { worldCompendiums, skippedCompendiums, nonDefaultCompendiums };
+  },
+
+  async deleteAndRecreateCompendiums(compendiumSettings) {
+    let count = 0;
+    for (const entry of compendiumSettings) {
+      if (!entry.pack) continue;
+      logger.warn(`Deleting compendium ${entry.pack.metadata.label} (${entry.pack.metadata.id})`);
+      await entry.pack.deleteCompendium();
+      logger.info(`Recreating compendium for ${entry.title}`);
+      await createDDBCompendium(entry.comp);
+      count++;
+    }
+    return count;
+  },
+
+  async recreateMissingCompendiums() {
+    const configured = CompendiumHelper.getConfiguredCompendiums();
+    const recreated = [];
+    for (const entry of configured) {
+      if (entry.pack) continue;
+      logger.info(`Compendium for ${entry.title} is missing, recreating`);
+      await createDDBCompendium(entry.comp);
+      recreated.push(entry.title);
+    }
+    return recreated;
   },
 
   getCompendiumLookups(type, selected) {
@@ -526,11 +606,17 @@ const CompendiumHelper = {
       "ActiveAuras",
       "auraeffects",
       "token-attacher",
+      "dnd-forge-artificer",
+      "dnd-heroes",
+      "dnd-monster-manual",
+      "dnd-tashas-cauldron",
+      "dnd-players-handbook",
     ];
 
-    const selections = game.packs
+    const packChoices = game.packs
       .filter((pack) =>
-        pack.documentName === type
+        pack.locked === false
+        && pack.documentName === type
       && !excludedCompendiumPackages.includes(pack.metadata.packageName),
       )
       .reduce((choices, pack) => {
@@ -540,6 +626,15 @@ const CompendiumHelper = {
         };
         return choices;
       }, {});
+
+    const hasSelection = Object.values(packChoices).some((s: any) => s.selected);
+    const selections = {
+      "": {
+        label: "- None -",
+        selected: !hasSelection,
+      },
+      ...packChoices,
+    };
 
     return selections;
   },

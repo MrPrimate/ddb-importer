@@ -44,6 +44,7 @@ export default class DDBSetup extends DDBAppV2 {
   proxyAddress: string;
   allowedWeaponPropertySources: string[];
   campaignFallback: boolean;
+  compendiums: { setting: string; name: string; current: string; compendiums: object; auto: boolean; hasCompendium: boolean }[];
 
   constructor({
     actor = null, callMuncher = false, sheetTab = "info", coreTab = "cobalt", infoTab = "intro",
@@ -79,24 +80,18 @@ export default class DDBSetup extends DDBAppV2 {
     for (const [key, value] of Object.entries(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
       this.directories.push({
         key,
-        value: game.settings.get(SETTINGS.MODULE_ID, key),
+        value: utils.getSetting<string>(key),
         name: game.i18n.localize(value.name),
         description: game.i18n.localize(value.hint),
       });
     }
 
     // COMPENDIUMS
-    this.compendiums = SETTINGS.COMPENDIUMS.map((comp) => ({
-      setting: comp.setting,
-      name: comp.title,
-      current: game.settings.get(SETTINGS.MODULE_ID, comp.setting),
-      compendiums: CompendiumHelper.getCompendiumLookups(comp.type, game.settings.get(SETTINGS.MODULE_ID, comp.setting)),
-      auto: comp.auto,
-    }));
+    this._refreshCompendiumData();
     this.compendiumSettings = [
       {
         name: "auto-create-compendium",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium"),
+        isChecked: utils.getSetting<boolean>("auto-create-compendium"),
         description: "Create default compendiums if missing?",
         enabled: true,
       },
@@ -106,7 +101,7 @@ export default class DDBSetup extends DDBAppV2 {
     this.dynamicEnabledSettings = [
       {
         name: "dynamic-sync",
-        isChecked: game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync"),
+        isChecked: utils.getSetting<boolean>("dynamic-sync"),
         description: game.i18n.localize(`${SETTINGS.MODULE_ID}.settings.dynamic-sync.dynamic-sync`),
         enabled: true,
       },
@@ -115,7 +110,7 @@ export default class DDBSetup extends DDBAppV2 {
       .map((key) => {
         return {
           name: key,
-          isChecked: game.settings.get(SETTINGS.MODULE_ID, key),
+          isChecked: utils.getSetting<boolean>(key),
           description: game.i18n.localize(`${SETTINGS.MODULE_ID}.settings.dynamic-sync.${key}`),
           enabled: true,
         };
@@ -152,6 +147,9 @@ export default class DDBSetup extends DDBAppV2 {
       resetSettings: DDBSetup.resetSettingsDialog,
       selectDirectory: DDBSetup.selectDirectory,
       openDebug: DDBSetup.openDebug,
+      emptyCompendium: DDBSetup.emptyCompendiumAction,
+      deleteAndRecreateCompendiums: DDBSetup.deleteAndRecreateCompendiumsDialog,
+      recreateMissingCompendiums: DDBSetup.recreateMissingCompendiumsAction,
     },
     position: {
       width: 962,
@@ -172,7 +170,7 @@ export default class DDBSetup extends DDBAppV2 {
   };
 
   static getGMUsers() {
-    const updateUser = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-user");
+    const updateUser = utils.getSetting<string>("dynamic-sync-user");
 
     const gmUsers = game.users
       .filter((user) => user.isGM)
@@ -189,11 +187,26 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   static isSetupComplete(needsCobalt = true) {
-    const uploadDir = game.settings.get(SETTINGS.MODULE_ID, "image-upload-directory");
+    const uploadDir = utils.getSetting<string>("image-upload-directory");
     const dataDirSet = !FileHelper.BAD_DIRS.includes(uploadDir);
     const cobalt = Secrets.getCobalt() != "";
     const setupComplete = dataDirSet && (cobalt || !needsCobalt);
     return setupComplete;
+  }
+
+  _refreshCompendiumData() {
+    this.compendiums = SETTINGS.COMPENDIUMS.map((comp) => {
+      const current = utils.getSetting<string>(comp.setting);
+      const pack = current ? game.packs.get(current) : null;
+      return {
+        setting: comp.setting,
+        name: comp.title,
+        current,
+        compendiums: CompendiumHelper.getCompendiumLookups(comp.type, current),
+        auto: comp.auto,
+        hasCompendium: !!pack,
+      };
+    });
   }
 
   get id() {
@@ -466,7 +479,7 @@ export default class DDBSetup extends DDBAppV2 {
     await DDBSetup.checkCobaltCookie(value);
     await Secrets.setCobalt(value);
     await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", local);
-    const runCookieMigrate = local != game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+    const runCookieMigrate = local != utils.getSetting<boolean>("cobalt-cookie-local");
     if (runCookieMigrate && local) {
       Secrets.moveCobaltToLocal();
     } else if (runCookieMigrate && !local) {
@@ -587,6 +600,90 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
+  static async emptyCompendiumAction(this: DDBSetup, _event: Event, target: HTMLElement) {
+    const setting = target.dataset.setting;
+    if (!setting) return;
+
+    const compendiumName = utils.getSetting<string>(setting);
+    const pack = compendiumName ? game.packs.get(compendiumName) : null;
+    if (!pack) {
+      ui.notifications.warn("No compendium selected or available.");
+      return;
+    }
+
+    await pack.getIndex();
+    const count = pack.index.size;
+    if (count === 0) {
+      ui.notifications.info(`${pack.metadata.label} is already empty.`);
+      return;
+    }
+
+    const dialog = await foundry.applications.api.DialogV2.confirm({
+      rejectClose: false,
+      window: { title: `Empty ${pack.metadata.label}` },
+      content: `<p>Are you sure you want to delete all <strong>${count}</strong> entries from <strong>${pack.metadata.label}</strong>?</p>`,
+    });
+
+    if (dialog) {
+      await CompendiumHelper.emptyCompendiums([setting]);
+      ui.notifications.info(`Emptied ${pack.metadata.label} (${count} entries removed).`);
+    }
+  }
+
+  static async deleteAndRecreateCompendiumsDialog(this: DDBSetup, event: Event) {
+    event.preventDefault();
+    const info = CompendiumHelper.getDeleteRecreateInfo();
+
+    if (info.worldCompendiums.length === 0) {
+      ui.notifications.warn("No world-level DDB compendiums found to delete and recreate.");
+      return;
+    }
+
+    let content = "<p>The following compendiums will be deleted and recreated:</p><ul>";
+    for (const entry of info.worldCompendiums) {
+      const warning = entry.isDefault ? "" : " <strong>(non-default compendium!)</strong>";
+      content += `<li>${entry.pack.metadata.label} (${entry.type})${warning}</li>`;
+    }
+    content += "</ul>";
+
+    if (info.skippedCompendiums.length > 0) {
+      content += "<p>The following will be skipped:</p><ul>";
+      for (const entry of info.skippedCompendiums) {
+        content += `<li>${entry.title} - ${entry.reason}</li>`;
+      }
+      content += "</ul>";
+    }
+
+    if (info.nonDefaultCompendiums.length > 0) {
+      content += `<p class="${SETTINGS.MODULE_ID}-dialog-important">Warning: Some compendiums are not set to the default DDB compendium. They will be deleted and recreated with default settings.</p>`;
+    }
+
+    const dialog = await foundry.applications.api.DialogV2.confirm({
+      rejectClose: false,
+      window: { title: "Delete and Recreate DDB Compendiums" },
+      content,
+    });
+
+    if (dialog) {
+      const count = await CompendiumHelper.deleteAndRecreateCompendiums(info.worldCompendiums);
+      ui.notifications.info(`Deleted and recreated ${count} compendium(s).`);
+      this._refreshCompendiumData();
+      this.render();
+    }
+  }
+
+  static async recreateMissingCompendiumsAction(this: DDBSetup, event: Event) {
+    event.preventDefault();
+    const recreated = await CompendiumHelper.recreateMissingCompendiums();
+    if (recreated.length === 0) {
+      ui.notifications.info("All compendiums already exist. Nothing to recreate.");
+    } else {
+      ui.notifications.info(`Recreated ${recreated.length} missing compendium(s): ${recreated.join(", ")}`);
+      this._refreshCompendiumData();
+      this.render();
+    }
+  }
+
   static async selectDirectory(this: DDBSetup, _event, target) {
     const targetDirSetting = target.dataset.target;
     const currentDir = utils.getSetting<string>(targetDirSetting);
@@ -641,7 +738,7 @@ export default class DDBSetup extends DDBAppV2 {
       }
     }
 
-    const currentLocalCobalt = game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local");
+    const currentLocalCobalt = utils.getSetting<boolean>("cobalt-cookie-local");
     if (currentLocalCobalt !== cobaltCookieLocal) {
       await game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", cobaltCookieLocal);
     }
@@ -743,7 +840,7 @@ export default class DDBSetup extends DDBAppV2 {
 
     for (const setting of this.dynamicEnabledSettings) {
       if (setting.name === "dynamic-sync"
-        && game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync") !== formData.object[setting.name]
+        && utils.getSetting<boolean>("dynamic-sync") !== formData.object[setting.name]
       ) {
         this.reloadApplication = true; // reload the application after saving
         logger.warn("Dynamic Sync setting changed, reloading application!");
