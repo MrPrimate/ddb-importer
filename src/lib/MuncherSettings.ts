@@ -1232,6 +1232,9 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     }
     const otherRulesVersion = rulesVersion === "2024" ? "2014" : "2024";
 
+    const allowHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
+    const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
+
     const result: {
       selectedClasses: any[];
       subclassSelection: any[];
@@ -1313,8 +1316,12 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       const classId = klass.id;
       const selectedSubIds = (subclassSelections[String(classId)] ?? []).map((id) => parseInt(String(id)));
       const subclasses = (cache[classId] ?? [])
-        .filter((sc: any) => sc.isHomebrew || !sc.sources?.length
-          || sc.sources.some((s: any) => chosenSourceIds.has(s.sourceId)))
+        .filter((sc: any) => {
+          if (onlyHomebrew) return sc.isHomebrew;
+          if (sc.isHomebrew) return allowHomebrew;
+          return !sc.sources?.length
+            || sc.sources.some((s: any) => chosenSourceIds.has(s.sourceId));
+        })
         .map((sc: any) => ({
           id: sc.id,
           label: sc.isHomebrew ? `${sc.name} (Homebrew)` : sc.name,

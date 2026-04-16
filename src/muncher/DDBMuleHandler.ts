@@ -46,6 +46,7 @@ interface IDDBMuleRequestBody {
   cleanup: boolean;
   backgroundId: string | null;
   systemRules: string;
+  include2014Adjusted: boolean;
 }
 
 interface DDBMuleHandlerOptions {
@@ -330,6 +331,11 @@ export default class DDBMuleHandler {
     const parsingApi = DDBProxy.getProxy();
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
+
+    const isModern = utils.getSetting<string>("rulesVersion", "dnd5e") === "modern";
+    const munchingRulesVersion = utils.getSetting<string>("munching-policy-character-class-rules-version");
+    const is2024Import = munchingRulesVersion === "2024" || (munchingRulesVersion === "" && isModern);
+
     const body: IDDBMuleRequestBody = {
       cobalt: Secrets.getCobalt(),
       betaKey: utils.getSetting<string>("beta-key"),
@@ -343,7 +349,8 @@ export default class DDBMuleHandler {
       filterIds: this.filterIds,
       cleanup: this.cleanup,
       backgroundId: this.backgroundId,
-      systemRules: utils.getSetting<string>("rulesVersion", "dnd5e") === "modern" ? "2024" : "2014",
+      systemRules: isModern ? "2024" : "2014",
+      include2014Adjusted: isModern && is2024Import,
     };
 
     const url = `${parsingApi}${this.URL}`;
