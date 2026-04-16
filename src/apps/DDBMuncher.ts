@@ -323,11 +323,34 @@ export default class DDBMuncher extends DDBAppV2 {
       event.preventDefault();
       const current = utils.getSetting<string>("munching-policy-character-class-rules-version") ?? "2024";
       const next = current === "2024" ? "2014" : "2024";
+      const systemIsModern = game.settings.get("dnd5e", "rulesVersion") === "modern";
+      if (next === "2014" && systemIsModern) {
+        const proceed = await foundry.applications.api.DialogV2.confirm({
+          rejectClose: false,
+          window: { title: "Rules Version Warning" },
+          content: `<p>You are switching to importing 2014 classes and subclasses, but your 5e system is set to modern/2024 rules. DDB now provides 2024 versions of the 2014 subclasses. Please be warned that importing a mix of 2014/2024 subclasses into compendiums may result in odd behaviour.</p>`,
+        });
+        if (!proceed) return;
+      }
+      if (next === "2024" && !systemIsModern) {
+        const proceed = await foundry.applications.api.DialogV2.confirm({
+          rejectClose: false,
+          window: { title: "Rules Version Warning" },
+          content: `<p>You are switching to importing 2024/5.5e Classes and Subclasses, but your 5e system is set to 2014/classic. Please be warned these might not work properly in your system.</p>`,
+        });
+        if (!proceed) return;
+      }
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version", next);
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", []);
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", {});
       this.subClassMap = {};
       await this.render();
+    });
+
+    this.element.querySelector("#muncher-open-sources-settings")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      this.changeTab("settings", "sheet", {});
+      this.changeTab("sources", "settings", {});
     });
 
     this.element.querySelectorAll(".ddb-subclass-select").forEach((el) => {
