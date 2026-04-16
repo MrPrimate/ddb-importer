@@ -4,6 +4,7 @@
 - Halfling Luck 2024 fix. @severin.fall
 - 2014 subclasses with 2024 adaptions/adjustments can now be imported as 2024 versions with DDB Importer Character Options importer.
 - Savagae Attacker 2024 no longer generated uses and activity. @severin.fall
+- Some new utilities for recreating missing compendiums, or clearing existing ones.
 
 # 7.1.6
 
