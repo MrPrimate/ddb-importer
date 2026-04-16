@@ -6,6 +6,7 @@ import {
   DDBCompendiumFolders,
   DDBSources,
   DDBCampaigns,
+  utils,
 } from "../lib/_module";
 import { parseSpells } from "../muncher/spells";
 import DDBFrameImporter from "../muncher/DDBFrameImporter";
@@ -39,6 +40,7 @@ export default class DDBMuncher extends DDBAppV2 {
   searchTermSpell = "";
   muleURL = "";
   characterId = null;
+  actor: Actor.Implementation | null = null;
 
 
   constructor() {
@@ -47,7 +49,7 @@ export default class DDBMuncher extends DDBAppV2 {
       notifier: this.notifier.bind(this),
     });
 
-    const URL = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-url");
+    const URL = utils.getSetting<string>("munching-policy-character-url");
     this.getCharacterId(URL);
   }
 
@@ -277,7 +279,7 @@ export default class DDBMuncher extends DDBAppV2 {
     this.element.querySelector("#muncher-class-source-select")?.addEventListener("change", async (event) => {
       const newClassIds = Array.from(event.target._value).map((id) => parseInt(id));
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", newClassIds);
-      const currentSubclassMap = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-subclasses") ?? {};
+      const currentSubclassMap = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
       const prunedSubclassMap = {};
       for (const classId of newClassIds) {
         if (currentSubclassMap[classId]) prunedSubclassMap[classId] = currentSubclassMap[classId];
@@ -288,7 +290,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
     this.element.querySelector("#muncher-class-select-core")?.addEventListener("click", async (event) => {
       event.preventDefault();
-      const rulesVersion = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version") ?? "2024";
+      const rulesVersion = utils.getSetting<string>("munching-policy-character-class-rules-version") ?? "2024";
       const coreCategoryId = rulesVersion === "2014" ? 26 : 24;
       const coreSourceIds = new Set(
         CONFIG.DDB.sources
@@ -296,7 +298,7 @@ export default class DDBMuncher extends DDBAppV2 {
           .map((s) => s.id),
       );
       // ensure the core category is active in the source filter so core classes are visible
-      const includedCategories = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-muncher-included-source-categories")
+      const includedCategories = utils.getSetting<string[]>("munching-policy-muncher-included-source-categories")
         .map((id) => parseInt(id));
       if (!includedCategories.includes(coreCategoryId)) {
         await DDBSources.updateIncludedCategories([...includedCategories, coreCategoryId]);
@@ -309,7 +311,7 @@ export default class DDBMuncher extends DDBAppV2 {
           return rulesVersion === "2014" ? is2014 : !is2014;
         })
         .map((klass) => parseInt(klass.id));
-      const existing = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")
+      const existing = utils.getSetting<string[]>("munching-policy-character-classes")
         .map((id) => parseInt(id));
       const merged = Array.from(new Set([...existing, ...coreClassIds]));
       logger.info(`Select Core Classes: selecting ${coreClassIds.length} classes for ${rulesVersion}`, { coreClassIds, merged });
@@ -319,7 +321,7 @@ export default class DDBMuncher extends DDBAppV2 {
 
     this.element.querySelector("#muncher-class-rules-toggle")?.addEventListener("click", async (event) => {
       event.preventDefault();
-      const current = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version") ?? "2024";
+      const current = utils.getSetting<string>("munching-policy-character-class-rules-version") ?? "2024";
       const next = current === "2024" ? "2014" : "2024";
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-class-rules-version", next);
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", []);
@@ -332,7 +334,7 @@ export default class DDBMuncher extends DDBAppV2 {
       el.addEventListener("change", async (event) => {
         const classId = parseInt(event.currentTarget.dataset.classId);
         const selectedSubIds = Array.from(event.target._value).map((id) => parseInt(id));
-        const currentMap = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-subclasses") ?? {};
+        const currentMap = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
         const nextMap = { ...currentMap, [classId]: selectedSubIds };
         await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", nextMap);
         await this.render();
@@ -499,8 +501,8 @@ export default class DDBMuncher extends DDBAppV2 {
     context.searchTermSpell = this.searchTermSpell;
     context.muleURL = this.muleURL;
     context.characterId = this.characterId;
-    context.useCharacterHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
-    context.onlyCharacterHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew");
+    context.useCharacterHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
+    context.onlyCharacterHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     logger.debug("Muncher: _prepareContext", context);
     return context;
   }
@@ -821,8 +823,8 @@ export default class DDBMuncher extends DDBAppV2 {
   async _parseClassesWithMule() {
     this.autoRotateMessage("class");
     // prepare sources to munch from
-    const allowHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
-    const onlyHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew");
+    const allowHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
+    const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     const baseOptions = {
       characterId: this.characterId,
       homebrew: false,
@@ -832,7 +834,7 @@ export default class DDBMuncher extends DDBAppV2 {
     };
     const sourceIdArrays = DDBSources.getChosenCategoriesAndBooks();
 
-    const allowedClassIds = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-classes")
+    const allowedClassIds = utils.getSetting<string[]>("munching-policy-character-classes")
       .map((id) => parseInt(id));
 
     if (allowedClassIds.length === 0) {
@@ -841,7 +843,7 @@ export default class DDBMuncher extends DDBAppV2 {
       return;
     }
 
-    const subclassSelections = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-subclasses") ?? {};
+    const subclassSelections = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
 
     const allSourceIds = sourceIdArrays.reduce((acc, curr) => {
       for (const sourceId of curr.sourceIds) {
@@ -915,8 +917,8 @@ export default class DDBMuncher extends DDBAppV2 {
 
   async _parseWithMule(type) {
     this.autoRotateMessage(type);
-    const homebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-fetch-homebrew");
-    const onlyHomebrew = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-character-only-homebrew");
+    const homebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
+    const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
     const baseOptions = {
       characterId: this.characterId,
       homebrew: false,
@@ -1015,7 +1017,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async parseFeats(_event, _target) {
+  static async parseFeats(this: DDBMuncher, _event, _target) {
     if (!this.characterId) {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import feats.");
       return;
@@ -1034,7 +1036,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async parseBackgrounds(_event, _target) {
+  static async parseBackgrounds(this: DDBMuncher, _event, _target) {
     if (!this.characterId) {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import backgrounds.");
       return;
@@ -1053,7 +1055,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async parseClasses(_event, _target) {
+  static async parseClasses(this: DDBMuncher, _event, _target) {
     if (!this.characterId) {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import classes.");
       return;
@@ -1072,7 +1074,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async parseSpecies(_event, _target) {
+  static async parseSpecies(this: DDBMuncher, _event, _target) {
     if (!this.characterId) {
       ui.notifications.error("You must enter a valid D&D Beyond character URL to import species.");
       return;
@@ -1091,7 +1093,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async generateAdventureConfig(_event, _target) {
+  static async generateAdventureConfig(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Generating adventure config!");
       await downloadAdventureConfig();
@@ -1103,7 +1105,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async importAdventure(_event, _target) {
+  static async importAdventure(this: DDBMuncher, _event, _target) {
     const progressElement = this.element.querySelector(".import-progress");
     try {
       logger.info("Generating adventure config!");
@@ -1126,11 +1128,11 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async importThirdParty(_event, _target) {
+  static async importThirdParty(this: DDBMuncher, _event, _target) {
     new ThirdPartyMunch().render(true);
   }
 
-  static async updateWorldMonsters(_event, _target) {
+  static async updateWorldMonsters(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Updating world monsters!");
       this._disableButtons();
@@ -1147,7 +1149,7 @@ export default class DDBMuncher extends DDBAppV2 {
     new DDBSelectiveMonsterUpdate().render(true);
   }
 
-  static async migrateCompendiumFolders(_event, target) {
+  static async migrateCompendiumFolders(this: DDBMuncher, _event, target) {
     let type = null;
     switch (target.id) {
       case "munch-migrate-compendium-monster":
@@ -1176,7 +1178,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async resetCompendiumActorImages(_event, _target) {
+  static async resetCompendiumActorImages(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Resetting compendium actor images");
       this._disableButtons();
@@ -1267,15 +1269,15 @@ export default class DDBMuncher extends DDBAppV2 {
 
   }
 
-  static openDebug(_event, _target) {
+  static openDebug(this: DDBMuncher, _event, _target) {
     new DDBDebugger({ actor: this.actor }).render(true);
   }
 
-  static openCoreSetup(_event, _target) {
+  static openCoreSetup(this: DDBMuncher, _event, _target) {
     new DDBSetup({ callMuncher: true }).render(true);
   }
 
-  static async regenerateStorage(_event, _target) {
+  static async regenerateStorage(this: DDBMuncher, _event, _target) {
     await DDBImporter.createStorage();
   }
 
@@ -1285,7 +1287,7 @@ export default class DDBMuncher extends DDBAppV2 {
     this.characterId = characterId;
   }
 
-  async #handleURLUpdate(event) {
+  async #handleURLUpdate(this: DDBMuncher, event) {
     const URL = event.currentTarget.value;
     this.getCharacterId(URL);
 
