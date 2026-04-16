@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.1.7
+
 - Character options now warns when importing content from the a version which does not reflect your system settings.
 - Halfling Luck 2024 fix. @severin.fall
 - 2014 subclasses with 2024 adaptions/adjustments can now be imported as 2024 versions with DDB Importer Character Options importer.
