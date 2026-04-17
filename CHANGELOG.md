@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.1.8
+
 - Stunning Strike was incorrectly linked to an activity use, not item use.
 
 # 7.1.7
