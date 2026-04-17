@@ -9,6 +9,10 @@ import {
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext";
 import { getHeaderControlsJournalEntrySheetButtons, getJournalSheet5eHeaderButtons } from "./hooks/renderJournalSheet/adventure";
 
+Hooks.on("canvasReady", () => {
+  canvas.notes?.setAllRenderFlags({ refreshState: true });
+});
+
 // register hooks
 Hooks.once("init", init);
 Hooks.once("ready", onceReady);

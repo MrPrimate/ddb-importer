@@ -1,5 +1,7 @@
 # Next Up
 
+- Fix for note injection into canvas.
+
 # 7.2.9
 
 - Character options now warns when importing content from the a version which does not reflect your system settings.
