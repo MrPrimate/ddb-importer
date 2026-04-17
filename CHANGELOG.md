@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.2.10
+
 - Fix for note injection into canvas.
 - Stunning Strike was incorrectly linked to an activity use, not item use.
 
