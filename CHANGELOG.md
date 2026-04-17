@@ -1,5 +1,7 @@
 # Next Up
 
+- Stunning Strike was incorrectly linked to an activity use, not item use.
+
 # 7.1.7
 
 - Character options now warns when importing content from the a version which does not reflect your system settings.
