@@ -17,8 +17,8 @@ export default class StunningStrike extends DDBEnricherData {
         ? []
         :  [
           {
-            type: "",
-            target: spend,
+            type: "itemUses",
+            target: "",
             value: "1",
             scaling: {
               mode: "",
