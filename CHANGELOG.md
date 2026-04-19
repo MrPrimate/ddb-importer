@@ -1,5 +1,7 @@
 # Next Up
 
+Third party classes would not show up in the class filter.
+
 # 7.1.8
 
 - Stunning Strike was incorrectly linked to an activity use, not item use.
