@@ -1,5 +1,7 @@
 # Next Up
 
+Third party classes would not show up in the class filter.
+
 # 7.2.10
 
 - Fix for note injection into canvas.
