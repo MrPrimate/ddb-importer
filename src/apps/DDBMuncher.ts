@@ -303,7 +303,7 @@ export default class DDBMuncher extends DDBAppV2 {
       if (!includedCategories.includes(coreCategoryId)) {
         await DDBSources.updateIncludedCategories([...includedCategories, coreCategoryId]);
       }
-      const classes = await DDBMuleHandler.getList("class", []);
+      const classes = await DDBMuleHandler.getList("class", Array.from(coreSourceIds));
       const coreClassIds = classes
         .filter((klass) => klass.sources.some((s) => coreSourceIds.has(s.sourceId)))
         .filter((klass) => {

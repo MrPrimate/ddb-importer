@@ -1245,7 +1245,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
     const klassInChosenSources = (klass: any) =>
       klass.sources.some((s: any) => chosenSourceIds.has(s.sourceId));
 
-    const classes = await DDBMuleHandler.getList("class", []);
+    const classes = await DDBMuleHandler.getList("class", Array.from(chosenSourceIds));
     const selectedClassIds = utils.getSetting<number[]>("munching-policy-character-classes")
       .map((id) => parseInt(String(id)));
     const subclassSelections = utils.getSetting<Record<string, number[]>>("munching-policy-character-subclasses") ?? {};
