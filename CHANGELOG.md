@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.1.9
+
 Third party classes would not show up in the class filter.
 
 # 7.1.8
