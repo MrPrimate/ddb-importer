@@ -961,6 +961,41 @@ global {
     infusions?: IDDBInfusions;
   }
 
+  // ---- Mule: optional class features ----------------------------------------
+
+  export interface IDDBMuleOptionAddData {
+    characterId: number;
+    classFeatureId: number;
+    affectedClassFeatureId?: number;
+  }
+
+  export interface IDDBMuleOptionDebug {
+    className: string;
+    classId: number;
+    optionName: string;
+    classFeatureId: number;
+    featureType: number;
+  }
+
+  export interface IDDBMuleOptionDataEntry {
+    addData: IDDBMuleOptionAddData;
+    data: IDDBCharacterData;
+    debug: IDDBMuleOptionDebug;
+  }
+
+  export interface IDDBMuleOptionChoiceDebug {
+    classId: number;
+    parentClassFeatureId: number;
+    parentOptionName: string;
+    choiceKey: string;
+    choiceValue: number;
+  }
+
+  export interface IDDBMuleOptionChoicesDataEntry {
+    data: IDDBCharacterData;
+    debug: IDDBMuleOptionChoiceDebug;
+  }
+
   // ---- Mule: top-level source -----------------------------------------------
 
   /** Shape of `this.source` in DDBMuleHandler for `type === "class"`. */
@@ -969,6 +1004,8 @@ global {
     class: IDDBClassDefinition;
     subClasses: Record<string, IDDBClassDefinition[]>;
     options: IDDBClassFeatureDefinition[];
+    optionData?: Record<string, IDDBMuleOptionDataEntry>;
+    optionChoicesData?: IDDBMuleOptionChoicesDataEntry[];
     subClassData: Record<string, IDDBMuleSubClassDataEntry>;
     subClassChoicesData: IDDBMuleSubClassChoicesDataEntry[];
     infusions?: IDDBInfusions;
