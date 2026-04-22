@@ -361,10 +361,14 @@ export default class DDBMuleHandler {
   }
 
   async _buildDDBStub(): Promise<IDDBData> {
+    const classOptions: IDDBClassFeatureDefinition[] = (this.source as Partial<IDDBMuleClassSource>).options
+      ? foundry.utils.deepClone((this.source as IDDBMuleClassSource).options) as IDDBClassFeatureDefinition[]
+      : [];
+
     const stub = {
       backgroundEquipment: { slots: [] },
       character: foundry.utils.deepClone(this.source.baseCharacter) as IDDBCharacterData,
-      classOptions: [],
+      classOptions,
       decorations: foundry.utils.deepClone(this.source.baseCharacter.decorations),
       infusions: {
         known: [],
@@ -446,6 +450,13 @@ export default class DDBMuleHandler {
         await this._loadCharacterIntoFoundryWorld(ddbCharacter);
       }
     }
+
+    // Optional class features (Tasha's-style) don't need a dedicated pass.
+    // The catalog is seeded into each stub's `classOptions` by
+    // _buildDDBStub(), and CharacterFeatureFactory._buildOptionalClassFeatures
+    // iterates it during the subclass loop above — exact same path the
+    // non-mule classes muncher takes via /proxy/v5/classes/options. Dedup
+    // is handled by the existing #docKey in #mergePendingDocs.
   }
 
   async _finalizeClassCompendiumLinks() {
