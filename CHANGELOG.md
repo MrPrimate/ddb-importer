@@ -1,5 +1,7 @@
 # Next Up
 
+- Optional class features now come in on classs option import.
+
 # 7.1.9
 
 Third party classes would not show up in the class filter.
