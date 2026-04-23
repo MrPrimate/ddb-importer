@@ -1,0 +1,62 @@
+<section class="ddb-source-pruner-content">
+  <fieldset>
+    <legend>Compendiums to Scan</legend>
+    <div class="form-group ddb-pruner-compendiums" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+      {{#each compendiums}}
+      <label class="ddb-pruner-checkbox">
+        <input type="checkbox" name="compendium-select" value="{{this.setting}}" {{this.checked}} />
+        {{this.label}}
+      </label>
+      {{/each}}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Source Categories</legend>
+    <p class="hint">Select source categories to match against. Documents from any book in the selected categories will be matched.</p>
+    <div class="form-fields">
+      <multi-select id="pruner-categories" name="pruner-categories" class="ddb-source-select">
+        {{#each sourceCategories}}
+        <option value="{{this.id}}" data-tooltip="{{this.description}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Source Books</legend>
+    <p class="hint">Select specific source books to match against. This is combined with category selection above (documents matching either will be included).</p>
+    <div class="form-fields">
+      <multi-select id="pruner-books" name="pruner-books" class="ddb-source-select">
+        {{#each sourceBooks}}
+        <option value="{{this.id}}" {{this.selected}}> {{this.label}}</option>
+        {{/each}}
+      </multi-select>
+    </div>
+  </fieldset>
+
+  <div class="ddb-pruner-actions">
+    <button data-action="scanCompendiums" type="button" class="munch-button"><i class="fas fa-search"></i> Find Matching Documents</button>
+  </div>
+
+  {{#if hasResults}}
+  <fieldset>
+    <legend>Scan Results ({{totalMatched}} documents matched)</legend>
+    {{#each scanResults}}
+    <div class="ddb-pruner-result-group">
+      <h3>{{this.title}} ({{this.documents.length}} matched)</h3>
+      {{#each this.bySource}}
+      <details>
+        <summary>{{@key}} ({{this.length}})</summary>
+        <ul class="ddb-pruner-doc-list">
+          {{#each this}}
+          <li>{{this.name}}</li>
+          {{/each}}
+        </ul>
+      </details>
+      {{/each}}
+    </div>
+    {{/each}}
+  </fieldset>
+  {{/if}}
+</section>

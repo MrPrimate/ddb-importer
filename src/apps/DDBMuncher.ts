@@ -26,6 +26,7 @@ import DDBCharacter from "../parser/DDBCharacter";
 import DDBItemsImporter from "../muncher/DDBItemsImporter";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBSetup from "./DDBSetup";
+import DDBSourcePruner from "./DDBSourcePruner";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -41,6 +42,7 @@ export default class DDBMuncher extends DDBAppV2 {
   muleURL = "";
   characterId = null;
   actor: Actor.Implementation | null = null;
+  encounterFactory: DDBEncounterFactory;
 
 
   constructor() {
@@ -82,6 +84,7 @@ export default class DDBMuncher extends DDBAppV2 {
       parseClasses: DDBMuncher.parseClasses,
       parseSpecies: DDBMuncher.parseSpecies,
       openCoreSetup: DDBMuncher.openCoreSetup,
+      openSourcePruner: DDBMuncher.openSourcePruner,
     },
     position: {
       width: "800",
@@ -1298,6 +1301,10 @@ export default class DDBMuncher extends DDBAppV2 {
 
   static openCoreSetup(this: DDBMuncher, _event, _target) {
     new DDBSetup({ callMuncher: true }).render(true);
+  }
+
+  static openSourcePruner(this: DDBMuncher, _event, _target) {
+    new DDBSourcePruner().render(true);
   }
 
   static async regenerateStorage(this: DDBMuncher, _event, _target) {

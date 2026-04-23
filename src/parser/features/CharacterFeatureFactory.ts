@@ -1148,6 +1148,8 @@ export default class CharacterFeatureFactory {
         }
 
         action.system.source = featureMatch.system.source;
+        foundry.utils.setProperty(action, "flags.ddbimporter.sourceId", featureMatch.flags.ddbimporter?.sourceId);
+        foundry.utils.setProperty(action, "flags.ddbimporter.sourceCategory", featureMatch.flags.ddbimporter?.sourceCategoryId);
 
         foundry.utils.setProperty(action, "flags.ddbimporter.featureMeta", featureMatch.flags.ddbimporter);
 

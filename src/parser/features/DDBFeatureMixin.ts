@@ -405,6 +405,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     if (this.type === "class" && this._class) {
       this.data.system.source.rules = this.isClass2014 ? "2014" : "2024";
     }
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceId", localSource.id);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceCategory", localSource.sourceCategoryId);
 
     this.fallbackEnricher = fallbackEnricher;
 
