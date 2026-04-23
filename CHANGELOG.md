@@ -1,6 +1,7 @@
 # Next Up
 
 - Optional class features now come in on classs option import.
+- A new tool to remove documents from DDB Compendiums that match your choice of sources @eikka
 
 # 7.1.9
 
