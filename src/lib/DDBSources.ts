@@ -364,6 +364,65 @@ export default class DDBSources {
     await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", Array.from(allowedSourceIds));
   }
 
+  static getDocumentSourceId(doc: any): number | null {
+    // items/spells path
+    const dndbeyondSourceId = foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.sourceId");
+    if (dndbeyondSourceId != null) return Number(dndbeyondSourceId);
+    // monsters path
+    const directSourceId = foundry.utils.getProperty(doc, "flags.ddbimporter.sourceId");
+    if (directSourceId != null) return Number(directSourceId);
+    // fallback: reverse-lookup system.source.book against CONFIG.DDB.sources
+    const book = foundry.utils.getProperty(doc, "system.source.book") as string;
+    if (book) {
+      const match = CONFIG.DDB.sources.find((s) =>
+        s.name === book || s.name === book.replace(" ", "-") || s.description === book,
+      );
+      if (match) return match.id;
+    }
+    return null;
+  }
+
+  static getDocumentSourceCategoryId(doc: any): number | null {
+    // items/spells path
+    const dndbeyondCatId = foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.sourceCategoryId");
+    if (dndbeyondCatId != null) return Number(dndbeyondCatId);
+    // monsters path
+    const directCatId = foundry.utils.getProperty(doc, "flags.ddbimporter.sourceCategory");
+    if (directCatId != null) return Number(directCatId);
+    // derive from sourceId
+    const sourceId = DDBSources.getDocumentSourceId(doc);
+    if (sourceId != null) {
+      const source = CONFIG.DDB.sources.find((s) => s.id === sourceId);
+      if (source) return source.sourceCategoryId;
+    }
+    return null;
+  }
+
+  static matchesSourceFilter(
+    doc: any,
+    { sourceIds, categoryIds }: { sourceIds?: number[]; categoryIds?: number[] },
+  ): boolean {
+    if (sourceIds?.length) {
+      const docSourceId = DDBSources.getDocumentSourceId(doc);
+      if (docSourceId != null && sourceIds.includes(docSourceId)) return true;
+    }
+    if (categoryIds?.length) {
+      const docCatId = DDBSources.getDocumentSourceCategoryId(doc);
+      if (docCatId != null && categoryIds.includes(docCatId)) return true;
+    }
+    return false;
+  }
+
+  static getDocumentSourceBookName(doc: any): string {
+    const sourceId = DDBSources.getDocumentSourceId(doc);
+    if (sourceId != null) {
+      const source = CONFIG.DDB.sources.find((s) => s.id === sourceId);
+      if (source) return source.description || source.name;
+    }
+    const book = foundry.utils.getProperty(doc, "system.source.book") as string;
+    return book || "Unknown";
+  }
+
   static getBooksInCategories(categoryIds: number[]): IDDBConfigSource[] {
     const books = CONFIG.DDB.sources.filter((book) => categoryIds.includes(book.sourceCategoryId));
     return books;

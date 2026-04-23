@@ -96,8 +96,12 @@ export class DDBInfusion {
       this.requiredLevel = Number.parseInt(requiredLevel);
     }
 
-    this.data.system.source = DDBSources.parseSource(this.ddbInfusion);
+    const localSource = DDBSources.parseSource(this.ddbInfusion);
+
+    this.data.system.source = localSource;
     this.data.system.source.rules = "2014";
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceId", localSource.id);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceCategory", localSource.sourceCategoryId);
 
     if (this.requiredLevel && this.requiredLevel > 1 && "requirements" in this.data.system) {
       this.data.system.requirements = ` ${utils.ordinalSuffixOf(this.requiredLevel)}-level ${this.originClass}`;

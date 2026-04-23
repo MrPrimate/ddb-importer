@@ -210,7 +210,10 @@ export default class DDBRace {
     this.#fixups();
     this.compendiumRacialTraits = compendiumRacialTraits;
     this._generateDataStub();
-    this.data.system.source = DDBSources.parseSource(this.race);
+    const localSource = DDBSources.parseSource(this.race);
+    this.data.system.source = localSource;
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceId", localSource.id);
+    foundry.utils.setProperty(this.data, "flags.ddbimporter.sourceCategory", localSource.sourceCategoryId);
 
     this.type = "humanoid";
     this._compendiumLabel = CompendiumHelper.getCompendiumLabel("traits");

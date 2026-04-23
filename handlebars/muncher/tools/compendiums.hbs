@@ -1,5 +1,12 @@
 <section id="ddb-importer-muncher-tools-compendiums" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
   <fieldset>
+  <legend>Source Pruner</legend>
+    <div>
+      <p>Selectively remove documents from DDB compendiums by source book or source category.</p>
+      <button data-action="openSourcePruner" type="button" id="munch-source-pruner" class="munch-button"><i class="fas fa-broom"></i> Open Pruner</button>
+    </div>
+  </fieldset>
+  <fieldset>
   <legend>Compendium Folders Migration</legend>
   <p>Compendium folder migration can take a while against big compendiums.</p>
   <div class="form-group" style="display: flex">
