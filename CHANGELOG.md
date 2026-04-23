@@ -1,8 +1,11 @@
 # Next Up
 
+- Optional class features now come in on classs option import.
+- A new tool to remove documents from DDB Compendiums that match your choice of sources @eikka
+
 # 7.2.11
 
-Third party classes would not show up in the class filter.
+- Third party classes would not show up in the class filter.
 
 # 7.2.10
 
