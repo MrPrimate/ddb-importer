@@ -1,0 +1,116 @@
+<section class="ddb-party-sync">
+
+  <fieldset class="ddb-party-campaign">
+    <legend>Campaign{{#if campaignName}}: {{campaignName}}{{/if}}</legend>
+
+    <div class="form-group">
+      <label for="ddb-party-campaign-select">Campaign</label>
+      <div class="form-fields">
+        <select name="campaign-select" id="ddb-party-campaign-select" class="form-select {{#unless hasAvailableCampaigns}}ddbimporter-none{{/unless}}">
+          <option value="">Select campaign:</option>
+          {{#each availableCampaigns}}
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}{{#if this.dmUsername}} ({{this.dmUsername}}){{/if}} &mdash; {{this.id}}</option>
+          {{/each}}
+        </select>
+        <div id="ddb-party-campaign-fallback" class="ddb-party-campaign-fallback {{#if hasAvailableCampaigns}}ddbimporter-none{{/if}}">
+          <p class="hint">Couldn't fetch campaigns automatically. Enter a campaign id manually (the number from <code>/campaigns/&lt;id&gt;</code> on D&amp;D Beyond):</p>
+          <input id="ddb-party-campaign-id" class="setup-config" type="text" name="campaignId" value="{{campaignId}}" placeholder="DDB campaign id" />
+        </div>
+      </div>
+    </div>
+
+    <div class="ddb-party-button-row">
+      <button type="button" data-action="saveCampaignId" class="dnd5e2">Save</button>
+      <button type="button" data-action="fetchCampaigns" class="dnd5e2">{{#if campaignsLoading}}Fetching...{{else}}Fetch My Campaigns{{/if}}</button>
+      <button type="button" data-action="refresh" class="dnd5e2" {{#unless hasCampaignId}}disabled{{/unless}}>Refresh</button>
+    </div>
+
+    {{#if campaignName}}
+    <p class="hint">DDB campaign: <strong>{{campaignName}}</strong>{{#if campaignDM}} &middot; DM: <i>{{campaignDM}}</i>{{/if}}</p>
+    {{/if}}
+    <p class="hint">Group actor: <i>{{actorName}}</i>{{#if hasCampaignId}} &middot; Last sync: <i>{{lastSync}}</i>{{/if}}</p>
+    {{#unless hasCampaignId}}
+    <p class="hint warning">Choose a campaign and click Save to enable the rest of this dialog.</p>
+    {{/unless}}
+  </fieldset>
+
+  {{#if hasCampaignId}}
+
+  <fieldset class="ddb-party-characters">
+    <legend>Campaign Characters</legend>
+    {{#if loadingCharacters}}
+    <p class="hint">Loading characters from DDB...</p>
+    {{else if charactersError}}
+    <p class="hint warning">{{charactersError}}</p>
+    {{else if campaignCharacters.length}}
+    <div class="ddb-party-button-row ddb-party-character-actions">
+      <button type="button" data-action="importSelected" class="dnd5e2">Import Selected Characters</button>
+      <button type="button" data-action="updateSelected" class="dnd5e2">Update to DDB Selected Characters</button>
+    </div>
+    <table class="ddb-party-character-list">
+      <thead>
+        <tr>
+          <th><input type="checkbox" class="ddb-party-import-toggle-all" {{#if allImportsChecked}}checked{{/if}}/></th>
+          <th>Character</th>
+          <th>DDB</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each campaignCharacters}}
+        <tr data-character-id="{{this.characterId}}">
+          <td>
+            <input type="checkbox" class="ddb-party-import-toggle" data-character-id="{{this.characterId}}"
+              {{#unless this.disabled}}{{#if this.selectedForImport}}checked{{/if}}{{/unless}}
+              {{#if this.disabled}}disabled{{/if}}/>
+          </td>
+          <td>
+            <div class="ddb-character-cell">
+              {{#if this.avatarUrl}}
+              <img class="ddb-character-avatar" src="{{this.avatarUrl}}" alt="{{this.characterName}}" width="32" height="32" />
+              {{/if}}
+              <div class="ddb-character-meta">
+                <div class="character-name">{{this.characterName}}</div>
+                {{#if this.username}}<div class="hint">{{this.username}}</div>{{/if}}
+              </div>
+            </div>
+          </td>
+          <td>{{this.characterId}}</td>
+          <td>
+            {{#if this.inParty}}
+            <span class="status-in-party">In party</span>
+            {{else if this.alreadyImported}}
+            <span class="status-imported">In world</span>
+            {{else}}
+            <span class="status-missing">Not imported</span>
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <p class="hint">"Import" creates new world actors for characters not yet imported. "Update to DDB" pushes Foundry actor state back to D&amp;D Beyond for already-imported characters.</p>
+    {{else}}
+    <p class="hint">No characters found for this campaign.</p>
+    {{/if}}
+  </fieldset>
+
+  <fieldset class="ddb-party-inventory">
+    <legend>Party Inventory</legend>
+    {{#if patreonSupporter}}
+    <p class="hint">Items in DDB party: {{partyItemCount}} &middot; Currency: {{partyCurrencySummary}}</p>
+    <div class="ddb-party-button-row ddb-party-inventory-actions">
+      <button type="button" data-action="pullInventory" class="dnd5e2">Pull from DDB</button>
+      <button type="button" data-action="openPartyActor" class="dnd5e2" {{#unless isPartyActor}}disabled{{/unless}}>Open party actor</button>
+    </div>
+    {{#if inventoryStatus}}
+    <p class="hint">{{inventoryStatus}}</p>
+    {{/if}}
+    {{else}}
+    <p class="hint">Party inventory sync requires an active Patreon supporter key (Power tier or above).</p>
+    {{/if}}
+  </fieldset>
+
+  {{/if}}
+
+</section>

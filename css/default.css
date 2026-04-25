@@ -146,3 +146,81 @@ header > a.header-button.control.ddb-open-url {
 .ddb-source-select span {
   font-size: small;
 }
+
+.ddb-party-sync .ddb-party-button-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.ddb-party-sync .ddb-party-button-row > button {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+.ddb-party-sync table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ddb-party-sync table th,
+.ddb-party-sync table td {
+  padding: 4px 6px;
+  vertical-align: middle;
+}
+
+.ddb-party-sync table th:first-child,
+.ddb-party-sync table td:first-child {
+  width: 1px;
+  white-space: nowrap;
+  padding-right: 4px;
+  text-align: center;
+}
+
+.ddb-party-sync table input[type="checkbox"] {
+  margin: 0;
+}
+
+.ddb-party-sync table th:last-child,
+.ddb-party-sync table td:last-child {
+  text-align: center;
+}
+
+.ddb-party-sync table th:nth-child(2),
+.ddb-party-sync table td:nth-child(2) {
+  text-align: left;
+}
+
+.ddb-party-sync table th:nth-child(3),
+.ddb-party-sync table td:nth-child(3) {
+  text-align: center;
+}
+
+.ddb-party-sync .ddb-character-avatar {
+  border-radius: 4px;
+}
+
+.ddb-party-sync .ddb-character-cell {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ddb-party-sync .ddb-character-cell .ddb-character-avatar {
+  flex: 0 0 32px;
+}
+
+.ddb-party-sync .ddb-character-cell .ddb-character-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.ddb-party-sync .ddb-character-cell .character-name {
+  font-weight: 600;
+}

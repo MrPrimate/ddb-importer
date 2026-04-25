@@ -454,7 +454,7 @@ export default class DDBMuleHandler {
     // Optional class features (Tasha's-style) don't need a dedicated pass.
     // The catalog is seeded into each stub's `classOptions` by
     // _buildDDBStub(), and CharacterFeatureFactory._buildOptionalClassFeatures
-    // iterates it during the subclass loop above — exact same path the
+    // iterates it during the subclass loop above - exact same path the
     // non-mule classes muncher takes via /proxy/v5/classes/options. Dedup
     // is handled by the existing #docKey in #mergePendingDocs.
   }

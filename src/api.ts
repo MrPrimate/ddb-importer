@@ -35,6 +35,9 @@ import DDBMuleHandler from "./muncher/DDBMuleHandler";
 import DDBCharacter from "./parser/DDBCharacter";
 import DDBVehicle from "./parser/DDBVehicle";
 import DDBVehicleFactory from "./parser/DDBVehicleFactory";
+import DDBPartyInventoryImporter from "./muncher/DDBPartyInventoryImporter";
+import DDBPartyInventory from "./muncher/DDBPartyInventory";
+import DDBPartySync from "./apps/DDBPartySync";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
 function resetSecrets() {
@@ -127,12 +130,14 @@ export function registerApi() {
       AdventureMunch: AdventureMunch,
       DDBKeyChangeDialog: DDBKeyChangeDialog,
       DDBDebug: lib.DDBDebug,
+      DDBPartySync,
     },
     lib: {
       CPRHelper: External.ChrisPremadesHelper,
       ChrisPremadesHelper: External.ChrisPremadesHelper,
       CompendiumHelper: lib.CompendiumHelper,
       DDBCampaigns: lib.DDBCampaigns,
+      DDBPartyInventory,
       DDBCompanion2014,
       DDBCompanionFactory,
       DDBCharacter: DDBCharacter,
@@ -198,6 +203,18 @@ export function registerApi() {
       vehicles: parseTransports,
       items: DDBItemsImporter.fetchAndImportItems,
       spells: parseSpells,
+    },
+
+    party: {
+      pullInventory: DDBPartyInventoryImporter.pull,
+      moveItemToParty: DDBPartyInventoryImporter.moveItemToParty,
+      moveItemToCharacter: DDBPartyInventoryImporter.moveItemToCharacter,
+      deleteItem: DDBPartyInventoryImporter.deleteItem,
+      findOrCreateActor: DDBPartyInventoryImporter.findOrCreatePartyActor,
+      applyToActor: DDBPartyInventoryImporter.applyToActor,
+      Importer: DDBPartyInventoryImporter,
+      openSync: DDBPartySync.open,
+      Sync: DDBPartySync,
     },
 
     prices: {

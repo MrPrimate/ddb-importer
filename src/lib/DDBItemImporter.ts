@@ -380,12 +380,12 @@ export default class DDBItemImporter {
       await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
     }
     // @ts-expect-error - we know effects exist and can be deleted on this item
-    if (existingItem.effects) {
+    if (existingItem.effects?.size && existingItem.effects.size > 0) {
       logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
       await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     }
 
-    const update = existingItem.update(updateItem as any, {
+    const update = await existingItem.update(updateItem as any, {
       pack: this.compendium.metadata.id,
       render: false,
       recursive: this.recursive,

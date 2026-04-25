@@ -3,6 +3,43 @@ import { DICTIONARY, SETTINGS } from "../config/_module";
 import { isEqual } from "../../vendor/lowdash/_module.mjs";
 import { getActorConditionStates, getCondition } from "../parser/character/conditions";
 import DDBCharacter from "../parser/DDBCharacter";
+import DDBPartyInventory from "../muncher/DDBPartyInventory";
+
+const CHARACTER_CONTAINER_ENTITY_TYPE_ID = 1581111423;
+const PARTY_CONTAINER_ENTITY_TYPE_ID = DDBPartyInventory.PARTY_CONTAINER_ENTITY_TYPE_ID;
+const PARTY_CAMPAIGN_FLAG = "partyCampaignId";
+const RECENT_EVENT_TTL_MS = 250;
+
+const recentCharacterDeletes = new Map<number, { actor: any; ts: number; document: any }>();
+const recentPartyDeletes = new Map<number, { actor: any; campaignId: string; ts: number }>();
+
+function pruneRecentEvents(map: Map<number, { ts: number }>) {
+  const cutoff = Date.now() - RECENT_EVENT_TTL_MS;
+  for (const [k, v] of map.entries()) {
+    if (v.ts < cutoff) map.delete(k);
+  }
+}
+
+function findPartyActorContainingDDBItem(ddbItemId: number) {
+  if (!ddbItemId) return null;
+  for (const actor of (game as any).actors) {
+    if (actor.type !== "group") continue;
+    if (!foundry.utils.getProperty(actor, `flags.ddbimporter.${PARTY_CAMPAIGN_FLAG}`)) continue;
+    const match = actor.items.find((i: any) => foundry.utils.getProperty(i, "flags.ddbimporter.id") === ddbItemId);
+    if (match) return actor;
+  }
+  return null;
+}
+
+function findCharacterOwningDDBItem(ddbItemId: number) {
+  if (!ddbItemId) return null;
+  for (const actor of (game as any).actors) {
+    if (actor.type !== "character") continue;
+    const match = actor.items.find((i: any) => foundry.utils.getProperty(i, "flags.ddbimporter.id") === ddbItemId);
+    if (match) return { actor, item: match };
+  }
+  return null;
+}
 
 function getContainerItems(actor) {
   return actor.items
@@ -28,11 +65,16 @@ function setContainerDetails(actor, item, containerItems = null) {
     const containerEntityTypeId = foundry.utils.getProperty(containerItem, "flags.ddbimporter.entityTypeId");
     foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", containerId);
     foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", containerEntityTypeId);
-  } else {
-    // set the container entity id to the id of the character, if the character is the "container"
-    foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
+    return item;
   }
 
+  const existingTypeId = parseInt(foundry.utils.getProperty(item, "flags.ddbimporter.containerEntityTypeId") as string);
+  if (existingTypeId === PARTY_CONTAINER_ENTITY_TYPE_ID) {
+    return item;
+  }
+
+  foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityId", parseInt(characterId));
+  foundry.utils.setProperty(item, "flags.ddbimporter.containerEntityTypeId", CHARACTER_CONTAINER_ENTITY_TYPE_ID);
   return item;
 }
 
@@ -797,13 +839,13 @@ async function addDDBEquipment(actor, itemsToAdd) {
   }
 }
 
-async function addEquipment(actor, ddbCharacter) {
+async function addEquipment(actor, ddbCharacter, partyContext: any = null) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
 
   const items = getFoundryItems(actor);
-  const itemsToAdd = items.filter((item) =>
+  const candidates = items.filter((item) =>
     !(item.flags.ddbimporter?.action ?? false)
     && item.system.quantity !== 0
     && DICTIONARY.types.inventory.includes(item.type)
@@ -812,7 +854,36 @@ async function addEquipment(actor, ddbCharacter) {
     || !ddbItems.some((s) => s.flags.ddbimporter?.id === item.flags.ddbimporter?.id && s.type === item.type)),
   );
 
-  return addDDBEquipment(actor, itemsToAdd);
+  const partyDDBItemIds: Set<number> = partyContext?.partyDDBItemIds ?? new Set();
+  const characterId = parseInt(actor.flags.ddbimporter.dndbeyond.characterId);
+  const itemsToMoveFromParty: any[] = [];
+  const itemsToAdd: any[] = [];
+
+  for (const item of candidates) {
+    const ddbItemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
+    if (ddbItemId && partyDDBItemIds.has(parseInt(`${ddbItemId}`))) {
+      itemsToMoveFromParty.push({
+        itemId: ddbItemId,
+        containerEntityId: characterId,
+        containerEntityTypeId: CHARACTER_CONTAINER_ENTITY_TYPE_ID,
+        name: item.name,
+      });
+    } else {
+      itemsToAdd.push(item);
+    }
+  }
+
+  const movePromise = itemsToMoveFromParty.length > 0
+    ? moveDDBEquipment(actor, itemsToMoveFromParty)
+    : Promise.resolve([]);
+  const addPromise = itemsToAdd.length > 0
+    ? addDDBEquipment(actor, itemsToAdd)
+    : Promise.resolve([]);
+
+  const [moveResults, addResults] = await Promise.all([movePromise, addPromise]);
+  return Array.isArray(addResults)
+    ? [...(moveResults as any[]), ...addResults]
+    : { ...(addResults as any), partyMoves: moveResults };
 }
 
 
@@ -880,7 +951,21 @@ async function removeDDBEquipment(actor, itemsToRemove) {
   return Promise.all(promises);
 }
 
-async function removeEquipment(actor, ddbCharacter) {
+async function moveDDBEquipment(actor, moves) {
+  const promises = [];
+  for (const move of moves) {
+    if (!move?.itemId) continue;
+    const itemData = {
+      itemId: parseInt(move.itemId),
+      containerEntityId: parseInt(move.containerEntityId),
+      containerEntityTypeId: parseInt(move.containerEntityTypeId),
+    };
+    promises.push(updateCharacterCall(actor, "equipment/move", itemData, { name: move.name ?? "" }));
+  }
+  return Promise.all(promises);
+}
+
+async function removeEquipment(actor, ddbCharacter, partyContext: any = null) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
   if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
@@ -888,6 +973,11 @@ async function removeEquipment(actor, ddbCharacter) {
     foundry.utils.getProperty(item, "flags.ddbimporter.action") !== true
     && DICTIONARY.types.inventory.includes(item.type),
   );
+
+  const partyDDBItemIds: Set<number> = partyContext?.partyDDBItemIds ?? new Set();
+  const partyCampaignId = partyContext?.campaignId ?? null;
+  const itemsToMoveToParty: any[] = [];
+
   const itemsToRemove = ddbItems.filter((item) => {
     const ddbItemId = foundry.utils.getProperty(item, "flags.ddbimporter.id");
     if (!ddbItemId) return false;
@@ -912,24 +1002,41 @@ async function removeEquipment(actor, ddbCharacter) {
     );
     if (customItemMatch) return false;
 
+    // already on the DDB party server-side; nothing to do here
+    if (partyDDBItemIds.has(ddbItemId)) return false;
+
+    // present on a party Foundry actor; emit a move-to-party instead
+    if (partyCampaignId) {
+      const partyActor = findPartyActorContainingDDBItem(ddbItemId);
+      if (partyActor && `${foundry.utils.getProperty(partyActor, `flags.ddbimporter.${PARTY_CAMPAIGN_FLAG}`)}` === `${partyCampaignId}`) {
+        itemsToMoveToParty.push({
+          itemId: ddbItemId,
+          containerEntityId: parseInt(`${partyCampaignId}`),
+          containerEntityTypeId: PARTY_CONTAINER_ENTITY_TYPE_ID,
+          name: item.definition?.name ?? item.name,
+        });
+        return false;
+      }
+    }
+
     // no match, remove
     return true;
   });
 
-  if (itemsToRemove.length === 0) return [];
-  else {
-    // logger.warn("removing items", {
-    //   actorItems,
-    //   actor,
-    //   ddbCharacter,
-    //   itemsToRemove,
-    //   ddbItems,
-    // });
-    logger.debug(`Removing ${itemsToRemove.length} items`, {
-      itemsToRemove,
-    });
-    return removeDDBEquipment(actor, itemsToRemove);
+  const movePromise = itemsToMoveToParty.length > 0
+    ? moveDDBEquipment(actor, itemsToMoveToParty)
+    : Promise.resolve([]);
+
+  if (itemsToRemove.length === 0) {
+    return movePromise;
   }
+
+  logger.debug(`Removing ${itemsToRemove.length} items, moving ${itemsToMoveToParty.length} to party`, {
+    itemsToRemove,
+    itemsToMoveToParty,
+  });
+  const [moveResults, removeResults] = await Promise.all([movePromise, removeDDBEquipment(actor, itemsToRemove)]);
+  return [...(moveResults as any[]), ...(removeResults as any[])];
 }
 
 async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
@@ -1284,6 +1391,22 @@ async function _updateDDBCharacter(actor) {
   logger.debug("Current actor:", foundry.utils.duplicate(actor));
   logger.debug("DDB Parsed data:", { data: ddbCharacter.data, source: ddbCharacter.source });
 
+  const partyCampaignIdRaw = DDBCampaigns.getCampaignId();
+  const partyCampaignId = partyCampaignIdRaw && `${partyCampaignIdRaw}`.trim() !== "" ? `${partyCampaignIdRaw}` : null;
+  let partyContext: any = null;
+  if (partyCampaignId) {
+    try {
+      const partyData = await DDBPartyInventory.fetchPartyInventory({ campaignId: partyCampaignId });
+      const partyDDBItemIds = new Set<number>(
+        (partyData?.partyItems ?? []).map((i: any) => parseInt(i.id)).filter((n: number) => Number.isInteger(n)),
+      );
+      partyContext = { campaignId: partyCampaignId, partyDDBItemIds, partyData };
+    } catch (err) {
+      logger.warn(`Unable to fetch party inventory for campaign ${partyCampaignId}:`, err);
+      partyContext = { campaignId: partyCampaignId, partyDDBItemIds: new Set<number>(), partyData: null };
+    }
+  }
+
   const singlePromises = []
     .concat(
       currency(actor, ddbCharacter),
@@ -1301,8 +1424,8 @@ async function _updateDDBCharacter(actor) {
   const spellsPreparedResults = await spellsPrepared(actor, ddbCharacter);
   const actionStatusResults = await actionUseStatus(actor, ddbCharacter);
   const nameUpdateResults = await updateCustomNames(actor, ddbCharacter);
-  const addEquipmentResults = await addEquipment(actor, ddbCharacter);
-  const removeEquipmentResults = await removeEquipment(actor, ddbCharacter);
+  const addEquipmentResults = await addEquipment(actor, ddbCharacter, partyContext);
+  const removeEquipmentResults = await removeEquipment(actor, ddbCharacter, partyContext);
   const equipmentStatusResults = await equipmentStatus(actor, ddbCharacter, addEquipmentResults);
   const conditionResults = await conditions(actor, ddbCharacter);
   // if a known/choice spellcaster
@@ -1596,66 +1719,137 @@ async function activeUpdateUpdateItem(document, update) {
 // Called when characters items are added/deleted
 // will dynamically sync status back to DDB
 async function activeUpdateAddOrDeleteItem(document, state) {
-  return new Promise((resolve) => {
-    const promises = [];
+  pruneRecentEvents(recentCharacterDeletes as any);
+  pruneRecentEvents(recentPartyDeletes as any);
 
-    const syncEquipment = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-equipment");
-    // we check to see if this is actually an embedded item
-    const parentActor = document.parent;
-    const actorActiveUpdate = parentActor && foundry.utils.getProperty(parentActor, "flags.ddbimporter.activeUpdate");
-    const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
+  const parentActor = document.parent;
+  if (!parentActor) return [];
 
-    if (parentActor && actorActiveUpdate && syncEquipment && !ignore) {
-      logger.debug(`Checking to see if ${state.toLowerCase()} can be added to DDB...`);
-      const action = document.flags.ddbimporter?.action || ["feat", "class", "subclass", "spell", "background", "race"].includes(document.type);
-      if (!action) {
-        logger.debug(`Attempting to ${state.toLowerCase()} new Item`, document);
+  const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
+  if (ignore) return [];
 
-        switch (state) {
-          case "CREATE": {
-            // const characterId = parseInt(parentActor.flags.ddbimporter.dndbeyond.characterId);
-            // const containerId = document.flags?.ddbimporter?.containerEntityId;
-            // if (Number.isInteger(containerId) && characterId != parseInt(containerId)) {
-            //   // update item container
-            //   logger.debug(`Moving item from container`, document);
-            //   document.update({
-            //     "flags.ddbimporter.containerEntityId": characterId,
-            //   });
-            //   const itemData = {
-            //     itemId: parseInt(document.flags.ddbimporter.id),
-            //     containerEntityId: characterId,
-            //     containerEntityTypeId: 1581111423,
-            //   };
-            //   const flavor = { summary: "Moving item to character", name: document.name, containerId: foundry.utils.duplicate(containerId) };
-            //   promises.push(updateCharacterCall(parentActor, "equipment/move", itemData, flavor));
-            // } else {
-            logger.debug(`Creating item`, document);
-            promises.push(addDDBEquipment(parentActor, [document.toObject()]));
-            // }
-            break;
-          }
-          case "DELETE": {
-            // const collectionItems = getItemCollectionItems(parentActor);
-            // const collectionItemDDBIds = collectionItems
-            //   .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.id"))
-            //   .map((item) => item.flags.ddbimporter.id);
-            // if (foundry.utils.hasProperty(document, "flags.ddbimporter.id")
-            //   && collectionItemDDBIds.includes(document.flags.ddbimporter.id)
-            // ) {
-            //   // we don't have to handle deletes as the item collection move is handled above
-            //   logger.debug(`Moving item to container`, document);
-            // } else {
-            logger.debug(`Deleting item`, document);
-            promises.push(removeDDBEquipment(parentActor, [document.toObject()]));
-            // }
-            // break;
-          }
-          // no default
-        }
+  const syncEquipment = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-equipment");
+  if (!syncEquipment) return [];
+
+  const action = document.flags.ddbimporter?.action || ["feat", "class", "subclass", "spell", "background", "race"].includes(document.type);
+  if (action) return [];
+
+  const ddbItemId = foundry.utils.getProperty(document, "flags.ddbimporter.id") as number | undefined;
+
+  // Item moved into a party group actor
+  if (state === "CREATE" && parentActor.type === "group") {
+    const campaignId = foundry.utils.getProperty(parentActor, `flags.ddbimporter.${PARTY_CAMPAIGN_FLAG}`) as string | undefined;
+    if (!campaignId || !ddbItemId) return [];
+
+    const ownerStill = findCharacterOwningDDBItem(ddbItemId);
+    const cached = recentCharacterDeletes.get(ddbItemId);
+    const ownerActor = ownerStill?.actor ?? cached?.actor ?? null;
+    if (!ownerActor) {
+      logger.warn(`Party CREATE for DDB item ${ddbItemId} but no originating character found`);
+      return [];
+    }
+    recentCharacterDeletes.delete(ddbItemId);
+
+    logger.debug(`Item ${document.name} moved to party ${campaignId}`);
+    return moveDDBEquipment(ownerActor, [{
+      itemId: ddbItemId,
+      containerEntityId: parseInt(campaignId),
+      containerEntityTypeId: PARTY_CONTAINER_ENTITY_TYPE_ID,
+      name: document.name,
+    }]);
+  }
+
+  // Item removed from a party group actor
+  if (state === "DELETE" && parentActor.type === "group") {
+    const campaignId = foundry.utils.getProperty(parentActor, `flags.ddbimporter.${PARTY_CAMPAIGN_FLAG}`) as string | undefined;
+    if (!campaignId || !ddbItemId) return [];
+
+    const charNow = findCharacterOwningDDBItem(ddbItemId);
+    if (charNow) {
+      const targetCharacterId = parseInt(charNow.actor.flags.ddbimporter.dndbeyond.characterId);
+      logger.debug(`Item ${document.name} pulled from party to character ${charNow.actor.name}`);
+      return moveDDBEquipment(charNow.actor, [{
+        itemId: ddbItemId,
+        containerEntityId: targetCharacterId,
+        containerEntityTypeId: CHARACTER_CONTAINER_ENTITY_TYPE_ID,
+        name: document.name,
+      }]);
+    }
+
+    // Stash so a paired character-create can still claim it within the TTL
+    recentPartyDeletes.set(ddbItemId, { actor: parentActor, campaignId, ts: Date.now() });
+    return [];
+  }
+
+  // From here we only care about character actors with active update enabled
+  if (parentActor.type !== "character") return [];
+  const actorActiveUpdate = foundry.utils.getProperty(parentActor, "flags.ddbimporter.activeUpdate");
+  if (!actorActiveUpdate) return [];
+
+  // Item created on a character
+  if (state === "CREATE") {
+    if (ddbItemId) {
+      // Maybe pulled from a party
+      const partyActor = findPartyActorContainingDDBItem(ddbItemId);
+      const cachedPartyDelete = recentPartyDeletes.get(ddbItemId);
+      const sourceCampaignId = (partyActor
+        ? foundry.utils.getProperty(partyActor, `flags.ddbimporter.${PARTY_CAMPAIGN_FLAG}`)
+        : cachedPartyDelete?.campaignId) as string | undefined;
+      if (sourceCampaignId) {
+        recentPartyDeletes.delete(ddbItemId);
+        const targetCharacterId = parseInt(parentActor.flags.ddbimporter.dndbeyond.characterId);
+        logger.debug(`Item ${document.name} pulled to character ${parentActor.name} from party ${sourceCampaignId}`);
+        return moveDDBEquipment(parentActor, [{
+          itemId: ddbItemId,
+          containerEntityId: targetCharacterId,
+          containerEntityTypeId: CHARACTER_CONTAINER_ENTITY_TYPE_ID,
+          name: document.name,
+        }]);
       }
     }
-    resolve(promises);
-  });
+    logger.debug(`Creating item`, document);
+    return addDDBEquipment(parentActor, [document.toObject()]);
+  }
+
+  // Item deleted from a character
+  if (state === "DELETE") {
+    if (ddbItemId) {
+      const partyActor = findPartyActorContainingDDBItem(ddbItemId);
+      if (partyActor) {
+        const campaignId = foundry.utils.getProperty(partyActor, `flags.ddbimporter.${PARTY_CAMPAIGN_FLAG}`) as string | undefined;
+        if (campaignId) {
+          logger.debug(`Item ${document.name} moved from character ${parentActor.name} to party ${campaignId}`);
+          return moveDDBEquipment(parentActor, [{
+            itemId: ddbItemId,
+            containerEntityId: parseInt(campaignId),
+            containerEntityTypeId: PARTY_CONTAINER_ENTITY_TYPE_ID,
+            name: document.name,
+          }]);
+        }
+      }
+
+      // Defer: a paired party CREATE may still arrive within the TTL
+      const documentSnapshot = document.toObject();
+      recentCharacterDeletes.set(ddbItemId, { actor: parentActor, document: documentSnapshot, ts: Date.now() });
+      return new Promise((resolve) => {
+        setTimeout(async () => {
+          const stash = recentCharacterDeletes.get(ddbItemId);
+          if (!stash) {
+            resolve([]);
+            return;
+          }
+          recentCharacterDeletes.delete(ddbItemId);
+          logger.debug(`Deleting item (no party claim within ${RECENT_EVENT_TTL_MS}ms)`, documentSnapshot);
+          const result = await removeDDBEquipment(stash.actor, [documentSnapshot]);
+          resolve(result);
+        }, RECENT_EVENT_TTL_MS);
+      });
+    }
+    logger.debug(`Deleting item`, document);
+    return removeDDBEquipment(parentActor, [document.toObject()]);
+  }
+
+  return [];
 }
 
 // called when effects are added/deleted/updated

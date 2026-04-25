@@ -3,6 +3,7 @@ import DDBCharacterManager from "../../apps/DDBCharacterManager";
 import { logger, Secrets } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
+import DDBPartySync from "../../apps/DDBPartySync";
 
 const API_ENDPOINT = "https://character-service.dndbeyond.com/character/v5/character/";
 // reference to the D&D Beyond popup
@@ -98,7 +99,6 @@ async function characterButtonClick(event, document, actor) {
 }
 
 function characterButtonClickV2(event, _target) {
-
   characterButtonClick(event, this.document, this.actor);
 }
 
@@ -128,15 +128,31 @@ function npcButtonClick(event, document) {
 }
 
 function npcButtonClickV2(event, _target) {
-
   npcButtonClick(event, this.document);
 }
 
 function getNPCButton(document) {
   const button = $("<button type=\"button\" id=\"ddbImporterButton\"><i class=\"fab fa-d-and-d-beyond\"></button>");
-
   button.click((event) => npcButtonClick(event, document));
+  return button;
+}
 
+function groupButtonClickV2(_event, _target) {
+  const actor = this.document ?? this.actor;
+  if (!actor) return false;
+  DDBPartySync.open({ actor });
+  return true;
+}
+
+function groupButtonClick(_event, document) {
+  if (!document) return false;
+  DDBPartySync.open({ actor: document });
+  return true;
+}
+
+function getGroupButton(document) {
+  const button = $("<button type=\"button\" id=\"ddbImporterButton\"><i class=\"fab fa-d-and-d-beyond\"></button>");
+  button.click((event) => groupButtonClick(event, document));
   return button;
 }
 
@@ -200,21 +216,31 @@ function handleNPCHeaderButtonV2(config, buttons, label = true) {
   });
 }
 
+function handleGroupHeaderButtonV2(config, buttons, label = true) {
+  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  config.options.actions["ddbpartysync"] = groupButtonClickV2;
+  buttons.unshift({
+    label: label ? `DDB Party Sync` : undefined,
+    icon: `fab fa-d-and-d-beyond${whiteTitle}`,
+    action: "ddbpartysync",
+    ownership: "OWNER",
+  });
+}
+
 
 function createActorHeaderButtonsV2(config, buttons, label = true) {
-  const isCharacterSheet = config.actor?.type === "character";
-  const isNpcSheet = config.actor?.type === "npc";
-
-  if (!isCharacterSheet && !isNpcSheet) return;
-
-  if (!game.settings.get("ddb-importer", "character-link-title") && isCharacterSheet) return;
-  if (!game.settings.get("ddb-importer", "monster-link-title") && isNpcSheet) return;
+  const actor = config.actor ?? config.document;
+  const isCharacterSheet = actor?.type === "character";
+  const isNpcSheet = actor?.type === "npc";
+  const isPartyGroupSheet = actor?.type === "group";
 
   if (isCharacterSheet) {
     handlePCHeaderButtonV2(config, buttons, label);
   } else if (isNpcSheet) {
     if (!config.document.flags?.monsterMunch?.url) return;
     handleNPCHeaderButtonV2(config, buttons, label);
+  } else if (isPartyGroupSheet) {
+    handleGroupHeaderButtonV2(config, buttons, label);
   }
 }
 
@@ -251,8 +277,9 @@ function createDefault5eButtonsV2(config, buttons) {
 
   const isCharacterSheet = config.constructor.name === "CharacterActorSheet";
   const isNpcSheet = config.constructor.name === "NPCActorSheet";
+  const isGroupSheet = config.constructor.name === "GroupActorSheet";
 
-  if (!isCharacterSheet && !isNpcSheet) {
+  if (!isCharacterSheet && !isNpcSheet && !isGroupSheet) {
     logger.debug(`Unknown Character Sheet`, {
       config,
     });
@@ -323,8 +350,9 @@ function tidySheets() {
 
       const isCharacterSheet = api.isTidy5eCharacterSheet(config);
       const isNpcSheet = api.isTidy5eNpcSheet(config);
+      const isGroupSheet = api.isTidy5eGroupSheet(config);
 
-      if (!isCharacterSheet && !isNpcSheet) {
+      if (!isCharacterSheet && !isNpcSheet && !isGroupSheet) {
         return;
       }
 
@@ -342,6 +370,33 @@ function tidySheets() {
     });
   }
 }
+
+const addPartySyncContext = (_html, options: any[]) => {
+  console.warn("Adding party sync context menu option", {
+    options,
+  });
+  options.push({
+    name: "DDB Party Sync",
+    icon: "<i class=\"fa-duotone fa-solid fa-rotate\"></i>",
+    condition: (li) => {
+      const actorId = li instanceof HTMLElement
+        ? li.dataset.entryId ?? li.dataset.documentId
+        : li.data?.("entryId") ?? li.data?.("documentId");
+      const actor = actorId ? game.actors.get(actorId) : null;
+      console.warn("Checking party sync context condition for actor", actor);
+      return actor?.type === "group" && actor.isOwner;
+    },
+    callback: (li) => {
+      const actorId = li instanceof HTMLElement
+        ? li.dataset.entryId ?? li.dataset.documentId
+        : li.data?.("entryId") ?? li.data?.("documentId");
+      const actor = actorId ? game.actors.get(actorId) : null;
+      if (actor) DDBPartySync.open({ actor });
+    },
+  });
+};
+
+Hooks.once("getActorContextOptions", addPartySyncContext);
 
 export default function () {
   /**
@@ -361,6 +416,7 @@ export default function () {
   //   : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
   tidySheets();
+  console.warn("Registering sheet header buttons and context menu options");
   Hooks.on("getHeaderControlsBaseActorSheet", createDefault5eButtonsV2);
   Hooks.on("getActorSheet5eHeaderButtons", createDefault5eButtons);
   Hooks.on("getActorSheetHeaderButtons", createOldSheetHeaderButtons);
@@ -402,4 +458,27 @@ export default function () {
       }
     });
   });
+
+
+  const groupSheetNames = Object.values(CONFIG.Actor.sheetClasses.group)
+    .map((sheetClass) => sheetClass.cls)
+    .map((sheet) => sheet.name);
+
+  groupSheetNames.forEach((sheetName) => {
+    Hooks.on("render" + sheetName, (app, html, data) => {
+      // only for GMs or the owner of this character
+      if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
+      if ($(html).find("#ddbImporterButton").length > 0) return;
+
+      if (!characterLink) {
+        const button = getGroupButton(data.actor);
+        const wrap = $("<div class=\"ddbCharacterName\"></div>");
+        $(html).find("input[name='name']").wrap(wrap);
+        $(html).find("input[name='name']").parent().prepend(button);
+      }
+    });
+  });
+
+
+
 }
