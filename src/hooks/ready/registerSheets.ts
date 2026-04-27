@@ -372,9 +372,6 @@ function tidySheets() {
 }
 
 const addPartySyncContext = (_html, options: any[]) => {
-  console.warn("Adding party sync context menu option", {
-    options,
-  });
   options.push({
     name: "DDB Party Sync",
     icon: "<i class=\"fa-duotone fa-solid fa-rotate\"></i>",
@@ -383,7 +380,6 @@ const addPartySyncContext = (_html, options: any[]) => {
         ? li.dataset.entryId ?? li.dataset.documentId
         : li.data?.("entryId") ?? li.data?.("documentId");
       const actor = actorId ? game.actors.get(actorId) : null;
-      console.warn("Checking party sync context condition for actor", actor);
       return actor?.type === "group" && actor.isOwner;
     },
     callback: (li) => {
@@ -416,7 +412,6 @@ export default function () {
   //   : '<button type="button" id="ddbImporterButton" class="inactive"><i class="fab fa-d-and-d-beyond"></button>';
 
   tidySheets();
-  console.warn("Registering sheet header buttons and context menu options");
   Hooks.on("getHeaderControlsBaseActorSheet", createDefault5eButtonsV2);
   Hooks.on("getActorSheet5eHeaderButtons", createDefault5eButtons);
   Hooks.on("getActorSheetHeaderButtons", createOldSheetHeaderButtons);
@@ -465,7 +460,7 @@ export default function () {
     .map((sheet) => sheet.name);
 
   groupSheetNames.forEach((sheetName) => {
-    Hooks.on("render" + sheetName, (app, html, data) => {
+    Hooks.on("render" + sheetName, (_app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
       if ($(html).find("#ddbImporterButton").length > 0) return;
@@ -478,7 +473,5 @@ export default function () {
       }
     });
   });
-
-
 
 }
