@@ -1,7 +1,10 @@
 # Next Up
 
+# 7.1.10
+
 - Optional class features now come in on classs option import.
 - A new tool to remove documents from DDB Compendiums that match your choice of sources @eikka
+- Group Actors now have an import screen that can import characters in a campaign, and also the shared party inventory on DDB. @cookienick @geektasticdad
 
 # 7.1.9
 
