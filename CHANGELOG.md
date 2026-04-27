@@ -1,7 +1,10 @@
 # Next Up
 
-- Optional class features now come in on classs option import.
+# 7.2.12
+
+- Optional class features now come in on classs option import. @motomoto0295
 - A new tool to remove documents from DDB Compendiums that match your choice of sources @eikka
+- Group Actors now have an import screen that can import characters in a campaign, and also the shared party inventory on DDB. @cookienick @geektasticdad
 
 # 7.2.11
 
@@ -69,6 +72,20 @@
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.10
+
+- Optional class features now come in on classs option import.
+- A new tool to remove documents from DDB Compendiums that match your choice of sources @eikka
+- Group Actors now have an import screen that can import characters in a campaign, and also the shared party inventory on DDB. @cookienick @geektasticdad
+
+# 7.1.9
+
+Third party classes would not show up in the class filter.
+
+# 7.1.8
+
+- Stunning Strike was incorrectly linked to an activity use, not item use.
 
 # 7.1.7
 
