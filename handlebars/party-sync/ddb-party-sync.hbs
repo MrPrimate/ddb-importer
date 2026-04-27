@@ -45,7 +45,10 @@
     {{else if campaignCharacters.length}}
     <div class="ddb-party-button-row ddb-party-character-actions">
       <button type="button" data-action="importSelected" class="dnd5e2">Import Selected Characters</button>
-      <button type="button" data-action="updateSelected" class="dnd5e2">Update to DDB Selected Characters</button>
+      <button type="button" data-action="updateSelected" class="dnd5e2"
+      {{#if syncEnabled}}enabled{{else if useLocalPatreonKeyAndItemsMunched}}enabled{{else}}disabled{{/if}}>
+      {{#if itemsMunched}}Update to DDB Selected Characters{{else}}Update Unavailable{{/if}}
+      </button>
     </div>
     <table class="ddb-party-character-list">
       <thead>
