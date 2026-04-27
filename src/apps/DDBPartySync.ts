@@ -1,5 +1,5 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger, PatreonHelper, DDBCampaigns, Secrets } from "../lib/_module";
+import { logger, PatreonHelper, DDBCampaigns, Secrets, MuncherSettings, CompendiumHelper } from "../lib/_module";
 import DDBPartyInventory, { IDDBCampaignCharacter } from "../muncher/DDBPartyInventory";
 import DDBPartyInventoryImporter from "../muncher/DDBPartyInventoryImporter";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
@@ -55,6 +55,8 @@ export default class DDBPartySync extends DDBAppV2 {
     campaignsLoaded: false,
     campaignsLoading: false,
   };
+
+  importSettings: ICharacterImportSettings;
 
   constructor(options: any = {}) {
     super();
@@ -194,6 +196,13 @@ export default class DDBPartySync extends DDBAppV2 {
       selected: `${c.id}` === `${this.campaignId}`,
     }));
 
+    this.importSettings = MuncherSettings.getCharacterImportSettings();
+
+    const dmSyncEnabled: boolean = this.importSettings.tiers.all;
+
+    const itemCompendium = await CompendiumHelper.getCompendiumType("item", false);
+    const itemsMunched = itemCompendium ? (await itemCompendium.index.size) !== 0 : false;
+
     return {
       actorName: this.actor?.name ?? "(no actor)",
       isPartyActor: this.isPartyActor,
@@ -215,6 +224,9 @@ export default class DDBPartySync extends DDBAppV2 {
       inventoryStatus: this.partyState.inventoryStatus,
       loadingCharacters: this.partyState.loadingCharacters,
       charactersError: this.partyState.charactersError,
+      syncEnabled: dmSyncEnabled && itemsMunched,
+      tiers: this.importSettings.tiers,
+      itemsMunched,
     };
   }
 
