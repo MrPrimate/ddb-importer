@@ -40,6 +40,7 @@ export default class Rage extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     return [{
       name: "Rage",
+      ignoreTransfer: true,
       options: {
         transfer: true,
         disabled: true,
