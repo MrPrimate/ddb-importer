@@ -187,8 +187,6 @@ export default class ShadowBlade extends DDBEnricherData {
       links.push(`@UUID[${uuid}]{${blade.name}} (${slotRange})`);
     }
 
-    console.warn("Linking up Shadow Blade item UUIDs", { links });
-
     if (links.length === 0) return;
 
     const description = this.data.system.description.value ?? "";
