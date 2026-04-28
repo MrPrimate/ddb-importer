@@ -674,7 +674,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   }
 
   updateDescriptionTable(updates = []) {
-    const doc = utils.htmlToDoc(this.ddbParser?.ddbDefinition?.description ?? "");
+    const doc = utils.htmlToDoc(this.data.system.description.value ?? "");
 
     const rows = doc.body.querySelectorAll("tbody tr");
 
@@ -695,7 +695,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         }
       }
     }
-    foundry.utils.setProperty(this.ddbParser, "ddbDefinition.description", doc.body.innerHTML);
+    foundry.utils.setProperty(this.data, "system.description.value", doc.body.innerHTML);
   }
 
   linkUpItemUUIDs() {

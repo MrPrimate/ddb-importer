@@ -3,6 +3,20 @@ import { logger, utils, CompendiumHelper, DDBSources } from "./_module";
 
 export class DDBCompendiumFolders {
 
+  compendium: CompendiumCollection.Any;
+  type: string;
+  packName: string | null;
+  compendiumFolderTypeMonster: string;
+  compendiumFolderTypeSpell: string;
+  compendiumFolderTypeItem: string;
+  validFolderIds: string[] = [];
+  classFolders: Record<string, string> = {};
+  subClassFeaturesFolder: Record<string, string> = {};
+  backgroundFolders: Record<string, string> = {};
+  vehicleFolders: Record<string, string> = {};
+  entityTypes: Map<string, string>;
+  entityType: TCompendiumEntityType;
+
   static DDB_COLOR = "#6f0006";
 
   static SCHEMA_SUPPORT = {
@@ -28,11 +42,7 @@ export class DDBCompendiumFolders {
     this.resetFolderLookups();
 
     this.entityTypes = utils.entityMap();
-    this.entityType = this.entityTypes.get(type);
-
-    // this.monsterFolders = {};
-    // this.spellFolders = {};
-    // this.itemFolders = {};
+    this.entityType = this.entityTypes.get(type) as TCompendiumEntityType;
 
     this.compendiumFolderTypeMonster = utils.getSetting<string>("munching-selection-compendium-folders-monster");
     this.compendiumFolderTypeSpell = utils.getSetting<string>("munching-selection-compendium-folders-spell");
@@ -51,7 +61,7 @@ export class DDBCompendiumFolders {
   async loadCompendium(type = null, noCreate = true) {
     if (type) {
       this.packName = await CompendiumHelper.getCompendiumLabel(type);
-      this.entityType = this.entityTypes.get(type);
+      this.entityType = this.entityTypes.get(type) as TCompendiumEntityType;
     }
     this.compendium = CompendiumHelper.getCompendium(this.packName);
     if (!noCreate) await this.createCompendiumFolders();
@@ -613,7 +623,30 @@ export class DDBCompendiumFolders {
     }
   }
 
+  async createSpellFoldersForItemDocuments(documents = []) {
+    const rootFolder = this.getFolder("Spell Items", "SpellItems")
+      ?? (await this.createCompendiumFolder({ name: "Spell Items", flagTag: "spellitems" }));
+    for (const doc of documents.filter((d) => foundry.utils.getProperty(d, "flags.ddbimporter.isSpellItem"))) {
+      const spellFolder = DDBCompendiumFolders.getSpellItemFolderNameForType(doc);
+      const folder = this.getFolder(spellFolder.name, spellFolder.flagTag)
+        ?? (await this.createCompendiumFolder({
+          name: spellFolder.name,
+          parentId: rootFolder._id,
+          color: spellFolder.color ?? "#222222",
+          flagTag: spellFolder.flagTag,
+        }));
+      logger.debug(`Checking for Spell Item folder '${spellFolder.name}' with flag '${spellFolder.flagTag}'`, {
+        folder,
+        spellFolder,
+        document: doc,
+      });
+    }
+  }
+
   async createItemFoldersForDocuments({ documents = [] }) {
+    if (documents.filter((d) => foundry.utils.getProperty(d, "flags.ddbImporter.isSpellItem")).length > 0) {
+      await this.createSpellFoldersForItemDocuments(documents);
+    }
     switch (this.compendiumFolderTypeItem) {
       case "TYPE":
         await this.createItemTypeCompendiumFolders();
@@ -1069,8 +1102,33 @@ export class DDBCompendiumFolders {
     };
   }
 
+  static getSpellItemFolderNameForType(document) {
+    // Implement the logic to get the folder name for spell items
+    let spellName: string = foundry.utils.getProperty(document, "flags.ddbimporter.spellName") as string ?? "Unknown";
+    const is2014 = foundry.utils.getProperty(document, "flags.ddbimporter.is2014");
+    if (utils.getSetting<string>("rulesVersion", "dnd5e") === "modern" && is2014) {
+      spellName = `${spellName} (2014)`;
+    } else if (utils.getSetting<string>("rulesVersion", "dnd5e") !== "modern" && !is2014) {
+      spellName = `${spellName} (2024)`;
+    }
+    return {
+      name: spellName,
+      type: "spell",
+      suffix: null,
+      color: null,
+      parentFolderName: "Spell Items",
+      flagTag: `spellitem/${is2014 ? "2014" : "2024"}/${utils.idString(spellName)}`,
+    };
+  }
+
   getItemCompendiumFolderName(document) {
     let name;
+    const isSpellItem = foundry.utils.getProperty(document, "flags.ddbimporter.isSpellItem");
+
+    if (isSpellItem) {
+      name = DDBCompendiumFolders.getSpellItemFolderNameForType(document);
+      return name;
+    }
     switch (this.compendiumFolderTypeItem) {
       case "RARITY": {
         name = DDBCompendiumFolders.getItemFolderNameForRarity(document);

@@ -13,6 +13,14 @@ export {};
 
 declare global {
 
+  type TCoreFoundryTypes = "Actor" | "Item" | "ActiveEffect" | "JournalEntry" | "JournalEntryPage" | "Macro" | "RollTable" | "Scene" | "Playlist" | "Compendium";
+
+  type TCompendiumEntityType = Extract<
+    TCoreFoundryTypes,
+    "Actor" | "Item" | "JournalEntry" | "Macro" | "RollTable" | "Scene"
+  >;
+
+
   type DeepPartial<T> = {
     [K in keyof T]?: T[K] extends (infer U)[]
       ? DeepPartial<U>[]
