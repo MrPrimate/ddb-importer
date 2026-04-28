@@ -1,5 +1,11 @@
 # Next Up
 
+# 7.1.13
+
+- Rage and Bladesong effects not linked to activities. @thelaymansterms
+- Shadowblade spell enchantment. @thelaymansterms @redarchongaming
+- Elemental Attunement would not be added to class advancement for Warrior of the Elements.
+
 # 7.2.12
 
 - Optional class features now come in on classs option import. @motomoto0295
@@ -72,6 +78,12 @@
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.11
+
+- Rage and Bladesong effects not linked to activities. @thelaymansterms
+- Shadowblade spell enchantment. @thelaymansterms @redarchongaming
+- Elemental Attunement would not be added to class advancement for Warrior of the Elements.
 
 # 7.1.10
 
