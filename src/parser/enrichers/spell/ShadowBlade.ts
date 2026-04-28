@@ -29,14 +29,44 @@ export default class ShadowBlade extends DDBEnricherData {
   //         noeffect: true,
   //         damageParts: [
   //           DDBEnricherData.basicDamagePart({
-  //             number: 2,
-  //             denomination: 8,
+  //             customFormula: "(1 + min(4, (ceil((@item.level) / 2))))d8",
   //             types: ["psychic"],
-  //             scalingFormula: "half",
-  //             scalingNumber: 1,
   //           }),
   //         ],
-  //         attackOverride: {
+  //       },
+  //       overrides: {
+  //         data: {
+  //           attack: {
+  //             type: {
+  //               "value": "melee",
+  //               "classification": "weapon",
+  //             },
+  //           },
+  //           duration: {
+  //             "units": "inst",
+  //             "override": true,
+  //           },
+  //           range: {
+  //             "units": "ft",
+  //             "override": true,
+  //             "value": "5",
+  //           },
+  //           target: {
+  //             "template": {
+  //               "units": "ft",
+  //               "type": "",
+  //             },
+  //             "affects": {
+  //               "count": "1",
+  //               "type": "creature",
+  //               "special": "",
+  //             },
+  //             "override": true,
+  //           },
+  //           activation: {
+  //             "type": "action",
+  //             "override": true,
+  //           },
   //         },
   //       },
   //     },
