@@ -1,5 +1,11 @@
 # Next Up
 
+# 7.1.11
+
+- Rage and Bladesong effects not linked to activities. @thelaymansterms
+- Shadowblade spell enchantment. @thelaymansterms @redarchongaming
+- Elemental Attunement would not be added to class advancement for Warrior of the Elements.
+
 # 7.1.10
 
 - Optional class features now come in on classs option import.
