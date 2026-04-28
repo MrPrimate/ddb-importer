@@ -112,6 +112,7 @@ export const PARSING_FEATURES = {
     "Skillful",
     "The Crooked Moon: Dark Bargain",
     "Fighting Style feat",
+    "Elemental Attunement: Activate Elemental Attunement",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",
@@ -317,6 +318,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Black Magic",
     "Giant's Power",
     "Metamagic",
+    "Elemental Attunement",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
