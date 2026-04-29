@@ -1,5 +1,7 @@
 # Next Up
 
+- Bladesong now uses an enchantment.
+
 # 7.1.13
 
 - Rage and Bladesong effects not linked to activities. @thelaymansterms
