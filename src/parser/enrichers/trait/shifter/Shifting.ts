@@ -198,6 +198,7 @@ export default class Shifting extends DDBEnricherData {
           name: `Shifted: ${shifterType}`,
           options: {
             durationSeconds: 60,
+            transfer: true,
           },
           activityMatch: `Shift ${shifterType}`,
           changes,
