@@ -1,6 +1,7 @@
 # Next Up
 
 - Bladesong now uses an enchantment.
+- Compendium Folder creation Hook.
 
 # 7.1.11
 
