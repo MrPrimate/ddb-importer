@@ -83,6 +83,7 @@ declare module "fvtt-types/configuration" {
       "ddb-importer.vehiclesCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.itemsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.characterProcessDataComplete": (data: { actor: Actor.Implementation; ddbCharacter: DDBCharacter }) => void;
+      "ddb-importer.compendiumCreationComplete": (data: { compendiums: string[] }) => void;
     }
   }
 }
