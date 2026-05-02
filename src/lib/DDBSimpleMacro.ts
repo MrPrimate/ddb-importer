@@ -1,4 +1,5 @@
-import { utils, logger } from "../lib/_module";
+import logger from "./Logger";
+import utils from "./Utils";
 import DDBMacros from "./DDBMacros";
 
 /**

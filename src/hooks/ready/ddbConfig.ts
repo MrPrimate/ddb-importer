@@ -2,9 +2,9 @@ import { logger, FileHelper, DDBProxy } from "../../lib/_module";
 import { fallbackDDBConfig } from "./fallbackConfig";
 import { SETTINGS } from "../../config/_module";
 import addDDBConfig from "./addDDBConfig";
-// import { RULE_DATA } from "./fallbackRules";
+import { RULE_DATA } from "./fallbackRules";
 
-function directConfig() {
+async function directConfig() {
   $.getJSON("https://www.dndbeyond.com/api/config/json")
     .then((config) => {
       if (config && config.sources) {
@@ -68,11 +68,10 @@ function proxyConfig() {
 export function loadDDBConfig() {
   if (!foundry.utils.hasProperty(CONFIG, "DDB")) {
     foundry.utils.setProperty(CONFIG, "DDB", fallbackDDBConfig);
-    // foundry.utils.setProperty(CONFIG, "DDB.RULE_DATA", RULE_DATA);
+    foundry.utils.setProperty(CONFIG, "DDB.RULE_DATA", RULE_DATA);
     if (foundry.utils.getProperty(CONFIG, "DEBUG.DDBI.DIRECT_CONFIG")) {
       if ((/electron/i).test(navigator.userAgent)) {
         logger.info("Electron detected using DDB Config stub");
-        logger.debug("DDB_CONFIG", CONFIG.DDB);
       } else {
         logger.info("Loaded default DDB config, checking for live config access.");
         directConfig().then(() => {

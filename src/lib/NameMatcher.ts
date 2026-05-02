@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../config/_module";
-import { logger } from "./_module";
+import logger from "./Logger";
 
 export default class NameMatcher {
 

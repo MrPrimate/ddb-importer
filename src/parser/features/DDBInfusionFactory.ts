@@ -1,5 +1,5 @@
 import { logger } from "../../lib/_module";
-import DDBCharacter from "../DDBCharacter";
+import type DDBCharacter from "../DDBCharacter";
 import { DDBInfusion, IDDBSupportedInfusionDocuments } from "./DDBInfusion";
 
 export class DDBInfusionFactory {

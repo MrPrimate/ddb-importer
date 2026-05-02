@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "entry": [
+    "src/index.{ts,tsx,js,jsx}",
+    "src/main.{ts,tsx,js,jsx}"
+  ],
+
+  "duplicates": {
+    // Common additions (uncomment to enable):
+    // "ignore": [
+    //   "**/lib/**",          // for repos that publish transpiled output to lib/
+    //   "**/legacy/**",       // for repos with legacy-build artifacts
+    //   "**/__generated__/**", // Relay, GraphQL Code Generator
+    //   "**/generated/**"     // OpenAPI, Protobuf codegen
+    // ]
+  },
+  "rules": {
+    "unused-dependencies": "warn"
+  },
+  "ignorePatterns": [
+    ".github/**",
+    "dist/**",
+    "macros/**",
+    "tools/**",
+    "vendor/**",
+    "css/**",
+    "src/effects/feats/**",
+    "src/effects/monsterFeatures/**",
+    "src/effects/spells/**",
+    "src/effects/specialSpells.ts"
+  ],
+  "ignoreDependencies": [
+    "@typescript-eslint/eslint-plugin",
+    "eslint-plugin-jsdoc",
+    "node-fetch",
+    "prettier-eslint",
+    "prompts"
+  ]
+}

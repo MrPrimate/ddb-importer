@@ -7,7 +7,7 @@ import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbil
 import DDBSpell from "./DDBSpell";
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module";
-import DDBCharacter from "../DDBCharacter";
+import type DDBCharacter from "../DDBCharacter";
 
 const SPELLIST_ADDITION_MATCHES = [
   "using any spell slots you have of the appropriate level",

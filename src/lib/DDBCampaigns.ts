@@ -1,4 +1,8 @@
-import { logger, DDBProxy, PatreonHelper, Secrets, utils } from "./_module";
+import logger from "./Logger";
+import DDBProxy from "./DDBProxy";
+import PatreonHelper from "./PatreonHelper";
+import * as Secrets from "./Secrets";
+import utils from "./Utils";
 
 export interface IDDBListCampaign {
   id: number;

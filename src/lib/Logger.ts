@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { FileHelper } from "./_module";
+import FileHelper from "./FileHelper";
 
 const logger = {
 
@@ -13,7 +13,7 @@ const logger = {
     }
 
     try {
-      const setting = game.settings.get("ddb-importer", "log-level");
+      const setting = game.settings.get("ddb-importer", "log-level") as unknown as string;
       const logLevels = ["VERBOSE", "DEBUG", "TIME", "TIMEEND", "TIMELOG", "INFO", "WARN", "ERR", "OFF"];
       const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
       if (setting == "OFF"
@@ -28,6 +28,7 @@ const logger = {
     }
 
   },
+
   _addToLogFile: (logLevel, data) => {
     if (foundry.utils.getProperty(CONFIG.debug, "ddbimporter.record") === true) {
       CONFIG.debug.ddbimporter.log.push({
@@ -96,14 +97,16 @@ const logger = {
         break;
       case "TIME":
         if (payload) {
-          console.time(msg, ...payload);
+          console.debug(msg, ...payload);
+          console.time(msg);
         } else {
           console.time(msg);
         }
         break;
       case "TIMEEND":
         if (payload) {
-          console.timeEnd(msg, ...payload);
+          console.debug(msg, ...payload);
+          console.timeEnd(msg);
         } else {
           console.timeEnd(msg);
         }
@@ -169,14 +172,15 @@ const getCircularReplacer = () => {
 };
 
 function downloadLog() {
-  FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
+  const logData = foundry.utils.getProperty(CONFIG.debug, "ddbimporter.log") as IDDBImporterDebugLogEntry[];
+  FileHelper.download(JSON.stringify(logData, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
   foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 
 export function setupLogger() {
   const enabledDebugLogging = false;
 
-  const defaults = {
+  const defaults: IDDBImporterDebugConfig = {
     record: enabledDebugLogging,
     log: [],
     download: downloadLog,

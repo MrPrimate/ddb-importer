@@ -1,4 +1,7 @@
-import { DDBProxy, PatreonHelper, Secrets, utils } from "./_module";
+import utils from "./Utils";
+import DDBProxy from "./DDBProxy";
+import PatreonHelper from "./PatreonHelper";
+import * as Secrets from "./Secrets";
 import FileHelper from "./FileHelper";
 import MuncherSettings from "./MuncherSettings";
 

@@ -1,4 +1,6 @@
-import { logger, utils, FileHelper } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import FileHelper from "./FileHelper";
 
 export interface SceneSnipRegion {
   x: number;

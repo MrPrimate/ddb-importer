@@ -1,4 +1,7 @@
-import { logger, utils, DDBItemImporter, FileHelper } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import DDBItemImporter from "./DDBItemImporter";
+import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 

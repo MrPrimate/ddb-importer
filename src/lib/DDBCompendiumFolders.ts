@@ -1,5 +1,8 @@
 import { DICTIONARY } from "../config/_module";
-import { logger, utils, CompendiumHelper, DDBSources } from "./_module";
+import utils from "./Utils";
+import logger from "./Logger";
+import CompendiumHelper from "./CompendiumHelper";
+import DDBSources from "./DDBSources";
 
 export class DDBCompendiumFolders {
 

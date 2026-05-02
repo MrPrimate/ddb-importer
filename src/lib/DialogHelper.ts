@@ -1,5 +1,4 @@
-import { ChooserDialog } from "./_module";
-
+import { ChooserDialog } from "./AdvancedDialog";
 export default class DialogHelper {
 
   /**

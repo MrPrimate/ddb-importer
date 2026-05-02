@@ -1,5 +1,5 @@
-
-import { logger, CompendiumHelper } from "./_module";
+import logger from "./Logger";
+import CompendiumHelper from "./CompendiumHelper";
 
 export default class OriginFixer {
 

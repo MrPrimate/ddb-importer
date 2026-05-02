@@ -243,6 +243,9 @@ declare global {
     chrisPremades: {
       renamedItems: Record<string, string>;
     };
+    debug: {
+      ddbimporter: IDDBImporterDebugConfig;
+    };
   }
 
 }

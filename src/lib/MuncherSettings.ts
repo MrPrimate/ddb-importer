@@ -1,13 +1,10 @@
-// import { logger } from "../_module";
-import {
-  logger,
-  Secrets,
-  FileHelper,
-  PatreonHelper,
-  DDBSources,
-  DDBProxy,
-  utils,
-} from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import PatreonHelper from "./PatreonHelper";
+import * as Secrets from "./Secrets";
+import FileHelper from "./FileHelper";
+import DDBSources from "./DDBSources";
+import DDBProxy from "./DDBProxy";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { SystemHelpers } from "../parser/lib/_module";
 import DDBMuleHandler from "../muncher/DDBMuleHandler";

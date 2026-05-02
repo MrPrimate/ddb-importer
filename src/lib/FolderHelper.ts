@@ -1,4 +1,4 @@
-import { utils } from "./_module";
+import utils from "./Utils";
 
 export default class FolderHelper {
 

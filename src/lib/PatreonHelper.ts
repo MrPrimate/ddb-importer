@@ -1,4 +1,6 @@
-import { logger, utils, DDBProxy } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import DDBProxy from "./DDBProxy";
 import { SETTINGS } from "../config/_module";
 import DDBKeyChangeDialog from "../apps/DDBKeyChangeDialog";
 

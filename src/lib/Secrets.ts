@@ -1,4 +1,7 @@
-import { logger, DDBProxy, PatreonHelper, utils } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import DDBProxy from "./DDBProxy";
+import PatreonHelper from "./PatreonHelper";
 import { SETTINGS } from "../config/_module";
 
 function isJSON(str: string): boolean {

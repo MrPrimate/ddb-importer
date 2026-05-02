@@ -1,5 +1,9 @@
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { logger, utils, CompendiumHelper, FileHelper, NameMatcher } from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import CompendiumHelper from "./CompendiumHelper";
+import FileHelper from "./FileHelper";
+import NameMatcher from "./NameMatcher";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
@@ -45,22 +49,6 @@ const FILE_MAP = {
 };
 
 const ICON_MAP_INDICIES = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
-
-export interface IIconMapEntry {
-  type: string;
-  folder: string | null;
-  _id: string;
-  uuid: string;
-  name: string;
-  img: string;
-  prototypeToken?: {
-    texture: {
-      src: string;
-      scaleY: number;
-      scaleX: number;
-    };
-  };
-}
 
 function sanitiseName(name) {
   return utils.nameString(name).toLowerCase();

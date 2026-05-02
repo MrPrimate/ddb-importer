@@ -1,7 +1,7 @@
 import DDBClass from "./DDBClass";
 import { logger, utils } from "../../lib/_module";
 import DDBSubClass from "./DDBSubClass";
-import DDBCharacter from "../DDBCharacter";
+import type DDBCharacter from "../DDBCharacter";
 
 interface ICharacterClassFactoryOptions {
   addToCompendium?: boolean;

@@ -1,5 +1,5 @@
 import { DICTIONARY, SETTINGS } from "../config/_module";
-import { utils } from "./_module";
+import utils from "./Utils";
 
 type TDDBSourceTypes = IDDBBaseSourcesDefinition | IDDBSourceIdAndPageDefinition | IDDBSourcesDefinition | IDDBSourceIdsDefinition;
 

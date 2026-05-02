@@ -1,14 +1,11 @@
-import {
-  logger,
-  CompendiumHelper,
-  Iconizer,
-  DDBCompendiumFolders,
-  NameMatcher,
-  utils,
-} from "./_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import CompendiumHelper from "./CompendiumHelper";
+import Iconizer from "./Iconizer";
+import { DDBCompendiumFolders } from "./DDBCompendiumFolders";
+import NameMatcher from "./NameMatcher";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
-import { IIconMapEntry } from "./Iconizer";
 
 interface IDDBItemImporterOptions {
   matchFlags?: string[];

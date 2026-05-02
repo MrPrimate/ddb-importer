@@ -1,5 +1,5 @@
 import { SETTINGS } from "../config/_module";
-import { utils } from "./_module";
+import utils from "./Utils";
 
 const DDBProxy = {
 

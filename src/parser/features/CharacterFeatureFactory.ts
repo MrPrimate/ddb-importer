@@ -16,7 +16,7 @@ import DDBFeature from "./DDBFeature";
 import DDBChoiceFeature from "./DDBChoiceFeature";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
-import DDBCharacter from "../DDBCharacter";
+import type DDBCharacter from "../DDBCharacter";
 
 interface ISpellsGranted {
   feature: string;

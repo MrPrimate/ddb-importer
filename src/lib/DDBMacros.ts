@@ -1,5 +1,7 @@
 import { SETTINGS } from "../config/_module";
-import { logger, FileHelper, utils } from "../lib/_module";
+import logger from "./Logger";
+import utils from "./Utils";
+import FileHelper from "./FileHelper";
 
 type TDDBImporterDocument = TAll5eItemDocuments | TAll5eActorDocuments;
 

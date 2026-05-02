@@ -1,4 +1,4 @@
-import { utils } from "./_module";
+import utils from "./Utils";
 
 /**
  * This class is based on Chris' Premades, and is also licensed under MIT.
