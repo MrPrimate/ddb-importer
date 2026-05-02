@@ -80,3 +80,56 @@ You can find them under [img/jb2a](./img/jb2a)
 Check them out at [https://jb2a.com](https://jb2a.com) they have a free and patreon supported Foundry modules providing wonderful animations and assets for a variety of situations.
 
 You can learn more about their Foundry modules [here](https://jb2a.com/home/install-instructions/)
+
+## DDB Importer Hook Events
+
+The module emits the following Foundry hook events:
+
+- `ddb-importer.preCreateTattooFromSpell`
+	- Fired before creating tattoo item data from a spell.
+	- Returning `false` from any listener cancels tattoo creation.
+	- Arguments:
+		- `spell`: source spell document.
+		- `config`: tattoo creation config object.
+
+- `ddb-importer.createTattooFromSpell`
+	- Fired after tattoo data is created and before the item is returned.
+	- Arguments:
+		- `spell`: source spell document.
+		- `spellTattooData`: final generated tattoo item data.
+		- `config`: tattoo creation config object.
+
+- `ddb-importer.compendiumCreationComplete`
+	- Fired after auto-compendium creation completes.
+	- Payload:
+		- `{ compendiums: string[] }` compendium ids
+
+- `ddb-importer.characterProcessDataComplete`
+	- Fired after character import processing completes.
+	- Payload:
+		- `{ actor, ddbCharacter }`
+
+- `ddb-importer.monsterAddToCompendiumComplete`
+	- Fired after a monster is added/updated in the target compendium.
+	- Payload:
+		- `{ actor }`
+
+- `ddb-importer.${type}CompendiumUpdateComplete`
+	- Fired when a compendium import run finishes for a given type.
+	- Payload:
+		- `{ results }`
+	- Known typed events include:
+		- `ddb-importer.spellsCompendiumUpdateComplete`
+		- `ddb-importer.classCompendiumUpdateComplete`
+		- `ddb-importer.summonsCompendiumUpdateComplete`
+		- `ddb-importer.featuresCompendiumUpdateComplete`
+		- `ddb-importer.vehiclesCompendiumUpdateComplete`
+		- `ddb-importer.itemsCompendiumUpdateComplete`
+
+### Example listener
+
+```js
+Hooks.on("ddb-importer.characterProcessDataComplete", ({ actor, ddbCharacter }) => {
+	console.log("Character import complete", actor?.name, ddbCharacter);
+});
+```
