@@ -109,6 +109,7 @@ export const PARSING_FEATURES = {
     "Keen Senses",
     "Roguish Archetype",
     "Tool Proficiency",
+    "Tools Proficiency",
     "Skillful",
     "The Crooked Moon: Dark Bargain",
     "Fighting Style feat",
@@ -122,6 +123,7 @@ export const PARSING_FEATURES = {
     "Proficiencies",
     // "Skills",
     "Advanced Enchantments:",
+    "Arcane Prototype:",
   ],
   SKIPPED_FEATURES_ENDS_WITH: [
     "Subclass",

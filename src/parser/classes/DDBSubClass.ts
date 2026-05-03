@@ -549,6 +549,58 @@ export default class DDBSubClass extends DDBClass {
         title: "Protector Healing Dice",
       };
       this._addAdvancement(healing);
+    } else if (this.data.name.startsWith("Maverick")) {
+      const maxPrototypes: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "arcane-prototypes-max",
+          type: "number",
+          scale: {
+            "3": { "value": 1 },
+            "5": { "value": 2 },
+            "9": { "value": 3 },
+            "15": { "value": 4 },
+            "20": { "value": 5 },
+          },
+        },
+        title: "Max Number of Prototypes",
+      };
+      this._addAdvancement(maxPrototypes);
+      const maxSpellLevel: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "arcane-prototype-max-spell-level",
+          type: "number",
+          scale: {
+            "3": { "value": 1 },
+            "5": { "value": 2 },
+            "9": { "value": 3 },
+            "13": { "value": 4 },
+            "15": { "value": 5 },
+            "17": { "value": 6 },
+          },
+        },
+        title: "Max Spell Level",
+      };
+      this._addAdvancement(maxSpellLevel);
+      const arcaneCharges: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "arcane-charges",
+          type: "number",
+          scale: {
+            "3": { "value": 1 },
+            "5": { "value": 3 },
+            "9": { "value": 5 },
+            "13": { "value": 7 },
+            "15": { "value": 9 },
+            "17": { "value": 11 },
+            "20": { "value": 13 },
+          },
+        },
+        title: "Arcane Charges",
+      };
+      this._addAdvancement(arcaneCharges);
     }
   }
 

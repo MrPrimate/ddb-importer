@@ -9560,5 +9560,25 @@
   {
     "name": "Lunar Embodiment",
     "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
+  },
+  {
+    "name": "Arcane Prototype",
+    "path": "icons/commodities/tech/smoke-bomb-purple.webp"
+  },
+  {
+    "name": "Fine Tuning",
+    "path": "icons/commodities/tech/levers-colored.webp"
+  },
+  {
+    "name": "Work In Progress",
+    "path": "icons/commodities/tech/wire-spliced.webp"
+  },
+  {
+    "name": "Final Breakthrough",
+    "path": "icons/commodities/tech/bulb-vacuum.webp"
+  },
+  {
+    "name": "Maverick Spells",
+    "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
   }
 ]

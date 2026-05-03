@@ -572,12 +572,13 @@ export default class DDBBasicActivity {
 
   }
 
-  static async createActivity({ document, type, name, character, enricher }: { document?: any; type: IDDBActivityType; name?: string | null; character?: any; enricher?: any }, options: any = {}): Promise<string> {
+  static async createActivity({ document, type, name, character, enricher, nameIdPostfix }: { document?: any; type: IDDBActivityType; name?: string | null; character?: any; enricher?: any; nameIdPostfix?: string | null }, options: any = {}): Promise<string> {
     const activity = new DDBBasicActivity({
       name: name ?? null,
       type,
       foundryFeature: document,
       actor: character,
+      nameIdPostfix,
     });
 
     activity.build(options);
@@ -598,7 +599,7 @@ export default class DDBBasicActivity {
     return SystemHelpers.buildDamagePart({ dice, damageString, type, stripMod });
   }
 
-  static async addQuickCastActivity({ uuid, actor, document, spellOverride = null, consumptionTargetOverrides = null, activityData = {} }: { uuid?: string; actor?: any; document?: any; spellOverride?: any; consumptionTargetOverrides?: any; activityData?: any } = {}): Promise<string | null> {
+  static async addQuickCastActivity({ uuid, actor, document, spellOverride = null, consumptionTargetOverrides = null, activityData = {}, nameIdPostfix = null }: { uuid?: string; actor?: any; document?: any; spellOverride?: any; consumptionTargetOverrides?: any; activityData?: any; nameIdPostfix?: string | null } = {}): Promise<string | null> {
     const foundryData = document.toObject();
     const spellData = await (globalThis as any).fromUuid(uuid);
 
@@ -613,6 +614,7 @@ export default class DDBBasicActivity {
         character: actor,
         document: foundryData,
         name: `Cast ${spellData.name}`,
+        nameIdPostfix,
       },
       {
         generateActivation: false,
