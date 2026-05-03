@@ -208,6 +208,7 @@ export default class DDBClass {
     "Core Wizard Traits",
     "Proficiencies",
     "Tool Proficiency",
+    "Tools Proficiency",
     "Tools of the Trade",
     "Student of War",
     "Gunsmith",
