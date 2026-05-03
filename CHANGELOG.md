@@ -1,6 +1,9 @@
 # Next Up
 
 - Bladesong now uses an enchantment.
+- Compendium Folder creation Hook.
+- Arcane Recovery macro moved to dialog v2
+- Artificer: Maverick subclass cleanup. Added a cool macro for Arcane Prototype.
 
 # 7.1.13
 
