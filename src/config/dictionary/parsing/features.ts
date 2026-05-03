@@ -321,6 +321,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Giant's Power",
     "Metamagic",
     "Elemental Attunement",
+    "Ghaal'Shaarat",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -470,6 +471,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Giant's Power",
     "Draconic Disciple",
     "Genie Kind",
+    "Ghaal'Shaarat",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",

@@ -1275,7 +1275,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         ...DDBModifiers.filterModifiersOld(grantedModifiers, "set", "ac-max-dex-modifier", ["", null]).map((mod) => parseInt(String(mod.value))),
         2,
       ),
-      magicItemAttackInt: DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0,
+      magicItemAttackInt:
+        DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0
+        || DDBModifiers.filterBaseModifiers(this.ddbData, "replace-weapon-ability", { subType: "intelligence-score" }).length > 0,
     };
 
     if (this.flags.classFeatures.includes("Lifedrinker") && this.is2014) {
@@ -3108,7 +3110,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       // check to see if we need to fiddle attack modifiers on infused weapons
       // this still needs to be moved to an enchantment effect
       if (this.data.type === "weapon") {
-        const intSwap = DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0;
+        const intSwap = DDBModifiers.filterBaseModifiers(this.ddbData, "bonus", { subType: "magic-item-attack-with-intelligence" }).length > 0
+            || DDBModifiers.filterBaseModifiers(this.ddbData, "replace-weapon-ability", { subType: "intelligence-score" }).length > 0;
         if (intSwap) {
           const characterAbilities = this.raw.character.flags.ddbimporter.dndbeyond.effectAbilities;
           const mockAbility = foundry.utils.getProperty(this.data, "flags.ddbimporter.dndbeyond.ability") as T5eAbility;

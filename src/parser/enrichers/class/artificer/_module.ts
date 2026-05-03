@@ -17,8 +17,10 @@ export { default as EldritchCannonForceBallista } from "./EldritchCannonForceBal
 export { default as EldritchCannonProtector } from "./EldritchCannonProtector";
 export { default as ExperimentalElixir } from "./ExperimentalElixir";
 export { default as ExplosiveCannon } from "./ExplosiveCannon";
+export { default as FineTuning } from "./FineTuning";
 export { default as FlashOfGenius } from "./FlashOfGenius";
 export { default as ForceDemolisher } from "./ForceDemolisher";
+export { default as GhaalShaarat } from "./GhaalShaarat";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField";
 export { default as GuidedPrecision } from "./GuidedPrecision";
 export { default as MagicItemTinker } from "./MagicItemTinker";
