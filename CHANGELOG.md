@@ -4,6 +4,9 @@
 - Compendium Folder creation Hook.
 - Arcane Recovery macro moved to dialog v2
 - Artificer: Maverick subclass cleanup. Added a cool macro for Arcane Prototype.
+- Artificer: Arcane Empowerment (using int for magical weapons) was not detected for 2024 character imports.
+- Artificer: Forge Adept parsing updates.
+- Some combinations of optional features and classes could break import of characers @robnow
 
 # 7.1.11
 
