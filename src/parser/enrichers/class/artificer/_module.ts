@@ -9,6 +9,7 @@ export { default as ArcanePropulsionArmorGauntlet } from "./ArcanePropulsionArmo
 export { default as ArcanePrototype } from "./ArcanePrototype";
 export { default as ArmorModel } from "./ArmorModel";
 export { default as ArtificerSpells } from "./ArtificerSpells";
+export { default as AuraOfWar } from "./AuraOfWar";
 export { default as ChargeMagicItem } from "./ChargeMagicItem";
 export { default as CheatDeath } from "./CheatDeath";
 export { default as EldritchCannon } from "./EldritchCannon";
@@ -24,6 +25,7 @@ export { default as GhaalShaarat } from "./GhaalShaarat";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField";
 export { default as GuidedPrecision } from "./GuidedPrecision";
 export { default as MagicItemTinker } from "./MagicItemTinker";
+export { default as PerfectWeapon } from "./PerfectWeapon";
 export { default as SpellStoringItem } from "./SpellStoringItem";
 export { default as SpellStoringItemStoreSpell } from "./SpellStoringItemStoreSpell";
 export { default as SteelDefender } from "./SteelDefender";
