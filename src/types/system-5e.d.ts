@@ -80,7 +80,7 @@ global {
     type: string;
     img?: string;
     flags?: Record<string, any>;
-    effects: I5eEffectData[];
+    effects?: I5eEffectData[];
     folder?: string | null;
     sort?: number;
     ownership?: Record<string, number>;

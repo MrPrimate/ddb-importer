@@ -2,9 +2,9 @@ import { logger } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import SpellListExtractor from "../enrichers/data/SpellListExtractor";
 import { DDBDataUtils, SystemHelpers } from "../lib/_module";
-import DDBClass from "./DDBClass";
+import DDBBaseClass from "./DDBBaseClass";
 
-export default class DDBSubClass extends DDBClass {
+export default class DDBSubClass extends DDBBaseClass {
   // these are advancement helpers
   static SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements = {
     "Combat Superiority": {
@@ -48,11 +48,13 @@ export default class DDBSubClass extends DDBClass {
     "Circle of the Land Spells",
   ];
 
-  static FORCE_SPELL_LIST_ADVANCEMENTS = [];
+  static FORCE_SPELL_LIST_ADVANCEMENTS: string[] = [];
 
-  static NO_ADVANCEMENT_2014 = [];
+  static NO_ADVANCEMENT_2014: string[] = [];
 
-  static NO_ADVANCEMENT_2024 = [];
+  static NO_ADVANCEMENT_2024: string[] = [];
+
+  declare data: I5eSubclassItem;
 
   _fleshOutCommonDataStub() {
     super._fleshOutCommonDataStub();
@@ -81,7 +83,7 @@ export default class DDBSubClass extends DDBClass {
         },
       },
       img: null,
-    };
+    } as I5eSubclassItem;
   }
 
   subClassName;
@@ -111,7 +113,7 @@ export default class DDBSubClass extends DDBClass {
   _bloodHunterFixes() {
     if (this.data.name.startsWith("Order of the Profane Soul")) {
       this.data.name = "Order of the Profane Soul";
-      const slotsScaleValue = {
+      const slotsScaleValue: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -128,7 +130,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      const levelScaleValue = {
+      const levelScaleValue: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -146,13 +148,13 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      this._addAdvancement(slotsScaleValue, levelScaleValue);
+      this._addAdvancements([slotsScaleValue, levelScaleValue]);
     }
   }
 
   _barbarianFixes() {
     if (this.data.name.startsWith("Path of the Storm Herald")) {
-      const desert = {
+      const desert: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -172,7 +174,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      const sea = {
+      const sea: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -191,7 +193,7 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      const tundra = {
+      const tundra: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -211,13 +213,13 @@ export default class DDBSubClass extends DDBClass {
         icon: null,
       };
 
-      this._addAdvancement(desert, sea, tundra);
+      this._addAdvancements([desert, sea, tundra]);
     }
   }
 
   _druidFixes() {
     if (this.data.name.startsWith("Circle of the Moon")) {
-      const cr = {
+      const cr: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -247,7 +249,7 @@ export default class DDBSubClass extends DDBClass {
       }
       this._addAdvancement(cr);
     } else if (this.data.name.startsWith("Circle of the Land") && !this.is2014) {
-      const aid = {
+      const aid: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -266,7 +268,7 @@ export default class DDBSubClass extends DDBClass {
       };
       this._addAdvancement(aid);
     } else if (this.data.name.startsWith("Circle of the Stars") && !this.is2014) {
-      const form = {
+      const form: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -284,7 +286,7 @@ export default class DDBSubClass extends DDBClass {
       };
       this._addAdvancement(form);
     } else if ((this.data.name.startsWith("Circle of the Sea"))) {
-      const form = {
+      const form: I5eAdvancement = {
         _id: foundry.utils.randomID(),
         type: "ScaleValue",
         configuration: {
@@ -308,6 +310,7 @@ export default class DDBSubClass extends DDBClass {
     if ((this.data.name.startsWith("Psi Warrior") || this.data.name.startsWith("Soulknife")) && !this.is2014) {
       for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
         if (advancement.title !== "Energy Die") continue;
+        if (!AdvancementHelper.hasScaleConfiguration(advancement)) continue;
         advancement.configuration.scale = foundry.utils.mergeObject(advancement.configuration.scale, {
           3: { number: 4, faces: 6 },
           5: { number: 6, faces: 8 },
@@ -340,6 +343,7 @@ export default class DDBSubClass extends DDBClass {
     } else if (this.data.name.startsWith("Steel Hawk")) {
       for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
         if (advancement.title !== "Launch") continue;
+        if (!AdvancementHelper.hasScaleConfiguration(advancement)) continue;
         advancement.configuration.scale = {
           3: { number: 3, faces: 8 },
           7: { number: 4, faces: 8 },
@@ -728,6 +732,10 @@ export default class DDBSubClass extends DDBClass {
       const grantAdvancement = await AdvancementHelper.getSpellGrantAdvancement(options);
 
       if (grantAdvancement) {
+        if (foundry.utils.hasProperty(grantAdvancement.configuration, "identifier")
+        && ((this.is2014 && !this.NO_ADVANCEMENT_2014.includes(grantAdvancement.configuration.identifier as string))
+        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(grantAdvancement.configuration.identifier as string))))
+          continue;
         advancements.push(grantAdvancement.toObject() as I5eAdvancement);
       }
     }
@@ -748,12 +756,7 @@ export default class DDBSubClass extends DDBClass {
 
     for (const feature of advancementFeatures) {
       // console.warn("Generating spell list advancement for feature:", feature);
-      const advancement = await this._generateSpellListAdvancement(feature);
-      if (!advancement) continue;
-      if ((this.is2014 && !this.NO_ADVANCEMENT_2014.includes(advancement.configuration?.identifier))
-        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(advancement.configuration?.identifier)))
-        continue;
-      this._addAdvancement(advancement);
+      await this._generateSpellListAdvancement(feature);
     }
   }
 

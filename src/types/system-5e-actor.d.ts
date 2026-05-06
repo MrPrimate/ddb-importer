@@ -770,6 +770,8 @@ global {
     flags: IItemFlagConfig;
   }
 
+  type T5eClassTypes = I5eClassItem | I5eSubclassItem;
+
   // ---- Subclass item --------------------------------------------------------
 
   interface I5eSubclassSystemData {
