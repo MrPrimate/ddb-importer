@@ -1,9 +1,14 @@
 # Next Up
 
+# 7.2.14
+
 - Bladesong now uses an enchantment.
 - Compendium Folder creation Hook.
 - Arcane Recovery macro moved to dialog v2
 - Artificer: Maverick subclass cleanup. Added a cool macro for Arcane Prototype.
+- Artificer: Arcane Empowerment (using int for magical weapons) was not detected for 2024 character imports.
+- Artificer: Forge Adept parsing updates.
+- Some combinations of optional features and classes could break import of characers @robnow
 
 # 7.1.13
 
@@ -83,6 +88,16 @@
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.12
+
+- Bladesong now uses an enchantment.
+- Compendium Folder creation Hook.
+- Arcane Recovery macro moved to dialog v2
+- Artificer: Maverick subclass cleanup. Added a cool macro for Arcane Prototype.
+- Artificer: Arcane Empowerment (using int for magical weapons) was not detected for 2024 character imports.
+- Artificer: Forge Adept parsing updates.
+- Some combinations of optional features and classes could break import of characers @robnow
 
 # 7.1.11
 

@@ -9,7 +9,7 @@ import {
 import { getSpellCastingAbility } from "../spells/ability";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import { SETTINGS, DICTIONARY } from "../../config/_module";
-import { DDBDataUtils, DDBModifiers, DDBTemplateStrings, SystemHelpers } from "../lib/_module";
+import { DDBDataUtils, DDBModifiers, DDBTemplateStrings } from "../lib/_module";
 import DDBFeatureMixin from "../features/DDBFeatureMixin";
 
 
