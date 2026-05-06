@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.1.12
+
 - Bladesong now uses an enchantment.
 - Compendium Folder creation Hook.
 - Arcane Recovery macro moved to dialog v2
