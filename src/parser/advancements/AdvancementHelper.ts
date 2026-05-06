@@ -125,6 +125,13 @@ export default class AdvancementHelper {
     return choices;
   }
 
+  static hasScaleConfiguration(
+    advancement: I5eAdvancement,
+  ): advancement is { configuration: { scale: Record<string, unknown> } } {
+    return !!advancement.configuration
+      && typeof advancement.configuration === "object"
+      && "scale" in advancement.configuration;
+  }
 
   getSkillChoicesFromOptions(feature: TFeature, level: number, proficiencyFeatures: TFeature[] = []) {
     const skillsChosen = new Set<string>();
