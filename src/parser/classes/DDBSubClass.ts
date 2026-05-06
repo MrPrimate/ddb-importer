@@ -601,6 +601,16 @@ export default class DDBSubClass extends DDBClass {
         title: "Arcane Charges",
       };
       this._addAdvancement(arcaneCharges);
+    } else if (this.data.name.startsWith("Forge Adept")) {
+      for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
+        if (advancement.title !== "Ghaal'Shaarat") continue;
+        (advancement as I5eAdvancementScaleValue).configuration.scale = {
+          "3": { "value": 1 },
+          "9": { "value": 2 },
+          "15": { "value": 3 },
+        };
+        this.data.system.advancement[id] = advancement;
+      }
     }
   }
 

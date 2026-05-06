@@ -9580,5 +9580,17 @@
   {
     "name": "Maverick Spells",
     "path": "icons/magic/defensive/shield-barrier-deflect-gold.webp"
+  },
+  {
+    "name": "Ghaal'Shaarat",
+    "path": "icons/skills/trades/smithing-tongs-metal-red.webp"
+  },
+  {
+    "name": "Runes of War",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Perfect Weapon",
+    "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
   }
 ]
