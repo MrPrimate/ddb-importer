@@ -311,6 +311,7 @@ export default class CharacterFeatureFactory {
       .filter((a) => a.name === action.name)
       .reduce((prev, cur) => {
         const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, cur.componentId);
+        if (!klass) return prev;
         const feature = klass.classFeatures.find((f) => f.definition.id === cur.componentId);
         if (!feature) return prev;
         if (feature.definition.requiredLevel > klass.level) return prev;
