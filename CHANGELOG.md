@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.2.15
+
+- Compiled code would not load.
+
 # 7.2.14
 
 - Bladesong now uses an enchantment.
