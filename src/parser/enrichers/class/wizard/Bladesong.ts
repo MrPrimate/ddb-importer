@@ -27,7 +27,10 @@ export default class Bladesong extends DDBEnricherData {
         name: "Bladework (Int)",
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Bladework]`, 20, "name"),
+          DDBEnricherData.ChangeHelper.overrideChange("0", 50, "system.damage.base.custom.enabled"),
+          DDBEnricherData.ChangeHelper.overrideChange("none", 50, "activities[attack].attack.ability"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`@abilities.int.mod`, 50, "activities[attack].attack.bonus"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange(`@abilities.int.mod`, 50, "system.damage.base.bonus"),
         ],
         options: {
           durationSeconds: 60,
