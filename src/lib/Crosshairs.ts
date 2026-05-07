@@ -5,7 +5,7 @@ import utils from "./Utils";
  * https://github.com/chrisk123999/chris-premades/blob/development/scripts/lib/crosshairs.js
  */
 
-const Sheet = foundry.canvas?.placeables?.MeasuredTemplate ?? MeasuredTemplate;
+const Sheet = foundry.canvas?.placeables?.MeasuredTemplate;
 
 export default class Crosshairs extends Sheet {
   constructor(config, callbacks = {}) {

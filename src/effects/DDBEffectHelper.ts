@@ -25,17 +25,29 @@ interface IDamageOverTimeEffectOptions {
 
 export default class DDBEffectHelper {
 
-  static baseEffect = AutoEffects.BaseEffect;
+  static get baseEffect() {
+    return AutoEffects.BaseEffect;
+  }
 
-  static Crosshairs = Crosshairs;
+  static get Crosshairs() {
+    return Crosshairs;
+  }
 
-  static generateDAEStatusEffectChange = ChangeHelper.daeStatusEffectChange;
+  static get generateDAEStatusEffectChange() {
+    return ChangeHelper.daeStatusEffectChange;
+  }
 
-  static addStatusEffectChange = ChangeHelper.addStatusEffectChange;
+  static get addStatusEffectChange() {
+    return ChangeHelper.addStatusEffectChange;
+  }
 
-  static generateTokenMagicFXChange = ChangeHelper.tokenMagicFXChange;
+  static get generateTokenMagicFXChange() {
+    return ChangeHelper.tokenMagicFXChange;
+  }
 
-  static generateATLChange = ChangeHelper.atlChange;
+  static get generateATLChange() {
+    return ChangeHelper.atlChange;
+  }
 
   static getMonsterFeatureDamage(damageText, featureDoc = null): IDDBMonsterActionDataDamagePart[] {
     const preParsed = foundry.utils.getProperty(featureDoc, "flags.monsterMunch.actionData.damage") as IDDBMonsterActionDataDamagePart[] | undefined;
