@@ -6,8 +6,8 @@ async function arcaneRecovery(actor, feature) {
   const spellLevels = [];
 
   const arcaneGrimoire = actor.items.some((i) =>
-    i.name.startsWith("Arcane Grimoire")
-    && i.system?.equipped && i.system?.attunement === 2
+    i.name.toLowerCase().includes("arcane grimoire")
+    && i.system?.equipped,
   );
 
   for (let i = 1; i <= 5; i++) {
