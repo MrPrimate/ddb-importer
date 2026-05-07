@@ -1,5 +1,7 @@
 # Next Up
 
+- Bladesong correction. @redarchongaming
+
 # 7.1.12
 
 - Bladesong now uses an enchantment.
