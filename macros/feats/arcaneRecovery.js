@@ -5,10 +5,7 @@ async function arcaneRecovery(actor, feature) {
   const spellConfig = foundry.utils.duplicate(actor.system.spells);
   const spellLevels = [];
 
-  const arcaneGrimoire = actor.items.some((i) =>
-    i.name.toLowerCase().includes("arcane grimoire")
-    && i.system?.equipped,
-  );
+  const arcaneGrimoire = actor.items.some((i) => i.name.toLowerCase().includes("arcane grimoire"));
 
   for (let i = 1; i <= 5; i++) {
     if (spellConfig[`spell${i}`].max > 0) spellLevels.push(spellConfig[`spell${i}`]);
