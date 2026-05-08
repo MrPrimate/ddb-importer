@@ -1,6 +1,10 @@
 # Next Up
 
+# 7.1.13
+
 - Bladesong correction. @redarchongaming
+- Arcane Recovery now takes account of Arcane Grimoire again.
+- Storm Giant 2024 weapon now imports as a weapon for Motomoto.
 
 # 7.1.12
 
