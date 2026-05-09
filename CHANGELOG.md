@@ -1,5 +1,11 @@
 # Next Up
 
+# 7.2.17
+
+- Paladin Channel Divinity no longer imported max uses
+- Some fixes for Oath of Noble Genie @dotsonic
+- Cleric had dropped it's Divine Strike advancement at some point in the 5.3 improvements.
+
 # 7.2.16
 
 - Bladesong correction. @redarchongaming
@@ -98,6 +104,12 @@
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.14
+
+- Paladin Channel Divinity no longer imported max uses
+- Some fixes for Oath of Noble Genie @dotsonic
+- Cleric had dropped it's Divine Strike advancement at some point in the 5.3 improvements.
 
 # 7.1.13
 
