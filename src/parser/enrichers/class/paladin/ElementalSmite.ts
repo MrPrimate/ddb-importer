@@ -161,6 +161,7 @@ export default class ElementalSmite extends DDBEnricherData {
       },
       {
         name: "Marid's Surge: Prone",
+        activityMatch: "Marid's Surge",
         statuses: ["prone"],
       },
     ];

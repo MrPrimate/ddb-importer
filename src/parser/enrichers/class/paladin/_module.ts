@@ -8,6 +8,7 @@ export { default as AuraOfHate } from "./AuraOfHate";
 export { default as AuraOfTheGuardian } from "./AuraOfTheGuardian";
 export { default as AuraOfTheSentinel } from "./AuraOfTheSentinel";
 export { default as AvengingAngel } from "./AvengingAngel";
+export { default as ChannelDivinity } from "./ChannelDivinity";
 export { default as ChannelDivinityAbjureTheExtraplanar } from "./ChannelDivinityAbjureTheExtraplanar";
 export { default as ChannelDivinityInspiringSmite } from "./ChannelDivinityInspiringSmite";
 export { default as ChannelDivinityPeerlessAthlete } from "./ChannelDivinityPeerlessAthlete";
