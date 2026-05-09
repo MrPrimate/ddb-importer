@@ -1,5 +1,11 @@
 # Next Up
 
+# 7.1.14
+
+- Paladin Channel Divinity no longer imported max uses
+- Some fixes for Oath of Noble Genie @dotsonic
+- Cleric had dropped it's Divine Strike advancement at some point in the 5.3 improvements.
+
 # 7.1.13
 
 - Bladesong correction. @redarchongaming
