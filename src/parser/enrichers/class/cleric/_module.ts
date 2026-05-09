@@ -4,6 +4,7 @@ export { default as BlessedStrikes } from "./BlessedStrikes";
 export { default as BlessedStrikesDivineStrike } from "./BlessedStrikesDivineStrike";
 export { default as BlessingOfTheForge } from "./BlessingOfTheForge";
 export { default as BlessingOfTheTrickster } from "./BlessingOfTheTrickster";
+export { default as ChannelDivinity } from "./ChannelDivinity";
 export { default as ChannelDivinityBalmOfPeace } from "./ChannelDivinityBalmOfPeace";
 export { default as ChannelDivinityCloakOfShadows } from "./ChannelDivinityCloakOfShadows";
 export { default as ChannelDivinityPathToTheGrave } from "./ChannelDivinityPathToTheGrave";

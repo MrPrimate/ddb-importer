@@ -209,7 +209,6 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Channel Divinity: Preserve Life": ClassEnrichers.Cleric.ChannelDivinityPreserveLife,
     "Channel Divinity: Radiance of the Dawn": ClassEnrichers.Cleric.ChannelDivinityRadianceOfTheDawn,
     "Channel Divinity: Turn the Unholy": ClassEnrichers.Paladin.ChannelDivinityTurnTheUnholy,
-    "Channel Divinity": ClassEnrichers.Shared.ChannelDivinity,
     "EnchantmentsExtras": ClassEnrichers.Rogue.EnchantmentsExtras,
     "Eldritch Cannon: Flamethrower": ClassEnrichers.Artificer.EldritchCannonFlamethrower,
     "Eldritch Cannon: Force Ballista": ClassEnrichers.Artificer.EldritchCannonForceBallista,

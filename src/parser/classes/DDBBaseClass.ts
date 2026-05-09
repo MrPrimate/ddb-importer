@@ -1401,15 +1401,20 @@ export default abstract class DDBBaseClass {
       );
       if (!klassMatch) continue;
       const foundryKlass: I5eClassItem = await pack.getDocument(klassMatch._id) as any;
-      const scaleAdvancements: I5eAdvancement[] = Object.values(foundryKlass.system.advancement).filter((foundryA) => {
+      // @ts-expect-error - source exists
+      const scaleAdvancements: I5eAdvancement[] = Object.values(foundryKlass._source.system.advancement as Record<string, I5eAdvancement>).filter((foundryA) => {
+        if (foundryA.type !== "ScaleValue") return false;
         let identifier = foundry.utils.getProperty(foundryA, "configuration.identifier");
         if (!identifier || identifier === "") {
           identifier = DDBDataUtils.classIdentifierName(foundryA.title);
         }
-        return foundryA.type === "ScaleValue"
-          && !Object.values(this.data.system.advancement).some((ddbA) => ddbA.configuration.identifier === identifier);
-      }).map((advancement) => {
-        return advancement.toObject();
+        // @ts-expect-error we check that it is a scale value above
+        const exitingIdentifiers = Object.values(this.data.system.advancement).some((ddbA) => ddbA.configuration.identifier === identifier);
+        if (exitingIdentifiers) return false;
+        return true;
+      });
+      logger.debug(`Adding scale advancements from compendium class ${this.name} in pack ${pack.collection}`, {
+        scaleAdvancements,
       });
       this._addAdvancements(scaleAdvancements);
       return;
