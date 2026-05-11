@@ -1,0 +1,125 @@
+<section class="ddb-grid-picker {{step}}">
+  <header class="ddb-grid-picker-header">
+    <h3>{{sceneName}}</h3>
+    <p class="hint">
+      {{#if step.select}}
+        Image: {{imageDimensions.x}} × {{imageDimensions.y}}px. Click squares to focus detection on those regions, or run on the whole map.
+      {{/if}}
+      {{#if step.review}}
+        {{#if usedRoi}}
+          {{#if multiRegion}}Detected and merged across {{regionCount}} regions.{{else}}Detected within selected region.{{/if}}
+        {{else}}
+          Detected on full image.
+        {{/if}}
+        Confidence: {{confidence}}.
+      {{/if}}
+    </p>
+  </header>
+
+  {{#if step.select}}
+    <div class="ddb-grid-picker-canvas">
+      <svg viewBox="0 0 {{imageDimensions.x}} {{imageDimensions.y}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg">
+        <image href="{{imageUrl}}" x="0" y="0" width="{{imageDimensions.x}}" height="{{imageDimensions.y}}" />
+        <g class="ddb-grid-picker-cells">
+          {{#each cells}}
+            <rect data-action="toggleCell" data-cell="{{this.id}}"
+              x="{{this.x}}" y="{{this.y}}" width="{{this.w}}" height="{{this.h}}"
+              class="ddb-grid-picker-cell {{#if this.selected}}selected{{/if}}" />
+          {{/each}}
+        </g>
+      </svg>
+    </div>
+
+    <div class="ddb-grid-picker-actions">
+      <span class="hint">{{selectedCount}} of {{cellCount}} squares selected</span>
+      <label class="ddb-grid-picker-multiplier {{#unless multiplierIsAuto}}override{{/unless}}" title="How many Foundry grid cells fit in each detected painted square. Auto picks the value DDB / detection suggests; numeric entries lock the choice.">
+        Foundry cells per painted square:
+        <select class="ddb-grid-picker-multiplier-select">
+          {{#each multiplierOptions}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+        {{#if multiplierIsAuto}}
+          <span class="ddb-grid-picker-multiplier-state auto">auto</span>
+        {{else}}
+          <span class="ddb-grid-picker-multiplier-state override">manual override</span>
+        {{/if}}
+      </label>
+      <button data-action="clearSelection" type="button" class="munch-button" {{#unless selectedCount}}disabled{{/unless}}>
+        <i class="fas fa-times"></i> Clear
+      </button>
+      <button data-action="selectAll" type="button" class="munch-button">
+        <i class="fas fa-th"></i> Select All
+      </button>
+      <button data-action="runDetection" type="button" class="munch-button" {{#if loading}}disabled{{/if}}>
+        {{#if loading}}<i class="fas fa-spinner fa-spin"></i> Detecting...{{else}}<i class="fas fa-search"></i> Detect Grid{{/if}}
+      </button>
+      <button data-action="cancel" type="button" class="munch-button">Cancel</button>
+    </div>
+  {{/if}}
+
+  {{#if step.review}}
+    <div class="ddb-grid-picker-review">
+      <div class="ddb-grid-picker-preview">
+        <h4>Preview</h4>
+        <svg viewBox="0 0 {{previewDims.x}} {{previewDims.y}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg">
+          <image href="{{previewImageUrl}}" x="0" y="0" width="{{previewDims.x}}" height="{{previewDims.y}}" />
+          {{#each previewLines}}
+            <line x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}" class="ddb-grid-picker-line" />
+          {{/each}}
+        </svg>
+        <p class="hint">Selected candidate: <strong>{{selectedLabel}}</strong>. Grid lines are drawn at the candidate's painted period and offset.</p>
+      </div>
+
+      <div class="ddb-grid-picker-candidates">
+        <h4>Candidates</h4>
+        {{#if candidateList.length}}
+          <table class="ddb-grid-picker-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="left">Source</th>
+                <th>Grid</th>
+                <th>Offset</th>
+                <th>Width</th>
+                <th>Scale</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each candidateList}}
+                <tr class="{{#if this.selected}}selected{{/if}}">
+                  <td>
+                    <input type="radio" name="candidate" data-action="selectCandidate" data-candidate="{{this.key}}" value="{{this.key}}" {{#if this.selected}}checked{{/if}} />
+                  </td>
+                  <td class="left">{{this.label}}{{#if this.recommended}} <em class="hint">(recommended)</em>{{/if}}</td>
+                  <td>{{this.entry.gridSize}}</td>
+                  <td>{{this.entry.offsetX}}, {{this.entry.offsetY}}</td>
+                  <td>{{this.entry.sceneWidth}}</td>
+                  <td>{{this.scaleStr}}</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        {{else}}
+          <p>No candidates were produced. The image may not contain a regular grid.</p>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="ddb-grid-picker-actions">
+      <label class="ddb-grid-picker-multiplier" title="How many Foundry grid cells fit in each detected painted square. Changing this re-derives candidates from the cached detection.">
+        Foundry cells per painted square:
+        <select class="ddb-grid-picker-multiplier-select">
+          {{#each multiplierOptions}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <button data-action="goBack" type="button" class="munch-button"><i class="fas fa-arrow-left"></i> Back</button>
+      <button data-action="applyChoice" type="button" class="munch-button" {{#unless candidateList.length}}disabled{{/unless}}>
+        <i class="fas fa-check"></i> Apply
+      </button>
+      <button data-action="cancel" type="button" class="munch-button">Cancel</button>
+    </div>
+  {{/if}}
+</section>

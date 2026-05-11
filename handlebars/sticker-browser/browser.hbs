@@ -1,0 +1,108 @@
+<div class="ddb-sticker-browser-root">
+  <header class="ddb-sticker-browser-header">
+    <div class="ddb-sticker-browser-header-left">
+      <h2><i class="fas fa-shapes"></i> Sticker Browser</h2>
+      {{#if fetchedAt}}<span class="ddb-sticker-browser-fetched">Last fetched at {{fetchedAt}}</span>{{/if}}
+    </div>
+    <div class="ddb-sticker-browser-header-actions">
+      <input type="text" id="sticker-browser-search" placeholder="Search stickers" value="{{searchTerm}}" />
+      <button data-action="reloadCatalog" type="button" class="munch-button" {{#if loading}}disabled{{/if}}>
+        <i class="fas fa-sync"></i>
+        {{#if hasCatalog}}Reload{{else}}Load Catalog{{/if}}
+      </button>
+    </div>
+  </header>
+
+  <div class="ddb-sticker-browser-body">
+    <aside class="ddb-sticker-browser-sidebar">
+      {{#if loading}}
+        <p class="ddb-sticker-browser-status"><i class="fas fa-spinner fa-spin"></i> Loading stickers...</p>
+      {{else if hasCatalog}}
+        <div class="ddb-sticker-browser-filter-group">
+          <h4>Sources</h4>
+          <ul>
+            <li class="ddb-sticker-browser-filter {{#unless this.selectedSourceId}}selected{{/unless}}">
+              <button type="button" data-action="selectSource" data-source-id="">All sources <span class="count">{{total}}</span></button>
+            </li>
+            {{#each sources}}
+              <li class="ddb-sticker-browser-filter {{#if this.selected}}selected{{/if}}">
+                <button type="button" data-action="selectSource" data-source-id="{{this.id}}">
+                  <span class="name">{{this.name}}</span>
+                  <span class="count">{{this.count}}</span>
+                </button>
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+        <div class="ddb-sticker-browser-filter-group">
+          <h4>Keywords</h4>
+          <ul class="ddb-sticker-browser-keyword-list">
+            {{#each keywords}}
+              <li class="ddb-sticker-browser-filter {{#if this.selected}}selected{{/if}}">
+                <button type="button" data-action="selectKeyword" data-keyword="{{this.name}}">
+                  <span class="name">{{this.name}}</span>
+                  <span class="count">{{this.count}}</span>
+                </button>
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+      {{else}}
+        <p class="hint">Catalog not loaded yet.</p>
+      {{/if}}
+    </aside>
+
+    <section class="ddb-sticker-browser-detail">
+      <div class="ddb-sticker-browser-detail-header">
+        <div class="ddb-sticker-browser-detail-titles">
+          <h3>Stickers</h3>
+          {{#if hasCatalog}}
+            <p class="hint">{{visibleCount}} of {{total}} visible</p>
+          {{/if}}
+        </div>
+        <div class="ddb-sticker-browser-detail-actions">
+          {{#if anyFilter}}
+            <button data-action="clearFilters" type="button" class="munch-button">
+              <i class="fas fa-times"></i> Clear Filters
+            </button>
+          {{/if}}
+          {{#if visibleCount}}
+            <button data-action="importAllVisible" type="button" class="munch-button">
+              <i class="fas fa-download"></i> Import Visible
+            </button>
+          {{/if}}
+        </div>
+      </div>
+
+      {{#if hasCatalog}}
+        {{#if stickers.length}}
+          <ul class="ddb-sticker-browser-grid">
+            {{#each stickers}}
+              <li class="ddb-sticker-browser-tile">
+                <div class="ddb-sticker-browser-tile-thumb">
+                  {{#if this.thumbnail}}
+                    <img src="{{this.thumbnail}}" alt="{{this.altText}}" loading="lazy" />
+                  {{else}}
+                    <i class="fas fa-image fa-2x"></i>
+                  {{/if}}
+                </div>
+                <div class="ddb-sticker-browser-tile-meta">
+                  <strong>{{this.name}}</strong>
+                  {{#if this.keywordsLabel}}<span class="ddb-sticker-browser-tile-tags">{{this.keywordsLabel}}</span>{{/if}}
+                  {{#if this.scaleLabel}}<span class="ddb-sticker-browser-tile-scale">{{this.scaleLabel}}</span>{{/if}}
+                </div>
+                <button type="button" class="munch-button ddb-sticker-browser-tile-import" data-action="importSticker" data-sticker-id="{{this.id}}" title="Import">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </li>
+            {{/each}}
+          </ul>
+        {{else}}
+          <p class="hint">No stickers match the current filter.</p>
+        {{/if}}
+      {{else}}
+        <p class="hint">Click Load Catalog to fetch your stickers.</p>
+      {{/if}}
+    </section>
+  </div>
+</div>

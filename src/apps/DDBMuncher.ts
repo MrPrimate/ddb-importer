@@ -27,6 +27,8 @@ import DDBItemsImporter from "../muncher/DDBItemsImporter";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 import DDBSetup from "./DDBSetup";
 import DDBSourcePruner from "./DDBSourcePruner";
+import DDBMapBrowser from "./DDBMapBrowser";
+import DDBStickerBrowser from "./DDBStickerBrowser";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -85,9 +87,11 @@ export default class DDBMuncher extends DDBAppV2 {
       parseSpecies: DDBMuncher.parseSpecies,
       openCoreSetup: DDBMuncher.openCoreSetup,
       openSourcePruner: DDBMuncher.openSourcePruner,
+      openMapBrowser: DDBMuncher.openMapBrowser,
+      openStickerBrowser: DDBMuncher.openStickerBrowser,
     },
     position: {
-      width: "800",
+      width: "880",
       height: "auto",
     },
     window: {
@@ -124,6 +128,7 @@ export default class DDBMuncher extends DDBAppV2 {
         "modules/ddb-importer/handlebars/muncher/munch/monsters/settings.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/monsters/art.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/adventures.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/maps.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/encounters.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters/settings.hbs",
@@ -200,6 +205,9 @@ export default class DDBMuncher extends DDBAppV2 {
           },
           adventures: {
             id: "adventures", group: "munch", label: "Adventures", icon: "fas fa-book-reader",
+          },
+          maps: {
+            id: "maps", group: "munch", label: "Maps", icon: "fas fa-map",
           },
           encounters: {
             id: "encounters", group: "munch", label: "Encounters", icon: "fas fa-dungeon",
@@ -326,7 +334,7 @@ export default class DDBMuncher extends DDBAppV2 {
       event.preventDefault();
       const current = utils.getSetting<string>("munching-policy-character-class-rules-version") ?? "2024";
       const next = current === "2024" ? "2014" : "2024";
-      const systemIsModern = game.settings.get("dnd5e", "rulesVersion") === "modern";
+      const systemIsModern = utils.getSetting<string>("rulesVersion", "dnd5e") === "modern";
       if (next === "2014" && systemIsModern) {
         const proceed = await foundry.applications.api.DialogV2.confirm({
           rejectClose: false,
@@ -1156,6 +1164,14 @@ export default class DDBMuncher extends DDBAppV2 {
 
   static async importThirdParty(this: DDBMuncher, _event, _target) {
     new ThirdPartyMunch().render(true);
+  }
+
+  static async openMapBrowser(this: DDBMuncher, _event, _target) {
+    new DDBMapBrowser().render(true);
+  }
+
+  static async openStickerBrowser(this: DDBMuncher, _event, _target) {
+    new DDBStickerBrowser().render(true);
   }
 
   static async updateWorldMonsters(this: DDBMuncher, _event, _target) {

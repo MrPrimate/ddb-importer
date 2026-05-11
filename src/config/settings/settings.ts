@@ -295,6 +295,20 @@ const SETTINGS = {
           type: String,
           filePicker: "folder",
         },
+        "maps-upload-path": {
+          name: "ddb-importer.settings.maps-upload-path.name",
+          hint: "ddb-importer.settings.maps-upload-path.hint",
+          type: String,
+          default: "[data] ddb-images/maps",
+          filePicker: "folder",
+        },
+        "stickers-upload-path": {
+          name: "ddb-importer.settings.stickers-upload-path.name",
+          hint: "ddb-importer.settings.stickers-upload-path.hint",
+          type: String,
+          default: "[data] ddb-images/stickers",
+          filePicker: "folder",
+        },
         "persistent-storage-location": {
           name: "ddb-importer.settings.persistent-storage-location.name",
           hint: "ddb-importer.settings.persistent-storage-location.hint",
@@ -1057,6 +1071,42 @@ const SETTINGS = {
           "munching-policy-muncher-monster-types": {
             type: Array,
             default: [],
+          },
+          "munching-policy-maps-included-types": {
+            type: Array,
+            default: ["basic", "subscription", "mappack", "sourcebook", "adventure"],
+          },
+          "munching-policy-maps-exclude-dm": {
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-maps-detect-grid": {
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-maps-double-scale": {
+            type: Boolean,
+            default: false,
+          },
+          "munching-policy-maps-min-grid-size": {
+            type: Number,
+            default: 50,
+          },
+          "munching-policy-maps-import-quickplay": {
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-maps-import-quickplay-tokens": {
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-maps-quickplay-tokens-fallback": {
+            type: String,
+            default: "skip",
+          },
+          "munching-policy-maps-quickplay-token-use-ddb-image": {
+            type: Boolean,
+            default: false,
           },
           "munching-policy-monster-use-item-ac": {
             type: Boolean,

@@ -320,6 +320,17 @@ declare global {
     "ddb-importer.munching-policy-muncher-sources": any[];
     "ddb-importer.munching-policy-muncher-included-source-categories": any[];
     "ddb-importer.munching-policy-muncher-monster-types": any[];
+    "ddb-importer.munching-policy-maps-included-types": string[];
+    "ddb-importer.munching-policy-maps-exclude-dm": boolean;
+    "ddb-importer.munching-policy-maps-detect-grid": boolean;
+    "ddb-importer.munching-policy-maps-double-scale": boolean;
+    "ddb-importer.munching-policy-maps-min-grid-size": number;
+    "ddb-importer.munching-policy-maps-import-quickplay": boolean;
+    "ddb-importer.munching-policy-maps-import-quickplay-tokens": boolean;
+    "ddb-importer.munching-policy-maps-quickplay-tokens-fallback": string;
+    "ddb-importer.munching-policy-maps-quickplay-token-use-ddb-image": boolean;
+    "ddb-importer.maps-upload-path": string;
+    "ddb-importer.stickers-upload-path": string;
     "ddb-importer.munching-policy-monster-use-item-ac": boolean;
     "ddb-importer.munching-policy-monster-retain-biography": boolean;
     "ddb-importer.munching-policy-monster-set-legendary-resource-bar": boolean;

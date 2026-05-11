@@ -37,6 +37,11 @@ import DDBVehicle from "./parser/DDBVehicle";
 import DDBVehicleFactory from "./parser/DDBVehicleFactory";
 import DDBPartyInventoryImporter from "./muncher/DDBPartyInventoryImporter";
 import DDBPartyInventory from "./muncher/DDBPartyInventory";
+import DDBMaps from "./muncher/DDBMaps";
+import DDBMapBrowser from "./apps/DDBMapBrowser";
+import DDBStickers from "./muncher/DDBStickers";
+import DDBStickerBrowser from "./apps/DDBStickerBrowser";
+import DDBQuickplay from "./muncher/adventure/DDBQuickplay";
 import DDBPartySync from "./apps/DDBPartySync";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
@@ -174,6 +179,10 @@ export function registerApi() {
       },
       RuleFactory: ParserLib.DDBRuleJournalFactory,
       DDBMuleHandler,
+      DDBMaps,
+      DDBMapBrowser,
+      DDBStickers,
+      DDBStickerBrowser,
     },
     settings: {
       muncherSettings: lib.MuncherSettings.getMuncherSettings,
@@ -279,6 +288,11 @@ export function registerApi() {
         isEqual,
         uniq,
       },
+      // Convenience accessor for Quickplay placement data. Call from F12 with
+      // `DDBImporter.debug.dumpQuickplay(canvas.scene)`. Returns scene context plus
+      // every Quickplay-imported tile's raw DDB values, current placement, and
+      // computed-at-import diagnostics.
+      dumpQuickplay: (scene: any) => DDBQuickplay.dumpScene(scene),
     },
     DICTIONARY: config.DICTIONARY,
     SETTINGS: config.SETTINGS,

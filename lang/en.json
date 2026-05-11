@@ -39,6 +39,8 @@
       "Fin": "Once setup is complete, you won't see this message again."
     },
     "settings": {
+      "maps-upload-path.name": "DDB Map image upload directory",
+      "maps-upload-path.hint": "Specifies the image upload location on the server for maps, this is not for adventures, but DDB Maps maps.",
       "add-extra-base-weapons.name": "Add extra base weapons?",
       "add-extra-base-weapons.hint": "After importing items, add new base weapons to the Foundry Base Weapon list?",
       "use-basic-rules.name": "When parsing sources, add the D&D Basic Rules source rather than SRD or PHB 2024?",
@@ -214,7 +216,8 @@
     },
     "scenes": {
       "download": "DDB Scene Config",
-      "third-party-download": "Third Party Scene Config"
+      "third-party-download": "Third Party Scene Config",
+      "detect-grid": "DDB Importer: Detect Grid"
     },
     "Dialogs": {
       "ResetSettings": {
