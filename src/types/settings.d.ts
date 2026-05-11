@@ -326,6 +326,7 @@ declare global {
     "ddb-importer.munching-policy-maps-detect-grid": boolean;
     "ddb-importer.munching-policy-maps-double-scale": boolean;
     "ddb-importer.munching-policy-maps-min-grid-size": number;
+    "ddb-importer.ddb-maps-campaign-id": string;
     "ddb-importer.munching-policy-maps-import-quickplay": boolean;
     "ddb-importer.munching-policy-maps-import-quickplay-tokens": boolean;
     "ddb-importer.munching-policy-maps-quickplay-tokens-fallback": string;

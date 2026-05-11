@@ -1,5 +1,6 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger } from "../lib/_module";
+import { logger, utils, DDBCampaigns, Secrets } from "../lib/_module";
+import { SETTINGS } from "../config/_module";
 import DDBMaps from "../muncher/DDBMaps";
 import DDBStickers, { IDDBSticker, IDDBStickersPayload } from "../muncher/DDBStickers";
 import DDBSticker from "../muncher/adventure/DDBSticker";
@@ -45,6 +46,10 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   loading = false;
   private _searchDebounce: ((...args: any[]) => void) | null = null;
   private _searchCaret: { start: number; end: number } | null = null;
+  // Same lazy-fetch pattern as DDBMapBrowser: populate the dropdown on first
+  // render, fall through to a text input when the fetch fails.
+  private _campaigns: any[] | null = null;
+  private _campaignFetchInFlight = false;
 
   static DEFAULT_OPTIONS = {
     id: "ddb-sticker-browser",
@@ -303,6 +308,19 @@ export default class DDBStickerBrowser extends DDBAppV2 {
         : null,
     }));
 
+    const selectedCampaignId = (utils.getSetting<string>("ddb-maps-campaign-id") ?? "").toString().trim();
+    if (this._campaigns === null && !this._campaignFetchInFlight) {
+      this._campaignFetchInFlight = true;
+      this._loadCampaigns().then(() => {
+        this._campaignFetchInFlight = false;
+        this.render();
+      }).catch((_e) => {
+        this._campaignFetchInFlight = false;
+        this._campaigns = [];
+        this.render();
+      });
+    }
+
     Object.assign(context, {
       hasCatalog: !!storage.payload,
       loading: this.loading,
@@ -314,17 +332,57 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       stickers,
       searchTerm: this.searchTerm,
       anyFilter: this.selectedSourceId !== null || this.selectedKeyword !== null || this.searchTerm.trim() !== "",
+      selectedCampaignId,
+      campaigns: (this._campaigns ?? []).map((c) => ({
+        ...c,
+        selected: String(c.id) === selectedCampaignId,
+      })),
+      canLoadCatalog: selectedCampaignId !== "" && !this.loading,
     });
     return context;
   }
 
+  async _loadCampaigns() {
+    try {
+      const cobalt = Secrets.getCobalt();
+      const list = await DDBCampaigns.getDDBCampaigns(cobalt);
+      this._campaigns = Array.isArray(list) ? list : [];
+    } catch (error) {
+      logger.warn(`DDBStickerBrowser: campaign fetch failed: ${(error as Error).message}`);
+      this._campaigns = [];
+    }
+  }
+
+  async _setStickersCampaignId(value: string) {
+    const cleaned = (value ?? "").toString().trim();
+    await game.settings.set(SETTINGS.MODULE_ID, "ddb-maps-campaign-id", cleaned);
+    await this.render();
+  }
+
   async _onFirstRender(context, options) {
     await super._onFirstRender(context, options);
-    if (!ensureStorage().payload) this._loadCatalog();
+    // Only auto-load when a campaign id is already set; otherwise wait for
+    // the user to pick one.
+    const campaignId = (utils.getSetting<string>("ddb-maps-campaign-id") ?? "").toString().trim();
+    if (!ensureStorage().payload && campaignId !== "") this._loadCatalog();
   }
 
   async _onRender(context, options) {
     await super._onRender(context, options);
+
+    this.element.querySelectorAll<HTMLSelectElement>(".ddb-sticker-browser-campaign-select").forEach((sel) => {
+      sel.addEventListener("change", (event) => {
+        const el = event.currentTarget as HTMLSelectElement;
+        this._setStickersCampaignId(el.value);
+      });
+    });
+    this.element.querySelectorAll<HTMLInputElement>(".ddb-sticker-browser-campaign-input").forEach((inp) => {
+      inp.addEventListener("change", (event) => {
+        const el = event.currentTarget as HTMLInputElement;
+        this._setStickersCampaignId(el.value);
+      });
+    });
+
     const input = this.element.querySelector("#sticker-browser-search") as HTMLInputElement | null;
     if (!input) return;
 

@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets, DDBCampaigns } from "../lib/_module";
+import { logger, DDBProxy, PatreonHelper, Secrets, utils } from "../lib/_module";
 
 export type DDBMapSourceType = "adventure" | "sourcebook" | "mappack" | "basic" | "subscription" | string;
 
@@ -190,12 +190,22 @@ interface IDDBProxyResponse<T> {
 export default class DDBMaps {
 
   static getCampaignId(override: string | null = null): string {
-    const campaignId = override ?? DDBCampaigns.getCampaignId();
-    if (!campaignId || `${campaignId}`.trim() === "") {
+    if (override && `${override}`.trim() !== "") return `${override}`;
+    // Maps has its own campaign-id setting separate from the global
+    // campaign-id - DDB Maps content is licensed per-campaign and users
+    // commonly want a different scope here than for character/encounter
+    // sync. Fall back to the global setting when the maps-specific value
+    // hasn't been set.
+    let mapsCampaignId = "";
+    try {
+      mapsCampaignId = (utils.getSetting<string>("ddb-maps-campaign-id") ?? "").toString().trim();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) { /* fall through */ }
+    if (!mapsCampaignId || `${mapsCampaignId}`.trim() === "") {
       logger.error("DDBMaps: no campaignId set");
       return "";
     }
-    return `${campaignId}`;
+    return `${mapsCampaignId}`;
   }
 
   private static buildBody(extra: Record<string, unknown> = {}, cobalt: string | null = null): Record<string, unknown> {

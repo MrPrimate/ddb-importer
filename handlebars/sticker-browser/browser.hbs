@@ -5,10 +5,23 @@
       {{#if fetchedAt}}<span class="ddb-sticker-browser-fetched">Last fetched at {{fetchedAt}}</span>{{/if}}
     </div>
     <div class="ddb-sticker-browser-header-actions">
+      <label class="ddb-sticker-browser-campaign">
+        Campaign:
+        {{#if campaigns.length}}
+          <select class="ddb-sticker-browser-campaign-select">
+            <option value="">Select campaign:</option>
+            {{#each campaigns}}
+              <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}{{#if this.dmUsername}} ({{this.dmUsername}}){{/if}} - {{this.id}}</option>
+            {{/each}}
+          </select>
+        {{else}}
+          <input type="text" class="ddb-sticker-browser-campaign-input" placeholder="Campaign id" value="{{selectedCampaignId}}" />
+        {{/if}}
+      </label>
       <input type="text" id="sticker-browser-search" placeholder="Search stickers" value="{{searchTerm}}" />
-      <button data-action="reloadCatalog" type="button" class="munch-button" {{#if loading}}disabled{{/if}}>
+      <button data-action="reloadCatalog" type="button" class="munch-button" {{#unless canLoadCatalog}}disabled{{/unless}}>
         <i class="fas fa-sync"></i>
-        {{#if hasCatalog}}Reload{{else}}Load Catalog{{/if}}
+        {{#if canLoadCatalog}}{{#if hasCatalog}}Reload{{else}}Load Catalog{{/if}}{{else}}Select campaign{{/if}}
       </button>
     </div>
   </header>
