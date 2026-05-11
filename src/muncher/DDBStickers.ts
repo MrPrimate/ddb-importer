@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets, DDBCampaigns } from "../lib/_module";
+import { logger, DDBProxy, PatreonHelper, Secrets, utils } from "../lib/_module";
 
 export interface IDDBStickerEntitledData {
   imageKey: string;
@@ -30,12 +30,20 @@ interface IDDBProxyResponse<T> {
 export default class DDBStickers {
 
   static getCampaignId(override: string | null = null): string {
-    const campaignId = override ?? DDBCampaigns.getCampaignId();
-    if (!campaignId || `${campaignId}`.trim() === "") {
+    if (override && `${override}`.trim() !== "") return `${override}`;
+    // Stickers has its own campaign-id setting separate from the global
+    // campaign-id - DDB Stickers content is licensed per-campaign and users
+    // commonly want a different scope than character/encounter sync.
+    let stickersCampaignId = "";
+    try {
+      stickersCampaignId = (utils.getSetting<string>("ddb-maps-campaign-id") ?? "").toString().trim();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) { /* fall through */ }
+    if (!stickersCampaignId || `${stickersCampaignId}`.trim() === "") {
       logger.error("DDBStickers: no campaignId set");
       return "";
     }
-    return `${campaignId}`;
+    return `${stickersCampaignId}`;
   }
 
   private static buildBody(extra: Record<string, unknown> = {}, cobalt: string | null = null): Record<string, unknown> {

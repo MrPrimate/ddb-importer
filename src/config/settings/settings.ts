@@ -1092,6 +1092,10 @@ const SETTINGS = {
             type: Number,
             default: 50,
           },
+          "ddb-maps-campaign-id": {
+            type: String,
+            default: "",
+          },
           "munching-policy-maps-import-quickplay": {
             type: Boolean,
             default: true,

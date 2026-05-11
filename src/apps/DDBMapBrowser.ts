@@ -1,5 +1,5 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger, utils } from "../lib/_module";
+import { logger, utils, DDBCampaigns, Secrets } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBMaps, { IDDBMapCatalog, IDDBMapSource, IDDBMap, IDDBSourceMaps } from "../muncher/DDBMaps";
 import DDBMap, { DuplicateAction } from "../muncher/adventure/DDBMap";
@@ -47,6 +47,11 @@ export default class DDBMapBrowser extends DDBAppV2 {
   expandedSources = new Set<string>();
   private _searchDebounce: ((...args: any[]) => void) | null = null;
   private _searchCaret: { start: number; end: number } | null = null;
+  // Cached list of campaigns the user is a member of, fetched lazily on
+  // first render. Lets us populate the campaign dropdown without forcing a
+  // full DDBCampaigns refresh every time _prepareContext runs.
+  private _campaigns: any[] | null = null;
+  private _campaignFetchInFlight = false;
 
   static DEFAULT_OPTIONS = {
     id: "ddb-map-browser",
@@ -429,6 +434,23 @@ export default class DDBMapBrowser extends DDBAppV2 {
 
   async _onRender(context, options) {
     await super._onRender(context, options);
+
+    // Campaign dropdown (when the list fetched successfully) / free-text
+    // input (when it didn't). Change events on either path write to the
+    // ddb-maps-campaign-id setting.
+    this.element.querySelectorAll<HTMLSelectElement>(".ddb-map-browser-campaign-select").forEach((sel) => {
+      sel.addEventListener("change", (event) => {
+        const el = event.currentTarget as HTMLSelectElement;
+        this._setMapsCampaignId(el.value);
+      });
+    });
+    this.element.querySelectorAll<HTMLInputElement>(".ddb-map-browser-campaign-input").forEach((inp) => {
+      inp.addEventListener("change", (event) => {
+        const el = event.currentTarget as HTMLInputElement;
+        this._setMapsCampaignId(el.value);
+      });
+    });
+
     const input = this.element.querySelector("#map-browser-search") as HTMLInputElement | null;
     if (!input) return;
 
@@ -541,7 +563,52 @@ export default class DDBMapBrowser extends DDBAppV2 {
     context.hasCatalog = !!catalog;
     context.totalSources = catalog?.sources.length ?? 0;
     context.filteredSources = context.groups.reduce((acc, g) => acc + g.sources.length, 0);
+
+    // Campaign picker: read the maps-specific setting, lazily fetch the
+    // available-campaigns list once per session. Empty list -> the template
+    // falls back to a free-text id input. Load Catalog is disabled until
+    // the user picks (or types) a campaign id.
+    const selectedCampaignId = (utils.getSetting<string>("ddb-maps-campaign-id") ?? "").toString().trim();
+    if (this._campaigns === null && !this._campaignFetchInFlight) {
+      this._campaignFetchInFlight = true;
+      // Don't await - render with empty list, populate on next render. The
+      // fetch updates this._campaigns and triggers a re-render.
+      this._loadCampaigns(selectedCampaignId).then(() => {
+        this._campaignFetchInFlight = false;
+        this.render();
+      }).catch((_e) => {
+        this._campaignFetchInFlight = false;
+        this._campaigns = [];
+        this.render();
+      });
+    }
+    context.selectedCampaignId = selectedCampaignId;
+    context.campaigns = (this._campaigns ?? []).map((c) => ({
+      ...c,
+      selected: String(c.id) === selectedCampaignId,
+    }));
+    context.canLoadCatalog = selectedCampaignId !== "" && !this.loadingCatalog;
     return context;
+  }
+
+  async _loadCampaigns(selectedId: string) {
+    try {
+      const cobalt = Secrets.getCobalt();
+      const list = await DDBCampaigns.getDDBCampaigns(cobalt);
+      this._campaigns = Array.isArray(list) ? list : [];
+    } catch (error) {
+      logger.warn(`DDBMapBrowser: campaign fetch failed: ${(error as Error).message}`);
+      this._campaigns = [];
+    }
+    // Suppress the unused-arg warning - selectedId is used by the consumer
+    // (selected flag) after this fetch resolves.
+    void selectedId;
+  }
+
+  async _setMapsCampaignId(value: string) {
+    const cleaned = (value ?? "").toString().trim();
+    await game.settings.set(SETTINGS.MODULE_ID, "ddb-maps-campaign-id", cleaned);
+    await this.render();
   }
 
   _buildGroups(catalog: IDDBMapCatalog | null, includedSet: Set<string>, search: string) {
