@@ -24,3 +24,7 @@ export { default as DDBDebug } from "./DDBDebug";
 
 export { default as DDBSimpleMacro } from "./DDBSimpleMacro";
 export { default as DDBMacros } from "./DDBMacros";
+
+export * from "./GridDetector";
+export * from "./GridResolver";
+export * from "./ImageEdgeColor";

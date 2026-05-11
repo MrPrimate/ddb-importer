@@ -1,5 +1,6 @@
 import { FileHelper } from "../../lib/_module";
 import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport";
+import SceneGridPickerApp from "../../apps/SceneGridPickerApp";
 
 function getSceneId(li) {
   return $(li).attr("data-entry-id")
@@ -44,5 +45,19 @@ export default function (_html, contextOptions) {
       return allowDownload;
     },
     icon: "<i class=\"fas fa-share-alt\"></i>",
+  });
+
+  contextOptions.push({
+    name: "ddb-importer.scenes.detect-grid",
+    callback: async (li) => {
+      const scene = game.scenes.get(getSceneId(li));
+      if (!scene) return;
+      await SceneGridPickerApp.open(scene);
+    },
+    condition: (li) => {
+      const scene = game.scenes.get(getSceneId(li));
+      return Boolean(game.user.isGM && scene?.background?.src);
+    },
+    icon: "<i class=\"fas fa-border-all\"></i>",
   });
 }

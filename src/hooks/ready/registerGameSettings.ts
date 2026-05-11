@@ -2,6 +2,8 @@ import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 import { IDDBListCampaign } from "../../lib/DDBCampaigns";
+import type { IDDBMapCatalog, IDDBSourceMaps } from "../../muncher/DDBMaps";
+import type { IDDBStickersPayload } from "../../muncher/DDBStickers";
 import { IIconMapEntry } from "../../lib/Iconizer";
 
 interface IDDBIMacros {
@@ -89,6 +91,16 @@ export interface IDDBIConfig {
   MULTIATTACK_MATCHES_DETAILS?: Record<string, any>[];
   CAMPAIGNS?: IDDBListCampaign[] | null;
   vehicleURL?: string;
+  MAPS?: {
+    catalog: IDDBMapCatalog | null;
+    sourceMaps: Record<string, IDDBSourceMaps>;
+    fetchedAt: number | null;
+  };
+  STICKERS?: {
+    payload: IDDBStickersPayload | null;
+    fetchedAt: number | null;
+  };
+  dumpQuickplay?: (scene: any) => unknown;
 }
 
 if (!(CONFIG as any).DDBI) {
@@ -150,6 +162,11 @@ if (!(CONFIG as any).DDBI) {
       json: null,
       web: null,
     },
+    MAPS: {
+      catalog: null,
+      sourceMaps: {},
+      fetchedAt: null,
+    },
   } as IDDBIConfig;
 }
 
@@ -160,6 +177,8 @@ async function createFolderPaths() {
   const adventureUploads = utils.getSetting<string>("adventure-upload-path");
   const iconUploads = utils.getSetting<string>("adventure-misc-path");
   const persistentUploads = utils.getSetting<string>("persistent-storage-location");
+  const mapsUploads = utils.getSetting<string>("maps-upload-path");
+  const stickersUploads = utils.getSetting<string>("stickers-upload-path");
 
   for (const path of [
     characterUploads,
@@ -168,6 +187,8 @@ async function createFolderPaths() {
     adventureUploads,
     iconUploads,
     persistentUploads,
+    mapsUploads,
+    stickersUploads,
   ]) {
     if (!path || path === "") {
       throw new Error(`DDB Importer: Invalid folder path "${path}" in settings.`);
@@ -187,6 +208,8 @@ async function createFolderPaths() {
     FileHelper.verifyPath(FileHelper.parseDirectory(adventureUploads));
     FileHelper.verifyPath(FileHelper.parseDirectory(iconUploads));
     FileHelper.verifyPath(FileHelper.parseDirectory(persistentUploads));
+    FileHelper.verifyPath(FileHelper.parseDirectory(mapsUploads));
+    FileHelper.verifyPath(FileHelper.parseDirectory(stickersUploads));
   }
 }
 

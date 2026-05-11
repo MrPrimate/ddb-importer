@@ -1,0 +1,175 @@
+<div class="ddb-map-browser-root">
+  <header class="ddb-map-browser-header">
+    <div class="ddb-map-browser-header-left">
+      <h2><i class="fas fa-map"></i> Map Browser</h2>
+      {{#if fetchedAt}}<span class="ddb-map-browser-fetched">Last fetched at {{fetchedAt}}</span>{{/if}}
+    </div>
+    <div class="ddb-map-browser-header-actions">
+      <input type="text" id="map-browser-search" placeholder="Search sources" value="{{searchTerm}}" />
+      <button data-action="reloadCatalog" type="button" class="munch-button" {{#if loadingCatalog}}disabled{{/if}}>
+        <i class="fas fa-sync"></i>
+        {{#if hasCatalog}}Reload{{else}}Load Catalog{{/if}}
+      </button>
+    </div>
+  </header>
+
+  <div class="ddb-map-browser-body">
+    <aside class="ddb-map-browser-sidebar">
+      <div class="ddb-map-browser-type-filters">
+        {{#each typeFilters}}
+          <label class="ddb-map-type-filter-label">
+            <input type="checkbox" class="ddb-map-type-filter" data-map-type="{{this.type}}" {{#if this.checked}}checked{{/if}} />
+            {{this.label}}
+          </label>
+        {{/each}}
+      </div>
+
+      <div class="ddb-map-browser-source-tree">
+        {{#if loadingCatalog}}
+          <p class="ddb-map-browser-status"><i class="fas fa-spinner fa-spin"></i> Loading catalog...</p>
+        {{else if hasCatalog}}
+          {{#if groups.length}}
+            <p class="hint">{{filteredSources}} of {{totalSources}} sources</p>
+            {{#each groups}}
+              <div class="ddb-map-browser-type {{#if this.expanded}}expanded{{/if}}">
+                <button type="button" class="ddb-map-browser-type-header" data-action="toggleType" data-type="{{this.type}}">
+                  <i class="fas fa-chevron-{{#if this.expanded}}down{{else}}right{{/if}}"></i>
+                  <span class="ddb-map-browser-type-label">{{this.label}}</span>
+                  <span class="ddb-map-browser-type-count">{{this.count}}</span>
+                </button>
+                {{#if this.expanded}}
+                  <ul class="ddb-map-browser-source-list">
+                    {{#each this.sources}}
+                      <li class="ddb-map-browser-source {{#if this.selected}}selected{{/if}}">
+                        <button type="button" class="ddb-map-browser-source-row" data-action="{{#if this.hasCategories}}toggleSource{{else}}selectSource{{/if}}" data-source-id="{{this.sourceId}}">
+                          {{#if this.hasCategories}}
+                            <i class="fas fa-chevron-{{#if this.expanded}}down{{else}}right{{/if}}"></i>
+                          {{else}}
+                            <i class="fas fa-book"></i>
+                          {{/if}}
+                          <span class="ddb-map-browser-source-name">{{this.description}}</span>
+                          {{#if this.hasQuickplay}}<span class="ddb-map-browser-tag ddb-map-browser-tag-quickplay" title="This source has Quickplay maps">Quickplay</span>{{/if}}
+                          {{#unless this.released}}<span class="ddb-map-browser-tag">unreleased</span>{{/unless}}
+                        </button>
+                        {{#if this.expanded}}
+                          {{#if this.hasCategories}}
+                            <ul class="ddb-map-browser-category-list">
+                              {{#each this.categories}}
+                                <li class="ddb-map-browser-category {{#if this.selected}}selected{{/if}}">
+                                  <button type="button" data-action="selectSource" data-source-id="{{../sourceId}}" data-chapter-id="{{this.id}}">
+                                    <i class="fas fa-folder-open"></i> {{this.name}}
+                                  </button>
+                                </li>
+                              {{/each}}
+                            </ul>
+                          {{/if}}
+                        {{/if}}
+                      </li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+              </div>
+            {{/each}}
+          {{else}}
+            <p class="hint">No sources match the current filter.</p>
+          {{/if}}
+        {{else}}
+          <p class="hint">Catalog not loaded yet.</p>
+        {{/if}}
+      </div>
+    </aside>
+
+    <section class="ddb-map-browser-detail">
+      {{#if detail.isEmpty}}
+        <div class="ddb-map-browser-empty">
+          <i class="fas fa-map fa-3x"></i>
+          <p>Select a source from the left to browse its maps.</p>
+        </div>
+      {{/if}}
+
+      {{#unless detail.isEmpty}}
+        <div class="ddb-map-browser-detail-header">
+          {{#if detail.sourceCover}}
+            <img class="ddb-map-browser-detail-cover" src="{{detail.sourceCover}}" alt="{{detail.sourceTitle}}" loading="lazy" />
+          {{/if}}
+          <div class="ddb-map-browser-detail-titles">
+            <h3>{{detail.sourceTitle}}</h3>
+            {{#if detail.chapterTitle}}<h4>{{detail.chapterTitle}}</h4>{{/if}}
+            {{#if detail.isReady}}
+              <p class="hint">
+                {{detail.mapCount}} maps
+                {{#if detail.hiddenCount}}<span class="ddb-map-browser-hidden-count">({{detail.hiddenCount}} DM hidden)</span>{{/if}}
+              </p>
+            {{/if}}
+          </div>
+          {{#if detail.isReady}}
+            <div class="ddb-map-browser-detail-actions">
+              <label class="ddb-map-browser-exclude-dm" title="Hide DM-version maps from this list and skip them on import">
+                <input type="checkbox" class="ddb-map-browser-exclude-dm-toggle" {{#if excludeDm}}checked{{/if}} />
+                Exclude DM Maps
+              </label>
+              {{#if detail.anyPreparedMap}}
+                <label class="ddb-map-browser-quickplay" title="When importing a Quickplay map, also place its stickers as Foundry tiles.">
+                  <input type="checkbox" class="ddb-map-browser-quickplay-toggle" {{#if importQuickplay}}checked{{/if}} />
+                  Import Quickplay Layout
+                </label>
+                <label class="ddb-map-browser-quickplay-tokens" title="When importing a Quickplay map, also place its tokens. Missing monsters will be auto-imported from DDB if your Patreon tier allows.">
+                  <input type="checkbox" class="ddb-map-browser-quickplay-tokens-toggle" {{#if importQuickplayTokens}}checked{{/if}} />
+                  Import Quickplay Tokens
+                </label>
+              {{/if}}
+              <button data-action="importAllInSource" type="button" class="munch-button">
+                <i class="fas fa-download"></i> Import All
+              </button>
+            </div>
+          {{/if}}
+        </div>
+
+        {{#if detail.isLoading}}
+          <p class="ddb-map-browser-status"><i class="fas fa-spinner fa-spin"></i> Loading maps...</p>
+        {{/if}}
+
+        {{#if detail.isMissing}}
+          <p class="ddb-map-browser-status">No maps loaded for this source yet.</p>
+        {{/if}}
+
+        {{#if detail.isReady}}
+          {{#each detail.chapterGroups}}
+            <section class="ddb-map-browser-chapter">
+              {{#if this.showHeader}}
+                <header class="ddb-map-browser-chapter-header">
+                  <h5 class="ddb-map-browser-chapter-title">{{this.name}}</h5>
+                  <span class="ddb-map-browser-chapter-count">{{this.mapCountLabel}}</span>
+                </header>
+              {{/if}}
+              <ul class="ddb-map-browser-map-list">
+                {{#each this.maps}}
+                  <li class="ddb-map-browser-map">
+                    <div class="ddb-map-browser-map-thumb">
+                      {{#if this.thumbnail}}
+                        <img src="{{this.thumbnail}}" alt="{{this.name}}" loading="lazy" />
+                      {{else}}
+                        <i class="fas fa-image fa-2x"></i>
+                      {{/if}}
+                    </div>
+                    <div class="ddb-map-browser-map-meta">
+                      <strong>{{this.name}}</strong>
+                      {{#if this.description}}<p class="hint">{{this.description}}</p>{{/if}}
+                      {{#if this.dimensions}}<span class="ddb-map-browser-dim">{{this.dimensions}}</span>{{/if}}
+                      {{#if this.hasPreparedMap}}<span class="ddb-map-browser-tag" title="{{this.preparedMapDescription}}">QuickPlay</span>{{/if}}
+                    </div>
+                    <div class="ddb-map-browser-map-actions">
+                      <button type="button" data-action="importMap" data-image-key="{{this.imageKey}}" data-map-name="{{this.name}}" class="munch-button">
+                        <i class="fas fa-plus"></i> Import
+                      </button>
+                    </div>
+                  </li>
+                {{/each}}
+              </ul>
+            </section>
+          {{/each}}
+        {{/if}}
+      {{/unless}}
+    </section>
+  </div>
+</div>

@@ -56,7 +56,8 @@
     "./css/import.css",
     "./css/journal.css",
     "./css/notifications.css",
-    "./css/adventure.css"
+    "./css/adventure.css",
+    "./css/maps.css"
   ],
   "packs": [],
   "socket": true,

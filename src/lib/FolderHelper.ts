@@ -2,19 +2,42 @@ import utils from "./Utils";
 
 export default class FolderHelper {
 
-  static async getOrCreateFolder (root, entityType, folderName, folderColor = ""): Promise<Folder.Implementation> {
+  static async getOrCreateFolder (
+    root,
+    entityType,
+    folderName,
+    folderColor = "",
+    options: { sort?: number | null; sortMode?: "a" | "m" } = {},
+  ): Promise<Folder.Implementation> {
     let folder = game.folders.contents.find((f) =>
       f.type === entityType && f.name === folderName
       // if a root folder we want to match the root id for the parent folder
       && (root ? root.id : null) === (f.folder?.id ?? null),
     );
-    if (folder) return folder;
-    const folderData = {
+    if (folder) {
+      // Existing folder - patch its sort if the caller asked for one and the
+      // current value doesn't match. Keeps Map Browser-driven folder order
+      // stable as new scenes get added.
+      if (typeof options.sort === "number" && Number.isFinite(options.sort) && folder.sort !== options.sort) {
+        try {
+          await folder.update({ sort: options.sort, sorting: options.sortMode ?? "m" } as any);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) { /* tolerate failures - folder still usable */ }
+      }
+      return folder;
+    }
+    const folderData: any = {
       name: folderName,
       type: entityType,
       color: folderColor,
       folder: (root) ? (root._id ?? root.id) : null,
     };
+    if (typeof options.sort === "number" && Number.isFinite(options.sort)) {
+      folderData.sort = options.sort;
+      // "m" = manual sort; required for the sort value to take effect over
+      // alphabetical sibling sorting.
+      folderData.sorting = options.sortMode ?? "m";
+    }
     // @ts-expect-error - not sure if I'm wrong
     folder = await Folder.create(folderData as any, { displaySheet: false });
     return folder;
