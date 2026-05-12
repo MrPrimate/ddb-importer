@@ -1,6 +1,15 @@
 /* eslint-disable no-console */
 
-import { FileHelper } from "./_module";
+import { FileHelper } from "./FileHelper";
+
+/**
+ * Typed accessor for CONFIG.debug.ddbimporter.
+ * CONFIG.debug is a closed inline type in foundry-vtt-types that cannot be
+ * extended via declaration merging, so this helper encapsulates the cast.
+ */
+export function ddbDebug(): IDDBImporterDebug {
+  return (CONFIG.debug as CONFIG["debug"] & { ddbimporter: IDDBImporterDebug }).ddbimporter;
+}
 
 const logger = {
 
@@ -13,7 +22,7 @@ const logger = {
     }
 
     try {
-      const setting = game.settings.get("ddb-importer", "log-level");
+      const setting: string = game.settings.get("ddb-importer", "log-level") as unknown as string;
       const logLevels = ["VERBOSE", "DEBUG", "TIME", "TIMEEND", "TIMELOG", "INFO", "WARN", "ERR", "OFF"];
       const logLevelIndex = logLevels.indexOf(logLevel.toUpperCase());
       if (setting == "OFF"
@@ -30,7 +39,7 @@ const logger = {
   },
   _addToLogFile: (logLevel, data) => {
     if (foundry.utils.getProperty(CONFIG.debug, "ddbimporter.record") === true) {
-      CONFIG.debug.ddbimporter.log.push({
+      ddbDebug().log.push({
         level: logLevel,
         data: data,
       });
@@ -96,17 +105,15 @@ const logger = {
         break;
       case "TIME":
         if (payload) {
-          console.time(msg, ...payload);
-        } else {
-          console.time(msg);
+          console.debug(msg, ...payload);
         }
+        console.timeEnd(msg);
         break;
       case "TIMEEND":
         if (payload) {
-          console.timeEnd(msg, ...payload);
-        } else {
-          console.timeEnd(msg);
+          console.debug(msg, ...payload);
         }
+        console.timeEnd(msg);
         break;
       case "TIMELOG":
         if (payload) {
@@ -169,7 +176,7 @@ const getCircularReplacer = () => {
 };
 
 function downloadLog() {
-  FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
+  FileHelper.download(JSON.stringify(ddbDebug().log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
   foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 

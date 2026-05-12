@@ -1,7 +1,8 @@
 import { FileHelper } from "../../lib/_module";
+import { ddbDebug } from "../../lib/Logger";
 
 function downloadLog() {
-  FileHelper.download(JSON.stringify(CONFIG.debug.ddbimporter.log), `ddbimporter-log-data.json`, "application/json");
+  FileHelper.download(JSON.stringify(ddbDebug().log), `ddbimporter-log-data.json`, "application/json");
   foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 

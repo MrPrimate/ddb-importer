@@ -1,5 +1,6 @@
 // for exports
 import { lib, config } from "./_module";
+import { ddbDebug } from "./lib/Logger";
 import DDBMonster from "./parser/DDBMonster";
 import DDBMonsterFactory from "./parser/DDBMonsterFactory";
 import { parseSpells } from "./muncher/spells";
@@ -62,11 +63,11 @@ function migrateCompendiums() {
 }
 
 function debugStart() {
-  CONFIG.debug.ddbimporter.record = true;
+  ddbDebug().record = true;
 }
 
 function debugStop() {
-  CONFIG.debug.ddbimporter.download();
+  ddbDebug().download();
 }
 
 function testFunction(testName) {
@@ -299,6 +300,8 @@ export function registerApi() {
   };
 
   globalThis["DDBImporter"] = API;
+  // @ts-expect-error - we are intentionally attaching to the game module
   game.modules.get(config.SETTINGS.MODULE_ID).api = API;
+  // @ts-expect-error - we are intentionally attaching to the game module
   game.modules.get(config.SETTINGS.MODULE_ID).DICTIONARY = config.DICTIONARY;
 }

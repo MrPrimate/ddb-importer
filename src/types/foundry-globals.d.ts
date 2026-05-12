@@ -89,6 +89,14 @@ declare global {
   // JSZip library (loaded at runtime, not bundled)
   const JSZip: any;
 
+  interface IDDBImporterDebug {
+    record: boolean;
+    log: { level: string; data: any[] }[];
+    download: () => void;
+    multiattack: boolean;
+    referenceLinking: boolean;
+  }
+
   namespace CONFIG {
     interface StatusEffect {
       name: string;
