@@ -67,14 +67,14 @@ function getDDBImporterFlag(scene: ISceneLike, key: string): any {
   return scene.flags?.["ddb-importer"]?.[key];
 }
 
-async function fetchBackgroundBlob(src: string): Promise<Blob> {
+export async function fetchBackgroundBlob(src: string): Promise<Blob> {
   // Scene backgrounds live under the user's data folder so plain fetch is enough.
   const response = await fetch(src);
   if (!response.ok) throw new Error(`Could not fetch background ${src}: HTTP ${response.status}`);
   return response.blob();
 }
 
-async function readBitmapDimensions(blob: Blob): Promise<{ width: number; height: number }> {
+export async function readBitmapDimensions(blob: Blob): Promise<{ width: number; height: number }> {
   const bitmap = await createImageBitmap(blob);
   const dims = { width: bitmap.width, height: bitmap.height };
   if (typeof bitmap.close === "function") bitmap.close();
@@ -519,13 +519,17 @@ export async function applyChoiceToScene(
     if (rounded >= 1 && rounded <= 4 && Math.abs(ratio - rounded) < 0.15) appliedMultiplier = rounded;
   }
 
-  await scene.update({
+  // v14 moved offset to top-level shiftX/shiftY; on v13 it lives under
+  // background.offsetX/Y. Write the v14 form when running on v14+, otherwise
+  // fall through to the legacy field.
+  const isV14 = typeof game !== "undefined"
+    && typeof game.version === "string"
+    && Number.parseInt(game.version, 10) >= 14;
+  const updatePayload: any = {
     width: sceneWidth,
     height: sceneHeight,
     background: {
       src: scene.background?.src,
-      offsetX,
-      offsetY,
     },
     grid: {
       type: ensureNumber(scene.grid?.type, 1),
@@ -546,7 +550,15 @@ export async function applyChoiceToScene(
         gridDetectedAt: Date.now(),
       },
     },
-  });
+  };
+  if (isV14) {
+    updatePayload.shiftX = offsetX;
+    updatePayload.shiftY = offsetY;
+  } else {
+    updatePayload.background.offsetX = offsetX;
+    updatePayload.background.offsetY = offsetY;
+  }
+  await scene.update(updatePayload);
 }
 
 function renderCandidateRow(c: ICandidateChoice, isRecommended: boolean): string {

@@ -1,11 +1,19 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
-import { logger, utils, FileHelper, CompendiumHelper } from "../../lib/_module";
+import { logger, utils, FileHelper, CompendiumHelper, isGridDetectionEnabled } from "../../lib/_module";
 import { generateAdventureConfig } from "../adventure";
 import { SETTINGS } from "../../config/_module";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums";
 import { DDBReferenceLinker } from "../../parser/lib/_module";
 import MonsterReplacer from "../../apps/MonsterReplacer";
 import SceneSnipProcessor from "../../lib/SceneSnipProcessor";
+import {
+  runDetectionForScene,
+  applyChoiceToScene,
+  fetchBackgroundBlob,
+  readBitmapDimensions,
+} from "../../apps/SceneGridDetector";
+
+import { isGridDetectionCandidate } from "./GridDetectionCandidate";
 
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
@@ -385,6 +393,96 @@ export default class AdventureMunch {
     if (this.folderExistsInZip("macro")) {
       logger.debug(`${this.adventure.name} - Loading macro`);
       await this._importFile("macro");
+    }
+  }
+
+  // A scene whose imported width/height matches the natural image dimensions and
+  // whose shiftX/shiftY are both zero almost certainly shipped without grid
+  // alignment. After import, offer to run detectGrid on those candidates.
+  async _findGridDetectionCandidates() {
+    const scenes = this.temporary?.scenes ?? [];
+    if (scenes.length === 0) return [];
+
+    const getDimensions = async (src) => {
+      const blob = await fetchBackgroundBlob(src);
+      return readBitmapDimensions(blob);
+    };
+
+    const checks = scenes.map(async (scene) => {
+      const ok = await isGridDetectionCandidate(scene, getDimensions);
+      return ok ? scene : null;
+    });
+
+    const results = await Promise.all(checks);
+    return results.filter((s) => s !== null);
+  }
+
+  async _promptGridDetectionForImportedScenes() {
+    if (!isGridDetectionEnabled()) return;
+
+    const candidates = await this._findGridDetectionCandidates();
+    if (candidates.length === 0) return;
+
+    const rows = candidates
+      .map((scene, i) => {
+        const name = (scene.name ?? `Scene ${i + 1}`)
+          .replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]!);
+        return `<li><label><input type="checkbox" name="scene" value="${i}" checked> ${name}</label></li>`;
+      })
+      .join("");
+
+    const content = `
+      <p>${candidates.length} imported scene${candidates.length === 1 ? "" : "s"} ${candidates.length === 1 ? "has" : "have"} no shift/offset and image dimensions matching the scene size.</p>
+      <p>Run grid auto-detection on the selected scenes?</p>
+      <ul style="list-style:none;padding-left:0;max-height:300px;overflow-y:auto;">${rows}</ul>
+    `;
+
+    const selected = await foundry.applications.api.DialogV2.wait({
+      rejectClose: false,
+      window: { title: "Detect Grid on Imported Scenes" },
+      content,
+      position: { width: 480 },
+      buttons: [
+        {
+          action: "run",
+          label: "Run Detection",
+          icon: "fas fa-magnifying-glass",
+          default: true,
+          callback: (_event, button) => {
+            const form = (button as HTMLButtonElement).form;
+            if (!form) return [];
+            const checked = Array.from(form.querySelectorAll<HTMLInputElement>("input[name='scene']:checked"));
+            return checked.map((el) => Number(el.value));
+          },
+        },
+        {
+          action: "skip",
+          label: "Skip",
+          icon: "fas fa-times",
+          callback: () => null,
+        },
+      ],
+    });
+
+    if (!Array.isArray(selected) || selected.length === 0) return;
+
+    for (const index of selected) {
+      const scene = candidates[index];
+      if (!scene) continue;
+      try {
+        ui.notifications?.info(`Detecting grid for "${scene.name}"...`);
+        const run = await runDetectionForScene(scene);
+        const choice = run.recommendedKey
+          ? run.candidateList.find((c) => c.key === run.recommendedKey) ?? null
+          : null;
+        await applyChoiceToScene(scene, run, choice);
+        const sizePx = choice ? choice.entry.gridSize : Math.round(run.grid.size);
+        ui.notifications?.info(`Grid updated on "${scene.name}" (size ${sizePx}px).`);
+      } catch (err) {
+        const msg = (err as Error).message;
+        logger.error(`Grid detection failed for "${scene?.name ?? "?"}": ${msg}`, err);
+        ui.notifications?.warn(`Grid detection failed for "${scene?.name ?? "?"}": ${msg}`);
+      }
     }
   }
 
@@ -858,6 +956,7 @@ export default class AdventureMunch {
         await createDDBCompendium(compData);
         await this._importAdventureToCompendium();
       }
+      await this._promptGridDetectionForImportedScenes();
       this._renderCompleteDialog();
     } catch (err) {
       ui.notifications.error(`There was an error importing ${this.importFilename}`);
