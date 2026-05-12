@@ -18,6 +18,8 @@ import DDBQuickplay from "./DDBQuickplay";
 import DDBQuickplayTokens from "./DDBQuickplayTokens";
 
 const DEFAULT_UPLOAD_PATH = "[data] ddb-images/maps";
+const DEFAULT_LEVEL_ID = "defaultLevel0000";
+
 
 export interface IDDBMapImportResult {
   scene: any | null;
@@ -90,8 +92,7 @@ export default class DDBMap {
     try {
       const fromSetting = utils.getSetting<string>("maps-upload-path");
       if (fromSetting && fromSetting.trim() !== "") return fromSetting;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) { /* ignore unregistered */ }
+    } catch (_e) { /* ignore unregistered */ }
     return DEFAULT_UPLOAD_PATH;
   }
 
@@ -218,17 +219,40 @@ export default class DDBMap {
       name: this._sceneName(),
       background: {
         src: this.uploadedPath,
-        // Foundry V13 background.offsetX/Y use the texture-anchor convention:
-        // positive offset moves the scene origin into the image, which visually
-        // shifts the image left and lines up the painted grid line at
-        // image-x = detection.offsetX with a Foundry grid edge.
-        offsetX: Math.round(grid.offsetX),
-        offsetY: Math.round(grid.offsetY),
+
       },
+      levels: [
+        {
+          _id: DEFAULT_LEVEL_ID,
+          name: "Level",
+          background: {
+            src: this.uploadedPath,
+            color: this.backgroundColor ?? "#999999",
+            tint: "#ffffff",
+            alphaThreshold: 0.75,
+          },
+          foreground: null,
+          textures: {
+            anchorX: 0.5,
+            anchorY: 0.5,
+            offsetX: 0,
+            offsetY: 0,
+            fit: "fill",
+            scaleX: 1,
+            scaleY: 1,
+            rotation: 0,
+          },
+        },
+      ],
+      // Foundry V14 background.shiftX/Y use the texture-anchor convention:
+      // positive offset moves the scene origin into the image, which visually
+      // shifts the image left and lines up the painted grid line at
+      // image-x = detection.offsetX with a Foundry grid edge.
+      shiftX: Math.round(grid.offsetX),
+      shiftY: Math.round(grid.offsetY),
       width: sceneWidth,
       height: sceneHeight,
       grid: { type: 1, size: gridSize, distance: 5, units: "ft" },
-      backgroundColor: this.backgroundColor ?? "#999999",
       folder: folderId,
       flags: {
         "ddb-importer": {

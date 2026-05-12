@@ -3,6 +3,8 @@ import { IDDBPreparedState, IDDBPreparedStickerEntity } from "../DDBMaps";
 import { IDDBSticker } from "../DDBStickers";
 import DDBSticker from "./DDBSticker";
 
+const DEFAULT_LEVEL_ID = "defaultLevel0000";
+
 export interface IDDBQuickplayApplyOptions {
   cobalt?: string | null;
   campaignId?: string | null;
@@ -24,12 +26,20 @@ export interface IDDBQuickplayApplyResult {
 }
 
 interface ITileSourceData {
-  texture: { src: string };
+  texture: {
+    src: string;
+    anchorX: number;
+    anchorY: number;
+    fit: "cover" | "contain" | "fill";
+    scaleX: number;
+    scaleY: number;
+  };
   width: number;
   height: number;
   x: number;
   y: number;
   rotation: number;
+  levels: string[];
   sort: number;
   hidden: boolean;
   locked: boolean;
@@ -108,8 +118,8 @@ export default class DDBQuickplay {
     // tile positions are in canvas (scene-pixel) space and unaffected.
     const f = scene.flags?.["ddb-importer"] ?? {};
     const sceneScale = typeof f.gridSceneScale === "number" ? f.gridSceneScale : 1;
-    const liveOffsetX = scene.background?.offsetX;
-    const liveOffsetY = scene.background?.offsetY;
+    const liveOffsetX = scene.background?.shiftX;
+    const liveOffsetY = scene.background?.shiftY;
     const sceneOffsetX = typeof liveOffsetX === "number" ? liveOffsetX : 0;
     const sceneOffsetY = typeof liveOffsetY === "number" ? liveOffsetY : 0;
     // Foundry's actual grid size on the scene - what tiles need to align to.
@@ -317,8 +327,8 @@ export default class DDBQuickplay {
     localPath: string,
     cellPx: number,
     sceneScale: number,
-    sceneOffsetX: number,
-    sceneOffsetY: number,
+    _sceneOffsetX: number,
+    _sceneOffsetY: number,
     sceneXPad: number,
     sceneYPad: number,
     gridSize: number,
@@ -375,7 +385,14 @@ export default class DDBQuickplay {
     const tileY = Math.round(tileYraw / gridSize) * gridSize;
 
     return {
-      texture: { src: localPath },
+      texture: {
+        src: localPath,
+        anchorX: 0.5,
+        anchorY: 0.5,
+        fit: "fill",
+        scaleX: 1,
+        scaleY: 1,
+      },
       width: widthScene,
       height: heightScene,
       x: tileX,
@@ -386,6 +403,7 @@ export default class DDBQuickplay {
       sort: Math.round((typeof e.zPosition === "number" ? e.zPosition : 0) * 1000),
       hidden: !!e.hidden,
       locked: !!e.locked,
+      levels: [DEFAULT_LEVEL_ID],
       flags: {
         "ddb-importer": {
           quickplayStickerId: e.id,

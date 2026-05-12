@@ -326,8 +326,7 @@ export default class DDBMaps {
         try {
           const json = await response.json();
           if (json?.message) message = json.message;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) { /* keep status-only message */ }
+        } catch (_e) { /* keep status-only message */ }
         logger.error(`DDBMaps.downloadImage failed: ${message}`);
         return null;
       }

@@ -5,6 +5,7 @@ import AdventureMunchHelpers from "./AdventureMunchHelpers";
 // Same constant as DDBQuickplay - DDB stores positions in 100-px-per-unit
 // regardless of the image's actual cellPx. See DDBQuickplay for derivation.
 const POSITION_UNIT_PX = 100;
+const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
 export interface IDDBQuickplayTokensApplyOptions {
   cobalt?: string | null;
@@ -48,6 +49,7 @@ interface ITokenStub {
   locked: boolean;
   name: string;
   sort: number;
+  level: string;
   flags: { "ddb-importer": Record<string, unknown> };
   // Optional HP delta carried through actor.getTokenDocument().
   delta?: { system?: { attributes?: { hp?: { value?: number; max?: number; temp?: number } } } };
@@ -395,6 +397,7 @@ export default class DDBQuickplayTokens {
         hidden: !!t.hidden,
         locked: !!t.locked,
         name: baseName,
+        level: DEFAULT_LEVEL_ID,
         sort: Math.round((t.zPosition ?? 0) * 1000),
         flags: {
           "ddb-importer": {
