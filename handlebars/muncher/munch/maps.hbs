@@ -12,10 +12,10 @@
     </div>
   </fieldset>
 
-  <button data-action="openMapBrowser" type="button" id="munch-maps-open" class="munch-button">
-    <i class="fas fa-map"></i> Open Map Browser
+  <button data-action="openMapBrowser" type="button" id="munch-maps-open" class="munch-button" {{#if tiers.experimentalMid}}{{else}}disabled{{/if}}>
+    <i class="fas fa-map"></i> {{#if tiers.experimentalMid}}Open Map Browser{{else}}Available for higher tiers{{/if}}
   </button>
-  <button data-action="openStickerBrowser" type="button" id="munch-stickers-open" class="munch-button">
-    <i class="fas fa-shapes"></i> Open Sticker Browser
+  <button data-action="openStickerBrowser" type="button" id="munch-stickers-open" class="munch-button" {{#if tiers.experimentalMid}}{{else}}disabled{{/if}}>
+    <i class="fas fa-shapes"></i> {{#if tiers.experimentalMid}}Open Sticker Browser{{else}}Available for higher tiers{{/if}}
   </button>
 </section>
