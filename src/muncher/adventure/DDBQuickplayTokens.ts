@@ -375,9 +375,23 @@ export default class DDBQuickplayTokens {
       // encounter. Prefer `displayName` when present (already includes the
       // suffix), otherwise concat name + suffix manually.
       const baseName = t.displayName ?? (t.nameSuffix ? `${t.name} ${t.nameSuffix}` : t.name);
+      // Convert centre to top-left using the prototype token's size in
+      // cells. Foundry token.x/y is the top-left of the occupied area; the
+      // centre lives at top-left + (size * gridSize) / 2. Snapping the
+      // centre directly to a grid line (the old behaviour) places the
+      // top-left a half-cell past the desired position, so 1x1 and 3x3
+      // tokens with centres at half-cell offsets ended up one cell down
+      // and right of where DDB had placed them.
+      const protoWidth = Math.max(1, Number(worldActor?.prototypeToken?.width ?? 1));
+      const protoHeight = Math.max(1, Number(worldActor?.prototypeToken?.height ?? 1));
+      const halfW = (protoWidth * gridSize) / 2;
+      const halfH = (protoHeight * gridSize) / 2;
+      const topLeftX = centre.x - halfW;
+      const topLeftY = centre.y - halfH;
+      // Snap top-left to the nearest cell origin in scene padded space.
       const stub: ITokenStub = {
-        x: Math.round(centre.x / gridSize) * gridSize,
-        y: Math.round(centre.y / gridSize) * gridSize,
+        x: Math.round((topLeftX - sceneXPad) / gridSize) * gridSize + sceneXPad,
+        y: Math.round((topLeftY - sceneYPad) / gridSize) * gridSize + sceneYPad,
         hidden: !!t.hidden,
         locked: !!t.locked,
         name: baseName,
