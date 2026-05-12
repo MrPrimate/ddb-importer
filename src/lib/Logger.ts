@@ -2,6 +2,16 @@
 
 import FileHelper from "./FileHelper";
 
+/**
+ * Typed accessor for CONFIG.debug.ddbimporter.
+ * CONFIG.debug is a closed inline type in foundry-vtt-types that cannot be
+ * extended via declaration merging, so this helper encapsulates the cast.
+ */
+export function ddbDebug(): IDDBImporterDebug {
+  return (CONFIG.debug as CONFIG["debug"] & { ddbimporter: IDDBImporterDebug }).ddbimporter;
+}
+
+
 const logger = {
 
   LOG_PREFIX: "DDB Importer",
@@ -31,7 +41,7 @@ const logger = {
 
   _addToLogFile: (logLevel, data) => {
     if (foundry.utils.getProperty(CONFIG.debug, "ddbimporter.record") === true) {
-      CONFIG.debug.ddbimporter.log.push({
+      ddbDebug().log.push({
         level: logLevel,
         data: data,
       });
@@ -98,18 +108,14 @@ const logger = {
       case "TIME":
         if (payload) {
           console.debug(msg, ...payload);
-          console.time(msg);
-        } else {
-          console.time(msg);
         }
+        console.timeEnd(msg);
         break;
       case "TIMEEND":
         if (payload) {
           console.debug(msg, ...payload);
-          console.timeEnd(msg);
-        } else {
-          console.timeEnd(msg);
         }
+        console.timeEnd(msg);
         break;
       case "TIMELOG":
         if (payload) {
@@ -172,8 +178,7 @@ const getCircularReplacer = () => {
 };
 
 function downloadLog() {
-  const logData = foundry.utils.getProperty(CONFIG.debug, "ddbimporter.log") as IDDBImporterDebugLogEntry[];
-  FileHelper.download(JSON.stringify(logData, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
+  FileHelper.download(JSON.stringify(ddbDebug().log, getCircularReplacer()), `ddbimporter-log-data.json`, "application/json");
   foundry.utils.setProperty(CONFIG.debug, "ddbimporter.log", []);
 }
 
