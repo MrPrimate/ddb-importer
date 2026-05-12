@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { FileHelper } from "./FileHelper";
+import FileHelper from "./FileHelper";
 
 /**
  * Typed accessor for CONFIG.debug.ddbimporter.
