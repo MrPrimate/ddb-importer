@@ -384,16 +384,42 @@ export default class DDBQuickplayTokens {
       // top-left a half-cell past the desired position, so 1x1 and 3x3
       // tokens with centres at half-cell offsets ended up one cell down
       // and right of where DDB had placed them.
-      const protoWidth = Math.max(1, Number(worldActor?.prototypeToken?.width ?? 1));
-      const protoHeight = Math.max(1, Number(worldActor?.prototypeToken?.height ?? 1));
+      // Snap the token to the grid cell whose area it most overlaps. The
+      // Foundry grid runs in canvas coords starting at (0, 0); sceneXPad /
+      // sceneYPad are the image-origin offset, NOT the grid origin.
+      //
+      // For tokens >= 1 cell (Medium, Large, Huge, etc.) we use the
+      // standard round((centre - halfSize) / gridSize) * gridSize, which
+      // picks the cell/block that maximises area overlap.
+      //
+      // For sub-cell tokens (Tiny with width 0.5) that formula has a
+      // different threshold: with halfSize = gridSize/4, the rounding flip
+      // sits at 75% into a cell instead of at the cell boundary, so a
+      // Tiny token whose centre lands past the midpoint of its cell
+      // ends up one cell down/right of where it should sit. Snap those
+      // by finding the cell containing the centre and placing the token's
+      // visual centre at that cell's centre - keeps Tiny tokens in the
+      // cell DDB shows them in.
+      const rawProtoWidth = Number(worldActor?.prototypeToken?.width);
+      const rawProtoHeight = Number(worldActor?.prototypeToken?.height);
+      const protoWidth = Number.isFinite(rawProtoWidth) && rawProtoWidth > 0 ? rawProtoWidth : 1;
+      const protoHeight = Number.isFinite(rawProtoHeight) && rawProtoHeight > 0 ? rawProtoHeight : 1;
       const halfW = (protoWidth * gridSize) / 2;
       const halfH = (protoHeight * gridSize) / 2;
-      const topLeftX = centre.x - halfW;
-      const topLeftY = centre.y - halfH;
-      // Snap top-left to the nearest cell origin in scene padded space.
+      let stubX: number;
+      let stubY: number;
+      if (protoWidth < 1 || protoHeight < 1) {
+        const cellX = Math.floor(centre.x / gridSize);
+        const cellY = Math.floor(centre.y / gridSize);
+        stubX = Math.round(cellX * gridSize + gridSize / 2 - halfW);
+        stubY = Math.round(cellY * gridSize + gridSize / 2 - halfH);
+      } else {
+        stubX = Math.round((centre.x - halfW) / gridSize) * gridSize;
+        stubY = Math.round((centre.y - halfH) / gridSize) * gridSize;
+      }
       const stub: ITokenStub = {
-        x: Math.round((topLeftX - sceneXPad) / gridSize) * gridSize + sceneXPad,
-        y: Math.round((topLeftY - sceneYPad) / gridSize) * gridSize + sceneYPad,
+        x: stubX,
+        y: stubY,
         hidden: !!t.hidden,
         locked: !!t.locked,
         name: baseName,
