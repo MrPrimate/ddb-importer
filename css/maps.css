@@ -686,9 +686,25 @@
 
 .ddb-grid-picker-line {
   stroke: rgba(255, 80, 80, 0.85);
-  stroke-width: 2;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
   fill: none;
   shape-rendering: crispEdges;
+}
+
+.ddb-grid-picker-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ddb-grid-picker-preview-header h4 {
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.ddb-grid-picker-preview-svg.zoomed {
+  cursor: grab;
 }
 
 .ddb-grid-picker-actions {
@@ -786,4 +802,73 @@
 
 .ddb-grid-picker-table tr.selected {
   background: rgba(80, 160, 255, 0.15);
+}
+
+/* Grid Picker - hint mode (drag a 3x3 rect over painted cells) */
+
+.ddb-grid-picker-svg.hint-mode {
+  cursor: crosshair;
+}
+
+.ddb-grid-picker-hint-overlay {
+  fill: transparent;
+  pointer-events: all;
+}
+
+.ddb-grid-picker-hint-rect {
+  fill: rgba(255, 200, 80, 0.18);
+  stroke: rgba(255, 200, 80, 0.95);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  shape-rendering: crispEdges;
+}
+
+.ddb-grid-picker-hint-subline {
+  stroke: rgba(255, 200, 80, 0.75);
+  stroke-width: 0.75;
+  stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke;
+  fill: none;
+  pointer-events: none;
+  shape-rendering: crispEdges;
+}
+
+.ddb-grid-picker-hint-handle {
+  fill: rgba(255, 200, 80, 0.95);
+  stroke: rgba(40, 30, 0, 0.85);
+  stroke-width: 1.5;
+  cursor: nwse-resize;
+  pointer-events: all;
+  shape-rendering: crispEdges;
+}
+
+.ddb-grid-picker-hint-handle[data-corner="tr"],
+.ddb-grid-picker-hint-handle[data-corner="bl"] {
+  cursor: nesw-resize;
+}
+
+.ddb-grid-picker-hint-direct {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85em;
+}
+
+.ddb-grid-picker-zoom-group {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.ddb-grid-picker-actions .munch-button.icon-only {
+  padding: 4px 8px;
+  min-width: 0;
+}
+
+.ddb-grid-picker-svg.zoomed {
+  cursor: grab;
+}
+
+.ddb-grid-picker-svg.zoomed.hint-mode {
+  cursor: crosshair;
 }
