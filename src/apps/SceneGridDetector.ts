@@ -216,6 +216,12 @@ export interface IRunDetectionOptions {
   // the 5-ft-cell prior - covers the case where a DDB scene's tokenScale
   // represents the 5-ft cell but the actual painted square is 2-4x larger.
   searchPaddingFraction?: number;
+  // Painted cell size in original-image pixels. When set, this overrides
+  // the tokenScale-derived expectedScale prior so the detector searches
+  // around the supplied value instead. Used by the picker's "draw grid
+  // hint" workflow - the user draws a 3 x 3 box, we compute cellPx from
+  // the box, and pass it here as a precise prior with tight padding.
+  expectedCellPx?: number;
 }
 
 // Run detectGrid against either the full image or a single ROI crop.
@@ -225,7 +231,7 @@ async function runDetectionOnRoi(
   fullDims: { width: number; height: number },
   scene: ISceneLike,
   roi: IRoi | null,
-  detectorOpts: { multiplier?: number; searchPaddingFraction?: number } = {},
+  detectorOpts: { multiplier?: number; searchPaddingFraction?: number; expectedCellPx?: number } = {},
 ): Promise<IGridDetectionResult | null> {
   let detectorBlob = fullBlob;
   if (roi && roi.w > 0 && roi.h > 0) {
@@ -244,9 +250,17 @@ async function runDetectionOnRoi(
   // run on a crop, the detector multiplies expectedScale by its own (cropped)
   // width to get an absolute pixel target. We rescale so the same painted
   // period in pixels comes out regardless of crop size.
-  const baseExpectedScale = (typeof tokenScale === "number" && tokenScale > 0)
-    ? tokenScale * multiplier
-    : undefined;
+  //
+  // expectedCellPx (user-drawn grid hint) takes priority over tokenScale -
+  // when the caller has measured the painted period directly we trust that
+  // over DDB's stored prior. cellPx is already the painted period in image
+  // pixels, so no multiplier-adjustment.
+  let baseExpectedScale: number | undefined;
+  if (typeof detectorOpts.expectedCellPx === "number" && detectorOpts.expectedCellPx > 0 && fullDims.width > 0) {
+    baseExpectedScale = detectorOpts.expectedCellPx / fullDims.width;
+  } else if (typeof tokenScale === "number" && tokenScale > 0) {
+    baseExpectedScale = tokenScale * multiplier;
+  }
   let expectedScale = baseExpectedScale;
   if (baseExpectedScale !== undefined && roi && roi.w > 0) {
     expectedScale = baseExpectedScale * (fullDims.width / roi.w);
@@ -403,6 +417,7 @@ export async function runDetectionForScene(
   const detectorOpts = {
     multiplier: options.multiplier,
     searchPaddingFraction: options.searchPaddingFraction,
+    expectedCellPx: options.expectedCellPx,
   };
 
   let detection: IGridDetectionResult | null = null;

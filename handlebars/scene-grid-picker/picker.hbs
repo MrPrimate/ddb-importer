@@ -18,20 +18,67 @@
 
   {{#if step.select}}
     <div class="ddb-grid-picker-canvas">
-      <svg viewBox="0 0 {{imageDimensions.x}} {{imageDimensions.y}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg">
+      <svg viewBox="{{viewBox.x}} {{viewBox.y}} {{viewBox.w}} {{viewBox.h}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg {{#if hintMode}}hint-mode{{/if}} {{#if zoomedIn}}zoomed{{/if}}">
         <image href="{{imageUrl}}" x="0" y="0" width="{{imageDimensions.x}}" height="{{imageDimensions.y}}" />
-        <g class="ddb-grid-picker-cells">
-          {{#each cells}}
-            <rect data-action="toggleCell" data-cell="{{this.id}}"
-              x="{{this.x}}" y="{{this.y}}" width="{{this.w}}" height="{{this.h}}"
-              class="ddb-grid-picker-cell {{#if this.selected}}selected{{/if}}" />
-          {{/each}}
-        </g>
+        {{#unless hintMode}}
+          <g class="ddb-grid-picker-cells">
+            {{#each cells}}
+              <rect data-action="toggleCell" data-cell="{{this.id}}"
+                x="{{this.x}}" y="{{this.y}}" width="{{this.w}}" height="{{this.h}}"
+                class="ddb-grid-picker-cell {{#if this.selected}}selected{{/if}}" />
+            {{/each}}
+          </g>
+        {{/unless}}
+        {{#if hintMode}}
+          <g class="ddb-grid-picker-hint-group">
+            <rect class="ddb-grid-picker-hint-rect"
+              x="{{#if hintRect}}{{hintRect.x}}{{else}}0{{/if}}"
+              y="{{#if hintRect}}{{hintRect.y}}{{else}}0{{/if}}"
+              width="{{#if hintRect}}{{hintRect.w}}{{else}}0{{/if}}"
+              height="{{#if hintRect}}{{hintRect.h}}{{else}}0{{/if}}" />
+            {{!-- Sub-grid lines (4 of them) are injected and updated by
+                  _ensureSubLines / _updateSubLines in JS so they can be
+                  redrawn at 60fps during drag without re-rendering. --}}
+          </g>
+          <rect class="ddb-grid-picker-hint-overlay"
+            x="0" y="0" width="{{imageDimensions.x}}" height="{{imageDimensions.y}}" />
+          {{#if hintHasRect}}
+            <g class="ddb-grid-picker-hint-handles">
+              {{#each hintHandles}}
+                <rect class="ddb-grid-picker-hint-handle"
+                  data-corner="{{this.corner}}"
+                  x="{{this.x}}" y="{{this.y}}"
+                  width="{{this.size}}" height="{{this.size}}" />
+              {{/each}}
+            </g>
+          {{/if}}
+        {{/if}}
       </svg>
     </div>
 
     <div class="ddb-grid-picker-actions">
-      <span class="hint">{{selectedCount}} of {{cellCount}} squares selected</span>
+      {{#if hintMode}}
+        <span class="hint">
+          {{#if hintHasRect}}
+            Hint cell size: ~{{hintCellPxLabel}}px. Adjust by clicking Redraw, or confirm with Use Hint.
+          {{else}}
+            Drag on the image to cover exactly 3 x 3 cells. Wheel zooms, shift-drag pans.
+          {{/if}}
+        </span>
+      {{else}}
+        <span class="hint">{{selectedCount}} of {{cellCount}} squares selected. Wheel zooms, shift-drag pans.</span>
+      {{/if}}
+      <span class="ddb-grid-picker-zoom-group">
+        <button data-action="zoomOut" type="button" class="munch-button icon-only" title="Zoom out">
+          <i class="fas fa-search-minus"></i>
+        </button>
+        <button data-action="zoomFit" type="button" class="munch-button icon-only" {{#unless zoomedIn}}disabled{{/unless}} title="Fit image">
+          <i class="fas fa-expand"></i>
+        </button>
+        <button data-action="zoomIn" type="button" class="munch-button icon-only" title="Zoom in">
+          <i class="fas fa-search-plus"></i>
+        </button>
+      </span>
       <label class="ddb-grid-picker-multiplier {{#unless multiplierIsAuto}}override{{/unless}}" title="How many Foundry grid cells fit in each detected painted square. Auto picks the value DDB / detection suggests; numeric entries lock the choice.">
         Foundry cells per painted square:
         <select class="ddb-grid-picker-multiplier-select">
@@ -45,15 +92,34 @@
           <span class="ddb-grid-picker-multiplier-state override">manual override</span>
         {{/if}}
       </label>
-      <button data-action="clearSelection" type="button" class="munch-button" {{#unless selectedCount}}disabled{{/unless}}>
-        <i class="fas fa-times"></i> Clear
-      </button>
-      <button data-action="selectAll" type="button" class="munch-button">
-        <i class="fas fa-th"></i> Select All
-      </button>
-      <button data-action="runDetection" type="button" class="munch-button" {{#if loading}}disabled{{/if}}>
-        {{#if loading}}<i class="fas fa-spinner fa-spin"></i> Detecting...{{else}}<i class="fas fa-search"></i> Detect Grid{{/if}}
-      </button>
+      {{#if hintMode}}
+        <label class="ddb-grid-picker-hint-direct" title="Skip detection and apply the hint exactly as drawn. Only useful when even the tightly-constrained detection still picks the wrong period.">
+          <input type="checkbox" class="ddb-grid-picker-hint-direct-toggle" {{#if hintDirectApply}}checked{{/if}} />
+          Skip detection (use hint directly)
+        </label>
+        <button data-action="redrawHint" type="button" class="munch-button" {{#unless hintHasRect}}disabled{{/unless}}>
+          <i class="fas fa-eraser"></i> Redraw
+        </button>
+        <button data-action="useHint" type="button" class="munch-button" {{#if loading}}disabled{{/if}} {{#unless hintHasRect}}disabled{{/unless}}>
+          {{#if loading}}<i class="fas fa-spinner fa-spin"></i> Working...{{else}}<i class="fas fa-check"></i> Use Hint{{/if}}
+        </button>
+        <button data-action="toggleHintMode" type="button" class="munch-button">
+          <i class="fas fa-times"></i> Cancel Hint
+        </button>
+      {{else}}
+        <button data-action="toggleHintMode" type="button" class="munch-button" title="Draw a rectangle over 3x3 painted cells to give detection a precise size + offset prior.">
+          <i class="fas fa-vector-square"></i> Draw Grid Hint
+        </button>
+        <button data-action="clearSelection" type="button" class="munch-button" {{#unless selectedCount}}disabled{{/unless}}>
+          <i class="fas fa-times"></i> Clear
+        </button>
+        <button data-action="selectAll" type="button" class="munch-button">
+          <i class="fas fa-th"></i> Select All
+        </button>
+        <button data-action="runDetection" type="button" class="munch-button" {{#if loading}}disabled{{/if}}>
+          {{#if loading}}<i class="fas fa-spinner fa-spin"></i> Detecting...{{else}}<i class="fas fa-search"></i> Detect Grid{{/if}}
+        </button>
+      {{/if}}
       <button data-action="cancel" type="button" class="munch-button">Cancel</button>
     </div>
   {{/if}}
@@ -61,14 +127,27 @@
   {{#if step.review}}
     <div class="ddb-grid-picker-review">
       <div class="ddb-grid-picker-preview">
-        <h4>Preview</h4>
-        <svg viewBox="0 0 {{previewDims.x}} {{previewDims.y}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg">
+        <div class="ddb-grid-picker-preview-header">
+          <h4>Preview</h4>
+          <span class="ddb-grid-picker-zoom-group">
+            <button data-action="zoomOutPreview" type="button" class="munch-button icon-only" title="Zoom out">
+              <i class="fas fa-search-minus"></i>
+            </button>
+            <button data-action="zoomFitPreview" type="button" class="munch-button icon-only" {{#unless previewZoomedIn}}disabled{{/unless}} title="Fit preview">
+              <i class="fas fa-expand"></i>
+            </button>
+            <button data-action="zoomInPreview" type="button" class="munch-button icon-only" title="Zoom in">
+              <i class="fas fa-search-plus"></i>
+            </button>
+          </span>
+        </div>
+        <svg viewBox="{{previewViewBox.x}} {{previewViewBox.y}} {{previewViewBox.w}} {{previewViewBox.h}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg ddb-grid-picker-preview-svg {{#if previewZoomedIn}}zoomed{{/if}}">
           <image href="{{previewImageUrl}}" x="0" y="0" width="{{previewDims.x}}" height="{{previewDims.y}}" />
           {{#each previewLines}}
             <line x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}" class="ddb-grid-picker-line" />
           {{/each}}
         </svg>
-        <p class="hint">Selected candidate: <strong>{{selectedLabel}}</strong>. Grid lines are drawn at the candidate's painted period and offset.</p>
+        <p class="hint">Selected candidate: <strong>{{selectedLabel}}</strong>. Grid lines are drawn at the candidate's painted period and offset. Wheel zooms, shift-drag pans.</p>
       </div>
 
       <div class="ddb-grid-picker-candidates">
