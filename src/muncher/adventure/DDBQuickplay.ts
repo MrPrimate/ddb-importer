@@ -375,14 +375,17 @@ export default class DDBQuickplay {
     const xCanvas = xScene + sceneXPad;
     const yCanvas = yScene + sceneYPad;
 
-    // DDB stores positions as the sticker centre. Convert to top-left, then
-    // snap to the scene's grid so tiles land on whole cells.
-    // (Foundry only snaps on drag-drop; createEmbeddedDocuments accepts the
-    // exact coords we provide.)
-    const tileXraw = anchor === "topLeft" ? xCanvas : xCanvas - widthScene / 2;
-    const tileYraw = anchor === "topLeft" ? yCanvas : yCanvas - heightScene / 2;
-    const tileX = Math.round(tileXraw / gridSize) * gridSize;
-    const tileY = Math.round(tileYraw / gridSize) * gridSize;
+    // Foundry v14: with texture.anchorX/Y = 0.5 (which we always set below),
+    // the Tile document's x/y IS the tile centre. Resolve the centre in
+    // canvas-space first, then snap so the tile's edges land on whole grid
+    // cells. (Foundry only snaps on drag-drop; createEmbeddedDocuments
+    // accepts the exact coords we provide.)
+    const centerXCanvas = anchor === "topLeft" ? xCanvas + widthScene / 2 : xCanvas;
+    const centerYCanvas = anchor === "topLeft" ? yCanvas + heightScene / 2 : yCanvas;
+    const topLeftXSnapped = Math.round((centerXCanvas - widthScene / 2) / gridSize) * gridSize;
+    const topLeftYSnapped = Math.round((centerYCanvas - heightScene / 2) / gridSize) * gridSize;
+    const tileX = topLeftXSnapped + widthScene / 2;
+    const tileY = topLeftYSnapped + heightScene / 2;
 
     return {
       texture: {
@@ -420,7 +423,10 @@ export default class DDBQuickplay {
           // intermediate scene/canvas coords if needed (xScene = xImg *
           // sceneScale; xCanvas = xScene + sceneXPad; widthScene from
           // tileX/tileY rounding back-out, etc.). Full per-step trail lives
-          // on quickplayContext at the scene level.
+          // on quickplayContext at the scene level. tileX/tileY are the
+          // tile centre in v14 (texture anchor 0.5/0.5); topLeftX/Y are
+          // derived for readability when comparing to Foundry's rendered
+          // top-left corner.
           calc: {
             cellPx,
             sceneScale,
@@ -430,6 +436,8 @@ export default class DDBQuickplay {
             yImg,
             tileX,
             tileY,
+            topLeftX: tileX - widthScene / 2,
+            topLeftY: tileY - heightScene / 2,
           },
         },
       },
