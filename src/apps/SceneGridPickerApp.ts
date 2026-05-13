@@ -705,8 +705,8 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     const targetAspect = imgW / imgH;
     if (w / h > targetAspect) w = h * targetAspect;
     else h = w / targetAspect;
-    let x = Math.max(0, Math.min(imgW - w, vb.x));
-    let y = Math.max(0, Math.min(imgH - h, vb.y));
+    const x = Math.max(0, Math.min(imgW - w, vb.x));
+    const y = Math.max(0, Math.min(imgH - h, vb.y));
     return { x, y, w, h };
   }
 
@@ -1057,7 +1057,9 @@ export default class SceneGridPickerApp extends DDBAppV2 {
           previewSvg.setAttribute("viewBox", `${this.previewViewBox.x} ${this.previewViewBox.y} ${this.previewViewBox.w} ${this.previewViewBox.h}`);
         };
         const onUp = (e: PointerEvent) => {
-          try { previewSvg.releasePointerCapture(e.pointerId); } catch (_e) { /* ignore */ }
+          try {
+            previewSvg.releasePointerCapture(e.pointerId);
+          } catch (_e) { /* ignore */ }
           previewSvg.removeEventListener("pointermove", onMove);
           previewSvg.removeEventListener("pointerup", onUp);
           previewSvg.removeEventListener("pointercancel", onUp);
@@ -1105,7 +1107,9 @@ export default class SceneGridPickerApp extends DDBAppV2 {
           svg.setAttribute("viewBox", `${this.viewBox.x} ${this.viewBox.y} ${this.viewBox.w} ${this.viewBox.h}`);
         };
         const onUp = (e: PointerEvent) => {
-          try { svg.releasePointerCapture(e.pointerId); } catch (_e) { /* ignore */ }
+          try {
+            svg.releasePointerCapture(e.pointerId);
+          } catch (_e) { /* ignore */ }
           svg.removeEventListener("pointermove", onMove);
           svg.removeEventListener("pointerup", onUp);
           svg.removeEventListener("pointercancel", onUp);
@@ -1180,7 +1184,9 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       let cx = r.x, cy = r.y;
       if (corner === "tr") cx = r.x + r.w;
       else if (corner === "bl") cy = r.y + r.h;
-      else if (corner === "br") { cx = r.x + r.w; cy = r.y + r.h; }
+      else if (corner === "br") {
+        cx = r.x + r.w; cy = r.y + r.h;
+      }
       handle.setAttribute("x", String(cx - half));
       handle.setAttribute("y", String(cy - half));
     });
@@ -1230,7 +1236,9 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     const onUp = (e: PointerEvent) => {
       this._hintDragging = false;
       this._hintDragStart = null;
-      try { overlay.releasePointerCapture(e.pointerId); } catch (_e) { /* ignore */ }
+      try {
+        overlay.releasePointerCapture(e.pointerId);
+      } catch (_e) { /* ignore */ }
       overlay.removeEventListener("pointermove", onMove);
       overlay.removeEventListener("pointerup", onUp);
       overlay.removeEventListener("pointercancel", onUp);
@@ -1282,7 +1290,9 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       this._updateHandlesDom(this.hintRect);
     };
     const onUp = (e: PointerEvent) => {
-      try { handle.releasePointerCapture(e.pointerId); } catch (_e) { /* ignore */ }
+      try {
+        handle.releasePointerCapture(e.pointerId);
+      } catch (_e) { /* ignore */ }
       handle.removeEventListener("pointermove", onMove);
       handle.removeEventListener("pointerup", onUp);
       handle.removeEventListener("pointercancel", onUp);
