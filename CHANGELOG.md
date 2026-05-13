@@ -1,7 +1,10 @@
 # Next Up
 
+# 7.2.18
+
 - DDB Maps import option for Undying supporters. Import Scenes and Stickers. There are some limitations with the implementation, namely no walls or lights right now. This should be improved in the coming weeks.
 - New Auto Grid Alignment tool, right click on a scene and select the option DDB Importer auto aligner will get to work. Powered by maths (not machine learning).
+- Paladin Elemental Strike fixes.
 
 # 7.2.17
 
@@ -107,6 +110,12 @@
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.15
+
+- DDB Maps import option for Undying supporters. Import Scenes and Stickers. There are some limitations with the implementation, namely no walls or lights right now. This should be improved in the coming weeks.
+- New Auto Grid Alignment tool, right click on a scene and select the option DDB Importer auto aligner will get to work. Powered by maths (not machine learning).
+- Paladin Elemental Strike fixes.
 
 # 7.1.14
 
