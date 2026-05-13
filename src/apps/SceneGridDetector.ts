@@ -168,6 +168,8 @@ function pickRecommendedKey(grid: IResolvedGrid, list: ICandidateChoice[]): Cand
   // Prefer an exact (paintedSize, offset) match against the chosen grid - that's
   // the candidate resolveGrid actually used. Falls back to the source-based
   // mapping for the "default" branch and any edge cases.
+
+  // eslint-disable-next-line no-useless-assignment
   const targetSize = grid.size * grid.sceneScale > 0 ? grid.size / (grid.sceneScale || 1) : grid.size;
   // grid.size is rounded; multiply back by sceneScale isn't quite right for
   // painted period, so match by gridSize + offset instead.
@@ -277,7 +279,7 @@ async function runDetectionOnRoi(
     }
   }
 
-  let detection: IGridDetectionResult | null = null;
+  let detection: IGridDetectionResult | null;
   try {
     const detectorOptions: any = { expectedScale };
     if (detectorOpts.searchPaddingFraction !== undefined) {
@@ -420,7 +422,7 @@ export async function runDetectionForScene(
     expectedCellPx: options.expectedCellPx,
   };
 
-  let detection: IGridDetectionResult | null = null;
+  let detection: IGridDetectionResult | null;
   if (rois && rois.length > 1) {
     const perRegion = await Promise.all(
       rois.map((r) => runDetectionOnRoi(fullBlob, fullDims, scene, r, detectorOpts)),
