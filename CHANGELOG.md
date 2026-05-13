@@ -1,5 +1,9 @@
 # Next Up
 
+- DDB Maps import option for Undying supporters. Import Scenes and Stickers. There are some limitations with the implementation, namely no walls or lights right now. This should be improved in the coming weeks.
+- New Auto Grid Alignment tool, right click on a scene and select the option DDB Importer auto aligner will get to work. Powered by maths (not machine learning).
+- Paladin Elemental Strike fixes.
+
 # 7.1.14
 
 - Paladin Channel Divinity no longer imported max uses
