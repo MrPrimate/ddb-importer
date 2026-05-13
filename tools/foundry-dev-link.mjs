@@ -77,4 +77,3 @@ try {
 }
 
 console.log(`Symlink created at "${symlinkPath}"`);
-

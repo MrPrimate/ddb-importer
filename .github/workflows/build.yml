@@ -34,9 +34,9 @@ jobs:
     - name: Get Version              # Run the script that returns the version from `module.json`
       shell: bash
       id: get-version
-      run: echo "release_version=$(node ./.github/workflows/get-version.js)" >> $GITHUB_OUTPUT
+      run: echo "release_version=$(node ./tools/get-version.js)" >> $GITHUB_OUTPUT
     - name: Build module.json
-      run: node ./.github/workflows/build-module-json.js | jq . > module.json
+      run: node ./tools/build-module-json.js | jq . > module.json
     - run: npm ci
     - name: Webpack
       run: npm run build
