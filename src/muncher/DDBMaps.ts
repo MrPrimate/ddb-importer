@@ -187,6 +187,36 @@ interface IDDBProxyResponse<T> {
   data?: T;
 }
 
+// Lightweight match info returned by /proxy/maps/metadata/match. No scene
+// JSON - just enough to show a badge and decide whether to fetch.
+export interface IDDBMetaDataMatchInfo {
+  bookCode: string;
+  filepath: string;
+  matchedBy: "filename" | "name" | "hint";
+  sceneName?: string | null;
+}
+
+// Heavier match payload after the scene-info JSON has been fetched. Used
+// during the apply path only.
+export interface IDDBMetaDataMatch extends IDDBMetaDataMatchInfo {
+  scene: any;
+}
+
+// Match-only result from the /match endpoint - one of these per request.
+export interface IDDBMetaDataMatchResult {
+  matches: IDDBMetaDataMatchInfo[];
+  reason: string;
+  ambiguous?: string[];
+}
+
+// Per-ref scene-info payload from the /scenes endpoint.
+export interface IDDBMetaDataSceneFetch {
+  bookCode: string;
+  filepath: string;
+  scene: any | null;
+  error?: string;
+}
+
 export default class DDBMaps {
 
   static getCampaignId(override: string | null = null): string {
@@ -297,6 +327,58 @@ export default class DDBMaps {
     if (!resolvedCampaignId) return null;
     const body = DDBMaps.buildBody({ campaignId: resolvedCampaignId, sign }, cobalt);
     return DDBMaps.post<IDDBScenariosPayload>("/proxy/maps", body);
+  }
+
+  // Match-only call: ask the proxy whether a given map has a community
+  // meta-data entry. Returns the lightweight match info (no scene JSON), so
+  // the Map Browser can render badges without pulling MB-scale payloads.
+  // The proxy caches this response per request signature.
+  static async fetchMetaMatch({
+    bookCode = null,
+    sourceId = null,
+    name = null,
+    filename = null,
+    cobalt = null,
+  }: {
+    bookCode?: string | null;
+    sourceId?: string | number | null;
+    name?: string | null;
+    filename?: string | null;
+    cobalt?: string | null;
+  } = {}): Promise<IDDBMetaDataMatchResult | null> {
+    const body = DDBMaps.buildBody({ bookCode, sourceId, name, filename }, cobalt);
+    return DDBMaps.post<IDDBMetaDataMatchResult>("/proxy/maps/metadata/match", body);
+  }
+
+  // Batched match call - sends a list of requests in one HTTP. The response
+  // is positionally aligned with the input. Used by the Map Browser to
+  // pre-warm match badges for a whole source in a single round-trip.
+  static async fetchMetaMatchBatch(
+    requests: {
+      bookCode?: string | null;
+      sourceId?: string | number | null;
+      name?: string | null;
+      filename?: string | null;
+    }[],
+    { cobalt = null }: { cobalt?: string | null } = {},
+  ): Promise<IDDBMetaDataMatchResult[] | null> {
+    if (!Array.isArray(requests) || requests.length === 0) return [];
+    const body = DDBMaps.buildBody({ requests }, cobalt);
+    const data = await DDBMaps.post<{ results: IDDBMetaDataMatchResult[] }>("/proxy/maps/metadata/match", body);
+    return data?.results ?? null;
+  }
+
+  // Fetch the heavy scene-info JSON(s) for explicit refs. NOT cached at the
+  // proxy API level - call this only when the user is actually importing
+  // (or re-importing) a map.
+  static async fetchMetaSceneInfos(
+    refs: { bookCode: string; filepath: string }[],
+    { cobalt = null }: { cobalt?: string | null } = {},
+  ): Promise<IDDBMetaDataSceneFetch[] | null> {
+    if (!Array.isArray(refs) || refs.length === 0) return [];
+    const body = DDBMaps.buildBody({ refs }, cobalt);
+    const data = await DDBMaps.post<{ scenes: IDDBMetaDataSceneFetch[] }>("/proxy/maps/metadata/scenes", body);
+    return data?.scenes ?? null;
   }
 
   static async downloadImage({

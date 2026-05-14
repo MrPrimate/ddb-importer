@@ -118,8 +118,11 @@ export default class DDBQuickplay {
     // tile positions are in canvas (scene-pixel) space and unaffected.
     const f = scene.flags?.["ddb-importer"] ?? {};
     const sceneScale = typeof f.gridSceneScale === "number" ? f.gridSceneScale : 1;
-    const liveOffsetX = scene.background?.shiftX;
-    const liveOffsetY = scene.background?.shiftY;
+    // V14: scene shift lives on scene.shiftX/shiftY at root - Scene#background
+    // (and therefore scene.background.shiftX/Y) is deprecated and logs a
+    // compatibility warning every read.
+    const liveOffsetX = (scene as any).shiftX;
+    const liveOffsetY = (scene as any).shiftY;
     const sceneOffsetX = typeof liveOffsetX === "number" ? liveOffsetX : 0;
     const sceneOffsetY = typeof liveOffsetY === "number" ? liveOffsetY : 0;
     // Foundry's actual grid size on the scene - what tiles need to align to.

@@ -1112,6 +1112,18 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "munching-policy-maps-import-metadata": {
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-maps-metadata-tokens": {
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-maps-metadata-branch": {
+            type: String,
+            default: "",
+          },
           "munching-policy-monster-use-item-ac": {
             type: Boolean,
             default: true,

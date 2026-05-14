@@ -16,6 +16,7 @@ import {
 import DDBMaps, { IDDBMap, IDDBPreparedState } from "../DDBMaps";
 import DDBQuickplay from "./DDBQuickplay";
 import DDBQuickplayTokens from "./DDBQuickplayTokens";
+import DDBMapMetaData from "./DDBMapMetaData";
 
 const DEFAULT_UPLOAD_PATH = "[data] ddb-images/maps";
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
@@ -217,10 +218,6 @@ export default class DDBMap {
     const folderId = await this._resolveFolderId();
     const data: any = {
       name: this._sceneName(),
-      background: {
-        src: this.uploadedPath,
-
-      },
       levels: [
         {
           _id: DEFAULT_LEVEL_ID,
@@ -322,7 +319,9 @@ export default class DDBMap {
         const action = await this._resolveDuplicateAction(existing);
         if (action === "skip") {
           this._notify(`Skipped "${this.map.name}" (already imported as "${existing.name}").`);
-          return { scene: existing, imagePath: existing.background?.src ?? null, skipped: true, reason: "duplicate-skipped" };
+          // V14: read the image path off the level rather than the deprecated Scene#background.
+          const existingImagePath = ((existing.levels?.contents ?? existing.levels ?? [])[0]?.background?.src) ?? null;
+          return { scene: existing, imagePath: existingImagePath, skipped: true, reason: "duplicate-skipped" };
         }
         if (action === "replace") {
           this._notify(`Replacing existing scene "${existing.name}"...`);
@@ -342,6 +341,7 @@ export default class DDBMap {
       await this.createScene();
       await this._maybeApplyQuickplay();
       await this._maybeApplyQuickplayTokens();
+      await this._maybeApplyMetaData();
       return { scene: this.scene, imagePath: this.uploadedPath, skipped: false };
     } catch (error) {
       logger.error(`DDBMap.import failed for ${this.map.name}: ${error.message}`, error);
@@ -465,6 +465,38 @@ export default class DDBMap {
       }
     } catch (error) {
       logger.error(`DDBMap: Quickplay token placement failed for "${this.map.name}": ${(error as Error).message}`, error);
+    }
+  }
+
+  private _metaDataEnabled(): boolean {
+    return this._getBoolSetting("munching-policy-maps-import-metadata");
+  }
+
+  // After Quickplay completes, optionally enrich the scene with community
+  // walls/lights/tokens/grid pulled from MrPrimate/ddb-meta-data. Soft-fails
+  // so a meta-data fetch error never blocks the underlying import.
+  private async _maybeApplyMetaData() {
+    if (!this.scene) return;
+    if (!this._metaDataEnabled()) return;
+
+    const sceneFolderPath = this.options.folderPath ?? null;
+    const actorFolderPath = sceneFolderPath ? sceneFolderPath.slice(0, 2) : null;
+
+    try {
+      const results = await DDBMapMetaData.enrich(this.scene, this.map, {
+        applyTokens: this._getBoolSetting("munching-policy-maps-metadata-tokens"),
+        actorFolderPath,
+        notifier: this.options.notifier ?? null,
+      });
+      if (results.length === 0) {
+        logger.debug(`DDBMap: no meta-data match for "${this.map.name}"`);
+      } else if (results.length === 1) {
+        logger.info(`DDBMap: meta-data applied to "${this.map.name}":`, results[0]);
+      } else {
+        logger.info(`DDBMap: meta-data applied to "${this.map.name}" across ${results.length} scene${results.length === 1 ? "" : "s"}:`, results);
+      }
+    } catch (error) {
+      logger.error(`DDBMap: meta-data enrichment failed for "${this.map.name}": ${(error as Error).message}`, error);
     }
   }
 

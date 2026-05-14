@@ -3,6 +3,7 @@ import { logger, utils, DDBCampaigns, Secrets } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBMaps, { IDDBMapCatalog, IDDBMapSource, IDDBMap, IDDBSourceMaps } from "../muncher/DDBMaps";
 import DDBMap, { DuplicateAction } from "../muncher/adventure/DDBMap";
+import DDBMapMetaData from "../muncher/adventure/DDBMapMetaData";
 
 const TYPE_ORDER = ["basic", "subscription", "mappack", "sourcebook", "adventure"];
 const TYPE_LABELS: Record<string, string> = {
@@ -85,6 +86,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
   }
 
   static async reloadCatalog(this: DDBMapBrowser, _event, _target) {
+    DDBMapMetaData.clearCache();
     await this._loadCatalog({ force: true });
   }
 
@@ -124,6 +126,16 @@ export default class DDBMapBrowser extends DDBAppV2 {
 
   async _setUseQuickplayTokenImage(checked: boolean) {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-maps-quickplay-token-use-ddb-image", checked);
+    await this.render();
+  }
+
+  async _setImportMetaData(checked: boolean) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-maps-import-metadata", checked);
+    await this.render();
+  }
+
+  async _setMetaDataTokens(checked: boolean) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-maps-metadata-tokens", checked);
     await this.render();
   }
 
@@ -404,7 +416,12 @@ export default class DDBMapBrowser extends DDBAppV2 {
     if (!this.selection) return null;
     const storage = ensureMapsStorage();
     const key = sourceKey(this.selection);
-    if (storage.sourceMaps[key]) return storage.sourceMaps[key];
+    if (storage.sourceMaps[key]) {
+      // Already cached - still warm meta matches in case this is a re-render
+      // after the catalog was reloaded.
+      this._warmMetaMatches(storage.sourceMaps[key]).catch(() => { /* logged below */ });
+      return storage.sourceMaps[key];
+    }
     const sel = this.selection;
     try {
       this.loadingSource = true;
@@ -413,7 +430,10 @@ export default class DDBMapBrowser extends DDBAppV2 {
         sourceId: sel.sourceId,
         chapterId: sel.chapterId,
       });
-      if (payload) storage.sourceMaps[key] = payload;
+      if (payload) {
+        storage.sourceMaps[key] = payload;
+        await this._warmMetaMatches(payload);
+      }
       return payload;
     } catch (error) {
       logger.error("DDBMapBrowser: source maps fetch failed", error);
@@ -422,6 +442,19 @@ export default class DDBMapBrowser extends DDBAppV2 {
     } finally {
       this.loadingSource = false;
       await this.render();
+    }
+  }
+
+  // Resolve meta-data matches for every map in the just-loaded source payload
+  // so the right-pane render can stamp a "Meta" tag next to matched maps.
+  // Soft-fails: a meta-fetch error never blocks the source load.
+  async _warmMetaMatches(payload: IDDBSourceMaps) {
+    if (!utils.getSetting<boolean>("munching-policy-maps-import-metadata")) return;
+    try {
+      const flat = DDBMaps.flattenSourceMaps(payload);
+      await DDBMapMetaData.findMatchesForMaps(flat);
+    } catch (error) {
+      logger.warn(`DDBMapBrowser: meta-data match warm-up failed: ${(error as Error).message ?? error}`);
     }
   }
 
@@ -528,6 +561,20 @@ export default class DDBMapBrowser extends DDBAppV2 {
         this._setUseQuickplayTokenImage(el.checked);
       });
     });
+
+    this.element.querySelectorAll<HTMLInputElement>(".ddb-map-browser-metadata-toggle").forEach((cb) => {
+      cb.addEventListener("change", (event) => {
+        const el = event.currentTarget as HTMLInputElement;
+        this._setImportMetaData(el.checked);
+      });
+    });
+
+    this.element.querySelectorAll<HTMLInputElement>(".ddb-map-browser-metadata-tokens-toggle").forEach((cb) => {
+      cb.addEventListener("change", (event) => {
+        const el = event.currentTarget as HTMLInputElement;
+        this._setMetaDataTokens(el.checked);
+      });
+    });
   }
 
   async _prepareContext(options) {
@@ -558,6 +605,8 @@ export default class DDBMapBrowser extends DDBAppV2 {
     context.importQuickplay = utils.getSetting<boolean>("munching-policy-maps-import-quickplay");
     context.importQuickplayTokens = utils.getSetting<boolean>("munching-policy-maps-import-quickplay-tokens");
     context.useQuickplayTokenImage = utils.getSetting<boolean>("munching-policy-maps-quickplay-token-use-ddb-image");
+    context.importMetaData = utils.getSetting<boolean>("munching-policy-maps-import-metadata");
+    context.metaDataTokens = utils.getSetting<boolean>("munching-policy-maps-metadata-tokens");
     context.groups = this._buildGroups(catalog, includedSet, search);
     context.detail = await this._buildDetail(storage, context.excludeDm);
     context.hasCatalog = !!catalog;
@@ -720,20 +769,25 @@ export default class DDBMapBrowser extends DDBAppV2 {
     const chapterById = new Map<string, { id: string; name: string; order?: number }>();
     chapters.forEach((c, idx) => chapterById.set(c.id, { ...c, order: c.order ?? idx + 1 }));
 
-    const mapToView = (map: IDDBMap) => ({
-      id: map.id,
-      name: map.name,
-      description: map.description ?? "",
-      imageKey: map.imageKey,
-      thumbnailKey: map.thumbnailKey,
-      thumbnail: typeof map.thumbnail === "string" ? map.thumbnail : null,
-      order: map.order ?? 0,
-      hasPreparedMap: !!map.preparedMap?.mapStateKey,
-      preparedMapDescription: map.preparedMap?.description ?? null,
-      dimensions: map.imageDimensions
-        ? `${map.imageDimensions.x} x ${map.imageDimensions.y}`
-        : null,
-    });
+    const mapToView = (map: IDDBMap) => {
+      const metaMatch = DDBMapMetaData.getCachedMatch(map);
+      return {
+        id: map.id,
+        name: map.name,
+        description: map.description ?? "",
+        imageKey: map.imageKey,
+        thumbnailKey: map.thumbnailKey,
+        thumbnail: typeof map.thumbnail === "string" ? map.thumbnail : null,
+        order: map.order ?? 0,
+        hasPreparedMap: !!map.preparedMap?.mapStateKey,
+        preparedMapDescription: map.preparedMap?.description ?? null,
+        dimensions: map.imageDimensions
+          ? `${map.imageDimensions.x} x ${map.imageDimensions.y}`
+          : null,
+        hasMetaMatch: !!metaMatch,
+        metaMatchedBy: metaMatch?.matchedBy ?? null,
+      };
+    };
 
     // Only render chapter sections when a chapter id resolves to a known
     // chapter name. Anything else falls into a single ungrouped bucket with

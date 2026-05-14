@@ -15,7 +15,7 @@ import {
 
 import { isGridDetectionCandidate } from "./GridDetectionCandidate";
 
-const DEFAULT_LEVEL_ID = "defaultLevel0000";
+export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
 export default class AdventureMunch {
 
@@ -1174,6 +1174,35 @@ export default class AdventureMunch {
     return data;
   }
 
+  static _drawingFixes(drawing) {
+    if (!foundry.utils.hasProperty(drawing, "interface"))
+      drawing.interface = true;
+    if (!foundry.utils.hasProperty(drawing, "levels"))
+      drawing.levels = [DEFAULT_LEVEL_ID];
+    if (!drawing.shape) {
+      let type = "r";
+      if (Object.values(CONFIG.Drawing.objectClass.SHAPE_TYPES).includes(drawing.type)) {
+        type = drawing.type;
+      }
+      const migratePoints = (t) => Array.isArray(t.points) ? t.points.flat() : t.points;
+      const points = migratePoints(drawing);
+      drawing.shape = {
+        type: type,
+        height: drawing.height,
+        width: drawing.width,
+        points,
+        radius: drawing.radius ?? null,
+      };
+      // delete drawing.type;
+      // delete drawing.height;
+      // delete drawing.width;
+      // delete drawing.points;
+      // delete drawing.radius;
+    }
+
+    return drawing;
+  }
+
   async _loadDocumentAssets(data, importType) {
 
     data.flags.importid = data._id;
@@ -1234,31 +1263,8 @@ export default class AdventureMunch {
         data.flags["perfect-vision"] = {};
       }
       if (data.drawings) {
-        for (const drawing of data.drawings) {
-          if (!foundry.utils.hasProperty(drawing, "interface"))
-            drawing.interface = true;
-          if (!foundry.utils.hasProperty(drawing, "levels"))
-            drawing.levels = [DEFAULT_LEVEL_ID];
-          if (!drawing.shape) {
-            let type = "r";
-            if (Object.values(CONFIG.Drawing.objectClass.SHAPE_TYPES).includes(drawing.type)) {
-              type = drawing.type;
-            }
-            const migratePoints = (t) => Array.isArray(t.points) ? t.points.flat() : t.points;
-            const points = migratePoints(drawing);
-            drawing.shape = {
-              type: type,
-              height: drawing.height,
-              width: drawing.width,
-              points,
-              radius: drawing.radius ?? null,
-            };
-            // delete drawing.type;
-            // delete drawing.height;
-            // delete drawing.width;
-            // delete drawing.points;
-            // delete drawing.radius;
-          }
+        for (let i = 0; i < data.drawings.length; i++) {
+          data.drawings[i] = AdventureMunch._drawingFixes(data.drawings[i]);
         }
       }
     } else if (importType === "Playlist") {

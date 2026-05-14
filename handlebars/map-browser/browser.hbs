@@ -116,27 +116,43 @@
             {{/if}}
           </div>
           {{#if detail.isReady}}
-            <div class="ddb-map-browser-detail-actions">
-              <label class="ddb-map-browser-exclude-dm" title="Hide DM-version maps from this list and skip them on import">
-                <input type="checkbox" class="ddb-map-browser-exclude-dm-toggle" {{#if excludeDm}}checked{{/if}} />
-                Exclude DM Maps
-              </label>
-              {{#if detail.anyPreparedMap}}
-                <label class="ddb-map-browser-quickplay" title="When importing a Quickplay map, also place its stickers as Foundry tiles.">
-                  <input type="checkbox" class="ddb-map-browser-quickplay-toggle" {{#if importQuickplay}}checked{{/if}} />
-                  Import Quickplay Layout
-                </label>
-                <label class="ddb-map-browser-quickplay-tokens" title="When importing a Quickplay map, also place its tokens. Missing monsters will be auto-imported from DDB if your Patreon tier allows.">
-                  <input type="checkbox" class="ddb-map-browser-quickplay-tokens-toggle" {{#if importQuickplayTokens}}checked{{/if}} />
-                  Import Quickplay Tokens
-                </label>
-              {{/if}}
+            <div class="ddb-map-browser-detail-primary-actions">
               <button data-action="importAllInSource" type="button" class="munch-button">
                 <i class="fas fa-download"></i> Import All
               </button>
             </div>
           {{/if}}
         </div>
+
+        {{#if detail.isReady}}
+          <div class="ddb-map-browser-detail-options">
+            <label class="ddb-map-browser-option" title="Hide DM-version maps from this list and skip them on import">
+              <input type="checkbox" class="ddb-map-browser-exclude-dm-toggle" {{#if excludeDm}}checked{{/if}} />
+              Exclude DM Maps
+            </label>
+            {{#if detail.anyPreparedMap}}
+              <label class="ddb-map-browser-option" title="When importing a Quickplay map, also place its stickers as Foundry tiles.">
+                <input type="checkbox" class="ddb-map-browser-quickplay-toggle" {{#if importQuickplay}}checked{{/if}} />
+                Import Quickplay Layout
+              </label>
+              <label class="ddb-map-browser-option" title="When importing a Quickplay map, also place its tokens. Missing monsters will be auto-imported from DDB if your Patreon tier allows.">
+                <input type="checkbox" class="ddb-map-browser-quickplay-tokens-toggle" {{#if importQuickplayTokens}}checked{{/if}} />
+                Import Quickplay Tokens
+              </label>
+            {{/if}}
+            <label class="ddb-map-browser-option ddb-map-browser-option-meta-master" title="Merge community-curated walls, lights, grid, drawings, and module flags from MrPrimate/ddb-meta-data into the scene when an entry matches this map.">
+              <input type="checkbox" class="ddb-map-browser-metadata-toggle" {{#if importMetaData}}checked{{/if}} />
+              Apply Community Metadata
+            </label>
+            {{#if importMetaData}}
+              <span class="ddb-map-browser-option-group" aria-label="Community metadata options">
+                <label class="ddb-map-browser-option ddb-map-browser-option-sub" title="Place tokens from the meta-data entry. Will replace Quickplay tokens.">
+                  <input type="checkbox" class="ddb-map-browser-metadata-tokens-toggle" {{#if metaDataTokens}}checked{{/if}} /> Tokens
+                </label>
+              </span>
+            {{/if}}
+          </div>
+        {{/if}}
 
         {{#if detail.isLoading}}
           <p class="ddb-map-browser-status"><i class="fas fa-spinner fa-spin"></i> Loading maps...</p>
@@ -170,6 +186,7 @@
                       {{#if this.description}}<p class="hint">{{this.description}}</p>{{/if}}
                       {{#if this.dimensions}}<span class="ddb-map-browser-dim">{{this.dimensions}}</span>{{/if}}
                       {{#if this.hasPreparedMap}}<span class="ddb-map-browser-tag" title="{{this.preparedMapDescription}}">QuickPlay</span>{{/if}}
+                      {{#if this.hasMetaMatch}}<span class="ddb-map-browser-tag ddb-map-browser-tag-meta" title="Curated walls/lights/tokens available from ddb-meta-data ({{this.metaMatchedBy}} match)">Meta</span>{{/if}}
                     </div>
                     <div class="ddb-map-browser-map-actions">
                       <button type="button" data-action="importMap" data-image-key="{{this.imageKey}}" data-map-name="{{this.name}}" class="munch-button">

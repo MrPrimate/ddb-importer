@@ -210,6 +210,12 @@
   opacity: 1;
 }
 
+.ddb-map-browser-tag-meta {
+  background: rgba(245, 200, 60, 0.25);
+  color: #ffe9a3;
+  opacity: 1;
+}
+
 .ddb-map-browser-category > button {
   width: 100%;
   display: flex;
@@ -288,19 +294,57 @@
   font-weight: 500;
 }
 
-.ddb-map-browser-detail-actions {
+.ddb-map-browser-detail-primary-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.ddb-map-browser-exclude-dm {
-  display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex: 0 0 auto;
+}
+
+.ddb-map-browser-detail-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 8px 10px;
+  margin: 0 0 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
   font-size: 0.85em;
+}
+
+.ddb-map-browser-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+.ddb-map-browser-option input[type="checkbox"] {
+  margin: 0;
+}
+
+.ddb-map-browser-option-meta-master {
+  font-weight: 600;
+}
+
+.ddb-map-browser-option-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 2px 8px;
+  margin-left: 2px;
+  background: rgba(245, 200, 60, 0.07);
+  border: 1px solid rgba(245, 200, 60, 0.25);
+  border-radius: 3px;
+}
+
+.ddb-map-browser-option-sub {
+  font-size: 0.95em;
+  opacity: 0.9;
 }
 
 .ddb-map-browser-hidden-count {

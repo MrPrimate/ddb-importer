@@ -96,6 +96,11 @@ export interface IDDBIConfig {
     sourceMaps: Record<string, IDDBSourceMaps>;
     fetchedAt: number | null;
   };
+  META?: {
+    matches: Map<string, any>;
+    results: Map<string, any>;
+    inFlight: Map<string, Promise<any>>;
+  };
   STICKERS?: {
     payload: IDDBStickersPayload | null;
     fetchedAt: number | null;
@@ -166,6 +171,11 @@ if (!(CONFIG as any).DDBI) {
       catalog: null,
       sourceMaps: {},
       fetchedAt: null,
+    },
+    META: {
+      matches: new Map(),
+      results: new Map(),
+      inFlight: new Map(),
     },
   } as IDDBIConfig;
 }

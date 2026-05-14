@@ -1,0 +1,1048 @@
+import { logger, CompendiumHelper, FolderHelper } from "../../lib/_module";
+import DDBMaps, { IDDBMap, IDDBMetaDataMatch, IDDBMetaDataMatchInfo, IDDBMetaDataMatchResult } from "../DDBMaps";
+import AdventureMunch, { DEFAULT_LEVEL_ID } from "./AdventureMunch";
+import AdventureMunchHelpers from "./AdventureMunchHelpers";
+
+// The proxy owns the meta-data tarball + match cache. The match endpoint
+// returns the lightweight match info (no scene JSON); apply pulls the full
+// scene contents via a separate scenes endpoint only when needed.
+export type IDDBMetaMatch = IDDBMetaDataMatch;
+export type IDDBMetaMatchInfo = IDDBMetaDataMatchInfo;
+
+export interface IDDBMetaScene {
+  name?: string;
+  width?: number;
+  height?: number;
+  padding?: number;
+  grid?: {
+    type?: number;
+    size?: number;
+    color?: string;
+    alpha?: number;
+    distance?: number;
+    units?: string;
+  };
+  background?: {
+    offsetX?: number;
+    offsetY?: number;
+    scaleX?: number;
+    scaleY?: number;
+    rotation?: number;
+    tint?: string | null;
+  };
+  walls?: any[];
+  lights?: any[];
+  flags?: {
+    ddb?: {
+      tokens?: any[];
+      [k: string]: any;
+    };
+    [k: string]: any;
+  };
+  [k: string]: any;
+}
+
+export interface IDDBMetaApplyOptions {
+  applyTokens: boolean;
+  actorFolderPath?: string[] | null;
+  notifier?: ((msg: string) => void) | null;
+  noAutoImport?: boolean;
+}
+
+export interface IDDBMetaApplyResult {
+  match: IDDBMetaMatch;
+  sceneMerged: boolean;
+  walls: number;
+  lights: number;
+  drawings: number;
+  notes: number;
+  tokens: { created: number; missing: number; imported: number; failed: number };
+  quickplayTokensRemoved: number;
+  quickplayTilesPreserved: number;
+}
+
+interface IMetaCache {
+  // Per-map first-match cache used by the Map Browser badge.
+  matches: Map<string, IDDBMetaMatchInfo | null>;
+  // Full per-map match-info results from the proxy (multi-match maps surface
+  // every match here, not just the first). The browser pre-warm and the
+  // enrich path both read from this so a per-source warm covers later
+  // imports without re-hitting the proxy.
+  results: Map<string, IDDBMetaDataMatchResult>;
+  inFlight: Map<string, Promise<IDDBMetaDataMatchResult | null>>;
+}
+
+function _cache(): IMetaCache {
+  const anyCfg = CONFIG as any;
+  if (!anyCfg.DDBI.META) {
+    anyCfg.DDBI.META = {
+      matches: new Map(),
+      results: new Map(),
+      inFlight: new Map(),
+    };
+  }
+  // Defensive shim for cache objects created by older versions of this file.
+  const c = anyCfg.DDBI.META as Partial<IMetaCache>;
+  if (!c.matches) c.matches = new Map();
+  if (!c.results) c.results = new Map();
+  if (!c.inFlight) c.inFlight = new Map();
+  return c as IMetaCache;
+}
+
+// Pull the bookCode out of an S3 imageKey of the form
+// "official/maps/<bookCode>/<filename>". Returns null on no match.
+function _bookCodeFromImageKey(imageKey: string | null | undefined): string | null {
+  if (!imageKey) return null;
+  const m = imageKey.match(/^official\/maps\/([^/]+)\//i);
+  if (!m) return null;
+  return m[1].toLowerCase();
+}
+
+// Resolve a bookCode for the map. DDB does not consistently populate
+// `IDDBMap.sourceId` (it's set on the source wrapper, not stamped on each map
+// by flattenSourceMaps), so prefer the imageKey path, which always contains
+// the book code for official maps. Fall back to sourceId -> CONFIG.DDB.sources
+// for third-party or custom payloads where the imageKey path differs.
+function _resolveBookCode(map: IDDBMap): string | null {
+  const fromImage = _bookCodeFromImageKey(map.imageKey);
+  if (fromImage) return fromImage;
+  const raw = map.sourceId ?? (map as any).officialData?.sourceId;
+  const sid = Number(raw);
+  if (!Number.isFinite(sid)) return null;
+  const source = (CONFIG as any).DDB?.sources?.find?.((s: any) => s.id === sid);
+  const name = source?.name;
+  return name ? String(name).toLowerCase() : null;
+}
+
+function _normaliseName(s: string | null | undefined): string {
+  return (s ?? "").toLowerCase().trim();
+}
+
+function _filenameFromImageKey(imageKey: string | null | undefined): string | null {
+  if (!imageKey) return null;
+  const last = imageKey.split("/").pop();
+  if (!last) return null;
+  // Strip query string if any.
+  const noQuery = last.split("?")[0];
+  return noQuery.toLowerCase();
+}
+
+// Build the proxy request payload for a given map. The proxy supports any
+// subset of the four identifiers; sending them all lets it pick the best
+// hint match.
+function _proxyRequestForMap(map: IDDBMap): {
+  bookCode: string | null;
+  sourceId: string | number | null;
+  name: string | null;
+  filename: string | null;
+} {
+  return {
+    bookCode: _resolveBookCode(map),
+    sourceId: map.sourceId ?? (map as any).officialData?.sourceId ?? null,
+    name: map.name ?? null,
+    filename: _filenameFromImageKey(map.imageKey),
+  };
+}
+
+export default class DDBMapMetaData {
+
+  // -------- proxy match lookup + per-session cache --------
+
+  // Ask the proxy whether this map has community meta-data. Returns the
+  // lightweight match-info payload (no scene JSON). Results are cached per
+  // map for the rest of the session so the import path can reuse what the
+  // browser badge already resolved.
+  static async fetchMatchInfo(map: IDDBMap): Promise<IDDBMetaDataMatchResult | null> {
+    const cache = _cache();
+    const cacheKey = map.id ?? map.imageKey;
+    if (cacheKey && cache.results.has(cacheKey)) {
+      return cache.results.get(cacheKey) ?? null;
+    }
+    if (cacheKey && cache.inFlight.has(cacheKey)) {
+      return cache.inFlight.get(cacheKey) ?? null;
+    }
+
+    const req = _proxyRequestForMap(map);
+    logger.info(`DDBMapMetaData.fetchMatchInfo: querying proxy for "${map.name}"`, req);
+
+    const promise = (async (): Promise<IDDBMetaDataMatchResult | null> => {
+      try {
+        const result = await DDBMaps.fetchMetaMatch(req);
+        if (!result) {
+          logger.info(`DDBMapMetaData.fetchMatchInfo: proxy returned no result for "${map.name}"`);
+          return null;
+        }
+        logger.info(
+          `DDBMapMetaData.fetchMatchInfo: proxy returned ${result.matches.length} match${result.matches.length === 1 ? "" : "es"} for "${map.name}" (reason: ${result.reason})`,
+          result.matches,
+        );
+        if (cacheKey) {
+          cache.results.set(cacheKey, result);
+          cache.matches.set(cacheKey, result.matches[0] ?? null);
+        }
+        return result;
+      } catch (error) {
+        logger.warn(`DDBMapMetaData.fetchMatchInfo: proxy call failed for "${map.name}": ${(error as Error).message ?? error}`);
+        return null;
+      } finally {
+        if (cacheKey) cache.inFlight.delete(cacheKey);
+      }
+    })();
+    if (cacheKey) cache.inFlight.set(cacheKey, promise);
+    return promise;
+  }
+
+  static clearCache(): void {
+    const cache = _cache();
+    cache.matches.clear();
+    cache.results.clear();
+    cache.inFlight.clear();
+  }
+
+  // -------- matching (browser badge integration) --------
+
+  static async findMatchesForMaps(maps: IDDBMap[]): Promise<Map<string, IDDBMetaMatchInfo | null>> {
+    const cache = _cache();
+    logger.info(`DDBMapMetaData.findMatchesForMaps: resolving meta matches for ${maps.length} map${maps.length === 1 ? "" : "s"}`);
+
+    // Split the input into cached vs uncached. We only round-trip to the
+    // proxy for the uncached ones, but in a single batched call instead of
+    // N sequential HTTPs.
+    const uncached: { map: IDDBMap; key: string; request: ReturnType<typeof _proxyRequestForMap> }[] = [];
+    let cachedHits = 0;
+    for (const map of maps) {
+      const key = map.id ?? map.imageKey;
+      if (!key) continue;
+      if (cache.matches.has(key)) {
+        cachedHits += 1;
+        continue;
+      }
+      uncached.push({ map, key, request: _proxyRequestForMap(map) });
+    }
+
+    let hits = 0;
+    let misses = 0;
+    if (uncached.length) {
+      logger.info(`DDBMapMetaData.findMatchesForMaps: batching ${uncached.length} match requests to proxy`);
+      let batchResults: IDDBMetaDataMatchResult[] | null = null;
+      try {
+        batchResults = await DDBMaps.fetchMetaMatchBatch(uncached.map((u) => u.request));
+      } catch (error) {
+        logger.warn(`DDBMapMetaData.findMatchesForMaps: batch match fetch failed: ${(error as Error).message ?? error}`);
+      }
+      if (!Array.isArray(batchResults) || batchResults.length !== uncached.length) {
+        if (batchResults && batchResults.length !== uncached.length) {
+          logger.warn(`DDBMapMetaData.findMatchesForMaps: proxy returned ${batchResults.length} results for ${uncached.length} requests; ignoring batch`);
+        }
+        for (const u of uncached) {
+          cache.matches.set(u.key, null);
+          misses += 1;
+        }
+      } else {
+        for (let i = 0; i < uncached.length; i++) {
+          const u = uncached[i];
+          const result = batchResults[i] ?? null;
+          if (result) cache.results.set(u.key, result);
+          const first = result?.matches?.[0] ?? null;
+          cache.matches.set(u.key, first);
+          if (first) hits += 1;
+          else misses += 1;
+        }
+      }
+    }
+
+    logger.info(`DDBMapMetaData.findMatchesForMaps: complete. ${hits} matched, ${misses} unmatched, ${cachedHits} previously cached.`);
+    return cache.matches;
+  }
+
+  // Returns the lightweight match info (no scene JSON) that the browser
+  // badge uses. Populated by findMatchesForMaps during source load.
+  static getCachedMatch(map: IDDBMap): IDDBMetaMatchInfo | null {
+    const key = map.id ?? map.imageKey;
+    if (!key) return null;
+    return _cache().matches.get(key) ?? null;
+  }
+
+  // -------- apply --------
+
+  // Sanitise a Foundry document object (wall, light, token) for createEmbeddedDocuments.
+  // Drops fields the importer must not carry over: _id (Foundry assigns fresh), document keys
+  // that would carry stale module-author data.
+  private static _stripDocId<T extends Record<string, any>>(doc: T): T {
+    const copy = { ...doc };
+    delete (copy as any)._id;
+    return copy;
+  }
+
+  // Run the same scene-info cleansing AdventureMunch applies to adventure-zip
+  // scenes: v13->v14 migration, drawing shape/levels fixes, perfect-vision
+  // flag normalisation, stairways flag reshape, wall doorSound default. The
+  // meta-data proxy payload skips _loadDocumentAssets so we mirror its
+  // cleansing here before merge / createEmbeddedDocuments.
+  private static _cleanseSceneInfo(info: IDDBMetaScene): IDDBMetaScene {
+    if (!info || typeof info !== "object") return info;
+
+    if (parseInt((game as any).version) >= 14) {
+      AdventureMunch._migrateSceneDataToV14(info);
+    }
+
+    if (info.flags?.["perfect-vision"] && Array.isArray(info.flags["perfect-vision"])) {
+      info.flags["perfect-vision"] = {};
+    }
+
+    if (Array.isArray(info.flags?.stairways)
+      && foundry.utils.isNewerVersion((game.modules.get("stairways")?.version ?? "0.10.7"), "0.10.6")) {
+      info.flags!.stairways = {
+        data: foundry.utils.duplicate(info.flags!.stairways ?? []),
+      };
+    }
+
+    if (Array.isArray(info.walls)) {
+      for (const wall of info.walls) {
+        if (wall.door !== 0 && !wall.doorSound && wall.doorSound !== "") {
+          wall.doorSound = "woodBasic";
+        }
+      }
+    }
+
+    const drawings = (info as any).drawings;
+    if (Array.isArray(drawings)) {
+      (info as any).drawings = drawings.map((d: any) => AdventureMunch._drawingFixes(d));
+    }
+
+    return info;
+  }
+
+  private static _normaliseLight(light: any): any {
+    const copy = this._stripDocId(light);
+    // animation may be null in scene-info JSONs but Foundry V13 expects an object.
+    if (copy.animation === null || copy.animation === undefined) {
+      copy.animation = { type: null };
+    }
+    // Darkness threshold consistency.
+    const darkness = copy?.config?.darkness;
+    if (darkness && typeof darkness === "object"
+      && typeof darkness.min === "number" && typeof darkness.max === "number"
+      && darkness.min > darkness.max) {
+      copy.config.darkness = { ...darkness, max: darkness.min };
+    }
+    return copy;
+  }
+
+  // Stamp result + match onto the scene's ddb-importer flags. Soft-fails on update error.
+  private static async _stampFlags(scene: any, payload: Record<string, unknown>): Promise<void> {
+    try {
+      await scene.update({ flags: { "ddb-importer": payload } });
+    } catch (error) {
+      logger.warn(`DDBMapMetaData: failed to stamp scene flags: ${(error as Error).message ?? error}`);
+    }
+  }
+
+  // Fields on the scene-info JSON that we never copy onto the existing scene.
+  // Embedded collections are applied separately via createEmbeddedDocuments
+  // or, in the case of `tiles`, deliberately NOT applied: Quickplay places
+  // stickers as Tile docs (flags.ddb-importer.quickplayStickerId) and the
+  // meta-data layer must leave them untouched. `regions` is similarly
+  // excluded because meta-data scene dumps may carry empty/legacy region
+  // arrays we don't want to inherit.
+  // background.src is owned by our locally-uploaded image; _id / name /
+  // folder / sort identify our scene and must not be overwritten.
+  private static readonly _MERGE_EXCLUDE_KEYS = new Set<string>([
+    "_id",
+    "name",
+    "folder",
+    "sort",
+    "ownership",
+    "permission",
+    "thumb",
+    "img",
+    "walls",
+    "lights",
+    "tokens",
+    "drawings",
+    "notes",
+    "sounds",
+    "templates",
+    "tiles",    // preserve Quickplay sticker tiles
+    "regions",
+  ]);
+
+  private static _countQuickplayTiles(scene: any): number {
+    const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
+    let count = 0;
+    for (const tile of tiles) {
+      if (foundry.utils.getProperty(tile, "flags.ddb-importer.quickplayStickerId")) count += 1;
+    }
+    return count;
+  }
+
+  // V14-safe read of the scene background image path. Scene#background was
+  // deprecated in V14 in favour of Level#background; reading scene.background
+  // triggers a compatibility warning on every access.
+  private static _readLevelBackgroundSrc(scene: any): string | null {
+    const levels = scene?.levels?.contents ?? scene?.levels ?? [];
+    const first = levels[0];
+    return first?.background?.src ?? null;
+  }
+
+  // Snapshot the full data of every Quickplay-flagged Tile on the scene
+  // (keyed by quickplayStickerId) so we can detect and restore any that
+  // disappear during the meta-data merge. Tiles are excluded from the merge
+  // payload, but defensive restoration covers any edge case where Foundry
+  // touches them anyway (e.g. width/height changes triggering revalidation).
+  private static _snapshotQuickplayTiles(scene: any): Map<string, any> {
+    const snapshot = new Map<string, any>();
+    const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
+    for (const tile of tiles) {
+      const id = foundry.utils.getProperty(tile, "flags.ddb-importer.quickplayStickerId");
+      if (!id) continue;
+      try {
+        snapshot.set(String(id), tile.toObject ? tile.toObject() : foundry.utils.deepClone(tile));
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: failed to snapshot Quickplay tile ${id}: ${(error as Error).message ?? error}`);
+      }
+    }
+    return snapshot;
+  }
+
+  // Restore any Quickplay tiles missing from the scene after meta apply.
+  // Snapshot keys are quickplayStickerId. Strip _id so Foundry assigns a
+  // fresh one - the original may collide if Foundry's collection retained
+  // a tombstone of the removed doc.
+  private static async _restoreMissingQuickplayTiles(scene: any, snapshot: Map<string, any>): Promise<number> {
+    if (!snapshot.size) return 0;
+    const presentIds = new Set<string>();
+    const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
+    for (const tile of tiles) {
+      const id = foundry.utils.getProperty(tile, "flags.ddb-importer.quickplayStickerId");
+      if (id) presentIds.add(String(id));
+    }
+    const missing: any[] = [];
+    for (const [id, data] of snapshot) {
+      if (presentIds.has(id)) continue;
+      const copy = foundry.utils.deepClone(data);
+      delete copy._id;
+      missing.push(copy);
+    }
+    if (!missing.length) return 0;
+    logger.warn(`DDBMapMetaData: restoring ${missing.length} Quickplay tile${missing.length === 1 ? "" : "s"} that went missing during meta apply on "${scene.name}"`);
+    try {
+      const created = await scene.createEmbeddedDocuments("Tile", missing);
+      return Array.isArray(created) ? created.length : 0;
+    } catch (error) {
+      logger.error(`DDBMapMetaData: failed to restore Quickplay tiles: ${(error as Error).message ?? error}`, error);
+      return 0;
+    }
+  }
+
+  // After meta-data has replaced the scene's dimensions/grid/background,
+  // recompute each Quickplay tile's position and size from its stored DDB
+  // raw values (flags.ddb-importer.rawPosition, rawSize, rawAspectRatio).
+  // This is more accurate than a width/height-ratio rescale because it
+  // re-derives canvas coords using the new scene's reference frame instead
+  // of compounding the muncher's earlier transform.
+  //
+  // Mirrors DDBQuickplay._tileForSticker math, with the parameters now read
+  // off the meta-applied scene:
+  //   - imageWidth/imageHeight: from quickplayContext (DDB's source image
+  //     dimensions; unchanged by meta).
+  //   - sceneScale: scene.width / imageWidth - meta-data scenes are 1:1
+  //     with the image so this is ~1.
+  //   - gridSize: scene.grid.size (now meta-data's value).
+  //   - sceneXPad/sceneYPad: scene.dimensions.sceneX/sceneY (padding offset
+  //     in canvas space, recomputed by Foundry after the update).
+  private static async _repositionQuickplayTiles(scene: any): Promise<number> {
+    const ctx = scene?.flags?.["ddb-importer"]?.quickplayContext;
+    const imageWidth = Number(ctx?.stateImageWidth);
+    const imageHeight = Number(ctx?.stateImageHeight);
+    if (!Number.isFinite(imageWidth) || imageWidth <= 0
+      || !Number.isFinite(imageHeight) || imageHeight <= 0) {
+      // No Quickplay context (e.g. import without Quickplay enabled, or
+      // an old scene without context flags) - nothing to reposition.
+      return 0;
+    }
+
+    const sceneWidth = Number(scene.width);
+    const sceneHeight = Number(scene.height);
+    if (!Number.isFinite(sceneWidth) || sceneWidth <= 0
+      || !Number.isFinite(sceneHeight) || sceneHeight <= 0) return 0;
+
+    const sceneScale = sceneWidth / imageWidth;
+    const gridSize = Number(scene.grid?.size) || 100;
+    const dims = scene?.dimensions ?? {};
+    const sceneXPad = Number.isFinite(dims.sceneX) ? Number(dims.sceneX) : 0;
+    const sceneYPad = Number.isFinite(dims.sceneY) ? Number(dims.sceneY) : 0;
+    const anchor: "center" | "topLeft" = ctx?.anchor === "topLeft" ? "topLeft" : "center";
+    const POSITION_UNIT_PX = 100;
+
+    const updates: any[] = [];
+    const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
+    for (const tile of tiles) {
+      const flags = (tile.flags ?? {})["ddb-importer"] ?? {};
+      if (!flags.quickplayStickerId) continue;
+      const rawPos = flags.rawPosition;
+      const rawSize = Number(flags.rawSize);
+      const rawAspect = Number(flags.rawAspectRatio);
+      if (!Array.isArray(rawPos) || rawPos.length < 2) continue;
+      if (!Number.isFinite(rawSize) || rawSize <= 0) continue;
+      const aspect = Number.isFinite(rawAspect) && rawAspect > 0 ? rawAspect : 1;
+
+      // Mirror DDBQuickplay._tileForSticker:
+      //   width/height candidates snapped to nearest cell count
+      const widthRawScene = rawSize * POSITION_UNIT_PX * sceneScale;
+      const heightRawScene = widthRawScene / aspect;
+      const wCells = widthRawScene / gridSize;
+      const hCells = heightRawScene / gridSize;
+      const wFracDist = Math.abs(wCells - Math.round(wCells));
+      const hFracDist = Math.abs(hCells - Math.round(hCells));
+      let widthScene: number;
+      let heightScene: number;
+      if (wFracDist <= hFracDist) {
+        widthScene = Math.max(1, Math.round(wCells)) * gridSize;
+        heightScene = widthScene / aspect;
+      } else {
+        heightScene = Math.max(1, Math.round(hCells)) * gridSize;
+        widthScene = heightScene * aspect;
+      }
+
+      // Position: DDB centre coords (Y-flipped) -> image px -> canvas px
+      const xImg = Number(rawPos[0]) * POSITION_UNIT_PX + imageWidth / 2;
+      const yImg = -Number(rawPos[1]) * POSITION_UNIT_PX + imageHeight / 2;
+      const xCanvas = xImg * sceneScale + sceneXPad;
+      const yCanvas = yImg * sceneScale + sceneYPad;
+      // V14 Tile semantics: (x, y) is the texture's anchor point in canvas
+      // coords, paired with texture.anchorX/Y to pick which point of the
+      // texture image lands at (x, y). Mirror DDBQuickplay's create path
+      // exactly - snap the top-left to a grid corner, then write
+      // x = snapped + w/2 + anchor 0.5 so the texture centres on the
+      // snapped cell. Also re-bind to the default level so V14 keeps
+      // rendering the tile on the same layer the muncher's scene was
+      // built with.
+      const centerX = anchor === "topLeft" ? xCanvas + widthScene / 2 : xCanvas;
+      const centerY = anchor === "topLeft" ? yCanvas + heightScene / 2 : yCanvas;
+      const topLeftXSnapped = Math.round((centerX - widthScene / 2) / gridSize) * gridSize;
+      const topLeftYSnapped = Math.round((centerY - heightScene / 2) / gridSize) * gridSize;
+      const tileX = topLeftXSnapped + widthScene / 2;
+      const tileY = topLeftYSnapped + heightScene / 2;
+
+      updates.push({
+        _id: tile.id,
+        x: tileX,
+        y: tileY,
+        width: Math.round(widthScene),
+        height: Math.round(heightScene),
+        texture: {
+          anchorX: 0.5,
+          anchorY: 0.5,
+        },
+        levels: [DEFAULT_LEVEL_ID],
+      });
+    }
+
+    if (!updates.length) return 0;
+    logger.info(
+      `DDBMapMetaData: repositioning ${updates.length} Quickplay tile${updates.length === 1 ? "" : "s"} on "${scene.name}" using meta-data scene dims (image ${imageWidth}x${imageHeight}, scene ${sceneWidth}x${sceneHeight}, sceneScale=${sceneScale.toFixed(3)}, gridSize=${gridSize}, pad=${sceneXPad},${sceneYPad})`,
+    );
+    try {
+      await scene.updateEmbeddedDocuments("Tile", updates);
+      return updates.length;
+    } catch (error) {
+      logger.error(`DDBMapMetaData: failed to reposition Quickplay tiles: ${(error as Error).message ?? error}`, error);
+      return 0;
+    }
+  }
+
+  // Build a scene.update() payload from the meta-data scene-info JSON, merging
+  // everything except identity fields, the locally-uploaded background image,
+  // and embedded collections (which go through createEmbeddedDocuments).
+  // Flags merge with the existing scene flags - the ddb-importer block must
+  // not be clobbered.
+  private static _buildSceneUpdate(scene: any, info: IDDBMetaScene): Record<string, any> {
+    const update: Record<string, any> = {};
+    for (const [key, value] of Object.entries(info)) {
+      if (this._MERGE_EXCLUDE_KEYS.has(key)) continue;
+      if (key === "flags") continue;
+      if (key === "background") {
+        // V14: Scene#background is deprecated. The meta-data file still
+        // carries a V12-shaped `background` block; project its non-`src`
+        // scalars onto levels[0].background so V14 picks them up without
+        // touching the deprecated scene-level field. The src is owned by
+        // the muncher's locally-uploaded image and re-stamped separately
+        // after merge.
+        const bg = value as Record<string, any> | null;
+        if (!bg || typeof bg !== "object") continue;
+        const bgUpd: Record<string, any> = {};
+        for (const [bk, bv] of Object.entries(bg)) {
+          if (bk === "src") continue;
+          bgUpd[bk] = bv;
+        }
+        if (Object.keys(bgUpd).length) {
+          const firstLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
+          if (firstLevel?._id) {
+            update.levels = [{ _id: firstLevel._id, background: bgUpd }];
+          }
+        }
+        continue;
+      }
+      update[key] = value;
+    }
+
+    // Merge flags - preserve our ddb-importer block, take everything else from
+    // the meta-data file (including module-specific flags like stairways /
+    // perfect-vision / dynamic-illumination; Foundry simply stores them and
+    // each module reads its own block).
+    const ownFlags = foundry.utils.deepClone(scene.flags ?? {});
+    const metaFlags = info.flags ?? {};
+    const mergedFlags = foundry.utils.mergeObject(
+      foundry.utils.deepClone(metaFlags),
+      ownFlags,
+      { inplace: false, overwrite: true },
+    );
+    update.flags = mergedFlags;
+
+    // V14 keeps shiftX/shiftY at the root for image-vs-grid alignment.
+    // Mirror the meta-data background offsets so they don't fight each other.
+    if (info.background && typeof info.background === "object") {
+      if (Number.isFinite(info.background.offsetX)) update.shiftX = info.background.offsetX;
+      if (Number.isFinite(info.background.offsetY)) update.shiftY = info.background.offsetY;
+    }
+
+    return update;
+  }
+
+  // Apply a single match (scene-info JSON) to a target Foundry scene. Returns
+  // a result row that gets stamped onto scene.flags.ddb-importer.
+  private static async _applyMatchToScene(
+    scene: any,
+    match: IDDBMetaMatch,
+    options: IDDBMetaApplyOptions,
+  ): Promise<IDDBMetaApplyResult> {
+    const info = match.scene as IDDBMetaScene;
+    const result: IDDBMetaApplyResult = {
+      match,
+      sceneMerged: false,
+      walls: 0,
+      lights: 0,
+      drawings: 0,
+      notes: 0,
+      tokens: { created: 0, missing: 0, imported: 0, failed: 0 },
+      quickplayTokensRemoved: 0,
+      quickplayTilesPreserved: 0,
+    };
+
+    const notify = (msg: string) => {
+      try {
+        options.notifier?.(msg);
+      } catch (_e) { /* ignore */ }
+    };
+
+    // Snapshot Quickplay tile docs so we can restore any that disappear
+    // during the meta apply. Tiles SHOULDN'T be touched (excluded from the
+    // merge payload, not in any delete path) but defensive restoration covers
+    // any Foundry-side revalidation that wipes them.
+    const quickplayTileSnapshot = DDBMapMetaData._snapshotQuickplayTiles(scene);
+    if (quickplayTileSnapshot.size) {
+      logger.info(`DDBMapMetaData: scene "${scene.name}" carries ${quickplayTileSnapshot.size} Quickplay sticker tile${quickplayTileSnapshot.size === 1 ? "" : "s"} - snapshotted for preservation`);
+    }
+
+
+    // Capture the muncher-set background image path before the merge. In
+    // V14 the canonical location for the scene background image is
+    // `levels[0].background.src` - Scene#background is deprecated and
+    // raises a compatibility warning every time it's read, so we go
+    // directly to the level. Meta-data scenes don't carry a `src` field
+    // on either layer, so we re-stamp this onto the level after the merge
+    // to defend against any deep-merge edge case clearing it.
+    const munchedLevelBgSrc = DDBMapMetaData._readLevelBackgroundSrc(scene);
+
+    // Phase A: merge the scene-info JSON onto the existing scene.
+    try {
+      const update = this._buildSceneUpdate(scene, info);
+      if (Object.keys(update).length) {
+        notify(`Merging meta-data scene fields into "${scene.name}"...`);
+        await scene.update(update);
+        result.sceneMerged = true;
+      }
+    } catch (error) {
+      logger.warn(`DDBMapMetaData: scene merge failed for "${scene.name}": ${(error as Error).message ?? error}`);
+    }
+
+    // Re-stamp the level-level background image path so the texture
+    // survives the merge regardless of how V14 deep-merges the partial
+    // background block from meta-data.
+    try {
+      const restamp: Record<string, any> = {};
+      const currentLevelBgSrc = DDBMapMetaData._readLevelBackgroundSrc(scene);
+      if (munchedLevelBgSrc && currentLevelBgSrc !== munchedLevelBgSrc) {
+        const firstLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
+        if (firstLevel?._id) {
+          restamp["levels"] = [{ _id: firstLevel._id, background: { src: munchedLevelBgSrc } }];
+        }
+      }
+      if (Object.keys(restamp).length) {
+        logger.info(`DDBMapMetaData: re-stamping background image path(s) on "${scene.name}" after meta merge`, restamp);
+        await scene.update(restamp);
+      }
+    } catch (error) {
+      logger.warn(`DDBMapMetaData: failed to re-stamp background src on "${scene.name}": ${(error as Error).message ?? error}`);
+    }
+
+    // Phase B: walls.
+    if (Array.isArray(info.walls) && info.walls.length) {
+      try {
+        notify(`Placing ${info.walls.length} walls from meta-data...`);
+        const wallData = info.walls.map((w) => this._stripDocId(w));
+        const created = await scene.createEmbeddedDocuments("Wall", wallData);
+        result.walls = Array.isArray(created) ? created.length : 0;
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: wall placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      }
+    }
+
+    // Phase C: lights.
+    if (Array.isArray(info.lights) && info.lights.length) {
+      try {
+        notify(`Placing ${info.lights.length} lights from meta-data...`);
+        const lightData = info.lights.map((l) => this._normaliseLight(l));
+        const created = await scene.createEmbeddedDocuments("AmbientLight", lightData);
+        result.lights = Array.isArray(created) ? created.length : 0;
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: light placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      }
+    }
+
+    // Phase D: drawings.
+    const drawings = (info as any).drawings;
+    if (Array.isArray(drawings) && drawings.length) {
+      try {
+        notify(`Placing ${drawings.length} drawings from meta-data...`);
+        const drawingData = drawings.map((d: any) => this._stripDocId(d));
+        const created = await scene.createEmbeddedDocuments("Drawing", drawingData);
+        result.drawings = Array.isArray(created) ? created.length : 0;
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: drawing placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      }
+    }
+
+    // Phase E: tokens (conditional - meta-wins conflict deletes Quickplay tokens first).
+    const metaTokens = info.flags?.ddb?.tokens;
+    if (options.applyTokens && Array.isArray(metaTokens) && metaTokens.length) {
+      try {
+        const tokenResult = await this._applyMetaTokens(scene, metaTokens, options);
+        result.quickplayTokensRemoved = tokenResult.quickplayTokensRemoved ?? 0;
+        result.tokens = {
+          created: tokenResult.created,
+          missing: tokenResult.missing,
+          imported: tokenResult.imported,
+          failed: tokenResult.failed,
+        };
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: token placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      }
+    }
+
+    // Restore any Quickplay tiles missing after meta apply. Logs a warning
+    // when restoration kicks in so the underlying bug is visible.
+    const restored = await DDBMapMetaData._restoreMissingQuickplayTiles(scene, quickplayTileSnapshot);
+    if (restored) {
+      logger.info(`DDBMapMetaData: restored ${restored} Quickplay tile${restored === 1 ? "" : "s"} on "${scene.name}"`);
+    }
+
+    // Reposition Quickplay tiles using meta-data's scene dimensions plus the
+    // tiles' stored DDB raw values. The muncher's earlier coords assumed a
+    // scaled scene; meta-data scenes are usually 1:1 with the image so we
+    // need to re-derive canvas positions from scratch.
+    await DDBMapMetaData._repositionQuickplayTiles(scene);
+
+    result.quickplayTilesPreserved = DDBMapMetaData._countQuickplayTiles(scene);
+
+    await this._stampFlags(scene, {
+      metaDataApplied: true,
+      metaDataMatch: match,
+      metaDataResult: result,
+      metaDataError: null,
+    });
+
+    return result;
+  }
+
+  // Foundry's Scene.clone fork. Returns a freshly-persisted scene that copies
+  // the source's image upload, dimensions, folder, and any embedded documents
+  // already on it (Quickplay tokens, etc.). We rename it via the optional
+  // `name` argument so multi-floor maps surface distinct entries in the Scene
+  // directory.
+  private static async _cloneScene(source: any, name: string | null): Promise<any | null> {
+    try {
+      const overrides: Record<string, any> = {};
+      if (name) overrides.name = name;
+      const cloned = await source.clone(overrides, { save: true });
+      return cloned ?? null;
+    } catch (error) {
+      logger.error(`DDBMapMetaData: scene clone failed for "${source?.name}": ${(error as Error).message ?? error}`, error);
+      return null;
+    }
+  }
+
+  // Top-level entry point. Two proxy calls:
+  //   1. /match  - lightweight, cached - "does this map have meta-data?"
+  //   2. /scenes - heavy, uncached     - fetch the full scene-info JSONs for
+  //                                       the matches we actually need
+  // When the match step returns 2+ matches (operator-configured multi-floor
+  // hint), additional Foundry scenes are cloned from the original and each
+  // one receives its assigned scene-info payload. Returns the array of
+  // per-scene apply results, or an empty array on no match / unrecoverable
+  // proxy failure.
+  static async enrich(
+    scene: any,
+    map: IDDBMap,
+    options: IDDBMetaApplyOptions,
+  ): Promise<IDDBMetaApplyResult[]> {
+    if (!scene) return [];
+
+    // Step 1: resolve match info via the cached match endpoint.
+    const matchResult = await this.fetchMatchInfo(map);
+    const matchInfos = matchResult?.matches ?? [];
+    if (!matchInfos.length) {
+      await this._stampFlags(scene, {
+        metaDataApplied: false,
+        metaDataMatch: null,
+        metaDataReason: matchResult?.reason ?? "proxy-unavailable",
+      });
+      return [];
+    }
+
+    // Step 2: fetch the scene JSONs for those matches. NOT cached at the
+    // proxy API level; called only at import time.
+    logger.info(`DDBMapMetaData.enrich: fetching ${matchInfos.length} scene-info payload${matchInfos.length === 1 ? "" : "s"} for "${map.name}"`);
+    const refs = matchInfos.map((m) => ({ bookCode: m.bookCode, filepath: m.filepath }));
+    let fetched: { bookCode: string; filepath: string; scene: any | null; error?: string }[] | null = null;
+    try {
+      fetched = await DDBMaps.fetchMetaSceneInfos(refs);
+    } catch (error) {
+      logger.warn(`DDBMapMetaData.enrich: scene-info fetch failed for "${map.name}": ${(error as Error).message ?? error}`);
+    }
+    if (!Array.isArray(fetched) || fetched.length !== matchInfos.length) {
+      await this._stampFlags(scene, {
+        metaDataApplied: false,
+        metaDataMatch: matchInfos[0] ?? null,
+        metaDataError: "scene-info-fetch-failed",
+      });
+      return [];
+    }
+
+    // Step 3: pair match info with its scene JSON. Drop any that failed to
+    // load - those positions don't get a Foundry scene at all.
+    const fullMatches: IDDBMetaMatch[] = [];
+    for (let i = 0; i < matchInfos.length; i++) {
+      const payload = fetched[i];
+      if (!payload?.scene) {
+        logger.warn(`DDBMapMetaData.enrich: skipping match ${matchInfos[i].filepath} (${payload?.error ?? "no scene"})`);
+        continue;
+      }
+      fullMatches.push({ ...matchInfos[i], scene: DDBMapMetaData._cleanseSceneInfo(payload.scene) });
+    }
+    if (!fullMatches.length) {
+      await this._stampFlags(scene, {
+        metaDataApplied: false,
+        metaDataMatch: matchInfos[0] ?? null,
+        metaDataError: "all-scene-fetches-failed",
+      });
+      return [];
+    }
+
+    // Step 4: clone extra Foundry scenes for matches beyond the first. Done
+    // up front, before mutations, so every clone starts from the same state.
+    const scenes: any[] = [scene];
+    for (let i = 1; i < fullMatches.length; i++) {
+      const cloneName = fullMatches[i].scene?.name ?? `${scene.name} (${i + 1})`;
+      const dup = await this._cloneScene(scene, cloneName);
+      if (dup) scenes.push(dup);
+      else logger.warn(`DDBMapMetaData.enrich: failed to clone scene for extra match ${i + 1} (${fullMatches[i].filepath}); skipping that floor`);
+    }
+    // Multi-match: rename the original to its meta name so floors read consistently.
+    if (fullMatches.length > 1 && fullMatches[0].scene?.name && scene.name !== fullMatches[0].scene.name) {
+      try {
+        await scene.update({ name: fullMatches[0].scene.name });
+      } catch (error) {
+        logger.warn(`DDBMapMetaData.enrich: failed to rename original scene to "${fullMatches[0].scene.name}": ${(error as Error).message ?? error}`);
+      }
+    }
+
+    // Step 5: apply each match to its assigned scene.
+    const results: IDDBMetaApplyResult[] = [];
+    for (let i = 0; i < scenes.length; i++) {
+      results.push(await this._applyMatchToScene(scenes[i], fullMatches[i], options));
+    }
+    return results;
+  }
+
+  // Apply tokens carried by flags.ddb.tokens in the scene-info JSON. Meta-wins
+  // conflict handling: any existing Quickplay tokens on the scene are deleted
+  // before placement.
+  private static async _applyMetaTokens(
+    scene: any,
+    metaTokens: any[],
+    options: IDDBMetaApplyOptions,
+  ): Promise<IDDBMetaApplyResult["tokens"] & { quickplayTokensRemoved?: number }> {
+    const out = { created: 0, missing: 0, imported: 0, failed: 0, quickplayTokensRemoved: 0 };
+    const notify = (msg: string) => {
+      try {
+        options.notifier?.(msg);
+      } catch (_e) { /* ignore */ }
+    };
+
+    // Step 1: meta-wins. Remove pre-existing Quickplay tokens so the meta layout
+    // becomes the authoritative one.
+    const existingQpIds: string[] = [];
+    for (const tokenDoc of (scene.tokens?.contents ?? [])) {
+      const qpId = foundry.utils.getProperty(tokenDoc, "flags.ddb-importer.quickplayTokenId");
+      if (qpId) existingQpIds.push(tokenDoc.id);
+    }
+    if (existingQpIds.length) {
+      try {
+        await scene.deleteEmbeddedDocuments("Token", existingQpIds);
+        out.quickplayTokensRemoved = existingQpIds.length;
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: failed to clear ${existingQpIds.length} Quickplay tokens before meta apply: ${(error as Error).message ?? error}`);
+      }
+    }
+
+    // Step 2: collect DDB monster ids.
+    const ddbIds = [...new Set(
+      metaTokens
+        .map((t) => Number(foundry.utils.getProperty(t, "flags.ddbActorFlags.id")))
+        .filter((n) => Number.isFinite(n)),
+    )] as number[];
+    if (!ddbIds.length) return out;
+
+    // Step 3: load monster index, import any missing.
+    let monsterIndex: any = await AdventureMunchHelpers.getCompendiumIndex("monster");
+    const presentIds = (): Set<number> => new Set<number>(
+      [...monsterIndex]
+        .map((m: any) => Number(foundry.utils.getProperty(m, "flags.ddbimporter.id")))
+        .filter((n: number) => Number.isFinite(n)),
+    );
+    let present = presentIds();
+    const missingIds = ddbIds.filter((id) => !present.has(id));
+    if (missingIds.length && !options.noAutoImport) {
+      try {
+        notify(`Importing ${missingIds.length} missing monster${missingIds.length === 1 ? "" : "s"} for meta-data tokens...`);
+        await AdventureMunchHelpers.loadMissingDocuments("monster", missingIds);
+        monsterIndex = await AdventureMunchHelpers.getCompendiumIndex("monster");
+        present = presentIds();
+        out.imported = missingIds.filter((id) => present.has(id)).length;
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: missing-monster import failed: ${(error as Error).message ?? error}`);
+      }
+    }
+    out.missing = ddbIds.filter((id) => !present.has(id)).length;
+
+    // Step 4: materialise world actors.
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false) as any;
+    const actorFolderId = await DDBMapMetaData._resolveActorFolderId(options.actorFolderPath ?? null);
+    const actorByDdbId = new Map<number, any>();
+    for (const ddbId of ddbIds) {
+      const monsterEntry = monsterIndex.find(
+        (m: any) => Number(foundry.utils.getProperty(m, "flags.ddbimporter.id")) === ddbId,
+      );
+      if (!monsterEntry) continue;
+      const existing = (game.actors?.contents ?? []).find((a: any) =>
+        Number(foundry.utils.getProperty(a, "flags.ddbimporter.id")) === ddbId,
+      );
+      if (existing) {
+        actorByDdbId.set(ddbId, existing);
+        continue;
+      }
+      try {
+        const updateData: Record<string, unknown> = {};
+        if (actorFolderId) updateData.folder = actorFolderId;
+        const worldActor = await game.actors.importFromCompendium(
+          monsterCompendium,
+          monsterEntry._id,
+          updateData,
+          { keepId: false, keepEmbeddedIds: true },
+        );
+        if (worldActor) actorByDdbId.set(ddbId, worldActor);
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: failed to import actor ${ddbId}: ${(error as Error).message ?? error}`);
+      }
+    }
+
+    // Step 5: build token data per meta placement.
+    const tokenData: any[] = [];
+    for (const t of metaTokens) {
+      const ddbEntityId = Number(foundry.utils.getProperty(t, "flags.ddbActorFlags.id"));
+      const worldActor = Number.isFinite(ddbEntityId) ? actorByDdbId.get(ddbEntityId) : null;
+      if (!worldActor) {
+        out.failed += 1;
+        continue;
+      }
+      // Build a stub from the meta-data token. Drop _id / actorId / actorData so
+      // Foundry assigns fresh ids and the actor data follows the world actor's
+      // prototype rather than stale embedded data.
+      const stub: Record<string, any> = {
+        x: Number.isFinite(t.x) ? t.x : 0,
+        y: Number.isFinite(t.y) ? t.y : 0,
+        hidden: !!t.hidden,
+        name: typeof t.name === "string" ? t.name : worldActor.name,
+        flags: foundry.utils.mergeObject({}, t.flags ?? {}, { inplace: false }),
+      };
+      if (Number.isFinite(t.elevation)) stub.elevation = t.elevation;
+      if (Number.isFinite(t.rotation)) stub.rotation = t.rotation;
+      if (Number.isFinite(t.disposition)) stub.disposition = t.disposition;
+      if (Number.isFinite(t.width)) stub.width = t.width;
+      if (Number.isFinite(t.height)) stub.height = t.height;
+      // V14 token-level fields - _migrateSceneDataToV14 stamps these on
+      // adventure-zip tokens but the meta-data payload carries tokens under
+      // flags.ddb.tokens which the migration doesn't touch.
+      if (parseInt((game as any).version) >= 14) {
+        stub.level = t.level ?? DEFAULT_LEVEL_ID;
+        stub.depth = Number.isFinite(t.depth) ? t.depth : 1;
+      }
+      // Strip any embedded actor doc id, ddb-importer source attribution.
+      delete (stub as any).actorData;
+      stub.flags["ddb-importer"] = foundry.utils.mergeObject(
+        stub.flags["ddb-importer"] ?? {},
+        { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null },
+        { inplace: false },
+      );
+      try {
+        const doc = await worldActor.getTokenDocument(stub);
+        const data = doc.toObject();
+        delete (data as any)._id;
+        tokenData.push(data);
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: failed to build token "${stub.name}": ${(error as Error).message ?? error}`);
+        out.failed += 1;
+      }
+    }
+
+    if (!tokenData.length) return out;
+
+    notify(`Placing ${tokenData.length} meta-data token${tokenData.length === 1 ? "" : "s"} on scene...`);
+    try {
+      const created = await scene.createEmbeddedDocuments("Token", tokenData);
+      out.created = Array.isArray(created) ? created.length : 0;
+    } catch (error) {
+      logger.warn(`DDBMapMetaData: createEmbeddedDocuments(Token) failed: ${(error as Error).message ?? error}`);
+      out.failed += tokenData.length;
+    }
+    return out;
+  }
+
+  private static async _resolveActorFolderId(path: string[] | null): Promise<string | null> {
+    if (!path?.length) return null;
+    let parent: any = null;
+    for (const rawName of path) {
+      const name = (rawName ?? "").trim();
+      if (!name) continue;
+      try {
+        parent = await FolderHelper.getOrCreateFolder(parent, "Actor", name);
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: failed to ensure Actor folder "${name}": ${(error as Error).message ?? error}`);
+        return parent?.id ?? null;
+      }
+    }
+    return parent?.id ?? null;
+  }
+}

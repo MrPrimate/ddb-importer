@@ -331,6 +331,9 @@ declare global {
     "ddb-importer.munching-policy-maps-import-quickplay-tokens": boolean;
     "ddb-importer.munching-policy-maps-quickplay-tokens-fallback": string;
     "ddb-importer.munching-policy-maps-quickplay-token-use-ddb-image": boolean;
+    "ddb-importer.munching-policy-maps-import-metadata": boolean;
+    "ddb-importer.munching-policy-maps-metadata-tokens": boolean;
+    "ddb-importer.munching-policy-maps-metadata-branch": string;
     "ddb-importer.maps-upload-path": string;
     "ddb-importer.stickers-upload-path": string;
     "ddb-importer.munching-policy-monster-use-item-ac": boolean;
