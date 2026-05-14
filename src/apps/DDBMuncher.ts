@@ -726,7 +726,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async #parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew } = {}) {
+  async #parseHomebrewClassesWithMule({ baseOptions, classList } = {}) {
     logger.info(`Processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
       homebrewClasses: Array.from(this.homebrewClasses),
     });
@@ -742,7 +742,7 @@ export default class DDBMuncher extends DDBAppV2 {
         version,
       });
       options.homebrew = true;
-      options.onlyHomebrew = onlyHomebrew;
+      options.onlyHomebrew = true;
       options.classId = klass.id;
       this.autoRotateMessage("class", klass.name.toLowerCase());
       logger.info(`Munching class ${klass.name} (${klass.id}) Homebrew subclasses`);
@@ -930,7 +930,7 @@ export default class DDBMuncher extends DDBAppV2 {
       }
 
       if (allowHomebrew && this.homebrewClasses.size > 0) {
-        await this.#parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew });
+        await this.#parseHomebrewClassesWithMule({ baseOptions, classList });
       }
     } catch (error) {
       logger.error(error);
