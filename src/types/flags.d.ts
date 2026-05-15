@@ -705,6 +705,25 @@ global {
     "midi-qol"?: IMidiQoLActorFlags;
   };
 
+  interface IDDBSceneFlags {
+    bookCode?: string;
+    ddbId?: number | string;
+    cobaltId?: number | string;
+    parentId?: number | string;
+    contentChunkId?: string;
+    tokens?: any[];
+    notes?: any[];
+    versions?: { ddbMetaData?: { lastUpdate?: string } } & Record<string, unknown>;
+    oldVersions?: unknown;
+    [key: string]: unknown;
+  }
+
+  interface ISceneFlagConfig {
+    // these are in the adventure munch flag section
+    ddbimporter?: IDDBImporterSceneFlags;
+    ddb?: IDDBSceneFlags;
+  };
+
   interface FlagConfig {
     ActiveEffect: {
       ActiveAuras?: {
@@ -766,6 +785,7 @@ global {
       };
     };
     Actor: IActorFlagConfig;
+    Scene: ISceneFlagConfig;
     ChatMessage: {
       dnd5e?: {
         item?: {

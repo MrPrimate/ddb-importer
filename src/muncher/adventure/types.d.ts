@@ -109,6 +109,10 @@ global {
     // Stamped by AdventureMunch / ThirdPartyMunch.
     version?: string;
     export?: { actors?: boolean; compendium?: string };
+
+    // Stamped by DDBEncounter for encounter-derived scenes.
+    encounterId?: number | string;
+    encounters?: boolean;
   }
 
   interface IQuickplayContext {
