@@ -1,6 +1,11 @@
 # Next Up
 
-- v14 only: when using DDB Maps feature, DDB Importer will attempt to find meta data from Adventure Muncher to use. The matching isn't 100% so if you see any scenes that work in Adventure Muncher but not DDB Maps, let me know. There are a few things to be aware of: some Adventure Muncher maps have extra tiles generated from the map to hide things like traps still painted on the image. These are not currently imported. Notes/Map Pins are not imported and placed.
+# 7.2.19
+
+v14 only:
+- When using DDB Maps feature, DDB Importer will attempt to find meta data from Adventure Muncher to use. The matching isn't 100% so if you see any scenes that work in Adventure Muncher but not DDB Maps, let me know. There are a few things to be aware of: some Adventure Muncher maps have extra tiles generated from the map to hide things like traps still painted on the image. These are not currently imported. Notes/Map Pins are not imported and placed.
+- DDB Stickers can now place directly onto scenes.
+- If you are undying DDB Stickers will inject a button into Tile Controls for quick access.
 
 # 7.2.18
 
