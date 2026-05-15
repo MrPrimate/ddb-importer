@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.2.20
+
+- Zoom fix when placing stickers in some os/browser combos.
+
 # 7.2.19
 
 v14 only:
