@@ -10,41 +10,6 @@
 //   6. Confidence = peak prominence above local median; rejection on low score
 //      or if X/Y periods disagree wildly.
 
-export interface IGridDetectorOptions {
-  expectedScale?: number;            // tokenScale hint from DDB (cell width / image width)
-  targetMaxSide?: number;            // downsample target (default 1024)
-  confidenceThreshold?: number;      // default 0.25
-  searchPaddingFraction?: number;    // ±fraction around expected size (default 0.5)
-  squareToleranceFraction?: number;  // X vs Y agreement (default 0.05)
-  edgeTrimFraction?: number;         // strip this fraction off each edge before detection (default 0.05)
-}
-
-export interface IGridDetectionResult {
-  detected: boolean;
-  size: number;
-  offsetX: number;
-  offsetY: number;
-  confidence: number;
-  priorOffsetX?: number | null;
-  priorOffsetY?: number | null;
-  priorSize?: number | null;
-  templateSize?: number | null;
-  templateOffsetX?: number | null;
-  templateOffsetY?: number | null;
-  templateScore?: number | null;
-  diagnostics?: {
-    sizeX: number;
-    sizeY: number;
-    confidenceX: number;
-    confidenceY: number;
-    width: number;
-    height: number;
-    scaleFactor: number;
-    expectedSize: number | null;
-    lagMin: number;
-    lagMax: number;
-  };
-}
 
 interface IPeakResult {
   lag: number;

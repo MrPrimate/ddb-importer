@@ -4,56 +4,20 @@ import {
   FileHelper,
   FolderHelper,
   detectGrid,
-  IGridDetectionResult,
   buildCandidateSummary,
   getMapScaleMultiplier,
   isGridDetectionEnabled,
   resolveGrid,
   sampleEdgeBackgroundColor,
-  IResolvedGrid,
-  ICandidateSummary,
 } from "../../lib/_module";
-import DDBMaps, { IDDBMap, IDDBPreparedState } from "../DDBMaps";
 import DDBQuickplay from "./DDBQuickplay";
 import DDBQuickplayTokens from "./DDBQuickplayTokens";
 import DDBMapMetaData from "./DDBMapMetaData";
+import DDBMaps from "../DDBMaps";
 
 const DEFAULT_UPLOAD_PATH = "[data] ddb-images/maps";
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
-
-export interface IDDBMapImportResult {
-  scene: any | null;
-  imagePath: string | null;
-  skipped: boolean;
-  reason?: string;
-}
-
-export type DuplicateAction = "ask" | "skip" | "replace" | "create";
-
-export interface IDDBMapImportOptions {
-  cobalt?: string | null;
-  campaignId?: string | null;
-  uploadPath?: string;
-  notifier?: ((msg: string) => void) | null;
-  // Names from outermost to innermost; e.g. ["Adventures", "Curse of Strahd",
-  // "Chapter 2: The Lands of Barovia"]. The chain is created via
-  // FolderHelper.getOrCreateFolder and the scene is filed under the leaf.
-  folderPath?: string[];
-  // Optional parallel sort indices for folderPath. When a value is present at
-  // index i, the folder created (or reused) for folderPath[i] gets that as
-  // its `sort` value (with manual sorting mode). Lets the caller order the
-  // resulting folder tree to match an external layout - the Map Browser
-  // uses this so type folders ("Adventures", "Map Packs", ...) appear in
-  // the same order as in the catalog UI rather than alphabetically.
-  folderSorts?: (number | null | undefined)[];
-  // What to do when a scene with the same imageKey already exists.
-  //   "ask"     - prompt the user (default for single imports)
-  //   "skip"    - keep the existing scene, return reason "duplicate-skipped"
-  //   "replace" - delete the existing scene before creating a fresh one
-  //   "create"  - import alongside the existing scene
-  duplicateAction?: DuplicateAction;
-}
 
 export default class DDBMap {
 
@@ -252,7 +216,7 @@ export default class DDBMap {
       grid: { type: 1, size: gridSize, distance: 5, units: "ft" },
       folder: folderId,
       flags: {
-        "ddb-importer": {
+        "ddbimporter": {
           mapId: this.map.id ?? null,
           imageKey: this.map.imageKey,
           thumbnailKey: this.map.thumbnailKey ?? null,
@@ -288,7 +252,7 @@ export default class DDBMap {
   static findExistingScene(imageKey: string): any | null {
     if (!imageKey || !game?.scenes) return null;
     return game.scenes.find((s: any) =>
-      foundry.utils.getProperty(s, "flags.ddb-importer.imageKey") === imageKey,
+      foundry.utils.getProperty(s, "flags.ddbimporter.imageKey") === imageKey,
     ) ?? null;
   }
 
@@ -409,7 +373,7 @@ export default class DDBMap {
       try {
         await this.scene.update({
           flags: {
-            "ddb-importer": {
+            "ddbimporter": {
               quickplayApplied: true,
               quickplayResult: result,
               mapStateKey: this.map.preparedMap?.mapStateKey ?? null,
@@ -454,7 +418,7 @@ export default class DDBMap {
       try {
         await this.scene.update({
           flags: {
-            "ddb-importer": {
+            "ddbimporter": {
               quickplayTokensApplied: true,
               quickplayTokensResult: result,
             },

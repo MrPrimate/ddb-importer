@@ -1,14 +1,9 @@
 import {
   logger,
   detectGrid,
-  IGridDetectionResult,
   buildCandidateSummary,
   getMapScaleMultiplier,
   resolveGrid,
-  IResolvedGrid,
-  ICandidateEntry,
-  ICandidateSummary,
-  GridSource,
 } from "../lib/_module";
 
 interface ISceneLike {
@@ -43,7 +38,7 @@ const CANDIDATE_LABELS: Record<CandidateKey, string> = {
 
 // Map a chosen GridSource (from resolveGrid) to the matching candidate key so
 // we can pre-select that radio button.
-const SOURCE_TO_KEY: Partial<Record<GridSource, CandidateKey>> = {
+const SOURCE_TO_KEY: Partial<Record<TGridSource, CandidateKey>> = {
   "detected": "autocorrelation",
   "template": "template",
   "tokenScale-snapped": "priorPeriod",
@@ -54,17 +49,17 @@ export interface ICandidateChoice {
   key: CandidateKey;
   label: string;
   entry: ICandidateEntry;
-  source: GridSource;
+  source: TGridSource;
 }
 
 function getDDBImporterFlag(scene: ISceneLike, key: string): any {
   try {
     if (typeof scene.getFlag === "function") {
-      return scene.getFlag("ddb-importer", key);
+      return scene.getFlag("ddbimporter", key);
     }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) { /* fall through */ }
-  return scene.flags?.["ddb-importer"]?.[key];
+  return scene.flags?.["ddbimporter"]?.[key];
 }
 
 export async function fetchBackgroundBlob(src: string): Promise<Blob> {
@@ -147,7 +142,7 @@ export interface ISceneGridApplyResult {
 }
 
 function buildCandidateList(candidates: ICandidateSummary): ICandidateChoice[] {
-  const order: { key: CandidateKey; source: GridSource }[] = [
+  const order: { key: CandidateKey; source: TGridSource }[] = [
     { key: "autocorrelation", source: "detected" },
     { key: "template", source: "template" },
     { key: "priorPeriod", source: "tokenScale-snapped" },
@@ -506,7 +501,7 @@ export async function applyChoiceToScene(
   let offsetX: number;
   let offsetY: number;
   let sceneScale: number;
-  let gridSource: GridSource;
+  let gridSource: TGridSource;
 
   if (choice) {
     gridSize = Math.max(1, Math.round(choice.entry.gridSize));
@@ -555,7 +550,7 @@ export async function applyChoiceToScene(
       units: scene.grid?.units || "ft",
     },
     flags: {
-      "ddb-importer": {
+      "ddbimporter": {
         gridSize,
         gridSource,
         gridSceneScale: sceneScale,

@@ -1,5 +1,5 @@
 import { logger, CompendiumHelper, FolderHelper, FileHelper, utils } from "../../lib/_module";
-import DDBMaps, { IDDBPreparedState, IDDBPreparedTokenEntity } from "../DDBMaps";
+import DDBMaps from "../DDBMaps";
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
 
 // Same constant as DDBQuickplay - DDB stores positions in 100-px-per-unit
@@ -7,55 +7,6 @@ import AdventureMunchHelpers from "./AdventureMunchHelpers";
 const POSITION_UNIT_PX = 100;
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
-export interface IDDBQuickplayTokensApplyOptions {
-  cobalt?: string | null;
-  campaignId?: string | null;
-  notifier?: ((msg: string) => void) | null;
-  // What to do when a sticker's `entityId` isn't in the local monster
-  // compendium and can't be auto-imported (e.g., user has no Patreon access).
-  //   "skip"        - omit the token entirely (default)
-  //   "placeholder" - place a token without an actor link, just for visuals
-  fallback?: "skip" | "placeholder";
-  // If true, suppress the auto-fetch of missing monsters from DDB and only use
-  // what's already in the local monster compendium.
-  noAutoImport?: boolean;
-  // What to do when the scene already has Quickplay tokens placed.
-  //   "skip"    - return early without changes (default)
-  //   "augment" - place anything whose `quickplayTokenId` isn't already there
-  //   "replace" - delete existing Quickplay tokens before placing new ones
-  duplicates?: "skip" | "augment" | "replace";
-  // Outermost-to-innermost folder names for filing imported world actors. Used
-  // verbatim - DDBMap caps the chain at adventure level before passing it in.
-  // Falsy/empty entries skipped, null leaves actors at the root.
-  actorFolderPath?: string[] | null;
-  // If true, override each placed token's texture.src with the DDB-supplied
-  // imageUrl (full-size art for that placement) instead of the prototype
-  // token's avatar. Falls back to the prototype when the URL is missing.
-  useDdbImage?: boolean;
-}
-
-export interface IDDBQuickplayTokensApplyResult {
-  tokensCreated: number;
-  tokensSkipped: number;
-  tokensFailed: number;
-  monstersImported: number;
-  monstersMissing: number;
-}
-
-interface ITokenStub {
-  x: number;
-  y: number;
-  hidden: boolean;
-  locked: boolean;
-  name: string;
-  sort: number;
-  level: string;
-  flags: { "ddb-importer": Record<string, unknown> };
-  // Optional HP delta carried through actor.getTokenDocument().
-  delta?: { system?: { attributes?: { hp?: { value?: number; max?: number; temp?: number } } } };
-  // Optional texture override, used when caller asks for the DDB placement art.
-  texture?: { src: string };
-}
 
 export default class DDBQuickplayTokens {
 
@@ -169,13 +120,13 @@ export default class DDBQuickplayTokens {
   }
 
   // Read scene-level layout context from flags + live scene properties.
-  private static _readSceneContext(scene: any): {
+  private static _readSceneContext(scene: Scene): {
     sceneScale: number;
     sceneXPad: number;
     sceneYPad: number;
     gridSize: number;
   } {
-    const f = scene?.flags?.["ddb-importer"] ?? {};
+    const f = scene?.flags?.["ddbimporter"] ?? {};
     const dims = (scene as any).dimensions ?? {};
     return {
       sceneScale: typeof f.gridSceneScale === "number" ? f.gridSceneScale : 1,
@@ -190,7 +141,7 @@ export default class DDBQuickplayTokens {
   // lookup pattern as AdventureMunch: match `entityId` against
   // `flags.ddbimporter.id` on the monster compendium.
   static async applyToScene(
-    scene: any,
+    scene: Scene,
     state: IDDBPreparedState,
     options: IDDBQuickplayTokensApplyOptions = {},
   ): Promise<IDDBQuickplayTokensApplyResult> {
@@ -236,7 +187,7 @@ export default class DDBQuickplayTokens {
     // Duplicate detection: surface existing Quickplay tokens by quickplayTokenId.
     const existingByQpId = new Map<string, any>();
     for (const tokenDoc of (scene.tokens?.contents ?? [])) {
-      const qpId = foundry.utils.getProperty(tokenDoc, "flags.ddb-importer.quickplayTokenId") as string | undefined;
+      const qpId = foundry.utils.getProperty(tokenDoc, "flags.ddbimporter.quickplayTokenId") as string | undefined;
       if (qpId) existingByQpId.set(qpId, tokenDoc);
     }
     if (existingByQpId.size && duplicates === "skip") {
@@ -426,7 +377,7 @@ export default class DDBQuickplayTokens {
         level: DEFAULT_LEVEL_ID,
         sort: Math.round((t.zPosition ?? 0) * 1000),
         flags: {
-          "ddb-importer": {
+          "ddbimporter": {
             quickplayTokenId: t.id,
             ddbEntityId: t.entityId,
             ddbType: t.type,

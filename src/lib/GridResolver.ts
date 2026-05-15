@@ -1,53 +1,4 @@
 import utils from "./Utils";
-import { IGridDetectionResult } from "./GridDetector";
-
-export type GridSource =
-  | "detected"
-  | "template"
-  | "tokenScale-snapped"
-  | "tokenScale"
-  | "default";
-
-export interface IResolvedGrid {
-  size: number;
-  offsetX: number;
-  offsetY: number;
-  sceneScale: number;
-  source: GridSource;
-}
-
-export interface IGridResolverInput {
-  detection: IGridDetectionResult | null;
-  tokenScale?: number | null;
-  width: number;
-  multiplier: number;
-  // When set, the resolver clamps the Foundry grid.size to at least this
-  // many pixels by scaling sceneScale up. Used to keep scenes playable when
-  // the detected painted period is so small the default cell would be too
-  // tiny to interact with (e.g. low-resolution DDB exports).
-  minGridSize?: number;
-}
-
-export interface ICandidateEntry {
-  paintedSize: number;
-  gridSize: number;
-  sceneScale: number;
-  sceneWidth: number;
-  offsetX: number;
-  offsetY: number;
-  rawPaintedOffsetX: number;
-  rawPaintedOffsetY: number;
-}
-
-export interface ICandidateSummary {
-  autocorrelation: ICandidateEntry | null;
-  template: ICandidateEntry | null;
-  priorPeriod: ICandidateEntry | null;
-  tokenScale: ICandidateEntry | null;
-  tokenScaleDoubled: ICandidateEntry | null;
-  tokenScaleHalved: ICandidateEntry | null;
-  multiplier: number;
-}
 
 export function isGridDetectionEnabled(): boolean {
   try {
@@ -116,7 +67,7 @@ export function resolveGrid(input: IGridResolverInput): IResolvedGrid {
     let chosenSize = detection.size;
     let chosenOffsetX = detection.offsetX;
     let chosenOffsetY = detection.offsetY;
-    let source: GridSource = "detected";
+    let source: TGridSource = "detected";
 
     const tSize = detection.templateSize;
     const tOffsetX = detection.templateOffsetX;

@@ -8,6 +8,7 @@ import {
 } from "./hooks";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext";
 import { getHeaderControlsJournalEntrySheetButtons, getJournalSheet5eHeaderButtons } from "./hooks/renderJournalSheet/adventure";
+import activateMetaNote from "./hooks/canvas/activateMetaNote";
 
 Hooks.on("canvasReady", () => {
   canvas.notes?.setAllRenderFlags({ refreshState: true });
@@ -25,6 +26,7 @@ Hooks.on("getSceneContextOptions", extendSceneNavigationContext);
 Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
 Hooks.on("getJournalSheet5eHeaderButtons", getJournalSheet5eHeaderButtons);
 Hooks.on("getHeaderControlsJournalEntrySheet", getHeaderControlsJournalEntrySheetButtons);
+Hooks.on("activateNote", activateMetaNote);
 
 // console.warn("SILENT MODE FOR DEBUG");
 // const includeRgx = new RegExp("/module/ddb-importer/");

@@ -1,5 +1,5 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger, getMapScaleMultiplier, IGridDetectionResult } from "../lib/_module";
+import { logger, getMapScaleMultiplier } from "../lib/_module";
 import {
   runDetectionForScene,
   rebuildDetectionRun,
@@ -267,9 +267,9 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       logger.info(`SceneGridPicker: _inferMultiplierFromScene bail (have live detection, deferring to _inferMultiplierFromDetection)`);
       return;
     }
-    const flags = this.scene.flags?.["ddb-importer"] ?? {};
+    const flags = this.scene.flags?.["ddbimporter"] ?? {};
     const flagged = (typeof this.scene.getFlag === "function"
-      ? this.scene.getFlag("ddb-importer", "gridMultiplier")
+      ? foundry.utils.getProperty(this.scene, "flags.ddbimporter.gridMultiplier")
       : null) ?? flags.gridMultiplier;
     logger.info(`SceneGridPicker: _inferMultiplierFromScene open-time flags`, {
       gridMultiplier: flagged,
@@ -284,7 +284,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       return;
     }
     const storedDetection = (typeof this.scene.getFlag === "function"
-      ? this.scene.getFlag("ddb-importer", "gridDetection")
+      ? foundry.utils.getProperty(this.scene, "flags.ddbimporter.gridDetection")
       : null) ?? flags.gridDetection;
     const storedPainted = typeof storedDetection?.size === "number" ? storedDetection.size : null;
     const existingGridSize = this.scene.grid?.size;

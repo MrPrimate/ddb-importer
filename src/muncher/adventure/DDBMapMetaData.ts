@@ -1,7 +1,10 @@
-import { logger, CompendiumHelper, FolderHelper } from "../../lib/_module";
-import DDBMaps, { IDDBMap, IDDBMetaDataMatch, IDDBMetaDataMatchInfo, IDDBMetaDataMatchResult } from "../DDBMaps";
+import { logger, CompendiumHelper, FolderHelper, FileHelper, Iconizer } from "../../lib/_module";
+import DDBMaps from "../DDBMaps";
 import AdventureMunch, { DEFAULT_LEVEL_ID } from "./AdventureMunch";
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
+
+const META_NOTES_ADVENTURE_NAME = "ddb-meta-data";
+const META_NOTES_JOURNAL_NAME = "DDB Meta-Data Notes";
 
 // The proxy owns the meta-data tarball + match cache. The match endpoint
 // returns the lightweight match info (no scene JSON); apply pulls the full
@@ -9,38 +12,6 @@ import AdventureMunchHelpers from "./AdventureMunchHelpers";
 export type IDDBMetaMatch = IDDBMetaDataMatch;
 export type IDDBMetaMatchInfo = IDDBMetaDataMatchInfo;
 
-export interface IDDBMetaScene {
-  name?: string;
-  width?: number;
-  height?: number;
-  padding?: number;
-  grid?: {
-    type?: number;
-    size?: number;
-    color?: string;
-    alpha?: number;
-    distance?: number;
-    units?: string;
-  };
-  background?: {
-    offsetX?: number;
-    offsetY?: number;
-    scaleX?: number;
-    scaleY?: number;
-    rotation?: number;
-    tint?: string | null;
-  };
-  walls?: any[];
-  lights?: any[];
-  flags?: {
-    ddb?: {
-      tokens?: any[];
-      [k: string]: any;
-    };
-    [k: string]: any;
-  };
-  [k: string]: any;
-}
 
 export interface IDDBMetaApplyOptions {
   applyTokens: boolean;
@@ -61,16 +32,6 @@ export interface IDDBMetaApplyResult {
   quickplayTilesPreserved: number;
 }
 
-interface IMetaCache {
-  // Per-map first-match cache used by the Map Browser badge.
-  matches: Map<string, IDDBMetaMatchInfo | null>;
-  // Full per-map match-info results from the proxy (multi-match maps surface
-  // every match here, not just the first). The browser pre-warm and the
-  // enrich path both read from this so a per-source warm covers later
-  // imports without re-hitting the proxy.
-  results: Map<string, IDDBMetaDataMatchResult>;
-  inFlight: Map<string, Promise<IDDBMetaDataMatchResult | null>>;
-}
 
 function _cache(): IMetaCache {
   const anyCfg = CONFIG as any;
@@ -329,10 +290,206 @@ export default class DDBMapMetaData {
     return copy;
   }
 
-  // Stamp result + match onto the scene's ddb-importer flags. Soft-fails on update error.
-  private static async _stampFlags(scene: any, payload: Record<string, unknown>): Promise<void> {
+  // Get-or-create the world-level placeholder JournalEntry that meta-data
+  // notes point at. Foundry's NoteDocument requires an entryId, but the
+  // meta-data flow does not import journals; instead, every meta-data note
+  // shares one placeholder entry and the activateNote hook intercepts the
+  // click to open the DDB page popup. Memoised on CONFIG.DDBI.META for the
+  // session so repeated calls don't re-scan game.journal.
+  private static async _getOrCreateMetaNotesJournal(): Promise<any | null> {
+    const anyCfg = CONFIG as any;
+    const cached = anyCfg.DDBI.META?.placeholderJournalId;
+    if (cached) {
+      const existing = (game as any).journal?.get?.(cached);
+      if (existing) return existing;
+    }
+    const byFlag = (game as any).journal?.contents?.find?.((j: any) =>
+      foundry.utils.getProperty(j, "flags.ddbimporter.metaDataNotesPlaceholder") === true,
+    );
+    if (byFlag) {
+      if (anyCfg.DDBI.META) anyCfg.DDBI.META.placeholderJournalId = byFlag.id;
+      return byFlag;
+    }
     try {
-      await scene.update({ flags: { "ddb-importer": payload } });
+      const created = await (JournalEntry as any).create({
+        name: META_NOTES_JOURNAL_NAME,
+        flags: { "ddbimporter": { metaDataNotesPlaceholder: true } },
+        pages: [{
+          name: META_NOTES_JOURNAL_NAME,
+          type: "text",
+          text: {
+            content: "Placeholder journal for D&D Beyond meta-data map notes. Clicking a meta-data note on a scene opens the original D&D Beyond page in a popup; this journal exists only so Foundry's note documents have a valid entryId.",
+            format: 1,
+          },
+        }],
+      });
+      if (created?.id && anyCfg.DDBI.META) anyCfg.DDBI.META.placeholderJournalId = created.id;
+      return created ?? null;
+    } catch (error) {
+      logger.warn(`DDBMapMetaData: failed to create placeholder journal: ${(error as Error).message ?? error}`);
+      return null;
+    }
+  }
+
+  // Adventure-shaped stub for Iconizer.generateIcon. The Iconizer helper
+  // generates an SVG and uploads it via `adventure.importRawFile(path, content,
+  // mime, misc)`. The meta-data flow has no AdventureMunch instance, so this
+  // shim mirrors AdventureMunch.importRawFile (lines 161-185) against a fixed
+  // adventure name so every meta-data icon lands under one shared folder
+  // (`<base>/ddb-meta-data/assets/icons/`) regardless of which map triggered
+  // the import.
+  private static _adventureStub() {
+    return {
+      name: META_NOTES_ADVENTURE_NAME,
+      adventure: { name: META_NOTES_ADVENTURE_NAME },
+      getImportFilePaths(path: string, misc: boolean): any {
+        return AdventureMunchHelpers.getImportFilePaths({
+          adventureName: META_NOTES_ADVENTURE_NAME,
+          path,
+          misc,
+        });
+      },
+      async importRawFile(path: string, content: string, mimeType: string, misc: boolean): Promise<string> {
+        try {
+          if (path[0] === "*") return path.replace(/\*/g, "");
+          if (path.startsWith("icons/") || path.startsWith("systems/dnd5e/icons/") || path.startsWith("ddb://")) {
+            return path;
+          }
+          const paths: any = this.getImportFilePaths(path, misc);
+          if (paths.fullUploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.fullUploadPath)) {
+            await FileHelper.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
+            await FileHelper.generateCurrentFiles(paths.fullUploadPath);
+            CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.fullUploadPath);
+          }
+          if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
+            const fileData = new File([content], paths.filename, { type: mimeType });
+            const targetPath = (await FileHelper.uploadToPath(paths.fullUploadPath, fileData) as any)?.path;
+            CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
+            CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
+          }
+          return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey)}`;
+        } catch (error) {
+          logger.warn(`DDBMapMetaData: meta-note icon upload failed for ${path}: ${(error as Error).message ?? error}`);
+          return path;
+        }
+      },
+    };
+  }
+
+  // Build the canonical D&D Beyond URL for a meta-data note.
+  //   slug:     "chapter-1-death-at-sunset#DeathatSunsetsLair" - chapter path + (irrelevant) anchor
+  //   slugLink: "L1GuardedTunnel"                              - the anchor we want
+  // Strip the existing anchor off slug and append `#${slugLink}` so the URL
+  // lands on the note's specific anchor instead of whatever the chapter
+  // page slug originally pointed at. Book-level path comes from
+  // CONFIG.DDB.sources[].sourceURL (e.g. "sources/dnd/cos"); falls back to
+  // "sources/dnd/<bookCode>" when sourceURL is missing.
+  private static _buildMetaNoteUrl(
+    bookCode: string | null,
+    slug: string | null | undefined,
+    slugLink: string | null | undefined,
+  ): string | null {
+    if (!slug) return null;
+    let sourcePath: string | null = null;
+    if (bookCode) {
+      const source = (CONFIG as any).DDB?.sources?.find?.((s: any) =>
+        typeof s?.name === "string" && s.name.toLowerCase() === bookCode.toLowerCase(),
+      );
+      if (source?.sourceURL) sourcePath = String(source.sourceURL);
+      if (!sourcePath) sourcePath = `sources/dnd/${bookCode.toLowerCase()}`;
+    }
+    if (!sourcePath) return null;
+    const chapterSlug = slug.split("#")[0];
+    const anchor = slugLink ? `#${slugLink}` : "";
+    return `https://www.dndbeyond.com/${sourcePath}/${chapterSlug}${anchor}`;
+  }
+
+  // Phase F: apply notes from the meta-data scene-info JSON. Notes live at
+  // `info.flags.ddb.notes` in DDB's third-party format: each carries a `label`,
+  // `flags.ddb`, and a `positions[]` array of (x, y) pairs. We expand each
+  // meta-note to N Foundry NoteDocs (one per position), re-point them at a
+  // shared placeholder journal so they validate, generate an Iconizer icon,
+  // and stamp the DDB URL on flags.ddbimporter.metaDataNote so the
+  // activateNote hook can open DDBMetaNoteApp instead of the placeholder
+  // journal sheet.
+  private static async _applyMetaNotes(scene: Scene, metaNotes: any[], bookCode: string | null): Promise<number> {
+    if (!Array.isArray(metaNotes) || !metaNotes.length) return 0;
+    const placeholder = await DDBMapMetaData._getOrCreateMetaNotesJournal();
+    if (!placeholder?.id) {
+      logger.warn(`DDBMapMetaData: no placeholder journal available; skipping ${metaNotes.length} meta note(s) on "${scene.name}"`);
+      return 0;
+    }
+
+    const noteData: any[] = [];
+    for (const meta of metaNotes) {
+      const ddbFlags = meta.flags?.ddb ?? {};
+      const label = meta.label ?? ddbFlags.labelName ?? ddbFlags.linkName ?? "?";
+      const slug = ddbFlags.slug ?? null;
+      const slugLink = ddbFlags.slugLink ?? null;
+      const url = DDBMapMetaData._buildMetaNoteUrl(bookCode, slug, slugLink) ?? ddbFlags.originalLink ?? null;
+      let icon = "icons/svg/book.svg";
+      try {
+        icon = await Iconizer.generateIcon(DDBMapMetaData._adventureStub(), String(label));
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: icon generation failed for note "${label}": ${(error as Error).message ?? error}`);
+      }
+      const baseFlags = foundry.utils.mergeObject({ ddb: ddbFlags }, {
+        "ddbimporter": {
+          metaDataNote: {
+            url,
+            bookCode,
+            slug,
+            slugLink,
+            ddbId: ddbFlags.ddbId ?? null,
+            parentId: ddbFlags.parentId ?? null,
+            cobaltId: ddbFlags.cobaltId ?? null,
+            linkName: ddbFlags.linkName ?? null,
+            contentChunkId: ddbFlags.contentChunkId ?? null,
+            source: "meta-data",
+          },
+        },
+      }, { inplace: false });
+
+      const positions = Array.isArray(meta.positions) ? meta.positions : [];
+      for (const position of positions) {
+        if (!Number.isFinite(position?.x) || !Number.isFinite(position?.y)) continue;
+        // V14 NoteDocument moved `icon` -> `texture.src` and `iconTint` ->
+        // `texture.tint`. Setting `icon` directly is silently dropped by the
+        // schema, which is why the Iconizer-generated SVGs weren't appearing.
+        noteData.push({
+          entryId: placeholder.id,
+          x: position.x,
+          y: position.y,
+          texture: {
+            src: icon,
+            tint: typeof meta.iconTint === "string" && meta.iconTint ? meta.iconTint : null,
+          },
+          iconSize: Number.isFinite(meta.iconSize) ? meta.iconSize : 40,
+          text: typeof label === "string" ? label : String(label),
+          fontFamily: typeof meta.fontFamily === "string" ? meta.fontFamily : "Signika",
+          fontSize: Number.isFinite(meta.fontSize) ? meta.fontSize : 48,
+          textAnchor: Number.isFinite(meta.textAnchor) ? meta.textAnchor : 1,
+          textColor: typeof meta.textColor === "string" && meta.textColor ? meta.textColor : "#ffffff",
+          levels: position.levels ?? [DEFAULT_LEVEL_ID],
+          flags: foundry.utils.deepClone(baseFlags),
+        });
+      }
+    }
+
+    if (!noteData.length) return 0;
+    try {
+      const created = await scene.createEmbeddedDocuments("Note", noteData);
+      return Array.isArray(created) ? created.length : 0;
+    } catch (error) {
+      logger.warn(`DDBMapMetaData: note placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      return 0;
+    }
+  }
+
+  // Stamp result + match onto the scene's ddbimporter flags. Soft-fails on update error.
+  private static async _stampFlags(scene: Scene, payload: Record<string, unknown>): Promise<void> {
+    try {
+      await scene.update({ flags: { ddbimporter: payload } });
     } catch (error) {
       logger.warn(`DDBMapMetaData: failed to stamp scene flags: ${(error as Error).message ?? error}`);
     }
@@ -341,7 +498,7 @@ export default class DDBMapMetaData {
   // Fields on the scene-info JSON that we never copy onto the existing scene.
   // Embedded collections are applied separately via createEmbeddedDocuments
   // or, in the case of `tiles`, deliberately NOT applied: Quickplay places
-  // stickers as Tile docs (flags.ddb-importer.quickplayStickerId) and the
+  // stickers as Tile docs (flags.ddbimporter.quickplayStickerId) and the
   // meta-data layer must leave them untouched. `regions` is similarly
   // excluded because meta-data scene dumps may carry empty/legacy region
   // arrays we don't want to inherit.
@@ -367,11 +524,11 @@ export default class DDBMapMetaData {
     "regions",
   ]);
 
-  private static _countQuickplayTiles(scene: any): number {
+  private static _countQuickplayTiles(scene: Scene): number {
     const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
     let count = 0;
     for (const tile of tiles) {
-      if (foundry.utils.getProperty(tile, "flags.ddb-importer.quickplayStickerId")) count += 1;
+      if (foundry.utils.getProperty(tile, "flags.ddbimporter.quickplayStickerId")) count += 1;
     }
     return count;
   }
@@ -379,7 +536,7 @@ export default class DDBMapMetaData {
   // V14-safe read of the scene background image path. Scene#background was
   // deprecated in V14 in favour of Level#background; reading scene.background
   // triggers a compatibility warning on every access.
-  private static _readLevelBackgroundSrc(scene: any): string | null {
+  private static _readLevelBackgroundSrc(scene: Scene): string | null {
     const levels = scene?.levels?.contents ?? scene?.levels ?? [];
     const first = levels[0];
     return first?.background?.src ?? null;
@@ -390,11 +547,11 @@ export default class DDBMapMetaData {
   // disappear during the meta-data merge. Tiles are excluded from the merge
   // payload, but defensive restoration covers any edge case where Foundry
   // touches them anyway (e.g. width/height changes triggering revalidation).
-  private static _snapshotQuickplayTiles(scene: any): Map<string, any> {
+  private static _snapshotQuickplayTiles(scene: Scene): Map<string, any> {
     const snapshot = new Map<string, any>();
     const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
     for (const tile of tiles) {
-      const id = foundry.utils.getProperty(tile, "flags.ddb-importer.quickplayStickerId");
+      const id = foundry.utils.getProperty(tile, "flags.ddbimporter.quickplayStickerId");
       if (!id) continue;
       try {
         snapshot.set(String(id), tile.toObject ? tile.toObject() : foundry.utils.deepClone(tile));
@@ -409,12 +566,12 @@ export default class DDBMapMetaData {
   // Snapshot keys are quickplayStickerId. Strip _id so Foundry assigns a
   // fresh one - the original may collide if Foundry's collection retained
   // a tombstone of the removed doc.
-  private static async _restoreMissingQuickplayTiles(scene: any, snapshot: Map<string, any>): Promise<number> {
+  private static async _restoreMissingQuickplayTiles(scene: Scene, snapshot: Map<string, any>): Promise<number> {
     if (!snapshot.size) return 0;
     const presentIds = new Set<string>();
     const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
     for (const tile of tiles) {
-      const id = foundry.utils.getProperty(tile, "flags.ddb-importer.quickplayStickerId");
+      const id = foundry.utils.getProperty(tile, "flags.ddbimporter.quickplayStickerId");
       if (id) presentIds.add(String(id));
     }
     const missing: any[] = [];
@@ -437,7 +594,7 @@ export default class DDBMapMetaData {
 
   // After meta-data has replaced the scene's dimensions/grid/background,
   // recompute each Quickplay tile's position and size from its stored DDB
-  // raw values (flags.ddb-importer.rawPosition, rawSize, rawAspectRatio).
+  // raw values (flags.ddbimporter.rawPosition, rawSize, rawAspectRatio).
   // This is more accurate than a width/height-ratio rescale because it
   // re-derives canvas coords using the new scene's reference frame instead
   // of compounding the muncher's earlier transform.
@@ -451,8 +608,8 @@ export default class DDBMapMetaData {
   //   - gridSize: scene.grid.size (now meta-data's value).
   //   - sceneXPad/sceneYPad: scene.dimensions.sceneX/sceneY (padding offset
   //     in canvas space, recomputed by Foundry after the update).
-  private static async _repositionQuickplayTiles(scene: any): Promise<number> {
-    const ctx = scene?.flags?.["ddb-importer"]?.quickplayContext;
+  private static async _repositionQuickplayTiles(scene: Scene): Promise<number> {
+    const ctx = foundry.utils.getProperty(scene, "flags.ddbimporter.quickplayContext") as IQuickplayContext;
     const imageWidth = Number(ctx?.stateImageWidth);
     const imageHeight = Number(ctx?.stateImageHeight);
     if (!Number.isFinite(imageWidth) || imageWidth <= 0
@@ -469,7 +626,10 @@ export default class DDBMapMetaData {
 
     const sceneScale = sceneWidth / imageWidth;
     const gridSize = Number(scene.grid?.size) || 100;
-    const dims = scene?.dimensions ?? {};
+    const dims = scene?.dimensions ?? {
+      sceneX: 0,
+      sceneY: 0,
+    };
     const sceneXPad = Number.isFinite(dims.sceneX) ? Number(dims.sceneX) : 0;
     const sceneYPad = Number.isFinite(dims.sceneY) ? Number(dims.sceneY) : 0;
     const anchor: "center" | "topLeft" = ctx?.anchor === "topLeft" ? "topLeft" : "center";
@@ -478,7 +638,7 @@ export default class DDBMapMetaData {
     const updates: any[] = [];
     const tiles = scene?.tiles?.contents ?? scene?.tiles ?? [];
     for (const tile of tiles) {
-      const flags = (tile.flags ?? {})["ddb-importer"] ?? {};
+      const flags = (tile.flags ?? {})["ddbimporter"] ?? {};
       if (!flags.quickplayStickerId) continue;
       const rawPos = flags.rawPosition;
       const rawSize = Number(flags.rawSize);
@@ -555,9 +715,9 @@ export default class DDBMapMetaData {
   // Build a scene.update() payload from the meta-data scene-info JSON, merging
   // everything except identity fields, the locally-uploaded background image,
   // and embedded collections (which go through createEmbeddedDocuments).
-  // Flags merge with the existing scene flags - the ddb-importer block must
+  // Flags merge with the existing scene flags - the ddbimporter block must
   // not be clobbered.
-  private static _buildSceneUpdate(scene: any, info: IDDBMetaScene): Record<string, any> {
+  private static _buildSceneUpdate(scene: Scene, info: IDDBMetaScene): Record<string, any> {
     const update: Record<string, any> = {};
     for (const [key, value] of Object.entries(info)) {
       if (this._MERGE_EXCLUDE_KEYS.has(key)) continue;
@@ -587,7 +747,7 @@ export default class DDBMapMetaData {
       update[key] = value;
     }
 
-    // Merge flags - preserve our ddb-importer block, take everything else from
+    // Merge flags - preserve our ddbimporter block, take everything else from
     // the meta-data file (including module-specific flags like stairways /
     // perfect-vision / dynamic-illumination; Foundry simply stores them and
     // each module reads its own block).
@@ -611,9 +771,9 @@ export default class DDBMapMetaData {
   }
 
   // Apply a single match (scene-info JSON) to a target Foundry scene. Returns
-  // a result row that gets stamped onto scene.flags.ddb-importer.
+  // a result row that gets stamped onto scene.flags.ddbimporter.
   private static async _applyMatchToScene(
-    scene: any,
+    scene: Scene,
     match: IDDBMetaMatch,
     options: IDDBMetaApplyOptions,
   ): Promise<IDDBMetaApplyResult> {
@@ -741,6 +901,21 @@ export default class DDBMapMetaData {
       }
     }
 
+    // Phase F: notes. Unlike walls/lights/drawings, the meta-data flow does
+    // not import journals, so each note is re-pointed at a shared placeholder
+    // journal and carries its DDB URL on flags so the activateNote hook can
+    // open the DDB page popup instead of the placeholder sheet.
+    const metaNotes = info.flags?.ddb?.notes;
+    const bookCode = info.flags?.ddb?.bookCode ?? match.bookCode ?? null;
+    if (Array.isArray(metaNotes) && metaNotes.length) {
+      try {
+        notify(`Placing ${metaNotes.length} note${metaNotes.length === 1 ? "" : "s"} from meta-data...`);
+        result.notes = await DDBMapMetaData._applyMetaNotes(scene, metaNotes, bookCode);
+      } catch (error) {
+        logger.warn(`DDBMapMetaData: note placement failed for "${scene.name}": ${(error as Error).message ?? error}`);
+      }
+    }
+
     // Restore any Quickplay tiles missing after meta apply. Logs a warning
     // when restoration kicks in so the underlying bug is visible.
     const restored = await DDBMapMetaData._restoreMissingQuickplayTiles(scene, quickplayTileSnapshot);
@@ -793,7 +968,7 @@ export default class DDBMapMetaData {
   // per-scene apply results, or an empty array on no match / unrecoverable
   // proxy failure.
   static async enrich(
-    scene: any,
+    scene: Scene,
     map: IDDBMap,
     options: IDDBMetaApplyOptions,
   ): Promise<IDDBMetaApplyResult[]> {
@@ -815,7 +990,12 @@ export default class DDBMapMetaData {
     // proxy API level; called only at import time.
     logger.info(`DDBMapMetaData.enrich: fetching ${matchInfos.length} scene-info payload${matchInfos.length === 1 ? "" : "s"} for "${map.name}"`);
     const refs = matchInfos.map((m) => ({ bookCode: m.bookCode, filepath: m.filepath }));
-    let fetched: { bookCode: string; filepath: string; scene: any | null; error?: string }[] | null = null;
+    let fetched: {
+      bookCode: string;
+      filepath: string;
+      scene: any | null;
+      error?: string;
+    }[] | null = null;
     try {
       fetched = await DDBMaps.fetchMetaSceneInfos(refs);
     } catch (error) {
@@ -880,7 +1060,7 @@ export default class DDBMapMetaData {
   // conflict handling: any existing Quickplay tokens on the scene are deleted
   // before placement.
   private static async _applyMetaTokens(
-    scene: any,
+    scene: Scene,
     metaTokens: any[],
     options: IDDBMetaApplyOptions,
   ): Promise<IDDBMetaApplyResult["tokens"] & { quickplayTokensRemoved?: number }> {
@@ -895,7 +1075,7 @@ export default class DDBMapMetaData {
     // becomes the authoritative one.
     const existingQpIds: string[] = [];
     for (const tokenDoc of (scene.tokens?.contents ?? [])) {
-      const qpId = foundry.utils.getProperty(tokenDoc, "flags.ddb-importer.quickplayTokenId");
+      const qpId = foundry.utils.getProperty(tokenDoc, "flags.ddbimporter.quickplayTokenId");
       if (qpId) existingQpIds.push(tokenDoc.id);
     }
     if (existingQpIds.length) {
@@ -999,10 +1179,10 @@ export default class DDBMapMetaData {
         stub.level = t.level ?? DEFAULT_LEVEL_ID;
         stub.depth = Number.isFinite(t.depth) ? t.depth : 1;
       }
-      // Strip any embedded actor doc id, ddb-importer source attribution.
+      // Strip any embedded actor doc id, ddbimporter source attribution.
       delete (stub as any).actorData;
-      stub.flags["ddb-importer"] = foundry.utils.mergeObject(
-        stub.flags["ddb-importer"] ?? {},
+      stub.flags["ddbimporter"] = foundry.utils.mergeObject(
+        stub.flags["ddbimporter"] ?? {},
         { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null },
         { inplace: false },
       );

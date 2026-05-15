@@ -1,45 +1,9 @@
 import { logger, utils, FileHelper } from "../../lib/_module";
-import DDBStickers, { IDDBSticker } from "../DDBStickers";
+import DDBStickers from "../DDBStickers";
 
 const DEFAULT_UPLOAD_PATH = "[data] ddb-images/stickers";
 const META_FILENAME = "_meta.json";
 
-export interface IDDBStickerImportResult {
-  imagePath: string | null;
-  metaPath: string | null;
-  filename: string | null;
-  skipped: boolean;
-  reason?: string;
-}
-
-export interface IDDBStickerImportOptions {
-  cobalt?: string | null;
-  campaignId?: string | null;
-  uploadPath?: string;
-  notifier?: ((msg: string) => void) | null;
-  // The display name of the source/set this sticker belongs to. Used to
-  // build the per-set folder name. Defaults to "source-<id>" when not given.
-  setName?: string | null;
-}
-
-export interface IDDBStickerMetaEntry {
-  id: string;
-  name: string;
-  altText: string | null;
-  keywords: string[];
-  imageKey: string;
-  thumbnailKey: string | null;
-  aspectRatio: number | null;
-  scale: number | null;
-  importedAt: number;
-}
-
-export interface IDDBStickerSetMeta {
-  setId: number | null;
-  setName: string;
-  fetchedAt: number;
-  stickers: Record<string, IDDBStickerMetaEntry>;
-}
 
 // Serialise upload+meta-file writes per-folder so two parallel imports into
 // the same set folder don't clobber each other's _meta.json updates. Each

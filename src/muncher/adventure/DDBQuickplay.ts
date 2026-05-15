@@ -1,50 +1,8 @@
 import { logger } from "../../lib/_module";
-import { IDDBPreparedState, IDDBPreparedStickerEntity } from "../DDBMaps";
-import { IDDBSticker } from "../DDBStickers";
 import DDBSticker from "./DDBSticker";
 
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
-export interface IDDBQuickplayApplyOptions {
-  cobalt?: string | null;
-  campaignId?: string | null;
-  notifier?: ((msg: string) => void) | null;
-  // Centre-vs-top-left position convention for sticker placements. DDB
-  // appears to store the sticker's centre, but expose this as an option in
-  // case future layouts disagree.
-  positionAnchor?: "center" | "topLeft";
-  // Concurrency for sticker downloads (FilePicker uploads serialise via
-  // DDBSticker._uploadChain regardless of this value).
-  concurrency?: number;
-}
-
-export interface IDDBQuickplayApplyResult {
-  tilesCreated: number;
-  tilesFailed: number;
-  stickersImported: number;
-  stickersFailed: number;
-}
-
-interface ITileSourceData {
-  texture: {
-    src: string;
-    anchorX: number;
-    anchorY: number;
-    fit: "cover" | "contain" | "fill";
-    scaleX: number;
-    scaleY: number;
-  };
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-  rotation: number;
-  levels: string[];
-  sort: number;
-  hidden: boolean;
-  locked: boolean;
-  flags: { "ddb-importer": Record<string, unknown> };
-}
 
 // Resolve a placed sticker's catalog metadata from the cached sticker browser
 // payload so we know its primarySourceId / set name. Falls back to a minimal
@@ -86,10 +44,10 @@ export default class DDBQuickplay {
 
   // Apply a prepared state's stickers to an already-created Foundry scene.
   // The scene is expected to have been created by DDBMap with a known
-  // sceneScale/offset (read back from `flags.ddb-importer`). Tokens and
+  // sceneScale/offset (read back from `flags.ddbimporter`). Tokens and
   // overlays from the state are intentionally ignored at this stage.
   static async applyToScene(
-    scene: any,
+    scene: Scene,
     state: IDDBPreparedState,
     mapTokenScale: number | null | undefined,
     options: IDDBQuickplayApplyOptions = {},
@@ -116,7 +74,7 @@ export default class DDBQuickplay {
     // Foundry V13 do NOT need the background offset subtracted - the texture-
     // anchor offset only adjusts how the image renders relative to the grid;
     // tile positions are in canvas (scene-pixel) space and unaffected.
-    const f = scene.flags?.["ddb-importer"] ?? {};
+    const f = foundry.utils.getProperty(scene, "flags.ddbimporter") ?? {} as any;
     const sceneScale = typeof f.gridSceneScale === "number" ? f.gridSceneScale : 1;
     // V14: scene shift lives on scene.shiftX/shiftY at root - Scene#background
     // (and therefore scene.background.shiftX/Y) is deprecated and logs a
@@ -229,7 +187,7 @@ export default class DDBQuickplay {
 
     notify(`Creating ${tileData.length} tile${tileData.length === 1 ? "" : "s"} on scene...`);
     try {
-      const created = await scene.createEmbeddedDocuments("Tile", tileData);
+      const created = await scene.createEmbeddedDocuments("Tile", tileData as any);
       result.tilesCreated += Array.isArray(created) ? created.length : 0;
     } catch (error) {
       logger.error(`DDBQuickplay: createEmbeddedDocuments failed: ${(error as Error).message}`, error);
@@ -244,7 +202,7 @@ export default class DDBQuickplay {
       const rawTokens = state.tokens?.ids?.map((id) => state.tokens!.entities[id]) ?? [];
       await scene.update({
         flags: {
-          "ddb-importer": {
+          "ddbimporter": {
             quickplayContext: {
               cellPx,
               sceneScale,
@@ -276,18 +234,18 @@ export default class DDBQuickplay {
   // Usage from a Foundry console:
   //   const data = CONFIG.DDBI.dumpQuickplay(canvas.scene);
   //   copy(data); // or copy(JSON.stringify(data, null, 2));
-  static dumpScene(scene: any): {
+  static dumpScene(scene: Scene): {
     sceneName: string;
     sceneId: string;
     context: any;
     tiles: any[];
     tokens: any[];
   } {
-    const ctx = scene?.flags?.["ddb-importer"]?.quickplayContext ?? null;
+    const ctx = foundry.utils.getProperty(scene, "flags.ddbimporter.quickplayContext") as IQuickplayContext;
     const tiles = (scene?.tiles?.contents ?? scene?.tiles ?? []) as any[];
     const tilesOut = [];
     for (const t of tiles) {
-      const f = t.flags?.["ddb-importer"];
+      const f = t.flags?.["ddbimporter"];
       if (!f?.quickplayStickerId) continue;
       tilesOut.push({
         name: f.quickplayStickerName,
@@ -308,7 +266,7 @@ export default class DDBQuickplay {
     }
     // Raw token payload stamped on the scene at import time. Available even
     // when token import is disabled (it's just data passthrough).
-    const rawTokens = scene?.flags?.["ddb-importer"]?.quickplayTokens ?? [];
+    const rawTokens = scene?.flags?.["ddbimporter"]?.quickplayTokens ?? [];
     return {
       sceneName: scene?.name ?? "(unnamed)",
       sceneId: scene?.id ?? "",
@@ -411,7 +369,7 @@ export default class DDBQuickplay {
       locked: !!e.locked,
       levels: [DEFAULT_LEVEL_ID],
       flags: {
-        "ddb-importer": {
+        "ddbimporter": {
           quickplayStickerId: e.id,
           quickplayStickerName: e.name,
           imageKey: e.imageKey,

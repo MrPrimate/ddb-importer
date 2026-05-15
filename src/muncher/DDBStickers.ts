@@ -1,26 +1,5 @@
 import { logger, DDBProxy, PatreonHelper, Secrets, utils } from "../lib/_module";
 
-export interface IDDBStickerEntitledData {
-  imageKey: string;
-  aspectRatio?: number;
-  scale?: number;
-}
-
-export interface IDDBSticker {
-  gameElementUri: string;
-  name: string;
-  altText?: string;
-  keywords?: string[];
-  primarySourceId?: number;
-  thumbnailKey?: string;
-  thumbnail?: string | null;
-  entitledData?: IDDBStickerEntitledData;
-}
-
-export interface IDDBStickersPayload {
-  stickers: IDDBSticker[];
-}
-
 interface IDDBProxyResponse<T> {
   success: boolean;
   message: string;

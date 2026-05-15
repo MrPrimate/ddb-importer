@@ -397,9 +397,10 @@ export default class ThirdPartyMunch extends FormApplication {
             "entryId": note.flags.ddb.journalId,
             "x": position.x,
             "y": position.y,
-            "icon": note.icon, // "assets/icons/1.svg",
+            "texture": {
+              "src": note.icon, // "assets/icons/1.svg",
+            },
             "iconSize": note.iconSize ? note.iconSize : 40,
-            "iconTint": "",
             "text": note.text ? note.text : "",
             "fontFamily": note.fontFamily ? note.fontFamily : "Signika",
             "fontSize": note.fontSize ? note.fontSize : 48,
