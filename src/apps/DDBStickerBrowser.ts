@@ -192,16 +192,21 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   //      sourcebooks, adventures with associated stickers).
   //   2) Hardcoded names for sticker-only sources that don't appear in the
   //      maps catalog (Basic Stickers, Drops, monthly subs).
-  //   3) Path-slug derivation from any sticker's imageKey - turns folder
+  //   3) CONFIG.DDB.sources - fallback for sources missing from the proxy's
+  //      cached maps catalog (newer releases). Loaded eagerly at game ready
+  //      from /api/config/json, so it has the latest source list.
+  //   4) Path-slug derivation from any sticker's imageKey - turns folder
   //      slugs like "marchsub2026" into "Marchsub 2026" so newly added
   //      sticker packs still get a sensible label without a code change.
-  //   4) "Source N" final fallback.
+  //   5) "Source N" final fallback.
   _sourceNameFor(sourceId: number): string {
     const mapsCatalog = CONFIG.DDBI.MAPS?.catalog;
     const match = mapsCatalog?.sources.find((s) => Number(s.sourceId) === sourceId);
     if (match) return (match.description ?? match.name ?? "").toString();
     const known = STICKER_ONLY_SOURCE_NAMES[sourceId];
     if (known) return known;
+    const ddbSource = (CONFIG.DDB?.sources ?? []).find((s: any) => Number(s.id) === sourceId);
+    if (ddbSource) return (ddbSource.description ?? ddbSource.name ?? "").toString();
     const slug = this._pathSlugForSource(sourceId);
     if (slug && slug !== "stickers") return prettifySlug(slug);
     return `Source ${sourceId}`;
@@ -339,6 +344,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       })),
       canLoadCatalog: selectedCampaignId !== "" && !this.loading,
     });
+    logger.debug("DDBStickerBrowser context prepared", context);
     return context;
   }
 
