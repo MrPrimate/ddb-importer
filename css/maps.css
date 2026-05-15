@@ -651,10 +651,17 @@
   opacity: 0.7;
 }
 
-.ddb-sticker-browser-tile-import {
+.ddb-sticker-browser-tile-actions {
   position: absolute;
   top: 6px;
   right: 6px;
+  display: flex;
+  gap: 4px;
+}
+
+.ddb-sticker-browser-tile-import,
+.ddb-sticker-browser-tile-place {
+  position: static;
   width: 26px;
   height: 26px;
   padding: 0;

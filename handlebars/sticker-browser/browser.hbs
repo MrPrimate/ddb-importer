@@ -104,9 +104,14 @@
                   {{#if this.keywordsLabel}}<span class="ddb-sticker-browser-tile-tags">{{this.keywordsLabel}}</span>{{/if}}
                   {{#if this.scaleLabel}}<span class="ddb-sticker-browser-tile-scale">{{this.scaleLabel}}</span>{{/if}}
                 </div>
-                <button type="button" class="munch-button ddb-sticker-browser-tile-import" data-action="importSticker" data-sticker-id="{{this.id}}" title="Import">
-                  <i class="fas fa-plus"></i>
-                </button>
+                <div class="ddb-sticker-browser-tile-actions">
+                  <button type="button" class="munch-button ddb-sticker-browser-tile-place" data-action="placeSticker" data-sticker-id="{{this.id}}" title="Add to Scene">
+                    <i class="fas fa-map-marker-alt"></i>
+                  </button>
+                  <button type="button" class="munch-button ddb-sticker-browser-tile-import" data-action="importSticker" data-sticker-id="{{this.id}}" title="Import">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
               </li>
             {{/each}}
           </ul>

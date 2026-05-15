@@ -16,8 +16,7 @@ export default class DDBStickers {
     let stickersCampaignId = "";
     try {
       stickersCampaignId = (utils.getSetting<string>("ddb-maps-campaign-id") ?? "").toString().trim();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) { /* fall through */ }
+    } catch (_e) { /* fall through */ }
     if (!stickersCampaignId || `${stickersCampaignId}`.trim() === "") {
       logger.error("DDBStickers: no campaignId set");
       return "";
@@ -90,8 +89,7 @@ export default class DDBStickers {
         try {
           const json = await response.json();
           if (json?.message) message = json.message;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) { /* keep status-only message */ }
+        } catch (_e) { /* keep status-only message */ }
         logger.error(`DDBStickers.downloadImage failed: ${message}`);
         return null;
       }

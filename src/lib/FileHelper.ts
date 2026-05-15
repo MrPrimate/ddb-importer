@@ -62,8 +62,7 @@ export class FileHelper {
         bucket: dir.bucket,
       });
       return true;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -367,8 +366,7 @@ export class FileHelper {
     } else if (imageUrl && remoteImage) {
       try {
         return imageUrl.trim();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (ignored) {
+      } catch (_ignored) {
         return null;
       }
     }

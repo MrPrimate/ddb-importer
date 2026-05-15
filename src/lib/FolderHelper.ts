@@ -21,8 +21,7 @@ export default class FolderHelper {
       if (typeof options.sort === "number" && Number.isFinite(options.sort) && folder.sort !== options.sort) {
         try {
           await folder.update({ sort: options.sort, sorting: options.sortMode ?? "m" } as any);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) { /* tolerate failures - folder still usable */ }
+        } catch (_e) { /* tolerate failures - folder still usable */ }
       }
       return folder;
     }

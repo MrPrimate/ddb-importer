@@ -327,8 +327,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     const progressUpdate = (msg: string, pct: number) => {
       try {
         progressNote?.update?.({ message: msg, pct });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) { /* notification API unavailable, fall through */ }
+      } catch (_e) { /* notification API unavailable, fall through */ }
     };
 
     const counters = { ok: 0, skipped: 0, failed: 0 };
@@ -492,8 +491,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
       const { start, end } = this._searchCaret;
       try {
         input.setSelectionRange(start, end);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) { /* ignore unsupported */ }
+      } catch (_e) { /* ignore unsupported */ }
       this._searchCaret = null;
     }
 

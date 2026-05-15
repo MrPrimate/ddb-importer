@@ -173,16 +173,14 @@ export default class DDBQuickplayTokens {
         `Quickplay tokens: starting...`,
         { progress: true },
       );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+    } catch (_e) {
       progressNote = null;
     }
     const notify = (message: string, pct?: number) => {
       externalNotify(message);
       try {
         progressNote?.update?.(pct === undefined ? { message } : { message, pct });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) { /* notification API unavailable, fall through */ }
+      } catch (_e) { /* notification API unavailable, fall through */ }
     };
 
     const { sceneScale, sceneXPad, sceneYPad, gridSize } = DDBQuickplayTokens._readSceneContext(scene);

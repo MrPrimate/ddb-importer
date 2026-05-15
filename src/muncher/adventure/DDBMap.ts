@@ -317,8 +317,7 @@ export default class DDBMap {
     try {
       const v = utils.getSetting<boolean>(key);
       return typeof v === "boolean" ? v : false;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }

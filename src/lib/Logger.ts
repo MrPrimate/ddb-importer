@@ -32,8 +32,7 @@ const logger = {
         return false;
       }
       return true;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
+    } catch (_err) {
       return true;
     }
 

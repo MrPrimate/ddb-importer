@@ -7,8 +7,7 @@ import { SETTINGS } from "../config/_module";
 function isJSON(str: string): boolean {
   try {
     return (JSON.parse(str) && !!str && str !== null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
+  } catch (_e) {
     return false;
   }
 }

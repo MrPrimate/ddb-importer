@@ -50,6 +50,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
   // render, fall through to a text input when the fetch fails.
   private _campaigns: any[] | null = null;
   private _campaignFetchInFlight = false;
+  private _placementInFlight = false;
 
   static DEFAULT_OPTIONS = {
     id: "ddb-sticker-browser",
@@ -67,6 +68,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       clearFilters: DDBStickerBrowser.clearFilters,
       importSticker: DDBStickerBrowser.importSticker,
       importAllVisible: DDBStickerBrowser.importAllVisible,
+      placeSticker: DDBStickerBrowser.placeSticker,
       close: DDBStickerBrowser.cancel,
     },
     position: { width: 1100, height: 720 },
@@ -115,6 +117,34 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       return;
     }
     await this._importStickers([sticker]);
+  }
+
+  static async placeSticker(this: DDBStickerBrowser, _event, target) {
+    if (this._placementInFlight) {
+      ui.notifications.info("A sticker placement is already in progress.");
+      return;
+    }
+    if (!canvas?.ready || !canvas.scene) {
+      ui.notifications.warn("No active scene; activate a scene before placing a sticker.");
+      return;
+    }
+    const id = target?.dataset?.stickerId;
+    if (!id) return;
+    const storage = ensureStorage();
+    const sticker = storage.payload?.stickers.find((s) => s.gameElementUri === id);
+    if (!sticker) {
+      ui.notifications.error("Could not locate sticker; reload the catalog and try again.");
+      return;
+    }
+
+    this._placementInFlight = true;
+    try {
+      const imagePath = await this._ensureStickerOnDisk(sticker);
+      if (!imagePath) return;
+      await this._beginTilePlacement(imagePath, sticker);
+    } finally {
+      this._placementInFlight = false;
+    }
   }
 
   static async importAllVisible(this: DDBStickerBrowser) {
@@ -232,8 +262,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     const progressUpdate = (msg: string, pct: number) => {
       try {
         progressNote?.update?.({ message: msg, pct });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) { /* fallthrough */ }
+      } catch (_e) { /* fallthrough */ }
     };
 
     const items = stickers.map((s) => ({
@@ -271,8 +300,319 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     if (failed) ui.notifications.warn(`${failed} sticker${failed === 1 ? "" : "s"} failed to import; see console.`);
   }
 
+  private async _ensureStickerOnDisk(sticker: IDDBSticker): Promise<string | null> {
+    const setName = typeof sticker.primarySourceId === "number"
+      ? this._sourceNameFor(sticker.primarySourceId)
+      : null;
+
+    const options = { notifier: (msg: string) => logger.debug(msg), setName };
+    const ddbSticker = new DDBSticker(sticker, options);
+    const exitsLocally = await ddbSticker.existsLocally();
+    if (exitsLocally) {
+      logger.debug(`DDBStickerBrowser: sticker "${sticker.name}" already exists locally, skipping download/upload`);
+      ui.notifications.info(`Sticker "${sticker.name}" already exists on disk; skipping download/upload.`);
+      const url = await ddbSticker.getLocalUrl();
+      return url;
+    }
+
+    const note: any = ui.notifications.info(`Importing sticker "${sticker.name}"...`, { progress: true });
+    const progressUpdate = (msg: string, pct: number) => {
+      try {
+        note?.update?.({ message: msg, pct });
+      } catch (_e) { /* ignore */ }
+    };
+    progressUpdate(`Downloading "${sticker.name}"...`, 0.1);
+    const result = await ddbSticker.import();
+
+    if (!result || !result.imagePath) {
+      ui.notifications.error(
+        `Failed to import sticker "${sticker.name}"${result?.reason ? ` (${result.reason})` : ""}.`,
+      );
+      progressUpdate(`Failed: ${sticker.name}`, 1);
+      return null;
+    }
+    progressUpdate(`Imported "${sticker.name}"`, 1);
+    return result.imagePath;
+  }
+
+  private async _beginTilePlacement(imagePath: string, sticker: IDDBSticker): Promise<void> {
+    let tex: any;
+    try {
+      tex = await foundry.canvas.loadTexture(imagePath);
+    } catch (error) {
+      ui.notifications.error(`Failed to load sticker texture: ${(error as Error).message}`);
+      return;
+    }
+    const texWidth = tex?.baseTexture?.width || 0;
+    if (!texWidth) {
+      ui.notifications.error("Sticker texture has no width; cannot compute tile size.");
+      return;
+    }
+
+    const texHeight = tex?.baseTexture?.height || texWidth;
+    const scale = typeof sticker.entitledData?.scale === "number" && sticker.entitledData.scale > 0
+      ? sticker.entitledData.scale
+      : 1;
+    const tileSize = texWidth / scale;
+    const gridSize = canvas.grid?.size ?? 100;
+    const tileWidth = scale * gridSize;
+    const tileHeight = tileWidth * (texHeight / texWidth);
+
+    const restoreFn = await this._minimizeAllWindows();
+    const hintNote: any = ui.notifications.info(
+      `Click to place "${sticker.name}". Shift+Wheel = resize, Ctrl+Wheel = rotate, Alt-click = hidden. Escape / right-click cancels.`,
+    );
+
+    try {
+      await this._awaitPlacement(imagePath, tileSize, tex, tileWidth, tileHeight);
+    } catch (error) {
+      logger.warn(`DDBStickerBrowser: placement aborted: ${(error as Error).message}`);
+    } finally {
+      try {
+        hintNote?.remove?.();
+      } catch (_e) { /* ignore */ }
+      await restoreFn();
+    }
+  }
+
+  private async _minimizeAllWindows(): Promise<() => Promise<void>> {
+    const v2Apps = Array.from(
+      (foundry.applications?.instances as Map<string, any>)?.values?.() ?? [],
+    );
+    const v2State = v2Apps.map((app) => ({
+      app,
+      wasMinimized: !!app.minimized,
+      minimizable: !!app.options?.window?.minimizable,
+      rendered: !!app.rendered,
+    }));
+
+    const v1Apps = Object.values(ui.windows ?? {}) as any[];
+    const v1State = v1Apps.map((app) => ({
+      app,
+      wasMinimized: app._minimized === true,
+      popOut: !!app.popOut,
+      rendered: !!app.rendered,
+    }));
+
+    await Promise.all([
+      ...v2State.map(({ app, wasMinimized, minimizable, rendered }) => {
+        if (wasMinimized || !minimizable || !rendered) return Promise.resolve();
+        return Promise.resolve(app.minimize()).catch(() => undefined);
+      }),
+      ...v1State.map(({ app, wasMinimized, popOut, rendered }) => {
+        if (wasMinimized || !popOut || !rendered) return Promise.resolve();
+        return Promise.resolve(app.minimize()).catch(() => undefined);
+      }),
+    ]);
+
+    return async () => {
+      await Promise.all([
+        ...v2State.map(({ app, wasMinimized }) => {
+          if (wasMinimized || !app.rendered) return Promise.resolve();
+          return Promise.resolve(app.maximize()).catch(() => undefined);
+        }),
+        ...v1State.map(({ app, wasMinimized }) => {
+          if (wasMinimized || !app.rendered) return Promise.resolve();
+          return Promise.resolve(app.maximize()).catch(() => undefined);
+        }),
+      ]);
+      try {
+        (this as any).bringToFront?.();
+      } catch (_e) { /* ignore */ }
+    };
+  }
+
+  private _awaitPlacement(
+    imagePath: string,
+    _tileSize: number,
+    texture: any,
+    tileWidth: number,
+    tileHeight: number,
+  ): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      const view = canvas.app?.view as HTMLCanvasElement | undefined;
+      if (!view) {
+        reject(new Error("Canvas view unavailable"));
+        return;
+      }
+
+      // Mutable placement state. shift+wheel scales; ctrl+wheel rotates.
+      let currentWidth = tileWidth;
+      let currentHeight = tileHeight;
+      let currentRotation = 0;
+
+      // Cursor-follow ghost. Attached to the tiles layer's preview container
+      // so it shares the layer's transform (zoom/pan track for free).
+      const previewContainer = canvas.tiles?.preview;
+      let ghost: any = null;
+      try {
+        if (previewContainer && window.PIXI && texture) {
+          ghost = new window.PIXI.Sprite(texture);
+          ghost.anchor?.set?.(0.5, 0.5);
+          ghost.width = currentWidth;
+          ghost.height = currentHeight;
+          ghost.alpha = 0.6;
+          ghost.eventMode = "none";
+          ghost.zIndex = 9999;
+          previewContainer.addChild(ghost);
+        }
+      } catch (error) {
+        logger.warn(`DDBStickerBrowser: preview sprite failed: ${(error as Error).message}`);
+        ghost = null;
+      }
+
+      const positionGhost = (clientX: number, clientY: number) => {
+        if (!ghost) return;
+        try {
+          const { x, y } = canvas.canvasCoordinatesFromClient({ x: clientX, y: clientY });
+          ghost.position?.set?.(x, y);
+        } catch (_e) { /* ignore */ }
+      };
+
+      const refreshGhost = () => {
+        if (!ghost) return;
+        try {
+          ghost.width = currentWidth;
+          ghost.height = currentHeight;
+          ghost.rotation = (currentRotation * Math.PI) / 180;
+        } catch (_e) { /* ignore */ }
+      };
+
+      let settled = false;
+      const cleanup = () => {
+        if (settled) return;
+        settled = true;
+        view.removeEventListener("pointerdown", onPointerDown, true);
+        view.removeEventListener("pointermove", onPointerMove, true);
+        view.removeEventListener("wheel", onWheel, true);
+        view.removeEventListener("contextmenu", onContextMenu, true);
+        document.removeEventListener("keydown", onKeyDown, true);
+        Hooks.off("canvasInit", onCanvasInit);
+        if (ghost) {
+          try {
+            ghost.parent?.removeChild?.(ghost);
+            ghost.destroy?.({ children: true });
+          } catch (_e) { /* ignore */ }
+          ghost = null;
+        }
+      };
+
+      const onPointerMove = (event: PointerEvent) => {
+        positionGhost(event.clientX, event.clientY);
+      };
+
+      const onWheel = (event: WheelEvent) => {
+        // Only intercept when shift or ctrl is held; otherwise let Foundry
+        // handle the wheel (zoom/pan).
+        if (!event.shiftKey && !event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        event.stopPropagation();
+        // macOS browsers re-route vertical wheel to deltaX when shift is held;
+        // fall back to deltaX if deltaY is zero.
+        const rawDelta = event.deltaY !== 0 ? event.deltaY : event.deltaX;
+        if (rawDelta === 0) return;
+        const dir = rawDelta < 0 ? 1 : -1; // wheel up = positive
+        if (event.shiftKey) {
+          const factor = dir > 0 ? 1.1 : 1 / 1.1;
+          currentWidth = Math.max(8, currentWidth * factor);
+          currentHeight = Math.max(8, currentHeight * factor);
+        } else if (event.ctrlKey || event.metaKey) {
+          currentRotation = (currentRotation + dir * 15) % 360;
+        }
+        refreshGhost();
+      };
+
+      const onPointerDown = async (event: PointerEvent) => {
+        if (event.button !== 0) return;
+        cleanup();
+        event.preventDefault();
+        event.stopPropagation();
+        try {
+          const cursor = canvas.canvasCoordinatesFromClient({ x: event.clientX, y: event.clientY });
+          // v14: tile.x/y is the texture anchor point. Default texture anchor
+          // is 0.5/0.5, so tile.x/y = the center of the tile (matches the
+          // centered ghost preview).
+          let x = cursor.x;
+          let y = cursor.y;
+          if (!event.shiftKey) {
+            const snapped = canvas.tiles.getSnappedPoint({ x, y });
+            x = snapped.x;
+            y = snapped.y;
+          }
+          const TileDocCls = foundry.utils.getDocumentClass("Tile");
+          const createData: any = {
+            texture: { src: imagePath },
+            x,
+            y,
+            width: currentWidth,
+            height: currentHeight,
+            rotation: currentRotation,
+            sort: Math.max((canvas.tiles.getMaxSort?.() ?? 0) + 1, 0),
+            hidden: !!event.altKey,
+          };
+          const syntheticEvent = {
+            clientX: event.clientX,
+            clientY: event.clientY,
+            shiftKey: event.shiftKey,
+            altKey: event.altKey,
+            ctrlKey: event.ctrlKey,
+            preventDefault() { /* noop */ },
+            stopPropagation() { /* noop */ },
+          };
+          // @ts-expect-error - allowed
+          const allowed = Hooks.call(
+            "dropCanvasData",
+            canvas,
+            { type: "Tile", ...createData },
+            syntheticEvent,
+          );
+          if (allowed === false) {
+            resolve(null);
+            return;
+          }
+          if (!canvas.dimensions.rect.contains(x, y)) {
+            ui.notifications.warn("Placement outside scene bounds; tile not created.");
+            resolve(null);
+            return;
+          }
+          const created = await TileDocCls.create(createData, { parent: canvas.scene });
+          resolve(created);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      const onContextMenu = (event: MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        cleanup();
+        resolve(null);
+      };
+
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key !== "Escape") return;
+        event.preventDefault();
+        event.stopPropagation();
+        cleanup();
+        resolve(null);
+      };
+
+      const onCanvasInit = () => {
+        cleanup();
+        resolve(null);
+      };
+
+      view.addEventListener("pointerdown", onPointerDown, true);
+      view.addEventListener("pointermove", onPointerMove, true);
+      view.addEventListener("wheel", onWheel, { capture: true, passive: false });
+      view.addEventListener("contextmenu", onContextMenu, true);
+      document.addEventListener("keydown", onKeyDown, true);
+      Hooks.on("canvasInit", onCanvasInit);
+    });
+  }
+
   async _prepareContext(options) {
-    const context = await super._prepareContext({ ...options, noCacheLoad: true }) as any;
+    const context = await super._prepareContext({ ...options, noCacheLoad: true });
     const storage = ensureStorage();
     const all = storage.payload?.stickers ?? [];
 
@@ -397,8 +737,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       const { start, end } = this._searchCaret;
       try {
         input.setSelectionRange(start, end);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) { /* ignore */ }
+      } catch (_e) { /* ignore */ }
       this._searchCaret = null;
     }
 

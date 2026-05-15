@@ -57,8 +57,7 @@ function getDDBImporterFlag(scene: ISceneLike, key: string): any {
     if (typeof scene.getFlag === "function") {
       return scene.getFlag("ddbimporter", key);
     }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) { /* fall through */ }
+  } catch (_e) { /* fall through */ }
   return scene.flags?.["ddbimporter"]?.[key];
 }
 

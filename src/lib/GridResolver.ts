@@ -4,8 +4,7 @@ export function isGridDetectionEnabled(): boolean {
   try {
     const v = utils.getSetting<boolean>("munching-policy-maps-detect-grid");
     return typeof v === "boolean" ? v : true;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
+  } catch (_e) {
     return true;
   }
 }
@@ -18,8 +17,7 @@ export function getMapScaleMultiplier(): number {
   try {
     const v = utils.getSetting<boolean>("munching-policy-maps-double-scale");
     return v ? 2 : 1;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
+  } catch (_e) {
     return 1;
   }
 }
@@ -28,8 +26,7 @@ export function getMinGridSize(): number {
   try {
     const v = utils.getSetting<number>("munching-policy-maps-min-grid-size");
     if (typeof v === "number" && v > 0 && Number.isFinite(v)) return Math.round(v);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) { /* fall through */ }
+  } catch (_e) { /* fall through */ }
   return 50;
 }
 

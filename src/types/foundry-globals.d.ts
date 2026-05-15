@@ -70,6 +70,7 @@ declare global {
       [key: string]: any;
     };
     dnd5eCustomSkills: any;
+    PIXI: any;
   }
   var DDBImporter: Window["DDBImporter"];
 
