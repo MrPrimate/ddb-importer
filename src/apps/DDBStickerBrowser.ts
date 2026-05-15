@@ -571,7 +571,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
         settled = true;
         view.removeEventListener("pointerdown", onPointerDown, true);
         view.removeEventListener("pointermove", onPointerMove, true);
-        view.removeEventListener("wheel", onWheel, true);
+        window.removeEventListener("wheel", onWheel, true);
         view.removeEventListener("contextmenu", onContextMenu, true);
         document.removeEventListener("keydown", onKeyDown, true);
         Hooks.off("canvasInit", onCanvasInit);
@@ -592,8 +592,11 @@ export default class DDBStickerBrowser extends DDBAppV2 {
         // Only intercept when shift, ctrl, or alt is held; otherwise let
         // Foundry handle the wheel (zoom/pan).
         if (!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) return;
+        // preventDefault must run before any browser/OS zoom kicks in -
+        // window-level capture + non-passive listener ensures we're first.
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
         // macOS browsers re-route vertical wheel to deltaX when shift is held;
         // fall back to deltaX if deltaY is zero.
         const rawDelta = event.deltaY !== 0 ? event.deltaY : event.deltaX;
@@ -702,7 +705,9 @@ export default class DDBStickerBrowser extends DDBAppV2 {
 
       view.addEventListener("pointerdown", onPointerDown, true);
       view.addEventListener("pointermove", onPointerMove, true);
-      view.addEventListener("wheel", onWheel, { capture: true, passive: false });
+      // Wheel on window (not view) so we win the capture race against browser
+      // zoom / Foundry's own wheel handlers.
+      window.addEventListener("wheel", onWheel, { capture: true, passive: false });
       view.addEventListener("contextmenu", onContextMenu, true);
       document.addEventListener("keydown", onKeyDown, true);
       Hooks.on("canvasInit", onCanvasInit);
