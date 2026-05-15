@@ -359,8 +359,12 @@ export default class DDBStickerBrowser extends DDBAppV2 {
     const tileHeight = tileWidth * (texHeight / texWidth);
 
     const restoreFn = await this._minimizeAllWindows();
+    const isMac = navigator.appVersion.includes("Mac");
+    const kShift = isMac ? "⇧" : "Shift";
+    const kCtrl = isMac ? "⌘" : "Ctrl";
+    const kAlt = isMac ? "⌥" : "Alt";
     const hintNote: any = ui.notifications.info(
-      `Click to place "${sticker.name}". Shift+Wheel = resize, Ctrl+Wheel = rotate, Alt-click = hidden. Escape / right-click cancels.`,
+      `Click to place "${sticker.name}". ${kShift}+Wheel = resize, ${kCtrl}+Wheel = rotate, ${kAlt}+Wheel = elevation, ${kAlt}-click = hidden. Escape / right-click cancels.`,
     );
 
     try {
@@ -436,15 +440,19 @@ export default class DDBStickerBrowser extends DDBAppV2 {
         return;
       }
 
-      // Mutable placement state. shift+wheel scales; ctrl+wheel rotates.
+      // Mutable placement state. shift+wheel scales; ctrl+wheel rotates;
+      // alt+wheel adjusts elevation.
       let currentWidth = tileWidth;
       let currentHeight = tileHeight;
       let currentRotation = 0;
+      // @ts-expect-error - v14 levels not in types yet
+      let currentElevation = canvas?.level?.elevation?.base ?? 0;
 
       // Cursor-follow ghost. Attached to the tiles layer's preview container
       // so it shares the layer's transform (zoom/pan track for free).
       const previewContainer = canvas.tiles?.preview;
       let ghost: any = null;
+      let badge: any = null;
       try {
         if (previewContainer && window.PIXI && texture) {
           ghost = new window.PIXI.Sprite(texture);
@@ -455,18 +463,96 @@ export default class DDBStickerBrowser extends DDBAppV2 {
           ghost.eventMode = "none";
           ghost.zIndex = 9999;
           previewContainer.addChild(ghost);
+          // Stack-relation badge. Anchored to the ghost so it follows the
+          // cursor without extra positioning logic. zIndex above the ghost.
+          try {
+            badge = new window.PIXI.Text("", {
+              fontFamily: "Signika, sans-serif",
+              fontSize: 18,
+              fill: 0xffffff,
+              stroke: 0x000000,
+              strokeThickness: 3,
+            });
+            badge.anchor?.set?.(0.5, 0.5);
+            badge.alpha = 0;
+            badge.eventMode = "none";
+            badge.zIndex = 10000;
+            ghost.addChild(badge);
+          } catch (badgeError) {
+            logger.warn(`DDBStickerBrowser: relation badge failed: ${(badgeError as Error).message}`);
+            badge = null;
+          }
         }
       } catch (error) {
         logger.warn(`DDBStickerBrowser: preview sprite failed: ${(error as Error).message}`);
         ghost = null;
       }
 
+      let lastCursor: { x: number; y: number } | null = null;
+
+      const classifyOverlap = (): { rel: "none" | "above" | "below" | "mixed"; count: number } => {
+        if (!lastCursor) return { rel: "none", count: 0 };
+        // @ts-expect-error - not sure tbh
+        const tiles = (canvas.tiles?.placeables ?? []) as Tile[];
+        let above = 0;
+        let below = 0;
+        for (const t of tiles) {
+          let hit: boolean;
+          try {
+            // @ts-expect-error - v14 shape not in types yet
+            hit = !!t.document?.shape?.testPoint?.(lastCursor);
+          } catch (_e) {
+            hit = false;
+          }
+          if (!hit) continue;
+          const e = t.document.elevation ?? 0;
+          if (currentElevation > e) above += 1;
+          else if (currentElevation < e) below += 1;
+          else above += 1; // tie: our sort wins (createData.sort = maxSort + 1)
+        }
+        const total = above + below;
+        if (total === 0) return { rel: "none", count: 0 };
+        if (above && !below) return { rel: "above", count: above };
+        if (below && !above) return { rel: "below", count: below };
+        return { rel: "mixed", count: total };
+      };
+
+      const applyRelationFeedback = () => {
+        if (!ghost) return;
+        const { rel, count } = classifyOverlap();
+        const tints: Record<string, number> = {
+          none: 0xffffff,
+          above: 0x88ff88,
+          below: 0xff8888,
+          mixed: 0xffff88,
+        };
+        try {
+          ghost.tint = tints[rel];
+        } catch (_e) { /* ignore */ }
+        if (badge) {
+          try {
+            const elevText = `e:${currentElevation}`;
+            if (rel === "none") {
+              badge.text = elevText;
+            } else {
+              const glyph = rel === "above" ? "▲" : rel === "below" ? "▼" : "↕";
+              badge.text = `${glyph} ${count} · ${elevText}`;
+            }
+            badge.alpha = 1;
+            // Counter-rotate so the badge stays upright when the ghost is rotated.
+            badge.rotation = -((currentRotation * Math.PI) / 180);
+          } catch (_e) { /* ignore */ }
+        }
+      };
+
       const positionGhost = (clientX: number, clientY: number) => {
         if (!ghost) return;
         try {
           const { x, y } = canvas.canvasCoordinatesFromClient({ x: clientX, y: clientY });
           ghost.position?.set?.(x, y);
+          lastCursor = { x, y };
         } catch (_e) { /* ignore */ }
+        applyRelationFeedback();
       };
 
       const refreshGhost = () => {
@@ -476,6 +562,7 @@ export default class DDBStickerBrowser extends DDBAppV2 {
           ghost.height = currentHeight;
           ghost.rotation = (currentRotation * Math.PI) / 180;
         } catch (_e) { /* ignore */ }
+        applyRelationFeedback();
       };
 
       let settled = false;
@@ -502,9 +589,9 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       };
 
       const onWheel = (event: WheelEvent) => {
-        // Only intercept when shift or ctrl is held; otherwise let Foundry
-        // handle the wheel (zoom/pan).
-        if (!event.shiftKey && !event.ctrlKey && !event.metaKey) return;
+        // Only intercept when shift, ctrl, or alt is held; otherwise let
+        // Foundry handle the wheel (zoom/pan).
+        if (!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) return;
         event.preventDefault();
         event.stopPropagation();
         // macOS browsers re-route vertical wheel to deltaX when shift is held;
@@ -518,6 +605,8 @@ export default class DDBStickerBrowser extends DDBAppV2 {
           currentHeight = Math.max(8, currentHeight * factor);
         } else if (event.ctrlKey || event.metaKey) {
           currentRotation = (currentRotation + dir * 15) % 360;
+        } else if (event.altKey) {
+          currentElevation += dir;
         }
         refreshGhost();
       };
@@ -550,6 +639,15 @@ export default class DDBStickerBrowser extends DDBAppV2 {
             sort: Math.max((canvas.tiles.getMaxSort?.() ?? 0) + 1, 0),
             hidden: !!event.altKey,
           };
+          // Bind the tile to the currently viewed scene level (matches the
+          // pattern in Foundry's placeable palette mixin). Skip the levels
+          // assignment when the scene has no levels - schema default is an
+          // empty set. Elevation always carries the user's alt+wheel
+          // adjustments on top of the level base.
+          // @ts-expect-error - v14 levels not in types yet
+          const currentLevel = canvas.level;
+          if (currentLevel) createData.levels = [currentLevel.id];
+          createData.elevation = currentElevation;
           const syntheticEvent = {
             clientX: event.clientX,
             clientY: event.clientY,

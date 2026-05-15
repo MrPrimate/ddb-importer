@@ -5,6 +5,7 @@ import {
   renderJournalSheet,
   renderJournalEntryPageSheet,
   renderCompendiumTab,
+  getSceneControlButtons,
 } from "./hooks";
 import extendSceneNavigationContext from "./hooks/navigationContext/extendSceneNavigationContext";
 import { getHeaderControlsJournalEntrySheetButtons, getJournalSheet5eHeaderButtons } from "./hooks/renderJournalSheet/adventure";
@@ -27,6 +28,7 @@ Hooks.on("getSceneDirectoryEntryContext", extendSceneNavigationContext);
 Hooks.on("getJournalSheet5eHeaderButtons", getJournalSheet5eHeaderButtons);
 Hooks.on("getHeaderControlsJournalEntrySheet", getHeaderControlsJournalEntrySheetButtons);
 Hooks.on("activateNote", activateMetaNote);
+Hooks.on("getSceneControlButtons", getSceneControlButtons);
 
 // console.warn("SILENT MODE FOR DEBUG");
 // const includeRgx = new RegExp("/module/ddb-importer/");

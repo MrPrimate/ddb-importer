@@ -21,6 +21,7 @@ import DDBEffectHooks from "./hooks/init/DDBEffectHooks";
 // monster muncher
 import { earlySettings } from "./hooks/init/settings";
 import { addMuncher } from "./hooks/renderMuncher/addMuncher";
+import { addStickerBrowserControl } from "./hooks/getSceneControlButtons/addStickerBrowser";
 
 // socket messaging
 import { setupSockets } from "./hooks/socket/sockets";
@@ -94,6 +95,10 @@ export function onReady() {
 export function renderCompendiumTab(app, html, _data) {
   html = html instanceof HTMLElement ? html : html[0];
   addMuncher(app, html);
+}
+
+export function getSceneControlButtons(controls) {
+  addStickerBrowserControl(controls);
 }
 
 export function renderJournalSheet(sheet, html, data) {
