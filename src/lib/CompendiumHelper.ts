@@ -80,7 +80,7 @@ const CompendiumHelper = {
     }
   },
 
-  getCompendiumType: (type, fail = true) => {
+  getCompendiumType: (type, fail = true): CompendiumCollection<any> | undefined => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     logger.debug(`Getting compendium ${compendiumLabel} for update of ${type}`);
     const compendium = CompendiumHelper.getCompendium(compendiumLabel, false);

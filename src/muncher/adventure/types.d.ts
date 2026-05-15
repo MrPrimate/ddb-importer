@@ -84,8 +84,8 @@ global {
     gridSceneScale?: number;
     gridMultiplier?: number;
     imageDimensions?: { x: number; y: number };
-    gridDetection?: import("../../lib/GridDetector").IGridDetectionResult | null;
-    gridCandidates?: import("../../lib/GridResolver").ICandidateSummary;
+    gridDetection?: IGridDetectionResult | null;
+    gridCandidates?: ICandidateSummary;
     folderPath?: string[] | null;
     edgeBackgroundColor?: string | null;
 
@@ -105,6 +105,7 @@ global {
     metaDataMatch?: IDDBMetaDataMatchInfo | null;
     metaDataResult?: IDDBMetaApplyResult;
     metaDataError?: string | null;
+    metaDataReason?: string;
 
     // Stamped by AdventureMunch / ThirdPartyMunch.
     version?: string;
@@ -266,6 +267,32 @@ global {
     setName: string;
     fetchedAt: number;
     stickers: Record<string, IDDBStickerMetaEntry>;
+  }
+
+  // The proxy owns the meta-data tarball + match cache. The match endpoint
+  // returns the lightweight match info (no scene JSON); apply pulls the full
+  // scene contents via a separate scenes endpoint only when needed.
+  export type IDDBMetaMatch = IDDBMetaDataMatch;
+  export type IDDBMetaMatchInfo = IDDBMetaDataMatchInfo;
+
+
+  export interface IDDBMetaApplyOptions {
+    applyTokens: boolean;
+    actorFolderPath?: string[] | null;
+    notifier?: ((msg: string) => void) | null;
+    noAutoImport?: boolean;
+  }
+
+  export interface IDDBMetaApplyResult {
+    match: IDDBMetaMatch;
+    sceneMerged: boolean;
+    walls: number;
+    lights: number;
+    drawings: number;
+    notes: number;
+    tokens: { created: number; missing: number; imported: number; failed: number };
+    quickplayTokensRemoved: number;
+    quickplayTilesPreserved: number;
   }
 
 

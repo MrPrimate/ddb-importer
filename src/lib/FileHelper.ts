@@ -455,7 +455,7 @@ export class FileHelper {
     return FileHelper.verifyPath(parsedPath, targetPath);
   }
 
-  static async uploadToPath(path, file) {
+  static async uploadToPath(path, file): Promise<FilePicker.UploadReturn> {
     const options = FileHelper.parseDirectory(path);
     return FPClass.upload(options.activeSource, options.current, file, { bucket: options.bucket }, { notify: false });
   }

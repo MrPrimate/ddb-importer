@@ -100,6 +100,7 @@ export interface IDDBIConfig {
     matches: Map<string, any>;
     results: Map<string, any>;
     inFlight: Map<string, Promise<any>>;
+    placeholderJournalId?: string;
   };
   STICKERS?: {
     payload: IDDBStickersPayload | null;
@@ -108,8 +109,8 @@ export interface IDDBIConfig {
   dumpQuickplay?: (scene: any) => unknown;
 }
 
-if (!(CONFIG as any).DDBI) {
-  (CONFIG as any).DDBI = {
+if (!CONFIG.DDBI) {
+  CONFIG.DDBI = {
     module: "DDB Importer",
     schemaVersion: 5.0,
     DICTIONARY: DICTIONARY,

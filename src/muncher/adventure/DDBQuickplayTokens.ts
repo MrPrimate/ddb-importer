@@ -126,13 +126,16 @@ export default class DDBQuickplayTokens {
     sceneYPad: number;
     gridSize: number;
   } {
-    const f = scene?.flags?.["ddbimporter"] ?? {};
-    const dims = (scene as any).dimensions ?? {};
+    const f: IDDBSceneFlags = scene?.flags?.["ddbimporter"] ?? {};
+    const dims = scene.dimensions ?? {
+      sceneX: 0,
+      sceneY: 0,
+    } as Scene.Dimensions;
     return {
       sceneScale: typeof f.gridSceneScale === "number" ? f.gridSceneScale : 1,
       sceneXPad: typeof dims.sceneX === "number" ? dims.sceneX : 0,
       sceneYPad: typeof dims.sceneY === "number" ? dims.sceneY : 0,
-      gridSize: (scene as any).grid?.size ?? 100,
+      gridSize: scene.grid?.size ?? 100,
     };
   }
 
@@ -168,7 +171,7 @@ export default class DDBQuickplayTokens {
     try {
       progressNote = ui.notifications?.info?.(
         `Quickplay tokens: starting...`,
-        { progress: true } as any,
+        { progress: true },
       );
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
@@ -250,9 +253,9 @@ export default class DDBQuickplayTokens {
     // Phase B: ensure a world actor exists for each entityId. We materialise
     // them via game.actors.importFromCompendium so tokens can carry a stable
     // actorId. Reuses the same pattern as AdventureMunch.ensureWorldActors.
-    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false) as any;
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false) as CompendiumCollection<"Actor"> | null;
     const actorFolderId = await DDBQuickplayTokens._resolveActorFolderId(options.actorFolderPath ?? null);
-    const actorByDdbId = new Map<number, any>();
+    const actorByDdbId = new Map<number, Actor<"npc">>();
     const totalActors = ddbIds.length;
     let actorsDone = 0;
     notify(`Materialising ${totalActors} actor${totalActors === 1 ? "" : "s"}...`, 0.4);
@@ -262,9 +265,9 @@ export default class DDBQuickplayTokens {
       );
       if (!monsterEntry) continue;
       // Prefer existing world actor with the same DDB id (avoids duplicates).
-      const existing = (game.actors?.contents ?? []).find((a: any) =>
+      const existing: Actor<"npc"> = (game.actors?.contents ?? []).find((a: any) =>
         Number(foundry.utils.getProperty(a, "flags.ddbimporter.id")) === ddbId,
-      );
+      ) as unknown as Actor<"npc">;
       if (existing) {
         actorByDdbId.set(ddbId, existing);
         continue;
@@ -277,7 +280,7 @@ export default class DDBQuickplayTokens {
           monsterEntry._id,
           updateData,
           { keepId: false, keepEmbeddedIds: true },
-        );
+        ) as unknown as Actor<"npc">;
         if (worldActor) actorByDdbId.set(ddbId, worldActor);
       } catch (error) {
         logger.warn(`DDBQuickplayTokens: failed to import actor ${ddbId}: ${(error as Error).message}`);
@@ -414,8 +417,8 @@ export default class DDBQuickplayTokens {
 
       try {
         if (worldActor) {
-          const doc = await worldActor.getTokenDocument(stub);
-          const data = doc.toObject();
+          const doc = await worldActor.getTokenDocument(stub as any);
+          const data = doc.toObject() as unknown as I5ePrototypeToken;
           // getTokenDocument respects most stub fields but resets texture.src
           // back to the prototype on some paths; reapply explicitly.
           if (stub.texture?.src) {
@@ -443,7 +446,7 @@ export default class DDBQuickplayTokens {
 
     notify(`Placing ${tokenData.length} token${tokenData.length === 1 ? "" : "s"} on scene...`, 0.85);
     try {
-      const created = await scene.createEmbeddedDocuments("Token", tokenData);
+      const created = await scene.createEmbeddedDocuments("Token", tokenData as any);
       result.tokensCreated += Array.isArray(created) ? created.length : 0;
     } catch (error) {
       logger.error(`DDBQuickplayTokens: createEmbeddedDocuments failed: ${(error as Error).message}`, error);

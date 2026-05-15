@@ -2,7 +2,7 @@ import DDBAppV2 from "./DDBAppV2";
 import { logger, utils, DDBCampaigns, Secrets } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBMaps from "../muncher/DDBMaps";
-import DDBStickers, { IDDBSticker, IDDBStickersPayload } from "../muncher/DDBStickers";
+import DDBStickers from "../muncher/DDBStickers";
 import DDBSticker from "../muncher/adventure/DDBSticker";
 
 interface IStickerStorage {

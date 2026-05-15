@@ -724,6 +724,48 @@ global {
     ddb?: IDDBSceneFlags;
   };
 
+  interface IDDBImporterJournalEntryFlags {
+    // Stamped by DDBRuleJournalFactory and SpellListFactory.
+    type?: string;
+    sourceId?: number;
+    sourceCode?: string;
+    sourceName?: string;
+
+    // Stamped by DDBMapMetaData for the placeholder journal that hosts meta-data Note documents.
+    metaDataNotesPlaceholder?: boolean;
+  }
+
+  interface IDDBJournalEntryFlags {
+    bookCode?: string;
+    ddbId?: string;
+    cobaltId?: number | string;
+    parentId?: number | string;
+    contentChunkId?: string;
+    slug?: string;
+    slugLink?: string;
+    originalLink?: string;
+    linkName?: string;
+    [key: string]: any;
+  }
+
+  interface IDDBJournalEntryPageFlags {
+    parentId?: number | string;
+    slug?: string;
+    contentChunkId?: string;
+    // Pages get merged with Note flags at read sites (SceneEnhancerExport.ts);
+    // permissive index sig keeps merged-flag reads working.
+    [key: string]: any;
+  }
+
+  interface IJournalEntryFlagConfig {
+    ddbimporter?: IDDBImporterJournalEntryFlags;
+    ddb?: IDDBJournalEntryFlags;
+  };
+
+  interface IJournalEntryPageFlagConfig {
+    ddb?: IDDBJournalEntryPageFlags;
+  };
+
   interface FlagConfig {
     ActiveEffect: {
       ActiveAuras?: {
@@ -786,6 +828,8 @@ global {
     };
     Actor: IActorFlagConfig;
     Scene: ISceneFlagConfig;
+    JournalEntry: IJournalEntryFlagConfig;
+    JournalEntryPage: IJournalEntryPageFlagConfig;
     ChatMessage: {
       dnd5e?: {
         item?: {

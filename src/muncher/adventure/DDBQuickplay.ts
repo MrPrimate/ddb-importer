@@ -9,12 +9,12 @@ const DEFAULT_LEVEL_ID = "defaultLevel0000";
 // shape when the sticker isn't in the user's catalog (e.g., they haven't
 // loaded the sticker browser yet).
 function resolveCatalogSticker(imageKey: string): IDDBSticker {
-  const cache: any = (globalThis as any).CONFIG?.DDBI?.STICKERS?.payload;
+  const cache: any = CONFIG?.DDBI?.STICKERS?.payload;
   const all = cache?.stickers ?? [];
   const hit = all.find((s: IDDBSticker) => s.entitledData?.imageKey === imageKey);
   if (hit) return hit;
   // Minimal synthetic sticker - enough for DDBSticker.import() to download
-  // by key and write a meta entry. setName falls back to a derived slug.
+  // by key and write a meta entry.
   return {
     gameElementUri: `quickplay-${imageKey}`,
     name: imageKey.split("/").pop()?.replace(/\.[a-z]+$/i, "") ?? "sticker",
@@ -74,18 +74,20 @@ export default class DDBQuickplay {
     // Foundry V13 do NOT need the background offset subtracted - the texture-
     // anchor offset only adjusts how the image renders relative to the grid;
     // tile positions are in canvas (scene-pixel) space and unaffected.
-    const f = foundry.utils.getProperty(scene, "flags.ddbimporter") ?? {} as any;
+    const f = (foundry.utils.getProperty(scene, "flags.ddbimporter") ?? {}) as IDDBImporterSceneFlags;
     const sceneScale = typeof f.gridSceneScale === "number" ? f.gridSceneScale : 1;
     // V14: scene shift lives on scene.shiftX/shiftY at root - Scene#background
     // (and therefore scene.background.shiftX/Y) is deprecated and logs a
     // compatibility warning every read.
-    const liveOffsetX = (scene as any).shiftX;
-    const liveOffsetY = (scene as any).shiftY;
+    // @ts-expect-error - not in types yet
+    const liveOffsetX = scene.shiftX;
+    // @ts-expect-error - not in types yet
+    const liveOffsetY = scene.shiftY;
     const sceneOffsetX = typeof liveOffsetX === "number" ? liveOffsetX : 0;
     const sceneOffsetY = typeof liveOffsetY === "number" ? liveOffsetY : 0;
     // Foundry's actual grid size on the scene - what tiles need to align to.
     // Defaults to 100 if we somehow can't read it.
-    const gridSize = (scene as any).grid?.size ?? 100;
+    const gridSize = scene.grid?.size ?? 100;
     // Position anchor for DDB stickers - confirmed empirically as `center`
     // across multiple maps. Kept as an option in case future layouts differ.
     const anchor = options.positionAnchor ?? "center";
@@ -97,7 +99,10 @@ export default class DDBQuickplay {
     // is the offset of the image within the padded canvas (so a tile at
     // image-pixel (0,0) sits at canvas (sceneX, sceneY)). We add this to the
     // background-offset-shifted image position to land in the right place.
-    const dims = (scene as any).dimensions ?? {};
+    const dims = scene.dimensions ?? {
+      sceneX: 0,
+      sceneY: 0,
+    } as Scene.Dimensions;
     const sceneXPad = typeof dims.sceneX === "number" ? dims.sceneX : 0;
     const sceneYPad = typeof dims.sceneY === "number" ? dims.sceneY : 0;
 
@@ -114,7 +119,7 @@ export default class DDBQuickplay {
       anchor,
       sceneWidth: scene.width,
       sceneHeight: scene.height,
-      scenePadding: (scene as any).padding,
+      scenePadding: scene.padding,
       sceneDimensions: dims,
       sceneXPad,
       sceneYPad,
@@ -132,20 +137,11 @@ export default class DDBQuickplay {
     const localPaths = new Map<string, string>();
     const items = [...uniqueKeys].map((imageKey) => {
       const sticker = resolveCatalogSticker(imageKey);
-      const setName = (() => {
-        if (typeof sticker.primarySourceId === "number" && sticker.primarySourceId >= 0) {
-          // Reuse the same source-name lookup the browser uses if available.
-          const fn = (globalThis as any)?.CONFIG?.DDBI?._stickerSetName;
-          if (typeof fn === "function") return fn(sticker.primarySourceId);
-        }
-        return null;
-      })();
       return {
         sticker,
         options: {
           cobalt: options.cobalt ?? null,
           campaignId: options.campaignId ?? null,
-          setName,
           notifier: options.notifier ?? null,
         },
       };
@@ -242,7 +238,7 @@ export default class DDBQuickplay {
     tokens: any[];
   } {
     const ctx = foundry.utils.getProperty(scene, "flags.ddbimporter.quickplayContext") as IQuickplayContext;
-    const tiles = (scene?.tiles?.contents ?? scene?.tiles ?? []) as any[];
+    const tiles = (scene?.tiles?.contents ?? scene?.tiles ?? []) as TileDocument[];
     const tilesOut = [];
     for (const t of tiles) {
       const f = t.flags?.["ddbimporter"];

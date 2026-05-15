@@ -6,44 +6,16 @@ import AdventureMunchHelpers from "./AdventureMunchHelpers";
 const META_NOTES_ADVENTURE_NAME = "ddb-meta-data";
 const META_NOTES_JOURNAL_NAME = "DDB Meta-Data Notes";
 
-// The proxy owns the meta-data tarball + match cache. The match endpoint
-// returns the lightweight match info (no scene JSON); apply pulls the full
-// scene contents via a separate scenes endpoint only when needed.
-export type IDDBMetaMatch = IDDBMetaDataMatch;
-export type IDDBMetaMatchInfo = IDDBMetaDataMatchInfo;
-
-
-export interface IDDBMetaApplyOptions {
-  applyTokens: boolean;
-  actorFolderPath?: string[] | null;
-  notifier?: ((msg: string) => void) | null;
-  noAutoImport?: boolean;
-}
-
-export interface IDDBMetaApplyResult {
-  match: IDDBMetaMatch;
-  sceneMerged: boolean;
-  walls: number;
-  lights: number;
-  drawings: number;
-  notes: number;
-  tokens: { created: number; missing: number; imported: number; failed: number };
-  quickplayTokensRemoved: number;
-  quickplayTilesPreserved: number;
-}
-
-
 function _cache(): IMetaCache {
-  const anyCfg = CONFIG as any;
-  if (!anyCfg.DDBI.META) {
-    anyCfg.DDBI.META = {
+  if (!CONFIG.DDBI.META) {
+    CONFIG.DDBI.META = {
       matches: new Map(),
       results: new Map(),
       inFlight: new Map(),
     };
   }
   // Defensive shim for cache objects created by older versions of this file.
-  const c = anyCfg.DDBI.META as Partial<IMetaCache>;
+  const c = CONFIG.DDBI.META as Partial<IMetaCache>;
   if (!c.matches) c.matches = new Map();
   if (!c.results) c.results = new Map();
   if (!c.inFlight) c.inFlight = new Map();
@@ -67,10 +39,10 @@ function _bookCodeFromImageKey(imageKey: string | null | undefined): string | nu
 function _resolveBookCode(map: IDDBMap): string | null {
   const fromImage = _bookCodeFromImageKey(map.imageKey);
   if (fromImage) return fromImage;
-  const raw = map.sourceId ?? (map as any).officialData?.sourceId;
+  const raw = map.sourceId ?? map.officialData?.sourceId;
   const sid = Number(raw);
   if (!Number.isFinite(sid)) return null;
-  const source = (CONFIG as any).DDB?.sources?.find?.((s: any) => s.id === sid);
+  const source = CONFIG.DDB?.sources?.find?.((s) => s.id === sid);
   const name = source?.name;
   return name ? String(name).toLowerCase() : null;
 }
@@ -99,7 +71,7 @@ function _proxyRequestForMap(map: IDDBMap): {
 } {
   return {
     bookCode: _resolveBookCode(map),
-    sourceId: map.sourceId ?? (map as any).officialData?.sourceId ?? null,
+    sourceId: map.sourceId ?? map.officialData?.sourceId ?? null,
     name: map.name ?? null,
     filename: _filenameFromImageKey(map.imageKey),
   };
@@ -243,7 +215,7 @@ export default class DDBMapMetaData {
   private static _cleanseSceneInfo(info: IDDBMetaScene): IDDBMetaScene {
     if (!info || typeof info !== "object") return info;
 
-    if (parseInt((game as any).version) >= 14) {
+    if (parseInt(game.version) >= 14) {
       AdventureMunch._migrateSceneDataToV14(info);
     }
 
@@ -266,9 +238,9 @@ export default class DDBMapMetaData {
       }
     }
 
-    const drawings = (info as any).drawings;
+    const drawings = info.drawings;
     if (Array.isArray(drawings)) {
-      (info as any).drawings = drawings.map((d: any) => AdventureMunch._drawingFixes(d));
+      info.drawings = drawings.map((d: any) => AdventureMunch._drawingFixes(d));
     }
 
     return info;
@@ -297,23 +269,22 @@ export default class DDBMapMetaData {
   // click to open the DDB page popup. Memoised on CONFIG.DDBI.META for the
   // session so repeated calls don't re-scan game.journal.
   private static async _getOrCreateMetaNotesJournal(): Promise<any | null> {
-    const anyCfg = CONFIG as any;
-    const cached = anyCfg.DDBI.META?.placeholderJournalId;
+    const cached = CONFIG.DDBI.META?.placeholderJournalId;
     if (cached) {
-      const existing = (game as any).journal?.get?.(cached);
+      const existing = game.journal?.get?.(cached);
       if (existing) return existing;
     }
-    const byFlag = (game as any).journal?.contents?.find?.((j: any) =>
+    const byFlag = game.journal?.contents?.find?.((j: JournalEntry) =>
       foundry.utils.getProperty(j, "flags.ddbimporter.metaDataNotesPlaceholder") === true,
     );
     if (byFlag) {
-      if (anyCfg.DDBI.META) anyCfg.DDBI.META.placeholderJournalId = byFlag.id;
+      if (CONFIG.DDBI.META) CONFIG.DDBI.META.placeholderJournalId = byFlag.id;
       return byFlag;
     }
     try {
-      const created = await (JournalEntry as any).create({
+      const journalData: IPlaceholderJournalData = {
         name: META_NOTES_JOURNAL_NAME,
-        flags: { "ddbimporter": { metaDataNotesPlaceholder: true } },
+        flags: { ddbimporter: { metaDataNotesPlaceholder: true } },
         pages: [{
           name: META_NOTES_JOURNAL_NAME,
           type: "text",
@@ -322,8 +293,9 @@ export default class DDBMapMetaData {
             format: 1,
           },
         }],
-      });
-      if (created?.id && anyCfg.DDBI.META) anyCfg.DDBI.META.placeholderJournalId = created.id;
+      };
+      const created = await JournalEntry.create(journalData as unknown as JournalEntry.CreateData, { renderSheet: false });
+      if (created?.id && CONFIG.DDBI.META) CONFIG.DDBI.META.placeholderJournalId = created.id;
       return created ?? null;
     } catch (error) {
       logger.warn(`DDBMapMetaData: failed to create placeholder journal: ${(error as Error).message ?? error}`);
@@ -363,7 +335,16 @@ export default class DDBMapMetaData {
           }
           if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
             const fileData = new File([content], paths.filename, { type: mimeType });
-            const targetPath = (await FileHelper.uploadToPath(paths.fullUploadPath, fileData) as any)?.path;
+            const response: FilePicker.UploadReturn = await FileHelper.uploadToPath(paths.fullUploadPath, fileData);
+            if (!response || !response.path) {
+              logger.error(`DDBMapMetaData: upload failed for ${path}: no response or path returned`, { response });
+              return path;
+            }
+            const targetPath = response?.path;
+            if (!targetPath) {
+              logger.error(`DDBMapMetaData: upload failed for ${path}: no target path returned`, { response });
+              return path;
+            }
             CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
             CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
           }
@@ -392,7 +373,7 @@ export default class DDBMapMetaData {
     if (!slug) return null;
     let sourcePath: string | null = null;
     if (bookCode) {
-      const source = (CONFIG as any).DDB?.sources?.find?.((s: any) =>
+      const source = CONFIG.DDB?.sources?.find?.((s) =>
         typeof s?.name === "string" && s.name.toLowerCase() === bookCode.toLowerCase(),
       );
       if (source?.sourceURL) sourcePath = String(source.sourceURL);
@@ -487,9 +468,9 @@ export default class DDBMapMetaData {
   }
 
   // Stamp result + match onto the scene's ddbimporter flags. Soft-fails on update error.
-  private static async _stampFlags(scene: Scene, payload: Record<string, unknown>): Promise<void> {
+  private static async _stampFlags(scene: Scene, ddbimporterFlags: IDDBImporterSceneFlags): Promise<void> {
     try {
-      await scene.update({ flags: { ddbimporter: payload } });
+      await scene.update({ flags: { ddbimporter: ddbimporterFlags } } as any);
     } catch (error) {
       logger.warn(`DDBMapMetaData: failed to stamp scene flags: ${(error as Error).message ?? error}`);
     }
@@ -875,7 +856,7 @@ export default class DDBMapMetaData {
     }
 
     // Phase D: drawings.
-    const drawings = (info as any).drawings;
+    const drawings = info.drawings;
     if (Array.isArray(drawings) && drawings.length) {
       try {
         notify(`Placing ${drawings.length} drawings from meta-data...`);
@@ -1045,7 +1026,7 @@ export default class DDBMapMetaData {
     // Multi-match: rename the original to its meta name so floors read consistently.
     if (fullMatches.length > 1 && fullMatches[0].scene?.name && scene.name !== fullMatches[0].scene.name) {
       try {
-        await scene.update({ name: fullMatches[0].scene.name });
+        await scene.update({ name: fullMatches[0].scene.name } as any);
       } catch (error) {
         logger.warn(`DDBMapMetaData.enrich: failed to rename original scene to "${fullMatches[0].scene.name}": ${(error as Error).message ?? error}`);
       }
@@ -1121,7 +1102,7 @@ export default class DDBMapMetaData {
     out.missing = ddbIds.filter((id) => !present.has(id)).length;
 
     // Step 4: materialise world actors.
-    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false) as any;
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false) as CompendiumCollection<"Actor"> | null;
     const actorFolderId = await DDBMapMetaData._resolveActorFolderId(options.actorFolderPath ?? null);
     const actorByDdbId = new Map<number, any>();
     for (const ddbId of ddbIds) {
@@ -1178,12 +1159,12 @@ export default class DDBMapMetaData {
       // V14 token-level fields - _migrateSceneDataToV14 stamps these on
       // adventure-zip tokens but the meta-data payload carries tokens under
       // flags.ddb.tokens which the migration doesn't touch.
-      if (parseInt((game as any).version) >= 14) {
+      if (parseInt(game.version) >= 14) {
         stub.level = t.level ?? DEFAULT_LEVEL_ID;
         stub.depth = Number.isFinite(t.depth) ? t.depth : 1;
       }
       // Strip any embedded actor doc id, ddbimporter source attribution.
-      delete (stub as any).actorData;
+      delete stub.actorData;
       stub.flags["ddbimporter"] = foundry.utils.mergeObject(
         stub.flags["ddbimporter"] ?? {},
         { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null },

@@ -3,9 +3,9 @@ import utils from "./Utils";
 export default class FolderHelper {
 
   static async getOrCreateFolder (
-    root,
-    entityType,
-    folderName,
+    root: Folder.Implementation | null,
+    entityType: string,
+    folderName: string,
     folderColor = "",
     options: { sort?: number | null; sortMode?: "a" | "m" } = {},
   ): Promise<Folder.Implementation> {

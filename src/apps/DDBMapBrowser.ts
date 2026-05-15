@@ -1,8 +1,8 @@
 import DDBAppV2 from "./DDBAppV2";
 import { logger, utils, DDBCampaigns, Secrets } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
-import DDBMaps, { IDDBMapCatalog, IDDBMapSource, IDDBMap, IDDBSourceMaps } from "../muncher/DDBMaps";
-import DDBMap, { DuplicateAction } from "../muncher/adventure/DDBMap";
+import DDBMaps from "../muncher/DDBMaps";
+import DDBMap from "../muncher/adventure/DDBMap";
 import DDBMapMetaData from "../muncher/adventure/DDBMapMetaData";
 
 const TYPE_ORDER = ["basic", "subscription", "mappack", "sourcebook", "adventure"];

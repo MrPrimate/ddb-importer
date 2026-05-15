@@ -75,9 +75,9 @@ export default class DDBBasicActivity {
   }) {
 
     this.type = type.toLowerCase() as IDDBActivityType;
-    this.activityType = (CONFIG as any).DND5E.activityTypes[this.type];
+    this.activityType = CONFIG.DND5E.activityTypes[this.type];
     if (!this.activityType) {
-      throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys((CONFIG as any).DND5E.activityTypes)}`);
+      throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
     const actionName = this.ddbParent?.isAction ? this.ddbParent.name : null;
     this.name = name ?? actionName;
@@ -318,7 +318,7 @@ export default class DDBBasicActivity {
       return;
     }
     this.data.save = {
-      ability: [Object.keys((CONFIG as any).DND5E.abilities)[0]],
+      ability: [Object.keys(CONFIG.DND5E.abilities)[0]],
       dc: {
         calculation: "",
         formula: "",

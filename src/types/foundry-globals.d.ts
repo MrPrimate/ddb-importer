@@ -37,7 +37,8 @@ declare global {
     Item: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.Item>;
     ActiveEffect: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.ActiveEffect>;
     ChatMessage: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.ChatMessage>;
-    JournalEntryPage: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.Journal>;
+    JournalEntryPage: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.JournalEntryPage>;
+    JournalEntry: fvttUtils.InterfaceToObject<dnd5e.types.DataModelConfig.JournalEntry>;
   }
 
   type IndexTypeForMetadata<Type extends CompendiumCollection.DocumentName> = foundry.utils.Collection<CompendiumCollection.IndexEntry<Type>>;
