@@ -1,5 +1,7 @@
 # Next Up
 
+- Detect evil and good was not set as a emanation in 2024 rules.
+
 # 7.2.20
 
 - Zoom fix when placing stickers in some os/browser combos.
