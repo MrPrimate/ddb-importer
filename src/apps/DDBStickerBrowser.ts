@@ -492,7 +492,6 @@ export default class DDBStickerBrowser extends DDBAppV2 {
 
       const classifyOverlap = (): { rel: "none" | "above" | "below" | "mixed"; count: number } => {
         if (!lastCursor) return { rel: "none", count: 0 };
-        // @ts-expect-error - not sure tbh
         const tiles = (canvas.tiles?.placeables ?? []) as Tile[];
         let above = 0;
         let below = 0;
