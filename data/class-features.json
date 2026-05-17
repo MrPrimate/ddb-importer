@@ -9592,5 +9592,25 @@
   {
     "name": "Perfect Weapon",
     "path": "icons/skills/trades/smithing-anvil-silver-red.webp"
+  },
+  {
+    "name": "Grim Harbinger Spells",
+    "path": "icons/magic/earth/explosion-lava-stone-green.webp"
+  },
+  {
+    "name": "Omen of Doom",
+    "path": "icons/magic/death/gallows-hanged-humanoid.webp"
+  },
+  {
+    "name": "Harbinger of Doom",
+    "path": "icons/magic/death/weapon-scythe-rune-green.webp"
+  },
+  {
+    "name": "Grave Bond",
+    "path": "icons/magic/death/grave-tombstone-glow-tan.webp"
+  },
+  {
+    "name": "Sealed Fate",
+    "path": "icons/magic/death/hand-dirt-undead-zombie.webp"
   }
 ]

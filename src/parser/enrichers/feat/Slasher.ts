@@ -49,7 +49,7 @@ export default class Slasher extends DDBEnricherData {
           description: "Speed penalty until the start of the origins next turn",
         },
         changes: [
-          DDBEnricherData.ChangeHelper.signedAddChange("-10", 20, "system.attributes.speed.walk"),
+          DDBEnricherData.ChangeHelper.signedAddChange("-10", 20, "system.attributes.movement.walk"),
         ],
         activitiesMatch: ["Hamstring"],
       },
