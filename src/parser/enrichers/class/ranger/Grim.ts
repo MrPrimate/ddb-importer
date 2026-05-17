@@ -14,7 +14,7 @@ export default class Grim extends DDBEnricherData {
       noConsumeTargets: true,
       data: {
         bonuses: {
-          attackDamage: "@abilities.wis.mod",
+          attackDamage: "@abilities.wis.mod + @scale.grim-harbinger.grim-damage[necrotic]",
         },
         summons: {
           "match": {
