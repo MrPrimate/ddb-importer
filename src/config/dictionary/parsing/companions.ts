@@ -80,6 +80,7 @@ const COMPANION_FEATURES = [
   "Call of the Shadowseeds",
   "Brawler's Best Friend",
   "Animating Performance",
+  "Grim",
 ];
 
 const COMPANION_OPTIONS = {

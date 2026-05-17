@@ -1,6 +1,7 @@
 # Next Up
 
 - Detect evil and good was not set as a emanation in 2024 rules.
+- Grim Harbinger subclass parsing improvements.
 
 # 7.1.15
 

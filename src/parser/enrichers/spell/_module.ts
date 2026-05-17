@@ -67,6 +67,7 @@ export { default as Darkness } from "./Darkness";
 export { default as Darkvision } from "./Darkvision";
 export { default as DeathArmor } from "./DeathArmor";
 export { default as DelayedBlastFireball } from "./DelayedBlastFireball";
+export { default as DetectEvilAndGood } from "./DetectEvilAndGood";
 export { default as DisguiseSelf } from "./DisguiseSelf";
 export { default as DivineFavor } from "./DivineFavor";
 export { default as DivineSmite } from "./DivineSmite";

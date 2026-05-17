@@ -123,6 +123,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Winter Walker Spells": "Ranger Spells",
     "Trail Warden Spells": "Ranger Spells",
     "Vermin Lord Spells": "Ranger Spells",
+    "Grim Harbinger Spells": "Ranger Spells",
     "Psionic Spells": "Sorcerer Extra Spells",
     "Clockwork Spells": "Sorcerer Extra Spells",
     "Draconic Spells": "Sorcerer Extra Spells",

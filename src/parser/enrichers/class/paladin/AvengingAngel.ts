@@ -67,7 +67,7 @@ export default class AvengingAngel extends DDBEnricherData {
       },
       activitiesMatch: ["Activate"],
       changes: [
-        DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.speed.fly"),
+        DDBEnricherData.ChangeHelper.upgradeChange("60", 2, "system.attributes.movement.fly"),
       ],
     }];
   }

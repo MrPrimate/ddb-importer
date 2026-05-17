@@ -21,6 +21,7 @@ export * as FlyingSnake from "./FlyingSnake/_module";
 export * as Generic from "./Generic/_module";
 export * as GiantInsect from "./GiantInsect/_module";
 export * as GraspingVine from "./GraspingVine/_module";
+export * as Grim from "./Grim/_module";
 export * as GuardianOfFaith from "./GuardianOfFaith/_module";
 export * as HomunculusServant from "./HomunculusServant/_module";
 export * as Imp from "./Imp/_module";
