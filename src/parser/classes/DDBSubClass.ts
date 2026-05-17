@@ -391,7 +391,7 @@ export default class DDBSubClass extends DDBBaseClass {
   }
 
   _rangerFixes() {
-    if (this.data.name.startsWith("Drake Warden")) {
+    if (this.data.name.startsWith("Drakewarden")) {
       for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
         if (advancement.title !== "Drake Companion") continue;
         (advancement as I5eAdvancementScaleValue).configuration.type = "dice";
@@ -401,6 +401,24 @@ export default class DDBSubClass extends DDBBaseClass {
         };
         this.data.system.advancement[id] = advancement;
       }
+    } else if (this.data.name.startsWith("Grim Harbinger")) {
+      const minor: I5eAdvancementScaleValue = {
+        _id: foundry.utils.randomID(),
+        type: "ScaleValue",
+        configuration: {
+          distance: { units: "" },
+          identifier: `grim-damage`,
+          type: "dice",
+          scale: {
+            7: { number: 1, faces: 6 },
+            15: { number: 2, faces: 6 },
+          },
+        },
+        value: {},
+        title: `Grim Damage Dice`,
+        icon: null,
+      };
+      this._addAdvancement(minor);
     }
   }
 
