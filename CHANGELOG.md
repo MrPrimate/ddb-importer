@@ -2,6 +2,8 @@
 
 - Detect evil and good was not set as a emanation in 2024 rules.
 - Grim Harbinger subclass parsing improvements.
+- ATL light based effects are now using core effects.
+- Vengeful blade parsing improvements.
 
 # 7.2.20
 

@@ -15,18 +15,25 @@ export default class CelestialRevelationInnerRadiance extends DDBEnricherData {
     };
   }
 
-  get override(): IDDBOverrideData {
-    return {
-      ddbMacroDescription: true,
-    };
-  }
-
-  get ddbMacroDescriptionData() {
-    return {
-      name: "innerRadiance",
-      label: "Toggle Inner Radiance Light", // optional
-      type: "feat",
-    };
+  get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Inner Radiance Light",
+        activityMatch: "Unleash Celestial Energy",
+        options: {
+          durationSeconds: 60,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("12", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "token.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("pulse", 20, "token.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("3", 20, "token.light.animation.speed"),
+        ],
+      },
+    ];
   }
 
 }

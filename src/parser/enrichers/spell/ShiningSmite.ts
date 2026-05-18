@@ -17,6 +17,9 @@ export default class ShiningSmite extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     return [
       {
+        options: {
+          durationSeconds: 60,
+        },
         name: "Shedding Light",
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.bright"),

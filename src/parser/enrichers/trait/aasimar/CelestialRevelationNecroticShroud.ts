@@ -10,6 +10,13 @@ export default class CelestialRevelationNecroticShroud extends DDBEnricherData {
     return {
       activationType: "special",
       targetType: "enemy",
+      data: {
+        ability: ["cha"],
+        dc: {
+          calculation: "cha",
+          formula: "",
+        },
+      },
     };
   }
 
