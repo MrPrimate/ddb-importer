@@ -50,7 +50,7 @@ export default class VengefulBlade extends DDBEnricherData {
       },
       {
         init: {
-          name: "Extra Damage",
+          name: "Target attacks or casts damage",
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
@@ -84,7 +84,8 @@ export default class VengefulBlade extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     return [{
-      name: "Vengeful Blade: RadiatesDark Aura of Energy",
+      activityMatch: "Extra Attack Damage",
+      name: "Vengeful Blade: Radiates Dark Aura of Energy",
       options: {
         description: `If the target makes an attack or spell before then, [[/item ${this.data.name} activity="Extra Damage"]](it takes necrotic damage), and the spell ends.`,
       },
