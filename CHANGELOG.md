@@ -5,6 +5,7 @@
 - ATL light based effects are now using core effects.
 - Vengeful blade parsing improvements.
 - Some effects were generation the wrong duration when the duration was not in seconds!
+- If generating Midi effects some skill bonus effect generations.
 
 # 7.2.20
 
