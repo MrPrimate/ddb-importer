@@ -493,12 +493,9 @@ export default class DDBCompanionMixin {
   _handleSenses(sensesString) {
     // darkvision 60 ft., passive Perception 10 + (PB &times; 2)
     // darkvision 60 ft., passive Perception 10 + (PB × 2)
-    console.warn("Parsing senses for companion", { sensesString, this: this });
-
     sensesString.split(",").forEach((sense) => {
       const match = sense.match(/(darkvision|blindsight|tremorsense|truesight)\s+(\d+)/i);
 
-      console.warn("Sense match", { sense, match });
       if (match) {
         const value = parseInt(match[2]);
         this.npc.system.attributes.senses["units"] = "ft";
