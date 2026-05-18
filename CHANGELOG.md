@@ -4,6 +4,7 @@
 - Grim Harbinger subclass parsing improvements.
 - ATL light based effects are now using core effects.
 - Vengeful blade parsing improvements.
+- Some effects were generation the wrong duration when the duration was not in seconds!
 
 # 7.2.20
 

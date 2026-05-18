@@ -498,7 +498,7 @@ export default class EffectGenerator {
       const modifier = mode === "advantage"
         ? CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE
         : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
-      this.effect.system.changes.push(ChangeHelper.addChange(modifier, 10, `system.skills.${skill.name}.roll.mode`));
+      this.effect.system.changes.push(ChangeHelper.addChange(`${modifier}`, 10, `system.skills.${skill.name}.roll.mode`));
       // handled by midi already
       // advantage/disadvantage on skill grants +/-5 passive bonus, https://www.dndbeyond.com/sources/phb/using-ability-scores#PassiveChecks
       // if (midiEffect === "advantage") {
@@ -699,7 +699,7 @@ export default class EffectGenerator {
     }
   }
 
-  _generateEffectDurationFromDocument(activity) {
+  _generateEffectDurationFromDocument(activity: IActivityData | null = null) {
     const duration = {
       seconds: null,
       startTime: null,
@@ -708,7 +708,7 @@ export default class EffectGenerator {
       startRound: null,
       startTurn: null,
     };
-    const foundryData = foundry.utils.getProperty(this, "document.system.duration") ?? activity?.duration;
+    const foundryData: I5eSystemDurationData | I5eActivityDuration | null = foundry.utils.getProperty(this, "document.system.duration") as I5eSystemDurationData ?? activity?.duration;
     if (!foundryData) return duration;
 
     switch (foundryData?.units) {
@@ -719,10 +719,10 @@ export default class EffectGenerator {
         duration.rounds = foundryData.value;
         break;
       case "hour":
-        duration.seconds = foundryData.value * 60 * 60;
+        duration.seconds = parseInt(foundryData.value) * 60 * 60;
         break;
       case "minute":
-        duration.rounds = foundryData.value * 10;
+        duration.rounds = parseInt(foundryData.value) * 10;
         break;
       // no default
     }

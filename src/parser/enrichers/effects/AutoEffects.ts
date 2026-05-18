@@ -37,6 +37,7 @@ export default class AutoEffects {
     if (units && UNIT_MAP[units]) {
       return UNIT_MAP[units];
     }
+    logger.error(`No mapping found for duration units ${units}`);
     return null;
   }
 
@@ -44,20 +45,20 @@ export default class AutoEffects {
     duration.units = AutoEffects.adjustDurationUnits(duration.units ?? "");
   }
 
-  static generateBasicEffectDuration(document: any, activity?: any): IEffectDuration {
+  static generateBasicEffectDuration(document: TAll5eItemDocuments, activity?: IActivityData): IEffectDuration {
     const duration: IEffectDuration = {
       value: null,
       units: "seconds",
       expiry: null,
       expired: false,
     };
-    const docData = document?.system?.duration ?? activity?.duration;
+    const docData: I5eSystemDurationData | I5eActivityDuration | null = foundry.utils.getProperty(document, "system.duration") as I5eSystemDurationData ?? activity?.duration;
     if (!docData) return duration;
 
-    const mappedUnit = UNIT_MAP[docData?.units];
+    const mappedUnit = UNIT_MAP[docData.units];
     if (mappedUnit && docData.value) {
-      duration.value = docData.value;
-      AutoEffects.adjustDuration(duration);
+      duration.value = parseInt(docData.value);
+      duration.units = AutoEffects.adjustDurationUnits(mappedUnit);
       duration.expiry = "turnStart";
     }
 
