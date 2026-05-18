@@ -6,17 +6,16 @@ export default class Candle extends GenericLightSource {
   get effects(): IDDBEffectHint[] {
     return [
       {
-        atlOnly: true,
         name: "Candle Light",
         activityMatch: "Light",
         options: {
           transfer: false,
         },
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "5"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "10"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "upgrade", "#f8c377"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "upgrade", "0.4"),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.dim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#f8c377", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.4", 20, "token.light.alpha"),
         ],
       },
     ];

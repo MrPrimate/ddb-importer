@@ -17,71 +17,22 @@ export default class SacredWeapon extends DDBEnricherData {
     };
   }
 
-  get additionalActivities(): IDDBAdditionalActivity[] {
-    return DDBEnricherData.AutoEffects.effectModules().atlInstalled
-      ? []
-      : [{
-        id: "SacredWeaponLigh",
-        init: {
-          name: "Sacred Weapon Light Toggle",
-          type: DDBEnricherData.ACTIVITY_TYPES.DDBMACRO,
-        },
-        build: {
-          generateConsumption: false,
-          generateTarget: false,
-          generateRange: false,
-          generateActivation: true,
-          generateDDBMacro: true,
-          noeffect: true,
-          ddbMacroOverride: {
-            name: "Sacred Weapon Light Toggle",
-            function: "ddb.feat.sacredWeaponLight",
-            visible: false,
-            parameters: "",
-          },
-        },
-      }];
-  }
-
   get override(): IDDBOverrideData {
     return {
-      // ddbMacroDescription: !DDBEnricherData.AutoEffects.effectModules().atlInstalled,
       ignoredConsumptionActivities: ["Sacred Weapon Light Toggle"],
     };
   }
 
-  get ddbMacroDescriptionData() {
-    if (this.is2014) {
-      return {
-        name: "sacredWeaponLight",
-        label: "Toggle Inner Radiance Light", // optional
-        type: "feat",
-      };
-    } else {
-      return {
-        name: "sacredWeaponLight2024",
-        label: "Toggle Sacred Weapon Light", // optional
-        type: "feat",
-      };
-    }
-
-  }
-
   get effects(): IDDBEffectHint[] {
-    const lightAnimation = `{"type": "sunburst", "speed": 2,"intensity": 4}`;
-    const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", (this.is2014 ? "5" : "40")),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", (this.is2014 ? "0" : "20")),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "upgrade", "#ffffff"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "upgrade", "0.25"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "upgrade", lightAnimation),
+    const lightChanges = [
+      DDBEnricherData.ChangeHelper.upgradeChange((this.is2014 ? "5" : "40"), 20, "token.light.dim"),
+      DDBEnricherData.ChangeHelper.upgradeChange((this.is2014 ? "0" : "20"), 20, "token.light.bright"),
+      DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
+      DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+      DDBEnricherData.ChangeHelper.overrideChange("4", 20, "token.light.animation.intensity"),
+      DDBEnricherData.ChangeHelper.overrideChange("sunburst", 20, "token.light.animation.type"),
+      DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
     ];
-
-    const descriptionChanges = DDBEnricherData.AutoEffects.effectModules().atlInstalled
-      ? []
-      : [
-        DDBEnricherData.ChangeHelper.addChange(this.ddbEnricher.ddbMacroDescription, 20, "system.description.value"),
-      ];
 
     if (this.is2014) {
       return [
@@ -93,20 +44,12 @@ export default class SacredWeapon extends DDBEnricherData {
           },
           changes: [
             DDBEnricherData.ChangeHelper.addChange("(max(1,@abilities.cha.mod))", 20, "activities[attack].attack.bonus"),
-          ].concat(descriptionChanges),
+          ].concat(lightChanges),
           options: {
             name: "Sacred Weapon",
             description: `The weapon shines with Sacred Energy.`,
             durationSeconds: 60,
           },
-          data: {
-            flags: {
-              ddbimporter: {
-                activityRiders: DDBEnricherData.AutoEffects.effectModules().atlInstalled ? [] : ["SacredWeaponLigh"],
-              },
-            },
-          },
-          atlChanges,
         },
       ];
     } else {
@@ -120,20 +63,12 @@ export default class SacredWeapon extends DDBEnricherData {
           changes: [
             DDBEnricherData.ChangeHelper.addChange("(max(1,@abilities.cha.mod))", 20, "activities[attack].attack.bonus"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.damage.base.types"),
-          ].concat(descriptionChanges),
+          ].concat(lightChanges),
           options: {
             name: "Sacred Weapon",
             description: `The weapon shines with Sacred Energy.`,
             durationSeconds: 600,
           },
-          data: {
-            flags: {
-              ddbimporter: {
-                activityRiders: DDBEnricherData.AutoEffects.effectModules().atlInstalled ? [] : ["SacredWeaponLigh"],
-              },
-            },
-          },
-          atlChanges,
         },
       ];
     }

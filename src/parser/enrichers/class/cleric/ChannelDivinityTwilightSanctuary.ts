@@ -5,9 +5,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
   get type() {
     return this.isAction
       ? DDBEnricherData.ACTIVITY_TYPES.NONE
-      : DDBEnricherData.AutoEffects.effectModules().atlInstalled
-        ? DDBEnricherData.ACTIVITY_TYPES.UTILITY
-        : DDBEnricherData.ACTIVITY_TYPES.DDBMACRO;
+      : DDBEnricherData.ACTIVITY_TYPES.UTILITY;
   }
 
   get activity(): IDDBActivityData {
@@ -41,12 +39,6 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
             height: "",
             units: "ft",
           },
-        },
-        macro: {
-          name: "Apply Light",
-          function: "ddb.generic.light",
-          visible: false,
-          parameters: `{"targetsSelf":true,"targetsToken":true,"lightConfig":{"dim":30,"bright":0},"flag":"light"}`,
         },
       },
     };
@@ -87,12 +79,13 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const lightAnimation = "{\"type\": \"sunburst\", \"speed\": 2,\"intensity\": 4}";
-    const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "30"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "upgrade", "#ffffff"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "upgrade", "0.25"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "upgrade", lightAnimation),
+    const changes = [
+      DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "token.light.dim"),
+      DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
+      DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+      DDBEnricherData.ChangeHelper.overrideChange("4", 20, "token.light.animation.intensity"),
+      DDBEnricherData.ChangeHelper.overrideChange("sunburst", 20, "token.light.animation.type"),
+      DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
     ];
 
     return [
@@ -102,7 +95,7 @@ export default class ChannelDivinityTwilightSanctuary extends DDBEnricherData {
         options: {
           durationSeconds: 60,
         },
-        atlChanges,
+        changes,
       },
     ];
   }

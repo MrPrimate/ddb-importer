@@ -18,11 +18,13 @@ export default class ShiningSmite extends DDBEnricherData {
     return [
       {
         name: "Shedding Light",
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "override", "5"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.25"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "override", "{\"type\": \"pulse\", \"speed\": 3,\"intensity\": 1}"),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("1", 20, "token.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("pulse", 20, "token.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("3", 20, "token.light.animation.speed"),
         ],
       },
     ];

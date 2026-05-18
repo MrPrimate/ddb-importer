@@ -46,7 +46,6 @@ export default class HolyAura extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const lightAnimation = "{\"type\": \"sunburst\", \"speed\": 2,\"intensity\": 4}";
     return [
       {
         noCreate: true,
@@ -69,13 +68,14 @@ export default class HolyAura extends DDBEnricherData {
         ],
         changes: ["str", "dex", "con", "int", "wis", "cha"].map((ability) =>
           DDBEnricherData.ChangeHelper.unsignedAddChange(`${CONFIG.Dice.D20Roll.ADV_MODE.ADVANTAGE}`, 20, `system.abilities.${ability}.save.roll.mode`),
-        ),
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "5"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#ffffff"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.25"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "override", lightAnimation),
-        ],
+        ).concat([
+          DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.dim"),
+          DDBEnricherData.ChangeHelper.overrideChange("#97a9ab", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("4", 20, "token.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("sunburst", 20, "token.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
+        ]),
         data: {
           flags: {
             dae: {

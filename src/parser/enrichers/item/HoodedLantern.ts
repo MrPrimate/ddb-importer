@@ -4,21 +4,21 @@ import GenericLightSource from "./GenericLightSource";
 export default class HoodedLantern extends GenericLightSource {
 
   get effects(): IDDBEffectHint[] {
-    const lightAnimation = "{type: \"torch\", speed: 2, intensity: 2}";
     return [
       {
-        atlOnly: true,
         name: "Hooded Lantern Light",
         activityMatch: "Light",
         options: {
           transfer: false,
         },
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "60"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "30"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "upgrade", "#f8c377"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "upgrade", "0.4"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.animation", "upgrade", lightAnimation),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("60", 20, "token.light.dim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("30", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#f8c377", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.4", 20, "token.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("torch", 20, "token.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
         ],
       },
     ];

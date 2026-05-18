@@ -81,9 +81,9 @@ export default class HolyStarOfMystra extends DDBEnricherData {
       {
         name: "Mote of Light",
         activityMatch: "Cast Spell",
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "10"),
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "5"),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("5", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "token.light.dim"),
         ],
         statuses: ["coverHalf"],
       },

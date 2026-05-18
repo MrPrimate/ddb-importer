@@ -17,9 +17,14 @@ export default class FlameBlade extends DDBEnricherData {
       {
         name: "Flame Blade",
         activityMatch: "Summon Blade",
-        atlChanges: [
-          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "ATL.light.dim"),
-          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "ATL.light.bright"),
+        changes: [
+          DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "token.light.dim"),
+          DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "token.light.bright"),
+          DDBEnricherData.ChangeHelper.overrideChange("#a78942", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+          DDBEnricherData.ChangeHelper.overrideChange("4", 20, "token.light.animation.intensity"),
+          DDBEnricherData.ChangeHelper.overrideChange("torch", 20, "token.light.animation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("2", 20, "token.light.animation.speed"),
         ],
         data: {
           flags: {

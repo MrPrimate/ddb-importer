@@ -230,17 +230,14 @@ export default class StarryForm extends DDBEnricherData {
   get formEffects() {
     const results = [];
 
-
-    const atlChanges = [
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "upgrade", "20"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "upgrade", "10"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.color", "override", "#f3f5e5"),
-      DDBEnricherData.ChangeHelper.atlChange("ATL.light.alpha", "override", "0.35"),
-      DDBEnricherData.ChangeHelper.atlChange(
-        "ATL.light.animation",
-        "override",
-        "{\"type\": \"\"starlight\"\", \"speed\": 5,\"intensity\": 5}",
-      ),
+    const lightChanges = [
+      DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "token.light.dim"),
+      DDBEnricherData.ChangeHelper.upgradeChange("10", 20, "token.light.bright"),
+      DDBEnricherData.ChangeHelper.overrideChange("#f3f5e5", 20, "token.light.color"),
+      DDBEnricherData.ChangeHelper.overrideChange("0.35", 20, "token.light.alpha"),
+      DDBEnricherData.ChangeHelper.overrideChange("5", 20, "token.light.animation.intensity"),
+      DDBEnricherData.ChangeHelper.overrideChange("starlight", 20, "token.light.animation.type"),
+      DDBEnricherData.ChangeHelper.overrideChange("5", 20, "token.light.animation.speed"),
     ];
 
     for (const formType of this.starForms) {
@@ -249,7 +246,7 @@ export default class StarryForm extends DDBEnricherData {
         { min: 10, max: 13 },
         { min: 14, max: null },
       ].forEach((data) => {
-        const changes = [];
+        const changes = [...lightChanges];
         if (formType === "Dragon") {
           changes.push(
             DDBEnricherData.ChangeHelper.upgradeChange("10", 10, "system.attributes.concentration.roll.min"),
@@ -276,7 +273,6 @@ export default class StarryForm extends DDBEnricherData {
           },
           activityMatch: this.formActivityName(formType),
           changes,
-          atlChanges,
           data: {
             _id: utils.namedIDStub(formType, { prefix: "ef", postfix: `${data.min !== null ? data.min : "1"}` }),
             flags: {

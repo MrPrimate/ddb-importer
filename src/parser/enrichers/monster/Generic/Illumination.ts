@@ -31,38 +31,41 @@ export default class Illumination extends DDBEnricherData {
     // });
 
     const match = basicMatch ?? justDimMatch;
-    if (match && DDBEnricherData.AutoEffects.effectModules().atlInstalled) {
+    if (match) {
       const effect = {
         options: {
           transfer: true,
         },
         name: `Illumination`,
-        atlOnly: true,
-        atlChanges: [],
+        changes: [
+          DDBEnricherData.ChangeHelper.overrideChange("#ffffff", 20, "token.light.color"),
+          DDBEnricherData.ChangeHelper.overrideChange("0.25", 20, "token.light.alpha"),
+        ],
       };
       if (match.groups.bright) {
-        effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.bright", "override", match.groups.bright),
+        effect.changes.push(
+          DDBEnricherData.ChangeHelper.upgradeChange(match.groups.bright, 10, "token.light.bright"),
         );
       }
       if (match.groups.dim) {
         const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
-        effect.atlChanges.push(
-          DDBEnricherData.ChangeHelper.atlChange("ATL.light.dim", "override", parseInt(`${dim}`)),
+        effect.changes.push(
+          DDBEnricherData.ChangeHelper.upgradeChange(dim, 10, "token.light.dim"),
         );
       }
       return [effect];
-    } else if (match) {
-      if (match.groups.bright) {
-        this.ddbParser.ddbMonster.npc.prototypeToken.light.bright = parseInt(match.groups.bright);
-        // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.bright", parseInt(match.groups.bright));
-      }
-      if (match.groups.dim) {
-        const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
-        this.ddbParser.ddbMonster.npc.prototypeToken.light.dim = parseInt(`${dim}`);
-        // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.dim", dim);
-      }
     }
+    // else if (match) {
+    //   if (match.groups.bright) {
+    //     this.ddbParser.ddbMonster.npc.prototypeToken.light.bright = parseInt(match.groups.bright);
+    //     // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.bright", parseInt(match.groups.bright));
+    //   }
+    //   if (match.groups.dim) {
+    //     const dim = match.groups.bright ? parseInt(match.groups.bright) + parseInt(match.groups.dim) : match.groups.dim;
+    //     this.ddbParser.ddbMonster.npc.prototypeToken.light.dim = parseInt(`${dim}`);
+    //     // foundry.utils.setProperty(this.ddbParser.ddbMonster.npc, "flags.lights.dim", dim);
+    //   }
+    // }
 
     return [];
   }
