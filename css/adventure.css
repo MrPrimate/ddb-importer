@@ -257,14 +257,14 @@
 
 .ddb-muncher-details .munching-progress .munching-progress-bar {
   max-width: 100%;
-  height: 24px;
+  height: 12px;
   background-color: green;
   text-align: center;
 }
 
 .ddb-muncher-details .munching-progress .munching-progress-bar span {
   white-space: nowrap;
-  line-height: 24px;
+  line-height: 12px;
 }
 
 .ddb-muncher-details .ddb-overlay {

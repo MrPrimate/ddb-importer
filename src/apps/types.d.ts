@@ -25,6 +25,7 @@ global {
     suppress?: boolean;
     isError?: boolean;
     clear?: boolean;
+    progressBar?: "primary" | "secondary";
   }
 
   interface DDBApplicationPart extends foundry.applications.api.HandlebarsApplicationMixin.HandlebarsTemplatePart {

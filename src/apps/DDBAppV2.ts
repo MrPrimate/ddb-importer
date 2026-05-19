@@ -188,6 +188,10 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   getMessageClass(section) {
     let messageClass;
     switch (section) {
+      case "level4":
+      case "import":
+        messageClass = "munching-task-import";
+        break;
       case "level3":
       case "note":
         messageClass = "munching-task-note";
@@ -206,7 +210,7 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   }
 
   notifierV2({ progress, section = "note", message = "", suppress = false, isError = false,
-    clear = false }: NotifierV2Props,
+    clear = false, progressBar = "primary" }: NotifierV2Props,
   ) {
     const builtMessage = progress ? `${progress.current}/${progress.total} : ${message}` : message;
     if (!suppress) logger.info(builtMessage);
@@ -215,8 +219,11 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
       return;
     }
 
-    const importProgressElement = this.element.querySelector(".munching-progress");
-    const barElement = this.element.querySelector(".munching-progress-bar") as HTMLElement;
+    const barSelector = progressBar === "secondary"
+      ? ".munching-progress-secondary"
+      : ".munching-progress-primary";
+    const importProgressElement = this.element.querySelector(barSelector) as HTMLElement | null;
+    const barElement = importProgressElement?.querySelector(".munching-progress-bar") as HTMLElement | null;
     const messageClass = this.getMessageClass(section);
 
     const messageElement = this.element.querySelector(`#${messageClass}`) as HTMLElement;
@@ -225,12 +232,12 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
       messageElement.style.height = "auto";
     }
 
-    if (progress && importProgressElement) {
+    if (progress && importProgressElement && barElement) {
       importProgressElement.classList.remove("munching-hidden");
-      barElement.style.width = `${Math.trunc((progress.current / progress.total) * 100)}%`;
+      const pct = progress.total > 0 ? Math.trunc((progress.current / progress.total) * 100) : 0;
+      barElement.style.width = `${pct}%`;
 
-      if (clear && barElement) {
-        // clear logic here
+      if (clear) {
         importProgressElement.classList.add("munching-hidden");
       }
     }
