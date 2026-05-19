@@ -25,6 +25,7 @@ export { default as PrimalCompanion } from "./PrimalCompanion";
 export { default as PrimalCompanionRestoreBeast } from "./PrimalCompanionRestoreBeast";
 export { default as PrimalCompanionSummon } from "./PrimalCompanionSummon";
 export { default as RangerSpells } from "./RangerSpells";
+export { default as SealedFate } from "./SealedFate";
 export { default as ShadowyDodge } from "./ShadowyDodge";
 export { default as SlayersPrey } from "./SlayersPrey";
 export { default as StalkersFlurry } from "./StalkersFlurry";

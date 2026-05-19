@@ -24,7 +24,14 @@ export default class Grim extends DDBEnricherData {
             "saves": true,
           },
         },
-        // creatureSizes: ["sm", "med", "tiny"],
+        effects: [
+          {
+            "_id": utils.namedIDStub("Ghastly Hound", { prefix: "ef" }),
+            "level": {
+              "min": 7,
+            },
+          },
+        ],
       },
     };
   }
