@@ -1,3 +1,4 @@
+import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Grim extends DDBEnricherData {
@@ -39,6 +40,38 @@ export default class Grim extends DDBEnricherData {
 
   get clearAutoEffects() {
     return true;
+  }
+
+  get effects(): IDDBEffectHint[] {
+    return [
+      {
+        name: "Ghastly Hound",
+        options: {
+          transfer: true,
+          disabled: false,
+        },
+        changes: [
+          DDBEnricherData.ChangeHelper.damageResistanceChange("bludgeoning"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("piercing"),
+          DDBEnricherData.ChangeHelper.damageResistanceChange("slashing"),
+        ],
+        data: {
+          "_id": utils.namedIDStub("Ghastly Hound", { prefix: "ef" }),
+          flags: {
+            ddbimporter: {
+              effectIdLevel: {
+                min: 7,
+                max: null,
+              },
+            },
+          },
+          duration: {
+            seconds: null,
+            rounds: null,
+          },
+        },
+      },
+    ];
   }
 
 }
