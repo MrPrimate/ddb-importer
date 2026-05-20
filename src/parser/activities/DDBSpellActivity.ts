@@ -49,14 +49,17 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     this.spellData = ddbParent.spellData;
     this.ddbDefinition = this.spellData.definition;
 
-    this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.addSpellEffects") as boolean;
+    this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.addSpellEffects") as boolean;
     this.damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !this.spellEffects;
 
     this.isCantrip = this.ddbDefinition.level === 0;
-    const boost = cantripBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.cantripBoost") as boolean;
+    if (this.isCantrip && cantripBoost === null) {
+      cantripBoost = foundry.utils.getProperty(this, "ddbParent.cantripBoost") as boolean ?? false;
+    }
+    const boost = cantripBoost ?? foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.dndbeyond.cantripBoost") as boolean;
     this.cantripBoost = this.isCantrip && boost;
 
-    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.spellData, "flags.ddbimporter.dndbeyond.healingBoost") as string;
+    const boostHeal = healingBoost ?? foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.dndbeyond.healingBoost") as string;
     this.healingBonus = boostHeal ? ` + ${boostHeal} + @item.level` : "";
 
     this.additionalActivityDamageParts = [];
@@ -183,6 +186,41 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     return scaleType;
   }
 
+  static extractHigherLevelDamage(definition: IDDBHigherLevelDefinition): string | null {
+    let scaleDamage: string | null = null;
+    const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
+    const modScaleDamage
+      = die?.diceString // if dice string
+        ? die.diceString // use dice string
+        : die?.fixedValue // else if fixed value
+          ? die.fixedValue // use fixed value
+          : definition.value; // else use value
+
+    // some spells have multiple scaling damage (e.g. Wall of Ice,
+    // Glyph of warding, Acid Arrow, Arcane Hand, Dragon's Breath,
+    // Chromatic Orb, Absorb Elements, Storm Sphere, Spirit Guardians)
+    // it's hard to model most of these in FVTT, and for some it makes
+    // no difference. so...
+    // lets optimistically use the highest
+    // assumptions: these are going to be dice strings, and we don't care
+    // about dice value, just number of dice
+    const diceFormula = /(\d*)d\d*/;
+    const existingMatch = diceFormula.exec(scaleDamage);
+    const modMatch = diceFormula.exec(modScaleDamage);
+
+    const modMatchValue = modMatch
+      ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
+      : undefined;
+
+
+    if (!existingMatch && !modMatch) {
+      scaleDamage = modScaleDamage;
+    } else if (!existingMatch || modMatchValue > existingMatch[1]) {
+      scaleDamage = modScaleDamage;
+    }
+    return scaleDamage;
+  }
+
 
   getScaling({ damageMod = null }: { damageMod?: IDDBSpellModifier }) {
     let baseDamage = "";
@@ -226,41 +264,19 @@ export default class DDBSpellActivity extends DDBBasicActivity {
           && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
 
         // lets handle normal spell leveling first
+        // @ts-expect-error - this was in the model at some point, not sure if its currently used.
         const modScaleType = mod.atHigherLevels.scaleType
+          // @ts-expect-error - this was in the model at some point, not sure if its currently used.
           ? mod.atHigherLevels.scaleType
           : this.ddbDefinition.scaleType;
         if (isHigherLevelDefinitions && modScaleType === "spellscale") {
           const definition = mod.atHigherLevels.higherLevelDefinitions[0];
           if (definition) {
-            const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
-            const modScaleDamage
-              = die?.diceString // if dice string
-                ? die.diceString // use dice string
-                : die?.fixedValue // else if fixed value
-                  ? die.fixedValue // use fixed value
-                  : definition.value; // else use value
-
-            // some spells have multiple scaling damage (e.g. Wall of Ice,
-            // Glyph of warding, Acid Arrow, Arcane Hand, Dragon's Breath,
-            // Chromatic Orb, Absorb Elements, Storm Sphere, Spirit Guardians)
-            // it's hard to model most of these in FVTT, and for some it makes
-            // no difference. so...
-            // lets optimistically use the highest
-            // assumptions: these are going to be dice strings, and we don't care
-            // about dice value, just number of dice
-            const diceFormula = /(\d*)d\d*/;
-            const existingMatch = diceFormula.exec(scaleDamage);
-            const modMatch = diceFormula.exec(modScaleDamage);
-
-            const modMatchValue = modMatch
-              ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
-              : undefined;
-
-
-            if (!existingMatch && !modMatch) {
-              scaleDamage = modScaleDamage;
-            } else if (!existingMatch || modMatchValue > existingMatch[1]) {
-              scaleDamage = modScaleDamage;
+            const higherLevelScaleDamage = DDBSpellActivity.extractHigherLevelDamage(definition);
+            if (higherLevelScaleDamage) {
+              scaleDamage = higherLevelScaleDamage;
+            } else {
+              logger.warn("No higher level damage found in spell definition for " + this.ddbDefinition.name);
             }
           } else {
             logger.warn("No definition found for " + this.ddbDefinition.name);
@@ -268,6 +284,14 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         } else if (isHigherLevelDefinitions && modScaleType === "characterlevel") {
           // cantrip support, important to set to a fixed value if using abilities like potent spellcasting
           scaleDamage = baseDamage;
+          if (scaleDamage === "") {
+            const higherLevelScaleDamage = DDBSpellActivity.extractHigherLevelDamage(mod.atHigherLevels.higherLevelDefinitions[0]);
+            if (higherLevelScaleDamage) {
+              scaleDamage = higherLevelScaleDamage;
+            } else {
+              logger.warn("No higher level damage found in spell definition for " + this.ddbDefinition.name);
+            }
+          }
         }
 
         scaleType = this.getScaleType(mod);
@@ -359,7 +383,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     const chatFlavor = [];
 
     // damage
-    const damages = this.ddbDefinition.modifiers
+    const damageMods = this.ddbDefinition.modifiers
       .filter((mod) => mod.type === "damage")
       .filter((mod) =>
         modRestrictionFilterExcludes === null
@@ -373,8 +397,9 @@ export default class DDBSpellActivity extends DDBBasicActivity {
         modRestrictionFilter === null
         || (mod.restriction && modRestrictionFilter.some((exclude) => mod.restriction.toLowerCase().includes(exclude.toLowerCase()))),
       );
-    if (damages.length !== 0) {
-      damages.forEach((damageMod) => {
+
+    if (damageMods.length !== 0) {
+      damageMods.forEach((damageMod) => {
         const restrictionText = damageMod.restriction && damageMod.restriction !== "" ? damageMod.restriction : "";
         if (!this.damageRestrictionHints && restrictionText !== "") {
           chatFlavor.push(`Restriction: ${restrictionText}`);
@@ -602,6 +627,8 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       damageParts,
       allowCritical,
     });
+
+    console.warn("Final activity data", foundry.utils.deepClone(this.data));
 
   }
 
