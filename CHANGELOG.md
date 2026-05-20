@@ -8,6 +8,8 @@
 - If generating Midi effects some skill bonus effect generations.
 - Some monsters with regain hp effects would not process the activity correctly, such as Shield Guardians.
 - Special activities such as the Shield Guardians Regeneration should now use the new Turn Start activation condition.
+- Features like Potent Spellcasting would not always add the bonus during import.
+- Many icon updates from @crimsonedge
 
 # 7.2.20
 
