@@ -199,7 +199,6 @@ export { default as Stoneskin } from "./Stoneskin";
 export { default as StormSphere } from "./StormSphere";
 export { default as Suggestion } from "./Suggestion";
 export { default as SummonElemental } from "./SummonElemental";
-export { default as Swarm } from "./Swarm";
 export { default as SwordBurst } from "./SwordBurst";
 export { default as SylunsViper } from "./SylunsViper";
 export { default as Symbol } from "./Symbol";
