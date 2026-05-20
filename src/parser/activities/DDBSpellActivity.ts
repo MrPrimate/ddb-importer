@@ -628,8 +628,6 @@ export default class DDBSpellActivity extends DDBBasicActivity {
       allowCritical,
     });
 
-    console.warn("Final activity data", foundry.utils.deepClone(this.data));
-
   }
 
 }
