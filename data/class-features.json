@@ -9612,5 +9612,25 @@
   {
     "name": "Sealed Fate",
     "path": "icons/magic/death/hand-dirt-undead-zombie.webp"
+  },
+  {
+    "name": "Malleable Visage",
+    "path": "icons/magic/control/debuff-energy-hold-green.webp"
+  },
+  {
+    "name": "Suturer",
+    "path": "icons/skills/wounds/injury-stitched-flesh-red.webp"
+  },
+  {
+    "name": "Mark Prey",
+    "path": "icons/skills/targeting/crosshair-pointed-orange.webp"
+  },
+  {
+    "name": "Conjure Drink",
+    "path": "icons/consumables/drinks/alcohol-beer-stein-wooden-metal-brown.webp"
+  },
+  {
+    "name": "Oath of Revelry Spells",
+    "path": "icons/consumables/drinks/alcohol-beer-mug-yellow.webp"
   }
 ]

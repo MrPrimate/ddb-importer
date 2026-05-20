@@ -1827,5 +1827,49 @@
   {
     "name": "Cold Fire Resistance",
     "path": "icons/magic/fire/barrier-ice-wall-explosion-blue.webp"
+  },
+  {
+    "name": "Trace of Undeath",
+    "path": "icons/magic/death/hand-undead-skeleton-fire-green.webp"
+  },
+  {
+    "name": "Acidic Flesh",
+    "path": "icons/magic/acid/dissolve-arm-flesh.webp"
+  },
+  {
+    "name": "Reshapable",
+    "path": "icons/magic/acid/orb-bubble-smoke-drip.webp"
+  },
+  {
+    "name": "Metamorphosis",
+    "path": "icons/creatures/invertebrates/dragonfly-teal.webp"
+  },
+  {
+    "name": "Adept Trickster",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Deft Climber",
+    "path": "icons/creatures/claws/claw-bear-paw-swipe-brown.webp"
+  },
+  {
+    "name": "Tanukin Magic",
+    "path": "icons/magic/nature/leaf-glow-maple-orange.webp"
+  },
+  {
+    "name": "Wild Speech",
+    "path": "icons/magic/nature/tree-spirit-blue.webp"
+  },
+  {
+    "name": "Lightning Resistance",
+    "path": "icons/magic/lightning/bolts-forked-large-blue.webp"
+  },
+  {
+    "name": "Kobold Legacy",
+    "path": "icons/creatures/reptiles/lizard-mouth-glowing-red.webp"
+  },
+  {
+    "name": "Cold Resistance",
+    "path": "icons/magic/water/barrier-ice-wall-explosion.webp"
   }
 ]
