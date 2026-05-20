@@ -1,5 +1,21 @@
 [
   {
+    "name": "Focused Critical",
+    "path": "icons/skills/melee/strike-polearm-light-orange.webp"
+  },
+  {
+    "name": "Guile of the Cloud Giant",
+    "path": "icons/magic/air/air-pressure-shield-blue.webp"
+  },
+  {
+    "name": "Altered",
+    "path": "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp"
+  },
+  {
+    "name": "Convincing Inquisitor",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-large-teal.webp"
+  },
+  {
     "name": "Strike of the Giants",
     "path": "icons/skills/melee/hand-grip-staff-teal.webp"
   },

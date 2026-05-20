@@ -2884,5 +2884,261 @@
   {
     "name": "Water Whip",
     "path": "icons/magic/water/pseudopod-swirl-blue.webp"
+  },
+  {
+    "name": "Can't Trip",
+    "path": "icons/skills/movement/feet-spurred-boots-brown.webp"
+  },
+  {
+    "name": "Flare",
+    "path": "icons/magic/light/explosion-star-glow-blue.webp"
+  },
+  {
+    "name": "Pins & Needles",
+    "path": "icons/magic/control/voodoo-doll-pain-damage-yellow.webp"
+  },
+  {
+    "name": "Smokescreen",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-gray.webp"
+  },
+  {
+    "name": "Spark",
+    "path": "icons/magic/lightning/orb-ball-spiral-blue.webp"
+  },
+  {
+    "name": "Buzzing Bee",
+    "path": "icons/creatures/invertebrates/bee-yellow.webp"
+  },
+  {
+    "name": "Flipperform",
+    "path": "icons/creatures/fish/fish-shark-swimming.webp"
+  },
+  {
+    "name": "Dazing Blast",
+    "path": "icons/magic/light/projectile-halo-teal.webp"
+  },
+  {
+    "name": "Evolution/Devolution",
+    "path": "icons/creatures/reptiles/lizard-iguana-green.webp"
+  },
+  {
+    "name": "Theft of Vitae",
+    "path": "icons/magic/control/energy-stream-link-spiral-white.webp"
+  },
+  {
+    "name": "Food Coma",
+    "path": "icons/consumables/food/drumstick-fried-brown.webp"
+  },
+  {
+    "name": "Influenza",
+    "path": "icons/magic/acid/dissolve-bone-skull.webp"
+  },
+  {
+    "name": "Invoke the Amaranthine",
+    "path": "icons/magic/holy/barrier-shield-winged-cross.webp"
+  },
+  {
+    "name": "Mireball",
+    "path": "icons/magic/earth/projectile-stone-ball-orange.webp"
+  },
+  {
+    "name": "The Bends",
+    "path": "icons/magic/water/orb-water-bubbles-blue.webp"
+  },
+  {
+    "name": "Fungal Infection",
+    "path": "icons/magic/nature/mushrooms-fire-glow-blue.webp"
+  },
+  {
+    "name": "Polychromatic Bubble",
+    "path": "icons/magic/defensive/barrier-shield-dome-blue-purple.webp"
+  },
+  {
+    "name": "Sticks to Snakes",
+    "path": "icons/creatures/reptiles/snake-fangs-bite-green-yellow.webp"
+  },
+  {
+    "name": "Tentacle Lash",
+    "path": "icons/creatures/tentacles/tentacles-octopus-black-pink.webp"
+  },
+  {
+    "name": "Totem Arrows",
+    "path": "icons/weapons/ammunition/arrows-fletching.webp"
+  },
+  {
+    "name": "Bone Cage",
+    "path": "icons/magic/death/skeleton-bird-skull-gray.webp"
+  },
+  {
+    "name": "Conjure the Deep Haze",
+    "path": "icons/magic/unholy/projectile-fireball-agile-purple.webp"
+  },
+  {
+    "name": "Contact Deity",
+    "path": "icons/magic/unholy/silhouette-evil-horned-giant.webp"
+  },
+  {
+    "name": "Curse of Ill-Fated Fortune",
+    "path": "icons/magic/symbols/triangle-glow-purple.webp"
+  },
+  {
+    "name": "Curse of Insatiable Greed",
+    "path": "icons/commodities/gems/pearl-swirl-teal.webp"
+  },
+  {
+    "name": "Dismiss Deity",
+    "path": "icons/magic/movement/portal-vortex-orange.webp"
+  },
+  {
+    "name": "Endure",
+    "path": "icons/creatures/magical/construct-golem-stone-blue.webp"
+  },
+  {
+    "name": "Feast of Flesh",
+    "path": "icons/magic/death/mouth-teeth-fangs-vampire.webp"
+  },
+  {
+    "name": "Feline Chaos",
+    "path": "icons/creatures/abilities/paw-glowing-yellow.webp"
+  },
+  {
+    "name": "Feverskin",
+    "path": "icons/magic/fire/flame-burning-creature-skeleton.webp"
+  },
+  {
+    "name": "Field of Reaping",
+    "path": "icons/magic/death/weapon-scythe-rune-green.webp"
+  },
+  {
+    "name": "Incorporeality",
+    "path": "icons/creatures/magical/spirit-undead-ghost-blue.webp"
+  },
+  {
+    "name": "Invetiture of Venom",
+    "path": "icons/magic/unholy/projectile-smoke-tendril-green.webp"
+  },
+  {
+    "name": "Krail's Rot",
+    "path": "icons/magic/death/skull-humanoid-worn-teal.webp"
+  },
+  {
+    "name": "Neutralizing Field",
+    "path": "icons/magic/life/heart-area-circle-red-green.webp"
+  },
+  {
+    "name": "Radiant Beacon",
+    "path": "icons/magic/light/explosion-star-large-blue-yellow.webp"
+  },
+  {
+    "name": "Submerge",
+    "path": "icons/magic/water/wave-water-explosion.webp"
+  },
+  {
+    "name": "Summon Jack-o'-Lantern",
+    "path": "icons/creatures/unholy/demon-fire-horned-mask.webp"
+  },
+  {
+    "name": "Blood Tide",
+    "path": "icons/skills/wounds/blood-cells-red.webp"
+  },
+  {
+    "name": "Conjure Giant",
+    "path": "icons/creatures/magical/humanoid-giant-forest-blue.webp"
+  },
+  {
+    "name": "Crown of Radiance",
+    "path": "icons/magic/holy/saint-glass-portrait-halo.webp"
+  },
+  {
+    "name": "Curse of Conceited Obsession",
+    "path": "icons/creatures/magical/spirit-undead-ghost-tan-teal.webp"
+  },
+  {
+    "name": "Curse of Crushing Sensation",
+    "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+  },
+  {
+    "name": "Curse of Uncontrollable Wrath",
+    "path": "icons/creatures/unholy/demon-fire-horned-winged-roar.webp"
+  },
+  {
+    "name": "Doom of Stacked Stones",
+    "path": "icons/commodities/stone/rock-pile-grey.webp"
+  },
+  {
+    "name": "Earth Worm",
+    "path": "icons/creatures/invertebrates/beetle-grub-larvae-gray.webp"
+  },
+  {
+    "name": "Grim Harvest",
+    "path": "icons/magic/death/skeleton-skull-soul-blue.webp"
+  },
+  {
+    "name": "Melting Curse",
+    "path": "icons/magic/fire/projectile-bolt-zigzag-orange.webp"
+  },
+  {
+    "name": "Ray of Contamination",
+    "path": "icons/magic/unholy/energy-smoke-pink.webp"
+  },
+  {
+    "name": "Storm of Contamination",
+    "path": "icons/magic/lightning/bolt-forked-magenta.webp"
+  },
+  {
+    "name": "Ballistic Smite",
+    "path": "icons/skills/targeting/target-glowing-yellow.webp"
+  },
+  {
+    "name": "Creeping Touch",
+    "path": "icons/magic/death/hand-undead-skeleton-fire-green.webp"
+  },
+  {
+    "name": "Fixit",
+    "path": "icons/tools/hand/hammer-backing-steel.webp"
+  },
+  {
+    "name": "Peppermint Plate",
+    "path": "icons/magic/defensive/shield-barrier-glowing-triangle-red.webp"
+  },
+  {
+    "name": "Inequality",
+    "path": "icons/magic/control/energy-stream-link-spiral-white.webp"
+  },
+  {
+    "name": "Sugar Rush",
+    "path": "icons/magic/movement/trail-streak-impact-blue.webp"
+  },
+  {
+    "name": "Astral Flood",
+    "path": "icons/magic/water/orb-ice-web.webp"
+  },
+  {
+    "name": "Martyr",
+    "path": "icons/magic/life/heart-broken-red.webp"
+  },
+  {
+    "name": "Mass Leech",
+    "path": "icons/magic/death/skull-weapon-staff-glow-pink.webp"
+  },
+  {
+    "name": "Orros Mark of Fate",
+    "path": "icons/magic/defensive/shield-barrier-flaming-diamond-magenta.webp"
+  },
+  {
+    "name": "Sanctum of the Flock",
+    "path": "icons/magic/light/explosion-star-large-teal.webp"
+  },
+  {
+    "name": "Switcheroo",
+    "path": "icons/magic/movement/abstract-ribbons-red-orange.webp"
+  },
+  {
+    "name": "Arcane Aegis",
+    "path": "icons/magic/defensive/shield-barrier-blue.webp"
+  },
+  {
+    "name": "Shadow Adaptation",
+    "path": "icons/magic/unholy/orb-stone-pink.webp"
   }
 ]
