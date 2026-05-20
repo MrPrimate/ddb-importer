@@ -6,6 +6,8 @@
 - Vengeful blade parsing improvements.
 - Some effects were generation the wrong duration when the duration was not in seconds!
 - If generating Midi effects some skill bonus effect generations.
+- Some monsters with regain hp effects would not process the activity correctly, such as Shield Guardians.
+- Special activities such as the Shield Guardians Regeneration should now use the new Turn Start activation condition.
 
 # 7.2.20
 
