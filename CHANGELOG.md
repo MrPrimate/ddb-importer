@@ -12,6 +12,7 @@
 - Special activities such as the Shield Guardians Regeneration should now use the new Turn Start activation condition.
 - Features like Potent Spellcasting would not always add the bonus during import.
 - Many icon updates from @crimsonedge
+- Improvements to the Character Feature/Options importer. Improved import feedback and reliability
 
 # 7.2.20
 
