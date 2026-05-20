@@ -387,6 +387,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     this.actionData.damageParts = this.ddbMonsterDamage.damageParts;
     this.actionData.versatileParts = this.ddbMonsterDamage.versatileParts;
     this.actionData.saveParts = this.ddbMonsterDamage.saveParts;
+    this.actionData.healingParts = this.ddbMonsterDamage.healingParts;
     if (this.ddbMonsterDamage.levelBonus) this.levelBonus = true;
     if (this.ddbMonsterDamage.profBonus) this.profBonus = true;
 
@@ -424,6 +425,10 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       action = "special";
     } else if (actionAction) {
       action = "action";
+    }
+    const startOfTurn = this.strippedHtml.toLowerCase().match(/at the start of each of its turn|at the start of its turn/i);
+    if (this.type === "special" && startOfTurn) {
+      action = "turnStart";
     }
     if (this.type === "lair") action = "lair";
     else if (this.type === "mythic") action = "mythic";
@@ -1370,7 +1375,7 @@ ${this.data.system.description.value}
 
   #addHealAdditionalActivities() {
     for (const part of this.actionData.healingParts) {
-      this.additionalActivities.push({
+      const data = {
         name: "Heal",
         type: "heal",
         options: {
@@ -1379,7 +1384,8 @@ ${this.data.system.description.value}
           generateHealing: true,
           healingPart: part.part,
         },
-      });
+      } as IAdditionalActivityOutline;
+      this.additionalActivities.push(data);
     }
   }
 
