@@ -17,6 +17,72 @@ import DDBCharacter from "../parser/DDBCharacter";
 import { ExternalAutomations } from "../effects/_module";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker, DDBRuleJournalFactory, SystemHelpers } from "../parser/lib/_module";
+import DDBItemSocket, { DDBItemEvent } from "../lib/streaming/DDBItemSocket";
+
+// Custom proxies may not expose the /items socket namespace. After one failed
+// streaming attempt for the session we latch this and stick to HTTP.
+let _itemSocketDisabled = false;
+
+function applyItemFilters(input, { ids, useSourceFilter, useGenerics, sources, exactMatch, searchFilter }) {
+  let data = input;
+  // category filtering
+  if (ids.length === 0) {
+    const categoryItems = data.items
+      .map((item) => {
+        item.sources = item.sources.filter((source) =>
+          DDBSources.isSourceInAllowedCategory(source),
+        );
+        return item;
+      })
+      .filter((item) => {
+        if (item.isHomebrew) return true;
+        return item.sources.length > 0;
+      });
+    data = { items: categoryItems, spells: data.spells, extra: data.extra };
+  }
+  // source filtering
+  const filteredItems = useGenerics ? data.items : data.items.filter((item) => item.canBeAddedToInventory);
+  data = {
+    items: (sources.length === 0 || !useSourceFilter)
+      ? filteredItems
+      : filteredItems.filter((item) =>
+        item.sources.some((source) => sources.includes(source.sourceId)),
+      ),
+    spells: data.spells,
+    extra: data.extra,
+  };
+  // homebrew filtering
+  if (sources.length === 0) {
+    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only")) {
+      data = { items: data.items.filter((item) => item.isHomebrew), spells: data.spells, extra: data.extra };
+    } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew")) {
+      data = { items: data.items.filter((item) => !item.isHomebrew), spells: data.spells, extra: data.extra };
+    }
+  }
+  if (ids.length > 0) {
+    data = { items: data.items.filter((item) => ids.includes(item.id)), spells: data.spells, extra: data.extra };
+  }
+  if (searchFilter && searchFilter !== "") {
+    if (exactMatch) {
+      data = { items: data.items.filter((item) => item.name.toLowerCase() === searchFilter.toLowerCase()), spells: data.spells, extra: data.extra };
+    } else {
+      data = { items: data.items.filter((item) => item.name.toLowerCase().includes(searchFilter.toLowerCase())), spells: data.spells, extra: data.extra };
+    }
+  }
+  return data;
+}
+
+function normaliseItemPayload(payload) {
+  // Official proxy returns { items, spells, extra }; custom proxies return a raw array.
+  if (DDBProxy.isCustom(true)) {
+    return { items: payload, spells: [], extra: [] };
+  }
+  return {
+    items: payload.items,
+    spells: (payload.spells ?? []).map((s) => s.data),
+    extra: payload.extra ?? [],
+  };
+}
 
 
 export default class DDBItemsImporter {
@@ -54,7 +120,11 @@ export default class DDBItemsImporter {
   itemHandler = null;
 
   constructor({
-    source = [],
+    source = {
+      items: [],
+      extra: [],
+      spells: [],
+    },
     notifier = null,
     deleteBeforeUpdate = null,
     useSourceFilter = true,
@@ -91,39 +161,38 @@ export default class DDBItemsImporter {
     this.ready = true;
   }
 
-  static _getItemData({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
+  static _resolveItemFetchContext({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
     const cobaltCookie = Secrets.getCobalt();
     const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
-    const body = { cobalt: cobaltCookie, campaignId: campaignId, betaKey: betaKey, addSpells: true };
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
     const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
     const useGenerics = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-generic-items");
-    const sources = enableSources
-      ? DDBSources.getSelectedSourceIds()
-      : [];
-
+    const sources = enableSources ? DDBSources.getSelectedSourceIds() : [];
     const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-exact-match");
+    return {
+      cobaltCookie, campaignId, parsingApi, betaKey, debugJson,
+      useGenerics, sources, exactMatch,
+      filters: { ids, useSourceFilter, useGenerics, sources, exactMatch, searchFilter },
+    };
+  }
 
-    logger.debug(`Fetching Items with:`, {
-      debugJson,
-      enableSources,
-      useGenerics,
-      sources,
-      useSourceFilter,
-      exactMatch,
-      ids,
-      searchFilter,
+  static _getItemDataHttp({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
+    const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter });
+    const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
+    const body = { cobalt: cobaltCookie, campaignId, betaKey, addSpells: true };
+
+    logger.debug(`Fetching Items (HTTP) with:`, {
+      debugJson, sources: ctx.sources, useSourceFilter, exactMatch: ctx.exactMatch,
+      useGenerics: ctx.useGenerics, ids, searchFilter,
     });
 
     return new Promise((resolve, reject) => {
       fetch(`${parsingApi}/proxy/items`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       })
         .then((response) => response.json())
         .then((data) => {
@@ -133,103 +202,98 @@ export default class DDBItemsImporter {
           if (!data.success) {
             utils.munchNote(`Failure: ${data.message}`);
             reject(data.message);
+            return null;
           }
           return data.data;
         })
-        .then((data) => {
-          if (DDBProxy.isCustom(true)) {
-            return {
-              items: data,
-              spells: [],
-              extra: [],
-            };
-          } else {
-            return {
-              items: data.items,
-              spells: data.spells.map((s) => s.data),
-              extra: data.extra,
-            };
-          }
+        .then((raw) => {
+          if (raw == null) return;
+          resolve(applyItemFilters(normaliseItemPayload(raw), ctx.filters));
         })
-        .then((data) => {
-          // handle category filtering
-          if (ids.length > 0) return data;
-          const categoryItems = data.items
-            .map((item) => {
-              item.sources = item.sources.filter((source) =>
-                DDBSources.isSourceInAllowedCategory(source),
-                // && source.sourceType === 1,
-              );
-              return item;
-            })
-            .filter((item) => {
-              if (item.isHomebrew) return true;
-              return item.sources.length > 0;
-            });
-          return {
-            items: categoryItems,
-            spells: data.spells,
-            extra: data.extra,
-          };
-        })
-        .then((data) => {
-          // handle source filtering
-          const filteredItems = useGenerics ? data.items : data.items.filter((item) => item.canBeAddedToInventory);
-          return {
-            items: (sources.length === 0 || !useSourceFilter)
-              ? filteredItems
-              : filteredItems.filter((item) =>
-                item.sources.some((source) => sources.includes(source.sourceId)),
-              ),
-            spells: data.spells,
-            extra: data.extra,
-          };
-        })
-        .then((data) => {
-          // handle homebrew filtering
-          if (sources.length > 0) return data;
-          if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only")) {
-            return {
-              items: data.items.filter((item) => item.isHomebrew),
-              spells: data.spells,
-              extra: data.extra,
-            };
-          } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew")) {
-            return {
-              items: data.items.filter((item) => !item.isHomebrew),
-              spells: data.spells,
-              extra: data.extra,
-            };
-          } else {
-            return data;
-          }
-        })
-        .then((data) => {
-          if (ids.length > 0) return {
-            items: data.items.filter((item) => ids.includes(item.id)),
-            spells: data.spells,
-            extra: data.extra,
-          };
-          return data;
-        })
-        .then((data) => {
-          if (!searchFilter || searchFilter === "") return data;
-          if (exactMatch) {
-            return {
-              items: data.items.filter((item) => item.name.toLowerCase() === searchFilter.toLowerCase()),
-              spells: data.spells,
-              extra: data.extra,
-            };
-          }
-          return {
-            items: data.items.filter((item) => item.name.toLowerCase().includes(searchFilter.toLowerCase())),
-            spells: data.spells,
-            extra: data.extra,
-          };
-        })
-        .then((data) => resolve(data))
         .catch((error) => reject(error));
     });
+  }
+
+  static _getItemDataStreaming({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
+    const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter });
+    const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
+
+    logger.debug(`Streaming Items with:`, {
+      debugJson, sources: ctx.sources, useSourceFilter, exactMatch: ctx.exactMatch,
+      useGenerics: ctx.useGenerics, ids, searchFilter,
+    });
+
+    return new Promise((resolve, reject) => {
+      const socket = new DDBItemSocket(parsingApi);
+      let raw: any = null;
+      let settled = false;
+      let timer: any = null;
+
+      const finish = (err: Error | null, data: any) => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        socket.close();
+        if (err) reject(err);
+        else resolve(data);
+      };
+
+      socket.connect({
+        onEvent: (event: DDBItemEvent) => {
+          if (event.kind === "items") {
+            raw = event.payload;
+          }
+        },
+        onError: (message, fatal) => {
+          if (fatal) finish(new Error(message), null);
+          else logger.warn(`[DDBItemSocket] non-fatal error: ${message}`);
+        },
+        onDone: () => {
+          if (debugJson) {
+            FileHelper.download(
+              JSON.stringify({ success: true, data: raw }),
+              `items-raw.json`,
+              "application/json",
+            );
+          }
+          if (raw == null) {
+            finish(new Error("Stream completed without items payload"), null);
+            return;
+          }
+          finish(null, applyItemFilters(normaliseItemPayload(raw), ctx.filters));
+        },
+        onConnectError: (err) => finish(err, null),
+      });
+
+      timer = setTimeout(() => {
+        finish(new Error("Item socket timed out"), null);
+      }, 60000);
+
+      (async () => {
+        try {
+          const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
+          if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+          const startRes = await socket.start("all-items", { campaignId, addSpells: true, cobalt: cobaltCookie });
+          if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
+          logger.debug(`[DDBItemSocket] jobId=${startRes.jobId} replayed=${startRes.replayed}`);
+        } catch (err) {
+          finish(err as Error, null);
+        }
+      })();
+    });
+  }
+
+  static async _getItemData(args = {}) {
+    if (!_itemSocketDisabled) {
+      try {
+        return await DDBItemsImporter._getItemDataStreaming(args);
+      } catch (err) {
+        const msg = (err as Error)?.message ?? String(err);
+        logger.warn(`[items] streaming failed, falling back to HTTP: ${msg}`);
+        _itemSocketDisabled = true;
+      }
+    }
+    return DDBItemsImporter._getItemDataHttp(args);
   }
 
   static getCharacterInventory(items, extra = []) {
@@ -334,13 +398,14 @@ export default class DDBItemsImporter {
 
     this.notifier("Downloading item data..");
 
+    // TO DO: add types
     // disable source filter if ids provided
     const sourceFilter = (this.ids === null || this.ids.length === 0) && this.useSourceFilter;
     this.source = await DDBItemsImporter._getItemData({
       useSourceFilter: sourceFilter,
       ids: this.ids,
       searchFilter: this.searchFilter,
-    });
+    }) as any;
   }
 
   async _importSyntheticItems() {
