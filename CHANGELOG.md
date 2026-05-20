@@ -2,6 +2,8 @@
 
 - Detect evil and good was not set as a emanation in 2024 rules.
 - Grim Harbinger subclass parsing improvements.
+- Some monsters with regain hp effects would not process the activity correctly, such as Shield Guardians.
+- Special activities such as the Shield Guardians Regeneration should now use the new Turn Start activation condition.
 
 # 7.1.15
 
