@@ -4,7 +4,7 @@ import DDBSpell from "./DDBSpell";
 
 export default class GenericSpellFactory {
 
-  static async getSpells(spells, notifier = null, generateSummons = null) {
+  static async getSpells(spells, notifier = null, generateSummons = null, notifierV2 = null) {
     const results = [];
 
     const filteredSpells = spells
@@ -21,7 +21,19 @@ export default class GenericSpellFactory {
     let i = 0;
     const length = filteredSpells.length;
     for (const spellData of filteredSpells) {
-      if (notifier) notifier(`Parsing spell ${++i} of ${length}: ${spellData.definition.name}`, { nameField: true });
+      if (notifier) {
+        notifier(`Parsing spell ${++i} of ${length}: ${spellData.definition.name}`, { nameField: true });
+      } else {
+        i++;
+      }
+      if (notifierV2) {
+        notifierV2({
+          progress: { current: i, total: length },
+          section: "name",
+          message: `Parsing spell: ${spellData.definition.name}`,
+          progressBar: "primary",
+        });
+      }
       const flagData: IParseSpellFlagData = {
         ddbimporter: {
           generic: true,
@@ -36,6 +48,10 @@ export default class GenericSpellFactory {
       };
       const spell = await DDBSpell.parseSpell(spellData, null, { generateSummons, notifier, flagData, isGeneric: true });
       results.push(spell);
+    }
+
+    if (notifierV2) {
+      notifierV2({ progress: { current: length, total: length }, message: "", progressBar: "primary", clear: true });
     }
 
     return results;

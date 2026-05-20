@@ -18,8 +18,45 @@ import { ExternalAutomations } from "../effects/_module";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory";
+import DDBSpellSocket, { DDBSpellEvent } from "../lib/streaming/DDBSpellSocket";
 
-function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, searchFilter } = {}) {
+function applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilter }) {
+  let data = raw;
+  if (sourceFilter) {
+    data = data
+      .map((spell) => {
+        spell.definition.sources = spell.definition.sources.filter((source) =>
+          DDBSources.isSourceInAllowedCategory(source),
+        );
+        return spell;
+      })
+      .filter((spell) => {
+        if (spell.definition.isHomebrew) return true;
+        return spell.definition.sources.length > 0;
+      });
+  }
+  if (sources.length > 0 && sourceFilter) {
+    data = data.filter((spell) =>
+      spell.definition.sources.some((source) => sources.includes(source.sourceId)),
+    );
+  } else if (sources.length === 0) {
+    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only")) {
+      data = data.filter((spell) => spell.definition.isHomebrew);
+    } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew")) {
+      data = data.filter((spell) => !spell.definition.isHomebrew);
+    }
+  }
+  if (searchFilter && searchFilter !== "") {
+    if (exactMatch) {
+      data = data.filter((spell) => spell.definition.name.toLowerCase() === searchFilter.toLowerCase());
+    } else {
+      data = data.filter((spell) => spell.definition.name.toLowerCase().includes(searchFilter.toLowerCase()));
+    }
+  }
+  return data;
+}
+
+function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifier, searchFilter } = {}) {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
@@ -33,29 +70,19 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
   };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
-  const sources = enableSources
-    ? DDBSources.getSelectedSourceIds()
-    : [];
+  const sources = enableSources ? DDBSources.getSelectedSourceIds() : [];
   const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
 
-  logger.debug(`Fetching Spells with:`, {
-    debugJson,
-    enableSources,
-    sources,
-    sourceFilter,
-    exactMatch,
-    rulesVersion,
-    className,
-    searchFilter,
+  logger.debug(`Fetching Spells (HTTP) with:`, {
+    debugJson, enableSources, sources, sourceFilter, exactMatch,
+    rulesVersion, className, searchFilter,
   });
 
   return new Promise((resolve, reject) => {
     fetch(`${parsingApi}/proxy/class/spells`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -63,51 +90,16 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
           FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");
         }
         if (!data.success) {
-          notifier(`Failure: ${data.message}`);
+          notifier?.(`Failure: ${data.message}`);
           reject(data.message);
+          return null;
         }
-        return data;
+        return data.data;
       })
-      .then((data) => {
-        if (!sourceFilter) return data.data;
-        const categorySpells = data.data
-          .map((spell) => {
-            spell.definition.sources = spell.definition.sources.filter((source) =>
-              DDBSources.isSourceInAllowedCategory(source),
-              // && source.sourceType === 1,
-            );
-            return spell;
-          })
-          .filter((spell) => {
-            if (spell.definition.isHomebrew) return true;
-            return spell.definition.sources.length > 0;
-          });
-        return categorySpells;
+      .then((raw) => {
+        if (raw == null) return;
+        resolve(applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilter }));
       })
-      .then((data) => {
-        if (sources.length == 0 || !sourceFilter) return data;
-        return data.filter((spell) =>
-          spell.definition.sources.some((source) => sources.includes(source.sourceId)),
-        );
-      })
-      .then((data) => {
-        if (sources.length > 0) return data;
-        if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only")) {
-          return data.filter((spell) => spell.definition.isHomebrew);
-        } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew")) {
-          return data.filter((spell) => !spell.definition.isHomebrew);
-        } else {
-          return data;
-        }
-      })
-      .then((data) => {
-        if (!searchFilter || searchFilter === "") return data;
-        if (exactMatch) {
-          return data.filter((spell) => spell.definition.name.toLowerCase() === searchFilter.toLowerCase());
-        }
-        return data.filter((spell) => spell.definition.name.toLowerCase().includes(searchFilter.toLowerCase()));
-      })
-      .then((data) => resolve(data))
       .catch((error) => {
         logger.warn(error);
         reject(error);
@@ -115,7 +107,109 @@ function getSpellData({ className, sourceFilter, rulesVersion = null, notifier, 
   });
 }
 
-export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, searchFilter = null } = {}) {
+function getSpellDataStreaming({ className, sourceFilter, rulesVersion = null, notifier: _notifier, searchFilter } = {}) {
+  const cobaltCookie = Secrets.getCobalt();
+  const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
+  const parsingApi = DDBProxy.getProxy();
+  const betaKey = PatreonHelper.getPatreonKey();
+  const rules = rulesVersion ?? "2014";
+
+  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+  const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+  const sources = enableSources ? DDBSources.getSelectedSourceIds() : [];
+  const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
+
+  logger.debug(`Streaming Spells with:`, {
+    debugJson,
+    enableSources,
+    sources,
+    sourceFilter,
+    exactMatch,
+    rulesVersion: rules,
+    className,
+    searchFilter,
+  });
+
+  return new Promise((resolve, reject) => {
+    const socket = new DDBSpellSocket(parsingApi);
+    let raw: any[] = [];
+    let settled = false;
+    let timer: any = null;
+
+    const finish = (err: Error | null, data: any[] | null) => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      socket.close();
+      if (err) reject(err);
+      else resolve(data);
+    };
+
+    socket.connect({
+      onEvent: (event: DDBSpellEvent) => {
+        if (event.kind === "classSpells") {
+          const payload = event.payload ?? {};
+          if (Array.isArray(payload.spells)) raw = payload.spells;
+        }
+      },
+      onError: (message, fatal) => {
+        if (fatal) finish(new Error(message), null);
+        else logger.warn(`[DDBSpellSocket] non-fatal error: ${message}`);
+      },
+      onDone: () => {
+        if (debugJson) {
+          FileHelper.download(
+            JSON.stringify({ success: true, data: raw }),
+            `spells-raw.json`,
+            "application/json",
+          );
+        }
+        finish(null, applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilter }));
+      },
+      onConnectError: (err) => finish(err, null),
+    });
+
+    timer = setTimeout(() => {
+      finish(new Error("Spell socket timed out"), null);
+    }, 30000);
+
+    (async () => {
+      try {
+        const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
+        if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+        const startRes = await socket.start("class-spells", {
+          className,
+          rulesVersion: rules,
+          campaignId,
+          cobalt: cobaltCookie,
+        });
+        if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
+        logger.debug(`[DDBSpellSocket] jobId=${startRes.jobId} replayed=${startRes.replayed} className=${className} rulesVersion=${rules}`);
+      } catch (err) {
+        finish(err as Error, null);
+      }
+    })();
+  });
+}
+
+// Custom proxies may not expose the /spells socket namespace. Try the streaming
+// path first; on connect/auth/start failure fall through to the HTTP endpoint.
+let _spellSocketDisabled = false;
+
+async function getSpellData(args) {
+  if (!_spellSocketDisabled) {
+    try {
+      return await getSpellDataStreaming(args);
+    } catch (err) {
+      const msg = (err as Error)?.message ?? String(err);
+      logger.warn(`[spells] streaming failed, falling back to HTTP: ${msg}`);
+      _spellSocketDisabled = true;
+    }
+  }
+  return getSpellDataHttp(args);
+}
+
+export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, notifierV2 = null, searchFilter = null } = {}) {
 
   await DDBReferenceLinker.importCacheLoad();
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
@@ -129,7 +223,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
     CONFIG.DDBI.EFFECT_CONFIG.MODULES.configured = await DDBMacros.configureDependencies();
   }
 
-  resolvedNotifier("Downloading spell data..");
+  resolvedNotifier("Downloading spell data...");
 
   // disable source filter if ids provided
   const sourceFilter = !(ids !== null && ids.length > 0);
@@ -150,7 +244,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
     }
   }
 
-  resolvedNotifier("Parsing spell data.");
+  resolvedNotifier("Parsing spell data...");
 
   const filteredResults = results
     .filter((v, i, a) => a.findIndex((t) =>
@@ -168,7 +262,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   //   })
   // });
 
-  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, resolvedNotifier);
+  const rawSpells = await GenericSpellFactory.getSpells(filteredResults, resolvedNotifier, null, notifierV2);
 
   const spells = rawSpells
     .filter((spell) => spell?.name)

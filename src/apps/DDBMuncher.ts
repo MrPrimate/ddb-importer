@@ -658,6 +658,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       await parseSpells({
         notifier: this.notifier.bind(this),
+        notifierV2: this.notifierV2.bind(this),
         searchFilter: this.searchTermSpell,
       });
       this.notifier(`Finished importing spells!`, { nameField: true });
