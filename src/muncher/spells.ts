@@ -281,6 +281,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
     deleteBeforeUpdate,
     matchFlags: ["is2014", "is2024"],
     notifier: resolvedNotifier,
+    notifierV2,
   });
   await itemHandler.init();
   await itemHandler.iconAdditions();

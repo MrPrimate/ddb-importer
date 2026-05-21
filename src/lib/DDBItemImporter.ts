@@ -14,6 +14,7 @@ interface IDDBItemImporterOptions {
   useCompendiumFolders?: boolean | null;
   recursive?: boolean | null;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifierV2?: (props: NotifierV2Props) => void;
 }
 
 interface IDDBItemImporterLoadPassedItemsFromCompendiumOptions extends IDDBItemImporterGetCompendiumItemsOptions {
@@ -62,13 +63,14 @@ export default class DDBItemImporter {
 
   useCompendiumFolders: boolean;
   matchFlags: string[];
-  compendium: CompendiumCollection.Any;
+  compendium: CompendiumCollection<any>;
   compendiumIndex: IndexTypeForMetadata<CompendiumCollection.DocumentName> | null;
   indexFilter: Record<string, any>; // { fields?: string[]; };
   results: any[];
   deleteBeforeUpdate: boolean;
   deleteAllBeforeUpdate: boolean;
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifierV2: ((props: NotifierV2Props) => void) | null;
   totalDocuments: number;
   currentDocumentCount: number;
   compendiumFolders: DDBCompendiumFolders;
@@ -85,6 +87,7 @@ export default class DDBItemImporter {
     useCompendiumFolders = null,
     recursive = null,
     notifier = null,
+    notifierV2 = null,
   }: IDDBItemImporterOptions = {}) {
     this.type = type;
     this._documents = documents;
@@ -108,6 +111,7 @@ export default class DDBItemImporter {
         logger.info(note, { nameField, monsterNote });
       };
     }
+    this.notifierV2 = notifierV2;
     this.totalDocuments = this._documents?.length ?? 0;
     this.currentDocumentCount = 0;
 
@@ -310,7 +314,6 @@ export default class DDBItemImporter {
 
   async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item.Implementation[]> {
     const indexEntries = await this.getFilteredItemIndexes(item);
-    // @ts-expect-error - urgh foundry
     const mapped = await Promise.all(indexEntries.map((idx) => {
       const entry = this.compendium.getDocument(idx._id).then((doc) => doc) as Promise<Item.Implementation>;
       return entry;
@@ -351,7 +354,18 @@ export default class DDBItemImporter {
       logger.error(`Item ${item.name} failed creation`, { item, newItem });
     }
     this.currentDocumentCount++;
-    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
+
+    if (this.notifierV2) {
+      this.notifierV2?.({
+        progress: { current: this.currentDocumentCount, total: this.totalDocuments },
+        section: "level4",
+        message: `Creating ${item.name}`,
+        progressBar: "secondary",
+      });
+    } else {
+      this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Creating ${item.name}`);
+    }
+
     logger.debug(`Pushing ${item.name} to compendium (${this.currentDocumentCount}/${this.totalDocuments})`);
     // import document no longer retains the id
     // return this.compendium.importDocument(newItem, { keepId: true });
@@ -363,7 +377,17 @@ export default class DDBItemImporter {
     // purge existing active effects on this item
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.currentDocumentCount++;
-    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
+    if (this.notifierV2) {
+      this.notifierV2?.({
+        progress: { current: this.currentDocumentCount, total: this.totalDocuments },
+        section: "level4",
+        message: `Updating ${updateItem.name}`,
+        progressBar: "secondary",
+      });
+    } else {
+      this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
+    }
+
     logger.debug(`Updating ${updateItem.name} compendium entry (${this.currentDocumentCount}/${this.totalDocuments})`, {
       updateItem,
       existingItem,
@@ -376,13 +400,13 @@ export default class DDBItemImporter {
       // @ts-expect-error - results on this item allows for TableResult delete
       await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
     }
-    // @ts-expect-error - we know effects exist and can be deleted on this item
     if (existingItem.effects?.size && existingItem.effects.size > 0) {
       logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
       await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     }
 
     const update = await existingItem.update(updateItem as any, {
+      // @ts-expect-error - we know this is allowed
       pack: this.compendium.metadata.id,
       render: false,
       recursive: this.recursive,
@@ -393,7 +417,7 @@ export default class DDBItemImporter {
 
   async deleteCreateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation | null> {
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
-    this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Removing and Recreating ${updateItem.name} compendium entry`);
+    this.notifier(`Removing and Recreating ${updateItem.name} compendium entry`);
     logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
     await existingItem.delete();
     const newItem = await this.createCompendiumItem(updateItem);
@@ -461,7 +485,7 @@ export default class DDBItemImporter {
     // remove duplicate items based on name and type
     const filterItems = filterDuplicates
       ? [...new Map(this.documents.map((item) => {
-        let filterItem = item["name"] + item["type"];
+        let filterItem = `${item["name"]}${item["type"]}`;
         this.matchFlags.forEach((flag) => {
           filterItem += item.flags.ddbimporter[flag];
         });
@@ -496,6 +520,8 @@ ${item.system.description.chat}
     const createResults = await this.createCompendiumItems(inputItems);
     logger.debug(`Created ${createResults.length} new ${this.type} documents in compendium`);
     this.notifier("", { nameField: true });
+    this.notifierV2?.({ message: "",  clear: true, section: "level4" });
+    this.notifierV2?.({ progress: { current: this.totalDocuments, total: this.totalDocuments }, message: "", progressBar: "secondary", clear: true });
 
     this.results = createResults.concat(results);
     await Promise.all(this.results);
@@ -539,7 +565,7 @@ ${item.system.description.chat}
     const loadedItems = [];
     for (const i of firstPassItems) {
       const item = await this.compendium.getDocument(i._id).then((doc) => {
-        const docData = doc.toObject();
+        const docData = doc.toObject() as TDDBImporterDocument;
         if (deleteCompendiumId) delete docData._id;
         delete docData.folder;
         SETTINGS.COMPENDIUM_REMOVE_FLAGS.forEach((flag) => {
