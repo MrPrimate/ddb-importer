@@ -106,6 +106,12 @@ export interface IDDBIConfig {
     payload: IDDBStickersPayload | null;
     fetchedAt: number | null;
   };
+  PATREON: {
+    tier: string | null;
+    tierLocal: string | null;
+    tiers: IPatreonAccessMatrix | null;
+    tiersLocal: IPatreonAccessMatrix | null;
+  };
   dumpQuickplay?: (scene: any) => unknown;
 }
 
@@ -177,6 +183,12 @@ if (!CONFIG.DDBI) {
       matches: new Map(),
       results: new Map(),
       inFlight: new Map(),
+    },
+    PATREON: {
+      tiers: null,
+      tiersLocal: null,
+      tier: null,
+      tierLocal: null,
     },
   } as IDDBIConfig;
 }

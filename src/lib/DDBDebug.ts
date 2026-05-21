@@ -167,7 +167,7 @@ export default class DDBDebug {
       },
       patreon: {
         tier: await PatreonHelper.checkPatreon(),
-        tierLocal: await PatreonHelper.checkPatreon(true),
+        tierLocal: await PatreonHelper.checkPatreon({ local: true }),
       },
       dnd5e: {
         version: game.settings.get("dnd5e", "rulesVersion"),

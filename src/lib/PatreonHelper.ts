@@ -195,9 +195,23 @@ const PatreonHelper = {
     return tiers;
   },
 
-  checkPatreon: async (local = false, overrideKey = null): Promise<IPatreonAccessMatrix> => {
+  checkPatreon: async ({local = false, overrideKey = null, cacheBust = true }: { local?: boolean; overrideKey?: string | null; cacheBust?: boolean } = {}): Promise<IPatreonAccessMatrix> => {
+    if (!cacheBust) {
+      if (local && CONFIG.DDBI.PATREON.tiersLocal) {
+        return CONFIG.DDBI.PATREON.tiersLocal;
+      } else if (!local && CONFIG.DDBI.PATREON.tiers) {
+        return CONFIG.DDBI.PATREON.tiers;
+      }
+    }
     const tier = await PatreonHelper.fetchPatreonTier(local, overrideKey);
     const matrix = PatreonHelper.calculateAccessMatrix(tier.data);
+    if (local) {
+      CONFIG.DDBI.PATREON.tierLocal = tier.data;
+      CONFIG.DDBI.PATREON.tiersLocal = matrix;
+    } else {
+      CONFIG.DDBI.PATREON.tier = tier.data;
+      CONFIG.DDBI.PATREON.tiers = matrix;
+    }
     return matrix;
   },
 
