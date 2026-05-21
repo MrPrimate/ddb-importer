@@ -103,6 +103,8 @@ export default class DDBItemsImporter {
 
   notifier = utils.munchNote;
 
+  notifierV2 = null;
+
   updateBool = false;
 
   uploadDirectory = null;
@@ -126,6 +128,7 @@ export default class DDBItemsImporter {
       spells: [],
     },
     notifier = null,
+    notifierV2 = null,
     deleteBeforeUpdate = null,
     useSourceFilter = true,
     ids = [],
@@ -133,6 +136,7 @@ export default class DDBItemsImporter {
   } = {}) {
     this.source = source;
     if (notifier) this.notifier = notifier;
+    if (notifierV2) this.notifierV2 = notifierV2;
     if (this.deleteBeforeUpdate !== null) this.deleteBeforeUpdate = deleteBeforeUpdate;
     this.useSourceFilter = useSourceFilter;
     this.ids = ids;
@@ -418,6 +422,7 @@ export default class DDBItemsImporter {
       deleteBeforeUpdate: this.deleteBeforeUpdate,
       matchFlags: ["is2014", "is2024"],
       notifier: this.notifier,
+      notifierV2: this.notifierV2,
     });
     await this.itemHandler.init();
     this.notifier(`Imps are creating iconographs for ${this.itemHandler.documents.length} possible items (this can take a while)`, { nameField: true });
@@ -472,6 +477,7 @@ export default class DDBItemsImporter {
     ids = [],
     deleteBeforeUpdate = null,
     notifier = null,
+    notifierV2 = null,
     searchFilter = null,
   } = {}) {
     const ddbItems = new DDBItemsImporter({
@@ -479,6 +485,7 @@ export default class DDBItemsImporter {
       ids,
       deleteBeforeUpdate,
       notifier,
+      notifierV2,
       searchFilter,
     });
     await ddbItems.process();

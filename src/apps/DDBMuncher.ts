@@ -684,6 +684,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       await DDBItemsImporter.fetchAndImportItems({
         notifier: this.notifier.bind(this),
+        notifierV2: this.notifierV2.bind(this),
         searchFilter: this.searchTermItem,
       });
       this.notifier(`Finished importing items!`, { nameField: true });
