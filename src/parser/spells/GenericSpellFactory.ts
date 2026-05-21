@@ -21,18 +21,17 @@ export default class GenericSpellFactory {
     let i = 0;
     const length = filteredSpells.length;
     for (const spellData of filteredSpells) {
-      if (notifier) {
+      if (notifierV2) {
+        notifierV2({
+          progress: { current: ++i, total: length },
+          section: "level4",
+          message: `Parsing spell: ${spellData.definition.name}`,
+          progressBar: "secondary",
+        });
+      } else if (notifier) {
         notifier(`Parsing spell ${++i} of ${length}: ${spellData.definition.name}`, { nameField: true });
       } else {
         i++;
-      }
-      if (notifierV2) {
-        notifierV2({
-          progress: { current: i, total: length },
-          section: "name",
-          message: `Parsing spell: ${spellData.definition.name}`,
-          progressBar: "primary",
-        });
       }
       const flagData: IParseSpellFlagData = {
         ddbimporter: {
@@ -51,7 +50,8 @@ export default class GenericSpellFactory {
     }
 
     if (notifierV2) {
-      notifierV2({ progress: { current: length, total: length }, message: "", progressBar: "primary", clear: true });
+      notifierV2({ section: "level4", message: "", clear: true });
+      notifierV2({ progress: { current: length, total: length }, message: "", progressBar: "secondary", clear: true });
     }
 
     return results;
