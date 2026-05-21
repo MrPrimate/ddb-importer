@@ -587,6 +587,10 @@ export default class DDBMuncher extends DDBAppV2 {
       "button[id^=\"munch-migrate-compendium-item\"]",
       "button[id^=\"munch-reset-images\"]",
       "button[id^=\"munch-xanathar-price\"]",
+      "button[id^=\"munch-world-monster-update\"]",
+      "button[id^=\"munch-world-monster-selective-update\"]",
+      "button[id^=\"munch-regenerate-storage\"]",
+      "button[id^=\"munch-open-core-setup\"]",
     ];
 
     if (tiers.all) {
@@ -603,6 +607,8 @@ export default class DDBMuncher extends DDBAppV2 {
       buttonSelectors.push("button[id^=\"munch-feats-start\"]");
       buttonSelectors.push("button[id^=\"munch-classes-start\"]");
       buttonSelectors.push("button[id^=\"munch-backgrounds-start\"]");
+      buttonSelectors.push("button[id^=\"munch-maps-open\"]");
+      buttonSelectors.push("button[id^=\"munch-stickers-open\"]");
     }
 
     buttonSelectors.forEach((selector) => {
