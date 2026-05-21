@@ -13,6 +13,11 @@ import {
 import DDBMonster from "./DDBMonster";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
 import { DDBReferenceLinker } from "./lib/_module";
+import DDBMonsterSocket, { DDBMonsterEvent } from "../lib/streaming/DDBMonsterSocket";
+
+// Custom proxies may not expose the /monsters socket namespace. One failed
+// streaming attempt per page-load latches this and falls back to HTTP.
+let _monsterSocketDisabled = false;
 
 
 interface IDDBMonsterFactory {
@@ -187,14 +192,49 @@ export default class DDBMonsterFactory {
       : `${parsingApi}/proxy/monster`;
     const url = CONFIG.DDBI.monsterURL ?? defaultUrl;
 
-    return new Promise((resolve, reject) => {
+    const isIdLookup = !!(ids && Array.isArray(ids) && ids.length > 0);
+    const streamElement = isIdLookup ? "monsters-by-id" : "all-monsters";
+    const buildStartParams = () => {
+      if (isIdLookup) {
+        return { ids: body.ids ?? [], cobalt: cobaltCookie };
+      }
+      return {
+        searchTerm: body.searchTerm ?? "",
+        search: body.search ?? "",
+        sources: body.sources ?? [],
+        excludedCategories: body.excludedCategories ?? [],
+        monsterTypes: body.monsterTypes ?? [],
+        homebrew: !!body.homebrew,
+        homebrewOnly: !!body.homebrewOnly,
+        excludeLegacy: !!body.excludeLegacy,
+        exactMatch: !!body.exactMatch,
+        cobalt: cobaltCookie,
+      };
+    };
+
+    const applyCategoryFilter = (data) => {
+      if (isIdLookup) return data;
+      logger.debug("Processing categories");
+      return data
+        .map((monster) => {
+          monster.sources = monster.sources.filter((source) =>
+            source.sourceType === 1
+            && DDBSources.isSourceInAllowedCategory(source),
+          );
+          return monster;
+        })
+        .filter((monster) => {
+          if (monster.isHomebrew) return true;
+          return monster.sources.length > 0;
+        });
+    };
+
+    const fetchOverHttp = () => new Promise((resolve, reject) => {
       fetch(url, {
         method: "POST",
         mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       })
         .then((response) => response.json())
         .then((result) => {
@@ -202,42 +242,89 @@ export default class DDBMonsterFactory {
             this.notifier(`API Failure: ${result.message}`);
             logger.error(`API Failure:`, result.message);
             reject(result.message);
+            return null;
           }
           if (debugJson) {
             FileHelper.download(JSON.stringify(result), `monsters-raw.json`, "application/json");
           }
-          return result;
-        })
-        .then((result) => {
           this.notifier(`Retrieved ${result.data.length} monsters from DDB`, { nameField: true, monsterNote: false });
           logger.info(`Retrieved ${result.data.length} monsters from DDB`);
-          return result.data;
-        })
-        .then((data) => {
-          // handle category filtering
-          if (ids && Array.isArray(ids) && ids.length > 0) {
-            this.source = data;
-            resolve(this.source);
-          } else {
-            logger.debug("Processing categories");
-            const categoryMonsters = data
-              .map((monster) => {
-                monster.sources = monster.sources.filter((source) =>
-                  source.sourceType === 1
-                  && DDBSources.isSourceInAllowedCategory(source),
-                );
-                return monster;
-              })
-              .filter((monster) => {
-                if (monster.isHomebrew) return true;
-                return monster.sources.length > 0;
-              });
-            this.source = categoryMonsters;
-            resolve(this.source);
-          }
+          this.source = applyCategoryFilter(result.data);
+          resolve(this.source);
+          return null;
         })
         .catch((error) => reject(error));
     });
+
+    const fetchOverStream = () => new Promise((resolve, reject) => {
+      const socket = new DDBMonsterSocket(parsingApi);
+      let raw: any[] = [];
+      let settled = false;
+      let timer: any = null;
+
+      const finish = (err: Error | null, data: any) => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        socket.close();
+        if (err) reject(err);
+        else resolve(data);
+      };
+
+      socket.connect({
+        onEvent: (event: DDBMonsterEvent) => {
+          if (event.kind === "monsters" && Array.isArray(event.payload)) {
+            raw = event.payload;
+          }
+        },
+        onError: (message, fatal) => {
+          if (fatal) finish(new Error(message), null);
+          else logger.warn(`[DDBMonsterSocket] non-fatal error: ${message}`);
+        },
+        onDone: () => {
+          if (debugJson) {
+            FileHelper.download(JSON.stringify({ success: true, data: raw }), `monsters-raw.json`, "application/json");
+          }
+          this.notifier(`Retrieved ${raw.length} monsters from DDB`, { nameField: true, monsterNote: false });
+          logger.info(`Retrieved ${raw.length} monsters from DDB`);
+          this.source = applyCategoryFilter(raw);
+          finish(null, this.source);
+        },
+        onConnectError: (err) => finish(err, null),
+      });
+
+      // Monster bulk fetches can be very long-running for large catalogues
+      // (paginated, sometimes 1000+ monsters). Give it plenty of headroom.
+      timer = setTimeout(() => {
+        finish(new Error("Monster socket timed out"), null);
+      }, 180000);
+
+      (async () => {
+        try {
+          const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null });
+          if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+          const startRes = await socket.start(streamElement, buildStartParams());
+          if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
+          logger.debug(`[DDBMonsterSocket] element=${streamElement} jobId=${startRes.jobId} replayed=${startRes.replayed}`);
+        } catch (err) {
+          finish(err as Error, null);
+        }
+      })();
+    });
+
+    // If the user has wired a custom monsterURL (custom proxy), trust their
+    // override and skip streaming. Same logic applies to both bulk and by-id.
+    const customMonsterUrl = url !== defaultUrl;
+    if (_monsterSocketDisabled || customMonsterUrl) return fetchOverHttp();
+
+    try {
+      return await fetchOverStream();
+    } catch (err) {
+      const msg = (err as Error)?.message ?? String(err);
+      logger.warn(`[monsters] streaming failed, falling back to HTTP: ${msg}`);
+      _monsterSocketDisabled = true;
+      return fetchOverHttp();
+    }
   }
 
   /**
