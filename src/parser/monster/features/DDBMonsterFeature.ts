@@ -1693,7 +1693,7 @@ ${this.data.system.description.value}
         || i.flags?.ddbimporter?.originalName.toLowerCase() === spell.name.toLowerCase(),
       );
       if (!entry) {
-        logger.error(`Unable to find spell ${spell.name} for ${this.ddbMonster.name} ${this.originalName}, have you munched spells?`, {
+        logger.error(`Unable to find spell ${spell.name} for monster: "${this.ddbMonster.name}" (feature: "${this.originalName}"), have you munched spells?`, {
           spell,
           this: this,
           spells,
