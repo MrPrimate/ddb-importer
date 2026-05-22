@@ -89,6 +89,7 @@ export default class DDBMuncher extends DDBAppV2 {
       openSourcePruner: DDBMuncher.openSourcePruner,
       openMapBrowser: DDBMuncher.openMapBrowser,
       openStickerBrowser: DDBMuncher.openStickerBrowser,
+      closeDetails: DDBMuncher.closeDetails,
     },
     position: {
       width: "880",
@@ -567,9 +568,30 @@ export default class DDBMuncher extends DDBAppV2 {
     });
     const progressElement = this.element.querySelector(".ddb-overlay");
     if (progressElement) progressElement.classList.remove("munching-invalid");
+
+    const detailsElement = this.element.querySelector(".ddb-muncher-details");
+    if (detailsElement) detailsElement.classList.remove("munching-details-hidden");
+    const okayButton = this.element.querySelector("#munch-details-okay");
+    if (okayButton) okayButton.classList.add("munching-hidden");
   }
 
   _enableButtons() {
+    const okayButton = this.element.querySelector("#munch-details-okay") as HTMLButtonElement | null;
+    if (okayButton) {
+      okayButton.classList.remove("munching-hidden");
+      okayButton.disabled = false;
+    }
+    const progressElement = this.element.querySelector(".ddb-overlay");
+    if (progressElement) progressElement.classList.add("munching-invalid");
+  }
+
+  static async closeDetails(this: DDBMuncher, _event, _target) {
+    const detailsElement = this.element.querySelector(".ddb-muncher-details");
+    if (detailsElement) detailsElement.classList.add("munching-details-hidden");
+    this._doEnableButtons();
+  }
+
+  _doEnableButtons() {
     const cobalt = Secrets.getCobalt() != "";
     if (!cobalt) return;
     const tier = PatreonHelper.getPatreonTier();
