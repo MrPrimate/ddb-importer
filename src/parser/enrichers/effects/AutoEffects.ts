@@ -23,6 +23,9 @@ const UNIT_MAP: Record<string, TEffectDurationUnit> = {
   seconds: "seconds",
   day: "days",
   days: "days",
+  spec: null,
+  special: null,
+  inst: null,
 };
 
 export default class AutoEffects {
@@ -34,7 +37,7 @@ export default class AutoEffects {
   }
 
   static adjustDurationUnits(units: string): TEffectDurationUnit | null {
-    if (units && UNIT_MAP[units]) {
+    if (units && UNIT_MAP[units] !== undefined) {
       return UNIT_MAP[units];
     }
     logger.error(`No mapping found for duration units ${units}`);
@@ -243,8 +246,8 @@ export default class AutoEffects {
             : undefined;
         return valueData;
       })
-      .filter((adjustment: any) => adjustment !== undefined)
-      .map((result: any) => {
+      .filter((adjustment: IGenericConditionAdjustment | undefined) => adjustment !== undefined)
+      .map((result: IGenericConditionAdjustment) => {
         if (game.modules.get("midi-qol")?.active && result.midiValues && !forceNoMidi) {
           return {
             value: result.value.concat(result.midiValues),

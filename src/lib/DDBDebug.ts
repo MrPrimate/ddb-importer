@@ -31,6 +31,8 @@ export default class DDBDebug {
     "find-the-culprit",
     "dice-so-nice",
     "notelicker",
+    "snipsnipsnip",
+    "tokenizer-2",
   ];
 
   static fixCircularReferences(obj) {

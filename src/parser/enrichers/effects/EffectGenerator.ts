@@ -164,38 +164,67 @@ export default class EffectGenerator {
     const damageVulnerabilityData = this._getGenericConditionAffectData("vulnerability", 3);
 
     damageImmunityData.forEach((data) => {
-      if (data.value && data.value.length > 0)
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.di.value"));
-      if (data.bypass && data.bypass.length > 0)
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.di.bypasses"));
-    });
-    damageResistanceData.forEach((data) => {
-      if (data.value && data.value.length > 0) {
-        if (Array.isArray(data.value)) {
-          data.value.forEach((damageType) => {
-            this.effect.system.changes.push(ChangeHelper.damageResistanceChange(damageType, 1));
-          });
-        } else {
-          this.effect.system.changes.push(ChangeHelper.damageResistanceChange(data.value, 1));
+      if (data.value) {
+        for (const damageType of data.value) {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(damageType, 1, "system.traits.di.value"));
         }
       }
-      if (data.bypass && data.bypass.length > 0)
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dr.bypasses"));
+      if (!Array.isArray(data.value)) {
+        logger.error(`No damage types found for immunity modifier on ${this.document.name}`, data);
+      }
+      if (data.bypasses) {
+        for (const bypass of data.bypasses) {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bypass, 1, "system.traits.di.bypasses"));
+        }
+      }
+    });
+    damageResistanceData.forEach((data) => {
+      if (data.value) {
+        for (const damageType of data.value) {
+          this.effect.system.changes.push(ChangeHelper.damageResistanceChange(damageType, 1));
+        }
+      }
+      if (!Array.isArray(data.value)) {
+        logger.error(`No damage types found for resistance modifier on ${this.document.name}`, data);
+      }
+      if (data.bypasses) {
+        for (const bypass of data.bypasses) {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bypass, 1, "system.traits.dr.bypasses"));
+        }
+      }
     });
     damageVulnerabilityData.forEach((data) => {
-      if (data.value && data.value.length > 0)
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.dv.value"));
-      if (data.bypass && data.bypass.length > 0)
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.dv.bypasses"));
+      if (data.value) {
+        for (const damageType of data.value) {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(damageType, 1, "system.traits.dv.value"));
+        }
+      }
+      if (!Array.isArray(data.value)) {
+        logger.error(`No damage types found for vulnerability modifier on ${this.document.name}`, data);
+      }
+      if (data.bypasses) {
+        for (const bypass of data.bypasses) {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bypass, 1, "system.traits.dv.bypasses"));
+        }
+      }
     });
 
     const conditionImmunityData = this._getGenericConditionAffectData("immunity", 4);
 
     conditionImmunityData.forEach((data) => {
-      if (data.value && data.value.length > 0)
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.value, 1, "system.traits.ci.value"));
-      if (data.bypass && data.bypass.length > 0)
-        this.effect.system.changes.push(ChangeHelper.unsignedAddChange(data.bypass, 1, "system.traits.ci.bypasses"));
+      if (data.value) {
+        for (const condition of data.value) {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(condition, 1, "system.traits.ci.value"));
+        }
+      }
+      if (!Array.isArray(data.value)) {
+        logger.error(`No conditions found for immunity modifier on ${this.document.name}`, data);
+      }
+      if (data.bypasses) {
+        for (const bypass of data.bypasses) {
+          this.effect.system.changes.push(ChangeHelper.unsignedAddChange(bypass, 1, "system.traits.ci.bypasses"));
+        }
+      }
     });
 
     // system.traits.di.all
@@ -226,7 +255,7 @@ export default class EffectGenerator {
     if (bonuses.length > 0) {
       logger.debug(`Generating ${subType} ${type} ${mode} for ${this.document.name}`);
       const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
-      this.effect.system.changes.push(ChangeHelper.addChange(modifier, 8, `system.abilities.${ability}.${type}.roll.mode`));
+      this.effect.system.changes.push(ChangeHelper.addChange(`${modifier}`, 8, `system.abilities.${ability}.${type}.roll.mode`));
     }
   }
 
@@ -253,7 +282,7 @@ export default class EffectGenerator {
     if (bonuses.length > 0) {
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat max for ${this.document.name}`);
-        this.effect.system.changes.push(ChangeHelper.addChange(bonus.value, 3, `system.abilities.${ability.value}.max`));
+        this.effect.system.changes.push(ChangeHelper.addChange(String(bonus.value), 3, `system.abilities.${ability.value}.max`));
       });
     }
   }

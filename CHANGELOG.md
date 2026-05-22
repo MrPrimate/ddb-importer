@@ -1,5 +1,7 @@
 # Next Up
 
+- More Midi Effect Generation fixes.
+
 # 7.2.21
 
 - Detect evil and good was not set as a emanation in 2024 rules.

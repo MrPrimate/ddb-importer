@@ -73,7 +73,7 @@ export default class ChangeHelper {
   static addChange(value: string, priority: any, key: string): IActiveEffectChangeData {
     return {
       key,
-      value: value.trim(),
+      value: String(value).trim(),
       type: "add",
       priority,
     };
@@ -82,7 +82,7 @@ export default class ChangeHelper {
   static subtractChange(value: string, priority: any, key: string): IActiveEffectChangeData {
     return {
       key,
-      value: value.trim(),
+      value: String(value).trim(),
       type: "subtract",
       priority,
     };
