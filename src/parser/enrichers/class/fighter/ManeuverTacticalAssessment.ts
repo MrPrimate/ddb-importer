@@ -37,7 +37,9 @@ export default class ManeuverTacticalAssessment extends Maneuver {
         daeSpecialDurations: ["isSkill.his" as const, "isSkill.inv" as const, "isSkill.ins" as const],
         data: {
           duration: {
-            turns: 2,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         changes: [

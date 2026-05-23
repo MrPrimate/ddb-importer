@@ -22,7 +22,9 @@ export default class LordsAllianceAgent extends DDBEnricherData {
         daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
-            turns: 1,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         midiChanges: [

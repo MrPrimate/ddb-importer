@@ -2531,13 +2531,13 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
     const compendiumSpell = this.spellCompendium?.index.find((s) =>
-      s.flags.ddbimporter?.definitionId === spell.flags?.ddbimporter?.definitionId,
+      foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === foundry.utils.getProperty(spell, "flags.ddbimporter.definitionId"),
     );
 
     if (!compendiumSpell) {
       logger.warn(`Missing Spell ${spell.name} from Spells Compendium, please Munch Spells`, {
         spell,
-        definitionId: spell.flags?.ddbimporter?.definitionId,
+        definitionId: foundry.utils.getProperty(spell, "flags.ddbimporter.definitionId"),
       });
       foundry.utils.setProperty(spell, "flags.ddbimporter.removeSpell", false);
       return false;

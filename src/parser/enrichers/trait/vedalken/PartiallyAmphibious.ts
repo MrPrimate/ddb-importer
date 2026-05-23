@@ -19,7 +19,8 @@ export default class PartiallyAmphibious extends DDBEnricherData {
       {
         data: {
           duration: {
-            seconds: 3600,
+            value: 3600,
+            units: "seconds",
           },
         },
       },

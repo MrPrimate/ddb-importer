@@ -79,7 +79,7 @@ export default class AutoEffects {
       durationRounds = null,
       durationTurns = null,
       showIcon,
-    }: IBaseEffectOptions = {},
+    }: IDDBEffectOptions = {},
   ): I5eEffectData {
     const effect: I5eEffectData = {
       img: document.img,
@@ -127,7 +127,7 @@ export default class AutoEffects {
 
   static SpellEffect(document: any, label: string,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: IBaseEffectOptions = {},
+      durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
   ): any {
     const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon };
     return AutoEffects.BaseEffect(document, label, options);
@@ -135,13 +135,13 @@ export default class AutoEffects {
 
   static FeatEffect(document: any, label: string,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: IBaseEffectOptions = {},
+      durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
   ): any {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
   }
 
   static MonsterFeatureEffect(document: any, label: string,
-    { transfer = false, disabled = false, showIcon = null }: IBaseEffectOptions = {},
+    { transfer = false, disabled = false, showIcon = null }: IDDBEffectOptions = {},
   ): any {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, showIcon });
   }
@@ -149,7 +149,7 @@ export default class AutoEffects {
 
   static ItemEffect(document: any, label: string,
     { transfer = true, disabled = false, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null, showIcon = null }: IBaseEffectOptions = {},
+      durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
   ): any {
     const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
     return effect;

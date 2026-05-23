@@ -237,14 +237,14 @@ export default class DDBCompanionFactory {
     }
   }
 
-  async getExistingCompendiumCompanions() {
+  async getExistingCompendiumCompanions(): Promise<Actor.Implementation[]> {
     await this.itemHandler.buildIndex(this.indexFilter);
 
-    const existingCompanions = await Promise.all(this.itemHandler.compendiumIndex
+    const existingCompanions: Actor.Implementation[] = await Promise.all(this.itemHandler.compendiumIndex
       .filter((companion) => foundry.utils.hasProperty(companion, "flags.ddbimporter.id")
         && this.companions.some((c) => foundry.utils.getProperty(c, "data.flags.ddbimporter.id") === companion.flags.ddbimporter.id),
       )
-      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id)),
+      .map(async (companion) => this.itemHandler.compendium.getDocument(companion._id) as Promise<Actor.Implementation>),
     );
 
     return existingCompanions;
@@ -391,18 +391,18 @@ export default class DDBCompanionFactory {
 
   async addCompanionsToDocuments(otherDocuments, activity = null, _enricherActivity = null) {
     if (!this.originDocument || !this.summons) return;
-    const compendiumSummons = await this.getExistingCompendiumCompanions();
-    const summonActors = compendiumSummons.length > 0
+    const compendiumSummons = await this.getExistingCompendiumCompanions() as Actor.Implementation[];
+    const summonActors: Actor.Implementation[] = compendiumSummons.length > 0
       ? compendiumSummons
       : await this.getExistingWorldCompanions({ limitToFactory: true });
-    const profiles = summonActors
+    const profiles: I5eSummonProfile[] = summonActors
       .map((actor) => {
         return {
           _id: actor._id,
           name: actor.name,
           uuid: actor.uuid,
           count: null,
-        };
+        } as I5eSummonProfile;
       });
     const alternativeDocument = DDBCompanionFactory.COMPANION_REMAP[this.originName];
     const updateDocument = alternativeDocument

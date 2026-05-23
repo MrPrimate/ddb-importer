@@ -292,7 +292,7 @@ export default class DDBDataUtils {
 
       if (special && special.fixFunction?.name === "rename") {
         if (special.functionArgs.identifier) {
-          featureName = special.functionArgs.identifier;
+          featureName = special.functionArgs.identifier as string;
         }
       }
 

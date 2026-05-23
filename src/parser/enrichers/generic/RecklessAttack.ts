@@ -33,14 +33,15 @@ export default class RecklessAttack extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.customChange("1", 20, "flags.midi-qol.grants.advantage.attack.all"),
         ],
         daeStackable: "noneName",
-        options: {
+        data: {
           duration: {
-            seconds: 12,
-            rounds: 2,
+            value: 12,
+            units: "seconds",
+            expiry: "turnStart",
           },
         },
         daeSpecialDurations: [
-          "turnStartSource" as const,
+          "turnStartSource",
         ],
       },
     ];

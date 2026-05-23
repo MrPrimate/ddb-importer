@@ -39,7 +39,9 @@ export default class ManeuverCommandingPresence extends Maneuver {
         daeSpecialDurations: ["isSkill.itm" as const, "isSkill.per" as const, "isSkill.prf" as const],
         data: {
           duration: {
-            turns: 2,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         changes: ["per", "itm", "prf"].map((skill) =>

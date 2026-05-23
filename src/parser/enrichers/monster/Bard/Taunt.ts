@@ -21,7 +21,7 @@ export default class Taunt extends DDBEnricherData {
           durationSeconds: 12,
           durationRounds: 2,
           transfer: false,
-          showIcon: true,
+          showIcon: 2,
         },
         daeSpecialDurations: ["turnStart" as const, "combatEnd" as const],
       },

@@ -6,9 +6,7 @@ export default class SmiteOfProtection extends DDBEnricherData {
       {
         statuses: ["coverHalf"],
         options: {
-          duration: {
-            rounds: 1,
-          },
+          durationSeconds: 6,
         },
         daeStackable: "noneNameOnly",
         data: {

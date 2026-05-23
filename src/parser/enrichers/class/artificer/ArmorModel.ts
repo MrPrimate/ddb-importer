@@ -571,8 +571,9 @@ export default class ArmorModel extends DDBEnricherData {
             },
           },
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },
@@ -590,7 +591,9 @@ export default class ArmorModel extends DDBEnricherData {
         data: {
           img: "icons/skills/melee/unarmed-punch-fist-white.webp",
           duration: {
-            seconds: 6,
+            value: 6,
+            units: "seconds",
+            expiry: "turnStart",
           },
         },
       },
@@ -624,8 +627,9 @@ export default class ArmorModel extends DDBEnricherData {
         data: {
           _id: "ddbInfiltratorEf",
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },
@@ -640,8 +644,9 @@ export default class ArmorModel extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
           flags: {
             ddbimporter: {
@@ -666,14 +671,16 @@ export default class ArmorModel extends DDBEnricherData {
         daeSpecialDurations: ["turnEndSource" as const, "turnEnd" as const],
         data: {
           duration: {
-            seconds: 6,
+            value: 6,
+            units: "seconds",
+            expiry: "turnEnd",
           },
         },
       },
     ];
   }
 
-  get _dreadnaughtEffects() {
+  get _dreadnaughtEffects(): IDDBEffectHint[] {
     return [
       {
         name: "Dreadnaught",
@@ -692,8 +699,9 @@ export default class ArmorModel extends DDBEnricherData {
             },
           },
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },
@@ -711,8 +719,8 @@ export default class ArmorModel extends DDBEnricherData {
         data: {
           _id: "ddbGiantStatue03",
           duration: {
-            seconds: 60,
-            rounds: 10,
+            value: 60,
+            units: "seconds",
           },
         },
       },
@@ -730,8 +738,8 @@ export default class ArmorModel extends DDBEnricherData {
         data: {
           _id: "ddbGiantStatue04",
           duration: {
-            seconds: 60,
-            rounds: 10,
+            value: 60,
+            units: "seconds",
           },
         },
       },

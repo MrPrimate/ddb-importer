@@ -22,8 +22,9 @@ export default class Crusher extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
         daeSpecialDurations: [],

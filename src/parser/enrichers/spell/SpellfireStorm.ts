@@ -41,7 +41,6 @@ export default class SpellfireStorm extends DDBEnricherData {
         midiOnly: true,
         options: {
           durationSeconds: 60,
-          durationRounds: 10,
         },
         macroChanges: [
           {
@@ -57,8 +56,8 @@ export default class SpellfireStorm extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: 60,
-            rounds: 10,
+            value: 60,
+            units: "seconds",
           },
           flags: {
             ActiveAuras: {

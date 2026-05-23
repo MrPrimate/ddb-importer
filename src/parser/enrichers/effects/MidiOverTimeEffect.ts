@@ -105,13 +105,22 @@ export default class MidiOverTimeEffect {
       if (change) this.effect.system.changes.push(change);
     }
 
-    const duration = this.conditionStatus.duration ?? DDBDescriptions.getDuration(this.description);
-    if (duration.rounds) {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.rounds);
+    const duration = this.conditionStatus.duration;
+    if (duration.units === "rounds" && duration.value) {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
       foundry.utils.setProperty(this.effect, "duration.units", "rounds");
-    } else if (duration.seconds) {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.seconds);
+    } else if (duration.units === "seconds" && duration.value) {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
       foundry.utils.setProperty(this.effect, "duration.units", "seconds");
+    } else {
+      const duration = DDBDescriptions.getDuration(this.description);
+      if (duration.rounds) {
+        foundry.utils.setProperty(this.effect, "duration.value", duration.rounds);
+        foundry.utils.setProperty(this.effect, "duration.units", "rounds");
+      } else if (duration.seconds) {
+        foundry.utils.setProperty(this.effect, "duration.value", duration.seconds);
+        foundry.utils.setProperty(this.effect, "duration.units", "seconds");
+      }
     }
 
     const turn = DDBDescriptions.startOrEnd(this.description);

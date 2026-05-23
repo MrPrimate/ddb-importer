@@ -73,8 +73,9 @@ export default class Grim extends DDBEnricherData {
             },
           },
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },

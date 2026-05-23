@@ -131,6 +131,7 @@ export default class DDBRace {
   }
 
   #getFullName(): string {
+    // @ts-expect-error - sometimes it might, leave for now
     const baseName = this.race.fullName ?? this.race.name;
     const lineageName = this.lineageName;
     const legacyName = this.isMuncher && this.isLegacy && this.data.system.source.book

@@ -43,8 +43,9 @@ export default class SneakAttack extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },

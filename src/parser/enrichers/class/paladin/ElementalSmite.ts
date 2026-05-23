@@ -144,8 +144,9 @@ export default class ElementalSmite extends DDBEnricherData {
         activityMatch: "Dao's Crush",
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },

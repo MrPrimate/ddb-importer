@@ -40,8 +40,9 @@ export default class DauntingRoar extends DDBEnricherData {
         noCreate: true,
         data: {
           duration: {
-            seconds: 12,
-            turns: 2,
+            value: 6,
+            expiry: "turnEnd",
+            units: "seconds",
           },
         },
       },

@@ -44,7 +44,7 @@ export default class AbsorbElements extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const noMidiEffects = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
+    const noMidiEffects: IDDBEffectHint[] = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].map((element) => {
       return {
         midiNever: true,
         name: `Absorb ${element}`,
@@ -54,7 +54,7 @@ export default class AbsorbElements extends DDBEnricherData {
         activityMatch: `${this.data.name} Effect`,
       };
     });
-    const midiEffects = [
+    const midiEffects: IDDBEffectHint[] = [
       {
         name: `${this.data.name}: Extra Damage`,
         midiOnly: true,
@@ -62,11 +62,12 @@ export default class AbsorbElements extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.mwak.damage"),
           DDBEnricherData.ChangeHelper.unsignedAddChange(`(@item.level)d6`, 20, "system.bonuses.msak.damage"),
         ],
-        daeSpecialDurations: ["DamageDealt" as const, "turnEnd" as const],
+        daeSpecialDurations: ["DamageDealt", "turnEnd"],
         data: {
           duration: {
-            rounds: 2,
-            startTurn: 1,
+            value: 6,
+            expiry: "turnEnd",
+            units: "seconds",
           },
         },
       },
@@ -76,10 +77,12 @@ export default class AbsorbElements extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(""),
         ],
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         data: {
           duration: {
-            rounds: 2,
+            value: 6,
+            expiry: "turnEnd",
+            units: "seconds",
           },
         },
       },

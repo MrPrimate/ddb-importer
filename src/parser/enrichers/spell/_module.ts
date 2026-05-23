@@ -195,6 +195,7 @@ export { default as SpikeGrowth } from "./SpikeGrowth";
 export { default as SpiritGuardians } from "./SpiritGuardians";
 export { default as SpiritShroud } from "./SpiritShroud";
 export { default as SpiritualWeapon } from "./SpiritualWeapon";
+export { default as StarryWisp } from "./StarryWisp";
 export { default as Stoneskin } from "./Stoneskin";
 export { default as StormSphere } from "./StormSphere";
 export { default as Suggestion } from "./Suggestion";

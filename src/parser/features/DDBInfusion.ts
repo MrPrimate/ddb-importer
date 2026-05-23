@@ -72,8 +72,8 @@ export class DDBInfusion {
       effects: [],
       flags: {
         ddbimporter: {
-          id: this.ddbInfusion.id,
-          infusionId: this.ddbInfusion.id,
+          id: Number(this.ddbInfusion.id),
+          infusionId: Number(this.ddbInfusion.id),
           class: this.originClass,
           infusionFeature: true,
           type: this.tagType,
@@ -290,6 +290,7 @@ export class DDBInfusion {
           enricher: this.enricher,
           usesOnActivity: true,
           isMuncher: this.isMuncher,
+          type: null, // this might need to be class though
         });
       await action.loadEnricher();
       await action.build();

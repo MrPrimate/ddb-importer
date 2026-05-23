@@ -35,7 +35,9 @@ export default class Panache extends DDBEnricherData {
         daeSpecialDurations: ["turnStartSource" as const],
         data: {
           duration: {
-            seconds: 60,
+            value: 6,
+            units: "seconds",
+            expiry: "turnStart",
           },
         },
       },

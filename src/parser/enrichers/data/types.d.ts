@@ -140,7 +140,7 @@ global {
   export interface IDDBMagicalBonus {
     nameAddition?: string | null;
     bonus?: string | number | null;
-    mode?: string;
+    mode?: TActiveEffectChangeType;
     makeMagical?: boolean;
   }
 
@@ -207,22 +207,28 @@ global {
 
   // -- Effect Options ---------------------------------------------------------
 
-  export interface IDDBEffectOptions {
+  type TEffectExpiryTypes = "turnStart" | "turnEnd" | "roundStart" | "roundEnd" | "combatStart" | "combatEnd";
+  // these are only needed pre v6
+  type TDAEEffectExpiryTypes = TEffectExpiryTypes | "sourceStart" | "sourceEnd" | "targetStart" | "targetEnd";
+
+  interface IDDBEffectOptions {
     description?: string;
     durationSeconds?: number;
     durationRounds?: number;
+    durationTurns?: number | null;
     transfer?: boolean;
     disabled?: boolean;
-    [key: string]: any;
+    expiry?: TDAEEffectExpiryTypes;
+    showIcon?: TEffectShowIcon;
   }
 
   // -- Aura Effects -----------------------------------------------------------
 
-  export type IDDBAuraEffects = Record<string, any>;
+  type IDDBAuraEffects = Record<string, any>;
 
   // -- Effect Hint ------------------------------------------------------------
 
-  export interface IDDBEffectHint {
+  interface IDDBEffectHint {
     // Creation control
     noCreate?: boolean;
     raw?: Record<string, any>;

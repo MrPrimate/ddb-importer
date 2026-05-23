@@ -38,7 +38,7 @@ interface IDDBFeatureMixin {
   ddbData: IDDBData;
   ddbDefinition: TDDBFeatureMixinDefinitions;
   type: string;
-  source: IDDBSourceResponse;
+  source?: IDDBSourceResponse | null;
   documentType?: TDocumentType;
   rawCharacter?: I5ePCData | null;
   activityType?: IDDBActivityType | null;
@@ -307,7 +307,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     ddbData,
     ddbDefinition,
     type,
-    source,
+    source = null,
     documentType = "feat" as const,
     rawCharacter = null,
     activityType = null,

@@ -37,8 +37,8 @@ export default class IncendiaryCloud extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: 60,
-            rounds: 10,
+            value: 60,
+            units: "seconds",
           },
           flags: {
             ActiveAuras: {

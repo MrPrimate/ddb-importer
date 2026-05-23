@@ -264,7 +264,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
 
     this._generateDataStub();
 
-    this.itemCompendium = CompendiumHelper.getCompendiumType("item", false);
+    this.itemCompendium = CompendiumHelper.getCompendiumType("item", false) as CompendiumCollection<"Item">;
     this.enricher = enricher ?? new DDBSpellEnricher({ activityGenerator: DDBSpellActivity, notifier: this.notifier });
     this.isCompanionSpell2014 = this.is2014 && DICTIONARY.companions.COMPANION_SPELLS_2014.includes(this.originalName);
     this.isCompanionSpell2024 = !this.is2014 && DICTIONARY.companions.COMPANION_SPELLS_2024.includes(this.originalName);

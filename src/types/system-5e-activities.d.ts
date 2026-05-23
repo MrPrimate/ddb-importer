@@ -224,13 +224,20 @@ global {
     prompt?: boolean;
   }
 
+  interface I5eSummonProfile {
+    _id: string;
+    name: string;
+    uuid: string;
+    count: null;
+  }
+
   interface I5eSummonActivity extends I5eActivityBase {
     type?: "summon";
     bonuses?: I5eSummonsBonuses;
     creatureSizes?: TActorSizes[];
     creatureTypes?: TCreatureTypes[];
     match?: I5eSummonsMatch;
-    profiles?: any[];
+    profiles?: I5eSummonProfile[];
     summon?: I5eActivitiesSummon;
   }
 

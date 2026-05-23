@@ -408,7 +408,6 @@ class DDBMonster {
           document: item,
           type: "monsterfeature",
           monsterName: this.npc.name,
-          isMonster: true,
         });
       }
     }

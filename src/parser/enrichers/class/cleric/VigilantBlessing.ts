@@ -21,8 +21,9 @@ export default class VigilantBlessing extends DDBEnricherData {
         daeSpecialDurations: ["Initiative" as const],
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },

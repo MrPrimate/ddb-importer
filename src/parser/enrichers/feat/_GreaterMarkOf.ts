@@ -15,8 +15,9 @@ export default class _GreaterMarkOf extends DDBEnricherData {
         },
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
         changes: [

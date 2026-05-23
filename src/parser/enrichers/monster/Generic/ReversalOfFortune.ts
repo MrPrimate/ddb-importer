@@ -17,9 +17,11 @@ export default class ReversalOfFortune extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     return [
       {
-        options: {
+        data: {
           duration: {
-            turns: 1,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         midiOnly: true,

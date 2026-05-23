@@ -40,7 +40,9 @@ export default class ManeuverBrace extends Maneuver {
         daeSpecialDurations: ["1Attack:mwak" as const],
         data: {
           duration: {
-            turns: 2,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         midiChanges: [

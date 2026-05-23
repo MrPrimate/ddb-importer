@@ -28,11 +28,16 @@ export default class DDBAttackAction extends DDBAction {
       } else if (!this.is2014 && DDBAction.SKIPPED_2024_ONLY_ACTIONS.includes(this.originalName)) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.skip", true);
       }
-      this.data.system.proficient = this.ddbDefinition.isProficient ? 1 : 0;
+      if ("proficient" in this.data.system && "isProficient" in this.ddbDefinition) {
+        this.data.system.proficient = this.ddbDefinition.isProficient as boolean;
+      }
       this._generateDescription();
-      this.data.system.equipped = true;
-      this.data.system.rarity = "";
-      this.data.system.identified = true;
+      if ("equipped" in this.data.system)
+        this.data.system.equipped = true;
+      if ("rarity" in this.data.system)
+        this.data.system.rarity = "";
+      if ("identified" in this.data.system)
+        this.data.system.identified = true;
       this._generateRange();
       this._generateLimitedUse();
       this._generateProperties();

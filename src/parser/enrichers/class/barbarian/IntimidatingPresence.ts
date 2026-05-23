@@ -94,8 +94,9 @@ export default class IntimidatingPresence extends DDBEnricherData {
         name: "Intimidating Presence: Frightened",
         data: {
           duration: {
-            seconds: 12,
-            turns: 2,
+            value: 6,
+            units: "seconds",
+            expiry: "turnEnd",
           },
         },
         daeSpecialDurations: ["turnEndSource" as const],

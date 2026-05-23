@@ -25,7 +25,7 @@ export default class FoeSlayer extends DDBEnricherData {
       ? [{
         name: "Foe Slayer (Automation)",
         options: {
-          transer: true,
+          transfer: true,
         },
         midiOptionalChanges: [
           {

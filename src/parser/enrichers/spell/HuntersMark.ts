@@ -91,12 +91,8 @@ export default class HuntersMark extends DDBEnricherData {
         // force non expiry for midi automation effect
         data: {
           duration: {
-            "seconds": null,
-            "startTime": null,
-            "rounds": null,
-            "turns": null,
-            "startRound": null,
-            "startTurn": null,
+            "value": null,
+            "units": "seconds",
           },
         },
         daeSpecialDurations: [],

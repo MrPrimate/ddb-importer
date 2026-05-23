@@ -31,7 +31,9 @@ export default class ManeuverPrecisionAttack extends Maneuver {
         daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
-            turns: 1,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         changes: [

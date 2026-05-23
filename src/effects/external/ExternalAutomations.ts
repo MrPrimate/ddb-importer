@@ -16,11 +16,11 @@ export default class ExternalAutomations {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     this.dynamicUpdateAllowed = dynamicSync && gmSyncUser && tiers?.experimentalMid;
-    this.dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
+    this.dynamicUpdateStatus = foundry.utils.getProperty(this.actor, "flags.ddbimporter.activeUpdate") as boolean ?? false;
   }
 
   getCurrentDynamicUpdateState() {
-    return this.actor.flags?.ddbimporter?.activeUpdate ?? false;
+    return foundry.utils.getProperty(this.actor, "flags.ddbimporter.activeUpdate") as boolean ?? false;
   }
 
   async disableDynamicUpdates() {

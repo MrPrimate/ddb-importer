@@ -11,12 +11,12 @@ export default class Command extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: 12,
-            rounds: 1,
-            turns: 1,
+            value: 6,
+            expiry: "turnStart",
+            units: "seconds",
           },
         },
-        daeSpecialDurations: ["turnStart" as const],
+        daeSpecialDurations: ["turnStart"],
       },
     ];
   }

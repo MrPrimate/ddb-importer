@@ -78,8 +78,9 @@ export default class Slasher extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
         daeSpecialDurations: [],

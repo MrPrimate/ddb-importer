@@ -41,8 +41,8 @@ export default class Cloudkill extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: 60,
-            rounds: 100,
+            value: 60,
+            units: "seconds",
           },
           flags: {
             ActiveAuras: {

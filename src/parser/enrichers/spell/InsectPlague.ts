@@ -37,8 +37,8 @@ export default class InsectPlague extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: 600,
-            rounds: 100,
+            value: 600,
+            units: "seconds",
           },
           flags: {
             ActiveAuras: {

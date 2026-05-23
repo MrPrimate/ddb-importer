@@ -21,7 +21,9 @@ export default class ManeuverAmbush extends Maneuver {
         daeSpecialDurations: ["isSkill.ste" as const, "Initiative" as const],
         data: {
           duration: {
-            turns: 1,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         changes: [

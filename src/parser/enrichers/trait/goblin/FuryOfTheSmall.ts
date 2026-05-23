@@ -74,8 +74,9 @@ export default class FuryOfTheSmall extends DDBEnricherData {
         midiOptionalChanges,
         data: {
           duration: {
-            seconds: null,
-            rounds: null,
+            value: null,
+            expiry: null,
+            expired: null,
           },
         },
       },

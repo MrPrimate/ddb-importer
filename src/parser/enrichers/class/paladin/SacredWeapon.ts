@@ -46,7 +46,6 @@ export default class SacredWeapon extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.addChange("(max(1,@abilities.cha.mod))", 20, "activities[attack].attack.bonus"),
           ].concat(lightChanges),
           options: {
-            name: "Sacred Weapon",
             description: `The weapon shines with Sacred Energy.`,
             durationSeconds: 60,
           },
@@ -65,7 +64,6 @@ export default class SacredWeapon extends DDBEnricherData {
             DDBEnricherData.ChangeHelper.unsignedAddChange("radiant", 20, "system.damage.base.types"),
           ].concat(lightChanges),
           options: {
-            name: "Sacred Weapon",
             description: `The weapon shines with Sacred Energy.`,
             durationSeconds: 600,
           },

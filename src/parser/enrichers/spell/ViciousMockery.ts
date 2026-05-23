@@ -18,7 +18,7 @@ export default class ViciousMockery extends DDBEnricherData {
     return [
       {
         name: "Vicious Mockery",
-        daeSpecialDurations: ["1Attack" as const, "turnEnd" as const],
+        daeSpecialDurations: ["1Attack", "turnEnd"],
       },
       {
         midiOnly: true,
@@ -28,7 +28,9 @@ export default class ViciousMockery extends DDBEnricherData {
         ],
         data: {
           duration: {
-            turns: 2,
+            value: 6,
+            expiry: "turnEnd",
+            units: "seconds",
           },
         },
       },

@@ -7,7 +7,7 @@ export default class UniversalSpeech extends DDBEnricherData {
       {
         name: "Universal Speech",
         options: {
-          descriptions: "You and the caster can understand each other, regardless of language.",
+          description: "You and the caster can understand each other, regardless of language.",
         },
       },
     ];

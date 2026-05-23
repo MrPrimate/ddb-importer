@@ -34,7 +34,8 @@ export default class Grease extends DDBEnricherData {
         ],
         data: {
           duration: {
-            seconds: 60,
+            value: 60,
+            units: "seconds",
           },
           flags: {
             ActiveAuras: {

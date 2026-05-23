@@ -30,7 +30,9 @@ export default class ManeuverCommandersStrike extends Maneuver {
         daeSpecialDurations: ["1Attack" as const],
         data: {
           duration: {
-            turns: 2,
+            value: 6,
+            expiry: "turnStart",
+            expired: null,
           },
         },
         midiChanges: [
