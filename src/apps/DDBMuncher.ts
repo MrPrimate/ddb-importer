@@ -650,6 +650,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       const monsterFactory = new DDBMonsterFactory({
         notifier: this.notifier.bind(this),
+        notifierV2: this.notifierV2.bind(this),
       });
       const result = await monsterFactory.processIntoCompendium(null, this.searchTermMonster);
       this.notifier(`Finished importing ${result} monsters!`, { nameField: true });
