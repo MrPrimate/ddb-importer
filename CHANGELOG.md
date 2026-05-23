@@ -1,6 +1,9 @@
 # Next Up
 
+# 7.1.17
+
 - Some Pugilist Tweaks for Squared Circle @thetreat
+- Illrigger spellscasting.
 
 # 7.1.16
 
