@@ -79,7 +79,7 @@ export const SPELL = {
     { name: "Warlock", value: "pact" },
     { name: "Wizard", value: "full" },
     { name: "Monk", value: "none" },
-    { name: "Illrigger", value: "third" }
+    { name: "Illrigger", value: "third" },
   ] as ISpellProgression[],
   preparationModes: [
     {

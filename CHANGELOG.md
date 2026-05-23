@@ -1,6 +1,13 @@
 # Next Up
 
+# 7.2.22
+
 - More Midi Effect Generation fixes.
+- Revisited some effect duration generation.
+- Improved the import dialog in the muncher tool to give better feedback/progress bar.
+- Some Pugilist Tweaks for Squared Circle @thetreat
+- Illrigger spellscasting.
+- Some under the hood proxy connection imp
 
 # 7.2.21
 
@@ -59,7 +66,7 @@ v14 only:
 - Artificer: Forge Adept parsing updates.
 - Some combinations of optional features and classes could break import of characers @robnow
 
-# 7.1.13
+# 7.2.13
 
 - Rage and Bladesong effects not linked to activities. @thelaymansterms
 - Shadowblade spell enchantment. @thelaymansterms @redarchongaming
@@ -137,6 +144,20 @@ v14 only:
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.17
+
+- Some Pugilist Tweaks for Squared Circle @thetreat
+- Illrigger spellscasting.
+
+# 7.1.16
+
+- Detect evil and good was not set as a emanation in 2024 rules.
+- Grim Harbinger subclass parsing improvements.
+- Some monsters with regain hp effects would not process the activity correctly, such as Shield Guardians.
+- Special activities such as the Shield Guardians Regeneration should now use the new Turn Start activation condition.
+- Features like Potent Spellcasting would not always add the bonus during import.
+- Many icon updates from @crimsonedge
 
 # 7.1.15
 
