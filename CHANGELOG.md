@@ -1,5 +1,7 @@
 # Next Up
 
+- Some Pugilist Tweaks for Squared Circle @thetreat
+
 # 7.1.16
 
 - Detect evil and good was not set as a emanation in 2024 rules.
