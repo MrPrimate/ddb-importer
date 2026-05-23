@@ -1,13 +1,23 @@
-import Generic from "../Generic";
+import DDBEnricherData from "../../data/DDBEnricherData";
 
-export default class Fisticuffs extends Generic {
+export default class Fisticuffs extends DDBEnricherData {
+
+  get type(): IDDBActivityType {
+    return DDBEnricherData.ACTIVITY_TYPES.ATTACK;
+  }
+
+  get activity(): IDDBActivityData {
+    return {
+      name: "Attack",
+    };
+  }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
           name: "Fisticuffs Enchantment",
-          type: Generic.ACTIVITY_TYPES.ENCHANT,
+          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
         },
         build: {
           generateActivation: true,
@@ -33,17 +43,30 @@ export default class Fisticuffs extends Generic {
         activityMatch: "Fisticuffs Enchantment",
         type: "enchant",
         changes: [
-          Generic.ChangeHelper.overrideChange(`{} [Fisticuffs]`, 10, "name"),
-          Generic.ChangeHelper.overrideChange("true", 10, "system.damage.base.custom.enabled"),
-          Generic.ChangeHelper.overrideChange("@scale.pugilist.fisticuffs + @mod", 10, "system.damage.base.custom.formula"),
-          Generic.ChangeHelper.unsignedAddChange("sap", 10, "system.traits.weaponProf.mastery.bonus"),
+          DDBEnricherData.ChangeHelper.overrideChange(`{} [Fisticuffs]`, 10, "name"),
+          DDBEnricherData.ChangeHelper.overrideChange("true", 10, "system.damage.base.custom.enabled"),
+          DDBEnricherData.ChangeHelper.overrideChange("@scale.pugilist.fisticuffs + @mod", 10, "system.damage.base.custom.formula"),
+          DDBEnricherData.ChangeHelper.unsignedAddChange("sap", 10, "system.traits.weaponProf.mastery.bonus"),
         ],
       },
     ];
   }
 
-  get addToDefaultAdditionalActivities() {
-    return true;
+  get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          type: {
+            value: "simpleM",
+          },
+          damage: {
+            base: DDBEnricherData.basicDamagePart({
+              customFormula: "@scale.pugilist.fisticuffs + @mod",
+            }),
+          },
+        },
+      },
+    };
   }
 
 }

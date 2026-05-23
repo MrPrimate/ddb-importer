@@ -17,6 +17,9 @@ export const LEVEL_SCALE = {
     "Spellfire Burst: Radiant Fire (Radiant)",
     "Spellfire Burst: Bolstering Flames",
     "Channel Divinity: Arcane Abjuration",
+    "Fisticuffs",
+    "Compression Lock",
+    "Groundwork",
   ],
 
   LEVEL_SCALE_INFUSIONS: [
@@ -112,6 +115,8 @@ export const PARSING_FEATURES = {
     "Skillful",
     "The Crooked Moon: Dark Bargain",
     "Fighting Style feat",
+    "Elemental Attunement: Activate Elemental Attunement",
+    "Muscle Mass",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",

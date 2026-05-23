@@ -154,6 +154,7 @@ export default class DDBClass {
     "Survivalist",
     "Blessings of Knowledge",
     "Scholar",
+    "Muscle Mass",
     // "Tool Expertise", // revisit,this doesn't work the same way
   ];
 

@@ -1,5 +1,9 @@
 [
   {
+    "name": "Fisticuffs",
+    "path": "icons/equipment/hand/gauntlet-simple-leather-brown-gold.webp"
+  },
+  {
     "name": "Abacus",
     "path": "icons/commodities/currency/coins-engraved-hole-gold.webp"
   },
