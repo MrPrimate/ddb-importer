@@ -19,6 +19,8 @@ export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
 export default class AdventureMunch {
 
+  notifierV2?: (props: NotifierV2Props) => void;
+
   static COMPENDIUM_MAP = {
     "spells": "spells",
     "magicitems": "items",
@@ -47,7 +49,7 @@ export default class AdventureMunch {
   /** @override */
   constructor({
     importFile, allScenes = null, allMonsters = null, journalWorldActors = null, addToCompendiums = null,
-    addToAdventureCompendium = null, notifierElement = null, use2024monsters = null,
+    addToAdventureCompendium = null, notifierV2 = null, use2024monsters = null,
   } = {}) {
     this._itemsToRevisit = [];
     this.adventure = null;
@@ -105,14 +107,7 @@ export default class AdventureMunch {
 
     this.monstersToReplace = [];
 
-    this.notifierElement = notifierElement;
-    // this.notifier =
-
-    // if (!notifier) {
-    //   this.notifier = (note, nameField = false, monsterNote = false) => {
-    //     logger.info(note, { nameField, monsterNote });
-    //   };
-    // }
+    this.notifierV2 = notifierV2;
   }
 
   findCompendiumEntityByImportId(type, id) {
@@ -336,18 +331,18 @@ export default class AdventureMunch {
   async _checkForMissingData() {
     if (this.adventure.required?.spells && this.adventure.required.spells.length > 0) {
       logger.debug(`${this.adventure.name} - spells required`, this.adventure.required.spells);
-      AdventureMunch._progressNote(`Checking for missing spells from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("spell", this.adventure.required.spells);
+      this._progressNote(`Checking for missing spells from DDB`);
+      await AdventureMunchHelpers.checkForMissingDocuments("spell", this.adventure.required.spells, this.notifierV2);
     }
     if (this.adventure.required?.items && this.adventure.required.items.length > 0) {
       logger.debug(`${this.adventure.name} - items required`, this.adventure.required.items);
-      AdventureMunch._progressNote(`Checking for missing items from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("item", this.adventure.required.items);
+      this._progressNote(`Checking for missing items from DDB`);
+      await AdventureMunchHelpers.checkForMissingDocuments("item", this.adventure.required.items, this.notifierV2);
     }
     if (this.adventure.required?.monsters && this.adventure.required.monsters.length > 0) {
       logger.debug(`${this.adventure.name} - monsters required`, this.adventure.required.monsters);
-      AdventureMunch._progressNote(`Checking for missing monsters from DDB`);
-      await AdventureMunchHelpers.checkForMissingDocuments("monster", this.adventure.required.monsters);
+      this._progressNote(`Checking for missing monsters from DDB`);
+      await AdventureMunchHelpers.checkForMissingDocuments("monster", this.adventure.required.monsters, this.notifierV2);
     }
     if (parseFloat(this.adventure.version) < 4.1 && this.allMonsters) {
       ui.notifications.warn(`Unable to add all monsters from this adventure, please re-munch adventure with Adventure Muncher v1.0.9 or higher`);
@@ -355,7 +350,7 @@ export default class AdventureMunch {
       && this.adventure.required?.monsterData?.length > 0
     ) {
       logger.debug(`${this.adventure.name} - Importing Remaining Actors`);
-      AdventureMunch._progressNote(`Checking for missing world actors (${this.adventure.required.monsterData.length}) from compendium...`);
+      this._progressNote(`Checking for missing world actors (${this.adventure.required.monsterData.length}) from compendium...`);
       await this.importRemainingActors(this.adventure.required.monsterData);
     }
     logger.debug("Missing data check complete");
@@ -722,7 +717,7 @@ export default class AdventureMunch {
             logger.warn(`Error updating references for object ${itemUuid}`, err);
           }
           currentCount += 1;
-          AdventureMunch._updateProgress(totalCount, currentCount, "References");
+          this._updateProgress(totalCount, currentCount, "References");
           clearTimeout(toTimer);
         });
       }
@@ -965,6 +960,7 @@ export default class AdventureMunch {
       logger.error(err.stack);
     } finally {
       this.lookups = {};
+      this.notifierV2?.({ progress: { current: 1, total: 1 }, message: "", progressBar: "primary", clear: true });
     }
   }
 
@@ -1692,7 +1688,7 @@ export default class AdventureMunch {
         await utils.asyncForEach(filesToUpload, async (file) => {
           await this.importImage(file.name);
           currentCount += 1;
-          AdventureMunch._updateProgress(filesToUpload.length, currentCount, "Token Image");
+          this._updateProgress(filesToUpload.length, currentCount, "Token Image");
         });
       }
     } else {
@@ -1755,7 +1751,7 @@ export default class AdventureMunch {
       await this._importRenderedFile(importType, data, needRevisit, overwriteIds);
 
       currentCount += 1;
-      AdventureMunch._updateProgress(totalCount, currentCount, importType);
+      this._updateProgress(totalCount, currentCount, importType);
     });
   }
 
@@ -1868,16 +1864,16 @@ export default class AdventureMunch {
     return doc.body.innerHTML;
   }
 
-  static _updateProgress(total, count, type) {
-    const localizedType = `ddb-importer.label.${type}`;
-    $(".import-progress-bar")
-      .width(`${Math.trunc((count / total) * 100)}%`)
-      .html(
-        `<span>${game.i18n.localize("ddb-importer.label.Working")} (${game.i18n.localize(localizedType)})...</span>`,
-      );
+  _updateProgress(total, count, type) {
+    this.notifierV2?.({
+      progress: { current: count, total },
+      section: "import",
+      message: `${game.i18n.localize("ddb-importer.label.Working")} (${game.i18n.localize(`ddb-importer.label.${type}`)})`,
+      progressBar: "primary",
+    });
   }
 
-  static _progressNote(note) {
-    $(".import-progress-bar").html(`<span>${game.i18n.localize("ddb-importer.label.Working")} (${note})...</span>`);
+  _progressNote(note) {
+    this.notifierV2?.({ section: "note", message: note });
   }
 }

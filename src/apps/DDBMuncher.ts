@@ -1171,15 +1171,13 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async importAdventure(this: DDBMuncher, _event, _target) {
-    const progressElement = this.element.querySelector(".import-progress");
     try {
       logger.info("Generating adventure config!");
       this._disableButtons();
-      if (progressElement) progressElement.classList.remove("muncher-hidden");
 
       const adventureMuncher = new AdventureMunch({
         importFile: this.element.querySelector(`#munch-adventure-file`).files[0],
-        notifierElement: this.element,
+        notifierV2: this.notifierV2.bind(this),
       });
 
       await adventureMuncher.importAdventure();
@@ -1188,7 +1186,7 @@ export default class DDBMuncher extends DDBAppV2 {
       logger.error(error);
       logger.error(error.stack);
     } finally {
-      if (progressElement) progressElement.classList.add("muncher-hidden");
+      this.notifierV2({ progress: { current: 1, total: 1 }, message: "", progressBar: "primary", clear: true });
       this._enableButtons();
     }
   }

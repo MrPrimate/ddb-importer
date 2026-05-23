@@ -1,7 +1,6 @@
-import { logger, CompendiumHelper, PatreonHelper, utils, FileHelper } from "../../lib/_module";
+import { logger, CompendiumHelper, PatreonHelper, FileHelper } from "../../lib/_module";
 import { parseSpells } from "../spells";
 import DDBItemsImporter from "../DDBItemsImporter";
-import AdventureMunch from "./AdventureMunch";
 import { SETTINGS } from "../../config/_module";
 import DDBMonsterFactory from "../../parser/DDBMonsterFactory";
 
@@ -73,14 +72,19 @@ export default class AdventureMunchHelpers {
     return matches;
   }
 
-  static async loadMissingDocuments(type, docIds) {
+  static async loadMissingDocuments(type, docIds, notifierV2 = null) {
     return new Promise((resolve) => {
       if (docIds && docIds.length > 0) {
         switch (type) {
           case "item":
             logger.debug(`Importing missing ${type}s from DDB`, docIds);
-            AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
-            resolve(DDBItemsImporter.fetchAndImportItems({ useSourceFilter: false, ids: docIds, deleteBeforeUpdate: false }));
+            notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
+            resolve(DDBItemsImporter.fetchAndImportItems({
+              useSourceFilter: false,
+              ids: docIds,
+              deleteBeforeUpdate: false,
+              notifierV2,
+            }));
             break;
           case "monster": {
             try {
@@ -88,8 +92,10 @@ export default class AdventureMunchHelpers {
               const tiers = PatreonHelper.calculateAccessMatrix(tier);
               if (tiers.all) {
                 logger.debug(`Importing missing ${type}s from DDB`, docIds);
-                AdventureMunch._progressNote(`Importing ${docIds.length} missing ${type}s from DDB`);
-                const monsterFactory = new DDBMonsterFactory({ notifier: utils.munchNote });
+                notifierV2?.({ section: "note", message: `Importing ${docIds.length} missing ${type}s from DDB` });
+                const monsterFactory = new DDBMonsterFactory({
+                  notifierV2,
+                });
                 resolve(monsterFactory.processIntoCompendium(docIds));
               } else {
                 logger.warn(`Unable to import missing ${type}s from DDB - link to patreon or use your own proxy`, docIds);
@@ -107,9 +113,9 @@ export default class AdventureMunchHelpers {
           }
           case "spell":
             logger.debug(`Importing missing ${type}s from DDB`);
-            AdventureMunch._progressNote(`Missing spells detected, importing from DDB`);
+            notifierV2?.({ section: "note", message: `Missing spells detected, importing from DDB` });
             // we actually want all spells, because monsters don't just use spells from a single source
-            resolve(parseSpells({ ids: null, deleteBeforeUpdate: false }));
+            resolve(parseSpells({ ids: null, deleteBeforeUpdate: false, notifierV2 }));
             break;
           // no default
         }
@@ -130,7 +136,7 @@ export default class AdventureMunchHelpers {
     return compendiumIndex;
   }
 
-  static async checkForMissingDocuments(type, ids) {
+  static async checkForMissingDocuments(type, ids, notifierV2 = null) {
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     // console.warn(`${type} index`, index);
 
@@ -147,7 +153,7 @@ export default class AdventureMunchHelpers {
         }
       });
       logger.debug(`${type} missing ids`, missingIds);
-      const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds);
+      const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
       logger.debug(`${type} missing`, missingDocuments);
       resolve(missingDocuments);
     });
