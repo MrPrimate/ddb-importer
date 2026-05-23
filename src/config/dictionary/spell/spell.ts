@@ -79,6 +79,7 @@ export const SPELL = {
     { name: "Warlock", value: "pact" },
     { name: "Wizard", value: "full" },
     { name: "Monk", value: "none" },
+    { name: "Illrigger", value: "third" }
   ] as ISpellProgression[],
   preparationModes: [
     {
@@ -229,6 +230,12 @@ export const SPELL = {
     {
       name: "Monk",
       method: "atwill",
+      preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
+      cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
+    },
+    {
+      name: "Illrigger",
+      method: "spell",
       preparation: () => CONFIG.DND5E.spellPreparationStates.always.value,
       cantripsPrepared: () => CONFIG.DND5E.spellPreparationStates.always.value,
     },
