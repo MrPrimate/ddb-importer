@@ -206,11 +206,6 @@ global {
   }
 
   // -- Effect Options ---------------------------------------------------------
-
-  type TEffectExpiryTypes = "turnStart" | "turnEnd" | "roundStart" | "roundEnd" | "combatStart" | "combatEnd";
-  // these are only needed pre v6
-  type TDAEEffectExpiryTypes = TEffectExpiryTypes | "sourceStart" | "sourceEnd" | "targetStart" | "targetEnd";
-
   interface IDDBEffectOptions {
     description?: string;
     durationSeconds?: number;
@@ -250,7 +245,7 @@ global {
 
     // DAE
     daeStackable?: string;
-    daeSpecialDurations?: DAESpecialDuration[];
+    daeSpecialDurations?: TDAESpecialDuration[];
 
     // Status effects
     statuses?: typeof STATUSES;

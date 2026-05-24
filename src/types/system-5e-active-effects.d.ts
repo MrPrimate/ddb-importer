@@ -1,4 +1,5 @@
 import { STATUSES } from "../config/dictionary/effects/data";
+import { DAE_EFFECT_EXPIRY_TYPES, DAE_SPECIAL_DURATIONS } from "../parser/enrichers/effects/EffectGenerator";
 
 export {};
 
@@ -7,7 +8,8 @@ global {
   type TActiveEffectChangeType = "custom" | "multiply" | "add" | "subtract" | "downgrade" | "upgrade" | "override";
   type TActiveEffectChangePhase = "initial" | "final";
   type TEffectDurationUnit = "years" | "months" | "days" | "hours" | "minutes" | "seconds" | "rounds" | "turns";
-  type TEffectDurationExpiry = "combatStart" | "roundStart" | "turnStart" | "combatEnd" | "roundEnd" | "turnEnd";
+  type TEffectDurationExpiry = typeof EFFECT_EXPIRY_TYPES[number];
+  type TDAEEffectExpiryTypes = typeof DAE_EFFECT_EXPIRY_TYPES[number];
   type TEffectShowIcon = 0 | 1 | 2; // NEVER | CONDITIONAL | ALWAYS
 
   interface IActiveEffectChangeData {
@@ -18,44 +20,11 @@ global {
     priority?: number;
   }
 
-  type DAESpecialDuration =
+  type TDAESpecialDuration =
+    // for pre v6 only
+    | TDAEEffectExpiryTypes
     // Turn/Combat timing
-    | "turnStart"
-    | "turnEnd"
-    | "turnStartSource"
-    | "turnEndSource"
-    | "combatEnd"
-    // Attack/Action triggers
-    | "1Action"
-    | "1Attack"
-    | "1Attack:mwak"
-    | "1Attack:rwak"
-    | "1Reaction"
-    | "1Save"
-    | "1Spell"
-    // Condition triggers
-    | "isAttacked"
-    | "isDamaged"
-    | "DamageDealt"
-    | "isSave"
-    | "isInitiative"
-    | "Initiative"
-    // Skill check triggers
-    | "isSkill.acr"
-    | "isSkill.ath"
-    | "isSkill.his"
-    | "isSkill.ins"
-    | "isSkill.inv"
-    | "isSkill.itm"
-    | "isSkill.per"
-    | "isSkill.prf"
-    | "isSkill.ste"
-    // attacked
-    | "1Hit"
-    | "1Hit:mwak"
-    | "1Hit:rwak"
-    | "1Hit:msak"
-    | "1Hit:rsak";
+    | typeof DAE_SPECIAL_DURATIONS[number];
 
   type TEffectType = "base" | "enchant";
 
@@ -98,10 +67,9 @@ global {
         selfTarget?: boolean;
         selfTargetAlways?: boolean;
         macroRepeat?: "startEndEveryTurn" | "startEveryTurn" | "endEveryTurn" | "startEndTurn" | "startTurn" | "endTurn" | string;
-        showIcon?: boolean | null;
         transfer?: boolean;
         stackable?: string;
-        specialDuration?: DAESpecialDuration[];
+        specialDuration?: TDAESpecialDuration[];
         armorEffect?: boolean;
       };
       ddbimporter?: {
@@ -144,7 +112,7 @@ global {
   interface IEffectDuration {
     value?: number | null;
     units?: TEffectDurationUnit;
-    expiry?: TEffectDurationExpiry | null;
+    expiry?: TDAEEffectExpiryTypes | null;
     expired?: boolean;
   }
 

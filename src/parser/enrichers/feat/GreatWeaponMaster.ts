@@ -50,18 +50,12 @@ export default class GreatWeaponMaster extends DDBEnricherData {
           options: {
             transfer: true,
             disabled: true,
+            showIcon: 2,
           },
           changes: [
             DDBEnricherData.ChangeHelper.unsignedAddChange("-5", 20, "system.bonuses.mwak.attack"),
             DDBEnricherData.ChangeHelper.unsignedAddChange("+10", 20, "system.bonuses.mwak.damage"),
           ],
-          data: {
-            flags: {
-              dae: {
-                showIcon: true,
-              },
-            },
-          },
         },
       ];
     } else {

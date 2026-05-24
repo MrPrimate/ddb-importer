@@ -6,6 +6,54 @@ import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 
+
+const EFFECT_EXPIRY_TYPES = [
+  "turnStart", "turnEnd", "roundStart", "roundEnd", "combatStart", "combatEnd",
+] as const;
+export const DAE_EFFECT_EXPIRY_TYPES = [
+  ...EFFECT_EXPIRY_TYPES,
+  "sourceStart", "sourceEnd", "targetStart", "targetEnd",
+] as const;
+
+export const DAE_SPECIAL_DURATIONS = [
+  "turnStart",
+  "turnEnd",
+  "turnStartSource",
+  "turnEndSource",
+  "combatEnd",
+  // Attack/Action triggers
+  "1Action",
+  "1Attack",
+  "1Attack:mwak",
+  "1Attack:rwak",
+  "1Reaction",
+  "1Save",
+  "1Spell",
+  // Condition triggers
+  "isAttacked",
+  "isDamaged",
+  "DamageDealt",
+  "isSave",
+  "isInitiative",
+  "Initiative",
+  // Skill check triggers
+  "isSkill.acr",
+  "isSkill.ath",
+  "isSkill.his",
+  "isSkill.ins",
+  "isSkill.inv",
+  "isSkill.itm",
+  "isSkill.per",
+  "isSkill.prf",
+  "isSkill.ste",
+  // attacked
+  "1Hit",
+  "1Hit:mwak",
+  "1Hit:rwak",
+  "1Hit:msak",
+  "1Hit:rsak",
+];
+
 interface IEffectGenerator {
   ddb: IDDBData;
   character: I5eActorData;
@@ -1129,6 +1177,63 @@ export default class EffectGenerator {
     });
     return generator.document;
 
+  }
+
+  static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
+    const daeActive = game.modules.get("dae")?.active;
+    const daeManagesTurnExpiry = daeActive && !foundry.utils.isNewerVersion(game.system.version, "5.99.99");
+    const deprecatedSpecialDurMap: Record<string, TDAEEffectExpiryTypes> = daeManagesTurnExpiry ? {
+      "turnStart": "targetStart",
+      "turnEnd": "targetEnd",
+      "turnStartSource": "sourceStart",
+      "turnEndSource": "sourceEnd",
+      "combatEnd": "combatEnd",
+      "sourceStart": "sourceStart",
+      "sourceEnd": "sourceEnd",
+      "targetStart": "targetStart",
+      "targetEnd": "targetEnd",
+    } : {
+      "turnStart": "turnStart",
+      "turnEnd": "turnEnd",
+      "turnStartSource": "turnStart",
+      "turnEndSource": "turnEnd",
+      "combatEnd": "combatEnd",
+      "sourceStart": "turnStart",
+      "sourceEnd": "turnEnd",
+      "targetStart": "turnStart",
+      "targetEnd": "turnEnd",
+    };
+
+    if (durations.includes("turnStart")) {
+      effect.duration.expiry = deprecatedSpecialDurMap["turnStart"];
+    } else if (durations.includes("turnEnd")) {
+      effect.duration.expiry = deprecatedSpecialDurMap["turnEnd"];
+    } else if (durations.includes("combatEnd")) {
+      effect.duration.expiry = deprecatedSpecialDurMap["combatEnd"];
+    } else if (durations.includes("turnStartSource")) {
+      effect.duration.expiry = deprecatedSpecialDurMap["turnStartSource"];
+    } else if (durations.includes("turnEndSource")) {
+      effect.duration.expiry = deprecatedSpecialDurMap["turnEndSource"];
+    }
+
+    // these are new for v14 so more likely to be correct
+    if (durations.includes("sourceStart")) {
+      effect.duration.expiry = daeManagesTurnExpiry["sourceStart"];
+    } else if (durations.includes("sourceEnd")) {
+      effect.duration.expiry = daeManagesTurnExpiry["sourceEnd"];
+    } else if (durations.includes("targetStart")) {
+      effect.duration.expiry = daeManagesTurnExpiry["targetStart"];
+    } else if (durations.includes("targetEnd")) {
+      effect.duration.expiry = daeManagesTurnExpiry["targetEnd"];
+    }
+
+    const durationsToFlag: TDAESpecialDuration[] = durations.filter((d) =>
+      !(DAE_EFFECT_EXPIRY_TYPES as readonly string[]).includes(d),
+    );
+
+    if (durationsToFlag.length > 0)
+      foundry.utils.setProperty(effect, "flags.dae.specialDuration", durationsToFlag);
+    return effect;
   }
 
 }

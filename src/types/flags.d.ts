@@ -804,8 +804,7 @@ global {
         itemsToDelete?: string[];
         selfTarget?: boolean;
         selfTargetAlways?: boolean;
-        showIcon?: boolean;
-        specialDuration?: string | string[];
+        specialDuration?: string | TDAESpecialDuration[];
         stackable?: "noneName" | "noneNameOnly" | "none" | "multi" | "count" | "countDeleteDecrement";
         stacks?: number;
         transfer?: boolean;

@@ -12,7 +12,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
     case "system.attributes.movement.burrow":
     case "system.attributes.movement.swim": {
       const rollData = actor.getRollData();
-      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: 0, warn: false });
+      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
       foundry.utils.setProperty(actor, change.key, evaluated);
       return true;
@@ -32,7 +32,7 @@ function daeStubEffects(actor, change, _current, _delta, _changes) {
       return true;
     case "system.traits.languages.communication.telepathy.value": {
       const rollData = actor.getRollData();
-      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: 0, warn: false });
+      const formula = Roll.replaceFormulaData(change.value, rollData, { missing: "0", warn: false });
       const evaluated = Roll.safeEval(formula);
       foundry.utils.setProperty(actor, change.key, evaluated);
       return true;
@@ -92,6 +92,7 @@ export default class DDBEffectHooks {
 
   static loadHooks() {
     // special effect functions
+    // @ts-expect-error - fine
     Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
     if (!game.modules.get("dae")?.active) {
       Hooks.on("applyActiveEffect", daeStubEffects);

@@ -2,7 +2,7 @@ import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
-import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
+import { AutoEffects, EnchantmentEffects, ChangeHelper, EffectGenerator } from "../effects/_module";
 
 export default abstract class DDBEnricherFactoryMixin {
 
@@ -778,7 +778,7 @@ export default abstract class DDBEnricherFactoryMixin {
               foundry.utils.setProperty(effect, "duration.expiry", "turnStart");
             }
           }
-          const specialDurations: DAESpecialDuration[] = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []) as DAESpecialDuration[];
+          const specialDurations: TDAESpecialDuration[] = utils.addArrayToProperties(effect.flags.dae.specialDuration, duration.dae ?? []) as TDAESpecialDuration[];
           foundry.utils.setProperty(effect, "flags.dae.specialDuration", specialDurations);
         }
 
@@ -822,7 +822,7 @@ export default abstract class DDBEnricherFactoryMixin {
       }
 
       if (effectHint.daeSpecialDurations) {
-        foundry.utils.setProperty(effect, "flags.dae.specialDuration", effectHint.daeSpecialDurations);
+        effect = EffectGenerator.applyDaeSpecialDurations(effect, effectHint.daeSpecialDurations);
       }
 
       if (effectHint.midiProperties && applyMidiOnlyEffects) {
