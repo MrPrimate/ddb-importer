@@ -1690,7 +1690,8 @@ ${this.data.system.description.value}
 
     for (const spell of spells) {
       const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()
-        || i.flags?.ddbimporter?.originalName.toLowerCase() === spell.name.toLowerCase(),
+        || i.flags?.ddbimporter?.originalName.toLowerCase() === spell.name.toLowerCase()
+        || i.name.toLowerCase() === spell.name.split(";")[0].trim().toLowerCase(),
       );
       if (!entry) {
         logger.error(`Unable to find spell ${spell.name} for monster: "${this.ddbMonster.name}" (feature: "${this.originalName}"), have you munched spells?`, {
