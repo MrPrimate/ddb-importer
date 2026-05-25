@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.12
+
+- A special Pugilist treat for @thetreat
+
 # 7.0.11
 
 - The DDB Importer show image in chat feature could spam multiple images into chat.
