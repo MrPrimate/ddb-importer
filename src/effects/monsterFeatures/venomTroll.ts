@@ -27,7 +27,6 @@ export async function venomTrollEffects(npc) {
       );
       foundry.utils.setProperty(effect, "flags.dae.transfer", true);
       effect.transfer = true;
-      item.system.damage.parts = [];
       item.effects.push(effect);
     }
     item = forceItemEffect(item);
