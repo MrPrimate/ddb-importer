@@ -1,5 +1,8 @@
 # Next Up
 
+- Fury of the Small did not calculate uses properly. @boppol09
+- Spells parsing improvements: Elemental Exhalation, Thorn Armor.
+
 # 7.1.17
 
 - Some Pugilist Tweaks for Squared Circle @thetreat
