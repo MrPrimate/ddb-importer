@@ -3,6 +3,7 @@
 - Fury of the Small did not calculate uses properly. @boppol09
 - Spells parsing improvements: Elemental Exhalation, Thorn Armor.
 - Warlock invocations could import with the wrong activities, if they normally generated with no non-spellcasting activities.
+- 2024 Staff of power would not import all effects.
 
 # 7.1.17
 
