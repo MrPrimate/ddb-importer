@@ -54,6 +54,17 @@ export const DAE_SPECIAL_DURATIONS = [
   "1Hit:rsak",
 ];
 
+const BASE_RESTRICTIONS = [
+  "",
+  null,
+  "While holding the staff",
+];
+
+const AC_RESTRICTIONS = BASE_RESTRICTIONS.concat([
+  "while wearing heavy armor",
+  "while not wearing heavy armor",
+]);
+
 interface IEffectGenerator {
   ddb: IDDBData;
   character: I5eActorData;
@@ -182,7 +193,7 @@ export default class EffectGenerator {
       this._addAddBonusChanges(customBonuses, type, key);
     }
 
-    const regularModifiers = DDBModifiers.filterModifiersOld(regularBonuses, "bonus", type);
+    const regularModifiers = DDBModifiers.filterModifiersOld(regularBonuses, "bonus", type, BASE_RESTRICTIONS);
 
     if (regularModifiers.length > 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
@@ -1037,7 +1048,7 @@ export default class EffectGenerator {
   }
 
 
-  _addACBonusChanges(subType: string, restrictions: (string | null)[] = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
+  _addACBonusChanges(subType: string, restrictions: (string | null)[] = AC_RESTRICTIONS) {
     const bonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", subType, restrictions);
     // I added subtype here, but this might need to be null
     const bonus = DDBModifiers.getValueFromModifiers(bonusModifiers, "bonus", subType);
@@ -1115,10 +1126,6 @@ export default class EffectGenerator {
     }
 
     this.generateACEffects();
-
-    console.warn(`Finished generating effects for ${this.document.name}`, { document: this.document,
-      this: this,
-     });
 
     if (this.document.effects?.length > 0
       || foundry.utils.hasProperty(document, "flags.dae")
