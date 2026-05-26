@@ -12,7 +12,7 @@ export interface IDDBBasicDamage {
   type?: string | null;
   types?: string[];
   bonus?: string;
-  scalingMode?: string;
+  scalingMode?: "whole" | "half" | "none";
   scalingNumber?: number;
   scalingFormula?: string | number;
   customFormula?: string | null;

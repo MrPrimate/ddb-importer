@@ -30,17 +30,9 @@ export default class FuryOfTheSmall extends DDBEnricherData {
   }
 
   get override(): IDDBOverrideData {
+    const uses = this._getGeneratedUses({ type: this.type, name: this.data.name });
     return {
-      uses: {
-        "spent": 0,
-        "recovery": [
-          {
-            "period": "turnStart",
-            "type": "recoverAll",
-          },
-        ],
-        "max": "1",
-      },
+      uses,
     };
   }
 
