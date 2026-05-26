@@ -25,6 +25,7 @@ export { default as IndestructibleLife } from "./IndestructibleLife";
 export { default as InvocationLifedrinker } from "./InvocationLifedrinker";
 export { default as InvocationPactOfTheBlade } from "./InvocationPactOfTheBlade";
 export { default as MagicalCunning } from "./MagicalCunning";
+export { default as MaskOfManyFaces } from "./MaskOfManyFaces";
 export { default as PactBoonPactOfTheTalisman } from "./PactBoonPactOfTheTalisman";
 export { default as PactOfTheChain } from "./PactOfTheChain";
 export { default as RadiantSoul } from "./RadiantSoul";

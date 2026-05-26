@@ -1039,6 +1039,10 @@ export default class EffectGenerator {
 
     this.generateACEffects();
 
+    console.warn(`Finished generating effects for ${this.document.name}`, { document: this.document,
+      this: this,
+     });
+
     if (this.document.effects?.length > 0
       || foundry.utils.hasProperty(document, "flags.dae")
       || foundry.utils.hasProperty(document, "flags.midi-qol.onUseMacroName")

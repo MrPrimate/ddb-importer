@@ -68,6 +68,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   async build(choice) {
     try {
+      this._currentChoice = choice;
       this._generateSystemType();
 
       logger.debug(`Building choice ${choice.label} for ${this.data.name}`);

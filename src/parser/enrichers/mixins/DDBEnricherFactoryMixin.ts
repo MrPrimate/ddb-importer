@@ -1322,6 +1322,13 @@ export default abstract class DDBEnricherFactoryMixin {
 
     if (!this.ddbParser?.ddbData?.character?.actions?.[derivedType]) return results;
 
+    // When building a specific choice/option feature, restrict action matching to actions
+    // belonging to THIS option, not sibling options sharing the parent feature id.
+    const currentChoice = this.ddbParser?._currentChoice ?? null;
+    const currentChoiceOptionId = currentChoice
+      ? (currentChoice.id ?? currentChoice.optionId ?? null)
+      : null;
+
     const nameMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action: any) =>
       action.name === name
       && action.componentId === id
@@ -1347,6 +1354,7 @@ export default abstract class DDBEnricherFactoryMixin {
       );
 
       return optionMatch
+        && (currentChoiceOptionId === null || action.componentId === currentChoiceOptionId)
         && !nameMatches.some((m: any) => m.id === action.id)
         && !idMatches.some((m: any) => m.id === action.id)
         && optionMatch.componentId === id
@@ -1372,6 +1380,7 @@ export default abstract class DDBEnricherFactoryMixin {
         const choiceMatch = choices.some((choice: any) => choice.id === action.componentId);
 
         return choiceMatch
+          && (currentChoiceOptionId === null || action.componentId === currentChoiceOptionId)
           && !nameMatches.some((m: any) => m.id === action.id)
           && !idMatches.some((m: any) => m.id === action.id)
           && !optionMatches.some((m: any) => m.id === action.id);
