@@ -2,6 +2,14 @@ import { logger } from "../../../lib/_module";
 import { DDBModifiers } from "../../lib/_module";
 import ChangeHelper from "./ChangeHelper";
 
+const BASE_RESTRICTIONS = [
+  "",
+  null,
+  "while wearing heavy armor",
+  "while not wearing heavy armor",
+  "While holding the staff",
+];
+
 export default class ACBonusEffects {
 
   static ACEffect(name: string): I5eEffectData {
@@ -36,7 +44,7 @@ export default class ACBonusEffects {
     return changes;
   }
 
-  static addACBonusEffect(modifiers: IModifiersMod[], name: string, subType: string, restrictions = ["while wearing heavy armor", "while not wearing heavy armor", "", null]): IActiveEffectChangeData[] {
+  static addACBonusEffect(modifiers: IModifiersMod[], name: string, subType: string, restrictions = BASE_RESTRICTIONS): IActiveEffectChangeData[] {
     const bonusModifiers = DDBModifiers.filterModifiersOld(modifiers, "bonus", subType, restrictions);
     const changes = ACBonusEffects.addAddBonusChanges(bonusModifiers, name, subType, "system.attributes.ac.bonus");
     if (changes.length > 0) logger.debug(`Generating ${subType} bonus for ${name}`);

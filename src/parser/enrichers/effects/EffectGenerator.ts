@@ -6,6 +6,17 @@ import { DDBModifiers, ProficiencyFinder, DDBDataUtils } from "../../lib/_module
 import { DICTIONARY } from "../../../config/_module";
 import { isEqual } from "../../../../vendor/lowdash/_module.mjs";
 
+const BASE_RESTRICTIONS = [
+  "",
+  null,
+  "While holding the staff",
+];
+
+const AC_RESTRICTIONS = BASE_RESTRICTIONS.concat([
+  "while wearing heavy armor",
+  "while not wearing heavy armor",
+]);
+
 interface IEffectGenerator {
   ddb: IDDBData;
   character: I5eActorData;
@@ -134,7 +145,7 @@ export default class EffectGenerator {
       this._addAddBonusChanges(customBonuses, type, key);
     }
 
-    const regularModifiers = DDBModifiers.filterModifiersOld(regularBonuses, "bonus", type);
+    const regularModifiers = DDBModifiers.filterModifiersOld(regularBonuses, "bonus", type, BASE_RESTRICTIONS);
 
     if (regularModifiers.length > 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
@@ -960,7 +971,7 @@ export default class EffectGenerator {
   }
 
 
-  _addACBonusChanges(subType: string, restrictions: (string | null)[] = ["while wearing heavy armor", "while not wearing heavy armor", "", null]) {
+  _addACBonusChanges(subType: string, restrictions: (string | null)[] = AC_RESTRICTIONS) {
     const bonusModifiers = DDBModifiers.filterModifiersOld(this.grantedModifiers, "bonus", subType, restrictions);
     // I added subtype here, but this might need to be null
     const bonus = DDBModifiers.getValueFromModifiers(bonusModifiers, "bonus", subType);
