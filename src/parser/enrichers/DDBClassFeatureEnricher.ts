@@ -218,6 +218,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Lifedrinker": ClassEnrichers.Warlock.InvocationLifedrinker,
     "Eldritch Invocations: Pact of the Blade": ClassEnrichers.Warlock.InvocationPactOfTheBlade,
     "Eldritch Invocations: Pact of the Chain": ClassEnrichers.Warlock.PactOfTheChain,
+    "Eldritch Invocations: Mask of Many Faces": ClassEnrichers.Warlock.MaskOfManyFaces,
     "Elemental Affinity": ClassEnrichers.Sorcerer.ElementalAffinity,
     "Fighting Style: Interception": GenericEnrichers.FightingStyleInterception,
     "Flurry of Blows: Addle": ClassEnrichers.Monk.FlurryOfBlowsAdditional,

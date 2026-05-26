@@ -90,6 +90,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   description: string;
   resourceCharges: number | null;
   ddbFeature: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions;
+  // current choice option context, set transiently during DDBChoiceFeature.build()
+  _currentChoice: any | null;
   declare ddbDefinition: TDDBFeatureMixinDefinitions;
   declare data: T5eFeatureMixinDataTypes;
   rawCharacter: I5ePCData;
@@ -349,6 +351,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
     this.ddbFeature = ddbDefinition;
+    this._currentChoice = null;
     this.extraFlags = extraFlags;
     // @ts-expect-error - TODO refactor
     this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
