@@ -1,6 +1,7 @@
 import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
+import { resolveTransformProfileUuids } from "../../companions/types/TransformProfiles";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import { AutoEffects, EnchantmentEffects, ChangeHelper, EffectGenerator } from "../effects/_module";
 
@@ -631,6 +632,14 @@ export default abstract class DDBEnricherFactoryMixin {
         ? overrideData.data()
         : overrideData.data;
       activity = foundry.utils.mergeObject(activity, data);
+    }
+
+    if (
+      activity.type === "transform"
+      && activity.transform?.mode === ""
+      && Array.isArray(activity.profiles)
+    ) {
+      await resolveTransformProfileUuids({ profiles: activity.profiles, is2014: this.is2014 });
     }
 
     if (overrideData.addSpellUuid) {
