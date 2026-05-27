@@ -681,6 +681,51 @@ export class DDBCompendiumFolders {
     return newFolder;
   }
 
+  // tables store their source book code in flags.ddbimporter.sourceBook (RollTable has no system schema)
+  static getTableBookFolderName(document) {
+    const bookCode = foundry.utils.getProperty(document, "flags.ddbimporter.sourceBook");
+    const legacy = foundry.utils.getProperty(document, "flags.ddbimporter.legacy");
+    return DDBCompendiumFolders.getSourceFolderName({
+      bookCode,
+      isLegacy: Boolean(legacy),
+      type: "table",
+    });
+  }
+
+  getTableFolderName(document) {
+    const book = DDBCompendiumFolders.getTableBookFolderName(document);
+    const entityName = foundry.utils.getProperty(document, "flags.ddbimporter.parentName") ?? "Unknown";
+    return {
+      name: entityName,
+      flagTag: `${book.flagTag}/${entityName}`,
+    };
+  }
+
+  async createTableFolder(document) {
+    const book = DDBCompendiumFolders.getTableBookFolderName(document);
+    const bookFolder = this.getFolder(book.name, book.flagTag)
+      ?? (await this.createCompendiumFolder({
+        name: book.name,
+        flagTag: book.flagTag,
+        color: DDBCompendiumFolders.DDB_COLOR,
+      }));
+    this.validFolderIds.push(bookFolder._id);
+
+    const details = this.getTableFolderName(document);
+    const existingFolder = this.getFolder(details.name, details.flagTag);
+    if (existingFolder) {
+      this.validFolderIds.push(existingFolder._id);
+      return existingFolder;
+    }
+    const newFolder = await this.createCompendiumFolder({
+      name: details.name,
+      flagTag: details.flagTag,
+      parentId: bookFolder._id,
+    });
+    this.validFolderIds.push(newFolder._id);
+    return newFolder;
+  }
+
   async createFeatureFolder(className, name, parentId, version, { tagPrefix = "features", color = "#222222" } = {}) {
     const flagTag = `${version}/${tagPrefix}/${className}/${name}`;
     const folder = this.getFolder(name, flagTag)
@@ -1593,6 +1638,12 @@ export class DDBCompendiumFolders {
         data = DDBCompendiumFolders.getVehicleFolderName(document);
         break;
       }
+      case "table":
+      case "tables":
+      case "RollTable": {
+        data = this.getTableFolderName(document);
+        break;
+      }
       // no default
     }
     return data;
@@ -1748,6 +1799,16 @@ export class DDBCompendiumFolders {
           "system.source.book",
           "flags.ddbimporter.legacy",
           "flags.ddbimporter.is2014",
+        ];
+      }
+      case "table":
+      case "tables":
+      case "RollTable": {
+        return [
+          "name",
+          "flags.ddbimporter.parentName",
+          "flags.ddbimporter.sourceBook",
+          "flags.ddbimporter.legacy",
         ];
       }
       default:

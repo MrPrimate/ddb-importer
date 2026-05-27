@@ -355,6 +355,9 @@ export default class Utils {
     entityTypes.set("journal", "JournalEntry");
     entityTypes.set("journalEntry", "JournalEntry");
     entityTypes.set("compendium", "Compendium");
+    entityTypes.set("table", "RollTable");
+    entityTypes.set("tables", "RollTable");
+    entityTypes.set("RollTable", "RollTable");
 
     [
       "feat", "spell", "inventory", "equipment", "consumable", "tool", "loot",

@@ -435,6 +435,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       parentName: this.data.name,
       html: this.ddbDefinition.description,
       updateExisting: this.updateExisting,
+      sourceBook: this.data.system.source?.book,
       notifier: this.notifier,
     });
     this.data.system.description = {

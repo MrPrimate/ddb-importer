@@ -1911,6 +1911,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         parentName: this.name,
         html: this.ddbDefinition.description,
         updateExisting: this.updateExisting,
+        sourceBook: this.data.system?.source?.book,
         notifier: this.notifier,
       });
       this.data.system.description = this.#getDescription();

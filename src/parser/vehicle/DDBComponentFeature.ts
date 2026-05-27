@@ -620,6 +620,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       parentName: this.ddbVehicle.data.name,
       html: description,
       updateExisting: this.updateExisting,
+      sourceBook: this.data.system?.source?.book ?? this.ddbVehicle.data.system?.source?.book,
       notifier: this.notifier,
     });
     this.data.system.description.value = `<div class="ddb">
