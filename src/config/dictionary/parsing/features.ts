@@ -501,11 +501,29 @@ export const FEATURE_SPELLS_IGNORE = [
   "Otto's Irresistible Dance",
   "Empty Body",
   "Searing Arc Strike",
+  "Bewitching Whispers",
+  "Dreadful Word",
+  "Armor of Shadows",
+  "Ascendant Step",
+  "Beast Speech",
+  "Eldritch Sight",
+  "Chains of Carceri",
+  "Far Scribe",
+  "Mask of Many Faces",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
   "Faithful Summons",
   "Searing Arc Strike",
+  "Bewitching Whispers",
+  "Dreadful Word",
+  "Armor of Shadows",
+  "Ascendant Step",
+  "Beast Speech",
+  "Eldritch Sight",
+  "Chains of Carceri",
+  "Far Scribe",
+  "Mask of Many Faces",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
