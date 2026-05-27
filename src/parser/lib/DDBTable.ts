@@ -4,6 +4,7 @@ import {
   logger,
   DDBItemImporter,
   CompendiumHelper,
+  DDBCompendiumFolders,
 } from "../../lib/_module";
 
 function diceRollMatcher(_match: string, p1: string, p2: string, p3: string, p4: string, p5: string): string {
@@ -134,7 +135,7 @@ function getDiceTableRange(value) {
 }
 
 
-function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html } = {}) {
+function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, sourceBook, html } = {}) {
   const generatedTables = [];
 
   diceKeys.forEach((diceKey) => {
@@ -154,6 +155,7 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
       "flags": {
         "ddbimporter": {
           "parentName": parentName,
+          "sourceBook": sourceBook,
           "keys": keys,
           "diceKeys": diceKeys,
         },
@@ -234,18 +236,29 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, html }
 }
 
 
-async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html, notifier } = {}) {
-  const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, html });
+async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, sourceBook, updateExisting, html, notifier } = {}) {
+  const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, sourceBook, html });
   const handlerOptions = { srdFidding: false, updateIcons: false, notifier };
+
+  // create source-book > parent-entity folders before import so they can be assigned
+  if (game.user.isGM) {
+    const tableFolders = new DDBCompendiumFolders("tables");
+    await tableFolders.loadCompendium("tables");
+    for (const table of data) {
+      await tableFolders.createTableFolder(table);
+    }
+  }
+
   const handler = await DDBItemImporter.buildHandler("tables", data, updateExisting, handlerOptions);
   return handler.results;
 }
 
-export async function generateTable({ parentName, html, updateExisting, type = "", notifier = null }: {
+export async function generateTable({ parentName, html, updateExisting, type = "", sourceBook, notifier = null }: {
   parentName: string;
   html: string;
   updateExisting?: boolean;
   type?: string;
+  sourceBook?: string;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }): Promise<string> {
   let name = `${parentName}`;
@@ -293,7 +306,7 @@ export async function generateTable({ parentName, html, updateExisting, type = "
     try {
       const builtTables = tableGenerated
         ? [tableGenerated]
-        : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, updateExisting, html, notifier });
+        : await buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, sourceBook, updateExisting, html, notifier });
 
       if (builtTables.length > 0) {
         const tableData = {

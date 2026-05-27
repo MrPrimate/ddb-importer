@@ -1207,6 +1207,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       html: feature.system.description.value,
       updateExisting: true,
       type: feature.type,
+      sourceBook: feature.system.source?.book,
       notifier,
     });
     feature.system.description.value = tableDescription;

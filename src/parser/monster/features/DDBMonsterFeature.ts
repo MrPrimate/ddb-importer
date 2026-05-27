@@ -1083,6 +1083,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       parentName: this.ddbMonster.npc.name,
       html: description,
       updateExisting: this.updateExisting,
+      sourceBook: this.data.system?.source?.book ?? this.ddbMonster.npc.system?.source?.book,
       notifier: this.notifier,
     });
     this.data.system.description.value = `<div class="ddb">
