@@ -91,6 +91,7 @@ export { default as FaithfulHound } from "./FaithfulHound";
 export { default as FalseLife } from "./FalseLife";
 export { default as FeatherFall } from "./FeatherFall";
 export { default as Feeblemind } from "./Feeblemind";
+export { default as FelineChaos } from "./FelineChaos";
 export { default as FindFamiliar } from "./FindFamiliar";
 export { default as FingerGuns } from "./FingerGuns";
 export { default as FingerOfDeath } from "./FingerOfDeath";
