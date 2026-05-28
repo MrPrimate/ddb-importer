@@ -43,6 +43,12 @@ div.ddbCharacterName {
   font-size: 0.9rem;
 }
 
+.adventure-import-selection .form-description,
+.adventure-import-updates .form-description {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 .ddbimporter .inline-image {
   height: 16pt;
   border: none;

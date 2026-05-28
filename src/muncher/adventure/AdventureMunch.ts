@@ -798,7 +798,7 @@ export default class AdventureMunch {
     });
 
     const checkboxes = fileData
-      .filter((scene) => scene.flags?.ddb?.versions)
+      .filter((scene) => scene.flags?.ddb?.versions?.ddbMetaData)
       .map((scene) =>
         `<div>`
         + `<input id="scene_${scene._id}" name="${scene._id}" type="checkbox" value="">`

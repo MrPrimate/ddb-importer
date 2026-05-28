@@ -4,6 +4,8 @@
 - Spells parsing improvements: Elemental Exhalation, Thorn Armor.
 - Warlock invocations could import with the wrong activities, if they normally generated with no non-spellcasting activities.
 - 2024 Staff of power would not import all effects.
+- Trying to filter by specific scene when importing adventures could cause an error in some circumstances.
+- Fix an issue with large adventures and scene selection dialogue.
 
 # 7.2.22
 
