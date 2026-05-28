@@ -234,7 +234,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Eldritch Invocations: Gift of the Depths": ClassEnrichers.Warlock.GiftOfTheDepths,
     "Eldritch Invocations: Mask of Myriad Forms": ClassEnrichers.Warlock.MaskOfMyriadForms,
     "Eldritch Invocations: Minions of Chaos": ClassEnrichers.Warlock.MinionsOfChaos,
-    "Eldritch Invocations: One with Shadow": ClassEnrichers.Warlock.OneWithShadow,
+    "Eldritch Invocations: One with Shadows": ClassEnrichers.Warlock.OneWithShadows,
     "Eldritch Invocations: Mire the Mind": ClassEnrichers.Warlock.MireTheMind,
     "Eldritch Invocations: Misty Visions": ClassEnrichers.Warlock.MistyVisions,
     "Eldritch Invocations: Otherworldly Leap": ClassEnrichers.Warlock.OtherworldlyLeap,

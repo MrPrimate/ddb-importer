@@ -464,7 +464,7 @@ export default class Utils {
   }
 
   static renderPopup(type, url) {
-    if (CONFIG.DDBI.POPUPS[type] && !CONFIG.DDBI.POPUPS[type].close) {
+    if (CONFIG.DDBI.POPUPS[type] && !CONFIG.DDBI.POPUPS[type].closed) {
       CONFIG.DDBI.POPUPS[type].focus();
       CONFIG.DDBI.POPUPS[type].location.href = url;
     } else {

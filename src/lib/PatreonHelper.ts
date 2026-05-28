@@ -29,6 +29,8 @@ async function setLocalStorage(key: string, value: string | null): Promise<void>
   }
 }
 
+let activePatreonLinkSocket: any = null;
+
 
 const PatreonHelper = {
 
@@ -201,6 +203,12 @@ const PatreonHelper = {
 
   linkToPatreon: async (callback) => {
 
+    if (activePatreonLinkSocket) {
+      logger.debug("Disconnecting prior Patreon link socket");
+      activePatreonLinkSocket.disconnect();
+      activePatreonLinkSocket = null;
+    }
+
     const proxy = DDBProxy.getProxy();
     const patreonId = "oXQUxnRAbV6mq2DXlsXY2uDYQpU-Ea2ds0G_5hIdi0Bou33ZRJgvV8Ub3zsEQcHp";
     const patreonAuthUrl = `${proxy}/patreon/auth`;
@@ -208,12 +216,12 @@ const PatreonHelper = {
 
     const socketOptions = {
       transports: ["websocket", "polling", "flashsocket"],
-      // reconnection: false,
-      // reconnectionAttempts: 10,
+      reconnection: false,
     };
     const socket = io(`${proxy}/`, socketOptions);
+    activePatreonLinkSocket = socket;
 
-    socket.on("connect", () => {
+    socket.once("connect", () => {
       logger.debug("DDB Muncher socketID", socket.id);
       const serverDetails = {
         id: socket.id,
@@ -221,10 +229,9 @@ const PatreonHelper = {
         userId: game.userId,
       };
       socket.emit("register", serverDetails);
-
     });
 
-    socket.on("registered", (data) => {
+    socket.once("registered", (data) => {
       logger.info(`Foundry instance registered with DDB Muncher Proxy`);
       logger.debug(data);
       utils.renderPopup("web", `https://www.patreon.com/oauth2/authorize?response_type=code&client_id=${patreonId}&redirect_uri=${patreonAuthUrl}&state=${data.userHash}&scope=${patreonScopes}`);
@@ -233,9 +240,10 @@ const PatreonHelper = {
     socket.on("auth", async (data: IPatreonLinkResponse) => {
       logger.debug(`Response from auth socket!`, data);
 
-      CONFIG.DDBI.POPUPS["web"].close();
+      CONFIG.DDBI.POPUPS["web"]?.close();
 
       socket.disconnect();
+      activePatreonLinkSocket = null;
 
       if (callback) {
         return callback(data);
@@ -247,6 +255,13 @@ const PatreonHelper = {
     socket.on("error", (data) => {
       logger.error(`Error Response from socket!`, data);
       socket.disconnect();
+      activePatreonLinkSocket = null;
+    });
+
+    socket.on("connect_error", (err) => {
+      logger.error(`Patreon link socket connect error`, err);
+      socket.disconnect();
+      activePatreonLinkSocket = null;
     });
   },
 
