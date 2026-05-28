@@ -204,18 +204,24 @@ export default class CharacterFeatureFactory {
     const unarmedStrikeMock = CONFIG.DDB.naturalActions[0];
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
-    strikeMock.sources = [
-      {
-        "sourceId": 148,
-        "pageNumber": null,
-        "sourceType": 2,
-      },
-      {
-        "sourceId": 1,
-        "pageNumber": null,
-        "sourceType": 2,
-      },
-    ];
+    const primaryClass = this.ddbData.character.classes.find((c) => c.isStartingClass);
+    const is2014 = DDBSources.is2014Source(primaryClass.definition.sources[0]);
+    const sources = is2014
+      ? [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2,
+        },
+      ]
+      : [
+        {
+          "sourceId": 148,
+          "pageNumber": null,
+          "sourceType": 2,
+        },
+      ];
+    foundry.utils.setProperty(strikeMock, "sources", sources);
 
     const enricherClass = CharacterFeatureFactory.DDB_TYPE_ENRICHERS["other"];
     const enricher = new enricherClass({
@@ -226,6 +232,11 @@ export default class CharacterFeatureFactory {
       action: strikeMock,
       enricher,
       isAttack: true,
+    });
+
+    console.warn("UNARMED STRIKE FEATURE", {
+      feature,
+      sources, enricher, strikeMock,
     });
 
     return feature;
