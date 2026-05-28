@@ -4,6 +4,7 @@ import { generateAdventureConfig } from "../adventure";
 import AdventureMunch from "./AdventureMunch";
 import { PageFinder } from "./PageFinder";
 import { SETTINGS } from "../../config/_module";
+import MonsterReplacer from "../../apps/MonsterReplacer";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
@@ -20,6 +21,45 @@ export default class ThirdPartyMunch extends FormApplication {
     this._description = "";
     this._pageFinders = {};
     this.adventureMunch = new AdventureMunch();
+    this.monstersToReplace = [];
+  }
+
+  async _updateMonsterData() {
+    if (!this.adventureMunch.use2024monsters) return;
+
+    const allTokens = this._scenePackage.scenes
+      .filter((scene) => scene.flags?.ddb?.tokens)
+      .flatMap((scene) => scene.flags.ddb.tokens)
+      .filter((token) => token.flags?.ddbActorFlags?.id);
+    const ids = Array.from(new Set(allTokens.map((t) => t.flags.ddbActorFlags.id)));
+    if (ids.length === 0) return;
+
+    const monsterData = await MonsterReplacer.fetchUpdatedMonsterInfo(ids);
+    logger.debug("Third Party Updated Monster Data", monsterData);
+    if (monsterData.length === 0) return;
+
+    const monsterReplacer = new MonsterReplacer({ name: this._packageName });
+    const monstersToReplace = await monsterReplacer.chooseMonstersToReplace(monsterData);
+    logger.debug("Third Party Monsters to Replace", monstersToReplace);
+    if (monstersToReplace.length === 0) return;
+
+    this.monstersToReplace = monsterData.filter((m) => monstersToReplace.includes(m.id2014));
+    this.adventureMunch.monstersToReplace = this.monstersToReplace;
+
+    for (const scene of this._scenePackage.scenes) {
+      if (!scene.flags?.ddb?.tokens) continue;
+      for (const token of scene.flags.ddb.tokens) {
+        const ddbId = token.flags?.ddbActorFlags?.id;
+        const match = this.monstersToReplace.find((m) => m.id2014 === ddbId);
+        if (!match) continue;
+        const originalName = token.flags.ddbActorFlags.name;
+        token.flags.ddbActorFlags.id = match.id2024;
+        if (originalName === match.name2014) {
+          token.name = match.name2024;
+        }
+        token.flags.ddbActorFlags.name = match.name2024;
+      }
+    }
   }
 
   /** @override */
@@ -169,17 +209,12 @@ export default class ThirdPartyMunch extends FormApplication {
   }
 
   static _renderCompleteDialog(title, adventure) {
-    new Dialog(
-      {
-        title: title,
-        content: { adventure },
-        buttons: { two: { label: "OK" } },
-      },
-      {
-        classes: ["dialog", "adventure-import-export"],
-        template: "modules/ddb-importer/handlebars/adventure/import-complete.hbs",
-      },
-    ).render(true);
+    foundry.applications.api.DialogV2.prompt({
+      window: { title },
+      content: `<h1>${adventure.name}</h1>`,
+      ok: { label: "OK" },
+      classes: ["adventure-import-export"],
+    });
   }
 
   static async _fixupScenes(scenes) {
@@ -577,6 +612,9 @@ export default class ThirdPartyMunch extends FormApplication {
       await Promise.all(adventureLabels);
 
       logger.debug("Competed folder creation");
+
+      // checks to see if we want to swap legacy monsters for 2024 versions
+      await this._updateMonsterData();
 
       // import any missing monsters into the compendium
       // add tokens to scene
