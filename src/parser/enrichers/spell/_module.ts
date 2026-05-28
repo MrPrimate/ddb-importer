@@ -145,6 +145,7 @@ export { default as MinorIllusion } from "./MinorIllusion";
 export { default as MirrorImage } from "./MirrorImage";
 export { default as Mislead } from "./Mislead";
 export { default as MistyStep } from "./MistyStep";
+export { default as OminousWinds } from "./OminousWinds";
 export { default as OrrosMarkOfFate } from "./OrrosMarkOfFate";
 export { default as PassWithoutTrace } from "./PassWithoutTrace";
 export { default as PhantasmalKiller } from "./PhantasmalKiller";
