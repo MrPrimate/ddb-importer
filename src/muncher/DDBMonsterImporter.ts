@@ -283,7 +283,7 @@ export default class DDBMonsterImporter {
 
     const useTokenizer = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
       && !disableAutoTokenizeOverride
-      && game.modules.get("vtta-tokenizer")?.active;
+      && (game.modules.get("vtta-tokenizer")?.active || game.modules.get("tokenizer-2")?.active);
 
     let monsterTokenImgPath = null;
     let tokenName = null;
@@ -372,16 +372,37 @@ export default class DDBMonsterImporter {
         await FileHelper.verifyDirectory(parsed);
       }
 
-      const autoOptions = {
-        name: tokenizerName,
-        nameSuffix: `-${bookRuleStub}${compendiumLabel}`,
-        updateActor: false,
-        isWildCard: false,
-        targetFolder: targetTokenizerFolder,
-      };
-      logger.debug("Tokenizing monster image", { monster: this.monster.name, autoOptions });
-      const tokenizerResult = await window.Tokenizer.autoToken(this.monster, autoOptions);
-      this.monster.prototypeToken.texture.src = tokenizerResult;
+      let tokenizerResult;
+
+      if (game.modules.get("tokenizer-2")?.active) {
+        const filename = `${tokenizerName}-${bookRuleStub}${compendiumLabel}`;
+        const cfg = {
+          "saveFolder": targetTokenizerFolder,
+          useActorImg: false,
+          portraitFit: "contain",
+          wildcardMode: "keep",
+        };
+        // @ts-expect-error no types for tokenizer-2 yet
+        const { prototypeToken, layers } = await game.modules.get("tokenizer-2").api.tokenize(this.monster, {
+          ...cfg, filename, updateActor: false,
+        });
+        foundry.utils.mergeObject(this.monster, foundry.utils.expandObject(prototypeToken));
+        this.monster.flags["tokenizer-2"] = { layerStack: layers };
+
+      } else if (game.modules.get("vtta-tokenizer")?.active) {
+
+        const autoOptions = {
+          name: tokenizerName,
+          nameSuffix: `-${bookRuleStub}${compendiumLabel}`,
+          updateActor: false,
+          isWildCard: false,
+          targetFolder: targetTokenizerFolder,
+        };
+        logger.debug("Tokenizing monster image", { monster: this.monster.name, autoOptions });
+        tokenizerResult = await window.Tokenizer.autoToken(this.monster, autoOptions);
+        this.monster.prototypeToken.texture.src = tokenizerResult;
+      }
+
       if (useWildcard) {
         this.monster.prototypeToken.texture.src = `${wildcardPath}*`;
         this.monster.prototypeToken.randomImg = true;

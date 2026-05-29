@@ -59,7 +59,7 @@ Below are some recommended modules.
 
 I'd strongly recommend installing:
 
-- [Tokenizer](https://foundryvtt.com/packages/vtta-tokenizer) - Helps create _pog_ style tokens from DDB art.
+- [Tokenizer 2](https://foundryvtt.com/packages/tokenizer-2) - Helps create _pog_ style tokens from DDB art.
 - [DAE](https://foundryvtt.com/packages/dae/) - Helps enrich some of the effects for things like speed bonuses.
 - [Active Token Effects](https://foundryvtt.com/packages/ATL) - Helps allow effect bonuses to transfer to tokens.
 - [Vision/Detection Modes 5e](https://foundryvtt.com/packages/vision-5e) - Adds some key missing vision and detection modes for 5e.
