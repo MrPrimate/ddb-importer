@@ -323,11 +323,12 @@ export default class ChrisPremadesHelper {
       if (newItemNames.size > 0) {
         logger.debug(`Adding new items for ${chrisName}`);
 
-        for (const newItemName of newItemNames) {
+        for (const newItem of newItemNames) {
+          const { name: newItemName = newItem, type: typeOverride } = newItem;
           logger.debug(`Adding new item ${newItemName}`);
           const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
             documentName: newItemName,
-            documentType: doc.type,
+            documentType: typeOverride ?? doc.type,
             rules: doc.system.source.rules,
             actorType: monsterName !== null ? "npc" : "character",
             monsterName,
@@ -435,12 +436,21 @@ export default class ChrisPremadesHelper {
 
       // now replace the matched item with the replaced Item
       if (restrictedItem.replacedItemName && restrictedItem.replacedItemName !== "") {
+        const {
+          name: chrisName = restrictedItem.replacedItemName,
+          type: typeOverride,
+          featType: featTypeOverride,
+        } = restrictedItem.replacedItemName;
+        const searchDoc = foundry.utils.duplicate(doc) as unknown as TExternalAutomationDocuments;
+        if (typeOverride) searchDoc.type = typeOverride;
+        if (featTypeOverride) foundry.utils.setProperty(searchDoc, "system.type.value", featTypeOverride);
+
         logger.debug(`Replacing item data for ${ddbName}, using restricted data from ${restrictedItem.key}`);
         const updateDocument = await ChrisPremadesHelper.findAndUpdate({
-          document: foundry.utils.duplicate(doc) as unknown as TExternalAutomationDocuments,
-          type: doc.type,
+          document: searchDoc,
+          type: ChrisPremadesHelper.getTypeMatch(searchDoc, monsterName !== null),
           monsterName,
-          chrisNameOverride: restrictedItem.replacedItemName,
+          chrisNameOverride: chrisName,
         });
         if (updateDocument) {
           await actor.deleteEmbeddedDocuments("Item", [doc._id]);
@@ -454,11 +464,12 @@ export default class ChrisPremadesHelper {
 
         const docAdd = documents.find((d) => d.name === ddbName);
         if (docAdd) {
-          for (const newItemName of restrictedItem.additionalItems) {
+          for (const newItem of restrictedItem.additionalItems) {
+            const {name: newItemName = newItem, type: typeOverride} = newItem;
             logger.debug(`Adding new item ${newItemName}`);
             const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
               documentName: newItemName,
-              documentType: docAdd.type,
+              documentType: typeOverride ?? docAdd.type,
               rules: docAdd.system.source.rules,
               actorType: monsterName !== null ? "npc" : "character",
               monsterName,
