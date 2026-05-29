@@ -563,7 +563,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
       },
     ];
 
-    const tokenizerReady = game.modules.get("vtta-tokenizer")?.active ?? false;
+    const tokenizerReady = (game.modules.get("vtta-tokenizer")?.active || game.modules.get("tokenizer-2")?.active) ?? false;
 
     const basicMonsterConfig = [
       {
@@ -679,7 +679,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
         name: "munching-policy-monster-tokenize",
         isChecked: utils.getSetting<boolean>("munching-policy-monster-tokenize"),
         label: "Auto-Tokenize monsters?",
-        hint: "Adds Tokenizer default token ring using the Tokenizer module to monster tokens.",
+        hint: "Adds a token ring using the Tokenizer or Tokenizer 2 module.",
         enabled: tokenizerReady && !artDisabled,
       },
     ];
