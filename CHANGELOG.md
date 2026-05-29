@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.2.23
+
 - Fury of the Small did not calculate uses properly. @boppol09
 - Spells parsing improvements: Elemental Exhalation, Thorn Armor.
 - Warlock invocations could import with the wrong activities, if they normally generated with no non-spellcasting activities.
@@ -151,6 +153,13 @@ v14 only:
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.18
+
+- Fury of the Small did not calculate uses properly. @boppol09
+- Spells parsing improvements: Elemental Exhalation, Thorn Armor.
+- Warlock invocations could import with the wrong activities, if they normally generated with no non-spellcasting activities.
+- 2024 Staff of power would not import all effects.
 
 # 7.1.17
 
