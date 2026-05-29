@@ -324,7 +324,7 @@ export default class ChrisPremadesHelper {
         logger.debug(`Adding new items for ${chrisName}`);
 
         for (const newItem of newItemNames) {
-          const {name: newItemName = newItem, type: typeOverride} = newItem;
+          const { name: newItemName = newItem, type: typeOverride } = newItem;
           logger.debug(`Adding new item ${newItemName}`);
           const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
             documentName: newItemName,
