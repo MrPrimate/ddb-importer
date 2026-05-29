@@ -234,11 +234,6 @@ export default class CharacterFeatureFactory {
       isAttack: true,
     });
 
-    console.warn("UNARMED STRIKE FEATURE", {
-      feature,
-      sources, enricher, strikeMock,
-    });
-
     return feature;
 
   }
