@@ -1,7 +1,11 @@
 # Next Up
 
+# 7.1.19
+
 - CSS fix for some adventure monster stat blocks @sirnarvy
 - Tokenizer 2 support for Auto Tokenize function on import.
+- Background import broken @absolutesolver2021
+
 
 # 7.1.18
 
