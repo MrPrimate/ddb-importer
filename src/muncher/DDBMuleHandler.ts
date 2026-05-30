@@ -391,7 +391,8 @@ export default class DDBMuleHandler {
     } else {
       logger.info(`${message}`);
     }
-    this.ddbMuncher?.notifierV2({ progress, section, message, progressBar });
+    // Suppress the duplicate log in notifierV2 since we just logged above.
+    this.ddbMuncher?.notifierV2({ progress, section, message, progressBar, suppress: true });
   }
 
   async _fetchMuleData() {

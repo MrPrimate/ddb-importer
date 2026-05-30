@@ -205,6 +205,10 @@ export default class CharacterFeatureFactory {
     unarmedStrikeMock.displayAsAttack = true;
     const strikeMock = Object.assign(unarmedStrikeMock, overrides);
     const primaryClass = this.ddbData.character.classes.find((c) => c.isStartingClass);
+    if (!primaryClass) {
+      logger.debug("getUnarmedStrike: no starting class on character, skipping action generation");
+      return null;
+    }
     const is2014 = DDBSources.is2014Source(primaryClass.definition.sources[0]);
     const sources = is2014
       ? [
@@ -240,7 +244,9 @@ export default class CharacterFeatureFactory {
 
   async _generateUnarmedStrikeAction(overrides = {}) {
     const action = await this.getUnarmedStrike(overrides);
-    this.parsed.actions.push(action);
+    if (action) {
+      this.parsed.actions.push(action);
+    }
   }
 
   static DDB_TYPE_ENRICHERS = {
