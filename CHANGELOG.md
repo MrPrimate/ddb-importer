@@ -1,5 +1,12 @@
 # Next Up
 
+# 7.2.24
+
+- CSS fix for some adventure monster stat blocks @sirnarvy
+- Tokenizer 2 support for Auto Tokenize function on import.
+- Background import broken @absolutesolver2021
+
+
 # 7.2.23
 
 - Fury of the Small did not calculate uses properly. @boppol09
