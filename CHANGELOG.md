@@ -1,5 +1,8 @@
 # Next Up
 
+- Will now import animated frames from DDB when importing frames.
+- Frames munched by DDB will be registered to Tokenizer 2.
+
 # 7.1.19
 
 - CSS fix for some adventure monster stat blocks @sirnarvy
