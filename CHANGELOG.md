@@ -2,6 +2,7 @@
 
 - Will now import animated frames from DDB when importing frames.
 - Frames munched by DDB will be registered to Tokenizer 2.
+- Eyes of Night had bad formula
 
 # 7.1.19
 
