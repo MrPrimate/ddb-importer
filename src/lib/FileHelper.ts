@@ -218,6 +218,24 @@ export class FileHelper {
     }
   }
 
+  static async uploadBlob(blob: Blob, targetDirectory: string, baseFilename: string, extension: string): Promise<string> {
+    try {
+      const filename = `${baseFilename}.${extension}`;
+      const file = new File([blob], filename, { type: blob.type });
+      const result = await FileHelper.uploadToPath(targetDirectory, file);
+      // @ts-expect-error result.path exists at runtime
+      const path = result?.path;
+      if (path) {
+        FileHelper.addFileToKnown(FileHelper.parseDirectory(targetDirectory), path);
+        CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, path);
+      }
+      return path;
+    } catch (error) {
+      logger.error("Blob upload error", error);
+      return null;
+    }
+  }
+
   static async uploadRemoteImage(originalUrl: string, targetDirectory: string, baseFilename: string, useProxy = true): Promise<string> {
     // prepare filenames
     const filename = baseFilename;

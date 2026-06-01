@@ -58,6 +58,74 @@ global {
     thumbnailBackdropAvatarDecorationKey: string;
     thumbnailBackdropAvatarId: number | null;
     thumbnailBackdropAvatarUrl: string | null;
+    avatarFrameExtras?: IDDBAvatarFrameExtras | null;
+  }
+
+  // Animated frame extras. Discriminated by `type`:
+  //   "sprite"   - sprite sheet driven by steps(1) translation
+  //   "keyframe" - bespoke @keyframes timeline on one or more overlay layers
+  export type IDDBAvatarFrameExtras = IDDBAvatarFrameSpriteExtras | IDDBAvatarFrameKeyframeExtras;
+
+  export interface IDDBAvatarFrameSpriteExtras {
+    type: "sprite";
+    animatedAvatarFrameUrl: string;
+    reflectionAvatarFrameUrl?: string | null;
+    cssAnimationName?: string | null;
+    frameWidth?: number | null;
+    frameHeight?: number | null;
+    frameCount?: number | null;
+    gridCols?: number | null;
+    gridRows?: number | null;
+    animationDurationMs?: number | null;
+  }
+
+  export interface IDDBAvatarFrameKeyframeExtras {
+    type: "keyframe";
+    container: {
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+    };
+    // When set, the catalog's frameAvatarUrl should be drawn with this
+    // keyframe-driven transform (e.g. the mtofGears rotating base frame).
+    baseAnimation?: {
+      name: string;
+      durationMs: number | null;
+      timingFunction: string;
+    } | null;
+    baseTransformOrigin?: string | null;
+    layers: IDDBAvatarFrameKeyframeLayer[];
+    keyframes: Record<string, IDDBAvatarFrameKeyframeStep[]>;
+  }
+
+  export interface IDDBAvatarFrameKeyframeLayer {
+    idx: number;
+    imageUrl: string | null;
+    left: number | null;
+    top: number | null;
+    width: number | null;
+    height: number | null;
+    bgSize?: string | null;
+    bgPosition?: string | null;
+    transformInitial?: string | null;
+    transformOrigin?: string | null;
+    // Static overlays (extras without an animation, e.g. the corner cogs on
+    // the Animated Gears & Cogs frame) have animation: null.
+    animation: {
+      name: string;
+      durationMs: number | null;
+      timingFunction: string;
+    } | null;
+  }
+
+  export interface IDDBAvatarFrameKeyframeStep {
+    pct: number;
+    decls: {
+      transform?: string;
+      backgroundPosition?: string;
+      opacity?: number;
+    };
   }
 
   // ---- Equipment / Infusions ------------------------------------------------

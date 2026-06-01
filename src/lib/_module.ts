@@ -14,6 +14,8 @@ export { default as DDBItemImporter } from "./DDBItemImporter";
 export { default as DDBProxy } from "./DDBProxy";
 export { default as DialogHelper } from "./DialogHelper";
 export { default as FileHelper } from "./FileHelper";
+export { default as FrameAnimator } from "./FrameAnimator";
+export { default as FrameKeyframeRenderer } from "./FrameKeyframeRenderer";
 export { default as FolderHelper } from "./FolderHelper";
 export { default as MuncherSettings } from "./MuncherSettings";
 export { default as NameMatcher } from "./NameMatcher";
