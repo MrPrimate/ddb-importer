@@ -1,11 +1,15 @@
 # Next Up
 
+- Will now import animated frames from DDB when importing frames.
+- Frames munched by DDB will be registered to Tokenizer 2.
+- Eyes of Night had bad formula
+- CSS fix for some adventure monster stat blocks @sirnarvy
+
 # 7.2.24
 
 - CSS fix for some adventure monster stat blocks @sirnarvy
 - Tokenizer 2 support for Auto Tokenize function on import.
 - Background import broken @absolutesolver2021
-
 
 # 7.2.23
 
