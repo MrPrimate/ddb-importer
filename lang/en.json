@@ -1,6 +1,9 @@
 {
   "ddb-importer": {
     "module-name": "D&D Beyond Importer",
+    "tokenizer2": {
+      "frames-tab-label": "DDB"
+    },
     "activities": {
       "macro": {
         "Title": "Macro (DBB Importer)",

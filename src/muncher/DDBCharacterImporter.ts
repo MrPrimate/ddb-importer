@@ -4,6 +4,8 @@ import {
   Iconizer,
   DDBItemImporter,
   FileHelper,
+  FrameAnimator,
+  FrameKeyframeRenderer,
   CompendiumHelper,
   DDBMacros,
 } from "../lib/_module";
@@ -273,8 +275,48 @@ export default class DDBCharacterImporter {
       imagePath = await FileHelper.uploadRemoteImage(decorations.avatarUrl, uploadDirectory, filename);
       this.result.character.img = imagePath;
       if (decorations?.frameAvatarUrl && decorations.frameAvatarUrl !== "") {
-        const framePath = await FileHelper.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+        const extras = decorations.avatarFrameExtras;
+        let framePath: string | null = null;
+        let blob: Blob | null = null;
+        if (FrameAnimator.isSpriteExtras(extras)) {
+          this.notifier("Building animated avatar frame");
+          // DDB hides the base frame PNG via CSS display:none whenever sprite
+          // extras are present; omit baseUrl to keep the portrait cut-out.
+          blob = await FrameAnimator.buildWebM({
+            baseUrl: null,
+            spriteUrl: extras.animatedAvatarFrameUrl,
+            reflectionUrl: extras.reflectionAvatarFrameUrl,
+            frameWidth: extras.frameWidth,
+            frameHeight: extras.frameHeight,
+            frameCount: extras.frameCount,
+            gridCols: extras.gridCols,
+            gridRows: extras.gridRows,
+            durationMs: extras.animationDurationMs,
+            cssAnimationName: extras.cssAnimationName,
+          });
+        } else if (FrameKeyframeRenderer.isKeyframeExtras(extras)) {
+          this.notifier("Building keyframe-animated avatar frame");
+          // Keyframe extras DO draw the base frame; the overlays animate on top.
+          blob = await FrameKeyframeRenderer.buildWebM({
+            baseFrameUrl: decorations.frameAvatarUrl,
+            extras,
+          });
+        }
+        if (blob) {
+          framePath = await FileHelper.uploadBlob(blob, uploadDirectory, `frame-${filename}`, "webm");
+        } else if (extras) {
+          logger.warn("Animated frame build failed, falling back to static frame PNG");
+        }
+        if (!framePath) {
+          framePath = await FileHelper.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
+        }
         this.result.character.flags.ddbimporter["framePath"] = framePath;
+        if (framePath) {
+          // Tokenizer-2 caches its frame loaders; bust the cache so the new
+          // file shows up on the next Frame Browser open.
+          const { clearDDBFrameCache } = await import("../hooks/init/tokenizer2Frames");
+          clearDDBFrameCache();
+        }
       }
     } else {
       this.result.character.img = this.actor.img;

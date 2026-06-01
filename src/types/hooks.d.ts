@@ -74,6 +74,7 @@ declare module "fvtt-types/configuration" {
       "getHeaderControlsActivitySheet": (app: foundry.applications.api.Application /* dnd5e.applications.activity.activitySheet */, buttons: any[]) => void;
       "tidy5e-sheet.ready": (api: any) => void;
       "simplecover5eReady": () => void;
+      "tokenizer-2.registerFrames": (registry: any) => void;
       // ddb importer
       "ddb-importer.monsterAddToCompendiumComplete": (data: { actor: Actor.Implementation | null }) => void;
       "ddb-importer.spellsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;

@@ -35,6 +35,7 @@ import { registerCustomEnrichers } from "./hooks/ready/enrichers";
 import addActivitiesHooks from "./hooks/macroActivity/loadActivity";
 import { DDBEnhancers } from "./effects/_module";
 import { addTattooConsumable } from "./hooks/tattoo/main";
+import { registerTokenizer2FrameLoader } from "./hooks/init/tokenizer2Frames";
 import welcomeMessage from "./hooks/ready/welcomeMessage";
 import { migration } from "./hooks/ready/migraton";
 import { multiSelectHover } from "./hooks/ready/multiSelectHover";
@@ -52,6 +53,7 @@ export function init() {
   registerCustomEnrichers();
   addActivitiesHooks();
   addTattooConsumable();
+  registerTokenizer2FrameLoader();
   logger.info("Init complete");
 }
 

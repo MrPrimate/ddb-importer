@@ -725,9 +725,13 @@ export default class DDBMuncher extends DDBAppV2 {
     try {
       logger.info("Munching frames!");
       this._disableButtons();
-      const result = await DDBFrameImporter.parseFrames();
-      this.notifier(`Finished importing ${result.length} frames!`, { nameField: true });
-      this.notifier("");
+      const result = await DDBFrameImporter.parseFrames(this.notifierV2.bind(this));
+      this.notifierV2({
+        section: "name",
+        message: `Finished importing ${result} frames!`,
+        progress: { current: result, total: result },
+        clear: true,
+      });
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
