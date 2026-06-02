@@ -42,7 +42,7 @@ export interface BuiltScene {
 
 export interface BuiltScenes {
   scenes: BuiltScene[];
-  folders: any[];
+  folders: I5eFolderData[];
 }
 
 /**
@@ -183,7 +183,7 @@ export async function buildScenes(
   for (const row of rows) {
     if (row.cobaltId !== null) titleByCobalt.set(row.cobaltId, row.title);
   }
-  const folders = new Map<string, any>([[masterFolder._id, masterFolder]]);
+  const folders = new Map<string, I5eFolderData>([[masterFolder._id, masterFolder]]);
   const resolveFolder = (row: ProcessedRow): string => {
     const key = row.cobaltId ?? row.parentId;
     if (key === null) return masterFolder._id;

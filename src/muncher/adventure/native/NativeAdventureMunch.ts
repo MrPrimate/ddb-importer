@@ -222,7 +222,7 @@ export default class NativeAdventureMunch {
 
     // Keep only the scene folders that still contain a selected scene (walk each
     // doc's folder chain to its parents). Avoids creating empty chapter folders.
-    const folderById = new Map<string, any>(sceneFolders.map((f) => [f._id, f]));
+    const folderById = new Map<string, I5eFolderData>(sceneFolders.map((f) => [f._id, f]));
     const keepFolderIds = new Set<string>();
     for (const s of scenesToImport) {
       let fid: string | null = s.doc.folder ?? null;

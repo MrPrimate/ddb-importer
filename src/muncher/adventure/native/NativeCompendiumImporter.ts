@@ -31,11 +31,14 @@ function repointRefs(
 
 // Create the given folder docs inside the pack (keeping ids so each doc's
 // `folder` resolves in-compendium). Skips folders already present.
-async function createFoldersInPack(pack: CompendiumCollection.Any, folderDocs: any[]): Promise<void> {
+async function createFoldersInPack(pack: CompendiumCollection.Any, folderDocs: I5eFolderData[]): Promise<void> {
   const existing = new Set(pack.folders.map((f: Folder.Implementation) => f._id));
   const toCreate = folderDocs.filter((f) => !existing.has(f._id));
   if (toCreate.length > 0) {
-    await Folder.createDocuments(foundry.utils.deepClone(toCreate), { pack: pack.metadata.id, keepId: true });
+    await Folder.createDocuments(
+      foundry.utils.deepClone(toCreate) as unknown as Folder.CreateData[],
+      { pack: pack.metadata.id, keepId: true },
+    );
   }
 }
 
@@ -48,7 +51,7 @@ async function createFoldersInPack(pack: CompendiumCollection.Any, folderDocs: a
  * @param folders deterministic folder docs (JournalEntry + RollTable types
  *   are copied to the matching packs; Scene-type folders are dropped).
  */
-export async function importToCompendiums(journals: any[], tables: any[], folders: any[]): Promise<void> {
+export async function importToCompendiums(journals: any[], tables: any[], folders: I5eFolderData[]): Promise<void> {
   // ensure the Journals + Tables compendiums exist
   for (const title of ["Journals", "Tables"]) {
     const comp = SETTINGS.COMPENDIUMS.find((c: any) => c.title === title);
@@ -73,7 +76,7 @@ export async function importToCompendiums(journals: any[], tables: any[], folder
   await createFoldersInPack(tablePack, folders.filter((f) => f.type === "RollTable"));
 
   // journals → compendium copies (repoint refs, keep world docs untouched via clone)
-  const jToCreate: any[] = [];
+  const jToCreate: JournalEntry.CreateData[] = [];
   for (const journal of journals) {
     if (journalPack.index.has(journal._id)) continue;
     const clone = foundry.utils.deepClone(journal);
@@ -83,21 +86,21 @@ export async function importToCompendiums(journals: any[], tables: any[], folder
         page.text.content = repointRefs(page.text.content, journalIds, tableIds, jPackId, tPackId);
       }
     }
-    jToCreate.push(clone);
+    jToCreate.push(clone as unknown as JournalEntry.CreateData);
   }
   if (jToCreate.length) {
     await JournalEntry.createDocuments(jToCreate, { pack: jPackId, keepId: true, keepEmbeddedIds: true });
   }
 
   // tables → compendium copies (repoint result-text refs)
-  const tToCreate: any[] = [];
+  const tToCreate: RollTable.CreateData[] = [];
   for (const table of tables) {
     if (tablePack.index.has(table._id)) continue;
     const clone = foundry.utils.deepClone(table);
     for (const result of clone.results ?? []) {
       if (result.text) result.text = repointRefs(result.text, journalIds, tableIds, jPackId, tPackId);
     }
-    tToCreate.push(clone);
+    tToCreate.push(clone as unknown as RollTable.CreateData);
   }
   if (tToCreate.length) {
     await RollTable.createDocuments(tToCreate, { pack: tPackId, keepId: true, keepEmbeddedIds: true });

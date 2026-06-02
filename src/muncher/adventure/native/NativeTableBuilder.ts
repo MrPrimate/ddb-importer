@@ -30,7 +30,7 @@ export async function buildTables(
   idFactory: NativeIdFactory,
   tableHints: Map<string, TableHint> = new Map<string, TableHint>(),
   notify?: ItemNotify,
-): Promise<{ tables: any[]; folders: any[]; updatedContentById: Map<number, string> }> {
+): Promise<{ tables: any[]; folders: I5eFolderData[]; updatedContentById: Map<number, string> }> {
   const tables: any[] = [];
   const updatedContentById = new Map<number, string>();
 
@@ -42,7 +42,7 @@ export async function buildTables(
 
   // Deterministic RollTable folder docs, built lazily (only when a table needs
   // them). `sorting: "m"` so the compendium/world list keeps the sort order.
-  const folders = new Map<string, any>();
+  const folders = new Map<string, I5eFolderData>();
   const folderId = (key: string) =>
     idFactory.getId(NativeIdFactory.makeKey({ docType: "Folder", cobaltId: -1, name: key }));
 
