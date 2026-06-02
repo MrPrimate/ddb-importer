@@ -51,7 +51,7 @@ function mapStubForScene(scene: BuiltScene, bookCode: string, sourceId: number |
   };
 }
 
-export async function repointNotesOnLiveScene(sceneDoc: any, lookup: JournalPageLookup): Promise<number> {
+export async function repointNotesOnLiveScene(sceneDoc: Scene, lookup: JournalPageLookup): Promise<number> {
   const notes = sceneDoc?.notes?.contents ?? [];
   if (notes.length === 0) return 0;
   // Make a transient "scenes" array with the live notes embedded for the resolver.
@@ -85,7 +85,7 @@ export async function repointNotesOnLiveScene(sceneDoc: any, lookup: JournalPage
 // renders the level background to a small image and (in V14) writes it to the
 // configured thumbnail location; we stamp the returned path onto scene.thumb.
 // Same pattern as AdventureMunch._revisitScene + DDBEncounter post-create.
-async function generateThumbnail(liveScene: any): Promise<void> {
+async function generateThumbnail(liveScene: Scene): Promise<void> {
   if (liveScene.thumb) return;
   try {
     const thumbData = await liveScene.createThumbnail();
@@ -100,7 +100,7 @@ async function generateThumbnail(liveScene: any): Promise<void> {
 // `backgroundColor: "#999999"` which overwrites our sympathetic edge sample
 // in buildSceneUpdate). Idempotent: no-op when scene already has a non-default
 // color or when no edge color was stashed.
-async function restoreEdgeBackgroundColor(liveScene: any): Promise<boolean> {
+async function restoreEdgeBackgroundColor(liveScene: Scene): Promise<boolean> {
   const edge = liveScene.flags?.ddbimporter?.edgeBackgroundColor;
   if (!edge || typeof edge !== "string") return false;
 
@@ -133,11 +133,11 @@ async function restoreEdgeBackgroundColor(liveScene: any): Promise<boolean> {
 // Hide every token on the scene. Mirrors AdventureMunch._getTokens line 654
 // (`updateData.hidden = true`) - imported NPC tokens stay hidden until the GM
 // reveals them. Idempotent: skips tokens already hidden.
-async function hideAllTokens(liveScene: any): Promise<number> {
+async function hideAllTokens(liveScene: Scene): Promise<number> {
   const tokens = liveScene.tokens?.contents ?? [];
   const updates = tokens
-    .filter((t: any) => !t.hidden)
-    .map((t: any) => ({ _id: t.id, hidden: true }));
+    .filter((t: TokenDocument.Implementation) => !t.hidden)
+    .map((t: TokenDocument.Implementation) => ({ _id: t.id, hidden: true }));
   if (updates.length === 0) return 0;
   try {
     await liveScene.updateEmbeddedDocuments("Token", updates);

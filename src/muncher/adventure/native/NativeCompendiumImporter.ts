@@ -31,8 +31,8 @@ function repointRefs(
 
 // Create the given folder docs inside the pack (keeping ids so each doc's
 // `folder` resolves in-compendium). Skips folders already present.
-async function createFoldersInPack(pack: any, folderDocs: any[]): Promise<void> {
-  const existing = new Set(pack.folders.map((f: any) => f._id));
+async function createFoldersInPack(pack: CompendiumCollection.Any, folderDocs: any[]): Promise<void> {
+  const existing = new Set(pack.folders.map((f: Folder.Implementation) => f._id));
   const toCreate = folderDocs.filter((f) => !existing.has(f._id));
   if (toCreate.length > 0) {
     await Folder.createDocuments(foundry.utils.deepClone(toCreate), { pack: pack.metadata.id, keepId: true });

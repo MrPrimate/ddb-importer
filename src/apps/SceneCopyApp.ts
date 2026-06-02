@@ -97,7 +97,7 @@ const FIELD_GROUPS: IGroupDef[] = [
 
 export default class SceneCopyApp extends DDBAppV2 {
 
-  source: any;
+  source: Scene;
   targetId: string | null = null;
   expanded: Set<string>;
   selected: Set<string>;
@@ -129,7 +129,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     },
   };
 
-  constructor(source: any) {
+  constructor(source: Scene) {
     super();
     this.source = source;
     // All groups expanded on open.
@@ -298,7 +298,7 @@ export default class SceneCopyApp extends DDBAppV2 {
     }
   }
 
-  async _performCopy(target: any) {
+  async _performCopy(target: Scene) {
     const chosen = this._allFields().filter((f) => this.selected.has(f.id));
 
     // 1. Document fields -> single update.

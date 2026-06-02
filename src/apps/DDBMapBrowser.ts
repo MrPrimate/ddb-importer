@@ -246,7 +246,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
   // After a map's scene is created (with meta-notes), import the adventure's
   // journals and re-point the scene's note pins at those journal pages so they
   // open the imported journal instead of D&D Beyond. Soft-fails throughout.
-  async _maybeRepointSceneToJournals(map: IDDBMap, scene: any): Promise<void> {
+  async _maybeRepointSceneToJournals(map: IDDBMap, scene: Scene): Promise<void> {
     const bookCode = resolveMapBookCode(map);
     if (!bookCode) return;
     const bundle = await this._ensureJournalsForBook(bookCode);
