@@ -626,6 +626,7 @@ export default class DDBMuncher extends DDBAppV2 {
       "button[id^=\"munch-world-monster-selective-update\"]",
       "button[id^=\"munch-regenerate-storage\"]",
       "button[id^=\"munch-open-core-setup\"]",
+      "button[id^=\"munch-adventure-open\"]",
     ];
 
     if (tiers.all) {
