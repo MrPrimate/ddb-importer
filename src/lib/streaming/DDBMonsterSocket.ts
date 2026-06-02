@@ -7,6 +7,7 @@ import BaseStreamSocket, {
 export type DDBMonsterAuthBody = BaseStreamAuthBody;
 
 export interface DDBMonsterStartParams {
+  ids?: number[];
   searchTerm?: string;
   search?: string;
   sources?: number[];

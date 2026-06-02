@@ -19,6 +19,80 @@ import DDBMonsterSocket, { DDBMonsterEvent } from "../lib/streaming/DDBMonsterSo
 // streaming attempt per page-load latches this and falls back to HTTP.
 let _monsterSocketDisabled = false;
 
+// --- Shared by-id monster streaming session ------------------------------
+// By-id lookups (companion / summons enriched images, CreateUndead, etc.) are
+// fired hundreds of times during a spell import, each previously opening +
+// closing its own socket and re-fetching the same monster ids. We instead keep
+// ONE persistent socket for by-id jobs and cache results by monster id.
+let _sharedSocket: DDBMonsterSocket | null = null;
+let _sharedCredSig: string | null = null;
+let _sharedOpening: Promise<DDBMonsterSocket> | null = null;
+// jobs must run sequentially on a connection (runJob re-points handlers), so
+// serialise all shared-socket work through a 1-slot semaphore.
+const _fetchQueue = new foundry.utils.Semaphore(1);
+// monster id -> source object, or null when a completed job returned nothing
+// for that id (so unknown ids aren't re-queried forever). Tied to the socket
+// session lifetime: cleared whenever the shared socket closes.
+const _idCache = new Map<number, any | null>();
+let _idleTimer: ReturnType<typeof setTimeout> | null = null;
+const SHARED_IDLE_MS = 3600000;
+
+function _monsterCredSig(parsingApi: string, cobalt: string, betaKey: string): string {
+  return `${parsingApi}::${cobalt ?? ""}::${betaKey ?? ""}`;
+}
+
+function _closeSharedMonsterSocket(): void {
+  if (_idleTimer) {
+    clearTimeout(_idleTimer);
+    _idleTimer = null;
+  }
+  if (_sharedSocket) {
+    try {
+      _sharedSocket.close();
+    } catch (err) {
+      logger.warn(`[monsters] error closing shared socket: ${(err as Error)?.message ?? String(err)}`);
+    }
+  }
+  _sharedSocket = null;
+  _sharedCredSig = null;
+  _sharedOpening = null;
+  _idCache.clear();
+}
+
+function _bumpSharedIdle(): void {
+  if (_idleTimer) clearTimeout(_idleTimer);
+  _idleTimer = setTimeout(_closeSharedMonsterSocket, SHARED_IDLE_MS);
+}
+
+async function _getSharedMonsterSocket(
+  parsingApi: string,
+  authBody: { betaKey: string; cobalt: string; characterId: null },
+): Promise<DDBMonsterSocket> {
+  const sig = _monsterCredSig(parsingApi, authBody.cobalt, authBody.betaKey);
+  // Live socket for the same credentials?
+  if (_sharedSocket && _sharedSocket.socket && _sharedCredSig === sig) {
+    return _sharedSocket;
+  }
+  // An open is already in flight for the same creds
+  if (_sharedOpening && _sharedCredSig === sig) {
+    return _sharedOpening;
+  }
+  // Stale socket (closed or different creds)
+  if (_sharedSocket || _sharedOpening) _closeSharedMonsterSocket();
+
+  _sharedCredSig = sig;
+  _sharedOpening = (async () => {
+    const socket = new DDBMonsterSocket(parsingApi);
+    socket.connect();
+    const authRes = await socket.auth(authBody);
+    if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
+    _sharedSocket = socket;
+    _sharedOpening = null;
+    return socket;
+  })();
+  return _sharedOpening;
+}
+
 
 interface IDDBMonsterFactory {
   ddbData?: IDDBMonsterSourceData[] | null;
@@ -290,19 +364,63 @@ export default class DDBMonsterFactory {
       }
     };
 
+    // By-id lookups reuse one shared socket across the run and cache results by
+    // monster id, so the many companion/summon lookups during spell parsing
+    // don't each open a socket or re-fetch the same monsters.
+    const fetchByIdShared = async () => {
+      const requestedIds: number[] = body.ids ?? [];
+      const missing = requestedIds.filter((id) => !_idCache.has(id));
+
+      if (missing.length > 0) {
+        await _fetchQueue.add(async () => {
+          const socket = await _getSharedMonsterSocket(parsingApi, { betaKey, cobalt: cobaltCookie, characterId: null });
+          let raw: any[] = [];
+          await socket.runJob("monsters-by-id", { ids: missing, cobalt: cobaltCookie }, {
+            timeoutMs: 180000,
+            onEvent: (event: DDBMonsterEvent) => {
+              if (event.kind === "monsters" && Array.isArray(event.payload)) raw = event.payload;
+            },
+          });
+          for (const monster of raw) {
+            if (monster && monster.id != null) _idCache.set(monster.id, monster);
+          }
+          // requested ids the server returned nothing for: cache as null so we
+          // don't keep re-querying them.
+          for (const id of missing) {
+            if (!_idCache.has(id)) _idCache.set(id, null);
+          }
+          _bumpSharedIdle();
+        });
+      }
+
+      this.source = requestedIds.map((id) => _idCache.get(id)).filter(Boolean);
+      if (debugJson) {
+        FileHelper.download(JSON.stringify({ success: true, data: this.source }), `monsters-raw.json`, "application/json");
+      }
+      this.notifier(`Retrieved ${this.source.length} monsters from DDB`, { nameField: true, monsterNote: false });
+      logger.info(`Retrieved ${this.source.length} monsters from DDB (by id; ${missing.length} fetched, ${requestedIds.length - missing.length} cached)`);
+      return this.source;
+    };
+
     // If the user has wired a custom monsterURL (custom proxy), trust their
     // override and skip streaming. Same logic applies to both bulk and by-id.
     const customMonsterUrl = url !== defaultUrl;
     if (_monsterSocketDisabled || customMonsterUrl) return fetchOverHttp();
 
     try {
-      return await fetchOverStream();
+      return await (isIdLookup ? fetchByIdShared() : fetchOverStream());
     } catch (err) {
       const msg = (err as Error)?.message ?? String(err);
       logger.warn(`[monsters] streaming failed, falling back to HTTP: ${msg}`);
       _monsterSocketDisabled = true;
+      if (isIdLookup) _closeSharedMonsterSocket();
       return fetchOverHttp();
     }
+  }
+
+  /** Close the shared by-id monster socket and clear its cache (e.g. on teardown). */
+  static closeSharedSocket(): void {
+    _closeSharedMonsterSocket();
   }
 
   /**
