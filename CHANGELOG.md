@@ -1,6 +1,8 @@
 # Next Up
 
-- Will now import animated frames from DDB when importing frames.
+- NEW FEATURE: In browser adventure munching - no more need for DDB Adventure Muncher.
+- DDB Maps will now import journals where there is configured scene metadata.
+- Frame Muncher Will now import animated frames from DDB.
 - Frames munched by DDB will be registered to Tokenizer 2.
 - Eyes of Night had bad formula
 - CSS fix for some adventure monster stat blocks @sirnarvy
