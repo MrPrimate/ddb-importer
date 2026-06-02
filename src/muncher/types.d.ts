@@ -181,6 +181,18 @@ global {
     data?: T;
   }
 
+  // Item shape returned by the /proxy/library fallback (the owned-content
+  // lookup used when /proxy/adventure/available-user-content is bot-blocked).
+  // The library `id` matches CONFIG.DDB.sources id, so it maps straight to the
+  // bookIds the primary endpoint returns. Only id + isOwned are consumed.
+  interface ILibraryItem {
+    id: number;
+    name: string;
+    isOwned: boolean;
+    isReleased: boolean;
+    relativePath: string;
+  }
+
   // Lightweight match info returned by /proxy/maps/metadata/match. No scene
   // JSON - just enough to show a badge and decide whether to fetch.
   interface IDDBMetaDataMatchInfo {

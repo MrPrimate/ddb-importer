@@ -1,0 +1,62 @@
+<section class="ddb-scene-copy">
+  <header class="ddb-scene-copy-header">
+    <h3><i class="fas fa-copy"></i> {{localize "ddb-importer.scene-copy.title"}}</h3>
+    <p class="hint">{{localize "ddb-importer.scene-copy.source"}}: <strong>{{sourceName}}</strong></p>
+  </header>
+
+  <div class="ddb-scene-copy-target-row">
+    <label for="ddb-scene-copy-target">{{localize "ddb-importer.scene-copy.target"}}</label>
+    <select id="ddb-scene-copy-target" class="ddb-scene-copy-target" {{#unless hasTargets}}disabled{{/unless}}>
+      <option value="">{{localize "ddb-importer.scene-copy.choose"}}</option>
+      {{#each targetScenes}}
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="ddb-scene-copy-toolbar">
+    <button type="button" class="munch-button" data-action="selectAll">
+      <i class="fas fa-check-double"></i> {{localize "ddb-importer.scene-copy.select-all"}}
+    </button>
+    <button type="button" class="munch-button" data-action="deselectAll">
+      <i class="fas fa-xmark"></i> {{localize "ddb-importer.scene-copy.deselect-all"}}
+    </button>
+  </div>
+
+  <div class="ddb-scene-copy-tree">
+    {{#each groups}}
+      <section class="ddb-scene-copy-group {{#if this.expanded}}expanded{{/if}}">
+        <div class="ddb-scene-copy-group-header">
+          <button type="button" class="ddb-scene-copy-group-toggle" data-action="toggleGroup" data-group="{{this.id}}">
+            <i class="fas fa-chevron-{{#if this.expanded}}down{{else}}right{{/if}}"></i>
+            <span class="ddb-scene-copy-group-label">{{this.label}}</span>
+          </button>
+          <input type="checkbox" class="ddb-scene-copy-group-check" data-action="toggleGroupAll"
+            data-group="{{this.id}}" {{#if this.allSelected}}checked{{/if}} />
+        </div>
+        {{#if this.expanded}}
+          <ul class="ddb-scene-copy-fields">
+            {{#each this.fields}}
+              <li>
+                <label class="ddb-scene-copy-field">
+                  <input type="checkbox" data-action="toggleField" data-field="{{this.id}}"
+                    {{#if this.selected}}checked{{/if}} />
+                  {{this.label}}
+                </label>
+              </li>
+            {{/each}}
+          </ul>
+        {{/if}}
+      </section>
+    {{/each}}
+  </div>
+
+  <footer class="ddb-scene-copy-footer">
+    <button type="button" class="munch-button" data-action="copyScene" {{#unless canCopy}}disabled{{/unless}}>
+      <i class="fas fa-copy"></i> {{localize "ddb-importer.scene-copy.copy"}}
+    </button>
+    <button type="button" class="munch-button" data-action="cancel">
+      {{localize "ddb-importer.scene-copy.cancel"}}
+    </button>
+  </footer>
+</section>

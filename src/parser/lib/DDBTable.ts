@@ -23,7 +23,7 @@ function diceRollMatcher(_match: string, p1: string, p2: string, p3: string, p4:
   }
 }
 
-function replaceRollLinks(text: string): string {
+export function replaceRollLinks(text: string): string {
   text = text.replace(/[­––−-]/gu, "-").replace(/-+/g, "-");
   const damageRegex = new RegExp(/([.>( ^]|^|regains +)?(\d*d\d+(?:\s*[+-]\s*\d*d*\d*)*)([.,<)]|$| +) *([a-z,A-Z]*) *(damage|points)?/, "g");
   text = text.replace(damageRegex, diceRollMatcher);
@@ -35,7 +35,7 @@ function replaceRollLinks(text: string): string {
   return text;
 }
 
-function findDiceColumns(table) {
+export function findDiceColumns(table) {
   const result = [];
   if (table.tHead) {
     const headings = getHeadings(table);
@@ -50,7 +50,7 @@ function findDiceColumns(table) {
   return result;
 }
 
-function guessTableName(parentName: string, htmlDocument: Document, tableNum: number): string {
+export function guessTableName(parentName: string, htmlDocument: Document, tableNum: number): string {
   const element = htmlDocument.querySelectorAll("table");
   let track: HTMLElement | null = element[tableNum];
   let sibling = track.previousElementSibling;
@@ -135,7 +135,7 @@ function getDiceTableRange(value) {
 }
 
 
-function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, sourceBook, html } = {}) {
+export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, sourceBook, html } = {}) {
   const generatedTables = [];
 
   diceKeys.forEach((diceKey) => {
@@ -194,7 +194,7 @@ function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, source
           if (result.text != "") result.text += "\n\n";
           result.text += `<b>${key}</b>${value}`;
         } else {
-          result.text = value;
+          result.text = value as string;
         }
       });
       result.text = replaceRollLinks(result.text);

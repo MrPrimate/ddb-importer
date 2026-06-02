@@ -292,6 +292,7 @@ declare global {
     "ddb-importer.adventure-policy-all-actors-into-world": boolean;
     "ddb-importer.adventure-policy-journal-world-actors": boolean;
     "ddb-importer.adventure-policy-add-to-compendiums": boolean;
+    "ddb-importer.adventure-policy-compendium-only": boolean;
     "ddb-importer.adventure-policy-import-to-adventure-compendium": boolean;
     "ddb-importer.adventure-policy-use2024-monsters": boolean;
 
@@ -333,6 +334,7 @@ declare global {
     "ddb-importer.munching-policy-maps-quickplay-token-use-ddb-image": boolean;
     "ddb-importer.munching-policy-maps-import-metadata": boolean;
     "ddb-importer.munching-policy-maps-metadata-tokens": boolean;
+    "ddb-importer.munching-policy-maps-import-journals": boolean;
     "ddb-importer.munching-policy-maps-metadata-branch": string;
     "ddb-importer.maps-upload-path": string;
     "ddb-importer.stickers-upload-path": string;

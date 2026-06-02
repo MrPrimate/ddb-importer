@@ -136,27 +136,23 @@ export default class AdventureMunchHelpers {
     return compendiumIndex;
   }
 
-  static async checkForMissingDocuments(type, ids, notifierV2 = null) {
+  static async getMissingIds(type, ids) {
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
-    // console.warn(`${type} index`, index);
+    const flagPath = (type === "monster") ? "flags.ddbimporter.id" : "flags.ddbimporter.definitionId";
+    return ids.filter((id) =>
+      !index.some((i) => {
+        const v = foundry.utils.getProperty(i, flagPath);
+        return v != null && String(v) === String(id);
+      }),
+    );
+  }
 
-    return new Promise((resolve) => {
-      const missingIds = ids.filter((id) => {
-        switch (type) {
-          case "monster":
-            return !index.some((i) => foundry.utils.getProperty(i, "flags.ddbimporter.id") && String(foundry.utils.getProperty(i, "flags.ddbimporter.id")) == String(id));
-          case "spell":
-          case "item":
-            return !index.some((i) => foundry.utils.getProperty(i, "flags.ddbimporter.definitionId") && String(foundry.utils.getProperty(i, "flags.ddbimporter.definitionId")) == String(id));
-          default:
-            return false;
-        }
-      });
-      logger.debug(`${type} missing ids`, missingIds);
-      const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
-      logger.debug(`${type} missing`, missingDocuments);
-      resolve(missingDocuments);
-    });
+  static async checkForMissingDocuments(type, ids, notifierV2 = null) {
+    const missingIds = await AdventureMunchHelpers.getMissingIds(type, ids);
+    logger.debug(`${type} missing ids`, missingIds);
+    const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
+    logger.debug(`${type} missing`, missingDocuments);
+    return missingDocuments;
   }
 
   /**
@@ -352,6 +348,105 @@ export default class AdventureMunchHelpers {
       fullUploadPath,
       forcingWebp: useWebP && baseFilename !== filename,
     };
+  }
+
+  /**
+   * Import compendium monsters (by DDB id) into the world, deduping against
+   * existing world actors by `flags.ddbimporter.id`. Per-actor resilient: a
+   * failed import warns and is skipped rather than throwing.
+   * @param {Array<number|string>} ddbIds DDB monster ids to import
+   * @param {object} [options]
+   * @param {string|null} [options.folderId] default target world Actor folder id
+   * @param {Map<string|number, object>} [options.overridesById] per-ddbId import
+   *   overrides (e.g. `{ _id, folder }`) that take precedence over `folderId`
+   * @returns {Promise<Array>} the imported/existing world actors
+   */
+  static async importMonstersToWorld(ddbIds, { folderId = null, overridesById = null } = {}) {
+    const compendium = CompendiumHelper.getCompendiumType("monster", false);
+    if (!compendium) {
+      logger.warn("AdventureMunchHelpers.importMonstersToWorld: no monster compendium available");
+      return [];
+    }
+    const index = await AdventureMunchHelpers.getCompendiumIndex("monster");
+    const wanted = new Set(ddbIds.map((id) => String(id)));
+    const results = [];
+    for (const idx of index) {
+      const ddbId = String(foundry.utils.getProperty(idx, "flags.ddbimporter.id") ?? "");
+      if (!wanted.has(ddbId)) continue;
+      let worldActor = game.actors.find(
+        (a) => String(foundry.utils.getProperty(a, "flags.ddbimporter.id") ?? "") === ddbId,
+      );
+      if (!worldActor) {
+        const override = overridesById?.get?.(ddbId) ?? overridesById?.get?.(Number(ddbId)) ?? {};
+        const overrides = { folder: folderId, ...override };
+        try {
+          worldActor = await game.actors.importFromCompendium(
+            compendium as CompendiumCollection<"Actor">,
+            idx._id, overrides, { keepId: true, keepEmbeddedIds: true },
+          );
+        } catch (err) {
+          logger.warn(`AdventureMunchHelpers: failed to import monster ${idx.name} (ddbId ${ddbId}) into world: ${(err as Error).message ?? err}`);
+          continue;
+        }
+      }
+      if (worldActor) results.push(worldActor);
+    }
+    return results;
+  }
+
+  /**
+   * Generic scene-selection dialog. Shows a checkbox per item; returns the
+   * selected `_id` array ("Selected" button) or `null` ("All" button or
+   * dismissed - callers treat `null` as "import everything").
+   * @param {Array<{_id: string, name: string, label?: string}>} items the
+   *   selectable scenes (`label` is an optional version/suffix, shown italic)
+   * @returns {Promise<string[] | null>} selected ids, or `null` for "All"
+   */
+  static async chooseScenesDialog(items) {
+    if (!items?.length) return null;
+
+    const checkboxes = items.map((item) => {
+      const suffix = item.label ? ` : <i>${item.label}</i>` : "";
+      return `<div>`
+        + `<input id="scene_${item._id}" name="${item._id}" type="checkbox" value="">`
+        + `<label for="scene_${item._id}">${item.name}${suffix}</label>`
+        + `</div>`;
+    }).join("");
+
+    const content = `<form class="import-data-selection" autocomplete="off" onsubmit="event.preventDefault();">`
+      + `<div>`
+      + `<p class="notes">The following scenes are available for import.</p>`
+      + `<p class="notes">Select required scenes or All button.</p>`
+      + `<div class="form-description">${checkboxes}</div>`
+      + `</div>`
+      + `</form>`;
+
+    const response = await foundry.applications.api.DialogV2.wait({
+      rejectClose: false,
+      window: { title: "Choose Scenes to Import" },
+      content,
+      classes: ["adventure-import-selection"],
+      position: { width: 700 },
+      buttons: [
+        {
+          action: "selection",
+          label: "Selected",
+          icon: "fas fa-list-check",
+          callback: (_event, button, _dialog) => {
+            const formData = new FormDataExtended(button.form);
+            return Object.keys(formData.object);
+          },
+        },
+        {
+          action: "all",
+          label: "All",
+          icon: "fas fa-check-double",
+          callback: () => null,
+        },
+      ],
+    });
+
+    return response ?? null;
   }
 
 }

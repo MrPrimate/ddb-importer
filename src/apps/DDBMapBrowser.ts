@@ -1,9 +1,13 @@
 import DDBAppV2 from "./DDBAppV2";
-import { logger, utils, DDBCampaigns, Secrets } from "../lib/_module";
+import { logger, utils, DDBCampaigns, Secrets, DDBSources } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBMaps from "../muncher/DDBMaps";
 import DDBMap from "../muncher/adventure/DDBMap";
-import DDBMapMetaData from "../muncher/adventure/DDBMapMetaData";
+import DDBMapMetaData, { resolveMapBookCode } from "../muncher/adventure/DDBMapMetaData";
+import NativeAdventureMunch from "../muncher/adventure/native/NativeAdventureMunch";
+import { repointNotesOnLiveScene } from "../muncher/adventure/native/NativeSceneApplier";
+import { buildJournalPageLookup, type JournalPageLookup } from "../muncher/adventure/native/NativeSceneNoteResolver";
+import { getNativeSessionCache, clearNativeSessionCache } from "../muncher/adventure/native/NativeSessionCache";
 
 const TYPE_ORDER = ["basic", "subscription", "mappack", "sourcebook", "adventure"];
 const TYPE_LABELS: Record<string, string> = {
@@ -53,6 +57,15 @@ export default class DDBMapBrowser extends DDBAppV2 {
   // full DDBCampaigns refresh every time _prepareContext runs.
   private _campaigns: any[] | null = null;
   private _campaignFetchInFlight = false;
+  // Per-batch cache of journal imports, keyed by lowercase bookCode. Ensures a
+  // book's journals are imported into the world at most once per `_importMaps`
+  // run even though the worker pool calls into it concurrently. Reset at the
+  // top of each `_importMaps`.
+  private _journalPromiseCache: Map<string, Promise<{ journals: any[]; lookup: JournalPageLookup } | null>> | null = null;
+  // Serialises `_importMaps` calls so only one map+journal import runs at a
+  // time; additional clicks queue onto the semaphore. Its `active`/`remaining`
+  // getters drive the "X ahead" notice.
+  private _importSemaphore = new foundry.utils.Semaphore(1);
 
   static DEFAULT_OPTIONS = {
     id: "ddb-map-browser",
@@ -87,6 +100,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
 
   static async reloadCatalog(this: DDBMapBrowser, _event, _target) {
     DDBMapMetaData.clearCache();
+    clearNativeSessionCache();
     await this._loadCatalog({ force: true });
   }
 
@@ -137,6 +151,113 @@ export default class DDBMapBrowser extends DDBAppV2 {
   async _setMetaDataTokens(checked: boolean) {
     await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-maps-metadata-tokens", checked);
     await this.render();
+  }
+
+  async _setImportJournals(checked: boolean) {
+    await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-maps-import-journals", checked);
+    await this.render();
+  }
+
+  // Build a notifier for NativeAdventureMunch that drives a dedicated
+  // ui.notifications progress toast (separate from the map-import bar), so the
+  // long decrypt + asset-download phases show progress instead of looking hung.
+  // Maps the primary phase progress to the bar pct and folds the phase label +
+  // secondary per-asset detail into the toast message. One toast per book.
+  _makeJournalNotifier(bookLabel: string): { notifier: (props: NotifierV2Props) => void; finish: () => void } {
+    const note: any = ui.notifications.info(`Importing ${bookLabel} journals...`, { progress: true });
+    let pct = 0;
+    let phase = "";
+    const set = (message: string) => {
+      try {
+        note?.update?.({ message, pct });
+      } catch (_e) { /* notification API unavailable, fall through */ }
+    };
+    const notifier = (p: NotifierV2Props) => {
+      if (p.clear) return;
+      if (p.progressBar === "secondary") {
+        const detail = p.progress?.total ? ` (${p.progress.current}/${p.progress.total})` : "";
+        set(`${bookLabel}: ${phase}${p.message ? ` – ${p.message}` : ""}${detail}`);
+        return;
+      }
+      if (p.progress?.total) pct = p.progress.current / p.progress.total;
+      phase = p.message || phase;
+      set(`${bookLabel}: ${phase}`);
+    };
+    const finish = () => {
+      pct = 1;
+      set(`Imported ${bookLabel} journals`);
+    };
+    return { notifier, finish };
+  }
+
+  // Import an adventure's journals (journals-only, into the world) at most once
+  // per bookCode per batch. Concurrent callers share the same promise. Returns
+  // the built journals + page lookup, or null on any failure/edge (unresolvable
+  // book, no cobalt, decrypt/import error, no journals) - callers then leave the
+  // scene's DDB-link note fallback intact.
+  async _ensureJournalsForBook(bookCode: string): Promise<{ journals: any[]; lookup: JournalPageLookup } | null> {
+    const cache = (this._journalPromiseCache ??= new Map());
+    const key = bookCode.toLowerCase();
+    const existing = cache.get(key);
+    if (existing) return existing;
+
+    // Session cache: reuse a previous import of this book (this session, even
+    // across batches / app reopens) when its journals are still live - skips
+    // the entire importBook pipeline (decrypt, spells/items, monsters, assets).
+    const session = getNativeSessionCache();
+    const cached = session.journalBundles.get(key);
+    if (cached && game.journal?.get(cached.journals?.[0]?._id)) {
+      logger.info(`DDBMapBrowser: reusing session-cached journals for "${bookCode}"`);
+      const resolved = Promise.resolve(cached);
+      cache.set(key, resolved);
+      return resolved;
+    }
+
+    const promise = (async () => {
+      const source = DDBSources.getSource(key);
+      if (source === null) {
+        logger.warn(`DDBMapBrowser: cannot map bookCode "${bookCode}" to a numeric source id; skipping journal import`);
+        return null;
+      }
+      const bookId = source.id;
+      const bookLabel = source.description ?? bookCode;
+      const { notifier, finish } = this._makeJournalNotifier(bookLabel);
+      try {
+        const result = await new NativeAdventureMunch({ notifier }).importBook(bookId, { sceneIds: [], compendiumOnly: false });
+        const journals = result?.journals ?? [];
+        if (!journals.length) {
+          logger.warn(`DDBMapBrowser: journal import for "${bookCode}" produced no journals`);
+          return null;
+        }
+        const bundle = { journals, lookup: buildJournalPageLookup(journals) };
+        getNativeSessionCache().journalBundles.set(key, bundle);
+        return bundle;
+      } catch (error) {
+        logger.warn(`DDBMapBrowser: journal import failed for "${bookCode}" (${(error as Error).message ?? error}); leaving DDB-link pins`);
+        return null;
+      } finally {
+        finish();
+      }
+    })();
+    cache.set(key, promise);
+    return promise;
+  }
+
+  // After a map's scene is created (with meta-notes), import the adventure's
+  // journals and re-point the scene's note pins at those journal pages so they
+  // open the imported journal instead of D&D Beyond. Soft-fails throughout.
+  async _maybeRepointSceneToJournals(map: IDDBMap, scene: any): Promise<void> {
+    const bookCode = resolveMapBookCode(map);
+    if (!bookCode) return;
+    const bundle = await this._ensureJournalsForBook(bookCode);
+    if (!bundle) return;
+    try {
+      const live = game.scenes?.get(scene.id) ?? scene;
+      const n = await repointNotesOnLiveScene(live, bundle.lookup);
+      logger.info(`DDBMapBrowser: re-pointed ${n} note pin(s) on "${live.name}" to imported journal pages`);
+    } catch (error) {
+      logger.warn(`DDBMapBrowser: repoint failed for "${scene?.name ?? "?"}" (${(error as Error).message ?? error})`);
+    }
   }
 
   static toggleType(this: DDBMapBrowser, _event, target) {
@@ -306,10 +427,30 @@ export default class DDBMapBrowser extends DDBAppV2 {
     return choice ?? "cancel";
   }
 
+  // Public entry point. Map + journal/pin imports mutate the world heavily and
+  // share the per-batch journal cache, so concurrent runs would race (cache
+  // clobber, duplicate journal imports). We serialise every call onto a single
+  // chain so only one import runs at a time; extra clicks queue behind it.
   async _importMaps(maps: IDDBMap[]) {
+    if (!maps.length) return;
+    // active + remaining = batches already running/queued ahead of this one.
+    const ahead = this._importSemaphore.active + this._importSemaphore.remaining;
+    if (ahead > 0) {
+      ui.notifications.info(`Import queued (${ahead} ahead); it will start when the current import finishes.`);
+    }
+    return this._importSemaphore.add(() => this._runImport(maps));
+  }
+
+  async _runImport(maps: IDDBMap[]) {
     if (!maps.length) return;
     const total = maps.length;
     const notifier = (msg: string) => logger.debug(msg);
+
+    // Fresh per-batch journal cache; only repoint pins when both the journals
+    // and metadata toggles are on (pins originate from the metadata layer).
+    this._journalPromiseCache = null;
+    const importJournals = utils.getSetting<boolean>("munching-policy-maps-import-journals")
+      && utils.getSetting<boolean>("munching-policy-maps-import-metadata");
 
     const batchAction = await this._resolveBatchDuplicateAction(maps);
     if (batchAction === "cancel") {
@@ -357,6 +498,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
             counters.skipped += 1;
           } else if (res.scene) {
             counters.ok += 1;
+            if (importJournals) await this._maybeRepointSceneToJournals(map, res.scene);
           } else {
             counters.failed += 1;
             logger.warn(`Map import skipped: ${map.name}`, res);
@@ -573,6 +715,13 @@ export default class DDBMapBrowser extends DDBAppV2 {
         this._setMetaDataTokens(el.checked);
       });
     });
+
+    this.element.querySelectorAll<HTMLInputElement>(".ddb-map-browser-journals-toggle").forEach((cb) => {
+      cb.addEventListener("change", (event) => {
+        const el = event.currentTarget as HTMLInputElement;
+        this._setImportJournals(el.checked);
+      });
+    });
   }
 
   async _prepareContext(options) {
@@ -605,6 +754,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     context.useQuickplayTokenImage = utils.getSetting<boolean>("munching-policy-maps-quickplay-token-use-ddb-image");
     context.importMetaData = utils.getSetting<boolean>("munching-policy-maps-import-metadata");
     context.metaDataTokens = utils.getSetting<boolean>("munching-policy-maps-metadata-tokens");
+    context.importJournals = utils.getSetting<boolean>("munching-policy-maps-import-journals");
     context.groups = this._buildGroups(catalog, includedSet, search);
     context.detail = await this._buildDetail(storage, context.excludeDm);
     context.hasCatalog = !!catalog;

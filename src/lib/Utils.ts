@@ -138,6 +138,11 @@ export default class Utils {
       .replaceAll("  ", " ").trim();
   }
 
+  // Escape a string for literal use inside a `new RegExp(...)`.
+  static escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
   static regexSanitizeString(str: string): string {
     // eslint-disable-next-line no-useless-escape
     return str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, (x) => {

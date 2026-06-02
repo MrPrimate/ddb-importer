@@ -29,6 +29,7 @@ import DDBSetup from "./DDBSetup";
 import DDBSourcePruner from "./DDBSourcePruner";
 import DDBMapBrowser from "./DDBMapBrowser";
 import DDBStickerBrowser from "./DDBStickerBrowser";
+import DDBAdventureBrowser from "./DDBAdventureBrowser";
 
 
 export default class DDBMuncher extends DDBAppV2 {
@@ -89,6 +90,7 @@ export default class DDBMuncher extends DDBAppV2 {
       openSourcePruner: DDBMuncher.openSourcePruner,
       openMapBrowser: DDBMuncher.openMapBrowser,
       openStickerBrowser: DDBMuncher.openStickerBrowser,
+      openAdventureBrowser: DDBMuncher.openAdventureBrowser,
       closeDetails: DDBMuncher.closeDetails,
     },
     position: {
@@ -129,6 +131,8 @@ export default class DDBMuncher extends DDBAppV2 {
         "modules/ddb-importer/handlebars/muncher/munch/monsters/settings.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/monsters/art.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/adventures.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/adventures/browser.hbs",
+        "modules/ddb-importer/handlebars/muncher/munch/adventures/legacy.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/maps.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/encounters.hbs",
         "modules/ddb-importer/handlebars/muncher/munch/characters.hbs",
@@ -159,6 +163,7 @@ export default class DDBMuncher extends DDBAppV2 {
     tools: "tools",
     monsters: "monsterMain",
     characters: "characterSettings",
+    adventures: "adventureBrowser",
   };
 
   /** @override */
@@ -206,6 +211,14 @@ export default class DDBMuncher extends DDBAppV2 {
           },
           adventures: {
             id: "adventures", group: "munch", label: "Adventures", icon: "fas fa-book-reader",
+            tabs: {
+              browser: {
+                id: "adventureBrowser", group: "adventures", label: "Browser", icon: "fas fa-book-open",
+              },
+              legacy: {
+                id: "adventureLegacy", group: "adventures", label: "Legacy", icon: "fas fa-file-arrow-up",
+              },
+            },
           },
           maps: {
             id: "maps", group: "munch", label: "Maps", icon: "fas fa-map",
@@ -259,7 +272,7 @@ export default class DDBMuncher extends DDBAppV2 {
     const munchActive = this.element.querySelector(".tab.active[data-group=\"munch\"]");
     if (munch && munchActive) {
       const hasNested = this.element.querySelector(
-        ".tab.active[data-tab=\"monsters\"], .tab.active[data-tab=\"characters\"]",
+        ".tab.active[data-tab=\"monsters\"], .tab.active[data-tab=\"characters\"], .tab.active[data-tab=\"adventures\"]",
       );
       munch.classList.toggle("nested-tabs", !!hasNested);
     }
@@ -1205,6 +1218,10 @@ export default class DDBMuncher extends DDBAppV2 {
 
   static async openStickerBrowser(this: DDBMuncher, _event, _target) {
     new DDBStickerBrowser().render(true);
+  }
+
+  static async openAdventureBrowser(this: DDBMuncher, _event, _target) {
+    new DDBAdventureBrowser().render(true);
   }
 
   static async updateWorldMonsters(this: DDBMuncher, _event, _target) {

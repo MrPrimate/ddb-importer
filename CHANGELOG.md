@@ -19,6 +19,7 @@
 - 2024 Staff of power would not import all effects.
 - Trying to filter by specific scene when importing adventures could cause an error in some circumstances.
 - Fix an issue with large adventures and scene selection dialogue.
+- When adjusting third party adventure maps, you can now replace monsters with the 2024 versions @fadyhq @arbordrake
 
 # 7.2.22
 

@@ -27,6 +27,8 @@ import AdventureMunch from "./muncher/adventure/AdventureMunch";
 import { DDBMonsterDamage } from "./parser/monster/features/DDBMonsterDamage";
 import DDBMonsterFeature from "./parser/monster/features/DDBMonsterFeature";
 import { createStorage } from "./hooks/ready/storage";
+import { sqliteCipherRaw } from "./lib/SqliteCipher";
+import NativeAdventureMunch from "./muncher/adventure/native/NativeAdventureMunch";
 import DDBKeyChangeDialog from "./apps/DDBKeyChangeDialog";
 import { migrateJournalsToDDBSheet } from "./hooks/ready/migration/migration_5_6_0_journals";
 import { migration } from "./hooks/ready/migraton";
@@ -44,6 +46,7 @@ import DDBStickers from "./muncher/DDBStickers";
 import DDBStickerBrowser from "./apps/DDBStickerBrowser";
 import DDBQuickplay from "./muncher/adventure/DDBQuickplay";
 import DDBPartySync from "./apps/DDBPartySync";
+import DDBAdventures from "./muncher/DDBAdventures";
 // import { libWrapper } from "../vendor/libwrapper/shim";
 
 function resetSecrets() {
@@ -184,6 +187,11 @@ export function registerApi() {
       DDBMapBrowser,
       DDBStickers,
       DDBStickerBrowser,
+      DDBAdventures,
+      DDBAdventure: {
+        AdventureImport: (bookId: number | string, options = {}) => new NativeAdventureMunch().importBook(bookId, options),
+        AdventureImportFile: () => NativeAdventureMunch.promptImportFromFile(),
+      },
     },
     settings: {
       muncherSettings: lib.MuncherSettings.getMuncherSettings,
@@ -289,6 +297,7 @@ export function registerApi() {
         isEqual,
         uniq,
       },
+      sqliteCipherRaw,
       // Convenience accessor for Quickplay placement data. Call from F12 with
       // `DDBImporter.debug.dumpQuickplay(canvas.scene)`. Returns scene context plus
       // every Quickplay-imported tile's raw DDB values, current placement, and

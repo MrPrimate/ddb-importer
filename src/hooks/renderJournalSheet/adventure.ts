@@ -1,5 +1,6 @@
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
 import buildNotes from "./buildNotes";
+import { ensureBookThemeStyle } from "../../muncher/adventure/native/NativeBookStyles";
 
 const POPUPS = {
   json: null,
@@ -26,8 +27,13 @@ export function adventureFlags(app, html, data) {
   if (!app.document.flags.ddb) return;
   const journalContent = html.querySelector("section.journal-page-content");
   journalContent.classList.add("ddb");
-  const bookCode = foundry.utils.getProperty(data, "document.flags.ddb.bookCode");
-  if (bookCode) journalContent.classList.add(bookCode.toLowerCase());
+  const bookCode = foundry.utils.getProperty(data, "document.flags.ddb.bookCode") as string | undefined;
+  if (bookCode) {
+    const code = bookCode.toLowerCase();
+    journalContent.classList.add(code);
+    // lazily inject the book's native theme css (stored on the flag at import), once per book.
+    ensureBookThemeStyle(code, foundry.utils.getProperty(data, "document.flags.ddb.themeCss") as string | undefined);
+  }
 
   if (!game.user.isGM) return;
 

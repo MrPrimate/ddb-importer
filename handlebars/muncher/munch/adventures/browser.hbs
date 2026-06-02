@@ -1,0 +1,16 @@
+<section id="ddb-importer-muncher-adventures-browser" class="tab ddb-muncher {{ tab.cssClass }} {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <fieldset>
+  <legend>Adventure Importer</legend>
+    <div>
+      <p>Browse and import your DnD Beyond adventures directly in Foundry - no standalone <em>ddb-adventure-muncher</em> program needed.</p>
+    </div>
+    <div>
+      <p>Adventures are listed by source category, and the ones in your DnD Beyond library are marked. Importing builds the journals, tables and scenes from the book, using the items, spells and monsters in your DDB compendiums (falling back to importing them from DnD Beyond when missing, using your current muncher settings).</p>
+    </div>
+    <div>
+      <i>Import settings (scene selection, monsters to world, compendium options) live at the top of the browser window.</i>
+    </div>
+  </fieldset>
+
+  <button data-action="openAdventureBrowser" type="button" id="munch-adventure-open" class="munch-button"><i class="fas fa-book-open"></i> Open Adventure Importer</button>
+</section>

@@ -350,3 +350,238 @@
   -webkit-animation: roll 3s infinite;
   animation: roll 3s infinite;
 }
+
+
+/* Anchor the import-details overlay (position:absolute inset:0) to this app. */
+#ddb-native-adventure-browser .window-content {
+  position: relative;
+}
+
+/* Distinguish the secondary (per-item) bar from the primary (phase) bar. */
+.ddb-muncher-details .munching-progress-secondary .munching-progress-bar {
+  background-color: #2e7dd1;
+}
+
+/* Smaller spinning cog tucked into the modal's bottom corner, not centred over
+   the status messages (scoped to this app; muncher keeps its large centred cog). */
+#ddb-native-adventure-browser .ddb-muncher-details .ddb-working {
+  font-size: 28px;
+  top: auto;
+  left: auto;
+  bottom: 12px;
+  right: 16px;
+  transform: none;
+}
+
+.ddb-adventure-browser-root {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  width: 100%;
+  color: var(--color-text-light-1, #f0e9d6);
+}
+
+.ddb-adventure-browser-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.ddb-adventure-browser-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.ddb-adventure-browser-header-top h2 {
+  margin: 0;
+  font-size: 1.15em;
+  white-space: nowrap;
+}
+
+.ddb-adventure-browser-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ddb-adventure-browser-header-actions input[type="text"] {
+  height: 28px;
+  width: 240px;
+  padding: 4px 8px;
+}
+
+.ddb-adventure-browser-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  padding: 8px 10px;
+  font-size: 0.85em;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ddb-adventure-browser-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ddb-adventure-browser-banner {
+  margin: 0;
+  padding: 8px 14px;
+  background: rgba(245, 158, 11, 0.15);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+  color: #ffe1a8;
+  font-size: 0.85em;
+}
+
+.ddb-adventure-browser-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 8px 12px;
+}
+
+.ddb-adventure-browser-status {
+  text-align: center;
+  opacity: 0.7;
+  padding: 16px 12px;
+}
+
+.ddb-adventure-category-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: inherit;
+  text-align: left;
+  border-radius: 4px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+.ddb-adventure-category-header:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ddb-adventure-category-label {
+  flex: 1;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.04em;
+}
+
+.ddb-adventure-category-count {
+  opacity: 0.6;
+  font-size: 0.8em;
+}
+
+.ddb-adventure-list {
+  list-style: none;
+  margin: 6px 0 10px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.ddb-adventure-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+.ddb-adventure-card.not-owned {
+  opacity: 0.55;
+}
+
+.ddb-adventure-cover {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ddb-adventure-cover img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.ddb-adventure-cover i {
+  opacity: 0.5;
+  padding: 40px;
+}
+
+.ddb-adventure-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ddb-adventure-meta {
+  min-width: 0;
+  text-align: center;
+}
+
+.ddb-adventure-meta strong {
+  display: block;
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.ddb-adventure-meta .hint {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.ddb-adventure-tag {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 0.7em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.ddb-adventure-tag-unowned {
+  background: rgba(245, 158, 11, 0.25);
+  color: #ffe1a8;
+}
+
+.ddb-adventure-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.ddb-adventure-actions .munch-button {
+  width: 100%;
+}

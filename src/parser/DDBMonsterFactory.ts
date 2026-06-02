@@ -259,61 +259,36 @@ export default class DDBMonsterFactory {
         .catch((error) => reject(error));
     });
 
-    const fetchOverStream = () => new Promise((resolve, reject) => {
+    const fetchOverStream = async () => {
       const socket = new DDBMonsterSocket(parsingApi);
-      let raw: any[] = [];
-      let settled = false;
-      let timer: any = null;
+      socket.connect();
+      try {
+        const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null });
+        if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
 
-      const finish = (err: Error | null, data: any) => {
-        if (settled) return;
-        settled = true;
-        if (timer) clearTimeout(timer);
-        socket.close();
-        if (err) reject(err);
-        else resolve(data);
-      };
+        let raw: any[] = [];
+        // Monster bulk fetches can be very long-running for large catalogues
+        // (paginated, sometimes 1000+ monsters). Give it plenty of headroom.
+        await socket.runJob(streamElement, buildStartParams(), {
+          timeoutMs: 180000,
+          onEvent: (event: DDBMonsterEvent) => {
+            if (event.kind === "monsters" && Array.isArray(event.payload)) {
+              raw = event.payload;
+            }
+          },
+        });
 
-      socket.connect({
-        onEvent: (event: DDBMonsterEvent) => {
-          if (event.kind === "monsters" && Array.isArray(event.payload)) {
-            raw = event.payload;
-          }
-        },
-        onError: (message, fatal) => {
-          if (fatal) finish(new Error(message), null);
-          else logger.warn(`[DDBMonsterSocket] non-fatal error: ${message}`);
-        },
-        onDone: () => {
-          if (debugJson) {
-            FileHelper.download(JSON.stringify({ success: true, data: raw }), `monsters-raw.json`, "application/json");
-          }
-          this.notifier(`Retrieved ${raw.length} monsters from DDB`, { nameField: true, monsterNote: false });
-          logger.info(`Retrieved ${raw.length} monsters from DDB`);
-          this.source = applyCategoryFilter(raw);
-          finish(null, this.source);
-        },
-        onConnectError: (err) => finish(err, null),
-      });
-
-      // Monster bulk fetches can be very long-running for large catalogues
-      // (paginated, sometimes 1000+ monsters). Give it plenty of headroom.
-      timer = setTimeout(() => {
-        finish(new Error("Monster socket timed out"), null);
-      }, 180000);
-
-      (async () => {
-        try {
-          const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null });
-          if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
-          const startRes = await socket.start(streamElement, buildStartParams());
-          if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
-          logger.debug(`[DDBMonsterSocket] element=${streamElement} jobId=${startRes.jobId} replayed=${startRes.replayed}`);
-        } catch (err) {
-          finish(err as Error, null);
+        if (debugJson) {
+          FileHelper.download(JSON.stringify({ success: true, data: raw }), `monsters-raw.json`, "application/json");
         }
-      })();
-    });
+        this.notifier(`Retrieved ${raw.length} monsters from DDB`, { nameField: true, monsterNote: false });
+        logger.info(`Retrieved ${raw.length} monsters from DDB`);
+        this.source = applyCategoryFilter(raw);
+        return this.source;
+      } finally {
+        socket.close();
+      }
+    };
 
     // If the user has wired a custom monsterURL (custom proxy), trust their
     // override and skip streaming. Same logic applies to both bulk and by-id.

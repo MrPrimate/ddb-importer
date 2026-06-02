@@ -1,0 +1,93 @@
+<div class="ddb-adventure-browser-root">
+  <header class="ddb-adventure-browser-header">
+    <div class="ddb-adventure-browser-header-top">
+      <h2><i class="fas fa-book-open"></i> Adventure Importer</h2>
+      <div class="ddb-adventure-browser-header-actions">
+        <input type="text" id="adventure-browser-search" placeholder="Search adventures" value="{{searchTerm}}" />
+        <label class="ddb-adventure-browser-option" title="Only show adventures in your DnD Beyond library. Disabled until owned content is verified.">
+          <input type="checkbox" class="adv-opt-hide-unowned" {{#if hideUnowned}}checked{{/if}} {{#unless ownershipKnown}}disabled{{/unless}} /> Owned only
+        </label>
+        <button data-action="reloadOwned" type="button" class="munch-button" {{#if loadingOwned}}disabled{{/if}}>
+          <i class="fas fa-sync {{#if loadingOwned}}fa-spin{{/if}}"></i> Refresh Owned
+        </button>
+      </div>
+    </div>
+
+    <fieldset class="ddb-adventure-browser-settings">
+      <legend>Import Settings</legend>
+      <label class="ddb-adventure-browser-option" title="Import all detected scenes. Uncheck to be prompted to choose which scenes to import.">
+        <input type="checkbox" class="adv-opt-all-scenes" {{#if allScenes}}checked{{/if}} /> Import all scenes (uncheck to choose)
+      </label>
+      <label class="ddb-adventure-browser-option" title="Import every referenced monster into the world, not just the ones placed on scenes.">
+        <input type="checkbox" class="adv-opt-all-actors" {{#if allActorsToWorld}}checked{{/if}} /> Import all monsters to world
+      </label>
+      <label class="ddb-adventure-browser-option" title="Also copy the imported journals and tables into the DDB compendiums.">
+        <input type="checkbox" class="adv-opt-add-compendiums" {{#if addToCompendiums}}checked{{/if}} /> Add journals/tables to compendiums
+      </label>
+      <label class="ddb-adventure-browser-option" title="Import into the compendiums only, skipping creation in the world.">
+        <input type="checkbox" class="adv-opt-compendium-only" {{#if compendiumOnly}}checked{{/if}} /> Compendium only (skip world)
+      </label>
+      <label class="ddb-adventure-browser-option" title="Prefer 2024 monster statblocks where available.">
+        <input type="checkbox" class="adv-opt-2024-monsters" {{#if use2024Monsters}}checked{{/if}} /> Use 2024 monsters
+      </label>
+    </fieldset>
+  </header>
+
+  {{#if ownershipUnavailable}}
+    <p class="ddb-adventure-browser-banner">
+      <i class="fas fa-triangle-exclamation"></i>
+      Could not verify owned content (no cobalt cookie or proxy unavailable) - showing all adventures.
+    </p>
+  {{/if}}
+
+  <div class="ddb-adventure-browser-body">
+    {{#if loadingOwned}}
+      <p class="ddb-adventure-browser-status"><i class="fas fa-spinner fa-spin"></i> Checking owned content...</p>
+    {{/if}}
+
+    {{#each categories}}
+      <section class="ddb-adventure-category {{#if this.expanded}}expanded{{/if}}">
+        <button type="button" class="ddb-adventure-category-header" data-action="toggleCategory" data-category-id="{{this.id}}">
+          <i class="fas fa-chevron-{{#if this.expanded}}down{{else}}right{{/if}}"></i>
+          <span class="ddb-adventure-category-label">{{this.name}}</span>
+          <span class="ddb-adventure-category-count">{{this.count}}</span>
+        </button>
+        {{#if this.expanded}}
+          <ul class="ddb-adventure-list">
+            {{#each this.adventures}}
+              <li class="ddb-adventure-card {{#if this.notOwned}}not-owned{{/if}}">
+                <div class="ddb-adventure-cover">
+                  {{#if this.cover}}
+                    <img src="{{this.cover}}" alt="{{this.name}}" loading="lazy" />
+                  {{else}}
+                    <i class="fas fa-book fa-2x"></i>
+                  {{/if}}
+                </div>
+                <div class="ddb-adventure-content">
+                  <div class="ddb-adventure-meta">
+                    <strong>{{this.name}}</strong>
+                    <span class="hint">{{this.code}}</span>
+                    {{#if this.notOwned}}<span class="ddb-adventure-tag ddb-adventure-tag-unowned" title="This adventure is not in your DDB library and cannot be imported.">Not owned</span>{{/if}}
+                  </div>
+                  <div class="ddb-adventure-actions">
+                    <button type="button" data-action="importAdventure" data-book-id="{{this.id}}" class="munch-button" {{#if this.importing}}disabled{{/if}} {{#if this.notOwned}}disabled{{/if}}>
+                      {{#if this.importing}}
+                        <i class="fas fa-spinner fa-spin"></i> Importing
+                      {{else}}
+                        <i class="fas fa-download"></i> Import
+                      {{/if}}
+                    </button>
+                  </div>
+                </div>
+              </li>
+            {{/each}}
+          </ul>
+        {{/if}}
+      </section>
+    {{else}}
+      {{#unless loadingOwned}}
+        <p class="hint">No adventures match the current filter.</p>
+      {{/unless}}
+    {{/each}}
+  </div>
+</div>

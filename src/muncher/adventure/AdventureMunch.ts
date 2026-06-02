@@ -3,7 +3,7 @@ import { logger, utils, FileHelper, CompendiumHelper, isGridDetectionEnabled } f
 import { generateAdventureConfig } from "../adventure";
 import { SETTINGS } from "../../config/_module";
 import { createDDBCompendium } from "../../hooks/ready/checkCompendiums";
-import { DDBReferenceLinker } from "../../parser/lib/_module";
+import * as CompendiumLinkReplacer from "./CompendiumLinkReplacer";
 import MonsterReplacer from "../../apps/MonsterReplacer";
 import SceneSnipProcessor from "../../lib/SceneSnipProcessor";
 import {
@@ -20,31 +20,6 @@ export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 export default class AdventureMunch {
 
   notifierV2?: (props: NotifierV2Props) => void;
-
-  static COMPENDIUM_MAP = {
-    "spells": "spells",
-    "magicitems": "items",
-    "weapons": "items",
-    "armor": "items",
-    "adventuring-gear": "items",
-    "monsters": "monsters",
-    "vehicles": "vehicles",
-  };
-
-  static DDB_MAP = {
-    "spells": "spells",
-    "magicitems": "magic-items",
-    "weapons": "equipment",
-    "armor": "equipment",
-    "adventuring-gear": "equipment",
-    "monsters": "monsters",
-    "vehicles": "vehicles",
-  };
-
-  static CONFIG_MAP = {
-    "armor": "armor",
-    "weapons": "weapons",
-  };
 
   /** @override */
   constructor({
@@ -797,47 +772,15 @@ export default class AdventureMunch {
       fileData.push(scene);
     });
 
-    const checkboxes = fileData
+    const items = fileData
       .filter((scene) => scene.flags?.ddb?.versions?.ddbMetaData)
-      .map((scene) =>
-        `<div>`
-        + `<input id="scene_${scene._id}" name="${scene._id}" type="checkbox" value="">`
-        + `<label for="scene_${scene._id}">${scene.name} : <i>v${scene.flags.ddb.versions.ddbMetaData.lastUpdate}</i></label>`
-        + `</div>`,
-      ).join("");
+      .map((scene) => ({
+        _id: scene._id,
+        name: scene.name,
+        label: `v${scene.flags.ddb.versions.ddbMetaData.lastUpdate}`,
+      }));
 
-    const content = `<form class="import-data-selection" autocomplete="off" onsubmit="event.preventDefault();">`
-      + `<div>`
-      + `<p class="notes">The following scenes are available for import.</p>`
-      + `<p class="notes">Select required scenes or All button.</p>`
-      + `<div class="form-description">${checkboxes}</div>`
-      + `</div>`
-      + `</form>`;
-
-    const response = await foundry.applications.api.DialogV2.wait({
-      rejectClose: false,
-      window: { title: "Choose Scenes to Import" },
-      content,
-      classes: ["adventure-import-selection"],
-      position: { width: 700 },
-      buttons: [
-        {
-          action: "selection",
-          label: "Selected",
-          icon: "fas fa-list-check",
-          callback: (_event, button, _dialog) => {
-            const formData = new FormDataExtended(button.form);
-            return Object.keys(formData.object);
-          },
-        },
-        {
-          action: "all",
-          label: "All",
-          icon: "fas fa-check-double",
-          callback: () => null,
-        },
-      ],
-    });
+    const response = await AdventureMunchHelpers.chooseScenesDialog(items);
 
     if (response) {
       const scenes = [];
@@ -1009,41 +952,20 @@ export default class AdventureMunch {
    * @returns {Promise<Array>} array of world actors
    */
   async importRemainingActors(data) {
-    const results = [];
-    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
-    const monsterIndex = await AdventureMunchHelpers.getCompendiumIndex("monster");
-
     logger.debug("Checking for the following actors in world", data);
-    await utils.asyncForEach(data, async (actorData) => {
-      logger.debug(`Checking for ${actorData.ddbId}`, actorData);
-      let worldActor = game.actors.get(actorData.actorId);
-
-      if (worldActor) {
-        logger.debug(`Actor found for ${actorData.actorId}, with name ${worldActor.name}`);
-      } else {
-        const monsterHit = monsterIndex.find((monster) =>
-          monster.flags?.ddbimporter?.id && monster.flags.ddbimporter.id == actorData.ddbId,
-        );
-        if (monsterHit) {
-          logger.info(`Importing actor ${monsterHit.name} with DDB ID ${actorData.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${monsterHit._id}`);
-          try {
-            const actorOverride = { _id: actorData.actorId, folder: actorData.folderId };
-            const options = { keepId: true, keepEmbeddedIds: true };
-            worldActor = await game.actors.importFromCompendium(monsterCompendium, monsterHit._id, actorOverride, options);
-          } catch (err) {
-            logger.error(err);
-            logger.warn(`Unable to import actor ${monsterHit.name} with id ${monsterHit._id} from DDB Compendium`);
-            logger.debug(`Failed on: game.actors.importFromCompendium(monsterCompendium, "${monsterHit._id}", { _id: "${actorData.actorId}", folder: "${actorData.folderId}" }, { keepId: true });`);
-          }
-        } else {
-          logger.error("Actor not found in compendium", actorData);
-        }
-      }
-      if (worldActor) results.push(worldActor);
-      if (worldActor && !this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+    // Per-actor import target: the manifest pins each actor's world _id + folder.
+    const overridesById = new Map(
+      data.map((actorData) => [String(actorData.ddbId), { _id: actorData.actorId, folder: actorData.folderId }]),
+    );
+    const results = await AdventureMunchHelpers.importMonstersToWorld(
+      data.map((actorData) => actorData.ddbId),
+      { overridesById },
+    );
+    for (const worldActor of results) {
+      if (!this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
         this.temporary.actors.push(worldActor);
       }
-    });
+    }
     return results;
   }
 
@@ -1760,108 +1682,24 @@ export default class AdventureMunch {
    * @param {Document} doc HTML document to act on
    * @returns {Document} HTML document with modified links
    */
-  replaceLookupLinks(doc) {
-    const lookups = this.lookups.adventureConfig.lookups;
-    const actorData = this.adventure.required?.monsterData ?? [];
-
-    for (const lookupKey in AdventureMunch.COMPENDIUM_MAP) {
-      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
-      const lookupRegExp = new RegExp(`ddb://${lookupKey}/([0-9]*)"`);
-      compendiumLinks.forEach((node) => {
-        const lookupMatch = node.outerHTML.match(lookupRegExp);
-        const lookupDictionary = lookups[AdventureMunch.COMPENDIUM_MAP[lookupKey]];
-        if (lookupDictionary) {
-          const worldActorLink = this.journalWorldActors && ["monsters"].includes(lookupKey);
-          let ddbId = lookupMatch[1];
-          const dictionaryName = AdventureMunch.CONFIG_MAP[lookupKey]
-            ? CONFIG.DDB[lookupKey]?.find((e) => e.id == ddbId)?.name
-            : null;
-          const replacedMonster = this.monstersToReplace.find((m) => m.id2014 === parseInt(ddbId));
-          if (replacedMonster) ddbId = replacedMonster.id2024;
-          const lookupEntry = worldActorLink
-            ? actorData.find((a) => a.ddbId === parseInt(ddbId))
-            : dictionaryName
-              ? lookupDictionary.find((e) => e.name == dictionaryName)
-              : (lookupDictionary.find((e) => e.id == ddbId && e.name === (node.textContent?.trim() ?? ""))
-               ?? lookupDictionary.find((e) => e.id == ddbId));
-
-          if (lookupEntry) {
-            const pageLink = lookupEntry.pageId ? `.JournalEntryPage.${lookupEntry.pageId}` : "";
-            const linkStub = lookupEntry.headerLink ? `#${lookupEntry.headerLink}` : "";
-            const linkType = worldActorLink ? "UUID" : "Compendium";
-            const linkBody = worldActorLink
-              ? `Actor.${lookupEntry.actorId}`
-              : `${lookupEntry.compendium}.${lookupEntry._id}${pageLink}${linkStub}`;
-            doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, `@${linkType}[${linkBody}]{${node.textContent}}`);
-          } else {
-            logger.warn(`NO Lookup Compendium Entry for ${node.outerHTML}, using key "${lookupKey}"`, {
-              lookups,
-              actorData,
-              lookupRegExp,
-              lookupKey,
-            });
-          }
-        }
-      });
-    }
-
-    return doc;
+  _linkReplaceOptions() {
+    return {
+      lookups: this.lookups.adventureConfig.lookups,
+      monstersToReplace: this.monstersToReplace,
+      journalWorldActors: this.journalWorldActors,
+      actorData: this.adventure.required?.monsterData ?? [],
+    };
   }
 
   /**
-   * Replaced ddb links with compendium or world links, or links back to DDB
+   * Replaced ddb links with compendium or world links, or links back to DDB.
+   * Thin wrapper over the shared CompendiumLinkReplacer (the zip importer feeds
+   * its instance state: world-actor + 2014→2024 monster-swap branches).
    * @param {string} text HTML text to act on
-   * @returns {Document} HTML document with modified links
+   * @returns {string} HTML with modified links
    */
   foundryCompendiumReplace(text) {
-    // replace the ddb:// entries with known compendium look ups if we have them
-    // ddb://spells
-    // ddb://magicitems || weapons || adventuring-gear || armor
-    // ddb://monsters
-
-    const doc = this.replaceLookupLinks(utils.htmlToDoc(text));
-
-    // vehicles - if not imported, link to DDB
-    const compendiumLinks = doc.querySelectorAll("a[href*=\"ddb://vehicles/\"]");
-    const lookupRegExp = /ddb:\/\/vehicles\/([0-9]*)/g;
-    compendiumLinks.forEach((node) => {
-      const target = node.outerHTML;
-      const lookupMatch = node.outerHTML.match(lookupRegExp);
-      const lookupValue = this.lookups.adventureConfig.lookups["vehicles"];
-      if (lookupMatch) {
-        const lookupEntry = lookupValue.find((e) => e.id == lookupMatch[1]);
-        if (lookupEntry) {
-          node.setAttribute("href", `https://www.dndbeyond.com${lookupEntry.url}`);
-          doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
-        } else {
-          logger.warn(`NO Vehicle Lookup Entry for ${node.outerHTML}`);
-        }
-      } else {
-        logger.warn(`NO Vehicle Lookup Match for ${node.outerHTML}`);
-      }
-    });
-
-    // final replace in case of failure
-    // there is a chance that the adventure references items or monsters we don't have access to
-    // in this case attempt to link to DDB instead of compendium doc
-    for (const lookupKey in AdventureMunch.COMPENDIUM_MAP) {
-      const compendiumLinks = doc.querySelectorAll(`a[href*="ddb://${lookupKey}/"]`);
-      // logger.debug(`final replace for missing ${lookupKey} references`, compendiumLinks);
-
-      compendiumLinks.forEach((node) => {
-        const target = node.outerHTML;
-        const ddbStub = AdventureMunch.DDB_MAP[lookupKey];
-        const ddbNameGuess = node.textContent.toLowerCase().replace(" ", "-").replace(/[^0-9a-z-]/gi, "");
-        logger.warn(`No Compendium Entry for ${node.outerHTML} attempting to guess a link to DDB`);
-
-        node.setAttribute("href", `https://www.dndbeyond.com/${ddbStub}/${ddbNameGuess}`);
-        doc.body.innerHTML = doc.body.innerHTML.replace(target, node.outerHTML);
-      });
-    }
-
-    doc.body.innerHTML = DDBReferenceLinker.parseTags(doc.body.innerHTML);
-
-    return doc.body.innerHTML;
+    return CompendiumLinkReplacer.foundryCompendiumReplace(text, this._linkReplaceOptions());
   }
 
   _updateProgress(total, count, type) {

@@ -1,6 +1,7 @@
 import { FileHelper } from "../../lib/_module";
 import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport";
 import SceneGridPickerApp from "../../apps/SceneGridPickerApp";
+import SceneCopyApp from "../../apps/SceneCopyApp";
 
 function getSceneId(li) {
   return $(li).attr("data-entry-id")
@@ -59,5 +60,19 @@ export default function (_html, contextOptions) {
       return Boolean(game.user.isGM && scene?.background?.src);
     },
     icon: "<i class=\"fas fa-border-all\"></i>",
+  });
+
+  contextOptions.push({
+    name: "ddb-importer.scenes.copy-fields",
+    callback: (li) => {
+      const scene = game.scenes.get(getSceneId(li));
+      if (scene) new SceneCopyApp(scene).render(true);
+    },
+    condition: (li) => {
+      const scene = game.scenes.get(getSceneId(li));
+      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
+      return Boolean(game.user.isGM && sceneDownload && scene);
+    },
+    icon: "<i class=\"fas fa-copy\"></i>",
   });
 }

@@ -1,5 +1,6 @@
 import { utils } from "../../lib/_module";
 import { createAndShowPlayerHandout, imageToChat } from "./shared";
+import { getPendingImages, waitForImage } from "./journalAnchorScroll";
 
 
 class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
@@ -114,8 +115,32 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
     }
   }
 
+  // Re-scroll to the anchor heading once page images have loaded, so it lands
+  // at the top instead of mid-page. Mirrors core goToPage/_onRender:
+  // getPageSheet(pageId).toc[anchor].element + plain scrollIntoView().
+  async _scrollToAnchorAfterImages(anchor) {
+    if (!anchor) return;
+    const pageSheet = this.getPageSheet(this.pageId);
+    if (!pageSheet?.toc?.[anchor]?.element) return;
+
+    const pending = getPendingImages(pageSheet.element);
+    if (pending.length > 0) {
+      // Timeout guard: a stuck image must not hang the scroll.
+      await Promise.race([
+        Promise.all(pending.map((img) => waitForImage(img))),
+        utils.wait(1500),
+      ]);
+    }
+
+    // Re-resolve in case the page re-rendered while we awaited.
+    this.getPageSheet(this.pageId)?.toc?.[anchor]?.element?.scrollIntoView();
+  }
+
   async _onRender(context, options) {
     await super._onRender(context, options);
+
+    // Run before the GM guard so the anchor scroll applies to players too.
+    await this._scrollToAnchorAfterImages(options?.anchor);
 
     if (!game.user.isGM) return;
 

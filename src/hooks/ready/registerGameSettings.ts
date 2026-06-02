@@ -4,6 +4,7 @@ import DDBSetup from "../../apps/DDBSetup";
 import { IDDBListCampaign } from "../../lib/DDBCampaigns";
 import type { IDDBMapCatalog, IDDBSourceMaps } from "../../muncher/DDBMaps";
 import type { IDDBStickersPayload } from "../../muncher/DDBStickers";
+import type { JournalPageLookup } from "../../muncher/adventure/native/NativeNoteResolution";
 import { IIconMapEntry } from "../../lib/Iconizer";
 
 interface IDDBIMacros {
@@ -106,6 +107,13 @@ export interface IDDBIConfig {
     payload: IDDBStickersPayload | null;
     fetchedAt: number | null;
   };
+  NATIVE?: {
+    journalBundles: Map<string, { journals: any[]; lookup: JournalPageLookup }>;
+    rulebookSources: Set<string>;
+    importedSpellIds: Set<string>;
+    importedItemIds: Set<string>;
+    importedMonsterIds: Set<string>;
+  };
   PATREON: {
     tier: string | null;
     tierLocal: string | null;
@@ -183,6 +191,13 @@ if (!CONFIG.DDBI) {
       matches: new Map(),
       results: new Map(),
       inFlight: new Map(),
+    },
+    NATIVE: {
+      journalBundles: new Map(),
+      rulebookSources: new Set(),
+      importedSpellIds: new Set(),
+      importedItemIds: new Set(),
+      importedMonsterIds: new Set(),
     },
     PATREON: {
       tiers: null,

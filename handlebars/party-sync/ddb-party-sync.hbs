@@ -9,7 +9,7 @@
         <select name="campaign-select" id="ddb-party-campaign-select" class="form-select {{#unless hasAvailableCampaigns}}ddbimporter-none{{/unless}}">
           <option value="">Select campaign:</option>
           {{#each availableCampaigns}}
-          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}{{#if this.dmUsername}} ({{this.dmUsername}}){{/if}} &mdash; {{this.id}}</option>
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}{{#if this.dmUsername}} ({{this.dmUsername}}){{/if}} - {{this.id}}</option>
           {{/each}}
         </select>
         <div id="ddb-party-campaign-fallback" class="ddb-party-campaign-fallback {{#if hasAvailableCampaigns}}ddbimporter-none{{/if}}">

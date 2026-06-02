@@ -36,7 +36,7 @@ function _bookCodeFromImageKey(imageKey: string | null | undefined): string | nu
 // by flattenSourceMaps), so prefer the imageKey path, which always contains
 // the book code for official maps. Fall back to sourceId -> CONFIG.DDB.sources
 // for third-party or custom payloads where the imageKey path differs.
-function _resolveBookCode(map: IDDBMap): string | null {
+export function resolveMapBookCode(map: IDDBMap): string | null {
   const fromImage = _bookCodeFromImageKey(map.imageKey);
   if (fromImage) return fromImage;
   const raw = map.sourceId ?? map.officialData?.sourceId;
@@ -70,7 +70,7 @@ function _proxyRequestForMap(map: IDDBMap): {
   filename: string | null;
 } {
   return {
-    bookCode: _resolveBookCode(map),
+    bookCode: resolveMapBookCode(map),
     sourceId: map.sourceId ?? map.officialData?.sourceId ?? null,
     name: map.name ?? null,
     filename: _filenameFromImageKey(map.imageKey),
@@ -212,8 +212,13 @@ export default class DDBMapMetaData {
   // flag normalisation, stairways flag reshape, wall doorSound default. The
   // meta-data proxy payload skips _loadDocumentAssets so we mirror its
   // cleansing here before merge / createEmbeddedDocuments.
-  private static _cleanseSceneInfo(info: IDDBMetaScene): IDDBMetaScene {
+  //
+  // Public so the native adventure importer can apply the same cleansing to
+  // its own scene docs before create (NativeSceneBuilder).
+  static cleanseSceneInfo(info: IDDBMetaScene): IDDBMetaScene {
     if (!info || typeof info !== "object") return info;
+
+    DDBMapMetaData._normaliseLegacyGrid(info as any);
 
     if (parseInt(game.version) >= 14) {
       AdventureMunch._migrateSceneDataToV14(info);
@@ -244,6 +249,47 @@ export default class DDBMapMetaData {
     }
 
     return info;
+  }
+
+  // The ddb-meta-data scene_info JSONs are authored in V10/V11 shape:
+  //   - `grid` is a NUMBER (the grid pixel size, not an object)
+  //   - `gridType`, `gridDistance`, `gridUnits`, `gridColor`, `gridAlpha` are
+  //     separate top-level scalars
+  // V12+ collapses these into a `grid: { type, size, distance, units, color,
+  // alpha }` object. `_migrateSceneDataToV14` migrates V12→V14 but doesn't
+  // know about the V10/V11 split-grid shape, so we normalise here first.
+  // Subsequent migration + buildSceneUpdate then see a proper grid object.
+  private static _normaliseLegacyGrid(info: any): void {
+    if (!info || typeof info !== "object") return;
+    const hasLegacy = typeof info.grid === "number"
+      || info.gridType !== undefined
+      || info.gridDistance !== undefined
+      || info.gridUnits !== undefined
+      || info.gridColor !== undefined
+      || info.gridAlpha !== undefined;
+    if (!hasLegacy) return;
+
+    const gridObj = (info.grid && typeof info.grid === "object") ? info.grid : {};
+    const sizeFromNum = typeof info.grid === "number" ? info.grid : null;
+    info.grid = {
+      type: Number.isFinite(info.gridType) ? info.gridType
+        : (Number.isFinite(gridObj.type) ? gridObj.type : 1),
+      size: Math.max(1, Math.round(
+        Number.isFinite(sizeFromNum) ? sizeFromNum
+          : (Number.isFinite(gridObj.size) ? gridObj.size : 100),
+      )),
+      distance: Number.isFinite(info.gridDistance) && info.gridDistance > 0 ? info.gridDistance
+        : (Number.isFinite(gridObj.distance) && gridObj.distance > 0 ? gridObj.distance : 5),
+      units: info.gridUnits || gridObj.units || "ft",
+      color: info.gridColor || gridObj.color || "#000000",
+      alpha: Number.isFinite(info.gridAlpha) ? info.gridAlpha
+        : (Number.isFinite(gridObj.alpha) ? gridObj.alpha : 0.2),
+    };
+    delete info.gridType;
+    delete info.gridDistance;
+    delete info.gridUnits;
+    delete info.gridColor;
+    delete info.gridAlpha;
   }
 
   private static _normaliseLight(light: any): any {
@@ -699,11 +745,36 @@ export default class DDBMapMetaData {
   // and embedded collections (which go through createEmbeddedDocuments).
   // Flags merge with the existing scene flags - the ddbimporter block must
   // not be clobbered.
-  private static _buildSceneUpdate(scene: Scene, info: IDDBMetaScene): Record<string, any> {
+  //
+  // Public so the native adventure importer can reuse this projection when
+  // applying meta-data into pre-create scene docs (NativeSceneBuilder).
+  static buildSceneUpdate(scene: Scene, info: IDDBMetaScene): Record<string, any> {
     const update: Record<string, any> = {};
+    // @ts-expect-error - types not yet updated for v14 levels
+    const ourLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
+
     for (const [key, value] of Object.entries(info)) {
       if (this._MERGE_EXCLUDE_KEYS.has(key)) continue;
       if (key === "flags") continue;
+
+      if (key === "grid" && value && typeof value === "object") {
+        // Wholesale `update.grid = value` causes Foundry to default any
+        // subfield the meta omitted (visibly wrong scale). Merge with sane
+        // defaults, mirroring DDBMap.createScene's clamp shape.
+        const cur = (scene.grid as any)?.toObject?.() ?? (scene.grid as any) ?? {};
+        const v: any = value;
+        update.grid = {
+          type:     Number.isFinite(v.type)     ? v.type     : (Number.isFinite(cur.type) ? cur.type : 1),
+          size:     Math.max(1, Math.round(Number.isFinite(v.size) ? v.size : (cur.size ?? 100))),
+          distance: Number.isFinite(v.distance) && v.distance > 0
+            ? v.distance : (cur.distance ?? 5),
+          units:    v.units || cur.units || "ft",
+          color:    v.color || cur.color || "#000000",
+          alpha:    Number.isFinite(v.alpha)    ? v.alpha    : (cur.alpha ?? 0.2),
+        };
+        continue;
+      }
+
       if (key === "background") {
         // V14: Scene#background is deprecated. The meta-data file still
         // carries a V12-shaped `background` block; project its non-`src`
@@ -711,6 +782,10 @@ export default class DDBMapMetaData {
         // touching the deprecated scene-level field. The src is owned by
         // the muncher's locally-uploaded image and re-stamped separately
         // after merge.
+        //
+        // Post-cleanse this branch is a no-op (info.background is deleted by
+        // _migrateSceneDataToV14) - kept as a safety net for un-cleansed
+        // input. The post-cleanse path goes through `key === "levels"` below.
         const bg = value as Record<string, any> | null;
         if (!bg || typeof bg !== "object") continue;
         const bgUpd: Record<string, any> = {};
@@ -718,15 +793,35 @@ export default class DDBMapMetaData {
           if (bk === "src") continue;
           bgUpd[bk] = bv;
         }
-        if (Object.keys(bgUpd).length) {
-          // @ts-expect-error - types not yet updated for v14 levels
-          const firstLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
-          if (firstLevel?._id) {
-            update.levels = [{ _id: firstLevel._id, background: bgUpd }];
-          }
+        if (Object.keys(bgUpd).length && ourLevel?._id) {
+          update.levels = [{ _id: ourLevel._id, background: bgUpd }];
         }
         continue;
       }
+
+      if (key === "levels" && Array.isArray(value) && value.length) {
+        // info.levels[0] is the V14-migrated meta level. Take meta's
+        // background non-src fields + foreground + textures; preserve OUR
+        // uploaded background.src + default texture anchors. Wholesale copy
+        // would null out background.src (the migrated meta level has src:null).
+        if (!ourLevel?._id) continue;
+        const metaLevel: any = value[0] ?? {};
+        const metaBg: any = metaLevel.background ?? {};
+        const levelUpd: any = { _id: ourLevel._id };
+        const bgUpd: any = {};
+        for (const [bk, bv] of Object.entries(metaBg)) {
+          if (bk === "src" || bv == null) continue;
+          bgUpd[bk] = bv;
+        }
+        if (Object.keys(bgUpd).length) levelUpd.background = bgUpd;
+        if (metaLevel.foreground !== undefined) levelUpd.foreground = metaLevel.foreground;
+        if (metaLevel.textures && typeof metaLevel.textures === "object") {
+          levelUpd.textures = metaLevel.textures;
+        }
+        if (Object.keys(levelUpd).length > 1) update.levels = [levelUpd];
+        continue;
+      }
+
       update[key] = value;
     }
 
@@ -745,11 +840,18 @@ export default class DDBMapMetaData {
 
     // V14 keeps shiftX/shiftY at the root for image-vs-grid alignment.
     // Mirror the meta-data background offsets so they don't fight each other.
+    // (Post-cleanse this is redundant - _migrateSceneDataToV14 already moves
+    // background.offsetX/Y to root shiftX/Y, copied via update[key] above.)
     if (info.background && typeof info.background === "object") {
       if (Number.isFinite(info.background.offsetX)) update.shiftX = info.background.offsetX;
       if (Number.isFinite(info.background.offsetY)) update.shiftY = info.background.offsetY;
     }
 
+    // Meta dims govern the scene. Every placeable (walls/lights/drawings/
+    // notes/tokens/tiles) in the meta-data JSON is authored against the meta
+    // `width × height` canvas; the scene must adopt those dims so coords
+    // align. The uploaded background image stretches via the level's
+    // `textures.fit: "fill"` set in NativeSceneBuilder.
     return update;
   }
 
@@ -800,7 +902,7 @@ export default class DDBMapMetaData {
 
     // Phase A: merge the scene-info JSON onto the existing scene.
     try {
-      const update = this._buildSceneUpdate(scene, info);
+      const update = DDBMapMetaData.buildSceneUpdate(scene, info);
       if (Object.keys(update).length) {
         notify(`Merging meta-data scene fields into "${scene.name}"...`);
         await scene.update(update);
@@ -1003,7 +1105,7 @@ export default class DDBMapMetaData {
         logger.warn(`DDBMapMetaData.enrich: skipping match ${matchInfos[i].filepath} (${payload?.error ?? "no scene"})`);
         continue;
       }
-      fullMatches.push({ ...matchInfos[i], scene: DDBMapMetaData._cleanseSceneInfo(payload.scene) });
+      fullMatches.push({ ...matchInfos[i], scene: DDBMapMetaData.cleanseSceneInfo(payload.scene) });
     }
     if (!fullMatches.length) {
       await this._stampFlags(scene, {

@@ -56,7 +56,7 @@ function applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilte
   return data;
 }
 
-function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifier, searchFilter } = {}) {
+function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifier, searchFilter, sourcesOverride = null }: any = {}) {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
@@ -70,11 +70,13 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
   };
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
-  const sources = enableSources ? DDBSources.getSelectedSourceIds() : [];
+  // explicit sourcesOverride (e.g. from the native adventure importer) wins over the setting
+  const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
+  const effectiveSourceFilter = sourcesOverride !== null ? true : sourceFilter;
   const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
 
   logger.debug(`Fetching Spells (HTTP) with:`, {
-    debugJson, enableSources, sources, sourceFilter, exactMatch,
+    debugJson, enableSources, sources, sourceFilter: effectiveSourceFilter, exactMatch,
     rulesVersion, className, searchFilter,
   });
 
@@ -98,7 +100,7 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
       })
       .then((raw) => {
         if (raw == null) return;
-        resolve(applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilter }));
+        resolve(applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter }));
       })
       .catch((error) => {
         logger.warn(error);
@@ -107,109 +109,85 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
   });
 }
 
-function getSpellDataStreaming({ className, sourceFilter, rulesVersion = null, notifier: _notifier, searchFilter } = {}) {
+interface ClassSpellSet {
+  className: string;
+  rulesVersion: string;
+  spellData: any[];
+}
+
+// Stream every class' spells over a SINGLE reused socket connection: connect +
+// auth once, then issue one `class-spells` job per class on the same socket.
+// Replaces the old per-class connect/auth/start/close churn (~24 connections).
+async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverride = null }: any = {}): Promise<ClassSpellSet[]> {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
-  const rules = rulesVersion ?? "2014";
 
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
   const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
-  const sources = enableSources ? DDBSources.getSelectedSourceIds() : [];
+  // explicit sourcesOverride wins over the setting
+  const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
+  const effectiveSourceFilter = sourcesOverride !== null ? true : sourceFilter;
   const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
 
-  logger.debug(`Streaming Spells with:`, {
-    debugJson,
-    enableSources,
-    sources,
-    sourceFilter,
-    exactMatch,
-    rulesVersion: rules,
-    className,
-    searchFilter,
-  });
+  const socket = new DDBSpellSocket(parsingApi);
+  socket.connect();
 
-  return new Promise((resolve, reject) => {
-    const socket = new DDBSpellSocket(parsingApi);
-    let raw: any[] = [];
-    let settled = false;
-    let timer: any = null;
+  const out: ClassSpellSet[] = [];
+  const debugDump: any[] = [];
 
-    const finish = (err: Error | null, data: any[] | null) => {
-      if (settled) return;
-      settled = true;
-      if (timer) clearTimeout(timer);
-      socket.close();
-      if (err) reject(err);
-      else resolve(data);
-    };
+  try {
+    const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
+    if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
 
-    socket.connect({
-      onEvent: (event: DDBSpellEvent) => {
-        if (event.kind === "classSpells") {
-          const payload = event.payload ?? {};
-          if (Array.isArray(payload.spells)) raw = payload.spells;
-        }
-      },
-      onError: (message, fatal) => {
-        if (fatal) finish(new Error(message), null);
-        else logger.warn(`[DDBSpellSocket] non-fatal error: ${message}`);
-      },
-      onDone: () => {
-        if (debugJson) {
-          FileHelper.download(
-            JSON.stringify({ success: true, data: raw }),
-            `spells-raw.json`,
-            "application/json",
-          );
-        }
-        finish(null, applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilter }));
-      },
-      onConnectError: (err) => finish(err, null),
-    });
+    for (const [rulesVersion, klassNames] of Object.entries(DDBSpellListFactory.CLASS_NAMES_MAP)) {
+      const rules = rulesVersion ?? "2014";
+      for (const className of klassNames) {
+        logger.debug(`Streaming Spells with:`, {
+          debugJson, enableSources, sources, sourceFilter: effectiveSourceFilter,
+          exactMatch, rulesVersion: rules, className, searchFilter,
+        });
 
-    timer = setTimeout(() => {
-      finish(new Error("Spell socket timed out"), null);
-    }, 30000);
+        let raw: any[] = [];
+        await socket.runJob(
+          "class-spells",
+          { className, rulesVersion: rules, campaignId, cobalt: cobaltCookie },
+          {
+            timeoutMs: 30000,
+            onEvent: (event: DDBSpellEvent) => {
+              if (event.kind === "classSpells") {
+                const payload = event.payload ?? {};
+                if (Array.isArray(payload.spells)) raw = payload.spells;
+              }
+            },
+          },
+        );
 
-    (async () => {
-      try {
-        const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
-        if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
-        const startRes = await socket.start("class-spells", {
+        if (debugJson) debugDump.push(...raw);
+        out.push({
           className,
           rulesVersion: rules,
-          campaignId,
-          cobalt: cobaltCookie,
+          spellData: applySpellFilters(raw, { sourceFilter: effectiveSourceFilter, sources, exactMatch, searchFilter }),
         });
-        if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
-        logger.debug(`[DDBSpellSocket] jobId=${startRes.jobId} replayed=${startRes.replayed} className=${className} rulesVersion=${rules}`);
-      } catch (err) {
-        finish(err as Error, null);
       }
-    })();
-  });
+    }
+  } finally {
+    socket.close();
+  }
+
+  if (debugJson) {
+    FileHelper.download(JSON.stringify({ success: true, data: debugDump }), `spells-raw.json`, "application/json");
+  }
+
+  return out;
 }
 
 // Custom proxies may not expose the /spells socket namespace. Try the streaming
 // path first; on connect/auth/start failure fall through to the HTTP endpoint.
 let _spellSocketDisabled = false;
 
-async function getSpellData(args) {
-  if (!_spellSocketDisabled) {
-    try {
-      return await getSpellDataStreaming(args);
-    } catch (err) {
-      const msg = (err as Error)?.message ?? String(err);
-      logger.warn(`[spells] streaming failed, falling back to HTTP: ${msg}`);
-      _spellSocketDisabled = true;
-    }
-  }
-  return getSpellDataHttp(args);
-}
-
-export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, notifierV2 = null, searchFilter = null } = {}) {
+export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, notifierV2 = null, searchFilter = null, sources = null } = {}) {
 
   await DDBReferenceLinker.importCacheLoad();
   const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
@@ -225,22 +203,44 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
 
   resolvedNotifier("Downloading spell data...");
 
-  // disable source filter if ids provided
-  const sourceFilter = !(ids !== null && ids.length > 0);
+  // disable source filter if ids provided; explicit `sources` (override) wins → force on
+  const sourceFilter = sources && sources.length > 0
+    ? true
+    : !(ids !== null && ids.length > 0);
   const results = [];
   const spellListFactory = new DDBSpellListFactory();
 
-  for (const [rulesVersion, klassNames] of Object.entries(DDBSpellListFactory.CLASS_NAMES_MAP)) {
-    for (const className of klassNames) {
-      const spellData = await getSpellData({
-        className,
-        sourceFilter,
-        notifier: resolvedNotifier,
-        rulesVersion,
-        searchFilter,
-      });
+  // Prefer streaming all classes over one reused socket. On any streaming
+  // failure latch off and fall back to one HTTP request per class.
+  let classSpellSets: ClassSpellSet[] | null = null;
+  if (!_spellSocketDisabled) {
+    try {
+      classSpellSets = await streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverride: sources });
+    } catch (err) {
+      logger.warn(`[spells] streaming failed, falling back to HTTP: ${(err as Error)?.message ?? String(err)}`);
+      _spellSocketDisabled = true;
+    }
+  }
+
+  if (classSpellSets) {
+    for (const { className, spellData } of classSpellSets) {
       spellListFactory.extractClassSpellListData(className, spellData);
       results.push(...spellData);
+    }
+  } else {
+    for (const [rulesVersion, klassNames] of Object.entries(DDBSpellListFactory.CLASS_NAMES_MAP)) {
+      for (const className of klassNames) {
+        const spellData = await getSpellDataHttp({
+          className,
+          sourceFilter,
+          notifier: resolvedNotifier,
+          rulesVersion,
+          searchFilter,
+          sourcesOverride: sources,
+        });
+        spellListFactory.extractClassSpellListData(className, spellData);
+        results.push(...spellData);
+      }
     }
   }
 

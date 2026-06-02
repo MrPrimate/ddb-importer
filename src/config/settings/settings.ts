@@ -933,6 +933,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "adventure-policy-compendium-only": {
+            type: Boolean,
+            default: false,
+          },
           "adventure-policy-import-to-adventure-compendium": {
             type: Boolean,
             default: false,
@@ -1117,6 +1121,10 @@ const SETTINGS = {
             default: true,
           },
           "munching-policy-maps-metadata-tokens": {
+            type: Boolean,
+            default: true,
+          },
+          "munching-policy-maps-import-journals": {
             type: Boolean,
             default: true,
           },

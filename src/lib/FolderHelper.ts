@@ -25,7 +25,7 @@ export default class FolderHelper {
       }
       return folder;
     }
-    const folderData: any = {
+    const folderData: I5eFolderData = {
       name: folderName,
       type: entityType,
       color: folderColor,

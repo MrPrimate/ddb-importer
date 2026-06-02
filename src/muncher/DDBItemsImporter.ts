@@ -113,6 +113,8 @@ export default class DDBItemsImporter {
 
   deleteBeforeUpdate = null;
 
+  sources: number[] | null = null;
+
   useSourceFilter = true;
 
   ids = [];
@@ -133,6 +135,7 @@ export default class DDBItemsImporter {
     useSourceFilter = true,
     ids = [],
     searchFilter = null,
+    sources = null,
   } = {}) {
     this.source = source;
     if (notifier) this.notifier = notifier;
@@ -141,6 +144,7 @@ export default class DDBItemsImporter {
     this.useSourceFilter = useSourceFilter;
     this.ids = ids;
     this.searchFilter = searchFilter;
+    this.sources = sources;
     this.updateBool = utils.getSetting<boolean>("munching-policy-update-existing");
     this.uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
   }
@@ -165,7 +169,7 @@ export default class DDBItemsImporter {
     this.ready = true;
   }
 
-  static _resolveItemFetchContext({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
+  static _resolveItemFetchContext({ useSourceFilter = true, ids = [], searchFilter = null, sourcesOverride = null } = {}) {
     const cobaltCookie = Secrets.getCobalt();
     const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
     const parsingApi = DDBProxy.getProxy();
@@ -173,17 +177,19 @@ export default class DDBItemsImporter {
     const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
     const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
     const useGenerics = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-generic-items");
-    const sources = enableSources ? DDBSources.getSelectedSourceIds() : [];
+    // explicit sourcesOverride (e.g. from the native adventure importer) wins over the setting
+    const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
+    const effectiveUseSourceFilter = sourcesOverride !== null ? true : useSourceFilter;
     const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-exact-match");
     return {
       cobaltCookie, campaignId, parsingApi, betaKey, debugJson,
       useGenerics, sources, exactMatch,
-      filters: { ids, useSourceFilter, useGenerics, sources, exactMatch, searchFilter },
+      filters: { ids, useSourceFilter: effectiveUseSourceFilter, useGenerics, sources, exactMatch, searchFilter },
     };
   }
 
-  static _getItemDataHttp({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
-    const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter });
+  static _getItemDataHttp({ useSourceFilter = true, ids = [], searchFilter = null, sourcesOverride = null } = {}) {
+    const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter, sourcesOverride });
     const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
     const body = { cobalt: cobaltCookie, campaignId, betaKey, addSpells: true };
 
@@ -218,8 +224,8 @@ export default class DDBItemsImporter {
     });
   }
 
-  static _getItemDataStreaming({ useSourceFilter = true, ids = [], searchFilter = null } = {}) {
-    const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter });
+  static _getItemDataStreaming({ useSourceFilter = true, ids = [], searchFilter = null, sourcesOverride = null } = {}) {
+    const ctx = DDBItemsImporter._resolveItemFetchContext({ useSourceFilter, ids, searchFilter, sourcesOverride });
     const { cobaltCookie, campaignId, parsingApi, betaKey, debugJson } = ctx;
 
     logger.debug(`Streaming Items with:`, {
@@ -227,64 +233,36 @@ export default class DDBItemsImporter {
       useGenerics: ctx.useGenerics, ids, searchFilter,
     });
 
-    return new Promise((resolve, reject) => {
+    return (async () => {
       const socket = new DDBItemSocket(parsingApi);
-      let raw: any = null;
-      let settled = false;
-      let timer: any = null;
+      socket.connect();
+      try {
+        const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
+        if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
 
-      const finish = (err: Error | null, data: any) => {
-        if (settled) return;
-        settled = true;
-        if (timer) clearTimeout(timer);
-        socket.close();
-        if (err) reject(err);
-        else resolve(data);
-      };
+        let raw: any = null;
+        await socket.runJob("all-items", { campaignId, addSpells: true, cobalt: cobaltCookie }, {
+          timeoutMs: 60000,
+          onEvent: (event: DDBItemEvent) => {
+            if (event.kind === "items") {
+              raw = event.payload;
+            }
+          },
+        });
 
-      socket.connect({
-        onEvent: (event: DDBItemEvent) => {
-          if (event.kind === "items") {
-            raw = event.payload;
-          }
-        },
-        onError: (message, fatal) => {
-          if (fatal) finish(new Error(message), null);
-          else logger.warn(`[DDBItemSocket] non-fatal error: ${message}`);
-        },
-        onDone: () => {
-          if (debugJson) {
-            FileHelper.download(
-              JSON.stringify({ success: true, data: raw }),
-              `items-raw.json`,
-              "application/json",
-            );
-          }
-          if (raw == null) {
-            finish(new Error("Stream completed without items payload"), null);
-            return;
-          }
-          finish(null, applyItemFilters(normaliseItemPayload(raw), ctx.filters));
-        },
-        onConnectError: (err) => finish(err, null),
-      });
-
-      timer = setTimeout(() => {
-        finish(new Error("Item socket timed out"), null);
-      }, 60000);
-
-      (async () => {
-        try {
-          const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null, campaignId });
-          if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
-          const startRes = await socket.start("all-items", { campaignId, addSpells: true, cobalt: cobaltCookie });
-          if (!startRes.ok) throw new Error(`Start failed: ${startRes.message}`);
-          logger.debug(`[DDBItemSocket] jobId=${startRes.jobId} replayed=${startRes.replayed}`);
-        } catch (err) {
-          finish(err as Error, null);
+        if (debugJson) {
+          FileHelper.download(
+            JSON.stringify({ success: true, data: raw }),
+            `items-raw.json`,
+            "application/json",
+          );
         }
-      })();
-    });
+        if (raw == null) throw new Error("Stream completed without items payload");
+        return applyItemFilters(normaliseItemPayload(raw), ctx.filters);
+      } finally {
+        socket.close();
+      }
+    })();
   }
 
   static async _getItemData(args = {}) {
@@ -409,6 +387,7 @@ export default class DDBItemsImporter {
       useSourceFilter: sourceFilter,
       ids: this.ids,
       searchFilter: this.searchFilter,
+      sourcesOverride: this.sources,
     }) as any;
   }
 
@@ -479,6 +458,7 @@ export default class DDBItemsImporter {
     notifier = null,
     notifierV2 = null,
     searchFilter = null,
+    sources = null,
   } = {}) {
     const ddbItems = new DDBItemsImporter({
       useSourceFilter,
@@ -487,6 +467,7 @@ export default class DDBItemsImporter {
       notifier,
       notifierV2,
       searchFilter,
+      sources,
     });
     await ddbItems.process();
     return ddbItems.updateResults;

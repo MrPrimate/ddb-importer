@@ -10,13 +10,34 @@ export interface IDDBSourceResponse extends I5eSourceInfo {
 
 export default class DDBSources {
 
-  static getBookName(bookId) {
-    const book = CONFIG.DDB.sources.find((source) => source.name.toLowerCase() == bookId.toLowerCase());
+  static getSource(bookCode: string): IDDBConfigSource | null {
+    const source = (CONFIG.DDB?.sources ?? []).find(
+      (s: any) => typeof s?.name === "string" && s.name.toLowerCase() === bookCode.toLowerCase(),
+    );
+    return source ?? null;
+  }
+
+  /**
+   * Given a book code e.g. DMG returns full name e.g. Dungeon Master's Guide. Returns empty string if not found.
+   */
+  static getBookName(bookCode: string): string {
+    const book = DDBSources.getSource(bookCode);
     if (book) {
       return book.description;
     } else {
       return "";
     }
+  }
+
+  /**
+   * Given a book code e.g. DMG returns the book's DDB source ID. Returns null if not found.
+   * @param bookCode
+   * @returns
+   */
+  static getBookId(bookCode: string): number | null {
+    const src = DDBSources.getSource(bookCode);
+    const id = src ? Number(src.id) : Number.NaN;
+    return Number.isFinite(id) ? id : null;
   }
 
   static is2014Source(source) {
@@ -398,8 +419,21 @@ export default class DDBSources {
     return null;
   }
 
+  static getDocumentSourceIds(doc: TAll5eDocuments): number[] {
+    const ids = new Set<number>();
+    // spells store an array of sources
+    const sources = foundry.utils.getProperty(doc, "flags.ddbimporter.sources");
+    if (Array.isArray(sources)) {
+      for (const s of sources) if (s?.sourceId != null) ids.add(Number(s.sourceId));
+    }
+    // items/monsters store a single source id
+    const single = DDBSources.getDocumentSourceId(doc);
+    if (single != null) ids.add(single);
+    return [...ids];
+  }
+
   static matchesSourceFilter(
-    doc: any,
+    doc: TAll5eDocuments,
     { sourceIds, categoryIds }: { sourceIds?: number[]; categoryIds?: number[] },
   ): boolean {
     if (sourceIds?.length) {
@@ -413,7 +447,7 @@ export default class DDBSources {
     return false;
   }
 
-  static getDocumentSourceBookName(doc: any): string {
+  static getDocumentSourceBookName(doc: TAll5eDocuments): string {
     const sourceId = DDBSources.getDocumentSourceId(doc);
     if (sourceId != null) {
       const source = CONFIG.DDB.sources.find((s) => s.id === sourceId);

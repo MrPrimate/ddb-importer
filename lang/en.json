@@ -220,7 +220,18 @@
     "scenes": {
       "download": "DDB Scene Config",
       "third-party-download": "Third Party Scene Config",
-      "detect-grid": "DDB Importer: Detect Grid"
+      "detect-grid": "DDB Importer: Detect Grid",
+      "copy-fields": "Copy Scene Fields"
+    },
+    "scene-copy": {
+      "title": "Copy Scene Fields",
+      "source": "Source",
+      "target": "Copy to",
+      "choose": "Choose a target scene…",
+      "select-all": "Select all",
+      "deselect-all": "Deselect all",
+      "copy": "Copy",
+      "cancel": "Cancel"
     },
     "Dialogs": {
       "ResetSettings": {
