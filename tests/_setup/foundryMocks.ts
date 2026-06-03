@@ -47,6 +47,42 @@ const noopClass = class {};
     randomID() {
       return Math.random().toString(36).substring(2, 18);
     },
+    Semaphore: class Semaphore {
+      max: number;
+      _active = 0;
+      _queue: Array<() => void> = [];
+      constructor(max = 1) {
+        this.max = max;
+      }
+      get active() {
+        return this._active;
+      }
+      get remaining() {
+        return this._queue.length;
+      }
+      add(fn: (...a: any[]) => any, ...args: any[]) {
+        return new Promise((resolve, reject) => {
+          const run = () => {
+            this._active++;
+            Promise.resolve()
+              .then(() => fn(...args))
+              .then(resolve, reject)
+              .finally(() => {
+                this._active--;
+                this._next();
+              });
+          };
+          if (this._active < this.max) run();
+          else this._queue.push(run);
+        });
+      }
+      _next() {
+        if (this._active < this.max && this._queue.length) this._queue.shift()!();
+      }
+      clear() {
+        this._queue = [];
+      }
+    },
   },
   applications: {
     api: {
