@@ -9,7 +9,6 @@ import {
   DDBProxy,
   utils,
 } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
 import { clearDDBFrameCache } from "../hooks/init/tokenizer2Frames";
 
 interface IDDBFrameCatalogEntry {
@@ -42,7 +41,7 @@ export default class DDBFrameImporter {
     const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
-    const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+    const debugJson = utils.getSetting<boolean>("debug-json");
 
     const body = {
       cobalt: cobaltCookie,
@@ -127,6 +126,7 @@ export default class DDBFrameImporter {
       const options = { type: "frame", name: `DDB ${frame.name}`, download: true, targetDirectory, pathPostfix: "", imageNamePrefix };
       framePath = await FileHelper.getImagePath(frame.frameAvatarUrl, options);
     }
+    logger.info(`Imported frame ${frame.name} to ${framePath}`);
   }
 
   // Force the muncher's progress widget visible. notifierV2 normally does this
@@ -161,8 +161,8 @@ export default class DDBFrameImporter {
     notify("Fetching DDB frame catalog");
     const frames = await DDBFrameImporter.getFrameData();
     logger.debug("Importing frames", frames);
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "frame-image-upload-directory").replace(/^\/|\/$/g, "");
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    const targetDirectory = utils.getSetting<string>("frame-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useDeepPaths = utils.getSetting<boolean>("use-deep-file-paths");
     const imageNamePrefix = useDeepPaths ? "" : "frames";
 
     const total = frames.length;
