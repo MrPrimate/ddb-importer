@@ -25,6 +25,11 @@ export interface IDDBMapSource {
   // True when DDB flags this source as containing Quickplay maps. Surfaced
   // by the proxy flatten step from the raw catalog payload.
   hasQuickplay?: boolean;
+  // Count of prepared (Quickplay) maps for this source, derived from the
+  // getEntitledSourcesAndPreparedMaps response in the proxy. This is NOT
+  // the total scene count - DDB doesn't expose that at catalog time -
+  // so this can't be used as an "is source empty" signal.
+  preparedMapCount?: number;
 }
 
 export interface IDDBMapDimensions {

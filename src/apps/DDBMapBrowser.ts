@@ -23,7 +23,13 @@ function sourceKey(sel: IBrowserSelection): string {
 }
 
 function emptyMapsStorage() {
-  return { catalog: null, sourceMaps: {}, fetchedAt: null };
+  return {
+    catalog: null,
+    sourceMaps: {},
+    fetchedAt: null,
+    sceneCountsBySource: {},
+    sceneCountProgress: { done: 0, total: 0, inFlight: false },
+  };
 }
 
 function isDmMap(map: { description?: string; name?: string }): boolean {
@@ -69,6 +75,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
       toggleSource: DDBMapBrowser.toggleSource,
       importMap: DDBMapBrowser.importMap,
       importAllInSource: DDBMapBrowser.importAllInSource,
+      countScenes: DDBMapBrowser.countScenes,
       close: DDBMapBrowser.cancel,
     },
     position: { width: 1100, height: 720 },
@@ -378,6 +385,15 @@ export default class DDBMapBrowser extends DDBAppV2 {
     await this.close();
   }
 
+  // On-demand scene-count prefetch. Triggered by the "Hide Empty Books"
+  // button - we don't auto-run it on catalog load so the browser opens with
+  // every source listed. _kickoffSceneCountPrefetch guards re-entry.
+  static async countScenes(this: DDBMapBrowser) {
+    const storage = ensureMapsStorage();
+    if (!storage.catalog) return;
+    await this._kickoffSceneCountPrefetch(storage.catalog);
+  }
+
   async _loadCatalog({ force = false } = {}) {
     const storage = ensureMapsStorage();
     if (!force && storage.catalog) return storage.catalog;
@@ -386,7 +402,10 @@ export default class DDBMapBrowser extends DDBAppV2 {
       this.loadingCatalog = true;
       await this.render();
       const catalog = await DDBMaps.fetchCatalog();
-      if (force) storage.sourceMaps = {};
+      if (force) {
+        storage.sourceMaps = {};
+        storage.sceneCountsBySource = {};
+      }
       storage.catalog = catalog;
       storage.fetchedAt = Date.now();
       return catalog;
@@ -398,6 +417,54 @@ export default class DDBMapBrowser extends DDBAppV2 {
       this.loadingCatalog = false;
       await this.render();
     }
+  }
+
+  // Background prefetch of per-source map data so we know each book's
+  // total scene count. Runs in parallel batches (default 6) to keep DDB
+  // happy without serialising. Counts populate the in-memory cache as
+  // each fetch returns and the sidebar re-renders so books with 0 scenes
+  // drop out of view progressively.
+  async _kickoffSceneCountPrefetch(catalog: IDDBMapCatalog) {
+    const storage = ensureMapsStorage();
+    if (storage.sceneCountProgress?.inFlight) return;
+    const sources = catalog.sources ?? [];
+    // Skip sources we already counted - cheap when the user reopens.
+    const todo = sources.filter((s) => storage.sceneCountsBySource?.[s.sourceId] === undefined);
+    if (!todo.length) {
+      storage.sceneCountProgress = { done: sources.length, total: sources.length, inFlight: false };
+      return;
+    }
+    storage.sceneCountProgress = { done: sources.length - todo.length, total: sources.length, inFlight: true };
+    await this.render();
+
+    const BATCH = 6;
+    let cursor = 0;
+    const fetchOne = async (src: IDDBMapSource) => {
+      try {
+        const payload = await DDBMaps.fetchSourceMaps({ sourceId: src.sourceId });
+        const flat = payload ? DDBMaps.flattenSourceMaps(payload) : [];
+        storage.sceneCountsBySource![src.sourceId] = flat.length;
+        // Stash the payload too so the user gets instant detail-pane
+        // loading when they click a source we already prefetched.
+        if (payload) storage.sourceMaps[src.sourceId] = payload;
+      } catch (error) {
+        logger.warn(`DDBMapBrowser: scene-count prefetch failed for ${src.sourceId}`, error);
+        // Mark as unknown (don't add to map) so the filter shows it.
+      }
+    };
+    while (cursor < todo.length) {
+      const batch = todo.slice(cursor, cursor + BATCH);
+      cursor += batch.length;
+      await Promise.all(batch.map(fetchOne));
+      storage.sceneCountProgress = {
+        done: sources.length - (todo.length - cursor),
+        total: sources.length,
+        inFlight: cursor < todo.length,
+      };
+      await this.render();
+    }
+    storage.sceneCountProgress = { done: sources.length, total: sources.length, inFlight: false };
+    await this.render();
   }
 
   async _loadSelectedSource() {
@@ -553,6 +620,11 @@ export default class DDBMapBrowser extends DDBAppV2 {
     }));
 
     context.excludeDm = utils.getSetting<boolean>("munching-policy-maps-exclude-dm");
+    const progress = storage.sceneCountProgress;
+    context.sceneCountInFlight = !!progress?.inFlight;
+    context.sceneCountProgress = progress && progress.inFlight
+      ? `Counting scenes: ${progress.done} of ${progress.total}`
+      : null;
     context.detectGrid = utils.getSetting<boolean>("munching-policy-maps-detect-grid");
     context.doubleScale = utils.getSetting<boolean>("munching-policy-maps-double-scale");
     context.importQuickplay = utils.getSetting<boolean>("munching-policy-maps-import-quickplay");
@@ -638,10 +710,17 @@ export default class DDBMapBrowser extends DDBAppV2 {
       }
     }
 
+    // Filter: hide books with zero scenes once we've counted them. The
+    // per-source count is populated by the on-demand prefetch in
+    // _kickoffSceneCountPrefetch (the "Hide Empty Books" button). Sources
+    // not yet counted have no entry here and stay visible - they drop out
+    // only after the prefetch returns zero for them.
+    const counts = storage.sceneCountsBySource ?? {};
     const byType: Record<string, IDDBMapSource[]> = {};
     for (const src of catalog.sources) {
       if (!includedSet.has(src.type)) continue;
       if (!matchesSearch(src)) continue;
+      if (counts[src.sourceId] === 0) continue;
       (byType[src.type] ??= []).push(src);
     }
 
