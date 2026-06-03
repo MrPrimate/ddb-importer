@@ -1,11 +1,16 @@
 # Next Up
 
+# 7.3.0
+
 - NEW FEATURE: In browser adventure munching - no more need for DDB Adventure Muncher.
 - DDB Maps will now import journals where there is configured scene metadata.
 - Frame Muncher Will now import animated frames from DDB.
 - Frames munched by DDB will be registered to Tokenizer 2.
 - Eyes of Night had bad formula
 - CSS fix for some adventure monster stat blocks @sirnarvy
+- Indomitable did not use the scale for uses.
+- Deft Explorer fixes.
+- Arcane Ward did not recover the correct amount of HP. @ohmygodwhat
 
 # 7.2.24
 
@@ -167,6 +172,15 @@ v14 only:
 
 - v14 support. This introduces basic support for 5e 5.3.0 on v14. It does not yet generate things like native light effects or token based effects. It does not implement the new effect expiry events. I suspect a variety of midi macros that use templates and the like will not work (although midi-qol is not yet ready).
 - Enlarge/Reduce effect fixed.
+
+# 7.1.20
+
+- Will now import animated frames from DDB when importing frames.
+- Frames munched by DDB will be registered to Tokenizer 2.
+- Eyes of Night had bad formula
+- Indomitable did not use the scale for uses.
+- Deft Explorer fixes.
+- Arcane Ward did not recover the correct amount of HP. @ohmygodwhat
 
 # 7.1.18
 
