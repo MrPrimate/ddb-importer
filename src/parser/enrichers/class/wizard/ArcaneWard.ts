@@ -13,7 +13,7 @@ export default class ArcaneWard extends DDBEnricherData {
       activationCondition: "When you cast an Abjuration spell with a spell slot",
       addItemConsume: true,
       addActivityConsume: true,
-      itemConsumeValue: "-(@classes.wizard.levels + @abilities.int.mod)",
+      itemConsumeValue: "-((2 *@classes.wizard.levels) + @abilities.int.mod)",
       rangeSelf: true,
       data: {
         img: "systems/dnd5e/icons/svg/activity/save.svg",

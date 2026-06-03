@@ -4,6 +4,7 @@ export { default as BeguilingTwist } from "./BeguilingTwist";
 export { default as BestialFury } from "./BestialFury";
 export { default as BondOfFangAndScale } from "./BondOfFangAndScale";
 export { default as DefensiveTactics } from "./DefensiveTactics";
+export { default as DeftExplorer } from "./DeftExplorer";
 export { default as DrakeCompanion } from "./DrakeCompanion";
 export { default as DrakesBreath } from "./DrakesBreath";
 export { default as DreadAmbusher } from "./DreadAmbusher";
