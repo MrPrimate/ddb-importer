@@ -36,6 +36,14 @@
           </label>
         {{/each}}
       </div>
+      {{#if hasCatalog}}
+        <button data-action="countScenes" type="button" class="munch-button ddb-map-browser-hide-empty" title="Count scenes per book, then hide books with zero scenes." {{#if sceneCountInFlight}}disabled{{/if}}>
+          <i class="fas fa-magnifying-glass"></i> Hide Empty Books
+        </button>
+      {{/if}}
+      {{#if sceneCountProgress}}
+        <p class="ddb-map-browser-scene-progress hint"><i class="fas fa-spinner fa-spin"></i> {{sceneCountProgress}}</p>
+      {{/if}}
 
       <div class="ddb-map-browser-source-tree">
         {{#if loadingCatalog}}

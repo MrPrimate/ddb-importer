@@ -96,6 +96,13 @@ export interface IDDBIConfig {
     catalog: IDDBMapCatalog | null;
     sourceMaps: Record<string, IDDBSourceMaps>;
     fetchedAt: number | null;
+    // In-memory cache of per-source total scene counts populated by
+    // DDBMapBrowser's auto-prefetch after catalog load. Keyed by sourceId.
+    // Missing key = unknown (don't hide); value 0 = empty source (hide
+    // when the filter is on).
+    sceneCountsBySource?: Record<string, number>;
+    // Auto-prefetch progress so the sidebar can show "counting N of M".
+    sceneCountProgress?: { done: number; total: number; inFlight: boolean };
   };
   META?: {
     matches: Map<string, any>;
@@ -185,6 +192,8 @@ if (!CONFIG.DDBI) {
     MAPS: {
       catalog: null,
       sourceMaps: {},
+      sceneCountsBySource: {},
+      sceneCountProgress: { done: 0, total: 0, inFlight: false },
       fetchedAt: null,
     },
     META: {
