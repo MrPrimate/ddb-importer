@@ -27,4 +27,15 @@ export default class Indomitable extends DDBEnricherData {
     ];
   }
 
+  get override(): IDDBOverrideData {
+    const uses = this._getGeneratedUses({
+      type: "class",
+      name: "Indomitable",
+    });
+    uses.max = "@scale.fighter.indomitable";
+    return {
+      uses,
+    };
+  }
+
 }
