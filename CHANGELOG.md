@@ -1,8 +1,13 @@
 # Next Up
 
+# 7.1.20
+
 - Will now import animated frames from DDB when importing frames.
 - Frames munched by DDB will be registered to Tokenizer 2.
 - Eyes of Night had bad formula
+- Indomitable did not use the scale for uses.
+- Deft Explorer fixes.
+- Arcane Ward did not recover the correct amount of HP. @ohmygodwhat
 
 # 7.1.19
 
