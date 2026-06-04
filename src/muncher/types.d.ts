@@ -191,6 +191,7 @@ global {
     isOwned: boolean;
     isReleased: boolean;
     relativePath: string;
+    hasEnhancement: boolean;
   }
 
   // Lightweight match info returned by /proxy/maps/metadata/match. No scene

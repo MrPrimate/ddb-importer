@@ -43,18 +43,21 @@ export default class DDBAdventures {
    * that happens we fall back to `/proxy/library`, whose item `id` matches the
    * source id the primary endpoint returns, so it maps straight to bookIds.
    */
-  static async fetchOwnedBookIds({ cobalt = null }: { cobalt?: string | null } = {}): Promise<number[] | null> {
+  static async fetchOwnedBookIds({ cobalt = null }: { cobalt?: string | null } = {}): Promise<{ bookIds: number[] | null; enhancementBookIds: number[] | null }> {
     const resolved = cobalt ?? Secrets.getCobalt();
     if (!resolved) return null;
 
     // Primary lookup. A non-null result is authoritative (empty array = owns
     // nothing). null (success:false) or a thrown error (bot block) -> fall back.
     try {
-      const data = await DDBAdventures.post<{ bookIds: number[] }>(
+      const data = await DDBAdventures.post<{ bookIds: number[]; enhancementBookIds: number[] }>(
         "/proxy/adventure/available-user-content",
         DDBAdventures.buildBody({}, resolved),
       );
-      if (data) return data.bookIds ?? [];
+      if (data) return {
+        bookIds: data.bookIds ?? [],
+        enhancementBookIds: data.enhancementBookIds ?? [],
+      };
     } catch (error) {
       logger.warn(`DDBAdventures.fetchOwnedBookIds primary lookup failed, trying library fallback: ${error}`);
     }
@@ -67,7 +70,10 @@ export default class DDBAdventures {
         DDBAdventures.buildBody({ ownedOnly: false }, resolved),
       );
       if (!data) return null;
-      return data.filter((item) => item.isOwned).map((item) => item.id);
+      return {
+        bookIds: data.filter((item) => item.isOwned).map((item) => item.id),
+        enhancementBookIds: data.filter((item) => item.hasEnhancement).map((item) => item.id),
+      };
     } catch (error) {
       logger.error(`DDBAdventures.fetchOwnedBookIds library fallback error: ${error}`);
       throw error;

@@ -23,6 +23,8 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
   // lookup sets _ownedFetchFailed and leaves _ownedIds null - the list then
   // shows every book with no ownership marks.
   private _ownedIds: number[] | null = null;
+  // Book ids with enhanced meta content on DDB; null until fetched/on failure.
+  private _enhancedIds: number[] | null = null;
   private _ownedFetchInFlight = false;
   private _ownedFetchFailed = false;
   private _searchDebounce: ((...args: any[]) => void) | null = null;
@@ -68,6 +70,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
 
   static async reloadOwned(this: DDBAdventureBrowser, _event, _target) {
     this._ownedIds = null;
+    this._enhancedIds = null;
     this._ownedFetchFailed = false;
     await this._loadOwned();
   }
@@ -175,18 +178,22 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
         this._ownedIds = null;
         return;
       }
-      const ids = await DDBAdventures.fetchOwnedBookIds();
+      const books = await DDBAdventures.fetchOwnedBookIds();
+      const ids = books?.bookIds ?? null;
       if (ids === null) {
         this._ownedFetchFailed = true;
         this._ownedIds = null;
+        this._enhancedIds = null;
       } else {
         this._ownedIds = ids;
+        this._enhancedIds = books?.enhancementBookIds ?? null;
         this._ownedFetchFailed = false;
       }
     } catch (error) {
       logger.warn(`DDBAdventureBrowser: owned fetch failed: ${(error as Error).message ?? error}`);
       this._ownedFetchFailed = true;
       this._ownedIds = null;
+      this._enhancedIds = null;
     } finally {
       this._ownedFetchInFlight = false;
       await this.render();
@@ -312,6 +319,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     const owned = (this._ownedIds && !this._ownedFetchFailed)
       ? new Set(this._ownedIds)
       : null;
+    const enhanced = this._enhancedIds ? new Set(this._enhancedIds) : null;
 
     const matchesSearch = (book: IDDBConfigSource) => {
       if (!search) return true;
@@ -337,6 +345,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
               importing: this.importingId === b.id,
               owned: isOwned,
               notOwned: isOwned === false,
+              enhanced: enhanced?.has(b.id) ?? false,
             };
           })
           .sort((a, b) => a.name.localeCompare(b.name));

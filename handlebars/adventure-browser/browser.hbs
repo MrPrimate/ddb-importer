@@ -68,6 +68,7 @@
                     <strong>{{this.name}}</strong>
                     <span class="hint">{{this.code}}</span>
                     {{#if this.notOwned}}<span class="ddb-adventure-tag ddb-adventure-tag-unowned" title="This adventure is not in your DDB library and cannot be imported.">Not owned</span>{{/if}}
+                    {{#if this.enhanced}}<span class="ddb-adventure-tag ddb-adventure-tag-enhanced" title="This adventure has enhanced meta data such as walls, lights, and notes on scenes.">Enhanced</span>{{/if}}
                   </div>
                   <div class="ddb-adventure-actions">
                     <button type="button" data-action="importAdventure" data-book-id="{{this.id}}" class="munch-button" {{#if this.importing}}disabled{{/if}} {{#if this.notOwned}}disabled{{/if}}>

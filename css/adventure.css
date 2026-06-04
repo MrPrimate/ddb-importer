@@ -577,6 +577,11 @@
   color: #ffe1a8;
 }
 
+.ddb-adventure-tag-enhanced {
+  background: rgba(99, 102, 241, 0.25);
+  color: #c7d2fe;
+}
+
 .ddb-adventure-actions {
   display: flex;
   justify-content: center;
