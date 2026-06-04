@@ -219,7 +219,10 @@ export default class DDBMonsterImporter {
     }
 
     const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
-    if (!forceUpdate && !updateImages && !utils.isDefaultOrPlaceholderImage(this.monster.img)) {
+    if (!forceUpdate && !updateImages
+      && !utils.isDefaultOrPlaceholderImage(this.monster.img)
+      && !utils.isDefaultOrPlaceholderImage(this.monster.prototypeToken.texture.src)
+    ) {
       return this.monster;
     }
 
@@ -288,9 +291,11 @@ export default class DDBMonsterImporter {
     let monsterTokenImgPath = null;
     let tokenName = null;
     const tokenImgSet = foundry.utils.getProperty(this.monster, "flags.monsterMunch.tokenImgSet");
+
     if (ddbTokenUrl && tokenImgSet !== true) {
       if (hasTokenProcessedAlready) {
-        this.monster.prototypeToken.texture.src = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+        monsterTokenImgPath = CONFIG.DDBI.KNOWN.TOKEN_LOOKUPS.get(ddbTokenUrl);
+        this.monster.prototypeToken.texture.src = monsterTokenImgPath;
         if (useWildcard && this.monster.prototypeToken.texture.src.includes("*")) this.monster.prototypeToken.randomImg = true;
       } else {
         const tokenExt = ddbTokenUrl.split(".").pop().split(/#|\?|&/)[0];
