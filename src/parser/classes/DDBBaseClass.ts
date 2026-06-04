@@ -187,6 +187,7 @@ export default abstract class DDBBaseClass {
     "Implements of Mercy",
     "Master of Intrigue",
     "Blessings of Knowledge",
+    "Reanimator's Skillset",
   ];
 
   static ARMOR_FEATURES = [
