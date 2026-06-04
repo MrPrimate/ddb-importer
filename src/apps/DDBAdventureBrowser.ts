@@ -23,8 +23,10 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
   // lookup sets _ownedFetchFailed and leaves _ownedIds null - the list then
   // shows every book with no ownership marks.
   private _ownedIds: number[] | null = null;
-  // Book ids with enhanced meta content on DDB; null until fetched/on failure.
-  private _enhancedIds: number[] | null = null;
+  // Public meta-data summary (scene/wall/light counts per book), used for the
+  // hover info card. Null until fetched/on failure. Fetched once, then cached
+  // on CONFIG.DDBI by DDBAdventures.fetchMetaDataSummary.
+  private _metaSummary: IMetaDataSummary | null = null;
   private _ownedFetchInFlight = false;
   private _ownedFetchFailed = false;
   private _searchDebounce: ((...args: any[]) => void) | null = null;
@@ -70,7 +72,6 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
 
   static async reloadOwned(this: DDBAdventureBrowser, _event, _target) {
     this._ownedIds = null;
-    this._enhancedIds = null;
     this._ownedFetchFailed = false;
     await this._loadOwned();
   }
@@ -183,27 +184,39 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
       if (ids === null) {
         this._ownedFetchFailed = true;
         this._ownedIds = null;
-        this._enhancedIds = null;
       } else {
         this._ownedIds = ids;
-        this._enhancedIds = books?.enhancementBookIds ?? null;
         this._ownedFetchFailed = false;
       }
     } catch (error) {
       logger.warn(`DDBAdventureBrowser: owned fetch failed: ${(error as Error).message ?? error}`);
       this._ownedFetchFailed = true;
       this._ownedIds = null;
-      this._enhancedIds = null;
     } finally {
       this._ownedFetchInFlight = false;
       await this.render();
     }
   }
 
+  // Public meta-data summary (no cobalt needed). Independent of the owned
+  // lookup so the hover cards populate even when ownership can't be verified.
+  async _loadMeta() {
+    try {
+      this._metaSummary = await DDBAdventures.fetchMetaDataSummary();
+    } catch (error) {
+      logger.warn(`DDBAdventureBrowser: meta summary fetch failed: ${(error as Error).message ?? error}`);
+      this._metaSummary = null;
+    }
+    await this.render();
+  }
+
   async _onFirstRender(context, options) {
     await super._onFirstRender(context, options);
     if (this._ownedIds === null && !this._ownedFetchFailed) {
       this._loadOwned();
+    }
+    if (this._metaSummary === null) {
+      this._loadMeta();
     }
   }
 
@@ -319,7 +332,8 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     const owned = (this._ownedIds && !this._ownedFetchFailed)
       ? new Set(this._ownedIds)
       : null;
-    const enhanced = this._enhancedIds ? new Set(this._enhancedIds) : null;
+    const metaBooks = this._metaSummary?.books ?? null;
+    const metaVersion = this._metaSummary?.version ?? null;
 
     const matchesSearch = (book: IDDBConfigSource) => {
       if (!search) return true;
@@ -337,6 +351,8 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
         const adventures = books
           .map((b) => {
             const isOwned = owned === null ? null : owned.has(b.id);
+            const metaBook = metaBooks?.[String(b.name).toLowerCase()] ?? null;
+            const metaTooltip = metaBook ? this._buildMetaTooltipHtml(metaBook, metaVersion) : "";
             return {
               id: b.id,
               name: b.description,
@@ -345,7 +361,9 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
               importing: this.importingId === b.id,
               owned: isOwned,
               notOwned: isOwned === false,
-              enhanced: enhanced?.has(b.id) ?? false,
+              enhanced: !!metaBook,
+              hasMeta: !!metaTooltip,
+              metaTooltip,
             };
           })
           .sort((a, b) => a.name.localeCompare(b.name));
@@ -359,6 +377,55 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
       })
       .filter((g) => g.adventures.length)
       .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Build the hover info card markup for a book's enhanced meta content: a
+  // header (title + version + scene count), an aggregate totals row, then a
+  // per-scene breakdown. Returned as an HTML string for data-tooltip-html
+  // (Foundry runs it through cleanHTML). Text is escaped so book/scene names
+  // can't break the markup.
+  _buildMetaTooltipHtml(book: IBookSummary, version: string | null): string {
+    const esc = (s: string | null) => String(s ?? "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+    const totals = book.scenes.reduce((acc, s) => {
+      acc.walls += s.walls ?? 0;
+      acc.lights += s.lights ?? 0;
+      acc.notes += s.notes ?? 0;
+      acc.tokens += s.tokens ?? 0;
+      acc.tiles += s.tiles ?? 0;
+      acc.stairways += s.stairways ?? 0;
+      return acc;
+    }, { walls: 0, lights: 0, notes: 0, tokens: 0, tiles: 0, stairways: 0 });
+
+    const totalRow = ([
+      ["Walls", totals.walls], ["Lights", totals.lights], ["Notes", totals.notes],
+      ["Tokens", totals.tokens], ["Tiles", totals.tiles], ["Stairways", totals.stairways],
+    ] as [string, number][])
+      .filter(([, n]) => n > 0)
+      .map(([label, n]) => `<span class="ddb-meta-stat"><strong>${n}</strong> ${label}</span>`)
+      .join("");
+
+    const sceneRows = book.scenes
+      .map((s) => {
+        const counts = ([
+          ["W", s.walls], ["L", s.lights], ["N", s.notes], ["T", s.tokens],
+        ] as [string, number][])
+          .filter(([, n]) => (n ?? 0) > 0)
+          .map(([k, n]) => `${k}:${n}`)
+          .join(" ");
+        return `<li><span class="ddb-meta-scene-name">${esc(s.navName || s.name)}</span><span class="ddb-meta-scene-counts">${counts}</span></li>`;
+      })
+      .join("");
+
+    const versionLabel = version ? ` &middot; v${esc(version)}` : "";
+    return `<div class="ddb-adventure-tooltip-card">`
+      + `<div class="ddb-meta-header"><strong>${esc(book.description || book.bookCode)}</strong>`
+      + `<span class="ddb-meta-subtitle">${book.sceneCount} scene${book.sceneCount === 1 ? "" : "s"}${versionLabel}</span></div>`
+      + (totalRow ? `<div class="ddb-meta-totals">${totalRow}</div>` : "")
+      + (sceneRows ? `<ul class="ddb-meta-scenes">${sceneRows}</ul>` : "")
+      + `</div>`;
   }
 
 }

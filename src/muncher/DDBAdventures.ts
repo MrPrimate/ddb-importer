@@ -32,6 +32,37 @@ export default class DDBAdventures {
     return (data.data ?? null) as T | null;
   }
 
+  // Open GET proxy call (no cobalt/auth). Used for the public meta-data summary.
+  private static async get<T>(path: string): Promise<T | null> {
+    const parsingApi = DDBProxy.getProxy();
+    const response = await fetch(`${parsingApi}${path}`, {
+      method: "GET",
+      cache: "no-cache",
+    });
+    const data: IDDBProxyResponse<T> = await response.json();
+    if (!data.success) {
+      logger.warn(`DDBAdventures ${path} unavailable: ${data.message}`);
+      return null;
+    }
+    return (data.data ?? null) as T | null;
+  }
+
+  /**
+   * Public meta-data summary for every book with enhanced content (scene counts
+   * + per-scene walls/lights/notes/tokens/tiles/stairways).
+   */
+  static async fetchMetaDataSummary(): Promise<IMetaDataSummary | null> {
+    if (CONFIG.DDBI.METADATA_SUMMARY) return CONFIG.DDBI.METADATA_SUMMARY;
+    try {
+      const data = await DDBAdventures.get<IMetaDataSummary>("/proxy/maps/metadata/summary");
+      if (data) CONFIG.DDBI.METADATA_SUMMARY = data;
+      return data;
+    } catch (error) {
+      logger.warn(`DDBAdventures.fetchMetaDataSummary failed: ${error}`);
+      return null;
+    }
+  }
+
   /**
    * Owned, released book ids for the current cobalt. Returns `null` when the
    * lookup can't be made (no cobalt) or the proxy reports failure - callers

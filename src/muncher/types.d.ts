@@ -194,6 +194,34 @@ global {
     hasEnhancement: boolean;
   }
 
+  // Public meta-data summary from /proxy/maps/metadata/summary (open GET, no
+  // cobalt). The browser fetches this once, caches it on CONFIG.DDBI, and shows
+  // a per-book hover card of the enhancements available. Only the counts we
+  // render are typed; the full proxy contract has more per-scene fields.
+  interface ISceneSummary {
+    name: string | null;
+    navName: string | null;
+    lights: number;
+    walls: number;
+    notes: number;
+    tokens: number;
+    tiles: number;
+    stairways: number;
+  }
+
+  interface IBookSummary {
+    bookCode: string; // lowercase, matches the adventure `code` (source name)
+    description: string | null;
+    sceneCount: number;
+    scenes: ISceneSummary[];
+  }
+
+  interface IMetaDataSummary {
+    version: string | null;
+    builtAt: number | null;
+    books: Record<string, IBookSummary>; // keyed by lowercase bookCode
+  }
+
   // Lightweight match info returned by /proxy/maps/metadata/match. No scene
   // JSON - just enough to show a badge and decide whether to fetch.
   interface IDDBMetaDataMatchInfo {

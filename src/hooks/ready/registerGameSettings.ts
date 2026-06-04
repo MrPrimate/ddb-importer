@@ -91,6 +91,7 @@ export interface IDDBIConfig {
   MULTIATTACK_MATCHES?: Set<string>[];
   MULTIATTACK_MATCHES_DETAILS?: Record<string, any>[];
   CAMPAIGNS?: IDDBListCampaign[] | null;
+  METADATA_SUMMARY?: IMetaDataSummary | null;
   vehicleURL?: string;
   MAPS?: {
     catalog: IDDBMapCatalog | null;

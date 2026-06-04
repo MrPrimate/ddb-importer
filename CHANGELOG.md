@@ -1,5 +1,7 @@
 # Next Up
 
+- Scenes with metadata enhancements (scene status) will now show it on hover in the Adventure Browser.
+
 # 7.3.0
 
 - NEW FEATURE: In browser adventure munching - no more need for DDB Adventure Muncher.

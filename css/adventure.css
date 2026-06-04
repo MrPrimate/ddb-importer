@@ -590,3 +590,67 @@
 .ddb-adventure-actions .munch-button {
   width: 100%;
 }
+
+/* Hover info card (Foundry adds .ddb-adventure-tooltip to the shared #tooltip). */
+#tooltip.ddb-adventure-tooltip {
+  text-align: left;
+  max-width: min(360px, 90vw);
+  padding: 0;
+}
+
+.ddb-adventure-tooltip-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.ddb-adventure-tooltip-card .ddb-meta-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ddb-adventure-tooltip-card .ddb-meta-subtitle {
+  font-size: 0.8em;
+  opacity: 0.75;
+}
+
+.ddb-adventure-tooltip-card .ddb-meta-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.ddb-adventure-tooltip-card .ddb-meta-stat {
+  font-size: 0.8em;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: rgba(99, 102, 241, 0.25);
+  color: #c7d2fe;
+}
+
+.ddb-adventure-tooltip-card .ddb-meta-scenes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ddb-adventure-tooltip-card .ddb-meta-scenes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.78em;
+}
+
+.ddb-adventure-tooltip-card .ddb-meta-scene-counts {
+  white-space: nowrap;
+  opacity: 0.8;
+}

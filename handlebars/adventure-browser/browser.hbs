@@ -55,7 +55,7 @@
         {{#if this.expanded}}
           <ul class="ddb-adventure-list">
             {{#each this.adventures}}
-              <li class="ddb-adventure-card {{#if this.notOwned}}not-owned{{/if}}">
+              <li class="ddb-adventure-card {{#if this.notOwned}}not-owned{{/if}}"{{#if this.hasMeta}} data-tooltip-html="{{this.metaTooltip}}" data-tooltip-class="ddb-adventure-tooltip" data-tooltip-direction="RIGHT"{{/if}}>
                 <div class="ddb-adventure-cover">
                   {{#if this.cover}}
                     <img src="{{this.cover}}" alt="{{this.name}}" loading="lazy" />
