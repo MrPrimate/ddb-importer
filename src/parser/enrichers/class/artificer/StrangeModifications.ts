@@ -62,9 +62,14 @@ export default class StrangeModifications extends DDBEnricherData {
         name: "Strange Modification: Ferocity",
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`{} [Ferocity]`, 20, "name"),
-          DDBEnricherData.ChangeHelper.upgradeChange(`[["1d6[necrotic]", "necrotic"]]`, 20, "system.damage.parts"),
+          DDBEnricherData.ChangeHelper.overrideChange(`[["1d6[necrotic]", "necrotic"]]`, 20, "system.damage.parts"),
         ],
         activityMatch: "Strange Modification: Ferocity",
+        data: {
+          duration: {
+            seconds: null,
+          },
+        },
       },
     ];
   }

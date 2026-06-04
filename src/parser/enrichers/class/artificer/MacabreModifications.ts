@@ -4,26 +4,51 @@ export default class MacabreModifications extends DDBEnricherData {
 
   get additionalActivities(): IDDBAdditionalActivity[] {
     return [
+      // {
+      //   init: {
+      //     name: "Macabre Modification: Bloated",
+      //     type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
+      //   },
+      //   build: {
+      //     generateActivation: true,
+      //     generateDamage: false,
+      //   },
+      //   overrides: {
+      //     noTemplate: true,
+      //     data: {
+      //       restrictions: {
+      //         allowMagical: true,
+      //       },
+      //     },
+      //   },
+      // },
       {
         init: {
-          name: "Strange Modification: Bloated",
-          type: DDBEnricherData.ACTIVITY_TYPES.ENCHANT,
+          name: "Macabre Modification: Bloated Damage",
+          type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
           generateActivation: true,
-          generateDamage: false,
+          generateDamage: true,
         },
         overrides: {
+          activationType: "special",
+          targetType: "creature",
           data: {
-            restrictions: {
-              allowMagical: true,
+            damage: {
+              parts: [
+                DDBEnricherData.basicDamagePart({
+                  customFormula: "@abilities.int.mod",
+                  types: ["necrotic"],
+                }),
+              ],
             },
           },
         },
       },
       {
         init: {
-          name: "Strange Modification: Gaunt",
+          name: "Macabre Modification: Gaunt",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
@@ -31,13 +56,14 @@ export default class MacabreModifications extends DDBEnricherData {
           generateTarget: true,
         },
         overrides: {
+          noTemplate: true,
           activationType: "special",
           targetType: "creature",
         },
       },
       {
         init: {
-          name: "Strange Modification: Gaunt Save",
+          name: "Macabre Modification: Gaunt Save",
           type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
         },
         build: {
@@ -78,7 +104,7 @@ export default class MacabreModifications extends DDBEnricherData {
       },
       {
         init: {
-          name: "Strange Modification: Moist",
+          name: "Macabre Modification: Moist",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
@@ -92,7 +118,7 @@ export default class MacabreModifications extends DDBEnricherData {
       },
       {
         init: {
-          name: "Strange Modification: Moist Damage",
+          name: "Macabre Modification: Moist Damage",
           type: DDBEnricherData.ACTIVITY_TYPES.DAMAGE,
         },
         build: {
@@ -119,37 +145,52 @@ export default class MacabreModifications extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
     return [
+      // {
+      //   type: "enchant",
+      //   name: "Macabre Modification: Bloated",
+      //   changes: [
+      //     DDBEnricherData.ChangeHelper.addChange("@abilities.int.mod", 10, "system.damage.bonus"),
+      //   ],
+      //   activityMatch: "Macabre Modification: Bloated",
+      //   data: {
+      //     duration: {
+      //       seconds: null,
+      //     },
+      //   },
+      // },
       {
-        type: "enchant",
-        name: "Strange Modification: Bloated",
-        changes: [
-          DDBEnricherData.ChangeHelper.addChange("@abilities.int.mod", 10, "activities[save].damage.bonus"),
-        ],
-        activityMatch: "Strange Modification: Bloated",
-      },
-      {
-        name: "Strange Modification: Gaunt",
+        name: "Macabre Modification: Gaunt",
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("45", 20, "system.attributes.movement.walk"),
           DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.climb"),
         ],
-        activityMatch: "Strange Modification: Gaunt",
+        activityMatch: "Macabre Modification: Gaunt",
+        data: {
+          duration: {
+            seconds: null,
+          },
+        },
       },
       {
-        name: "Strange Modification: Moist",
+        name: "Macabre Modification: Moist",
         changes: [
           DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 20, "system.attributes.movement.swim"),
         ],
-        activityMatch: "Strange Modification: Moist",
+        activityMatch: "Macabre Modification: Moist",
       },
       {
-        name: "Strange Modification: Gaunt Save",
+        name: "Macabre Modification: Gaunt Save",
         statuses: ["Frightened"],
         options: {
           durationSeconds: 6,
           expiry: "turnStart",
         },
-        activityMatch: "Strange Modification: Gaunt Save",
+        activityMatch: "Macabre Modification: Gaunt Save",
+        data: {
+          duration: {
+            seconds: null,
+          },
+        },
       },
     ];
   }
