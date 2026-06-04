@@ -402,6 +402,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Warlock Extra Spells": ClassEnrichers.Warlock.ExtraSpells,
     "Elemental Disciplines": ClassEnrichers.Monk.ElementalDisciplines,
     "Artificer Spells": ClassEnrichers.Artificer.ArtificerSpells,
+    "Reanimator Spells": ClassEnrichers.Artificer.ArtificerSpells,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {

@@ -326,6 +326,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Metamagic",
     "Elemental Attunement",
     "Ghaal'Shaarat",
+    "Reanimated Companion",
+    "Reanimator's Skillset",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -359,6 +361,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Totemic Attunement",
     "Variant Tiefling",
     "Genie's Vessel",
+    "Reanimator's Skillset",
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
@@ -376,6 +379,7 @@ export const PARSING_CHOICE_FEATURES = {
     // "Arcane Shot Options",
   ],
   NO_CHOICE_DESCRIPTION_ADDITION: [
+    "Reanimator's Skillset",
     "Enchantments",
     "Advanced Enchantments",
     "Aspect of the Wilds",
@@ -476,6 +480,8 @@ export const PARSING_CHOICE_FEATURES = {
     "Draconic Disciple",
     "Genie Kind",
     "Ghaal'Shaarat",
+    "Reanimated Companion",
+    "Reanimator's Skillset",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -554,6 +560,7 @@ export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
   "Undying Servitude",
   "Visions of Distant Realms",
   "Whispers of the Grave",
+  "Refined Reanimation",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_FEATS = [

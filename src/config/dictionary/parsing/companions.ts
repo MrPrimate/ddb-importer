@@ -81,6 +81,7 @@ const COMPANION_FEATURES = [
   "Brawler's Best Friend",
   "Animating Performance",
   "Grim",
+  "Reanimated Companion",
 ];
 
 const COMPANION_OPTIONS = {

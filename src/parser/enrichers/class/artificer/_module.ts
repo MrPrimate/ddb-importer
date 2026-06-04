@@ -22,10 +22,16 @@ export { default as ForceDemolisher } from "./ForceDemolisher";
 export { default as GhaalShaarat } from "./GhaalShaarat";
 export { default as GuardianArmorDefensiveField } from "./GuardianArmorDefensiveField";
 export { default as GuidedPrecision } from "./GuidedPrecision";
+export { default as JoltToLifeDamage } from "./JoltToLifeDamage";
+export { default as JoltToLifeHealing } from "./JoltToLifeHealing";
+export { default as MacabreModifications } from "./MacabreModifications";
 export { default as MagicItemTinker } from "./MagicItemTinker";
 export { default as PerfectWeapon } from "./PerfectWeapon";
+export { default as ReanimatedCompanion } from "./ReanimatedCompanion";
+export { default as RefinedReanimation } from "./RefinedReanimation";
 export { default as SpellStoringItem } from "./SpellStoringItem";
 export { default as SpellStoringItemStoreSpell } from "./SpellStoringItemStoreSpell";
 export { default as SteelDefender } from "./SteelDefender";
+export { default as StrangeModifications } from "./StrangeModifications";
 export { default as TransmuteMagicItem } from "./TransmuteMagicItem";
 

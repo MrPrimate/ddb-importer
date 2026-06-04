@@ -8,7 +8,7 @@ export default class DeftExplorer extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
-      name: "Tireless (Level 10)",
+      name: "Tireless",
       targetType: "self",
       activationType: "action",
       addActivityConsume: true,
@@ -21,6 +21,13 @@ export default class DeftExplorer extends DDBEnricherData {
           max: "@prof",
           spent: 0,
           recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
+        },
+        visibility: {
+          identifier: "ranger",
+          level: {
+            min: 10,
+            max: null,
+          },
         },
       },
     };
