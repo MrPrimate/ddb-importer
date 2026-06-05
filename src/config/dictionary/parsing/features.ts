@@ -328,6 +328,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Ghaal'Shaarat",
     "Reanimated Companion",
     "Reanimator's Skillset",
+    "Spirits from Beyond",
   ],
   NO_CHOICE_SECRET: [
     "Divine Order",
@@ -482,6 +483,7 @@ export const PARSING_CHOICE_FEATURES = {
     "Ghaal'Shaarat",
     "Reanimated Companion",
     "Reanimator's Skillset",
+    "Spirits from Beyond",
   ],
   OVERRIDE_CHOICE_FEATURE: [
     "Eldritch Invocations",
@@ -565,6 +567,7 @@ export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
   "Refined Reanimation",
   "Circle of Mortality",
   "Return to Life",
+  "Channeler",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
