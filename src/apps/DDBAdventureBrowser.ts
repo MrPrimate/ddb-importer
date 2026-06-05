@@ -108,6 +108,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
         compendiumOnly: utils.getSetting<boolean>("adventure-policy-compendium-only"),
         addToCompendiums: utils.getSetting<boolean>("adventure-policy-add-to-compendiums"),
         importAllMonsters: utils.getSetting<boolean>("adventure-policy-all-actors-into-world"),
+        observeAll: utils.getSetting<boolean>("adventure-policy-observe-all"),
       };
       await new NativeAdventureMunch({ notifier }).importBook(bookId, options);
       this.notifierV2({ section: "monster", message: `Imported ${bookName}`, clear: true });
@@ -246,6 +247,11 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     await this.render();
   }
 
+  async _setObserveAll(checked: boolean) {
+    await game.settings.set(SETTINGS.MODULE_ID, "adventure-policy-observe-all", checked);
+    await this.render();
+  }
+
   _setHideUnowned(checked: boolean) {
     this.hideUnowned = checked;
     this.render();
@@ -275,6 +281,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     wire(".adv-opt-add-compendiums", (c) => this._setAddToCompendiums(c));
     wire(".adv-opt-compendium-only", (c) => this._setCompendiumOnly(c));
     wire(".adv-opt-2024-monsters", (c) => this._set2024Monsters(c));
+    wire(".adv-opt-observe-all", (c) => this._setObserveAll(c));
     wire(".adv-opt-hide-unowned", (c) => this._setHideUnowned(c));
 
     const input = this.element.querySelector("#adventure-browser-search") as HTMLInputElement | null;
@@ -318,6 +325,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
     context.addToCompendiums = utils.getSetting<boolean>("adventure-policy-add-to-compendiums");
     context.compendiumOnly = utils.getSetting<boolean>("adventure-policy-compendium-only");
     context.use2024Monsters = utils.getSetting<boolean>("adventure-policy-use2024-monsters");
+    context.observeAll = utils.getSetting<boolean>("adventure-policy-observe-all");
 
     const groups = this._buildCategoryGroups();
     context.categories = groups;

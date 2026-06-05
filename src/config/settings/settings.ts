@@ -945,6 +945,10 @@ const SETTINGS = {
             type: Boolean,
             default: false,
           },
+          "adventure-policy-observe-all": {
+            type: Boolean,
+            default: false,
+          },
         },
         MUNCH: {
           "munching-policy-update-existing": {

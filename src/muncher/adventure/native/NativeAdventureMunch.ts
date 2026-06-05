@@ -36,6 +36,9 @@ export interface ImportOptions {
   allScenes?: boolean;
   /** explicit subset of scene `_id`s to import; bypasses the chooser dialog */
   sceneIds?: string[];
+  /** set JournalEntry + RollTable ownership.default to OBSERVER (all players can read)
+   *  (defaults to the `adventure-policy-observe-all` setting) */
+  observeAll?: boolean;
 }
 
 /** Progress sink - the bound `DDBAppV2.notifierV2`. */
@@ -74,7 +77,8 @@ export default class NativeAdventureMunch {
     const importAllMonsters = options.importAllMonsters
       ?? utils.getSetting<boolean>("adventure-policy-all-actors-into-world");
     const allScenes = options.allScenes ?? utils.getSetting<boolean>("adventure-policy-all-scenes");
-    return { compendiumOnly, addToCompendiums, importAllMonsters, allScenes };
+    const observeAll = options.observeAll ?? utils.getSetting<boolean>("adventure-policy-observe-all");
+    return { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll };
   }
 
   // Count of #process phases that will actually run, for the primary bar.
@@ -151,7 +155,7 @@ export default class NativeAdventureMunch {
     // skips the vehicle fetch so the file-test path works without auth (vehicle
     // links just fall back to DDB urls - fine for the journals slice).
     // compendium-only implies adding to compendiums; both fall back to their settings
-    const { compendiumOnly, addToCompendiums, importAllMonsters, allScenes } = this.#effectiveFlags(options);
+    const { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll } = this.#effectiveFlags(options);
 
     // import referenced + core-rulebook spells/items into the compendiums first,
     // then any referenced monsters, so the freshly-built lookups below resolve
@@ -207,6 +211,16 @@ export default class NativeAdventureMunch {
     this.#phase("Resolving links");
     this.#clearSecondary();
     resolveInternalLinks(journals, tables, bookCode);
+
+    // observeAll: set journal + table default ownership to OBSERVER so all
+    // players can read them (matches the original muncher's `observeAll`).
+    // Done before create/compendium phases so world docs AND compendium copies
+    // (both consume these arrays) get observer ownership.
+    if (observeAll) {
+      const OBSERVER = CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER; // 2
+      for (const j of journals) j.ownership = { ...(j.ownership ?? {}), default: OBSERVER };
+      for (const t of tables) t.ownership = { ...(t.ownership ?? {}), default: OBSERVER };
+    }
 
     // Scene selection: explicit sceneIds wins; otherwise (when not "all scenes")
     // prompt the shared chooser dialog. null/empty selection => import everything.

@@ -295,6 +295,7 @@ declare global {
     "ddb-importer.adventure-policy-compendium-only": boolean;
     "ddb-importer.adventure-policy-import-to-adventure-compendium": boolean;
     "ddb-importer.adventure-policy-use2024-monsters": boolean;
+    "ddb-importer.adventure-policy-observe-all": boolean;
 
     // READY: MUNCHER MUNCH
     "ddb-importer.munching-policy-update-existing": boolean;
