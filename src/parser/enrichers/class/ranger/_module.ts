@@ -1,3 +1,4 @@
+export { default as AncientMight } from "./AncientMight";
 export { default as BeguilingTwist } from "./BeguilingTwist";
 export { default as BestialFury } from "./BestialFury";
 export { default as BondOfFangAndScale } from "./BondOfFangAndScale";
@@ -17,6 +18,7 @@ export { default as FrigidExplorer } from "./FrigidExplorer";
 export { default as FrozenHaunt } from "./FrozenHaunt";
 export { default as GatheredSwarm } from "./GatheredSwarm";
 export { default as Grim } from "./Grim";
+export { default as HungeringMight } from "./HungeringMight";
 export { default as HuntersPrey } from "./HuntersPrey";
 export { default as HuntersRime } from "./HuntersRime";
 export { default as NaturesVeil } from "./NaturesVeil";
@@ -32,7 +34,9 @@ export { default as SlayersPrey } from "./SlayersPrey";
 export { default as StalkersFlurry } from "./StalkersFlurry";
 export { default as SuperiorHuntersDefense } from "./SuperiorHuntersDefense";
 export { default as SuperiorHuntersPrey } from "./SuperiorHuntersPrey";
+export { default as TakeGhastlyForm } from "./TakeGhastlyForm";
 export { default as TemporaryHitPoints } from "./TemporaryHitPoints";
 export { default as Tireless } from "./Tireless";
+export { default as WrathOfTheWild } from "./WrathOfTheWild";
 export { default as WrithingTide } from "./WrithingTide";
 

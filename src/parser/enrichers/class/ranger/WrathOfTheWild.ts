@@ -1,6 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
-export default class TakeGhastlyForm extends DDBEnricherData {
+export default class WrathOfTheWild extends DDBEnricherData {
+
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
   }
@@ -81,6 +82,7 @@ export default class TakeGhastlyForm extends DDBEnricherData {
     return [
       {
         name: "Ancient Armor",
+        activityMatch: "NONE",
         changes: [
           DDBEnricherData.ChangeHelper.addChange("@scale.hollow-warden.wrath-of-the-wild", 20, "system.attributes.ac.bonus"),
         ],
@@ -121,4 +123,5 @@ export default class TakeGhastlyForm extends DDBEnricherData {
       ignoredConsumptionActivities: ["Unnerving Aura"],
     };
   }
+
 }

@@ -1,6 +1,6 @@
 # Next Up
 
-- Ravenloft subclass parsing: Artificer (Reanimator), Bard (Spirit), Cleric (Grave) fixes
+- Ravenloft subclass parsing: Artificer (Reanimator), Bard (Spirit), Cleric (Grave), Ranger (Hollow Warden) fixes
 - Sometimes monster token images could come in as the default 5e icon, especially if another monsters used an identical image.
 
 # 7.1.20
