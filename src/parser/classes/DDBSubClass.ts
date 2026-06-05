@@ -690,6 +690,23 @@ export default class DDBSubClass extends DDBBaseClass {
     }
   }
 
+  async _clericFixes() {
+    if (this.data.name.startsWith("Grave Domain")) {
+      const pullOfDeath: I5eAdvancementScaleValue = {
+        type: "ScaleValue",
+        configuration: {
+          identifier: "pull-of-death",
+          type: "dice",
+          scale: {
+            3: { number: 1, faces: 4 },
+            11: { number: 1, faces: 6 },
+          },
+        },
+        title: "Pull of Death",
+      };
+      this._addAdvancement(pullOfDeath);
+    }
+  }
 
   async _fixes() {
     this._fightingStyleAdvancement();
@@ -701,6 +718,7 @@ export default class DDBSubClass extends DDBBaseClass {
     this._sorcererFixes();
     this._artificerFixes();
     this._monkFixes();
+    this._clericFixes();
     await this._bardFixes();
   }
 

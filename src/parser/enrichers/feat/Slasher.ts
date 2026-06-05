@@ -60,7 +60,7 @@ export default class Slasher extends DDBEnricherData {
           description: "Disadvantage on attack rolls until the start of the origins next turn",
         },
         activitiesMatch: ["Enhanced Critical"],
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
