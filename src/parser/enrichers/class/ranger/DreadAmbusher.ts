@@ -11,6 +11,7 @@ export default class DreadAmbusher extends DDBEnricherData {
       name: "Ambusher's Leap",
       targetType: "self",
       activationType: "encounter",
+      noConsumeTargets: true,
     };
   }
 

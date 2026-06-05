@@ -12,7 +12,7 @@ export default class ElementalAttunement extends DDBEnricherData {
         name: "Activate Attunement",
         targetType: "self",
         rangeSelf: true,
-        activationType: "turnStart",
+        activationType: "special",
         activationCondition: "Start of turn",
         data: {
           enchant: {

@@ -124,6 +124,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Trail Warden Spells": "Ranger Spells",
     "Vermin Lord Spells": "Ranger Spells",
     "Grim Harbinger Spells": "Ranger Spells",
+    "Hollow Warden Spells": "Ranger Spells",
     "Psionic Spells": "Sorcerer Extra Spells",
     "Clockwork Spells": "Sorcerer Extra Spells",
     "Draconic Spells": "Sorcerer Extra Spells",
@@ -147,6 +148,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Artillerist Spells": "Artificer Spells",
     "Battle Smith Spells": "Artificer Spells",
     "Forge Adept Spells": "Artificer Spells",
+    "Reanimator Spells": "Artificer Spells",
     // "Elemental Disciplines: Clench of the North Wind": "Elemental Disciplines",
     // "Elemental Disciplines: Fangs of the Fire Snake": "Elemental Disciplines",
     // "Elemental Disciplines: Fist of Four Thunders": "Elemental Disciplines",
@@ -402,7 +404,6 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Warlock Extra Spells": ClassEnrichers.Warlock.ExtraSpells,
     "Elemental Disciplines": ClassEnrichers.Monk.ElementalDisciplines,
     "Artificer Spells": ClassEnrichers.Artificer.ArtificerSpells,
-    "Reanimator Spells": ClassEnrichers.Artificer.ArtificerSpells,
   };
 
   FALLBACK_ENRICHERS: Record<string, any> = {
