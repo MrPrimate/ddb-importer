@@ -1,6 +1,7 @@
 # Next Up
 
 - Scenes with metadata enhancements (scene status) will now show it on hover in the Adventure Browser.
+- Native adventure muncher now supports importing journals and tables with observer all set to true.
 
 # 7.3.0
 
