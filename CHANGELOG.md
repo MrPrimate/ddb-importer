@@ -1,5 +1,8 @@
 # Next Up
 
+- Artificer - Reanimator parsing fixes
+- Sometimes monster token images could come in as the default 5e icon, especially if another monsters used an identical image.
+
 # 7.1.20
 
 - Will now import animated frames from DDB when importing frames.
