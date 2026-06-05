@@ -2,6 +2,27 @@ name: ddb-importer build
 
 on:
   workflow_dispatch:
+    inputs:
+      allowUpdates:
+        description: 'Allow updates on existing releases'
+        type: boolean
+        required: false
+        default: false
+      allowUpdatesLatest:
+        description: 'Allow updates on the latest release'
+        type: boolean
+        required: false
+        default: true
+      skipDiscord:
+        description: 'Skip Discord notification'
+        type: boolean
+        required: false
+        default: false
+      skipFoundryPublish:
+        description: 'Skip FoundryVTT AutoPublish'
+        type: boolean
+        required: false
+        default: false
   push:
     branches:
       - main
@@ -48,7 +69,7 @@ jobs:
       id: create_versioned_release
       uses: ncipollo/release-action@v1
       with:
-        allowUpdates: false # set to false if you do not want to allow updates on existing releases
+        allowUpdates: ${{ github.event_name == 'workflow_dispatch' && inputs.allowUpdates || false }} # true only when manually dispatched with the option enabled
         name: Release ${{ steps.get-version.outputs.release_version }} # Use the version in the name "${{ env.version }}"
         draft: false
         prerelease: false
@@ -60,7 +81,7 @@ jobs:
       uses: ncipollo/release-action@v1
       if: endsWith(github.ref, 'main') # Only update the latest release when pushing to the master branch
       with:
-        allowUpdates: true
+        allowUpdates: ${{ github.event_name == 'workflow_dispatch' && inputs.allowUpdatesLatest || github.event_name != 'workflow_dispatch' }}
         name: Latest
         draft: false
         prerelease: false
@@ -68,6 +89,7 @@ jobs:
         artifacts: './module.json,./ddb-importer.zip'  # don't forget to rename module zip thing
         tag: latest
     - name: Discord notification
+      if: ${{ github.event_name != 'workflow_dispatch' || !inputs.skipDiscord }}
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
         DISCORD_USERNAME: "Head of Marketing (Krum)"
@@ -75,6 +97,7 @@ jobs:
       with:
         args: 'DDB Importer ${{ steps.get-version.outputs.release_version }} has been published by our development Kobolds!'
     - name: FoundryVTT AutoPublish
+      if: ${{ github.event_name != 'workflow_dispatch' || !inputs.skipFoundryPublish }}
       uses: fjogeleit/http-request-action@v1
       continue-on-error: true
       with:
