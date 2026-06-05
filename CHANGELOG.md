@@ -3,9 +3,8 @@
 - Scenes with metadata enhancements (scene status) will now show it on hover in the Adventure Browser.
 - Native adventure muncher now supports importing journals and tables with observer all set to true.
 - Some advancements would not generate scale values correctly (e.g. Battle Master).
-- Ravenloft subclass parsing: Artificer (Reanimator), Bard (Spirit), Cleric (Grave) fixes
+- Ravenloft subclass parsing: Artificer (Reanimator), Bard (Spirit), Cleric (Grave), Ranger (Hollow Warden) fixes
 - Sometimes monster token images could come in as the default 5e icon, especially if another monsters used an identical image.
-
 
 # 7.3.0
 

@@ -10,7 +10,6 @@ export default class AncientMight extends DDBEnricherData {
       targetType: "creature",
       noeffect: true,
       activationType: "special",
-      addItemConsume: true,
       data: {
         damage: {
           parts: [
@@ -86,7 +85,7 @@ export default class AncientMight extends DDBEnricherData {
                 type: "spellSlots",
                 value: "1",
                 target: "4",
-                scaling: { allowed: false, max: "6" },
+                scaling: { allowed: true, max: "6" },
               },
             ],
           },
