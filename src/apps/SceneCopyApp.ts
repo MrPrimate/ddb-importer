@@ -4,11 +4,13 @@ import { logger } from "../lib/_module";
 interface IFieldDef {
   id: string;
   label: string;
-  kind: "doc" | "embedded";
+  kind: "doc" | "embedded" | "level";
   // doc fields: scene property path read/written via get/setProperty
   path?: string;
   // embedded fields: scene collection getter (walls, lights, ...)
   coll?: string;
+  // level fields: property path(s) within each Level, copied per-level
+  paths?: string[];
   default: boolean;
 }
 
@@ -18,65 +20,54 @@ interface IGroupDef {
   fields: IFieldDef[];
 }
 
-// Field set mirrors collectSceneData (SceneEnhancerExport.ts). Two kinds:
-//  - "doc":      copied via target.update({ [path]: deepClone(getProperty(source, path)) })
-//  - "embedded": copied by replacing the target's collection (delete-all then create)
-// Flags are intentionally absent (never copied). The scene background image is
-// a selectable doc field but off by default; level background images are
-// stripped on copy.
+// Scene schema keys that are never copied as document fields:
+//  - identity / state:    _id, _stats, name, active, thumb, ownership, folder, sort
+//  - handled separately:  flags (own group), levels (own group), every embedded
+//                         collection (own group)
+//  - cross-scene id ref:  initialLevel (points at a level id that won't exist
+//                         on the target after copy)
+// Everything else on the Scene schema becomes a selectable "doc" field, so the
+// list stays complete as the schema evolves (shiftX/shiftY, transition, etc.).
+const EMBEDDED_COLLECTIONS = ["walls", "lights", "sounds", "drawings", "tiles", "notes", "regions", "tokens"];
+const DOC_EXCLUDE = new Set<string>([
+  "_id", "_stats", "flags", "name", "active", "thumb", "ownership", "folder", "sort",
+  "initialLevel", "levels", ...EMBEDDED_COLLECTIONS,
+]);
+// Doc fields off by default (everything else defaults on).
+const DOC_DEFAULT_OFF = new Set<string>([]);
+// Friendly labels; unmapped keys are humanised from the schema key.
+const DOC_LABELS: Record<string, string> = {
+  width: "Width",
+  height: "Height",
+  padding: "Padding",
+  shiftX: "Shift X",
+  shiftY: "Shift Y",
+  grid: "Grid Configuration",
+  initial: "Initial View Position",
+  tokenVision: "Token Vision",
+  fog: "Fog of War",
+  environment: "Environment / Lighting",
+  transition: "Scene Transition",
+  weather: "Weather Effect",
+  navigation: "Show in Navigation",
+  navName: "Navigation Name",
+  navOrder: "Navigation Order",
+  playlist: "Playlist",
+  playlistSound: "Playlist Sound",
+  journal: "Journal Entry",
+  journalEntryPage: "Journal Page",
+  backgroundColor: "Background Colour",
+};
+
+function humaniseKey(key: string): string {
+  return key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
+// Static groups for the collection-based fields. The document-field group is
+// built dynamically from the source scene's schema in `_groups()`.
 const FIELD_GROUPS: IGroupDef[] = [
-  {
-    id: "dimensions",
-    label: "Dimensions & Background",
-    fields: [
-      { id: "width", label: "Width", kind: "doc", path: "width", default: true },
-      { id: "height", label: "Height", kind: "doc", path: "height", default: true },
-      { id: "padding", label: "Padding", kind: "doc", path: "padding", default: true },
-      { id: "backgroundColor", label: "Background Colour", kind: "doc", path: "backgroundColor", default: true },
-      { id: "background", label: "Background Image", kind: "doc", path: "background", default: false },
-      { id: "foreground", label: "Foreground Image", kind: "doc", path: "foreground", default: true },
-      { id: "foregroundElevation", label: "Foreground Elevation", kind: "doc", path: "foregroundElevation", default: true },
-    ],
-  },
-  {
-    id: "grid",
-    label: "Grid",
-    fields: [
-      { id: "grid", label: "Grid Configuration", kind: "doc", path: "grid", default: true },
-    ],
-  },
-  {
-    id: "vision",
-    label: "Lighting & Vision",
-    fields: [
-      { id: "tokenVision", label: "Token Vision", kind: "doc", path: "tokenVision", default: true },
-      { id: "fog", label: "Fog of War", kind: "doc", path: "fog", default: true },
-      { id: "environment", label: "Environment / Lighting", kind: "doc", path: "environment", default: true },
-    ],
-  },
-  {
-    id: "view",
-    label: "Initial View",
-    fields: [
-      { id: "initial", label: "Initial View Position", kind: "doc", path: "initial", default: true },
-    ],
-  },
-  {
-    id: "nav",
-    label: "Navigation",
-    fields: [
-      { id: "navName", label: "Navigation Name", kind: "doc", path: "navName", default: true },
-      { id: "navOrder", label: "Navigation Order", kind: "doc", path: "navOrder", default: true },
-      { id: "navigation", label: "Show in Navigation", kind: "doc", path: "navigation", default: true },
-    ],
-  },
-  {
-    id: "weather",
-    label: "Weather",
-    fields: [
-      { id: "weather", label: "Weather Effect", kind: "doc", path: "weather", default: true },
-    ],
-  },
   {
     id: "embedded",
     label: "Placed Objects",
@@ -86,18 +77,37 @@ const FIELD_GROUPS: IGroupDef[] = [
       { id: "sounds", label: "Sounds", kind: "embedded", coll: "sounds", default: true },
       { id: "drawings", label: "Drawings", kind: "embedded", coll: "drawings", default: true },
       { id: "tiles", label: "Tiles", kind: "embedded", coll: "tiles", default: true },
-      { id: "templates", label: "Measured Templates", kind: "embedded", coll: "templates", default: true },
       { id: "notes", label: "Notes", kind: "embedded", coll: "notes", default: true },
       { id: "regions", label: "Regions", kind: "embedded", coll: "regions", default: true },
       { id: "tokens", label: "Tokens (unlinked only)", kind: "embedded", coll: "tokens", default: true },
-      { id: "levels", label: "Levels (images stripped)", kind: "embedded", coll: "levels", default: true },
+    ],
+  },
+  {
+    // v14: each Level holds the background/foreground/fog. Level fields are
+    // copied onto the target's matching level (by order) in place - levels are
+    // never deleted (Foundry requires at least one). Image fields are off by
+    // default so map images are not carried between scenes.
+    id: "levels",
+    label: "Levels",
+    fields: [
+      { id: "lvl-name", label: "Name", kind: "level", paths: ["name"], default: true },
+      { id: "lvl-elevation", label: "Elevation Range", kind: "level", paths: ["elevation"], default: true },
+      { id: "lvl-bg-color", label: "Background Colour & Tint", kind: "level", paths: ["background.color", "background.tint", "background.alphaThreshold"], default: true },
+      { id: "lvl-bg-image", label: "Background Image", kind: "level", paths: ["background.src"], default: false },
+      { id: "lvl-fg-tint", label: "Foreground Tint", kind: "level", paths: ["foreground.tint", "foreground.alphaThreshold"], default: true },
+      { id: "lvl-fg-image", label: "Foreground Image", kind: "level", paths: ["foreground.src"], default: false },
+      { id: "lvl-fog-tint", label: "Fog Tint", kind: "level", paths: ["fog.tint"], default: true },
+      { id: "lvl-fog-image", label: "Fog Image", kind: "level", paths: ["fog.src"], default: false },
+      { id: "lvl-textures", label: "Texture Transform", kind: "level", paths: ["textures"], default: true },
+      { id: "lvl-visibility", label: "Visibility", kind: "level", paths: ["visibility"], default: true },
+      { id: "lvl-sort", label: "Sort Order", kind: "level", paths: ["sort"], default: true },
     ],
   },
 ];
 
 export default class SceneCopyApp extends DDBAppV2 {
 
-  source: Scene;
+  source: any;
   targetId: string | null = null;
   expanded: Set<string>;
   selected: Set<string>;
@@ -142,6 +152,35 @@ export default class SceneCopyApp extends DDBAppV2 {
     return {};
   }
 
+  // "Parent / Child / " prefix walking the scene's folder ancestry, so the
+  // dropdown shows where each scene lives. Empty string for top-level scenes.
+  static _folderPath(scene: any): string {
+    const names: string[] = [];
+    let folder = scene.folder;
+    while (folder) {
+      names.unshift(folder.name);
+      folder = folder.folder;
+    }
+    return names.length ? `${names.join(" / ")} / ` : "";
+  }
+
+  // Document fields, derived from the source scene's schema so the set stays
+  // complete (shiftX/shiftY, transition, playlist, ...). Identity/state keys,
+  // flags, levels and the embedded collections are excluded (handled elsewhere).
+  _docFields(): IFieldDef[] {
+    const keys: string[] = Object.keys(this.source?.schema?.fields ?? {});
+    return keys
+      .filter((k) => !DOC_EXCLUDE.has(k))
+      .sort((a, b) => (DOC_LABELS[a] ?? humaniseKey(a)).localeCompare(DOC_LABELS[b] ?? humaniseKey(b)))
+      .map((k) => ({
+        id: `doc:${k}`,
+        label: DOC_LABELS[k] ?? humaniseKey(k),
+        kind: "doc" as const,
+        path: k,
+        default: !DOC_DEFAULT_OFF.has(k),
+      }));
+  }
+
   // Top-level flag scopes on the source scene (e.g. "tokenizer-2", "ddb").
   // Each becomes a selectable doc field copied via flags.<scope>; all are
   // deselected by default.
@@ -156,14 +195,17 @@ export default class SceneCopyApp extends DDBAppV2 {
     }));
   }
 
-  // Static groups plus a dynamic "Flags" group (only when the scene has flags).
+  // Dynamic "Scene Fields" group + static collection groups + dynamic "Flags".
   _groups(): IGroupDef[] {
-    const flagFields = this._flagFields();
-    if (!flagFields.length) return FIELD_GROUPS;
-    return [
+    const groups: IGroupDef[] = [
+      { id: "scene", label: "Scene Fields", fields: this._docFields() },
       ...FIELD_GROUPS,
-      { id: "flags", label: "Flags (module data)", fields: flagFields },
     ];
+    const flagFields = this._flagFields();
+    if (flagFields.length) {
+      groups.push({ id: "flags", label: "Flags (module data)", fields: flagFields });
+    }
+    return groups;
   }
 
   _allFields(): IFieldDef[] {
@@ -175,7 +217,11 @@ export default class SceneCopyApp extends DDBAppV2 {
 
     const targetScenes = (Array.from(game.scenes) as any[])
       .filter((s) => s.id !== this.source.id)
-      .map((s) => ({ id: s.id as string, name: (s.name ?? "") as string, selected: s.id === this.targetId }))
+      .map((s) => ({
+        id: s.id as string,
+        name: SceneCopyApp._folderPath(s) + (s.name ?? ""),
+        selected: s.id === this.targetId,
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     const groups = this._groups().map((g) => {
@@ -298,17 +344,20 @@ export default class SceneCopyApp extends DDBAppV2 {
     }
   }
 
-  async _performCopy(target: Scene) {
+  async _performCopy(target: any) {
     const chosen = this._allFields().filter((f) => this.selected.has(f.id));
 
-    // 1. Document fields -> single update.
+    // 1. Document fields -> single update. Read from `_source` (raw stored
+    // data) rather than live getters so we don't trip deprecation shims (e.g.
+    // v14 moved Scene#backgroundColor/foreground onto Level).
     const update: Record<string, any> = {};
     for (const f of chosen.filter((f) => f.kind === "doc")) {
-      update[f.path!] = foundry.utils.deepClone(foundry.utils.getProperty(this.source, f.path!));
+      update[f.path!] = foundry.utils.deepClone(foundry.utils.getProperty(this.source._source, f.path!));
     }
     if (Object.keys(update).length) await target.update(update);
 
-    // 2. Embedded collections -> replace (delete target's existing, create from source).
+    // 2. Embedded collections -> replace. Create the source docs first, THEN
+    // delete the target's originals, avoiding any transient empty state.
     for (const f of chosen.filter((f) => f.kind === "embedded")) {
       const coll = f.coll!;
       const srcColl = this.source[coll];
@@ -317,22 +366,60 @@ export default class SceneCopyApp extends DDBAppV2 {
         continue;
       }
       const docName = srcColl.documentName;
-
       const existingIds = (target[coll] ?? []).map((d) => d.id);
-      if (existingIds.length) await target.deleteEmbeddedDocuments(docName, existingIds);
-
       const srcDocs = coll === "tokens"
         ? srcColl.filter((t) => !t.actorLink)
         : Array.from(srcColl);
       const docs = srcDocs.map((d) => {
         const o = d.toObject();
         delete o._id;
-        // Per request: do not carry level background images.
-        if (coll === "levels" && o.background) delete o.background.src;
         return o;
       });
+
       if (docs.length) await target.createEmbeddedDocuments(docName, docs);
+      if (existingIds.length) await target.deleteEmbeddedDocuments(docName, existingIds);
     }
+
+    // 3. Level fields -> copy only the selected paths onto the target's levels.
+    const levelFields = chosen.filter((f) => f.kind === "level");
+    if (levelFields.length) await this._copyLevelFields(target, levelFields);
+  }
+
+  // Copy the selected per-level field paths from the source levels onto the
+  // target. Levels are matched by order and updated IN PLACE (never deleted -
+  // Foundry requires a scene keep at least one level). Extra source levels are
+  // created. Only the chosen paths are written, so unselected fields (e.g. the
+  // image sources, off by default) are left untouched on the target.
+  async _copyLevelFields(target: any, levelFields: IFieldDef[]) {
+    const srcColl = this.source.levels;
+    if (!srcColl) {
+      logger.warn("SceneCopy: source scene has no levels, skipping level fields.");
+      return;
+    }
+    const docName = srcColl.documentName;
+    const srcLevels = Array.from(srcColl).map((l: any) => l.toObject());
+    const targetLevels = Array.from(target.levels ?? []) as any[];
+    const paths = levelFields.flatMap((f) => f.paths ?? []);
+
+    const updates: any[] = [];
+    const creates: any[] = [];
+    srcLevels.forEach((src, i) => {
+      const picked: Record<string, any> = {};
+      for (const p of paths) {
+        if (!foundry.utils.hasProperty(src, p)) continue;
+        foundry.utils.setProperty(picked, p, foundry.utils.deepClone(foundry.utils.getProperty(src, p)));
+      }
+      if (i < targetLevels.length) {
+        updates.push({ ...picked, _id: targetLevels[i].id });
+      } else {
+        // A new level needs a name (no schema default); fall back to source.
+        if (!picked.name) picked.name = src.name ?? "Level";
+        creates.push(picked);
+      }
+    });
+
+    if (updates.length) await target.updateEmbeddedDocuments(docName, updates);
+    if (creates.length) await target.createEmbeddedDocuments(docName, creates);
   }
 
 }
