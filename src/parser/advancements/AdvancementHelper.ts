@@ -1112,7 +1112,7 @@ export default class AdvancementHelper {
     if (!("scale" in advancement.configuration)) return advancement;
     advancement.title += ` (Die)`;
     for (const key of Object.keys(advancement.configuration.scale)) {
-      advancement.configuration.scale[key].n = 1;
+      advancement.configuration.scale[key].number = 1;
     }
     return advancement;
   }
@@ -1124,11 +1124,11 @@ export default class AdvancementHelper {
 
   static rename(advancement: I5eAdvancement, { newName = null, identifier = null } = {}) {
     if (newName) advancement.title = newName;
-    if (identifier) advancement.configuration.identifier = identifier;
+    if (identifier && "identifier" in advancement.configuration) advancement.configuration.identifier = identifier;
     return advancement;
   }
 
-  static addAdditionalUses(advancement: I5eAdvancement) {
+  static addAdditionalUses(advancement: I5eAdvancementScaleValue) {
     const adv = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ScaleValueAdvancement);
     const update = {
       configuration: {
@@ -1137,15 +1137,14 @@ export default class AdvancementHelper {
         scale: {},
       },
       title: `${advancement.title} (Uses)`,
-    };
+    } as I5eAdvancementScaleValue;
 
     for (const [key, value] of Object.entries(advancement.configuration.scale)) {
-      // console.warn("key", {key, value});
       update.configuration.scale[key] = {
-        value: value.die?.n ?? value.number,
+        value: (value as I5eAdvScaleValueDiceEntry).number,
       };
     }
-    adv.updateSource(update);
+    adv.updateSource(update as any);
 
     return adv.toObject();
   }
@@ -1196,7 +1195,7 @@ export default class AdvancementHelper {
       const die = scale.dice ? scale.dice : scale.die ? scale.die : undefined;
       if (type === "dice") {
         update.configuration.scale[level] = {
-          n: die.diceCount,
+          number: die.diceCount,
           die: die.diceValue,
         };
       } else if (type === "number") {
