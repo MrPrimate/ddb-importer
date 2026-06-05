@@ -107,7 +107,7 @@ export default class ElminstersEffulgentSpheres extends DDBEnricherData {
           durationSeconds: 6,
           durationRounds: 1,
         },
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
       };
     }) as IDDBEffectHint[];
 

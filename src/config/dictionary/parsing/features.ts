@@ -531,6 +531,8 @@ export const FEATURE_SPELLS_IGNORE = [
   "Undying Servitude",
   "Visions of Distant Realms",
   "Whispers of the Grave",
+  "Return to Life",
+  "Circle of Mortality",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
@@ -561,6 +563,8 @@ export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
   "Visions of Distant Realms",
   "Whispers of the Grave",
   "Refined Reanimation",
+  "Circle of Mortality",
+  "Return to Life",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_FEATS = [

@@ -26,7 +26,7 @@ export default class BlessingOfTheRavenQueen extends DDBEnricherData {
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

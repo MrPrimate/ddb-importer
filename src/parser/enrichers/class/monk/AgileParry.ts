@@ -16,7 +16,7 @@ export default class AgileParry extends DDBEnricherData {
           description: "You gain +2 AC Bonus",
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("2", 20, "system.attributes.ac.bonus"),
         ],
