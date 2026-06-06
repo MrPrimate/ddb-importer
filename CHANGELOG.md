@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.1.21
+
 - Ravenloft subclass parsing: Artificer (Reanimator), Bard (Spirit), Cleric (Grave), Ranger (Hollow Warden) fixes
 - Sometimes monster token images could come in as the default 5e icon, especially if another monsters used an identical image.
 - Weapon Mastery changes on DDB broke some character imports.
