@@ -42,6 +42,8 @@
       "Fin": "Once setup is complete, you won't see this message again."
     },
     "settings": {
+      "stickers-upload-path.name": "DDB Stickers upload directory",
+      "stickers-upload-path.hint": "Specifies the image upload location on the server for stickers, this is not for adventures, but DDB Maps stickers.",
       "maps-upload-path.name": "DDB Map image upload directory",
       "maps-upload-path.hint": "Specifies the image upload location on the server for maps, this is not for adventures, but DDB Maps maps.",
       "add-extra-base-weapons.name": "Add extra base weapons?",

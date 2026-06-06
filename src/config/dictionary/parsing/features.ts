@@ -161,6 +161,7 @@ export const PARSING_FEATURES = {
     "Bladesong",
     "Brutal Critical",
     "Kensei Weapon",
+    "Umbral Form",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",
@@ -538,6 +539,7 @@ export const FEATURE_SPELLS_IGNORE = [
   "Voice of Death",
   "Spirit Query",
   "Tokens of the Departed",
+  "Beasts of Ill Omen",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
@@ -574,6 +576,7 @@ export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
   "Voice of Death",
   "Spirit Query",
   "Tokens of the Departed",
+  "Beasts of Ill Omen",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
