@@ -3,6 +3,7 @@
 # 7.0.13
 
 - Weapon Mastery changes on DDB broke some character imports.
+- CPR Integration update.
 
 # 7.0.12
 
