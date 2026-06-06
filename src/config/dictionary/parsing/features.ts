@@ -535,6 +535,9 @@ export const FEATURE_SPELLS_IGNORE = [
   "Whispers of the Grave",
   "Return to Life",
   "Circle of Mortality",
+  "Voice of Death",
+  "Spirit Query",
+  "Tokens of the Departed",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
@@ -568,6 +571,9 @@ export const IGNORE_SPELLS_GRANTED_BY_CLASS_FEATURES = [
   "Circle of Mortality",
   "Return to Life",
   "Channeler",
+  "Voice of Death",
+  "Spirit Query",
+  "Tokens of the Departed",
 ];
 
 export const IGNORE_SPELLS_GRANTED_BY_FEATS = [
