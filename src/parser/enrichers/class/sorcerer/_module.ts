@@ -3,6 +3,7 @@
 export { default as _DivineMagic } from "./_DivineMagic";
 export { default as AbsorbSpells } from "./AbsorbSpells";
 export { default as BastionOfLaw } from "./BastionOfLaw";
+export { default as BeastsOfIllOmen } from "./BeastsOfIllOmen";
 export { default as BendLuck } from "./BendLuck";
 export { default as ClockworkCavalcade } from "./ClockworkCavalcade";
 export { default as CrownOfSpellfire } from "./CrownOfSpellfire";
@@ -21,6 +22,7 @@ export { default as LunarEmpowerment } from "./LunarEmpowerment";
 export { default as LunarPhenomenon } from "./LunarPhenomenon";
 export { default as MetamagicGeneric } from "./MetamagicGeneric";
 export { default as MetamagicOptions } from "./MetamagicOptions";
+export { default as PowerOfShadow } from "./PowerOfShadow";
 export { default as PsionicSorcery } from "./PsionicSorcery";
 export { default as RevelationInFlesh } from "./RevelationInFlesh";
 export { default as SorcerousRestoration } from "./SorcerousRestoration";

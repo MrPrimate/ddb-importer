@@ -643,7 +643,9 @@ export default abstract class DDBEnricherFactoryMixin {
     }
 
     if (overrideData.addSpellUuid) {
-      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
+      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity, {
+        use2024Spells: this.is2024,
+      });
     }
 
     if (overrideData.allowMagical) {
