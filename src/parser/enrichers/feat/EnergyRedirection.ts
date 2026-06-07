@@ -8,7 +8,7 @@ export default class EnergyRedirection extends DDBEnricherData {
       type: DDBEnricherData.ACTIVITY_TYPES.SAVE,
       data: {
         save: {
-          ability: "dex",
+          ability: ["dex"],
           dc: {
             calculation: "con",
             formula: "",

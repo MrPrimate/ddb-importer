@@ -7,7 +7,7 @@ export default class ConcussionGrenade extends DDBEnricherData {
       data: {
         range: {
           value: "60",
-          unit: "ft",
+          units: "ft",
         },
       },
     };

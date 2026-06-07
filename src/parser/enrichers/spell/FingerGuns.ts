@@ -10,7 +10,7 @@ export default class FingerGuns extends DDBEnricherData {
   ];
 
 
-  getRange() {
+  getRange(): I5eActivityRange {
     const level = this.ddbParser.isMuncher
       ? 1
       : (this.ddbParser.rawCharacter?.flags?.ddbimporter?.dndbeyond?.totalLevels ?? 1);

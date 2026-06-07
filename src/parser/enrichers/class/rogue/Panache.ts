@@ -11,7 +11,7 @@ export default class Panache extends DDBEnricherData {
       data: {
         check: {
           associated: ["per"],
-          ability: "",
+          ability: [],
           dc: {
             calculation: "",
             formula: "",

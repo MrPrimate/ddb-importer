@@ -17,7 +17,7 @@ export default class SuperiorHuntersPrey extends DDBEnricherData {
       noTemplate: true,
       data: {
         damage: {
-          parts: DDBEnricherData.basicDamagePart({ number: 1, denomination, types: ["force"] }),
+          parts: [DDBEnricherData.basicDamagePart({ number: 1, denomination, types: ["force"] })],
         },
       },
     };

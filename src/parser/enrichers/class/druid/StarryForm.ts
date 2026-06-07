@@ -17,7 +17,7 @@ export default class StarryForm extends DDBEnricherData {
         enchant: {
           self: true,
         },
-        duration: { value: "10", units: "minutes" },
+        duration: { value: "10", units: "minute" },
       },
     };
   }

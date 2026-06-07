@@ -13,7 +13,7 @@ export default class TotemSpiritBear extends DDBEnricherData {
       activationType: "special",
       data: {
         duration: this.is2014
-          ? { units: "second", value: "60" }
+          ? { units: "minute", value: "1" }
           : { units: "minute", value: "10" },
       },
     };

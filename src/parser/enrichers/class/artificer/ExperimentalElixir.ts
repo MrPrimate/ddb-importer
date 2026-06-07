@@ -343,9 +343,12 @@ export default class ExperimentalElixir extends DDBEnricherData {
         };
         result.build.generateSpell = true;
         result.overrides.addSpellUuid = "Alter Self";
-        result.overrides.data.spell = {
+
+        const data = result.overrides.data as I5eCastActivity;
+        data.spell = {
           spellbook: false,
         };
+        result.overrides.data = data;
       }
       return result;
     });
@@ -611,7 +614,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   async buildItem(row) {
     const itemData = this.getSkeletonItem(row);
-    for (const [key, value] of Object.entries(this.data.system.activities as Record<string, IActivityData>)) {
+    for (const [key, value] of Object.entries(this.data.system.activities as Record<string, I5eActivity>)) {
       if (!foundry.utils.getProperty(value, "flags.ddbimporter.isElixirAdditionalActivity")) continue;
       if (!value.name.endsWith(row.name)) continue;
       foundry.utils.setProperty(itemData, `system.activities.${key}`, value);

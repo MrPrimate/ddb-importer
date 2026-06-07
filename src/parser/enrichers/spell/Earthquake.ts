@@ -34,13 +34,13 @@ export default class Earthquake extends DDBEnricherData {
         img: "icons/magic/sonic/explosion-shock-sound-wave.webp",
         target: {
           template: {
-            count: 1,
+            count: "1",
             type: "circle",
-            size: 100,
+            size: "100",
             units: "ft",
           },
           affects: {
-            count: 1,
+            count: "1",
             type: "space",
           },
           override: true,
@@ -82,14 +82,14 @@ export default class Earthquake extends DDBEnricherData {
             },
             target: {
               template: {
-                count: 6,
+                count: "6",
                 contiguous: false,
                 type: "line",
-                size: 200,
+                size: "200",
                 units: "ft",
               },
               affects: {
-                count: 6,
+                count: "6",
                 type: "space",
                 choice: false,
               },
@@ -108,7 +108,7 @@ export default class Earthquake extends DDBEnricherData {
           data: {
             img: "icons/environment/settlement/building-rubble.webp",
             save: {
-              abilities: ["dex"],
+              ability: ["dex"],
               dc: {
                 calculation: "spellcasting",
                 formula: "",
@@ -135,7 +135,7 @@ export default class Earthquake extends DDBEnricherData {
           data: {
             img: "icons/environment/traps/net.webp",
             save: {
-              abilities: ["ath"],
+              ability: ["ath"],
               dc: {
                 calculation: "",
                 formula: "20",

@@ -54,7 +54,7 @@ export default class DelayedBlastFireball extends DDBEnricherData {
             img: "systems/dnd5e/icons/svg/trait-skills.svg",
             range: {
               override: true,
-              unit: "any",
+              units: "any",
             },
             save: {
               ability: ["dex"],
@@ -118,17 +118,15 @@ export default class DelayedBlastFireball extends DDBEnricherData {
         overrides: {
           data: {
             img: "icons/magic/fire/projectile-fireball-smoke-strong-orange.webp",
-            data: {
-              damage: {
-                parts: [
-                  DDBEnricherData.basicDamagePart({
-                    number: 12,
-                    denomination: 6,
-                    bonus: "(@item.uses.value)d6",
-                    types: ["fire"],
-                  }),
-                ],
-              },
+            damage: {
+              parts: [
+                DDBEnricherData.basicDamagePart({
+                  number: 12,
+                  denomination: 6,
+                  bonus: "(@item.uses.value)d6",
+                  types: ["fire"],
+                }),
+              ],
             },
           },
         },

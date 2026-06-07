@@ -53,7 +53,7 @@ export default class AbsorbElements extends DDBEnricherData {
         ],
         activityMatch: `${this.data.name} Effect`,
       };
-    });
+    }) as IDDBEffectHint[];
     const midiEffects = [
       {
         name: `${this.data.name}: Extra Damage`,
@@ -83,7 +83,7 @@ export default class AbsorbElements extends DDBEnricherData {
           },
         },
       },
-    ];
+    ] as IDDBEffectHint[];
     return [...noMidiEffects, ...midiEffects];
   }
 

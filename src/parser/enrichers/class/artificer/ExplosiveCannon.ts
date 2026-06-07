@@ -11,7 +11,7 @@ export default class ExplosiveCannon extends Generic {
         },
         target: {
           template: {
-            size: 20,
+            size: "20",
           },
         },
       },

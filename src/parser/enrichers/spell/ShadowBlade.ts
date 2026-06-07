@@ -42,9 +42,9 @@ export default class ShadowBlade extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
+      targetType: "self",
       data: {
         name: "Cast",
-        targetType: "self",
         enchant: {
           self: true,
         },

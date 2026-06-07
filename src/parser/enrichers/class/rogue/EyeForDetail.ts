@@ -12,7 +12,7 @@ export default class EyeForDetail extends DDBEnricherData {
       data: {
         check: {
           associated: ["per"],
-          ability: "",
+          ability: [],
           dc: {
             calculation: "",
             formula: "",

@@ -12,7 +12,9 @@ export default class HandOfHealing extends DDBEnricherData {
       activationType: "special",
       targetType: "creature",
       data: {
-        "range.units": "touch",
+        range: {
+          units: "touch",
+        },
         healing: DDBEnricherData.basicDamagePart({
           customFormula: "@scale.monk.die.die + @abilities.wis.mod",
           type: "healing",

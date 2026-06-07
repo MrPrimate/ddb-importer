@@ -7,7 +7,7 @@ export default class ShapeShift extends DDBEnricherData {
       targetType: "self",
       data: {
         duration: {
-          units: "permanent",
+          units: "perm",
         },
       },
     };

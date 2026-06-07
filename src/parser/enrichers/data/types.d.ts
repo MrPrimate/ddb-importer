@@ -119,7 +119,7 @@ global {
     noeffect?: boolean;
 
     // Data merge & function
-    data?: Partial<IActivityData>;
+    data?: Partial<I5eActivity>;
     func?: (params: { activity: any }) => void | Promise<void>;
 
     // Summons
@@ -342,7 +342,7 @@ global {
 
     // Common
     id?: string | null;
-    overrides?: Partial<IDDBActivityData>;
+    overrides?: IDDBActivityData;
   }
 
   // -- Document Stub ----------------------------------------------------------

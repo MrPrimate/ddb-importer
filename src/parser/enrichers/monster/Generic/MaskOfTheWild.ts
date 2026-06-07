@@ -11,7 +11,7 @@ export default class MaskOfTheWild extends DDBEnricherData {
       data: {
         check: {
           associated: ["ste"],
-          ability: "",
+          ability: [],
           dc: {
             calculation: "",
             formula: "",

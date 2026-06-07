@@ -172,7 +172,7 @@ export function fixCharacterLevels(data: IDDBData): IDDBData {
   data.unfilteredModifiers = foundry.utils.deepClone(data.character.modifiers);
   const classInfo = getClassInfo(data.character);
   const filteredClassInfo = filterModifiers(data.character, classInfo);
-  let classModifiers = getClassOptionModifiers(data.character, classInfo);
+  let classModifiers = getClassOptionModifiers(data.character);
 
   filteredClassInfo.forEach((cls) => {
     logger.debug(`${cls.isStartingClass ? "Starting Class" : "Multiclass"}: [lvl${cls.level}] ${cls.name} `);

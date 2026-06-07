@@ -143,6 +143,7 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
     "Horned King Spells": "Warlock Extra Spells",
     "Coven Spells": "Warlock Extra Spells",
     "First Vampire Spells": "Warlock Extra Spells",
+    "Undead Spells": "Warlock Extra Spells",
     "Alchemist Spells": "Artificer Spells",
     "Armorer Spells": "Artificer Spells",
     "Artillerist Spells": "Artificer Spells",

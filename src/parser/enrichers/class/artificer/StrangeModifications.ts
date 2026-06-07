@@ -13,6 +13,11 @@ export default class StrangeModifications extends DDBEnricherData {
       activationType: "special",
       addActivityConsume: true,
       data: {
+        uses: {
+          spent: 0,
+          max: "1",
+          recovery: [{ period: "turnStart", type: "recoverAll", formula: undefined }],
+        },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({
@@ -22,11 +27,6 @@ export default class StrangeModifications extends DDBEnricherData {
           ],
           critical: {
             allow: true,
-          },
-          uses: {
-            spent: 0,
-            max: "1",
-            recovery: [{ period: "turnStart", type: "recoverAll", formula: undefined }],
           },
         },
       },

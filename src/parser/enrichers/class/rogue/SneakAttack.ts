@@ -14,7 +14,9 @@ export default class SneakAttack extends DDBEnricherData {
       addItemConsume: true,
       noTemplate: true,
       data: {
-        "range.units": "spec",
+        range: {
+          units: "spec",
+        },
         damage: {
           critical: { allow: true },
           parts: [
