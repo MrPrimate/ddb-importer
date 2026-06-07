@@ -39,6 +39,7 @@ export default class FormOfDread extends DDBEnricherData {
           noConsumeTargets: true,
           activationType: "special",
           noTemplate: true,
+          addActivityConsume: true,
           data: {
             save: {
               ability: ["wis"],
@@ -49,6 +50,11 @@ export default class FormOfDread extends DDBEnricherData {
             range: {
               value: null,
               units: "spec",
+            },
+            uses: {
+              max: "1",
+              spent: 0,
+              recovery: [{ period: "turnStart", type: "recoverAll", formula: undefined }],
             },
           },
         },
@@ -67,8 +73,12 @@ export default class FormOfDread extends DDBEnricherData {
     };
   }
 
+  get clearAutoEffects() {
+    return true;
+  }
+
   get effects(): IDDBEffectHint[] {
-    return [
+    const baseEffects = [
       {
         name: "Form of Dread",
         activityMatch: "Transform",
@@ -108,5 +118,33 @@ export default class FormOfDread extends DDBEnricherData {
         daeSpecialDurations: ["turnEndSource" as const],
       },
     ];
+    if (this.is2024) {
+      baseEffects.push(
+        {
+          name: "Form of Dread: Superior Dread",
+          activityMatch: "Transform",
+          options: {
+            durationSeconds: 60,
+          },
+          changes: [
+            DDBEnricherData.ChangeHelper.unsignedAddChange("bludgeoning", 20, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("slashing", 20, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.unsignedAddChange("piercing", 20, "system.traits.dr.value"),
+            DDBEnricherData.ChangeHelper.upgradeChange("@attributes.movement.walk", 2, "system.attributes.movement.fly"),
+            DDBEnricherData.ChangeHelper.overrideChange("true", 2, "system.attributes.movement.hover"),
+          ],
+          data: {
+            flags: {
+              ddbimporter: {
+                effectIdLevel: {
+                  min: 14,
+                },
+              },
+            },
+          },
+        },
+      );
+    }
+    return baseEffects;
   }
 }
