@@ -17,18 +17,17 @@ export default class Grim extends DDBEnricherData {
         bonuses: {
           attackDamage: "@abilities.wis.mod + @scale.grim-harbinger.grim-damage[necrotic]",
         },
-        summons: {
-          "match": {
-            "proficiency": true,
-            "attacks": true,
-            "saves": true,
-          },
+        "match": {
+          "proficiency": true,
+          "attacks": true,
+          "saves": true,
         },
         effects: [
           {
             "_id": utils.namedIDStub("Ghastly Hound", { prefix: "ef" }),
             "level": {
               "min": 7,
+              "max": null,
             },
           },
         ],

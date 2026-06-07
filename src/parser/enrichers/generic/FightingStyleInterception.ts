@@ -10,7 +10,9 @@ export default class FightingStyleInterception extends DDBEnricherData {
       targetType: "creature",
       data: {
         target: {
-          "affects.type": "creature",
+          affects: {
+            type: "creature",
+          },
           template: {},
         },
         roll: {

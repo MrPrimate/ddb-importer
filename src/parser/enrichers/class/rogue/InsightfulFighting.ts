@@ -14,7 +14,7 @@ export default class InsightfulFighting extends DDBEnricherData {
       data: {
         check: {
           associated: ["ins"],
-          ability: "",
+          ability: [],
           dc: {
             calculation: "",
             formula: "",

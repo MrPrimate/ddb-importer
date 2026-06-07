@@ -18,7 +18,7 @@ export default class ShadowPuppets extends DDBEnricherData {
       noeffect: this.ddbEnricher?._originalActivity?.type !== "save",
       activationType: this.ddbEnricher?._originalActivity?.type === "save" ? "special" : "bonus",
       data: {
-        sort: this.ddbEnricher?._originalActivity?.type === "save" ? "2" : "3",
+        sort: this.ddbEnricher?._originalActivity?.type === "save" ? 2 : 3,
       },
     };
   }

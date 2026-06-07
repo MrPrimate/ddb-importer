@@ -19,7 +19,7 @@ export default class BranchesOfTheTree extends DDBEnricherData {
         target: {
           affects: {
             type: "creature",
-            value: "1",
+            count: "1",
           },
         },
         range: {

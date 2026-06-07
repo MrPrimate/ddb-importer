@@ -11,8 +11,8 @@ export default class DeflectAttack extends DDBEnricherData {
       name: "Reduce Damage",
       targetType: "self",
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+      noConsumeTargets: true,
       data: {
-        "consumption.targets": [],
         // roll: {
         //   prompt: false,
         //   visible: false,

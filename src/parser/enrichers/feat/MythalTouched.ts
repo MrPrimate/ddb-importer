@@ -23,7 +23,7 @@ export default class MythalTouched extends DDBEnricherData {
       range: {
         units: "spec",
       },
-    };
+    } as Partial<I5eActivity>;
 
     return {
       addItemConsume: true,
@@ -45,7 +45,7 @@ export default class MythalTouched extends DDBEnricherData {
             name: "Save (Wisdom)",
             data: {
               save: {
-                ability: "wis",
+                ability: ["wis"],
               },
             },
           },
@@ -56,7 +56,7 @@ export default class MythalTouched extends DDBEnricherData {
             name: "Save (Charisma)",
             data: {
               save: {
-                ability: "cha",
+                ability: ["cha"],
               },
             },
           },

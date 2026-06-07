@@ -16,7 +16,7 @@ export default class RevelationInFlesh extends DDBEnricherData {
       addConsumptionScalingMax: "4",
       data: {
         duration: {
-          value: 10,
+          value: "10",
           units: "minute",
         },
       },

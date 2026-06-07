@@ -25,9 +25,11 @@ export default class WandOfFireballs extends DDBEnricherData {
             }),
           ],
         },
-        "consumption.scaling": {
-          allowed: true,
-          max: "@item.uses.max - @item.uses.spent",
+        consumption: {
+          scaling: {
+            allowed: true,
+            max: "@item.uses.max - @item.uses.spent",
+          },
         },
         range: {
           value: "150",

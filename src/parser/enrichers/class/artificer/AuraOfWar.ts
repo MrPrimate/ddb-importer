@@ -27,7 +27,7 @@ export default class AuraOfWar extends DDBEnricherData {
           targetType: "creature",
           data: {
             range: {
-              units: "special",
+              units: "spec",
             },
             damage: {
               parts: [

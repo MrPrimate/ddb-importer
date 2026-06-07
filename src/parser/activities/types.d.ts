@@ -40,7 +40,7 @@ global {
 
     // --- Description / flavor ---
     chatFlavor?: string | null;
-    data?: IActivityData;
+    data?: Partial<I5eActivity>;
     img?: string | null;
 
     // attacks

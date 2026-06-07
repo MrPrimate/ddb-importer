@@ -162,6 +162,7 @@ export const PARSING_FEATURES = {
     "Brutal Critical",
     "Kensei Weapon",
     "Umbral Form",
+    "Form of Dread",
   ],
   FORCE_DUPLICATE_OVERWRITE: [
     "Cosmic Omen",

@@ -7,7 +7,7 @@ export default class MuroosaBalm extends DDBEnricherData {
       activationType: "minute",
       data: {
         duration: {
-          value: 20,
+          value: "20",
         },
       },
     };

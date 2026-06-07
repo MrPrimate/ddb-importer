@@ -14,7 +14,7 @@ export default class FrostRune extends DDBEnricherData {
       data: {
         duration: {
           units: "minute",
-          value: 10,
+          value: "10",
         },
       },
     };

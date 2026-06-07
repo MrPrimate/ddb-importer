@@ -11,7 +11,10 @@ export default class PolearmMasterBonusAttack extends DDBEnricherData {
       activationType: "bonus",
       targetType: "creature",
       data: {
-        "reach.value": "10",
+        range: {
+          value: 10,
+          units: "ft",
+        },
         damage: {
           parts: [
             DDBEnricherData.basicDamagePart({

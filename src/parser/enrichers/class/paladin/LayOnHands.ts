@@ -10,9 +10,11 @@ export default class LayOnHands extends DDBEnricherData {
       addScalingMode: "amount",
       addScalingFormula: "1",
       data: {
-        "consumption.scaling": {
-          allowed: true,
-          max: "@item.uses.max - @item.uses.spent",
+        consumption: {
+          scaling: {
+            allowed: true,
+            max: "@item.uses.max - @item.uses.spent",
+          },
         },
         healing: DDBEnricherData.basicDamagePart({ bonus: "1", types: ["healing"], scalingMode: "whole", scalingFormula: "1" }),
       },

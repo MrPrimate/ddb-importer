@@ -459,8 +459,8 @@ export default class ArmorModel extends DDBEnricherData {
               confirmTargets: "never",
             },
             duration: {
-              units: "seconds",
-              value: "60",
+              units: "minute",
+              value: "1",
             },
             effects: [
               {
@@ -503,8 +503,8 @@ export default class ArmorModel extends DDBEnricherData {
               confirmTargets: "never",
             },
             duration: {
-              units: "seconds",
-              value: "60",
+              units: "minute",
+              value: "1",
             },
             visibility: {
               "level": {

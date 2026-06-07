@@ -17,9 +17,11 @@ export default class BlessedHealer extends DDBEnricherData {
         description: {
           chatFlavor: "Choose level of spell for scaling",
         },
-        "consumption.scaling": {
-          allowed: true,
-          max: "9",
+        consumption: {
+          scaling: {
+            allowed: true,
+            max: "9",
+          },
         },
         healing: DDBEnricherData.basicDamagePart({
           bonus: "3",

@@ -12,7 +12,7 @@ export default class DDBBasicActivity {
   nameIdPrefix: string;
   nameIdPostfix: string;
   id: string | null;
-  data: IActivityData;
+  data: I5eActivity;
   actor: I5ePCData | I5eMonsterData | null;
   // this is one of the implementations of DDBActivityFactoryMixin
   ddbParent: DDBActivityFactoryMixin | null;

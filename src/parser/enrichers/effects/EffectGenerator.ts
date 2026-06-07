@@ -787,7 +787,7 @@ export default class EffectGenerator {
     }
   }
 
-  _generateEffectDurationFromDocument(activity: IActivityData | null = null) {
+  _generateEffectDurationFromDocument(activity: I5eActivity | null = null) {
     const duration = {
       seconds: null,
       startTime: null,

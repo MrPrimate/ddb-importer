@@ -126,7 +126,7 @@ global {
       threshold?: number;
     };
     flat?: boolean;
-    type?: { value: string; classification: string };
+    type?: { value?: string; classification?: string };
   }
 
   interface I5eActivityDamage {
@@ -158,7 +158,7 @@ global {
   interface I5eSaveActivity extends I5eActivityBase {
     type: "save";
     save: I5eActivitySave;
-    damage: I5eActivityDamage;
+    damage?: I5eActivityDamage;
   }
 
   interface I5eActivityRoll {
@@ -170,12 +170,12 @@ global {
 
   interface I5eUtilityActivity extends I5eActivityBase {
     type: "utility";
-    roll: I5eActivityRoll;
+    roll?: I5eActivityRoll;
   }
 
   interface I5eDamageActivity extends I5eActivityBase {
     type: "damage";
-    damage: I5eActivityDamage;
+    damage?: I5eActivityDamage;
   }
 
   interface I5eHealActivity extends I5eActivityBase {
@@ -199,7 +199,7 @@ global {
 
   interface I5eCastActivity extends I5eActivityBase {
     type: "cast";
-    spell: I5eActivitySpell;
+    spell?: I5eActivitySpell;
   }
 
   interface I5eSummonsMatch {
@@ -207,6 +207,7 @@ global {
     attacks?: boolean;
     saves?: boolean;
     disposition?: boolean;
+    ability?: string;
   }
 
   interface I5eSummonsBonuses {
@@ -309,6 +310,13 @@ global {
     activity?: I5eActivityActivity;
   }
 
+  interface I5eActivityTransform {
+    customize?: boolean;
+    identifier?: string;
+    preset?: "wildshape" | "polymorph";
+    mode?: "cr" | "";
+  }
+
   export interface I5eActivitySettings {
     effects?: string[];
     keep?: string[];
@@ -321,6 +329,12 @@ global {
     minimumAC?: string;
   }
 
+  interface I5eTransformActivity extends I5eActivityBase {
+    type: "transform";
+    transform?: I5eActivityTransform;
+    settings?: I5eActivitySettings;
+  };
+
   type I5eActivity =
     | I5eAttackActivity
     | I5eSaveActivity
@@ -332,24 +346,8 @@ global {
     | I5eCheckActivity
     | I5eDDBMacroActivity
     | I5eEnchantActivity
-    | I5eForwardActivity;
-
-  type IActivityData = I5eBaseActivityBase
-    & I5eAttackActivity
-    & I5eSaveActivity
-    & I5eUtilityActivity
-    & I5eDamageActivity
-    & I5eHealActivity
-    & I5eCastActivity
-    & I5eSummonActivity
-    & I5eCheckActivity
-    & I5eDDBMacroActivity
-    & I5eEnchantActivity
-    & I5eForwardActivity
-    & {
-      // transform activity not implemented yet
-      settings?: I5eActivitySettings;
-    };
+    | I5eForwardActivity
+    | I5eTransformActivity;
 
   // interface IActivityData extends I5eActivityBase {
   //   spell?: I5eActivitySpell;

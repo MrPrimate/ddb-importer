@@ -99,10 +99,12 @@ export default class CelestialRevelation extends DDBEnricherData {
           activationType: "special",
           targetType: "enemy",
           data: {
-            ability: ["cha"],
-            dc: {
-              calculation: "cha",
-              formula: "",
+            save: {
+              ability: ["cha"],
+              dc: {
+                calculation: "cha",
+                formula: "",
+              },
             },
             target: {
               affects: {

@@ -15,8 +15,8 @@ export default class BodyOfTheAstralSelf extends DDBEnricherData {
       targetType: "self",
       activationType: "reaction",
       type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
+      noConsumeTargets: true,
       data: {
-        "consumption.targets": [],
         // roll: {
         //   prompt: false,
         //   visible: false,

@@ -21,9 +21,11 @@ export default class WandOfMagicMissiles extends DDBEnricherData {
             scalingFormula: "1",
           })],
         },
-        "consumption.scaling": {
-          allowed: true,
-          max: this.is2014 ? "@item.uses.max - @item.uses.spent" : "min(@item.uses.max - @item.uses.spent, 3)",
+        consumption: {
+          scaling: {
+            allowed: true,
+            max: this.is2014 ? "@item.uses.max - @item.uses.spent" : "min(@item.uses.max - @item.uses.spent, 3)",
+          },
         },
         range: {
           value: "120",

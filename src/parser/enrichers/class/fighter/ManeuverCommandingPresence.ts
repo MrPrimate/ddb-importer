@@ -22,7 +22,7 @@ export default class ManeuverCommandingPresence extends Maneuver {
           name: "Roll Check (Apply Effect First)",
           check: {
             associated: ["per", "itm", "prf"],
-            ability: "",
+            ability: [],
             dc: {
               calculation: "",
               formula: "",

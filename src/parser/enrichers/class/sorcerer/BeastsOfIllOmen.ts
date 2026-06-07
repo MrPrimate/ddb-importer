@@ -19,7 +19,7 @@ export default class BeastsOfIllOmen extends DDBEnricherData {
         },
         spell: {
           spellbook: true,
-          components: ["concentration", "material"],
+          properties: ["material"],
         },
       },
     };
@@ -38,7 +38,7 @@ export default class BeastsOfIllOmen extends DDBEnricherData {
             },
             spell: {
               spellbook: true,
-              components: ["concentration", "material"],
+              properties: ["concentration", "material"],
             },
           },
         },

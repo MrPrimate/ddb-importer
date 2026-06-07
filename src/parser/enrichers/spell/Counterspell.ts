@@ -17,7 +17,7 @@ export default class Counterspell extends DDBEnricherData {
         data: {
           check: {
             associated: [],
-            ability: "spellcasting",
+            ability: ["spellcasting"],
             dc: {
               calculation: "",
               formula: "",

@@ -23,7 +23,7 @@ export default class PowerOfShadow extends DDBEnricherData {
       addScalingFormula: "1",
       data: {
         save: {
-          abilities: ["cha"],
+          ability: ["cha"],
           dc: {
             calculation: "",
             formula: "5 + @scaling",

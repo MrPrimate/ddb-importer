@@ -10,7 +10,7 @@ export default class RecklessAttack extends DDBEnricherData {
       data: {
         duration: {
           units: "turn",
-          value: 1,
+          value: "1",
         },
       },
     };

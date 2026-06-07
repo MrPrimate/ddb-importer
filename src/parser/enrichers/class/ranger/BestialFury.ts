@@ -17,7 +17,9 @@ export default class BestialFury extends DDBEnricherData {
       targetType: "creature",
       data: {
         damage: {
-          parts: DDBEnricherData.basicDamagePart({ number: 1, denomination, types: ["force"] }),
+          parts: [
+            DDBEnricherData.basicDamagePart({ number: 1, denomination, types: ["force"] }),
+          ],
         },
       },
     };
