@@ -13,7 +13,7 @@ export default class PactOfTheChain extends DDBEnricherData {
       data: this.is2014
         ? {
           activation: {
-            value: "1",
+            value: 1,
             type: "hour",
           },
         }

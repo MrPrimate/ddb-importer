@@ -11,7 +11,7 @@ export default class AmongTheDead extends DDBEnricherData {
       targetType: "creature",
       data: {
         save: {
-          ability: "wis",
+          ability: ["wis"],
           dc: {
             calculation: "spellcasting",
           },

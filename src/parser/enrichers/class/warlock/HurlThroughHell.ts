@@ -9,7 +9,7 @@ export default class HurlThroughHell extends DDBEnricherData {
       activationCondition: "1/turn. You hit a creature with an attack roll.",
       data: {
         range: {
-          units: "special",
+          units: "spec",
         },
       },
     };
