@@ -35,10 +35,15 @@ export default class PowerOfShadow extends DDBEnricherData {
 
   get override(): IDDBOverrideData {
     return {
-      uses: this._getGeneratedUses({
-        type: "class",
-        name: "Strength of the Grave",
-      }),
+      // uses: this._getGeneratedUses({
+      //   type: "class",
+      //   name: "Strength of the Grave",
+      // }),
+      uses: {
+        spent: 0,
+        max: "1",
+        recovery: [{ period: "lr", type: "recoverAll", formula: undefined }],
+      },
     };
   }
 

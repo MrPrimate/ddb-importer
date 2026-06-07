@@ -2373,17 +2373,25 @@ export default class AdvancementHelper {
     }
 
     // You always have the Otto’s Irresistible Dance spell prepared. You can cast it once without a spell slot,
-    const alwaysPreparedRegex = /You always have the (.+?) spell prepared\. (?:You can cast it once without a spell slot|cast (.+?) without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
+    const alwaysPreparedRegex = /You always have the (.+?) spell prepared\. (?:You can cast it once without a spell slot|cast once without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
     const alwaysPreparedMatch = strippedDescription.match(alwaysPreparedRegex);
+    console.warn({
+      this: this,
+      strippedDescription,
+      alwaysPreparedMatch,
+    })
     if (alwaysPreparedMatch) {
-      const spell = (alwaysPreparedMatch[1] ?? alwaysPreparedMatch[2]).toLowerCase().trim();
-      if (!spellsAdded.has(spell)) {
-        result.spellGrants.push({
-          level: 1,
-          name: spell,
-          amount: "1",
-        });
-        spellsAdded.add(spell);
+      const spellMatch = (alwaysPreparedMatch[1] ?? alwaysPreparedMatch[2]).toLowerCase().trim();
+      const spellArray = spellMatch.replace(" and ", ",").split(",").map((s) => s.trim());
+      for (const spell of spellArray) {
+        if (!spellsAdded.has(spell)) {
+          result.spellGrants.push({
+            level: 1,
+            name: spell,
+            amount: "1",
+          });
+          spellsAdded.add(spell);
+        }
       }
     }
 
