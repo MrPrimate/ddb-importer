@@ -23,17 +23,20 @@ export default class GraveTouched extends DDBEnricherData {
             ],
           },
           overrides: {
-            addActivityConsume: true,
-            data: {
-              uses: {
-                max: "1",
-                spent: 0,
-                recovery: [{ period: "turnStart", type: "recoverAll", formula: undefined }],
-              },
-            },
+            addItemConsume: true,
           },
         } as IDDBAdditionalActivity;
       });
+  }
+
+  get override(): IDDBOverrideData {
+    return {
+      uses: {
+        max: "1",
+        spent: 0,
+        recovery: [{ period: "turnStart", type: "recoverAll", formula: undefined }],
+      },
+    };
   }
 
 }
