@@ -146,7 +146,7 @@ export default class DDBDebug {
       ddbChangedSettings: this.ddbChangedSettings,
       versions: this.versions,
       modules: this.modules,
-      capturedErrors: foundry.utils.duplicate(CONFIG.DDBI.CAPTURED_ERRORS),
+      capturedErrors: JSON.parse(JSON.stringify(CONFIG.DDBI.CAPTURED_ERRORS ?? [], DDBDebug.fixCircularReferences())),
       actor: this.actor
         ? {
           id: `${this.actor.id}`,
