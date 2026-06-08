@@ -175,9 +175,10 @@ export default class DDBFeature extends DDBFeatureMixin {
     if (!advancement) return;
     const advancementData = advancement.toObject();
     if (
-      advancementData.configuration.choices.length !== 0
-      || advancementData.configuration.grants.length !== 0
-      || (advancementData.value && Object.keys(advancementData.value).length !== 0)
+      (advancementData.value && Object.keys(advancementData.value).length !== 0)
+      || advancementData.configuration.choices?.length !== 0
+      || advancementData.configuration.grants?.length !== 0
+      || advancementData.configuration.items?.length !== 0
     ) {
       this.data.system.advancement[advancementData._id] = advancementData;
     }
@@ -446,6 +447,24 @@ export default class DDBFeature extends DDBFeatureMixin {
     this._addAdvancement(advancement);
   }
 
+  async _generateSpellAdvancements() {
+    switch (this.type) {
+      case "trait":
+      case "race": {
+        const advancements = await AdvancementHelper.getTraitSpellAdvancements({
+          name: this.ddbDefinition.name,
+          species: this.ddbCharacter?._ddbRace.fullName,
+          description: this.ddbDefinition.description,
+          is2024: this.is2024,
+        }, this.spellLinks);
+        if (advancements) {
+          advancements.forEach((advancement) => this._addAdvancement(advancement));
+        }
+      }
+      // no default
+    }
+  }
+
   _generateSkillOrLanguageAdvancements() {
     // STUB
     logger.info(`Generating skill or language advancements for ${this.ddbDefinition.name} are not yet supported`);
@@ -458,6 +477,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     this._generateToolAdvancements();
     // FUTURE: Equipment?  needs better handling in Foundry
     this._generateSkillOrLanguageAdvancements();
+    await this._generateSpellAdvancements();
   }
 
   async buildBackgroundFeatAdvancements(extraFeatIds = []) {

@@ -2,6 +2,7 @@
 
 # 7.3.2
 
+- Improve spell advancement and cast activity generation on species traits. Spell advancements now appear on the feature for species.
 - Fix issues when trying to munch with self hosted proxy.
 - Ravenloft subclass parsing: Rogue, Sorcerer, Warlock.
 - Dhampir 2024 parsing fixes.

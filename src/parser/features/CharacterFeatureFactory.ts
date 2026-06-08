@@ -583,6 +583,8 @@ export default class CharacterFeatureFactory {
       await ddbFeature.buildBackgroundFeatAdvancements();
     } else if (type === "feat") {
       ddbFeature.generateFeatAbilityScoreAdvancement();
+    } else if(type === "race") {
+      await ddbFeature._generateSpellAdvancements();
     }
     const choiceFeatures = ddbFeature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(ddbFeature)
@@ -1257,11 +1259,12 @@ export default class CharacterFeatureFactory {
   }
 
 
-  async addSpellAdvancement({ feature, type }: { feature: T5eFeatureMixinDataTypes; type: string }) {
+  async addSpellAdvancement({ feature, type, addToAdvancements = true }: { feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean }) {
     await AdvancementHelper.addSpellAdvancement({
       ddbParser: this,
       feature,
       type,
+      addToAdvancements,
     });
   }
 
@@ -1280,14 +1283,19 @@ export default class CharacterFeatureFactory {
         }
       }
 
-      await this.addSpellAdvancement({ feature, type });
+      await this.addSpellAdvancement({ feature, type, addToAdvancements: type !== "race" });
       featuresToCheck.push({
         feature,
         type,
-        version: feature.system.source?.rules ?? (game.settings.get("dnd5e", "rulesVersion") === "modern" ? "2024" : "2014"),
+        version: feature.system.source?.rules ?? (utils.getSetting<string>("rulesVersion", "dnd5e") === "modern" ? "2024" : "2014"),
       });
     }
 
+    // console.warn("Features to check", {
+    //   featuresToCheck,
+    //   this: this,
+    //   grantedSpells: this.spellsGranted[type],
+    // });
     for (const spell of this.ddbCharacter._spellParser._granted[type]) {
       const spellName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") ?? spell.name;
 
@@ -1301,7 +1309,12 @@ export default class CharacterFeatureFactory {
         })
         && sg.spells.includes(spellName.toLowerCase()))
       ) {
-        logger.debug(`Spell ${spell.name} already granted via feature, skipping`);
+        if (spell.system.prepared ===  CONFIG.DND5E.spellPreparationStates.always.value && !["innate", "atwill"].includes(spell.system.method)) {
+          logger.debug(`Spell ${spell.name} already granted via feature but is always prepared, adding for spell list`);
+          this.ddbCharacter.raw.spells.push(spell);
+        } else {
+          logger.debug(`Spell ${spell.name} already granted via feature, skipping`);
+        }
         continue;
       }
       logger.debug(`Adding spell ${spell.name} directly as not granted via feature`);

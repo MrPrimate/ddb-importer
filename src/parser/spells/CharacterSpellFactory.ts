@@ -71,9 +71,17 @@ export default class CharacterSpellFactory {
 
     switch (type) {
       case "race": {
-        const match = ddb.character.race.racialTraits.find((t) => {
+        let match = ddb.character.race.racialTraits.find((t) => {
           return t.definition.id === id;
         });
+        // id may be a race *option* id (e.g. an ASI choice) attached to a trait,
+        // not the trait id itself. Resolve option.definition.id -> option.componentId -> trait.
+        if (!match) {
+          const option = (ddb.character.options?.race ?? []).find((o) => o.definition.id === id);
+          if (option) {
+            match = ddb.character.race.racialTraits.find((t) => t.definition.id === option.componentId);
+          }
+        }
         if (match) {
           lookup = {
             id: match.definition.id,

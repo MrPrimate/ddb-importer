@@ -599,3 +599,7 @@ export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
   "Headwinds",
   "Wards and Seals",
 ];
+
+export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE = [
+
+];
