@@ -281,6 +281,8 @@ global {
     actorFolderPath?: string[] | null;
     notifier?: ((msg: string) => void) | null;
     noAutoImport?: boolean;
+    /** 2014→2024 monster swap (native importer): remap scene-token actor ids/names. */
+    monsterSwap?: Map<number, { id2024: number; name2024: string }>;
   }
 
   export interface IDDBMetaApplyResult {

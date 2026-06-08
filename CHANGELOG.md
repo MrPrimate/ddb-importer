@@ -4,6 +4,7 @@
 
 - Fix issues when trying to munch with self hosted proxy.
 - Ravenloft subclass parsing: Rogue, Sorcerer, Warlock.
+- Dhampir 2024 parsing fixes.
 
 # 7.3.1
 

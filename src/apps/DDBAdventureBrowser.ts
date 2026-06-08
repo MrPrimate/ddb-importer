@@ -109,6 +109,7 @@ export default class DDBAdventureBrowser extends DDBAppV2 {
         addToCompendiums: utils.getSetting<boolean>("adventure-policy-add-to-compendiums"),
         importAllMonsters: utils.getSetting<boolean>("adventure-policy-all-actors-into-world"),
         observeAll: utils.getSetting<boolean>("adventure-policy-observe-all"),
+        use2024monsters: utils.getSetting<boolean>("adventure-policy-use2024-monsters"),
       };
       await new NativeAdventureMunch({ notifier }).importBook(bookId, options);
       this.notifierV2({ section: "monster", message: `Imported ${bookName}`, clear: true });

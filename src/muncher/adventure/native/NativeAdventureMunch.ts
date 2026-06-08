@@ -9,7 +9,7 @@ import { buildTables } from "./NativeTableBuilder";
 import { fetchTableHints, type TableHint } from "./NativeTableHints";
 import { resolveInternalLinks } from "./NativeJournalLinker";
 import { importToCompendiums } from "./NativeCompendiumImporter";
-import { importRequiredMonsters, importAllMonstersToWorld } from "./NativeMonsterImporter";
+import { importRequiredMonsters, importAllMonstersToWorld, buildMonsterSwapMap, type MonsterSwap } from "./NativeMonsterImporter";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import { importSpellsAndItems } from "./NativeSpellItemImporter";
 import { importAssets } from "./NativeAssetHandler";
@@ -39,6 +39,9 @@ export interface ImportOptions {
   /** set JournalEntry + RollTable ownership.default to OBSERVER (all players can read)
    *  (defaults to the `adventure-policy-observe-all` setting) */
   observeAll?: boolean;
+  /** replace legacy (2014) monsters with their 2024 versions where available
+   *  (defaults to the `adventure-policy-use2024-monsters` setting) */
+  use2024monsters?: boolean;
 }
 
 /** Progress sink - the bound `DDBAppV2.notifierV2`. */
@@ -78,7 +81,8 @@ export default class NativeAdventureMunch {
       ?? utils.getSetting<boolean>("adventure-policy-all-actors-into-world");
     const allScenes = options.allScenes ?? utils.getSetting<boolean>("adventure-policy-all-scenes");
     const observeAll = options.observeAll ?? utils.getSetting<boolean>("adventure-policy-observe-all");
-    return { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll };
+    const use2024monsters = options.use2024monsters ?? utils.getSetting<boolean>("adventure-policy-use2024-monsters");
+    return { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters };
   }
 
   // Count of #process phases that will actually run, for the primary bar.
@@ -155,7 +159,14 @@ export default class NativeAdventureMunch {
     // skips the vehicle fetch so the file-test path works without auth (vehicle
     // links just fall back to DDB urls - fine for the journals slice).
     // compendium-only implies adding to compendiums; both fall back to their settings
-    const { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll } = this.#effectiveFlags(options);
+    const { compendiumOnly, addToCompendiums, importAllMonsters, allScenes, observeAll, use2024monsters } = this.#effectiveFlags(options);
+
+    // 2014→2024 monster swap: prompt once (chooser dialog) for which referenced
+    // monsters to upgrade, then thread the map to compendium import, journal-link
+    // replacement and scene tokens. Empty map when the option is off / lookup fails.
+    const monsterSwap: Map<number, MonsterSwap> = use2024monsters
+      ? await buildMonsterSwapMap(rows, bookName)
+      : new Map();
 
     // import referenced + core-rulebook spells/items into the compendiums first,
     // then any referenced monsters, so the freshly-built lookups below resolve
@@ -164,9 +175,12 @@ export default class NativeAdventureMunch {
     this.#clearSecondary();
     await importSpellsAndItems(rows, bookCode);
     this.#phase("Importing monsters");
-    await importRequiredMonsters(rows);
+    await importRequiredMonsters(rows, monsterSwap);
 
     const adventureConfig = await generateAdventureConfig({ full: true, cobalt: false });
+    // expose the swap to NativeLinkReplacer.foundryCompendiumReplace (consumed via
+    // adventureConfig, which already reaches processRow); shared replacer shape.
+    adventureConfig.monstersToReplace = [...monsterSwap.values()];
     const idFactory = new NativeIdFactory();
 
     await DDBReferenceLinker.importCacheLoad();
@@ -276,7 +290,7 @@ export default class NativeAdventureMunch {
       // drawings/notes/tokens) and re-point note pins at our journal pages.
       this.#phase("Applying scenes");
       this.#clearSecondary();
-      if (scenesToImport.length) await applyScenes(scenesToImport, journals, bookCode, { applyTokens: true, notify: this.#item });
+      if (scenesToImport.length) await applyScenes(scenesToImport, journals, bookCode, { applyTokens: true, notify: this.#item, monsterSwap });
       // optional: import every referenced monster into the world (superset of the
       // scene-token actors imported by applyScenes). Dedup happens in the helper.
       if (importAllMonsters) {

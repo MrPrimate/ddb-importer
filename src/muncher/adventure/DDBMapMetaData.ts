@@ -1157,6 +1157,11 @@ export default class DDBMapMetaData {
       } catch (_e) { /* ignore */ }
     };
 
+    // 2014→2024 monster swap (native importer): map a token's legacy DDB id to its
+    // 2024 replacement id; unswapped ids pass through unchanged.
+    const swapId = (id: number): number =>
+      (Number.isFinite(id) ? (options.monsterSwap?.get(id)?.id2024 ?? id) : id);
+
     // Step 1: meta-wins. Remove pre-existing Quickplay tokens so the meta layout
     // becomes the authoritative one.
     const existingQpIds: string[] = [];
@@ -1173,11 +1178,13 @@ export default class DDBMapMetaData {
       }
     }
 
-    // Step 2: collect DDB monster ids.
+    // Step 2: collect DDB monster ids (post 2014→2024 swap, so the 2024 actors
+    // get imported and placed).
     const ddbIds = [...new Set(
       metaTokens
         .map((t) => Number(foundry.utils.getProperty(t, "flags.ddbActorFlags.id")))
-        .filter((n) => Number.isFinite(n)),
+        .filter((n) => Number.isFinite(n))
+        .map((n) => swapId(n)),
     )] as number[];
     if (!ddbIds.length) return out;
 
@@ -1237,7 +1244,11 @@ export default class DDBMapMetaData {
     // Step 5: build token data per meta placement.
     const tokenData: any[] = [];
     for (const t of metaTokens) {
-      const ddbEntityId = Number(foundry.utils.getProperty(t, "flags.ddbActorFlags.id"));
+      const rawId = Number(foundry.utils.getProperty(t, "flags.ddbActorFlags.id"));
+      // Apply the 2014→2024 swap: place the 2024 actor and use its name when the
+      // token carried a hard-coded legacy name.
+      const ddbEntityId = swapId(rawId);
+      const swapped = Number.isFinite(rawId) ? options.monsterSwap?.get(rawId) : undefined;
       const worldActor = Number.isFinite(ddbEntityId) ? actorByDdbId.get(ddbEntityId) : null;
       if (!worldActor) {
         out.failed += 1;
@@ -1250,7 +1261,7 @@ export default class DDBMapMetaData {
         x: Number.isFinite(t.x) ? t.x : 0,
         y: Number.isFinite(t.y) ? t.y : 0,
         hidden: !!t.hidden,
-        name: typeof t.name === "string" ? t.name : worldActor.name,
+        name: swapped?.name2024 ?? (typeof t.name === "string" ? t.name : worldActor.name),
         flags: foundry.utils.mergeObject({}, t.flags ?? {}, { inplace: false }),
       };
       if (Number.isFinite(t.elevation)) stub.elevation = t.elevation;
@@ -1272,6 +1283,15 @@ export default class DDBMapMetaData {
         { source: "meta-data", ddbEntityId, metaTokenId: t._id ?? null },
         { inplace: false },
       );
+      // Keep the actor-flag id in sync with the swapped 2024 id so re-imports and
+      // linkExistingActorTokens resolve the 2024 actor.
+      if (swapped) {
+        stub.flags["ddbActorFlags"] = foundry.utils.mergeObject(
+          stub.flags["ddbActorFlags"] ?? {},
+          { id: ddbEntityId },
+          { inplace: false },
+        );
+      }
       try {
         const doc = await worldActor.getTokenDocument(stub);
         const data = doc.toObject();

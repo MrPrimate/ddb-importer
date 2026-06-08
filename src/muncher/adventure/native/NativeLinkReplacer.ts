@@ -6,8 +6,8 @@ import { IMAGE_EXT } from "./NativeShared";
  * Native (journals-only) adventure link rewriting. The compendium-link logic is
  * shared with the zip importer via CompendiumLinkReplacer; here we only add the
  * native-specific image-path rewrite + CSS classes, plus a thin wrapper that
- * passes the native `adventureConfig.lookups` (the world-actor + 2014↔2024
- * monster-swap branches stay off via the shared defaults).
+ * passes the native `adventureConfig.lookups` and the optional 2014→2024
+ * `monstersToReplace` map (the world-actor branch stays off via shared defaults).
  */
 
 /**
@@ -63,11 +63,15 @@ export function addClasses(doc: Document): void {
 
 /**
  * Replace ddb:// links in journal HTML with compendium links, or fall back to DDB urls.
- * Thin wrapper over the shared CompendiumLinkReplacer (journals-only: world-actor
- * and 2014↔2024 monster-swap branches stay off via the shared defaults).
+ * Thin wrapper over the shared CompendiumLinkReplacer (journals-only: the world-actor
+ * branch stays off; 2014→2024 monster swap applied when adventureConfig carries it).
  * @param text the page HTML
- * @param adventureConfig result of generateAdventureConfig({ full: true })
+ * @param adventureConfig result of generateAdventureConfig({ full: true }), optionally
+ *   carrying `monstersToReplace: {id2014,id2024}[]` from the native importer
  */
 export function foundryCompendiumReplace(text: string, adventureConfig: any): string {
-  return sharedCompendiumReplace(text, { lookups: adventureConfig.lookups });
+  return sharedCompendiumReplace(text, {
+    lookups: adventureConfig.lookups,
+    monstersToReplace: adventureConfig.monstersToReplace ?? [],
+  });
 }

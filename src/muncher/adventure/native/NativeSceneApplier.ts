@@ -164,7 +164,7 @@ export async function applyScenes(
   scenes: BuiltScene[],
   journals: any[],
   bookCode: string,
-  options: { applyTokens: boolean; notify?: ItemNotify } = { applyTokens: true },
+  options: { applyTokens: boolean; notify?: ItemNotify; monsterSwap?: Map<number, { id2024: number; name2024: string }> } = { applyTokens: true },
 ): Promise<void> {
   if (scenes.length === 0) return;
   const source = (CONFIG.DDB?.sources ?? []).find((s: IDDBConfigSource) => s.name?.toLowerCase?.() === bookCode.toLowerCase());
@@ -195,6 +195,7 @@ export async function applyScenes(
         applyTokens: options.applyTokens,
         noAutoImport: false,
         actorFolderPath,
+        monsterSwap: options.monsterSwap,
       });
       if (results.length) {
         enriched += 1;
