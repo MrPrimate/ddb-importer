@@ -45,7 +45,7 @@ export default class UmbralForm extends DDBEnricherData {
                 {
                   type: "itemUses",
                   value: "6",
-                  target: "Sorcery Points",
+                  target: "sorcery-points",
                   scaling: { allowed: false, max: "" },
                 },
               ],
