@@ -1,5 +1,7 @@
 # Next Up
 
+- Improve spell advancement and cast activity generation on species traits. Spell advancements now appear on the feature for species.
+
 # 7.1.21
 
 - Ravenloft subclass parsing: Artificer (Reanimator), Bard (Spirit), Cleric (Grave), Ranger (Hollow Warden) fixes

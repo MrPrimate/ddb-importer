@@ -67,6 +67,26 @@ interface IAdvancementGetterCantripChoiceAdvancement extends IAdvancementGetterC
   allowReplacements?: boolean;
 }
 
+type TPreparedValue =
+  typeof CONFIG.DND5E.spellPreparationStates.always.value
+  | typeof CONFIG.DND5E.spellPreparationStates.prepared.value
+  | typeof CONFIG.DND5E.spellPreparationStates.unprepared.value;
+
+interface IAdvancementGetterSpellGrantAdvancement {
+  spellGrants: ISpellAdvancementGrant[];
+  abilities?: string[];
+  hint?: string;
+  name: string;
+  spellLinks: TSpellLinks;
+  method?: "innate" | "spell" | "pact";
+  requireSlot?: boolean;
+  prepared?: TPreparedValue;
+  level?: number | string;
+  is2024: boolean;
+  forceNoAmount?: boolean;
+  spellData?: I5eSpellItem[];
+}
+
 export default class AdvancementHelper {
   isMuncher: boolean;
   ddbData: IDDBData;
@@ -2373,13 +2393,8 @@ export default class AdvancementHelper {
     }
 
     // You always have the Otto’s Irresistible Dance spell prepared. You can cast it once without a spell slot,
-    const alwaysPreparedRegex = /You always have the (.+?) spell prepared\. (?:You can cast it once without a spell slot|cast once without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
+    const alwaysPreparedRegex = /You always have the (.+?) spell(?:s)? prepared\. (?:You can cast (?:it|each spell) (.+?) without a spell slot|cast (.+?) without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
     const alwaysPreparedMatch = strippedDescription.match(alwaysPreparedRegex);
-    console.warn({
-      this: this,
-      strippedDescription,
-      alwaysPreparedMatch,
-    })
     if (alwaysPreparedMatch) {
       const spellMatch = (alwaysPreparedMatch[1] ?? alwaysPreparedMatch[2]).toLowerCase().trim();
       const spellArray = spellMatch.replace(" and ", ",").split(",").map((s) => s.trim());
@@ -2610,6 +2625,93 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return result;
   }
 
+  static getHTMLDataForSpellAdvancements(description: string, species: string): IParsedSpellAdvancementData {
+    const htmlData = description.includes("Choose a lineage from the")
+      || description.includes("Choose a legacy from the")
+      ? AdvancementHelper.parseHTMLTableSpellAdvancementData({
+        description,
+        species,
+      })
+      : description.includes(" Choose one of the following options")
+        ? AdvancementHelper.parseHTMLPTagSpellAdvancementData({
+          description,
+          species,
+        })
+        // : AdvancementHelper.parseHTMLSpellAdvancementData(description);
+        : AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(description);
+    return htmlData;
+  }
+
+  static async getTraitSpellAdvancements({ name, species, description, is2024 }: { name: string; species: string; description: string; is2024: boolean }, spellLinks: TSpellLinks) {
+    const advancements = [];
+    const htmlData = AdvancementHelper.getHTMLDataForSpellAdvancements(description, species);
+
+    const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(description);
+    const advancementName = name.toLowerCase().includes("spell")
+      ? name
+      : `${name} (Spells)`;
+
+    const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
+
+    logger.debug(`Spell Advancement Data from ${name}`, {
+      htmlData,
+      this: this,
+      trait: {
+        description,
+        name,
+        fullName: species,
+      },
+      abilityData,
+      name: advancementName,
+      hint,
+    });
+
+    const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
+      choices: htmlData.cantripChoices,
+      abilities: abilityData.abilities,
+      hint,
+      name: advancementName,
+      spellListChoice: htmlData.spellListCantripChoice,
+      spellLinks,
+      is2024,
+    });
+    if (cantripChoiceAdvancement) {
+      advancements.push(cantripChoiceAdvancement);
+    }
+
+    const cantripGrantAdvancement = await AdvancementHelper.getCantripGrantAdvancement({
+      choices: htmlData.cantripGrants,
+      abilities: abilityData.abilities,
+      hint,
+      name: advancementName,
+      spellLinks,
+      is2024,
+    });
+    if (cantripGrantAdvancement) {
+      advancements.push(cantripGrantAdvancement);
+    }
+
+    for (const spellGrant of htmlData.spellGrants) {
+      const spellGrantAdvancement = await AdvancementHelper.getSpellGrantAdvancement({
+        spellGrants: [spellGrant],
+        abilities: abilityData.abilities,
+        hint,
+        name,
+        spellLinks,
+        is2024,
+      });
+      if (spellGrantAdvancement) {
+        advancements.push(spellGrantAdvancement);
+      }
+      // TO DO: add cast via slot
+    }
+
+    logger.debug("Spell Advancements", {
+      advancements,
+    });
+
+    return advancements;
+  }
 
   static CONDITION_MAPPING = {
     "resistance": "dr",
@@ -3063,8 +3165,8 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   static async getSpellGrantAdvancement({
     spellGrants, abilities = [], hint = "", name, spellLinks, method = "innate",
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
-    level, is2024, forceNoAmount = false, spellData = [],
-  } = {}) {
+    level = null, is2024, forceNoAmount = false, spellData = [],
+  }: IAdvancementGetterSpellGrantAdvancement) {
     const spellGrant = spellGrants[0];
     const uuids = await AdvancementHelper._getSpellUuidsFromFeatureSpellData(spellGrants.map((g) => g.name), spellData, is2024);
 
@@ -3079,9 +3181,9 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       level: level ?? spellGrant.level,
     });
 
-    advancement.updateSource({
+    const update: I5eAdvancementItemGrant = {
       title: name,
-      level: level ? parseInt(level) : parseInt(spellGrant.level),
+      level: level ? parseInt(String(level)) : parseInt(String(spellGrant.level)),
       configuration: {
         items: uuids.map((s) => {
           return {
@@ -3108,18 +3210,27 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         },
       },
       hint,
-    });
+    };
+    advancement.updateSource(update as any);
 
     return advancement;
   }
 
 
-  static async addSpellAdvancement({ ddbParser, feature, type }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string }) {
-    if (!("advancements" in feature.system)) return;
+  static async addSpellAdvancement({ ddbParser, feature, type, addToAdvancements = true }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean }) {
+    // console.warn(`Spell advancment check for ${feature.name}`, {
+    //   feature,
+    //   type,
+    //   ddbParser,
+    //   addToAdvancements,
+    // })
+    if (!("advancement" in feature.system)) return;
     if (!("activities" in feature.system)) return;
     const advancements = [];
 
-    const htmlData = AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(feature.system.description.value);
+    const htmlData = type === "race"
+      ? AdvancementHelper.getHTMLDataForSpellAdvancements(feature.system.description.value, ddbParser.ddbCharacter?._ddbRace.fullName)
+      : AdvancementHelper.parseHTMLSpellAdvancementDataForTraits(feature.system.description.value);
 
     const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(feature.system.description.value);
     const name = feature.name.toLowerCase().includes("spell")
@@ -3157,7 +3268,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       name: cantripName,
       spellListChoice: htmlData.spellListCantripChoice,
       spellLinks: ddbParser.spellLinks,
-      is2024: ddbParser.is2024,
+      is2024: use2024Spells,
       count: htmlData.spellListCantripChoiceNum ?? 1,
       allowReplacements: htmlData.spellListChoiceReplace,
       spellData,
@@ -3322,10 +3433,14 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       feature,
     });
 
-    advancements.forEach((advancement) => {
-      const a = advancement.toObject();
-      feature.system.advancement[a._id] = a;
-    });
+    if (addToAdvancements) {
+      advancements.forEach((advancement) => {
+        const a = advancement.toObject();
+        feature.system.advancement[a._id] = a;
+      });
+    }
+
+    return advancements;
   }
 
 }

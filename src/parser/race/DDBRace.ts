@@ -55,6 +55,7 @@ export default class DDBRace {
   static EXCLUDED_FEATURE_ADVANCEMENTS_2014 = [];
 
   static FORCE_ADVANCEMENT_REPLACE = [];
+  static FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE = DICTIONARY.parsing.forceTraitSpellAdvancementOnRace;
 
   static FORCE_SUBRACE_2024 = [
     "Elf",
@@ -131,6 +132,7 @@ export default class DDBRace {
   }
 
   #getFullName(): string {
+    // @ts-expect-error - legacy reasons
     const baseName = this.race.fullName ?? this.race.name;
     const lineageName = this.lineageName;
     const legacyName = this.isMuncher && this.isLegacy && this.data.system.source.book
@@ -529,145 +531,16 @@ export default class DDBRace {
   }
 
   async #generateSpellAdvancement(trait: IDDBRacialTraitDefinition) {
-    const advancements = [];
-
-    const htmlData = trait.description.includes("Choose a lineage from the")
-      || trait.description.includes("Choose a legacy from the")
-      ? AdvancementHelper.parseHTMLTableSpellAdvancementData({
-        description: trait.description,
-        species: this.fullName,
-      })
-      : trait.description.includes(" Choose one of the following options")
-        ? AdvancementHelper.parseHTMLPTagSpellAdvancementData({
-          description: trait.description,
-          species: this.fullName,
-        })
-        : AdvancementHelper.parseHTMLSpellAdvancementData(trait.description);
-
-    const abilityData = AdvancementHelper.parseHTMLSpellCastingAbilities(trait.description);
-    const name = trait.name.toLowerCase().includes("spell")
-      ? trait.name
-      : `${trait.name} (Spells)`;
-
-    const hint = htmlData.hint !== "" ? htmlData.hint : abilityData.hint;
-
-    logger.debug(`Spell Advancement Data from ${trait.name}`, {
-      htmlData,
-      this: this,
-      trait,
-      abilityData,
-      name,
-      hint,
-    });
-
-    const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
-      choices: htmlData.cantripChoices,
-      abilities: abilityData.abilities,
-      hint,
-      name,
-      spellListChoice: htmlData.spellListCantripChoice,
-      spellLinks: this.spellLinks,
+    if (!DDBRace.FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE.includes(trait.name.trim())) return;
+    const advancements = await AdvancementHelper.getTraitSpellAdvancements({
+      name: trait.name,
+      species: this.fullName,
+      description: trait.description,
       is2024: this.is2024,
-    });
-    if (cantripChoiceAdvancement) {
-      advancements.push(cantripChoiceAdvancement);
+    }, this.spellLinks);
+    if (advancements) {
+      advancements.forEach((advancement) => this._addAdvancement(advancement.toObject() as I5eAdvancement));
     }
-
-    const cantripGrantAdvancement = await AdvancementHelper.getCantripGrantAdvancement({
-      choices: htmlData.cantripGrants,
-      abilities: abilityData.abilities,
-      hint,
-      name,
-      spellLinks: this.spellLinks,
-      is2024: this.is2024,
-    });
-    if (cantripGrantAdvancement) {
-      advancements.push(cantripGrantAdvancement);
-    }
-
-    for (const spellGrant of htmlData.spellGrants) {
-      const spellGrantAdvancement = await AdvancementHelper.getSpellGrantAdvancement({
-        spellGrants: [spellGrant],
-        abilities: abilityData.abilities,
-        hint,
-        name,
-        spellLinks: this.spellLinks,
-        is2024: this.is2024,
-      });
-      if (spellGrantAdvancement) {
-        advancements.push(spellGrantAdvancement);
-      }
-      // TO DO: add cast via slot
-    }
-
-
-    // Add chosen to advancements
-    // loop through race spells
-
-    // let isChoice = false;
-    // const advancements = [];
-    // const choiceData = {
-    //   0: [],
-    //   1: [],
-    //   2: [],
-    //   3: [],
-    //   4: [],
-    //   5: [],
-    //   6: [],
-    //   7: [],
-    //   8: [],
-    //   9: [],
-    // };
-
-    // const speciesSpells = this.ddbData.character.spells.race;
-    // const speciesOptions = this.ddbData.character.options.race;
-    // const spellChoices = this.ddbData.character.choices.race;
-
-    // const grantSpells = [];
-    // const choiceSpells = [];
-
-    // for (const spell of speciesSpells) {
-
-    //   const advancement = new game.dnd5e.documents.advancement.SpellAdvancement();
-
-    //   const spellComponentId = spell.componentId;
-
-    //   // SPELL COMPONENT ID MATCH
-    //   // chosen spell option
-    //   options.race[]  definition.id //spellcoponent id
-
-    //   options.race[] componentId // OPTIONCOMPONENTID
-    //     // race.racialTraits.definition.id === OPTIONCOMPONENTID
-    //     // choices.race.componentId
-    //     // for spellcasting choice
-    //     // choices.choiceDefinitions.options.componentId === OPTIONCOMPONENTID
-
-    //   // chpsen option
-    //   choices{ race: [ { optionValue}]}
-    //   // available options
-    //   choices{ race: [ { optionIds[]}]}
-
-
-    // }
-
-
-    // determine if spell is choice or grant
-
-    // if choice, filter out 2014/2024 versions
-
-    // find spells in compendium
-    // prepare advancement
-
-    // set chosen values
-
-    logger.debug("Spell Advancements", {
-      advancements,
-    });
-
-    advancements.forEach((advancement) => {
-      this._addAdvancement(advancement.toObject() as I5eAdvancement);
-    });
-
   }
 
   async #generateFeatAdvancement(trait: IDDBRacialTraitDefinition) {
