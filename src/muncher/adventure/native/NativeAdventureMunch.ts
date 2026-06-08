@@ -2,14 +2,14 @@ import { logger, utils, DDBSources } from "../../../lib/_module";
 import { decryptAndQuery } from "../../../lib/SqliteCipher";
 import { generateAdventureConfig } from "../../adventure";
 import NativeIdFactory from "./NativeIdFactory";
-import { processRow, type ContentRow } from "./ContentRowProcessor";
+import { processRow } from "./ContentRowProcessor";
 import { buildMasterJournalFolder } from "./NativeFolderBuilder";
 import { buildJournals } from "./NativeJournalBuilder";
 import { buildTables } from "./NativeTableBuilder";
-import { fetchTableHints, type TableHint } from "./NativeTableHints";
+import { fetchTableHints } from "./NativeTableHints";
 import { resolveInternalLinks } from "./NativeJournalLinker";
 import { importToCompendiums } from "./NativeCompendiumImporter";
-import { importRequiredMonsters, importAllMonstersToWorld, buildMonsterSwapMap, type MonsterSwap } from "./NativeMonsterImporter";
+import { importRequiredMonsters, importAllMonstersToWorld, buildMonsterSwapMap } from "./NativeMonsterImporter";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import { importSpellsAndItems } from "./NativeSpellItemImporter";
 import { importAssets } from "./NativeAssetHandler";
@@ -23,31 +23,9 @@ import { DDBReferenceLinker } from "../../../parser/lib/_module";
 const CONTENT_QUERY
   = "SELECT ID as id, CobaltID as cobaltId, ParentID as parentId, Slug as slug, Title as title, RenderedHTML as html FROM Content";
 
-export interface ImportOptions {
-  /** import only into the compendiums, skip the world (implies addToCompendiums) */
-  compendiumOnly?: boolean;
-  /** also copy into the DDB compendiums (defaults to the adventure-policy setting) */
-  addToCompendiums?: boolean;
-  /** import every referenced monster into the world, not just scene tokens
-   *  (defaults to the `adventure-policy-all-actors-into-world` setting) */
-  importAllMonsters?: boolean;
-  /** import all detected scenes without prompting
-   *  (defaults to the `adventure-policy-all-scenes` setting) */
-  allScenes?: boolean;
-  /** explicit subset of scene `_id`s to import; bypasses the chooser dialog */
-  sceneIds?: string[];
-  /** set JournalEntry + RollTable ownership.default to OBSERVER (all players can read)
-   *  (defaults to the `adventure-policy-observe-all` setting) */
-  observeAll?: boolean;
-  /** replace legacy (2014) monsters with their 2024 versions where available
-   *  (defaults to the `adventure-policy-use2024-monsters` setting) */
-  use2024monsters?: boolean;
-}
-
-/** Progress sink - the bound `DDBAppV2.notifierV2`. */
+/** Progress sink - the bound `DDBAppV2.notifierV2`. ImportOptions + ItemNotify
+ *  are declared globally in ./types.d.ts. */
 type Notify = (props: NotifierV2Props) => void;
-/** Per-item callback handed to loop-bearing submodules (secondary bar). */
-export type ItemNotify = (current: number, total: number, label?: string) => void;
 
 /**
  * In-browser adventure importer - Phase 1 vertical slice (journals only).

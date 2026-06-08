@@ -3,36 +3,7 @@ import { replaceRollLinks } from "../../../parser/lib/DDBTable";
 import { addClasses, foundryCompendiumReplace, replaceImageLinks } from "./NativeLinkReplacer";
 import { injectHeadingAnchors } from "./NativeHeadingAnchors";
 
-/** Image handling: rewrite image links to uploaded stored paths. */
-export interface ImageOpts {
-  bookCode: string;
-  assetMap: Map<string, string>;
-}
-
-/** A raw row from the `Content` table. */
-export interface ContentRow {
-  id: number;
-  cobaltId: number | null;
-  parentId: number | null;
-  slug: string | null;
-  title: string | null;
-  html: string | null;
-}
-
-/** A processed row ready for journal/folder building. */
-export interface ProcessedRow {
-  id: number;
-  cobaltId: number | null;
-  parentId: number | null;
-  slug: string | null;
-  title: string;
-  contentChunkId: string | null;
-  /** page content HTML, links replaced, leading title heading stripped */
-  content: string;
-  /** linked HTML BEFORE the heading strip - used for table parsing/naming */
-  sourceHtml: string;
-  level: number;
-}
+// ImageOpts, ContentRow + ProcessedRow are declared globally in ./types.d.ts.
 
 /**
  * Port of the journals-relevant parts of the muncher's Row.js +

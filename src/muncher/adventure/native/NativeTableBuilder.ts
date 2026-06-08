@@ -4,9 +4,7 @@ import { buildTable, findDiceColumns, guessTableName } from "../../../parser/lib
 import NativeIdFactory from "./NativeIdFactory";
 import { makeFolderData } from "./NativeFolderBuilder";
 import { buildDdbFlags } from "./NativeShared";
-import type { ProcessedRow } from "./ContentRowProcessor";
-import type { TableHint } from "./NativeTableHints";
-import type { ItemNotify } from "./NativeAdventureMunch";
+// ProcessedRow, TableHint + ItemNotify are declared globally in ./types.d.ts.
 
 const TABLE_SORT = 100000;
 const FOLDER_SORT = 4000;

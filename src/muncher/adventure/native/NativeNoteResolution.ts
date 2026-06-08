@@ -3,21 +3,7 @@
 
 import { ddbSlugify } from "./NativeShared";
 
-export interface PageRef { entryId: string; pageId: string }
-
-/** A resolved note target: the page plus the in-page anchor to scroll to (if any). */
-export interface NoteTarget extends PageRef { anchor: string | null }
-
-export interface JournalPageLookup {
-  /** contentChunkId -> page (from `[data-content-chunk-id]` in page HTML). */
-  pageByChunk: Map<string, PageRef>;
-  /** contentChunkId -> injected heading id (the in-page anchor for that chunk). */
-  anchorByChunk: Map<string, string>;
-  /** element id / anchor -> page (from `[id]` in page HTML). */
-  pageByElementId: Map<string, PageRef>;
-  /** normalised slug -> page (sections resolve to their chapter journal page). */
-  pageBySlug: Map<string, PageRef>;
-}
+// PageRef, NoteTarget + JournalPageLookup are declared globally in ./types.d.ts.
 
 // Normalise a slug: drop empty hyphen segments, lowercase. The `#` is NOT
 // stripped: DDB section slugs legitimately contain it (e.g.

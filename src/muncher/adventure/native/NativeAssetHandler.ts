@@ -3,7 +3,7 @@ import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import BookData, { type NativeBookZip } from "./BookData";
 import { buildEnhancedUrlMap } from "./NativeEnhancements";
 import { IMAGE_EXT } from "./NativeShared";
-import type { ItemNotify } from "./NativeAdventureMunch";
+// ItemNotify is declared globally in ./types.d.ts.
 
 /**
  * Downloads adventure images and uploads them to the Foundry path the

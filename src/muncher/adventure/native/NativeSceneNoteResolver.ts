@@ -1,5 +1,5 @@
 import { logger, utils } from "../../../lib/_module";
-import { normSlug, resolveNote, type JournalPageLookup, type PageRef } from "./NativeNoteResolution";
+import { normSlug, resolveNote } from "./NativeNoteResolution";
 
 /**
  * Re-point scene note pins (`scene.notes[]`) at the journal pages we built this
@@ -16,7 +16,7 @@ import { normSlug, resolveNote, type JournalPageLookup, type PageRef } from "./N
  * Scenes are world-only; this resolver always uses raw world journal ids.
  */
 
-export { resolveNote, type JournalPageLookup } from "./NativeNoteResolution";
+export { resolveNote } from "./NativeNoteResolution";
 
 /**
  * Build the lookup indices from the journals we built this run. Parses each

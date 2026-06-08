@@ -46,13 +46,7 @@ export class NativeBookZip {
   }
 }
 
-export interface AcquiredBook {
-  bookCode: string;
-  bookName: string;
-  key: string;
-  db3Bytes: Uint8Array;
-  zip: NativeBookZip;
-}
+// AcquiredBook is declared globally in ./types.d.ts.
 
 /**
  * Browser-side data acquisition for adventures - replaces the Node muncher's

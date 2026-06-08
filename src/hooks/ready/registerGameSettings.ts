@@ -4,8 +4,8 @@ import DDBSetup from "../../apps/DDBSetup";
 import { IDDBListCampaign } from "../../lib/DDBCampaigns";
 import type { IDDBMapCatalog, IDDBSourceMaps } from "../../muncher/DDBMaps";
 import type { IDDBStickersPayload } from "../../muncher/DDBStickers";
-import type { JournalPageLookup } from "../../muncher/adventure/native/NativeNoteResolution";
 import { IIconMapEntry } from "../../lib/Iconizer";
+// JournalPageLookup is declared globally in muncher/adventure/native/types.d.ts.
 
 interface IDDBIMacros {
   spell: Record<string, any>;

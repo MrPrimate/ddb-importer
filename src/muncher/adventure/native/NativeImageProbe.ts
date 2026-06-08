@@ -13,9 +13,7 @@ import { logger, sampleEdgeBackgroundColor } from "../../../lib/_module";
  * Results cached per-process so multiple scenes sharing an image probe once.
  */
 
-export interface ImageSize { width: number; height: number }
-export interface ImageProbeResult { width: number; height: number; edgeColor: string | null }
-
+// ImageSize + ImageProbeResult are declared globally in ./types.d.ts.
 const FALLBACK: ImageProbeResult = { width: 2000, height: 2000, edgeColor: null };
 const cache = new Map<string, Promise<ImageProbeResult>>();
 

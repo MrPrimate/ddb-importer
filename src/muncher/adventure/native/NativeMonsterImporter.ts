@@ -3,16 +3,9 @@ import MonsterReplacer from "../../../apps/MonsterReplacer";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import { scanIds } from "./NativeShared";
 import { getNativeSessionCache } from "./NativeSessionCache";
-import type { ContentRow } from "./ContentRowProcessor";
 
+// ContentRow + MonsterSwap are declared globally in ./types.d.ts.
 const MONSTER_REF_RE = /ddb:\/\/monsters\/(\d+)/g;
-
-/** A selected 2014→2024 monster swap (subset of MonsterReplacer's hint payload). */
-export interface MonsterSwap {
-  id2014: number;
-  id2024: number;
-  name2024: string;
-}
 
 /** Scan all `ddb://monsters/<id>` ids referenced by the journal rows. */
 export function scanMonsterIds(rows: ContentRow[]): number[] {

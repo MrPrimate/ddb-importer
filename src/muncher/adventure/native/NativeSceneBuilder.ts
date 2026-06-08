@@ -1,14 +1,14 @@
 import { logger } from "../../../lib/_module";
 import NativeIdFactory from "./NativeIdFactory";
-import { scanForScenes, type DetectedScene } from "./NativeSceneParser";
+import { scanForScenes } from "./NativeSceneParser";
 import { probeImage } from "./NativeImageProbe";
 import { buildMasterSceneFolder, buildSceneChapterFolder } from "./NativeFolderBuilder";
 import { DEFAULT_LEVEL_ID } from "../AdventureMunch";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import DDBMapMetaData from "../DDBMapMetaData";
 import { ensureAssetsPrefix } from "./NativeShared";
-import type { ProcessedRow } from "./ContentRowProcessor";
-import type { ItemNotify } from "./NativeAdventureMunch";
+// DetectedScene, ProcessedRow, ItemNotify, BuiltScene + BuiltScenes are declared
+// globally in ./types.d.ts.
 
 /**
  * Build the per-book Scene docs from the processed Content rows.
@@ -33,17 +33,7 @@ const DEFAULT_PADDING = 0.25;
 const DEFAULT_BG_COLOR = "#999999";
 const DEFAULT_GRID = { type: 1, size: 100, distance: 5, units: "ft", color: "#000000", alpha: 0.2 };
 
-export interface BuiltScene {
-  doc: any;
-  /** Original detection + source row so the applier can rebuild the mapStub for enrich(). */
-  detection: DetectedScene;
-  row: ProcessedRow;
-}
-
-export interface BuiltScenes {
-  scenes: BuiltScene[];
-  folders: I5eFolderData[];
-}
+// BuiltScene + BuiltScenes are declared globally in ./types.d.ts.
 
 /**
  * Resolve a scene background image path to its uploaded Foundry URL.

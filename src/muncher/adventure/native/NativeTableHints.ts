@@ -8,10 +8,7 @@ import { logger, DDBProxy, PatreonHelper, Secrets } from "../../../lib/_module";
  * body { cobalt, betaKey, bookCode } → { success, data: [{ contentChunkId, tableName?, folderName? }] }.
  */
 
-export interface TableHint {
-  tableName?: string;
-  folderName?: string;
-}
+// TableHint is declared globally in ./types.d.ts.
 
 export async function fetchTableHints(bookCode: string): Promise<Map<string, TableHint>> {
   const map = new Map<string, TableHint>();

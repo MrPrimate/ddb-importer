@@ -1,6 +1,6 @@
 import { logger, utils } from "../../../lib/_module";
 import { ensureAssetsPrefix } from "./NativeShared";
-import type { ProcessedRow } from "./ContentRowProcessor";
+// ProcessedRow + DetectedScene are declared globally in ./types.d.ts.
 
 /**
  * DOMParser port of the Node muncher's SceneParser
@@ -25,21 +25,6 @@ import type { ProcessedRow } from "./ContentRowProcessor";
  * ([SceneParser.js:62-66](ddb-adventure-muncher/munch/adventure/Scenes/SceneParser.js#L62)).
  * Cross-row dedup is the builder's job (Scene._id is deterministic on row + image).
  */
-
-export interface DetectedScene {
-  /** Display name including "(Player Version)" / "(Unlabeled Version)" suffix. */
-  name: string;
-  /** Asset-relative image path (`assets/<book>/<...>`). */
-  imagePath: string;
-  /** From the source `<a>`/`<figure>` `data-content-chunk-id` (or synthesised when absent). */
-  contentChunkId: string;
-  /** True when the source link advertised this as a player-facing map. */
-  isPlayer: boolean;
-  /** Which detector produced this entry - useful for logging. */
-  source: "figure" | "div" | "viewplayer" | "linkfallback";
-  /** Synthetic numeric id so multiple scenes per row don't collide on `_id` derivation. */
-  syntheticIdOffset: number;
-}
 
 // muncher Helpers.titleString: trim + collapse internal whitespace; light case.
 function titleString(s: string): string {

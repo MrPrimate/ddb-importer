@@ -6,7 +6,7 @@ import DDBMap from "../muncher/adventure/DDBMap";
 import DDBMapMetaData, { resolveMapBookCode } from "../muncher/adventure/DDBMapMetaData";
 import NativeAdventureMunch from "../muncher/adventure/native/NativeAdventureMunch";
 import { repointNotesOnLiveScene } from "../muncher/adventure/native/NativeSceneApplier";
-import { buildJournalPageLookup, type JournalPageLookup } from "../muncher/adventure/native/NativeSceneNoteResolver";
+import { buildJournalPageLookup } from "../muncher/adventure/native/NativeSceneNoteResolver";
 import { getNativeSessionCache, clearNativeSessionCache } from "../muncher/adventure/native/NativeSessionCache";
 
 const TYPE_ORDER = ["basic", "subscription", "mappack", "sourcebook", "adventure"];

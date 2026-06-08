@@ -5,7 +5,7 @@ import DDBItemsImporter from "../../DDBItemsImporter";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import { scanIds } from "./NativeShared";
 import { getNativeSessionCache } from "./NativeSessionCache";
-import type { ContentRow } from "./ContentRowProcessor";
+// ContentRow is declared globally in ./types.d.ts.
 
 /**
  * Before importing monsters, import the spells + items referenced in the

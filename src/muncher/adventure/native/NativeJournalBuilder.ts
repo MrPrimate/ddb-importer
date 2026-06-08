@@ -1,8 +1,7 @@
 import { logger } from "../../../lib/_module";
 import NativeIdFactory from "./NativeIdFactory";
 import { buildDdbFlags } from "./NativeShared";
-import type { ProcessedRow } from "./ContentRowProcessor";
-import type { ItemNotify } from "./NativeAdventureMunch";
+// ProcessedRow + ItemNotify are declared globally in ./types.d.ts.
 
 const JOURNAL_SORT = 1000;
 

@@ -17,9 +17,7 @@
  * cleared via the Map Browser's Reload button (`clearNativeSessionCache`).
  */
 
-import type { IDDBIConfig } from "../../../hooks/ready/registerGameSettings";
-
-export type NativeSessionCache = NonNullable<IDDBIConfig["NATIVE"]>;
+// NativeSessionCache is declared globally in ./types.d.ts.
 
 export function getNativeSessionCache(): NativeSessionCache {
   CONFIG.DDBI.NATIVE ??= {

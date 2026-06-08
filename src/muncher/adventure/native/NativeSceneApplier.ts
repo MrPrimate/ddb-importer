@@ -1,8 +1,7 @@
 import { logger, DDBSources } from "../../../lib/_module";
 import DDBMapMetaData from "../DDBMapMetaData";
-import type { BuiltScene } from "./NativeSceneBuilder";
-import { buildJournalPageLookup, resolveNote, resolveSceneNotes, type JournalPageLookup } from "./NativeSceneNoteResolver";
-import type { ItemNotify } from "./NativeAdventureMunch";
+import { buildJournalPageLookup, resolveNote, resolveSceneNotes } from "./NativeSceneNoteResolver";
+// BuiltScene, JournalPageLookup + ItemNotify are declared globally in ./types.d.ts.
 
 /**
  * Post-create world-side scene enrichment.
