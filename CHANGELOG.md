@@ -1,5 +1,10 @@
 # Next Up
 
+# 7.3.2
+
+- Fix issues when trying to munch with self hosted proxy.
+- Ravenloft subclass parsing: Rogue, Sorcerer, Warlock.
+
 # 7.3.1
 
 - Scenes with metadata enhancements (scene status) will now show it on hover in the Adventure Browser.

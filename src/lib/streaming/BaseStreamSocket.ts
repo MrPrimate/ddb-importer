@@ -107,12 +107,34 @@ export default abstract class BaseStreamSocket<
     return this.socket;
   }
 
-  auth(body: BaseStreamAuthBody): Promise<{ ok: boolean; message?: string }> {
+  auth(body: BaseStreamAuthBody, timeoutMs = 20000): Promise<{ ok: boolean; message?: string }> {
     const socket = this.ensureConnected();
+    // Fail fast if the socket can't connect (e.g. a custom/self-hosted proxy
+    // that doesn't expose this namespace). Without this the auth ack callback
+    // never fires and the caller hangs forever instead of falling back to HTTP.
     return new Promise((resolve) => {
-      socket.emit("auth", body, (res: { ok: boolean; message?: string }) => {
+      let settled = false;
+      const finish = (res: { ok: boolean; message?: string }) => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        socket.off("connect_error", onConnectError);
         this.authenticated = !!res?.ok;
-        resolve(res ?? { ok: false, message: "no ack" });
+        resolve(res);
+      };
+
+      const onConnectError = (err: Error) => {
+        logger.warn(`${this.logTag} auth connect_error: ${err.message}`);
+        finish({ ok: false, message: err.message || "connect error" });
+      };
+
+      const timer: ReturnType<typeof setTimeout> | null = timeoutMs && timeoutMs > 0
+        ? setTimeout(() => finish({ ok: false, message: `${this.logTag} auth timed out` }), timeoutMs)
+        : null;
+
+      socket.on("connect_error", onConnectError);
+      socket.emit("auth", body, (res: { ok: boolean; message?: string }) => {
+        finish(res ?? { ok: false, message: "no ack" });
       });
     });
   }
