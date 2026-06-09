@@ -96,7 +96,7 @@ export default class BoomingBlade extends DDBEnricherData {
           overrideTemplate: true,
           noTemplate: true,
           data: {
-            _id: "ddb-boom-move-dam",
+            _id: "ddbboomingdama01",
           },
         },
       },

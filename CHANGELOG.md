@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.23
+
+- BOoming blade would break spell imports.
+
 # 7.1.22
 
 - Improve spell advancement and cast activity generation on species traits. Spell advancements now appear on the feature for species.
