@@ -274,7 +274,7 @@ export default class NativeAdventureMunch {
       if (importAllMonsters) {
         this.#phase("Importing all monsters to world");
         this.#clearSecondary();
-        await importAllMonstersToWorld(rows, bookName);
+        await importAllMonstersToWorld(rows, bookName, monsterSwap);
       }
     }
 

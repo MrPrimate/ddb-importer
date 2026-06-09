@@ -98,9 +98,14 @@ export async function importRequiredMonsters(rows: ContentRow[], swap?: Map<numb
  * per-actor resilience live in AdventureMunchHelpers.importMonstersToWorld, shared
  * with the legacy AdventureMunch path.
  */
-export async function importAllMonstersToWorld(rows: ContentRow[], bookName: string): Promise<void> {
+export async function importAllMonstersToWorld(rows: ContentRow[], bookName: string, swap?: Map<number, MonsterSwap>): Promise<void> {
   const ids = scanIds(rows, MONSTER_REF_RE);
   if (ids.size === 0) return;
+
+  // Apply the 2014→2024 swap (replaced ids → 2024, others unchanged) so the world
+  // gets only the not-replaced legacy actors + their 2024 replacements - never the
+  // replaced 2014 actor alongside its 2024 version. Dedup via Set.
+  const mapped = [...new Set([...ids].map((id) => swap?.get(Number(id))?.id2024 ?? Number(id)))];
 
   let folderId: string | null = null;
   try {
@@ -110,6 +115,6 @@ export async function importAllMonstersToWorld(rows: ContentRow[], bookName: str
     logger.warn(`NativeMonsterImporter: failed to ensure Actor folder "${bookName}" (${(error as Error).message ?? error})`);
   }
 
-  const imported = await AdventureMunchHelpers.importMonstersToWorld([...ids].map(Number), { folderId });
-  logger.info(`NativeMonsterImporter: imported ${imported.length} world actor(s) from ${ids.size} referenced monsters into "${bookName}"`);
+  const imported = await AdventureMunchHelpers.importMonstersToWorld(mapped, { folderId });
+  logger.info(`NativeMonsterImporter: imported ${imported.length} world actor(s) from ${mapped.length} referenced monsters into "${bookName}"`);
 }

@@ -1,5 +1,7 @@
 # Next Up
 
+- When swapping monsters, all monsters would be imported (2014 and 2024).
+
 # 7.3.2
 
 - Improve spell advancement and cast activity generation on species traits. Spell advancements now appear on the feature for species.
