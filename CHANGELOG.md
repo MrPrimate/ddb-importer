@@ -1,6 +1,9 @@
 # Next Up
 
+# 7.3.3
+
 - When swapping monsters, all monsters would be imported (2014 and 2024).
+- Booming blade broke spell munch.
 
 # 7.3.2
 
