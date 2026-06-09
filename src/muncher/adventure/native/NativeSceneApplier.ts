@@ -45,6 +45,9 @@ function mapStubForScene(scene: BuiltScene, bookCode: string, sourceId: number |
     imageKey: `official/maps/${bookCode}/${basename(scene.detection.imagePath)}`,
     name: stripSuffix(scene.detection.name),
     sourceId,
+    // parentId lets the proxy disambiguate variants that share an image by the
+    // scene-info's own flags.ddb.parentId (filename alone is ambiguous).
+    parentId: scene.doc.flags?.ddb?.parentId ?? null,
     officialData: { sourceId, filename: basename(scene.detection.imagePath) },
     flags: {},
   };

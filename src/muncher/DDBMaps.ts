@@ -286,15 +286,19 @@ export default class DDBMaps {
     sourceId = null,
     name = null,
     filename = null,
+    parentId = null,
+    contentChunkId = null,
     cobalt = null,
   }: {
     bookCode?: string | null;
     sourceId?: string | number | null;
     name?: string | null;
     filename?: string | null;
+    parentId?: string | number | null;
+    contentChunkId?: string | null;
     cobalt?: string | null;
   } = {}): Promise<IDDBMetaDataMatchResult | null> {
-    const body = DDBMaps.buildBody({ bookCode, sourceId, name, filename }, cobalt);
+    const body = DDBMaps.buildBody({ bookCode, sourceId, name, filename, parentId, contentChunkId }, cobalt);
     return DDBMaps.post<IDDBMetaDataMatchResult>("/proxy/maps/metadata/match", body);
   }
 

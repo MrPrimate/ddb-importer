@@ -51,6 +51,13 @@ function _normaliseName(s: string | null | undefined): string {
   return (s ?? "").toLowerCase().trim();
 }
 
+// Drop the trailing "(Player/Unlabeled/Ungridded/Map Version)" suffix before a
+// name comparison (mirrors NativeSceneApplier.stripSuffix) so a player-version
+// scene still matches a metadata variant named without the suffix.
+function _stripVersionSuffix(s: string | null | undefined): string {
+  return (s ?? "").replace(/\s*\((Player|Unlabeled|Ungridded|Map) Version\)\s*$/i, "").trim();
+}
+
 function _filenameFromImageKey(imageKey: string | null | undefined): string | null {
   if (!imageKey) return null;
   const last = imageKey.split("/").pop();
@@ -68,12 +75,16 @@ function _proxyRequestForMap(map: IDDBMap): {
   sourceId: string | number | null;
   name: string | null;
   filename: string | null;
+  parentId: number | string | null;
 } {
   return {
     bookCode: resolveMapBookCode(map),
     sourceId: map.sourceId ?? map.officialData?.sourceId ?? null,
     name: map.name ?? null,
     filename: _filenameFromImageKey(map.imageKey),
+    // parentId lets the proxy disambiguate maps that share an image across
+    // seasonal/floor variants by the scene-info's own flags.ddb.parentId.
+    parentId: (map as any).parentId ?? (map as any).flags?.ddb?.parentId ?? null,
   };
 }
 
@@ -1114,6 +1125,35 @@ export default class DDBMapMetaData {
         metaDataError: "all-scene-fetches-failed",
       });
       return [];
+    }
+
+    // Missing scenes are already pre-expanded: one Foundry scene per season/floor
+    // variant, each built with its correct name. Many variants share a single
+    // image file (e.g. c4003.jpg backs Alley Summer/Autumn/Winter), so the
+    // filename-based proxy match returns ALL sibling scene-info files for one
+    // scene. The multi-floor clone/rename path below (meant for one journal map
+    // image -> N floors) would then duplicate the scene and rename it to a
+    // sibling's name. Instead, apply exactly the one scene-info that belongs to
+    // this scene - keyed on contentChunkId - with no clone and no rename.
+    const isMissing = (scene as any)?.flags?.ddb?.source === "missing";
+    if (isMissing) {
+      const wantCcId = (scene as any)?.flags?.ddb?.contentChunkId;
+      const byChunk = fullMatches.find((m) => m.scene?.flags?.ddb?.contentChunkId === wantCcId);
+      // Name fallback: compare against the authoritative per-variant `sceneName`
+      // from the /match payload (and the scene-info `name`, often absent), both
+      // normalised + suffix-stripped, so a metadata file without a contentChunkId
+      // still resolves to the right variant.
+      const wantName = _normaliseName(_stripVersionSuffix(scene.name));
+      const matchName = (m: IDDBMetaMatch): string =>
+        _normaliseName(_stripVersionSuffix(m.sceneName ?? m.scene?.name));
+      const byName = wantName ? fullMatches.find((m) => matchName(m) === wantName) : undefined;
+      const chosen = byChunk ?? byName ?? fullMatches[0];
+      const how = byChunk ? "contentChunkId" : (byName ? "name-fallback" : "first-match-fallback");
+      logger.info(
+        `DDBMapMetaData.enrich: missing scene "${scene.name}" (${wantCcId}) - applying single match ${chosen.filepath} via ${how}; clone/rename skipped`,
+        { wantName, candidates: fullMatches.map((m) => ({ name: m.sceneName ?? m.scene?.name, ccId: m.scene?.flags?.ddb?.contentChunkId, filepath: m.filepath })) },
+      );
+      return [await this._applyMatchToScene(scene, chosen, options)];
     }
 
     // Step 4: clone extra Foundry scenes for matches beyond the first. Done

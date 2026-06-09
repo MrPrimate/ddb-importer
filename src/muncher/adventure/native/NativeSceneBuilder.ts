@@ -154,22 +154,38 @@ function buildBaseScene(args: {
  * ships map metadata for but never links inline in the journal HTML, so the
  * HTML scan never finds them.
  */
-function buildMissingDetection(es: any, bookCode: string, index: number): { detection: DetectedScene; row: ProcessedRow } {
-  const id = 90000 + Number(es.ddbId) + index;
+function buildMissingDetection(es: any, bookCode: string, index: number): { detection: DetectedScene; row: ProcessedRow } | null {
   const adjustName: string = (typeof es.adjustName === "string" && es.adjustName.trim() !== "")
     ? es.adjustName.trim()
     : es.name;
+
+  const rawId = Number(es.ddbId ?? es.id);
+  if (!Number.isFinite(rawId)) {
+    logger.warn(`NativeSceneBuilder: missing scene "${adjustName ?? "?"}" has no usable ddbId/id; skipping`);
+    return null;
+  }
+  const parentId: number | null = es.parentId ?? null;
+
+  // The scene-info metadata file is matched server-side by the proxy using
+  // bookCode + parentId + name (the file's own flags.ddb fields); the importer
+  // does not need - and cannot reconstruct - the file's sequential id. The
+  // contentChunkId here is only a Foundry-internal id for deterministic _id
+  // derivation; +index keeps it collision-free across entries that share a
+  // ddbId (e.g. multi-deck ships). parentId (sent on the match request) is what
+  // actually resolves the right variant.
+  const offset = rawId + index;
+  const id = 90000 + offset;
   const contentChunkId = `ddb-missing-${bookCode}-${id}`;
+
   const detection: DetectedScene = {
     name: adjustName,
     imagePath: ensureAssetsPrefix(es.scene_img || es.img),
     contentChunkId,
     isPlayer: false,
     source: "missing",
-    // ddbId+index keeps the _id derivation collision-free across entries that
-    // share a ddbId (muncher does the same with the 90000+ id range).
-    syntheticIdOffset: Number(es.ddbId) + index,
+    syntheticIdOffset: offset,
   };
+  logger.debug(`NativeSceneBuilder: missing scene "${adjustName}" ddbId=${rawId} parentId=${parentId} img=${detection.imagePath}`);
   const row: ProcessedRow = {
     id,
     cobaltId: es.cobaltId ?? null,
@@ -213,7 +229,10 @@ export async function buildScenes(
   const missing = enhancements.filter((es) => es?.missing);
   if (missing.length) {
     logger.info(`NativeSceneBuilder: ${missing.length} missing scene(s) from enhancement data`);
-    missing.forEach((es, index) => all.push(buildMissingDetection(es, bookCode, index)));
+    missing.forEach((es, index) => {
+      const built = buildMissingDetection(es, bookCode, index);
+      if (built) all.push(built);
+    });
   }
   if (all.length === 0) {
     logger.info(`NativeSceneBuilder: no scenes detected in ${rows.length} rows`);
