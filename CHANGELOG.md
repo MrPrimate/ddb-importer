@@ -1,5 +1,7 @@
 # Next Up
 
+- Native Adventure Muncher now imports the derived missing scenes that sometimes exist in adventures.
+
 # 7.3.3
 
 - When swapping monsters, all monsters would be imported (2014 and 2024).
