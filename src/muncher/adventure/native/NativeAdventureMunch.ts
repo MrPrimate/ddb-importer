@@ -196,7 +196,7 @@ export default class NativeAdventureMunch {
     this.#phase("Building scenes");
     this.#clearSecondary();
     const { scenes: builtScenes, folders: sceneFolders } = await buildScenes(
-      processed, bookCode, bookName, imageOpts?.assetMap ?? new Map(), idFactory, this.#item,
+      processed, bookCode, bookName, imageOpts?.assetMap ?? new Map(), idFactory, this.#item, enhancements,
     );
 
     // resolve internal cross-page references now that all journal/page ids exist

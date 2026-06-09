@@ -89,10 +89,18 @@ function buildBaseScene(args: {
   // border blends in (parity with DDBMap.createScene).
   const bgColor = edgeColor ?? DEFAULT_BG_COLOR;
 
+  // Nav-bar label: drop the chapter prefix ("Chapter: Foo" → "Foo") then strip
+  // parenthetical suffixes ("Foo (Player Version)" → "Foo") for a tidy nav bar
+  // (muncher parity). Fall back to the un-stripped base if a wholly-bracketed
+  // name strips to empty. Metadata navName overrides this post-create via
+  // DDBMapMetaData.buildSceneUpdate (navName is not merge-excluded).
+  const navBase = detection.name.split(":").pop()?.trim() ?? detection.name;
+  const navName = navBase.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim() || navBase;
+
   return {
     _id,
     name: detection.name,
-    navName: detection.name.split(":").pop()?.trim() ?? detection.name,
+    navName,
     width,
     height,
     padding: DEFAULT_PADDING,
@@ -139,6 +147,43 @@ function buildBaseScene(args: {
   };
 }
 
+/**
+ * Synthesise a DetectedScene + minimal ProcessedRow for a `missing: true`
+ * enhancement entry. Mirrors the muncher's `SceneFactory.generateMissingScenes`
+ * (ddb-adventure-muncher/munch/adventure/SceneFactory.js:51-87): scenes DDB
+ * ships map metadata for but never links inline in the journal HTML, so the
+ * HTML scan never finds them.
+ */
+function buildMissingDetection(es: any, bookCode: string, index: number): { detection: DetectedScene; row: ProcessedRow } {
+  const id = 90000 + Number(es.ddbId) + index;
+  const adjustName: string = (typeof es.adjustName === "string" && es.adjustName.trim() !== "")
+    ? es.adjustName.trim()
+    : es.name;
+  const contentChunkId = `ddb-missing-${bookCode}-${id}`;
+  const detection: DetectedScene = {
+    name: adjustName,
+    imagePath: ensureAssetsPrefix(es.scene_img || es.img),
+    contentChunkId,
+    isPlayer: false,
+    source: "missing",
+    // ddbId+index keeps the _id derivation collision-free across entries that
+    // share a ddbId (muncher does the same with the 90000+ id range).
+    syntheticIdOffset: Number(es.ddbId) + index,
+  };
+  const row: ProcessedRow = {
+    id,
+    cobaltId: es.cobaltId ?? null,
+    parentId: es.parentId ?? null,
+    slug: es.slug ?? null,
+    title: es.name,
+    contentChunkId,
+    content: "",
+    sourceHtml: "",
+    level: 0,
+  };
+  return { detection, row };
+}
+
 /** Build all Scene docs + matching scene folders. Empty book → `{ scenes: [], folders: [] }`. */
 export async function buildScenes(
   rows: ProcessedRow[],
@@ -147,6 +192,7 @@ export async function buildScenes(
   assetMap: Map<string, string>,
   idFactory: NativeIdFactory,
   notify?: ItemNotify,
+  enhancements: any[] = [],
 ): Promise<BuiltScenes> {
   // 1. Scan every row, collect detections with their owning row. Cross-row
   //    dedup: first row to mention an image wins (muncher behaviour).
@@ -159,6 +205,15 @@ export async function buildScenes(
       seenImages.add(detection.imagePath);
       all.push({ detection, row });
     }
+  }
+  // Missing scenes: enhancement entries flagged `missing: true` are real maps
+  // DDB never links in the HTML, so the scan above can't find them. Synthesise
+  // them here (no dedup against seenImages - the API's `missing` flag is
+  // authoritative). They flow through the same build loop + downstream pipeline.
+  const missing = enhancements.filter((es) => es?.missing);
+  if (missing.length) {
+    logger.info(`NativeSceneBuilder: ${missing.length} missing scene(s) from enhancement data`);
+    missing.forEach((es, index) => all.push(buildMissingDetection(es, bookCode, index)));
   }
   if (all.length === 0) {
     logger.info(`NativeSceneBuilder: no scenes detected in ${rows.length} rows`);

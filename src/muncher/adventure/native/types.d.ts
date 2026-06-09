@@ -87,8 +87,9 @@ global {
     contentChunkId: string;
     /** True when the source link advertised this as a player-facing map. */
     isPlayer: boolean;
-    /** Which detector produced this entry - useful for logging. */
-    source: "figure" | "div" | "viewplayer" | "linkfallback";
+    /** Which detector produced this entry - useful for logging. `"missing"` =
+     *  synthesised from a `missing: true` enhancement, not from HTML scanning. */
+    source: "figure" | "div" | "viewplayer" | "linkfallback" | "missing";
     /** Synthetic numeric id so multiple scenes per row don't collide on `_id` derivation. */
     syntheticIdOffset: number;
   }
