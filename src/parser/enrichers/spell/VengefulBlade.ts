@@ -75,7 +75,7 @@ export default class VengefulBlade extends DDBEnricherData {
           overrideTemplate: true,
           noTemplate: true,
           data: {
-            _id: "ddb-boom-atta-dam",
+            _id: "ddbVengefulBlDa1",
           },
         },
       },
