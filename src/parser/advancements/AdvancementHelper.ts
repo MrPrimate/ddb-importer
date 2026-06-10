@@ -2366,23 +2366,24 @@ export default class AdvancementHelper {
 
     // You can cast either the barkskin or spike growth spell once, and you must complete a long rest before you can cast either spell again
     // You gain the ability to cast the spell cure wounds without using a spell slot, up to a number of times equal to half your proficiency bonus
-    const canCastRegex = /you (?:can|gain the ability to) (?:also )?cast (?:the |either the )?(.+?)(?: spells?,?)? (once|an unlimited number of times|on yourself|as a \d+(?:st|nd|rd|th)[- ]level spell once|without using a spell slot, up to a number of times equal to half your proficiency bonus)/ig;
+    const canCastRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?you (?:can|gain the ability to) (?:also )?cast (?:the |either the )?(.+?)(?: spells?,?)? (once|an unlimited number of times|on yourself|as a \d+(?:st|nd|rd|th)[- ]level spell once|without using a spell slot, up to a number of times equal to half your proficiency bonus)/ig;
     const canCastMatches = strippedDescription.matchAll(canCastRegex);
 
     for (const match of canCastMatches) {
-      const spells = match[1]
+      const spells = match[2]
         .replace("spell", "")
         .replaceAll(" or ", " and ")
         .split(" and ")
         .map((s) => s.toLowerCase().trim());
-      const unlimited = match[2] && match[2].includes("unlimited");
-      const halfProficiency = match[2] && match[2].includes("half your proficiency bonus");
+      const unlimited = match[3] && match[3].includes("unlimited");
+      const halfProficiency = match[3] && match[3].includes("half your proficiency bonus");
       for (const spell of spells) {
         if (["it"].includes(spell)) continue;
         if (spellsAdded.has(spell)) continue;
         spellsAdded.add(spell);
+        const level = match[1] ? parseInt(match[1]) : 1;
         result.spellGrants.push({
-          level: 1,
+          level,
           name: spell,
           amount: unlimited
             ? ""
@@ -2406,15 +2407,16 @@ export default class AdvancementHelper {
     }
 
     // You always have the Otto’s Irresistible Dance spell prepared. You can cast it once without a spell slot,
-    const alwaysPreparedRegex = /You always have the (.+?) spell(?:s)? prepared\. (?:You can cast (?:it|each spell) (.+?) without a spell slot|cast (.+?) without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
+    const alwaysPreparedRegex = /(?:When you reach (\d)(?:st|nd|rd|th) level, )?You always have the (.+?) spell(?:s)? prepared\. (?:You can cast (?:it|each spell) (.+?) without a spell slot|cast (.+?) without expending a spell slot|You can cast the spell (.+?) without a spell slot,)/i;
     const alwaysPreparedMatch = strippedDescription.match(alwaysPreparedRegex);
     if (alwaysPreparedMatch) {
-      const spellMatch = (alwaysPreparedMatch[1] ?? alwaysPreparedMatch[2]).toLowerCase().trim();
+      const spellMatch = (alwaysPreparedMatch[2] ?? alwaysPreparedMatch[3]).toLowerCase().trim();
       const spellArray = spellMatch.replace(" and ", ",").split(",").map((s) => s.trim());
       for (const spell of spellArray) {
         if (!spellsAdded.has(spell)) {
+          const level = alwaysPreparedMatch[1] ? parseInt(alwaysPreparedMatch[1]) : 1;
           result.spellGrants.push({
-            level: 1,
+            level,
             name: spell,
             amount: "1",
           });
@@ -3230,12 +3232,16 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   }
 
 
-  static async addSpellAdvancement({ ddbParser, feature, type, addToAdvancements = true }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean }) {
+  static async addSpellAdvancement({
+    ddbParser, feature, type, addToAdvancements = true, advancementsOnlyForLimitedUses = false,
+  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean, advancementsOnlyForLimitedUses?: boolean },
+  ) {
     // console.warn(`Spell advancment check for ${feature.name}`, {
     //   feature,
     //   type,
     //   ddbParser,
     //   addToAdvancements,
+    //   advancementsOnlyForLimitedUses,
     // })
     if (!("advancement" in feature.system)) return;
     if (!("activities" in feature.system)) return;
@@ -3416,11 +3422,13 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         } else {
           activity.data.uses = uses;
         }
-        feature.system.activities[activity.data._id] = activity.data;
-
-        ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [spellGrant.name], use2024Spells });
-
-        logger.warn(`Added spell activity for ${spellGrant.name} to feature ${feature.name}`);
+        if (advancementsOnlyForLimitedUses) {
+          logger.debug(`Not adding spell activity for ${spellGrant.name} to feature ${feature.name} as advancementOnlyForLimitedUses is true`);
+        } else {
+          feature.system.activities[activity.data._id] = activity.data;
+          ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [spellGrant.name], use2024Spells });
+          logger.debug(`Added spell activity for ${spellGrant.name} to feature ${feature.name}`);
+        }
 
       }
     }
