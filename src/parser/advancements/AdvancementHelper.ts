@@ -3221,7 +3221,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   static async addSpellAdvancement({
     ddbParser, feature, type, addToAdvancements = true, advancementsOnlyForLimitedUses = false,
-  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean, advancementsOnlyForLimitedUses?: boolean },
+  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
   ) {
     // console.warn(`Spell advancment check for ${feature.name}`, {
     //   feature,

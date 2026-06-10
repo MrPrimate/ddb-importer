@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.25
+
+- Traits for species could add spell activities and advancements, when only advancements were needed. Some advancements were not generated.
+
 # 7.1.24
 
 - Vengeful Blade would break spell imports.
