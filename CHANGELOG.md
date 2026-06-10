@@ -1,8 +1,12 @@
 # Next Up
 
+# 7.1.24
+
+- Vengeful Blade would break spell imports.
+
 # 7.1.23
 
-- BOoming blade would break spell imports.
+- Booming blade would break spell imports.
 
 # 7.1.22
 
