@@ -3234,7 +3234,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   static async addSpellAdvancement({
     ddbParser, feature, type, addToAdvancements = true, advancementsOnlyForLimitedUses = false,
-  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean, advancementsOnlyForLimitedUses?: boolean },
+  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
   ) {
     // console.warn(`Spell advancment check for ${feature.name}`, {
     //   feature,
@@ -3307,49 +3307,6 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     });
     if (cantripGrantAdvancement) {
       advancements.push(cantripGrantAdvancement);
-      // ddbParser.spellsGranted[type].push({ feature: feature.name, spells: htmlData.cantripGrants, use2024Spells });
-      // for (const cantripGrant of htmlData.cantripGrants) {
-      //   if (Object.values(feature.system.activities).some((a) => a.name.toLowerCase() === cantripGrant.toLowerCase() && a.type === "cast")) {
-      //     continue;
-      //   }
-
-      //   const spellIndex = await AdvancementHelper._getSpellUuidsFromFeatureSpellData([cantripGrant], spellData, use2024Spells);
-      //   if (!spellIndex || spellIndex.length === 0) {
-      //     logger.warn(`No compendium spell found for ${cantripGrant}, cannot build spell activity for feature ${feature.name}, adding spell directly`);
-      //     continue;
-      //   }
-
-      //   const uuid = spellIndex[0].uuid;
-
-      //   if (Object.values(feature.system.activities).some((a) => a.type === "cast" && a.spell?.uuid === uuid)) {
-      //     logger.debug(`Spell activity for ${cantripGrant} already exists on feature ${feature.name}, skipping`);
-      //     continue;
-      //   }
-
-      //   const activity = new DDBBasicActivity({
-      //     nameIdPrefix: utils.namedIDStub(cantripGrant, {
-      //       prefix: "gr",
-      //       length: 12,
-      //     }),
-      //     type: "cast",
-      //     foundryFeature: feature,
-      //   });
-
-      //   const spellOverride = {
-      //     uuid,
-      //     properties: abilityData.properties ?? [],
-      //     spellbook: true,
-      //   };
-
-      //   activity.build({
-      //     generateSpell: true,
-      //     generateConsumption: true,
-      //     noConsumeTargets: true,
-      //     spellOverride,
-      //   });
-
-      //   feature.system.activities[activity.data._id] = activity.data;
-      // }
     }
 
     const isItemConsume = !foundry.utils.hasProperty(feature, "system.uses.max")

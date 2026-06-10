@@ -654,3 +654,24 @@
   white-space: nowrap;
   opacity: 0.8;
 }
+
+/* Debug badge on scene directory entries showing ddb-meta-data enrichment state */
+.scenes-sidebar .directory-item .ddbimporter-meta-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 1; /* above .entry-name (inset: 0) */
+  font-size: 0.8rem;
+  padding: 2px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: all; /* so data-tooltip hover works */
+}
+
+.ddbimporter-meta-badge--ok {
+  color: #4caf50;
+}
+
+.ddbimporter-meta-badge--fail {
+  color: #ff9800;
+}

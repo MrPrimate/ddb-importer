@@ -549,6 +549,9 @@ export default class DDBMapMetaData {
   private static async _stampFlags(scene: Scene, ddbimporterFlags: IDDBImporterSceneFlags): Promise<void> {
     try {
       await scene.update({ flags: { ddbimporter: ddbimporterFlags } } as any);
+      // Flag-only updates don't match SceneDirectory's renderUpdateKeys, so
+      // force a render for the debug meta-data badge to appear immediately.
+      ui.scenes?.render();
     } catch (error) {
       logger.warn(`DDBMapMetaData: failed to stamp scene flags: ${(error as Error).message ?? error}`);
     }
