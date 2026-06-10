@@ -58,6 +58,14 @@ function _stripVersionSuffix(s: string | null | undefined): string {
   return (s ?? "").replace(/\s*\((Player|Unlabeled|Ungridded|Map) Version\)\s*$/i, "").trim();
 }
 
+// Tidy nav-bar label from a scene name: drop a "Chapter: " prefix then any
+// parenthetical suffix (mirrors NativeSceneBuilder's navName derivation). Falls
+// back to the un-stripped base when a wholly-bracketed name strips to empty.
+function _navNameFromName(name: string | null | undefined): string {
+  const base = (name ?? "").split(":").pop()?.trim() ?? (name ?? "");
+  return base.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim() || base;
+}
+
 function _filenameFromImageKey(imageKey: string | null | undefined): string | null {
   if (!imageKey) return null;
   const last = imageKey.split("/").pop();
@@ -76,15 +84,28 @@ function _proxyRequestForMap(map: IDDBMap): {
   name: string | null;
   filename: string | null;
   parentId: number | string | null;
+  contentChunkId: string | null;
+  ddbId: number | string | null;
+  missing: boolean | null;
 } {
   return {
     bookCode: resolveMapBookCode(map),
     sourceId: map.sourceId ?? map.officialData?.sourceId ?? null,
     name: map.name ?? null,
     filename: _filenameFromImageKey(map.imageKey),
-    // parentId lets the proxy disambiguate maps that share an image across
-    // seasonal/floor variants by the scene-info's own flags.ddb.parentId.
+    // parentId (DDB ParentID) is the cross-muncher-stable join the proxy keys on,
+    // with filename; contentChunkId/ddbId are secondary disambiguators. ddbId is
+    // the DDB content-row id - note the proxy metadata's own ddbId is a different
+    // (sequential) id, so it only ever helps as a last-resort tie-break.
     parentId: (map as any).parentId ?? (map as any).flags?.ddb?.parentId ?? null,
+    contentChunkId: (map as any).contentChunkId ?? (map as any).flags?.ddb?.contentChunkId ?? null,
+    ddbId: (map as any).ddbId ?? (map as any).flags?.ddb?.ddbId ?? null,
+    // Restrict the proxy to missing-vs-non-missing metadata: a missing scene's
+    // background is the player image, whose filename collides with the
+    // non-missing entry sharing it - filename matching would pull the wrong one.
+    missing: typeof (map as any).missing === "boolean"
+      ? (map as any).missing
+      : ((map as any).flags?.ddb?.source != null ? (map as any).flags.ddb.source === "missing" : null),
   };
 }
 
@@ -540,11 +561,11 @@ export default class DDBMapMetaData {
   // meta-data layer must leave them untouched. `regions` is similarly
   // excluded because meta-data scene dumps may carry empty/legacy region
   // arrays we don't want to inherit.
-  // background.src is owned by our locally-uploaded image; _id / name /
-  // folder / sort identify our scene and must not be overwritten.
+  // background.src is owned by our locally-uploaded image; _id / folder / sort
+  // identify our scene and must not be overwritten. `name`/`navName` ARE applied
+  // from the meta-data (highest-priority name source) - see buildSceneUpdate.
   private static readonly _MERGE_EXCLUDE_KEYS = new Set<string>([
     "_id",
-    "name",
     "folder",
     "sort",
     "ownership",
@@ -836,6 +857,12 @@ export default class DDBMapMetaData {
       update[key] = value;
     }
 
+    // navName follows name: if the meta supplies a name but no navName, derive a
+    // tidy nav-bar label from it so the nav bar matches the applied name.
+    if (typeof update.name === "string" && update.name && update.navName === undefined) {
+      update.navName = _navNameFromName(update.name);
+    }
+
     // Merge flags - preserve our ddbimporter block, take everything else from
     // the meta-data file (including module-specific flags like stairways /
     // perfect-vision / dynamic-illumination; Foundry simply stores them and
@@ -1074,6 +1101,10 @@ export default class DDBMapMetaData {
     // Step 1: resolve match info via the cached match endpoint.
     const matchResult = await this.fetchMatchInfo(map);
     const matchInfos = matchResult?.matches ?? [];
+    logger.info(
+      `DDBMapMetaData.enrich: "${scene.name}" reason=${matchResult?.reason ?? "none"} matchedBy=${matchInfos[0]?.matchedBy ?? "-"} matches=${matchInfos.length}`,
+      _proxyRequestForMap(map),
+    );
     if (!matchInfos.length) {
       await this._stampFlags(scene, {
         metaDataApplied: false,
@@ -1128,13 +1159,13 @@ export default class DDBMapMetaData {
     }
 
     // Missing scenes are already pre-expanded: one Foundry scene per season/floor
-    // variant, each built with its correct name. Many variants share a single
-    // image file (e.g. c4003.jpg backs Alley Summer/Autumn/Winter), so the
-    // filename-based proxy match returns ALL sibling scene-info files for one
-    // scene. The multi-floor clone/rename path below (meant for one journal map
-    // image -> N floors) would then duplicate the scene and rename it to a
-    // sibling's name. Instead, apply exactly the one scene-info that belongs to
-    // this scene - keyed on contentChunkId - with no clone and no rename.
+    // variant. Many variants share a single image file (e.g. c4003.jpg backs Alley
+    // Summer/Autumn/Winter), so a filename-based proxy match can return ALL sibling
+    // scene-info files for one scene. The multi-floor clone path below (meant for
+    // one journal map image -> N floors) would then duplicate the scene. Instead,
+    // apply the single scene-info that belongs to this scene (keyed on
+    // contentChunkId, else name) with no clone. Its name IS applied via the merge
+    // (metadata is the top-priority name source).
     const isMissing = (scene as any)?.flags?.ddb?.source === "missing";
     if (isMissing) {
       const wantCcId = (scene as any)?.flags?.ddb?.contentChunkId;

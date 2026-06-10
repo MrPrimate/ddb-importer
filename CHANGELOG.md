@@ -1,6 +1,8 @@
 # Next Up
 
 - Native Adventure Muncher now imports the derived missing scenes that sometimes exist in adventures.
+- Improvements to Native Adventure Muncher scene fix matching.
+- Vengeful Blade broke spell munch.
 
 # 7.3.3
 

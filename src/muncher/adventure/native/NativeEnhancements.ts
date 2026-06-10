@@ -53,3 +53,24 @@ export function buildEnhancedUrlMap(list: any[]): Map<string, string> {
   }
   return map;
 }
+
+/** Map `assets/<path>` → enhancement display name (`adjustName` else `name`) for
+ * every entry that carries one. Keyed by both `img` and `scene_img` so a scene
+ * background resolved from either points at the same name. Lets NativeSceneBuilder
+ * prefer the enrichment name over the parsed HTML caption (the proxy meta-data
+ * name still overrides this post-create). Entries with no usable name are skipped.
+ */
+export function buildEnhancedNameMap(list: any[]): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const entry of list) {
+    const name = (typeof entry?.adjustName === "string" && entry.adjustName.trim() !== "")
+      ? entry.adjustName.trim()
+      : (typeof entry?.name === "string" && entry.name.trim() !== "" ? entry.name.trim() : null);
+    if (!name) continue;
+    if (entry.img) map.set(ensureAssetsPrefix(entry.img), name);
+    if (entry.scene_img && entry.scene_img !== entry.img) {
+      map.set(ensureAssetsPrefix(entry.scene_img), name);
+    }
+  }
+  return map;
+}

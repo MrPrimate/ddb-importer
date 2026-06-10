@@ -7,6 +7,7 @@ import { DEFAULT_LEVEL_ID } from "../AdventureMunch";
 import AdventureMunchHelpers from "../AdventureMunchHelpers";
 import DDBMapMetaData from "../DDBMapMetaData";
 import { ensureAssetsPrefix } from "./NativeShared";
+import { buildEnhancedNameMap } from "./NativeEnhancements";
 // DetectedScene, ProcessedRow, ItemNotify, BuiltScene + BuiltScenes are declared
 // globally in ./types.d.ts.
 
@@ -75,8 +76,12 @@ function buildBaseScene(args: {
   edgeColor: string | null;
   idFactory: NativeIdFactory;
   folderId: string;
+  nameOverride?: string | null;
 }): any {
-  const { detection, row, bookCode, bgSrc, width, height, edgeColor, idFactory, folderId } = args;
+  const { detection, row, bookCode, bgSrc, width, height, edgeColor, idFactory, folderId, nameOverride } = args;
+  // _id stays keyed on the PARSED name (stable identity) so it doesn't shift if
+  // an enrichment name appears/disappears between imports; the displayed name
+  // prefers the enrichment override (tier 2) over the parsed caption (tier 3).
   const _id = idFactory.getId(NativeIdFactory.makeKey({
     docType: "Scene",
     ddbId: detection.syntheticIdOffset,
@@ -85,6 +90,9 @@ function buildBaseScene(args: {
     contentChunkId: detection.contentChunkId,
     name: detection.name,
   }));
+  const displayName = (typeof nameOverride === "string" && nameOverride.trim() !== "")
+    ? nameOverride.trim()
+    : detection.name;
   // sampled edge color → matches the painted image edge, so the canvas
   // border blends in (parity with DDBMap.createScene).
   const bgColor = edgeColor ?? DEFAULT_BG_COLOR;
@@ -92,14 +100,14 @@ function buildBaseScene(args: {
   // Nav-bar label: drop the chapter prefix ("Chapter: Foo" → "Foo") then strip
   // parenthetical suffixes ("Foo (Player Version)" → "Foo") for a tidy nav bar
   // (muncher parity). Fall back to the un-stripped base if a wholly-bracketed
-  // name strips to empty. Metadata navName overrides this post-create via
-  // DDBMapMetaData.buildSceneUpdate (navName is not merge-excluded).
-  const navBase = detection.name.split(":").pop()?.trim() ?? detection.name;
+  // name strips to empty. Metadata name/navName override this post-create via
+  // DDBMapMetaData.buildSceneUpdate (neither is merge-excluded).
+  const navBase = displayName.split(":").pop()?.trim() ?? displayName;
   const navName = navBase.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim() || navBase;
 
   return {
     _id,
-    name: detection.name,
+    name: displayName,
     navName,
     width,
     height,
@@ -263,6 +271,11 @@ export async function buildScenes(
   //    DDBMapMetaData.cleanseSceneInfo runs on every doc to share AdventureMunch's
   //    V14 migration + doorSound/perfect-vision/drawing fixes; no-op for our bare
   //    base docs today, defensive for future embedded-data additions.
+  // Enrichment-endpoint name lookup (tier 2): keyed by asset path → enhancement
+  // adjustName/name. Preferred over the parsed caption (tier 3); the proxy
+  // meta-data name still overrides post-create (tier 1, NativeSceneApplier).
+  const nameMap = buildEnhancedNameMap(enhancements);
+
   const scenes: BuiltScene[] = [];
   for (let sceneNum = 0; sceneNum < all.length; sceneNum++) {
     const { detection, row } = all[sceneNum];
@@ -278,6 +291,7 @@ export async function buildScenes(
 
     const doc = buildBaseScene({
       detection, row, bookCode, bgSrc, width, height, edgeColor, idFactory, folderId,
+      nameOverride: nameMap.get(assetKey) ?? null,
     });
     DDBMapMetaData.cleanseSceneInfo(doc);
     scenes.push({ doc, detection, row });

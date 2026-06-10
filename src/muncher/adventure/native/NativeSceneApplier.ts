@@ -45,9 +45,14 @@ function mapStubForScene(scene: BuiltScene, bookCode: string, sourceId: number |
     imageKey: `official/maps/${bookCode}/${basename(scene.detection.imagePath)}`,
     name: stripSuffix(scene.detection.name),
     sourceId,
-    // parentId lets the proxy disambiguate variants that share an image by the
-    // scene-info's own flags.ddb.parentId (filename alone is ambiguous).
+    // parentId (+ filename) is the cross-muncher-stable join the proxy keys on;
+    // contentChunkId/ddbId are secondary disambiguators sent for completeness.
     parentId: scene.doc.flags?.ddb?.parentId ?? null,
+    contentChunkId: scene.doc.flags?.ddb?.contentChunkId ?? null,
+    ddbId: scene.doc.flags?.ddb?.ddbId ?? null,
+    // Restrict the proxy match to the matching partition: missing scenes use a
+    // player image whose filename collides with the non-missing entry sharing it.
+    missing: scene.detection.source === "missing",
     officialData: { sourceId, filename: basename(scene.detection.imagePath) },
     flags: {},
   };
