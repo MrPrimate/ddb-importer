@@ -487,7 +487,7 @@ ${item.system.description.chat}
       overrideId: true,
       linkItemFlags: true,
     };
-    const remappedItems: TAll5eItemDocuments[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions) as TAll5eItemDocuments[]; // we know there are no table documents imported into characters
+    const remappedItems: TAll5eItemDocuments[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
 
     return remappedItems;
   }

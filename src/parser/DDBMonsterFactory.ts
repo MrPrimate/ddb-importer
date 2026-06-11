@@ -342,7 +342,7 @@ export default class DDBMonsterFactory {
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
       this.notifier(`Calculating which monsters to update...`, { nameField: true });
-      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, {
+      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents as TAll5eItemDocuments[], {
         keepDDBId: true,
         indexFilter: { fields: ["name", "flags.ddbimporter.id"] },
       });
