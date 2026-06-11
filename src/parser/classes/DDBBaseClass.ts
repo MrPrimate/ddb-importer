@@ -439,8 +439,11 @@ export default abstract class DDBBaseClass {
   abstract _generateDataStub(): void;
 
   _generateSpellCastingProgression() {
+    const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
+    if (this.isSubClass && ["full", "pact", "half"].includes(spellProgression?.value ?? "")) {
+      return;
+    }
     if (this.ddbClassDefinition.canCastSpells) {
-      const spellProgression = DICTIONARY.spell.progression.find((cls) => cls.name === this.className);
       const spellCastingAbility = getSpellCastingAbility(this.ddbClass, this.isSubClass, this.isSubClass);
       if (spellProgression) {
         this.data.system.spellcasting = {
@@ -448,10 +451,11 @@ export default abstract class DDBBaseClass {
           ability: spellCastingAbility,
         };
         let formula = "";
+        const classIdentifier = DDBDataUtils.classIdentifierName(this.className);
         if ((this.ddbClassDefinition.spellRules?.levelPreparedSpellMaxes ?? []).filter((a) => a).length > 1) {
           formula = `@scale.${this.data.system.identifier}.max-prepared`;
         } else if (this.ddbClassDefinition.spellPrepareType === 1) {
-          formula = `max(@abilities.${spellCastingAbility}.mod + @classes.${this.data.system.identifier}.levels, 1)`;
+          formula = `max(@abilities.${spellCastingAbility}.mod + @classes.${classIdentifier}.levels, 1)`;
         }
         this.data.system.spellcasting.preparation = {
           formula,
