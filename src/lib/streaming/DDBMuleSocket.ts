@@ -1,5 +1,6 @@
 import type { Socket } from "socket.io-client";
 import logger from "../Logger";
+import { parseSocketUrl } from "./ParseSocketUrl";
 
 export interface DDBMuleAuthBody {
   betaKey: string;
@@ -50,6 +51,8 @@ export interface DDBMuleHandlers {
 export default class DDBMuleSocket {
   socket: Socket | null = null;
   proxyUrl: string;
+  socketUrl: string;
+  socketPath: string | undefined;
   jobId: string | null = null;
   jobToken: string | null = null;
   lastSeq = 0;
@@ -58,12 +61,15 @@ export default class DDBMuleSocket {
 
   constructor(proxyUrl: string) {
     this.proxyUrl = proxyUrl.replace(/\/$/, "");
+    const { url, path } = parseSocketUrl(this.proxyUrl, "/mule");
+    this.socketUrl = url;
+    this.socketPath = path;
   }
 
   connect(handlers: DDBMuleHandlers) {
     this.handlers = handlers;
-    const url = this.proxyUrl + "/mule";
-    this.socket = io(url, {
+    this.socket = io(this.socketUrl, {
+      path: this.socketPath,
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: 10,
