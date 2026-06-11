@@ -206,7 +206,8 @@ export default class DDBItemImporter {
     if (itemData.system.equipped) replaceData.system.equipped = itemData.system.equipped;
     if (itemData.system.resources) replaceData.system.resources = itemData.system.resources;
     if (itemData.system.method) replaceData.system.method = itemData.system.method;
-    if (itemData.system.prepared) replaceData.system.preparation = itemData.system.prepared;
+    if (itemData.system.prepared) replaceData.system.prepared = itemData.system.prepared;
+    if (itemData.system.preparation) replaceData.system.preparation = itemData.system.preparation;
     if (itemData.system.proficient) replaceData.system.proficient = itemData.system.proficient;
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if (itemData.system.uses) replaceData.system.uses = itemData.system.uses;
@@ -313,7 +314,6 @@ export default class DDBItemImporter {
 
   async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item.Implementation[]> {
     const indexEntries = await this.getFilteredItemIndexes(item);
-    // @ts-expect-error - urgh foundry
     const mapped = await Promise.all(indexEntries.map((idx) => {
       const entry = this.compendium.getDocument(idx._id).then((doc) => doc) as Promise<Item.Implementation>;
       return entry;
@@ -379,7 +379,6 @@ export default class DDBItemImporter {
       // @ts-expect-error - results on this item allows for TableResult delete
       await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
     }
-    // @ts-expect-error - we know effects exist and can be deleted on this item
     if (existingItem.effects?.size && existingItem.effects.size > 0) {
       logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
       await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
