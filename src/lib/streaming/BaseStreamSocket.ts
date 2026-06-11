@@ -1,5 +1,6 @@
 import type { Socket } from "socket.io-client";
 import logger from "../Logger";
+import { parseSocketUrl } from "./ParseSocketUrl";
 
 export interface BaseStreamAuthBody {
   betaKey: string;
@@ -64,8 +65,9 @@ export default abstract class BaseStreamSocket<
 
   connect(handlers?: BaseStreamHandlers<E>) {
     this.handlers = handlers ?? null;
-    const url = this.proxyUrl + this.namespace;
+    const { url, path } = parseSocketUrl(this.proxyUrl, this.namespace);
     this.socket = io(url, {
+      path,
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: 10,

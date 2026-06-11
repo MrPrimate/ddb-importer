@@ -1,10 +1,11 @@
 import logger from "./Logger";
 import utils from "./Utils";
 import DDBProxy from "./DDBProxy";
+import { parseSocketUrl } from "./streaming/ParseSocketUrl";
 import { SETTINGS } from "../config/_module";
 import DDBKeyChangeDialog from "../apps/DDBKeyChangeDialog";
 
-interface IPatreonTierResponse  {
+interface IPatreonTierResponse {
   "success": boolean;
   "message": string;
   "data": string;
@@ -36,7 +37,7 @@ let activePatreonLinkSocket: any = null;
 
 const PatreonHelper = {
 
-  isValidKey: async(local = false, setKey = true, overrideKey = null) => {
+  isValidKey: async (local = false, setKey = true, overrideKey = null) => {
     // eslint-disable-next-line no-useless-assignment
     let validKey = false;
 
@@ -197,7 +198,7 @@ const PatreonHelper = {
     return tiers;
   },
 
-  checkPatreon: async ({local = false, overrideKey = null, cacheBust = true }: { local?: boolean; overrideKey?: string | null; cacheBust?: boolean } = {}): Promise<IPatreonAccessMatrix> => {
+  checkPatreon: async ({ local = false, overrideKey = null, cacheBust = true }: { local?: boolean; overrideKey?: string | null; cacheBust?: boolean } = {}): Promise<IPatreonAccessMatrix> => {
     if (!cacheBust) {
       if (local && CONFIG.DDBI.PATREON.tiersLocal) {
         return CONFIG.DDBI.PATREON.tiersLocal;
@@ -230,11 +231,12 @@ const PatreonHelper = {
     const patreonAuthUrl = `${proxy}/patreon/auth`;
     const patreonScopes = encodeURI("identity identity[email]");
 
-    const socketOptions = {
+    const { url, path } = parseSocketUrl(proxy, "/");
+    const socket = io(url, {
+      path,
       transports: ["websocket", "polling", "flashsocket"],
       reconnection: false,
-    };
-    const socket = io(`${proxy}/`, socketOptions);
+    });
     activePatreonLinkSocket = socket;
 
     socket.once("connect", () => {
