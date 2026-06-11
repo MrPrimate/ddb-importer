@@ -1,6 +1,11 @@
 # Next Up
 
+# 7.3.5
+
 - When using custom proxy on a subpath, the socket connection would not fallback. Thank you Aerilym for the fix.
+- Some items would never apply effects such as Amulet of Health on imported characters.
+- Ability score bonuses with a "maximum of 20" restriction (e.g. some feats) were counted twice, inflating the ability score by the bonus amount.
+- Spell preparation methods not kept when using override compendium.
 
 # 7.3.4
 

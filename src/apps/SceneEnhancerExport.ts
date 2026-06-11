@@ -142,52 +142,50 @@ export function collectSceneData(scene, bookCode) {
     return l;
   });
 
+  const walls = scene.walls.map((wall) => {
+    const w = wall.toObject();
+    delete w._id;
+    return w;
+  });
+
+  const lights = scene.lights.map((light) => {
+    const l = light.toObject();
+    delete l._id;
+    return l;
+  });
+
   const data = {
-    flags: scene.flags,
-    name: scene.name,
-    navName: scene.navName,
-    navOrder: scene.navOrder,
+    flags: scene._source.flags,
+    name: scene._source.name,
+    navName: scene._source.navName,
+    navOrder: scene._source.navOrder,
     // dimensions
-    width: scene.width,
-    height: scene.height,
-    shiftX: scene.shiftX,
-    shiftY: scene.shiftY,
+    width: scene._source.width,
+    height: scene._source.height,
+    shiftX: scene._source.shiftX,
+    shiftY: scene._source.shiftY,
     // grid
-    grid: scene.grid,
-    padding: scene.padding,
+    grid: scene._source.grid,
+    padding: scene._source.padding,
     // initial
-    initial: scene.initial,
+    initial: scene._source.initial,
     initialLevel: scene._source.initialLevel,
     // levels
     levels,
-    walls: scene.walls.map((wall) => {
-      const w = wall.toObject();
-      delete w._id;
-      return w;
-    }),
-    drawings: scene.drawings.map((drawing) => {
-      const d = drawing.toObject();
-      return d;
-    }),
-    weather: scene.weather,
+    walls,
+    drawings: scene._source.drawings,
+    weather: scene._source.weather,
     // environment
-    tokenVision: scene.tokenVision,
-    lights: scene.lights.map((light) => {
-      const l = light.toObject();
-      delete l._id;
-      return l;
-    }),
-    regions: scene.regions.map((region) => {
-      const r = region.toObject();
-      return r;
-    }),
-    environment: scene.environment
-      ? foundry.utils.deepClone(scene.environment)
-      : undefined,
+    tokenVision: scene._source.tokenVision,
+    lights,
+    regions: scene._source.regions,
+    environment: scene._source.environment,
     fog: {
-      mode: scene.fog.mode,
-      colors: scene.fog.colors,
+      mode: scene._source.fog.mode,
+      colors: scene._source.fog.colors,
     },
+    transition: scene._source.transition,
+    dimensions: scene._source.dimensions,
   };
 
   if (!data.flags.ddb) data.flags.ddb = {};
