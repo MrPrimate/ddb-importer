@@ -112,7 +112,6 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
       "+4 to score maximum",
       "+2 to maximum score",
       "+4 to maximum score",
-      "maximum of 20",
       "Can't be an Ability Score you already increased with this trait.",
       "That you do not have Saving Throw Proficiency in.",
     ];
@@ -158,7 +157,6 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
     // Is there a hard over ride?
     const overRiddenStat = overrideStat === 0 ? setAbilityState : overrideStat;
     const customProficiency = this._getCustomSaveProficiency(ability);
-
     const proficient = customProficiency
       ? customProficiency
       : DDBModifiers.filterBaseModifiers(this.source.ddb, "proficiency", {
