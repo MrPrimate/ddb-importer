@@ -1,5 +1,7 @@
 # Next Up
 
+- When using custom proxy on a subpath, the socket connection would not fallback. Thank you Aerilym for the fix.
+
 # 7.3.4
 
 - Native Adventure Muncher now imports the derived missing scenes that sometimes exist in adventures.
