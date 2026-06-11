@@ -207,7 +207,8 @@ export default class DDBItemImporter {
     if (itemData.system.equipped) replaceData.system.equipped = itemData.system.equipped;
     if (itemData.system.resources) replaceData.system.resources = itemData.system.resources;
     if (itemData.system.method) replaceData.system.method = itemData.system.method;
-    if (itemData.system.prepared) replaceData.system.preparation = itemData.system.prepared;
+    if (itemData.system.prepared) replaceData.system.prepared = itemData.system.prepared;
+    if (itemData.system.preparation) replaceData.system.preparation = itemData.system.preparation;
     if (itemData.system.proficient) replaceData.system.proficient = itemData.system.proficient;
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
       if (itemData.system.uses) replaceData.system.uses = itemData.system.uses;
