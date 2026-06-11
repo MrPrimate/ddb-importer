@@ -1,7 +1,10 @@
 # Next Up
 
+# 7.1.26
+
 - Some items would never apply effects such as Amulet of Health on imported characters.
 - Ability score bonuses with a "maximum of 20" restriction (e.g. some feats) were counted twice, inflating the ability score by the bonus amount.
+- Spell preparation methods not kept when using override compendium.
 
 # 7.1.25
 
