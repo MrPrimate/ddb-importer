@@ -1,5 +1,8 @@
 # Next Up
 
+- Some items would never apply effects such as Amulet of Health on imported characters.
+- Ability score bonuses with a "maximum of 20" restriction (e.g. some feats) were counted twice, inflating the ability score by the bonus amount.
+
 # 7.1.25
 
 - Traits for species could add spell activities and advancements, when only advancements were needed. Some advancements were not generated.
