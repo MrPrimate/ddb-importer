@@ -273,7 +273,7 @@ export default class DDBVehicleFactory {
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
       this.notifier(`Calculating which vehicles to update...`, { nameField: true });
-      const existingVehicles = await vehicleHandler.loadPassedItemsFromCompendium(vehicleHandler.documents, {
+      const existingVehicles = await vehicleHandler.loadPassedItemsFromCompendium(vehicleHandler.documents as TAll5eItemDocuments[], {
         keepDDBId: true,
         indexFilter: { fields: ["name", "flags.ddbimporter.id"] },
       });
