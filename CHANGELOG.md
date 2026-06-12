@@ -47,6 +47,16 @@
 - Deft Explorer fixes.
 - Arcane Ward did not recover the correct amount of HP. @ohmygodwhat
 
+# 7.1.26
+
+- Some items would never apply effects such as Amulet of Health on imported characters.
+- Ability score bonuses with a "maximum of 20" restriction (e.g. some feats) were counted twice, inflating the ability score by the bonus amount.
+- Spell preparation methods not kept when using override compendium.
+
+# 7.1.25
+
+- Traits for species could add spell activities and advancements, when only advancements were needed. Some advancements were not generated.
+
 # 7.2.24
 
 - CSS fix for some adventure monster stat blocks @sirnarvy
@@ -913,6 +923,33 @@ D&D 5.1.x Support release, this release _only_ supports Foundry v13 and D&D 5.1.
 - Effects for Advantage on Skill, Ability and Checks in automated effects.
 - Support v2 Journal Pages introduced in 5.1.x. DDB Importer Journal Page to help preserve some of the unique formatting for DDB entries. DDB Importer journal enhancements will now only work on these DDB Importer journals (previously they used flags to determine if they world work). A migration will be triggered to check all world journals and journals in the DDB Journals compendium when you log in as a GM with this version or higher of DDB Importer.
 - Druid Spirit Totem improvements.
+
+# 6.4.27
+
+- Weapon Mastery changes on DDB broke some character imports.
+
+# 6.4.26
+
+- Some character imports would fail in 6.5.3 with a `e.bonus.replace` error.
+
+# 6.4.25
+
+- Ballistic Smite parsing fixes
+- Some creatures or characters tokens would not be sized correctly if small.
+- Primal Companion parsing could fail @ryn987
+
+# 6.4.23
+
+- Some monster weapons would import as features, such as the Light Hammer on the Bugbear Warrior, resulting in incorrect Melee/Range/Reach. @tminz
+- Some monsters could import the 2014 and 2024 version of gear on their sheet.
+- Some monsters would fail to parse some spells or features due to formatting on DDB. e.g. Jafaki in AV.
+
+# 6.4.22
+
+- Some weapon fixes for staff parsing.
+- More Guidance 2024 fixes.
+- Vengeful Blade allows critical damage rolls.
+- Accelerate/Decelerate: should Allow Critical
 
 # 6.4.21
 
