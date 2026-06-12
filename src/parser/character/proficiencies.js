@@ -1,3 +1,4 @@
+import logger from "../../lib/Logger.mjs";
 import DDBCharacter from "../DDBCharacter.js";
 import { DDBModifiers } from "../lib/_module.mjs";
 
