@@ -1,5 +1,9 @@
 # Next up
 
+# 6.4.27
+
+- Weapon Mastery changes on DDB broke some character imports.
+
 # 6.4.26
 
 - Some character imports would fail in 6.5.3 with a `e.bonus.replace` error.

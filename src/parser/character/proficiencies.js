@@ -9,18 +9,31 @@ DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(in
     });
 };
 
-DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(includeItemEffects = false) {
+DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(this, includeItemEffects = false) {
   return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((prof) => {
-      const weaponRegex = /(\w+) \(([\w- ]+)\)/ig;
-      const masteryDetails = weaponRegex.exec(prof.friendlySubtypeName);
-      const dnd5eNameArray = masteryDetails[2].trim().toLowerCase().split(",");
-      const dnd5eName = dnd5eNameArray.length === 2
-        ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`.replaceAll(" ", "")
-        : dnd5eNameArray[0].replaceAll(" ", "");
-      return { weapon: masteryDetails[2].trim(), mastery: masteryDetails[1].trim(), dnd5eName };
-    });
+      try {
+        const weaponRegex = /(.*) \(([\w-, ]+)\)$/ig;
+        const masteryDetails = weaponRegex.exec(prof.friendlySubtypeName);
+        if (!masteryDetails) {
+          logger.warn("Unable to parse weapon mastery proficiency", {
+            proficiency: prof,
+            friendlySubtypeName: prof.friendlySubtypeName,
+            this: this,
+          });
+          return null;
+        }
+        const dnd5eNameArray = masteryDetails[2].trim().toLowerCase().split(",");
+        const dnd5eName = dnd5eNameArray.length === 2
+          ? `${dnd5eNameArray[1].trim()}${dnd5eNameArray[0].trim()}`.replaceAll(" ", "")
+          : dnd5eNameArray[0].replaceAll(" ", "");
+        return { weapon: masteryDetails[2].trim(), mastery: masteryDetails[1].trim(), dnd5eName };
+      } catch (error) {
+        logger.error(`Error parsing weapon mastery proficiency ${prof.friendlySubtypeName}`, { error, prof, this: this });
+        return null;
+      }
+    }).filter((mastery) => mastery !== null);
 };
 
 DDBCharacter.prototype._generateLanguages = function _generateLanguages() {
