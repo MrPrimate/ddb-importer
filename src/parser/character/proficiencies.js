@@ -9,7 +9,7 @@ DDBCharacter.prototype._getCoreProficiencies = function _getCoreProficiencies(in
     });
 };
 
-DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(this, includeItemEffects = false) {
+DDBCharacter.prototype._getCoreMasteries = function _getCoreMasteries(includeItemEffects = false) {
   return DDBModifiers
     .filterBaseModifiers(this.source.ddb, "weapon-mastery", { restriction: null, includeExcludedEffects: includeItemEffects })
     .map((prof) => {
