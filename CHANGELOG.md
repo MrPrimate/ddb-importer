@@ -1,5 +1,7 @@
 # Next Up
 
+- Tome of xxx effect adjustments if using DAE.
+
 # 7.1.26
 
 - Some items would never apply effects such as Amulet of Health on imported characters.
