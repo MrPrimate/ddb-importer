@@ -1,6 +1,9 @@
 # Next Up
 
+# 7.1.27
+
 - Tome of xxx effect adjustments if using DAE.
+- Monster filter for type would not show correctly when re-opening monster muncher.
 
 # 7.1.26
 
