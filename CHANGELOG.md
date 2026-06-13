@@ -1,5 +1,7 @@
 # Next Up
 
+- Zealous Presence granted disadvantage on saving throws
+
 # 7.1.27
 
 - Tome of xxx effect adjustments if using DAE.
