@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.14
+
+- Monster type filter was broken.
+
 # 7.0.13
 
 - Weapon Mastery changes on DDB broke some character imports.
