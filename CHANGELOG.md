@@ -1,5 +1,10 @@
 # Next Up
 
+# 7.3.6
+
+- Tome of xxx effect adjustments if using DAE.
+- Monster filter for type would not show correctly when re-opening monster muncher.
+
 # 7.3.5
 
 - When using custom proxy on a subpath, the socket connection would not fallback. Thank you Aerilym for the fix.
