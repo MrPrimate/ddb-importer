@@ -17,9 +17,26 @@ import { isGridDetectionCandidate } from "./GridDetectionCandidate";
 
 export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
+interface IDDBAdventureMuncherTrackerData {
+  scene: I5eSceneData[];
+  journal: I5eJournalData[];
+  actor: I5eActorData[];
+  item: (I5ePCItem | I5eMonsterItem)[];
+  table: I5eTableData[];
+  // todo: no playlist data stub
+  playlist: any[];
+  macro: I5eMacroData[];
+  folder: I5eFolderData[];
+}
+
 export default class AdventureMunch {
 
   notifierV2?: (props: NotifierV2Props) => void;
+
+  raw: IDDBAdventureMuncherTrackerData;
+  temporary: IDDBAdventureMuncherTrackerData;
+  _itemsToRevisit: string[];
+  // adventure: null;
 
   /** @override */
   constructor({
@@ -40,14 +57,14 @@ export default class AdventureMunch {
       folder: [],
     };
     this.temporary = {
-      scenes: [],
-      journals: [],
-      actors: [],
-      items: [],
-      tables: [],
-      playlists: [],
-      macros: [],
-      folders: [],
+      scene: [],
+      journal: [],
+      actor: [],
+      item: [],
+      table: [],
+      playlist: [],
+      macro: [],
+      folder: [],
     };
     this.zipEntries = [];
     this.allMonsters = false;
@@ -226,15 +243,15 @@ export default class AdventureMunch {
       );
 
       if (existingFolder) {
-        if (!this.temporary.folders.some((f) => f._id === existingFolder._id)) {
-          this.temporary.folders.push(existingFolder);
+        if (!this.temporary.folder.some((f) => f._id === existingFolder._id)) {
+          this.temporary.folder.push(existingFolder);
         }
         logger.debug(`Found existing folder ${existingFolder._id} with data:`, folderData, existingFolder);
         // this.lookups.folders[folderData.flags.importid] = existingFolder._id;
       } else {
         if (folderData.parent) folderData.folder = folderData.parent;
         const newFolder = await Folder.create(folderData, { keepId: true });
-        this.temporary.folders.push(newFolder);
+        this.temporary.folder.push(newFolder);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
 
@@ -930,8 +947,8 @@ export default class AdventureMunch {
         }
       }
       if (worldActor) results.push(worldActor);
-      if (!this.temporary.actors.some((a) => a._id === actor.actorId)) {
-        this.temporary.actors.push(worldActor);
+      if (!this.temporary.actor.some((a) => a._id === actor.actorId)) {
+        this.temporary.actor.push(worldActor);
       }
     });
     logger.debug("Actors transferred from compendium to world.", results);
@@ -962,8 +979,8 @@ export default class AdventureMunch {
       { overridesById },
     );
     for (const worldActor of results) {
-      if (!this.temporary.actors.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
-        this.temporary.actors.push(worldActor);
+      if (!this.temporary.actor.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+        this.temporary.actor.push(worldActor);
       }
     }
     return results;
@@ -1247,13 +1264,13 @@ export default class AdventureMunch {
       img: image,
       name: this.adventure.name,
       description: this.adventure.description,
-      folders: this.temporary.folders.map((doc) => doc.toObject()),
+      folders: this.temporary.folder.map((doc) => doc.toObject()),
       combats: [],
       items: itemData.concat(spellData).map((doc) => doc.toObject()),
-      actors: this.temporary.actors.map((doc) => doc.toObject()),
-      journal: this.temporary.journals.map((doc) => doc.toObject()),
-      scenes: this.temporary.scenes.map((doc) => doc.toObject()),
-      tables: this.temporary.tables.map((doc) => doc.toObject()),
+      actors: this.temporary.actor.map((doc) => doc.toObject()),
+      journal: this.temporary.journal.map((doc) => doc.toObject()),
+      scenes: this.temporary.scene.map((doc) => doc.toObject()),
+      tables: this.temporary.table.map((doc) => doc.toObject()),
       macros: [],
       cards: [],
       playlists: [],
@@ -1321,7 +1338,7 @@ export default class AdventureMunch {
   }
 
   // import a scene file
-  async _importRenderedSceneFile(data, overwriteEntity) {
+  async _importRenderedSceneFile(data: I5eSceneData, overwriteEntity: boolean) {
     if (!AdventureMunchHelpers.findEntityByImportId("scenes", data._id) || overwriteEntity || this.addToAdventureCompendium) {
       await utils.asyncForEach(data.tokens, async (token) => {
         foundry.utils.setProperty(token, "flags.ddbActorFlags.tokenLinkId", token._id);
@@ -1365,7 +1382,7 @@ export default class AdventureMunch {
       logger.debug(`Creating Scene ${data.name}`, foundry.utils.deepClone(data));
       const tokens = foundry.utils.deepClone(data.tokens);
       data.tokens = [];
-      const scene = await Scene.create(data, options);
+      const scene = await Scene.create(data as any, options) as Scene;
       logger.debug(`Created Scene ${data.name}`, scene);
       const tokenUpdates = await this._getSceneTokens(scene, tokens);
       logger.debug(`Token Updates for ${data.name}`, tokenUpdates);
@@ -1379,7 +1396,7 @@ export default class AdventureMunch {
       }
 
       this._itemsToRevisit.push(`Scene.${scene.id}`);
-      this.temporary.scenes.push(scene);
+      this.temporary.scene.push(scene);
     }
   }
 
@@ -1406,14 +1423,14 @@ export default class AdventureMunch {
           const actor = await Actor.create(data, options);
           await actor.update({ [`prototypeToken.actorId`]: actor.id });
           if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
-          this.temporary.actors.push(actor);
+          this.temporary.actor.push(actor);
         }
         break;
       case "Item":
         if (!AdventureMunchHelpers.findEntityByImportId("items", data._id)) {
           const item = await Item.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
-          this.temporary.items.push(item);
+          this.temporary.item.push(item);
         }
         break;
       case "JournalEntry":
@@ -1421,7 +1438,7 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("journal", data._id)) {
           const journal = await JournalEntry.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
-          this.temporary.journals.push(journal);
+          this.temporary.journal.push(journal);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("journal", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.journal.metadata.id });
@@ -1438,7 +1455,7 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("tables", data._id)) {
           const rolltable = await RollTable.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
-          this.temporary.tables.push(rolltable);
+          this.temporary.table.push(rolltable);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.table.metadata.id });
@@ -1450,14 +1467,14 @@ export default class AdventureMunch {
         if (!AdventureMunchHelpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
           const playlist = await Playlist.create(data, options);
-          this.temporary.playlists.push(playlist);
+          this.temporary.playlist.push(playlist);
         }
         break;
       case "Macro":
         if (!AdventureMunchHelpers.findEntityByImportId("macros", data._id)) {
           const macro = await Macro.create(data, options);
           if (needRevisit) this._itemsToRevisit.push(`Macro.${macro.id}`);
-          this.temporary.macros.push(macro);
+          this.temporary.macro.push(macro);
         }
         break;
       // no default
