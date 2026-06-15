@@ -315,12 +315,12 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     };
   }
 
-  static async createMacro({ name, content, img, isGM, isTemp }): Promise<Macro> {
+  static async createMacro({ name, content, img, isGM, isTemp }): Promise<Macro.Implementation> {
     const macroFolder = isTemp
       ? undefined
       : game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");
 
-    const data = {
+    const data: I5eMacroData = {
       name: name,
       type: "script",
       img: img ? img : "icons/svg/dice-target.svg",
@@ -335,13 +335,14 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
       ownership: {
         default: isGM ? 0 : 2,
       },
-    } as unknown as Macro.CreateData;
+    };
 
     const existingMacro = game.macros.find((m) => m.name == name);
     if (existingMacro) data._id = existingMacro.id;
     const macro = existingMacro
-      ? existingMacro.update(data)
-      : new (Macro.implementation as any)(data, { displaySheet: false, temporary: isTemp });
+      ? existingMacro.update(data as any)
+      // @ts-expect-error - i think I need tore move displaySheet
+      : new Macro.implementation(data as any, { displaySheet: false, temporary: isTemp });
 
     return macro;
 
