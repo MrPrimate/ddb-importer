@@ -1,6 +1,6 @@
 import { logger, utils } from "../../../lib/_module";
 import { parseTable, getHeadings } from "../../../../vendor/parseTable";
-import { buildTable, findDiceColumns, guessTableName } from "../../../parser/lib/DDBTable";
+import { buildTable, buildNestedTables, findDiceColumns, guessTableName, parseNestedDiceTable } from "../../../parser/lib/DDBTable";
 import NativeIdFactory from "./NativeIdFactory";
 import { makeFolderData } from "./NativeFolderBuilder";
 import { buildDdbFlags } from "./NativeShared";
@@ -110,19 +110,10 @@ export async function buildTables(
           }
         }
 
-        const built: I5eTableData[] = buildTable({
-          parsedTable: parsed,
-          keys,
-          diceKeys,
-          tableName: nameGuess,
-          parentName: row.title,
-          html: row.sourceHtml,
-        });
-        if (built.length === 0) continue;
-
         const tableFolderId = resolveFolderId(row, hint?.folderName);
 
-        for (const table of built) {
+        // Assign deterministic id, folder, sort, ownership + ddb flags in place.
+        const finalizeTable = (table: I5eTableData): string => {
           table._id = idFactory.getId(NativeIdFactory.makeKey({
             docType: "RollTable",
             ddbId: row.id,
@@ -145,13 +136,52 @@ export async function buildTables(
               parentId: row.parentId,
             }),
           };
-          tables.push(table);
+          return table._id;
+        };
 
-          if (contentChunkId) {
-            const list = linksByChunk.get(contentChunkId) ?? [];
-            list.push({ id: table._id, name: table.name });
-            linksByChunk.set(contentChunkId, list);
-          }
+        const registerJournalLink = (table: I5eTableData) => {
+          if (!contentChunkId) return;
+          const list = linksByChunk.get(contentChunkId) ?? [];
+          list.push({ id: table._id!, name: table.name! });
+          linksByChunk.set(contentChunkId, list);
+        };
+
+        // Nested dice tables (a primary die selecting per-row sub-tables) become
+        // a parent RollTable whose results link to one child RollTable each.
+        const nested = parseNestedDiceTable(node);
+        if (nested) {
+          const { parent, children } = buildNestedTables({
+            parse: nested,
+            tableName: nameGuess,
+            parentName: row.title,
+          });
+          children.forEach((child, i) => {
+            if (!child) return;
+            const childId = finalizeTable(child);
+            tables.push(child);
+            const result = parent.results![i];
+            result.description = `${result.description} @UUID[RollTable.${childId}]{${child.name}}`;
+          });
+          finalizeTable(parent);
+          tables.push(parent);
+          registerJournalLink(parent); // children are reached through the parent
+          continue;
+        }
+
+        const built: I5eTableData[] = buildTable({
+          parsedTable: parsed,
+          keys,
+          diceKeys,
+          tableName: nameGuess,
+          parentName: row.title,
+          html: row.sourceHtml,
+        });
+        if (built.length === 0) continue;
+
+        for (const table of built) {
+          finalizeTable(table);
+          tables.push(table);
+          registerJournalLink(table);
         }
       } catch (error) {
         logger.warn(`NativeTableBuilder: failed table in "${row.title}": ${(error as Error).message}`);
