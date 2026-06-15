@@ -33,7 +33,7 @@ global {
    */
   type I5eParsedTableRow = Record<string, string | boolean>;
 
-  /** Return type of `parseTable(node)` — one entry per table body row. */
+  /** Return type of `parseTable(node)`  one entry per table body row. */
   type I5eParsedTable = I5eParsedTableRow[];
 
   interface I5eTableResult {
