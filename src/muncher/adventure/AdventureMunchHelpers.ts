@@ -1,4 +1,4 @@
-import { logger, CompendiumHelper, PatreonHelper, FileHelper } from "../../lib/_module";
+import { logger, CompendiumHelper, PatreonHelper, FileHelper, utils } from "../../lib/_module";
 import { parseSpells } from "../spells";
 import DDBItemsImporter from "../DDBItemsImporter";
 import { SETTINGS } from "../../config/_module";
@@ -125,18 +125,18 @@ export default class AdventureMunchHelpers {
     });
   }
 
-  static async getCompendiumIndex(type) {
+  static async getCompendiumIndex(type: string) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     const fields = (type === "monster")
       ? ["flags.ddbimporter.id"]
       : ["flags.ddbimporter.definitionId"];
 
-    const indexFields = { fields } as CompendiumCollection.GetIndexOptions<CompendiumCollection.DocumentName>;
+    const indexFields = { fields } as CompendiumCollection.GetIndexOptions;
     const compendiumIndex = await compendium.getIndex(indexFields) as IndexTypeForMetadata<CompendiumCollection.DocumentName>;
     return compendiumIndex;
   }
 
-  static async getMissingIds(type, ids) {
+  static async getMissingIds(type: string, ids: (number | string)[]) {
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     const flagPath = (type === "monster") ? "flags.ddbimporter.id" : "flags.ddbimporter.definitionId";
     return ids.filter((id) =>
@@ -210,7 +210,7 @@ export default class AdventureMunchHelpers {
     const monsterIndex = await AdventureMunchHelpers.getCompendiumIndex("monster");
 
     const newTokens = tokens.map((token) => {
-      const monsterHit = monsterIndex.find((monster) =>
+      const monsterHit = (monsterIndex as unknown as Partial<I5eMonsterData>[]).find((monster) =>
         monster.flags?.ddbimporter?.id && token.flags.ddbActorFlags?.id
         && monster.flags.ddbimporter.id === token.flags.ddbActorFlags.id);
       if (monsterHit) {
@@ -315,7 +315,7 @@ export default class AdventureMunchHelpers {
    *   forcingWebp: whether the .webp extension was added
    */
   static getImportFilePaths({ adventureName, path, misc }: { adventureName: string; path: string; misc: boolean }): object {
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
+    const useWebP = utils.getSetting<boolean>("use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
     const adventurePath = adventureName.replace(/[^a-z0-9]/gi, "_");
     const targetPath = path.replace(/[\\/][^\\/]+$/, "");
     const baseFilename = path.replace(/^.*[\\/]/, "").replace(/\?(.*)/, "");
@@ -324,8 +324,8 @@ export default class AdventureMunchHelpers {
         ? `${FileHelper.removeFileExtension(baseFilename)}.webp`
         : baseFilename;
     const baseUploadPath = misc
-      ? game.settings.get(SETTINGS.MODULE_ID, "adventure-misc-path")
-      : game.settings.get(SETTINGS.MODULE_ID, "adventure-upload-path");
+      ? utils.getSetting<string>("adventure-misc-path")
+      : utils.getSetting<string>("adventure-upload-path");
     const parsedBaseUploadPath = FileHelper.parseDirectory(baseUploadPath);
     const uploadPath = misc
       ? `${parsedBaseUploadPath.current}/${targetPath}`
@@ -402,7 +402,7 @@ export default class AdventureMunchHelpers {
    *   selectable scenes (`label` is an optional version/suffix, shown italic)
    * @returns {Promise<string[] | null>} selected ids, or `null` for "All"
    */
-  static async chooseScenesDialog(items) {
+  static async chooseScenesDialog(items: { _id: string; name: string; label?: string }[]): Promise<string[] | null> {
     if (!items?.length) return null;
 
     const checkboxes = items.map((item) => {
@@ -433,7 +433,7 @@ export default class AdventureMunchHelpers {
           label: "Selected",
           icon: "fas fa-list-check",
           callback: (_event, button, _dialog) => {
-            const formData = new FormDataExtended(button.form);
+            const formData = new foundry.applications.ux.FormDataExtended(button.form);
             return Object.keys(formData.object);
           },
         },

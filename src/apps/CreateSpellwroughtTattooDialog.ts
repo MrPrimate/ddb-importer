@@ -9,9 +9,9 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
 
   /**
    * Configuration options for tattoo creation.
-   * @type {SpellwroughtTattooConfiguration}
+   * @type {SpellTattooConfiguration}
    */
-  #config;
+  #config: SpellTattooConfiguration;
 
   get config() {
     return this.#config;
@@ -23,7 +23,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * Spell from which the tattoo will be created.
    * @type {Item.Implementation|object}
    */
-  #spell;
+  #spell: Item.Implementation | object;
 
   get spell() {
     return this.#spell;
@@ -123,7 +123,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /** @inheritDoc */
   _onChangeForm(formConfig, event) {
     super._onChangeForm(formConfig, event);
-    const formData = new (foundry.applications?.ux?.FormDataExtended ?? FormDataExtended)(this.form);
+    const formData = new foundry.applications.ux.FormDataExtended(this.form);
     foundry.utils.mergeObject(this.#config, formData.object);
     this.#config.level = Number(this.#config.level);
     this.#config.values = CONFIG.DDBI.SPELLWROUGHT_TATTOO[this.#config.level];

@@ -1578,7 +1578,7 @@ export default class AdventureMunch {
             label: "Confirm",
             icon: "fas fa-check",
             callback: (_event, button, _dialog) => {
-              const formData = new FormDataExtended(button.form);
+              const formData = new foundry.applications.ux.FormDataExtended(button.form);
               const ids = [];
               for (const key of Object.keys(formData.object)) {
                 if (key.startsWith("new_")) {

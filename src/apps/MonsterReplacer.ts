@@ -2,21 +2,24 @@ import { DDBProxy, logger, PatreonHelper, Secrets, utils } from "../lib/_module"
 
 export default class MonsterReplacer {
 
+  name: string;
+
   constructor({
     name,
-  } = {}) {
+  }: { name?: string } = {}) {
     this.name = name;
-
   }
 
-  static fetchUpdatedMonsterInfo(ids = []) {
+  static fetchUpdatedMonsterInfo(ids: (string | number)[] = []) {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
-    const body = { cobalt: cobaltCookie, betaKey: betaKey };
-
-    body.ids = Array.from(new Set(ids.map((id) => Number.parseInt(id)))); // remove duplicates from ids;
-    body.type = "id";
+    const body = {
+      cobalt: cobaltCookie,
+      betaKey: betaKey,
+      ids: Array.from(new Set(ids.map((id) => Number.parseInt(String(id))))), // remove duplicates from ids;
+      type: "id",
+    };
 
     return new Promise((resolve, reject) => {
       fetch(`${parsingApi}/proxy/monsters/hints`, {
@@ -76,7 +79,7 @@ export default class MonsterReplacer {
           action: "select",
           label: "Change Selected",
           icon: "fa-solid fa-floppy-disk",
-          callback: (_event, button, _dialog) => new FormDataExtended(button.form).object,
+          callback: (_event, button, _dialog) => new foundry.applications.ux.FormDataExtended(button.form).object,
         },
         {
           action: "all",

@@ -4,7 +4,7 @@ import CreateSpellwroughtTattooDialog from "../../apps/CreateSpellwroughtTattooD
 import { utils } from "../../lib/_module";
 import CompendiumHelper from "../../lib/CompendiumHelper";
 
-async function getBaseTattooData(level) {
+async function getBaseTattooData(level: number): Promise<I5eConsumableItem> {
   const spellWroughtIdentity = CONFIG.DDBI.SPELLWROUGHT_TATTOO[level]?.identity;
 
   let tattooUuid;
@@ -27,9 +27,10 @@ async function getBaseTattooData(level) {
       tattooUuid = id;
     }
   }
-  const tattooItem = await fromUuid(tattooUuid);
-  const tattooData = game.items.fromCompendium(tattooItem);
-  return tattooData;
+  const tattooItem = await fromUuid(tattooUuid) as Item.Implementation | undefined;
+  if (!tattooItem) return undefined;
+  const tattooData = game.items.fromCompendium(tattooItem as Item.Implementation);
+  return tattooData as unknown as I5eConsumableItem;
 }
 
 /**
@@ -38,8 +39,8 @@ async function getBaseTattooData(level) {
  * @param {SpellTattooConfiguration} [config={}]  Configuration options for tattoo creation.
  * @returns {Promise<Item.Implementation|void>}   The created tattoo consumable item.
  */
-async function createTattooFromSpellUuid(uuid, config = {}) {
-  const spell = await fromUuid(uuid);
+async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfiguration = {}) {
+  const spell = await fromUuid(uuid) as unknown as I5eSpellItem | undefined;
   if (!spell) return undefined;
 
   const values = CONFIG.DDBI.SPELLWROUGHT_TATTOO[spell.system.level];
@@ -63,7 +64,7 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    * @returns {boolean}                        Explicitly return `false` to prevent the tattoo to be created.
    */
-  if (Hooks.call("ddb-importer.preCreateTattooFromSpell", spell, config) === false) return undefined;
+  if (Hooks.call("ddb-importer.preCreateTattooFromSpell", spell as unknown as Item.Implementation, config) === false) return undefined;
 
   // Get tattoo data
   const tattooData = await getBaseTattooData(config.level);
@@ -79,7 +80,7 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
     }
   }
 
-  // If this is apell scroll fallback then clear description
+  // If this is spell scroll fallback then clear description
   if (tattooData.system.type.value === "scroll") {
     tattooData.system.description.value = `
 <p>The tattoo casts ${spell.name} as a ${config.name} spell with the following properties:</p>
@@ -91,11 +92,11 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
 </p>
 `;
   }
-  const activity = {
+  const activity: I5eCastActivity = {
     _id: dnd5e.utils.staticID("ddbitattoospell"),
     type: "cast",
     consumption: {
-      targets: [{ type: "itemUses", value: "1" }],
+      targets: [{ type: "itemUses", value: "1", target: "" }],
     },
     spell: {
       challenge: {
@@ -104,14 +105,15 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
         override: true,
       },
       level: config.level,
+      // @ts-expect-error - this is a true item, not a data object
       uuid: spell.uuid,
       properties: ["material"],
     },
   };
 
   // Create the spell tattoo data
-  const spellTattooData = foundry.utils.mergeObject(tattooData, {
-    name: `Spellwrought Tattoo: ${spell.name} (${config.name})`,
+  const tattooOverrideData: DeepPartial<I5eConsumableItem> = {
+    name: `Spellwrought Tattoo: ${spell.name} (${config.name ?? config.values?.name})`,
     img: "icons/tools/scribal/ink-quill-red.webp",
     system: {
       uses: { spent: 0, max: "1", autoDestroy: true },
@@ -119,7 +121,8 @@ async function createTattooFromSpellUuid(uuid, config = {}) {
       properties: ["mgc"],
       type: { value: "tattoo" },
     },
-  });
+  };
+  const spellTattooData = foundry.utils.mergeObject(tattooData, tattooOverrideData) as I5eConsumableItem;
 
   /**
    * A hook event that fires after the item data for a tattoo is created but before the item is returned.
@@ -148,12 +151,12 @@ async function compendiumContext(app, options) {
 
   const getSpellDetailsFromLi = (li) => {
     const id = li.dataset.documentId ?? li.dataset.entryId;
-    let spell = game.items.get(id);
+    let spell = game.items.get(id) as unknown as I5eSpellItem | undefined;
     if (app.collection instanceof collectionType) {
       const indexSpell = app.collection.index.get(id);
-      if (!indexSpell) return false;
-      spell = fromUuidSync(indexSpell.uuid);
-      if (!spell) return false;
+      if (!indexSpell) return null;
+      spell = fromUuidSync(indexSpell.uuid) as unknown as I5eSpellItem | undefined;
+      if (!spell) return null;
     }
     return spell;
   };
@@ -163,11 +166,14 @@ async function compendiumContext(app, options) {
     icon: "<i class=\"fa-solid fa-user-pen\"></i>",
     callback: async (li) => {
       const spell = getSpellDetailsFromLi(li);
+      if (!spell) return;
+      // @ts-expect-error - this is a true item, not a data object
       const tattoo = await createTattooFromSpellUuid(spell.uuid);
       if (tattoo) dnd5e.documents.Item5e.create(tattoo);
     },
     condition: (li) => {
       const spell = getSpellDetailsFromLi(li);
+      if (!spell) return false;
       return spell.type === "spell"
         && spell.system.level <= 5;
     },
@@ -229,5 +235,4 @@ export function addTattooConsumable() {
   // character sheet option
   Hooks.on("dnd5e.getItemContextOptions", addCharacterSheetContext);
 
-  // Add v12 support
 }

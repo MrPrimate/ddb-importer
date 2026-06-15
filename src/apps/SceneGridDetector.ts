@@ -667,7 +667,7 @@ export async function detectAndApplyGridToScene(scene: ISceneLike): Promise<ISce
         icon: "fas fa-check",
         default: true,
         callback: (_event, button, _dialog) => {
-          const formData = new FormDataExtended(button.form).object as { candidate?: string };
+          const formData = new foundry.applications.ux.FormDataExtended(button.form).object as { candidate?: string };
           return formData.candidate ?? run.recommendedKey ?? null;
         },
       },

@@ -85,6 +85,8 @@ declare module "fvtt-types/configuration" {
       "ddb-importer.itemsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.characterProcessDataComplete": (data: { actor: Actor.Implementation; ddbCharacter: DDBCharacter }) => void;
       "ddb-importer.compendiumCreationComplete": (data: { compendiums: string[] }) => void;
+      "ddb-importer.preCreateTattooFromSpell": (spell: Item.Implementation, config: SpellTattooConfiguration) => boolean | void;
+      "ddb-importer.createTattooFromSpell": (spell: Item.Implementation, spellTattooData: object, config: SpellTattooConfiguration) => void;
     }
   }
 }

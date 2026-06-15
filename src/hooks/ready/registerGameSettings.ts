@@ -2,9 +2,6 @@ import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 import { IDDBListCampaign } from "../../lib/DDBCampaigns";
-import type { IDDBMapCatalog, IDDBSourceMaps } from "../../muncher/DDBMaps";
-import type { IDDBStickersPayload } from "../../muncher/DDBStickers";
-import { IIconMapEntry } from "../../lib/Iconizer";
 // JournalPageLookup is declared globally in muncher/adventure/native/types.d.ts.
 
 interface IDDBIMacros {
@@ -128,6 +125,7 @@ export interface IDDBIConfig {
     tiers: IPatreonAccessMatrix | null;
     tiersLocal: IPatreonAccessMatrix | null;
   };
+  SPELLWROUGHT_TATTOO?: ISpellTattooConfigurationValue[];
   dumpQuickplay?: (scene: any) => unknown;
 }
 

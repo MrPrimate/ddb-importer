@@ -129,18 +129,6 @@ export interface IDDBMap {
   officialData?: { sourceId?: string; chapterId?: string };
 }
 
-export interface IDDBMapCatalog {
-  sources: IDDBMapSource[];
-  // Sorted list of every action name DDB exposes via the games page chunks.
-  // Kept around because action discovery is the most fragile part of the
-  // catalog pipeline and this lets us spot upstream renames quickly.
-  _allActionNames?: string[];
-  // sourceIds returned by getEntitledSourcesAndPreparedMaps that have at
-  // least one prepared (Quickplay) map. Mirrors the per-source hasQuickplay
-  // flag the flatten step stamps onto each IDDBMapSource.
-  _preparedSourceIds?: string[];
-}
-
 export interface IDDBChapterDescriptor {
   id: string;
   name: string;
