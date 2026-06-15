@@ -1,6 +1,6 @@
 # Next Up
 
-- Zealous Presence granted disadvantage on saving throws
+- Zealous Presence granted disadvantage on saving throws - @redarchongaming
 
 # 7.1.27
 
