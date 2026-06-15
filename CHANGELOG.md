@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.3.7
+
 - Nested tables from DMG 2014 now parse correctly with the new Native Adventure Muncher. @jc1439
 - Zealous Presence granted disadvantage on saving throws - @redarchongaming
 - On windows some note pins would generate incorrect icon names that would fail to save. @niklas3693
