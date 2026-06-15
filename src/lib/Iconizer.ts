@@ -312,6 +312,7 @@ export default class Iconizer {
     let iconPath = "icons/svg/book.svg";
     let stub = title.trim().split(".")[0].split(" ")[0];
     stub = stub.replace(/(\d+)/, unPad);
+    // eslint-disable-next-line no-control-regex
     stub = stub.replace(/[<>:"/\\|?*\x00-\x1F]/g, ""); // drop chars illegal in file paths
     if (stub.length <= 4) {
       iconPath = `assets/icons/${stub}.svg`;
