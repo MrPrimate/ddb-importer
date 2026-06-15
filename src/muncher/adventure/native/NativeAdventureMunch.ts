@@ -368,10 +368,21 @@ export default class NativeAdventureMunch {
       if (collection?.get(doc._id)) toUpdate.push(doc);
       else toCreate.push(doc);
     }
-    if (toCreate.length) await cls.createDocuments(toCreate, { keepId: true, keepEmbeddedIds: true });
-    if (toUpdate.length) {
-      const options =  typeof cls === typeof Scene ? { } : { keepEmbeddedIds: true };
-      await cls.updateDocuments(toUpdate, options as any);
+    try {
+      logger.info(`NativeAdventureMunch: creating ${toCreate.length} and updating ${toUpdate.length} ${cls.name} documents`);
+      logger.debug(`NativeAdventureMunch: creating ${toCreate.length} and updating ${toUpdate.length} ${cls.name} documents`, { toCreate, toUpdate });
+      if (toCreate.length) await cls.createDocuments(toCreate, { keepId: true, keepEmbeddedIds: true });
+      if (toUpdate.length) {
+        const options =  typeof cls === typeof Scene ? { } : { keepEmbeddedIds: true };
+        await cls.updateDocuments(toUpdate, options as any);
+      }
+    } catch (err) {
+      logger.error(`NativeAdventureMunch: error creating/updating ${cls.name} documents`, {
+        err,
+        toCreate,
+        toUpdate,
+      });
+      throw err;
     }
   }
 }
