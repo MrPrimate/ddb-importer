@@ -130,7 +130,7 @@ global {
   /* ---- NativeSceneBuilder ---- */
 
   interface BuiltScene {
-    doc: any;
+    doc: I5eSceneData;
     /** Original detection + source row so the applier can rebuild the mapStub for enrich(). */
     detection: DetectedScene;
     row: ProcessedRow;

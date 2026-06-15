@@ -132,7 +132,15 @@ export default class NativeAdventureMunch {
     }
   }
 
-  async #process(rows: ContentRow[], bookCode: string, bookName: string, zip?: NativeBookZip, enhancements: any[] = [], tableHints: Map<string, TableHint> = new Map<string, TableHint>(), options: ImportOptions = {}): Promise<any> {
+  async #process(
+    rows: ContentRow[],
+    bookCode: string,
+    bookName: string,
+    zip?: NativeBookZip,
+    enhancements: any[] = [],
+    tableHints: Map<string, TableHint> = new Map<string, TableHint>(),
+    options: ImportOptions = {},
+  ): Promise<{ folder: I5eFolderData; journals: I5eJournalData[]; tables: I5eTableData[]; scenes: I5eSceneData[] }> {
     // full=true builds compendium lookups (monsters/spells/items); cobalt=false
     // skips the vehicle fetch so the file-test path works without auth (vehicle
     // links just fall back to DDB urls - fine for the journals slice).
@@ -252,7 +260,7 @@ export default class NativeAdventureMunch {
       // bar (createDocuments is atomic, so granularity is per-group, not per-doc).
       this.#phase("Creating documents");
       this.#clearSecondary();
-      const groups: [any, any, any[], string][] = [
+      const groups: [typeof Scene | typeof Folder | typeof RollTable | typeof JournalEntry, any, any[], string][] = [
         [Folder, game.folders, allFolders, "folders"],
         [JournalEntry, game.journal, journals, "journals"],
         [RollTable, game.tables, tables, "tables"],
@@ -349,7 +357,11 @@ export default class NativeAdventureMunch {
   }
 
   // Create new docs (keepId) or update existing ones matched by deterministic _id.
-  static async #createOrUpdate(cls: any, collection: any, docs: any[]): Promise<void> {
+  static async #createOrUpdate(
+    cls: typeof Scene | typeof Folder | typeof RollTable | typeof JournalEntry,
+    collection: CompendiumCollection<any>,
+    docs: I5eFolderData[] | I5eJournalData[] | I5eTableData[] | I5eSceneData[],
+  ): Promise<void> {
     const toCreate: any[] = [];
     const toUpdate: any[] = [];
     for (const doc of docs) {
@@ -357,6 +369,9 @@ export default class NativeAdventureMunch {
       else toCreate.push(doc);
     }
     if (toCreate.length) await cls.createDocuments(toCreate, { keepId: true, keepEmbeddedIds: true });
-    if (toUpdate.length) await cls.updateDocuments(toUpdate, { keepEmbeddedIds: true });
+    if (toUpdate.length) {
+      const options =  typeof cls === typeof Scene ? { } : { keepEmbeddedIds: true };
+      await cls.updateDocuments(toUpdate, options as any);
+    }
   }
 }

@@ -28,8 +28,8 @@ export async function buildTables(
   idFactory: NativeIdFactory,
   tableHints: Map<string, TableHint> = new Map<string, TableHint>(),
   notify?: ItemNotify,
-): Promise<{ tables: any[]; folders: I5eFolderData[]; updatedContentById: Map<number, string> }> {
-  const tables: any[] = [];
+): Promise<{ tables: I5eTableData[]; folders: I5eFolderData[]; updatedContentById: Map<number, string> }> {
+  const tables: I5eTableData[] = [];
   const updatedContentById = new Map<number, string>();
 
   // chapter title lookup (chapter rows carry a cobaltId)
@@ -92,7 +92,7 @@ export async function buildTables(
         const diceKeys: string[] = findDiceColumns(node);
         if (diceKeys.length === 0) continue; // only dice tables → RollTables
 
-        const parsed = parseTable(node);
+        const parsed = parseTable(node) as I5eParsedTable;
         const keys: string[] = getHeadings(node);
         const contentChunkId = node.getAttribute("data-content-chunk-id");
         const hint = contentChunkId ? tableHints.get(contentChunkId) : undefined;
@@ -110,8 +110,13 @@ export async function buildTables(
           }
         }
 
-        const built: any[] = buildTable({
-          parsedTable: parsed, keys, diceKeys, tableName: nameGuess, parentName: row.title, html: row.sourceHtml,
+        const built: I5eTableData[] = buildTable({
+          parsedTable: parsed,
+          keys,
+          diceKeys,
+          tableName: nameGuess,
+          parentName: row.title,
+          html: row.sourceHtml,
         });
         if (built.length === 0) continue;
 

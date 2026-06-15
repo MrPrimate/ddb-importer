@@ -127,6 +127,9 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
       rule: [],
     },
     fullPageMap: [],
+    monstersToReplace: [],
+    cobalt: null,
+    campaignId: null,
   };
 
   if (cobalt) {

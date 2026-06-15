@@ -9,8 +9,8 @@ const JOURNAL_SORT = 1000;
 // AdventureMunch sets on import so journals render with the DDB book styling.
 const DDB_JOURNAL_SHEET = "ddb-importer.DDBJournalSheet";
 
-function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null): any {
-  const ddb = buildDdbFlags({
+function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null): I5eJournalPageFlags {
+  const ddb: I5eJournalDDBFlags = buildDdbFlags({
     ddbId: row.id,
     bookCode,
     slug: row.slug,
@@ -22,7 +22,7 @@ function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null
   return { ddb };
 }
 
-function makePage(row: ProcessedRow, id: string, flags: any): any {
+function makePage(row: ProcessedRow, id: string, flags: I5eJournalPageFlags): I5eJournalPageData {
   return {
     _id: id,
     name: row.title,
@@ -55,8 +55,8 @@ export function buildJournals(
   idFactory: NativeIdFactory,
   notify?: ItemNotify,
   themeCss?: string | null,
-): any[] {
-  const journals: any[] = [];
+): I5eJournalData[] {
+  const journals: I5eJournalData[] = [];
 
   const isSection = (row: ProcessedRow) =>
     row.parentId !== null && Number.isInteger(row.parentId) && row.cobaltId === null;
@@ -78,7 +78,7 @@ export function buildJournals(
     // chapters/top-level entries get a linkId pointing at themselves
     if (row.parentId === null) flags.ddb.linkId = _id;
 
-    const journal = {
+    const journal: I5eJournalData = {
       _id,
       name: row.title,
       folder: folderId,

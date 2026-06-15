@@ -135,11 +135,19 @@ function getDiceTableRange(value) {
 }
 
 
-export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, sourceBook, html } = {}) {
-  const generatedTables = [];
+export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName, sourceBook, html }: {
+  parsedTable: I5eParsedTable;
+  keys: string[];
+  diceKeys: string[];
+  tableName: string;
+  parentName?: string;
+  sourceBook?: string;
+  html: string;
+}): I5eTableData[] {
+  const generatedTables: I5eTableData[] = [];
 
   diceKeys.forEach((diceKey) => {
-    const nameExtension = diceKeys > 1 ? ` [${diceKeys}]` : "";
+    const nameExtension = parseInt(diceKey) > 1 ? ` [${diceKey}]` : "";
     const realName = ((tableName && tableName !== "") ? tableName : "Unnamed Table") + nameExtension;
     logger.debug(`Generating table ${realName}`);
 
@@ -149,7 +157,7 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
     const spellCastingAttackRegex = new RegExp(/make a spell attack roll/ig);
     const spellCastingAttackMatch = diceKey.includes("d20") && spellCastingAttackRegex.test(html);
 
-    const table = {
+    const table: I5eTableData = {
       "name": realName,
       "sort": 100000,
       "flags": {
@@ -176,9 +184,9 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
     // loop through rows and build result entry.
     // if more than one result key then we will concat the results.
     parsedTable.forEach((entry) => {
-      const result = {
-        flags: {},
-        text: "",
+      const result: I5eTableResult = {
+        // flags: {},
+        description: "",
         img: "icons/svg/d20-black.svg",
         resultId: null,
         weight: 1,
@@ -191,15 +199,15 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
           result.range = getDiceTableRange(value);
         } else if (diceKeys.includes(key)) return;
         if (concatKeys) {
-          if (result.text != "") result.text += "\n\n";
-          result.text += `<b>${key}</b>${value}`;
+          if (result.description != "") result.description += "\n\n";
+          result.description += `<b>${key}</b>${value}`;
         } else {
-          result.text = value as string;
+          result.description = value as string;
         }
       });
-      result.text = replaceRollLinks(result.text);
+      result.description = replaceRollLinks(result.description);
       const diceRollerRegexp = new RegExp(/\[\[\/r\s*([0-9d+-\s]*)(:?#.*)?\]\]/);
-      result.text = result.text.replace(diceRollerRegexp, "[[$1]] ($&)");
+      result.description = result.description.replace(diceRollerRegexp, "[[$1]] ($&)");
       table.results.push(result);
     });
 
@@ -235,7 +243,19 @@ export function buildTable({ parsedTable, keys, diceKeys, tableName, parentName,
 }
 
 
-async function buildAndImportTable({ parsedTable, keys, diceKeys, finalName, name, sourceBook, updateExisting, html, notifier } = {}) {
+async function buildAndImportTable({
+  parsedTable, keys, diceKeys, finalName, name, sourceBook, updateExisting, html, notifier,
+}: {
+  parsedTable: I5eParsedTable;
+  keys: string[];
+  diceKeys: string[];
+  finalName: string;
+  name: string;
+  sourceBook?: string;
+  updateExisting?: boolean;
+  html: string;
+  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+}) {
   const data = buildTable({ parsedTable, keys, diceKeys, tableName: finalName, parentName: name, sourceBook, html });
   const handlerOptions = { srdFidding: false, updateIcons: false, notifier };
 

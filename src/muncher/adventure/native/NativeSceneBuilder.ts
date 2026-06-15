@@ -77,7 +77,7 @@ function buildBaseScene(args: {
   idFactory: NativeIdFactory;
   folderId: string;
   nameOverride?: string | null;
-}): any {
+}): I5eSceneData {
   const { detection, row, bookCode, bgSrc, width, height, edgeColor, idFactory, folderId, nameOverride } = args;
   // _id stays keyed on the PARSED name (stable identity) so it doesn't shift if
   // an enrichment name appears/disappears between imports; the displayed name
@@ -105,7 +105,7 @@ function buildBaseScene(args: {
   const navBase = displayName.split(":").pop()?.trim() ?? displayName;
   const navName = navBase.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim() || navBase;
 
-  return {
+  const doc: I5eSceneData = {
     _id,
     name: displayName,
     navName,
@@ -153,6 +153,8 @@ function buildBaseScene(args: {
       },
     },
   };
+
+  return doc;
 }
 
 /**

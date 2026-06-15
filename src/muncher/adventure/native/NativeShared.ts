@@ -43,9 +43,9 @@ export function buildDdbFlags(args: {
   contentChunkId?: string | null;
   cobaltId?: number | null;
   parentId?: number | null;
-}): any {
+}): I5eTableDDBFlags | I5eJournalDDBFlags {
   const { ddbId, bookCode, slug, contentChunkId, cobaltId, parentId } = args;
-  const ddb: any = { ddbId, bookCode, slug, contentChunkId };
+  const ddb: I5eTableDDBFlags = { ddbId, bookCode, slug, contentChunkId };
   if (cobaltId !== null && cobaltId !== undefined) ddb.cobaltId = cobaltId;
   if (parentId !== null && parentId !== undefined) ddb.parentId = parentId;
   return ddb;
