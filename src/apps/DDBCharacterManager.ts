@@ -395,7 +395,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         new DDBKeyChangeDialog({
           local: true,
           callback: this.setLocalPatreonKey.bind(this),
-        }).render(true);
+        }).render({ force: true });
       }
     } catch (error) {
       logger.error(error);
@@ -562,7 +562,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   static openDebug(_event, _target) {
-    new DDBDebugger({ actor: this.actor, extra: this.debugContext }).render(true);
+    new DDBDebugger({ actor: this.actor, extra: this.debugContext }).render({ force: true });
   }
 
 }

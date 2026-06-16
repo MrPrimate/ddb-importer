@@ -129,7 +129,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
   static openDebug(_event, _target) {
-    new DDBDebugger().render(true);
+    new DDBDebugger().render({ force: true });
   }
 
   /** @inheritDoc */
@@ -618,7 +618,7 @@ export default class DDBSetup extends DDBAppV2 {
       return;
     }
 
-    const dialog = await foundry.applications.api.DialogV2.confirm({
+    const dialog = await foundry.applications.api.DialogV2.confirm<foundry.applications.api.DialogV2.ConfirmConfig>({
       rejectClose: false,
       window: { title: `Empty ${pack.metadata.label}` },
       content: `<p>Are you sure you want to delete all <strong>${count}</strong> entries from <strong>${pack.metadata.label}</strong>?</p>`,
@@ -757,10 +757,10 @@ export default class DDBSetup extends DDBAppV2 {
       ui.notifications.error("To use DDB Importer you need to set a Cobalt Cookie value!");
       // throw new Error(`To use Muncher you need to set a Cobalt Cookie value!`);
     } else if (this.callMuncher) {
-      new DDBMuncher().render(true);
+      new DDBMuncher().render({ force: true });
     } else if (this.actor) {
       const characterImport = new DDBCharacterManager(this.actor);
-      characterImport.render(true);
+      characterImport.render({ force: true });
     }
   }
 

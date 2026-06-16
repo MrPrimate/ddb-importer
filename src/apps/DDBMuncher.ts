@@ -1214,15 +1214,15 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async openMapBrowser(this: DDBMuncher, _event, _target) {
-    new DDBMapBrowser().render(true);
+    new DDBMapBrowser().render({ force: true });
   }
 
   static async openStickerBrowser(this: DDBMuncher, _event, _target) {
-    new DDBStickerBrowser().render(true);
+    new DDBStickerBrowser().render({ force: true });
   }
 
   static async openAdventureBrowser(this: DDBMuncher, _event, _target) {
-    new DDBAdventureBrowser().render(true);
+    new DDBAdventureBrowser().render({ force: true });
   }
 
   static async updateWorldMonsters(this: DDBMuncher, _event, _target) {
@@ -1239,7 +1239,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static async selectiveUpdateWorldMonsters(_event, _target) {
-    new DDBSelectiveMonsterUpdate().render(true);
+    new DDBSelectiveMonsterUpdate().render({ force: true });
   }
 
   static async migrateCompendiumFolders(this: DDBMuncher, _event, target) {
@@ -1363,15 +1363,15 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
   static openDebug(this: DDBMuncher, _event, _target) {
-    new DDBDebugger({ actor: this.actor }).render(true);
+    new DDBDebugger({ actor: this.actor }).render({ force: true });
   }
 
   static openCoreSetup(this: DDBMuncher, _event, _target) {
-    new DDBSetup({ callMuncher: true }).render(true);
+    new DDBSetup({ callMuncher: true }).render({ force: true });
   }
 
   static openSourcePruner(this: DDBMuncher, _event, _target) {
-    new DDBSourcePruner().render(true);
+    new DDBSourcePruner().render({ force: true });
   }
 
   static async regenerateStorage(this: DDBMuncher, _event, _target) {

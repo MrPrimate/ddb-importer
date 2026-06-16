@@ -19,7 +19,7 @@ export default class DDBCookie extends FormApplication {
     return options;
   }
 
-  get title() {  
+  get title() {
     // improve localisation
     // game.i18n.localize("")
     return "DDB Importer Cobalt Cookie";
@@ -51,7 +51,7 @@ export default class DDBCookie extends FormApplication {
     if (!cobaltStatus.success) {
       new DDBCookie({ actor: this.actor, localCobalt: this.localCobalt, callMuncher: this.callMuncher }).render(true);
     } else if (this.callMuncher) {
-      new DDBMuncher().render(true);
+      new DDBMuncher().render({ force: true });
     } else if (this.callback) {
       this.callback();
     }

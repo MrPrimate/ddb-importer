@@ -534,7 +534,7 @@ export default class DDBPartySync extends DDBAppV2 {
 
   static open({ actor = null, campaignId = null }: { actor?: any; campaignId?: string | null } = {}) {
     const app = new this({ actor, campaignId });
-    app.render(true);
+    app.render({ force: true });
     return app;
   }
 

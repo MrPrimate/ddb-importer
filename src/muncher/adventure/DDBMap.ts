@@ -164,7 +164,7 @@ export default class DDBMap {
     return parent?.id ?? null;
   }
 
-  async createScene(): Promise<any | null> {
+  async createScene(): Promise<Scene | null> {
     if (this.scene) return this.scene;
     if (!this.uploadedPath) await this.upload();
     if (!this.uploadedPath) throw new Error(`No uploaded image path for "${this.map.name}"`);
@@ -180,7 +180,7 @@ export default class DDBMap {
       ...candidates,
     });
     const folderId = await this._resolveFolderId();
-    const data: any = {
+    const data: I5eSceneData = {
       name: this._sceneName(),
       levels: [
         {
@@ -243,7 +243,7 @@ export default class DDBMap {
       detection: this.detection,
     });
     this._notify(`Creating scene "${data.name}" (grid ${gridSize}px from ${grid.source})...`);
-    this.scene = await Scene.create(data);
+    this.scene = await Scene.create(data as any) as Scene;
     return this.scene;
   }
 

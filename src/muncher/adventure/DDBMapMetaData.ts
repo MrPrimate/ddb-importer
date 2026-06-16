@@ -599,7 +599,6 @@ export default class DDBMapMetaData {
   // deprecated in V14 in favour of Level#background; reading scene.background
   // triggers a compatibility warning on every access.
   private static _readLevelBackgroundSrc(scene: Scene): string | null {
-    // @ts-expect-error - types not yet updated for v14 levels
     const levels = scene?.levels?.contents ?? scene?.levels ?? [];
     const first = levels[0];
     return first?.background?.src ?? null;
@@ -785,7 +784,6 @@ export default class DDBMapMetaData {
   // applying meta-data into pre-create scene docs (NativeSceneBuilder).
   static buildSceneUpdate(scene: Scene, info: IDDBMetaScene): Record<string, any> {
     const update: Record<string, any> = {};
-    // @ts-expect-error - types not yet updated for v14 levels
     const ourLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
 
     for (const [key, value] of Object.entries(info)) {
@@ -960,7 +958,6 @@ export default class DDBMapMetaData {
       const restamp: Record<string, any> = {};
       const currentLevelBgSrc = DDBMapMetaData._readLevelBackgroundSrc(scene);
       if (munchedLevelBgSrc && currentLevelBgSrc !== munchedLevelBgSrc) {
-        // @ts-expect-error - types not yet updated for v14 levels
         const firstLevel = (scene.levels?.contents ?? scene.levels ?? [])[0];
         if (firstLevel?._id) {
           restamp["levels"] = [{ _id: firstLevel._id, background: { src: munchedLevelBgSrc } }];

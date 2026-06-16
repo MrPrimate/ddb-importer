@@ -22,13 +22,13 @@ export function addMuncher(app, html) {
       if (cobaltStatus.success) {
         const validKey = await PatreonHelper.isValidKey();
         if (validKey) {
-          new DDBMuncher().render(true);
+          new DDBMuncher().render({ force: true });
         }
       } else {
         new DDBCookie({ callMuncher: true }).render(true);
       }
     } else {
-      new DDBSetup({ callMuncher: true }).render(true);
+      new DDBSetup({ callMuncher: true }).render({ force: true });
     }
   });
 

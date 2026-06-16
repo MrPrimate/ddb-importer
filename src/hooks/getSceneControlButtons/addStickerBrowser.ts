@@ -20,7 +20,7 @@ export function addStickerBrowserControl(controls: Record<string, any>) {
     visible: true,
     onChange: (_event: any, active: boolean) => {
       if (active === false) return;
-      new DDBStickerBrowser().render(true);
+      new DDBStickerBrowser().render({ force: true });
     },
   };
 }

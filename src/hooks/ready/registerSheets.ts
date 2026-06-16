@@ -30,7 +30,7 @@ const renderPopup = (type, url) => {
 
 function callDDBCharacterManager(actor) {
   const characterImport = new DDBCharacterManager(actor);
-  characterImport.render(true);
+  characterImport.render({ force: true });
 }
 
 async function characterButtonClick(event, document, actor) {
@@ -67,7 +67,7 @@ async function characterButtonClick(event, document, actor) {
           ui.notifications.error("Unable to connect to DDB Importer Proxy. Please check your DDB Importer settings and internet connection and try again.");
           return new DDBSetup({
             actor: actor,
-          }).render(true);
+          }).render({ force: true });
         }, 10000);
         const checkCobalt = await Secrets.checkCobalt(actor.id);
         clearTimeout(timeout);
@@ -89,7 +89,7 @@ async function characterButtonClick(event, document, actor) {
     } else {
       new DDBSetup({
         actor: actor,
-      }).render(true);
+      }).render({ force: true });
     }
 
     return true;

@@ -1,6 +1,7 @@
 import { FileHelper } from "../../lib/_module";
 import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport";
 import SceneGridPickerApp from "../../apps/SceneGridPickerApp";
+import { resolveSceneGridImageSource } from "../../apps/SceneGridDetector";
 import SceneCopyApp from "../../apps/SceneCopyApp";
 
 function getSceneId(li) {
@@ -14,7 +15,7 @@ export default function (_html, contextOptions) {
   contextOptions.push({
     name: "ddb-importer.scenes.download",
     callback: (li) => {
-      const scene = game.scenes.get(getSceneId(li));
+      const scene = game.scenes.get(getSceneId(li)) as unknown as I5eSceneData;
       const data = collectSceneData(scene, scene.flags.ddb.bookCode);
       const bookCode = `${scene.flags.ddb.bookCode}-${scene.flags.ddb.ddbId}`;
       const cobaltId = scene.flags.ddb?.cobaltId ? `-${scene.flags.ddb.cobaltId}` : "";
@@ -36,8 +37,8 @@ export default function (_html, contextOptions) {
   contextOptions.push({
     name: "ddb-importer.scenes.third-party-download",
     callback: (li) => {
-      const scene = game.scenes.get(getSceneId(li));
-      new SceneEnhancerExport(scene).render(true);
+      const scene = game.scenes.get(getSceneId(li))as Scene;
+      if (scene) new SceneEnhancerExport(scene).render(true);
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
@@ -57,7 +58,7 @@ export default function (_html, contextOptions) {
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
-      return Boolean(game.user.isGM && scene?.background?.src);
+      return Boolean(game.user.isGM && scene && resolveSceneGridImageSource(scene));
     },
     icon: "<i class=\"fas fa-border-all\"></i>",
   });
@@ -65,8 +66,8 @@ export default function (_html, contextOptions) {
   contextOptions.push({
     name: "ddb-importer.scenes.copy-fields",
     callback: (li) => {
-      const scene = game.scenes.get(getSceneId(li));
-      if (scene) new SceneCopyApp(scene).render(true);
+      const scene = game.scenes.get(getSceneId(li)) as Scene;
+      if (scene) new SceneCopyApp(scene).render({ force: true });
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
