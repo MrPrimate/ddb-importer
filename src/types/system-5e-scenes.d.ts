@@ -32,6 +32,11 @@ global {
     background?: I5eSceneLevelBackground;
     foreground?: I5eSceneLevelForeground | null;
     textures?: I5eSceneLevelTextures;
+    elevation?: {
+      base?: number;
+      bottom?: number;
+      top?: number;
+    };
   }
 
   interface I5eSceneGrid {
