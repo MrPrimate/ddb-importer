@@ -21,7 +21,7 @@ import {
   SystemHelpers,
 } from "../lib/_module";
 import type DDBCharacter from "../DDBCharacter";
-import { IDDBSourceResponse } from "../../lib/DDBSources";
+import { type IDDBSourceResponse } from "../../lib/DDBSources";
 
 interface IDDBFeatureMixinActionType {
   class?: {
@@ -36,7 +36,7 @@ type TDocumentType = Extract<TFeatureType, "background" | "feat"> | "weapon";
 
 interface IDDBFeatureMixin {
   ddbData: IDDBData;
-  ddbDefinition: TDDBFeatureMixinDefinitions;
+  ddbDefinition: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | IDDBAction | IDDBConfigNaturalAction;
   type: string;
   source?: IDDBSourceResponse | null;
   documentType?: TDocumentType;
@@ -89,7 +89,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   snippet: string;
   description: string;
   resourceCharges: number | null;
-  ddbFeature: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions;
+  ddbFeature: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | IDDBAction | IDDBConfigNaturalAction;
   // current choice option context, set transiently during DDBChoiceFeature.build()
   _currentChoice: any | null;
   declare ddbDefinition: TDDBFeatureMixinDefinitions;

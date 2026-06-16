@@ -423,6 +423,8 @@ type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDD
 
 type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground | IDDBClass | IDDBInfusionDefinition;
 
+type TActions = IDDBAction | IDDBConfigNaturalAction;
+
 /**
  * This will parse a snippet/description with template boilerplate in from DDB.
  * e.g. Each creature in the area must make a DC {{savedc:con}} saving throw.
@@ -432,7 +434,7 @@ type TFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground 
  * @param {TFeatures | TDefinitions} feature The feature object.
  * @returns {object} The parsed template string result object.
  */
-export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions): IDDBTemplateStringResult | undefined {
+export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions | TActions): IDDBTemplateStringResult | undefined {
   if (!text) return;
   // @ts-expect-error - ignore this check
   const featureDefinition = feature.definition ?? feature;

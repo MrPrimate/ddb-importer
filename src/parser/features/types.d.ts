@@ -10,4 +10,9 @@ global {
 
   type T5eFeatureMixinDataTypes = I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
 
+  interface IDDBFeaturesAdvancementLinkData {
+    _id: string;
+    features: Record<string, string>;
+  }
+
 }

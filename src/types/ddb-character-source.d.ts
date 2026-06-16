@@ -384,6 +384,8 @@ global {
     activation: IDDBActionActivation;
     range: IDDBActionRange;
     limitedUse: IDDBActionLimitedUse | null;
+    // we inject this, but isn't always present
+    actionSource?: "class" | "race" | "feat" | "background" | null;
   }
 
   export interface IDDBActions {
