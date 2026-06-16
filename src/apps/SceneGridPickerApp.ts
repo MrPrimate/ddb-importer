@@ -4,21 +4,11 @@ import {
   runDetectionForScene,
   rebuildDetectionRun,
   applyChoiceToScene,
+  resolveSceneGridImageSource,
   ISceneGridDetectionRun,
   ICandidateChoice,
+  ISceneGridImageSource,
 } from "./SceneGridDetector";
-
-interface ISceneLike {
-  id?: string;
-  name?: string;
-  background?: { src?: string | null; offsetX?: number; offsetY?: number };
-  width?: number;
-  height?: number;
-  grid?: { size?: number };
-  flags?: Record<string, any>;
-  getFlag?: (scope: string, key: string) => any;
-  update: (data: any) => Promise<any>;
-}
 
 interface ICell {
   id: string;
@@ -35,10 +25,11 @@ const GRID_DIVISIONS = 6;
 
 export default class SceneGridPickerApp extends DDBAppV2 {
 
-  scene: ISceneLike;
+  scene: Scene;
   step: "select" | "review" = "select";
   selected = new Set<string>();
   imageDimensions: { x: number; y: number } = { x: 0, y: 0 };
+  imageSource: ISceneGridImageSource | null = null;
   imageUrl = "";
   loading = false;
   run: ISceneGridDetectionRun | null = null;
@@ -112,10 +103,11 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     },
   };
 
-  constructor(scene: ISceneLike) {
+  constructor(scene: Scene, imageSource?: ISceneGridImageSource | null) {
     super();
     this.scene = scene;
-    this.imageUrl = scene.background?.src ?? "";
+    this.imageSource = imageSource ?? resolveSceneGridImageSource(scene);
+    this.imageUrl = this.imageSource?.src ?? "";
   }
 
   _getTabs() {
@@ -283,9 +275,9 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       logger.info(`SceneGridPicker: multiplier from gridMultiplier flag = ${this.multiplier}`);
       return;
     }
-    const storedDetection = (typeof this.scene.getFlag === "function"
-      ? foundry.utils.getProperty(this.scene, "flags.ddbimporter.gridDetection")
-      : null) ?? flags.gridDetection;
+    const storedDetection:IGridDetectionResult = (typeof this.scene.getFlag === "function"
+      ? foundry.utils.getProperty(this.scene, "flags.ddbimporter.gridDetection") as IGridDetectionResult
+      : null) ?? flags.gridDetection as IGridDetectionResult;
     const storedPainted = typeof storedDetection?.size === "number" ? storedDetection.size : null;
     const existingGridSize = this.scene.grid?.size;
     if (
@@ -381,6 +373,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
           this.run.detection,
           this.run.imageDimensions,
           this.multiplier,
+          this.run.imageSource ?? this.imageSource ?? undefined,
         );
         this.selectedCandidateKey = this.run.recommendedKey ?? null;
       }
@@ -563,7 +556,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       const previewRect = this._selectionRect();
       this.usedRoi = previewRect;
       this.usedComponents = components;
-      const baseOptions: any = {};
+      const baseOptions: any = { imageSource: this.imageSource };
       if (components.length === 1) baseOptions.roi = components[0];
       else if (components.length > 1) baseOptions.rois = components;
 
@@ -854,6 +847,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       multiplier: this.multiplier,
       expectedCellPx: cellPx,
       searchPaddingFraction: 0.05,
+      imageSource: this.imageSource,
     });
 
     const det = this.run.detection;
@@ -876,7 +870,13 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       // Re-derive the run so the candidate list and recommended choice
       // reflect the corrected offsets (sceneScale * offset shows in the
       // candidates table, and applyChoiceToScene reads from the choice).
-      this.run = rebuildDetectionRun(this.scene, det, this.run.imageDimensions, this.multiplier);
+      this.run = rebuildDetectionRun(
+        this.scene,
+        det,
+        this.run.imageDimensions,
+        this.multiplier,
+        this.run.imageSource ?? this.imageSource ?? undefined,
+      );
       logger.info(
         `SceneGridPicker: hint applied offset=(${det.offsetX.toFixed(1)}, ${det.offsetY.toFixed(1)}) size=${det.size.toFixed(2)} (refined from hint ${cellPx.toFixed(2)})`,
       );
@@ -917,7 +917,13 @@ export default class SceneGridPickerApp extends DDBAppV2 {
       templateOffsetY: offsetYImg,
       templateScore: 1,
     };
-    this.run = rebuildDetectionRun(this.scene, synthetic, this.imageDimensions, this.multiplier);
+    this.run = rebuildDetectionRun(
+      this.scene,
+      synthetic,
+      this.imageDimensions,
+      this.multiplier,
+      this.imageSource ?? undefined,
+    );
     this.selectedCandidateKey = this.run.recommendedKey ?? null;
     this.usedRoi = null;
     this.usedComponents = [];
@@ -954,6 +960,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
         this.run.detection,
         this.run.imageDimensions,
         this.multiplier,
+        this.run.imageSource ?? this.imageSource ?? undefined,
       );
       // When user picks a subdivision (>1) the resolver's preferred candidate
       // is often the prior-based "tokenScale" entry, which keeps gridSize at
@@ -1306,13 +1313,14 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     handle.addEventListener("pointercancel", onUp);
   }
 
-  static async open(scene: ISceneLike): Promise<SceneGridPickerApp | null> {
-    if (!scene.background?.src) {
-      ui.notifications?.warn(`"${scene.name ?? "Scene"}" has no background image to scan.`);
+  static async open(scene: Scene): Promise<SceneGridPickerApp | null> {
+    const imageSource = resolveSceneGridImageSource(scene);
+    if (!imageSource) {
+      ui.notifications?.warn(`"${scene.name ?? "Scene"}" has no level/background image to scan.`);
       return null;
     }
-    const app = new SceneGridPickerApp(scene);
-    app.render(true);
+    const app = new SceneGridPickerApp(scene, imageSource);
+    app.render({ force: true });
     return app;
   }
 

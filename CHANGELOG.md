@@ -1,5 +1,7 @@
 # Next Up
 
+- Auto Grid didn't work properly with levels. It does now.
+
 # 7.3.7
 
 - Nested tables from DMG 2014 now parse correctly with the new Native Adventure Muncher. @jc1439
