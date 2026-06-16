@@ -514,18 +514,19 @@ export default class DDBFeature extends DDBFeatureMixin {
     //   featIds,
     // });
 
-    advancement.updateSource({
+    const update: I5eAdvancementItemGrant = {
       configuration: {
         items: feats.map((f) => {
           return { uuid: f.uuid };
         }),
       },
       title: "Feat",
-    });
+    };
+    advancement.updateSource(update as any);
     this.data.system.advancement[advancement._id] = advancement.toObject() as I5eAdvancement;
 
-    const advancementLinkData = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") ?? [];
-    const advancementData = {
+    const advancementLinkData: IDDBFeaturesAdvancementLinkData[] = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[] ?? [];
+    const advancementData: IDDBFeaturesAdvancementLinkData = {
       _id: advancement._id,
       features: {},
     };

@@ -188,8 +188,8 @@ export default class DDBChoiceFeature extends DDBFeature {
   ];
 
 
-  static async buildChoiceFeatures(ddbFeature, allFeatures = false) {
-    const features = [];
+  static async buildChoiceFeatures(ddbFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
+    const features: T5eFeatureMixinDataTypes[] = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
     if (ddbFeature.type === "feat" && !DDBChoiceFeature.FORCE_FEAT_CHOICES.includes(ddbFeature.ddbDefinition.name)) return features;
     const parseAllFeatures = ddbFeature.enricher.parseAllChoiceFeatures || allFeatures;
@@ -197,7 +197,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       .filter((c) =>
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
-        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.label).includes(utils.nameString(c.label)),
+        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool")
+          .map((p) => p.name).includes(utils.nameString(c.label)),
       );
     logger.debug(`Processing Choice Features ${choices.map((c) => c.label).join(",")}`, {
       _choices: ddbFeature._choices,

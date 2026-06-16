@@ -6,6 +6,19 @@ import { DDBFeatureActivity } from "../activities/_module";
 import CharacterFeatureFactory from "./CharacterFeatureFactory";
 import { DICTIONARY } from "../../config/_module";
 import type DDBCharacter from "../DDBCharacter";
+import { type IDDBSourceResponse } from "../../lib/DDBSources";
+
+interface IDDBKlassFeatures {
+  derived: IDDBClassFeature[];
+  class: IDDBClassDefinitionFeature[];
+  classFeatureIds: number[];
+  subclass: IDDBClassDefinitionFeature[] | undefined;
+  subclassFeatureIds: number[];
+  filtered: {
+    class: IDDBClassFeature[];
+    subclass: IDDBClassFeature[];
+  };
+}
 
 export default class DDBClassFeatures {
 
@@ -13,6 +26,11 @@ export default class DDBClassFeatures {
   ddbCharacter: DDBCharacter | null;
   ddbData: IDDBData;
   excludedFeatures: number[];
+  klassFeatures: Record<string, IDDBKlassFeatures>;
+  data: T5eFeatureMixinDataTypes[];
+  _parsed: Record<string, T5eFeatureMixinDataTypes[]>;
+  _generated: T5eFeatureMixinDataTypes[];
+  _processed: T5eFeatureMixinDataTypes[];
 
   static EXCLUDED_FEATURES = [
     "Expertise",
@@ -71,7 +89,11 @@ export default class DDBClassFeatures {
     });
   }
 
-  constructor({ ddbData, rawCharacter = null, ddbCharacter = null } = {}) {
+  constructor({ ddbData, rawCharacter = null, ddbCharacter = null }: {
+    ddbData: IDDBData;
+    rawCharacter?: I5ePCData | null;
+    ddbCharacter?: DDBCharacter | null;
+  }) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbData;
     this.rawCharacter = rawCharacter;
@@ -88,7 +110,6 @@ export default class DDBClassFeatures {
     this.klassFeatures = {};
     this.ddbData.character.classes.forEach((klass) => {
       this._parsed[klass.definition.name] = [];
-      this.klassFeatures[klass.definition.name] = [];
       if (klass.subclassDefinition) {
         this._parsed[klass.subclassDefinition.name] = [];
       };
@@ -101,7 +122,13 @@ export default class DDBClassFeatures {
     this.deriveFeatures();
   }
 
-  async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} } = {}) {
+  async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} }:{
+    featureDefinition: TDDBFeatureMixinDefinitions;
+    type: "class" | "race" | "background" | "feat";
+    source: IDDBSourceResponse;
+    filterByLevel?: boolean;
+    flags?: IActorFlagConfig;
+  }): Promise<T5eFeatureMixinDataTypes[]> {
     logger.debug(`DDBClassFeatures._getFeatures started for ${type} of ${source} for ${featureDefinition.definition?.name ?? featureDefinition.name}`);
     const enricher = new DDBClassFeatureEnricher({
       activityGenerator: DDBFeatureActivity,
@@ -147,7 +174,7 @@ export default class DDBClassFeatures {
       });
       return [];
     }
-    const choiceFeatures = feature.isChoiceFeature
+    const choiceFeatures: T5eFeatureMixinDataTypes[] = feature.isChoiceFeature
       ? await DDBChoiceFeature.buildChoiceFeatures(feature)
       : [];
     if (DDBClassFeatures.DISCARD_BASE_FEATURE.includes(feature.originalName)) {
@@ -186,7 +213,7 @@ export default class DDBClassFeatures {
       });
       parsedFeatures.push(...features);
     }
-    this._parsed[className] = foundry.utils.duplicate(parsedFeatures);
+    this._parsed[className] = foundry.utils.duplicate(parsedFeatures) as T5eFeatureMixinDataTypes[];
 
     parsedFeatures
       .sort((a, b) => {
@@ -215,7 +242,7 @@ export default class DDBClassFeatures {
   async _generateSubClassFeatures(klass) {
     const className = klass.definition.name;
     const subClassName = `${klass.subclassDefinition.name}`;
-    const parsedFeatures = [];
+    const parsedFeatures: T5eFeatureMixinDataTypes[] = [];
     const subClassFeatures = this.klassFeatures[klass.definition.name].filtered.subclass;
     const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
 
