@@ -1,5 +1,9 @@
 # Next Up
 
+- Dark Gift feats now have their own category.
+- Backgrounds now add starting equipment
+- Backgrounds parsed via character options now capture tool and ability score advancements
+
 # 7.1.28
 
 - Zealous Presence granted disadvantage on saving throws - @redarchongaming
