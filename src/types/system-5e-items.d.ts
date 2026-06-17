@@ -13,7 +13,7 @@ global {
 
   type TFeatureEnchantmentSubtype = "artificerInfusion" | "rune";
 
-  type TFeatureFeatSubtype = "dragonmark" | "epicBoon" | "fightingStyle" | "general" | "origin";
+  type TFeatureFeatSubtype = "dragonmark" | "epicBoon" | "fightingStyle" | "general" | "origin" | "darkGift";
 
   type TFeatureSupernaturalGiftSubtype = "blessing" | "charm" | "epicBoon";
 
@@ -23,7 +23,7 @@ global {
 
   type TWeaponMastery = "cleave" | "graze" | "nick" | "push" | "sap" | "slow" | "topple" | "vex";
 
-  type TLootTypes = "art" | "gear" | "gem" | "junk" | "material" | "resource" | "trade" | "treasure";
+type TLootTypes = "art" | "gear" | "gem" | "junk" | "material" | "resource" | "trade" | "treasure" | "mistTalisman";
 
   type TWeightUnits = "lb" | "kg" | "tn" | "Mg";
 
