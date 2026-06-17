@@ -123,7 +123,7 @@ export default class DDBClassFeatures {
   }
 
   async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} }:{
-    featureDefinition: TDDBFeatureMixinDefinitions;
+    featureDefinition: TDDBFeatureMixinDefinitions | TDDBFeatureMixinFeatures;
     type: "class" | "race" | "background" | "feat";
     source: IDDBSourceResponse;
     filterByLevel?: boolean;

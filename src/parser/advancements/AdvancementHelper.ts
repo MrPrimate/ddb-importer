@@ -3017,7 +3017,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
   // }
 
   static async getCompendiumSpellUuidsFromNames(names, { use2024Spells = false } = {}) {
-    const spellChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
+    const spellChoice = utils.getSetting<string>("munching-policy-force-spell-version");
     const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
       use2024Spells: spellChoice === "FORCE_2024" || use2024Spells,
     });

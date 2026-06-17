@@ -1143,13 +1143,13 @@ export default class CharacterFeatureFactory {
 
 
     this.data.actions = this.processed.actions.map((action) => {
-      const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name;
+      const originalActionName = foundry.utils.getProperty(action, "flags.ddbimporter.originalName") as string ?? action.name;
       const featureMatch = this.processed.features.find((feature) => {
-        const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+        const originalFeatureName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") as string ?? feature.name;
         const featureNamePrefix = originalFeatureName.split(":")[0].trim();
         const replaceRegex = new RegExp(`${utils.regexSanitizeString(featureNamePrefix)}(?:\\s*)-`);
-        const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
-        const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type");
+        const featureFlagType = foundry.utils.getProperty(feature, "flags.ddbimporter.type") as string;
+        const actionFlagType = foundry.utils.getProperty(action, "flags.ddbimporter.type") as string;
         const replacedActionName = originalActionName.replace(replaceRegex, `${featureNamePrefix}:`);
         // console.warn(`Checking "${originalActionName}" against "${originalFeatureName}"`, {
         //   action,
@@ -1263,13 +1263,13 @@ export default class CharacterFeatureFactory {
 
     this.data.features = this.processed.features
       .filter((feature) => {
-        const originalName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") ?? feature.name;
+        const originalName = foundry.utils.getProperty(feature, "flags.ddbimporter.originalName") as string ?? feature.name;
 
         if (DDBAction.KEEP_ACTIONS.includes(originalName)) return true;
         const is2024 = foundry.utils.getProperty(feature, "flags.ddbimporter.is2024");
         if (DDBAction.KEEP_ACTIONS_2024.includes(originalName) && is2024) return true;
         return !this.data.actions.some((action) =>
-          ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") ?? action.name).trim().toLowerCase() === originalName.trim().toLowerCase()
+          ((foundry.utils.getProperty(action, "flags.ddbimporter.originalName") as string ?? action.name).trim().toLowerCase() === originalName.trim().toLowerCase()
           || foundry.utils.getProperty(action, "flags.ddbimporter.featureNameMatch") === originalName)
           && foundry.utils.getProperty(action, "flags.ddbimporter.isCustomAction") !== true
           && foundry.utils.getProperty(feature, "flags.ddbimporter.type") === foundry.utils.getProperty(action, "flags.ddbimporter.type"),
@@ -1372,8 +1372,8 @@ export default class CharacterFeatureFactory {
     }
 
     for (const feature of this.processed.features) {
-      const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type");
-      const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement");
+      const featureType = foundry.utils.getProperty(feature, "flags.ddbimporter.type") as string;
+      const forceSpellAdvancement = foundry.utils.getProperty(feature, "flags.ddbimporter.forceSpellAdvancement") as boolean;
       if (featureType && forceSpellAdvancement) {
         if (!this.spellAdvancementsForce[featureType]) this.spellAdvancementsForce[featureType] = [];
         this.spellAdvancementsForce[featureType].push(feature.name);

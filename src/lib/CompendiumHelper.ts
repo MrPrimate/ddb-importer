@@ -5,6 +5,14 @@ import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 
+interface ICompendiumLookup {
+  _id: string;
+  name: string;
+  uuid: string;
+  img: string;
+  [key: string]: any;
+}
+
 const CompendiumHelper = {
 
   // a mapping of compendiums with content type
@@ -116,7 +124,7 @@ const CompendiumHelper = {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
     if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
-      const existingNPC = await compendium.getDocument(foundryActor._id);
+      const existingNPC = await compendium.getDocument(foundryActor._id) as Actor.Implementation;
 
       const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img"))) {
@@ -322,26 +330,23 @@ const CompendiumHelper = {
 
   /**
    * Queries a compendium for multiple documents based on their names.
-   * Optionally retrieves the complete document from the compendium.
    *
    * @param {object} options The options object.
    * @param {string} options.compendiumName The name of the compendium to query.
    * @param {string[]} options.documentNames An array of document names to query.
-   * @param {boolean} [options.getDocuments=false] If true, returns the complete documents from the compendium.
    * @param {string[]} [options.matchedProperties=[]] An array of properties to match in the index.
    * @param {boolean} [options.useParenthesisMatch=false] If true, uses parentheses to match the document name.
    * @returns {Promise<Array<object|null>>} A promise that resolves to an array of document entries or complete documents.
    *                                        Returns null for documents that are not found.
    */
   queryCompendiumEntries: async ({
-    compendiumName, documentNames, getDocuments = false, matchedProperties = {}, useParenthesisMatch = true,
+    compendiumName, documentNames, matchedProperties = {}, useParenthesisMatch = true,
   }: {
     compendiumName: string;
     documentNames: string[];
-    getDocuments?: boolean;
     matchedProperties?: Record<string, any>;
     useParenthesisMatch?: boolean;
-  }) => {
+  }): Promise<(ICompendiumLookup)[] | null> => {
     // get the compendium
     const compendium = game.packs.get(compendiumName);
     if (!compendium) return null;
@@ -350,14 +355,14 @@ const CompendiumHelper = {
     const matchedPropertiesKeys = Object.keys(matchedProperties);
     const fields = ["name", "flags.ddbimporter.originalName", ...matchedPropertiesKeys];
     const rawIndex = await compendium.getIndex({ fields });
-    const index = rawIndex.map((entry) => {
+    const index = rawIndex.map((entry: any) => {
       entry.normalizedName = utils.normalizeString(entry.name);
       entry.originalNormalisedName = utils.normalizeString(entry.flags?.ddbimporter?.originalName ?? entry.name);
       return entry;
     });
 
     // get the indices of all the entitynames, filter un
-    const indices = documentNames
+    const indices: ICompendiumLookup[] = documentNames
       .map((entityName) => {
         // sometimes spells do have restricted use in paranthesis after the name. Let's try to find those restrictions and add them later
         if (useParenthesisMatch && entityName.search(/(.+)\(([^()]+)\)*/) !== -1) {
@@ -383,7 +388,7 @@ const CompendiumHelper = {
           return true;
         });
         if (entry) {
-          const i = {
+          const i: ICompendiumLookup = {
             _id: entry._id,
             name: data.restriction ? `${entry.name} (${data.restriction})` : entry.name,
             uuid: entry.uuid,
@@ -397,30 +402,62 @@ const CompendiumHelper = {
           return null;
         }
       });
-
-    if (getDocuments) {
-      // replace non-null values with the complete entity from the compendium
-      const entities = await Promise.all(
-        indices.map((entry) => {
-          return new Promise((resolve) => {
-            if (entry) {
-              compendium.getDocument(entry._id).then((entity) => {
-                entity.name = entry.name; // transfer restrictions over, if any
-                // remove redudant info
-                delete entity.id;
-                // delete entity._id;
-                delete entity.ownership;
-                resolve(entity);
-              });
-            } else {
-              resolve(null);
-            }
-          });
-        }),
-      );
-      return entities;
-    }
     return indices;
+  },
+
+  /**
+   * Queries a compendium for multiple documents based on their names.
+   * It retrieves the complete document from the compendium.
+   *
+   * @param {object} options The options object.
+   * @param {string} options.compendiumName The name of the compendium to query.
+   * @param {string[]} options.documentNames An array of document names to query.
+   * @param {string[]} [options.matchedProperties=[]] An array of properties to match in the index.
+   * @param {boolean} [options.useParenthesisMatch=false] If true, uses parentheses to match the document name.
+   * @returns {Promise<Array<object|null>>} A promise that resolves to an array of document entries or complete documents.
+   *                                        Returns null for documents that are not found.
+   */
+  queryCompendiumEntriesDocuments: async ({
+    compendiumName, documentNames, matchedProperties = {}, useParenthesisMatch = true,
+  }: {
+    compendiumName: string;
+    documentNames: string[];
+    matchedProperties?: Record<string, any>;
+    useParenthesisMatch?: boolean;
+  }): Promise<T5eCompendiumDocuments[] | null> => {
+    // get the compendium
+    const compendium = game.packs.get(compendiumName);
+    if (!compendium) return null;
+
+    // get the indices of all the entitynames, filter un
+    const indices: ICompendiumLookup[] = CompendiumHelper.queryCompendiumEntriesDocuments({
+      compendiumName,
+      documentNames,
+      matchedProperties,
+      useParenthesisMatch,
+    }) as unknown as ICompendiumLookup[];
+
+    // replace non-null values with the complete entity from the compendium
+    const entities = await Promise.all(
+      indices.map((entry) => {
+        return new Promise<T5eCompendiumDocuments | null>((resolve) => {
+          if (entry) {
+            compendium.getDocument(entry._id).then((entity) => {
+              const doc = entity.toObject() as unknown as T5eCompendiumDocuments;
+              doc.name = entry.name; // transfer restrictions over, if any
+              // remove redundant info
+              // delete doc.id;
+              // delete doc._id;
+              delete doc.ownership;
+              resolve(doc);
+            });
+          } else {
+            resolve(null);
+          }
+        });
+      }),
+    );
+    return entities;
   },
 
   /**
@@ -430,7 +467,7 @@ const CompendiumHelper = {
    * @param {boolean} getDocument if true, returns the document entity, otherwise the index entry
    * @returns {object|null} the index entries of all matches, otherwise an empty array
    */
-  queryCompendium: async (compendiumName, documentName, getDocument = false) => {
+  queryCompendium: async (compendiumName: string, documentName: string, getDocument = false): Promise<T5eCompendiumDocuments | string | null> => {
     documentName = utils.normalizeString(documentName);
 
     const compendium = game.packs.get(compendiumName);
@@ -438,7 +475,7 @@ const CompendiumHelper = {
     const index = await compendium.getIndex();
     const id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
     if (id && getDocument) {
-      const entity = await compendium.getEntity(id._id);
+      const entity = await compendium.getEntity(id._id) as unknown as T5eCompendiumDocuments;
       return entity;
     }
     return id ? id : null;
@@ -451,17 +488,20 @@ const CompendiumHelper = {
    * @param {object} matchedProperties an object containing properties and values to match in the index
    * @returns {object[]} the matching documents, or an empty array if none are found.
    */
-  async retrieveMatchingCompendiumItems(documents, compendiumName, matchedProperties = {}) {
+  async retrieveMatchingCompendiumItems(
+    documents: (string | { name: string })[],
+    compendiumName: string,
+    matchedProperties: Record<string, any> = {},
+  ): Promise<(T5eCompendiumDocuments | ICompendiumLookup)[]> {
     const documentNames = documents.map((item) => {
       if (typeof item === "string") return item;
       if (typeof item === "object" && Object.prototype.hasOwnProperty.call(item, "name")) return item.name;
       return "";
     });
 
-    const results = await CompendiumHelper.queryCompendiumEntries({
+    const results = await CompendiumHelper.queryCompendiumEntriesDocuments({
       compendiumName,
       documentNames,
-      getDocuments: true,
       matchedProperties,
     });
     const cleanResults = results.filter((item) => item !== null);
@@ -509,13 +549,12 @@ const CompendiumHelper = {
     return newFolder;
   },
 
-  async retrieveCompendiumSpellReferences(spellNames, { use2024Spells = false, getDocuments = false } = {}) {
+  async retrieveCompendiumSpellReferences(spellNames, { use2024Spells = false } = {}) {
     const compendiumName = utils.getSetting<string>("entity-spell-compendium");
 
     const results = await CompendiumHelper.queryCompendiumEntries({
       compendiumName,
       documentNames: spellNames,
-      getDocuments,
       matchedProperties: {
         "system.source.rules": use2024Spells ? "2024" : "2014",
       },

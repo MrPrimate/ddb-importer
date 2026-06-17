@@ -390,11 +390,10 @@ export default abstract class DDBEnricherFactoryMixin {
     return this.ddbParser.isAction ?? false;
   }
 
-  static async getCompendiumSpellUuidsFromNames(names: string[], { use2024Spells, getDocuments = false }: { use2024Spells?: boolean; getDocuments?: boolean } = {}): Promise<any[]> {
+  static async getCompendiumSpellUuidsFromNames(names: string[], { use2024Spells }: { use2024Spells?: boolean; getDocuments?: boolean } = {}): Promise<any[]> {
     const spellChoice = (game as any).settings.get(SETTINGS.MODULE_ID, "munching-policy-force-spell-version");
     const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
       use2024Spells: (use2024Spells ?? spellChoice === "FORCE_2024"),
-      getDocuments,
     });
 
     return spells;

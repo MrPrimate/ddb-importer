@@ -8,7 +8,7 @@ global {
 
   type TDDBFeatureMixinEnrichers = DDBGenericEnricher | DDBFeatEnricher | DDBSpeciesTraitEnricher | DDBClassFeatureEnricher | DDBBackgroundEnricher;
 
-  type T5eFeatureMixinDataTypes = I5eBackgroundItem | I5eWeaponItem | I5eFeatItem;
+  type T5eFeatureMixinDataTypes = I5eBackgroundItem | I5eWeaponItem | I5eFeatItem | I5eBackgroundItem;
 
   interface IDDBFeaturesAdvancementLinkData {
     _id: string;

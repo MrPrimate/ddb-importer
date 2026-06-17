@@ -216,12 +216,12 @@ interface DDBCharacter {
 
 export interface IDDBCharacterDataStub {
   character: I5ePCData;
-  features: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem)[];
+  features: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem | I5eBackgroundItem)[];
   race: I5eRaceItem;
   classes: I5eClassItem[];
   inventory: (I5eWeaponItem | I5eEquipmentItem | I5eContainerItem | I5eToolItem)[];
   spells: I5eSpellItem[];
-  actions: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem)[];
+  actions: (I5eFeatItem | I5eWeaponItem | I5eEquipmentItem | I5eBackgroundItem)[];
   itemSpells: I5eSpellItem[];
 }
 
