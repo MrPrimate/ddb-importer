@@ -193,24 +193,28 @@ export default class AdvancementHelper {
   getToolChoicesFromOptions(feature: TFeature, level: number) {
     const toolsChosen = new Set<string>();
     const toolChoices = new Set<string>();
+    const toolDefaults = new Set<string>();
+    let count = 0;
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
     this.ddbData.character.choices[this.type].filter((choice) =>
       feature.id === choice.componentId
-      && "requiredLevel" in feature && feature.requiredLevel === level
+      // backgrounds have no requiredLevel, so match those at any level
+      && (!("requiredLevel" in feature) || feature.requiredLevel === level)
       && choice.subType === 1
       && choice.type === 2,
     ).forEach((choice) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
-      if (!option) return;
-      const smallChosen = DICTIONARY.actor.proficiencies.find((prof) =>
-        prof.type === "Tool"
-        && prof.name === option.label
-        && prof.baseTool,
-      );
+      const smallChosen = option
+        ? DICTIONARY.actor.proficiencies.find((prof) =>
+          prof.type === "Tool"
+          && prof.name === option.label
+          && prof.baseTool,
+        )
+        : undefined;
       if (smallChosen) {
         const toolStub = smallChosen.toolType === ""
           ? smallChosen.baseTool
@@ -225,17 +229,31 @@ export default class AdvancementHelper {
         .map((option) =>
           DICTIONARY.actor.proficiencies.find((prof) => prof.type === "Tool" && prof.name === option.label),
         );
+      // only count choice entries that actually resolve to tools (skip skill choices)
+      if (optionNames.length > 0) count += 1;
       optionNames.forEach((tool) => {
         const toolStub = tool.toolType === ""
           ? tool.baseTool
           : `${tool.toolType}:${tool.baseTool}`;
         toolChoices.add(toolStub);
       });
+      // the rules default for this choice (DDB keeps this even when the modifier is
+      // dropped because the default is already owned elsewhere); skill defaults won't
+      // match a tool proficiency so they are naturally excluded
+      (choice.defaultSubtypes ?? []).forEach((label) => {
+        const prof = DICTIONARY.actor.proficiencies.find((p) =>
+          p.type === "Tool" && p.name === label && p.baseTool);
+        if (prof) {
+          toolDefaults.add(prof.toolType === "" ? prof.baseTool : `${prof.toolType}:${prof.baseTool}`);
+        }
+      });
     });
 
     return {
       chosen: Array.from(toolsChosen),
       choices: Array.from(toolChoices),
+      defaults: Array.from(toolDefaults),
+      count,
     };
   }
 
@@ -699,6 +717,48 @@ export default class AdvancementHelper {
       count,
       grants,
     });
+
+    return advancement;
+  }
+
+
+  // Build a tool advancement from a background's tool choice when there are no tool
+  // modifiers. Most backgrounds grant a single (default) tool via the choice's selected
+  // option, so grant that; only fall back to the full option pool when nothing is
+  // selected (a genuine unselected choice). Returns null when there is no tool choice.
+  getEmptyToolAdvancement({ feature, level }: { feature: TFeature; level: number }): TraitAdvancement | null {
+    const toolChoices = this.getToolChoicesFromOptions(feature, level);
+    if (toolChoices.choices.length === 0) return null;
+
+    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
+    advancement.updateSource({
+      title: feature.name && !feature.name.startsWith("Background:") && !feature.name.startsWith("Core ") && !feature.name.startsWith("Proficiencies")
+        ? feature.name
+        : "Tool Proficiencies",
+      configuration: {
+        allowReplacements: true,
+      },
+      level: level,
+    });
+
+    // prefer the player's actual selection, then the rules default; only fall back to
+    // the full swap pool when there is neither
+    const grants = toolChoices.chosen.length > 0
+      ? toolChoices.chosen
+      : toolChoices.defaults;
+
+    if (grants.length > 0) {
+      // single granted/default tool, swappable via allowReplacements
+      AdvancementHelper.advancementUpdate(advancement, {
+        grants: grants.map((choice) => `tool:${choice}`),
+      });
+    } else {
+      // genuine unselected choice: offer the full pool for the player to pick from
+      AdvancementHelper.advancementUpdate(advancement, {
+        pool: toolChoices.choices.map((choice) => `tool:${choice}`),
+        count: toolChoices.count || 1,
+      });
+    }
 
     return advancement;
   }

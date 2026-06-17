@@ -215,6 +215,15 @@ export default class DDBFeature extends DDBFeatureMixin {
       });
     });
 
+    const asiBuild = this.ddbData.character.feats.filter((f) => {
+      return (this.ddbDefinition.grantedFeats ?? []).some((backgroundFeat) => {
+        if (f.componentId !== backgroundFeat.id) return false;
+        if (!backgroundFeat.featIds.includes(f.definition.id)) return false;
+        if (f.definition.categories.some((c) => c.tagName === "__INITIAL_ASI")) return true;
+        return false;
+      });
+    });
+
     // feats:[]
     //   {
     //     "componentTypeId": 67468084,
@@ -265,27 +274,53 @@ export default class DDBFeature extends DDBFeatureMixin {
     //   "tagConstraints": []
     // }
 
+    if (asiBuild.length === 0) return;
+
     const modifiers = this.ddbData.character.modifiers.feat.filter((m) =>
       feats.some((f) => m.componentId == f.definition.id && m.componentTypeId == f.definition.entityTypeId),
     );
 
-    if (modifiers.length === 0) return;
+    // The choosable abilities are listed structurally on the background definition as
+    // stat ids (e.g. Criminal primaryAbilities [2, 3, 4] = dex/con/int). The feat
+    // description text varies too much to parse reliably.
+    const available = (this.ddbDefinition.primaryAbilities ?? [])
+      .map((statId) => DICTIONARY.actor.abilities.find((a) => a.id === statId)?.value)
+      .filter((v) => v);
 
-    // KNOWN_ISSUE_4_0: revist this to use the race/species advancement detection.
+    // `locked` is the set of abilities the player may NOT pick, so lock everything not named.
+    const locked = available.length > 0
+      ? DICTIONARY.actor.abilities.map((a) => a.value).filter((v) => !available.includes(v))
+      : [];
+
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
-    advancement.updateSource({ configuration: { points: 3 }, level: 0, value: { type: "asi" } });
-
-    const assignments = {};
-    DICTIONARY.actor.abilities.forEach((ability) => {
-      const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
-      if (count > 0) assignments[ability.value] = count;
-    });
-
     advancement.updateSource({
+      configuration: {
+        points: 3,
+        cap: 2,
+        max: 20,
+        locked,
+      },
+      level: 0,
       value: {
-        assignments,
+        type: "asi",
       },
     });
+
+    // Only populate assignments when DDB actually has assigned score modifiers;
+    // otherwise emit an empty advancement for the player to assign in Foundry.
+    if (modifiers.length > 0) {
+      const assignments = {};
+      DICTIONARY.actor.abilities.forEach((ability) => {
+        const count = DDBModifiers.filterModifiers(modifiers, "bonus", { subType: `${ability.long}-score` }).length;
+        if (count > 0) assignments[ability.value] = count;
+      });
+
+      advancement.updateSource({
+        value: {
+          assignments,
+        },
+      });
+    }
     advancements.push(advancement.toObject() as I5eAdvancement);
 
     for (const advancement of advancements) {
@@ -439,11 +474,18 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   _generateToolAdvancements() {
     const mods = DDBModifiers.getModifiers(this.ddbData, this.type);
-    const advancement = this.advancementHelper.getToolAdvancement({
+    let advancement = this.advancementHelper.getToolAdvancement({
       mods: mods,
       feature: this.ddbDefinition,
       level: 0,
     });
+    // no tool modifiers selected: emit an empty advancement from an unselected tool choice
+    if (!advancement) {
+      advancement = this.advancementHelper.getEmptyToolAdvancement({
+        feature: this.ddbDefinition,
+        level: 0,
+      });
+    }
     this._addAdvancement(advancement);
   }
 
