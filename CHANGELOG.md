@@ -1,6 +1,11 @@
 # Next Up
 
-- Auto Grid didn't work properly with levels. It does now.
+# 7.3.8
+
+- Auto Grid didn't work properly with levels. It does now. @crimsonedge
+- Dark Gift feats now have their own category.
+- Backgrounds now add starting equipment @sayshal
+- Backgrounds parsed via character options now capture tool and ability score advancements @sayshal
 
 # 7.3.7
 
