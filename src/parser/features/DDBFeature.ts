@@ -168,7 +168,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   async _generateFeatureAdvancements() {
     // STUB
-    logger.info(`Generating feature advancements for ${this.ddbDefinition.name} are not yet supported`);
+    logger.debug(`Generating feature advancements for ${this.ddbDefinition.name} are not yet supported`);
   }
 
   _addAdvancement(advancement) {
