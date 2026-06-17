@@ -70,9 +70,29 @@ function addSpellLists() {
   spellListFactory.registerSpellLists();
 }
 
+const FEAT_TYPES = {
+  dragonmark: "Dragonmark Feat",
+  darkGift: "DND5E.Feature.Feat.DarkGift",
+};
+
+const LOOT_TYPES = {
+  mistTalisman: "DND5E.Loot.MistTalisman",
+};
+
 function addFeatTypes() {
-  if (foundry.utils.getProperty(CONFIG.DND5E, "featureTypes.feat.subtypes.dragonmark")) return;
-  CONFIG.DND5E.featureTypes.feat.subtypes.dragonmark = "Dragonmark Feat";
+  for (const [key, value] of Object.entries(FEAT_TYPES)) {
+    if (!foundry.utils.getProperty(CONFIG.DND5E, `featTypes.${key}`)) {
+      foundry.utils.setProperty(CONFIG.DND5E, `featTypes.${key}`, value);
+    }
+  }
+}
+
+function addLootTypes() {
+  for (const [key, value] of Object.entries(LOOT_TYPES)) {
+    if (!foundry.utils.getProperty(CONFIG.DND5E, `lootTypes.${key}`)) {
+      foundry.utils.setProperty(CONFIG.DND5E, `lootTypes.${key}`, value);
+    }
+  }
 }
 
 export default async function addDDBConfig() {
@@ -80,5 +100,7 @@ export default async function addDDBConfig() {
   DDBSources.addSourcesHook();
   addSpellLists();
   addFeatTypes();
+  addLootTypes();
+  // tattoos are injected elsewhere as they have apps and builder scripts
   await DDBRuleJournalFactory.registerAllWithWorld();
 }
