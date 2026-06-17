@@ -3,6 +3,7 @@ import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerE
 import SceneGridPickerApp from "../../apps/SceneGridPickerApp";
 import { resolveSceneGridImageSource } from "../../apps/SceneGridDetector";
 import SceneCopyApp from "../../apps/SceneCopyApp";
+import SceneLevelCopyApp from "../../apps/SceneLevelCopyApp";
 
 function getSceneId(li) {
   return $(li).attr("data-entry-id")
@@ -42,7 +43,8 @@ export default function (_html, contextOptions) {
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
-      const sceneDownload = game.settings.get("ddb-importer", "allow-third-party-scene-download");
+      const sceneDownload = game.settings.get("ddb-importer", "allow-third-party-scene-download")
+        || game.settings.get("ddb-importer", "developer-mode");
       const allowDownload = game.user.isGM && sceneDownload && !scene.flags?.ddb?.ddbId;
       return allowDownload;
     },
@@ -52,12 +54,12 @@ export default function (_html, contextOptions) {
   contextOptions.push({
     name: "ddb-importer.scenes.detect-grid",
     callback: async (li) => {
-      const scene = game.scenes.get(getSceneId(li));
+      const scene = game.scenes.get(getSceneId(li)) as Scene;
       if (!scene) return;
       await SceneGridPickerApp.open(scene);
     },
     condition: (li) => {
-      const scene = game.scenes.get(getSceneId(li));
+      const scene = game.scenes.get(getSceneId(li)) as Scene;
       return Boolean(game.user.isGM && scene && resolveSceneGridImageSource(scene));
     },
     icon: "<i class=\"fas fa-border-all\"></i>",
@@ -71,9 +73,28 @@ export default function (_html, contextOptions) {
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
-      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
+      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download")
+        || game.settings.get("ddb-importer", "developer-mode");
       return Boolean(game.user.isGM && sceneDownload && scene);
     },
     icon: "<i class=\"fas fa-copy\"></i>",
+  });
+
+  contextOptions.push({
+    name: "ddb-importer.scenes.copy-level-objects",
+    callback: (li) => {
+      const scene = game.scenes.get(getSceneId(li)) as Scene;
+      if (scene) new SceneLevelCopyApp(scene).render({ force: true });
+    },
+    condition: (li) => {
+      const scene = game.scenes.get(getSceneId(li)) as any;
+      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download")
+        || game.settings.get("ddb-importer", "developer-mode");
+      const hasLevels = Array.isArray(scene?.levels?.contents)
+        ? scene.levels.contents.length > 0
+        : (scene?.levels?.size ?? 0) > 0;
+      return Boolean(game.user.isGM && sceneDownload && scene && hasLevels);
+    },
+    icon: "<i class=\"fas fa-layer-group\"></i>",
   });
 }

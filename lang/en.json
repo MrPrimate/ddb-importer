@@ -223,7 +223,8 @@
       "download": "DDB Scene Config",
       "third-party-download": "Third Party Scene Config",
       "detect-grid": "DDB Importer: Detect Grid",
-      "copy-fields": "Copy Scene Fields"
+      "copy-fields": "Copy Scene Fields",
+      "copy-level-objects": "Copy Level Objects"
     },
     "scene-copy": {
       "title": "Copy Scene Fields",

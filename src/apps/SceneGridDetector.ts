@@ -50,7 +50,7 @@ function validSrc(src: unknown): string | null {
   return typeof src === "string" && src.trim() !== "" ? src : null;
 }
 
-function levelId(level: I5eSceneLevel): string | null {
+export function levelId(level: I5eSceneLevel): string | null {
   // @ts-expect-error - because this could be an instance with derived id or just a data schema, and we don't model the type to that extent
   return validSrc(level?.id) ?? validSrc(level?._id);
 }
@@ -66,7 +66,7 @@ function levelSource(level: I5eSceneLevel, source: ISceneGridImageSource["source
   };
 }
 
-function levelsArray(levels: foundry.utils.Collection<I5eSceneLevel> | I5eSceneLevel[] | null | undefined): I5eSceneLevel[] {
+export function levelsArray(levels: foundry.utils.Collection<I5eSceneLevel> | I5eSceneLevel[] | null | undefined): I5eSceneLevel[] {
   if (!levels) return [];
   if (Array.isArray(levels)) return levels;
   if (Array.isArray(levels.contents)) return levels.contents;
