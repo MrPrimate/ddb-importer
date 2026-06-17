@@ -194,6 +194,18 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     return {};
   }
 
+  // "Parent / Child / " prefix walking the scene's folder ancestry, so the
+  // dropdown shows where each scene lives. Empty string for top-level scenes.
+  static _folderPath(scene: any): string {
+    const names: string[] = [];
+    let folder = scene.folder;
+    while (folder) {
+      names.unshift(folder.name);
+      folder = folder.folder;
+    }
+    return names.length ? `${names.join(" / ")} / ` : "";
+  }
+
   _levelsOf(scene: Scene): any[] {
     return levelsArray(scene?.levels);
   }
@@ -359,7 +371,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
 
     const targetScenes = (Array.from(game.scenes) as any[]).map((s) => ({
       id: s.id as string,
-      name: s.name ?? "Scene",
+      name: SceneLevelCopyApp._folderPath(s) + (s.name ?? ""),
       selected: s.id === this.targetId,
     })).sort((a, b) => a.name.localeCompare(b.name));
 
