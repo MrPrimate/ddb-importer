@@ -50,11 +50,12 @@ function validSrc(src: unknown): string | null {
   return typeof src === "string" && src.trim() !== "" ? src : null;
 }
 
-function levelId(level: any): string | null {
+function levelId(level: I5eSceneLevel): string | null {
+  // @ts-expect-error - because this could be an instance with derived id or just a data schema, and we don't model the type to that extent
   return validSrc(level?.id) ?? validSrc(level?._id);
 }
 
-function levelSource(level: any, source: ISceneGridImageSource["source"]): ISceneGridImageSource | null {
+function levelSource(level: I5eSceneLevel, source: ISceneGridImageSource["source"]): ISceneGridImageSource | null {
   const src = validSrc(level?.background?.src);
   if (!src) return null;
   return {
@@ -65,7 +66,7 @@ function levelSource(level: any, source: ISceneGridImageSource["source"]): IScen
   };
 }
 
-function levelsArray(levels: any): any[] {
+function levelsArray(levels: foundry.utils.Collection<I5eSceneLevel> | I5eSceneLevel[] | null | undefined): I5eSceneLevel[] {
   if (!levels) return [];
   if (Array.isArray(levels)) return levels;
   if (Array.isArray(levels.contents)) return levels.contents;
@@ -87,9 +88,8 @@ function getLevel(scene: Scene, id: string | null | undefined): any | null {
 }
 
 export function resolveSceneGridImageSource(scene: Scene): ISceneGridImageSource | null {
-  const canvasLike = (globalThis as any).canvas;
-  const canvasSceneId = canvasLike?.scene?.id;
-  const canvasLevelId = validSrc(canvasLike?.level?.id) ?? validSrc(canvasLike?.level?._id);
+  const canvasSceneId = canvas?.scene?.id;
+  const canvasLevelId = validSrc(canvas?.level?.id) ?? validSrc(canvas?.level?._id);
   if (scene.id && canvasSceneId === scene.id && canvasLevelId) {
     const source = levelSource(getLevel(scene, canvasLevelId), "canvas-level");
     if (source) return source;
