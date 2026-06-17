@@ -23,7 +23,7 @@ global {
 
   type TWeaponMastery = "cleave" | "graze" | "nick" | "push" | "sap" | "slow" | "topple" | "vex";
 
-type TLootTypes = "art" | "gear" | "gem" | "junk" | "material" | "resource" | "trade" | "treasure" | "mistTalisman";
+  type TLootTypes = "art" | "gear" | "gem" | "junk" | "material" | "resource" | "trade" | "treasure" | "mistTalisman";
 
   type TWeightUnits = "lb" | "kg" | "tn" | "Mg";
 

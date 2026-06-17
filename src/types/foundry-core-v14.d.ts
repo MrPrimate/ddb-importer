@@ -8,6 +8,16 @@ global {
     I5eSceneLevel[]
   >;
 
+  // v14 SceneLevelsSetField = SetField<DocumentIdField>: a set of level ids in
+  // which a placeable is visible. Initialized -> Set<string>, source -> string[].
+  // Used by Tile / AmbientLight / Region / Drawing documents.
+  type ICoreSceneLevelsSetSchema = foundry.data.fields.DataField<
+    foundry.data.fields.DataField.DefaultOptions,
+    string[],
+    Set<string>,
+    string[]
+  >;
+
   // v14 client/canvas/board.mjs:449 -- `get level()` returns the active Level document
   // (or null). Canvas is a class, not a Document, so this is class+interface merging on
   // the global Canvas class, NOT a `namespace Canvas { interface Schema }` (nothing reads
@@ -35,6 +45,33 @@ declare module "fvtt-types/configuration" {
       //   <Options, AssignmentType, InitializedType, PersistedType>
       // initialized -> Collection (scene.levels), source -> array (scene.toObject().levels).
       levels: ICoreSceneLevelsSchema;
+    }
+  }
+
+  // v14 placeables gained a `levels` SceneLevelsSetField (set of level ids in
+  // which the placeable is visible). Not modelled by fvtt-types  yet. Native
+  // source: tile.mjs:48, ambient-light.mjs:40, region.mjs:64, drawing.mjs:54.
+  namespace TileDocument {
+    interface Schema {
+      levels: ICoreSceneLevelsSetSchema;
+    }
+  }
+
+  namespace DrawingDocument {
+    interface Schema {
+      levels: ICoreSceneLevelsSetSchema;
+    }
+  }
+
+  namespace RegionDocument {
+    interface Schema {
+      levels: ICoreSceneLevelsSetSchema;
+    }
+  }
+
+  namespace AmbientLightDocument {
+    interface Schema {
+      levels: ICoreSceneLevelsSetSchema;
     }
   }
 }
