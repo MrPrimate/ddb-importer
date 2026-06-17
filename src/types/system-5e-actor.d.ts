@@ -814,6 +814,7 @@ global {
     identifier?: string;
     source?: I5eSourceInfo;
     startingEquipment?: I5eClassStartingEquipment[];
+    wealth?: string;
   }
 
   interface I5eBackgroundItem extends I5eSystemBaseDocumentData {

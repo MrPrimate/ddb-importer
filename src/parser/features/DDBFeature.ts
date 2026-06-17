@@ -1,4 +1,4 @@
-import { DICTIONARY } from "../../config/_module";
+import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 import AdvancementHelper from "../advancements/AdvancementHelper";
 import { DDBModifiers, DDBDataUtils, SystemHelpers } from "../lib/_module";
@@ -487,6 +487,183 @@ export default class DDBFeature extends DDBFeatureMixin {
       });
     }
     this._addAdvancement(advancement);
+  }
+
+  // resolve the unique item definition names in the background equipment to compendium uuids
+  async _resolveBackgroundEquipmentUuids(names) {
+    const packIds = this.is2024
+      ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["items2024"]
+      : SETTINGS.FOUNDRY_COMPENDIUM_MAP["items"];
+    const uuidMap = {};
+    let outstanding = [...names];
+    for (const packId of packIds) {
+      if (outstanding.length === 0) break;
+      const entries = await CompendiumHelper.queryCompendiumEntries({
+        compendiumName: packId,
+        documentNames: outstanding,
+      });
+      if (!entries) continue;
+      outstanding = outstanding.filter((name, i) => {
+        if (entries[i]?.uuid) {
+          uuidMap[name] = entries[i].uuid;
+          return false;
+        }
+        return true;
+      });
+    }
+    for (const name of outstanding) {
+      logger.warn(`Could not find compendium item for background equipment "${name}"`);
+    }
+    return uuidMap;
+  }
+
+  async _generateBackgroundEquipment() {
+    const slots = this.ddbData.backgroundEquipment?.slots ?? [];
+    if (slots.length === 0) return;
+
+    const isItemRule = (rule) => (rule.definitions ?? []).length > 0;
+    const ruleSlotHasItems = (ruleSlot) => (ruleSlot.rules ?? []).some((rule) => isItemRule(rule));
+
+    // collect unique item names for a single batch of compendium lookups; only
+    // single-definition rules are specific items, multi-definition rules are category
+    // choices and need no item uuid
+    const names = new Set();
+    for (const slot of slots) {
+      for (const ruleSlot of slot.ruleSlots ?? []) {
+        for (const rule of ruleSlot.rules ?? []) {
+          const definitions = rule.definitions ?? [];
+          if (definitions.length === 1 && definitions[0].name) names.add(definitions[0].name);
+        }
+      }
+    }
+    const uuidMap = await this._resolveBackgroundEquipmentUuids([...names]);
+
+    const entries: I5eClassStartingEquipment[] = [];
+    let totalGold = 0;
+    let sort = 0;
+    const nextSort = () => (sort += 100000);
+
+    const buildLinked = (rule, group) => {
+      const definition = (rule.definitions ?? [])[0];
+      const uuid = definition ? uuidMap[definition.name] : undefined;
+      if (!uuid) return;
+      entries.push({
+        type: "linked",
+        count: rule.quantity > 1 ? rule.quantity : null,
+        key: uuid,
+        requiresProficiency: false,
+        _id: foundry.utils.randomID(),
+        group,
+        sort: nextSort(),
+      });
+    };
+
+    const buildCurrency = (rule, group) => {
+      entries.push({
+        type: "currency",
+        count: rule.gold,
+        key: "gp",
+        requiresProficiency: false,
+        _id: foundry.utils.randomID(),
+        group,
+        sort: nextSort(),
+      });
+    };
+
+    // a rule with multiple definitions is a category choice (e.g. any gaming set, any
+    // simple weapon); classify a definition to a dnd5e category option type + key
+    const WEAPON_CATEGORY = { 1: "sim", 2: "mar", 3: "mar" };
+    const FOCUS_SUBTYPES = { "Arcane Focus": "arcane", "Druidic Focus": "druidic", "Holy Symbol": "holy" };
+    const ARMOR_KEYS = new Set(["light", "medium", "heavy", "shield", "natural"]);
+
+    const classifyDefinition = (def) => {
+      if (def.entityTypeId === 1782728300 || def.filterType === "Weapon") {
+        return { type: "weapon", key: WEAPON_CATEGORY[def.categoryId] ?? "sim" };
+      }
+      if (def.armorTypeId != null) {
+        const entry = DICTIONARY.equipment.armorType.find((a) => a.id === def.armorTypeId);
+        if (entry?.value && ARMOR_KEYS.has(entry.value)) return { type: "armor", key: entry.value };
+      }
+      if (def.subType && FOCUS_SUBTYPES[def.subType]) {
+        return { type: "focus", key: FOCUS_SUBTYPES[def.subType] };
+      }
+      const tool = AdvancementHelper.getDictionaryTool(def.name);
+      if (tool?.toolType) return { type: "tool", key: tool.toolType };
+      if (def.gearTypeId === 11) return { type: "tool", key: "game" };
+      return null;
+    };
+
+    const buildCategoryChoice = (rule, group) => {
+      const classified = (rule.definitions ?? []).map(classifyDefinition).filter(Boolean);
+      const distinct = new Set(classified.map((c) => `${c.type}:${c.key}`));
+      if (distinct.size !== 1) {
+        logger.warn("Could not resolve background equipment category choice", {
+          defs: (rule.definitions ?? []).map((d) => d.name),
+        });
+        return;
+      }
+      const { type, key } = classified[0];
+      entries.push({
+        type,
+        count: rule.quantity > 1 ? rule.quantity : null,
+        key,
+        requiresProficiency: false,
+        _id: foundry.utils.randomID(),
+        group,
+        sort: nextSort(),
+      });
+    };
+
+    const buildEquipmentOption = (ruleSlot, group) => {
+      const andId = foundry.utils.randomID();
+      entries.push({
+        type: "AND",
+        requiresProficiency: false,
+        _id: andId,
+        group,
+        sort: nextSort(),
+      });
+      for (const rule of ruleSlot.rules ?? []) {
+        const defs = rule.definitions ?? [];
+        if (defs.length > 1) buildCategoryChoice(rule, andId);
+        else if (defs.length === 1) buildLinked(rule, andId);
+        // gold bundled with the equipment option becomes a currency entry in the group
+        else if (rule.gold) buildCurrency(rule, andId);
+      }
+    };
+
+    for (const slot of slots) {
+      const ruleSlots = slot.ruleSlots ?? [];
+      const equipmentOptions = ruleSlots.filter((rs) => ruleSlotHasItems(rs));
+      const moneyOnlyOptions = ruleSlots.filter((rs) => !ruleSlotHasItems(rs));
+
+      // a money-only alternative (e.g. "or (B) 50 GP") => wealth; gold bundled with an
+      // equipment option is added as a currency entry in buildEquipmentOption instead
+      for (const ruleSlot of moneyOnlyOptions) {
+        for (const rule of ruleSlot.rules ?? []) {
+          totalGold += rule.gold ?? 0;
+        }
+      }
+
+      if (equipmentOptions.length === 1) {
+        buildEquipmentOption(equipmentOptions[0], "");
+      } else if (equipmentOptions.length > 1) {
+        const orId = foundry.utils.randomID();
+        entries.push({
+          type: "OR",
+          requiresProficiency: false,
+          _id: orId,
+          group: "",
+          sort: nextSort(),
+        });
+        for (const ruleSlot of equipmentOptions) {
+          buildEquipmentOption(ruleSlot, orId);
+        }
+      }
+    }
+
+    if (entries.length > 0) this.data.system.startingEquipment = entries;
+    if (totalGold > 0) this.data.system.wealth = String(totalGold);
   }
 
   async _generateSpellAdvancements() {

@@ -588,6 +588,7 @@ export default class CharacterFeatureFactory {
       // console.warn("Generating background advancements", ddbFeature);
       await ddbFeature.generateAdvancements();
       await ddbFeature.buildBackgroundFeatAdvancements();
+      await ddbFeature._generateBackgroundEquipment();
     } else if (type === "feat") {
       ddbFeature.generateFeatAbilityScoreAdvancement();
     } else if(type === "race") {
