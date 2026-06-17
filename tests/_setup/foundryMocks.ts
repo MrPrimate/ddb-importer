@@ -221,6 +221,12 @@ import { fallbackDDBConfig } from "../../src/hooks/ready/fallbackConfig";
   }
 };
 
+// -- canvas (top-level global) --
+// Functions like resolveSceneGridImageSource read `canvas?.scene` / `canvas?.level`.
+// Optional chaining does not guard an *undeclared* global (that throws ReferenceError),
+// so a default stub must exist. Tests override it via vi.stubGlobal("canvas", ...).
+(globalThis as any).canvas = { scene: null, level: null };
+
 // -- UI globals --
 (globalThis as any).ui = {
   notifications: { warn: () => {}, error: () => {}, info: () => {} },
