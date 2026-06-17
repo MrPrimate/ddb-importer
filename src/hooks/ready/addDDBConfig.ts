@@ -76,6 +76,7 @@ const FEAT_TYPES = {
 };
 
 const LOOT_TYPES = {
+  // DDB does not expose any mist talisman loot
   mistTalisman: "DND5E.Loot.MistTalisman",
 };
 
