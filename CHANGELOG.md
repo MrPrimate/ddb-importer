@@ -1,5 +1,7 @@
 # Next Up
 
+- Auto Grid would not scale scenes correctly on the default level resulting in images overlapping into the padding area.
+
 # 7.3.8
 
 - Auto Grid didn't work properly with levels. It does now. @crimsonedge
