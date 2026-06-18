@@ -483,6 +483,13 @@ export default class DDBSources {
       });
     }
 
+    logger.info(`DDBSources.getChosenCategoriesAndBooks`, {
+      useOverride,
+      sourceCategoryIds,
+      overrideSources,
+      sourceIdArrays,
+    });
+
     return sourceIdArrays;
   }
 

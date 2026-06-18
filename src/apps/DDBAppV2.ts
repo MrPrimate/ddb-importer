@@ -58,6 +58,16 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
   /*  Life-Cycle Handlers                         */
   /* -------------------------------------------- */
 
+  static getMultiSelectValues(event: Event): string[] {
+    const target = event.currentTarget as (EventTarget & { _value?: Set<string> | string[] }) | null;
+    // Foundry's <multi-select> element stores its selection in `_value` (a Set).
+    if (target?._value instanceof Set) return Array.from(target._value);
+    if (target && Array.isArray(target._value)) return target._value;
+
+    const select = event.currentTarget as HTMLSelectElement | null;
+    return select?.selectedOptions ? Array.from(select.selectedOptions).map((o) => o.value) : [];
+  }
+
   /** @inheritDoc */
   async _onRender(context: DeepPartial<foundry.applications.api.Application.RenderContext>, options: foundry.applications.api.Application.RenderOptions) {
     await super._onRender(context, options);

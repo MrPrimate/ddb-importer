@@ -32,6 +32,48 @@ import DDBStickerBrowser from "./DDBStickerBrowser";
 import DDBAdventureBrowser from "./DDBAdventureBrowser";
 
 
+interface IDDBMuncherContext extends
+  DeepPartial<foundry.applications.api.Application.RenderContext>,
+  IMuncherSettings,
+  ICharacterImportSettings,
+  IEncounterSettings {
+  // from super._prepareContext (DDBAppV2Context)
+  tabs: IDDBTabs;
+
+  // from _prepareEncounterContext
+  encounter: {
+    id: string | null;
+    data: Record<string, any>;
+    nameHtml?: string;
+    summaryHtml?: string;
+    charactersHtml?: string;
+    monstersHtml?: string;
+    difficultyHtml?: string;
+    rewardsHtml?: string;
+    progressHtml?: string;
+  };
+  availableCampaigns: any[];
+  availableEncounters: any[];
+
+  // from getCharacterMuncherSettings (_prepareCharacterContext)
+  selectedClasses: any[];
+  subclassSelection: any[];
+  rulesVersion: "2014" | "2024";
+  otherRulesVersion: "2014" | "2024";
+  classFilterEnabled: boolean;
+  classMunchEnabled: boolean;
+
+  // explicit assignments in _prepareContext
+  searchTermMonster: string;
+  searchTermItem: string;
+  searchTermSpell: string;
+  muleURL: string;
+  characterId: string | null;
+  useCharacterHomebrew: boolean;
+  onlyCharacterHomebrew: boolean;
+}
+
+
 export default class DDBMuncher extends DDBAppV2 {
 
   processErrors = [];
@@ -94,8 +136,8 @@ export default class DDBMuncher extends DDBAppV2 {
       closeDetails: DDBMuncher.closeDetails,
     },
     position: {
-      width: "880",
-      height: "auto",
+      width: 880,
+      height: "auto" as const,
     },
     window: {
       icon: "fab fa-d-and-d-beyond",
@@ -284,25 +326,25 @@ export default class DDBMuncher extends DDBAppV2 {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _onRender(context, options) {
-    super._onRender(context, options);
+  async _onRender(context: IDDBMuncherContext, options: foundry.applications.api.Application.RenderOptions) {
+    await super._onRender(context, options);
 
     // custom listeners
     // multi-selects
     this.element.querySelector("#muncher-included-source-categories")?.addEventListener("change", async (event) => {
-      await DDBSources.updateIncludedCategories(Array.from(event.target._value));
+      await DDBSources.updateIncludedCategories(DDBMuncher.getMultiSelectValues(event));
     });
 
     this.element.querySelector("#muncher-source-select")?.addEventListener("change", async (event) => {
-      await DDBSources.updateSelectedSources(Array.from(event.target._value));
+      await DDBSources.updateSelectedSources(DDBMuncher.getMultiSelectValues(event));
     });
 
     this.element.querySelector("#muncher-monster-types-select")?.addEventListener("change", async (event) => {
-      await DDBSources.updateSelectedMonsterTypes(Array.from(event.target._value));
+      await DDBSources.updateSelectedMonsterTypes(DDBMuncher.getMultiSelectValues(event));
     });
 
     this.element.querySelector("#muncher-class-source-select")?.addEventListener("change", async (event) => {
-      const newClassIds = Array.from(event.target._value).map((id) => parseInt(id));
+      const newClassIds = DDBMuncher.getMultiSelectValues(event).map((id) => parseInt(id));
       await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-classes", newClassIds);
       const currentSubclassMap = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
       const prunedSubclassMap = {};
@@ -380,8 +422,9 @@ export default class DDBMuncher extends DDBAppV2 {
 
     this.element.querySelectorAll(".ddb-subclass-select").forEach((el) => {
       el.addEventListener("change", async (event) => {
-        const classId = parseInt(event.currentTarget.dataset.classId);
-        const selectedSubIds = Array.from(event.target._value).map((id) => parseInt(id));
+        const el = event.currentTarget as HTMLElement | null;
+        const classId = parseInt(el?.dataset.classId ?? "0");
+        const selectedSubIds = DDBAppV2.getMultiSelectValues(event).map((id) => parseInt(id));
         const currentMap = utils.getSetting<Record<string, string[]>>("munching-policy-character-subclasses") ?? {};
         const nextMap = { ...currentMap, [classId]: selectedSubIds };
         await game.settings.set(SETTINGS.MODULE_ID, "munching-policy-character-subclasses", nextMap);
@@ -390,26 +433,26 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.element.querySelector("#monster-munch-filter")?.addEventListener("change", async (event) => {
-      this.searchTermMonster = event.target.value ?? "";
+      this.searchTermMonster = (event.target as HTMLInputElement).value ?? "";
     });
 
     this.element.querySelector("#item-munch-filter")?.addEventListener("change", async (event) => {
-      this.searchTermItem = event.target.value ?? "";
+      this.searchTermItem = (event.target as HTMLInputElement).value ?? "";
     });
 
     this.element.querySelector("#spell-munch-filter")?.addEventListener("change", async (event) => {
-      this.searchTermSpell = event.target.value ?? "";
+      this.searchTermSpell = (event.target as HTMLInputElement).value ?? "";
     });
 
     this.element.querySelectorAll("[id^='munching-selection-compendium-folders-'")?.forEach((folder) => {
       folder.addEventListener("change", async (event) => {
-        await game.settings.set(SETTINGS.MODULE_ID, folder.id, event.target.value);
+        await game.settings.set(SETTINGS.MODULE_ID, folder.id as any, (event.target as HTMLInputElement).value);
       });
     });
 
     this.element.querySelector("#encounter-campaign-select")?.addEventListener("change", async (event) => {
       if (!context.tiers.supporter) return;
-      const campaignId = event.target._value ?? undefined;
+      const campaignId = (event.target as EventTarget & { _value?: string })._value ?? undefined;
       const encounters = await this.encounterFactory.filterEncounters(campaignId);
       const campaignSelected = campaignId && campaignId !== "";
       let encounterList = `<option value=""></option>`;
@@ -424,14 +467,14 @@ export default class DDBMuncher extends DDBAppV2 {
     });
 
     this.element.querySelector("#encounter-select")?.addEventListener("change", async (event) => {
-      this.encounterId = event.target.value ?? undefined;
+      this.encounterId = (event.target as HTMLSelectElement).value ?? undefined;
       await this.render();
     });
 
     // watch the change of the muncher-policy-selector checkboxes
     this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
       checkbox.addEventListener("change", async (event) => {
-        await MuncherSettings.updateMuncherSettings(this.element, event);
+        await MuncherSettings.updateMuncherSettings(event);
         await this.render();
       });
     });
@@ -455,7 +498,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async _prepareEncounterContext(context) {
+  async _prepareEncounterContext(context: IDDBMuncherContext): Promise<IDDBMuncherContext> {
     context.encounter = {
       id: null,
       data: {},
@@ -524,14 +567,14 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
 
-  async _prepareCharacterContext(context) {
+  async _prepareCharacterContext(context: IDDBMuncherContext): Promise<IDDBMuncherContext> {
     const characterContext = await MuncherSettings.getCharacterMuncherSettings(this);
     context = foundry.utils.mergeObject(context, characterContext);
     return context;
   }
 
-  async _prepareContext(options) {
-    let context = MuncherSettings.getMuncherSettings();
+  async _prepareContext(options): Promise<IDDBMuncherContext> {
+    let context: IDDBMuncherContext = MuncherSettings.getMuncherSettings() as IDDBMuncherContext;
     context = foundry.utils.mergeObject(context, MuncherSettings.getCharacterImportSettings());
     context = foundry.utils.mergeObject(context, MuncherSettings.getEncounterSettings());
     context = await this._prepareEncounterContext(context);
@@ -574,7 +617,7 @@ export default class DDBMuncher extends DDBAppV2 {
       "button[id^=\"munch-\"]",
     ];
     buttonSelectors.forEach((selector) => {
-      const buttons = this.element.querySelectorAll(selector);
+      const buttons = this.element.querySelectorAll(selector) as NodeListOf<HTMLButtonElement>;
       buttons.forEach((button) => {
         button.disabled = true;
       });
@@ -648,7 +691,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
 
     buttonSelectors.forEach((selector) => {
-      const buttons = this.element.querySelectorAll(selector);
+      const buttons = this.element.querySelectorAll(selector) as NodeListOf<HTMLButtonElement>;
       buttons.forEach((button) => {
         button.disabled = false;
       });
