@@ -493,9 +493,9 @@ export default class DDBFeature extends DDBFeatureMixin {
   // Resolve background equipment definitions to compendium uuids. Returns a map keyed by
   // `${definitionId}-${entityTypeId}`. DDB catalog names (e.g. "Clothes, Common") rarely match
   // the munched/SRD names ("Common Clothes"), so we match by id first and only fall back to name.
-  async _resolveBackgroundEquipmentUuids(definitions) {
-    const uuidMap = {};
-    const keyOf = (def) => `${def.id}-${def.entityTypeId}`;
+  async _resolveBackgroundEquipmentUuids(definitions: IDDBItemDefinition[]) {
+    const uuidMap: Record<string, string> = {};
+    const keyOf = (def: IDDBItemDefinition) => `${def.id}-${def.entityTypeId}`;
 
     // Pass A: id + entityTypeId against the munched DDB item compendium
     const ddbItems = CompendiumHelper.getCompendiumType("items", false);
@@ -548,7 +548,7 @@ export default class DDBFeature extends DDBFeatureMixin {
     // collect unique item definitions for a single batch of compendium lookups; only
     // single-definition rules are specific items, multi-definition rules are category
     // choices and need no item uuid
-    const definitionMap = new Map();
+    const definitionMap = new Map<string, IDDBItemDefinition>();
     for (const slot of slots) {
       for (const ruleSlot of slot.ruleSlots ?? []) {
         for (const rule of ruleSlot.rules ?? []) {
