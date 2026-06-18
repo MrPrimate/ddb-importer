@@ -490,14 +490,6 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
   // resolve the unique item definition names in the background equipment to compendium uuids
-<<<<<<< HEAD
-  async _resolveBackgroundEquipmentUuids(names: string[]): Promise<Record<string, string>> {
-    const packIds = this.is2024
-      ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["items2024"]
-      : SETTINGS.FOUNDRY_COMPENDIUM_MAP["items"];
-    const uuidMap: Record<string, string> = {};
-    let outstanding = [...names];
-=======
   // Resolve background equipment definitions to compendium uuids. Returns a map keyed by
   // `${definitionId}-${entityTypeId}`. DDB catalog names (e.g. "Clothes, Common") rarely match
   // the munched/SRD names ("Common Clothes"), so we match by id first and only fall back to name.
@@ -524,7 +516,6 @@ export default class DDBFeature extends DDBFeatureMixin {
     const packIds = this.is2024
       ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["items2024"]
       : SETTINGS.FOUNDRY_COMPENDIUM_MAP["items"];
->>>>>>> 73592e1f3 (Background equipment and feat fixes)
     for (const packId of packIds) {
       if (outstanding.length === 0) break;
       const entries = await CompendiumHelper.queryCompendiumEntries({
