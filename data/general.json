@@ -234,5 +234,121 @@
   {
     "name": "Steel Bond",
     "path": "icons/commodities/metal/mail-chain-steel.webp"
+  },
+  {
+    "name": "Multiattack",
+    "path": "icons/skills/melee/strike-weapons-orange.webp"
+  },
+  {
+    "name": "Entrapping Pod",
+    "path": "icons/magic/nature/root-vine-entangled-hand.webp"
+  },
+  {
+    "name": "Transfer Harm",
+    "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+  },
+  {
+    "name": "Soul Swap",
+    "path": "icons/magic/control/energy-stream-link-teal.webp"
+  },
+  {
+    "name": "Spellcasting",
+    "path": "icons/magic/symbols/circled-gem-pink.webp"
+  },
+  {
+    "name": "Tentacle",
+    "path": "icons/creatures/tentacles/tentacles-octopus-black-pink.webp"
+  },
+  {
+    "name": "Psychic Skewer",
+    "path": "icons/skills/wounds/injury-eyes-blood-red.webp"
+  },
+  {
+    "name": "Shield",
+    "path": "icons/equipment/shield/heater-crystal-blue.webp"
+  },
+  {
+    "name": "Chew",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-needles-purple.webp"
+  },
+  {
+    "name": "Hungering Stride",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Mauling Charge",
+    "path": "icons/creatures/mammals/wolf-shadow-black.webp"
+  },
+  {
+    "name": "Surprise Bite",
+    "path": "icons/creatures/abilities/fangs-teeth-bite.webp"
+  },
+  {
+    "name": "Evil Eye",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-large-teal.webp"
+  },
+  {
+    "name": "Instill Dread",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Tickle",
+    "path": "icons/magic/control/silhouette-fall-slip-prone.webp"
+  },
+  {
+    "name": "Virulent Miasma",
+    "path": "icons/magic/unholy/orb-stone-pink.webp"
+  },
+  {
+    "name": "Implacable Advance",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Sweeping Blade",
+    "path": "icons/skills/melee/strike-sword-slashing-red.webp"
+  },
+  {
+    "name": "Dreamwalk",
+    "path": "icons/magic/control/debuff-energy-hold-pink.webp"
+  },
+  {
+    "name": "Narcotize",
+    "path": "icons/skills/wounds/injury-eyes-blood-red.webp"
+  },
+  {
+    "name": "Exhausting Gaze",
+    "path": "icons/creatures/eyes/humanoid-single-blind.webp"
+  },
+  {
+    "name": "Vanishing Strike",
+    "path": "icons/magic/control/silhouette-hold-change-blue.webp"
+  },
+  {
+    "name": "Suction Burst",
+    "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+  },
+  {
+    "name": "Cold Sprint",
+    "path": "icons/magic/water/projectile-ice-chunk-blue.webp"
+  },
+  {
+    "name": "Protective Swarm",
+    "path": "icons/creatures/invertebrates/wasp-swarm-tan.webp"
+  },
+  {
+    "name": "Elemental Absorption",
+    "path": "icons/magic/light/explosion-beam-impact-silhouette.webp"
+  },
+  {
+    "name": "Smoke Bomb",
+    "path": "icons/skills/ranged/bomb-grenade-thrown-yellow.webp"
+  },
+  {
+    "name": "Spiritual Weapon",
+    "path": "icons/weapons/axes/axe-double-gold.webp"
+  },
+  {
+    "name": "Vow of Revenge",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
   }
 ]

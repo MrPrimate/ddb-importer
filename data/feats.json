@@ -838,5 +838,49 @@
   {
     "name": "Memory Starved",
     "path": "icons/magic/control/silhouette-aura-energy.webp"
+  },
+  {
+    "name": "Aberrant Anatomy",
+    "path": "icons/creatures/unholy/demon-winged-cyclops-drooling.webp"
+  },
+  {
+    "name": "Echoing Soul",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Gathered Whispers",
+    "path": "icons/magic/control/hypnosis-mesmerism-eye.webp"
+  },
+  {
+    "name": "Living Shadow",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Mist Walker",
+    "path": "icons/environment/wilderness/terrain-river-road-gray.webp"
+  },
+  {
+    "name": "Second Skin",
+    "path": "icons/skills/wounds/injury-hand-blood-red.webp"
+  },
+  {
+    "name": "Sharp Eye",
+    "path": "icons/skills/trades/academics-investigation-study-blue.webp"
+  },
+  {
+    "name": "Survivor",
+    "path": "icons/magic/control/modfiy-luck-fortune-brown.webp"
+  },
+  {
+    "name": "Symbiotic Being",
+    "path": "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp"
+  },
+  {
+    "name": "Touch of Death",
+    "path": "icons/magic/death/hand-undead-skeleton-fire-pink.webp"
+  },
+  {
+    "name": "Watchers",
+    "path": "icons/creatures/magical/humanoid-silhouette-aliens-green.webp"
   }
 ]

@@ -11710,5 +11710,525 @@
   {
     "name": "Three-dragon ante",
     "path": "icons/sundries/gaming/playing-cards-brown.webp"
+  },
+  {
+    "name": "Arsonist Spirit",
+    "path": "icons/magic/fire/elemental-fire-flying.webp"
+  },
+  {
+    "name": "Avenger Spirit",
+    "path": "icons/creatures/magical/spirit-undead-winged-ghost.webp"
+  },
+  {
+    "name": "Beloved Spirit",
+    "path": "icons/magic/holy/barrier-shield-winged-cross.webp"
+  },
+  {
+    "name": "Brute Spirit",
+    "path": "icons/creatures/magical/construct-iron-stomping-yellow.webp"
+  },
+  {
+    "name": "Coward Spirit",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Fortune Teller Spirit",
+    "path": "icons/magic/perception/orb-crystal-ball-scrying.webp"
+  },
+  {
+    "name": "Priest Spirit",
+    "path": "icons/magic/holy/saint-glass-portrait-halo.webp"
+  },
+  {
+    "name": "Renegade Spirit",
+    "path": "icons/magic/movement/abstract-ribbons-red-orange.webp"
+  },
+  {
+    "name": "Shade Spirit",
+    "path": "icons/creatures/magical/spirit-undead-ghost-purple.webp"
+  },
+  {
+    "name": "Sharpshooter Spirit",
+    "path": "icons/magic/movement/trail-streak-impact-blue.webp"
+  },
+  {
+    "name": "Trickster Spirit",
+    "path": "icons/creatures/magical/spirit-poison-smoke-green.webp"
+  },
+  {
+    "name": "Wayfarer Spirit",
+    "path": "icons/creatures/magical/humanoid-giant-forest-blue.webp"
+  },
+  {
+    "name": "Feral Pounce",
+    "path": "icons/creatures/claws/claw-bear-paw-swipe-red.webp"
+  },
+  {
+    "name": "Magical Token",
+    "path": "icons/commodities/treasure/trinket-totem-bone-green.webp"
+  },
+  {
+    "name": "Soul Trinkets",
+    "path": "icons/commodities/treasure/stone-cracked-lightning-blue.webp"
+  },
+  {
+    "name": "Vampiric Bite",
+    "path": "icons/creatures/abilities/fang-tooth-blood-red.webp"
+  },
+  {
+    "name": "Animated Digits",
+    "path": "icons/commodities/biological/hand-clawed-tan.webp"
+  },
+  {
+    "name": "Ashes of a Corpse",
+    "path": "icons/commodities/materials/bowl-powder-grey.webp"
+  },
+  {
+    "name": "Barovian Wine Bottle",
+    "path": "icons/consumables/drinks/wine-amphora-clay-gray.webp"
+  },
+  {
+    "name": "Black Rose",
+    "path": "icons/commodities/flowers/buds-black-red.webp"
+  },
+  {
+    "name": "Blood Faction Gear",
+    "path": "icons/equipment/shoulder/pauldron-engraved-red.webp"
+  },
+  {
+    "name": "Bloodstained Farm Implement",
+    "path": "icons/tools/hand/sickle-worn-steel-grey.webp"
+  },
+  {
+    "name": "Broken Holy Symbol",
+    "path": "icons/equipment/neck/amulet-round-engraved-gold.webp"
+  },
+  {
+    "name": "Broken Jewelry",
+    "path": "icons/equipment/neck/amulet-round-gold-blue.webp"
+  },
+  {
+    "name": "Burnt Armor",
+    "path": "icons/commodities/metal/mail-plate-steel.webp"
+  },
+  {
+    "name": "Canopic Jar",
+    "path": "icons/consumables/drinks/clay-jar-glowing-orange-blue.webp"
+  },
+  {
+    "name": "Coin from Darkon",
+    "path": "icons/commodities/currency/coin-plain-portal-gold.webp"
+  },
+  {
+    "name": "Death Mask",
+    "path": "icons/equipment/head/mask-carved-scream-tan.webp"
+  },
+  {
+    "name": "Displacer beast skin",
+    "path": "icons/skills/wounds/injury-stitched-flesh-red.webp"
+  },
+  {
+    "name": "Dram of Sweet-Smelling Poison",
+    "path": "icons/consumables/potions/bottle-metal-yellow-gray.webp"
+  },
+  {
+    "name": "Dried Crown of White Camellias",
+    "path": "icons/commodities/flowers/lotus-white.webp"
+  },
+  {
+    "name": "Ebonbane",
+    "path": "icons/weapons/swords/sword-guard-serrated.webp"
+  },
+  {
+    "name": "Eye of Hazlik Amulet",
+    "path": "icons/commodities/treasure/token-brass-round.webp"
+  },
+  {
+    "name": "Faded Love Letter",
+    "path": "icons/sundries/documents/envelope-sealed-red-white.webp"
+  },
+  {
+    "name": "Family Portrait",
+    "path": "icons/commodities/tech/frame-copper.webp"
+  },
+  {
+    "name": "Feathered Mask",
+    "path": "icons/equipment/head/mask-wooden-feathered-blue.webp"
+  },
+  {
+    "name": "Flame-Singed Love Letter",
+    "path": "icons/sundries/documents/envelope-sealed-red-tan.webp"
+  },
+  {
+    "name": "Glass Shoe",
+    "path": "icons/equipment/feet/boots-plate-steel.webp"
+  },
+  {
+    "name": "Glowing Minerals",
+    "path": "icons/commodities/gems/gem-shattered-orange.webp"
+  },
+  {
+    "name": "Gold Shoe",
+    "path": "icons/equipment/feet/boots-armored-gold.webp"
+  },
+  {
+    "name": "Great Cthulhu Effigy",
+    "path": "icons/creatures/fish/squid-kraken-orange.webp"
+  },
+  {
+    "name": "Gremishka Foot",
+    "path": "icons/commodities/biological/hand-gnarled-green.webp"
+  },
+  {
+    "name": "Handbill",
+    "path": "icons/sundries/documents/document-official-brownl.webp"
+  },
+  {
+    "name": "Jeweled Mask",
+    "path": "icons/equipment/head/mask-carved-bird-grey-pink.webp"
+  },
+  {
+    "name": "Lapis Lazuli Scarab",
+    "path": "icons/equipment/neck/necklace-animal-scarab.webp"
+  },
+  {
+    "name": "Letter from Leka",
+    "path": "icons/sundries/documents/envelope-sealed-red-brown.webp"
+  },
+  {
+    "name": "Mark of the Raven Talisman",
+    "path": "icons/commodities/treasure/token-runed-nyd-yellow.webp"
+  },
+  {
+    "name": "Polished Skull",
+    "path": "icons/commodities/bones/skull-hollow-brown.webp"
+  },
+  {
+    "name": "Preserved Humanoid Limb",
+    "path": "icons/commodities/biological/hand-clawed-tan.webp"
+  },
+  {
+    "name": "Red Robe Scrap",
+    "path": "icons/commodities/cloth/ribbon-red.webp"
+  },
+  {
+    "name": "Religious Relic",
+    "path": "icons/equipment/neck/amulet-carved-stone-hammer.webp"
+  },
+  {
+    "name": "Rusted Tulwar",
+    "path": "icons/weapons/swords/scimitar-worn-blue.webp"
+  },
+  {
+    "name": "Scrap of Black Fabric",
+    "path": "icons/commodities/cloth/cloth-bolt-purple.webp"
+  },
+  {
+    "name": "Scroll of Hieroglyphics",
+    "path": "icons/sundries/scrolls/scroll-bound-gold-brown.webp"
+  },
+  {
+    "name": "Starmetal Amulet",
+    "path": "icons/equipment/neck/amulet-carved-runed-othila-fehu-grey.webp"
+  },
+  {
+    "name": "Starmetal Rod",
+    "path": "icons/weapons/staves/staff-orb-red.webp"
+  },
+  {
+    "name": "Symbol of the Circle",
+    "path": "icons/equipment/finger/ring-band-engraved-scrolls-grey.webp"
+  },
+  {
+    "name": "Tainted Spring Water",
+    "path": "icons/consumables/potions/bottle-conical-corked-labeled-shell-cyan.webp"
+  },
+  {
+    "name": "Tarnished Signet Ring",
+    "path": "icons/equipment/finger/ring-shield-silver.webp"
+  },
+  {
+    "name": "Three Thorns",
+    "path": "icons/consumables/plants/thorned-stem-brown.webp"
+  },
+  {
+    "name": "Unbreakable Heart",
+    "path": "icons/commodities/tech/metal-blue.webp"
+  },
+  {
+    "name": "Wolf’s Tooth Necklace",
+    "path": "icons/equipment/neck/choker-simple-carved-wood-grey.webp"
+  },
+  {
+    "name": "Woodcut of Hunting Wolves",
+    "path": "icons/magic/symbols/mask-metal-silver-white.webp"
+  },
+  {
+    "name": "Worn Fine Clothing",
+    "path": "icons/equipment/chest/robe-layered-red.webp"
+  },
+  {
+    "name": "Wyvern-and-Lotus Shield",
+    "path": "icons/equipment/shield/heater-steel-boss-red.webp"
+  },
+  {
+    "name": "Zombie Flesh",
+    "path": "icons/skills/wounds/injury-stapled-flesh-tan.webp"
+  },
+  {
+    "name": "Poisonous Flower Blossom",
+    "path": "icons/commodities/flowers/clover-purple.webp"
+  },
+  {
+    "name": "Rusty Foot Trap",
+    "path": "icons/environment/traps/trap-jaw-tan.webp"
+  },
+  {
+    "name": "Sahuagin-Tooth Fishing Lure",
+    "path": "icons/tools/fishing/hook-simple-bone.webp"
+  },
+  {
+    "name": "Straw Doll",
+    "path": "icons/commodities/treasure/doll-mummy.webp"
+  },
+  {
+    "name": "von Zarovich Crest",
+    "path": "icons/commodities/treasure/token-silver-gem-cut.webp"
+  },
+  {
+    "name": "Spell Scroll: Protection from Evil and Good",
+    "path": "icons/sundries/scrolls/scroll-bound-black-tan.webp"
+  },
+  {
+    "name": "Brain-Rending Bite",
+    "path": "icons/skills/wounds/injury-eyes-blood-red.webp"
+  },
+  {
+    "name": "Negative Energy Burst",
+    "path": "icons/magic/unholy/hand-claw-fire-blue.webp"
+  },
+  {
+    "name": "Vine",
+    "path": "icons/magic/nature/root-vine-hand-strike.webp"
+  },
+  {
+    "name": "Disrupting Burst",
+    "path": "icons/magic/light/beams-rays-orange-purple-large.webp"
+  },
+  {
+    "name": "Stinger",
+    "path": "icons/commodities/biological/stinger-insect-brown.webp"
+  },
+  {
+    "name": "Silver Needle",
+    "path": "icons/tools/hand/needle-grey.webp"
+  },
+  {
+    "name": "Barbed Spear",
+    "path": "icons/weapons/polearms/spear-barbed-silver.webp"
+  },
+  {
+    "name": "Eldritch Claw",
+    "path": "icons/magic/unholy/hand-claw-fire-blue.webp"
+  },
+  {
+    "name": "Beheading Blade",
+    "path": "icons/magic/fire/dagger-rune-enchant-flame-strong-red.webp"
+  },
+  {
+    "name": "Fiery Skull",
+    "path": "icons/magic/fire/flame-burning-skull-orange.webp"
+  },
+  {
+    "name": "Darkflame Slash",
+    "path": "icons/skills/melee/sword-stuck-glowing-pink.webp"
+  },
+  {
+    "name": "Soothing Tentacle",
+    "path": "icons/creatures/tentacles/tentacles-thing-green.webp"
+  },
+  {
+    "name": "Hunter’s Blade",
+    "path": "icons/weapons/swords/sword-guard-bronze.webp"
+  },
+  {
+    "name": "Light Crossbow",
+    "path": "icons/weapons/crossbows/crossbow-simple-brown.webp"
+  },
+  {
+    "name": "Whirling Blades",
+    "path": "icons/magic/defensive/shield-barrier-blades-teal.webp"
+  },
+  {
+    "name": "Blessed Dagger",
+    "path": "icons/weapons/daggers/dagger-double-engraved-black.webp"
+  },
+  {
+    "name": "Radiant Wisp",
+    "path": "icons/magic/unholy/energy-smoke-pink.webp"
+  },
+  {
+    "name": "Coagulated Nodule",
+    "path": "icons/skills/wounds/blood-drip-droplet-red.webp"
+  },
+  {
+    "name": "Lashing Maw",
+    "path": "icons/creatures/invertebrates/spider-mandibles-brown.webp"
+  },
+  {
+    "name": "Bite (Individual Form Only)",
+    "path": "icons/creatures/abilities/mouth-teeth-long-red.webp"
+  },
+  {
+    "name": "Swarming Bites (Swarm Form Only)",
+    "path": "icons/creatures/abilities/mouth-teeth-rows-needles-purple.webp"
+  },
+  {
+    "name": "Swipe (Dire Wolf or Hybrid Form Only)",
+    "path": "icons/skills/wounds/injury-triple-slash-bleed.webp"
+  },
+  {
+    "name": "Bite (Dire Wolf or Hybrid Form Only)",
+    "path": "icons/creatures/abilities/fangs-teeth-bite.webp"
+  },
+  {
+    "name": "Violin",
+    "path": "icons/tools/instruments/lute-gold-brown.webp"
+  },
+  {
+    "name": "Toxic Touch",
+    "path": "icons/magic/unholy/hand-claw-fog-green.webp"
+  },
+  {
+    "name": "Gossamer",
+    "path": "icons/weapons/swords/greatsword-crossguard-flanged.webp"
+  },
+  {
+    "name": "Forsaken Brand",
+    "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
+  },
+  {
+    "name": "Longsword  (Humanoid or Hybrid Form Only)",
+    "path": "icons/weapons/swords/greatsword-guard.webp"
+  },
+  {
+    "name": "Rend (Dire Wolf or Hybrid Form Only)",
+    "path": "icons/skills/melee/shield-damaged-broken-orange.webp"
+  },
+  {
+    "name": "Cursed Dagger",
+    "path": "icons/weapons/daggers/dagger-crooked-ice-blue.webp"
+  },
+  {
+    "name": "Mind Rend",
+    "path": "icons/skills/wounds/injury-eyes-blood-red.webp"
+  },
+  {
+    "name": "Leather Armor",
+    "path": "icons/equipment/chest/breastplate-scale-leather.webp"
+  },
+  {
+    "name": "Orb Arcane Focus",
+    "path": "icons/commodities/gems/pearl-purple-smooth.webp"
+  },
+  {
+    "name": "Mother’s Brand",
+    "path": "icons/skills/melee/strike-blade-blood-red.webp"
+  },
+  {
+    "name": "Barb",
+    "path": "icons/creatures/abilities/stinger-spine-horn-blood.webp"
+  },
+  {
+    "name": "Soul Blade",
+    "path": "icons/skills/melee/strike-sword-dagger-runes-red.webp"
+  },
+  {
+    "name": "Necrotic Bolt",
+    "path": "icons/magic/unholy/projectile-bullet-orb-pink.webp"
+  },
+  {
+    "name": "Dreadful Swipe",
+    "path": "icons/magic/unholy/hand-claw-fire-blue.webp"
+  },
+  {
+    "name": "Executioner’s Blade",
+    "path": "icons/skills/melee/strike-sword-steel-yellow.webp"
+  },
+  {
+    "name": "Crushing Stone",
+    "path": "icons/magic/earth/projectile-boulder-debris.webp"
+  },
+  {
+    "name": "Haunter’s Spear",
+    "path": "icons/weapons/polearms/spear-flared-silver-pink.webp"
+  },
+  {
+    "name": "Slasher’s Knife",
+    "path": "icons/weapons/daggers/dagger-curved-blue.webp"
+  },
+  {
+    "name": "Silver Sword Cane",
+    "path": "icons/weapons/staves/staff-ornate.webp"
+  },
+  {
+    "name": "Vampiric Longsword",
+    "path": "icons/weapons/swords/sword-guard-serrated.webp"
+  },
+  {
+    "name": "Death Strike",
+    "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+  },
+  {
+    "name": "Infestation",
+    "path": "icons/creatures/invertebrates/wasp-swarm-tan.webp"
+  },
+  {
+    "name": "Ravenous Bites",
+    "path": "icons/skills/wounds/illness-disease-glowing-green.webp"
+  },
+  {
+    "name": "Force Blade",
+    "path": "icons/weapons/swords/sword-runed-glowing.webp"
+  },
+  {
+    "name": "Phantasmic Assault",
+    "path": "icons/magic/unholy/strike-beam-blood-large-red-purple.webp"
+  },
+  {
+    "name": "Lightning Rod",
+    "path": "icons/commodities/tech/tube-chamber-lightning.webp"
+  },
+  {
+    "name": "Studded Leather Armor",
+    "path": "icons/equipment/chest/breastplate-rivited-red.webp"
+  },
+  {
+    "name": "Impaling Spear",
+    "path": "icons/weapons/polearms/spear-hooked-double-engraved.webp"
+  },
+  {
+    "name": "Wax Lob",
+    "path": "icons/magic/light/projectile-flare-expliosion-yellow.webp"
+  },
+  {
+    "name": "Sculpting Knife",
+    "path": "icons/weapons/daggers/knife-engraved-black.webp"
+  },
+  {
+    "name": "Beak (Raven or Hybrid Form Only)",
+    "path": "icons/commodities/bones/beak-hooked-red.webp"
+  },
+  {
+    "name": "Shortbow (Humanoid or Hybrid Form Only)",
+    "path": "icons/weapons/bows/shortbow-leather.webp"
+  },
+  {
+    "name": "Hunting Rifle",
+    "path": "icons/weapons/guns/rifle-brown.webp"
+  },
+  {
+    "name": "Rotten Flesh",
+    "path": "icons/skills/wounds/illness-disease-glowing-green.webp"
   }
 ]
