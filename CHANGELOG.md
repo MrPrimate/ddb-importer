@@ -1,6 +1,11 @@
 # Next Up
 
+# 7.3.9
+
+- More improvements to background equipment and feat parsing. @crimsonedge
+- More icon updates for Ravenloft.
 - Auto Grid would not scale scenes correctly on the default level resulting in images overlapping into the padding area.
+- Monster importing broken on some monsters @zebramilk
 
 # 7.3.8
 

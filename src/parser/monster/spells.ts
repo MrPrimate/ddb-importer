@@ -285,9 +285,9 @@ DDBMonster.prototype.retrieveCompendiumSpells = async function(this: DDBMonster,
     "system.source.rules": this.use2024Spells ? "2024" : "2014",
   });
   const itemData = compendiumSpells.map((i) => {
-    const spell = i.toObject();
-    delete spell._id;
-    return spell;
+    delete i._id;
+    delete i.uuid;
+    return i;
   });
 
   return itemData;

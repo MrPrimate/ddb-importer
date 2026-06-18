@@ -430,7 +430,7 @@ const CompendiumHelper = {
     if (!compendium) return null;
 
     // get the indices of all the entitynames, filter un
-    const indices: ICompendiumLookup[] = CompendiumHelper.queryCompendiumEntriesDocuments({
+    const indices: ICompendiumLookup[] = await CompendiumHelper.queryCompendiumEntries({
       compendiumName,
       documentNames,
       matchedProperties,
