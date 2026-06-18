@@ -740,10 +740,6 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     if (chosenFeats.length === 0) return;
 
-<<<<<<< HEAD
-    const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
-=======
->>>>>>> 73592e1f3 (Background equipment and feat fixes)
     const indexFilter = {
       fields: [
         "name",
@@ -770,8 +766,8 @@ export default class DDBFeature extends DDBFeatureMixin {
 
       const isChoice = (bgFeat?.featIds.length ?? 1) > 1;
       const advancement = isChoice
-        ? new game.dnd5e.documents.advancement.ItemChoiceAdvancement()
-        : new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+        ? AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement)
+        : AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemGrantAdvancement);
 
       if (isChoice) {
         const uuids = (bgFeat?.featIds ?? [])
