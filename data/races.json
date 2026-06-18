@@ -1871,5 +1871,21 @@
   {
     "name": "Cold Resistance",
     "path": "icons/magic/water/barrier-ice-wall-explosion.webp"
+  },
+  {
+    "name": "Escaped Death",
+    "path": "icons/magic/death/undead-zombie-grave-green.webp"
+  },
+  {
+    "name": "Everlasting",
+    "path": "icons/magic/time/clock-stopwatch-white-blue.webp"
+  },
+  {
+    "name": "Howl",
+    "path": "icons/creatures/mammals/wolf-howl-moon-forest-blue.webp"
+  },
+  {
+    "name": "Spider Climb Improvement",
+    "path": "icons/creatures/invertebrates/bug-sixlegged-gray.webp"
   }
 ]

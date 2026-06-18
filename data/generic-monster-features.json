@@ -11010,5 +11010,477 @@
   {
     "name": "Sinister Command",
     "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Arcane Conduit",
+    "path": "icons/commodities/biological/shell-green.webp"
+  },
+  {
+    "name": "Bloated",
+    "path": "icons/commodities/biological/pustules-brown.webp"
+  },
+  {
+    "name": "Ferocity",
+    "path": "icons/commodities/biological/hand-clawed-scale-grey.webp"
+  },
+  {
+    "name": "Gaunt",
+    "path": "icons/commodities/biological/legs-insect-brown.webp"
+  },
+  {
+    "name": "Moist",
+    "path": "icons/commodities/biological/fin-red-green.webp"
+  },
+  {
+    "name": "Touch of Death",
+    "path": "icons/magic/unholy/hand-grasping-green.webp"
+  },
+  {
+    "name": "Death Strike",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Hand of Fate",
+    "path": "icons/magic/death/hand-withered-gray.webp"
+  },
+  {
+    "name": "Sands of Time",
+    "path": "icons/magic/air/fog-gas-smoke-swirling-yellow.webp"
+  },
+  {
+    "name": "Darklord Restoration",
+    "path": "icons/magic/unholy/silhouette-robe-evil-glow.webp"
+  },
+  {
+    "name": "Eldritch Teleport",
+    "path": "icons/magic/control/debuff-energy-hold-teal-blue.webp"
+  },
+  {
+    "name": "Forbidden Knowledge",
+    "path": "icons/magic/unholy/orb-hands-pink.webp"
+  },
+  {
+    "name": "Siphon Spell",
+    "path": "icons/magic/unholy/hands-circle-light-green.webp"
+  },
+  {
+    "name": "Unraveling Flesh",
+    "path": "icons/skills/wounds/injury-stapled-flesh-tan.webp"
+  },
+  {
+    "name": "Strike from Shadows",
+    "path": "icons/skills/melee/strike-blade-claw-red.webp"
+  },
+  {
+    "name": "Sudden Bite",
+    "path": "icons/creatures/abilities/fangs-teeth-bite.webp"
+  },
+  {
+    "name": "Experienced Hunter",
+    "path": "icons/skills/ranged/person-archery-bow-attack-gray.webp"
+  },
+  {
+    "name": "Fold Space",
+    "path": "icons/magic/unholy/orb-beam-pink.webp"
+  },
+  {
+    "name": "Clamp",
+    "path": "icons/magic/unholy/hand-claw-fog-green.webp"
+  },
+  {
+    "name": "Impossible Geometry",
+    "path": "icons/magic/light/beam-deflect-path-yellow.webp"
+  },
+  {
+    "name": "Exploding Head",
+    "path": "icons/magic/light/explosion-star-teal.webp"
+  },
+  {
+    "name": "Overhanging Branches",
+    "path": "icons/magic/nature/root-vine-wood-blue.webp"
+  },
+  {
+    "name": "Unholy Regrowth",
+    "path": "icons/magic/nature/tree-spirit-green.webp"
+  },
+  {
+    "name": "Head Fruits",
+    "path": "icons/skills/wounds/injury-face-impact-orange.webp"
+  },
+  {
+    "name": "Headless Wail",
+    "path": "icons/magic/death/projectile-skull-flaming-yellow.webp"
+  },
+  {
+    "name": "Mounted Adept",
+    "path": "icons/magic/fire/elemental-creature-horse.webp"
+  },
+  {
+    "name": "Terrorizer",
+    "path": "icons/magic/death/projectile-skull-fire-orange.webp"
+  },
+  {
+    "name": "Possess Dead",
+    "path": "icons/creatures/magical/spirit-undead-ghost-purple.webp"
+  },
+  {
+    "name": "Worthy Wielder",
+    "path": "icons/skills/melee/hand-grip-sword-orange.webp"
+  },
+  {
+    "name": "Retaliate",
+    "path": "icons/skills/melee/hand-grip-sword-red.webp"
+  },
+  {
+    "name": "Runic Flare",
+    "path": "icons/magic/symbols/runes-etched-steel-blade.webp"
+  },
+  {
+    "name": "Mind-Scouring Spores",
+    "path": "icons/magic/air/fog-gas-smoke-orange.webp"
+  },
+  {
+    "name": "Eldritch Magic",
+    "path": "icons/magic/symbols/chevron-elipse-circle-blue.webp"
+  },
+  {
+    "name": "Bolster Allies",
+    "path": "icons/magic/control/buff-strength-muscle-damage-red.webp"
+  },
+  {
+    "name": "Curse of the All-Seeing Eye",
+    "path": "icons/magic/perception/eye-ringed-glow-angry-red.webp"
+  },
+  {
+    "name": "Inspiring Rally",
+    "path": "icons/magic/control/control-influence-rally-purple.webp"
+  },
+  {
+    "name": "Inquisitor’s Command",
+    "path": "icons/magic/death/hand-withered-gray.webp"
+  },
+  {
+    "name": "Aura of Violence",
+    "path": "icons/magic/death/skull-flames-white-blue.webp"
+  },
+  {
+    "name": "Whirling Form",
+    "path": "icons/magic/air/wind-tornado-wall-blue.webp"
+  },
+  {
+    "name": "Howling Wind",
+    "path": "icons/magic/air/wind-tornado-funnel-damage-blue.webp"
+  },
+  {
+    "name": "Occult Aid",
+    "path": "icons/magic/life/cross-beam-green.webp"
+  },
+  {
+    "name": "Suppressed Lycanthropy",
+    "path": "icons/creatures/abilities/wolf-howl-moon-purple.webp"
+  },
+  {
+    "name": "Esoteric Ward",
+    "path": "icons/magic/light/hand-sparks-smoke-green.webp"
+  },
+  {
+    "name": "Forced Mutations",
+    "path": "icons/magic/unholy/strike-body-life-soul-purple.webp"
+  },
+  {
+    "name": "Aberrant Restoration",
+    "path": "icons/creatures/tentacles/tentacles-thing-green.webp"
+  },
+  {
+    "name": "Cosmic Transformation",
+    "path": "icons/magic/unholy/strike-beam-blood-large-red-purple.webp"
+  },
+  {
+    "name": "Terrifying Topography",
+    "path": "icons/environment/wilderness/terrain-rocks-brown.webp"
+  },
+  {
+    "name": "Teleporting Lash",
+    "path": "icons/magic/control/debuff-energy-hold-levitate-pink.webp"
+  },
+  {
+    "name": "Magic Allergy (Individual Form Only)",
+    "path": "icons/magic/light/projectile-smoke-pink.webp"
+  },
+  {
+    "name": "Swarm (Swarm Form Only)",
+    "path": "icons/creatures/invertebrates/bee-yellow.webp"
+  },
+  {
+    "name": "Enthralling Performance (Humanoid Form Only)",
+    "path": "icons/skills/trades/music-notes-sound-blue.webp"
+  },
+  {
+    "name": "Crushing Insult",
+    "path": "icons/skills/wounds/injury-eyes-blood-red-pink.webp"
+  },
+  {
+    "name": "Surprise Bite",
+    "path": "icons/creatures/mammals/wolf-shadow-black.webp"
+  },
+  {
+    "name": "Arcane Strike",
+    "path": "icons/magic/light/beam-strike-orange.webp"
+  },
+  {
+    "name": "Arcane Teleport",
+    "path": "icons/magic/control/debuff-energy-hold-levitate-yellow.webp"
+  },
+  {
+    "name": "Wild Magic Surge",
+    "path": "icons/magic/light/beam-explosion-orange.webp"
+  },
+  {
+    "name": "Deadly Contraption",
+    "path": "icons/commodities/tech/tube-chamber-lightning.webp"
+  },
+  {
+    "name": "Trapped Ground",
+    "path": "icons/equipment/shoulder/shoulderguard-spiked-rough-grey.webp"
+  },
+  {
+    "name": "Stifling Perfume",
+    "path": "icons/magic/air/fog-gas-smoke-purple.webp"
+  },
+  {
+    "name": "Toxin Wave",
+    "path": "icons/magic/unholy/orb-smoking-green.webp"
+  },
+  {
+    "name": "Deflect Blow",
+    "path": "icons/magic/defensive/shield-barrier-deflect-teal.webp"
+  },
+  {
+    "name": "Invert Flesh",
+    "path": "icons/magic/unholy/strike-body-explode-disintegrate.webp"
+  },
+  {
+    "name": "Twist",
+    "path": "icons/magic/unholy/strike-body-life-soul-green.webp"
+  },
+  {
+    "name": "Warp Body",
+    "path": "icons/magic/unholy/strike-beam-blood-large-red-blue.webp"
+  },
+  {
+    "name": "Face of Death",
+    "path": "icons/magic/death/skull-energy-light-white.webp"
+  },
+  {
+    "name": "Punish",
+    "path": "icons/skills/melee/sword-stuck-glowing-pink.webp"
+  },
+  {
+    "name": "Soth’s Command",
+    "path": "icons/magic/sonic/scream-wail-shout-teal.webp"
+  },
+  {
+    "name": "Commanding Magic",
+    "path": "icons/magic/death/hand-withered-gray.webp"
+  },
+  {
+    "name": "Apocalyptic Visions",
+    "path": "icons/magic/perception/orb-crystal-ball-scrying.webp"
+  },
+  {
+    "name": "Dazing Ray",
+    "path": "icons/magic/light/projectile-beam-yellow.webp"
+  },
+  {
+    "name": "Extract Brain  (Requires Silver Canister)",
+    "path": "icons/skills/wounds/anatomy-organ-brain-pink-red.webp"
+  },
+  {
+    "name": "Silver Canister",
+    "path": "icons/commodities/tech/tube-chamber-lightning.webp"
+  },
+  {
+    "name": "One With the Mists",
+    "path": "icons/magic/air/fog-gas-smoke-purple-blue.webp"
+  },
+  {
+    "name": "Mist Walker",
+    "path": "icons/environment/wilderness/terrain-river-road-gray.webp"
+  },
+  {
+    "name": "Greater Lightning Absorption",
+    "path": "icons/magic/lightning/fist-unarmed-strike-blue-green.webp"
+  },
+  {
+    "name": "Throw",
+    "path": "icons/skills/wounds/injury-pain-body-orange.webp"
+  },
+  {
+    "name": "Violent Leap",
+    "path": "icons/skills/movement/feet-bladed-boots-fire.webp"
+  },
+  {
+    "name": "Brand",
+    "path": "icons/magic/control/debuff-energy-hold-pink.webp"
+  },
+  {
+    "name": "Overwhelming Presence",
+    "path": "icons/magic/time/clock-stopwatch-white-blue.webp"
+  },
+  {
+    "name": "Mother’s Visage",
+    "path": "icons/magic/control/fear-fright-white.webp"
+  },
+  {
+    "name": "Reborn By Blood",
+    "path": "icons/skills/wounds/blood-drip-droplet-red.webp"
+  },
+  {
+    "name": "Ascend",
+    "path": "icons/creatures/abilities/wing-batlike-purple-blue.webp"
+  },
+  {
+    "name": "Vengeful Fire",
+    "path": "icons/magic/fire/beam-jet-stream-spiral-yellow.webp"
+  },
+  {
+    "name": "Words of Silence",
+    "path": "icons/magic/control/silhouette-aura-energy.webp"
+  },
+  {
+    "name": "Illusory Disguise",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Strange Modifications",
+    "path": "icons/commodities/biological/organ-heart-black.webp"
+  },
+  {
+    "name": "Nightmarish Restoration",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Homing Knife",
+    "path": "icons/weapons/daggers/dagger-crooked-ice-blue.webp"
+  },
+  {
+    "name": "Repel Evil",
+    "path": "icons/magic/unholy/strike-body-explode-disintegrate.webp"
+  },
+  {
+    "name": "Shield of Erasmus",
+    "path": "icons/magic/defensive/barrier-shield-dome-deflect-teal.webp"
+  },
+  {
+    "name": "Lash Out",
+    "path": "icons/magic/unholy/hand-claw-glow-orange.webp"
+  },
+  {
+    "name": "Shadow Veil",
+    "path": "icons/creatures/magical/spirit-undead-ghost-blue.webp"
+  },
+  {
+    "name": "Truth Or Die",
+    "path": "icons/magic/unholy/hand-claw-fire-green.webp"
+  },
+  {
+    "name": "Lie Detector",
+    "path": "icons/magic/control/mouth-smile-deception-purple.webp"
+  },
+  {
+    "name": "Susceptible to Charm",
+    "path": "icons/magic/control/hypnosis-mesmerism-swirl.webp"
+  },
+  {
+    "name": "Count’s Command",
+    "path": "icons/magic/sonic/scream-wail-shout-teal.webp"
+  },
+  {
+    "name": "Striding Strike",
+    "path": "icons/skills/movement/figure-running-gray.webp"
+  },
+  {
+    "name": "Warp Mind",
+    "path": "icons/magic/unholy/orb-stone-pink.webp"
+  },
+  {
+    "name": "Incomprehensible Form",
+    "path": "icons/magic/unholy/orb-colllecting-energy-green.webp"
+  },
+  {
+    "name": "Terrifying Aura",
+    "path": "icons/magic/unholy/orb-glowing-yellow-purple.webp"
+  },
+  {
+    "name": "Bloodthirsty Slash",
+    "path": "icons/skills/wounds/injury-triple-slash-bleed.webp"
+  },
+  {
+    "name": "Blood Spew",
+    "path": "icons/skills/wounds/blood-spurt-spray-red.webp"
+  },
+  {
+    "name": "Syringe",
+    "path": "icons/tools/laboratory/vial-orange.webp"
+  },
+  {
+    "name": "Shocking Prod",
+    "path": "icons/magic/lightning/barrier-shield-orb-pink.webp"
+  },
+  {
+    "name": "Static Explosion",
+    "path": "icons/magic/lightning/orb-ball-spiral-blue.webp"
+  },
+  {
+    "name": "Activate Constructs",
+    "path": "icons/commodities/tech/cog-gold.webp"
+  },
+  {
+    "name": "Bolster Inventions",
+    "path": "icons/commodities/tech/cog-brass.webp"
+  },
+  {
+    "name": "Artillery Fire",
+    "path": "icons/magic/fire/projectile-smoke-swirl-red.webp"
+  },
+  {
+    "name": "Advance",
+    "path": "icons/magic/control/control-influence-rally-purple.webp"
+  },
+  {
+    "name": "Dreadful Impaling",
+    "path": "icons/weapons/polearms/spear-hooked-brown.webp"
+  },
+  {
+    "name": "Order Ballista",
+    "path": "icons/weapons/ammunition/arrows-barbed-white.webp"
+  },
+  {
+    "name": "Meltable",
+    "path": "icons/creatures/slimes/slime-face-melting-green.webp"
+  },
+  {
+    "name": "Bone-Chilling Step",
+    "path": "icons/magic/control/debuff-energy-hold-pink.webp"
+  },
+  {
+    "name": "Fated Bullet",
+    "path": "icons/skills/ranged/bullet-sparks-yellow.webp"
+  },
+  {
+    "name": "Possessive Aura",
+    "path": "icons/magic/light/explosion-star-glow-silhouette.webp"
+  },
+  {
+    "name": "Mind Swap",
+    "path": "icons/magic/defensive/illusion-evasion-echo-purple.webp"
+  },
+  {
+    "name": "Sup",
+    "path": "icons/skills/wounds/injury-face-impact-orange.webp"
+  },
+  {
+    "name": "Maneuver",
+    "path": "icons/skills/movement/figure-running-gray.webp"
   }
 ]
