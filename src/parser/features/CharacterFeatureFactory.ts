@@ -504,6 +504,47 @@ export default class CharacterFeatureFactory {
     }
   }
 
+  #itemChoiceLink(feature: T5eFeatureMixinDataTypes, id:string) {
+    const linkingData = foundry.utils.getProperty(feature, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[];
+    const advancement = feature.system.advancement[id];
+    const dataLink = linkingData.find((d) => d._id === advancement._id);
+
+    if (!dataLink || !linkingData || !advancement) {
+      logger.warn(`Advancement for ${feature.name} (id ${id}) missing required data for linking`, {
+        advancement,
+        linkingData,
+        dataLink,
+      });
+      return;
+    }
+
+    const added = {};
+    for (const [advancementFeatureName, uuid] of Object.entries(dataLink.features)) {
+      const characterFeature = this.ddbCharacter.getDataFeature(advancementFeatureName);
+      if (characterFeature) {
+        logger.debug(`Advancement ${advancement._id} found Feature ${advancementFeatureName} (${uuid})`);
+        added[characterFeature._id] = uuid;
+        foundry.utils.setProperty(characterFeature, "flags.dnd5e.sourceId", uuid);
+        foundry.utils.setProperty(
+          characterFeature,
+          "flags.dnd5e.advancementOrigin",
+          `${feature._id}.${advancement._id}`,
+        );
+      }
+    }
+
+    // ItemChoice stores selections keyed by choice level (backgrounds grant at level 0),
+    // unlike ItemGrant's flat `value.added`.
+    if (Object.keys(added).length > 0) {
+      advancement.value = {
+        added: {
+          "0": added,
+        },
+      };
+      feature.system.advancement[id] = advancement;
+    }
+  }
+
   #addGenericAdvancementOrigins(types = ["actions", "features"]) {
     for (const type of types) {
       for (const feature of this.ddbCharacter.data[type]) {
@@ -552,6 +593,8 @@ export default class CharacterFeatureFactory {
 
             if (a.type === "ItemGrant" && dataLink) {
               this.#itemGrantLink(feature, id);
+            } else if (a.type === "ItemChoice" && dataLink) {
+              this.#itemChoiceLink(feature, id);
             }
           }
         }

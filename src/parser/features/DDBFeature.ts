@@ -490,29 +490,50 @@ export default class DDBFeature extends DDBFeatureMixin {
   }
 
   // resolve the unique item definition names in the background equipment to compendium uuids
-  async _resolveBackgroundEquipmentUuids(names) {
+  // Resolve background equipment definitions to compendium uuids. Returns a map keyed by
+  // `${definitionId}-${entityTypeId}`. DDB catalog names (e.g. "Clothes, Common") rarely match
+  // the munched/SRD names ("Common Clothes"), so we match by id first and only fall back to name.
+  async _resolveBackgroundEquipmentUuids(definitions) {
+    const uuidMap = {};
+    const keyOf = (def) => `${def.id}-${def.entityTypeId}`;
+
+    // Pass A: id + entityTypeId against the munched DDB item compendium
+    const ddbItems = CompendiumHelper.getCompendiumType("items", false);
+    if (ddbItems) {
+      const index = await ddbItems.getIndex({
+        fields: ["name", "flags.ddbimporter.definitionId", "flags.ddbimporter.definitionEntityTypeId"],
+      });
+      for (const def of definitions) {
+        const match = index.find((i) =>
+          foundry.utils.getProperty(i, "flags.ddbimporter.definitionId") === def.id
+          && foundry.utils.getProperty(i, "flags.ddbimporter.definitionEntityTypeId") === def.entityTypeId);
+        if (match?.uuid) uuidMap[keyOf(def)] = match.uuid;
+      }
+    }
+
+    // Pass B: version-aware SRD name fallback for anything still unresolved
+    let outstanding = definitions.filter((def) => !uuidMap[keyOf(def)]);
     const packIds = this.is2024
       ? SETTINGS.FOUNDRY_COMPENDIUM_MAP["items2024"]
       : SETTINGS.FOUNDRY_COMPENDIUM_MAP["items"];
-    const uuidMap = {};
-    let outstanding = [...names];
     for (const packId of packIds) {
       if (outstanding.length === 0) break;
       const entries = await CompendiumHelper.queryCompendiumEntries({
         compendiumName: packId,
-        documentNames: outstanding,
+        documentNames: outstanding.map((def) => def.name),
       });
       if (!entries) continue;
-      outstanding = outstanding.filter((name, i) => {
+      outstanding = outstanding.filter((def, i) => {
         if (entries[i]?.uuid) {
-          uuidMap[name] = entries[i].uuid;
+          uuidMap[keyOf(def)] = entries[i].uuid;
           return false;
         }
         return true;
       });
     }
-    for (const name of outstanding) {
-      logger.warn(`Could not find compendium item for background equipment "${name}"`);
+
+    for (const def of outstanding) {
+      logger.warn(`Could not find compendium item for background equipment "${def.name}" (id ${def.id})`);
     }
     return uuidMap;
   }
@@ -524,19 +545,22 @@ export default class DDBFeature extends DDBFeatureMixin {
     const isItemRule = (rule) => (rule.definitions ?? []).length > 0;
     const ruleSlotHasItems = (ruleSlot) => (ruleSlot.rules ?? []).some((rule) => isItemRule(rule));
 
-    // collect unique item names for a single batch of compendium lookups; only
+    // collect unique item definitions for a single batch of compendium lookups; only
     // single-definition rules are specific items, multi-definition rules are category
     // choices and need no item uuid
-    const names = new Set();
+    const definitionMap = new Map();
     for (const slot of slots) {
       for (const ruleSlot of slot.ruleSlots ?? []) {
         for (const rule of ruleSlot.rules ?? []) {
           const definitions = rule.definitions ?? [];
-          if (definitions.length === 1 && definitions[0].name) names.add(definitions[0].name);
+          if (definitions.length === 1 && definitions[0].name) {
+            const def = definitions[0];
+            definitionMap.set(`${def.id}-${def.entityTypeId}`, def);
+          }
         }
       }
     }
-    const uuidMap = await this._resolveBackgroundEquipmentUuids([...names]);
+    const uuidMap = await this._resolveBackgroundEquipmentUuids([...definitionMap.values()]);
 
     const entries: I5eClassStartingEquipment[] = [];
     let totalGold = 0;
@@ -545,7 +569,7 @@ export default class DDBFeature extends DDBFeatureMixin {
 
     const buildLinked = (rule, group) => {
       const definition = (rule.definitions ?? [])[0];
-      const uuid = definition ? uuidMap[definition.name] : undefined;
+      const uuid = definition ? uuidMap[`${definition.id}-${definition.entityTypeId}`] : undefined;
       if (!uuid) return;
       entries.push({
         type: "linked",
@@ -699,19 +723,23 @@ export default class DDBFeature extends DDBFeatureMixin {
     await this._generateSpellAdvancements();
   }
 
-  async buildBackgroundFeatAdvancements(extraFeatIds = []) {
-    const characterFeatIds = foundry.utils.getProperty(this.ddbData, "character.background.definition.featList.featIds") ?? [];
-    const featIds = extraFeatIds.concat(characterFeatIds);
+  async buildBackgroundFeatAdvancements() {
+    // Granted feats live on the background definition's `grantedFeats` ([{ id, name, featIds }]),
+    // NOT on `featList` (which is an array, so `featList.featIds` was always undefined). The ASI
+    // grant (categories include `__INITIAL_ASI`) is handled by
+    // generateBackgroundAbilityScoreAdvancement, so we exclude it here.
+    const grantedFeats = this.ddbDefinition.grantedFeats ?? [];
+    if (grantedFeats.length === 0) return;
 
-    // console.warn("BACKGROUND FEAT", {
-    //   this: this,
-    //   extraFeatIds,
-    //   featIds,
-    // })
+    const chosenFeats = this.ddbData.character.feats.filter((f) =>
+      grantedFeats.some((bgFeat) =>
+        f.componentId === bgFeat.id
+        && bgFeat.featIds.includes(f.definition.id)
+        && !f.definition.categories.some((c) => c.tagName === "__INITIAL_ASI")),
+    );
 
-    if (featIds.length === 0) return;
+    if (chosenFeats.length === 0) return;
 
-    const advancement = new game.dnd5e.documents.advancement.ItemGrantAdvancement();
     const indexFilter = {
       fields: [
         "name",
@@ -721,39 +749,76 @@ export default class DDBFeature extends DDBFeatureMixin {
     const compendium = CompendiumHelper.getCompendiumType("feats", false);
     if (compendium) await compendium.getIndex(indexFilter);
 
-    const feats = compendium
-      ? compendium.index.filter((f) => featIds.includes(foundry.utils.getProperty(f, "flags.ddbimporter.id")))
-      : [];
-
-    // console.warn("BACKGROUND FEAT", {
-    //   this: this,
-    //   extraFeatIds,
-    //   feats,
-    //   compendium,
-    //   featIds,
-    // });
-
-    const update: I5eAdvancementItemGrant = {
-      configuration: {
-        items: feats.map((f) => {
-          return { uuid: f.uuid };
-        }),
-      },
-      title: "Feat",
-    };
-    advancement.updateSource(update as any);
-    this.data.system.advancement[advancement._id] = advancement.toObject() as I5eAdvancement;
+    const matchFeatId = (id) => compendium
+      ? compendium.index.find((f) => foundry.utils.getProperty(f, "flags.ddbimporter.id") === id)
+      : undefined;
 
     const advancementLinkData: IDDBFeaturesAdvancementLinkData[] = foundry.utils.getProperty(this.data, "flags.ddbimporter.advancementLink") as IDDBFeaturesAdvancementLinkData[] ?? [];
-    const advancementData: IDDBFeaturesAdvancementLinkData = {
-      _id: advancement._id,
-      features: {},
-    };
-    advancementData[advancement._id] = {};
-    feats.forEach((f) => {
-      advancementData.features[f.name] = f.uuid;
-    });
-    advancementLinkData.push(advancementData);
+
+    for (const ddbFeat of chosenFeats) {
+      const bgFeat = grantedFeats.find((g) => g.id === ddbFeat.componentId);
+      const chosenMatch = matchFeatId(ddbFeat.definition.id);
+      if (!chosenMatch) {
+        // Still emit the advancement (empty) so the player can assign in Foundry; only the
+        // automatic link is skipped. Usually means the feats have not been munched to the compendium.
+        logger.warn(`Unable to link background feat ${ddbFeat.definition.name}, this is probably because the feats have not been munched to the compendium`, { ddbFeat });
+      }
+
+      const isChoice = (bgFeat?.featIds.length ?? 1) > 1;
+      const advancement = isChoice
+        ? new game.dnd5e.documents.advancement.ItemChoiceAdvancement()
+        : new game.dnd5e.documents.advancement.ItemGrantAdvancement();
+
+      if (isChoice) {
+        const uuids = (bgFeat?.featIds ?? [])
+          .map((id) => matchFeatId(id)?.uuid)
+          .filter((uuid) => uuid);
+        const update: I5eAdvancementItemChoice = {
+          title: "Feat",
+          configuration: {
+            allowDrops: true,
+            pool: uuids.map((uuid) => {
+              return { uuid };
+            }),
+            choices: {
+              "0": {
+                count: 1,
+                replacement: false,
+              },
+            },
+            type: "feat",
+            restriction: {
+              type: "feat",
+              subtype: this.is2024 ? "origin" : undefined,
+            },
+          },
+        };
+        advancement.updateSource(update as any);
+      } else {
+        const update: I5eAdvancementItemGrant = {
+          configuration: {
+            items: chosenMatch ? [{ uuid: chosenMatch.uuid }] : [],
+          },
+          title: "Feat",
+        };
+        advancement.updateSource(update as any);
+      }
+
+      this.data.system.advancement[advancement._id] = advancement.toObject() as I5eAdvancement;
+
+      // Only record link data when matched. Key by the DDB feat name (`definition.name`), since
+      // the post-import linker (getDataFeature) matches on `flags.ddbimporter.originalName ?? name`,
+      // not the compendium name.
+      if (chosenMatch) {
+        advancementLinkData.push({
+          _id: advancement._id,
+          features: {
+            [ddbFeat.definition.name]: chosenMatch.uuid,
+          },
+        });
+      }
+    }
+
     foundry.utils.setProperty(this.data, "flags.ddbimporter.advancementLink", advancementLinkData);
   }
 

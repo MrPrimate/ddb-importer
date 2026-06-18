@@ -110,8 +110,10 @@ export function generateBackground(bg) {
     if (bg.featuresBackground) {
       result.description += `<h2>${bg.featuresBackground.name}</h2>`;
       result.description += bg.featuresBackground.shortDescription.replace("\r\n", "");
-      result.description += `<h3>${bg.featuresBackground.featureName}</h3>`;
-      result.description += bg.featuresBackground.featureDescription.replace("\r\n", "");
+      if (utils.stripHtml(bg.featuresBackground.featureDescription ?? "").trim()) {
+        result.description += `<h3>${bg.featuresBackground.featureName}</h3>`;
+        result.description += bg.featuresBackground.featureDescription.replace("\r\n", "");
+      }
       result.featuresId = bg.featuresBackground.id;
       result.id = bg.featuresBackground.id;
       result.featuresEntityTypeId = bg.featuresBackground.entityTypeId;
@@ -124,14 +126,16 @@ export function generateBackground(bg) {
     ) {
       result.description += `<h2>${bg.characteristicsBackground.name}</h2>`;
       result.description += bg.characteristicsBackground.shortDescription.replace("\r\n", "");
-      result.description += `<h3>${bg.characteristicsBackground.featureName}</h3>`;
-      result.description += bg.characteristicsBackground.featureDescription.replace("\r\n", "");
+      if (utils.stripHtml(bg.characteristicsBackground.featureDescription ?? "").trim()) {
+        result.description += `<h3>${bg.characteristicsBackground.featureName}</h3>`;
+        result.description += bg.characteristicsBackground.featureDescription.replace("\r\n", "");
+      }
       result.characteristicsId = bg.characteristicsBackground.id;
       result.characteristicsEntityTypeId = bg.characteristicsBackground.entityTypeId;
     }
   }
 
-  if (bg.featureName) {
+  if (bg.featureName && utils.stripHtml(bg.featureDescription ?? "").trim()) {
     result.description += `<h2>${bg.featureName}</h2>`;
     result.description += bg.featureDescription.replace("\r\n", "");
   }
