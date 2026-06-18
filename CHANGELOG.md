@@ -1,5 +1,10 @@
 # Next Up
 
+# 7.1.30
+
+- More improvements to background equipment and feat parsing.
+- More icon updates for Ravenloft.
+
 # 7.1.29
 
 - Dark Gift feats now have their own category.
