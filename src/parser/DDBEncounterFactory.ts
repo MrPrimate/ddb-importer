@@ -65,7 +65,7 @@ export default class DDBEncounterFactory {
     return this.encountersData;
   }
 
-  async filterEncounters(campaignId) {
+  async filterEncounters(campaignId = null) {
     const campaigns = await DDBCampaigns.getAvailableCampaigns();
     const campaignIds = campaigns.map((c) => c.id);
     const allEncounters = this.encountersData.length !== 0 ? this.encountersData : await this.getEncounters();
