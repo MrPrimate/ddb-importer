@@ -49,8 +49,15 @@
       <span class="ddb-level-copy-label">Scale / alignment</span>
       <label><input type="radio" name="scaleMode" data-action="setScaleMode" data-mode="none" {{#if modeNone}}checked{{/if}} /> None (verbatim)</label>
       <label><input type="radio" name="scaleMode" data-action="setScaleMode" data-mode="ratio" {{#if modeRatio}}checked{{/if}} /> Grid-size ratio</label>
-      <label><input type="radio" name="scaleMode" data-action="setScaleMode" data-mode="hint" {{#if modeHint}}checked{{/if}} /> Align via 3x3 grid</label>
+      <label><input type="radio" name="scaleMode" data-action="setScaleMode" data-mode="hint" {{#if modeHint}}checked{{/if}} /> Align via drawn 3x3</label>
+      <label title="{{#unless gridModeAvailable}}Requires a square grid on both scenes{{/unless}}">
+        <input type="radio" name="scaleMode" data-action="setScaleMode" data-mode="gridcells" {{#if modeGridCells}}checked{{/if}} {{#unless gridModeAvailable}}disabled{{/unless}} /> Align via Foundry grid cells
+      </label>
     </div>
+
+    {{#if modeGridCells}}{{#unless gridModeAvailable}}
+      <p class="notification warning">Grid-cell alignment needs a square grid on both source and target scenes.</p>
+    {{/unless}}{{/if}}
 
     <div class="ddb-level-copy-nudge-row">
       <span class="ddb-level-copy-label">Offset nudge (canvas px)</span>
@@ -59,12 +66,12 @@
     </div>
   </div>
 
-  {{#if modeHint}}
+  {{#if showSurfaces}}
     <div class="ddb-level-copy-hints">
       {{!-- Source surface --}}
       <div class="ddb-level-copy-hint">
         <div class="ddb-level-copy-hint-head">
-          <h4>Source 3x3</h4>
+          <h4>Source {{#if modeGridCells}}grid block{{else}}3x3{{/if}}</h4>
           <span class="ddb-grid-picker-zoom-group">
             <button data-action="zoomSourceOut" type="button" class="munch-button icon-only" title="Zoom out"><i class="fas fa-search-minus"></i></button>
             <button data-action="zoomSourceFit" type="button" class="munch-button icon-only" {{#unless sourceZoomedIn}}disabled{{/unless}} title="Fit"><i class="fas fa-expand"></i></button>
@@ -75,6 +82,13 @@
         <div class="ddb-grid-picker-canvas">
           <svg viewBox="{{sourceViewBox.x}} {{sourceViewBox.y}} {{sourceViewBox.w}} {{sourceViewBox.h}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg ddb-level-copy-source-svg hint-mode {{#if sourceZoomedIn}}zoomed{{/if}}">
             <image href="{{sourceImageUrl}}" x="0" y="0" width="{{sourceDims.x}}" height="{{sourceDims.y}}" />
+            {{#if modeGridCells}}
+              <g class="ddb-level-copy-grid">
+                {{#each sourceGridLines}}
+                  <line x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}" class="ddb-level-copy-gridline" />
+                {{/each}}
+              </g>
+            {{/if}}
             <g class="ddb-grid-picker-hint-group">
               <rect class="ddb-grid-picker-hint-rect"
                 x="{{#if sourceHintRect}}{{sourceHintRect.x}}{{else}}0{{/if}}"
@@ -93,14 +107,18 @@
           </svg>
         </div>
         <p class="hint">
-          {{#if sourceHasRect}}Cell size: ~{{sourceCellPx}}px. Drag corners to adjust.{{else}}Drag to cover 3x3 cells. Wheel zooms, shift-drag pans.{{/if}}
+          {{#if modeGridCells}}
+            {{#if sourceHasRect}}Selected grid block. Drag corners to adjust; corners snap to the grid.{{else}}Drag across grid cells (3x3 recommended); corners snap to the grid. Wheel zooms, shift-drag pans.{{/if}}
+          {{else}}
+            {{#if sourceHasRect}}Cell size: ~{{sourceCellPx}}px. Drag corners to adjust.{{else}}Drag to cover 3x3 cells. Wheel zooms, shift-drag pans.{{/if}}
+          {{/if}}
         </p>
       </div>
 
       {{!-- Target surface --}}
       <div class="ddb-level-copy-hint">
         <div class="ddb-level-copy-hint-head">
-          <h4>Target 3x3</h4>
+          <h4>Target {{#if modeGridCells}}grid block{{else}}3x3{{/if}}</h4>
           <span class="ddb-grid-picker-zoom-group">
             <button data-action="zoomTargetOut" type="button" class="munch-button icon-only" title="Zoom out"><i class="fas fa-search-minus"></i></button>
             <button data-action="zoomTargetFit" type="button" class="munch-button icon-only" {{#unless targetZoomedIn}}disabled{{/unless}} title="Fit"><i class="fas fa-expand"></i></button>
@@ -117,6 +135,13 @@
             {{#each preview.dots}}
               <circle cx="{{this.x}}" cy="{{this.y}}" r="6" class="ddb-level-copy-dot" />
             {{/each}}
+            {{#if modeGridCells}}
+              <g class="ddb-level-copy-grid">
+                {{#each targetGridLines}}
+                  <line x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}" class="ddb-level-copy-gridline" />
+                {{/each}}
+              </g>
+            {{/if}}
             <g class="ddb-grid-picker-hint-group">
               <rect class="ddb-grid-picker-hint-rect"
                 x="{{#if targetHintRect}}{{targetHintRect.x}}{{else}}0{{/if}}"
@@ -135,7 +160,11 @@
           </svg>
         </div>
         <p class="hint">
-          {{#if targetHasRect}}Cell size: ~{{targetCellPx}}px. Projected objects shown in red/blue.{{else}}Drag to cover the same 3x3 cells.{{/if}}
+          {{#if modeGridCells}}
+            {{#if targetHasRect}}Selected grid block. Projected objects shown in red/blue.{{else}}Drag across the matching grid cells; corners snap to the grid.{{/if}}
+          {{else}}
+            {{#if targetHasRect}}Cell size: ~{{targetCellPx}}px. Projected objects shown in red/blue.{{else}}Drag to cover the same 3x3 cells.{{/if}}
+          {{/if}}
         </p>
       </div>
     </div>

@@ -127,7 +127,9 @@ const PLACEABLE_TYPES: IPlaceableType[] = [
   },
 ];
 
-type TScaleMode = "none" | "ratio" | "hint";
+type TScaleMode = "none" | "ratio" | "hint" | "gridcells";
+
+const SQUARE_GRID = 1; // CONST.GRID_TYPES.SQUARE
 
 export default class SceneLevelCopyApp extends DDBAppV2 {
 
@@ -284,6 +286,63 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     ];
   }
 
+  _isSquareGrid(scene: Scene | null): boolean {
+    return Number((scene as any)?.grid?.type) === SQUARE_GRID;
+  }
+
+  // True when both source and target use a square grid (required for the
+  // grid-cell alignment mode - a 3x3 block is square-grid specific).
+  _gridModeAvailable(): boolean {
+    return this._isSquareGrid(this.source) && this._isSquareGrid(this._targetScene());
+  }
+
+  // Snapper for a scene/level: image px -> nearest grid-line intersection ->
+  // image px. Square grid lines sit at k*size in padded-canvas coords.
+  _snapForScene(scene: Scene, level: I5eSceneLevel, dims: IDims): (x: number, y: number) => [number, number] {
+    const size = Number((scene as any)?.grid?.size) || 0;
+    if (!(size > 0)) return (x, y) => [x, y];
+    return (imgX, imgY) => {
+      const [cx, cy] = this._imgToCanvas(scene, level, dims, imgX, imgY);
+      const scx = Math.round(cx / size) * size;
+      const scy = Math.round(cy / size) * size;
+      return this._canvasToImg(scene, level, dims, scx, scy);
+    };
+  }
+
+  // Image-space grid line segments for the overlay. Steps the grid across the
+  // image's canvas extent and converts each line's endpoints back to image px.
+  // Capped so a tiny grid on a huge map cannot emit thousands of lines.
+  _buildGridLines(scene: Scene, level: I5eSceneLevel, dims: IDims): { lines: { x1: number; y1: number; x2: number; y2: number }[] } {
+    const out: { lines: { x1: number; y1: number; x2: number; y2: number }[] } = { lines: [] };
+    const size = Number((scene as any)?.grid?.size) || 0;
+    if (!(size > 0) || dims.x <= 0) return out;
+    // Canvas extent spanned by the image corners.
+    const [cx0, cy0] = this._imgToCanvas(scene, level, dims, 0, 0);
+    const [cx1, cy1] = this._imgToCanvas(scene, level, dims, dims.x, dims.y);
+    const minX = Math.min(cx0, cx1);
+    const maxX = Math.max(cx0, cx1);
+    const minY = Math.min(cy0, cy1);
+    const maxY = Math.max(cy0, cy1);
+    const CAP = 400;
+    if ((maxX - minX) / size > CAP || (maxY - minY) / size > CAP) {
+      logger.warn(`SceneLevelCopy: grid too dense to overlay (>${CAP} lines/axis), skipping grid render.`);
+      return out;
+    }
+    const startX = Math.floor(minX / size) * size;
+    const startY = Math.floor(minY / size) * size;
+    for (let gx = startX; gx <= maxX; gx += size) {
+      const [ix1, iy1] = this._canvasToImg(scene, level, dims, gx, minY);
+      const [ix2, iy2] = this._canvasToImg(scene, level, dims, gx, maxY);
+      out.lines.push({ x1: ix1, y1: iy1, x2: ix2, y2: iy2 });
+    }
+    for (let gy = startY; gy <= maxY; gy += size) {
+      const [ix1, iy1] = this._canvasToImg(scene, level, dims, minX, gy);
+      const [ix2, iy2] = this._canvasToImg(scene, level, dims, maxX, gy);
+      out.lines.push({ x1: ix1, y1: iy1, x2: ix2, y2: iy2 });
+    }
+    return out;
+  }
+
   // Build the source->target canvas transform for the chosen mode. Returns
   // null when the mode lacks the data it needs (e.g. hint with no boxes).
   _buildTransform(): ITransform | null {
@@ -305,7 +364,8 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
         scale: { sx: s, sy: s },
       };
     }
-    // hint
+    // hint / gridcells - both derive the transform from the two drawn boxes.
+    // They differ only in how the box was drawn (freeform vs grid-snapped).
     const target = this._targetScene();
     const srcRect = this.sourceHint.rect;
     const tgtRect = this.targetHint.rect;
@@ -392,6 +452,12 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     // target-image pixels so the SVG can draw them over the target background.
     const preview = this._buildPreview(target, transform);
 
+    const modeGridCells = this.scaleMode === "gridcells";
+    const srcLevel = this._levelById(this.source, this.sourceLevelId);
+    const tgtLevel = this._levelById(target, this.targetLevelId);
+    const sourceGridLines = modeGridCells ? this._buildGridLines(this.source, srcLevel, this.sourceDims).lines : [];
+    const targetGridLines = (modeGridCells && target) ? this._buildGridLines(target, tgtLevel, this.targetDims).lines : [];
+
     return foundry.utils.mergeObject(context, {
       sourceName: this.source.name ?? "Scene",
       sourceLevels,
@@ -402,6 +468,11 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
       modeNone: this.scaleMode === "none",
       modeRatio: this.scaleMode === "ratio",
       modeHint: this.scaleMode === "hint",
+      modeGridCells,
+      showSurfaces: this.scaleMode === "hint" || modeGridCells,
+      gridModeAvailable: this._gridModeAvailable(),
+      sourceGridLines,
+      targetGridLines,
       offsetNudge: this.offsetNudge,
       transformReady: !!transform,
       sameLevel: this.targetId === this.source.id && this.targetLevelId === this.sourceLevelId,
@@ -494,10 +565,24 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
       });
     });
 
-    // Source hint surface only exists in hint mode. The target svg is present
-    // in both modes (hint surface + plain preview); wiring it is overlay-safe
-    // when the hint elements are absent, so wheel-zoom/pan works either way.
-    if (this.scaleMode === "hint") {
+    // Grid-cell mode snaps drawn corners to grid-line intersections; clear the
+    // snapper otherwise so hint mode stays freeform.
+    if (this.scaleMode === "gridcells") {
+      const target = this._targetScene();
+      const srcLevel = this._levelById(this.source, this.sourceLevelId);
+      const tgtLevel = this._levelById(target, this.targetLevelId);
+      this.sourceHint.snapPoint = this._snapForScene(this.source, srcLevel, this.sourceDims);
+      this.targetHint.snapPoint = target ? this._snapForScene(target, tgtLevel, this.targetDims) : null;
+    } else {
+      this.sourceHint.snapPoint = null;
+      this.targetHint.snapPoint = null;
+    }
+
+    // The source surface exists in hint + gridcells modes. The target svg is
+    // present in every mode (surface or plain preview); wiring it is
+    // overlay-safe when the hint elements are absent, so wheel-zoom/pan works
+    // either way.
+    if (this.scaleMode === "hint" || this.scaleMode === "gridcells") {
       this.sourceHint.wire(this.element.querySelector<SVGSVGElement>(".ddb-level-copy-source-svg"));
     }
     this.targetHint.wire(this.element.querySelector<SVGSVGElement>(".ddb-level-copy-target-svg"));
@@ -515,7 +600,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
 
   static setScaleMode(this: SceneLevelCopyApp, _event, target: HTMLElement) {
     const mode = target?.dataset?.mode as TScaleMode;
-    if (mode === "none" || mode === "ratio" || mode === "hint") {
+    if (mode === "none" || mode === "ratio" || mode === "hint" || mode === "gridcells") {
       this.scaleMode = mode;
       this.render();
     }

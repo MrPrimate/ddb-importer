@@ -1014,3 +1014,12 @@
   justify-content: flex-end;
   gap: 8px;
 }
+
+.ddb-level-copy-gridline {
+  stroke: rgba(80, 220, 255, 0.35);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  fill: none;
+  shape-rendering: crispEdges;
+  pointer-events: none;
+}

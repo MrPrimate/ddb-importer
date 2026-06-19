@@ -42,6 +42,11 @@ export class GridHintSurface {
   viewBox: IRect | null = null;
   dims: IDims = { x: 0, y: 0 };
 
+  // When set, every live corner during draw/resize is snapped through this
+  // function (image px -> image px), e.g. to grid-line intersections. Null
+  // leaves the drag freeform.
+  snapPoint: ((x: number, y: number) => [number, number]) | null = null;
+
   // Host callback used to request a full re-render once a drag/zoom commits.
   private _onChange: () => void;
   private _dragStart: { x: number; y: number } | null = null;
@@ -200,6 +205,12 @@ export class GridHintSurface {
     return { x, y, w, h };
   }
 
+  private _snap(x: number, y: number): { x: number; y: number } {
+    if (!this.snapPoint) return { x, y };
+    const [sx, sy] = this.snapPoint(x, y);
+    return { x: sx, y: sy };
+  }
+
   private _clientToViewBox(svg: SVGSVGElement, clientX: number, clientY: number): { x: number; y: number } {
     const pt = svg.createSVGPoint();
     pt.x = clientX;
@@ -274,7 +285,8 @@ export class GridHintSurface {
     // Shift-drag is reserved for panning - let the svg-level handler take it.
     if (event.shiftKey || event.button === 1) return;
     event.preventDefault();
-    const start = this._clientToViewBox(svg, event.clientX, event.clientY);
+    const rawStart = this._clientToViewBox(svg, event.clientX, event.clientY);
+    const start = this._snap(rawStart.x, rawStart.y);
     this._dragStart = start;
     this._dragging = true;
     this.rect = { x: start.x, y: start.y, w: 0, h: 0 };
@@ -282,7 +294,8 @@ export class GridHintSurface {
 
     const onMove = (e: PointerEvent) => {
       if (!this._dragging || !this._dragStart) return;
-      const p = this._clientToViewBox(svg, e.clientX, e.clientY);
+      const raw = this._clientToViewBox(svg, e.clientX, e.clientY);
+      const p = this._snap(raw.x, raw.y);
       const x = Math.min(this._dragStart.x, p.x);
       const y = Math.min(this._dragStart.y, p.y);
       const w = Math.abs(p.x - this._dragStart.x);
@@ -332,7 +345,8 @@ export class GridHintSurface {
     handle.setPointerCapture(event.pointerId);
 
     const onMove = (e: PointerEvent) => {
-      const p = this._clientToViewBox(svg, e.clientX, e.clientY);
+      const raw = this._clientToViewBox(svg, e.clientX, e.clientY);
+      const p = this._snap(raw.x, raw.y);
       const x = Math.min(p.x, fixed.x);
       const y = Math.min(p.y, fixed.y);
       const w = Math.abs(p.x - fixed.x);
