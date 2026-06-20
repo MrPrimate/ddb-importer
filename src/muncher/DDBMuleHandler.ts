@@ -596,6 +596,7 @@ export default class DDBMuleHandler {
       const newStub = foundry.utils.deepClone(ddbStub);
       foundry.utils.mergeObject(newStub.character, backgroundData.backgroundResponse.data);
       foundry.utils.mergeObject(newStub.character, (backgroundData.backgroundChoices.slice(-1)?.data ?? null));
+      newStub.backgroundEquipment = foundry.utils.deepClone(backgroundData.backgroundEquipment);
 
       logger.debug(`Processing background ${backgroundData.backgroundResponse.data.background.definition?.name} (${current} of ${total})`, {
         newStub,

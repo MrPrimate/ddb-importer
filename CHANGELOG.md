@@ -1,5 +1,7 @@
 # Next Up
 
+- Backgrounds now capture equipment during character option munch!
+
 # 7.1.30
 
 - More improvements to background equipment and feat parsing.
