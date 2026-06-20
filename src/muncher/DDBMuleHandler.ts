@@ -873,6 +873,9 @@ export default class DDBMuleHandler {
     foundry.utils.mergeObject(newStub.character, backgroundData.backgroundResponse.data);
     const choiceData = backgroundData.backgroundChoices.slice(-1)?.data ?? null;
     if (choiceData) foundry.utils.mergeObject(newStub.character, choiceData);
+    if (backgroundData.backgroundEquipment) {
+      newStub.backgroundEquipment = foundry.utils.deepClone(backgroundData.backgroundEquipment);
+    }
     if (CONFIG.DDBI.DEV.downloadJSONExamples) {
       const name = backgroundData.backgroundResponse.data.background.definition?.name ?? "unknown";
       FileHelper.download(JSON.stringify(newStub), `STREAM-BACKGROUND-${this.characterId}-${name}-${Date.now()}.json`, "application/json");
