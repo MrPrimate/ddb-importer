@@ -1,6 +1,7 @@
 # Next Up
 
 - Backgrounds now capture equipment during character option munch!
+- Munched Native Adventure Muncher scenes now match the standalone and no longer set new scenes to display in the navigation tab.
 
 # 7.3.9
 

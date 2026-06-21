@@ -109,6 +109,7 @@ function buildBaseScene(args: {
     _id,
     name: displayName,
     navName,
+    navigation: false,
     width,
     height,
     padding: DEFAULT_PADDING,
