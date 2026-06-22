@@ -9,6 +9,7 @@ import { ExternalAutomations } from "../effects/_module";
 
 interface IDDBItemImporterOptions {
   matchFlags?: string[];
+  matchFields?: string[];
   deleteBeforeUpdate?: boolean | null;
   indexFilter?: CompendiumCollection.GetIndexOptions | null;
   useCompendiumFolders?: boolean | null;
@@ -35,6 +36,7 @@ interface IDDBItemImporterBuildHandlerOptions {
   ids?: string[] | null;
   chrisPremades?: boolean;
   matchFlags?: string[];
+  matchFields?: string[];
   indexFilter?: CompendiumCollection.GetIndexOptions | null;
   deleteBeforeUpdate?: boolean | null;
   filterDuplicates?: boolean;
@@ -63,6 +65,7 @@ export default class DDBItemImporter {
 
   useCompendiumFolders: boolean;
   matchFlags: string[];
+  matchFields: string[];
   compendium: CompendiumCollection<any>;
   compendiumIndex: IndexTypeForMetadata<CompendiumCollection.DocumentName> | null;
   indexFilter: Record<string, any>; // { fields?: string[]; };
@@ -82,6 +85,7 @@ export default class DDBItemImporter {
 
   constructor(type: string, documents: TDDBImporterDocument[], {
     matchFlags = [],
+    matchFields = [],
     deleteBeforeUpdate = null,
     indexFilter = null,
     useCompendiumFolders = null,
@@ -93,6 +97,7 @@ export default class DDBItemImporter {
     this._documents = documents;
     this.useCompendiumFolders = useCompendiumFolders ?? true;
     this.matchFlags = matchFlags;
+    this.matchFields = matchFields;
     this.recursive = recursive;
 
     this.compendium = CompendiumHelper.getCompendiumType(this.type);
@@ -170,6 +175,16 @@ export default class DDBItemImporter {
     //     fs,
     //   });
     // }
+    return matched;
+  }
+
+  #fieldMatch(item1: TFlagType, item2: TDDBImporterDocument): boolean {
+    if (this.matchFields.length === 0) return true;
+    const matched = this.matchFields.every((field) => {
+      const fieldValue1 = foundry.utils.getProperty(item1, field);
+      const fieldValue2 = foundry.utils.getProperty(item2, field);
+      return fieldValue1 === fieldValue2;
+    });
     return matched;
   }
 
@@ -282,7 +297,7 @@ export default class DDBItemImporter {
   removeItems(itemsToRemove: TDDBImporterDocument[], matchDDBId = false) {
     this.documents = this.documents.filter((item) =>
       !itemsToRemove.some((originalItem) =>
-        (item.name === originalItem.name || foundry.utils.getProperty(item, "flags.ddbimporter.originalName") === originalItem.name)
+        (item.name === originalItem.name || foundry.utils.getProperty(item, "flags.ddbimporter.originalName") as string === originalItem.name)
         && item.type === originalItem.type
         && (!matchDDBId || (matchDDBId && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(originalItem, "flags.ddbimporter.id"))),
       ),
@@ -311,7 +326,12 @@ export default class DDBItemImporter {
       return flagMatched;
     });
 
-    return flagFiltered;
+    const fieldFiltered = flagFiltered.filter((idx) => {
+      const fieldMatched = this.#fieldMatch(idx, item);
+      return fieldMatched;
+    });
+
+    return fieldFiltered;
   }
 
   async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item.Implementation[]> {
@@ -544,6 +564,7 @@ ${item.system.description.chat}
       const iName = foundry.utils.getProperty(i, "name") as string;
       return items.some((orig) => {
         if (!this.#flagMatch(i, orig)) return false;
+        if (!this.#fieldMatch(i, orig)) return false;
         const extraNames = (foundry.utils.getProperty(orig, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
         if (looseMatch) {
           const looseNames = NameMatcher.getLooseNames(orig.name, extraNames);
@@ -617,11 +638,13 @@ ${item.system.description.chat}
     const itemImporter = new DDBItemImporter(type, [], {
       indexFilter: { fields: [
         "name",
-        "flags.ddbimporter.is2014",
-        "flags.ddbimporter.is2024",
+        // "flags.ddbimporter.is2014",
+        // "flags.ddbimporter.is2024",
         "flags.ddbimporter.dndbeyond.alternativeNames",
+        "system.source.rules",
       ] },
-      matchFlags: ["is2014", "is2024"],
+      // matchFlags: ["is2014", "is2024"],
+      matchFields: ["system.source.rules"],
     });
     await itemImporter.init();
 
@@ -633,7 +656,6 @@ ${item.system.description.chat}
       deleteCompendiumId,
       linkItemFlags,
       indexFilter: itemImporter.indexFilter,
-      // matchFlags: ["is2014", "is2024"],
     };
     const results = await itemImporter.loadPassedItemsFromCompendium(items, loadOptions);
 
@@ -732,12 +754,13 @@ ${item.system.description.chat}
   }
 
   static async buildHandler(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
-    { ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
+    { ids = null, chrisPremades = false, matchFlags = [], matchFields = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,
   ): Promise<DDBItemImporter> {
     const handler = overrideHandler ?? new DDBItemImporter(type, documents, {
       matchFlags,
+      matchFields,
       deleteBeforeUpdate,
       useCompendiumFolders,
       notifier,

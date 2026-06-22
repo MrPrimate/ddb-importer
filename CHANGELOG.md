@@ -3,6 +3,7 @@
 - Backgrounds now capture equipment during character option munch!
 - Munched Native Adventure Muncher scenes now match the standalone and no longer set new scenes to display in the navigation tab.
 - Weapon items with spells/uses will no longer generate consumption on attack activities by default.
+- Override compendium would match on a ddb importer flag, it no longer does. @tevehereleveregeto
 
 # 7.3.9
 
