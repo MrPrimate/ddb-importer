@@ -2,6 +2,7 @@
 
 - Backgrounds now capture equipment during character option munch!
 - Weapon items with spells/uses will no longer generate consumption on attack activities by default.
+- Character feature importer now uses sockets like v7.3.x, this will improve the current spate of disconnections/failures whilst using the option munch.
 
 # 7.1.30
 
