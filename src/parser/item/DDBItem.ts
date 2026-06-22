@@ -36,7 +36,7 @@ interface IActionDataMagicBonus {
   zero: number;
 }
 
-interface IActionData {
+export interface IActionData {
   associatedToolsOrAbilities: string[];
   ability: string | null;
   activation: I5eActivityActivation | null;
@@ -2544,9 +2544,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       return false;
     }
 
-    const spellOverride = {
+    const spellOverride: I5eActivitySpell = {
       uuid: compendiumSpell.uuid,
-      properties: ["vocal", "somatic", "material"],
+      properties: ["verbal", "somatic", "material"],
       level: null,
       challenge: {
         attack: null,
@@ -2562,7 +2562,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       max: "",
     };
     const generateActivityUses = this.perSpell.isPerSpell;
-    const consumptionOverride = {
+    const consumptionOverride: I5eActivityConsumption = {
       spellSlot: false,
       targets: [],
       scaling: {
@@ -2594,9 +2594,10 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const scalingAmount = maxNumberConsumed > minNumberConsumed;
 
-    const activityConsumptionTarget = this.perSpell.isPerSpell
+    const activityConsumptionTarget: I5eConsumptionTarget = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
+        target: "",
         value: `${spellData.limitedUse?.minNumberConsumed ?? spellData.limitedUse?.maxNumberConsumed ?? 1}`,
         scaling: {},
       }
@@ -2612,14 +2613,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         }
         : null;
 
-    spellOverride.challenge.save = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc") ?? null;
-    if (spellOverride.challenge.save) {
+    const saveDCOverride = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.dc") as number ?? null;
+    if (Number.isInteger(parseInt(String(saveDCOverride)))) {
+      spellOverride.challenge.save = parseInt(String(saveDCOverride));
       spellOverride.challenge.override = true;
     }
 
     if (foundry.utils.hasProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel")) {
       // castData.level =  Number.parseInt(spellData.level);
-      spellOverride.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel");
+      spellOverride.level = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.castAtLevel") as number;
     }
 
     const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
@@ -2633,7 +2635,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       consumptionOverride.scaling.max = `min(@item.uses.value,${spellData.limitedUse.maxNumberConsumed})`;
     }
 
-    const options = {
+    const options: TDDBActivityBuildOptions = {
       spellOverride,
       generateConsumption: true,
       generateUses: generateActivityUses,
@@ -3146,46 +3148,49 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
 
   /** @override */
-  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const itemOptions = foundry.utils.mergeObject({
+  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+    const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
       damageParts: ["weapon", "staff"].includes(this.parsingType)
         ? this.damageParts.slice(1)
         : null,
-    }, options);
+    } as IDDBItemActivityBuild, options);
 
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   /** @override */
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const itemOptions = foundry.utils.mergeObject({
+  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+    const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
+      // force default to to generate consumption for attacks if it's a weapon. this might miss some special cases,
+      // but mostly we don't want to consume a weapons charges for attacks
+      generateConsumption: !["weapon", "staff"].includes(this.parsingType),
       // don't add extra damages if it's a save (assume its save damage)
       generateDamage: !this.actionData.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-    }, options);
+    } as IDDBItemActivityBuild, options);
 
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   /** @override */
-  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const itemOptions = foundry.utils.mergeObject({
+  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+    const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-    }, options);
+    } as IDDBItemActivityBuild, options);
 
     return super._getUtilityActivity({ name, nameIdPostfix }, itemOptions);
   }
 
   /** @override */
-  _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
-    const itemOptions = foundry.utils.mergeObject({
+  _getDamageActivity({ name = null, nameIdPostfix = null } = {}, options: IDDBItemActivityBuild = {}) {
+    const itemOptions: IDDBItemActivityBuild = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),
-    }, options);
+    } as IDDBItemActivityBuild, options);
 
     return super._getDamageActivity({ name, nameIdPostfix }, itemOptions);
   }
