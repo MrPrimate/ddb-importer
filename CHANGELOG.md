@@ -1,5 +1,10 @@
 # Next Up
 
+# 7.0.15
+
+- Some character conditions/statuses could break import @ryanm_gm
+- Zealous Presence granted disadvantage on saving throws
+
 # 7.0.14
 
 - Monster type filter was broken.
