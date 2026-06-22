@@ -1,15 +1,27 @@
 import { logger } from "../../lib/_module";
 import DDBBasicActivity from "./DDBBasicActivity";
+import { IActionData } from "../item/DDBItem";
+import type DDBItem from "../item/DDBItem";
 
+interface IDDBItemActivity {
+  name?: string;
+  type: IDDBActivityType;
+  ddbParent?: DDBItem;
+  nameIdPrefix?: string | null;
+  nameIdPostfix?: string | null;
+  id?: string | null;
+}
 
 export default class DDBItemActivity extends DDBBasicActivity {
+  actionData: IActionData;
+  declare ddbParent: DDBItem;
 
   _init() {
     logger.debug(`Generating DDBItemActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
 
 
-  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null }: IDDBItemActivity) {
     super({
       type,
       name,
@@ -68,7 +80,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       });
     } else if (isStaff) {
       // no op
-    } else if (![0, null, undefined].includes(this.ddbParent.data.system.uses?.max)) {
+    } else if ("uses" in this.ddbParent.data.system && !["0", null, undefined].includes(this.ddbParent.data.system.uses.max)) {
       targets.push({
         type: consumptionType,
         target: "",
@@ -93,6 +105,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
   }
 
   _generateCheck({ checkOverride = null } = {}) {
+    if (!("check" in this.data)) return;
     this.data.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
       ability: this.actionData.ability,
@@ -165,7 +178,7 @@ export default class DDBItemActivity extends DDBBasicActivity {
       generateConsumption: false,
       generateCheck: false,
       generateDamage,
-      generateDescription: generateDescription || chatFlavor,
+      generateDescription: generateDescription || chatFlavor != null,
       generateDuration,
       generateEffects,
       generateHealing,

@@ -45,7 +45,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {
       type: actionType,
-      cost: 1,
+      value: 1,
       condition: "",
     };
   }

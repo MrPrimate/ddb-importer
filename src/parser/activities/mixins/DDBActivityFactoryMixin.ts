@@ -33,7 +33,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   usesOnActivity = false;
   ignoreActivityGeneration = false;
   forceDefaultActionBuild = false;
-  data: I5eSystemBaseDocumentData = null;
+  data: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
   // These properties are used throughout the class but defined in subclasses
@@ -73,7 +73,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     }
   }
 
-  _getSaveActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getSaveActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.SAVE,
@@ -91,7 +91,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getAttackActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getAttackActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.ATTACK,
@@ -100,15 +100,17 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
       nameIdPostfix: nameIdPostfix ?? this.type,
     });
 
-    activity.build(foundry.utils.mergeObject({
+    const mergedOptions: TDDBActivityBuildOptions = foundry.utils.mergeObject({
       generateAttack: true,
       generateDamage: !["weapon"].includes(this.documentType!),
       generateRange: !["spell", "weapon"].includes(this.documentType!),
-    }, options));
+    }, options);
+
+    activity.build(mergedOptions);
     return activity;
   }
 
-  _getUtilityActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getUtilityActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.UTILITY,
@@ -125,7 +127,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getRollActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getRollActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.UTILITY,
@@ -143,7 +145,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getForwardActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getForwardActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.FORWARD,
@@ -157,7 +159,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getHealActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getHealActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.HEAL,
@@ -176,7 +178,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getDamageActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getDamageActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.DAMAGE,
@@ -193,7 +195,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getEnchantActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getEnchantActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.ENCHANT,
@@ -210,7 +212,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getSummonActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getSummonActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.SUMMON,
@@ -227,7 +229,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getCheckActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getCheckActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.CHECK,
@@ -246,7 +248,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getDDBMacroActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getDDBMacroActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.DDBMACRO,
@@ -277,7 +279,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  _getCastActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getCastActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.CAST,
@@ -305,7 +307,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return null;
   }
 
-  _getTransformActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  _getTransformActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const activity = new this.activityGenerator({
       name,
       type: ACTIVITY_TYPES.TRANSFORM,
@@ -326,7 +328,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     return activity;
   }
 
-  getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null }: { typeOverride?: string | null; typeFallback?: string | null; name?: string | null; nameIdPostfix?: any } = {}, options: any = {}): any {
+  getActivity({ typeOverride = null, typeFallback = null, name = null, nameIdPostfix = null }: { typeOverride?: string | null; typeFallback?: string | null; name?: string | null; nameIdPostfix?: any } = {}, options: TDDBActivityBuildOptions = {}): any {
     const type = typeOverride ?? this._getActivitiesType();
     this.activityTypes.push(type);
     const data = { name, nameIdPostfix };
@@ -372,18 +374,18 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
     nameIdPostfix?: any;
     typeOverride?: string | null;
     typeFallback?: string | null;
-  } = {}, optionsOverride: IDDBActivityBuild = {},
+  } = {}, optionsOverride: TDDBActivityBuildOptions = {},
   ): Promise<string | undefined> {
     if (this.ignoreActivityGeneration) return undefined;
     if (hintsOnly && !this.enricher.activity) return undefined;
     if (this.enricher.type === "none" || this.enricher.activity?.type === "none") return undefined;
 
     // @ts-expect-error - we might not actually have any of these. TODO: revist and type if needed
-    const activityOptions = this.enricher.activity?.options ?? {};
-    const options = foundry.utils.mergeObject(
+    const activityOptions: TDDBActivityBuildOptions = this.enricher.activity?.options ?? {};
+    const options: TDDBActivityBuildOptions = foundry.utils.mergeObject(
       foundry.utils.deepClone(optionsOverride),
       foundry.utils.deepClone(activityOptions),
-    );
+    ) as TDDBActivityBuildOptions;
 
     if (this.usesOnActivity || this.enricher.usesOnActivity) {
       const uses = foundry.utils.getProperty(this.data, "system.uses");
@@ -488,9 +490,9 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
           _id: effect._id,
           level: foundry.utils.getProperty(effect, "flags.ddbimporter.effectIdLevel") ?? { min: null, max: null },
           riders: {
-            activity: foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") ?? [],
-            effect: foundry.utils.getProperty(effect, "flags.ddbimporter.effectRiders") ?? [],
-            item: foundry.utils.getProperty(effect, "flags.ddbimporter.itemRiders") ?? [],
+            activity: foundry.utils.getProperty(effect, "flags.ddbimporter.activityRiders") as string[] ?? [],
+            effect: foundry.utils.getProperty(effect, "flags.ddbimporter.effectRiders") as string[] ?? [],
+            item: foundry.utils.getProperty(effect, "flags.ddbimporter.itemRiders") as string[] ?? [],
           },
         });
       }

@@ -1,15 +1,19 @@
+
+const activationTypes: { id: number; value: TActivationCost }[] = [
+  { id: 0, value: "none" },
+  { id: 1, value: "action" },
+  { id: 2, value: "action" },
+  { id: 3, value: "bonus" },
+  { id: 4, value: "reaction" },
+  { id: 5, value: "action" },
+  { id: 6, value: "minute" },
+  { id: 7, value: "hour" },
+  { id: 8, value: "special" },
+];
+
+
 export const ACTIONS = {
-  activationTypes: [
-    { id: 0, value: "none" },
-    { id: 1, value: "action" },
-    { id: 2, value: "action" },
-    { id: 3, value: "bonus" },
-    { id: 4, value: "reaction" },
-    { id: 5, value: "action" },
-    { id: 6, value: "minute" },
-    { id: 7, value: "hour" },
-    { id: 8, value: "special" },
-  ],
+  activationTypes,
   attackTypes: [
     //  natural improv
     // { attackSubtype: 1, value: "" },

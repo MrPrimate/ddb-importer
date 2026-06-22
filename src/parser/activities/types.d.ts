@@ -122,4 +122,10 @@ global {
     saveData?: any;
   };
 
+  type TDDBActivityBuildOptions = IDDBActivityBuild
+    | IDDBItemActivityBuild
+    | IDDBFeatureActivityBuild
+    | IDDBSpellActivityBuild
+    | IDDBVehicleActivityBuild;
+
 }

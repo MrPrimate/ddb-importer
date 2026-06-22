@@ -2,6 +2,7 @@
 
 - Backgrounds now capture equipment during character option munch!
 - Munched Native Adventure Muncher scenes now match the standalone and no longer set new scenes to display in the navigation tab.
+- Weapon items with spells/uses will no longer generate consumption on attack activities by default.
 
 # 7.3.9
 

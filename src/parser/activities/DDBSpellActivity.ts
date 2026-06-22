@@ -188,6 +188,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   static extractHigherLevelDamage(definition: IDDBHigherLevelDefinition): string | null {
     let scaleDamage: string | null = null;
+    // @ts-expect-error - this was in the model at some point, not sure if its currently used.
     const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
     const modScaleDamage
       = die?.diceString // if dice string
@@ -369,7 +370,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   _generateDamage({ damageParts = null, onSave = null, partialDamageParts = null, modRestrictionFilter = null,
     modRestrictionFilterExcludes = null, allowCritical = null } = {},
   ) {
-
+    if (!("damage" in this.data)) return;
     if (damageParts) {
       this.data.damage = {
         parts: damageParts,
@@ -472,6 +473,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
   }
 
   _generateSave({ saveOverride = null } = {}) {
+    if (!("save" in this.data)) return;
     if (saveOverride) {
       this.data.save = saveOverride;
       return;

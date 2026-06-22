@@ -40,10 +40,11 @@ global {
     riders?: {
       activity?: string[];
       effect?: string[];
+      item?: string[];
     };
     level?: {
-      min: number | null;
-      max: number | null;
+      min?: number | null;
+      max?: number | null;
     };
   }
 
@@ -254,10 +255,6 @@ global {
   interface I5eCheckActivity extends I5eActivityBase {
     type: "check";
     check: I5eActivityCheck;
-    damage: {
-      critical?: Record<string, any>;
-      parts: I5eDamagePart[];
-    };
   }
 
   interface IDDBActivityMacro {

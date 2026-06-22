@@ -127,10 +127,10 @@ global {
   export type I5eDamageType = "acid" | "bludgeoning" | "cold" | "fire" | "force" | "lightning" | "necrotic" | "piercing" | "poison" | "psychic" | "radiant" | "slashing" | "thunder" | string;
 
   interface I5eDamagePart {
-    number: number;
-    denomination: number;
-    bonus: string;
-    types: I5eDamageType[];
+    number?: number;
+    denomination?: number;
+    bonus?: string;
+    types?: I5eDamageType[];
     custom?: I5eDamageCustom;
     scaling?: I5eDamageScaling;
   }

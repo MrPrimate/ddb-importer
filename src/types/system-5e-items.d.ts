@@ -355,9 +355,7 @@ global {
     type: "equipment";
     system: I5eEquipmentSystemData;
     flags: IItemFlagConfig & {
-      infusions?: { maps: any[]; applied: any[]; infused: boolean };
       midiProperties?: I5eMidiItemProperties;
-      infusions?: { infused: boolean };
     };
   }
 
@@ -484,7 +482,6 @@ global {
     type: "consumable";
     system: I5eConsumableSystemData;
     flags: IItemFlagConfig & {
-      infusions?: { maps: any[]; applied: any[]; infused: boolean };
       midiProperties?: I5eMidiItemProperties;
     };
   }

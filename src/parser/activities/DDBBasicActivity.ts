@@ -8,7 +8,7 @@ export default class DDBBasicActivity {
 
   type: IDDBActivityType;
   name: string | null;
-  foundryFeature: I5eMonsterItem | I5ePCItem | I5eInventoryItem | I5eFeatItem;
+  foundryFeature: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem;
   nameIdPrefix: string;
   nameIdPostfix: string;
   id: string | null;
@@ -60,18 +60,18 @@ export default class DDBBasicActivity {
 
 
   constructor({
-    type = null, name, actor = null, ddbParent = null,
+    type, name, actor = null, ddbParent = null,
     nameIdPrefix = null, nameIdPostfix = null, id = null,
     foundryFeature = null,
   }: {
     type: IDDBActivityType;
     name?: string | null;
-    actor?: any;
-    ddbParent?: any;
+    actor?: I5ePCData | I5eMonsterData;
+    ddbParent?: DDBActivityFactoryMixin;
     nameIdPrefix?: string | null;
     nameIdPostfix?: string | null;
     id?: string | null;
-    foundryFeature?: any;
+    foundryFeature?: I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem | null;
   }) {
 
     this.type = type.toLowerCase() as IDDBActivityType;
@@ -79,11 +79,11 @@ export default class DDBBasicActivity {
     if (!this.activityType) {
       throw new Error(`Unknown Activity Type: ${this.type}, valid types are: ${Object.keys(CONFIG.DND5E.activityTypes)}`);
     }
+    this.ddbParent = ddbParent;
     const actionName = this.ddbParent?.isAction ? this.ddbParent.name : null;
     this.name = name ?? actionName;
-    this.ddbParent = ddbParent;
     this.actor = actor;
-    this.foundryFeature = foundryFeature ?? ddbParent.data;
+    this.foundryFeature = foundryFeature ?? ddbParent?.data;
 
     this.nameIdPrefix = nameIdPrefix ?? "act";
     this.nameIdPostfix = nameIdPostfix ?? "";
@@ -94,7 +94,7 @@ export default class DDBBasicActivity {
 
   }
 
-  getParsedAction(): string | undefined {
+  getParsedAction(): TActivationCost | undefined {
     const description = this.foundryFeature?.system?.description?.value;
     if (!description) return undefined;
     // pcs don't have mythic
@@ -126,7 +126,7 @@ export default class DDBBasicActivity {
     logger.debug(`Parsed manual activation type: ${actionType} for ${this.name}`);
     this.data.activation = {
       type: actionType,
-      value: "1",
+      value: 1,
       condition: "",
     };
   }
@@ -247,12 +247,14 @@ export default class DDBBasicActivity {
   }
 
   _generateCheck({ checkOverride = null }: { checkOverride?: any } = {}): void {
+    if (!("check" in this.data)) return;
     if (checkOverride) {
       this.data.check = checkOverride;
     };
   }
 
   _generateSpell({ spellOverride = null }: { spellOverride?: any } = {}): void {
+    if (!("spell" in this.data)) return;
     if (spellOverride) {
       this.data.spell = spellOverride;
     } else {
@@ -273,6 +275,7 @@ export default class DDBBasicActivity {
     scalingOverride?: any;
     criticalDamage?: string | null;
   } = {}): void {
+    if (!("damage" in this.data)) return;
     if (damageParts) {
       this.data.damage = {
         parts: damageParts,
@@ -309,10 +312,12 @@ export default class DDBBasicActivity {
 
   _generateHealing({ healingPart, healingChatFlavor = null }: { healingPart?: any; healingChatFlavor?: string | null } = {}): void {
     if (healingChatFlavor) this.data.description.chatFlavor = healingChatFlavor;
+    if (!("healing" in this.data)) return;
     this.data.healing = healingPart;
   }
 
   _generateSave({ saveOverride = null }: { saveOverride?: any } = {}): void {
+    if (!("save" in this.data)) return;
     if (saveOverride) {
       this.data.save = saveOverride;
       return;
@@ -347,6 +352,7 @@ export default class DDBBasicActivity {
     criticalThreshold?: number | undefined;
     flat?: boolean;
   } = {}): void {
+    if (!("attack" in this.data)) return;
 
     const attack = {
       ability: ability ? ability : "",
@@ -366,6 +372,7 @@ export default class DDBBasicActivity {
   }
 
   _generateRoll({ rollOverride = null }: { rollOverride?: any } = {}): void {
+    if (!("roll" in this.data)) return;
     if (rollOverride) {
       this.data.roll = rollOverride;
     }
@@ -373,6 +380,7 @@ export default class DDBBasicActivity {
 
 
   _generateDDBMacro({ ddbMacroOverride = null }: { ddbMacroOverride?: any } = {}): void {
+    if (!("macro" in this.data)) return;
     if (ddbMacroOverride) {
       this.data.macro = ddbMacroOverride;
     }
@@ -676,6 +684,7 @@ export default class DDBBasicActivity {
       foundryFeature: foundryData,
     });
 
+    // @ts-expect-error - we know the type is enchant and this property exist
     activity.data.restrictions = {
       type: "",
       allowMagical: true,
