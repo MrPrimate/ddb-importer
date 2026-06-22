@@ -3162,6 +3162,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: !["weapon", "staff"].includes(this.parsingType),
+      generateConsumption: !["weapon", "staff"].includes(this.parsingType),
       // don't add extra damages if it's a save (assume its save damage)
       generateDamage: !this.actionData.save,
       includeBaseDamage: ["weapon", "staff"].includes(this.parsingType),

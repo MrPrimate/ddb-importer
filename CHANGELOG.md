@@ -1,6 +1,7 @@
 # Next Up
 
 - Backgrounds now capture equipment during character option munch!
+- Weapon items with spells/uses will no longer generate consumption on attack activities by default.
 
 # 7.1.30
 
