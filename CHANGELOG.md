@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.1.32
+
 - Eldritch Cannon Fixes
 - Indomitable did not parse an activity any more
 - Some monster features such as the Bearded Devil's glaive would generate a template in their activity
