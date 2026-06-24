@@ -1,5 +1,12 @@
 # Next Up
 
+# 7.0.16
+
+- Eldritch Cannon Fixes
+- Indomitable did not parse an activity any more
+- Some monster features such as the Bearded Devil's glaive would generate a template in their activity
+
+
 # 7.0.15
 
 - Some character conditions/statuses could break import @ryanm_gm

@@ -1,6 +1,7 @@
 import { SETTINGS } from "../../../config/_module";
 import { utils, logger, DDBMacros, CompendiumHelper } from "../../../lib/_module";
 import DDBSummonsManager from "../../companions/DDBSummonsManager";
+import { resolveTransformProfileUuids } from "../../companions/types/TransformProfiles";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import { AutoEffects, EnchantmentEffects, ChangeHelper } from "../effects/_module";
 
@@ -633,8 +634,18 @@ export default abstract class DDBEnricherFactoryMixin {
       activity = foundry.utils.mergeObject(activity, data);
     }
 
+    if (
+      activity.type === "transform"
+      && activity.transform?.mode === ""
+      && Array.isArray(activity.profiles)
+    ) {
+      await resolveTransformProfileUuids({ profiles: activity.profiles, is2014: this.is2014 });
+    }
+
     if (overrideData.addSpellUuid) {
-      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity);
+      await this._addCompendiumSpellToCastActivity(overrideData.addSpellUuid, activity, {
+        use2024Spells: this.is2024,
+      });
     }
 
     if (overrideData.allowMagical) {
@@ -914,7 +925,7 @@ export default abstract class DDBEnricherFactoryMixin {
     return effects;
   }
 
-  async addDocumentAdvancements(advancementsOverride: any = null): Promise<any> {
+  async addDocumentAdvancements(advancementsOverride: I5eAdvancement[] = null): Promise<any> {
     const additionalAdvancements = advancementsOverride ?? this.additionalAdvancements;
 
     if (!additionalAdvancements) return this.data;
@@ -1320,6 +1331,13 @@ export default abstract class DDBEnricherFactoryMixin {
 
     if (!this.ddbParser?.ddbData?.character?.actions?.[derivedType]) return results;
 
+    // When building a specific choice/option feature, restrict action matching to actions
+    // belonging to THIS option, not sibling options sharing the parent feature id.
+    const currentChoice = this.ddbParser?._currentChoice ?? null;
+    const currentChoiceOptionId = currentChoice
+      ? (currentChoice.id ?? currentChoice.optionId ?? null)
+      : null;
+
     const nameMatches = this.ddbParser.ddbData.character.actions[derivedType].filter((action: any) =>
       action.name === name
       && action.componentId === id
@@ -1345,6 +1363,7 @@ export default abstract class DDBEnricherFactoryMixin {
       );
 
       return optionMatch
+        && (currentChoiceOptionId === null || action.componentId === currentChoiceOptionId)
         && !nameMatches.some((m: any) => m.id === action.id)
         && !idMatches.some((m: any) => m.id === action.id)
         && optionMatch.componentId === id
@@ -1370,6 +1389,7 @@ export default abstract class DDBEnricherFactoryMixin {
         const choiceMatch = choices.some((choice: any) => choice.id === action.componentId);
 
         return choiceMatch
+          && (currentChoiceOptionId === null || action.componentId === currentChoiceOptionId)
           && !nameMatches.some((m: any) => m.id === action.id)
           && !idMatches.some((m: any) => m.id === action.id)
           && !optionMatches.some((m: any) => m.id === action.id);
