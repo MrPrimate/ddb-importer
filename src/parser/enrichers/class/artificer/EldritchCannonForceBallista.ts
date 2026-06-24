@@ -7,6 +7,7 @@ export default class EldritchCannonForceBallista extends DDBEnricherData {
 
   get activity(): IDDBActivityData {
     return {
+      noTemplate: true,
       targetType: "creature",
       data: {
         description: {

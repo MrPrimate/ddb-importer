@@ -2,8 +2,15 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class Indomitable extends DDBEnricherData {
 
-  get addAutoAdditionalActivities() {
-    return true;
+  get type() {
+    return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
+  }
+
+  get activity(): IDDBActivityData {
+    return {
+      noTemplate: true,
+      addItemConsume: true,
+    };
   }
 
   get effects(): IDDBEffectHint[] {
