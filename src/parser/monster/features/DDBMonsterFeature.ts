@@ -834,7 +834,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
       target.template.units = "ft";
       target.template.type = "sphere";
     } else {
-      const aoeSizeRegex = /(?<!creature (?:it|you) can see |an object (?:it|you) can see |one creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
+      const aoeSizeRegex = /(?<!creature (?:it|you) can see |an object (?:it|you) can see |one creature |a creature |the creature |that creature )(?:within|in a|fills a) (\d+)(?: |-)(?:feet|foot|ft|ft\.)(?: |-)(cone|radius|emanation|sphere|line|cube|of it|of an|of the|of you|of yourself)(\w+[. ])?/ig;
 
       // each creature that isn’t an Undead in a 20-foot Emanation originating from the lich.
       const aoeSizeMatch = aoeSizeRegex.exec(matchText);
@@ -1687,7 +1687,7 @@ ${this.data.system.description.value}
   // }
   async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[]) {
 
-    const compendiumSpellsIndex = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
+    const compendiumSpellsIndex = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name)) as I5eSpellItem[];
 
     for (const spell of spells) {
       const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()
