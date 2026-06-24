@@ -1,3 +1,4 @@
+export { default as ChannelDivinity } from "./ChannelDivinity";
 export { default as PactMagic } from "./PactMagic";
 export { default as PotentCantrip } from "./PotentCantrip";
 export { default as PsionicPower } from "./PsionicPower";

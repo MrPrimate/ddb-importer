@@ -110,8 +110,17 @@ export default class EldritchCannon extends DDBEnricherData {
   }
 
   get override(): IDDBOverrideData {
+    const uses = this.is2014
+      ? this._getUsesWithSpent({
+        type: "class",
+        name: "Create Eldritch Cannon",
+      })
+      : this._getUsesWithSpent({
+        type: "class",
+        name: "Create Eldritch Cannon",
+      });
     return {
-      uses: { spent: null, max: "", recovery: [] },
+      uses,
     };
   }
 }

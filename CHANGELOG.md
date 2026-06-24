@@ -2,10 +2,8 @@
 
 # 7.0.16
 
-- Eldritch Cannon Fixes
-- Indomitable did not parse an activity any more
-- Some monster features such as the Bearded Devil's glaive would generate a template in their activity
-
+- Dozens of small feature fixes from 7.1.x and 7.3.x branches
+- DDBMuncher now has the subclass filter, and has been migrated to use sockets. This will improve reliability when munching (although sadly, not speed).
 
 # 7.0.15
 

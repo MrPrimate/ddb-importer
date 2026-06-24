@@ -8,7 +8,6 @@ import {
 } from "./_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
-import { NotifierV1Props } from "../apps/DDBAppV2";
 import { IIconMapEntry } from "./Iconizer";
 
 interface IDDBItemImporterOptions {
@@ -16,6 +15,7 @@ interface IDDBItemImporterOptions {
   deleteBeforeUpdate?: boolean | null;
   indexFilter?: CompendiumCollection.GetIndexOptions | null;
   useCompendiumFolders?: boolean | null;
+  recursive?: boolean | null;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
@@ -42,6 +42,7 @@ interface IDDBItemImporterBuildHandlerOptions {
   filterDuplicates?: boolean;
   useCompendiumFolders?: boolean | null;
   updateIcons?: boolean;
+  recursive?: boolean | null;
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
@@ -78,18 +79,21 @@ export default class DDBItemImporter {
   srdImageLibrary2024: IIconMapEntry[] | null;
   _documents: TDDBImporterDocument[];
   type: string;
+  recursive: boolean | null;
 
   constructor(type: string, documents: TDDBImporterDocument[], {
     matchFlags = [],
     deleteBeforeUpdate = null,
     indexFilter = null,
     useCompendiumFolders = null,
+    recursive = null,
     notifier = null,
   }: IDDBItemImporterOptions = {}) {
     this.type = type;
     this._documents = documents;
     this.useCompendiumFolders = useCompendiumFolders ?? true;
     this.matchFlags = matchFlags;
+    this.recursive = recursive;
 
     this.compendium = CompendiumHelper.getCompendiumType(this.type);
     this.compendium.configure({ locked: false });
@@ -186,7 +190,7 @@ export default class DDBItemImporter {
   }
 
 
-  static updateCharacterItemFlags(itemData, replaceData) {
+  static updateCharacterItemFlags(itemData: TAll5eItemDocuments, replaceData: TAll5eItemDocuments): TAll5eItemDocuments {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
     const customAdded = foundry.utils.getProperty(itemData, "flags.ddbimporter.ddbCustomAdded");
@@ -196,35 +200,37 @@ export default class DDBItemImporter {
     }
     if (customAdded || (itemData.flags?.ddbimporter?.dndbeyond?.isCustomItem && itemData.type === "loot")) return replaceData;
 
-    if (itemData.system.quantity) replaceData.system.quantity = itemData.system.quantity;
-    if (itemData.system.attuned) replaceData.system.attuned = itemData.system.attuned;
-    if (itemData.system.attunement) replaceData.system.attunement = itemData.system.attunement;
-    if (itemData.system.equipped) replaceData.system.equipped = itemData.system.equipped;
-    if (itemData.system.resources) replaceData.system.resources = itemData.system.resources;
-    if (itemData.system.method) replaceData.system.method = itemData.system.method;
-    if (itemData.system.prepared) replaceData.system.preparation = itemData.system.prepared;
-    if (itemData.system.proficient) replaceData.system.proficient = itemData.system.proficient;
+    if ("quantity" in itemData.system && "quantity" in replaceData.system) replaceData.system.quantity = itemData.system.quantity;
+    if ("attuned" in itemData.system && "attuned" in replaceData.system) replaceData.system.attuned = itemData.system.attuned;
+    if ("attunement" in itemData.system && "attunement" in replaceData.system) replaceData.system.attunement = itemData.system.attunement;
+    if ("equipped" in itemData.system && "equipped" in replaceData.system) replaceData.system.equipped = itemData.system.equipped;
+    if ("method" in itemData.system && "method" in replaceData.system) replaceData.system.method = itemData.system.method;
+    if ("prepared" in itemData.system && "prepared" in replaceData.system) replaceData.system.prepared = itemData.system.prepared;
+    if ("proficient" in itemData.system && "proficient" in replaceData.system) replaceData.system.proficient = itemData.system.proficient;
     if (!DICTIONARY.types.inventory.includes(itemData.type)) {
-      if (itemData.system.uses) replaceData.system.uses = itemData.system.uses;
-      if (itemData.system.consume) replaceData.system.consume = itemData.system.consume;
-      if (itemData.system.ability) replaceData.system.ability = itemData.system.ability;
+      if ("uses" in itemData.system && "uses" in replaceData.system) replaceData.system.uses = itemData.system.uses;
+      if ("ability" in itemData.system && "ability" in replaceData.system) replaceData.system.ability = itemData.system.ability;
     }
-    if (foundry.utils.hasProperty(itemData, "system.levels")) replaceData.system.levels = itemData.system.levels;
+    if (foundry.utils.hasProperty(itemData, "system.levels") && foundry.utils.hasProperty(replaceData, "system.levels")){
+      replaceData.system.levels = itemData.system.levels;
+    }
     if (foundry.utils.getProperty(itemData, "flags.ddbimporter.price.xgte")) {
+      // @ts-expect-error - price is not typed on all items but we know it exists on the items we want to copy it on
       replaceData.system.price.value = itemData.system.price.value;
+      // @ts-expect-error - price is not typed on all items but we know it exists on the items we want to copy it on
       replaceData.system.price.denomination = itemData.system.price.denomination;
       foundry.utils.setProperty(replaceData, "flags.ddbimporter.price", itemData.flags.ddbimporter.price);
     }
     return replaceData;
   }
 
-  static updateMatchingItems(oldItems: TDDBImporterDocument[], newItems: TDDBImporterDocument[],
+  static updateMatchingItems(oldItems: TAll5eItemDocuments[], newItems: TAll5eItemDocuments[],
     { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {},
-  ): TDDBImporterDocument[] {
+  ): TAll5eItemDocuments[] {
     const results = [];
 
     for (const newItem of newItems) {
-      let item: TDDBImporterDocument = foundry.utils.duplicate(newItem) as unknown as TDDBImporterDocument;
+      let item: TAll5eItemDocuments = foundry.utils.duplicate(newItem) as unknown as TAll5eItemDocuments;
       const compendiumIdMatch = oldItems.find((oldItem) =>
         item._id
         && foundry.utils.getProperty(oldItem, "flags.ddbimporter.compendiumId") == item._id,
@@ -359,9 +365,6 @@ export default class DDBItemImporter {
 
   async updateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation> {
     // purge existing active effects on this item
-    // @ts-expect-error - results on this item allows for TableResult delete
-    if (existingItem.results) await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
-    if (existingItem.effects) await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.currentDocumentCount++;
     this.notifier(`(${this.currentDocumentCount}/${this.totalDocuments}) Updating ${updateItem.name}`);
@@ -371,7 +374,22 @@ export default class DDBItemImporter {
       packId: this.compendium.metadata.id,
     });
 
-    const update = existingItem.update(updateItem as any, { pack: this.compendium.metadata.id, render: false });
+    // @ts-expect-error - results on this item allows for TableResult delete
+    if (existingItem.results) {
+      logger.debug(`Deleting existing table results on ${existingItem.name} before update`);
+      // @ts-expect-error - results on this item allows for TableResult delete
+      await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
+    }
+    if (existingItem.effects?.size && existingItem.effects.size > 0) {
+      logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
+      await existingItem.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
+    }
+
+    const update = await existingItem.update(updateItem as any, {
+      pack: this.compendium.metadata.id,
+      render: false,
+      recursive: this.recursive,
+    });
     // const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
     return update;
   }
@@ -489,11 +507,11 @@ ${item.system.description.chat}
     return this.results;
   }
 
-  async loadPassedItemsFromCompendium(items: TDDBImporterDocument[],
+  async loadPassedItemsFromCompendium(items: TAll5eItemDocuments[],
     { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
       indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
       keepDDBId = false, linkItemFlags = false, overrideId = false }: IDDBItemImporterLoadPassedItemsFromCompendiumOptions,
-  ): Promise<TDDBImporterDocument[]> {
+  ): Promise<TAll5eItemDocuments[]> {
 
     await this.buildIndex(indexFilter);
 
@@ -566,10 +584,10 @@ ${item.system.description.chat}
    * @param {boolean} [options.linkItemFlags=false] whether to link item flags
    * @returns {<Document[]>} documents loaded from compendium
    */
-  static async getCompendiumItems(items: TDDBImporterDocument[], type: string,
+  static async getCompendiumItems(items: TAll5eItemDocuments[], type: string,
     { looseMatch = false, monsterMatch = false, keepId = false,
       deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions = {},
-  ): Promise<TDDBImporterDocument[]> {
+  ): Promise<TAll5eItemDocuments[]> {
 
     const itemImporter = new DDBItemImporter(type, [], {
       indexFilter: { fields: [
@@ -690,7 +708,7 @@ ${item.system.description.chat}
 
   static async buildHandler(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], indexFilter = null,
-      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null }: IDDBItemImporterBuildHandlerOptions,
+      deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,
   ): Promise<DDBItemImporter> {
     const handler = overrideHandler ?? new DDBItemImporter(type, documents, {
@@ -699,6 +717,7 @@ ${item.system.description.chat}
       useCompendiumFolders,
       notifier,
       indexFilter,
+      recursive,
     });
     if (overrideHandler) handler.documents = documents;
     await handler.init();
