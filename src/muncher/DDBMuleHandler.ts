@@ -638,7 +638,7 @@ export default class DDBMuleHandler {
       ? foundry.utils.deepClone((this.source as IDDBMuleClassSource).options) as IDDBClassFeatureDefinition[]
       : [];
 
-    const stub = {
+    const stub: IDDBData = {
       backgroundEquipment: { slots: [] },
       character: foundry.utils.deepClone(this.source.baseCharacter) as IDDBCharacterData,
       classOptions,
