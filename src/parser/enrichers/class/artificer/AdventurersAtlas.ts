@@ -34,6 +34,9 @@ export default class AdventurersAtlas extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("1d4", 20, "system.attributes.init.bonus"),
         ],
+        options: {
+          transfer: true,
+        },
         activitiesMatch: ["Not real"],
         data: {
           _id: "ddbAtlasInitBonu",

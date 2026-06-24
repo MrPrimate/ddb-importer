@@ -21,6 +21,7 @@ export * as FlyingSnake from "./FlyingSnake/_module";
 export * as Generic from "./Generic/_module";
 export * as GiantInsect from "./GiantInsect/_module";
 export * as GraspingVine from "./GraspingVine/_module";
+export * as Grim from "./Grim/_module";
 export * as GuardianOfFaith from "./GuardianOfFaith/_module";
 export * as HomunculusServant from "./HomunculusServant/_module";
 export * as Imp from "./Imp/_module";
@@ -35,4 +36,5 @@ export * as SummonAnimatedObject from "./SummonAnimatedObject/_module";
 export * as SummonConstruct from "./SummonConstruct/_module";
 export * as SwarmOfStirges from "./SwarmOfStirges/_module";
 export * as VampireFamiliar from "./VampireFamiliar/_module";
+export * as VenomTroll from "./VenomTroll/_module";
 

@@ -1,9 +1,10 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+// 2014 version
 export default class ChannelDivinityPathToTheGrave extends DDBEnricherData {
 
   get effects(): IDDBEffectHint[] {
-    return [
+    return this.is2014 ? [
       {
         name: "Cursed",
         options: {
@@ -14,6 +15,6 @@ export default class ChannelDivinityPathToTheGrave extends DDBEnricherData {
           DDBEnricherData.ChangeHelper.unsignedAddChange(damageType, 200, "system.traits.dv.value"),
         ),
       },
-    ];
+    ] : [];
   }
 }

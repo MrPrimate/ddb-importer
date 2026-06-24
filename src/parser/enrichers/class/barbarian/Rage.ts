@@ -7,9 +7,11 @@ export default class Rage extends DDBEnricherData {
       targetType: "self",
       addItemConsume: true,
       data: {
-        "range.units": "self",
+        range: {
+          units: "self",
+        },
         duration: this.is2014
-          ? { units: "second", value: "60" }
+          ? { units: "minute", value: "1" }
           : { units: "minute", value: "10" },
       },
     };
@@ -40,6 +42,7 @@ export default class Rage extends DDBEnricherData {
   get effects(): IDDBEffectHint[] {
     return [{
       name: "Rage",
+      ignoreTransfer: true,
       options: {
         transfer: true,
         disabled: true,

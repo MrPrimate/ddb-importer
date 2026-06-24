@@ -28,7 +28,7 @@ export default class SearingVengeance extends DDBEnricherData {
           data: {
             range: {
               value: 30,
-              unit: "feet",
+              units: "ft",
             },
             target: {
               affects: {

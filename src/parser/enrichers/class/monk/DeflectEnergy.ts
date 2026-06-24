@@ -11,7 +11,9 @@ export default class DeflectEnergy extends DDBEnricherData {
       {
         action: { name: "Deflect Attack: Redirect Attack", type: "class" },
         overrides: { data: {
-          "damage.types": DDBEnricherData.allDamageTypes(),
+          damage: {
+            // types: DDBEnricherData.allDamageTypes(),
+          },
         } },
       },
     ];

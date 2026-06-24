@@ -49,7 +49,7 @@ export default class CacophonicShield extends DDBEnricherData {
           durationSeconds: null,
         },
         statuses: ["Deafness"],
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
       },
       {
         name: "Shielded",

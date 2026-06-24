@@ -142,6 +142,12 @@ export default class ElementalSmite extends DDBEnricherData {
         name: "Dao's Crush: Grappled",
         statuses: ["grappled", "restrained"],
         activityMatch: "Dao's Crush",
+        data: {
+          duration: {
+            seconds: null,
+            rounds: null,
+          },
+        },
       },
       {
         name: "Djinni's Escape: Incorporeal Form",
@@ -161,6 +167,7 @@ export default class ElementalSmite extends DDBEnricherData {
       },
       {
         name: "Marid's Surge: Prone",
+        activityMatch: "Marid's Surge",
         statuses: ["prone"],
       },
     ];
@@ -168,6 +175,18 @@ export default class ElementalSmite extends DDBEnricherData {
 
   get clearAutoEffects() {
     return true;
+  }
+
+  get override(): IDDBOverrideData {
+    return {
+      data: {
+        system: {
+          type: {
+            subtype: "channelDivinity",
+          },
+        },
+      },
+    };
   }
 
 }

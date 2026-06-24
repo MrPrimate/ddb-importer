@@ -6,12 +6,14 @@ export default class DeflectMissilesAttack extends DDBEnricherData {
       activationType: "special",
       targetType: "creature",
       data: {
-        "damage.parts": [
-          DDBEnricherData.basicDamagePart({
-            customFormula: "@scale.monk.die.die + @abilities.dex.mod",
-            types: DDBEnricherData.allDamageTypes(),
-          }),
-        ],
+        damage: {
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              customFormula: "@scale.monk.die.die + @abilities.dex.mod",
+              types: DDBEnricherData.allDamageTypes(),
+            }),
+          ],
+        },
       },
     };
   }

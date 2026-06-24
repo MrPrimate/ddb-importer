@@ -35,7 +35,7 @@ export default class SteadyAim extends DDBEnricherData {
         changes: [
           DDBEnricherData.ChangeHelper.downgradeChange("0", 100, "system.attributes.movement.all"),
         ],
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         daeStackable: "noneName",
         options: {
           durationSeconds: 12,

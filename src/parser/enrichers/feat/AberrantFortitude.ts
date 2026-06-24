@@ -39,7 +39,7 @@ export default class AberrantFortitude extends DDBEnricherData {
 
     return {
       data: {
-        "system.advancement": [advancement],
+        [`system.advancement.${advancement._id}`]: advancement,
       },
     };
   }

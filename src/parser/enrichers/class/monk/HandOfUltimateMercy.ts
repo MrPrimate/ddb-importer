@@ -29,7 +29,9 @@ export default class HandOfUltimateMercy extends DDBEnricherData {
         },
       ],
       data: {
-        "range.units": "touch",
+        range: {
+          units: "touch",
+        },
         healing: DDBEnricherData.basicDamagePart({
           number: 4,
           denomination: 10,

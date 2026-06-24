@@ -12,7 +12,9 @@ export default class SurpriseAttack extends DDBEnricherData {
       activationType: "special",
       noTemplate: true,
       data: {
-        "range.units": "spec",
+        range: {
+          units: "spec",
+        },
         damage: {
           parts: [DDBEnricherData.basicDamagePart({ number: 2, denomination: 6 })],
         },

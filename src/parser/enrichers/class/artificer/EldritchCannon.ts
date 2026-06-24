@@ -44,7 +44,7 @@ export default class EldritchCannon extends DDBEnricherData {
         },
       },
       data: {
-        id: "summonEldriComp1",
+        _id: "summonEldriComp1",
         creatureSizes: ["sm", "tiny"],
       },
     };

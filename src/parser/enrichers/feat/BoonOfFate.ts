@@ -15,7 +15,7 @@ export default class BoonOfFate extends DDBEnricherData {
       activationCondition: "Failed d20 test",
       data: {
         range: {
-          units: "feet",
+          units: "ft",
           value: "60",
         },
         roll: {

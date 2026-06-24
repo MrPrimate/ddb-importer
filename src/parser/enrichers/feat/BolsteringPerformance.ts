@@ -12,7 +12,7 @@ export default class BolsteringPerformance extends DDBEnricherData {
       data: {
         range: {
           value: 30,
-          units: "feet",
+          units: "ft",
         },
         healing: DDBEnricherData.basicDamagePart({ bonus: "@details.level + @abilities.wis.mod", type: "temphp" }),
       },

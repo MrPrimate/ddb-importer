@@ -21,12 +21,12 @@ export default class BlessingOfTheRavenQueen extends DDBEnricherData {
       {
         name: "Blessing of the Raven Queen: Resistance",
         changes: [
-          DDBEnricherData.ChangeHelper.customChange("1", 20, "system.traits.dr.all"),
+          DDBEnricherData.ChangeHelper.customChange("ALL", 20, "system.traits.dr.value"),
         ],
         options: {
           durationSeconds: 6,
         },
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
       },
     ];
   }

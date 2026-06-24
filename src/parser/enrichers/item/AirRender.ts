@@ -75,7 +75,7 @@ export default class AirRender extends DDBEnricherData {
         overrides: {
           data: {
             save: {
-              ability: "str",
+              ability: ["str"],
               dc: {
                 calculation: "",
                 formula: "15",
@@ -110,7 +110,7 @@ export default class AirRender extends DDBEnricherData {
           noeffect: true,
           data: {
             save: {
-              ability: "dex",
+              ability: ["dex"],
               dc: {
                 calculation: "",
                 formula: "15",

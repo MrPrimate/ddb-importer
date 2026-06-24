@@ -53,7 +53,7 @@ export default class AbsorbElements extends DDBEnricherData {
         ],
         activityMatch: `${this.data.name} Effect`,
       };
-    });
+    }) as IDDBEffectHint[];
     const midiEffects = [
       {
         name: `${this.data.name}: Extra Damage`,
@@ -76,14 +76,14 @@ export default class AbsorbElements extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.damageResistanceChange(""),
         ],
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         data: {
           duration: {
             rounds: 2,
           },
         },
       },
-    ];
+    ] as IDDBEffectHint[];
     return [...noMidiEffects, ...midiEffects];
   }
 

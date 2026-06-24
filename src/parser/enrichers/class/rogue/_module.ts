@@ -30,11 +30,13 @@ export { default as SneakAttackSupremeSneak } from "./SneakAttackSupremeSneak";
 export { default as SoulBlades } from "./SoulBlades";
 export { default as SoulBladesHomingStrikes } from "./SoulBladesHomingStrikes";
 export { default as SoulBladesPsychicTeleportation } from "./SoulBladesPsychicTeleportation";
+export { default as SpiritQuery } from "./SpiritQuery";
 export { default as SteadyAim } from "./SteadyAim";
 export { default as SupremeSneak } from "./SupremeSneak";
 export { default as TokensOfTheDeparted } from "./TokensOfTheDeparted";
 export { default as UseMagicDevice } from "./UseMagicDevice";
 export { default as UseMagicDeviceCharges } from "./UseMagicDeviceCharges";
 export { default as UseMagicDeviceScroll } from "./UseMagicDeviceScroll";
+export { default as VoiceOfDeath } from "./VoiceOfDeath";
 export { default as WailsFromTheGrave } from "./WailsFromTheGrave";
 

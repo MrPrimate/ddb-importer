@@ -18,11 +18,12 @@ export default class ConjureCelestial extends DDBEnricherData {
       noSpellslot: true,
       noTemplate: true,
       overrideTemplate: true,
+      // @ts-expect-error - this is kind of janky, the system will thorw away the data thats not for the right type
       data: {
         sort: 10000,
         healing: {
           scaling: {
-            mode: "whole" as const,
+            mode: "whole",
             number: 1,
           },
         },

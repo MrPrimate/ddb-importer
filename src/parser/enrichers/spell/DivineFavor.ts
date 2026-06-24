@@ -9,6 +9,7 @@ export default class DivineFavor extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       targetType: "self",
+      overrideTarget: true,
     };
   }
 

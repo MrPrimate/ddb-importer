@@ -383,12 +383,34 @@ export default class ArmorModel extends DDBEnricherData {
           },
         },
       },
+      // TODO: We should create a Force Demolisher item in the compendium and link instead of building this activity
       {
-        action: { name: "Dreadnaught: Force Demolisher", type: "class" },
+        init: {
+          name: "Dreadnaught: Force Demolisher",
+          type: DDBEnricherData.ACTIVITY_TYPES.ATTACK,
+        },
+        build: {
+          generateTarget: true,
+          generateRange: true,
+          generateAttack: true,
+          generateDamage: true,
+          generateActivation: true,
+          generateDuration: true,
+          durationOverride: {
+            units: "inst",
+          },
+          activationOverride: {
+            type: "special",
+          },
+        },
         overrides: {
           id: "ddbForceDemolish",
           targetType: "creature",
           data: {
+            range: {
+              value: 10,
+              units: "ft",
+            },
             attack: {
               ability: "",
               bonus: "max(@abilities.dex.mod, @abilities.int.mod)",
@@ -410,7 +432,7 @@ export default class ArmorModel extends DDBEnricherData {
       },
       {
         init: {
-          name: "Dreadnaught: Giant Statue (Large)",
+          name: "Dreadnaught: Giant Stature (Large)",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
@@ -437,8 +459,8 @@ export default class ArmorModel extends DDBEnricherData {
               confirmTargets: "never",
             },
             duration: {
-              units: "seconds",
-              value: "60",
+              units: "minute",
+              value: "1",
             },
             effects: [
               {
@@ -454,7 +476,7 @@ export default class ArmorModel extends DDBEnricherData {
       },
       {
         init: {
-          name: "Dreadnaught: Giant Statue (Huge)",
+          name: "Dreadnaught: Giant Stature (Huge)",
           type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
         },
         build: {
@@ -481,8 +503,8 @@ export default class ArmorModel extends DDBEnricherData {
               confirmTargets: "never",
             },
             duration: {
-              units: "seconds",
-              value: "60",
+              units: "minute",
+              value: "1",
             },
             visibility: {
               "level": {
@@ -564,7 +586,7 @@ export default class ArmorModel extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         data: {
           img: "icons/skills/melee/unarmed-punch-fist-white.webp",
           duration: {

@@ -12,7 +12,7 @@ export default class EyesOfNight extends DDBEnricherData {
       id: "activateEyesOfNi",
       addItemConsume: true,
       targetType: "creature",
-      targetCount: "max(1, @attributes.wis.mod)",
+      targetCount: "max(1, @abilities.wis.mod)",
       targetChoice: true,
       rangeSelf: true,
       data: {

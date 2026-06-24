@@ -15,7 +15,7 @@ export default class TranceOfOrder extends DDBEnricherData {
       addItemConsume: true,
       data: {
         duration: {
-          value: 1,
+          value: "1",
           units: "minute",
         },
       },

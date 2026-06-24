@@ -7,11 +7,15 @@ export default class ArmsOfTheAstralSelfPhysicalAttack extends DDBEnricherData {
       noConsumeTargets: true,
       noeffect: true,
       data: {
-        "attack.ability": "",
-        "damage.parts": [DDBEnricherData.basicDamagePart({
-          customFormula: "@scale.monk.die.die + @mod",
-          types: ["force"],
-        })],
+        attack: {
+          ability: "",
+        },
+        damage: {
+          parts: [DDBEnricherData.basicDamagePart({
+            customFormula: "@scale.monk.die.die + @mod",
+            types: ["force"],
+          })],
+        },
       },
     };
   }

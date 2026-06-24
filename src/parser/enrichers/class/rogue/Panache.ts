@@ -11,7 +11,7 @@ export default class Panache extends DDBEnricherData {
       data: {
         check: {
           associated: ["per"],
-          ability: "",
+          ability: [],
           dc: {
             calculation: "",
             formula: "",
@@ -32,7 +32,7 @@ export default class Panache extends DDBEnricherData {
         midiChanges: [
           DDBEnricherData.ChangeHelper.unsignedAddChange("!workflow.target.getName('@token.name')", 20, "flags.midi-qol.disadvantage.attack.all"),
         ],
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         data: {
           duration: {
             seconds: 60,

@@ -8,9 +8,12 @@ export default class MantleOfInspiration extends DDBEnricherData {
   get activity(): IDDBActivityData {
     return {
       data: {
-        "description.chatFlavor":
-          "Each creature can immediately use its reaction to move up to its speed, without provoking opportunity attacks.",
-        "range.units": "self",
+        description: {
+          chatFlavor: "Each creature can immediately use its reaction to move up to its speed, without provoking opportunity attacks.",
+        },
+        range: {
+          units: "self",
+        },
         target: {
           template: {
             count: "",

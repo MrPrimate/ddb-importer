@@ -13,9 +13,11 @@ export default class BalmOfTheSummerCourt extends DDBEnricherData {
       addItemConsume: true,
       addScalingFormula: "1",
       data: {
-        "consumption.scaling": {
-          allowed: true,
-          max: "@classes.druid.levels",
+        consumption: {
+          scaling: {
+            allowed: true,
+            max: "@classes.druid.levels",
+          },
         },
         healing: DDBEnricherData.basicDamagePart({
           number: 1,

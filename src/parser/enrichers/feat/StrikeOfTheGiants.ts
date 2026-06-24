@@ -95,7 +95,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
           options: {
             durationSeconds: 6,
           },
-          daeSpecialDurations: ["turnStartSource" as const],
+          daeSpecialDurations: ["turnStartSource"],
         });
         break;
       case "Strike of the Giants: Storm Strike":
@@ -107,7 +107,7 @@ export default class StrikeOfTheGiants extends DDBEnricherData {
           options: {
             durationSeconds: 6,
           },
-          daeSpecialDurations: ["turnStartSource" as const],
+          daeSpecialDurations: ["turnStartSource"],
         });
         break;
       // no default

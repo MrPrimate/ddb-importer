@@ -12,7 +12,7 @@ export default class SylunsViper extends DDBEnricherData {
       targetSelf: true,
       data: {
         sort: 1,
-        heal: DDBEnricherData.basicDamagePart({
+        healing: DDBEnricherData.basicDamagePart({
           bonus: "15",
           type: "temphp",
           scalingMode: "whole",
@@ -45,7 +45,7 @@ export default class SylunsViper extends DDBEnricherData {
           durationSeconds: 6,
           durationRounds: 1,
         },
-        daeSpecialDurations: ["turnStartSource" as const],
+        daeSpecialDurations: ["turnStartSource"],
         statuses: ["Poisoned", "Incapacitated"],
       },
     ];

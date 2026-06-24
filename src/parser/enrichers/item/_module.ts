@@ -34,6 +34,7 @@ export { default as JavelinOfLightning } from "./JavelinOfLightning";
 export { default as KorolnorScepter } from "./KorolnorScepter";
 export { default as Lamp } from "./Lamp";
 export { default as MoonSickle } from "./MoonSickle";
+export { default as MuroosaBalm } from "./MuroosaBalm";
 export { default as NeedlerPistol } from "./NeedlerPistol";
 export { default as Net } from "./Net";
 export { default as OilOfSharpness } from "./OilOfSharpness";
@@ -65,5 +66,6 @@ export { default as WandOfMagicMissiles } from "./WandOfMagicMissiles";
 export { default as WandOfOrcus } from "./WandOfOrcus";
 export { default as WarriorsPasskey } from "./WarriorsPasskey";
 export { default as Waterskin } from "./Waterskin";
+export { default as WrapsOfUnarmedPower } from "./WrapsOfUnarmedPower";
 export { default as Yarting } from "./Yarting";
 

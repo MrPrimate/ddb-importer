@@ -12,7 +12,7 @@ export default class UseMagicDeviceScroll extends DDBEnricherData {
       data: {
         check: {
           associated: ["arc"],
-          ability: "int",
+          ability: ["int"],
           dc: {
             calculation: "",
             formula: "",

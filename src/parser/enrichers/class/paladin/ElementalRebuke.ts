@@ -8,16 +8,18 @@ export default class ElementalRebuke extends DDBEnricherData {
       targetType: "creature",
       data: {
         damage: {
-          parts: DDBEnricherData.basicDamagePart({
-            number: 2,
-            denomination: 10,
-            bonus: "@abilities.cha.mod",
-            types: ["acid", "cold", "lightning", "thunder"],
-          }),
+          parts: [
+            DDBEnricherData.basicDamagePart({
+              number: 2,
+              denomination: 10,
+              bonus: "@abilities.cha.mod",
+              types: ["acid", "cold", "lightning", "thunder"],
+            }),
+          ],
           onSave: "half",
-          range: {
-            units: "spec",
-          },
+        },
+        range: {
+          units: "spec",
         },
       },
     };
