@@ -1,5 +1,9 @@
 # Next Up
 
+- Eldritch Cannon Fixes
+- Indomitable did not parse an activity any more
+- Some monster features such as the Bearded Devil's glaive would generate a template in their activity
+
 # 7.1.31
 
 - Backgrounds now capture equipment during character option munch!
