@@ -140,6 +140,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
   scaleMode: TScaleMode = "none";
   types: Set<string>;
   offsetNudge: { x: number; y: number } = { x: 0, y: 0 };
+  editStep = 1;
 
   sourceHint: GridHintSurface;
   targetHint: GridHintSurface;
@@ -162,6 +163,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
       setScaleMode: SceneLevelCopyApp.setScaleMode,
       redrawSourceHint: SceneLevelCopyApp.redrawSourceHint,
       redrawTargetHint: SceneLevelCopyApp.redrawTargetHint,
+      nudgeEdge: SceneLevelCopyApp.nudgeEdge,
       zoomSourceIn: SceneLevelCopyApp.zoomSourceIn,
       zoomSourceOut: SceneLevelCopyApp.zoomSourceOut,
       zoomSourceFit: SceneLevelCopyApp.zoomSourceFit,
@@ -451,6 +453,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
     // Preview overlay: project each selected type's docs and convert back to
     // target-image pixels so the SVG can draw them over the target background.
     const preview = this._buildPreview(target, transform);
+    const sourceOverlay = this._buildSourceOverlay();
 
     const modeGridCells = this.scaleMode === "gridcells";
     const srcLevel = this._levelById(this.source, this.sourceLevelId);
@@ -474,6 +477,7 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
       sourceGridLines,
       targetGridLines,
       offsetNudge: this.offsetNudge,
+      editStep: this.editStep,
       transformReady: !!transform,
       sameLevel: this.targetId === this.source.id && this.targetLevelId === this.sourceLevelId,
       // hint surfaces
@@ -494,8 +498,31 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
       sourceCellPx: this.sourceHint.cellPx()?.toFixed(1) ?? null,
       targetCellPx: this.targetHint.cellPx()?.toFixed(1) ?? null,
       preview,
+      sourceOverlay,
       canCopy: !!transform && this.types.size > 0 && !!this.targetLevelId,
     });
+  }
+
+  // Draw one placeable type's plain objects (canvas coords) into the overlay
+  // buffer, converting to image space via `toImg`.
+  _drawDocs(entryId: string, objs: any[], toImg: (x: number, y: number) => [number, number], out: { lines: any[]; dots: any[] }): void {
+    for (const o of objs) {
+      if (entryId === "walls" && Array.isArray(o.c) && o.c.length >= 4) {
+        const [x1, y1] = toImg(o.c[0], o.c[1]);
+        const [x2, y2] = toImg(o.c[2], o.c[3]);
+        out.lines.push({ x1, y1, x2, y2 });
+      } else if (typeof o.x === "number" && typeof o.y === "number") {
+        const [x, y] = toImg(o.x, o.y);
+        out.dots.push({ x, y });
+      } else if (entryId === "regions" && Array.isArray(o.shapes)) {
+        for (const shape of o.shapes) {
+          if (typeof shape.x === "number" && typeof shape.y === "number") {
+            const [x, y] = toImg(shape.x, shape.y);
+            out.dots.push({ x, y });
+          }
+        }
+      }
+    }
   }
 
   // Build SVG primitives (in target-image space) for the projected placeables.
@@ -508,23 +535,23 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
       if (!this.types.has(entry.id)) continue;
       const projected = this._projected(entry, transform);
       out.totalCount += projected.length;
-      for (const o of projected) {
-        if (entry.id === "walls" && Array.isArray(o.c) && o.c.length >= 4) {
-          const [x1, y1] = toImg(o.c[0], o.c[1]);
-          const [x2, y2] = toImg(o.c[2], o.c[3]);
-          out.lines.push({ x1, y1, x2, y2 });
-        } else if (typeof o.x === "number" && typeof o.y === "number") {
-          const [x, y] = toImg(o.x, o.y);
-          out.dots.push({ x, y });
-        } else if (entry.id === "regions" && Array.isArray(o.shapes)) {
-          for (const shape of o.shapes) {
-            if (typeof shape.x === "number" && typeof shape.y === "number") {
-              const [x, y] = toImg(shape.x, shape.y);
-              out.dots.push({ x, y });
-            }
-          }
-        }
-      }
+      this._drawDocs(entry.id, projected, toImg, out);
+    }
+    return out;
+  }
+
+  // Build SVG primitives (in source-image space) for the source placeables as
+  // they currently sit - no transform - so the user can see what will be copied.
+  _buildSourceOverlay(): any {
+    const out = { lines: [] as any[], dots: [] as any[], totalCount: 0 };
+    if (this.sourceDims.x <= 0) return out;
+    const srcLevel = this._levelById(this.source, this.sourceLevelId);
+    const toImg = (cx: number, cy: number) => this._canvasToImg(this.source, srcLevel, this.sourceDims, cx, cy);
+    for (const entry of PLACEABLE_TYPES) {
+      if (!this.types.has(entry.id)) continue;
+      const objs = this._sourceDocs(entry).map((d) => d.toObject());
+      out.totalCount += objs.length;
+      this._drawDocs(entry.id, objs, toImg, out);
     }
     return out;
   }
@@ -564,6 +591,15 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
         this.render();
       });
     });
+
+    // Edge-nudge step size (px). No re-render needed - read live on each nudge.
+    const stepInput = this.element.querySelector<HTMLInputElement>(".ddb-level-copy-edit-step");
+    if (stepInput) {
+      stepInput.addEventListener("change", (event) => {
+        const val = Number((event.currentTarget as HTMLInputElement).value);
+        this.editStep = Number.isFinite(val) && val > 0 ? val : 1;
+      });
+    }
 
     // Grid-cell mode snaps drawn corners to grid-line intersections; clear the
     // snapper otherwise so hint mode stays freeform.
@@ -612,6 +648,14 @@ export default class SceneLevelCopyApp extends DDBAppV2 {
 
   static redrawTargetHint(this: SceneLevelCopyApp) {
     this.targetHint.clearRect();
+  }
+
+  static nudgeEdge(this: SceneLevelCopyApp, _event, target: HTMLElement) {
+    const surface = target?.dataset?.surface === "target" ? this.targetHint : this.sourceHint;
+    const edge = target?.dataset?.edge as "left" | "right" | "top" | "bottom";
+    const sign = Number(target?.dataset?.sign);
+    if (!["left", "right", "top", "bottom"].includes(edge) || !Number.isFinite(sign)) return;
+    surface.nudgeEdge(edge, sign * this.editStep);
   }
 
   static zoomSourceIn(this: SceneLevelCopyApp) {

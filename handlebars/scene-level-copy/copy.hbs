@@ -63,6 +63,9 @@
       <span class="ddb-level-copy-label">Offset nudge (canvas px)</span>
       <label>X <input type="number" class="ddb-level-copy-nudge" data-axis="x" value="{{offsetNudge.x}}" step="1" /></label>
       <label>Y <input type="number" class="ddb-level-copy-nudge" data-axis="y" value="{{offsetNudge.y}}" step="1" /></label>
+      {{#if modeHint}}
+        <label>3x3 edge step (px) <input type="number" class="ddb-level-copy-edit-step" value="{{editStep}}" min="0.1" step="0.5" /></label>
+      {{/if}}
     </div>
   </div>
 
@@ -82,6 +85,12 @@
         <div class="ddb-grid-picker-canvas">
           <svg viewBox="{{sourceViewBox.x}} {{sourceViewBox.y}} {{sourceViewBox.w}} {{sourceViewBox.h}}" preserveAspectRatio="xMidYMid meet" class="ddb-grid-picker-svg ddb-level-copy-source-svg hint-mode {{#if sourceZoomedIn}}zoomed{{/if}}">
             <image href="{{sourceImageUrl}}" x="0" y="0" width="{{sourceDims.x}}" height="{{sourceDims.y}}" />
+            {{#each sourceOverlay.lines}}
+              <line x1="{{this.x1}}" y1="{{this.y1}}" x2="{{this.x2}}" y2="{{this.y2}}" class="ddb-grid-picker-line" />
+            {{/each}}
+            {{#each sourceOverlay.dots}}
+              <circle cx="{{this.x}}" cy="{{this.y}}" r="6" class="ddb-level-copy-dot" />
+            {{/each}}
             {{#if modeGridCells}}
               <g class="ddb-level-copy-grid">
                 {{#each sourceGridLines}}
@@ -113,6 +122,26 @@
             {{#if sourceHasRect}}Cell size: ~{{sourceCellPx}}px. Drag corners to adjust.{{else}}Drag to cover 3x3 cells. Wheel zooms, shift-drag pans.{{/if}}
           {{/if}}
         </p>
+        {{#if modeHint}}
+          <div class="ddb-level-copy-edge-nudge">
+            <span class="edge-grp"><span class="lbl">Top</span>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="top" data-sign="-1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Top edge up"><i class="fas fa-arrow-up"></i></button>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="top" data-sign="1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Top edge down"><i class="fas fa-arrow-down"></i></button>
+            </span>
+            <span class="edge-grp"><span class="lbl">Bottom</span>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="bottom" data-sign="-1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Bottom edge up"><i class="fas fa-arrow-up"></i></button>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="bottom" data-sign="1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Bottom edge down"><i class="fas fa-arrow-down"></i></button>
+            </span>
+            <span class="edge-grp"><span class="lbl">Left</span>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="left" data-sign="-1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Left edge left"><i class="fas fa-arrow-left"></i></button>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="left" data-sign="1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Left edge right"><i class="fas fa-arrow-right"></i></button>
+            </span>
+            <span class="edge-grp"><span class="lbl">Right</span>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="right" data-sign="-1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Right edge left"><i class="fas fa-arrow-left"></i></button>
+              <button data-action="nudgeEdge" data-surface="source" data-edge="right" data-sign="1" type="button" class="munch-button icon-only" {{#unless sourceHasRect}}disabled{{/unless}} title="Right edge right"><i class="fas fa-arrow-right"></i></button>
+            </span>
+          </div>
+        {{/if}}
       </div>
 
       {{!-- Target surface --}}
@@ -166,6 +195,26 @@
             {{#if targetHasRect}}Cell size: ~{{targetCellPx}}px. Projected objects shown in red/blue.{{else}}Drag to cover the same 3x3 cells.{{/if}}
           {{/if}}
         </p>
+        {{#if modeHint}}
+          <div class="ddb-level-copy-edge-nudge">
+            <span class="edge-grp"><span class="lbl">Top</span>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="top" data-sign="-1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Top edge up"><i class="fas fa-arrow-up"></i></button>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="top" data-sign="1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Top edge down"><i class="fas fa-arrow-down"></i></button>
+            </span>
+            <span class="edge-grp"><span class="lbl">Bottom</span>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="bottom" data-sign="-1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Bottom edge up"><i class="fas fa-arrow-up"></i></button>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="bottom" data-sign="1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Bottom edge down"><i class="fas fa-arrow-down"></i></button>
+            </span>
+            <span class="edge-grp"><span class="lbl">Left</span>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="left" data-sign="-1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Left edge left"><i class="fas fa-arrow-left"></i></button>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="left" data-sign="1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Left edge right"><i class="fas fa-arrow-right"></i></button>
+            </span>
+            <span class="edge-grp"><span class="lbl">Right</span>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="right" data-sign="-1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Right edge left"><i class="fas fa-arrow-left"></i></button>
+              <button data-action="nudgeEdge" data-surface="target" data-edge="right" data-sign="1" type="button" class="munch-button icon-only" {{#unless targetHasRect}}disabled{{/unless}} title="Right edge right"><i class="fas fa-arrow-right"></i></button>
+            </span>
+          </div>
+        {{/if}}
       </div>
     </div>
   {{else}}

@@ -1023,3 +1023,22 @@
   shape-rendering: crispEdges;
   pointer-events: none;
 }
+
+.ddb-level-copy-edge-nudge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.ddb-level-copy-edge-nudge .edge-grp {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ddb-level-copy-edge-nudge .edge-grp .lbl {
+  font-size: 0.8em;
+  opacity: 0.8;
+  margin-right: 2px;
+}

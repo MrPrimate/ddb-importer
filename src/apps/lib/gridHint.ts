@@ -110,6 +110,35 @@ export class GridHintSurface {
     this._onChange();
   }
 
+  // Step one edge by a signed image-px amount (positive = move the edge in the
+  // +x/+y direction). Used by the edge-nudge arrow buttons. No-op without a
+  // rect; keeps width/height above the 10px floor.
+  nudgeEdge(edge: "left" | "right" | "top" | "bottom", amount: number): void {
+    if (!this.rect) return;
+    const r = { ...this.rect };
+    const MIN = 10;
+    switch (edge) {
+      case "left":
+        r.x += amount;
+        r.w -= amount;
+        break;
+      case "right":
+        r.w += amount;
+        break;
+      case "top":
+        r.y += amount;
+        r.h -= amount;
+        break;
+      case "bottom":
+        r.h += amount;
+        break;
+      // no default
+    }
+    if (r.w < MIN || r.h < MIN) return;
+    this.rect = r;
+    this._onChange();
+  }
+
   // ----- wiring, called by the host's _onRender -----
 
   wire(svg: SVGSVGElement | null): void {
