@@ -3,6 +3,14 @@ import { logger, utils } from "../../lib/_module";
 import DDBSubClass from "./DDBSubClass";
 import DDBCharacter from "../DDBCharacter";
 
+interface ICharacterClassFactoryOptions {
+  addToCompendium?: boolean;
+  compendiumImportTypes?: string[] | null;
+  updateCompendiumItems?: boolean | null;
+  isMuncher?: boolean;
+  collectOnly?: boolean;
+}
+
 export default class CharacterClassFactory {
 
   addToCompendium = null;
@@ -10,12 +18,14 @@ export default class CharacterClassFactory {
   compendiumImportTypes = ["classes", "subclasses"];
 
   updateCompendiumItems = null;
+  collectOnly = false;
   source: IDDBData;
+  character: I5ePCData;
   ddbCharacter: DDBCharacter;
   ddbClasses: Record<string, DDBClass | DDBSubClass>;
   originalClass: string | null;
 
-  constructor(ddbCharacter: DDBCharacter, { addToCompendium = false, compendiumImportTypes = null, updateCompendiumItems = null }: { addToCompendium?: boolean; compendiumImportTypes?: string[] | null; updateCompendiumItems?: boolean | null } = {}) {
+  constructor(ddbCharacter: DDBCharacter, { addToCompendium = false, compendiumImportTypes = null, updateCompendiumItems = null, collectOnly = false }: ICharacterClassFactoryOptions = {}) {
     this.ddbCharacter = ddbCharacter;
     this.character = this.ddbCharacter.raw.character;
     this.source = this.ddbCharacter.source.ddb;
@@ -25,6 +35,7 @@ export default class CharacterClassFactory {
     this.addToCompendium = addToCompendium;
     if (compendiumImportTypes) this.compendiumImportTypes = compendiumImportTypes;
     this.updateCompendiumItems = updateCompendiumItems ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
+    this.collectOnly = collectOnly;
   }
 
   async processCharacter() {
@@ -35,6 +46,7 @@ export default class CharacterClassFactory {
         compendiumImportTypes: this.compendiumImportTypes,
         updateCompendiumItems: this.updateCompendiumItems,
         isMuncher: this.ddbCharacter.isMuncher,
+        collectOnly: this.collectOnly,
       });
       await ddbClass.generateFromCharacter(this.character);
       this.ddbClasses[ddbClass.data.name] = ddbClass;
@@ -46,6 +58,7 @@ export default class CharacterClassFactory {
           compendiumImportTypes: this.compendiumImportTypes,
           updateCompendiumItems: this.updateCompendiumItems,
           isMuncher: this.ddbCharacter.isMuncher,
+          collectOnly: this.collectOnly,
         });
         await ddbSubClass.generateFromCharacter(this.character);
         this.ddbClasses[ddbSubClass.data.name] = ddbSubClass;

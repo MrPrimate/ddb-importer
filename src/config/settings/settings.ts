@@ -1126,6 +1126,14 @@ const SETTINGS = {
             type: Array,
             default: [],
           },
+          "munching-policy-character-subclasses": {
+            type: Object,
+            default: {},
+          },
+          "munching-policy-character-class-rules-version": {
+            type: String,
+            default: "",
+          },
           "munching-policy-disable-monster-art": {
             type: Boolean,
             default: false,
