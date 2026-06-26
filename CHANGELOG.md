@@ -1,5 +1,7 @@
 # Next Up
 
+# 7.3.12
+
 - Fixes for importing scenes with enchanced metadata on v14, e.g. Ravenloft and SoS.
 - A number of adventure muncher fixes, monsters not importing in v14 when an adventure is loaded, etc.
 
