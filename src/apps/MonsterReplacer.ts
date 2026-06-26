@@ -10,7 +10,7 @@ export default class MonsterReplacer {
     this.name = name;
   }
 
-  static fetchUpdatedMonsterInfo(ids: (string | number)[] = []) {
+  static fetchUpdatedMonsterInfo(ids: (string | number)[] = []): Promise<IMonsterReplacerData[]> {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
@@ -35,7 +35,7 @@ export default class MonsterReplacer {
             utils.munchNote(`Failure: ${data.message}`);
             reject(data.message);
           }
-          return data.data;
+          return data.data as IMonsterReplacerData[];
         })
         .then((data) => resolve(data))
         .catch((error) => reject(error));
@@ -43,7 +43,7 @@ export default class MonsterReplacer {
   }
 
 
-  async chooseMonstersToReplace(monsterData) {
+  async chooseMonstersToReplace(monsterData: IMonsterReplacerData[]): Promise<number[]> {
 
     logger.info(`Selecting Monsters for ${this.name} - (${monsterData.length} possible monsters for replacement)`);
 
@@ -102,7 +102,7 @@ export default class MonsterReplacer {
       window: { title: "Select Monsters to Update to latest version" },
       content,
       classes: ["ddb-monster-select-dialog"],
-    });
+    }) as { ids: string[] };
 
     return response.ids.map((id) => Number.parseInt(id));
   }

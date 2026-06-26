@@ -369,36 +369,43 @@ export default class DDBMonsterFactory {
     // don't each open a socket or re-fetch the same monsters.
     const fetchByIdShared = async () => {
       const requestedIds: number[] = body.ids ?? [];
-      const missing = requestedIds.filter((id) => !_idCache.has(id));
+      const missing = requestedIds.filter((id) => !_idCache.has(Number(id)));
+      let _lastByIdRawCount = 0;
 
       if (missing.length > 0) {
         await _fetchQueue.add(async () => {
           const socket = await _getSharedMonsterSocket(parsingApi, { betaKey, cobalt: cobaltCookie, characterId: null });
-          let raw: any[] = [];
+          const raw: any[] = [];
           await socket.runJob("monsters-by-id", { ids: missing, cobalt: cobaltCookie }, {
             timeoutMs: 180000,
             onEvent: (event: DDBMonsterEvent) => {
-              if (event.kind === "monsters" && Array.isArray(event.payload)) raw = event.payload;
+              // Accumulate across batches - a multi-event or terminal-empty
+              // stream would otherwise clobber earlier results if we assigned.
+              if (event.kind === "monsters" && Array.isArray(event.payload)) raw.push(...event.payload);
             },
           });
+          _lastByIdRawCount = raw.length;
           for (const monster of raw) {
-            if (monster && monster.id != null) _idCache.set(monster.id, monster);
+            // Coerce the key: tokens request numeric ids but the server may
+            // return string ids; a strict Map key mismatch would drop everything.
+            const key = Number(monster?.id);
+            if (Number.isFinite(key)) _idCache.set(key, monster);
           }
           // requested ids the server returned nothing for: cache as null so we
           // don't keep re-querying them.
           for (const id of missing) {
-            if (!_idCache.has(id)) _idCache.set(id, null);
+            if (!_idCache.has(Number(id))) _idCache.set(Number(id), null);
           }
           _bumpSharedIdle();
         });
       }
 
-      this.source = requestedIds.map((id) => _idCache.get(id)).filter(Boolean);
+      this.source = requestedIds.map((id) => _idCache.get(Number(id))).filter(Boolean);
       if (debugJson) {
         FileHelper.download(JSON.stringify({ success: true, data: this.source }), `monsters-raw.json`, "application/json");
       }
       this.notifier(`Retrieved ${this.source.length} monsters from DDB`, { nameField: true, monsterNote: false });
-      logger.info(`Retrieved ${this.source.length} monsters from DDB (by id; ${missing.length} fetched, ${requestedIds.length - missing.length} cached)`);
+      logger.info(`Retrieved ${this.source.length} monsters from DDB (by id; ${missing.length} requested, raw=${_lastByIdRawCount}, source=${this.source.length}, ${requestedIds.length - missing.length} cached)`);
       return this.source;
     };
 
@@ -408,7 +415,17 @@ export default class DDBMonsterFactory {
     if (_monsterSocketDisabled || customMonsterUrl) return fetchOverHttp();
 
     try {
-      return await (isIdLookup ? fetchByIdShared() : fetchOverStream());
+      if (isIdLookup) {
+        const streamed = await fetchByIdShared();
+        // An empty by-id streaming result is treated as a failure: use fallback.
+        if (streamed.length === 0 && (body.ids?.length ?? 0) > 0) {
+          logger.warn(`[monsters] by-id streaming returned 0 for ${body.ids?.length} id(s); falling back to HTTP`);
+          _closeSharedMonsterSocket();
+          return fetchOverHttp();
+        }
+        return streamed;
+      }
+      return await fetchOverStream();
     } catch (err) {
       const msg = (err as Error)?.message ?? String(err);
       logger.warn(`[monsters] streaming failed, falling back to HTTP: ${msg}`);

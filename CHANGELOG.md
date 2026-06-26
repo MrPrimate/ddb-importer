@@ -1,5 +1,8 @@
 # Next Up
 
+- Fixes for importing scenes with enchanced metadata on v14, e.g. Ravenloft and SoS.
+- A number of adventure muncher fixes, monsters not importing in v14 when an adventure is loaded, etc.
+
 # 7.3.11
 
 - Eldritch Cannon Fixes @redarchongaming

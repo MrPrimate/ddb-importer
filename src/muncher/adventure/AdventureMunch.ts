@@ -17,16 +17,50 @@ import { isGridDetectionCandidate } from "./GridDetectionCandidate";
 
 export const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
+interface IDDBAdventureMonsterData {
+  actorId: string;
+  ddbId: number;
+  folderId: string;
+  name?: string;
+}
+
+interface IDDBAdventureRequired {
+  monsterData: IDDBAdventureMonsterData[];
+  monsters: string[];
+  items: string[];
+  spells: string[];
+  vehicles: string[];
+  skills: string[];
+  senses: string[];
+  conditions: string[];
+  actions: string[];
+  weaponproperties: string[];
+}
+
+interface IDDBAdventure {
+  id: string;
+  name: string;
+  description: string;
+  system: string;
+  modules: string[];
+  version: number | string;
+  options: {
+    folders: boolean;
+  };
+  required: IDDBAdventureRequired;
+  folderColour: string;
+}
+
 interface IDDBAdventureMuncherTrackerData {
-  scene: I5eSceneData[];
-  journal: I5eJournalData[];
-  actor: I5eActorData[];
-  item: (I5ePCItem | I5eMonsterItem)[];
-  table: I5eTableData[];
+  scene: Scene.Implementation[];
+  journal: JournalEntry.Implementation[];
+  actor: Actor.Implementation[];
+  item: Item.Implementation[];
+  table: RollTable.Implementation[];
   // todo: no playlist data stub
-  playlist: any[];
-  macro: I5eMacroData[];
-  folder: I5eFolderData[];
+  playlist: Playlist.Implementation[];
+  macro: Macro.Implementation[];
+  folder: Folder.Implementation[];
 }
 
 export default class AdventureMunch {
@@ -36,7 +70,22 @@ export default class AdventureMunch {
   raw: IDDBAdventureMuncherTrackerData;
   temporary: IDDBAdventureMuncherTrackerData;
   _itemsToRevisit: string[];
-  // adventure: null;
+  addToAdventureCompendium: boolean;
+  allScenes: boolean;
+  allMonsters: boolean;
+  journalWorldActors: boolean;
+  addToCompendiums: boolean;
+  use2024monsters: boolean;
+  pattern: RegExp;
+  altpattern: RegExp;
+  compendiums: {
+    journal: CompendiumCollection<"JournalEntry"> | null;
+    table: CompendiumCollection<"RollTable"> | null;
+    monster: CompendiumCollection<"Actor"> | null;
+  };
+  _compendiumItemsToRevisit: (JournalEntry.Implementation | RollTable.Implementation | Actor.Implementation | Item.Implementation)[];
+  adventure: IDDBAdventure;
+  monstersToReplace: IMonsterReplacerData[];
 
   /** @override */
   constructor({
@@ -90,12 +139,12 @@ export default class AdventureMunch {
     this.altpattern
       = /((data-entity)=\\?["']?([a-zA-Z]*)\\?["']?|(data-pack)=\\?["']?([[\S.]*)\\?["']?) data-id=\\?["']?([a-zA-Z0-9]*)\\?["']?.*?>(.*?)<\/a>/gim;
 
-    this.allScenes = allScenes ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-scenes");
-    this.allMonsters = allMonsters ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-all-actors-into-world");
-    this.journalWorldActors = journalWorldActors ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-journal-world-actors");
-    this.addToCompendiums = addToCompendiums ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-add-to-compendiums");
-    this.addToAdventureCompendium = addToAdventureCompendium ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-import-to-adventure-compendium");
-    this.use2024monsters = use2024monsters ?? game.settings.get(SETTINGS.MODULE_ID, "adventure-policy-use2024-monsters");
+    this.allScenes = allScenes ??  utils.getSetting<boolean>("adventure-policy-all-scenes");
+    this.allMonsters = allMonsters ?? utils.getSetting<boolean>("adventure-policy-all-actors-into-world");
+    this.journalWorldActors = journalWorldActors ?? utils.getSetting<boolean>("adventure-policy-journal-world-actors");
+    this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("adventure-policy-add-to-compendiums");
+    this.addToAdventureCompendium = addToAdventureCompendium ?? utils.getSetting<boolean>("adventure-policy-import-to-adventure-compendium");
+    this.use2024monsters = use2024monsters ?? utils.getSetting<boolean>("adventure-policy-use2024-monsters");
 
     this.monstersToReplace = [];
 
@@ -815,7 +864,7 @@ export default class AdventureMunch {
   async _updateMonsterData() {
     if (!this.use2024monsters) return;
 
-    const ids = this.adventure.required?.monsters ?? [];
+    const ids: (number)[] = this.adventure.required?.monsters?.map((id) => Number(id)) ?? [];
     const monsterDataIds = this.adventure.required.monsterData.map((m) => m.ddbId) ?? [];
 
     ids.push(...monsterDataIds);
@@ -845,9 +894,9 @@ export default class AdventureMunch {
     });
 
     this.adventure.required.monsters = this.adventure.required.monsters.map((id) => {
-      if (!monstersToReplace.includes(id)) return id;
-      const updatedMonster = monsterData.find((data) => data.id2014 === id);
-      return updatedMonster.id2024;
+      if (!monstersToReplace.includes(Number(id))) return id;
+      const updatedMonster = monsterData.find((data) => data.id2014 === Number(id));
+      return String(updatedMonster.id2024);
     });
 
   }
@@ -931,10 +980,10 @@ export default class AdventureMunch {
    */
   async ensureWorldActors(neededActors) {
     logger.debug("Trying to import actors from compendium", neededActors);
-    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false);
+    const monsterCompendium = CompendiumHelper.getCompendiumType("monster", false) as unknown as CompendiumCollection<"Actor">;
     const results = [];
     await utils.asyncForEach(neededActors, async (actor) => {
-      let worldActor = game.actors.get(actor.actorId);
+      let worldActor = game.actors.get(actor.actorId) as Actor.Implementation;
       if (!worldActor) {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
         try {
@@ -977,7 +1026,7 @@ export default class AdventureMunch {
     const results = await AdventureMunchHelpers.importMonstersToWorld(
       data.map((actorData) => actorData.ddbId),
       { overridesById },
-    );
+    ) as Actor.Implementation[];
     for (const worldActor of results) {
       if (!this.temporary.actor.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
         this.temporary.actor.push(worldActor);
@@ -1015,8 +1064,37 @@ export default class AdventureMunch {
   }
 
   static _migrateSceneDataToV14(data) {
-    // Only migrate if there is no levels array (v13 format)
-    if (data.levels?.length) return data;
+    // Already in v14 levels shape. The adventure muncher / proxy meta-data can
+    // still ship a deprecated top-level `background` block alongside the levels
+    // array (it doesn't understand levels, so it never populates the level
+    // image). Reconcile a stray top-level background into the default level so
+    // V14 actually renders it, then drop the deprecated fields.
+    if (data.levels?.length) {
+      const stray = data.background ?? {};
+      if (stray.src || data.backgroundColor) {
+        const defaultLevel = data.levels.find((l) => l._id === DEFAULT_LEVEL_ID) ?? data.levels[0];
+        if (defaultLevel) {
+          defaultLevel.background ??= {};
+          // Only fill what the level is missing; never clobber a level that
+          // already carries its own image / colour.
+          if (!defaultLevel.background.src && stray.src) defaultLevel.background.src = stray.src;
+          if (!defaultLevel.background.tint && stray.tint) defaultLevel.background.tint = stray.tint;
+          if (!defaultLevel.background.color && data.backgroundColor) {
+            defaultLevel.background.color = data.backgroundColor;
+          }
+        }
+      }
+      // v13 background.offsetX/Y → v14 root shiftX/Y (only if not already set).
+      if (data.shiftX == null && Number.isFinite(stray.offsetX)) data.shiftX = stray.offsetX;
+      if (data.shiftY == null && Number.isFinite(stray.offsetY)) data.shiftY = stray.offsetY;
+
+      // Strip deprecated top-level fields so V14 stops warning / mis-rendering.
+      delete data.background;
+      delete data.backgroundColor;
+      delete data.foreground;
+      delete data.foregroundElevation;
+      return data;
+    }
 
     const bg = data.background ?? {};
     logger.debug(`Scene ${data.name} is in v13 format, migrating to v14 levels format.`, {
@@ -1420,15 +1498,15 @@ export default class AdventureMunch {
       }
       case "Actor":
         if (!AdventureMunchHelpers.findEntityByImportId("actors", data._id)) {
-          const actor = await Actor.create(data, options);
-          await actor.update({ [`prototypeToken.actorId`]: actor.id });
+          const actor = await Actor.create(data, options) as Actor.Implementation;
+          await actor.update({ [`prototypeToken.actorId`]: actor.id } as any);
           if (needRevisit) this._itemsToRevisit.push(`Actor.${actor.id}`);
           this.temporary.actor.push(actor);
         }
         break;
       case "Item":
         if (!AdventureMunchHelpers.findEntityByImportId("items", data._id)) {
-          const item = await Item.create(data, options);
+          const item = await Item.create(data, options) as Item.Implementation;
           if (needRevisit) this._itemsToRevisit.push(`Item.${item.id}`);
           this.temporary.item.push(item);
         }
@@ -1436,7 +1514,7 @@ export default class AdventureMunch {
       case "JournalEntry":
         foundry.utils.setProperty(data, "flags.core.sheetClass", "ddb-importer.DDBJournalSheet");
         if (!AdventureMunchHelpers.findEntityByImportId("journal", data._id)) {
-          const journal = await JournalEntry.create(data, options);
+          const journal = await JournalEntry.create(data, options) as JournalEntry.Implementation;
           if (needRevisit) this._itemsToRevisit.push(`JournalEntry.${journal.id}`);
           this.temporary.journal.push(journal);
         }
@@ -1447,32 +1525,32 @@ export default class AdventureMunch {
               page.text.content = this.replaceUUIDSForCompendium(page.text.content);
             }
           });
-          const cJournal = await JournalEntry.create(data, cOptions);
+          const cJournal = await JournalEntry.create(data, cOptions) as JournalEntry.Implementation;
           this._compendiumItemsToRevisit.push(cJournal);
         }
         break;
       case "RollTable":
         if (!AdventureMunchHelpers.findEntityByImportId("tables", data._id)) {
-          const rolltable = await RollTable.create(data, options);
+          const rolltable = await RollTable.create(data, options) as RollTable.Implementation;
           if (needRevisit) this._itemsToRevisit.push(`RollTable.${rolltable.id}`);
           this.temporary.table.push(rolltable);
         }
         if (this.addToCompendiums && !this.findCompendiumEntityByImportId("table", data._id)) {
           const cOptions = foundry.utils.mergeObject(options, { pack: this.compendiums.table.metadata.id });
-          const cTable = await RollTable.create(data, cOptions);
+          const cTable = await RollTable.create(data, cOptions) as RollTable.Implementation;
           this._compendiumItemsToRevisit.push(cTable);
         }
         break;
       case "Playlist":
         if (!AdventureMunchHelpers.findEntityByImportId("playlists", data._id)) {
           data.name = `${this.adventure.name}.${data.name}`;
-          const playlist = await Playlist.create(data, options);
+          const playlist = await Playlist.create(data, options) as Playlist.Implementation;
           this.temporary.playlist.push(playlist);
         }
         break;
       case "Macro":
         if (!AdventureMunchHelpers.findEntityByImportId("macros", data._id)) {
-          const macro = await Macro.create(data, options);
+          const macro = await Macro.create(data, options) as Macro.Implementation;
           if (needRevisit) this._itemsToRevisit.push(`Macro.${macro.id}`);
           this.temporary.macro.push(macro);
         }

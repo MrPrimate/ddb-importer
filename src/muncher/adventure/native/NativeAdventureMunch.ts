@@ -16,15 +16,14 @@ import { importAssets } from "./NativeAssetHandler";
 import { buildBookThemeCss } from "./NativeBookStyles";
 import { fetchEnhancements } from "./NativeEnhancements";
 import { buildScenes } from "./NativeSceneBuilder";
-import { applyScenes } from "./NativeSceneApplier";
+import { applyScenes, captureExistingSnips } from "./NativeSceneApplier";
 import BookData, { type NativeBookZip } from "./BookData";
 import { DDBReferenceLinker } from "../../../parser/lib/_module";
 
 const CONTENT_QUERY
   = "SELECT ID as id, CobaltID as cobaltId, ParentID as parentId, Slug as slug, Title as title, RenderedHTML as html FROM Content";
 
-/** Progress sink - the bound `DDBAppV2.notifierV2`. ImportOptions + ItemNotify
- *  are declared globally in ./types.d.ts. */
+/** Progress sink */
 type Notify = (props: NotifierV2Props) => void;
 
 /**
@@ -256,6 +255,10 @@ export default class NativeAdventureMunch {
     const sceneDocs = scenesToImport.map((s) => s.doc);
 
     if (!compendiumOnly) {
+      // Capture snip configs from any scene we are about to overwrite, before the
+      // create/update wipes their state. Reapplied post-enrich in applyScenes.
+      const preservedSnips = captureExistingSnips(scenesToImport);
+
       // "Creating documents" phase: report each document group on the secondary
       // bar (createDocuments is atomic, so granularity is per-group, not per-doc).
       this.#phase("Creating documents");
@@ -276,7 +279,10 @@ export default class NativeAdventureMunch {
       // drawings/notes/tokens) and re-point note pins at our journal pages.
       this.#phase("Applying scenes");
       this.#clearSecondary();
-      if (scenesToImport.length) await applyScenes(scenesToImport, journals, bookCode, { applyTokens: true, notify: this.#item, monsterSwap });
+      if (scenesToImport.length) {
+        const options = { applyTokens: true, notify: this.#item, monsterSwap, preservedSnips };
+        await applyScenes(scenesToImport, journals, bookCode, options);
+      }
       // optional: import every referenced monster into the world (superset of the
       // scene-token actors imported by applyScenes). Dedup happens in the helper.
       if (importAllMonsters) {

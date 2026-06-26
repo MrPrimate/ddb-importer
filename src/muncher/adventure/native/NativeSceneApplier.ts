@@ -1,6 +1,9 @@
 import { logger, DDBSources } from "../../../lib/_module";
+import SceneSnipProcessor from "../../../lib/SceneSnipProcessor";
 import DDBMapMetaData from "../DDBMapMetaData";
 import { buildJournalPageLookup, resolveNote, resolveSceneNotes } from "./NativeSceneNoteResolver";
+
+type PreservedSnips = ReturnType<typeof SceneSnipProcessor.getSnips>;
 // BuiltScene, JournalPageLookup + ItemNotify are declared globally in ./types.d.ts.
 
 /**
@@ -156,6 +159,47 @@ async function hideAllTokens(liveScene: Scene): Promise<number> {
 }
 
 /**
+ * Capture snip configs from any scene about to be overwritten. MUST run before
+ * the scene documents are created/updated, while the live scenes still hold
+ * their original `snipsnipsnip` flags. Returns a map keyed by scene _id of the
+ * non-empty snip configs to reapply post-enrich.
+ *
+ * Mirrors AdventureMunch._importRenderedSceneFile (getSnips before overwrite),
+ * adapted for the Native update-in-place flow (no full-scene delete).
+ */
+export function captureExistingSnips(scenes: BuiltScene[]): Map<string, PreservedSnips> {
+  const preserved = new Map<string, PreservedSnips>();
+  for (const scene of scenes) {
+    const liveScene = game.scenes?.get(scene.doc._id);
+    if (!liveScene) continue;
+    const snips = SceneSnipProcessor.getSnips(liveScene as Scene);
+    if (snips.length) preserved.set(scene.doc._id, snips);
+  }
+  return preserved;
+}
+
+// Clean up then recreate snips on a re-imported scene. Unlike the legacy muncher
+// (which deletes the whole scene), Native updates in place, so the old snip Tiles
+// survive the update and must be deleted explicitly before reapply to avoid
+// duplicates. SceneSnipProcessor.reapplySnips re-extracts each snip from the new
+// background and rewrites the `snipsnipsnip.snips` flag with fresh tile ids.
+async function reapplyScenesSnips(liveScene: Scene, snips: PreservedSnips): Promise<boolean> {
+  try {
+    const tiles = liveScene.tiles?.contents ?? [];
+    const staleIds = tiles
+      .filter((t: TileDocument.Implementation) => !!t.flags?.snipsnipsnip)
+      .map((t: TileDocument.Implementation) => t.id)
+      .filter(Boolean) as string[];
+    if (staleIds.length) await liveScene.deleteEmbeddedDocuments("Tile", staleIds);
+    await SceneSnipProcessor.reapplySnips(liveScene, snips);
+    return true;
+  } catch (error) {
+    logger.warn(`NativeSceneApplier: reapply snips failed for "${liveScene.name}" (${(error as Error).message ?? error})`);
+    return false;
+  }
+}
+
+/**
  * Per-scene enrich + note re-point + thumbnail. World-only.
  *
  * Grid normalisation now happens upstream in `DDBMapMetaData.buildSceneUpdate`
@@ -171,7 +215,12 @@ export async function applyScenes(
   scenes: BuiltScene[],
   journals: any[],
   bookCode: string,
-  options: { applyTokens: boolean; notify?: ItemNotify; monsterSwap?: Map<number, { id2024: number; name2024: string }> } = { applyTokens: true },
+  options: {
+    applyTokens: boolean;
+    notify?: ItemNotify;
+    monsterSwap?: Map<number, { id2024: number; name2024: string }>;
+    preservedSnips?: Map<string, PreservedSnips>;
+  } = { applyTokens: true },
 ): Promise<void> {
   if (scenes.length === 0) return;
   const source = (CONFIG.DDB?.sources ?? []).find((s: IDDBConfigSource) => s.name?.toLowerCase?.() === bookCode.toLowerCase());
@@ -188,10 +237,11 @@ export async function applyScenes(
   let thumbed = 0;
   let hidden = 0;
   let restored = 0;
+  let snipped = 0;
   for (let sceneNum = 0; sceneNum < scenes.length; sceneNum++) {
     const scene = scenes[sceneNum];
     options.notify?.(sceneNum + 1, scenes.length, `Applying scene: ${scene.doc.name}`);
-    const liveScene = game.scenes?.get(scene.doc._id);
+    const liveScene = game.scenes?.get(scene.doc._id) as Scene | undefined;
     if (!liveScene) {
       logger.debug(`NativeSceneApplier: scene ${scene.doc._id} ("${scene.doc.name}") not in world; skipping enrich`);
       continue;
@@ -216,6 +266,15 @@ export async function applyScenes(
     const hadThumb = !!liveScene.thumb;
     await generateThumbnail(liveScene);
     if (!hadThumb && liveScene.thumb) thumbed += 1;
+
+    // Reapply preserved scene snips on overwrite: clean up stale snip tiles, then
+    // re-extract from the new background. Only fires for scenes that already
+    // existed (captureExistingSnips only maps live scenes).
+    const snips = options.preservedSnips?.get(scene.doc._id);
+    if (snips?.length) {
+      logger.info(`NativeSceneApplier: reapplying ${snips.length} snip(s) for scene "${scene.doc.name}"`);
+      if (await reapplyScenesSnips(liveScene, snips)) snipped += 1;
+    }
   }
 
   // Resolver run for any scene that had no meta match (its notes are empty,
@@ -223,5 +282,5 @@ export async function applyScenes(
   // them re-pointed). No-op when scene.notes is empty.
   resolveSceneNotes(scenes.map((s) => s.doc), lookup);
 
-  logger.info(`NativeSceneApplier: enriched ${enriched}/${scenes.length} scenes (${repointed} note pins re-pointed, ${hidden} tokens hidden, ${restored} bg colors restored, ${thumbed} thumbnails generated)`);
+  logger.info(`NativeSceneApplier: enriched ${enriched}/${scenes.length} scenes (${repointed} note pins re-pointed, ${hidden} tokens hidden, ${restored} bg colors restored, ${thumbed} thumbnails generated, ${snipped} scenes had snips reapplied)`);
 }

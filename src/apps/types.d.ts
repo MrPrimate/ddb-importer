@@ -38,4 +38,11 @@ global {
   interface DDBAppV2Context extends foundry.applications.api.Application.RenderContext {
     tabs: IDDBTabs;
   }
+
+  interface IMonsterReplacerData {
+    id2014: number;
+    name2014: string;
+    id2024: number;
+    name2024: string;
+  }
 };

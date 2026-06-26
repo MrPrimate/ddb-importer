@@ -13,6 +13,7 @@ import {
 import DDBQuickplay from "./DDBQuickplay";
 import DDBQuickplayTokens from "./DDBQuickplayTokens";
 import DDBMapMetaData from "./DDBMapMetaData";
+import SceneSnipProcessor from "../../lib/SceneSnipProcessor";
 import DDBMaps from "../DDBMaps";
 
 const DEFAULT_UPLOAD_PATH = "[data] ddb-images/maps";
@@ -30,6 +31,10 @@ export default class DDBMap {
   // Cached prepared (Quickplay) state. Fetched lazily once per import so both
   // sticker and token placement can share the same payload.
   private _preparedState: IDDBPreparedState | null | undefined = undefined;
+
+  // Snips captured off a scene we are about to "replace" (delete + recreate),
+  // reapplied after meta-data enrich. Mirrors AdventureMunch preserve/reapply.
+  private _preservedSnips: ReturnType<typeof SceneSnipProcessor.getSnips> = [];
 
   // Serial chain for FileHelper.uploadImage calls. Foundry's FilePicker upload
   // handles concurrent calls poorly, so even when multiple imports run in
@@ -290,6 +295,8 @@ export default class DDBMap {
         if (action === "replace") {
           this._notify(`Replacing existing scene "${existing.name}"...`);
           try {
+            // Preserve scene snips before deletion; reapplied after enrich.
+            this._preservedSnips = SceneSnipProcessor.getSnips(existing);
             await existing.delete();
           } catch (error) {
             logger.warn(`DDBMap.import: failed to delete existing scene "${existing.name}": ${(error as Error).message}`);
@@ -306,6 +313,7 @@ export default class DDBMap {
       await this._maybeApplyQuickplay();
       await this._maybeApplyQuickplayTokens();
       await this._maybeApplyMetaData();
+      await this._maybeReapplySnips();
       return { scene: this.scene, imagePath: this.uploadedPath, skipped: false };
     } catch (error) {
       logger.error(`DDBMap.import failed for ${this.map.name}: ${error.message}`, error);
@@ -460,6 +468,21 @@ export default class DDBMap {
       }
     } catch (error) {
       logger.error(`DDBMap: meta-data enrichment failed for "${this.map.name}": ${(error as Error).message}`, error);
+    }
+  }
+
+  // Reapply snips preserved from a replaced scene. The old scene was fully
+  // deleted, so no stale-tile cleanup is needed; reapplySnips re-extracts each
+  // snip from the new background and rewrites the snipsnipsnip flag + tile ids.
+  private async _maybeReapplySnips() {
+    if (!this.scene) return;
+    if (!this._preservedSnips.length) return;
+
+    try {
+      logger.info(`DDBMap: reapplying ${this._preservedSnips.length} snip(s) on "${this.map.name}"`);
+      await SceneSnipProcessor.reapplySnips(this.scene, this._preservedSnips);
+    } catch (error) {
+      logger.error(`DDBMap: snip reapplication failed for "${this.map.name}": ${(error as Error).message}`, error);
     }
   }
 
