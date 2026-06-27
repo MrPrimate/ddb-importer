@@ -310,7 +310,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
         const number = Number.isInteger(parseInt(chooseMatch.groups.num))
           ? chooseMatch.groups.num
           : DICTIONARY.numbers.find((num) => chooseMatch.groups.num.toLowerCase() === num.natural)?.num ?? null;
-        target.affects.count = number ?? "";
+        target.affects.count = number ? String(number) : "";
         if (!number) {
           target.affects.special = chooseMatch.groups.num;
         }
