@@ -35,7 +35,7 @@ export default class VampiricBite extends DDBEnricherData {
     return [
       {
         init: {
-          name: "Empower Self",
+          name: "Empower Self: Drain",
           type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         overrides: {
@@ -55,6 +55,28 @@ export default class VampiricBite extends DDBEnricherData {
             },
           },
         },
+      },
+      {
+        init: {
+          name: "Empower Self: Strengthen",
+          type: DDBEnricherData.ACTIVITY_TYPES.UTILITY,
+        },
+        overrides: {
+          addItemConsume: true,
+          activationType: "special",
+        },
+      },
+    ];
+  }
+
+  get effects(): IDDBEffectHint[] {
+    if (this.is2014) {
+      return [];
+    }
+    return [
+      {
+        name: "Empower Self: Strengthened",
+        activitiesMatch: ["Empower Self: Strengthen"],
       },
     ];
   }
