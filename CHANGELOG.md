@@ -1,5 +1,7 @@
 # Next Up
 
+- Eerie Token parsing improvements
+
 # 7.1.32
 
 - Eldritch Cannon Fixes
