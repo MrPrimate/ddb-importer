@@ -99,6 +99,7 @@ global {
         itemId?: string | null;
         activityRiders?: string[];
         effectRiders?: string[];
+        itemRiders?: string[];
         effectIdLevel?: {
           min?: number | null;
           max?: number | null;

@@ -267,6 +267,7 @@ global {
   interface I5eSystemTargetData {
     prompt?: boolean;
     template?: {
+      stationary?: boolean;
       count?: string;
       contiguous?: boolean;
       type?: TTemplate;

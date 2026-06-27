@@ -1,4 +1,3 @@
-import { SETTINGS } from "../../../../config/_module";
 import { DDBCompendiumFolders, DDBItemImporter, utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
@@ -650,7 +649,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
   async importElixirs() {
     const updateFeatures = this.ddbParser.ddbCharacter.updateCompendiumItems
       ?? this.ddbParser.ddbCharacter.forceCompendiumUpdate
-      ?? game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-update-add-features-to-compendiums");
+      ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
     const featureHandler = await DDBItemImporter.buildHandler("features", this.elixirs, updateFeatures, ExperimentalElixir.featureHandlerOptions, this.handler);
     await featureHandler.buildIndex(ExperimentalElixir.featureHandlerOptions.indexFilter);
