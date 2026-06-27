@@ -9,7 +9,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "skipLibCheck": true,
     "types": [
       "fvtt-types",
       "dnd5e/dnd5e/dnd5e.d.mts",
@@ -18,7 +17,8 @@
     "paths": {
       "@client/*": ["./foundry/client/*"],
       "@common/*": ["./foundry/common/*"]
-    }
+    },
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.ts",

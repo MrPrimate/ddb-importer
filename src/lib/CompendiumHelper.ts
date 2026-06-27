@@ -79,8 +79,8 @@ const CompendiumHelper = {
     } else {
       if (fail) {
         logger.error(`Unable to find compendium ${label}`);
-        ui.notifications.error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
-        throw new Error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums".`);
+        ui.notifications.error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Core Settings > Compendiums"`);
+        throw new Error(`Unable to open the Compendium ${label}. Check the compendium exists and is set in "Module Settings > DDB Importer > Core Settings > Compendiums".`);
       } else {
         logger.info(`Unable to find compendium ${label}`);
       }
@@ -97,8 +97,8 @@ const CompendiumHelper = {
     } else {
       if (fail) {
         logger.error(`Unable to find compendium ${compendiumLabel} for ${type} documents`);
-        ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
-        throw new Error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Compendiums"`);
+        ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Core Settings > Compendiums"`);
+        throw new Error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Core Settings > Compendiums"`);
       } else {
         logger.info(`Unable to open compendium, skipping compendium ${compendiumLabel} for ${type} integration`);
       }

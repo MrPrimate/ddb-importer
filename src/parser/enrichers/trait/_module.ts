@@ -14,6 +14,7 @@ export * as Goliath from "./goliath/_module";
 export * as Hadozee from "./hadozee/_module";
 export * as HalfOrc from "./halfOrc/_module";
 export * as Halfling from "./halfling/_module";
+export * as Hexblood from "./hexblood/_module";
 export * as Human from "./human/_module";
 export * as Kalashtar from "./kalashtar/_module";
 export * as Khoravar from "./khoravar/_module";
