@@ -1887,5 +1887,9 @@
   {
     "name": "Spider Climb Improvement",
     "path": "icons/creatures/invertebrates/bug-sixlegged-gray.webp"
+  },
+  {
+    "name": "Feral Pounce",
+    "path": "icons/creatures/claws/claw-bear-paw-swipe-red.webp"
   }
 ]

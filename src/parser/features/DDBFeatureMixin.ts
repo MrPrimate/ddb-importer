@@ -694,11 +694,16 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   getDamage(bonuses = []): I5eDamagePart {
     const damageType = this.getDamageType();
+    const damageTypes = damageType ? [damageType] : [];
+    if (this.originalName === "Unarmed Strike"
+      && DDBDataUtils.hasSpeciesTrait({ ddbData: this.ddbData, traitName: "Feral Pounce" })) {
+      damageTypes.push("slashing");
+    }
     const damage: I5eDamagePart = {
       number: null,
       denomination: null,
       bonus: "",
-      types: damageType ? [damageType] : [],
+      types: damageTypes,
       custom: {
         enabled: false,
         formula: "",
@@ -752,6 +757,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   getMartialArtsDamage(bonuses = []): I5eDamagePart {
     const damageType = this.getDamageType();
+    const damageTypes = damageType ? [damageType] : [];
+    if (this.originalName === "Unarmed Strike"
+      && DDBDataUtils.hasSpeciesTrait({ ddbData: this.ddbData, traitName: "Feral Pounce" })) {
+      damageTypes.push("slashing");
+    }
     // @ts-expect-error - dice and die are a mess in data.
     const actionDie = this.ddbDefinition.dice
       // @ts-expect-error - dice and die are a mess in data.
@@ -767,7 +777,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       number: null,
       denomination: null,
       bonus: "",
-      types: damageType ? [damageType] : [],
+      types: damageTypes,
       custom: {
         enabled: false,
         formula: "",

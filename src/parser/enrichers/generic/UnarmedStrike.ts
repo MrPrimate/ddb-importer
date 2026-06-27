@@ -85,6 +85,10 @@ export default class UnarmedStrike extends DDBEnricherData {
   }
 
   get override(): IDDBOverrideData {
+    const damageTypes = ["bludgeoning"];
+    if (this.hasSpeciesTrait({ traitName: "Feral Pounce" })) {
+      damageTypes.push("slashing");
+    }
     const base: IDDBOverrideData = {
       data: {
         system: {
@@ -105,7 +109,7 @@ export default class UnarmedStrike extends DDBEnricherData {
     base.data.system.damage = {
       base: DDBEnricherData.basicDamagePart({
         customFormula: formula,
-        type: "bludgeoning",
+        types: damageTypes,
       }),
     };
 

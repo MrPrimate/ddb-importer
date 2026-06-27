@@ -72,6 +72,15 @@ export default abstract class DDBEnricherData {
     });
   }
 
+  hasSpeciesTrait({ traitName }: { traitName: string }): boolean {
+    if (!this.ddbParser?.ddbData) return false;
+
+    return DDBDataUtils.hasSpeciesTrait({
+      ddbData: this.ddbParser.ddbData,
+      traitName,
+    });
+  }
+
   get isAction(): boolean {
     return this.ddbParser.isAction ?? false;
   }

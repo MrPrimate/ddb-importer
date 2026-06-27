@@ -19,6 +19,7 @@ export * as Human from "./human/_module";
 export * as Kalashtar from "./kalashtar/_module";
 export * as Khoravar from "./khoravar/_module";
 export * as Leonin from "./leonin/_module";
+export * as Lupin from "./lupin/_module";
 export * as Orc from "./orc/_module";
 export * as Shadarkai from "./shadar-kai/_module";
 export * as Shifter from "./shifter/_module";

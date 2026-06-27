@@ -927,7 +927,6 @@ ${description}`;
     this._final();
   }
 
-
   async build() {
     try {
       if (this.type === "background") {
