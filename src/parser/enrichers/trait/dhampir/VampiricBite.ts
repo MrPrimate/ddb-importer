@@ -52,7 +52,6 @@ export default class VampiricBite extends DDBEnricherData {
                 max: "20",
               },
               spellSlot: true,
-              targets: [],
             },
           },
         },
