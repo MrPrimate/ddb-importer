@@ -147,7 +147,7 @@ export default class DDBCompanionFactory {
       if (this.summons === null) {
         this.summons = foundry.utils.deepClone(ddbCompanion.summons);
       } else if (!summonMatch) {
-        logger.error("Companion has different summons", {
+        logger.warn("Companion Factory has generated different summons", {
           existingSummons,
           companionSummons,
           factory: this,
