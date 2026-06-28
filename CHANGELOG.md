@@ -1,5 +1,9 @@
 # Next Up
 
+- Eerie Token parsing improvements
+- Lupin parsing fixes
+- Reborn parsing fixes
+
 # 7.3.12
 
 - Fixes for importing scenes with enchanced metadata on v14, e.g. Ravenloft and SoS.
