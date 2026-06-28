@@ -1,6 +1,7 @@
 # Next Up
 
 - Eerie Token parsing improvements
+- Lupin fixes
 
 # 7.1.32
 

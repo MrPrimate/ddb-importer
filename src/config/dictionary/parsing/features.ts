@@ -119,6 +119,7 @@ export const PARSING_FEATURES = {
     "Elemental Attunement: Activate Elemental Attunement",
     "Muscle Mass",
     "Werewolf Instincts",
+    "Strange Endurance",
   ],
   SKIPPED_FEATURES_STARTS_WITH: [
     "Metamagic Options:",

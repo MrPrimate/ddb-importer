@@ -19,6 +19,7 @@ export * as Khoravar from "./khoravar/_module";
 export * as Leonin from "./leonin/_module";
 export * as Lupin from "./lupin/_module";
 export * as Orc from "./orc/_module";
+export * as Reborn from "./reborn/_module";
 export * as Shadarkai from "./shadar-kai/_module";
 export * as Shifter from "./shifter/_module";
 export * as Tabaxi from "./tabaxi/_module";
