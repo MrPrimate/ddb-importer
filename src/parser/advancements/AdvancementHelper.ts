@@ -2917,7 +2917,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     // You have resistance to the damage type associated with your * Ancestry.
     const dragonMatch = textDescription.match(/resistance to the damage type associated with your (\w*) Ancestry/mi);
     if (dragonMatch) {
-      parsedConditions.count = 1;
+      parsedConditions.number = 1;
       parsedConditions.hint = textDescription;
       switch (dragonMatch[1].toLowerCase()) {
         case "metallic": {
@@ -2955,9 +2955,27 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       }
     }
 
+    // You have Resistance to one of the following damage types of your choice: Cold, Necrotic, or Poison.
+    if (textDescription.includes("resistance to one of the following damage types of your choice")) {
+      parsedConditions.number = 1;
+      parsedConditions.hint = textDescription;
+      const reg = /resistance to one of the following damage types of your choice: (.*?)(\.|$)/i;
+      const match = textDescription.match(reg);
+      if (match) {
+        const damageTypes = match[1]
+          .replace(" or ", ",")
+          .replaceAll(",,", ",")
+          .split(",")
+          .map((dmg) => dmg.toLowerCase().trim());
+        for (const dr of damageTypes) {
+          choices.add(`dr:${dr}`);
+        }
+      }
+    }
+
     // You now have resistance to a damage type determined by your patron’s kind:
     if (textDescription.includes("resistance to a damage type determined by your patron’s kind:")) {
-      parsedConditions.count = 1;
+      parsedConditions.number = 1;
       parsedConditions.hint = textDescription;
       ["bludgeoning", "thunder", "fire", "cold"].forEach((dr) => {
         if (textDescription.includes(dr)) {
