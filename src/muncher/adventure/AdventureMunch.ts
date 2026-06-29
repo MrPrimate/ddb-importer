@@ -1193,10 +1193,19 @@ export default class AdventureMunch {
     if (!foundry.utils.hasProperty(drawing, "levels"))
       drawing.levels = [DEFAULT_LEVEL_ID];
     if (!drawing.shape) {
-      let type = "r";
-      if (Object.values(CONFIG.Drawing.objectClass.SHAPE_TYPES).includes(drawing.type)) {
-        type = drawing.type;
-      }
+      // Map legacy (v10/v11) drawing types to v14 ShapeData types. v14 only
+      // knows r/c/e/p; the old freehand ("f") and text ("t") types must be
+      // translated or they fall through to a 0x0 rectangle that fails
+      // V14's drawing validation.
+      const LEGACY_SHAPE_TYPE_MAP = {
+        r: "r",
+        c: "c",
+        e: "e",
+        p: "p",
+        f: "p", // freehand is a polygon
+        t: "r", // text drawing
+      };
+      const type = LEGACY_SHAPE_TYPE_MAP[drawing.type] ?? "r";
       const migratePoints = (t) => Array.isArray(t.points) ? t.points.flat() : t.points;
       const points = migratePoints(drawing);
       drawing.shape = {
@@ -1211,6 +1220,27 @@ export default class AdventureMunch {
       // delete drawing.width;
       // delete drawing.points;
       // delete drawing.radius;
+    }
+
+    // V14 rejects polygon drawings whose bounding box is degenerate
+    // (shape.width === 0 && shape.height === 0) even when the points span a
+    // real area. Some adventure exports ship 0/0 here, so recompute the
+    // bounding box from the points to keep the drawing valid.
+    if (drawing.shape?.type === "p" && drawing.shape.width === 0 && drawing.shape.height === 0) {
+      const points = Array.isArray(drawing.shape.points) ? drawing.shape.points : [];
+      if (points.length >= 4) {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (let i = 0; i < points.length - 1; i += 2) {
+          const x = points[i];
+          const y = points[i + 1];
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+        drawing.shape.width = maxX - minX;
+        drawing.shape.height = maxY - minY;
+      }
     }
 
     return drawing;
