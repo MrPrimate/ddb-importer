@@ -3,6 +3,8 @@
 - Eerie Token parsing improvements
 - Lupin parsing fixes
 - Reborn parsing fixes
+- Some drawings from old adventures would not import
+- Add a timeout to webp conversion to prevent hanging on import if conversion fails.
 
 # 7.3.12
 
