@@ -1622,6 +1622,10 @@ ${this.data.system.description.value}
       activity: activity,
     });
 
+    if (!("activation" in this.data.system)) {
+      activity.data.activation.override = true;
+    }
+
     activity.img = compendiumSpell.img;
 
     // console.warn("spell activite", {
