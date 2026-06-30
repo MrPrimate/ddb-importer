@@ -28,6 +28,14 @@ global {
     };
   }
 
+  interface ICompendiumLookup {
+    _id: string;
+    name: string;
+    uuid: string;
+    img: string;
+    [key: string]: any;
+  }
+
   type TGridSource =
     | "detected"
     | "template"

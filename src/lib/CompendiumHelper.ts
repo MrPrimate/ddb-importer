@@ -5,14 +5,6 @@ import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 
-interface ICompendiumLookup {
-  _id: string;
-  name: string;
-  uuid: string;
-  img: string;
-  [key: string]: any;
-}
-
 const CompendiumHelper = {
 
   // a mapping of compendiums with content type

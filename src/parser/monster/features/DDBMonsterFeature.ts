@@ -1691,7 +1691,7 @@ ${this.data.system.description.value}
   // }
   async #buildSpellcastingActivities(spells: IMonsterSpellcastingSpell[]) {
 
-    const compendiumSpellsIndex = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name)) as I5eSpellItem[];
+    const compendiumSpellsIndex: ICompendiumLookup[] = await this.#retrieveCompendiumSpells(spells.map((spell) => spell.name));
 
     for (const spell of spells) {
       const entry = compendiumSpellsIndex.find((i) => i.name.toLowerCase() === spell.name.toLowerCase()

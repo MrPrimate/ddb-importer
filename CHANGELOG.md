@@ -5,6 +5,7 @@
 - Reborn parsing fixes
 - Some drawings from old adventures would not import
 - Add a timeout to webp conversion to prevent hanging on import if conversion fails.
+- Some cast activities on monster generation would not be set as a bonus action, such as Slow on Stone Golem or Divine Aid on the Planetar.
 
 # 7.3.12
 
