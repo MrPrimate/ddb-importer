@@ -46,7 +46,10 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
       .find((e) => e._id === enchantmentFlag.effectId);
 
     if (!effect) continue;
-    // @ts-expect-error - flipping fvtt types
+
+    // loot items don't have activities, so we can't link the enchantment to them
+    if (!item.system.activities) continue;
+
     const activity = item.system.activities.getByType("enchant")
       .find((a) => a._id === enchantmentFlag.activityId);
 
@@ -60,9 +63,9 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
         if (item.system.attunement === "required") continue;
       }
       if (enchantmentFlag.targetItemId === "self") {
-        targetItem = item;
+        targetItem = item as Item.Implementation;
       } else if (enchantmentFlag.targetItemName) {
-        targetItem = items.find((i) => (i.flags.ddbimporter?.originalName ?? i.name) === enchantmentFlag.targetItemName) ?? null;
+        targetItem = items.find((i) => (i.flags.ddbimporter?.originalName ?? i.name) === enchantmentFlag.targetItemName) as Item.Implementation ?? null;
       } else if (enchantmentFlag.targetItemMatches) {
         const matchedFields = enchantmentFlag.targetItemMatches;
         // @ts-expect-error - flipping fvtt types
@@ -75,7 +78,7 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
           });
         } else {
           for (const matchedItem of targetItems) {
-            await linkSelectedEnchantment(matchedItem, effect, activity, item.name);
+            await linkSelectedEnchantment(matchedItem as Item.Implementation, effect, activity, item.name);
           }
           continue;
         }
