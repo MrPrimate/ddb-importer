@@ -22,6 +22,16 @@ export class FileHelper {
     return nameArray.join(".");
   }
 
+  // Derive a file extension from an image mime type, e.g. "image/jpeg" -> "jpg".
+  // Returns "" when the mime type is missing/unrecognised so callers can fall back.
+  static getExtensionFromMime(mime: string): string {
+    const subtype = (mime ?? "").split("/")[1]?.split("+")[0]?.toLowerCase() ?? "";
+    const overrides: Record<string, string> = {
+      jpeg: "jpg",
+    };
+    return overrides[subtype] ?? subtype;
+  }
+
   static download(content: any, fileName: string, contentType: string) {
     const a = document.createElement("a");
     const file = new Blob([content], { type: contentType });
@@ -143,19 +153,36 @@ export class FileHelper {
   static async convertImageToWebp(file, filename): Promise<BlobPart> {
     logger.info(`Converting file ${filename} to webp`);
 
-    // Load the data into an image
-    const result = new Promise((resolve) => {
-      const rawImage = new Image();
+    const timeoutSeconds = utils.getSetting<number>("webp-timeout") || 30;
+    const timeoutMs = timeoutSeconds * 1000;
 
-      rawImage.addEventListener("load", () => {
-        resolve(rawImage);
+    return new Promise<Blob>((resolve, reject) => {
+      const rawImage = new Image();
+      const objectUrl = URL.createObjectURL(file);
+
+      let timer: ReturnType<typeof setTimeout> | null = null;
+
+      const cleanup = () => {
+        if (timer !== null) clearTimeout(timer);
+        URL.revokeObjectURL(objectUrl);
+      };
+
+      const fail = (message: string, cause?: unknown) => {
+        cleanup();
+        logger.warn(message, cause);
+        reject(new Error(message, cause === undefined ? undefined : { cause }));
+      };
+
+      timer = setTimeout(() => {
+        fail(`WebP conversion timed out after ${timeoutSeconds}s for ${filename}`);
+      }, timeoutMs);
+
+      rawImage.addEventListener("error", (event) => {
+        fail(`WebP conversion failed to load image ${filename}`, event);
       });
 
-      rawImage.src = URL.createObjectURL(file);
-    })
-      .then((rawImage: HTMLImageElement) => {
-        // Convert image to webp ObjectURL via a canvas blob
-        return new Promise((resolve) => {
+      rawImage.addEventListener("load", () => {
+        try {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
           const quality = utils.getSetting<number>("webp-quality");
@@ -165,23 +192,42 @@ export class FileHelper {
           ctx.drawImage(rawImage, 0, 0);
 
           canvas.toBlob((blob) => {
+            if (!blob) {
+              fail(`WebP conversion produced no blob for ${filename}`);
+              return;
+            }
+            cleanup();
             resolve(blob);
           }, "image/webp", quality);
-        });
-      }).then((blob: Blob) => {
-        return blob;
+        } catch (error) {
+          fail(`WebP conversion failed while drawing ${filename}`, error);
+        }
       });
 
-    return result;
+      rawImage.src = objectUrl;
+    });
   }
 
   static async uploadFile(data, path, filename, forceWebp = false): Promise<FilePicker.UploadReturn> {
     const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
     const file = new File([data], filename, { type: data.type });
     const imageType = data.type.startsWith("image") && data.type !== "image/webp";
-    const uploadFile = useWebP && (imageType || forceWebp)
-      ? new File([await FileHelper.convertImageToWebp(file, filename)], filename, { type: "image/webp" })
-      : file;
+    let uploadFile = file;
+    if (useWebP && (imageType || forceWebp)) {
+      try {
+        uploadFile = new File([await FileHelper.convertImageToWebp(file, filename)], filename, { type: "image/webp" });
+      } catch (error) {
+        // Conversion failed (corrupt/oversized/unsupported/timeout). Fall back to the
+        // original image so it isn't dropped, fixing the extension to match the
+        // original format (the filename was given a `.webp` extension by the caller).
+        const fallbackExt = FileHelper.getExtensionFromMime(data.type);
+        const fallbackFilename = fallbackExt
+          ? `${FileHelper.removeFileExtension(filename)}.${fallbackExt}`
+          : filename;
+        logger.warn(`WebP conversion failed for ${filename}, uploading original image as ${fallbackFilename}`, error);
+        uploadFile = new File([data], fallbackFilename, { type: data.type });
+      }
+    }
 
     const result = await FileHelper.uploadToPath(path, uploadFile);
     return result;

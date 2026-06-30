@@ -471,6 +471,12 @@ const SETTINGS = {
           type: Number,
           default: 0.9,
         },
+        "webp-timeout": {
+          name: "ddb-importer.settings.webp-timeout.name",
+          hint: "ddb-importer.settings.webp-timeout.hint",
+          type: Number,
+          default: 30,
+        },
         "update-check": {
           name: "ddb-importer.settings.update-check.name",
           config: true,
