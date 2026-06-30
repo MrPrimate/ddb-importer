@@ -1,8 +1,11 @@
 # Next Up
 
+# 7.1.33
+
 - Eerie Token parsing improvements
 - Lupin parsing fixes
 - Reborn parsing fixes
+- Some cast activities on monster generation would not be set as a bonus action, such as Slow on Stone Golem or Divine Aid on the Planetar.
 
 # 7.1.32
 
