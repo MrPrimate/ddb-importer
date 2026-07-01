@@ -88,6 +88,7 @@ const WEAPON_PROPERTIES = {
     47, // magazine
     41, // momentum
     48, // repeater
+    56, // scatter
   ],
   "TGC": [ // gunslinger
     32, // scatter
@@ -118,6 +119,16 @@ const WEAPON_PROPERTIES = {
     16, // misfire
     17, // explosive
   ],
+  "SGEHPP": [ // Steinhardt's Guide to the Eldritch Hunt Player Pack
+    58, // barrel
+    59, // blaring
+    60, // spread fire
+    61, // twinned barrel
+    62, // artillery
+    63, // booming
+  ],
+  // unknown source
+  // 57, // Pull
 };
 
 // const PHYSICAL_WEAPON_PROPERTIES = [
