@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.17
+
+- When importing adventures that have been enhanced with v14 data, they no longer fail to import. e.g. the new Ravenloft books.
+
 # 7.0.16
 
 - Dozens of small feature fixes from 7.1.x and 7.3.x branches
