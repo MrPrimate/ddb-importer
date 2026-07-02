@@ -341,13 +341,6 @@ const SETTINGS = {
           type: Boolean,
           default: false,
         },
-        "show-munch-top": {
-          name: "ddb-importer.settings.show-munch-top.name",
-          hint: "ddb-importer.settings.show-munch-top.hint",
-          config: true,
-          type: Boolean,
-          default: true,
-        },
         "show-image-to-players": {
           name: "ddb-importer.settings.show-image-to-players.name",
           hint: "ddb-importer.settings.show-image-to-players.hint",
