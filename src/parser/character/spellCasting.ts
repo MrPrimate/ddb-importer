@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 
 
@@ -81,7 +81,11 @@ DDBCharacter.prototype.getCasterInfo = function getCasterInfo(this: DDBCharacter
         const levelSpellSlots = cls.definition.spellRules.levelSpellSlots[casterLevel];
         const maxLevel = levelSpellSlots.indexOf(Math.max(...levelSpellSlots)) + 1;
         const maxSlots = Math.max(...levelSpellSlots);
-        const currentSlots = this.source.ddb.character.pactMagic.find((pact) => pact.level === maxLevel).used;
+        const pactEntry = this.source.ddb.character.pactMagic.find((pact) => pact.level === maxLevel);
+        if (!pactEntry) {
+          logger.warn(`No pact magic entry found for level ${maxLevel} on ${name}, assuming no slots used`);
+        }
+        const currentSlots = pactEntry?.used ?? 0;
         if (["Blood Hunter"].includes(name)) {
           this.spellSlots.pact = { value: maxSlots - currentSlots, max: String(maxSlots), override: maxSlots };
         } else {

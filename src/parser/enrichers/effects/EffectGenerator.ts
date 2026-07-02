@@ -312,8 +312,12 @@ export default class EffectGenerator {
       : CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE;
 
     if (bonuses.length > 0) {
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0])?.value;
+      if (!ability) {
+        logger.warn(`Unable to determine ability for "${subType}", skipping ${type} ${mode} effect for ${this.document.name}`);
+        return;
+      }
       logger.debug(`Generating ${subType} ${type} ${mode} for ${this.document.name}`);
-      const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
       this.effect.system.changes.push(ChangeHelper.addChange(`${modifier}`, 8, `system.abilities.${ability}.${type}.roll.mode`));
     }
   }
@@ -322,9 +326,13 @@ export default class EffectGenerator {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
     if (bonuses.length > 0) {
+      const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0])?.value;
+      if (!ability) {
+        logger.warn(`Unable to determine ability for "${subType}", skipping stat set effect for ${this.document.name}`);
+        return;
+      }
       bonuses.forEach((bonus) => {
         logger.debug(`Generating ${subType} stat set for ${this.document.name}`);
-        const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType.split("-")[0]).value;
         this.effect.system.changes.push(ChangeHelper.upgradeChange(bonus.value, 3, `system.abilities.${ability}.value`));
       });
     }
@@ -332,6 +340,10 @@ export default class EffectGenerator {
 
   _addStatMaximumEffect(subType) {
     const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType);
+    if (!ability) {
+      logger.warn(`Unable to determine ability for "${subType}", skipping stat maximum effect for ${this.document.name}`);
+      return;
+    }
     const bonuses = this.grantedModifiers.filter((modifier) =>
       modifier.type === "bonus"
       && modifier.subType === "ability-score-maximum"

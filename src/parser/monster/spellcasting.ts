@@ -1,6 +1,6 @@
 import { getAbilityMods } from "./helpers";
 import DDBMonster from "../DDBMonster";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 
 // <p><em><strong>Innate Spellcasting.</strong></em> The oblex&rsquo;s innate spellcasting ability is Intelligence (spell save DC 15). It can innately cast the following spells, requiring no components:</p>\r\n<p>3/day each: charm person (as 5th-level spell), color spray, detect thoughts, hold person (as 3rd-level spell)</p>
 
@@ -50,7 +50,11 @@ DDBMonster.prototype._generateSpellAttackBonus = function(this: DDBMonster, text
   const match = text.match(dcSearch);
   if (match) {
     const toHit = match[1];
-    const proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
+    const crData = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+    if (!crData) {
+      logger.warn(`Unknown challenge rating id ${this.source.challengeRatingId} for ${this.name}, defaulting proficiency bonus to 2`);
+    }
+    const proficiencyBonus = crData?.proficiencyBonus ?? 2;
     const abilities = getAbilityMods(this.source);
     const castingAbility = this.getSpellcasting(text);
     spellAttackBonus = toHit - proficiencyBonus - abilities[castingAbility];

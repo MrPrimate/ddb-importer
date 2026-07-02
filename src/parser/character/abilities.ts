@@ -1,12 +1,12 @@
 import { DICTIONARY } from "../../config/_module";
-import { utils } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBCharacter from "../DDBCharacter";
 import { DDBModifiers } from "../lib/_module";
 
 DDBCharacter.prototype._generateAbilitiesOverrides = function _generateAbilitiesOverrides(this: DDBCharacter) {
   DICTIONARY.actor.abilities.forEach((ability) => {
     this.abilities.overrides[ability.value]
-      = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
+      = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
   });
   this.raw.character.flags.ddbimporter.dndbeyond.abilityOverrides = this.abilities.overrides;
 };
@@ -100,7 +100,11 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
       proficient: 0,
     };
 
-    const stat = this.source.ddb.character.stats.find((stat) => stat.id === ability.id).value || 0;
+    const statEntry = this.source.ddb.character.stats.find((stat) => stat.id === ability.id);
+    if (!statEntry) {
+      logger.warn(`No base stat entry found for ability "${ability.value}" (id ${ability.id}), defaulting to 0`);
+    }
+    const stat = statEntry?.value || 0;
     const abilityScoreMaxBonus = DDBModifiers
       .filterBaseModifiers(this.source.ddb, "bonus", { subType: "ability-score-maximum", restriction: ["", null], includeExcludedEffects: true })
       .filter((mod) => mod.statId === ability.id)
@@ -144,9 +148,9 @@ DDBCharacter.prototype._getAbilities = function _getAbilities(this: DDBCharacter
         { value: 0, cap: 20 + abilityScoreMaxBonus },
       );
     // applied regardless of cap
-    const bonusStat = this.source.ddb.character.bonusStats.find((stat) => stat.id === ability.id).value || 0;
+    const bonusStat = this.source.ddb.character.bonusStats.find((stat) => stat.id === ability.id)?.value || 0;
     // over rides all other calculations if present
-    const overrideStat = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id).value || 0;
+    const overrideStat = this.source.ddb.character.overrideStats.find((stat) => stat.id === ability.id)?.value || 0;
 
     const setAbility = Math.max(...[0, ...setAbilities]);
     const calculatedStat = stat + bonus + cappedBonus.value;

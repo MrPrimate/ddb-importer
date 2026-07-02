@@ -58,6 +58,14 @@ describe("DDBMonster.getSizeFromId", () => {
     expect(result.value).toBe("grg");
     expect(result.size).toBe(4);
   });
+
+  it("falls back to Medium for an unknown sizeId", () => {
+    const mock = makeMockMonster();
+    const result = getSizeFromId.call(mock, 999);
+    expect(result.name).toBe("Medium");
+    expect(result.value).toBe("med");
+    expect(result.size).toBe(1);
+  });
 });
 
 describe("DDBMonster._generateSize", () => {

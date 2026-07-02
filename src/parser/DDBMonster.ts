@@ -334,7 +334,11 @@ class DDBMonster {
     this._generateFlags();
 
 
-    this.proficiencyBonus = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId).proficiencyBonus;
+    const crData = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+    if (!crData) {
+      logger.warn(`Unknown challenge rating id ${this.source.challengeRatingId} for ${this.name}, defaulting proficiency bonus to 2`);
+    }
+    this.proficiencyBonus = crData?.proficiencyBonus ?? 2;
     this.npc.system.attributes.prof = this.proficiencyBonus;
     this._generateAbilities();
 
