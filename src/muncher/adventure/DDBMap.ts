@@ -16,6 +16,7 @@ import {
 import DDBMaps, { IDDBMap, IDDBPreparedState } from "../DDBMaps";
 import DDBQuickplay from "./DDBQuickplay";
 import DDBQuickplayTokens from "./DDBQuickplayTokens";
+import AdventureMunchHelpers from "./AdventureMunchHelpers";
 
 const DEFAULT_UPLOAD_PATH = "[data] ddb-images/maps";
 
@@ -214,7 +215,7 @@ export default class DDBMap {
       ...candidates,
     });
     const folderId = await this._resolveFolderId();
-    const data: any = {
+    let data: any = {
       name: this._sceneName(),
       background: {
         src: this.uploadedPath,
@@ -258,6 +259,8 @@ export default class DDBMap {
       detection: this.detection,
     });
     this._notify(`Creating scene "${data.name}" (grid ${gridSize}px from ${grid.source})...`);
+    // Defensive: reverse-migrate should DDB maps/proxy data ever arrive in v14 levels shape
+    if (parseInt(game.version) < 14) data = AdventureMunchHelpers.migrateSceneDataFromV14(data);
     this.scene = await Scene.create(data);
     return this.scene;
   }

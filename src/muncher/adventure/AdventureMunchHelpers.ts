@@ -18,6 +18,135 @@ export default class AdventureMunchHelpers {
   }
 
   /**
+   * Reverse-migrate a v14 levels format scene back to v13 format.
+   * This is the inverse of `AdventureMunch._migrateSceneDataToV14`.
+   * @param {object} data Scene data
+   * @returns {object} v13 format scene data
+   */
+  static migrateSceneDataFromV14(data) {
+    if (!Array.isArray(data.levels) || data.levels.length === 0) return data;
+
+    // This is often "mixed" data: a genuine v13 scene that has had a v14 `levels`
+    // block appended, with the real background (src + offset + scale) left intact
+    // at the top level while the level's own background is empty. In that case keep
+    // the v13 background verbatim - the empty level (whose textures.offset is 0, not
+    // null) must NOT clobber the real offset, or the map shifts by that offset.
+    // Only reconstruct the v13 background from the level for pure-v14 data.
+    const existingBg = (data.background && typeof data.background === "object") ? data.background : null;
+    const pureV14 = !existingBg?.src;
+
+    if (pureV14) {
+      // Prefer the initial level, but if it has no background image, fall back to
+      // the first level that does (mixed exports sometimes leave the initial empty).
+      const initialLevel = data.levels.find((l) => l._id === data.initialLevel) ?? data.levels[0];
+      const level = initialLevel.background?.src
+        ? initialLevel
+        : (data.levels.find((l) => l.background?.src) ?? initialLevel);
+      const bg = level.background ?? {};
+      const textures = level.textures ?? {};
+
+      data.background = {
+        src: bg.src ?? data.img ?? null,
+        tint: bg.tint ?? "#ffffff",
+        alphaThreshold: bg.alphaThreshold ?? 0.75,
+        anchorX: textures.anchorX ?? 0.5,
+        anchorY: textures.anchorY ?? 0.5,
+        // v14 top-level shiftX/Y → v13 background.offsetX/Y
+        offsetX: data.shiftX ?? textures.offsetX ?? 0,
+        offsetY: data.shiftY ?? textures.offsetY ?? 0,
+        fit: textures.fit ?? "fill",
+        scaleX: textures.scaleX ?? 1,
+        scaleY: textures.scaleY ?? 1,
+        rotation: textures.rotation ?? 0,
+      };
+
+      data.foreground = level.foreground?.src
+        ?? (typeof level.foreground === "string" ? level.foreground : null);
+    }
+
+    if (data.backgroundColor == null) {
+      const initial = data.levels.find((l) => l._id === data.initialLevel) ?? data.levels[0];
+      data.backgroundColor = initial?.background?.color ?? "#999999";
+    }
+
+    if (data.fog && "mode" in data.fog) {
+      data.fog = {
+        exploration: data.fog.mode >= 1,
+        overlay: null,
+        colors: data.fog.colors ?? {},
+      };
+    }
+
+    delete data.levels;
+    delete data.initialLevel;
+    delete data.shiftX;
+    delete data.shiftY;
+    delete data.transition;
+
+    if (Array.isArray(data.tokens)) {
+      for (const token of data.tokens) {
+        delete token.level;
+        delete token.depth;
+      }
+    }
+
+    if (Array.isArray(data.walls)) {
+      for (const wall of data.walls) {
+        delete wall.levels;
+      }
+    }
+
+    if (Array.isArray(data.lights)) {
+      for (const light of data.lights) {
+        delete light.levels;
+        delete light.locked;
+      }
+    }
+
+    for (const key of ["notes", "sounds", "drawings"]) {
+      if (Array.isArray(data[key])) {
+        for (const placeable of data[key]) {
+          delete placeable.levels;
+        }
+      }
+    }
+
+    // Regions: drop levels, and drop v14 visibility modes v13 rejects (v13 allows 0/1/2)
+    if (Array.isArray(data.regions)) {
+      for (const region of data.regions) {
+        delete region.levels;
+        if (![0, 1, 2].includes(region.visibility)) delete region.visibility;
+      }
+    }
+
+    // Tiles: For pure-v14 data also convert anchor-relative coords back
+    // to v13 top-left. v13 tiles natively carry texture.anchorX/Y (default 0.5) with
+    // top-left x/y
+    if (Array.isArray(data.tiles)) {
+      for (const tile of data.tiles) {
+        if (pureV14) {
+          const anchorX = tile.texture?.anchorX;
+          const anchorY = tile.texture?.anchorY;
+          if (anchorX !== undefined || anchorY !== undefined) {
+            tile.x = (tile.x ?? 0) - (tile.width ?? 0) * (anchorX ?? 0);
+            tile.y = (tile.y ?? 0) - (tile.height ?? 0) * (anchorY ?? 0);
+            if (tile.texture) {
+              delete tile.texture.anchorX;
+              delete tile.texture.anchorY;
+            }
+          }
+        }
+        delete tile.levels;
+      }
+    }
+
+    logger.debug("Reverse-migrated scene data from v14 levels format to v13", {
+      data,
+    });
+    return data;
+  }
+
+  /**
    * Async replace for all matching patterns
    *
    * @param {string} str Original string to replace values in
