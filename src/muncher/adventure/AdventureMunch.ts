@@ -1039,6 +1039,8 @@ export default class AdventureMunch {
 
     if (importType === "Scene" && parseInt(game.version) >= 14) {
       data = AdventureMunch._migrateSceneDataToV14(data);
+    } else if (importType === "Scene" && parseInt(game.version) < 14) {
+      data = AdventureMunchHelpers.migrateSceneDataFromV14(data);
     }
 
     if (data.levels) {
@@ -1399,19 +1401,16 @@ export default class AdventureMunch {
       }
       switch (importType) {
         case "Scene": {
-          const existingScene = await game.scenes.find((item) => item.id === json._id);
+          const existingScene = game.scenes.find((item) => item.id === json._id);
+          if (!existingScene) break;
           const scene = AdventureMunchHelpers.extractDocumentVersionData(json, existingScene);
           const sceneVersions = scene.flags?.ddb?.versions?.importer;
-          if (existingScene) {
-            if (
-              sceneVersions
-              && (sceneVersions.metaVersionChanged
-                || sceneVersions.muncherVersionChanged
-                || sceneVersions.foundryVersionNewer)
-            ) {
-              fileData.push(scene);
-            }
-          } else if (sceneVersions && sceneVersions.foundryVersionNewer) {
+          if (
+            sceneVersions
+            && (sceneVersions.metaVersionChanged
+              || sceneVersions.muncherVersionChanged
+              || sceneVersions.foundryVersionNewer)
+          ) {
             fileData.push(scene);
           }
           break;
