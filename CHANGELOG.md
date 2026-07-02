@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.34
+
+- When importing adventures that have been enhanced with v14 data, they no longer fail to import. e.g. the new Ravenloft books.
+
 # 7.1.33
 
 - Eerie Token parsing improvements
