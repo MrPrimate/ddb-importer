@@ -1215,7 +1215,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
 
-  build() {
+  build(): boolean | Promise<boolean | void> {
     // override this feature
     return false;
   }

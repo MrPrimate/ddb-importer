@@ -12,6 +12,10 @@ export default class DDBFeature extends DDBFeatureMixin {
   declare isChoiceFeature: boolean;
   declare include: boolean;
   declare hasRequiredLevel: boolean;
+  _choices: IDDBChoiceResult[];
+  _chosen: IDDBChoiceResult[];
+  _parentOnlyChoices: IDDBChoiceResult[];
+  _parentOnlyChosen: IDDBChoiceResult[];
 
   static DOC_TYPE = {
     class: "feat" as const, // class feature
@@ -359,11 +363,11 @@ export default class DDBFeature extends DDBFeatureMixin {
 
   generateFeatAbilityScoreAdvancement() {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
-    const configuration = foundry.utils.duplicate(advancement.configuration);
+    const configuration: I5eAdvASIConfig = foundry.utils.duplicate(advancement.configuration);
     configuration.points = 0;
     configuration.cap = 1;
-    configuration.level = 0;
-    configuration.value = { type: "asi" };
+    advancement.level = 0;
+    foundry.utils.setProperty(advancement, "value.type", "asi");
 
     const maxRegex = /to a maximum of (\d{2})/i;
     const maxMatch = this.ddbDefinition.description.match(maxRegex);
@@ -686,8 +690,9 @@ export default class DDBFeature extends DDBFeatureMixin {
       }
     }
 
-    if (entries.length > 0) this.data.system.startingEquipment = entries;
-    if (totalGold > 0) this.data.system.wealth = String(totalGold);
+    const backgroundSystem = this.data.system as I5eBackgroundSystemData;
+    if (entries.length > 0) backgroundSystem.startingEquipment = entries;
+    if (totalGold > 0) backgroundSystem.wealth = String(totalGold);
   }
 
   async _generateSpellAdvancements() {
@@ -879,7 +884,7 @@ export default class DDBFeature extends DDBFeatureMixin {
       .filter((c) =>
         !DDBChoiceFeature.NEVER_CHOICES.includes(c.label)
         && !DICTIONARY.actor.skills.map((s) => s.label).includes(c.label)
-        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.label).includes(utils.nameString(c.label)),
+        && !DICTIONARY.actor.proficiencies.filter((p) => p.type === "Tool").map((p) => p.name).includes(utils.nameString(c.label)),
       )
       .sort((a, b) => ((a.label < b.label) ? -1 : (a.label > b.label) ? 1 : 0))
       .reduce((p, c) => {
