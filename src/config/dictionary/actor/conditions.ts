@@ -4,6 +4,8 @@ export interface IDDBConditionMapping {
   ddbId: number | null;
   levelId: number | null;
   ddbType: number | null;
+  /** set transiently by the dynamic condition sync before posting to DDB */
+  applied?: boolean;
 }
 
 export const CONDITIONS: IDDBConditionMapping[] = [

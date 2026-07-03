@@ -1,6 +1,40 @@
 import { logger } from "../../lib/_module";
 import DDBEffectHelper from "../DDBEffectHelper";
 
+interface IAuraTracker {
+  randomId?: string;
+  targetUuids?: string[];
+  startRound?: number;
+  startTurn?: number;
+  spellLevel?: number;
+  hasLeft?: boolean;
+  condition?: string | null;
+  round?: number;
+  turn?: number;
+}
+
+interface IAuraOriginDocument {
+  name: string;
+  uuid: string;
+  parent: Actor.Implementation | null;
+  actor?: Actor.Implementation | null;
+  system: { level: number };
+}
+
+type TAdjustConditionOptions = Parameters<typeof DDBEffectHelper.adjustCondition>[0];
+type TSyntheticWorkflowOptions = Parameters<typeof DDBEffectHelper.syntheticItemWorkflowOptions>[0];
+type TFilteredActivitiesOptions = Parameters<typeof DDBEffectHelper.documentWithFilteredActivities>[0];
+type TTokenTargetUser = typeof game.user & {
+  updateTokenTargets: (targetIds?: string[]) => void;
+};
+
+interface IActiveAurasModule {
+  api: {
+    AAHelpers: {
+      applyTemplate: (args: unknown) => Promise<unknown>;
+    };
+  };
+}
 
 function getSafeName(name) {
   return name.replace(/\s|'|\.|’/g, "_");
@@ -48,7 +82,7 @@ function createDataTracker({
   spellLevel,
   hasLeft = false,
   randomId = foundry.utils.randomID(),
-} = {}, trackerFlags = {}) {
+}: IAuraTracker = {}, trackerFlags: Partial<IAuraTracker> = {}): IAuraTracker {
   const dataTracker = foundry.utils.mergeObject({
     randomId,
     targetUuids,
@@ -66,6 +100,12 @@ async function generateDataTracker({
   originDocument,
   wait = false,
   actor,
+}: {
+  targetUuids?: string[];
+  spellLevel?: number;
+  originDocument?: IAuraOriginDocument;
+  wait?: boolean;
+  actor?: Actor.Implementation | null;
 }) {
   const dataTracker = createDataTracker({ targetUuids, spellLevel });
   if (wait) await DDBEffectHelper.wait(500);
@@ -84,6 +124,12 @@ async function rollDocumentActivityMidiQol({
   level = 0,
   activityIds = [],
   nameSuffix = "",
+}: {
+  targetToken?: Token.Implementation;
+  originDocument?: IAuraOriginDocument;
+  level?: number;
+  activityIds?: string[];
+  nameSuffix?: string;
 } = {}) {
 
   const workflowItemData = DDBEffectHelper.documentWithFilteredActivities({
@@ -92,7 +138,7 @@ async function rollDocumentActivityMidiQol({
     parent: originDocument.parent,
     clearEffectFlags: true,
     renameDocument: `${originDocument.name}${nameSuffix}`,
-  });
+  } as TFilteredActivitiesOptions);
 
   await DDBEffectHelper.rollMidiItemUse(workflowItemData, {
     targets: [targetToken.document.uuid],
@@ -108,6 +154,14 @@ async function applyConditionVsSave({
   itemLevel,
   activityIds,
   nameSuffix = "",
+}: {
+  condition?: string | null;
+  targetToken?: Token.Implementation;
+  item?: IAuraOriginDocument;
+  itemLevel?: number;
+  spellLevel?: number;
+  activityIds?: string[];
+  nameSuffix?: string;
 }) {
   logger.debug(`Running ${item.name}, applyConditionVsSave`);
   if (DDBEffectHelper.isConditionEffectAppliedAndActive(condition, targetToken.actor)) return true;
@@ -119,19 +173,19 @@ async function applyConditionVsSave({
     parent: item.parent,
     clearEffectFlags: true,
     renameDocument: `${item.name}${resolvedNameSuffix}`,
-  });
+  } as TFilteredActivitiesOptions);
 
   const saveTargets = [...(game.user?.targets ?? [])].map((t) => t.id);
-  game.user.updateTokenTargets([targetToken.id]);
+  (game.user as TTokenTargetUser).updateTokenTargets([targetToken.id]);
   const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions({
     slotLevel: itemLevel,
     scaling: (itemLevel ?? 0) - item.system.level,
-  });
+  } as unknown as TSyntheticWorkflowOptions);
   const result = await MidiQOL.completeItemUse(workflowItemData, config, options);
 
   // console.warn("APPLY CONDITION VS SAVE RESULT", {result, workflowItemData});
-  game.user.updateTokenTargets(saveTargets);
-  const failedSaves = Array.from(result.failedSaves);
+  (game.user as TTokenTargetUser).updateTokenTargets(saveTargets);
+  const failedSaves = Array.from<Token.Implementation>(result.failedSaves);
   const statusOnWorkflow = workflowItemData.effects.some((e) =>
     e.statuses.some((s) => s.name.toLowerCase() === condition),
   );
@@ -140,7 +194,7 @@ async function applyConditionVsSave({
       add: true,
       conditionName: condition,
       actor: failedSaves[0].actor,
-    });
+    } as TAdjustConditionOptions);
   }
 
   return result;
@@ -151,13 +205,18 @@ export async function checkAuraAndUseActivity({
   tokenUuid,
   activityIds = [],
   nameSuffix = "",
+}: {
+  originDocument?: IAuraOriginDocument;
+  tokenUuid?: string;
+  activityIds?: string[];
+  nameSuffix?: string;
 } = {}) {
   const safeName = getSafeName(originDocument.name);
-  const targetItemTracker = DDBEffectHelper.getFlag(originDocument.parent, `${safeName}Tracker`);
+  const targetItemTracker = DDBEffectHelper.getFlag(originDocument.parent, `${safeName}Tracker`) as IAuraTracker;
   const originalTarget = targetItemTracker.targetUuids.includes(tokenUuid);
   const tokenId = tokenUuid.split(".").pop();
   const target = canvas.tokens.get(tokenId);
-  const targetTokenTrackerFlag = DDBEffectHelper.getFlag(target.actor, `${safeName}Tracker`);
+  const targetTokenTrackerFlag = DDBEffectHelper.getFlag(target.actor, `${safeName}Tracker`) as IAuraTracker;
   const targetedThisCombat = targetTokenTrackerFlag && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
     ? targetTokenTrackerFlag
@@ -203,6 +262,15 @@ export async function checkAuraAndApplyCondition({
   allowVsRemoveCondition = false,
   activityIds = [],
   nameSuffix = "",
+}: {
+  originDocument?: IAuraOriginDocument;
+  wait?: boolean;
+  tokenUuid?: string;
+  condition?: string | null;
+  everyEntry?: boolean;
+  allowVsRemoveCondition?: boolean;
+  activityIds?: string[];
+  nameSuffix?: string;
 } = {}) {
   logger.debug(`Running ${originDocument.name}, checkAuraAndApplyCondition`);
 
@@ -212,12 +280,12 @@ export async function checkAuraAndApplyCondition({
   const safeName = getSafeName(originDocument.name);
   // sometimes the round info has not updated, so we pause a bit
   if (wait) await DDBEffectHelper.wait(500);
-  const targetItemTracker = DDBEffectHelper.getFlag(originDocument.parent, `${safeName}Tracker`);
+  const targetItemTracker = DDBEffectHelper.getFlag(originDocument.parent, `${safeName}Tracker`) as IAuraTracker;
   const originalTarget = targetItemTracker.targetUuids.includes(tokenUuid);
   // const target = canvas.tokens.get(lastArg.tokenId);
   const tokenId = tokenUuid.split(".").pop();
   const target = canvas.tokens.get(tokenId);
-  const targetTokenTrackerFlag = DDBEffectHelper.getFlag(target.actor, `${safeName}Tracker`);
+  const targetTokenTrackerFlag = DDBEffectHelper.getFlag(target.actor, `${safeName}Tracker`) as IAuraTracker;
   const targetedThisCombat = targetTokenTrackerFlag
     && targetItemTracker.randomId === targetTokenTrackerFlag.randomId;
   const targetTokenTracker = targetedThisCombat
@@ -273,18 +341,22 @@ export async function removeAuraFromToken({
   effectOrigin,
   tokenUuid,
   removeOnOff = true,
+}: {
+  effectOrigin?: string;
+  tokenUuid?: string;
+  removeOnOff?: boolean;
 } = {}) {
-  const originDocument = await fromUuid(effectOrigin);
+  const originDocument = await fromUuid(effectOrigin) as unknown as IAuraOriginDocument;
   logger.debug(`Running ${originDocument.name}, removeAuraFromToken`);
   const safeName = getSafeName(originDocument.name);
-  const targetToken = await fromUuid(tokenUuid);
+  const targetToken = await fromUuid(tokenUuid) as TokenDocument.Implementation;
   logger.verbose("removeAuraFromToken args", {
     targetToken,
     tokenUuid,
     effectOrigin,
     originDocument,
   });
-  const targetTokenTracker = await DDBEffectHelper.getFlag(targetToken.actor, `${safeName}Tracker`);
+  const targetTokenTracker = await DDBEffectHelper.getFlag(targetToken.actor, `${safeName}Tracker`) as IAuraTracker;
   logger.debug("targetTokenTracker", { targetTokenTracker });
 
   if (!targetTokenTracker) {
@@ -300,7 +372,7 @@ export async function removeAuraFromToken({
       remove: true,
       conditionName: targetTokenTracker.condition,
       actor: targetToken.actor,
-    });
+    } as TAdjustConditionOptions);
   }
 
   targetTokenTracker.hasLeft = true;
@@ -321,6 +393,17 @@ export async function applyAuraToTemplate(returnArgs, {
   spellLevel,
   failedSaveTokens = [],
   isCantrip = false,
+}: {
+  originDocument?: IAuraOriginDocument;
+  condition?: string | null;
+  sequencerFile?: string | null;
+  sequencerScale?: number;
+  targetUuids?: string[];
+  applyImmediate?: boolean;
+  templateUuid?: string;
+  spellLevel?: number;
+  failedSaveTokens?: Token.Implementation[];
+  isCantrip?: boolean;
 } = {}) {
   logger.debug(`Running ${originDocument.name}, applyAuraToTemplate`);
   await generateDataTracker({
@@ -354,12 +437,12 @@ export async function applyAuraToTemplate(returnArgs, {
     for (const token of failedSaveTokens) {
       if (!DDBEffectHelper.isConditionEffectAppliedAndActive(condition, token.actor)) {
         logger.debug(`Applying ${condition} to ${token.name}`);
-        await DDBEffectHelper.adjustCondition({ add: true, conditionName: condition, actor: token.actor });
+        await DDBEffectHelper.adjustCondition({ add: true, conditionName: condition, actor: token.actor } as TAdjustConditionOptions);
       }
     };
   }
 
-  const templateResult = await game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(returnArgs);
+  const templateResult = await (game.modules.get("ActiveAuras") as unknown as IActiveAurasModule).api.AAHelpers.applyTemplate(returnArgs);
   return templateResult;
 
 }

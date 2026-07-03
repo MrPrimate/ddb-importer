@@ -101,6 +101,7 @@ interface IDDBUserDataResponse {
     userDisplayName: string;
     twitchUserName: string;
     AvatarUrl: string;
+    email?: string;
     firstName: string;
     lastName: string | null;
     subscriptionPaidThruDate: number;

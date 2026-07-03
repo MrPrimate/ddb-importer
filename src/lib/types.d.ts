@@ -119,4 +119,14 @@ global {
       lagMax: number;
     };
   }
+
+  interface IDDBListCampaign {
+    id: number;
+    name: string;
+    dmUsername: string;
+    dateCreated: string;
+    playerCount: number;
+    dmId: number;
+    selected?: boolean;
+  };
 }

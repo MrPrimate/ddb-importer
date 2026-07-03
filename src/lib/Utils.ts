@@ -647,4 +647,8 @@ export default class Utils {
     return (game.settings.get as (moduleId: string, key: string) => unknown)(moduleId, key) as T;
   }
 
+  static setSetting<T>(key: string, value: T, moduleId: string = SETTINGS.MODULE_ID): Promise<T> {
+    return (game.settings.set as (moduleId: string, key: string, value: unknown) => Promise<T>)(moduleId, key, value);
+  }
+
 }

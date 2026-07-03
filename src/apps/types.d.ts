@@ -12,7 +12,8 @@ global {
     nameField?: boolean;
     monsterNote?: boolean;
     isError?: boolean;
-    message?: string;
+    // some callers pass a boolean flag here; munchNote treats it as truthy only
+    message?: string | boolean;
   }
 
   interface NotifierV2Props {
@@ -36,7 +37,8 @@ global {
   }
 
   interface DDBAppV2Context extends foundry.applications.api.Application.RenderContext {
-    tabs: IDDBTabs;
+    tabs?: IDDBTabs;
+    tab?: Partial<IDDBTab>;
   }
 
   interface IMonsterReplacerData {

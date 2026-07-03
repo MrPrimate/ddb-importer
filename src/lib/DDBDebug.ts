@@ -5,7 +5,58 @@ import * as Secrets from "./Secrets";
 import FileHelper from "./FileHelper";
 import MuncherSettings from "./MuncherSettings";
 
+interface IDDBDebugSecrets {
+  cobalt: { success: boolean; message: string };
+  isLocalCobalt: boolean;
+  ddbUser: Awaited<ReturnType<typeof Secrets.getUserData>>;
+  proxy: {
+    isCustom: boolean;
+    proxy: string;
+  };
+  patreon: {
+    tier: IPatreonAccessMatrix;
+    tierLocal: IPatreonAccessMatrix;
+  };
+  dnd5e: {
+    version: string;
+  };
+}
+
 export default class DDBDebug {
+
+  debug: boolean;
+
+  sources: IIdLabelBoolAcronymLookup[] | { excluded: IIdLabelSelectedLookup[] };
+
+  monsterTypes: IIdLabelSelectedLookup[];
+
+  muncherSettings: {
+    character: ICharacterImportSettings;
+    muncher: IMuncherSettings;
+    encounter: IEncounterSettings;
+  };
+
+  ddbSettings: Record<string, any>;
+
+  ddbChangedSettings: Record<string, unknown>;
+
+  versions: {
+    game: string;
+    system: string;
+    ddbimporter: string;
+  };
+
+  modules: {
+    active: string[];
+    excludingKnown: string[];
+    exclusionString: string;
+  };
+
+  actor: Actor.Implementation | null | undefined;
+
+  secrets: IDDBDebugSecrets | null;
+
+  extra: Record<string, unknown>;
 
   static KNOWN_MODULES = [
     "ATL",
@@ -38,7 +89,7 @@ export default class DDBDebug {
     "tokenizer-2",
   ];
 
-  static fixCircularReferences(obj) {
+  static fixCircularReferences(obj?: unknown) {
 
     const weirdTypes = [
       Int8Array,
@@ -77,7 +128,7 @@ export default class DDBDebug {
     };
   }
 
-  constructor({ actor, extra = {} } = {}) {
+  constructor({ actor, extra = {} }: { actor?: Actor.Implementation | null; extra?: Record<string, unknown> } = {}) {
     this.debug = true;
     this.sources = MuncherSettings.getSourcesLookups();
     this.monsterTypes = MuncherSettings.getMonsterTypeLookups();
@@ -177,7 +228,7 @@ export default class DDBDebug {
       dnd5e: {
         version: utils.getSetting<string>("rulesVersion", "dnd5e"),
       },
-    });
+    }) as IDDBDebugSecrets;
     if (this.secrets.ddbUser?.data) {
       delete this.secrets.ddbUser.data.firstName;
       delete this.secrets.ddbUser.data.lastName;
@@ -186,7 +237,7 @@ export default class DDBDebug {
     }
   }
 
-  static async generateDebug({ actor, extra } = {}) {
+  static async generateDebug({ actor, extra }: { actor?: Actor.Implementation | null; extra?: Record<string, unknown> } = {}) {
     const debug = new DDBDebug({ actor, extra });
     await debug.fetch();
     return debug.data;

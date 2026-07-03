@@ -7,7 +7,6 @@ export { default as DDBSources } from "./DDBSources";
 export { default as Iconizer } from "./Iconizer";
 export { ChooserDialog } from "./AdvancedDialog";
 export { default as CompendiumHelper } from "./CompendiumHelper";
-export { default as Crosshairs } from "./Crosshairs";
 export { default as DDBCampaigns } from "./DDBCampaigns";
 export { DDBCompendiumFolders } from "./DDBCompendiumFolders";
 export { default as DDBItemImporter } from "./DDBItemImporter";

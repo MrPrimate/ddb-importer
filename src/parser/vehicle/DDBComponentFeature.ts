@@ -6,6 +6,8 @@ import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
 import DDBVehicle, { IDDBVehicleFeatureComponent } from "../DDBVehicle";
 import DDBActivityFactoryMixin from "../activities/mixins/DDBActivityFactoryMixin";
+import type DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
+import type { IMonsterWeaponDictionary } from "../../config/dictionary/actor/monsters";
 
 interface IDDBComponentFeature {
   ddbVehicle: DDBVehicle;
@@ -14,6 +16,81 @@ interface IDDBComponentFeature {
   hideDescription?: boolean;
   sort?: number;
   action?: IDDBVehicleAction;
+}
+
+interface IDDBVehicleActionDataTemplate {
+  count?: string;
+  contiguous?: boolean;
+  type?: string;
+  size?: string | number;
+  width?: string;
+  height?: string;
+  units?: string;
+}
+
+interface IDDBVehicleActionData {
+  type: string | null;
+  activationType: string | null;
+  targetType: string;
+  targetCount: number | null;
+  fixedToHit: string | null;
+  fixedSaveDc: number | null;
+  saveAbility: string | string[] | null;
+  damageType: string | null;
+  diceString: string | null;
+  baseAbility?: string | null;
+  range?: unknown;
+  consumptionValue: string | number | null;
+  consumptionTargets: I5eConsumptionTarget[];
+  diceParts: I5eDamagePart[];
+  healingParts: IDDBMonsterActionDataHealingPart[];
+  saveParts: I5eDamagePart[];
+  damageParts?: IDDBMonsterActionDataDamagePart[];
+  versatileParts?: I5eDamagePart[];
+  data: {
+    damage: {
+      base: I5eDamagePart | null;
+      onSave: string | null;
+    };
+    target: {
+      template: IDDBVehicleActionDataTemplate;
+      affects: {
+        count?: string;
+        type?: string;
+        choice?: boolean;
+        special?: string;
+      };
+      prompt: boolean;
+      override: boolean;
+    };
+    duration: {
+      value: string;
+      units: string;
+    };
+    range: {
+      value: number | null;
+      long: number | string | null;
+      units: TDistanceUnit;
+      reach: number | null;
+    };
+    activation: {
+      type: TActivationCost | "";
+      value: number | null;
+      condition: string;
+    };
+    save: {
+      ability: string | string[] | null;
+      dc: {
+        calculation: string | number;
+        formula: string | null;
+      };
+    };
+    uses: {
+      spent: number | null;
+      max: string | number | null;
+      recovery: { period: string; type: string; formula?: string }[];
+    };
+  };
 }
 
 export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicle" | "feat" | "weapon"> {
@@ -62,8 +139,21 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   nameSplit: string;
   ddbVehicle: DDBVehicle;
   declare data: I5eVehicleItem;
+  declare enricher: DDBMonsterFeatureEnricher;
   component: IDDBVehicleComponent | IDDBVehicleFeatureComponent;
   action: IDDBVehicleAction;
+  types: string[];
+  primaryType: string;
+  isRecharge: RegExpMatchArray | null;
+  templateType: "equipment" | "weapon" | "feat";
+  weaponLookup: IMonsterWeaponDictionary;
+  identifier: string;
+  summonSave?: boolean;
+  isSummonAttack?: boolean;
+  crew: boolean;
+  fullName: string;
+  ddbVehicleDamage: DDBMonsterDamage;
+  actionData: IDDBVehicleActionData;
 
   constructor({ ddbVehicle, updateExisting, hideDescription, sort, component, action }: IDDBComponentFeature) {
 
@@ -139,7 +229,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       },
     };
     // these templates not good
-    this.data.system.requirements = "";
+    (this.data.system as I5eFeatSystemData).requirements = "";
     this.data.sort = this.sort;
   }
 
@@ -302,7 +392,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       const resetType = DICTIONARY.resets.find((type) => type.id === this.action.limitedUse.resetType);
       const maxUses = (this.action.limitedUse.maxUses && this.action.limitedUse.maxUses !== -1) ? this.action.limitedUse.maxUses : 0;
 
-      const finalMaxUses = (maxUses) ? parseInt(maxUses) : null;
+      const finalMaxUses = (maxUses) ? parseInt(maxUses as unknown as string) : null;
 
       return {
         spent: this.action.limitedUse.numberUsed ?? 0,
@@ -328,7 +418,8 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     let result;
     const diceParse = utils.parseDiceString(text, null);
     if (this.actionData.baseAbility) {
-      const baseAbilityMod = this.ddbVehicle.abilities[this.actionData.baseAbility].mod;
+      const baseAbilityMod = (this.ddbVehicle as unknown as { abilities: Record<string, { mod: number }> })
+        .abilities[this.actionData.baseAbility].mod;
       const bonusMod = (diceParse.bonus && diceParse.bonus !== 0) ? diceParse.bonus - baseAbilityMod : 0;
       const useMod = (diceParse.bonus && diceParse.bonus !== 0) ? " + @mod " : "";
       const reParse = utils.diceStringResultBuild(diceParse.diceMap, diceParse.dice, bonusMod, useMod);
@@ -347,7 +438,10 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       : `${this.strippedHtml}`.replace(this.fullName, "").trim();
     hit = hit.replace(/[–-–−]/g, "-");
 
-    this.ddbVehicleDamage = new DDBMonsterDamage(hit, { ddbMonsterFeature: this, splitSaves: true });
+    this.ddbVehicleDamage = new DDBMonsterDamage(hit, {
+      ddbMonsterFeature: this as unknown as DDBMonsterFeature,
+      splitSaves: true,
+    });
 
     this.ddbVehicleDamage.generateDamage();
     this.ddbVehicleDamage.generateRegain();
@@ -396,13 +490,14 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     }
 
     if (this.action.fixedSaveDc) {
-      this.actionData.fixedSaveDc = Number.parseInt(this.action.fixedSaveDc);
+      this.actionData.fixedSaveDc = Number.parseInt(this.action.fixedSaveDc as unknown as string);
       this.actionData.data.save.dc.calculation = this.action.fixedSaveDc;
     }
 
     if (this.action.range && this.action.range.aoeType && this.action.range.aoeSize) {
       if (!this.actionData.range) this.actionData.data.range.units = "self";
-      this.actionData.data.target.template = DICTIONARY.actions.aoeType.find((type) => type.id === this.action.range.aoeType)?.value;
+      this.actionData.data.target.template = DICTIONARY.actions.aoeType
+        .find((type) => type.id === this.action.range.aoeType)?.value as unknown as IDDBVehicleActionDataTemplate;
       this.actionData.data.target.template.size = this.action.range.aoeSize;
       this.actionData.data.target.template.units = "ft";
     }
@@ -442,8 +537,8 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   async loadEnricher() {
     await this.enricher.init();
     await this.enricher.load({
-      ddbParser: this,
-      monster: this.ddbVehicle.data,
+      ddbParser: this as unknown as DDBMonsterFeature,
+      monster: this.ddbVehicle.data as unknown as I5eMonsterData,
       name: this.name,
     });
   }
@@ -539,7 +634,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
           dc: this.actionData.fixedSaveDc,
           ability: this.actionData.saveAbility,
         },
-      },
+      } as IDDBVehicleActivityBuild,
     });
   }
 
@@ -630,8 +725,8 @@ ${this.data.system.description.value}
 
   }
 
-  _generateAutoEffects({ html, addToMonster = true } = {}) {
-    const flags = {
+  _generateAutoEffects({ html, addToMonster = true }: { html?: string; addToMonster?: boolean } = {}) {
+    const flags: { ddbimporter: { activityMatch?: string } } = {
       ddbimporter: {},
     };
 
@@ -641,7 +736,7 @@ ${this.data.system.description.value}
 
     const overtimeGenerator = new Effects.MidiOverTimeEffect({
       document: this.data,
-      actor: this.ddbVehicle.data,
+      actor: this.ddbVehicle.data as unknown as I5eActorData,
       otherDescription: html,
       flags,
       addToMonster,
@@ -673,7 +768,7 @@ ${this.data.system.description.value}
   #generateCost() {
     for (const cost of this.component.definition.costs ?? []) {
       if (!cost.value) continue;
-      this.data.system.price = {
+      (this.data.system as I5eVehicleEquipmentSystemData).price = {
         "value": cost.value,
         "denomination": "gp",
       };
@@ -695,7 +790,7 @@ ${this.data.system.description.value}
 
     // this.data.system.quantity = this.component.count;
 
-    this.data.system.hp = {
+    (this.data.system as I5eVehicleEquipmentSystemData).hp = {
       value: null,
       max: null,
       dt: null,
@@ -705,23 +800,23 @@ ${this.data.system.description.value}
     if (this.component.groupType === "action-station") {
       switch (this.component.definition.coverType) {
         case "full":
-          this.data.system.cover = 1;
+          (this.data.system as I5eVehicleEquipmentSystemData).cover = 1;
           break;
         case "half":
-          this.data.system.cover = 0.5;
+          (this.data.system as I5eVehicleEquipmentSystemData).cover = 0.5;
           break;
         case "three-quarters":
-          this.data.system.cover = 0.75;
+          (this.data.system as I5eVehicleEquipmentSystemData).cover = 0.75;
           break;
         default:
-          this.data.system.cover = undefined;
+          (this.data.system as I5eVehicleEquipmentSystemData).cover = undefined;
           break;
       }
 
     } else if (this.component.definition.groupType === "component") {
 
       if (this.component.definition.speeds && this.component.definition.speeds.length > 0) {
-        this.data.system.speed = {
+        (this.data.system as I5eVehicleEquipmentSystemData).speed = {
           value: this.component.definition.speeds[0].modes[0].value,
           conditions: this.component.definition.speeds[0].modes[0].description
             ? this.component.definition.speeds[0].modes[0].description
@@ -749,30 +844,31 @@ ${this.data.system.description.value}
             });
           }
           if (speedConditions.length > 0) {
-            this.data.system.speed.conditions += speedConditions.join("; ");
+            (this.data.system as I5eVehicleEquipmentSystemData).speed.conditions += speedConditions.join("; ");
           }
         }
       }
 
       if (Number.isInteger(this.component.definition.armorClass)) {
-        this.data.system.armor.value = parseInt(this.component.definition.armorClass);
+        (this.data.system as I5eVehicleEquipmentSystemData).armor.value
+          = parseInt(this.component.definition.armorClass as unknown as string);
       }
 
       if (Number.isInteger(this.component.definition.hitPoints)) {
-        this.data.system.hp = {
-          value: parseInt(this.component.definition.hitPoints),
-          max: parseInt(this.component.definition.hitPoints),
+        (this.data.system as I5eVehicleEquipmentSystemData).hp = {
+          value: parseInt(this.component.definition.hitPoints as unknown as string),
+          max: parseInt(this.component.definition.hitPoints as unknown as string),
           dt: null,
           conditions: "",
         };
         if (this.component.definition.damageThreshold) {
-          this.data.system.hp.dt = this.component.definition.damageThreshold;
+          (this.data.system as I5eVehicleEquipmentSystemData).hp.dt = this.component.definition.damageThreshold;
         }
       }
     }
 
     if (this.templateType === "weapon") {
-      this.data.system.range = this.actionData.data.range;
+      (this.data.system as I5eVehicleWeaponSystemData).range = this.actionData.data.range as I5eWeaponRange;
     }
 
     this.#generateCost();
@@ -791,7 +887,7 @@ ${this.data.system.description.value}
     await this.enricher.addDocumentOverride();
     this.data.system.identifier = utils.referenceNameString(this.data.name.toLowerCase());
 
-    logger.debug(`Parsed Feature ${this.name} for ${this.ddbVehicle.name}`, { feature: this });
+    logger.debug(`Parsed Feature ${this.name} for ${(this.ddbVehicle as unknown as { name?: string }).name}`, { feature: this });
 
   }
 

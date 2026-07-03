@@ -63,13 +63,46 @@ interface IDDBAdventureMuncherTrackerData {
   folder: Folder.Implementation[];
 }
 
+interface IZipEntry {
+  filename: string;
+  directory: boolean;
+  name?: string;
+  getData: (writer: unknown) => Promise<Blob>;
+}
+
+// the zip.js vendor library is attached to the window as a global
+type TZipWindow = typeof globalThis.window & {
+  zip: {
+    ZipReader: new (reader: unknown) => { getEntries: () => Promise<IZipEntry[]> };
+    BlobReader: new (blob: Blob) => unknown;
+    BlobWriter: new (mimeType: string) => unknown;
+    getMimeType: (filename: string) => string;
+  };
+};
+
+interface IAdventureMunchLookups {
+  folders?: Record<string, string>;
+  compendiumFolders?: Record<string, unknown>;
+  import?: Record<string, unknown>;
+  actors?: Record<string, unknown>;
+  sceneTokens?: Record<string, unknown>;
+  adventureConfig?: any;
+}
+
 export default class AdventureMunch {
 
   notifierV2?: (props: NotifierV2Props) => void;
 
-  raw: IDDBAdventureMuncherTrackerData;
+  raw: Record<string, IZipEntry[]>;
   temporary: IDDBAdventureMuncherTrackerData;
   _itemsToRevisit: string[];
+  folders: any[] | null;
+  zipEntries: IZipEntry[];
+  importFile: File;
+  importFilename: string;
+  lookups: IAdventureMunchLookups;
+  _pack: CompendiumCollection<"Adventure">;
+  declare _importPathData: { current: string };
   addToAdventureCompendium: boolean;
   allScenes: boolean;
   allMonsters: boolean;
@@ -91,6 +124,15 @@ export default class AdventureMunch {
   constructor({
     importFile, allScenes = null, allMonsters = null, journalWorldActors = null, addToCompendiums = null,
     addToAdventureCompendium = null, notifierV2 = null, use2024monsters = null,
+  }: {
+    importFile?: File;
+    allScenes?: boolean | null;
+    allMonsters?: boolean | null;
+    journalWorldActors?: boolean | null;
+    addToCompendiums?: boolean | null;
+    addToAdventureCompendium?: boolean | null;
+    notifierV2?: ((props: NotifierV2Props) => void) | null;
+    use2024monsters?: boolean | null;
   } = {}) {
     this._itemsToRevisit = [];
     this.adventure = null;
@@ -216,7 +258,7 @@ export default class AdventureMunch {
         if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
           logger.debug(`Importing raw file from ${path}`, paths);
           const fileData = new File([content], paths.filename, { type: mimeType });
-          const targetPath = (await FileHelper.uploadToPath(paths.fullUploadPath, fileData))?.path;
+          const targetPath = ((await FileHelper.uploadToPath(paths.fullUploadPath, fileData)) as unknown as { path?: string })?.path;
           CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
           CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
         } else {
@@ -299,7 +341,7 @@ export default class AdventureMunch {
         // this.lookups.folders[folderData.flags.importid] = existingFolder._id;
       } else {
         if (folderData.parent) folderData.folder = folderData.parent;
-        const newFolder = await Folder.create(folderData, { keepId: true });
+        const newFolder = await Folder.create(folderData, { keepId: true }) as unknown as Folder.Implementation;
         this.temporary.folder.push(newFolder);
         logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
       }
@@ -322,7 +364,7 @@ export default class AdventureMunch {
       if (supportedFolders.includes(folderData.type)) {
         const pack = CompendiumHelper.getCompendiumType(folderData.type);
         let newFolder = pack.folders.find((folder) =>
-          (folder._id === folderData._id || folder.flags.importid === folderData._id)
+          (folder._id === folderData._id || (folder.flags as Record<string, unknown>).importid === folderData._id)
           && folder.type === folderData.type,
         );
 
@@ -332,7 +374,7 @@ export default class AdventureMunch {
           } else {
             folderData.parent = this.lookups.folders[folderData.parent];
           }
-          newFolder = await Folder.create(folderData, { keepId: true, pack: pack.metadata.id });
+          newFolder = await Folder.create(folderData, { keepId: true, pack: pack.metadata.id }) as unknown as typeof newFolder;
           logger.debug(`Created new compendium folder ${newFolder._id} with data:`, folderData, newFolder);
         }
         this.lookups.folders[folderData.flags.importid] = newFolder._id;
@@ -385,9 +427,9 @@ export default class AdventureMunch {
       this._progressNote(`Checking for missing monsters from DDB`);
       await AdventureMunchHelpers.checkForMissingDocuments("monster", this.adventure.required.monsters, this.notifierV2);
     }
-    if (parseFloat(this.adventure.version) < 4.1 && this.allMonsters) {
+    if (parseFloat(this.adventure.version as string) < 4.1 && this.allMonsters) {
       ui.notifications.warn(`Unable to add all monsters from this adventure, please re-munch adventure with Adventure Muncher v1.0.9 or higher`);
-    } else if (parseFloat(this.adventure.version) >= 4.1 && this.allMonsters && this.adventure.required?.monsterData
+    } else if (parseFloat(this.adventure.version as string) >= 4.1 && this.allMonsters && this.adventure.required?.monsterData
       && this.adventure.required?.monsterData?.length > 0
     ) {
       logger.debug(`${this.adventure.name} - Importing Remaining Actors`);
@@ -436,7 +478,7 @@ export default class AdventureMunch {
   // whose shiftX/shiftY are both zero almost certainly shipped without grid
   // alignment. After import, offer to run detectGrid on those candidates.
   async _findGridDetectionCandidates() {
-    const scenes = this.temporary?.scenes ?? [];
+    const scenes = this.temporary?.scene ?? [];
     if (scenes.length === 0) return [];
 
     const getDimensions = async (src) => {
@@ -444,7 +486,7 @@ export default class AdventureMunch {
       return readBitmapDimensions(blob);
     };
 
-    const checks = scenes.map(async (scene) => {
+    const checks: Promise<Scene | null>[] = scenes.map(async (scene) => {
       const ok = await isGridDetectionCandidate(scene, getDimensions);
       return ok ? scene : null;
     });
@@ -461,7 +503,7 @@ export default class AdventureMunch {
 
     const rows = candidates
       .map((scene, i) => {
-        const name = (scene.name ?? `Scene ${i + 1}`)
+        const name = ((scene.name ?? `Scene ${i + 1}`) as string)
           .replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[c]!);
         return `<li><label><input type="checkbox" name="scene" value="${i}" checked> ${name}</label></li>`;
       })
@@ -584,7 +626,7 @@ export default class AdventureMunch {
         if (Number.isInteger(ddbId)) {
           // fetch ddbItem
           const compendium = CompendiumHelper.getCompendiumType(item.type);
-          const itemRef = compendium.index.find((i) => i.name === item.name && i.type === item.type);
+          const itemRef = compendium.index.find((i) => i.name === item.name && (i as { type?: string }).type === item.type);
           if (itemRef) {
             const compendiumItem = await compendium.getDocument(itemRef._id);
             const jsonItem = compendiumItem.toObject();
@@ -610,7 +652,7 @@ export default class AdventureMunch {
     const tokenStub = { };
 
     if (foundry.utils.hasProperty(sceneToken, "actorData")) {
-      const data = foundry.utils.deepClone(sceneToken.actorData);
+      const data = foundry.utils.deepClone(sceneToken.actorData) as Record<string, any>;
       if (data.data) {
         foundry.utils.setProperty(tokenStub, "delta.system", foundry.utils.deepClone(data.data));
         if (data.name) foundry.utils.setProperty(tokenStub, "delta.name", foundry.utils.deepClone(data.name));
@@ -621,7 +663,7 @@ export default class AdventureMunch {
     }
 
     if (sceneToken.delta?.effects) {
-      for (const effect of sceneToken.delta.effects) {
+      for (const effect of sceneToken.delta.effects as Record<string, any>[]) {
         if (effect.label) {
           effect.name = effect.label;
           delete effect.label;
@@ -632,11 +674,11 @@ export default class AdventureMunch {
         }
         if (foundry.utils.hasProperty(effect, "flags.core.statusId")) {
           const condition = CONFIG.statusEffects.find((c) => c.id === effect.flags.core.statusId)
-            ?? CONFIG.statusEffects.find((c) => c.id.startsWith(effect.flags.core.statusId));
+            ?? CONFIG.statusEffects.find((c) => c.id.startsWith(effect.flags.core.statusId as string));
           if (!condition) continue;
-          effect.id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
-          if (!effect.statuses) effect.statuses = [];
-          effect.statuses.push(condition.id);
+          (effect as Record<string, any>).id = dnd5e.utils.staticID(`dnd5e${condition.id}`);
+          if (!(effect as Record<string, any>).statuses) (effect as Record<string, any>).statuses = [];
+          (effect as Record<string, any>).statuses.push(condition.id);
           delete effect.flags.core.statusId;
         }
       }
@@ -738,7 +780,6 @@ export default class AdventureMunch {
           const toTimer = setTimeout(() => {
             logger.warn(`Reference update timed out.`);
             this._renderCompleteDialog();
-            this.close();
           }, 180000);
           try {
             const loadedDocs = [await fromUuid(itemUuid)];
@@ -755,7 +796,7 @@ export default class AdventureMunch {
               }
             }
           } catch (err) {
-            logger.warn(`Error updating references for object ${itemUuid}`, err);
+            logger.warn(`Error updating references for object ${itemUuid}`, { err });
           }
           currentCount += 1;
           this._updateProgress(totalCount, currentCount, "References");
@@ -763,8 +804,7 @@ export default class AdventureMunch {
         });
       }
     } catch (err) {
-
-      logger.warn(`Error during reference update for object ${item}`, err);
+      logger.warn(`Error during reference update for objects`, { err });
     }
     logger.info("Revisit data complete");
   }
@@ -786,7 +826,7 @@ export default class AdventureMunch {
   }
 
   async _unpackZip() {
-    const zipReader = new globalThis.window.zip.ZipReader(new globalThis.window.zip.BlobReader(this.importFile));
+    const zipReader = new (globalThis.window as TZipWindow).zip.ZipReader(new (globalThis.window as TZipWindow).zip.BlobReader(this.importFile));
     this.zipEntries = await zipReader.getEntries();
     for (const key of Object.keys(this.raw)) {
       this.raw[key] = this.zipEntries.filter((entry) => {
@@ -802,8 +842,8 @@ export default class AdventureMunch {
       return entry.filename === fileName;
     });
     if (!file) return null;
-    const mimeType = globalThis.window.zip.getMimeType(file.filename);
-    const data = await file.getData(new globalThis.window.zip.BlobWriter(mimeType));
+    const mimeType = (globalThis.window as TZipWindow).zip.getMimeType(file.filename);
+    const data = await file.getData(new (globalThis.window as TZipWindow).zip.BlobWriter(mimeType));
     return data;
   }
 
@@ -934,7 +974,7 @@ export default class AdventureMunch {
         throw new Error(`Invalid system for Adventure ${this.adventure.name}.  Expects ${this.adventure.system}`);
       }
 
-      if (parseFloat(this.adventure.version) < 4.0) {
+      if (parseFloat(this.adventure.version as string) < 4.0) {
         ui.notifications.error(
           `This Adventure (${this.adventure.name}) was generated for v9.  Please regenerate your config file for Adventure Muncher.`,
           { permanent: true },
@@ -988,7 +1028,7 @@ export default class AdventureMunch {
         logger.info(`Importing actor ${actor.name} with DDB ID ${actor.ddbId} from ${monsterCompendium.metadata.name} with compendium id ${actor.compendiumId}`);
         try {
           const options = { keepId: true, keepEmbeddedIds: true };
-          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId }, options);
+          worldActor = await game.actors.importFromCompendium(monsterCompendium, actor.compendiumId, { _id: actor.actorId, folder: actor.folderId } as any, options);
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.compendiumId} from DDB Compendium`);
@@ -1028,7 +1068,7 @@ export default class AdventureMunch {
       { overridesById },
     ) as Actor.Implementation[];
     for (const worldActor of results) {
-      if (!this.temporary.actor.some((a) => worldActor.flags.ddbimporter.id == a.flags.ddbimporter.id)) {
+      if (!this.temporary.actor.some((a) => (worldActor.flags as Record<string, any>).ddbimporter.id == (a.flags as Record<string, any>).ddbimporter.id)) {
         this.temporary.actor.push(worldActor);
       }
     }
@@ -1357,9 +1397,9 @@ export default class AdventureMunch {
 
   async _createAdventure() {
     logger.debug("Packing up adventure");
-    if (this.allMonsters) await this.importRemainingActors(this.adventure.required.monsterData, true);
-    const itemData = await AdventureMunchHelpers.getDocuments("items", (this.adventure.required.items ?? []), {}, true);
-    const spellData = await AdventureMunchHelpers.getDocuments("spells", (this.adventure.required.spells ?? []), {}, true);
+    if (this.allMonsters) await this.importRemainingActors(this.adventure.required.monsterData);
+    const itemData = await AdventureMunchHelpers.getDocuments("items", (this.adventure.required.items ?? []), {}, true) as Item.Implementation[];
+    const spellData = await AdventureMunchHelpers.getDocuments("spells", (this.adventure.required.spells ?? []), {}, true) as Item.Implementation[];
 
     const ddbSource = CONFIG.DDB.sources.find((source) => source.description === this.adventure.name);
     const image = ddbSource?.avatarURL
@@ -1406,7 +1446,7 @@ export default class AdventureMunch {
       name: adventureData.name,
       description: adventureData.description,
       img: adventureData.img,
-    }], {
+    }] as unknown as Adventure.CreateInput[], {
       pack: this._pack.metadata.id,
       keepId: true,
       keepEmbeddedIds: true,
@@ -1418,7 +1458,7 @@ export default class AdventureMunch {
 
   async _importAdventureCompendium(adventureData) {
     try {
-      this._pack = CompendiumHelper.getCompendiumType("adventure");
+      this._pack = CompendiumHelper.getCompendiumType("adventure") as unknown as CompendiumCollection<"Adventure">;
       const existingAdventure = await this._getCompendiumAdventure(adventureData);
 
       // console.warn("Adventure!", {

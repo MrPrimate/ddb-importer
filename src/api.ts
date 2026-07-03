@@ -172,7 +172,6 @@ export function registerApi() {
       MuncherSettings: lib.MuncherSettings,
       NameMatcher: lib.NameMatcher,
       OriginFixer: lib.OriginFixer,
-      Crosshairs: lib.Crosshairs,
       Enrichers,
       Activities,
       ParserLib,

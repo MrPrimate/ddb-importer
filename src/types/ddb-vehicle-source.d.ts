@@ -64,12 +64,18 @@ global {
     minimumRange: number | null;
   }
 
+  interface IDDBVehicleActionLimitedUse {
+    maxUses: number | null;
+    resetType: number | string | null;
+    numberUsed: number | null;
+  }
+
   interface IDDBVehicleAction {
     componentId: number;
     componentTypeId: number;
     id: string | null;
     entityTypeId: number | null;
-    limitedUse: unknown | null;
+    limitedUse: IDDBVehicleActionLimitedUse | null;
     name: string | null;
     description: string | null;
     snippet: string | null;
@@ -115,9 +121,19 @@ global {
     modes: IDDBVehicleComponentSpeedMode[];
   }
 
+  interface IDDBVehicleComponentAdjustmentValue {
+    perDamageValue: number;
+    perDamageTaken: number;
+  }
+
+  interface IDDBVehicleComponentAdjustment {
+    type: string;
+    values: IDDBVehicleComponentAdjustmentValue[];
+  }
+
   interface IDDBVehicleComponentType {
     type: string;
-    adjustments: unknown[];
+    adjustments: IDDBVehicleComponentAdjustment[];
   }
 
   interface IDDBVehicleComponentCost {
@@ -138,7 +154,7 @@ global {
     mishapThreshold: number | null;
     hitPoints: number;
     requiredCrew: string | null;
-    coverType: "half" | "three-quarters" | null;
+    coverType: "full" | "half" | "three-quarters" | null;
     actionsDescription: string | null;
     speeds: IDDBVehicleComponentSpeed[];
     types: IDDBVehicleComponentType[];
@@ -154,6 +170,10 @@ global {
     description: string | null;
     definitionKey: string;
     definition: IDDBVehicleComponentDefinition;
+    /** Injected by DDBVehicle when duplicating multi-count components. */
+    count?: number;
+    /** Present on some source payloads at the component level. */
+    groupType?: "component" | "action-station" | null;
   }
 
   // ---- Vehicle source data --------------------------------------------------

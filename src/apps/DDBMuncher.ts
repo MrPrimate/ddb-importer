@@ -74,6 +74,19 @@ interface IDDBMuncherContext extends
 }
 
 
+interface IMuleMunchOptions {
+  characterId: string | null;
+  homebrew: boolean;
+  onlyHomebrew: boolean;
+  type: string;
+  ddbMuncher: DDBMuncher;
+  sources?: number[];
+  filterIds?: number[];
+  classId?: string | null;
+  allowHomebrew?: boolean;
+}
+
+
 export default class DDBMuncher extends DDBAppV2 {
 
   processErrors = [];
@@ -586,7 +599,7 @@ export default class DDBMuncher extends DDBAppV2 {
         return setting;
       });
     }
-    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false });
+    context = foundry.utils.mergeObject(await super._prepareContext(options), context, { inplace: false }) as unknown as IDDBMuncherContext;
     context.searchTermMonster = this.searchTermMonster;
     context.searchTermItem = this.searchTermItem;
     context.searchTermSpell = this.searchTermSpell;
@@ -701,7 +714,7 @@ export default class DDBMuncher extends DDBAppV2 {
     if (progressElement) progressElement.classList.add("munching-invalid");
   }
 
-  static async parseMonsters(_event, _target) {
+  static async parseMonsters(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Munching monsters!");
       this._disableButtons();
@@ -720,7 +733,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async parseVehicles(_event, _target) {
+  static async parseVehicles(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Munching vehicles!");
       this._disableButtons();
@@ -738,7 +751,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async parseSpells(_event, _target) {
+  static async parseSpells(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Munching spells!");
       this._disableButtons();
@@ -758,7 +771,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
 
-  static async parseItems(_event, _target) {
+  static async parseItems(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Munching items!");
       this._disableButtons();
@@ -778,7 +791,7 @@ export default class DDBMuncher extends DDBAppV2 {
   }
 
 
-  static async parseFrames(_event, _target) {
+  static async parseFrames(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Munching frames!");
       this._disableButtons();
@@ -818,7 +831,11 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async #parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew } = {}) {
+  async #parseHomebrewClassesWithMule({ baseOptions, classList, onlyHomebrew }: {
+    baseOptions?: IMuleMunchOptions;
+    classList?: any[];
+    onlyHomebrew?: boolean;
+  } = {}) {
     logger.info(`Processing ${this.homebrewClasses.size} classes with homebrew subclasses`, {
       homebrewClasses: Array.from(this.homebrewClasses),
     });
@@ -882,7 +899,12 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  async #parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections } = {}) {
+  async #parseOfficialClassesWithMule({ sourceIdArrays, baseOptions, classList, subclassSelections }: {
+    sourceIdArrays?: { categoryId: number; sourceIds: number[] }[];
+    baseOptions?: IMuleMunchOptions;
+    classList?: any[];
+    subclassSelections?: Record<string, string[]>;
+  } = {}) {
     for (const sourceIdArray of sourceIdArrays) {
       const category = CONFIG.DDB.sourceCategories.find((c) => c.id === sourceIdArray.categoryId);
       const options = foundry.utils.deepClone(baseOptions);
@@ -951,7 +973,7 @@ export default class DDBMuncher extends DDBAppV2 {
     // prepare sources to munch from
     const allowHomebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
-    const baseOptions = {
+    const baseOptions: IMuleMunchOptions = {
       characterId: this.characterId,
       homebrew: false,
       onlyHomebrew: false,
@@ -1045,7 +1067,7 @@ export default class DDBMuncher extends DDBAppV2 {
     this.autoRotateMessage(type);
     const homebrew = utils.getSetting<boolean>("munching-policy-character-fetch-homebrew");
     const onlyHomebrew = utils.getSetting<boolean>("munching-policy-character-only-homebrew");
-    const baseOptions = {
+    const baseOptions: IMuleMunchOptions = {
       characterId: this.characterId,
       homebrew: false,
       onlyHomebrew: false,
@@ -1237,7 +1259,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
 
       const adventureMuncher = new AdventureMunch({
-        importFile: this.element.querySelector(`#munch-adventure-file`).files[0],
+        importFile: this.element.querySelector<HTMLInputElement>(`#munch-adventure-file`).files[0],
         notifierV2: this.notifierV2.bind(this),
       });
 
@@ -1305,7 +1327,7 @@ export default class DDBMuncher extends DDBAppV2 {
       this._disableButtons();
       this.notifier(`Begin migration.... this might take some considerable time, please wait...`, { nameField: true });
       await DDBCompendiumFolders.migrateExistingCompendium(type);
-      this.notifier(`Migrating complete.`, true);
+      this.notifier(`Migrating complete.`, true as unknown as NotifierV1Props);
     } catch (error) {
       logger.error(error);
       logger.error(error.stack);
@@ -1329,7 +1351,7 @@ export default class DDBMuncher extends DDBAppV2 {
     }
   }
 
-  static async addItemPrices(_event, _target) {
+  static async addItemPrices(this: DDBMuncher, _event, _target) {
     try {
       logger.info("Checking to see if items need prices...");
       this._disableButtons();
@@ -1361,21 +1383,21 @@ export default class DDBMuncher extends DDBAppV2 {
     rewardsHtml.innerHTML = `<p id="ddb-encounter-rewards"><i class='fas fa-question'></i> <b>Rewards:</b></p>`;
     progressHtml.innerHTML = `<p id="ddb-encounter-progress"><i class='fas fa-question'></i> <b>In Progress:</b></p>`;
 
-    const importButton = this.element.querySelector("#encounter-button");
+    const importButton = this.element.querySelector<HTMLButtonElement>("#encounter-button");
     importButton.disabled = true;
     importButton.innerText = "Import Encounter";
 
     // $("#ddb-importer-encounters").css("height", "auto");
-    this.element.querySelector("#encounter-import-policy-use-ddb-save").disabled = true;
+    this.element.querySelector<HTMLInputElement>("#encounter-import-policy-use-ddb-save").disabled = true;
 
     this.encounterFactory.resetEncounters();
   }
 
-  static async importEncounter(_event, _target) {
+  static async importEncounter(this: DDBMuncher, _event, _target) {
 
-    const img = this.element.querySelector("#encounter-scene-img-select").value;
-    const sceneId = this.element.querySelector("#encounter-scene-select").value;
-    const id = this.element.querySelector("#encounter-select").value;
+    const img = this.element.querySelector<HTMLSelectElement>("#encounter-scene-img-select").value;
+    const sceneId = this.element.querySelector<HTMLSelectElement>("#encounter-scene-select").value;
+    const id = this.element.querySelector<HTMLSelectElement>("#encounter-select").value;
 
     // console.warn("Munching encounter!", {
     //   encounterFactory: this.encounterFactory,
@@ -1431,7 +1453,7 @@ export default class DDBMuncher extends DDBAppV2 {
     const URL = event.currentTarget.value;
     this.getCharacterId(URL);
 
-    const status = this.element.querySelector(".ddb-muncher .dndbeyond-url-status i");
+    const status = this.element.querySelector<HTMLElement>(".ddb-muncher .dndbeyond-url-status i");
 
     if (URL === "") {
       status.classList.remove("fa-exclamation-triangle");

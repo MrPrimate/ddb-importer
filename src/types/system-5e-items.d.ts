@@ -331,6 +331,7 @@ global {
     attuned: boolean;
     attunement: string;
     container: string | null;
+    cover?: number | null;
     crew: { value: any[] };
     description: I5eItemDescription;
     equipped: boolean;

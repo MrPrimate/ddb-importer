@@ -9,7 +9,37 @@ const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
 const RAW_BASE_URL = `https://raw.githubusercontent.com/${MR_PRIMATES_THIRD_PARTY_REPO}`;
 const RAW_MODULES_URL = `${RAW_BASE_URL}/main/modules.json`;
 
+interface IThirdPartyRepoData {
+  packages: Record<string, {
+    module: string;
+    description: string;
+    books: string[];
+    released?: boolean;
+    name?: string;
+  }>;
+}
+
 export default class ThirdPartyMunch extends FormApplication {
+
+  // FormApplication's abstract member; this application never submits a form,
+  // so no runtime implementation exists (type-only declaration)
+  declare protected _updateObject: (event: Event, formData?: object) => Promise<unknown>;
+
+  _itemsToRevisit: string[];
+  _adventure: Record<string, unknown>;
+  _scenePackage: { scenes?: any[]; folder?: string };
+  _packageName: string;
+  _description: string;
+  _pageFinders: Record<string, PageFinder>;
+  adventureMunch: AdventureMunch;
+  monstersToReplace: IMonsterReplacerData[];
+  _defaultRepoData: IThirdPartyRepoData;
+  folderNames: string[];
+
+  static pattern: RegExp;
+
+  static altpattern: RegExp;
+
   /** @override */
   constructor(object = {}, options = {}) {
     super(object, options);
@@ -156,7 +186,7 @@ export default class ThirdPartyMunch extends FormApplication {
         message += `<p>You need to use Adventure Muncher to load the following books first: ${bookString}</p>`;
       }
 
-      if (this._description && this.description !== "") {
+      if (this._description && (this as ThirdPartyMunch & { description?: string }).description !== "") {
         message += `<p><b>Details</b>: ${this._description}</p>`;
       }
 
@@ -183,7 +213,10 @@ export default class ThirdPartyMunch extends FormApplication {
 
       // the folder list could be out of order, we need to create all folders with parent null first
       const firstLevelFolders = folders.filter((folder) => folder.parent === null);
-      await this.adventureMunch.importFolder(firstLevelFolders, adventure, folders);
+      // n.b. importFolder only takes (folders, folderList); the extra args predate that signature
+      await (this.adventureMunch.importFolder as (folders: any[], folderList?: unknown, extra?: unknown) => Promise<void>)(
+        firstLevelFolders, adventure, folders,
+      );
     }
   }
 
@@ -259,19 +292,19 @@ export default class ThirdPartyMunch extends FormApplication {
       "parent": null,
       "sorting": "m",
     };
-    const newFolder = await Folder.create(folderData);
+    const newFolder = await Folder.create(folderData as unknown as Folder.CreateInput) as unknown as Folder.Implementation;
     logger.debug(`Created new folder ${newFolder._id} with data:`, folderData, newFolder);
     return newFolder;
   }
 
-  static async _findFolder(label, type) {
+  static async _findFolder(label, type): Promise<Folder.Implementation> {
     const folder = game.folders.find((f) =>
       f.type === type
-      && f.parentFolder === undefined
+      && (f as unknown as { parentFolder?: unknown }).parentFolder === undefined
       && f.name === label,
     );
 
-    return folder ? folder : ThirdPartyMunch._createFolder(label, type);
+    return (folder ? folder : ThirdPartyMunch._createFolder(label, type)) as unknown as Folder.Implementation;
   }
 
   static _generateMockAdventure(scene) {
@@ -366,7 +399,7 @@ export default class ThirdPartyMunch extends FormApplication {
                 && journal.flags.ddb.linkName == note.flags.ddb.linkName
               : false;
             const journalNameMatch = !contentChunkIdMatch && !originMatch
-              ? journal.name.trim() == note.label.trim() // ||
+              ? (journal.name as string).trim() == note.label.trim() // ||
               //  journal.pages.some((page) => page.name.trim() === note.label.trim())
               : false;
             return contentChunkIdMatch || originMatch || journalNameMatch;
@@ -507,7 +540,7 @@ export default class ThirdPartyMunch extends FormApplication {
       return existingScene;
     } else {
       scene.folder = folder.id;
-      const worldScene = await game.scenes.importFromCompendium(compendium, compendiumScene._id, scene, { keepId: true });
+      const worldScene = await game.scenes.importFromCompendium(compendium as unknown as CompendiumCollection<"Scene">, compendiumScene._id, scene, { keepId: true });
       logger.info(`Scene: ${scene.name} folder:`, folder);
       logger.debug("worldScene:", worldScene);
       return worldScene;
@@ -538,7 +571,7 @@ export default class ThirdPartyMunch extends FormApplication {
       logger.debug("World scene to add tokens to", worldScene);
       const existingTokens = tokenUpdates.filter((t) => worldScene.tokens.some((wT) => t._id === wT._id));
       logger.debug("existingTokens", existingTokens);
-      await worldScene.updateEmbeddedDocuments("Token", existingTokens, { keepId: true, keepEmbeddedIds: true });
+      await worldScene.updateEmbeddedDocuments("Token", existingTokens, { keepId: true, keepEmbeddedIds: true } as unknown as TokenDocument.Database.UpdateManyDocumentsOperation);
       const newTokens = tokenUpdates.filter((t) => !worldScene.tokens.some((wT) => t._id === wT._id));
       logger.debug("newTokens", newTokens);
       await worldScene.createEmbeddedDocuments("Token", newTokens, { keepId: true, keepEmbeddedIds: true });
@@ -611,7 +644,7 @@ export default class ThirdPartyMunch extends FormApplication {
       // import any missing monsters into the compendium
       // add tokens to scene
       // add notes to scene
-      const adjustedScenes = await this._getAdjustedScenes(this._scenePackage.scenes);
+      const adjustedScenes = await this._getAdjustedScenes();
 
       logger.debug("adjustedScenes", foundry.utils.duplicate(adjustedScenes));
 

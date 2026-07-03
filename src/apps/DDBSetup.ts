@@ -16,6 +16,59 @@ import DDBCharacterManager from "./DDBCharacterManager";
 import DDBDebugger from "./DDBDebugger";
 import { IPatreonLinkResponse } from "../lib/PatreonHelper";
 
+interface IContextCompendiums {
+  setting: string;
+  name: string;
+  current: string;
+  compendiums: object;
+  auto: boolean;
+  hasCompendium: boolean;
+}
+
+interface IContextSettingFormat {
+  name: string;
+  isChecked: boolean;
+  description: string;
+  enabled: boolean;
+}
+
+interface IGMUser { userId: string; userName: string; selected: boolean }
+
+interface IDDBSetupContext extends DDBAppV2Context {
+  // core
+  isCobalt: boolean;
+  cobaltLocal: boolean;
+  setupConfig: {
+    "cobalt-cookie": string;
+    "available-campaigns": IDDBListCampaign[];
+    "campaign-id": string;
+    "patreon-key": string;
+  };
+  cobaltCheckMessage: string;
+  setupComplete: boolean;
+  tier: string;
+  patreonLinked: boolean;
+  patreonUser: string;
+  validKey: boolean;
+  validCobalt: boolean;
+  patreonCheckMessage: string;
+  failure: boolean;
+  version: string;
+  "use-webp": boolean;
+  "use-deep-file-paths": boolean;
+  directories: { key: string; value: string; name: string; description: string }[];
+  compendiums: IContextCompendiums[];
+  compendiumSettings: IContextSettingFormat[];
+  dynamicEnabledSettings: IContextSettingFormat[];
+  dynamicPolicySettings: IContextSettingFormat[];
+  gmUsers: IGMUser[];
+  dynamicEnabled: boolean;
+  useCustomProxy: boolean;
+  defaultAddress: string;
+  proxyAddress: string;
+  selectedWeaponPropertiesEnhancementsSources?: IIdLabelAcronymLookup[];
+  enhancementConfig?: ISettingsPolicyExpandedItem[];
+}
 
 export default class DDBSetup extends DDBAppV2 {
   static patreonKey: string;
@@ -45,6 +98,12 @@ export default class DDBSetup extends DDBAppV2 {
   allowedWeaponPropertySources: string[];
   campaignFallback: boolean;
   compendiums: { setting: string; name: string; current: string; compendiums: object; auto: boolean; hasCompendium: boolean }[];
+  directories: { key: string; value: string; name: string; description: string }[];
+  compendiumSettings: { name: string; isChecked: boolean; description: string; enabled: boolean }[];
+  dynamicEnabledSettings: { name: string; isChecked: boolean; description: string; enabled: boolean }[];
+  dynamicPolicySettings: { name: string; isChecked: boolean; description: string; enabled: boolean }[];
+  gmUsers: { userId: string; userName: string; selected: boolean }[];
+  enhancementConfig: ReturnType<typeof MuncherSettings.getEnhancementSettings>;
 
   constructor({
     actor = null, callMuncher = false, sheetTab = "info", coreTab = "cobalt", infoTab = "intro",
@@ -169,10 +228,10 @@ export default class DDBSetup extends DDBAppV2 {
     },
   };
 
-  static getGMUsers() {
+  static getGMUsers(): IGMUser[] {
     const updateUser = utils.getSetting<string>("dynamic-sync-user");
 
-    const gmUsers = game.users
+    const gmUsers: IGMUser[] = game.users
       .filter((user) => user.isGM)
       .reduce((choices, user) => {
         choices.push({
@@ -181,7 +240,7 @@ export default class DDBSetup extends DDBAppV2 {
           selected: user.id === updateUser,
         });
         return choices;
-      }, []);
+      }, [] as IGMUser[]);
 
     return gmUsers;
   }
@@ -257,10 +316,10 @@ export default class DDBSetup extends DDBAppV2 {
     footer: { template: "modules/ddb-importer/handlebars/settings/footer.hbs" },
   };
 
-  tabGroups = {
-    sheet: this.sheetTab ?? "info",
-    info: this.infoTab ?? "intro",
-    core: this.coreTab ?? "cobalt",
+  tabGroups: Record<string, string> = {
+    sheet: "info",
+    info: "intro",
+    core: "cobalt",
   };
 
   _getTabs() {
@@ -318,9 +377,9 @@ export default class DDBSetup extends DDBAppV2 {
     await super._onRender(context, options);
   }
 
-  async _prepareContext(options) {
+  async _prepareContext(options): Promise<IDDBSetupContext> {
 
-    let context = {
+    let context: IDDBSetupContext = {
       // core
       isCobalt: this.cobalt !== "",
       cobaltLocal: this.isLocalCobalt,
@@ -365,7 +424,7 @@ export default class DDBSetup extends DDBAppV2 {
     return context;
   }
 
-  async _prepareCoreContext(context) {
+  async _prepareCoreContext(context: IDDBSetupContext): Promise<IDDBSetupContext> {
     const timeout = setTimeout(async() => {
       logger.debug("Fallback Settings: _prepareCoreContext", context);
       context.failure = true;
@@ -400,7 +459,7 @@ export default class DDBSetup extends DDBAppV2 {
     this.campaignFallback = false;
 
     availableCampaigns.forEach((campaign) => {
-      const selected = campaign.id == this.campaignId;
+      const selected = `${campaign.id}` === `${this.campaignId}`;
       campaign.selected = selected;
     });
 
@@ -413,7 +472,7 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
 
-  async _prepareDynamicContext(context) {
+  async _prepareDynamicContext(context: IDDBSetupContext): Promise<IDDBSetupContext> {
     const tier = PatreonHelper.getPatreonTier();
     const tiers = PatreonHelper.calculateAccessMatrix(tier);
     this.dynamicEnabled = tiers.experimentalMid;
@@ -424,17 +483,17 @@ export default class DDBSetup extends DDBAppV2 {
   }
 
 
-  async _prepareEnhancementsContext(context) {
+  async _prepareEnhancementsContext(context: IDDBSetupContext): Promise<IDDBSetupContext> {
     const allowedSourceIds = this.allowedWeaponPropertySources;
-    const selectedSources = MuncherSettings.getSourcesLookups(allowedSourceIds).map((source) => {
-      const data = foundry.utils.deepClone(source);
+    const selectedSources: IIdLabelAcronymLookup[] = MuncherSettings.getSourcesLookups(allowedSourceIds).map((source) => {
+      const data: IIdLabelAcronymLookup = foundry.utils.deepClone(source) as unknown as IIdLabelAcronymLookup;
       if (source.selected) {
         data.selected = "selected";
       } else {
         data.selected = "";
       }
       return data;
-    });
+    }) as IIdLabelAcronymLookup[];
     context.selectedWeaponPropertiesEnhancementsSources = selectedSources;
     context.enhancementConfig = this.enhancementConfig;
 
@@ -444,18 +503,18 @@ export default class DDBSetup extends DDBAppV2 {
 
   /** @override */
 
-  async _preparePartContext(partId, context) {
+  async _preparePartContext(partId, context: IDDBSetupContext): Promise<IDDBSetupContext> {
     switch (partId) {
       case "core": {
         context = await this._prepareCoreContext(context);
         break;
       }
       case "dynamic": {
-        await this._prepareDynamicContext(context);
+        context = await this._prepareDynamicContext(context);
         break;
       }
       case "enhancements": {
-        await this._prepareEnhancementsContext(context);
+        context = await this._prepareEnhancementsContext(context);
         break;
       }
       // no default
@@ -506,7 +565,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   static async fetchCampaignsButton(this: DDBSetup, event: Event) {
     event.preventDefault();
-    const cookie = this.element.querySelector("#cobalt-cookie-input");
+    const cookie = this.element.querySelector<HTMLInputElement>("#cobalt-cookie-input");
     const cookieStatus = await DDBSetup.checkCobaltCookie(cookie.value);
     if (!cookieStatus.success) return;
     let campaigns = null;
@@ -536,7 +595,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   static async checkCobaltButton(this: DDBSetup, event: Event) {
     event.preventDefault();
-    const cookie = this.element.querySelector("#cobalt-cookie-input");
+    const cookie = this.element.querySelector<HTMLInputElement>("#cobalt-cookie-input");
     if (cookie.value === undefined) throw new Error("undefined");
     const cobaltStatus = await Secrets.checkCobalt("", cookie.value);
     if (cobaltStatus.success) {
@@ -550,7 +609,7 @@ export default class DDBSetup extends DDBAppV2 {
 
   static async checkPatreonButton(this: DDBSetup, event: Event) {
     event.preventDefault();
-    const key = this.element.querySelector("#ddb-patreon-key").value;
+    const key = this.element.querySelector<HTMLInputElement>("#ddb-patreon-key").value;
     this.patreonKey = key;
     const success = await PatreonHelper.isValidKey(false, false, key);
     this.patreonCheckMessage = success ? " - Success!" : " - Failure!";
@@ -712,7 +771,7 @@ export default class DDBSetup extends DDBAppV2 {
           current: path,
         });
 
-        this.element.querySelector(`input[name='${targetDirSetting}']`).value = formattedPath;
+        this.element.querySelector<HTMLInputElement>(`input[name='${targetDirSetting}']`).value = formattedPath;
       },
     });
     filePicker.render();
@@ -769,11 +828,11 @@ export default class DDBSetup extends DDBAppV2 {
     }
   }
 
-  async _saveLocations(formData) {
+  async _saveLocations(formData: FormDataExtended) {
     const directoryStatus = [];
 
     for (const [key, data] of Object.entries(SETTINGS.DEFAULT_SETTINGS.READY.DIRECTORIES)) {
-      const newValue = formData.object[key];
+      const newValue = formData.object[key] as string;
       directoryStatus.push({
         key,
         value: newValue,
@@ -812,8 +871,8 @@ export default class DDBSetup extends DDBAppV2 {
       for (const data of directoryStatus.filter((dir) => !dir.isBad)) {
         await game.settings.set(SETTINGS.MODULE_ID, data.key, data.value);
       }
-      const useWebP = formData.object["use-webp"];
-      const useDeepFilePaths = formData.object["use-deep-file-paths"];
+      const useWebP = formData.object["use-webp"] as boolean;
+      const useDeepFilePaths = formData.object["use-deep-file-paths"] as boolean;
 
       if (this.useWebP !== useWebP) await game.settings.set(SETTINGS.MODULE_ID, "use-webp", useWebP);
       if (this.useDeepFilePaths !== useDeepFilePaths) {
@@ -823,25 +882,25 @@ export default class DDBSetup extends DDBAppV2 {
 
   }
 
-  async _saveCompendiums(formData) {
+  async _saveCompendiums(formData: FormDataExtended) {
     for (const setting of this.compendiumSettings) {
       logger.debug(`Saving setting ${setting.name} with value ${formData.object[setting.name]}`);
-      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+      await utils.setSetting(setting.name, formData.object[setting.name]);
     }
 
     for (const compendium of this.compendiums) {
       logger.debug(`Saving compendium setting ${compendium.setting} with value ${formData.object[compendium.setting]}`);
-      await game.settings.set(SETTINGS.MODULE_ID, compendium.setting, formData.object[compendium.setting]);
+      await utils.setSetting(compendium.setting, formData.object[compendium.setting]);
     }
   }
 
-  async _saveDynamic(formData) {
+  async _saveDynamic(formData: FormDataExtended) {
     if (!this.dynamicEnabled) {
       game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync", false);
       return;
     }
 
-    game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", formData.object["dynamic-sync-user"]);
+    game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", formData.object["dynamic-sync-user"] as string);
 
     for (const setting of this.dynamicEnabledSettings) {
       if (setting.name === "dynamic-sync"
@@ -851,30 +910,30 @@ export default class DDBSetup extends DDBAppV2 {
         logger.warn("Dynamic Sync setting changed, reloading application!");
       }
       logger.debug(`Saving setting ${setting.name} with value ${formData.object[setting.name]}`);
-      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+      await utils.setSetting(setting.name, formData.object[setting.name] as any);
     }
     for (const setting of this.dynamicPolicySettings) {
       logger.debug(`Saving setting ${setting.name} with value ${formData.object[setting.name]}`);
-      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+      await utils.setSetting(setting.name, formData.object[setting.name] as any);
     }
 
   }
 
 
-  async _saveProxy(formData) {
-    if (this.proxyAddress !== formData.object["api-endpoint"]
-      || this.useCustomProxy !== formData.object["custom-proxy"]
+  async _saveProxy(formData: FormDataExtended) {
+    if (this.proxyAddress !== formData.object["api-endpoint"] as string
+      || this.useCustomProxy !== formData.object["custom-proxy"] as boolean
     ) {
-      await game.settings.set(SETTINGS.MODULE_ID, "custom-proxy", formData.object["custom-proxy"]);
-      await game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", formData.object["api-endpoint"]);
+      await game.settings.set(SETTINGS.MODULE_ID, "custom-proxy", formData.object["custom-proxy"] as boolean);
+      await game.settings.set(SETTINGS.MODULE_ID, "api-endpoint", formData.object["api-endpoint"] as string);
     }
   }
 
-  async _saveEnhancements(formData) {
-    const allowed = formData.object["allowed-weapon-property-sources"].map((id) => parseInt(id));
+  async _saveEnhancements(formData: FormDataExtended) {
+    const allowed = (formData.object["allowed-weapon-property-sources"] as string[]).map((id) => parseInt(id));
     await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", allowed);
     for (const setting of this.enhancementConfig) {
-      await game.settings.set(SETTINGS.MODULE_ID, setting.name, formData.object[setting.name]);
+      await utils.setSetting(setting.name, formData.object[setting.name] as any);
     }
   }
 
@@ -902,7 +961,7 @@ export default class DDBSetup extends DDBAppV2 {
 
     if (this.reloadApplication) {
       logger.warn("RELOADING!");
-      foundry.utils.debounce(window.location.reload(), 100);
+      setTimeout(() => window.location.reload(), 100);
     }
   }
 

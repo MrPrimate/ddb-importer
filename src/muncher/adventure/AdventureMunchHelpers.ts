@@ -314,7 +314,7 @@ export default class AdventureMunchHelpers {
    *   fullUploadPath: the full path to the file
    *   forcingWebp: whether the .webp extension was added
    */
-  static getImportFilePaths({ adventureName, path, misc }: { adventureName: string; path: string; misc: boolean }): object {
+  static getImportFilePaths({ adventureName, path, misc }: { adventureName: string; path: string; misc: boolean }) {
     const useWebP = utils.getSetting<boolean>("use-webp") && !path.endsWith("svg") && !path.endsWith("pdf");
     const adventurePath = adventureName.replace(/[^a-z0-9]/gi, "_");
     const targetPath = path.replace(/[\\/][^\\/]+$/, "");

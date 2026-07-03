@@ -138,10 +138,14 @@ const MOVEMENT_ID = {
 };
 
 export interface IDDBVehicleFeatureComponent extends IDDBVehicleFeature {
-  definition: {
+  definition: Partial<Omit<IDDBVehicleComponentDefinition, "name" | "types">> & {
     name: string;
-    types: { type: "feature" }[];
+    types: { type: "feature"; adjustments?: IDDBVehicleComponentAdjustment[] }[];
   };
+  /** Injected by DDBVehicle when duplicating multi-count components. */
+  count?: number;
+  /** Present on some source payloads at the component level. */
+  groupType?: "component" | "action-station" | null;
 }
 
 interface IDDBVehicle {

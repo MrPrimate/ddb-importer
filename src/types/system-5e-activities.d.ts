@@ -244,7 +244,8 @@ global {
   }
 
   interface I5eActivityCheck {
-    ability?: string[];
+    // dnd5e stores check.ability as a string, but some build paths supply arrays
+    ability?: string | string[];
     associated?: string[];
     dc?: {
       calculation?: string;

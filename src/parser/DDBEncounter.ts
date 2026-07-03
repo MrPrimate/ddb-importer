@@ -9,9 +9,113 @@ import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
+export type TEncounterNotifier = (
+  note: string,
+  options?: { nameField?: boolean; monsterNote?: boolean; message?: boolean | string; isError?: boolean },
+) => void;
+
+export interface IDDBEncounterMonster {
+  id: number;
+  quantity: number;
+  uniqueId?: string;
+  initiative?: number | null;
+  currentHitPoints?: number;
+  maximumHitPoints?: number;
+  temporaryHitPoints?: number;
+  name?: string | null;
+}
+
+export interface IDDBEncounterPlayer {
+  id: string | number;
+  name?: string;
+  hidden?: boolean;
+  initiative?: number | null;
+}
+
+export interface IDDBEncounterData {
+  id: string;
+  name: string;
+  inProgress?: boolean;
+  turnNum?: number;
+  roundNum?: number;
+  difficulty?: number | null;
+  description?: string;
+  rewards?: string;
+  flavorText?: string;
+  campaign?: { id?: number; name?: string };
+  monsters: IDDBEncounterMonster[];
+  players: IDDBEncounterPlayer[];
+}
+
+interface IEncounterWorldMonsterData {
+  ddbId: number;
+  name: string;
+  id: string;
+  quantity: number;
+  journalLink: string;
+  uniqueId?: string;
+  initiative?: number | null;
+  currentHitPoints?: number;
+  maximumHitPoints?: number;
+  temporaryHitPoints?: number;
+  ddbName?: string | null;
+}
+
+interface IEncounterParsedData {
+  id?: string;
+  name?: string;
+  inProgress?: boolean;
+  turnNum?: number;
+  roundNum?: number;
+  // difficulty is a DIFFICULTY_LEVELS entry, but is also compared against "" at
+  // use sites, so it is left as any
+  difficulty?: any;
+  description?: string;
+  rewards?: string;
+  summary?: string;
+  campaign?: { id?: number; name?: string };
+  monsters?: IDDBEncounterMonster[];
+  characters?: IDDBEncounterPlayer[];
+  goodMonsterIds?: { ddbId: number; name: string; id: string; quantity: number }[];
+  missingMonsterIds?: { ddbId: number; quantity: number }[];
+  goodCharacterData?: { id: string; name: string; ddbId: string | number }[];
+  missingCharacterData?: { ddbId: string | number; name?: string }[];
+  missingMonsters?: boolean;
+  missingCharacters?: boolean;
+  monsterData?: IEncounterWorldMonsterData[];
+  worldMonsters?: IEncounterWorldMonsterData[];
+}
+
+export interface IDDBEncounterOptions {
+  ddbEncounterData?: IDDBEncounterData;
+  notifier?: TEncounterNotifier;
+  img?: string;
+  sceneId?: string;
+}
+
 export default class DDBEncounter {
 
-  constructor({ ddbEncounterData, notifier, img = "", sceneId = "" } = {}) {
+  data: IEncounterParsedData;
+
+  img: string;
+
+  sceneId: string;
+
+  journal: JournalEntry | undefined;
+
+  combat: Combat | undefined;
+
+  tokens: unknown[];
+
+  folders: Record<string, Folder.Implementation>;
+
+  scene: Scene | undefined;
+
+  notifier: TEncounterNotifier;
+
+  ddbEncounterData: IDDBEncounterData;
+
+  constructor({ ddbEncounterData, notifier, img = "", sceneId = "" }: IDDBEncounterOptions = {}) {
     this.data = {};
     this.img = img;
     this.sceneId = sceneId;
@@ -48,7 +152,7 @@ export default class DDBEncounter {
     logger.debug("Parsing encounter", this.ddbEncounterData);
     this.ddbEncounterData.monsters.forEach((monster) => {
       const id = monster.id;
-      const monsterInPack = monsterPack.index.find((f) => f.flags?.ddbimporter?.id == id);
+      const monsterInPack = monsterPack.index.find((f: any) => f.flags?.ddbimporter?.id == id);
       if (monsterInPack) {
         goodMonsterIds.push({ ddbId: id, name: monsterInPack.name, id: monsterInPack._id, quantity: monster.quantity });
       } else {
@@ -62,7 +166,7 @@ export default class DDBEncounter {
       .filter((character) => !character.hidden)
       .forEach((character) => {
         const characterInGame = game.actors.find(
-          (actor) =>
+          (actor: any) =>
             actor.flags?.ddbimporter?.dndbeyond?.characterId
             && actor.flags.ddbimporter.dndbeyond.characterId == character.id,
         );
@@ -120,7 +224,7 @@ export default class DDBEncounter {
       logger.debug("Finised Importing missing monsters from DDB");
     }
 
-    const monsterPack = CompendiumHelper.getCompendiumType("monster", false);
+    const monsterPack = CompendiumHelper.getCompendiumType("monster", false) as CompendiumCollection<"Actor">;
     await monsterPack.getIndex({ fields: ["name", "flags.ddbimporter.id"] });
     const compendiumName = CompendiumHelper.getCompendiumLabel("monster");
 
@@ -130,9 +234,9 @@ export default class DDBEncounter {
     const journalMonsterInfo = new Map();
     this.data.monsters.forEach((monster) => {
       const id = monster.id;
-      const monsterInPack = monsterPack.index.find((f) => f.flags?.ddbimporter?.id == id);
+      const monsterInPack = monsterPack.index.find((f: any) => f.flags?.ddbimporter?.id == id);
       if (monsterInPack) {
-        let monsterData = {
+        let monsterData: IEncounterWorldMonsterData = {
           ddbId: id,
           name: monsterInPack.name,
           id: monsterInPack._id,
@@ -172,16 +276,17 @@ export default class DDBEncounter {
     logger.debug("Trying to import monsters from compendium", monstersToAddToWorld);
     await utils.asyncForEach(monstersToAddToWorld, async (actor) => {
       let worldActor = game.actors.find(
-        (a) => a.folder?.id == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId,
+        (a: any) => a.folder?.id == encounterMonsterFolder.id && a.flags?.ddbimporter?.id == actor.ddbId,
       );
       if (!worldActor) {
         logger.info(
           `Importing monster ${actor.name} with DDB ID ${actor.ddbId} from ${monsterPack.metadata.name} with id ${actor.id}`,
         );
         try {
-          worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, {
+          const options = {
             folder: encounterMonsterFolder.id,
-          });
+          };
+          worldActor = await game.actors.importFromCompendium(monsterPack, actor.id, options as any);
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to import actor ${actor.name} with id ${actor.id} from DDB Compendium`);
@@ -190,7 +295,7 @@ export default class DDBEncounter {
           );
         }
       }
-      this.data.worldMonsters.push(foundry.utils.mergeObject(actor, { id: worldActor.id }));
+      this.data.worldMonsters.push(foundry.utils.mergeObject(actor, { id: worldActor.id }) as unknown as IEncounterWorldMonsterData);
     });
 
     return new Promise((resolve) => {
@@ -209,7 +314,13 @@ export default class DDBEncounter {
 
   async #createJournalEntry() {
     logger.debug(`Creating journal entry`);
-    const journal = {
+    const journal: {
+      name: string;
+      flags: { ddbimporter: { encounterId?: string } };
+      folder?: string;
+      content?: string;
+      _id?: string;
+    } = {
       name: this.data.name,
       flags: {
         ddbimporter: {
@@ -250,13 +361,13 @@ export default class DDBEncounter {
         journal.content += `<h2>Rewards</h2>${this.data.rewards}`;
       }
 
-      let worldJournal = game.journal.find(
-        (a) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.data.id,
+      let worldJournal: any = game.journal.find(
+        (a: any) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.data.id,
       );
       if (!worldJournal) {
         logger.info(`Importing journal ${journal.name}`);
         try {
-          worldJournal = await JournalEntry.create(journal);
+          worldJournal = await JournalEntry.create(journal as unknown as JournalEntry.CreateInput);
         } catch (err) {
           logger.error(err);
           logger.warn(`Unable to create journal ${journal.name}`);
@@ -396,12 +507,11 @@ export default class DDBEncounter {
           logger.info(`Generating token ${character.name} for ${this.data.name}`);
           const characterInGame = game.actors.find(
             (actor) =>
-              actor.flags?.ddbimporter?.dndbeyond?.characterId
-              && actor.flags.ddbimporter.dndbeyond.characterId == character.id,
+              foundry.utils.getProperty(actor, "flags.ddbimporter.dndbeyond.characterId") == character.id,
           );
           if (characterInGame) {
             const onScene = useExistingScene && worldScene.tokens
-              .some((t) => t.actor.flags?.ddbimporter?.id == character.id && t.actor.type == "character");
+              .some((t) => foundry.utils.getProperty(t.actor, "flags.ddbimporter.id") == character.id && t.actor.type == "character");
 
             if (!onScene) {
               const linkedToken = foundry.utils.duplicate(await characterInGame.getTokenDocument());
@@ -467,7 +577,7 @@ export default class DDBEncounter {
 
       if (importDDBIScene) {
         worldScene = game.scenes.find(
-          (a) => a.folder == this.folders["scene"].id
+          (a: Scene) => a.folder == this.folders["scene"].id
           && a.flags?.ddbimporter?.encounterId == this.data.id,
         );
       }
@@ -476,7 +586,7 @@ export default class DDBEncounter {
         logger.info(`Updating scene ${sceneData.name}`);
         const existingCombats = game.combats.filter((c) =>
           c.scene?.id == worldScene.id
-          && c.flags?.ddbimporter?.encounterId == this.data.id,
+          && foundry.utils.getProperty(c, "flags.ddbimporter.encounterId") == this.data.id,
         );
         await Combat.deleteDocuments(existingCombats.map((c) => c.id));
         if (importDDBIScene) {
@@ -530,23 +640,25 @@ export default class DDBEncounter {
       = this.data.inProgress && utils.getSetting<boolean>("encounter-import-policy-use-ddb-save");
 
     await this.scene.view();
-    const flags = {
+    const flags: Record<string, any> = {
       "ddbimporter.encounterId": this.data.id,
     };
-    this.combat = await Combat.create({ scene: this.scene.id, flags: flags });
+    this.combat = await Combat.create({ scene: this.scene.id, flags: flags } as unknown as Combat.CreateInput) as Combat;
     await this.combat.activate();
 
     const toCreate = [];
     const tokens = canvas.tokens.placeables
-      .filter((t) => t.document.flags?.ddbimporter?.encounterId == this.data.id || t.actor.type == "character");
+      .filter((t) => foundry.utils.getProperty(t.document, "flags.ddbimporter.encounterId") == this.data.id || t.actor.type == "character");
     if (tokens.length) {
       tokens.forEach((t) => {
-        const combatant = { tokenId: t.id, actorId: t.document.actorId, hidden: t.document.hidden };
-        if (useDDBSave && t.document.flags.ddbimporter?.dndbeyond?.initiative)
-          combatant.initiative = t.document.flags.ddbimporter.dndbeyond.initiative;
+        const combatant: { tokenId: string; actorId: string; hidden: boolean; initiative?: number } = {
+          tokenId: t.id, actorId: t.document.actorId, hidden: t.document.hidden,
+        };
+        const ddbInitiative = foundry.utils.getProperty(t.document, "flags.ddbimporter.dndbeyond.initiative") as number | undefined;
+        if (useDDBSave && ddbInitiative) combatant.initiative = ddbInitiative;
         if (!t.inCombat) toCreate.push(combatant);
       });
-      const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate);
+      const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate) as unknown as (Combatant & { initiative: number | null })[];
 
       const rollMonsterInitiative = utils.getSetting<boolean>("encounter-import-policy-roll-monster-initiative");
       combatants

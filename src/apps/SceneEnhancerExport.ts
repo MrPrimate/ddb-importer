@@ -218,7 +218,7 @@ export function collectSceneData(scene, bookCode) {
       };
 
       // the token actor flags here help us match up actors using the DDB ID
-      const ddbFlags = foundry.utils.getProperty(token, "actor.flags.ddbimporter");
+      const ddbFlags = foundry.utils.getProperty(token, "actor.flags.ddbimporter") as Record<string, any>;
       if (ddbFlags) {
         if (ddbFlags.keepAvatar) {
           const image = token.actor.img.split("assets/").pop();
@@ -237,7 +237,7 @@ export function collectSceneData(scene, bookCode) {
       //   result,
       //   scene,
       // });
-      if (foundry.utils.hasProperty(token, "token.actorData.flags")) delete token.actorData.flags["token-action-hud-core"];
+      if (foundry.utils.hasProperty(token, "token.actorData.flags")) delete (token as Record<string, any>).actorData.flags["token-action-hud-core"];
       delete token.flags["token-action-hud-core"];
       delete token.flags["simbuls-cover-calculator"];
       delete token.flags["monks-enhanced-journal"];
@@ -291,6 +291,23 @@ const allowedFlags = ["stairways", "perfect-vision", "dynamic-illumination"];
 
 export class SceneEnhancerExport extends Application {
 
+  sceneSet: boolean;
+  compendiumBookSet: boolean;
+  downloadBookSet: boolean;
+  scene: any;
+  description: string;
+  url: string;
+  compendium: string;
+  compendiumSceneId: string;
+  bookCode: string;
+  compendiumScenes: { _id: string; name: string; selected: boolean }[];
+  compendiums: any[];
+  books: { code: string; name: string; selected: boolean }[];
+  exportOptionsCompendium: Record<string, boolean>;
+  exportOptionsDownload: Record<string, boolean>;
+  compendiumDisabled: boolean;
+  downloadDisabled: boolean;
+
   constructor(scene) {
     super();
     this.sceneSet = false;
@@ -314,11 +331,11 @@ export class SceneEnhancerExport extends Application {
     this.compendiums = game.packs
       .filter((pack) => pack.metadata?.type === "Scene")
       .map((pack) => {
-        if (this.compendium && this.compendium === pack.collection) pack.selected = true;
-        else pack.selected = false;
+        if (this.compendium && this.compendium === pack.collection) (pack as { selected?: boolean }).selected = true;
+        else (pack as { selected?: boolean }).selected = false;
         return pack;
       })
-      .sort((a, b) => a.metadata.label.localeCompare(b.metadata.label));
+      .sort((a, b) => (a.metadata.label as string).localeCompare(b.metadata.label as string));
 
     const selectedBooks = this.bookCode
       ? CONFIG.DDB.sources.filter((s) => s.name.toLowerCase() === this.bookCode).map((s) => s.id)
@@ -410,13 +427,13 @@ export class SceneEnhancerExport extends Application {
     $("#ddb-importer-scene-enhancer").css("height", "auto");
 
     html.find("#compendium-form").submit(async (event) => {
-      const form = document.querySelector("#compendium-form");
+      const form = document.querySelector<HTMLFormElement>("#compendium-form");
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
     });
 
     html.find("#download-form").submit(async (event) => {
-      const form = document.querySelector("#download-form");
+      const form = document.querySelector<HTMLFormElement>("#download-form");
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
     });

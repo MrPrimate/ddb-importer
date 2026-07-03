@@ -13,6 +13,7 @@ global {
 
   export interface IDDBCharacterResponse {
     success: boolean;
+    message?: string;
     ddb: IDDBData;
   }
 

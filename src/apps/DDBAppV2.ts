@@ -17,7 +17,9 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
 
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 
-  constructor() {
+  // subclasses pass app options for typing purposes; ApplicationV2 configuration
+  // comes from static DEFAULT_OPTIONS, so they are not forwarded
+  constructor(_options: Record<string, any> = {}) {
     super();
     this.notifier = this.munchNote;
   }

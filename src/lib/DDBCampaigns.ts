@@ -5,17 +5,6 @@ import PatreonHelper from "./PatreonHelper";
 import * as Secrets from "./Secrets";
 import utils from "./Utils";
 
-export interface IDDBListCampaign {
-  id: number;
-  name: string;
-  dmUsername: string;
-  dateCreated: string;
-  playerCount: number;
-  dmId: number;
-  selected?: boolean;
-};
-
-
 export default class DDBCampaigns {
 
 

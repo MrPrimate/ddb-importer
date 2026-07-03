@@ -2,7 +2,6 @@ import {
   utils,
   logger,
   DialogHelper,
-  Crosshairs,
   FolderHelper,
 } from "../lib/_module";
 import { DICTIONARY } from "../config/_module";
@@ -23,14 +22,66 @@ interface IDamageOverTimeEffectOptions {
   dc?: number;
 }
 
+type THookCallback = (...args: never[]) => unknown;
+
+// Loosely typed view of the Hooks helper for third-party/dynamic hook names
+// that are not registered in the HookConfig interface.
+interface IDynamicHooks {
+  on(hook: string, fn: THookCallback, options?: { once?: boolean }): number;
+  once(hook: string, fn: THookCallback): number;
+  off(hook: string, fn: number | THookCallback): void;
+  call(hook: string, ...args: unknown[]): boolean;
+  callAll(hook: string, ...args: unknown[]): boolean;
+}
+
+interface IAAWorkflowData {
+  item?: { name?: string; origin?: string };
+  recheckAnimation?: boolean;
+}
+
+interface ITokenTargetUser {
+  updateTokenTargets(targetIds?: string[]): void;
+  broadcastActivity(activityData?: Record<string, unknown>): void;
+}
+
+type TRaceDetail = string & { name?: string };
+
+interface IDetailsSystemStub {
+  details: {
+    race?: TRaceDetail;
+    type?: { value?: string };
+  };
+}
+
+interface IAttackStubActivity {
+  type?: string;
+  attack?: { type?: { classification?: string; value?: string } };
+  parent?: { properties?: Set<string> };
+}
+
+interface IConditionActorish {
+  uuid?: string;
+  document?: IConditionActorish;
+  effects?: { get(id: string): { delete(): Promise<unknown> } | undefined };
+  update(data: Record<string, unknown>): Promise<unknown>;
+}
+
+type TSimpleItemRef = { _id?: string; uuid?: string };
+
+interface IRemovalDocument {
+  name?: string;
+  parent?: { system?: { attributes?: { spell?: { dc?: number } } } };
+}
+
+interface IRemovalActivity {
+  type?: string;
+  save?: { dc?: { value?: number }; ability?: { first(): string } };
+}
+
 export default class DDBEffectHelper {
 
   static get baseEffect() {
     return AutoEffects.BaseEffect;
-  }
-
-  static get Crosshairs() {
-    return Crosshairs;
   }
 
   static get generateDAEStatusEffectChange() {
@@ -165,7 +216,7 @@ export default class DDBEffectHelper {
     if (game.modules.get("sequencer")?.active) {
       if (Sequencer.Database.entryExists(sequencerFile)) {
         logger.debug(`Trying to apply sequencer effect (${sequencerFile}) to ${templateUuid} from ${originUuid}`, sequencerFile);
-        const template = await fromUuid(templateUuid);
+        const template = await fromUuid(templateUuid) as unknown as { width: number };
         new Sequence()
           .effect()
           .file(Sequencer.Database.entryExists(sequencerFile))
@@ -243,20 +294,20 @@ export default class DDBEffectHelper {
     }
     const customStatusName = `${statusName.label} [${originItemName}]`;
     if (AutomatedAnimations.AutorecManager.getAutorecEntries().aefx.find((a) => (a.label ?? a.name) === customStatusName)) {
-      const aaHookId = Hooks.on("AutomatedAnimations-WorkflowStart", (data) => {
+      const aaHookId = (Hooks as unknown as IDynamicHooks).on("AutomatedAnimations-WorkflowStart", (data: IAAWorkflowData) => {
         if (
           data.item instanceof CONFIG.ActiveEffect.documentClass
           && data.item.name === statusName.label
           && data.item.origin === macroData.sourceItemUuid
         ) {
           data.recheckAnimation = true;
-          data.item.name = customStatusName;
-          Hooks.off("AutomatedAnimations-WorkflowStart", aaHookId);
+          (data.item as { name: string }).name = customStatusName;
+          (Hooks as unknown as IDynamicHooks).off("AutomatedAnimations-WorkflowStart", aaHookId);
         }
       });
       // Make sure that the hook is removed when the special spell effect is completed
-      Hooks.once(`midi-qol.RollComplete.${conditionItemUuid}`, () => {
-        Hooks.off("AutomatedAnimations-WorkflowStart", aaHookId);
+      (Hooks as unknown as IDynamicHooks).once(`midi-qol.RollComplete.${conditionItemUuid}`, () => {
+        (Hooks as unknown as IDynamicHooks).off("AutomatedAnimations-WorkflowStart", aaHookId);
       });
     }
   }
@@ -276,10 +327,10 @@ export default class DDBEffectHelper {
   static async _createJB2aActors(subFolderName, name) {
     const packKeys = ["jb2a_patreon.jb2a-actors", "JB2A_DnD5e.jb2a-actors"];
     for (const key of packKeys) {
-      const pack = game.packs.get(key);
+      const pack = game.packs.get(key) as CompendiumCollection<"Actor"> | undefined;
 
       if (!pack) continue;
-      const actors = pack.index.filter((f) => f.name.includes(name));
+      const actors = pack.index.filter((f) => (f.name as string).includes(name));
       const subFolder = await FolderHelper.getFolder("npc", subFolderName, "JB2A Actors", "#ceb180", "#cccc00", false);
 
       for (const actor of actors) {
@@ -308,7 +359,7 @@ export default class DDBEffectHelper {
     if (!sourceToken) return false;
     const targetsInRange = MidiQOL.findNearby(null, sourceUuid, distance);
     const isInRange = targetsInRange.reduce((result, possible) => {
-      const collisionRay = new Ray(sourceToken, possible);
+      const collisionRay = new Ray(sourceToken as unknown as { x: number; y: number }, possible);
       const collision = DDBEffectHelper.checkCollision(collisionRay, ["sight"]);
       if (possible.uuid === targetUuid && !collision) result = true;
       return result;
@@ -327,7 +378,7 @@ export default class DDBEffectHelper {
     const DIV = document.createElement("DIV");
     DIV.innerHTML = msg.content;
     DIV.querySelector("div.card-buttons").remove();
-    await ChatMessage.create({ content: DIV.innerHTML });
+    await ChatMessage.create({ content: DIV.innerHTML } as unknown as ChatMessage.CreateInput);
   }
 
   /**
@@ -460,15 +511,15 @@ export default class DDBEffectHelper {
    * @param {object} options Optional object with grid spaces configuration
    * @returns {Array} Array of distances for each segment
    */
-  static simpleMeasureDistances(segments, options = {}) {
+  static simpleMeasureDistances(segments, options: { gridSpaces?: boolean } = {}) {
     if (canvas?.grid?.grid.constructor.name !== "BaseGrid" || !options.gridSpaces) {
-      const distances = canvas?.grid?.measureDistances(segments, options);
+      const distances = canvas?.grid?.measureDistances(segments, options as unknown as EmptyObject);
       return distances;
     }
 
-    const rule = canvas?.grid.diagonalRule;
+    const rule = (canvas as unknown as { grid: { diagonalRule: string } })?.grid.diagonalRule;
     if (!options.gridSpaces || !["555", "5105", "EUCL"].includes(rule)) {
-      return canvas?.grid?.measureDistances(segments, options);
+      return canvas?.grid?.measureDistances(segments, options as unknown as EmptyObject);
     }
     // Track the total number of diagonals
     let nDiagonal = 0;
@@ -591,7 +642,7 @@ export default class DDBEffectHelper {
 
     const heightDifference = DDBEffectHelper._calculateTokeHeightDifference(t1, t2);
 
-    const distanceRule = canvas.grid.diagonalRule;
+    const distanceRule = (canvas.grid as unknown as { diagonalRule: string }).diagonalRule;
     // 5105 Alternative DMG Movement
     // 555 Standard Movement
     // EUCL Euclidean Measurement
@@ -644,7 +695,7 @@ export default class DDBEffectHelper {
    */
   static getRaceOrType(entity) {
     const actor = DDBEffectHelper.getActor(entity);
-    const systemData = actor?.system;
+    const systemData = actor?.system as IDetailsSystemStub;
     if (!systemData) return "";
     if (systemData.details.race) {
       return (systemData.details?.race?.name ?? systemData.details?.race)?.toLocaleLowerCase() ?? "";
@@ -661,7 +712,7 @@ export default class DDBEffectHelper {
   static getToken(tokenRef) {
     if (!tokenRef) return undefined;
     if (tokenRef instanceof Token) return tokenRef;
-    if (utils.isString(tokenRef)) return (fromUuidSync(tokenRef)?.object);
+    if (utils.isString(tokenRef)) return ((fromUuidSync(tokenRef as string) as TokenDocument)?.object);
     if (tokenRef instanceof TokenDocument) return tokenRef.object;
     return undefined;
   }
@@ -714,7 +765,7 @@ export default class DDBEffectHelper {
         && !excludedActorIds.includes(t.actor?.id) // typically the origin actor
         && !excludedTokenIds.includes(t.id) // token ids excluded
         && t.id !== target.id // not the target
-        && (includeIncapacitated || (t.actor?.system.attributes?.hp?.value ?? 0) > 0) // not incapacitated
+        && (includeIncapacitated || ((t.actor as unknown as { system: { attributes?: { hp?: { value?: number } } } })?.system.attributes?.hp?.value ?? 0) > 0) // not incapacitated
         && DDBEffectHelper.getDistance(t, target) <= distance; // close to the target;
 
       if (nearby) {
@@ -760,7 +811,7 @@ export default class DDBEffectHelper {
    */
   static getTypeOrRace(entity) {
     const actor = DDBEffectHelper.getActor(entity);
-    const systemData = actor?.system;
+    const systemData = actor?.system as IDetailsSystemStub;
     if (!systemData) return "";
     if (systemData.details.type?.value) {
       return systemData.details.type?.value.toLocaleLowerCase() ?? "";
@@ -775,7 +826,7 @@ export default class DDBEffectHelper {
    * @returns {number} a new duration which reflects the remaining duration of the specified one.
    */
   static getRemainingDuration(duration) {
-    const newDuration = {};
+    const newDuration: { seconds?: number; rounds?: number; turns?: number } = {};
     if (duration.type === "seconds") {
       newDuration.seconds = duration.remaining;
     } else if (duration.type === "turns") {
@@ -789,13 +840,19 @@ export default class DDBEffectHelper {
 
   static isAttack({
     activity, classification = null, type = null, orHasProperties = [], andHasProperties = [],
+  }: {
+    activity?: IAttackStubActivity;
+    classification?: string | null;
+    type?: string | null;
+    orHasProperties?: string[];
+    andHasProperties?: string[];
   } = {}) {
     if (activity.type !== "attack") return false;
     if (classification && activity.attack?.type?.classification !== classification) return false;
     if (andHasProperties.length > 0 && !andHasProperties.every((p) => activity.parent.properties.has(p))) return false;
     const orHas = orHasProperties.some((p) => activity.parent.properties.has(p));
     if ((type && activity.attack?.type?.value !== type)
-      || (orHas.length > 0 && !orHas)) return false;
+      || ((orHas as unknown as string[]).length > 0 && !orHas)) return false;
 
     return true;
   }
@@ -809,7 +866,11 @@ export default class DDBEffectHelper {
    * @param {Token} params.targetToken
    * @returns {boolean} true if the attack is a ranged weapon attack that hit
    */
-  static isRangedWeaponAttack({ activity, sourceToken, targetToken } = {}) {
+  static isRangedWeaponAttack({ activity, sourceToken, targetToken }: {
+    activity?: IAttackStubActivity;
+    sourceToken?: Token;
+    targetToken?: Token;
+  } = {}) {
     if (!DDBEffectHelper.isAttack({
       activity,
       type: "ranged",
@@ -828,7 +889,7 @@ export default class DDBEffectHelper {
    * @param {Activity} params.activity used
    * @returns {boolean} true if the attack is a ranged weapon attack that hit
    */
-  static isMeleeWeaponAttack({ activity } = {}) {
+  static isMeleeWeaponAttack({ activity }: { activity?: IAttackStubActivity } = {}) {
     if (!DDBEffectHelper.isAttack({
       activity,
       type: "melee",
@@ -934,18 +995,18 @@ export default class DDBEffectHelper {
       aoeTargets.unshift(sourceToken);
     }
     const aoeTargetIds = aoeTargets.map((t) => t.document.id);
-    game.user?.updateTokenTargets(aoeTargetIds);
-    game.user?.broadcastActivity({ aoeTargetIds });
+    (game.user as unknown as ITokenTargetUser)?.updateTokenTargets(aoeTargetIds);
+    (game.user as unknown as ITokenTargetUser)?.broadcastActivity({ aoeTargetIds });
     return aoeTargets;
   }
 
   static updateUserTargets(targets) {
-    game.user.updateTokenTargets(targets);
+    (game.user as unknown as ITokenTargetUser).updateTokenTargets(targets);
   }
 
   static isConditionEffectAppliedAndActive(condition, actor) {
     return DDBEffectHelper.getActorEffects(actor).some(
-      (activeEffect) =>
+      (activeEffect: { name?: string; disabled?: boolean }) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled,
     );
@@ -953,14 +1014,19 @@ export default class DDBEffectHelper {
 
   static getConditionEffectAppliedAndActive(condition, actor) {
     return DDBEffectHelper.getActorEffects(actor).find(
-      (activeEffect) =>
+      (activeEffect: { name?: string; disabled?: boolean }) =>
         (activeEffect?.name.toLowerCase() == condition.toLowerCase())
         && !activeEffect?.disabled,
     );
   }
 
-  static async removeCondition({ actor, actorUuid, conditionName, level = null } = {}) {
-    if (!actor) actor = await fromUuid(actorUuid);
+  static async removeCondition({ actor, actorUuid, conditionName, level = null }: {
+    actor?: IConditionActorish;
+    actorUuid?: string;
+    conditionName?: string;
+    level?: number | null;
+  } = {}) {
+    if (!actor) actor = await fromUuid(actorUuid) as unknown as IConditionActorish;
     if (!actor) {
       logger.error("No actor passed to remove condition");
       return;
@@ -1001,11 +1067,17 @@ export default class DDBEffectHelper {
       logger.error(`Condition ${conditionName} not found`);
       return null;
     }
-    return condition;
+    return condition as typeof condition & { level?: number; foundry?: string };
   }
 
-  static async addCondition({ conditionName, actor, actorUuid, level = null, origin = null } = {}) {
-    if (!actor) actor = await fromUuid(actorUuid);
+  static async addCondition({ conditionName, actor, actorUuid, level = null, origin = null }: {
+    conditionName?: string;
+    actor?: IConditionActorish;
+    actorUuid?: string;
+    level?: number | null;
+    origin?: string | null;
+  } = {}) {
+    if (!actor) actor = await fromUuid(actorUuid) as unknown as IConditionActorish;
     if (!actor) {
       logger.error("No actor passed to remove condition");
       return;
@@ -1025,8 +1097,8 @@ export default class DDBEffectHelper {
 
     const effect = await ActiveEffect.implementation.fromStatusEffect(condition.id);
     if (condition.level) effect.updateSource({ [`flags.dnd5e.${condition.id}Level`]: condition.level });
-    effect.updateSource({ origin });
-    ActiveEffect.implementation.create(effect, { parent: actor, keepId: true });
+    effect.updateSource({ origin } as unknown as Parameters<typeof effect.updateSource>[0]);
+    ActiveEffect.implementation.create(effect, { parent: actor as unknown as Actor.Implementation, keepId: true });
 
     if (condition.foundry === "exhaustion") {
       logger.debug("Updating actor exhaustion", level);
@@ -1034,7 +1106,14 @@ export default class DDBEffectHelper {
     }
   }
 
-  static async adjustCondition({ add = false, remove = false, actor, conditionName, level = null, origin = null } = {}) {
+  static async adjustCondition({ add = false, remove = false, actor, conditionName, level = null, origin = null }: {
+    add?: boolean;
+    remove?: boolean;
+    actor?: IConditionActorish;
+    conditionName?: string;
+    level?: number | null;
+    origin?: string | null;
+  } = {}) {
     const gmUser = game.users.find((user) => user.active && user.isGM);
     if (!gmUser) {
       ui.notifications.error("No GM user found, unable to adjust condition");
@@ -1070,7 +1149,7 @@ export default class DDBEffectHelper {
         results.push({
           number: index + 1,
           title: title.textContent.replace(/\.$/, "").trim(),
-          content: content.innerHTML ?? content.wholeText ?? content.textContent,
+          content: (content as HTMLElement).innerHTML ?? (content as Text).wholeText ?? content.textContent,
           full: item.innerHTML,
         });
       });
@@ -1093,7 +1172,7 @@ export default class DDBEffectHelper {
       results.push({
         number: i,
         title: title.textContent.replace(/\.$/, "").trim(),
-        content: content.innerHTML?.trim() ?? content.wholeText?.trim() ?? content.textContent?.trim(),
+        content: (content as HTMLElement).innerHTML?.trim() ?? (content as Text).wholeText?.trim() ?? content.textContent?.trim(),
         full: item.innerHTML,
       });
       i++;
@@ -1102,15 +1181,23 @@ export default class DDBEffectHelper {
     return results;
   }
 
-  static async _verySimpleDamageRollToChat({ actor, flavor, formula, damageType = "damage", item, itemId, itemUuid } = {}) {
-    const roll = new CONFIG.Dice.DamageRoll(formula, {}, { type: damageType });
-    await roll.evaluate({ async: true });
+  static async _verySimpleDamageRollToChat({ actor, flavor, formula, damageType = "damage", item, itemId, itemUuid }: {
+    actor?: Actor.Implementation;
+    flavor?: string;
+    formula?: string;
+    damageType?: string;
+    item?: TSimpleItemRef;
+    itemId?: string;
+    itemUuid?: string;
+  } = {}) {
+    const roll = new CONFIG.Dice.DamageRoll(formula, {}, { type: damageType } as unknown as ConstructorParameters<typeof CONFIG.Dice.DamageRoll>[2]);
+    await roll.evaluate({ async: true } as unknown as Parameters<typeof roll.evaluate>[0]);
 
     if (!item && itemId && !itemUuid && actor) {
-      item = actor.getEmbeddedDocument("Item", itemId);
+      item = actor.getEmbeddedDocument("Item", itemId) as unknown as TSimpleItemRef;
     }
     if (!item && itemUuid && actor) {
-      item = await fromUuid(itemUuid);
+      item = await fromUuid(itemUuid) as unknown as TSimpleItemRef;
     }
 
     if (item && !itemId) itemId = item._id;
@@ -1128,16 +1215,26 @@ export default class DDBEffectHelper {
         },
       },
 
-    });
+    } as unknown as Parameters<typeof roll.toMessage>[0]);
   }
 
-  static async simpleDamageRollToChat({ event = undefined, actor, flavor, formulas = [], damageType = "damage", item, itemId, itemUuid, fastForward = false } = {}) {
+  static async simpleDamageRollToChat({ event = undefined, actor, flavor, formulas = [], damageType = "damage", item, itemId, itemUuid, fastForward = false }: {
+    event?: Event;
+    actor?: Actor.Implementation;
+    flavor?: string;
+    formulas?: string[];
+    damageType?: string;
+    item?: TSimpleItemRef;
+    itemId?: string;
+    itemUuid?: string;
+    fastForward?: boolean;
+  } = {}) {
 
     if (!item && itemId && !itemUuid && actor) {
-      item = actor.getEmbeddedDocument("Item", itemId);
+      item = actor.getEmbeddedDocument("Item", itemId) as unknown as TSimpleItemRef;
     }
     if (!item && itemUuid && actor) {
-      item = await fromUuid(itemUuid);
+      item = await fromUuid(itemUuid) as unknown as TSimpleItemRef;
     }
 
     if (item && !itemId) itemId = item._id;
@@ -1163,9 +1260,9 @@ export default class DDBEffectHelper {
       },
     };
 
-    if (Hooks.call("dnd5e.preRollDamage", undefined, rollConfig) === false) return;
-    const roll = await globalThis.dnd5e.dice.damageRoll(rollConfig);
-    if (roll) Hooks.callAll("dnd5e.rollDamage", undefined, roll);
+    if ((Hooks as unknown as IDynamicHooks).call("dnd5e.preRollDamage", undefined, rollConfig) === false) return;
+    const roll = await (globalThis.dnd5e.dice as unknown as { damageRoll: (config: object) => Promise<unknown> }).damageRoll(rollConfig);
+    if (roll) (Hooks as unknown as IDynamicHooks).callAll("dnd5e.rollDamage", undefined, roll);
   }
 
   static syntheticItemWorkflowOptions({
@@ -1229,11 +1326,26 @@ export default class DDBEffectHelper {
     return actor.effects.find((ef) => concentrationEffectNames.some((c) => ef.name.startsWith(c)));
   }
 
-  static overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc } = {}) {
+  static overTimeDamage({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc }: {
+    document?: { name?: string };
+    turn?: string;
+    damage?: string;
+    damageType?: string;
+    saveAbility?: string | string[];
+    saveRemove?: boolean;
+    saveDamage?: string;
+    dc?: number;
+  } = {}) {
     return ChangeHelper.overTimeDamageChange({ document, turn, damage, damageType, saveAbility, saveRemove, saveDamage, dc });
   }
 
-  static overTimeSave({ document, turn, saveAbility, saveRemove = true, dc } = {}) {
+  static overTimeSave({ document, turn, saveAbility, saveRemove = true, dc }: {
+    document?: { name?: string };
+    turn?: string;
+    saveAbility?: string | string[];
+    saveRemove?: boolean;
+    dc?: number;
+  } = {}) {
     return ChangeHelper.overTimeSaveChange({ document, turn, saveAbility, saveRemove, dc });
   }
 
@@ -1271,7 +1383,7 @@ export default class DDBEffectHelper {
     const newActivities = {};
     if (ids.length > 0) {
       for (const [key, activity] of Object.entries(activities)) {
-        if (ids.includes(activity._id)) newActivities[key] = activity;
+        if (ids.includes((activity as { _id?: string })._id)) newActivities[key] = activity;
       }
     }
     return newActivities;
@@ -1281,7 +1393,7 @@ export default class DDBEffectHelper {
     const newActivities = {};
     if (types.length > 0) {
       for (const [key, activity] of Object.entries(activities)) {
-        if (types.includes(activity.type)) newActivities[key] = activity;
+        if (types.includes((activity as { type?: string }).type)) newActivities[key] = activity;
       }
     }
     return newActivities;
@@ -1379,7 +1491,7 @@ export default class DDBEffectHelper {
 
     if (filterEffects) {
       const allowedIds = Object.values(newDocumentData.system.activities).map((a) => {
-        return (a.effects ?? []).map((e) => e._id);
+        return ((a as { effects?: { _id: string }[] }).effects ?? []).map((e) => e._id);
       }).flat();
       newDocumentData.effects = newDocumentData.effects.filter((e) => allowedIds.includes(e._id));
     }
@@ -1422,7 +1534,7 @@ export default class DDBEffectHelper {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id)
       : [];
-    if (targetIds.length > 0) game.user.updateTokenTargets(targetIds);
+    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
 
     const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
 
@@ -1430,7 +1542,7 @@ export default class DDBEffectHelper {
 
     const result = await MidiQOL.completeItemUse(document, config, options);
 
-    if (targetIds.length > 0) game.user.updateTokenTargets(saveTargets);
+    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(saveTargets);
 
     const conditionResults = [];
     if (applyFailureConditions.length > 0) {
@@ -1454,7 +1566,7 @@ export default class DDBEffectHelper {
     const saveTargets = game.user?.targets
       ? [...game.user.targets].map((t) => t.id)
       : [];
-    if (targetIds.length > 0) game.user.updateTokenTargets(targetIds);
+    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(targetIds);
 
     const [config, options] = DDBEffectHelper.syntheticItemWorkflowOptions(workflowBuilderOptions);
 
@@ -1463,7 +1575,7 @@ export default class DDBEffectHelper {
     // config/dialogue/message
     const result = await MidiQOL.completeActivityUse(activity, config, options);
 
-    if (targetIds.length > 0) game.user.updateTokenTargets(saveTargets);
+    if (targetIds.length > 0) (game.user as unknown as ITokenTargetUser).updateTokenTargets(saveTargets);
 
     const conditionResults = [];
     if (applyFailureConditions.length > 0) {
@@ -1488,6 +1600,12 @@ export default class DDBEffectHelper {
     type = null, // can be save or check, if null, will check flags
     ability = null, // e.g. wis, if null, will check flags
     saveDC = null, // if null, will use activity if present, otherwise spelldc
+  }: {
+    document?: IRemovalDocument;
+    activity?: IRemovalActivity | null;
+    type?: string | null;
+    ability?: string | null;
+    saveDC?: number | null;
   } = {}) {
     const name = document?.name ?? "";
     const caster = document.parent;
@@ -1507,7 +1625,7 @@ export default class DDBEffectHelper {
       targetActor: targetToken.actor,
       scene: canvas.scene,
       token: targetToken?.document ?? targetToken,
-    });
+    } as unknown as Parameters<typeof ChatMessage.getSpeaker>[0]);
 
     const rollResult = derivedType === "check"
       ? (await targetToken.actor.rollAbilityTest(derivedAbility, { speaker, flavor })).total
@@ -1522,7 +1640,7 @@ export default class DDBEffectHelper {
       const nameStub = name ? ` for ${name}` : "";
       ChatMessage.create({
         content: `${targetToken.name} fails the ${derivedType}${nameStub}, and still has the ${condition} condition.`,
-      });
+      } as unknown as ChatMessage.CreateInput);
     }
     return rollResult;
   }
@@ -1561,11 +1679,11 @@ export default class DDBEffectHelper {
             callback: () => {
               ChatMessage.create({
                 content: `${targetToken.name} retains the ${condition} condition.`,
-              });
+              } as unknown as ChatMessage.CreateInput);
             },
           },
         },
-      }).render(true);
+      } as unknown as ConstructorParameters<typeof Dialog>[0]).render(true);
     } else {
       DDBEffectHelper._conditionRemovalMidiRoll(targetToken, condition, {
         document,
@@ -1588,25 +1706,36 @@ export default class DDBEffectHelper {
     for (const effectUuid of effectsToDelete) {
       const effect = await fromUuid(effectUuid);
       if (effect && !DDBEffectHelper.isEffectExpired(effect)) {
-        if (effect.transfer)
-          await effect.update({ disabled: true });
+        if ((effect as ActiveEffect.Implementation).transfer)
+          await (effect as ActiveEffect.Implementation).update({ disabled: true });
         else
           await effect.delete();
       }
     }
   }
 
-  static async createEffects({ actorUuid, effects = [], options } = {}) {
+  static async createEffects({ actorUuid, effects = [], options }: {
+    actorUuid?: string;
+    effects?: { transfer?: boolean }[];
+    options?: Record<string, unknown>;
+  } = {}) {
     const actor = DDBEffectHelper.fromActorUuid(actorUuid);
     for (const effect of effects) { // override default foundry behaviour of blank being transfer
       if (effect.transfer === undefined) effect.transfer = false;
     }
-    return actor?.createEmbeddedDocuments("ActiveEffect", effects, options);
+    return (actor as unknown as {
+      createEmbeddedDocuments(embeddedName: string, data: object[], operation?: object): Promise<unknown>;
+    })?.createEmbeddedDocuments("ActiveEffect", effects, options);
   }
 
-  static async updateEffects({ actorUuid, updates = [] } = {}) {
+  static async updateEffects({ actorUuid, updates = [] }: {
+    actorUuid?: string;
+    updates?: Record<string, unknown>[];
+  } = {}) {
     const actor = DDBEffectHelper.fromActorUuid(actorUuid);
-    return actor?.updateEmbeddedDocuments("ActiveEffect", updates);
+    return (actor as unknown as {
+      updateEmbeddedDocuments(embeddedName: string, updates: object[]): Promise<unknown>;
+    })?.updateEmbeddedDocuments("ActiveEffect", updates);
   }
 
   static FLAG_NAME = "ddbihelpers";
@@ -1619,7 +1748,7 @@ export default class DDBEffectHelper {
       if (!theActor) theActor = game.actors?.get(entity);
       if (!theActor) {
         const actor = fromUuidSync(entity);
-        theActor = actor.actor ?? actor;
+        theActor = (actor as unknown as { actor?: Actor.Implementation }).actor ?? actor;
       }
     } else if (entity instanceof Actor) {
       theActor = entity;
@@ -1637,7 +1766,12 @@ export default class DDBEffectHelper {
     return flag;
   }
 
-  static async _setFlag({ actorUuid, actorId, flagId, value } = {}) {
+  static async _setFlag({ actorUuid, actorId, flagId, value }: {
+    actorUuid?: string;
+    actorId?: string;
+    flagId?: string;
+    value?: unknown;
+  } = {}) {
     const actor = actorUuid
       ? await DDBEffectHelper.fromActorUuid(actorUuid)
       : await game.actors?.get(actorId);
@@ -1654,7 +1788,7 @@ export default class DDBEffectHelper {
       flags,
     });
 
-    return actor.update({
+    return (actor as unknown as { update(data: object): Promise<unknown> }).update({
       flags: {
         [DDBEffectHelper.FLAG_NAME]: {
           [flagId]: value,
@@ -1663,7 +1797,10 @@ export default class DDBEffectHelper {
     });
   }
 
-  static async _unsetFlag({ actorUuid, flagId } = {}) {
+  static async _unsetFlag({ actorUuid, flagId }: {
+    actorUuid?: string;
+    flagId?: string;
+  } = {}) {
     const actor = await DDBEffectHelper.fromActorUuid(actorUuid);
     if (!actor) return logger.error(`_unsetFlag: actor not defined`);
     const head = flagId.split(".");

@@ -1179,7 +1179,7 @@ Effects can also be created to use Active Auras${MuncherSettings.getInstalledIco
   },
 
   getEnhancementSettings: () => {
-    const enhancementConfig = [
+    const enhancementConfig: ISettingsPolicyExpandedItem[] = [
       {
         name: "allow-moon-druid-wildshape-enhancer",
         isChecked: utils.getSetting<boolean>("allow-moon-druid-wildshape-enhancer"),

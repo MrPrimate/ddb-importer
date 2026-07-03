@@ -28,10 +28,13 @@ export default class DDBCharacterManager extends DDBAppV2 {
   importSettings: ICharacterImportSettings;
   dmSyncEnabled: boolean;
   playerSyncEnabled: boolean;
+  result: Record<string, unknown>;
+  settings: Record<string, unknown>;
+  itemsMunched: boolean;
+  actorSettings: Record<string, any>;
 
   constructor(actor: Actor.Implementation | I5ePCData, ddbCharacter: DDBCharacter = null) {
     super();
-    // @ts-expect-error - 5e types error
     this.actor = game.actors.get(actor._id) as Actor.Implementation;
     // I5ePCData is our own type definition
     this.actorOriginal = foundry.utils.duplicate(this.actor) as unknown as I5ePCData;
@@ -175,15 +178,16 @@ export default class DDBCharacterManager extends DDBAppV2 {
     // watch the change of the muncher-policy-selector checkboxes
     this.element.querySelectorAll("fieldset :is(dnd5e-checkbox)").forEach((checkbox) => {
       checkbox.addEventListener("change", async (event) => {
-        switch (event.currentTarget.dataset.section) {
+        const currentTarget = event.currentTarget as HTMLInputElement;
+        switch (currentTarget.dataset.section) {
           case "resource-selection": {
-            const updateData = { flags: { ddbimporter: { resources: { ask: event.currentTarget.checked } } } };
-            await this.actor.update(updateData);
+            const updateData = { flags: { ddbimporter: { resources: { ask: currentTarget.checked } } } };
+            await this.actor.update(updateData as Actor.UpdateInput);
             break;
           }
           case "dndbeyond-character-dynamic-update": {
-            const activeUpdateData = { flags: { ddbimporter: { activeUpdate: event.currentTarget.checked } } };
-            await this.actor.update(activeUpdateData);
+            const activeUpdateData = { flags: { ddbimporter: { activeUpdate: currentTarget.checked } } };
+            await this.actor.update(activeUpdateData as Actor.UpdateInput);
             break;
           }
           default: {
@@ -202,7 +206,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
     this.element.querySelector("#open-dndbeyond-url").addEventListener("click", async () => {
       try {
-        const characterUrl = this.actor.flags.ddbimporter.dndbeyond.url;
+        const characterUrl = (this.actor.flags as IActorFlagConfig).ddbimporter.dndbeyond.url;
         DDBCharacterManager.renderPopup("json", characterUrl);
       } catch (error) {
         this.showCurrentTask("Error opening JSON URL", { message: error, isError: true });
@@ -237,9 +241,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
 
     // loads settings for actor
     this.importSettings = MuncherSettings.getCharacterImportSettings();
-    const useLocalPatreonKey = this.actor.flags?.ddbimporter?.useLocalPatreonKey;
+    const useLocalPatreonKey = (this.actor.flags as IActorFlagConfig)?.ddbimporter?.useLocalPatreonKey;
 
-    const characterId = this.actor.flags?.ddbimporter?.dndbeyond?.characterId;
+    const characterId = (this.actor.flags as IActorFlagConfig)?.ddbimporter?.dndbeyond?.characterId;
     this.dmSyncEnabled = characterId && this.importSettings.tiers.all;
     this.playerSyncEnabled = characterId && useLocalPatreonKey;
     const syncEnabled = characterId && (this.importSettings.tiers.all || useLocalPatreonKey);
@@ -260,7 +264,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     const updateUser = utils.getSetting<string>("dynamic-sync-user");
     const gmSyncUser = game.user.isGM && game.user.id == updateUser;
     const dynamicUpdateAllowed = dynamicSync && gmSyncUser && this.importSettings.tiers.experimentalMid;
-    const dynamicUpdateStatus = this.actor.flags?.ddbimporter?.activeUpdate;
+    const dynamicUpdateStatus = (this.actor.flags as IActorFlagConfig)?.ddbimporter?.activeUpdate;
     const resourceSelection = !foundry.utils.hasProperty(this.actor, "flags.ddbimporter.resources.ask")
       || foundry.utils.getProperty(this.actor, "flags.ddbimporter.resources.ask") === true;
 
@@ -290,7 +294,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     context = foundry.utils.mergeObject(parentContext, context, { inplace: false });
     logger.debug("DDBCharacterManager: _prepareContext", context);
     this.debugContext = foundry.utils.duplicate(context);
-    return context;
+    return context as unknown as DDBAppV2Context;
   }
 
   /** @override */
@@ -326,7 +330,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
     const URL = event.currentTarget.value;
     const characterId = DDBCharacter.getCharacterId(URL);
 
-    const status = this.element.querySelector(".dndbeyond-url-status i");
+    const status = this.element.querySelector<HTMLElement>(".dndbeyond-url-status i");
 
     // console.warn("URL", {
     //   status,
@@ -341,23 +345,23 @@ export default class DDBCharacterManager extends DDBAppV2 {
       status.classList.remove("fas");
       status.style.color = "";
       this.element.querySelector("span.dndbeyond-character-id").textContent = "";
-      this.element.querySelector("#dndbeyond-character-import-start").disabled = true;
-      this.element.querySelector("#open-dndbeyond-url").disabled = true;
+      this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-import-start").disabled = true;
+      this.element.querySelector<HTMLButtonElement>("#open-dndbeyond-url").disabled = true;
       this.showCurrentTask("URL Cleared", { message: "", isError: false });
       await this.actor.update({
         "flags.ddbimporter.dndbeyond": {
           url: URL,
           characterId,
         },
-      });
+      } as Actor.UpdateInput);
     } else if (characterId) {
       status.classList.add("fas");
       status.classList.remove("fa-exclamation-triangle");
       status.classList.add("fa-check-circle");
       status.style.color = "green";
       this.element.querySelector("span.dndbeyond-character-id").textContent = characterId;
-      this.element.querySelector("#dndbeyond-character-import-start").disabled = false;
-      this.element.querySelector("#open-dndbeyond-url").disabled = false;
+      this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-import-start").disabled = false;
+      this.element.querySelector<HTMLButtonElement>("#open-dndbeyond-url").disabled = false;
       this.showCurrentTask("", { message: "", isError: false });
 
       await this.actor.update({
@@ -365,7 +369,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
           url: URL,
           characterId,
         },
-      });
+      } as Actor.UpdateInput);
 
     } else {
       this.showCurrentTask("URL format incorrect", { message: "That seems not to be the URL we expected...", isError: true });
@@ -376,21 +380,21 @@ export default class DDBCharacterManager extends DDBAppV2 {
   }
 
   async setLocalPatreonKey() {
-    await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: true } } });
-    this.element.querySelector("#delete-local-patreon-key").disabled = false;
+    await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: true } } } as Actor.UpdateInput);
+    this.element.querySelector<HTMLButtonElement>("#delete-local-patreon-key").disabled = false;
     this.element.querySelector("#set-local-patreon-key").textContent = "Update Patreon Key";
     if (this.itemsMunched) {
-      this.element.querySelector("#dndbeyond-character-update").disabled = false;
+      this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-update").disabled = false;
       this.element.querySelector("#dndbeyond-character-update").textContent = "Update D&D Beyond with changes";
     } else {
       this.element.querySelector("#dndbeyond-character-update").textContent = "Your DM needs to import D&D Beyond items and spells into the DDB compendiums first.";
     }
   }
 
-  static async setLocalPatreonKeyClickEvent(_event, _target) {
+  static async setLocalPatreonKeyClickEvent(this: DDBCharacterManager, _event, _target) {
     try {
       const existingKey = await PatreonHelper.getPatreonKey(true);
-      if (!this.actor.flags.ddbimporter?.useLocalPatreonKey && existingKey && existingKey !== "") {
+      if (!(this.actor.flags as IActorFlagConfig).ddbimporter?.useLocalPatreonKey && existingKey && existingKey !== "") {
         await this.setLocalPatreonKey();
       } else {
         new DDBKeyChangeDialog({
@@ -405,14 +409,14 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async deleteLocalPatreonKeyClickEvent(_event, _target) {
+  static async deleteLocalPatreonKeyClickEvent(this: DDBCharacterManager, _event, _target) {
     try {
       await PatreonHelper.setPatreonKey(null, true);
-      await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } });
-      this.element.querySelector("#delete-local-patreon-key").disabled = true;
+      await this.actor.update({ flags: { ddbimporter: { useLocalPatreonKey: false } } } as Actor.UpdateInput);
+      this.element.querySelector<HTMLButtonElement>("#delete-local-patreon-key").disabled = true;
       this.element.querySelector("#set-local-patreon-key").textContent = "Add Patreon Key";
       if (!this.dmSyncEnabled) {
-        this.element.querySelector("#dndbeyond-character-update").disabled = true;
+        this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-update").disabled = true;
         this.element.querySelector("#dndbeyond-character-update").textContent = "D&D Beyond Update Available to Patreon Supporters";
       }
     } catch (error) {
@@ -422,13 +426,13 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async setLocalCobaltClickEvent(_event, _target) {
+  static async setLocalCobaltClickEvent(this: DDBCharacterManager, _event, _target) {
     try {
       new DDBCookie({
         actor: this.actor,
         localCobalt: true,
         callback: () => {
-          this.element.querySelector("#delete-local-cobalt").disabled = false;
+          this.element.querySelector<HTMLButtonElement>("#delete-local-cobalt").disabled = false;
           this.element.querySelector("#set-local-cobalt").textContent = "Update Cobalt Cookie";
         },
       }).render(true);
@@ -439,10 +443,10 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async deleteLocalCobaltClickEvent(_event, _target) {
+  static async deleteLocalCobaltClickEvent(this: DDBCharacterManager, _event, _target) {
     try {
       Secrets.deleteLocalCobalt(this.actor.id);
-      this.element.querySelector("#delete-local-cobalt").disabled = true;
+      this.element.querySelector<HTMLButtonElement>("#delete-local-cobalt").disabled = true;
       this.element.querySelector("#set-local-cobalt").textContent = "Add Cobalt Cookie";
     } catch (error) {
       logger.error(error);
@@ -451,9 +455,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async updateCharacterClickEvent(_event, _target) {
+  static async updateCharacterClickEvent(this: DDBCharacterManager, _event, _target) {
     try {
-      this.element.querySelector("#dndbeyond-character-update").disabled = true;
+      this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-update").disabled = true;
       await updateDDBCharacter(this.actor).then((result) => {
         const flatResults = result.flat().filter((r) => r !== undefined);
         const updateNotes = flatResults.map((r) => r.message).join(" ");
@@ -464,7 +468,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         } else {
           this.showCurrentTask("Update complete", { message: updateNotes, isError: false });
         }
-        this.element.querySelector("#dndbeyond-character-update").disabled = false;
+        this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-update").disabled = false;
       });
     } catch (error) {
       logger.error(error);
@@ -473,11 +477,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
     }
   }
 
-  static async importCompanionsClickEvent(_event, _target) {
+  static async importCompanionsClickEvent(this: DDBCharacterManager, _event, _target) {
     try {
-      this.element.querySelector("#dndbeyond-character-extras-start").disabled = true;
+      this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-extras-start").disabled = true;
       this.showCurrentTask("Fetching character data");
-      const characterId = this.actor.flags.ddbimporter.dndbeyond.characterId;
+      const characterId = (this.actor.flags as IActorFlagConfig).ddbimporter.dndbeyond.characterId;
       const ddbCharacterOptions = {
         currentActor: this.actor,
         ddb: null,
@@ -503,7 +507,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
         if (this.ddbCharacter.source?.success) {
           await generateCharacterExtras(this.element, this.ddbCharacter, this.actor);
           this.showCurrentTask("Loading Extras", { message: "Done." });
-          this.element.querySelector("#dndbeyond-character-extras-start").disabled = true;
+          this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-extras-start").disabled = true;
           this.close();
         } else {
           this.showCurrentTask(this.ddbCharacter.source.message, { message: null, isError: true });
@@ -528,9 +532,9 @@ export default class DDBCharacterManager extends DDBAppV2 {
     return;
   }
 
-  static async importCharacterClickEvent(_event, _target) {
+  static async importCharacterClickEvent(this: DDBCharacterManager, _event, _target) {
     try {
-      this.element.querySelector("#dndbeyond-character-import-start").disabled = true;
+      this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-import-start").disabled = true;
 
       this.showCurrentTask("Preparing Importer...");
 
@@ -556,11 +560,11 @@ export default class DDBCharacterManager extends DDBAppV2 {
       return;
     }
 
-    this.element.querySelector("#dndbeyond-character-import-start").disabled = false;
+    this.element.querySelector<HTMLButtonElement>("#dndbeyond-character-import-start").disabled = false;
     return;
   }
 
-  static openDebug(_event, _target) {
+  static openDebug(this: DDBCharacterManager, _event, _target) {
     new DDBDebugger({ actor: this.actor, extra: this.debugContext }).render({ force: true });
   }
 

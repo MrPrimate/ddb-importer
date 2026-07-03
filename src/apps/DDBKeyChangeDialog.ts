@@ -7,7 +7,19 @@ import DDBSetup from "./DDBSetup";
 
 export default class DDBKeyChangeDialog extends DDBAppV2 {
 
-  constructor(options = {}) {
+  local: boolean;
+
+  callback: (() => Promise<void> | void) | null;
+
+  callMuncher: boolean;
+
+  key: string;
+
+  patreonUser: string;
+
+  config?: unknown;
+
+  constructor(options: { local?: boolean; callback?: (() => Promise<void> | void) | null; callMuncher?: boolean } & Record<string, any> = {}) {
     super(options);
     this.local = options.local ?? false;
     this.callback = options.callback ?? null;
@@ -17,6 +29,11 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     this.patreonUser = this.key && this.key !== ""
       ? PatreonHelper.getPatreonUser(this.local)
       : "";
+  }
+
+  /** @override - this dialog has no tabs; base _prepareContext is fully overridden */
+  _getTabs(): IDDBTabs {
+    return {};
   }
 
   /** @override */
@@ -78,7 +95,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
       tier: PatreonHelper.getPatreonTier(),
     };
     logger.debug("Settings: _prepareContext", context);
-    return context;
+    return context as unknown as DDBAppV2Context;
   }
 
   /* -------------------------------------------- */
@@ -92,7 +109,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
    * @param {HTMLFormElement} _form      The submitted form.
    * @param {FormDataExtended} formData  Data from the dialog.
    */
-  static async #handleFormSubmission(_event, _form, formData) {
+  static async #handleFormSubmission(this: DDBKeyChangeDialog, _event, _form, formData) {
     const currentKey = PatreonHelper.getPatreonKey(this.local);
     if (currentKey !== formData.object["patreon-key"]) {
       await PatreonHelper.setPatreonKey(formData.object["patreon-key"], this.local);
@@ -106,7 +123,7 @@ export default class DDBKeyChangeDialog extends DDBAppV2 {
     if (this.callMuncher) {
       new DDBMuncher().render({ force: true });
     }
-    await this.close({ dnd5e: { submitted: true } });
+    await this.close({ dnd5e: { submitted: true } } as unknown as { submitted?: boolean });
   }
 
 
