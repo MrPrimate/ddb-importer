@@ -248,6 +248,11 @@ declare global {
       }>;
       weaponMasteries: Record<string, { label: string; reference?: string }>;
       weaponTypes: Record<string, string>;
+      itemProperties: Record<string, { label: string; reference?: string; abbreviation?: string }>;
+      validProperties: Record<string, Set<string>>;
+      weaponProficiencies: Record<string, string>;
+      weaponProficienciesMap: Record<string, string>;
+      weaponTypeMap: Record<string, string>;
     };
     DDB: IDDBConfig;
     chrisPremades: {

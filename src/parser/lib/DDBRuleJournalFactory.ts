@@ -151,15 +151,20 @@ export default class DDBRuleJournalFactory {
 
   sources = null;
 
+  filteredSources = null;
+
   journalFolder = null;
 
   available = false;
+
+  /** set by subclasses; used as the rule page system type */
+  declare type?: string;
 
   static getSources() {
     const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources");
     if (!ddbSources) return [];
 
-    const sources = ddbSources
+    const sources = (ddbSources as IDDBConfigSource[])
       .filter((s) => s.isReleased)
       .map((s) => {
         return {
@@ -190,7 +195,7 @@ export default class DDBRuleJournalFactory {
 
   }
 
-  constructor({ journalName, flagName, flagTag } = {}) {
+  constructor({ journalName, flagName, flagTag }: { journalName?: string; flagName?: string; flagTag?: string } = {}) {
     this.nameBit = journalName;
     this.flagName = flagName;
     this.flagTag = flagTag;
@@ -244,12 +249,12 @@ export default class DDBRuleJournalFactory {
     };
     logger.debug(`Creating Rule Journal: ${source.label}`, { journalData, source });
     const journal = await JournalEntry.create(
-      journalData,
+      journalData as unknown as JournalEntry.CreateInput,
       {
         pack: this.journalCompendium.metadata.id,
         displaySheet: false,
         keepId: true,
-      },
+      } as Parameters<typeof JournalEntry.create>[1],
     );
     return journal;
   }
@@ -273,7 +278,7 @@ export default class DDBRuleJournalFactory {
     const page = journal.pages.find((p) => DDBDataUtils.classIdentifierName(p.name) === ruleIdentifier);
     if (page) return page;
 
-    const pageData = foundry.utils.deepClone(BASE_RULE_PAGE);
+    const pageData: typeof BASE_RULE_PAGE & { _id?: string } = foundry.utils.deepClone(BASE_RULE_PAGE);
     pageData.system.type = this.type;
     pageData.name = rulePageName;
     pageData._id = utils.namedIDStub(rulePageName, { prefix: source.acronym.replaceAll(" ", "").replaceAll(".", "") });
@@ -284,7 +289,7 @@ export default class DDBRuleJournalFactory {
     return newPage;
   }
 
-  async _generateJournalRulePage(journal, { ruleName, source, ruleContent = "" } = {}) {
+  async _generateJournalRulePage(journal, { ruleName, source, ruleContent = "" }: { ruleName?: string; source?: { label?: string }; ruleContent?: string } = {}) {
     if (!ruleName && !source) return;
     if (!journal) {
       logger.error(`Journal not found for ${source.label}`);
@@ -322,7 +327,7 @@ export default class DDBRuleJournalFactory {
     for (const journal of ruleJournals) {
       logger.debug(`Processing journal ${journal.name} with ID ${journal._id} for rule injection`);
       const journalEntry = await this.journalCompendium.getDocument(journal._id);
-      const sourceId = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceId");
+      const sourceId = foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceId") as number;
       const allowedSourceIds = getAllowedSourceIds();
       if (!allowedSourceIds.includes(sourceId)) continue;
       const rulePages = journalEntry.pages.filter((p) => p.type === "rule");
@@ -343,7 +348,7 @@ export default class DDBRuleJournalFactory {
             const propertyId = page.name.toLowerCase().replaceAll(" ", "").replaceAll("-", "");
             const shortId = DICTIONARY.weapon.properties.find((p) => p.name.toLowerCase() === propertyId)?.value
               ?? propertyId.slice(0, 3);
-            const isPHBProperty = ["PHB 2024", "BR", "PHB", "SRD 5.1", "SRD 5.2"].includes(foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceCode"));
+            const isPHBProperty = ["PHB 2024", "BR", "PHB", "SRD 5.1", "SRD 5.2"].includes(foundry.utils.getProperty(journalEntry, "flags.ddbimporter.sourceCode") as string);
 
             logger.verbose(`Adding ${page.name} as ${propertyId} (short: ${shortId}), isPHBProperty: ${isPHBProperty}`, {
               isShort: foundry.utils.deepClone(CONFIG.DND5E.itemProperties[shortId]),
@@ -462,9 +467,9 @@ export default class DDBRuleJournalFactory {
         : dnd5eNameArray[0].replaceAll(" ", "");
       if (CONFIG.DND5E.weaponIds[dnd5eName]) continue;
       const itemHit = itemCompendium.index.find((i) =>
-        i.type === "weapon"
-        && (i.name.toLowerCase() === weapon.name.toLowerCase()),
-      );
+        foundry.utils.getProperty(i, "type") === "weapon"
+        && ((foundry.utils.getProperty(i, "name") as string).toLowerCase() === weapon.name.toLowerCase()),
+      ) as { name: string; uuid: string; system?: { source?: { book?: string } } } | undefined;
       if (!itemHit) {
         logger.info(`No item found in compendium for weapon ${weapon.name}`);
         continue;

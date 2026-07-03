@@ -99,8 +99,8 @@ export class DDBCompendiumFolders {
   validFolderIds: string[] = [];
   classFolders: Record<string, string> = {};
   subClassFeaturesFolder: Record<string, string> = {};
-  backgroundFolders: Record<string, string> = {};
-  vehicleFolders: Record<string, string> = {};
+  backgroundFolders: Record<string, Folder> = {};
+  vehicleFolders: Record<string, Folder> = {};
   entityTypes: Map<string, string>;
   entityType: TCompendiumEntityType;
 

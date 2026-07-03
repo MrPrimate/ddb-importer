@@ -498,7 +498,17 @@ const CompendiumHelper = {
 
   async createFolder({
     pack, name, parentId = null, color = "", folderId = null, flagTag = "", flags = {}, entityType,
-  } = {}) {
+  }: {
+    pack?: CompendiumCollection.Any;
+    name?: string;
+    parentId?: string | null;
+    color?: string;
+    folderId?: string | null;
+    flagTag?: string;
+    flags?: Record<string, any>;
+    entityType?: string;
+    // foundry-vtt-types' Folder union hides _id on some members; callers read it
+  } = {}): Promise<{ _id: string; name: string } & Folder> {
     logger.debug("Finding folder", {
       folders: pack.folders,
       name,
@@ -509,7 +519,7 @@ const CompendiumHelper = {
     });
     const existingFolder = pack.folders.find((f) =>
       f.name === name
-      && flagTag === f.flags?.ddbimporter?.flagTag
+      && flagTag === foundry.utils.getProperty(f, "flags.ddbimporter.flagTag")
       && (parentId === null
         || (parentId === f.folder?._id)
       ),
@@ -531,7 +541,7 @@ const CompendiumHelper = {
       flags: {
         ddbimporter: foundry.utils.mergeObject({ flagTag }, flags),
       },
-    }, { pack: pack.metadata.id, keepId: true });
+    } as unknown as Folder.CreateInput, { pack: pack.metadata.id, keepId: true });
 
     return newFolder;
   },
