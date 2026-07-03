@@ -1,4 +1,4 @@
-import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, PatreonHelper, NameMatcher, postJson } from "../lib/_module";
+import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, PatreonHelper, NameMatcher, postJson, DDBRunContext } from "../lib/_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { isEqual } from "../../vendor/lowdash/_module.mjs";
 import { getActorConditionStates, getCondition } from "../parser/character/conditions";
@@ -1456,21 +1456,14 @@ async function _updateDDBCharacter(actor) {
 
 export async function updateDDBCharacter(actor) {
   try {
-    CONFIG.DDBI.ignoreEnrichedImages = true;
-    CONFIG.DDBI.keyPostfix = actor.id;
-    CONFIG.DDBI.useLocal = foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") as boolean ?? false;
-    const results = await _updateDDBCharacter(actor);
-    delete CONFIG.DDBI.ignoreEnrichedImages;
-    delete CONFIG.DDBI.keyPostfix;
-    delete CONFIG.DDBI.useLocal;
-    return results;
+    return await DDBRunContext.runWith({
+      ignoreEnrichedImages: true,
+      keyPostfix: actor.id,
+      useLocal: foundry.utils.getProperty(actor, "flags.ddbimporter.useLocalPatreonKey") as boolean ?? false,
+    }, () => _updateDDBCharacter(actor));
   } catch (err) {
     logger.error("Unable to update DDB character:", err);
     throw err;
-  } finally {
-    delete CONFIG.DDBI.ignoreEnrichedImages;
-    delete CONFIG.DDBI.keyPostfix;
-    delete CONFIG.DDBI.useLocal;
   }
 }
 

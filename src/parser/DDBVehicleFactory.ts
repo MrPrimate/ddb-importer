@@ -11,6 +11,7 @@ import {
   DDBCampaigns,
   utils,
   postJson,
+  DDBRunContext,
 } from "../lib/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
@@ -139,8 +140,8 @@ export default class DDBVehicleFactory {
   async fetchDDBVehicleSourceData({ ids = [], searchTerm = "", sources = [], homebrew = false,
     homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [] }: IFetchDDBVehicleSourceData = {},
   ) {
-    const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
-    const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
+    const keyPostfix = this.keys.keyPostfix ?? DDBRunContext.keyPostfix;
+    const useLocal = this.keys.useLocal ?? DDBRunContext.useLocal;
     const cobaltCookie = Secrets.getCobalt(keyPostfix);
     const betaKey = PatreonHelper.getPatreonKey(useLocal);
     const parsingApi = DDBProxy.getProxy();

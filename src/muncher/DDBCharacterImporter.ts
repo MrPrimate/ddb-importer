@@ -8,6 +8,7 @@ import {
   FrameKeyframeRenderer,
   CompendiumHelper,
   DDBMacros,
+  DDBRunContext,
 } from "../lib/_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import DDBCharacter, { IDDBCharacterDataStub } from "../parser/DDBCharacter";
@@ -1103,25 +1104,29 @@ ${item.system.description.chat}
         syncId: null,
         localCobaltPostFix: this.actor.id,
       };
-      CONFIG.DDBI.keyPostfix = this.actor.id;
-      CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") as boolean | undefined ?? false;
-      this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-      await this.ddbCharacter.getCharacterData(getOptions);
-      logger.debug("import.js getCharacterData result", this.ddbCharacter);
-      if (utils.getSetting<boolean>("debug-json")) {
-        FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${derivedCharacterId}.json`, "application/json");
-      }
-      if (this.ddbCharacter.source?.success) {
-        // begin parsing the character data
-        await this.ddbCharacter.process();
-        await this.processCharacterData();
-        this.notifier("Loading Character data", { message: "Done." });
-        logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
-      } else {
+      const runResult = await DDBRunContext.runWith({
+        keyPostfix: this.actor.id,
+        useLocal: foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") as boolean | undefined ?? false,
+      }, async () => {
+        this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+        await this.ddbCharacter.getCharacterData(getOptions);
+        logger.debug("import.js getCharacterData result", this.ddbCharacter);
+        if (utils.getSetting<boolean>("debug-json")) {
+          FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${derivedCharacterId}.json`, "application/json");
+        }
+        if (this.ddbCharacter.source?.success) {
+          // begin parsing the character data
+          await this.ddbCharacter.process();
+          await this.processCharacterData();
+          this.notifier("Loading Character data", { message: "Done." });
+          logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
+          return true;
+        }
         // @ts-expect-error - there will be a message here if success is false, but we need to check for it first
         this.notifier(this.ddbCharacter.source.message, { message: null, isError: true });
         return false;
-      }
+      });
+      if (!runResult) return false;
     } catch (error) {
       switch (error.message) {
         case "ImportFailure":
@@ -1138,9 +1143,6 @@ ${item.system.description.chat}
           break;
       }
       return false;
-    } finally {
-      delete CONFIG.DDBI.keyPostfix;
-      delete CONFIG.DDBI.useLocal;
     }
     return true;
   }

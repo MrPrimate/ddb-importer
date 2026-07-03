@@ -24,6 +24,7 @@ export { default as PatreonHelper } from "./PatreonHelper";
 export * as Secrets from "./Secrets";
 export { default as DDBDebug } from "./DDBDebug";
 export { fetchJson, postJson, FetchError } from "./FetchHelper";
+export { default as DDBRunContext } from "./DDBRunContext";
 
 export { default as DDBSimpleMacro } from "./DDBSimpleMacro";
 export { default as DDBMacros } from "./DDBMacros";

@@ -6,6 +6,7 @@ import {
   PatreonHelper,
   Secrets,
   utils,
+  DDBRunContext,
 } from "../lib/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { updateDDBCharacter } from "../updater/character";
@@ -487,25 +488,27 @@ export default class DDBCharacterManager extends DDBAppV2 {
         syncId: null,
         localCobaltPostFix: this.actor.id,
       };
-      CONFIG.DDBI.keyPostfix = this.actor.id;
-      CONFIG.DDBI.useLocal = foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") ?? false;
-      this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
-      await this.ddbCharacter.getCharacterData(getOptions);
-      await this.ddbCharacter.process();
-      logger.debug("import.js getCharacterData result", this.ddbCharacter);
-      const debugJson = utils.getSetting<boolean>("debug-json");
-      if (debugJson) {
-        FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
-      }
-      if (this.ddbCharacter.source?.success) {
-        await generateCharacterExtras(this.element, this.ddbCharacter, this.actor);
-        this.showCurrentTask("Loading Extras", { message: "Done." });
-        this.element.querySelector("#dndbeyond-character-extras-start").disabled = true;
-        this.close();
-      } else {
-        this.showCurrentTask(this.ddbCharacter.source.message, { message: null, isError: true });
-        return;
-      }
+      await DDBRunContext.runWith({
+        keyPostfix: this.actor.id,
+        useLocal: foundry.utils.getProperty(this.actor, "flags.ddbimporter.useLocalPatreonKey") as boolean ?? false,
+      }, async () => {
+        this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
+        await this.ddbCharacter.getCharacterData(getOptions);
+        await this.ddbCharacter.process();
+        logger.debug("import.js getCharacterData result", this.ddbCharacter);
+        const debugJson = utils.getSetting<boolean>("debug-json");
+        if (debugJson) {
+          FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
+        }
+        if (this.ddbCharacter.source?.success) {
+          await generateCharacterExtras(this.element, this.ddbCharacter, this.actor);
+          this.showCurrentTask("Loading Extras", { message: "Done." });
+          this.element.querySelector("#dndbeyond-character-extras-start").disabled = true;
+          this.close();
+        } else {
+          this.showCurrentTask(this.ddbCharacter.source.message, { message: null, isError: true });
+        }
+      });
     } catch (error) {
       switch (error.message) {
         case "ImportFailure":
@@ -521,9 +524,6 @@ export default class DDBCharacterManager extends DDBAppV2 {
           break;
       }
       return;
-    } finally {
-      delete CONFIG.DDBI.keyPostfix;
-      delete CONFIG.DDBI.useLocal;
     }
     return;
   }
@@ -554,9 +554,6 @@ export default class DDBCharacterManager extends DDBAppV2 {
           break;
       }
       return;
-    } finally {
-      delete CONFIG.DDBI.keyPostfix;
-      delete CONFIG.DDBI.useLocal;
     }
 
     this.element.querySelector("#dndbeyond-character-import-start").disabled = false;

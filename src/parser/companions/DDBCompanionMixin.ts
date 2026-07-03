@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger, DDBProxy, PatreonHelper, utils, fetchJson } from "../../lib/_module";
+import { logger, DDBProxy, PatreonHelper, utils, fetchJson, DDBRunContext } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory";
@@ -94,8 +94,8 @@ export default class DDBCompanionMixin {
   }
 
   static async addEnrichedImageData(document) {
-    if (!game.user.isGM && !CONFIG.DDBI.keyPostfix) return document;
-    if (CONFIG.DDBI.ignoreEnrichedImages) return document;
+    if (!game.user.isGM && !DDBRunContext.keyPostfix) return document;
+    if (DDBRunContext.ignoreEnrichedImages) return document;
 
     const data = await DDBCompanionMixin.getEnrichedImageData(document);
     if (!data) return document;

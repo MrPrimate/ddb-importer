@@ -10,6 +10,7 @@ import {
   DDBSources,
   utils,
   postJson,
+  DDBRunContext,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
@@ -226,8 +227,8 @@ export default class DDBMonsterFactory {
     homebrewOnly = false, exactMatch = false, excludeLegacy = false, excludedCategories = [],
     monsterTypes = [] }: IDDBMonsterFactoryFetchOptions,
   ) {
-    const keyPostfix = this.keys.keyPostfix ?? CONFIG.DDBI.keyPostfix ?? null;
-    const useLocal = this.keys.useLocal ?? CONFIG.DDBI.useLocal ?? false;
+    const keyPostfix = this.keys.keyPostfix ?? DDBRunContext.keyPostfix;
+    const useLocal = this.keys.useLocal ?? DDBRunContext.useLocal;
     const cobaltCookie = Secrets.getCobalt(keyPostfix);
     const betaKey = PatreonHelper.getPatreonKey(useLocal);
     const parsingApi = DDBProxy.getProxy();
