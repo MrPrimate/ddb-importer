@@ -334,7 +334,7 @@ class DDBMonster {
     this._generateFlags();
 
 
-    const crData = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+    const crData = CONFIG.DDB.challengeRatings.find((cr) => cr.id === this.source.challengeRatingId);
     if (!crData) {
       logger.warn(`Unknown challenge rating id ${this.source.challengeRatingId} for ${this.name}, defaulting proficiency bonus to 2`);
     }
@@ -363,10 +363,11 @@ class DDBMonster {
     this._generateMovement();
     this._generateHabitats();
 
-    this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+    // keep the constructor default if the challenge rating lookup misses
+    this.cr = CONFIG.DDB.challengeRatings.find((cr) => cr.id === this.source.challengeRatingId) ?? this.cr;
     this._generateType();
 
-    const alignment = CONFIG.DDB.alignments.find((c) => this.source.alignmentId == c.id);
+    const alignment = CONFIG.DDB.alignments.find((c) => this.source.alignmentId === c.id);
     this.npc.system.details.alignment = alignment ? alignment.name : "";
     this.npc.system.details.cr = this.cr.value;
     this.npc.system.details.xp = { value: this.cr.xp };

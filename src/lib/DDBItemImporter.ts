@@ -208,7 +208,7 @@ export default class DDBItemImporter {
 
   static updateCharacterItemFlags(itemData: TAll5eItemDocuments, replaceData: TAll5eItemDocuments): TAll5eItemDocuments {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
-    const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") == replaceData._id;
+    const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") === replaceData._id;
     const customAdded = foundry.utils.getProperty(itemData, "flags.ddbimporter.ddbCustomAdded");
     if (customAdded || overrideIdMatch) {
       replaceData.name = itemData.name;

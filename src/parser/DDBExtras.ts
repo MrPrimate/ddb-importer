@@ -7,6 +7,7 @@ import DDBCharacter from "./DDBCharacter";
 
 function getCustomValue(ddbCharacter, typeId, valueId, valueTypeId) {
   const characterValues = ddbCharacter.characterValues;
+  // loose equality intentional: DDB sends characterValues ids as strings, callers pass numbers
   const customValue = characterValues.find(
     (value) => value.valueId == valueId && value.valueTypeId == valueTypeId && value.typeId == typeId,
   );
@@ -242,16 +243,21 @@ function revertExtraMunchDefaults(munchSettings) {
 
 function addOwnerSkillProficiencies(ddbCharacter, mock) {
   const newSkills = [];
-  const proficiencyBonus = CONFIG.DDB.challengeRatings.find(
-    (cr) => cr.id == mock.challengeRatingId,
-  ).proficiencyBonus;
+  const crData = CONFIG.DDB.challengeRatings.find(
+    (cr) => cr.id === mock.challengeRatingId,
+  );
+  if (!crData) {
+    logger.warn(`Unknown challenge rating id ${mock.challengeRatingId} for ${mock.name}, defaulting proficiency bonus to 2`);
+  }
+  const proficiencyBonus = crData?.proficiencyBonus ?? 2;
 
   DICTIONARY.actor.skills.forEach((skill) => {
     const existingSkill = mock.skills.find((mockSkill) => skill.valueId === mockSkill.skillId);
     const characterProficient = ddbCharacter.data.character.system.skills[skill.name].value;
     const ability = DICTIONARY.actor.abilities.find((ab) => ab.value === skill.ability);
-    const stat = mock.stats.find((stat) => stat.statId === ability.id).value || 10;
-    const mod = CONFIG.DDB.statModifiers.find((s) => s.value == stat).modifier;
+    const stat = mock.stats.find((stat) => stat.statId === ability.id)?.value || 10;
+    // fall back to the standard 5e formula if the score is outside the DDB config table
+    const mod = CONFIG.DDB.statModifiers.find((s) => s.value === stat)?.modifier ?? Math.floor((stat - 10) / 2);
 
     if (existingSkill && characterProficient === 2) {
       const doubleProf = proficiencyBonus * 2;
@@ -352,8 +358,21 @@ function addCreatureStats(mock, actor) {
 }
 
 function addCreatureFlags(creature, mock) {
-  const creatureGroup = CONFIG.DDB.creatureGroups.find((group) => group.id == creature.groupId);
-  let creatureFlags = creatureGroup.flags;
+  let creatureGroup = CONFIG.DDB.creatureGroups.find((group) => group.id === creature.groupId);
+  if (!creatureGroup) {
+    logger.warn(`Unknown creature group id ${creature.groupId} for ${creature.definition?.name}, no group flags applied`);
+    // minimal stand-in so downstream consumers of mock.creatureGroup don't crash
+    creatureGroup = {
+      id: creature.groupId,
+      name: "Unknown",
+      flags: [],
+      ownerStats: [],
+      description: "",
+      specialQualityTitle: null,
+      specialQualityText: null,
+    } as unknown as NonNullable<typeof creatureGroup>;
+  }
+  let creatureFlags = creatureGroup.flags ?? [];
 
   if (creature.definition.name === "Homunculus Servant") {
     // Max Hit Points Add Monster CON Modifier

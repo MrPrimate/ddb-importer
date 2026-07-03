@@ -136,6 +136,7 @@ function getUnarmoredAC(modifiers, character): number[] {
 
 function getDualWieldAC(data, modifiers) {
   const dualWielding = data.character.characterValues.some((cv) => {
+    // loose equality intentional: DDB sends characterValues.valueId as a string, item.id is a number
     const equipped = data.character.inventory.some((item) => item.equipped && item.id == cv.valueId);
     const dualWielding = cv.typeId === 18;
     return equipped && dualWielding;

@@ -14,8 +14,8 @@ import { logger } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 
 DDBMonster.prototype.getSizeFromId = function getSizeFromId(this: DDBMonster, sizeId) {
-  const size = CONFIG.DDB.creatureSizes.find((s) => s.id == sizeId)?.name;
-  const sizeData = DICTIONARY.sizes.find((s) => size == s.name);
+  const size = CONFIG.DDB.creatureSizes.find((s) => s.id === sizeId)?.name;
+  const sizeData = DICTIONARY.sizes.find((s) => size === s.name);
 
   if (!sizeData) {
     logger.warn(`No foundry size found for "${size}" (${this.name}), using medium`);

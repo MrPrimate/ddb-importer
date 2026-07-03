@@ -50,7 +50,7 @@ DDBMonster.prototype._generateSpellAttackBonus = function(this: DDBMonster, text
   const match = text.match(dcSearch);
   if (match) {
     const toHit = match[1];
-    const crData = CONFIG.DDB.challengeRatings.find((cr) => cr.id == this.source.challengeRatingId);
+    const crData = CONFIG.DDB.challengeRatings.find((cr) => cr.id === this.source.challengeRatingId);
     if (!crData) {
       logger.warn(`Unknown challenge rating id ${this.source.challengeRatingId} for ${this.name}, defaulting proficiency bonus to 2`);
     }

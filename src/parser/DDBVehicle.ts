@@ -270,8 +270,8 @@ export default class DDBVehicle {
 
 
   static getSizeFromId(sizeId: number): IDDBVehicleSizeData {
-    const size = CONFIG.DDB.creatureSizes.find((s) => s.id == sizeId)?.name;
-    const sizeData = DDBVehicle.SIZES.find((s) => size == s.name);
+    const size = CONFIG.DDB.creatureSizes.find((s) => s.id === sizeId)?.name;
+    const sizeData = DDBVehicle.SIZES.find((s) => size === s.name);
 
     if (!sizeData) {
       logger.warn(`No size found, using medium`, size);
