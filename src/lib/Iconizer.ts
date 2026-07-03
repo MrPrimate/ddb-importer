@@ -540,8 +540,6 @@ export default class Iconizer {
 
   async _addDDBHintImages(type) {
     this.notifier(`Fetching DDB Hint Images for ${type}`, { nameField: true });
-    // const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
-    // const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
     const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = utils.getSetting<boolean>("use-deep-file-paths");
 

@@ -121,8 +121,6 @@ const MuncherSettings = {
 <p>For games looking for high levels of automation, particularly around spells and more complex character features such as Battle Master Manoeuvres, then the "Midi-QOL" suite is required. This will allow varying degrees of automation from auto-calculating hit rolls, advantage damage, and even applying it for you (if desired).</p>
 <p>For high automation games you will need some additional modules, but are otherwise not required: Midi-QOL${MuncherSettings.getInstalledIcon("midiQolInstalled")}.</p>
 `;
-    // const importExtras = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-extras");
-
     const importConfig: ISettingsPolicyExpandedItem[] = [
       {
         name: "character-update-policy-use-inbuilt-icons",

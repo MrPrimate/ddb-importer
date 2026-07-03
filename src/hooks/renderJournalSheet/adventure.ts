@@ -55,19 +55,7 @@ function onClick(config, event) {
 }
 
 function onClickV2(event) {
-   
   onClick(this, event);
-  // if (event.shiftKey && event.ctrlKey) {
-  //   // eslint-disable-next-line no-invalid-this
-  //   new DDBAdventureFlags(this.document, {}).render(true);
-  //   return true;
-  // } else {
-  //   event.preventDefault();
-  //   // eslint-disable-next-line no-invalid-this
-  //   const flags = this.document.flags.ddb;
-  //   const bookSource = CONFIG.DDB.sources.find((book) => flags.bookCode.toLowerCase() === book.name.toLowerCase());
-  //   return renderPopup("web", `https://www.dndbeyond.com/${bookSource.sourceURL}/${flags.slug}`);
-  // }
 }
 
 
