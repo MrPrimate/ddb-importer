@@ -10,6 +10,7 @@ import {
   Iconizer,
   DDBCampaigns,
   utils,
+  postJson,
 } from "../lib/_module";
 import DDBMonsterFactory from "../parser/DDBMonsterFactory";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
@@ -175,61 +176,42 @@ export default class DDBVehicleFactory {
       : `${parsingApi}/proxy/vehicles`;
     const url = CONFIG.DDBI.vehicleURL ?? defaultUrl;
 
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((result) => {
-          if (!result.success) {
-            this.notifier(`API Failure: ${result.message}`);
-            logger.error(`API Failure:`, result.message);
-            reject(result.message);
-          }
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(result), `vehicles-raw.json`, "application/json");
-          }
-          return result;
+    const result = await postJson(url, body, { mode: "cors" });
+    if (debugJson) {
+      FileHelper.download(JSON.stringify(result), `vehicles-raw.json`, "application/json");
+    }
+    if (!result.success) {
+      this.notifier(`API Failure: ${result.message}`);
+      logger.error(`API Failure:`, result.message);
+      return Promise.reject(result.message);
+    }
+    this.notifier(`Retrieved ${result.data.length} vehicles from DDB`, { nameField: true, monsterNote: false });
+    logger.info(`Retrieved ${result.data.length} vehicles from DDB`);
+    const data = result.data;
+    if (CONFIG.DDBI.DEV.downloadJSONExamples) {
+      FileHelper.download(JSON.stringify(data), `ddb-vehicles-source-${sources.join("_")}.json`, "application/json");
+    }
+    // handle category filtering
+    if (ids && ids.length > 0) {
+      this.source = data;
+    } else {
+      logger.debug("Processing categories", { data });
+      const categoryVehicles = data
+        .filter((vehicle) => vehicle.sources)
+        .map((vehicle) => {
+          vehicle.sources = vehicle.sources.filter((source) =>
+            source.sourceType === 1
+            && DDBSources.isSourceInAllowedCategory(source),
+          );
+          return vehicle;
         })
-        .then((result) => {
-          this.notifier(`Retrieved ${result.data.length} vehicles from DDB`, { nameField: true, monsterNote: false });
-          logger.info(`Retrieved ${result.data.length} vehicles from DDB`);
-          return result.data;
-        })
-        .then((data) => {
-          if (CONFIG.DDBI.DEV.downloadJSONExamples) {
-            FileHelper.download(JSON.stringify(data), `ddb-vehicles-source-${sources.join("_")}.json`, "application/json");
-          }
-          // handle category filtering
-          if (ids && ids.length > 0) {
-            this.source = data;
-            resolve(this.source);
-          } else {
-            logger.debug("Processing categories", { data });
-            const categoryVehicles = data
-              .filter((vehicle) => vehicle.sources)
-              .map((vehicle) => {
-                vehicle.sources = vehicle.sources.filter((source) =>
-                  source.sourceType === 1
-                  && DDBSources.isSourceInAllowedCategory(source),
-                );
-                return vehicle;
-              })
-              .filter((vehicle) => {
-                if (vehicle.isHomebrew) return true;
-                return vehicle.sources.length > 0;
-              });
-            this.source = categoryVehicles;
-            resolve(this.source);
-          }
-        })
-        .catch((error) => reject(error));
-    });
+        .filter((vehicle) => {
+          if (vehicle.isHomebrew) return true;
+          return vehicle.sources.length > 0;
+        });
+      this.source = categoryVehicles;
+    }
+    return this.source;
   }
 
   async #prepareImporter() {

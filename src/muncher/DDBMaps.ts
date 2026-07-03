@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets, utils } from "../lib/_module";
+import { logger, DDBProxy, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 
 export type DDBMapSourceType = "adventure" | "sourcebook" | "mappack" | "basic" | "subscription" | string;
 
@@ -185,13 +185,7 @@ export default class DDBMaps {
   private static async post<T>(path: string, body: Record<string, unknown>): Promise<T | null> {
     const parsingApi = DDBProxy.getProxy();
     try {
-      const response = await fetch(`${parsingApi}${path}`, {
-        method: "POST",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data: IDDBProxyResponse<T> = await response.json();
+      const data = await postJson<IDDBProxyResponse<T>>(`${parsingApi}${path}`, body);
       if (!data.success) {
         logger.error(`DDBMaps ${path} failed: ${data.message}`, data);
         return null;

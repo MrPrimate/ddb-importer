@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets, DDBCampaigns } from "../lib/_module";
+import { logger, DDBProxy, PatreonHelper, Secrets, DDBCampaigns, postJson } from "../lib/_module";
 
 export interface IDDBPartyItemDefinition {
   id: number;
@@ -135,13 +135,7 @@ export default class DDBPartyInventory {
     };
 
     try {
-      const response = await fetch(`${parsingApi}/proxy/party/${resolvedCampaignId}/characters`, {
-        method: "POST",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await response.json();
+      const data = await postJson(`${parsingApi}/proxy/party/${resolvedCampaignId}/characters`, body);
       if (!data.success) {
         logger.error(`Campaign characters fetch failed: ${data.message}`, data);
         return null;
@@ -205,13 +199,7 @@ export default class DDBPartyInventory {
     };
 
     try {
-      const response = await fetch(`${parsingApi}/proxy/party/${resolvedCampaignId}/inventory`, {
-        method: "POST",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await response.json();
+      const data = await postJson(`${parsingApi}/proxy/party/${resolvedCampaignId}/inventory`, body);
       if (!data.success) {
         logger.error(`Party inventory fetch failed: ${data.message}`, data);
         return null;
@@ -252,13 +240,7 @@ export default class DDBPartyInventory {
     };
 
     try {
-      const response = await fetch(`${parsingApi}/proxy/inventory/item/move`, {
-        method: "PUT",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await response.json();
+      const data = await postJson(`${parsingApi}/proxy/inventory/item/move`, body, { method: "PUT" });
       if (!data.success) {
         logger.error(`Inventory item move failed: ${data.message}`, data);
         return null;
@@ -317,13 +299,7 @@ export default class DDBPartyInventory {
     };
 
     try {
-      const response = await fetch(`${parsingApi}/proxy/inventory/item`, {
-        method: "DELETE",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await response.json();
+      const data = await postJson(`${parsingApi}/proxy/inventory/item`, body, { method: "DELETE" });
       if (!data.success) {
         logger.error(`Inventory item delete failed: ${data.message}`, data);
         return null;

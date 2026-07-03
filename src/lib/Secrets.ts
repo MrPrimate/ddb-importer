@@ -1,6 +1,7 @@
 import logger from "./Logger";
 import utils from "./Utils";
 import DDBProxy from "./DDBProxy";
+import { postJson } from "./FetchHelper";
 import PatreonHelper from "./PatreonHelper";
 import { SETTINGS } from "../config/_module";
 
@@ -81,23 +82,12 @@ export async function checkCobalt(keyPostfix = "", alternativeKey = null) : Prom
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
-  const result = await fetch(`${parsingApi}/proxy/auth`, {
-    method: "POST",
-    cache: "no-cache",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
   try {
-    const data = await result.json();
+    const data = await postJson<{ success: boolean; message: string }>(`${parsingApi}/proxy/auth`, body);
     logger.debug("Cobalt cookie check result:", data);
     return data;
   } catch (error) {
-    logger.error(`Cobalt cookie check error`);
-    logger.error(error);
-    logger.error(error.stack);
+    logger.error(`Cobalt cookie check error`, error);
     throw error;
   }
 }
@@ -136,22 +126,10 @@ export async function getUserData(keyPostfix = "", alternativeKey = null): Promi
   const betaKey = PatreonHelper.getPatreonKey();
   const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
-  return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/user-data`, {
-      method: "POST",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    })
-      .then((response) => response.json())
-      .then((data) => resolve(data))
-      .catch((error) => {
-        logger.error(`Cobalt cookie check error`);
-        logger.error(error);
-        logger.error(error.stack);
-        reject(error);
-      });
-  });
+  try {
+    return await postJson<IDDBUserDataResponse>(`${parsingApi}/proxy/user-data`, body);
+  } catch (error) {
+    logger.error(`User data fetch error`, error);
+    throw error;
+  }
 }

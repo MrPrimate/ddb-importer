@@ -11,6 +11,7 @@ import {
   DDBMacros,
   DDBCompendiumFolders,
   DDBSources,
+  postJson,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBCharacter from "../parser/DDBCharacter";
@@ -199,12 +200,7 @@ export default class DDBItemsImporter {
     });
 
     return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/proxy/items`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-        .then((response) => response.json())
+      postJson(`${parsingApi}/proxy/items`, body)
         .then((data) => {
           if (debugJson) {
             FileHelper.download(JSON.stringify(data), `items-raw.json`, "application/json");

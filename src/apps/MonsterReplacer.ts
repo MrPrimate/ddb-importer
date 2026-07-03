@@ -1,4 +1,4 @@
-import { DDBProxy, logger, PatreonHelper, Secrets, utils } from "../lib/_module";
+import { DDBProxy, logger, PatreonHelper, Secrets, utils, postJson } from "../lib/_module";
 
 export default class MonsterReplacer {
 
@@ -10,7 +10,7 @@ export default class MonsterReplacer {
     this.name = name;
   }
 
-  static fetchUpdatedMonsterInfo(ids: (string | number)[] = []): Promise<IMonsterReplacerData[]> {
+  static async fetchUpdatedMonsterInfo(ids: (string | number)[] = []): Promise<IMonsterReplacerData[]> {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
@@ -21,25 +21,12 @@ export default class MonsterReplacer {
       type: "id",
     };
 
-    return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/proxy/monsters/hints`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (!data.success) {
-            utils.munchNote(`Failure: ${data.message}`);
-            reject(data.message);
-          }
-          return data.data as IMonsterReplacerData[];
-        })
-        .then((data) => resolve(data))
-        .catch((error) => reject(error));
-    });
+    const data = await postJson(`${parsingApi}/proxy/monsters/hints`, body);
+    if (!data.success) {
+      utils.munchNote(`Failure: ${data.message}`);
+      return Promise.reject(data.message);
+    }
+    return data.data as IMonsterReplacerData[];
   }
 
 

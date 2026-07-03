@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets } from "../../../lib/_module";
+import { logger, DDBProxy, PatreonHelper, postJson, Secrets } from "../../../lib/_module";
 
 /**
  * Table name/folder hints from ddb-meta-data's `table_info/<bookCode>.json`.
@@ -15,13 +15,11 @@ export async function fetchTableHints(bookCode: string): Promise<Map<string, Tab
   const cobalt = Secrets.getCobalt();
   if (!cobalt) return map;
   try {
-    const response = await fetch(`${DDBProxy.getProxy()}/proxy/adventure/table-info`, {
-      method: "POST",
-      cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cobalt, betaKey: PatreonHelper.getPatreonKey(), bookCode }),
+    const json = await postJson(`${DDBProxy.getProxy()}/proxy/adventure/table-info`, {
+      cobalt,
+      betaKey: PatreonHelper.getPatreonKey(),
+      bookCode,
     });
-    const json = await response.json();
     if (!json.success) {
       logger.info(`No table hints for ${bookCode}: ${json.message ?? "unknown"}`);
       return map;

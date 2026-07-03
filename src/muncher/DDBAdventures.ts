@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets } from "../lib/_module";
+import { logger, DDBProxy, fetchJson, PatreonHelper, postJson, Secrets } from "../lib/_module";
 
 /**
  * Catalog-level adventure helpers. Right now this is just the owned-content
@@ -18,13 +18,7 @@ export default class DDBAdventures {
 
   private static async post<T>(path: string, body: Record<string, unknown>): Promise<T | null> {
     const parsingApi = DDBProxy.getProxy();
-    const response = await fetch(`${parsingApi}${path}`, {
-      method: "POST",
-      cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data: IDDBProxyResponse<T> = await response.json();
+    const data = await postJson<IDDBProxyResponse<T>>(`${parsingApi}${path}`, body);
     if (!data.success) {
       logger.error(`DDBAdventures ${path} failed: ${data.message}`, data);
       return null;
@@ -35,11 +29,10 @@ export default class DDBAdventures {
   // Open GET proxy call (no cobalt/auth). Used for the public meta-data summary.
   private static async get<T>(path: string): Promise<T | null> {
     const parsingApi = DDBProxy.getProxy();
-    const response = await fetch(`${parsingApi}${path}`, {
+    const data = await fetchJson<IDDBProxyResponse<T>>(`${parsingApi}${path}`, {
       method: "GET",
       cache: "no-cache",
     });
-    const data: IDDBProxyResponse<T> = await response.json();
     if (!data.success) {
       logger.warn(`DDBAdventures ${path} unavailable: ${data.message}`);
       return null;

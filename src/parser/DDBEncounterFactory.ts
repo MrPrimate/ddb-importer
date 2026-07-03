@@ -1,5 +1,5 @@
 
-import { logger, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper } from "../lib/_module";
+import { logger, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper, postJson } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import DDBEncounter from "./DDBEncounter";
 
@@ -28,33 +28,17 @@ export default class DDBEncounterFactory {
       betaKey: betaKey,
     };
 
-    return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/proxy/encounters`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (!data.success) {
-            if (notifier) notifier(`API Failure: ${data.message}`);
-            reject(data.message);
-          }
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(data), `encounters-raw.json`, "application/json");
-          }
-          return data;
-        })
-        .then((data) => {
-          // if (notifier) notifier(`Retrieved ${data.data.length} encounters, starting parse...`, { nameField: true });
-          logger.info(`Retrieved ${data.data.length} encounters`);
-          resolve(data.data);
-        })
-        .catch((error) => reject(error));
-    });
+    const data = await postJson(`${parsingApi}/proxy/encounters`, body, { mode: "cors" });
+    if (debugJson) {
+      FileHelper.download(JSON.stringify(data), `encounters-raw.json`, "application/json");
+    }
+    if (!data.success) {
+      if (notifier) notifier(`API Failure: ${data.message}`);
+      return Promise.reject(data.message);
+    }
+    // if (notifier) notifier(`Retrieved ${data.data.length} encounters, starting parse...`, { nameField: true });
+    logger.info(`Retrieved ${data.data.length} encounters`);
+    return data.data;
   }
 
   async getEncounters() {

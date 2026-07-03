@@ -1,4 +1,4 @@
-import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, PatreonHelper, NameMatcher } from "../lib/_module";
+import { logger, utils, CompendiumHelper, DDBCampaigns, Secrets, DDBProxy, PatreonHelper, NameMatcher, postJson } from "../lib/_module";
 import { DICTIONARY, SETTINGS } from "../config/_module";
 import { isEqual } from "../../vendor/lowdash/_module.mjs";
 import { getActorConditionStates, getCondition } from "../parser/character/conditions";
@@ -152,47 +152,34 @@ async function updateCharacterCall(actor, path, bodyContent, flavor) {
     flavor,
   });
 
-  return new Promise((resolve, reject) => {
-    fetch(url, {
-      method: "POST",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body), // body data type must match "Content-Type" header
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          const errorData = {
-            url,
-            path,
-            errorData: data,
-            bodyContent,
-            characterId,
-            dynamicSync,
-            flavor,
-          };
-          logger.error(`Update failed for ${actor.name}:`, errorData);
-          ui.notifications.error(`Update failed: (${actor.name}) ${data.message} (see console log (F12) for more details)`);
-          resolve(data);
-        }
-        logger.debug(`${path} updated, response`, data);
-        return data;
-      })
-      .then((data) => resolve(data))
-      .catch((error) => {
-        const errorData = {
-          error,
-          bodyContent,
-          characterId,
-          dynamicSync,
-        };
-        logger.error(`Setting ${path} failed`, errorData);
-        logger.error(error.stack);
-        reject(error);
-      });
-  });
+  try {
+    const data = await postJson(url, body);
+    if (!data.success) {
+      const errorData = {
+        url,
+        path,
+        errorData: data,
+        bodyContent,
+        characterId,
+        dynamicSync,
+        flavor,
+      };
+      logger.error(`Update failed for ${actor.name}:`, errorData);
+      ui.notifications.error(`Update failed: (${actor.name}) ${data.message} (see console log (F12) for more details)`);
+    }
+    logger.debug(`${path} updated, response`, data);
+    return data;
+  } catch (error) {
+    const errorData = {
+      error,
+      bodyContent,
+      characterId,
+      dynamicSync,
+    };
+    logger.error(`Setting ${path} failed`, errorData);
+    logger.error(error.stack);
+    throw error;
+  }
 }
 
 async function updateDDBSpellSlotsPact(actor) {

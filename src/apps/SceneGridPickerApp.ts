@@ -490,6 +490,7 @@ export default class SceneGridPickerApp extends DDBAppV2 {
     }
     try {
       const response = await fetch(this.imageUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const blob = await response.blob();
       const bitmap = await createImageBitmap(blob);
       const canvas = (typeof OffscreenCanvas !== "undefined")

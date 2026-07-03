@@ -1,4 +1,4 @@
-import { logger, utils, DDBProxy, FileHelper, PatreonHelper, Secrets } from "../../../lib/_module";
+import { logger, utils, DDBProxy, FileHelper, PatreonHelper, postJson, Secrets } from "../../../lib/_module";
 
 /**
  * A still-open handle on the downloaded book zip, so callers can read the
@@ -63,13 +63,11 @@ const BookData = {
 
   async fetchKey(bookId: number | string, cobalt: string, betaKey: string): Promise<string> {
     const api = DDBProxy.getProxy();
-    const response = await fetch(`${api}/proxy/adventure/book-codes`, {
-      method: "POST",
-      cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cobalt, betaKey, sources: [{ sourceID: Number(bookId), versionID: null }] }),
+    const json = await postJson(`${api}/proxy/adventure/book-codes`, {
+      cobalt,
+      betaKey,
+      sources: [{ sourceID: Number(bookId), versionID: null }],
     });
-    const json = await response.json();
     if (!json.success) throw new Error(`book-codes proxy call failed: ${json.message ?? "unknown"}`);
     // proxy returns the DDB base64 payload; decode to the ascii key string
     return atob(json.data);
@@ -77,13 +75,7 @@ const BookData = {
 
   async fetchBookUrl(bookId: number | string, cobalt: string, betaKey: string): Promise<{ url: string; bookCode: string }> {
     const api = DDBProxy.getProxy();
-    const response = await fetch(`${api}/proxy/adventure/book-url/${bookId}`, {
-      method: "POST",
-      cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cobalt, betaKey }),
-    });
-    const json = await response.json();
+    const json = await postJson(`${api}/proxy/adventure/book-url/${bookId}`, { cobalt, betaKey });
     if (!json.success) throw new Error(`book-url proxy call failed: ${json.message ?? "unknown"}`);
     return { url: json.data.url, bookCode: json.data.bookCode };
   },

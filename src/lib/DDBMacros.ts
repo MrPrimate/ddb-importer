@@ -113,6 +113,7 @@ export default class DDBMacros {
     if (fileExists && (forceLoad || embedMacros) && !forceDDB) {
       const url = await FileHelper.getFileUrl(`[data] modules/ddb-importer/macros/${type}s`, fileName);
       const response = await fetch(url, { method: "GET" });
+      if (!response.ok) throw new Error(`Failed to load macro file ${fileName}: HTTP ${response.status}`);
       data = await response.text();
     } else if (fileExists && (!embedMacros || forceDDB)) {
       data = `// Execute DDB Importer dynamic macro

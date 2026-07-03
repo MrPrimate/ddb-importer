@@ -1,6 +1,6 @@
 import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY } from "../config/_module";
-import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, Secrets, utils } from "../lib/_module";
+import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 import DDBMuleSocket, { DDBMuleEvent, DDBMuleStartParams } from "../lib/streaming/DDBMuleSocket";
 import DDBCharacter from "../parser/DDBCharacter";
 import CharacterFeatureFactory from "../parser/features/CharacterFeatureFactory";
@@ -1148,14 +1148,7 @@ export default class DDBMuleHandler {
         throw new Error(`Unknown mule type ${type}`);
     }
 
-    const response = await fetch(`${parsingApi}${urlPostfix}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    const data = await response.json();
+    const data = await postJson(`${parsingApi}${urlPostfix}`, body);
 
     if (!data.success) {
       logger.error(`Failure: ${data.message}`, { data });
@@ -1180,15 +1173,7 @@ export default class DDBMuleHandler {
       includeHomebrew,
     };
 
-    const response = await fetch(`${parsingApi}/proxy/subclass`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json();
+    const data = await postJson(`${parsingApi}/proxy/subclass`, body);
     if (!data.success) {
       logger.error(`Failure: ${data.message}`);
       throw new Error(data.message);
@@ -1216,15 +1201,7 @@ export default class DDBMuleHandler {
       characterIds: ids,
     };
 
-    const response = await fetch(`${parsingApi}/proxy/character/check`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json();
+    const data = await postJson(`${parsingApi}/proxy/character/check`, body);
     if (!data.success) {
       logger.error(`Failure: ${data.message}`);
       throw new Error(data.message);

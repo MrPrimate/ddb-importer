@@ -1,4 +1,4 @@
-import { logger, FileHelper, DDBProxy } from "../../lib/_module";
+import { logger, FileHelper, DDBProxy, fetchJson } from "../../lib/_module";
 import { fallbackDDBConfig } from "./fallbackConfig";
 import { SETTINGS } from "../../config/_module";
 import addDDBConfig from "./addDDBConfig";
@@ -28,41 +28,31 @@ async function directConfig() {
     });
 }
 
-function proxyConfig() {
+async function proxyConfig() {
   const parsingApi = DDBProxy.getProxy();
   const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
 
   const url = `${parsingApi}/proxy/api/config/json`;
-  return new Promise((resolve, reject) => {
-    fetch(url, {
-      method: "GET",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          logger.error(`API Failure: ${data.message}`);
-          foundry.utils.setProperty(CONFIG, "DDB", fallbackDDBConfig);
-          reject(data.message);
-        }
-        if (debugJson) {
-          FileHelper.download(JSON.stringify(data), `config-raw.json`, "application/json");
-        }
-        return data;
-      })
-      .then((data) => {
-        if (data.success) {
-          logger.info(`Retrieved DDB CONFIG DATA via proxy`);
-          foundry.utils.setProperty(CONFIG, "DDB", data.data);
-        }
-        logger.debug("DDB_CONFIG", CONFIG.DDB);
-        resolve(data.data);
-      })
-      .catch((error) => reject(error));
+  const data = await fetchJson(url, {
+    method: "GET",
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
+  if (debugJson) {
+    FileHelper.download(JSON.stringify(data), `config-raw.json`, "application/json");
+  }
+  if (!data.success) {
+    logger.error(`API Failure: ${data.message}`);
+    foundry.utils.setProperty(CONFIG, "DDB", fallbackDDBConfig);
+    logger.debug("DDB_CONFIG", CONFIG.DDB);
+    return Promise.reject(data.message);
+  }
+  logger.info(`Retrieved DDB CONFIG DATA via proxy`);
+  foundry.utils.setProperty(CONFIG, "DDB", data.data);
+  logger.debug("DDB_CONFIG", CONFIG.DDB);
+  return data.data;
 }
 
 export function loadDDBConfig() {

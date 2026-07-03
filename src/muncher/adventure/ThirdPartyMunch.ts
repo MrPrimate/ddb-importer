@@ -1,5 +1,5 @@
 import AdventureMunchHelpers from "./AdventureMunchHelpers";
-import { logger, utils, Iconizer, DDBSources } from "../../lib/_module";
+import { logger, utils, Iconizer, DDBSources, fetchJson } from "../../lib/_module";
 import { generateAdventureConfig } from "../adventure";
 import AdventureMunch from "./AdventureMunch";
 import { PageFinder } from "./PageFinder";
@@ -562,14 +562,7 @@ export default class ThirdPartyMunch extends FormApplication {
       const selectedPackage = $("#select-package").val();
       const packageURL = `${RAW_BASE_URL}/main/${selectedPackage}/module.json`;
 
-      this._scenePackage = await fetch(packageURL)
-        .then((response) => {
-          if (response.status === 200 || response.status === 0) {
-            return Promise.resolve(response.json());
-          } else {
-            return Promise.reject(new Error(response.statusText));
-          }
-        });
+      this._scenePackage = await fetchJson(packageURL);
 
       // check for valid json object?
 

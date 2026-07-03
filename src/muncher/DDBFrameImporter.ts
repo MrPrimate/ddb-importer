@@ -7,6 +7,7 @@ import {
   FrameKeyframeRenderer,
   PatreonHelper,
   DDBProxy,
+  postJson,
   utils,
 } from "../lib/_module";
 import { clearDDBFrameCache } from "../hooks/init/tokenizer2Frames";
@@ -48,13 +49,7 @@ export default class DDBFrameImporter {
       betaKey: betaKey,
     };
 
-    const response = await fetch(`${parsingApi}/proxy/frames`, {
-      method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await response.json();
+    const data = await postJson(`${parsingApi}/proxy/frames`, body, { mode: "cors" });
     if (!data.success) {
       utils.munchNote(`API Failure: ${data.message}`);
       throw new Error(data.message);

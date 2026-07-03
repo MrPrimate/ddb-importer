@@ -1,5 +1,6 @@
 import logger from "./Logger";
 import DDBProxy from "./DDBProxy";
+import { postJson } from "./FetchHelper";
 import PatreonHelper from "./PatreonHelper";
 import * as Secrets from "./Secrets";
 import utils from "./Utils";
@@ -33,38 +34,23 @@ export default class DDBCampaigns {
     return campaignId;
   }
 
-  static getDDBCampaigns(cobalt: string | null = null): Promise<IDDBListCampaign[]> {
+  static async getDDBCampaigns(cobalt: string | null = null): Promise<IDDBListCampaign[]> {
     const cobaltCookie = cobalt ? cobalt : Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
     const body = { cobalt: cobaltCookie, betaKey: betaKey };
 
-    return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/proxy/campaigns`, {
-        method: "POST",
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            resolve(data.data as IDDBListCampaign[]);
-          } else {
-            logger.error(`Campaign fetch failed, got the following message: ${data.message}`, data);
-            resolve([]);
-          }
-        })
-        .catch((error) => {
-          logger.error(`Cobalt cookie check error`);
-          logger.error(error);
-          logger.error(error.stack);
-          reject(error);
-        });
-    });
-
+    try {
+      const data = await postJson(`${parsingApi}/proxy/campaigns`, body);
+      if (data.success) {
+        return data.data as IDDBListCampaign[];
+      }
+      logger.error(`Campaign fetch failed, got the following message: ${data.message}`, data);
+      return [];
+    } catch (error) {
+      logger.error(`Campaign fetch error`, error);
+      throw error;
+    }
   }
 
   static async refreshCampaigns(cobalt = null) {

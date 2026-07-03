@@ -1,5 +1,5 @@
 import { DICTIONARY } from "../../config/_module";
-import { logger, DDBProxy, PatreonHelper, utils } from "../../lib/_module";
+import { logger, DDBProxy, PatreonHelper, utils, fetchJson } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 import DDBMonsterFactory from "../DDBMonsterFactory";
 import DDBMonsterFeatureFactory from "../monster/features/DDBMonsterFeatureFactory";
@@ -76,14 +76,12 @@ export default class DDBCompanionMixin {
     if (!CONFIG.DDBI.EXTRA_IMAGES) {
       const path = "/proxy/enriched/actor/images";
       const parsingApi = DDBProxy.getProxy();
-      const response = await fetch(`${parsingApi}${path}`, {
+      const j = await fetchJson(`${parsingApi}${path}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
       });
-
-      const j = await response.json();
       if (!j.success) return null;
       foundry.utils.setProperty(CONFIG, "DDBI.EXTRA_IMAGES", j.data);
     }

@@ -1,6 +1,7 @@
 import logger from "./Logger";
 import utils from "./Utils";
 import DDBProxy from "./DDBProxy";
+import { postJson } from "./FetchHelper";
 import { parseSocketUrl } from "./streaming/ParseSocketUrl";
 import { SETTINGS } from "../config/_module";
 import DDBKeyChangeDialog from "../apps/DDBKeyChangeDialog";
@@ -9,6 +10,7 @@ interface IPatreonTierResponse {
   "success": boolean;
   "message": string;
   "data": string;
+  "email"?: string;
 }
 
 interface IPatreonValidityResponse {
@@ -118,37 +120,21 @@ const PatreonHelper = {
     const parsingApi = DDBProxy.getProxy();
     const body = { betaKey: key };
 
-    return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/patreon/tier`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (!data.success) {
-            utils.munchNote(`API Failure: ${data.message}`);
-            reject(data.message);
-          }
-          const currentEmail = PatreonHelper.getPatreonUser(local);
-          logger.debug("Fetched Patreon tier information", {
-            user: data.email,
-            tier: data.data,
-            data,
-          });
-          if (data.email !== currentEmail) {
-            PatreonHelper.setPatreonUser(data.email, local).then(() => {
-              resolve(data);
-            });
-          } else {
-            resolve(data);
-          }
-        })
-        .catch((error) => reject(error));
+    const data = await postJson<IPatreonTierResponse>(`${parsingApi}/patreon/tier`, body, { mode: "cors" });
+    if (!data.success) {
+      utils.munchNote(`API Failure: ${data.message}`);
+      throw new Error(data.message);
+    }
+    const currentEmail = PatreonHelper.getPatreonUser(local);
+    logger.debug("Fetched Patreon tier information", {
+      user: data.email,
+      tier: data.data,
+      data,
     });
+    if (data.email !== currentEmail) {
+      await PatreonHelper.setPatreonUser(data.email, local);
+    }
+    return data;
   },
 
   getPatreonValidity: async (betaKey: string): Promise<IPatreonValidityResponse> => {
@@ -158,21 +144,7 @@ const PatreonHelper = {
 
     // console.warn("Validating key", { betaKey, parsingApi });
 
-    return new Promise((resolve, reject) => {
-      fetch(`${parsingApi}/patreon/valid`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
-      })
-        .then((response) => response.json())
-        .then((data: IPatreonValidityResponse) => {
-          resolve(data);
-        })
-        .catch((error) => reject(error));
-    });
+    return postJson<IPatreonValidityResponse>(`${parsingApi}/patreon/valid`, body, { mode: "cors" });
   },
 
   calculateAccessMatrix: (tier: string): IPatreonAccessMatrix => {

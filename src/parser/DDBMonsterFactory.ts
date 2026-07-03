@@ -9,6 +9,7 @@ import {
   Iconizer,
   DDBSources,
   utils,
+  postJson,
 } from "../lib/_module";
 import DDBMonster from "./DDBMonster";
 import DDBMonsterImporter from "../muncher/DDBMonsterImporter";
@@ -306,32 +307,21 @@ export default class DDBMonsterFactory {
         });
     };
 
-    const fetchOverHttp = () => new Promise((resolve, reject) => {
-      fetch(url, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-        .then((response) => response.json())
-        .then((result) => {
-          if (!result.success) {
-            this.notifier(`API Failure: ${result.message}`);
-            logger.error(`API Failure:`, result.message);
-            reject(result.message);
-            return null;
-          }
-          if (debugJson) {
-            FileHelper.download(JSON.stringify(result), `monsters-raw.json`, "application/json");
-          }
-          this.notifier(`Retrieved ${result.data.length} monsters from DDB`, { nameField: true, monsterNote: false });
-          logger.info(`Retrieved ${result.data.length} monsters from DDB`);
-          this.source = applyCategoryFilter(result.data);
-          resolve(this.source);
-          return null;
-        })
-        .catch((error) => reject(error));
-    });
+    const fetchOverHttp = async () => {
+      const result = await postJson(url, body, { mode: "cors" });
+      if (!result.success) {
+        this.notifier(`API Failure: ${result.message}`);
+        logger.error(`API Failure:`, result.message);
+        return Promise.reject(result.message);
+      }
+      if (debugJson) {
+        FileHelper.download(JSON.stringify(result), `monsters-raw.json`, "application/json");
+      }
+      this.notifier(`Retrieved ${result.data.length} monsters from DDB`, { nameField: true, monsterNote: false });
+      logger.info(`Retrieved ${result.data.length} monsters from DDB`);
+      this.source = applyCategoryFilter(result.data);
+      return this.source;
+    };
 
     const fetchOverStream = async () => {
       const socket = new DDBMonsterSocket(parsingApi);

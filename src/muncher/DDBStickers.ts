@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets, utils } from "../lib/_module";
+import { logger, DDBProxy, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
 
 interface IDDBProxyResponse<T> {
   success: boolean;
@@ -35,13 +35,7 @@ export default class DDBStickers {
   private static async post<T>(path: string, body: Record<string, unknown>): Promise<T | null> {
     const parsingApi = DDBProxy.getProxy();
     try {
-      const response = await fetch(`${parsingApi}${path}`, {
-        method: "POST",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data: IDDBProxyResponse<T> = await response.json();
+      const data = await postJson<IDDBProxyResponse<T>>(`${parsingApi}${path}`, body);
       if (!data.success) {
         logger.error(`DDBStickers ${path} failed: ${data.message}`, data);
         return null;

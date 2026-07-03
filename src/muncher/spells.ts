@@ -12,6 +12,7 @@ import {
   DDBMacros,
   DDBCompendiumFolders,
   DDBSources,
+  postJson,
 } from "../lib/_module";
 import { SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
@@ -81,12 +82,7 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
   });
 
   return new Promise((resolve, reject) => {
-    fetch(`${parsingApi}/proxy/class/spells`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-      .then((response) => response.json())
+    postJson(`${parsingApi}/proxy/class/spells`, body)
       .then((data) => {
         if (debugJson) {
           FileHelper.download(JSON.stringify(data), `spells-raw.json`, "application/json");

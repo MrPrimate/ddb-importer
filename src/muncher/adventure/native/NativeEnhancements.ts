@@ -1,4 +1,4 @@
-import { logger, DDBProxy, PatreonHelper, Secrets } from "../../../lib/_module";
+import { logger, DDBProxy, PatreonHelper, postJson, Secrets } from "../../../lib/_module";
 import { ensureAssetsPrefix } from "./NativeShared";
 
 /**
@@ -14,13 +14,11 @@ export async function fetchEnhancements(bookId: number | string): Promise<any[]>
   const cobalt = Secrets.getCobalt();
   if (!cobalt) return [];
   try {
-    const response = await fetch(`${DDBProxy.getProxy()}/proxy/adventure/enhancement`, {
-      method: "POST",
-      cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cobalt, betaKey: PatreonHelper.getPatreonKey(), bookId: Number(bookId) }),
+    const json = await postJson(`${DDBProxy.getProxy()}/proxy/adventure/enhancement`, {
+      cobalt,
+      betaKey: PatreonHelper.getPatreonKey(),
+      bookId: Number(bookId),
     });
-    const json = await response.json();
     if (!json.success) {
       logger.info(`No enhancement data for book ${bookId}: ${json.message ?? "unknown"}`);
       return [];

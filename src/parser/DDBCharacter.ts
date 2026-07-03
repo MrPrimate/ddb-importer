@@ -7,6 +7,7 @@ import {
   DDBCampaigns,
   DDBProxy,
   CompendiumHelper,
+  postJson,
 } from "../lib/_module";
 import CharacterClassFactory from "./classes/CharacterClassFactory";
 import CharacterFeatureFactory from "./features/CharacterFeatureFactory";
@@ -411,15 +412,9 @@ class DDBCharacter {
     }
 
     try {
-      const response = await fetch(`${parsingApi}/proxy/v5/character`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      this.source = await postJson(`${parsingApi}/proxy/v5/character`, body, {
         redirect: "follow", // manual, *follow, error
-        body: JSON.stringify(body), // body data type must match "Content-Type" header
       });
-      this.source = await response.json();
       if (!this.source.success) return;
 
       this.#sourceFixes();
