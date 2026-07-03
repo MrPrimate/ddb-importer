@@ -33,6 +33,8 @@ const logger = {
       }
       return true;
     } catch (_err) {
+      // the log-level setting is not yet registered (calls before the init
+      // hook); default to showing the message rather than dropping it
       return true;
     }
 

@@ -454,13 +454,15 @@ export default class DDBCharacterManager extends DDBAppV2 {
     try {
       this.element.querySelector("#dndbeyond-character-update").disabled = true;
       await updateDDBCharacter(this.actor).then((result) => {
-        const updateNotes = result
-          .flat()
-          .filter((r) => r !== undefined)
-          .map((r) => r.message)
-          .join(" ");
+        const flatResults = result.flat().filter((r) => r !== undefined);
+        const updateNotes = flatResults.map((r) => r.message).join(" ");
+        const failures = flatResults.filter((r) => r && r.success === false);
         logger.debug(updateNotes);
-        this.showCurrentTask("Update complete", { message: updateNotes, isError: false });
+        if (failures.length > 0) {
+          this.showCurrentTask(`Update completed with ${failures.length} failed update(s)`, { message: updateNotes, isError: true });
+        } else {
+          this.showCurrentTask("Update complete", { message: updateNotes, isError: false });
+        }
         this.element.querySelector("#dndbeyond-character-update").disabled = false;
       });
     } catch (error) {

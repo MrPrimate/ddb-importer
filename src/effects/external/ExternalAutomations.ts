@@ -68,7 +68,7 @@ export default class ExternalAutomations {
         type,
         monsterName,
       });
-      if (monsterName && !["monsterfeature"].includes(type) && !foundry.utils.getProperty(doc, "flags.ddbimporter.effectsApplied") === true) {
+      if (monsterName && !["monsterfeature"].includes(type) && foundry.utils.getProperty(doc, "flags.ddbimporter.effectsApplied") !== true) {
         logger.debug(`No Cauldron of Plentiful Resources found for ${doc.name} with type "${type}", checking for monster feature.`);
         doc = await ChrisPremadesHelper.findAndUpdate({
           document: doc,

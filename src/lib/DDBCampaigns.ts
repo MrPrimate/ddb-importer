@@ -46,7 +46,7 @@ export default class DDBCampaigns {
         return data.data as IDDBListCampaign[];
       }
       logger.error(`Campaign fetch failed, got the following message: ${data.message}`, data);
-      return [];
+      throw new Error(`Campaign fetch failed: ${data.message}`);
     } catch (error) {
       logger.error(`Campaign fetch error`, error);
       throw error;
@@ -65,7 +65,12 @@ export default class DDBCampaigns {
     if (CONFIG.DDBI.CAMPAIGNS) return CONFIG.DDBI.CAMPAIGNS;
     CONFIG.DDBI.CAMPAIGNS = [];
     if (!campaignId) campaignId = DDBCampaigns.getCampaignId(notifier);
-    const campaigns = await DDBCampaigns.getDDBCampaigns(cobalt);
+    let campaigns: IDDBListCampaign[] = [];
+    try {
+      campaigns = await DDBCampaigns.getDDBCampaigns(cobalt);
+    } catch (error) {
+      logger.warn("Unable to fetch campaigns, falling back to selected campaign only", error);
+    }
 
     if (!campaigns || campaigns.length === 0) {
       if (campaignId && campaignId.trim() !== "") {

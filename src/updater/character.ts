@@ -1445,6 +1445,10 @@ async function _updateDDBCharacter(actor) {
   ).filter((result) => result !== undefined);
 
   logger.debug("Update results", results);
+  const failures = results.filter((r) => r && r.success === false);
+  if (failures.length > 0) {
+    logger.warn(`${failures.length} of ${results.length} DDB update calls failed`, failures);
+  }
   await ddbCharacter.updateDynamicUpdates(activeUpdateState);
 
   return results;

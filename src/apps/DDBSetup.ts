@@ -509,7 +509,12 @@ export default class DDBSetup extends DDBAppV2 {
     const cookie = this.element.querySelector("#cobalt-cookie-input");
     const cookieStatus = await DDBSetup.checkCobaltCookie(cookie.value);
     if (!cookieStatus.success) return;
-    const campaigns = await DDBCampaigns.refreshCampaigns(cookie.value);
+    let campaigns = null;
+    try {
+      campaigns = await DDBCampaigns.refreshCampaigns(cookie.value);
+    } catch (error) {
+      logger.warn("Campaign fetch failed, showing fallback input", error);
+    }
     const list = this.element.querySelector("#campaign-select");
     let campaignList = `<option value="">Select campaign:</option>`;
     if (!campaigns || (Array.isArray(campaigns) && campaigns.length === 0)) {
