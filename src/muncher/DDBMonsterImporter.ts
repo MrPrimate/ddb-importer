@@ -6,7 +6,6 @@ import {
   FileHelper,
   CompendiumHelper,
 } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
 
 interface IDDBMonsterImporter {
   monster?: I5eMonsterData;
@@ -205,7 +204,7 @@ export default class DDBMonsterImporter {
   } = {},
   ) {
     if (!ignoreDisableArtSetting
-      && game.settings.get(SETTINGS.MODULE_ID, "munching-policy-disable-monster-art")
+      && utils.getSetting<boolean>("munching-policy-disable-monster-art")
     ) {
       logger.debug(`Monster art disabled by setting, skipping image processing for ${this.monster.name}`);
       return this.monster;
@@ -284,7 +283,7 @@ export default class DDBMonsterImporter {
       }
     }
 
-    const useTokenizer = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-tokenize")
+    const useTokenizer = utils.getSetting<boolean>("munching-policy-monster-tokenize")
       && !disableAutoTokenizeOverride
       && (game.modules.get("vtta-tokenizer")?.active || game.modules.get("tokenizer-2")?.active);
 

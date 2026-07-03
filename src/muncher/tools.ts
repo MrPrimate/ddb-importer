@@ -27,7 +27,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
     // pop items in later
     delete actorUpdate.items;
 
-    const updateImages = game.settings.get("ddb-importer", "munching-policy-update-world-monster-update-images");
+    const updateImages = utils.getSetting<boolean>("munching-policy-update-world-monster-update-images");
     if (!updateImages) {
       actorUpdate.img = targetActor.img;
       actorUpdate.prototypeToken.texture = targetActor.prototypeToken.texture;
@@ -38,7 +38,7 @@ async function updateActorsWithActor(targetActors, sourceActor) {
       actorUpdate.prototypeToken.ring = targetActor.prototypeToken.ring;
     }
 
-    const retainBiography = game.settings.get("ddb-importer", "munching-policy-update-world-monster-retain-biography");
+    const retainBiography = utils.getSetting<boolean>("munching-policy-update-world-monster-retain-biography");
     if (retainBiography) {
       actorUpdate.system.details.biography = targetActor.system.details.biography;
     }
@@ -104,7 +104,7 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
   const fields = ["name", "flags.monsterMunch", "system.details.type.value", "img", "prototypeToken.texture.src"];
   const index = await monsterCompendium.getIndex({ fields });
 
-  const otherDirectory = game.settings.get("ddb-importer", "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  const otherDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
   await FileHelper.generateCurrentFiles(otherDirectory);
 
   const updates = await Promise.all(index

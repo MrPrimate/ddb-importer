@@ -115,10 +115,10 @@ const CompendiumHelper = {
   copyExistingActorProperties: async (type, foundryActor) => {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
-    if (game.settings.get("ddb-importer", "munching-policy-update-existing")) {
+    if (utils.getSetting<boolean>("munching-policy-update-existing")) {
       const existingNPC = await compendium.getDocument(foundryActor._id) as Actor.Implementation;
 
-      const updateImages = game.settings.get("ddb-importer", "munching-policy-update-images");
+      const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img"))) {
         foundryActor.img = existingNPC.system.img;
       }
@@ -130,7 +130,7 @@ const CompendiumHelper = {
         foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken, oldValues);
       }
 
-      const retainBiography = game.settings.get("ddb-importer", "munching-policy-monster-retain-biography");
+      const retainBiography = utils.getSetting<boolean>("munching-policy-monster-retain-biography");
       if (retainBiography) {
         foundryActor.system.details.biography = existingNPC.system.details.biography;
       }
@@ -144,7 +144,7 @@ const CompendiumHelper = {
 
   getActorIndexActor: async (type: string, npc: I5eMonsterData | I5ePCData | I5eVehicleData) => {
     const monsterIndexFields = ["name", "flags.ddbimporter.id", "system.source.rules"];
-    const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    const legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
     const npcMatch = index.contents.find((entity) =>
       foundry.utils.hasProperty(entity, "flags.ddbimporter.id")

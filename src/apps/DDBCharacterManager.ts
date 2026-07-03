@@ -493,7 +493,7 @@ export default class DDBCharacterManager extends DDBAppV2 {
       await this.ddbCharacter.getCharacterData(getOptions);
       await this.ddbCharacter.process();
       logger.debug("import.js getCharacterData result", this.ddbCharacter);
-      const debugJson = game.settings.get("ddb-importer", "debug-json");
+      const debugJson = utils.getSetting<boolean>("debug-json");
       if (debugJson) {
         FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${characterId}.json`, "application/json");
       }

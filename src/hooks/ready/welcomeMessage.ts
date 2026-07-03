@@ -1,5 +1,5 @@
 import { SETTINGS } from "../../config/_module";
-import { Secrets } from "../../lib/_module";
+import { Secrets, utils } from "../../lib/_module";
 
 function showMessage() {
 
@@ -33,7 +33,7 @@ function showMessage() {
 
 export default function welcomeMessage() {
   if (!game.user.isGM) return;
-  if (!game.settings.get(SETTINGS.MODULE_ID, "show-welcome-message")) return;
+  if (!utils.getSetting<boolean>("show-welcome-message")) return;
 
   const timeout = setTimeout(() => {
     showMessage();

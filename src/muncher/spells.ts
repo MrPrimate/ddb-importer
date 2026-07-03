@@ -14,7 +14,6 @@ import {
   DDBSources,
   postJson,
 } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
 import { ExternalAutomations } from "../effects/_module";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
 import { DDBReferenceLinker } from "../parser/lib/_module";
@@ -41,9 +40,9 @@ function applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilte
       spell.definition.sources.some((source) => sources.includes(source.sourceId)),
     );
   } else if (sources.length === 0) {
-    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew-only")) {
+    if (utils.getSetting<boolean>("munching-policy-spell-homebrew-only")) {
       data = data.filter((spell) => spell.definition.isHomebrew);
-    } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-homebrew")) {
+    } else if (!utils.getSetting<boolean>("munching-policy-spell-homebrew")) {
       data = data.filter((spell) => !spell.definition.isHomebrew);
     }
   }
@@ -69,12 +68,12 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
     className,
     rulesVersion: rulesVersion ?? "2014",
   };
-  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
-  const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+  const debugJson = utils.getSetting<boolean>("debug-json");
+  const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
   // explicit sourcesOverride (e.g. from the native adventure importer) wins over the setting
   const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
   const effectiveSourceFilter = sourcesOverride !== null ? true : sourceFilter;
-  const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
+  const exactMatch = utils.getSetting<boolean>("munching-policy-spell-exact-match");
 
   logger.debug(`Fetching Spells (HTTP) with:`, {
     debugJson, enableSources, sources, sourceFilter: effectiveSourceFilter, exactMatch,
@@ -120,12 +119,12 @@ async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverrid
   const parsingApi = DDBProxy.getProxy();
   const betaKey = PatreonHelper.getPatreonKey();
 
-  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
-  const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
+  const debugJson = utils.getSetting<boolean>("debug-json");
+  const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
   // explicit sourcesOverride wins over the setting
   const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
   const effectiveSourceFilter = sourcesOverride !== null ? true : sourceFilter;
-  const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-spell-exact-match");
+  const exactMatch = utils.getSetting<boolean>("munching-policy-spell-exact-match");
 
   const socket = new DDBSpellSocket(parsingApi);
   socket.connect();
@@ -186,8 +185,8 @@ let _spellSocketDisabled = false;
 export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notifier = null, notifierV2 = null, searchFilter = null, sources = null } = {}) {
 
   await DDBReferenceLinker.importCacheLoad();
-  const updateBool = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-update-existing");
-  const uploadDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
+  const updateBool = utils.getSetting<boolean>("munching-policy-update-existing");
+  const uploadDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
 
   const resolvedNotifier = notifier ?? utils.munchNote;
   // to speed up file checking we pregenerate existing files now.

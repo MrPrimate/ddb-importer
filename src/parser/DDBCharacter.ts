@@ -395,7 +395,7 @@ class DDBCharacter {
   async getCharacterData({ syncId = undefined, localCobaltPostFix = "" } = {}) {
     const cobaltCookie = Secrets.getCobalt(localCobaltPostFix);
     const parsingApi = DDBProxy.getProxy();
-    const betaKey = game.settings.get("ddb-importer", "beta-key");
+    const betaKey = utils.getSetting<string>("beta-key");
     const campaignId = DDBCampaigns.getCampaignId();
     const proxyCampaignId = campaignId === "" ? null : campaignId;
     const body = {
@@ -419,7 +419,7 @@ class DDBCharacter {
 
       this.#sourceFixes();
 
-      if (game.settings.get("ddb-importer", "debug-json")) {
+      if (utils.getSetting<boolean>("debug-json")) {
         FileHelper.download(JSON.stringify(this.source), `${this.characterId}-${this.source.ddb.character.name}-raw.json`, "application/json");
       }
     } catch (error) {

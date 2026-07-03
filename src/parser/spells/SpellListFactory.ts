@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
 import { DDBDataUtils } from "../lib/_module";
 
@@ -77,7 +77,7 @@ export default class SpellListFactory {
 
     this.sources = sources;
     this.filteredSources = sources.filter((s) =>
-      game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules")
+      utils.getSetting<boolean>("use-basic-rules")
       || !DICTIONARY.sourceCategories.basicRules.includes(s.id),
     );
 

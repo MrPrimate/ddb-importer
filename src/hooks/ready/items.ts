@@ -1,4 +1,5 @@
 import { DDBItemConfig } from "../../apps/DDBItemConfig";
+import { utils } from "../../lib/_module";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
 
 function onClickV2(event) {
@@ -13,7 +14,7 @@ function onClickV2(event) {
 
 function createItemHeaderButtonV1(config, buttons) {
   if (!config.document.isOwned) return;
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   if (config.object instanceof Item) {
     buttons.unshift({
       label: `DDB Importer Item Config`,
@@ -34,7 +35,7 @@ function createItemHeaderButtonV2(config, buttons) {
   if (!config.document.isOwned) return;
   if (!(config.document instanceof Item)) return;
   config.options.actions["ddbclick"] = onClickV2;
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   buttons.unshift({
     label: `DDB Importer Config`,
     icon: `fab fa-d-and-d-beyond${whiteTitle}`,

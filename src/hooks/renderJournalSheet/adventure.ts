@@ -1,4 +1,5 @@
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
+import { utils } from "../../lib/_module";
 import buildNotes from "./buildNotes";
 import { ensureBookThemeStyle } from "../../muncher/adventure/native/NativeBookStyles";
 
@@ -74,7 +75,7 @@ export function getJournalSheet5eHeaderButtons(config, buttons) {
   if (!config.object.isOwner) return;
   if (!(config.object instanceof JournalEntry)) return;
 
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
 
   buttons.unshift({
     label: undefined,
@@ -88,7 +89,7 @@ export function getHeaderControlsJournalEntrySheetButtons(config, buttons) {
   if (!config.entry.isOwner) return;
   if (!(config.entry instanceof JournalEntry)) return;
 
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   config.options.actions["ddbclick"] = onClickV2;
   buttons.unshift({
     label: `D&D Beyond`,

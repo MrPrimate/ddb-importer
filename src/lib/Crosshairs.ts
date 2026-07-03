@@ -400,7 +400,7 @@ export default class Crosshairs extends Sheet {
       shape.x = this.scene.grid.size / -2;
     } else if (crosshairs.document.t === "ray") {
       // Figure out a way to get the template to center on the crosshairs...
-    } else if (crosshairs.document.t === "circle" && !game.settings.get("core", "gridTemplates")) {
+    } else if (crosshairs.document.t === "circle" && !utils.getSetting<boolean>("gridTemplates", "core")) {
       shape.radius = Math.round(shape.radius / (canvas.grid.size / 2)) * (canvas.grid.size / 2);
     }
     return shape;
@@ -429,8 +429,8 @@ export default class Crosshairs extends Sheet {
         const radius = canvas.grid.size * ((maxRange + fudgeDistance + widthAdjust) / canvas.grid.distance);
         drawing = new PIXI.Graphics();
         drawing.lineStyle(5, 0xffffff);
-        const matchTemplates = game.settings.get("core", "gridTemplates")
-          && game.settings.get("core", "gridDiagonals") !== CONST.GRID_DIAGONALS.EXACT;
+        const matchTemplates = utils.getSetting<boolean>("gridTemplates", "core")
+          && utils.getSetting<number>("gridDiagonals", "core") !== CONST.GRID_DIAGONALS.EXACT;
         if (matchTemplates) {
           drawing.drawPolygon(canvas.grid.getCircle(centerpoint, maxRange + fudgeDistance + widthAdjust));
         } else {

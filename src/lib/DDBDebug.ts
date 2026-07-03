@@ -93,7 +93,7 @@ export default class DDBDebug {
     this.ddbChangedSettings = {};
 
     for (const [key, setting] of Object.entries(this.ddbSettings)) {
-      const value = game.settings.get(DDBImporter.SETTINGS.MODULE_ID, key);
+      const value = utils.getSetting<unknown>(key, DDBImporter.SETTINGS.MODULE_ID);
       if (value !== setting.default) {
         if (["beta-key", "cobalt-cookie", "patreon-key"].includes(key)) {
           this.ddbChangedSettings[key] = "REDACTED";
@@ -175,7 +175,7 @@ export default class DDBDebug {
         tierLocal: await PatreonHelper.checkPatreon({ local: true }),
       },
       dnd5e: {
-        version: game.settings.get("dnd5e", "rulesVersion"),
+        version: utils.getSetting<string>("rulesVersion", "dnd5e"),
       },
     });
     if (this.secrets.ddbUser?.data) {

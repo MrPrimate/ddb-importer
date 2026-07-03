@@ -3,8 +3,8 @@ import { CompendiumHelper, FolderHelper, utils } from "../../lib/_module";
 
 
 export async function createDDBCompendium(compendiumSetting): Promise<string> {
-  const compendiumName = game.settings.get(SETTINGS.MODULE_ID, compendiumSetting.setting);
-  const createCompendiumBanner = game.settings.get(SETTINGS.MODULE_ID, "ddb-compendium-banner");
+  const compendiumName = utils.getSetting<string>(compendiumSetting.setting);
+  const createCompendiumBanner = utils.getSetting<boolean>("ddb-compendium-banner");
   const compendiumData = {
     id: compendiumName,
     type: compendiumSetting.type,
@@ -37,7 +37,7 @@ export async function createDDBCompendium(compendiumSetting): Promise<string> {
 
 export default async function () {
   const compendiums: string[] = [];
-  if (game.settings.get(SETTINGS.MODULE_ID, "auto-create-compendium")) {
+  if (utils.getSetting<boolean>("auto-create-compendium")) {
     for (const compendium of SETTINGS.COMPENDIUMS.filter((c) => c.auto)) {
       const compendiumId = await createDDBCompendium(compendium);
       compendiums.push(compendiumId);

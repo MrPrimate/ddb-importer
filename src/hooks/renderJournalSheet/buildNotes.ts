@@ -1,4 +1,4 @@
-import { logger } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 
 function copyToClipboard(text) {
   logger.debug("Copy block", text);
@@ -24,7 +24,7 @@ function getTableButton() {
 
 function buildNotes(html, data) {
   if (!game.user.isGM) return;
-  const allow = game.settings.get("ddb-importer", "allow-dev-generation");
+  const allow = utils.getSetting<boolean>("allow-dev-generation");
   if (!allow) return;
 
   // mark all headers

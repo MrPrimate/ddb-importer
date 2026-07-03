@@ -1,5 +1,5 @@
 import "./hooks/init/extendClasses";
-import { logger, Logger, Notifications } from "./lib/_module";
+import { logger, Logger, Notifications, utils } from "./lib/_module";
 
 // init hooks
 import { registerApi } from "./api";
@@ -105,7 +105,7 @@ export function getSceneControlButtons(controls) {
 
 export function renderJournalSheet(sheet, html, data) {
   if (data.cssClass !== "editable") {
-    const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
+    const enableReadAloudsForAllContent = utils.getSetting<boolean>("show-read-alouds-all-content");
     if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
       showReadAlouds(html, data);
     }
@@ -115,7 +115,7 @@ export function renderJournalSheet(sheet, html, data) {
 
 export function renderJournalEntryPageSheet(sheet, html, data) {
   if (sheet.options.mode === "view") {
-    const enableReadAloudsForAllContent = game.settings.get("ddb-importer", "show-read-alouds-all-content");
+    const enableReadAloudsForAllContent = utils.getSetting<boolean>("show-read-alouds-all-content");
     if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
       showReadAlouds(html, data);
     }

@@ -15,6 +15,13 @@ export default defineConfig(
   {
     rules: {
       "no-console": ["error"],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.object.object.name='game'][callee.object.property.name='settings'][callee.property.name='get']",
+          message: "Use utils.getSetting<T>(key, moduleId?) instead of game.settings.get().",
+        },
+      ],
       "@stylistic/member-delimiter-style": [
         "error",
         {
@@ -98,6 +105,14 @@ export default defineConfig(
           ignoreRestSiblings: true,
         },
       ],
+    },
+  },
+  {
+    // the getSetting wrapper itself, and Logger (cannot import Utils without
+    // risking an import cycle), are allowed to call game.settings.get directly
+    files: ["src/lib/Utils.ts", "src/lib/Logger.ts"],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
 );

@@ -176,7 +176,7 @@ export class DDBInfusion {
 
   _buildDescription() {
     this.snippet = this.ddbInfusion.snippet ? this.ddbInfusion.snippet : "";
-    const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+    const chatAdd = utils.getSetting<boolean>("add-description-to-chat");
     const itemText = foundry.utils.getProperty(this.ddbInfusion, "itemRuleData.text");
     const prerequisitesHeader = this.requiredLevel && this.requiredLevel > 1
       ? `<p><i>Prerequisites: ${utils.ordinalSuffixOf(this.requiredLevel)}-level ${this.originClass}</i></p>`

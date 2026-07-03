@@ -205,7 +205,7 @@ function addCharacterSheetContext(doc, buttons) {
  */
 export function addTattooConsumable() {
   if (game.modules.get("dnd-tashas-cauldron")?.active) return;
-  if (game.settings.get("ddb-importer", "disable-tattoo-type")) return;
+  if (utils.getSetting<boolean>("disable-tattoo-type")) return;
   CONFIG.DND5E.consumableTypes["tattoo"] = {
     label: "Spellwrought Tattoo",
   };

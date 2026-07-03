@@ -1,5 +1,4 @@
 import { logger, PatreonHelper, utils } from "../../lib/_module";
-import { SETTINGS } from "../../config/_module";
 import ChrisPremadesHelper from "./ChrisPremadesHelper";
 
 export default class ExternalAutomations {
@@ -51,8 +50,8 @@ export default class ExternalAutomations {
     }
 
     const applyChrisEffects = force || (compendiumItem
-      ? game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-chris-premades")
-      : game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-chris-premades"));
+      ? utils.getSetting<boolean>("munching-policy-use-chris-premades")
+      : utils.getSetting<boolean>("character-update-policy-use-chris-premades"));
     if (!applyChrisEffects) {
       logger.debug("Not Applying basic premades");
       return documents;

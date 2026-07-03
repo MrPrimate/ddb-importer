@@ -1,4 +1,4 @@
-import { FileHelper } from "../../lib/_module";
+import { FileHelper, utils } from "../../lib/_module";
 import { collectSceneData, SceneEnhancerExport } from "../../apps/SceneEnhancerExport";
 import SceneGridPickerApp from "../../apps/SceneGridPickerApp";
 import { resolveSceneGridImageSource } from "../../apps/SceneGridDetector";
@@ -28,7 +28,7 @@ export default function (_html, contextOptions) {
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
-      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download");
+      const sceneDownload = utils.getSetting<boolean>("allow-scene-download");
       const allowDownload = game.user.isGM && sceneDownload && scene.flags?.ddb?.ddbId;
       return allowDownload;
     },
@@ -43,8 +43,8 @@ export default function (_html, contextOptions) {
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
-      const sceneDownload = game.settings.get("ddb-importer", "allow-third-party-scene-download")
-        || game.settings.get("ddb-importer", "developer-mode");
+      const sceneDownload = utils.getSetting<boolean>("allow-third-party-scene-download")
+        || utils.getSetting<boolean>("developer-mode");
       const allowDownload = game.user.isGM && sceneDownload && !scene.flags?.ddb?.ddbId;
       return allowDownload;
     },
@@ -73,8 +73,8 @@ export default function (_html, contextOptions) {
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li));
-      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download")
-        || game.settings.get("ddb-importer", "developer-mode");
+      const sceneDownload = utils.getSetting<boolean>("allow-scene-download")
+        || utils.getSetting<boolean>("developer-mode");
       return Boolean(game.user.isGM && sceneDownload && scene);
     },
     icon: "<i class=\"fas fa-copy\"></i>",
@@ -88,8 +88,8 @@ export default function (_html, contextOptions) {
     },
     condition: (li) => {
       const scene = game.scenes.get(getSceneId(li)) as any;
-      const sceneDownload = game.settings.get("ddb-importer", "allow-scene-download")
-        || game.settings.get("ddb-importer", "developer-mode");
+      const sceneDownload = utils.getSetting<boolean>("allow-scene-download")
+        || utils.getSetting<boolean>("developer-mode");
       const hasLevels = Array.isArray(scene?.levels?.contents)
         ? scene.levels.contents.length > 0
         : (scene?.levels?.size ?? 0) > 0;

@@ -1,6 +1,6 @@
 import DDBCookie from "../../apps/DDBCookie";
 import DDBSetup from "../../apps/DDBSetup";
-import { PatreonHelper, Secrets } from "../../lib/_module";
+import { PatreonHelper, Secrets, utils } from "../../lib/_module";
 import DDBMuncher from "../../apps/DDBMuncher";
 
 export function addMuncher(app, html) {
@@ -32,7 +32,7 @@ export function addMuncher(app, html) {
     }
   });
 
-  const top = game.settings.get("ddb-importer", "show-munch-top");
+  const top = utils.getSetting<boolean>("show-munch-top");
   if (top) {
     const headerActions = html.querySelector(".header-actions");
     headerActions.append(button);

@@ -4,7 +4,6 @@ import {
   CompendiumHelper,
   FolderHelper,
 } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
 import DDBMonsterFactory from "./DDBMonsterFactory";
 import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
 
@@ -112,7 +111,7 @@ export default class DDBEncounter {
   }
 
   async #importMonsters() {
-    const importMonsters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-monsters");
+    const importMonsters = utils.getSetting<boolean>("encounter-import-policy-missing-monsters");
 
     if (importMonsters && this.data.missingMonsters && this.data.missingMonsterIds.length > 0) {
       logger.debug("Importing missing monsters from DDB");
@@ -200,7 +199,7 @@ export default class DDBEncounter {
   }
 
   async #importCharacters() {
-    const importCharacters = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-missing-characters");
+    const importCharacters = utils.getSetting<boolean>("encounter-import-policy-missing-characters");
     if (importCharacters && this.data.missingCharacters) {
       await utils.asyncForEach(this.data.missingCharacterData, async (character) => {
         await DDBCharacterImporter.importCharacterById(character.ddbId, this.notifier);
@@ -219,7 +218,7 @@ export default class DDBEncounter {
       },
     };
 
-    const importJournal = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-journal");
+    const importJournal = utils.getSetting<boolean>("encounter-import-policy-create-journal");
     if (importJournal) {
       const journalFolder = await FolderHelper.getFolder(
         "journal",
@@ -354,8 +353,8 @@ export default class DDBEncounter {
 
 
   async #createScene() {
-    const importDDBIScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene");
-    const useExistingScene = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
+    const importDDBIScene = utils.getSetting<boolean>("encounter-import-policy-create-scene");
+    const useExistingScene = utils.getSetting<boolean>("encounter-import-policy-existing-scene");
 
     if (!importDDBIScene && !useExistingScene) return undefined;
 
@@ -380,7 +379,7 @@ export default class DDBEncounter {
     if (sceneData) {
       const tokenData = [];
       const useDDBSave
-        = this.data.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
+        = this.data.inProgress && utils.getSetting<boolean>("encounter-import-policy-use-ddb-save");
       const xSquares = sceneData.width / sceneData.grid.size;
       const ySquares = sceneData.height / sceneData.grid.size;
       const midSquareOffset = sceneData.grid.size / 2;
@@ -521,14 +520,14 @@ export default class DDBEncounter {
   }
 
   async #createCombatEncounter() {
-    const importCombat = game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-create-scene")
-      || game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-existing-scene");
+    const importCombat = utils.getSetting<boolean>("encounter-import-policy-create-scene")
+      || utils.getSetting<boolean>("encounter-import-policy-existing-scene");
 
     if (!importCombat) return undefined;
     logger.debug(`Creating combat for encounter ${this.data.name}`);
 
     const useDDBSave
-      = this.data.inProgress && game.settings.get(SETTINGS.MODULE_ID, "encounter-import-policy-use-ddb-save");
+      = this.data.inProgress && utils.getSetting<boolean>("encounter-import-policy-use-ddb-save");
 
     await this.scene.view();
     const flags = {
@@ -549,10 +548,7 @@ export default class DDBEncounter {
       });
       const combatants = await this.combat.createEmbeddedDocuments("Combatant", toCreate);
 
-      const rollMonsterInitiative = game.settings.get(
-        "ddb-importer",
-        "encounter-import-policy-roll-monster-initiative",
-      );
+      const rollMonsterInitiative = utils.getSetting<boolean>("encounter-import-policy-roll-monster-initiative");
       combatants
         .filter((c) => rollMonsterInitiative && c.actor.type === "npc" && c.initiative === null)
         .forEach(async (c) => {

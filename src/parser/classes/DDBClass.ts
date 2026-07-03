@@ -91,7 +91,7 @@ export default class DDBClass extends DDBBaseClass {
 
     const rolledHP = foundry.utils.getProperty(character, "flags.ddbimporter.rolledHP") ?? false;
     const startingClass = foundry.utils.getProperty(this.data, "flags.ddbimporter.isStartingClass") === true;
-    const useMaxHP = game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp");
+    const useMaxHP = utils.getSetting<boolean>("character-update-policy-use-hp-max-for-rolled-hp");
     if (rolledHP && !useMaxHP) {
       const baseHP = foundry.utils.getProperty(character, "flags.ddbimporter.baseHitPoints") as number;
       const totalLevels = foundry.utils.getProperty(character, "flags.ddbimporter.dndbeyond.totalLevels") as number;

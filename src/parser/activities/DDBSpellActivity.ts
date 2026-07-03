@@ -50,7 +50,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     this.ddbDefinition = this.spellData.definition;
 
     this.spellEffects = spellEffects ?? foundry.utils.getProperty(this.foundryFeature, "flags.ddbimporter.addSpellEffects") as boolean;
-    this.damageRestrictionHints = game.settings.get("ddb-importer", "add-damage-restrictions-to-hints") && !this.spellEffects;
+    this.damageRestrictionHints = utils.getSetting<boolean>("add-damage-restrictions-to-hints") && !this.spellEffects;
 
     this.isCantrip = this.ddbDefinition.level === 0;
     if (this.isCantrip && cantripBoost === null) {

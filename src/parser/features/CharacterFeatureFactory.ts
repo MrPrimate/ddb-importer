@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { logger, utils, DDBCompendiumFolders, DDBItemImporter, DDBSources } from "../../lib/_module";
 import DDBAction from "./DDBAction";
 import DDBAttackAction from "./DDBAttackAction";
@@ -152,7 +152,7 @@ export default class CharacterFeatureFactory {
   }
 
   static includedFeatureNameCheck(featName: string) {
-    const includeTashaVersatile = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-include-versatile-features");
+    const includeTashaVersatile = utils.getSetting<boolean>("character-update-policy-include-versatile-features");
 
     const nameAllowed =
       !CharacterFeatureFactory.LEGACY_SKIPPED_FEATURES.includes(featName)

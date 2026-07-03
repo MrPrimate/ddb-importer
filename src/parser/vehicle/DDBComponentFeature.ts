@@ -1,5 +1,5 @@
 import { utils, logger } from "../../lib/_module";
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { DDBMonsterFeatureEnricher, Effects } from "../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers, IFeatureBasicsResult, IFeatureBasicsSave } from "../lib/_module";
 import { DDBVehicleActivity } from "../activities/_module";
@@ -573,8 +573,8 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   }
 
   #getHiddenDescription() {
-    const nameChoice = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-description-choice");
-    const hideItemName = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-hide-item-name");
+    const nameChoice = utils.getSetting<string>("munching-policy-hide-description-choice");
+    const hideItemName = utils.getSetting<boolean>("munching-policy-hide-item-name");
     let actorDescriptor = `[[lookup @name]]`;
 
     if (nameChoice === "TYPE") {

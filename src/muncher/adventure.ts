@@ -5,6 +5,7 @@ import {
   CompendiumHelper,
   DDBProxy,
   logger,
+  utils,
 } from "../lib/_module";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 
@@ -36,7 +37,7 @@ async function getMonsterMap () {
 async function getSpellMap() {
   // ddb://spells
   // mm 2176
-  const spellCompendiumLabel = await game.settings.get("ddb-importer", "entity-spell-compendium");
+  const spellCompendiumLabel = await utils.getSetting<string>("entity-spell-compendium");
   const spellCompendium = await game.packs.find((pack) => pack.collection === spellCompendiumLabel);
   const spellIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
   const spellIndex = await spellCompendium.getIndex({ fields: spellIndices });
@@ -60,7 +61,7 @@ async function getSpellMap() {
 
 async function getItemMap() {
   // ddb://magicitems
-  const itemCompendiumLabel = await game.settings.get("ddb-importer", "entity-item-compendium");
+  const itemCompendiumLabel = await utils.getSetting<string>("entity-item-compendium");
   const itemCompendium = await game.packs.find((pack) => pack.collection === itemCompendiumLabel);
   const itemIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
   const itemIndex = await itemCompendium.getIndex({ fields: itemIndices });

@@ -196,7 +196,7 @@ async function updateDDBSpellSlotsPact(actor) {
 
 async function spellSlotsPact(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-slots")) resolve();
+    if (!utils.getSetting<boolean>("sync-policy-spells-slots")) resolve();
     if (
       actor.system.spells.pact.max > 0
       && ddbCharacter.data.character.system.spells.pact.value !== actor.system.spells.pact.value
@@ -229,7 +229,7 @@ async function updateDynamicDDBSpellSlots(actor, update) {
 
 async function spellSlots(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-slots")) resolve();
+    if (!utils.getSetting<boolean>("sync-policy-spells-slots")) resolve();
 
     const spellSlotData = { spellslots: {}, update: false };
     for (let i = 1; i <= 9; i++) {
@@ -265,7 +265,7 @@ async function updateDDBCurrency(actor) {
 
 async function currency(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")) resolve({});
+    if (!utils.getSetting<boolean>("sync-policy-currency")) resolve({});
 
     const value = {
       pp: Number.isInteger(actor.system.currency.pp) ? actor.system.currency.pp : 0,
@@ -323,7 +323,7 @@ async function updateDDBXP(actor) {
 
 async function xp(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-xp")) resolve();
+    if (!utils.getSetting<boolean>("sync-policy-xp")) resolve();
     const same = ddbCharacter.data.character.system.details.xp.value === actor.system.details.xp.value;
 
     if (!same) {
@@ -359,7 +359,7 @@ async function updateTempMaxDDBHitPoints(actor) {
 
 
 async function hitPoints(actor, ddbCharacter) {
-  if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitpoints")) return [];
+  if (!utils.getSetting<boolean>("sync-policy-hitpoints")) return [];
   const promises = [];
   const same
     = ddbCharacter.data.character.system.attributes.hp.value === (actor.system.attributes.hp.value ?? 0)
@@ -389,7 +389,7 @@ async function updateDDBInspiration(actor) {
 
 async function inspiration(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-inspiration")) resolve();
+    if (!utils.getSetting<boolean>("sync-policy-inspiration")) resolve();
     const same = ddbCharacter.data.character.system.attributes.inspiration === actor.system.attributes.inspiration;
 
     if (!same) {
@@ -418,7 +418,7 @@ async function updateDDBExhaustion(actor) {
 
 async function exhaustion(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition")) resolve({});
+    if (!utils.getSetting<boolean>("sync-policy-condition")) resolve({});
     const same = ddbCharacter.data.character.system.attributes.exhaustion === actor.system.attributes.exhaustion;
 
     if (!same) {
@@ -445,7 +445,7 @@ async function updateDDBCondition(actor, condition) {
 
 async function conditions(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-condition")) resolve([]);
+    if (!utils.getSetting<boolean>("sync-policy-condition")) resolve([]);
     const conditions = getActorConditionStates(actor, ddbCharacter.source.ddb);
     const results = [];
     conditions.forEach((condition) => {
@@ -470,7 +470,7 @@ async function updateDDBDeathSaves(actor) {
 
 async function deathSaves(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (game.settings.get(SETTINGS.MODULE_ID, "sync-policy-deathsaves")) {
+    if (utils.getSetting<boolean>("sync-policy-deathsaves")) {
       const same = isEqual(ddbCharacter.data.character.system.attributes.death, actor.system.attributes.death);
       if (!same) {
         resolve(updateDDBDeathSaves(actor));
@@ -500,7 +500,7 @@ async function updateDDBHitDice(actor, klass, update) {
 
 async function hitDice(actor, ddbCharacter) {
   return new Promise((resolve) => {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-hitdice")) resolve();
+    if (!utils.getSetting<boolean>("sync-policy-hitdice")) resolve();
 
     const ddbClasses = ddbCharacter.data.classes;
 
@@ -566,7 +566,7 @@ async function updateDDBSpellsPrepared(actor, spells) {
 }
 
 async function spellsPrepared(actor, ddbCharacter) {
-  if (!game.settings.get(SETTINGS.MODULE_ID, "sync-policy-spells-prepared")) return [];
+  if (!utils.getSetting<boolean>("sync-policy-spells-prepared")) return [];
   const ddbSpells = ddbCharacter.data.spells;
 
   const preparedSpells = actor.items.filter((item) => {
@@ -828,7 +828,7 @@ async function addDDBEquipment(actor, itemsToAdd) {
 
 async function addEquipment(actor, ddbCharacter, partyContext: any = null) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
-  if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
+  if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
 
   const items = getFoundryItems(actor);
@@ -902,7 +902,7 @@ async function updateDDBCustomNames(actor, items) {
 // updates names of items and actions
 async function updateCustomNames(actor, ddbCharacter) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
-  if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
+  if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
 
   const foundryItems = getFoundryItems(actor);
@@ -954,7 +954,7 @@ async function moveDDBEquipment(actor, moves) {
 
 async function removeEquipment(actor, ddbCharacter, partyContext: any = null) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
-  if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
+  if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   const ddbItems = ddbCharacter.data.inventory;
   const actorItems = getFoundryItems(actor).filter((item) =>
     foundry.utils.getProperty(item, "flags.ddbimporter.action") !== true
@@ -1162,7 +1162,7 @@ async function updateDDBEquipmentStatus(actor, updateItemDetails, ddbItems) {
 
 async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
   const syncItemReady = actor.flags.ddbimporter?.syncItemReady;
-  if (syncItemReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-equipment")) return [];
+  if (syncItemReady && !utils.getSetting<boolean>("sync-policy-equipment")) return [];
   // reload the actor following potential updates to equipment
   let ddbItems = ddbCharacter.source.ddb.character.inventory;
   const customDDBItems = ddbCharacter.source.ddb.character.customItems;
@@ -1257,7 +1257,7 @@ async function equipmentStatus(actor, ddbCharacter, addEquipmentResults) {
       && parseInt(item.flags.ddbimporter.containerEntityId) !== parseInt(dItem.containerEntityId),
     ));
 
-  const itemsToCurrency = game.settings.get(SETTINGS.MODULE_ID, "sync-policy-currency")
+  const itemsToCurrency = utils.getSetting<boolean>("sync-policy-currency")
     ? foundryItems.filter((item) =>
       foundry.utils.hasProperty(item, "flags.ddbimporter.id")
       && foundry.utils.hasProperty(item, "flags.ddbimporter.entityTypeId")
@@ -1316,7 +1316,7 @@ async function actionUseStatus(actor, ddbCharacter) {
   // action use disabled until feature/action parser sync
 
   const syncActionReady = actor.flags.ddbimporter?.syncActionReady;
-  if (syncActionReady && !game.settings.get(SETTINGS.MODULE_ID, "sync-policy-action-use")) return [];
+  if (syncActionReady && !utils.getSetting<boolean>("sync-policy-action-use")) return [];
 
   const ddbActions = ddbCharacter.data.actions;
 
@@ -1485,13 +1485,13 @@ async function activeUpdateActor(actor, update) {
     const actorActiveUpdate = actor.flags.ddbimporter?.activeUpdate;
 
     if (actorActiveUpdate) {
-      const syncHP = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-hitpoints");
-      const syncCurrency = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-currency");
-      const syncSpellSlots = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-spells-slots");
-      const syncInspiration = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-inspiration");
-      const syncConditions = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-condition");
-      const syncDeathSaves = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-deathsaves");
-      const syncXP = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-xp");
+      const syncHP = utils.getSetting<boolean>("dynamic-sync-policy-hitpoints");
+      const syncCurrency = utils.getSetting<boolean>("dynamic-sync-policy-currency");
+      const syncSpellSlots = utils.getSetting<boolean>("dynamic-sync-policy-spells-slots");
+      const syncInspiration = utils.getSetting<boolean>("dynamic-sync-policy-inspiration");
+      const syncConditions = utils.getSetting<boolean>("dynamic-sync-policy-condition");
+      const syncDeathSaves = utils.getSetting<boolean>("dynamic-sync-policy-deathsaves");
+      const syncXP = utils.getSetting<boolean>("dynamic-sync-policy-xp");
 
 
       if (syncHP && (update.system?.attributes?.hp?.value
@@ -1657,11 +1657,11 @@ async function activeUpdateUpdateItem(document, update) {
     } else {
       logger.debug("Preparing to sync item change to DDB...");
       const action = document.flags.ddbimporter?.action || document.type === "feat";
-      const syncEquipment = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-equipment");
+      const syncEquipment = utils.getSetting<boolean>("dynamic-sync-policy-equipment");
       // dynamic actions sync disabled
       const syncActionUse = false; // game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-action-use");
-      const syncHD = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-hitdice");
-      const syncSpellsPrepared = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-spells-prepared");
+      const syncHD = utils.getSetting<boolean>("dynamic-sync-policy-hitdice");
+      const syncSpellsPrepared = utils.getSetting<boolean>("dynamic-sync-policy-spells-prepared");
       const isDDBItem = document.flags.ddbimporter?.id;
       const customItem = document.flags.ddbimporter?.custom || false;
 
@@ -1719,7 +1719,7 @@ async function activeUpdateAddOrDeleteItem(document, state) {
   const ignore = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemUpdate") ?? false;
   if (ignore) return [];
 
-  const syncEquipment = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-equipment");
+  const syncEquipment = utils.getSetting<boolean>("dynamic-sync-policy-equipment");
   if (!syncEquipment) return [];
 
   const action = document.flags.ddbimporter?.action || ["feat", "class", "subclass", "spell", "background", "race"].includes(document.type);
@@ -1848,7 +1848,7 @@ async function activeUpdateEffectTrigger(document, state) {
   return new Promise((resolve) => {
     const promises = [];
 
-    const syncConditions = game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync-policy-condition");
+    const syncConditions = utils.getSetting<boolean>("dynamic-sync-policy-condition");
     // we check to see if this is actually an embedded item
     const parentActor = document.parent;
     const actorActiveUpdate = parentActor && parentActor.flags.ddbimporter?.activeUpdate;

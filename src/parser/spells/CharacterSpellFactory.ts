@@ -5,7 +5,7 @@ import { utils, logger, CompendiumHelper } from "../../lib/_module";
 // Import parsing functions
 import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbilityId } from "./ability";
 import DDBSpell from "./DDBSpell";
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { DDBDataUtils, DDBModifiers } from "../lib/_module";
 import type DDBCharacter from "../DDBCharacter";
 
@@ -361,9 +361,9 @@ export default class CharacterSpellFactory {
         ...playerClass.spells,
         ...(playerClass.alwaysPreparedSpells ?? []),
       ];
-      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-full-spell-list")) {
+      if (utils.getSetting<boolean>("character-update-policy-import-full-spell-list")) {
         const knownSpells = playerClass.alwaysKnownSpells ?? [];
-        const filteredAlwaysKnownSpells = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources")
+        const filteredAlwaysKnownSpells = utils.getSetting<boolean>("character-update-policy-use-active-sources")
           ? this.filterSpellsByAllowedCategories(knownSpells)
           : knownSpells;
         rawSpells.push(...filteredAlwaysKnownSpells);
@@ -371,10 +371,10 @@ export default class CharacterSpellFactory {
 
       const removeIds = [];
 
-      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-2024"))
         removeIds.push(24);
 
-      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-legacy"))
         removeIds.push(23, 26);
 
       const targetSpells = removeIds.length > 0
@@ -400,7 +400,7 @@ export default class CharacterSpellFactory {
     for (const playerClass of this.ddb.character.classSpells) {
       if (!playerClass.cantrips) continue;
       if (playerClass.cantrips.length === 0) continue;
-      if (!game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-import-all-cantrips")) continue;
+      if (!utils.getSetting<boolean>("character-update-policy-import-all-cantrips")) continue;
 
       const classInfo = this.ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
       const spellCastingAbility = getSpellCastingAbility(classInfo);
@@ -429,16 +429,16 @@ export default class CharacterSpellFactory {
         return cantrip;
       });
 
-      const filteredCantrips = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-use-active-sources")
+      const filteredCantrips = utils.getSetting<boolean>("character-update-policy-use-active-sources")
         ? this.filterSpellsByAllowedCategories(allCantrips)
         : allCantrips;
 
       const removeIds = [];
 
-      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-2024"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-2024"))
         removeIds.push(24);
 
-      if (game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-remove-legacy"))
+      if (utils.getSetting<boolean>("character-update-policy-remove-legacy"))
         removeIds.push(23, 26);
 
       const targetSpells = removeIds.length > 0

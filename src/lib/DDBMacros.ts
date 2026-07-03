@@ -79,7 +79,7 @@ export default class DDBMacros {
     if (!game.user.isGM) return false;
     // allow item use macros on items
     if (game.modules.get("midi-qol")?.active) {
-      const midiQOLSettings = game.settings.get("midi-qol", "ConfigSettings") as Record<string, any>;
+      const midiQOLSettings = utils.getSetting<Record<string, any>>("ConfigSettings", "midi-qol");
       if (!midiQOLSettings.allowUseMacro) {
         midiQOLSettings.allowUseMacro = true;
         game.settings.set("midi-qol", "ConfigSettings", midiQOLSettings);
@@ -103,7 +103,7 @@ export default class DDBMacros {
   }
 
   static async loadMacroFile(type: string, fileName: string, forceLoad = false, forceDDB = false): Promise<string> {
-    const embedMacros = game.settings.get(SETTINGS.MODULE_ID, "embed-macros");
+    const embedMacros = utils.getSetting<boolean>("embed-macros");
     logger.debug(`Getting macro for ${type} ${fileName}`);
     const fileExists = forceLoad || (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge)
       ? true

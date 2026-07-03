@@ -1,10 +1,9 @@
-import { SETTINGS } from "../../config/_module";
 import WildShape from "./ClassFeatures/Druid/Wildshape";
 import GreatWeaponMaster from "./Feats/GreatWeaponMaster";
 import ArcaneWard from "./ClassFeatures/Wizard/ArcaneWard";
 import WardingBond from "./Spells/WardingBond";
 import MightySummoner from "./ClassFeatures/Druid/MightySummoner";
-import { logger } from "../../lib/_module";
+import { logger, utils } from "../../lib/_module";
 
 // DDB Enhancers adds built in light touch automation effects
 
@@ -21,22 +20,22 @@ export default class DDBEnhancers {
   }
 
   static _loadTransformHooks() {
-    if (game.settings.get(SETTINGS.MODULE_ID, "allow-moon-druid-wildshape-enhancer"))
+    if (utils.getSetting<boolean>("allow-moon-druid-wildshape-enhancer"))
       Hooks.on("dnd5e.transformActorV2", (subject, target, delta, options) => {
         WildShape.dnd5eTransformHook(subject, target, delta, options);
       });
   }
 
   static _loadPreRollDamageV2Hooks() {
-    if (game.settings.get(SETTINGS.MODULE_ID, "allow-great-weapon-master-enhancer"))
+    if (utils.getSetting<boolean>("allow-great-weapon-master-enhancer"))
       Hooks.on("dnd5e.preRollDamageV2", (rollData, options, message) => {
         GreatWeaponMaster.dnd5ePreRollDamageV2Hook(rollData, options, message);
       });
   }
 
   static _preUpdateActorHooks() {
-    const arcaneWardHook = game.settings.get(SETTINGS.MODULE_ID, "allow-arcane-ward-enhancer");
-    const wardingBondHook = game.settings.get(SETTINGS.MODULE_ID, "allow-warding-bond-enhancer");
+    const arcaneWardHook = utils.getSetting<boolean>("allow-arcane-ward-enhancer");
+    const wardingBondHook = utils.getSetting<boolean>("allow-warding-bond-enhancer");
     if (arcaneWardHook)
       Hooks.on("preUpdateActor", async (subject, update, options, user) => {
         if (arcaneWardHook) await ArcaneWard.preUpdateActorHook(subject, update, options, user);
@@ -45,7 +44,7 @@ export default class DDBEnhancers {
   }
 
   static _activityConsumptionHooks() {
-    if (game.settings.get(SETTINGS.MODULE_ID, "allow-arcane-ward-enhancer"))
+    if (utils.getSetting<boolean>("allow-arcane-ward-enhancer"))
       Hooks.on("dnd5e.activityConsumption", async (activity, usageConfig, messageConfig, updates) => {
         await ArcaneWard.dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, updates);
       });
@@ -69,7 +68,7 @@ export default class DDBEnhancers {
       return true;
     });
 
-    if (game.settings.get(SETTINGS.MODULE_ID, "allow-mighty-summoner-enhancer")) {
+    if (utils.getSetting<boolean>("allow-mighty-summoner-enhancer")) {
       Hooks.on("dnd5e.preSummonToken", (activity, profile, tokenUpdateData, options) => {
         MightySummoner.dnd5ePreSummonTokenHook(activity, profile, tokenUpdateData, options);
         return true;

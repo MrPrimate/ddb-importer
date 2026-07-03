@@ -522,8 +522,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   getDescription({ forceFull = false, extra = "" } = {}): I5eItemDescription {
     // for now none actions probably always want the full text
-    const useCombinedSetting = game.settings.get("ddb-importer", "character-update-policy-use-combined-description");
-    const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+    const useCombinedSetting = utils.getSetting<boolean>("character-update-policy-use-combined-description");
+    const chatAdd = utils.getSetting<boolean>("add-description-to-chat");
 
     this.snippet
       = this.ddbDefinition.snippet && this.ddbDefinition.snippet !== ""

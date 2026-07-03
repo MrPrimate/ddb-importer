@@ -357,7 +357,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
     this.data.system.identified = true;
 
-    const legacyName = game.settings.get("ddb-importer", "munching-policy-legacy-postfix");
+    const legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
     if (this.isCompendiumItem && legacyName && this.legacy) {
       this.data.name += " (Legacy)";
     }
@@ -1321,7 +1321,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #getDescription(): I5eItemDescription {
     const chatSnippet = this.ddbDefinition.snippet ? this.ddbDefinition.snippet : "";
-    const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+    const chatAdd = utils.getSetting<boolean>("add-description-to-chat");
 
     const attunementText = this.ddbDefinition.canAttune && this.ddbDefinition.attunementDescription && this.ddbDefinition.attunementDescription !== ""
       ? `<div class="item-attunement"><i>(Requires attunement by a ${this.ddbDefinition.attunementDescription})</i></div>`
@@ -1901,7 +1901,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         ? description + `<p><blockquote>${this.ddbDefinition.notes}</blockquote></p>`
         : description;
 
-      const chatAdd = game.settings.get("ddb-importer", "add-description-to-chat");
+      const chatAdd = utils.getSetting<boolean>("add-description-to-chat");
       this.data.system.description = {
         value: description,
         chat: chatAdd ? this.ddbDefinition.snippet ?? "" : "",

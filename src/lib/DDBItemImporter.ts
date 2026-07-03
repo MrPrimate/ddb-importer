@@ -671,7 +671,7 @@ ${item.system.description.chat}
 
 
   async useSRDMonsterImages(): Promise<TDDBImporterDocument[]> {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-srd-monster-images")) return this.documents;
+    if (!utils.getSetting<boolean>("munching-policy-use-srd-monster-images")) return this.documents;
     await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 

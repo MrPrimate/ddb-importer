@@ -1,6 +1,5 @@
 
-import { logger, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper, postJson } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
+import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper, postJson } from "../lib/_module";
 import DDBEncounter from "./DDBEncounter";
 
 export default class DDBEncounterFactory {
@@ -21,7 +20,7 @@ export default class DDBEncounterFactory {
     const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
-    const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+    const debugJson = utils.getSetting<boolean>("debug-json");
 
     const body = {
       cobalt: cobaltCookie,

@@ -1,5 +1,4 @@
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
-import { SETTINGS } from "../../config/_module";
 
 const INDEX_COMPENDIUMS = [
   "spell",
@@ -492,8 +491,8 @@ export function parseTags(text) {
   if (matches) {
     return text.replaceAll(tagRegEx, replaceTag);
   }
-  if (game.settings.get(SETTINGS.MODULE_ID, "use-loose-srd-reference-matching")) {
-    const superLoose = game.settings.get(SETTINGS.MODULE_ID, "use-super-loose-srd-reference-matching");
+  if (utils.getSetting<boolean>("use-loose-srd-reference-matching")) {
+    const superLoose = utils.getSetting<boolean>("use-super-loose-srd-reference-matching");
     text = parseLooseRuleReferences(text, superLoose);
   }
   return text;

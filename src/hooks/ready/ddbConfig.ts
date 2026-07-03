@@ -1,6 +1,5 @@
-import { logger, FileHelper, DDBProxy, fetchJson } from "../../lib/_module";
+import { logger, FileHelper, DDBProxy, fetchJson, utils } from "../../lib/_module";
 import { fallbackDDBConfig } from "./fallbackConfig";
-import { SETTINGS } from "../../config/_module";
 import addDDBConfig from "./addDDBConfig";
 import { RULE_DATA } from "./fallbackRules";
 
@@ -30,7 +29,7 @@ async function directConfig() {
 
 async function proxyConfig() {
   const parsingApi = DDBProxy.getProxy();
-  const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
+  const debugJson = utils.getSetting<boolean>("debug-json");
 
   const url = `${parsingApi}/proxy/api/config/json`;
   const data = await fetchJson(url, {

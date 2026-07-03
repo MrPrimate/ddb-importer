@@ -471,10 +471,10 @@ export default class Iconizer {
 
   static async getDDBItemImages(items, download) {
     utils.munchNote(`Fetching DDB Item Images`, { nameField: true });
-    const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
-    const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    const downloadImages = (download) ? true : utils.getSetting<boolean>("munching-policy-download-images");
+    const remoteImages = utils.getSetting<boolean>("munching-policy-remote-images");
+    const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useDeepPaths = utils.getSetting<boolean>("use-deep-file-paths");
 
     const itemMap = items.map(async (item) => {
       const itemImage = {
@@ -542,8 +542,8 @@ export default class Iconizer {
     this.notifier(`Fetching DDB Hint Images for ${type}`, { nameField: true });
     // const downloadImages = (download) ? true : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
     // const remoteImages = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "other-image-upload-directory").replace(/^\/|\/$/g, "");
-    const useDeepPaths = game.settings.get(SETTINGS.MODULE_ID, "use-deep-file-paths");
+    const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
+    const useDeepPaths = utils.getSetting<boolean>("use-deep-file-paths");
 
     for (const item of this.documents) {
 
@@ -576,7 +576,7 @@ export default class Iconizer {
 
   static async getDDBGenericItemImages() {
     utils.munchNote(`Fetching DDB Generic Item icons`, { nameField: true });
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+    const targetDirectory = utils.getSetting<string>("persistent-storage-location").replace(/^\/|\/$/g, "");
     const pathPostfix = "/ddb/item";
 
     const itemMap = DICTIONARY.items.map(async (item) => {
@@ -602,7 +602,7 @@ export default class Iconizer {
 
   static async getDDBGenericLootImages() {
     utils.munchNote(`Fetching DDB Generic Loot icons`, { nameField: true });
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+    const targetDirectory = utils.getSetting<string>("persistent-storage-location").replace(/^\/|\/$/g, "");
     const pathPostfix = "/ddb/loot";
 
     const itemMap = DICTIONARY.genericItemIcons.map(async (item) => {
@@ -653,7 +653,7 @@ export default class Iconizer {
 
   static async getDDBSchoolSpellImages() {
     utils.munchNote(`Fetching spell school icons`, { nameField: true });
-    const targetDirectory = game.settings.get(SETTINGS.MODULE_ID, "persistent-storage-location").replace(/^\/|\/$/g, "");
+    const targetDirectory = utils.getSetting<string>("persistent-storage-location").replace(/^\/|\/$/g, "");
     const pathPostfix = "/spell/school";
 
     const schoolMap = DICTIONARY.spell.schools.map(async (school) => {

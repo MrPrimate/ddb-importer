@@ -1,7 +1,6 @@
 import logger from "./Logger";
 import utils from "./Utils";
 import DDBProxy from "./DDBProxy";
-import { SETTINGS } from "../config/_module";
 
 const FPClass = foundry.applications.apps.FilePicker.implementation;
 
@@ -209,7 +208,7 @@ export class FileHelper {
   }
 
   static async uploadFile(data, path, filename, forceWebp = false): Promise<FilePicker.UploadReturn> {
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    const useWebP = utils.getSetting<boolean>("use-webp");
     const file = new File([data], filename, { type: data.type });
     const imageType = data.type.startsWith("image") && data.type !== "image/webp";
     let uploadFile = file;
@@ -398,9 +397,9 @@ export class FileHelper {
       await FileHelper.verifyPath(parsedPath);
       await FileHelper.generateCurrentFilesFromParsedDir(parsedPath);
     }
-    const downloadImage = (download) ? download : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-download-images");
-    const remoteImage = (remoteImages) ? remoteImages : game.settings.get(SETTINGS.MODULE_ID, "munching-policy-remote-images");
-    const useWebP = game.settings.get(SETTINGS.MODULE_ID, "use-webp");
+    const downloadImage = (download) ? download : utils.getSetting<boolean>("munching-policy-download-images");
+    const remoteImage = (remoteImages) ? remoteImages : utils.getSetting<boolean>("munching-policy-remote-images");
+    const useWebP = utils.getSetting<boolean>("use-webp");
 
     if (imageUrl && downloadImage) {
       const ext = useWebP

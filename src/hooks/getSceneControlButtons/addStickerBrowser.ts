@@ -1,12 +1,11 @@
 import DDBStickerBrowser from "../../apps/DDBStickerBrowser";
-import { SETTINGS } from "../../config/_module";
-import { PatreonHelper } from "../../lib/_module";
+import { PatreonHelper, utils } from "../../lib/_module";
 
 export function addStickerBrowserControl(controls: Record<string, any>) {
   if (!game.user?.isGM) return;
   const tier = PatreonHelper.getPatreonTier();
   const tiers = PatreonHelper.calculateAccessMatrix(tier);
-  const devMode = game.settings.get(SETTINGS.MODULE_ID, "developer-mode");
+  const devMode = utils.getSetting<boolean>("developer-mode");
 
   if (!devMode && !tiers.experimentalMid) return;
 

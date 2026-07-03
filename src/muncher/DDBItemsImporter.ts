@@ -13,7 +13,6 @@ import {
   DDBSources,
   postJson,
 } from "../lib/_module";
-import { SETTINGS } from "../config/_module";
 import DDBCharacter from "../parser/DDBCharacter";
 import { ExternalAutomations } from "../effects/_module";
 import GenericSpellFactory from "../parser/spells/GenericSpellFactory";
@@ -54,9 +53,9 @@ function applyItemFilters(input, { ids, useSourceFilter, useGenerics, sources, e
   };
   // homebrew filtering
   if (sources.length === 0) {
-    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew-only")) {
+    if (utils.getSetting<boolean>("munching-policy-item-homebrew-only")) {
       data = { items: data.items.filter((item) => item.isHomebrew), spells: data.spells, extra: data.extra };
-    } else if (!game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-homebrew")) {
+    } else if (!utils.getSetting<boolean>("munching-policy-item-homebrew")) {
       data = { items: data.items.filter((item) => !item.isHomebrew), spells: data.spells, extra: data.extra };
     }
   }
@@ -175,13 +174,13 @@ export default class DDBItemsImporter {
     const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
-    const debugJson = game.settings.get(SETTINGS.MODULE_ID, "debug-json");
-    const enableSources = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-source-filter");
-    const useGenerics = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-use-generic-items");
+    const debugJson = utils.getSetting<boolean>("debug-json");
+    const enableSources = utils.getSetting<boolean>("munching-policy-use-source-filter");
+    const useGenerics = utils.getSetting<boolean>("munching-policy-use-generic-items");
     // explicit sourcesOverride (e.g. from the native adventure importer) wins over the setting
     const sources = sourcesOverride ?? (enableSources ? DDBSources.getSelectedSourceIds() : []);
     const effectiveUseSourceFilter = sourcesOverride !== null ? true : useSourceFilter;
-    const exactMatch = game.settings.get(SETTINGS.MODULE_ID, "munching-policy-item-exact-match");
+    const exactMatch = utils.getSetting<boolean>("munching-policy-item-exact-match");
     return {
       cobaltCookie, campaignId, parsingApi, betaKey, debugJson,
       useGenerics, sources, exactMatch,

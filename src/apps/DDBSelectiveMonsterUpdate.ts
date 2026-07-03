@@ -210,7 +210,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     const actorUpdate = foundry.utils.duplicate(sourceActor);
     delete actorUpdate.items;
 
-    const updateImages = game.settings.get("ddb-importer", "munching-policy-update-world-monster-update-images");
+    const updateImages = utils.getSetting<boolean>("munching-policy-update-world-monster-update-images");
     if (!updateImages) {
       actorUpdate.img = targetActor.img;
       actorUpdate.prototypeToken.texture = targetActor.prototypeToken.texture;
@@ -221,7 +221,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
       actorUpdate.prototypeToken.ring = targetActor.prototypeToken.ring;
     }
 
-    const retainBiography = game.settings.get("ddb-importer", "munching-policy-update-world-monster-retain-biography");
+    const retainBiography = utils.getSetting<boolean>("munching-policy-update-world-monster-retain-biography");
     if (retainBiography) {
       actorUpdate.system.details.biography = targetActor.system.details.biography;
     }

@@ -741,7 +741,7 @@ export default class DDBEffectHelper {
    * @returns {string} The image URL for the token.
    */
   static async getTokenImage(token) {
-    const midiConfigSettings = game.settings.get("midi-qol", "ConfigSettings");
+    const midiConfigSettings = utils.getSetting<Record<string, any>>("ConfigSettings", "midi-qol");
     let img = token.document?.texture?.src ?? token.actor.img ?? "";
     if (midiConfigSettings.usePlayerPortrait && token.actor.type === "character") {
       img = token.actor?.img ?? token.document?.texture?.src ?? "";

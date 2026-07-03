@@ -1,8 +1,8 @@
 
 import DDBCharacter from "../DDBCharacter";
-import { logger, CompendiumHelper } from "../../lib/_module";
+import { logger, utils, CompendiumHelper } from "../../lib/_module";
 import GenericSpellFactory from "../spells/GenericSpellFactory";
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import DDBItem from "../item/DDBItem";
 
 
@@ -26,7 +26,7 @@ DDBCharacter.prototype.getInventory = async function getInventory(this: DDBChara
   const isCompendiumItem = foundry.utils.getProperty(this.raw.character, "flags.ddbimporter.compendium") as boolean ?? false;
   const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
 
-  const discardMissingContainerItems = game.settings.get(SETTINGS.MODULE_ID, "character-import-policy-ignore-items-with-non-existing-containers");
+  const discardMissingContainerItems = utils.getSetting<boolean>("character-import-policy-ignore-items-with-non-existing-containers");
   await DDBItem.prepareSpellCompendiumIndex();
   let i = 0;
   const length = this.source.ddb.character.inventory.length;

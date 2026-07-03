@@ -3,7 +3,7 @@ import { createAndShowPlayerHandout } from "./shared";
 
 export function showReadAlouds(html, data) {
   if (!game.user.isGM) return;
-  const displayImages = game.settings.get("ddb-importer", "show-read-alouds-button");
+  const displayImages = utils.getSetting<boolean>("show-read-alouds-button");
   if (!displayImages) return;
 
   // mark all read alouds

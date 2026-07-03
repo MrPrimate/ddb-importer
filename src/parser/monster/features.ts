@@ -1,5 +1,4 @@
-import { logger } from "../../lib/_module";
-import { SETTINGS } from "../../config/_module";
+import { logger, utils } from "../../lib/_module";
 import DDBMonster from "../DDBMonster";
 import { DDBReferenceLinker } from "../lib/_module";
 
@@ -20,7 +19,7 @@ DDBMonster.prototype._generateFeatures = async function (this: DDBMonster) {
   if (this.source.legendaryActionsDescription != "") {
     await this.featureFactory.generateActions(this.source.legendaryActionsDescription, "legendary");
     this.npc.system.resources["legact"] = this.featureFactory.resources["legendary"];
-    if (game.settings.get(SETTINGS.MODULE_ID, "munching-policy-monster-set-legendary-resource-bar")) {
+    if (utils.getSetting<boolean>("munching-policy-monster-set-legendary-resource-bar")) {
       this.npc.prototypeToken.bar2 = { attribute: "resources.legact" };
     }
   }

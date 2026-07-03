@@ -3,7 +3,6 @@ import { logger, utils, Iconizer, DDBSources, fetchJson } from "../../lib/_modul
 import { generateAdventureConfig } from "../adventure";
 import AdventureMunch from "./AdventureMunch";
 import { PageFinder } from "./PageFinder";
-import { SETTINGS } from "../../config/_module";
 import MonsterReplacer from "../../apps/MonsterReplacer";
 
 const MR_PRIMATES_THIRD_PARTY_REPO = "MrPrimate/ddb-third-party-scenes";
@@ -90,7 +89,7 @@ export default class ThirdPartyMunch extends FormApplication {
         logger.debug(`${key}: ${value}`);
         packages.push(value);
       }
-      const partialScenes = game.settings.get(SETTINGS.MODULE_ID, "third-party-scenes-partial");
+      const partialScenes = utils.getSetting<boolean>("third-party-scenes-partial");
       packages = packages
         .filter((p) => p.released || partialScenes)
         .sort((a, b) => a.name.localeCompare(b.last_nom));
@@ -340,7 +339,7 @@ export default class ThirdPartyMunch extends FormApplication {
     const journalNotes = game.journal.filter((journal) => journal?.flags?.ddb?.bookCode === scene.flags.ddb.bookCode);
     this.adventureMunch.adventure = foundry.utils.deepClone(adventure);
 
-    const noJournalPinNotes = game.settings.get(SETTINGS.MODULE_ID, "third-party-scenes-notes-merged");
+    const noJournalPinNotes = utils.getSetting<boolean>("third-party-scenes-notes-merged");
 
     const notes = await Promise.all([scene]
       .filter((scene) => scene.flags?.ddb?.notes)

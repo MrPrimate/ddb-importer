@@ -77,7 +77,7 @@ DDBCharacter.prototype._generateHitPoints = function _generateHitPoints(this: DD
     value: maxHitPoints + tempMaxHitPoints - removedHitPoints,
     max: overrideHitPoints !== 0
       ? overrideHitPoints
-      : rolledHP && game.settings.get("ddb-importer", "character-update-policy-use-hp-max-for-rolled-hp")
+      : rolledHP && utils.getSetting<boolean>("character-update-policy-use-hp-max-for-rolled-hp")
         ? maxHitPoints
         : null,
     temp: temporaryHitPoints ?? 0,

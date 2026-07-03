@@ -42,7 +42,7 @@ export default async () => {
     }
 
     // check version number only for GMs
-    const coreCheck = game.settings.get("ddb-importer", "update-check");
+    const coreCheck = utils.getSetting<boolean>("update-check");
     if (!coreCheck) return;
     const { minimumCoreVersion, minimumSystemVersion } = await getCompatibility();
     const { latestVersion, prerelease: preRelease } = await getLatestModuleVersion();

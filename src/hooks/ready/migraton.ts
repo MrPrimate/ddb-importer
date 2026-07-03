@@ -1,4 +1,5 @@
 import logger from "../../lib/Logger";
+import { utils } from "../../lib/_module";
 import { migrateJournalsToDDBSheet } from "./migration/migration_5_6_0_journals";
 
 const SCHEMA_VERSION = "6.5.0";
@@ -26,7 +27,7 @@ export async function migration() {
     return;
   }
 
-  const dataVersion = game.settings.get("ddb-importer", "data-version");
+  const dataVersion = utils.getSetting<string>("data-version");
   if (foundry.utils.isNewerVersion("6.5.0", dataVersion)) {
     logger.info("Migrating DDB Journal Data");
     await migrateJournalsToDDBSheet(false);

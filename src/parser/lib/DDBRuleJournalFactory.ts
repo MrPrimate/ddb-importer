@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { CompendiumHelper, DDBSources, logger, utils } from "../../lib/_module";
 import { DDBDataUtils } from "./_module";
 
@@ -136,7 +136,7 @@ const WEAPON_PROPERTIES = {
 // ];
 
 function getAllowedSourceIds() {
-  return game.settings.get(SETTINGS.MODULE_ID, "allowed-weapon-property-sources").map((id) => parseInt(id));
+  return utils.getSetting<string[]>("allowed-weapon-property-sources").map((id) => parseInt(id));
 }
 
 export default class DDBRuleJournalFactory {
@@ -184,7 +184,7 @@ export default class DDBRuleJournalFactory {
 
     this.sources = sources;
     this.filteredSources = sources.filter((s) =>
-      game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules")
+      utils.getSetting<boolean>("use-basic-rules")
       || !DICTIONARY.sourceCategories.basicRules.includes(s.id),
     );
 
@@ -441,7 +441,7 @@ export default class DDBRuleJournalFactory {
   }
 
   static async registerWeaponIds() {
-    const addExtraBaseWeapons = game.settings.get(SETTINGS.MODULE_ID, "add-extra-base-weapons");
+    const addExtraBaseWeapons = utils.getSetting<boolean>("add-extra-base-weapons");
     if (!addExtraBaseWeapons) return;
     const allowedSourceIds = getAllowedSourceIds();
     const sources = DDBRuleJournalFactory.getSources();

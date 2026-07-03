@@ -1,4 +1,4 @@
-import { SETTINGS, DICTIONARY } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import DDBMonster, { IMonsterSpellEdgeCase } from "../DDBMonster";
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 
@@ -280,7 +280,7 @@ DDBMonster.prototype._generateSpells = function(this: DDBMonster) {
  * @returns {<Item[]>} A list of spells objects that were found.
  */
 DDBMonster.prototype.retrieveCompendiumSpells = async function(this: DDBMonster, spells) {
-  const compendiumName = await game.settings.get(SETTINGS.MODULE_ID, "entity-spell-compendium");
+  const compendiumName = await utils.getSetting<string>("entity-spell-compendium");
   const compendiumSpells = await CompendiumHelper.retrieveMatchingCompendiumItems(spells, compendiumName, {
     "system.source.rules": this.use2024Spells ? "2024" : "2014",
   });

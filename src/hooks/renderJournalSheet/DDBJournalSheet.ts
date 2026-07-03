@@ -144,7 +144,7 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
 
     if (!game.user.isGM) return;
 
-    if (game.settings.get("ddb-importer", "show-image-to-players")) this._linkImages();
+    if (utils.getSetting<boolean>("show-image-to-players")) this._linkImages();
     await this.linkTables();
   }
 }

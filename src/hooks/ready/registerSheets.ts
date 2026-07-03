@@ -1,6 +1,6 @@
 import DDBCookie from "../../apps/DDBCookie";
 import DDBCharacterManager from "../../apps/DDBCharacterManager";
-import { logger, Secrets } from "../../lib/_module";
+import { logger, Secrets, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
 import { DDBAdventureFlags } from "../../apps/DDBAdventureFlags";
 import DDBPartySync from "../../apps/DDBPartySync";
@@ -158,7 +158,7 @@ function getGroupButton(document) {
 
 
 function handlePCHeaderButton(config, buttons, label = true) {
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
     class: "ddb-open-url",
@@ -168,7 +168,7 @@ function handlePCHeaderButton(config, buttons, label = true) {
 }
 
 function handleNPCHeaderButton(config, buttons, label = true) {
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
     class: "ddb-open-url",
@@ -183,8 +183,8 @@ function createActorHeaderButtons(config, buttons, label = true) {
 
   if (!isCharacterSheet && !isNpcSheet) return;
 
-  if (!game.settings.get("ddb-importer", "character-link-title") && isCharacterSheet) return;
-  if (!game.settings.get("ddb-importer", "monster-link-title") && isNpcSheet) return;
+  if (!utils.getSetting<boolean>("character-link-title") && isCharacterSheet) return;
+  if (!utils.getSetting<boolean>("monster-link-title") && isNpcSheet) return;
 
   if (isCharacterSheet) {
     handlePCHeaderButton(config, buttons, label);
@@ -195,7 +195,7 @@ function createActorHeaderButtons(config, buttons, label = true) {
 }
 
 function handlePCHeaderButtonV2(config, buttons, label = true) {
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   config.options.actions["ddbclick"] = characterButtonClickV2;
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
@@ -206,7 +206,7 @@ function handlePCHeaderButtonV2(config, buttons, label = true) {
 }
 
 function handleNPCHeaderButtonV2(config, buttons, label = true) {
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   config.options.actions["ddbclick"] = npcButtonClickV2;
   buttons.unshift({
     label: label ? `DDB Importer` : undefined,
@@ -217,7 +217,7 @@ function handleNPCHeaderButtonV2(config, buttons, label = true) {
 }
 
 function handleGroupHeaderButtonV2(config, buttons, label = true) {
-  const whiteTitle = (game.settings.get("ddb-importer", "link-title-colour-white")) ? " white" : "";
+  const whiteTitle = (utils.getSetting<boolean>("link-title-colour-white")) ? " white" : "";
   config.options.actions["ddbpartysync"] = groupButtonClickV2;
   buttons.unshift({
     label: label ? `DDB Party Sync` : undefined,
@@ -299,9 +299,9 @@ function tidySheets() {
     const html = `<div class="ddbCharacterName"></div>`;
 
     const enabled = (data) => {
-      const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
-      const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
-      const titleLink = game.settings.get("ddb-importer", "character-link-title");
+      const trustedUsersOnly = utils.getSetting<boolean>("restrict-to-trusted");
+      const allowAllSync = utils.getSetting<boolean>("allow-all-sync");
+      const titleLink = utils.getSetting<boolean>("character-link-title");
       const onlyTrustedUser = !allowAllSync && trustedUsersOnly && !game.user.isTrusted;
       return (data.owner || onlyTrustedUser) && !titleLink;
     };
@@ -402,10 +402,10 @@ export default function () {
     .map((sheetClass) => sheetClass.cls)
     .map((sheet) => sheet.name);
 
-  const trustedUsersOnly = game.settings.get("ddb-importer", "restrict-to-trusted");
-  const allowAllSync = game.settings.get("ddb-importer", "allow-all-sync");
-  const characterLink = game.settings.get("ddb-importer", "character-link-title");
-  const monsterLink = game.settings.get("ddb-importer", "monster-link-title");
+  const trustedUsersOnly = utils.getSetting<boolean>("restrict-to-trusted");
+  const allowAllSync = utils.getSetting<boolean>("allow-all-sync");
+  const characterLink = utils.getSetting<boolean>("character-link-title");
+  const monsterLink = utils.getSetting<boolean>("monster-link-title");
 
   // const buttonText = characterLink
   //   ? `<a class="ddb-open-url" title="DDB Importer"><i class="fab fa-d-and-d-beyond${whiteTitle}"></i></a>`

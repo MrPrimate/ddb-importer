@@ -66,7 +66,7 @@ export default class DDBSources {
   }
 
   static getAdjustedSourceBook(sourceBook) {
-    const useBasicRules = game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules");
+    const useBasicRules = utils.getSetting<boolean>("use-basic-rules");
     if (!useBasicRules && ["free-rules", "br-2024", "BR-2024"].includes(sourceBook)) {
       return "PHB 2024";
     } else if (!useBasicRules && sourceBook === "BR") {
@@ -91,7 +91,7 @@ export default class DDBSources {
     } else if (source.book === "br-2024") {
       source.book = "BR-2024";
     }
-    if (game.settings.get(SETTINGS.MODULE_ID, "no-source-book-pages"))
+    if (utils.getSetting<boolean>("no-source-book-pages"))
       source.page = "";
   }
 
@@ -232,14 +232,14 @@ export default class DDBSources {
   }
 
   static addSourcesHook() {
-    if (!game.settings.get(SETTINGS.MODULE_ID, "register-source-books")) return;
+    if (!utils.getSetting<boolean>("register-source-books")) return;
 
     const ddbRaw: IDDBConfigSource[] = foundry.utils.getProperty(CONFIG, "DDB.sources") as IDDBConfigSource[];
     if (!ddbRaw) return;
 
     const sources = {};
     const validSources = ddbRaw.filter((s) => s.isReleased
-      && (game.settings.get(SETTINGS.MODULE_ID, "use-basic-rules")
+      && (utils.getSetting<boolean>("use-basic-rules")
         || !DICTIONARY.sourceCategories.basicRules.includes(s.id)),
     ).map((s) => {
       if (s.name === "br-2024") s.name = "BR-2024";

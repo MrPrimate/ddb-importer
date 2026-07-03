@@ -1,4 +1,4 @@
-import { DICTIONARY, SETTINGS } from "../../config/_module";
+import { DICTIONARY } from "../../config/_module";
 import { DDBSources, utils } from "../../lib/_module";
 import { DDBRuleJournalFactory } from "../../parser/lib/_module";
 import SpellListFactory from "../../parser/spells/SpellListFactory";
@@ -43,7 +43,7 @@ function filterLanguages(languages) {
 }
 
 function addLanguages() {
-  if (!game.settings.get(SETTINGS.MODULE_ID, "add-ddb-languages")) return;
+  if (!utils.getSetting<boolean>("add-ddb-languages")) return;
   const ddbRaw = foundry.utils.getProperty(CONFIG, "DDB.languages");
   if (!ddbRaw) return;
 

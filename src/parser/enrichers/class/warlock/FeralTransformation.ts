@@ -1,3 +1,4 @@
+import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class FeralTransformation extends DDBEnricherData {
@@ -38,7 +39,7 @@ export default class FeralTransformation extends DDBEnricherData {
               ],
               "transformTokens": true,
             },
-            profiles: this.is2014 || game.settings.get("ddb-importer", "adventure-policy-use2024-monsters")
+            profiles: this.is2014 || utils.getSetting<boolean>("adventure-policy-use2024-monsters")
               ? [
                 {
                   "name": "Giant Spider#16895",

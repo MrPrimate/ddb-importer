@@ -277,21 +277,21 @@ export default async function () {
   // SETTING TWEAKS AND MIGRATIONS
   await createFolderPaths();
 
-  if (game.user.isGM && game.settings.get(SETTINGS.MODULE_ID, "cobalt-cookie-local")
+  if (game.user.isGM && utils.getSetting<boolean>("cobalt-cookie-local")
     && utils.getSetting<string>("cobalt-cookie") != "") {
     game.settings.set(SETTINGS.MODULE_ID, "cobalt-cookie-local", false);
   }
 
   const currentDynamicSyncUser = utils.getSetting<string>("dynamic-sync-user");
   if (currentDynamicSyncUser !== "" && !game.users.some((i) => i.isGM && i.id === currentDynamicSyncUser)) {
-    if (game.settings.get(SETTINGS.MODULE_ID, "dynamic-sync")) {
+    if (utils.getSetting<boolean>("dynamic-sync")) {
       await game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", game.user.id);
     } else {
       await game.settings.set(SETTINGS.MODULE_ID, "dynamic-sync-user", "");
     }
   }
 
-  if (game.settings.get(SETTINGS.MODULE_ID, "developer-mode")) {
+  if (utils.getSetting<boolean>("developer-mode")) {
     CONFIG.DDBI.DEV.enabled = true;
   }
 

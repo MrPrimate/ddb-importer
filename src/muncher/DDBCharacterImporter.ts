@@ -92,25 +92,25 @@ export default class DDBCharacterImporter {
     let itemTypes = ["background", "race"];
 
     if (invert) {
-      if (!game.settings.get("ddb-importer", "character-update-policy-class")) {
+      if (!utils.getSetting<boolean>("character-update-policy-class")) {
         itemTypes.push("class");
         itemTypes.push("subclass");
       }
-      if (!game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
-      if (!game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
-      if (!game.settings.get("ddb-importer", "character-update-policy-equipment"))
+      if (!utils.getSetting<boolean>("character-update-policy-feat")) itemTypes.push("feat");
+      if (!utils.getSetting<boolean>("character-update-policy-weapon")) itemTypes.push("weapon");
+      if (!utils.getSetting<boolean>("character-update-policy-equipment"))
         itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
-      if (!game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
+      if (!utils.getSetting<boolean>("character-update-policy-spell")) itemTypes.push("spell");
     } else {
-      if (game.settings.get("ddb-importer", "character-update-policy-class")) {
+      if (utils.getSetting<boolean>("character-update-policy-class")) {
         itemTypes.push("class");
         itemTypes.push("subclass");
       }
-      if (game.settings.get("ddb-importer", "character-update-policy-feat")) itemTypes.push("feat");
-      if (game.settings.get("ddb-importer", "character-update-policy-weapon")) itemTypes.push("weapon");
-      if (game.settings.get("ddb-importer", "character-update-policy-equipment"))
+      if (utils.getSetting<boolean>("character-update-policy-feat")) itemTypes.push("feat");
+      if (utils.getSetting<boolean>("character-update-policy-weapon")) itemTypes.push("weapon");
+      if (utils.getSetting<boolean>("character-update-policy-equipment"))
         itemTypes = itemTypes.concat(DICTIONARY.types.equipment);
-      if (game.settings.get("ddb-importer", "character-update-policy-spell")) itemTypes.push("spell");
+      if (utils.getSetting<boolean>("character-update-policy-spell")) itemTypes.push("spell");
     }
     return itemTypes;
   }
@@ -602,7 +602,7 @@ ${item.system.description.chat}
     this.notifier("Clearing items for recreation...");
     await this.clearItemsByUserSelection();
 
-    const spellsAsActivities = game.settings.get(SETTINGS.MODULE_ID, "spells-on-items-as-activities");
+    const spellsAsActivities = utils.getSetting<boolean>("spells-on-items-as-activities");
     // If there is no magicitems module fall back to importing the magic
     // item spells as normal spells fo the character
     if (!spellsAsActivities) {
@@ -857,7 +857,7 @@ ${item.system.description.chat}
       useChrisPremades: utils.getSetting<boolean>("character-update-policy-use-chris-premades")
         && (game.modules.get("chris-premades")?.active ?? false),
       midiConfig: game.modules.get("midi-qol")?.active
-        ? foundry.utils.deepClone(game.settings.get("midi-qol", "ConfigSettings"))
+        ? foundry.utils.deepClone(utils.getSetting<Record<string, any>>("ConfigSettings", "midi-qol"))
         : null,
     };
   }
@@ -1108,7 +1108,7 @@ ${item.system.description.chat}
       this.ddbCharacter = new DDBCharacter(ddbCharacterOptions);
       await this.ddbCharacter.getCharacterData(getOptions);
       logger.debug("import.js getCharacterData result", this.ddbCharacter);
-      if (game.settings.get("ddb-importer", "debug-json")) {
+      if (utils.getSetting<boolean>("debug-json")) {
         FileHelper.download(JSON.stringify(this.ddbCharacter.source), `${derivedCharacterId}.json`, "application/json");
       }
       if (this.ddbCharacter.source?.success) {
@@ -1164,7 +1164,7 @@ ${item.system.description.chat}
       await ddbCharacter.process();
 
       logger.debug("import.js importCharacter getCharacterData result", ddbCharacter.source);
-      if (game.settings.get("ddb-importer", "debug-json")) {
+      if (utils.getSetting<boolean>("debug-json")) {
         FileHelper.download(JSON.stringify(ddbCharacter.source), `${characterId}.json`, "application/json");
       }
       if (ddbCharacter.source.success) {

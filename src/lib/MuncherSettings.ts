@@ -109,7 +109,7 @@ const MuncherSettings = {
 
     const effectModulesAvailable = SystemHelpers.effectModules();
     const chrisInstalled = effectModulesAvailable.chrisInstalled;
-    const generateMidiEffects = game.settings.get(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects");
+    const generateMidiEffects = utils.getSetting<boolean>("character-update-policy-add-midi-effects");
     if (generateMidiEffects && !effectModulesAvailable.hasCore) {
       game.settings.set(SETTINGS.MODULE_ID, "character-update-policy-add-midi-effects", false);
     }
