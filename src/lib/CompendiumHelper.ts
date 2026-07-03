@@ -59,9 +59,12 @@ const CompendiumHelper = {
   ],
 
   getCompendiumLabel: (type): string => {
-    const compendiumName = CompendiumHelper.LOOKUP.find((c) => c.type == type).compendium;
-    const compendiumLabel = utils.getSetting<string>(compendiumName);
-    return compendiumLabel;
+    const lookup = CompendiumHelper.LOOKUP.find((c) => c.type === type);
+    if (!lookup) {
+      logger.error(`No compendium mapping exists for type "${type}"`);
+      throw new Error(`No DDB Importer compendium mapping exists for type "${type}"`);
+    }
+    return utils.getSetting<string>(lookup.compendium);
   },
 
   getCompendium: (label, fail = true) => {
@@ -83,25 +86,17 @@ const CompendiumHelper = {
   getCompendiumType: (type, fail = true): CompendiumCollection.Any | undefined => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     logger.debug(`Getting compendium ${compendiumLabel} for update of ${type}`);
-    const compendium = CompendiumHelper.getCompendium(compendiumLabel, false);
-    if (compendium) {
-      return compendium;
-    } else {
-      if (fail) {
-        logger.error(`Unable to find compendium ${compendiumLabel} for ${type} documents`);
-        ui.notifications.error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Core Settings > Compendiums"`);
-        throw new Error(`Unable to open the Compendium ${compendiumLabel}. Check the compendium exists and is set in "Module Settings > DDB Importer > Core Settings > Compendiums"`);
-      } else {
-        logger.info(`Unable to open compendium, skipping compendium ${compendiumLabel} for ${type} integration`);
-      }
-      return undefined;
+    const compendium = CompendiumHelper.getCompendium(compendiumLabel, fail);
+    if (!compendium) {
+      logger.info(`Unable to open compendium, skipping compendium ${compendiumLabel} for ${type} integration`);
     }
+    return compendium;
   },
 
   loadCompendiumIndex: async (type, indexOptions = {}) => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     foundry.utils.setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
-    const compendium = await CompendiumHelper.getCompendium(compendiumLabel);
+    const compendium = CompendiumHelper.getCompendium(compendiumLabel);
 
     if (compendium) {
       const index = await compendium.getIndex(indexOptions);

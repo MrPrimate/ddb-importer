@@ -12,14 +12,13 @@ export async function calculatePrice(rarity, consumable = false) {
 
 // Function to update item prices
 export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepExistingDDBPrices = true, compendiumName = null } = {}) {
-  const packName = compendiumName ?? (await CompendiumHelper.getCompendiumLabel("equipment"));
-  const pack = CompendiumHelper.getCompendium(packName);
-  pack.configure({ locked: false });
-
+  const packName = compendiumName ?? CompendiumHelper.getCompendiumLabel("equipment");
+  const pack = CompendiumHelper.getCompendium(packName, false);
   if (!pack) {
     logger.error("Compendium not found:", packName);
     return [];
   }
+  pack.configure({ locked: false });
 
   const items = (await pack.getIndex({
     fields: [
