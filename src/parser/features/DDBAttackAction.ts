@@ -20,7 +20,7 @@ export default class DDBAttackAction extends DDBAction {
 
   async build() {
     try {
-      if (this.ddbData.isMartialArts) {
+      if (this.ddbDefinition.isMartialArts) {
         foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.type", "Martial Arts");
       };
       if (this.is2014 && DDBAction.SKIPPED_2014_ONLY_ACTIONS.includes(this.originalName)) {

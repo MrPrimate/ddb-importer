@@ -1,21 +1,47 @@
 import { logger } from "../../lib/_module";
+import type DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
 import DDBBasicActivity from "./DDBBasicActivity";
 
+interface IDDBMonsterFeatureActivity {
+  type?: IDDBActivityType;
+  name?: string | null;
+  ddbParent?: DDBMonsterFeature;
+  nameIdPrefix?: string | null;
+  nameIdPostfix?: string | null;
+  id?: string | null;
+  foundryFeature?: I5eMonsterItem | null;
+  actor?: I5eMonsterData | null;
+}
+
+interface IDDBMonsterFeatureActivityCreate {
+  document?: any;
+  type: IDDBActivityType;
+  name?: string | null;
+  character?: any;
+  enricher?: any;
+  nameIdPostfix?: string | null;
+}
+
+
 export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
+
+  declare ddbParent: DDBMonsterFeature;
+
+  actionData: IDDBMonsterActionData;
 
   _init() {
     logger.debug(`Generating DDBMonsterFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
   }
 
-  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null, foundryFeature = null, actor = null }: IDDBMonsterFeatureActivity) {
     super({
       type,
       name,
       ddbParent,
-      foundryFeature: ddbParent.data,
+      foundryFeature: foundryFeature ?? ddbParent.data,
       nameIdPrefix,
       nameIdPostfix,
-      actor: ddbParent.ddbMonster.npc,
+      actor: actor ?? ddbParent.ddbMonster.npc,
       id,
     });
 
@@ -70,7 +96,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   _generateDescription() {
     this.data.description = {
-      chatFlavor: this.foundryFeature.system?.chatFlavor ?? "",
+      chatFlavor: (foundry.utils.getProperty(this.foundryFeature, "system.chatFlavor") as string) ?? "",
     };
   }
 
@@ -84,7 +110,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
   }
 
   _generateRange() {
-    this.data.range = this.actionData.range;
+    this.data.range = this.actionData.range as unknown as I5eActivityRange;
   }
 
   _generateTarget() {
@@ -133,7 +159,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
     // }
   }
 
-  _generateHealing({ part = null } = {}) {
+  _generateHealing({ part = null }: { part?: any; healingPart?: any; healingChatFlavor?: string | null } = {}) {
     const healing = part
       ? part
       : this.actionData.healingParts.length > 0
@@ -329,7 +355,9 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   }
 
-  static createActivity({ document, type, name, character } = {}, options = {}) {
+  static async createActivity({ document, type, name, character }: IDDBMonsterFeatureActivityCreate,
+    options: IDDBItemActivityBuild = {},
+  ): Promise<string> {
     const activity = new DDBMonsterFeatureActivity({
       name: name ?? null,
       type,

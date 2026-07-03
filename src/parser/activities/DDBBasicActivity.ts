@@ -12,7 +12,7 @@ export default class DDBBasicActivity {
   nameIdPrefix: string;
   nameIdPostfix: string;
   id: string | null;
-  data: I5eActivity;
+  data: IActivityData;
   actor: I5ePCData | I5eMonsterData | null;
   // this is one of the implementations of DDBActivityFactoryMixin
   ddbParent: DDBActivityFactoryMixin | null;
@@ -684,7 +684,6 @@ export default class DDBBasicActivity {
       foundryFeature: foundryData,
     });
 
-    // @ts-expect-error - we know the type is enchant and this property exist
     activity.data.restrictions = {
       type: "",
       allowMagical: true,

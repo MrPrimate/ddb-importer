@@ -347,20 +347,31 @@ global {
     | I5eForwardActivity
     | I5eTransformActivity;
 
-  // interface IActivityData extends I5eActivityBase {
-  //   spell?: I5eActivitySpell;
-  //   restrictions?: I5eActivityRestrictions;
-  //   settings?: I5eActivitySettings;
-  //   activity?: I5eActivityActivity;
-  //   attack?: I5eActivityAttack;
-  //   damage?: I5eActivityDamage;
-  //   healing?: Partial<I5eDamagePart>;
-  //   roll?: I5eActivityRoll;
-  //   enchant?: I5eActivityEnchant;
-  //   creatureSizes?: string[];
-  //   macro?: IDDBActivityMacro;
-  //   save?: I5eActivitySave;
-  //   check?: I5eActivityCheck;
-  // }
+  /**
+   * The wide shape used by the DDB activity builder classes, which assemble an
+   * arbitrary combination of parts before the data is stored as one of the
+   * I5eActivity union members.
+   */
+  interface IActivityData extends I5eActivityBase {
+    spell?: I5eActivitySpell;
+    restrictions?: I5eActivityRestrictions;
+    settings?: I5eActivitySettings;
+    activity?: I5eActivityActivity;
+    attack?: I5eActivityAttack;
+    damage?: I5eActivityDamage;
+    healing?: Partial<I5eDamagePart>;
+    roll?: I5eActivityRoll;
+    enchant?: I5eActivityEnchant;
+    creatureSizes?: TActorSizes[];
+    creatureTypes?: TCreatureTypes[];
+    bonuses?: I5eSummonsBonuses;
+    match?: I5eSummonsMatch;
+    profiles?: I5eSummonProfile[];
+    summon?: I5eActivitiesSummon;
+    transform?: I5eActivityTransform;
+    macro?: IDDBActivityMacro;
+    save?: I5eActivitySave;
+    check?: I5eActivityCheck;
+  }
 }
 

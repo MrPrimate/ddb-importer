@@ -58,7 +58,8 @@ global {
 
     // --- Healing ---
     healingChatFlavor?: string | null;
-    healingPart?: I5eDamagePart;
+    /** either a raw damage part, or the parser's wrapper carrying the part plus chat flavor */
+    healingPart?: I5eDamagePart | { part?: I5eDamagePart; chatFlavor?: string | null };
 
     // --- Roll ---
     rollOverride?: I5eActivityRoll;

@@ -10,6 +10,23 @@ global {
     componentId?: number | null;
   }
 
+  /**
+   * Definitions that have action payload data merged onto them by the parser
+   * (class features, racial traits and feats backed by a DDB action). Read by
+   * the activity builders in src/parser/activities/DDBFeatureActivity.ts.
+   */
+  interface IDDBActionBackedDefinition extends IDDBCommonDefinition {
+    range?: IDDBActionRange | null;
+    fixedSaveDc?: number | null;
+    abilityModifierStatId?: number | null;
+    saveStatId?: number | null;
+    actionType?: number | null;
+    attackSubtype?: number | null;
+    attackTypeRange?: number | null;
+    isMartialArts?: boolean;
+    rangeId?: number | null;
+  }
+
   interface IDDBDamageDice {
     diceCount: number;
     diceValue: number;

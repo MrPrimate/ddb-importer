@@ -69,5 +69,7 @@ global {
     consumptionValue: string | number | null;
     consumptionTargets: I5eConsumptionTarget[];
     weaponType?: TWeaponType;
+    associatedToolsOrAbilities?: string[];
+    ability?: string;
   }
 }

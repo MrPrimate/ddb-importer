@@ -4,7 +4,9 @@ import DDBBasicActivity from "./DDBBasicActivity";
 import type DDBFeature from "../features/DDBFeature";
 import { DDBDescriptions } from "../lib/_module";
 
-type TDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition;
+// these definitions arrive with action payload data merged on, so intersect
+// with the action-backed shape for the fields the activity builders read
+type TDefinitions = (IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition) & IDDBActionBackedDefinition;
 
 interface IDDBFeatureActivity {
   name?: string;
@@ -183,7 +185,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     this.data.duration = {
       value: duration.value,
-      units: duration.units,
+      units: duration.units as TDurationUnit,
       special: duration.special,
     };
   }
@@ -380,7 +382,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       };
     }
 
-    this.data.target = data;
+    this.data.target = data as unknown as I5eActivityTarget;
 
   }
 
@@ -415,7 +417,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     // }
   }
 
-  _generateHealing({ part = null } = {}) {
+  _generateHealing({ part = null }: { part?: any; healingPart?: any; healingChatFlavor?: string | null } = {}) {
     if (part) {
       this.data.healing = part;
       return;
@@ -500,7 +502,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       type = "ranged";
     }
 
-    const bonus = (this.ddbParent.getBonusDamage) ? this.ddbParent.getBonusDamage() : "";
+    const bonusParent = this.ddbParent as { getBonusDamage?: () => string | number };
+    const bonus = bonusParent.getBonusDamage ? bonusParent.getBonusDamage() : "";
 
     const attack = {
       ability: this.ddbParent.getActionAttackAbility(),
@@ -519,7 +522,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     };
 
     if (this.ddbDefinition.isMartialArts) {
-      this.ddbParent.data.system.properties = utils.addToProperties(this.ddbParent.data.system.properties, "fin");
+      const systemData = this.ddbParent.data.system as { properties?: string[] };
+      systemData.properties = utils.addToProperties(systemData.properties, "fin");
     }
 
     this.data.attack = attack;
@@ -676,8 +680,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       includeBaseDamage,
       criticalDamage,
       damageScalingOverride,
-      healingPart: healingPart?.part ?? healingPart ?? null,
-      healingChatFlavor: healingPart?.chatFlavor ?? null,
+      healingPart: (healingPart as { part?: I5eDamagePart } | null)?.part ?? healingPart ?? null,
+      healingChatFlavor: (healingPart as { chatFlavor?: string | null } | null)?.chatFlavor ?? null,
       damageParts,
     });
 

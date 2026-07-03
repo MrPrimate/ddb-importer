@@ -2,7 +2,9 @@ export {};
 
 global {
 
-  type TDDBFeatureMixinDefinitions = IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition;
+  // action payload data is merged onto these definitions by the parser, so
+  // intersect with the action-backed shape for the fields feature parsing reads
+  type TDDBFeatureMixinDefinitions = (IDDBClassFeatureDefinition | IDDBRacialTraitDefinition | IDDBFeatDefinition | IDDBBackgroundDefinition) & IDDBActionBackedDefinition;
 
   type TDDBFeatureMixinFeatures = IDDBClassFeature | IDDBRacialTrait | IDDBFeat | IDDBBackground;
 
