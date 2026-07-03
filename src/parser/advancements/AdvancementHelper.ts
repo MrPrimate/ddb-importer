@@ -36,6 +36,8 @@ interface ISpellAdvancementChoice {
 
 interface IParsedSpellAdvancementData {
   spellListCantripChoice: string | null;
+  spellListCantripChoiceNum?: number | string | null;
+  spellListChoiceReplace?: boolean;
   cantripChoices: string[];
   cantripGrants: string[];
   spellGrants: ISpellAdvancementGrant[];
@@ -88,11 +90,30 @@ interface IAdvancementGetterSpellGrantAdvancement {
   spellData?: I5eSpellItem[];
 }
 
+interface IAdvancementGetterSpellChoiceAdvancement {
+  spellChoice: ISpellAdvancementChoice;
+  abilities?: string[];
+  hint?: string;
+  name: string;
+  spellLinks: TSpellLinks;
+  method?: "innate" | "spell" | "pact";
+  requireSlot?: boolean;
+  prepared?: TPreparedValue;
+  level?: number | string;
+  is2024: boolean;
+  spellData?: I5eSpellItem[];
+  choiceLevel?: number | string;
+  choices?: string[];
+  allowReplacements?: boolean;
+  count?: number;
+}
+
 export default class AdvancementHelper {
   isMuncher: boolean;
   ddbData: IDDBData;
   type: string;
   isSubclass: boolean;
+  dictionary: { multiclassSkill: number; multiclassTool: number };
 
   constructor({ ddbData, type, dictionary = null, isMuncher = false, isSubclass = false }) {
     this.ddbData = ddbData;
@@ -105,9 +126,11 @@ export default class AdvancementHelper {
     this.isSubclass = isSubclass;
   }
 
-  static createAdvancement<T>(AdvancementClass: new () => T): T {
+  // the dnd5e AssignmentType-derived updateSource parameter types collapse to
+  // unusable shapes (e.g. `identifier?: null`), so expose a looser overload
+  static createAdvancement<T>(AdvancementClass: new () => T): T & { updateSource: (data: Record<string, unknown>) => void } {
     try {
-      return new AdvancementWrapper(AdvancementClass) as unknown as T;
+      return new AdvancementWrapper(AdvancementClass) as unknown as T & { updateSource: (data: Record<string, unknown>) => void };
     } catch (error) {
       logger.error("Error creating advancement:", {
         AdvancementClass,
@@ -652,7 +675,7 @@ export default class AdvancementHelper {
     }).filter((t) => t !== null);
 
     const count = this.isMuncher && availableToMulticlass && baseProficiency
-      ? this.dictionary.multiclassTools
+      ? this.dictionary.multiclassTool
       : parsedTools.number > 0 || parsedTools.grants.length > 0
         ? parsedTools.number > 0
           ? parsedTools.number
@@ -1192,7 +1215,7 @@ export default class AdvancementHelper {
     if (!("scale" in advancement.configuration)) return advancement;
     advancement.title += ` (Die)`;
     for (const key of Object.keys(advancement.configuration.scale)) {
-      advancement.configuration.scale[key].number = 1;
+      (advancement.configuration.scale[key] as I5eAdvScaleValueDiceEntry).number = 1;
     }
     return advancement;
   }
@@ -1233,7 +1256,7 @@ export default class AdvancementHelper {
     const scaleValue: I5eAdvancement = AdvancementHelper.convertToSingularDie(foundry.utils.duplicate(advancement) as I5eAdvancement);
 
     scaleValue._id = foundry.utils.randomID();
-    foundry.utils.setProperty(scaleValue, `configuration.identifier`, `${advancement.configuration.identifier}-die`);
+    foundry.utils.setProperty(scaleValue, `configuration.identifier`, `${foundry.utils.getProperty(advancement, "configuration.identifier")}-die`);
 
     return scaleValue;
   }
@@ -1733,9 +1756,9 @@ export default class AdvancementHelper {
           ?? toolString.match(finalChoiceRegex);
         if (toolChoiceMatch) {
           isChoice = true;
-          const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural)
+          const numberTools = DICTIONARY.numbers.find((num) => toolChoiceMatch[1].toLowerCase() === num.natural)?.num
             ?? parseInt(toolChoiceMatch[1]);
-          parsedTools.number = numberTools ? numberTools.num : 1;
+          parsedTools.number = Number.isInteger(numberTools) ? numberTools : 1;
           toolChoiceMatch[2].split(" or ").forEach((toolGroupMatch) => {
             const toolGroup = AdvancementHelper.getToolGroup(toolGroupMatch.trim());
             if (toolGroup) {
@@ -2324,13 +2347,13 @@ export default class AdvancementHelper {
     }
 
     const noMaterialSearch = new RegExp(/no material component|without requiring material component/);
-    const noMaterialMatch = noMaterialSearch.test(this.strippedHtml);
+    const noMaterialMatch = noMaterialSearch.test(description);
     if (noMaterialMatch) {
       properties.add("material");
     }
 
     const noConcentrationSearch = new RegExp(/no concentration|no material components or concentration|no spell components or concentration/);
-    const noConcentrationMatch = noConcentrationSearch.test(this.strippedHtml);
+    const noConcentrationMatch = noConcentrationSearch.test(description);
     if (noConcentrationMatch) {
       result.concentration = false;
       properties.add("concentration");
@@ -2343,7 +2366,7 @@ export default class AdvancementHelper {
 
 
   static parseHTMLSpellAdvancementDataForTraits(description: string) {
-    const result = {
+    const result: IParsedSpellAdvancementData = {
       spellListCantripChoice: null,
       spellListCantripChoiceNum: null,
       spellListChoiceReplace: false,
@@ -2660,7 +2683,7 @@ export default class AdvancementHelper {
     pTags.forEach((pTag) => {
       const textContent = pTag.textContent.trim().replace(".", "");
       if (textContent.toLowerCase() === species.toLowerCase()) {
-        result = AdvancementHelper.parseHTMLSpellAdvancementData(pTag.parentNode.innerHTML); ;
+        result = AdvancementHelper.parseHTMLSpellAdvancementData((pTag.parentNode as HTMLElement).innerHTML); ;
       }
     });
     return result || AdvancementHelper.parseHTMLSpellAdvancementData(description);
@@ -2850,7 +2873,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
             if (damageMapping) {
               const type = AdvancementHelper.CONDITION_MAPPING[conditionKind];
               const valueData = foundry.utils.hasProperty(damageMapping, "foundryValues")
-                ? foundry.utils.getProperty(damageMapping, "foundryValues")
+                ? foundry.utils.getProperty(damageMapping, "foundryValues") as { value: string | string[]; midiValues?: string[] }
                 : foundry.utils.hasProperty(damageMapping, "foundryValue")
                   ? { value: damageMapping.foundryValue }
                   : undefined;
@@ -3048,7 +3071,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     const uuids = [];
     for (const spell of names) {
       const spellDataMatch = spellData.find((s) => {
-        const spellName = foundry.utils.getProperty(s, "flags.ddbimporter.originalName") || s.name;
+        const spellName = (foundry.utils.getProperty(s, "flags.ddbimporter.originalName") as string) || s.name;
         return spellName.toLowerCase() === spell.toLowerCase() && foundry.utils.hasProperty(s, "_stats.compendiumSource");
       });
       if (spellDataMatch) {
@@ -3139,7 +3162,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     spellChoice, abilities = [], hint = "", name, spellLinks, method = "innate",
     requireSlot = false, prepared = CONFIG.DND5E.spellPreparationStates.always.value,
     level, choiceLevel = 0, choices = [], is2024, allowReplacements = false, count = 1, spellData = [],
-  } = {}) {
+  }: IAdvancementGetterSpellChoiceAdvancement) {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.ItemChoiceAdvancement);
     const spellListChoice = spellChoice.spellList || null;
 
@@ -3166,14 +3189,14 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
     if (allowReplacements) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(level) < parseInt(choiceLevel)) continue;
+        if (parseInt(String(level)) < parseInt(String(choiceLevel))) continue;
         foundry.utils.setProperty(levelChoices, `${level}.replacement`, true);
       }
     }
 
     advancement.updateSource({
       title: name,
-      level: level ? parseInt(level) : parseInt(spellChoice.level),
+      level: level ? parseInt(String(level)) : parseInt(String(spellChoice.level)),
       configuration: {
         allowDrops: true,
         pool: uuids.map((s) => {
@@ -3181,7 +3204,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         }),
         choices: levelChoices,
         restriction: {
-          level: level ? parseInt(level) : (parseInt(spellChoice.level) ?? null),
+          level: level ? parseInt(String(level)) : (parseInt(String(spellChoice.level)) ?? null),
           type: "spell",
           list: spellListChoice ? [`class:${spellListChoice}`] : [],
         },
@@ -3358,6 +3381,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       spellData,
     });
 
+    const parsedCount = parseInt(String(htmlData.spellListCantripChoiceNum));
     const cantripChoiceAdvancement = await AdvancementHelper.getCantripChoiceAdvancement({
       choices: htmlData.cantripChoices,
       abilities: abilityData.abilities,
@@ -3366,7 +3390,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       spellListChoice: htmlData.spellListCantripChoice,
       spellLinks: ddbParser.spellLinks,
       is2024: use2024Spells,
-      count: htmlData.spellListCantripChoiceNum ?? 1,
+      count: Number.isInteger(parsedCount) ? parsedCount : 1,
       allowReplacements: htmlData.spellListChoiceReplace,
       spellData,
     });
@@ -3446,10 +3470,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           spellOverride,
         });
 
-        const uses = {
+        const uses: I5eSystemLimitedUses = {
           spent: 0,
           max: spellGrant.amount,
-          recovery: spellGrant.amount === "" ? [] : [{ period: "lr", type: "recoverAll" }],
+          recovery: spellGrant.amount === "" ? [] : [{ period: "lr" as TLimitedUsePeriod, type: "recoverAll" }],
         };
 
         if (isItemConsume) {
@@ -3460,7 +3484,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         if (advancementsOnlyForLimitedUses) {
           logger.debug(`Not adding spell activity for ${spellGrant.name} to feature ${feature.name} as advancementOnlyForLimitedUses is true`);
         } else {
-          feature.system.activities[activity.data._id] = activity.data;
+          feature.system.activities[activity.data._id] = activity.data as I5eActivity;
           ddbParser.spellsGranted[type].push({ feature: feature.name, spells: [spellGrant.name], use2024Spells });
           logger.debug(`Added spell activity for ${spellGrant.name} to feature ${feature.name}`);
         }

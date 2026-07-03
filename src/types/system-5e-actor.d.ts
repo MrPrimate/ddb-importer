@@ -513,6 +513,7 @@ global {
     items?: I5eAdvItemGrantItem[];
     optional?: boolean;
     spell?: Record<string, any> | null;
+    type?: string | null;
   }
   interface I5eAdvancementItemGrant extends I5eAdvancementBase {
     type?: "ItemGrant";
@@ -567,6 +568,7 @@ global {
     type?: string;
     subtype?: string;
     list?: string[];
+    level?: number | string | null;
   }
   interface I5eAdvItemChoiceConfig {
     choices?: Record<string, I5eAdvItemChoiceLevelConfig>;
