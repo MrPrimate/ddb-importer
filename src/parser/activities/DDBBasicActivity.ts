@@ -12,7 +12,7 @@ export default class DDBBasicActivity {
   nameIdPrefix: string;
   nameIdPostfix: string;
   id: string | null;
-  data: IActivityData;
+  data: I5eActivity;
   actor: I5ePCData | I5eMonsterData | null;
   // this is one of the implementations of DDBActivityFactoryMixin
   ddbParent: DDBActivityFactoryMixin | null;
@@ -684,10 +684,12 @@ export default class DDBBasicActivity {
       foundryFeature: foundryData,
     });
 
-    activity.data.restrictions = {
-      type: "",
-      allowMagical: true,
-    };
+    if ("restrictions" in activity.data) {
+      activity.data.restrictions = {
+        type: "",
+        allowMagical: true,
+      };
+    }
 
     const enchantmentEffect = Effects.EnchantmentEffects.EnchantmentEffect(foundryData, label, {
       origin: document.uuid,

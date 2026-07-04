@@ -227,10 +227,18 @@ global {
   }
 
   interface I5eSummonProfile {
-    _id: string;
-    name: string;
-    uuid: string;
-    count: null;
+    _id?: string;
+    name?: string;
+    uuid?: string;
+    count?: string | null;
+    cr?: string;
+    level?: {
+      min?: number | null;
+      max?: number | null;
+    };
+    sizes?: TActorSizes[];
+    types?: TCreatureTypes[];
+    movement?: TMovementTypes[];
   }
 
   interface I5eSummonActivity extends I5eActivityBase {
