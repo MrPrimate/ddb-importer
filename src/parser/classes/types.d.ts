@@ -8,6 +8,7 @@ global {
     functionArgs?: Record<string, unknown>;
     additionalAdvancements?: boolean;
     additionalFunctions?: TDDBFixFunction[];
+    fixFunctions?: { fn: TDDBFixFunction; args?: Record<string, unknown> }[];
   }>;
 
   interface IDBClassPendingClassDocument {

@@ -123,7 +123,7 @@ export default class DDBDataUtils {
             }
           }
         }
-        if (activity.damage && damageBonus) {
+        if ("damage" in activity && damageBonus) {
           const part = SystemHelpers.buildDamagePart({ damageString: damageBonus });
           activity.damage.parts.push(part);
         }

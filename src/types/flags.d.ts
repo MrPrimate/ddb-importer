@@ -268,6 +268,10 @@ global {
     componentTypeId?: number;
     compendiumId?: string;
 
+    // Class spellcasting hints
+    spellSlotDivisor?: number;
+    spellCastingAbility?: string;
+
     // Naming
     originalName?: string;
     name?: string;

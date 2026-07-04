@@ -622,8 +622,8 @@ export default abstract class DDBBaseClass {
     const featureName = utils.nameString(feature.name);
     const findFeatures = (excludeFlags = {}, looseMatch = true) => {
       const results = this._compendiums.features.index.filter((match) => {
-        const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta") as object
-          ?? foundry.utils.getProperty(match, "flags.ddbimporter") as object;
+        const matchFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta") as IDDBImporterFlags
+          ?? foundry.utils.getProperty(match, "flags.ddbimporter") as IDDBImporterFlags;
         if (!matchFlags) return false;
         const matchName: string = (foundry.utils.getProperty(matchFlags, "originalName") as string)?.trim()
           // @ts-expect-error - this always exists
@@ -708,10 +708,10 @@ export default abstract class DDBBaseClass {
     const smallName = featName.trim().toLowerCase();
     return this._compendiums.feats.index.find((match) =>
       ((foundry.utils.hasProperty(match, "flags.ddbimporter.originalName")
-        && smallName == match.flags.ddbimporter.originalName.trim().toLowerCase())
+        && smallName == (foundry.utils.getProperty(match, "flags.ddbimporter.originalName") as string).trim().toLowerCase())
         || (!foundry.utils.hasProperty(match, "flags.ddbimporter.originalName")
-          && (smallName == match.name.trim().toLowerCase()
-          || smallName.split(":")[0].trim() == match.name.trim().toLowerCase()))
+          && (smallName == (match.name as string).trim().toLowerCase()
+          || smallName.split(":")[0].trim() == (match.name as string).trim().toLowerCase()))
       ),
     );
   }
@@ -776,7 +776,7 @@ export default abstract class DDBBaseClass {
       advancement.updateSource(update as any);
       this.featureAdvancements.push(advancement.toObject() as I5eAdvancement);
     } else {
-      this.featureAdvancements[levelAdvancement].configuration.items.push({ uuid: featureMatch.uuid, optional: false });
+      (this.featureAdvancements[levelAdvancement].configuration as I5eAdvItemGrantConfig).items.push({ uuid: featureMatch.uuid, optional: false });
       this._advancementMatches.features[this.featureAdvancements[levelAdvancement]._id][featureMatch.name] = featureMatch.uuid;
     }
 
@@ -884,7 +884,7 @@ export default abstract class DDBBaseClass {
         },
         choices: configChoices,
         type: "feat",
-        pool: Array.from(uuids).map((f) => {
+        pool: Array.from(uuids as Set<string>).map((f) => {
           return { uuid: f };
         }),
         allowDrops: true,
@@ -951,12 +951,12 @@ export default abstract class DDBBaseClass {
 
   _generateScaleValueAdvancementsFromFeatures() {
     const specialFeatures: I5eAdvancement[] = [];
-    const advancements: I5eAdvancement[] = this.classFeatures
+    const advancements: I5eAdvancement[] = (this.classFeatures
       .filter((feature) => feature.levelScales?.length > 0)
       .filter((feature) => !this.NOT_ADVANCEMENT_FOR_FEATURE.includes(feature.name))
       .map((feature) => {
         let advancement = AdvancementHelper.generateScaleValueAdvancement(feature);
-        const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement.title];
+        const specialLookup = this.SPECIAL_ADVANCEMENTS[advancement.title as string];
         if (specialLookup) {
           if (specialLookup.additionalAdvancements) {
             specialLookup.additionalFunctions.forEach((fn) => {
@@ -974,9 +974,9 @@ export default abstract class DDBBaseClass {
         }
         return advancement;
       }).filter((a) =>
-        (this.is2014 && !this.NO_ADVANCEMENT_2014.includes(a.configuration?.identifier))
-        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes(a.configuration?.identifier)),
-      );
+        (this.is2014 && !this.NO_ADVANCEMENT_2014.includes((a.configuration as I5eAdvConfig)?.identifier))
+        || (!this.is2014 && !this.NO_ADVANCEMENT_2024.includes((a.configuration as I5eAdvConfig)?.identifier)),
+      )) as unknown as I5eAdvancement[];
 
     this._addAdvancements(advancements);
     this._addAdvancements(specialFeatures);
@@ -1201,7 +1201,9 @@ export default abstract class DDBBaseClass {
         // });
         if (skillAdvancement && languageAdvancement && skillAdvancement.configuration.choices.length > 0) {
           const advancement = skillAdvancement.toObject() as I5eAdvancement;
-          advancement.configuration.choices[0].pool.push(...languageAdvancement.toObject().configuration.choices[0].pool);
+          const advChoices = (advancement.configuration as I5eAdvTraitConfig).choices;
+          const languageChoices = (languageAdvancement.toObject().configuration as I5eAdvTraitConfig).choices;
+          advChoices[0].pool.push(...languageChoices[0].pool);
           advancements.push(advancement);
         } else {
           logger.error(`Failed Skill or Lanugage Advancement Generation`, {
@@ -1405,7 +1407,7 @@ export default abstract class DDBBaseClass {
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
         k.name === this.name
-        && k.type === "class",
+        && foundry.utils.getProperty(k, "type") === "class",
       );
       if (!klassMatch) continue;
       const foundryKlass: I5eClassItem = await pack.getDocument(klassMatch._id) as any;
@@ -1480,6 +1482,7 @@ export default abstract class DDBBaseClass {
 
     for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (!FIGHTING_STYLE_FEATURES.includes(advancement.title)) continue;
+      const advConfig = advancement.configuration as I5eAdvItemChoiceConfig;
       const flags = {
         "flags.ddbimporter.is2014": this.is2014,
         "flags.ddbimporter.is2024": this.is2024,
@@ -1490,10 +1493,10 @@ export default abstract class DDBBaseClass {
           return foundry.utils.getProperty(i, key) === value;
         });
       }).map((i) => i.uuid);
-      advancement.configuration.pool = feats.map((f) => {
+      advConfig.pool = feats.map((f) => {
         return { uuid: f };
       });
-      advancement.configuration.restriction.subType = "fightingStyle";
+      advConfig.restriction.subtype = "fightingStyle";
 
       let lowestLevel = 1;
       const description = feature.description ?? feature.snippet ?? "";
@@ -1504,23 +1507,23 @@ export default abstract class DDBBaseClass {
         lowestLevel = 7;
         this.configChoices[advancement.title] ??= { 7: { count: 1, replacement: true } };
       }
-      advancement.configuration.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancement.title]);
+      advConfig.choices = AdvancementHelper.getChoiceReplacements(description, lowestLevel, this.configChoices[advancement.title]);
 
       if (this.data.name === "Paladin") {
         const special = this._compendiums.features.find((c) =>
-          c.name.includes("Blessed Warrior")
+          (c.name as string).includes("Blessed Warrior")
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
         if (special) {
-          advancement.configuration.pool.push({ uuid: special.uuid });
+          advConfig.pool.push({ uuid: special.uuid });
         }
       } else if (this.data.name === "Ranger") {
         const special = this._compendiums.features.find((c) =>
-          c.name.includes("Druidic Warrior")
+          (c.name as string).includes("Druidic Warrior")
           && foundry.utils.getProperty(c, "flags.ddbimporter.is2024") === true,
         );
         if (special) {
-          advancement.configuration.pool.push({ uuid: special.uuid });
+          advConfig.pool.push({ uuid: special.uuid });
         }
       }
       this.data.system.advancement[id] = advancement;

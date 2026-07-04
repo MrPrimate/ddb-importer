@@ -959,8 +959,8 @@ export default class DDBRace {
 
     const findTraits = (excludeFlags = {}, looseMatch = true, choiceMatch = false) => {
       const results = this._compendiums.traits.index.filter((match) => {
-        const matchFlags: IDDBImporterFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta") as any
-          ?? foundry.utils.getProperty(match, "flags.ddbimporter") as any;
+        const matchFlags: IDDBImporterFlags = foundry.utils.getProperty(match, "flags.ddbimporter.featureMeta") as IDDBImporterFlags
+          ?? foundry.utils.getProperty(match, "flags.ddbimporter") as IDDBImporterFlags;
         if (!matchFlags) return false;
         const matchName = (foundry.utils.getProperty(matchFlags, "originalName") as string)?.trim()
           ?? (match.name as string)?.trim();

@@ -414,6 +414,9 @@ global {
     moreDetailsUrl: string;
     prerequisite: string | null;
     summary: string | null;
+    snippet?: string | null;
+    /** injected by class feature merging for scale value advancements */
+    levelScales?: IDDBClassFeatureLevelScale[];
     featuresSectionType: number | null;
   }
 

@@ -1323,7 +1323,7 @@ export default class AdvancementHelper {
 
     advancement.updateSource(update);
 
-    return advancement.toObject();
+    return advancement.toObject() as unknown as I5eAdvancement;
   }
 
   static parseHTMLSaves(description) {
