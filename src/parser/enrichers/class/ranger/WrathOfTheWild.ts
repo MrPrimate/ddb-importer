@@ -95,7 +95,7 @@ export default class WrathOfTheWild extends DDBEnricherData {
         activityMatch: "Take Ghastly Form",
         options: {
           durationSeconds: 60,
-          expiryType: "turnStart",
+          expiry: "turnStart",
         },
         daeSpecialDurations: ["turnStartSource"],
         data: {

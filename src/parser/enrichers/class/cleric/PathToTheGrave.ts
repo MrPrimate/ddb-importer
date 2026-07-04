@@ -26,7 +26,7 @@ export default class PathToTheGrave extends DDBEnricherData {
         name: "Cursed",
         options: {
           durationSeconds: 6,
-          expiryType: "turnStart",
+          expiry: "turnStart",
         },
         daeSpecialDurations: ["turnStartSource"],
         changes: DICTIONARY.actor.abilities.map((ability) => DDBEnricherData.ChangeHelper.addChange(`${CONFIG.Dice.D20Roll.ADV_MODE.DISADVANTAGE}`, 20, `system.abilities.${ability.value}.save.roll.mode`)),

@@ -121,7 +121,7 @@ export default class ElementalExhalation extends DDBEnricherData {
         name: "Coldfire Fear",
         options: {
           durationSeconds: 6,
-          expire: "turnStart",
+          expiry: "turnStart",
         },
         daeSpecialDurations: ["turnStartSource"],
         activityMatch: "Coldfire",
@@ -130,7 +130,7 @@ export default class ElementalExhalation extends DDBEnricherData {
         name: "Earth Slowed",
         options: {
           durationSeconds: 6,
-          expire: "turnEnd",
+          expiry: "turnEnd",
         },
         daeSpecialDurations: ["turnEnd"],
         activityMatch: "Earth",
@@ -139,7 +139,7 @@ export default class ElementalExhalation extends DDBEnricherData {
         name: "Fire Engulfed",
         options: {
           durationSeconds: 6,
-          expire: "turnEnd",
+          expiry: "turnEnd",
         },
         daeSpecialDurations: ["turnEnd"],
         activityMatch: "Fire",

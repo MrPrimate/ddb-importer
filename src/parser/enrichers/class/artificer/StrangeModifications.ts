@@ -67,7 +67,8 @@ export default class StrangeModifications extends DDBEnricherData {
         activityMatch: "Strange Modification: Ferocity",
         data: {
           duration: {
-            seconds: null,
+            value: null,
+            units: null,
           },
         },
       },

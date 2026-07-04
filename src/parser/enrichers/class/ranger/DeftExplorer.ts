@@ -44,7 +44,7 @@ export default class DeftExplorer extends DDBEnricherData {
         ],
         options: {
           transfer: true,
-          enabled: !this.ddbParser.isMuncher && this.ddbParser._class.level >= 6,
+          disabled: this.ddbParser.isMuncher || this.ddbParser._class.level < 6,
         },
         data: {
           flags: {

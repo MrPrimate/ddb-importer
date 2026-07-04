@@ -249,6 +249,7 @@ export default class EerieToken extends DDBEnricherData {
         "ddbimporter": {
           "is2014": this.is2014,
           "is2024": this.is2024,
+          // @ts-expect-error - don't care
           "trait": "Eerie Token",
           "species": "Hexblood",
         },

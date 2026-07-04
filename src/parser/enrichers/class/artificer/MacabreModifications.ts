@@ -167,7 +167,8 @@ export default class MacabreModifications extends DDBEnricherData {
         activityMatch: "Macabre Modification: Gaunt",
         data: {
           duration: {
-            seconds: null,
+            value: null,
+            units: null,
           },
         },
       },
@@ -188,7 +189,8 @@ export default class MacabreModifications extends DDBEnricherData {
         activityMatch: "Macabre Modification: Gaunt Save",
         data: {
           duration: {
-            seconds: null,
+            value: null,
+            units: null,
           },
         },
       },

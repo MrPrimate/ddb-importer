@@ -19,14 +19,14 @@ export async function stormSphereEffect(document) {
       type: "custom",
       value:
         "turn=end,label=Storm Sphere (End of Turn),damageRoll=(@item.level - 2)d6,damageType=bludgeoning,saveRemove=false,saveDC=@attributes.spell.dc,saveAbility=str,saveDamage=nodamage,killAnim=true",
-      priority: "20",
+      priority: 20,
     },
   );
   await DDBMacros.setItemMacroFlag(document, "spell", "stormSphere.js");
   effect.flags["ActiveAuras"] = {
     isAura: true,
     aura: "All",
-    radius: 20,
+    radius: "20",
     alignment: "",
     type: "",
     ignoreSelf: false,
