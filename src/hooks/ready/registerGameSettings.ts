@@ -81,6 +81,7 @@ export interface IDDBIConfig {
   ignoreEnrichedImages?: boolean;
   keyPostfix?: string;
   useLocal?: boolean;
+  EXTRA_IMAGES?: Record<string, Record<string, any>> | null;
   monsterURL?: string;
   version?: string;
   NO_MULTIATTACK?: string[];

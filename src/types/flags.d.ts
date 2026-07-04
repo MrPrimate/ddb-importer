@@ -197,7 +197,7 @@ global {
     version?: number;
     folder?: string;
     name?: string;
-    changes?: { key: string; value: string; mode: number }[];
+    changes?: { key: string; value: string; mode?: number }[];
   }
 
   interface IDDBImporterFlagsEffect {

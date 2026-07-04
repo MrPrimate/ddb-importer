@@ -116,9 +116,9 @@ export default class DDBCompanionFactory {
 
   static MULTI_2024 = DICTIONARY.companions.MULTI_COMPANIONS_2024;
 
-  async #buildCompanion(block, options = {}) {
+  async #buildCompanion(block: HTMLElement, options: IDDBCompanionMixinOptions = {}) {
     logger.debug("Beginning companion parse", { block });
-    const finalOverrides = {
+    const finalOverrides: IDDBCompanionMixinOptions = {
       rules: this.is2014 ? "2014" : "2024",
       type: this.options.type,
       folderHint: this.options.folderHint,
@@ -182,10 +182,10 @@ export default class DDBCompanionFactory {
       // console.warn("Processing Companion", { name, block });
       if (name && name in DDBCompanionFactory.MULTI_2014) {
         for (const subType of DDBCompanionFactory.MULTI_2014[name]) {
-          await this.#buildCompanion(block, { name, subType });
+          await this.#buildCompanion(block as HTMLElement, { name, subType });
         }
       } else {
-        await this.#buildCompanion(block, { name, subType: null });
+        await this.#buildCompanion(block as HTMLElement, { name, subType: null });
       }
 
     }
@@ -212,10 +212,10 @@ export default class DDBCompanionFactory {
 
       if (name && name in DDBCompanionFactory.MULTI_2024) {
         for (const subType of DDBCompanionFactory.MULTI_2024[name]) {
-          await this.#buildCompanion(block, { name, subType });
+          await this.#buildCompanion(block as HTMLElement, { name, subType });
         }
       } else {
-        await this.#buildCompanion(block, { name, subType: null });
+        await this.#buildCompanion(block as HTMLElement, { name, subType: null });
       }
 
     }

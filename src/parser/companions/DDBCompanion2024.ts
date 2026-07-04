@@ -2,7 +2,10 @@ import DDBCompanionMixin from "./DDBCompanionMixin";
 
 export default class DDBCompanion2024 extends DDBCompanionMixin {
 
-  constructor(block, options = {}) {
+  headerTag: HTMLElement | null;
+  infoTag: HTMLElement | null;
+
+  constructor(block: HTMLElement, options: IDDBCompanionMixinOptions = {}) {
     super(block, options);
 
     this.headerTag = this.block.querySelector("h4, h5");
@@ -10,10 +13,10 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
 
     // If the h4 tag is found, get the next sibling element
     if (this.headerTag) {
-      const nextSibling = this.headerTag.nextElementSibling;
+      const nextSibling = this.headerTag.nextElementSibling as HTMLElement | null;
 
       // If the next sibling is a p tag, return its text content
-      if (nextSibling.tagName === "P") {
+      if (nextSibling && nextSibling.tagName === "P") {
         this.infoTag = nextSibling;
       }
     }
@@ -30,7 +33,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     const tables = this.block.querySelectorAll("tbody");
 
     // Initialize an object to store the ability scores
-    const abilityScores = {};
+    const abilityScores: Record<string, { score: string; mod: string; save: string }> = {};
 
     // Loop through each table
     tables.forEach((table) => {
@@ -72,7 +75,7 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
     }
   }
 
-  _extractValue(match) {
+  _extractValue(match: string): string | null {
     const paragraphs = this.block.querySelectorAll("p");
 
     for (let i = 0; i < paragraphs.length; i++) {
@@ -248,16 +251,16 @@ export default class DDBCompanion2024 extends DDBCompanionMixin {
 
   async #generateFeatures() {
     for (const header of this.block.querySelectorAll(".monster-header")) {
-      let now = header.nextElementSibling;
-      const featType = DDBCompanion2024._getActionType(header.innerText);
+      let now = header.nextElementSibling as HTMLElement | null;
+      const featType = DDBCompanion2024._getActionType((header as HTMLElement).innerText);
       let block = now.outerHTML;
       while (now !== null) {
         if (now.nextElementSibling === null || now.nextElementSibling.classList.contains("monster-header")) {
           now = null;
         } else {
-          now = now.nextElementSibling;
+          now = now.nextElementSibling as HTMLElement | null;
           block += `\r\n`;
-          block += now.outerHTML;
+          if (now) block += now.outerHTML;
         }
       }
       await this._processFeatureElement(block, featType);

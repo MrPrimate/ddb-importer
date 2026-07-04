@@ -14,6 +14,8 @@ export default class DDBCompanionMixin {
   type: string;
   subType: string;
   rules: string;
+  options: IDDBCompanionMixinOptions;
+  block: HTMLElement;
   useItemAC: boolean;
   legacyName: boolean;
   addMonsterEffects: boolean;
@@ -23,10 +25,10 @@ export default class DDBCompanionMixin {
   summons: I5eSummonActivity;
   name: string;
 
-  constructor(block, options = {}, {
+  constructor(block: HTMLElement, options: IDDBCompanionMixinOptions = {}, {
     addMonsterEffects = false, removeSplitCreatureActions = true, removeCreatureOnlyNames = true,
     addChrisPremades = true, useItemAC = false, legacyName = false,
-  } = {}) {
+  }: IDDBCompanionMixinParserOptions = {}) {
     // console.warn("DDBCompanion", { block });
     this.options = options;
     this.block = block;
@@ -198,7 +200,7 @@ export default class DDBCompanionMixin {
     const ddbMonster = new DDBMonster(null, options);
     ddbMonster.name = this.name;
     ddbMonster.npc = this.npc;
-    ddbMonster.abilities = ddbMonster.npc.system.abilities;
+    ddbMonster.abilities = ddbMonster.npc.system.abilities as typeof ddbMonster.abilities;
     ddbMonster.proficiencyBonus = 0;
     const featureFactory = new DDBMonsterFeatureFactory({
       ddbMonster,
@@ -592,9 +594,10 @@ export default class DDBCompanionMixin {
         if (skillData) {
           skill.value = skillData.expertise ? 2 : skillData.proficient ? 1 : 0;
           const ability = this.npc.system.abilities[skill.ability];
-          if (parseInt(ability.mod) !== parseInt(skillData.value.trim())) {
-            skill.bonuses.check = parseInt(skillData.value.trim()) - parseInt(ability.mod);
-            skill.bonuses.passive = parseInt(skillData.value.trim()) - parseInt(ability.mod);
+          const mod = CONFIG.DDB.statModifiers.find((s) => s.value == ability.value).modifier;
+          if (parseInt(String(mod)) !== parseInt(skillData.value.trim())) {
+            skill.bonuses.check = String(parseInt(skillData.value.trim()) - parseInt(String(mod)));
+            skill.bonuses.passive = String(parseInt(skillData.value.trim()) - parseInt(String(mod)));
           }
 
           this.npc.system.skills[key] = skill;

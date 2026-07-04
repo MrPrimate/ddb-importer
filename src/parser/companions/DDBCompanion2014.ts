@@ -2,8 +2,9 @@ import { logger } from "../../lib/_module";
 import DDBCompanionMixin from "./DDBCompanionMixin";
 
 export default class DDBCompanion2014 extends DDBCompanionMixin {
+  blockDatas: NodeListOf<HTMLElement>;
 
-  constructor(block, options = {}) {
+  constructor(block: HTMLElement, options: IDDBCompanionMixinOptions = {}) {
     super(block, options);
     this.blockDatas = this.block.querySelectorAll("p.Stat-Block-Styles_Stat-Block-Data");
   }
@@ -12,15 +13,15 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     const abilityNodes = this.block.querySelector("div.stat-block-ability-scores");
 
     abilityNodes.querySelectorAll("div.stat-block-ability-scores-stat").forEach((aNode) => {
-      const ability = aNode.querySelector("div.stat-block-ability-scores-heading").innerText.toLowerCase();
+      const ability = (aNode.querySelector("div.stat-block-ability-scores-heading") as HTMLElement).innerText.toLowerCase();
 
       const getFallbackAbility = () => {
-        const clone = aNode.querySelector("div.stat-block-ability-scores-data").cloneNode(true);
+        const clone = aNode.querySelector("div.stat-block-ability-scores-data").cloneNode(true) as HTMLElement;
         clone.getElementsByTagName("span")[0].innerHTML = "";
         return clone.innerText.trim();
       };
 
-      const abilityScore = aNode.querySelector("span.stat-block-ability-scores-score")?.innerText
+      const abilityScore = (aNode.querySelector("span.stat-block-ability-scores-score") as HTMLElement)?.innerText
         ?? getFallbackAbility();
 
       const value = Number.parseInt(abilityScore);
@@ -31,7 +32,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
     });
   }
 
-  getBlockData(type) {
+  getBlockData(type: string): string | undefined {
     const block = Array.from(this.blockDatas).find((el) => {
       const elementName = el.innerText.trim();
       const elementStartsWith = elementName.startsWith(type);
@@ -47,7 +48,7 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
       return undefined;
     }
 
-    const clone = block.cloneNode(true);
+    const clone = block.cloneNode(true) as HTMLElement;
     clone.getElementsByTagName("strong")[0].innerHTML = "";
     return clone.innerText.trim();
   }
@@ -75,10 +76,10 @@ export default class DDBCompanion2014 extends DDBCompanionMixin {
   }
 
   #generateProficiencyBonus() {
-    const profString = this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Data-Last")
+    const profString = (this.block.querySelector("p.Stat-Block-Styles_Stat-Block-Data-Last") as HTMLElement | null)?.innerText
       ?? this.getBlockData("Challenge");
 
-    if (profString && profString.innerText.includes("equals your bonus")) {
+    if (profString && profString.includes("equals your bonus")) {
       this.summons.match.proficiency = true;
     }
   }
