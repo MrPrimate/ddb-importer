@@ -82,6 +82,8 @@ export interface IDDBIConfig {
   keyPostfix?: string;
   useLocal?: boolean;
   EXTRA_IMAGES?: Record<string, Record<string, any>> | null;
+  RULE_MATCHES?: Record<string, Record<string, any>> | null;
+  remaining?: Record<string, any>[];
   monsterURL?: string;
   version?: string;
   NO_MULTIATTACK?: string[];

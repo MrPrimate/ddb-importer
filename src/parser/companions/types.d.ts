@@ -4,7 +4,7 @@ global {
   interface IDDBCompanionMixinOptions {
     type?: string;
     subType?: string;
-    rules?: string;
+    rules?: "2014" | "2024";
     name?: string;
     folderHint?: string;
     forceRulesVersion?: string;

@@ -1,5 +1,33 @@
 import { utils, logger, CompendiumHelper } from "../../lib/_module";
 
+const DDB_REFERENCE_INDEX_FIELDS = [
+  "name",
+  "flags.ddbimporter.id",
+  "flags.ddbimporter.originalName",
+  "system.source.rules",
+];
+
+/** shape of the compendium index entries cached on CONFIG.DDBI.compendium.index.* */
+interface ICompendiumIndexEntry {
+  _id: string;
+  name: string;
+  uuid: string;
+  system: {
+    source: {
+      rules: string;
+    };
+  };
+  flags: {
+    ddbimporter: {
+      id: string;
+      originalName: string;
+    };
+  };
+}
+type TCompendiumIndex = ICompendiumIndexEntry[] & { compendiumRef?: boolean };
+
+type TReferenceDocumentTypes = I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem | I5eClassItem;
+
 const INDEX_COMPENDIUMS = [
   "spell",
   "spells",
@@ -46,20 +74,15 @@ const SUPER_LOOSE = [
 export async function loadDDBCompendiumIndexes() {
   for (const i of INDEX_COMPENDIUMS) {
     await CompendiumHelper.loadCompendiumIndex(i, {
-      fields: [
-        "name",
-        "flags.ddbbimporter.id",
-        "flags.ddbbimporter.originalName",
-        "system.source.rules",
-      ],
+      fields: DDB_REFERENCE_INDEX_FIELDS,
     });
   }
 }
 
 
-function findMatchingTagInIndex(type, tag) {
+function findMatchingTagInIndex(type: string, tag: string): string {
   const index = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`) as TCompendiumIndex
     : undefined;
   if (!index) {
     logger.warn(`Unable to load compendium ${type}s`);
@@ -160,7 +183,7 @@ function getRuleLookups() {
  * @param {boolean} forceTrimCheck Optional flag to force trim check.
  * @returns {string} The replaced reference based on the rule.
  */
-function ruleReplacer(baseType, text, slug, forceTrimCheck = false) {
+function ruleReplacer(baseType: string, text: string, slug: string, forceTrimCheck = false): string {
   if (slug.includes("Reference")) {
     return text;
   }
@@ -223,7 +246,7 @@ function replaceTag(match: string, tagType: string, tagName: string, _p4: number
  * @param {boolean} superLoose Flag to indicate whether to allow super loose rule references
  * @returns {string} The parsed text with rule references replaced
  */
-function parseLooseRuleReferences(text, superLoose = false) {
+function parseLooseRuleReferences(text: string, superLoose = false) {
   for (const [type, entries] of Object.entries(getRuleLookups())) {
     // console.error(`Reference Check`, { text });
 
@@ -274,7 +297,7 @@ function parseLooseRuleReferences(text, superLoose = false) {
 
 function parseHardCompendiumReferenceTag(type: string, text: string): string {
   const index = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${type}`)
-    ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`)
+    ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${type}`) as TCompendiumIndex
     : undefined;
   if (!index) {
     logger.warn(`Unable to load compendium ${type}s`);
@@ -305,7 +328,9 @@ function parseHardCompendiumReferenceTag(type: string, text: string): string {
   return text;
 }
 
-function damageRollGenerator({ text, damageType, actor, document, extraMods = [] } = {}) {
+function damageRollGenerator({ text, damageType, actor, document, extraMods = [] }: {
+  text?: string; damageType?: string; actor?: I5eActorData; document?: TReferenceDocumentTypes; extraMods?: (string | number)[];
+} = {}) {
   let result: string;
   const types = damageType
     .replace(", or ", ",")
@@ -315,7 +340,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
     .map((s) => s.trim().toLowerCase());
   const damageHint = damageType ? ` type=${types.join("/")}` : "";
   const diceParse = utils.parseDiceString(text, null, "");
-  const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility");
+  const baseAbility = foundry.utils.getProperty(document, "flags.monsterMunch.actionData.baseAbility") as string;
   const mods = extraMods.join(" + ");
 
   if (baseAbility) {
@@ -359,7 +384,7 @@ function damageRollGenerator({ text, damageType, actor, document, extraMods = []
 }
 
 
-export function parseDamageRolls({ text, document, actor } = {}) {
+export function parseDamageRolls({ text, document, actor }: { text?: string; document?: TReferenceDocumentTypes; actor?: I5eActorData } = {}) {
   // (2d8 + 3) piercing damage
   // [[/damage 2d6 fire average=true]]
   // 5 (1d4 + 3) piercing damage plus 10 (3d6) psychic damage, or 1 piercing damage plus 10 (3d6) psychic damage while under the effect of Reduce.
@@ -446,7 +471,7 @@ export function parseDamageRolls({ text, document, actor } = {}) {
   return text;
 }
 
-export function parseToHitRoll({ text, document } = {}) {
+export function parseToHitRoll({ text, document }: { text?: string; document?: TReferenceDocumentTypes } = {}): string {
 
   text = text.replace("<strong></strong>", "");
   if (!document) return text;
@@ -482,7 +507,7 @@ export function parseToHitRoll({ text, document } = {}) {
 
 }
 
-export function parseTags(text) {
+export function parseTags(text: string): string {
   for (const tag of ["spell", "item", "spells", "items"]) {
     text = parseHardCompendiumReferenceTag(tag, text);
   }
@@ -526,8 +551,14 @@ const COMPENDIUM_MAP = {
 
 // <a class=\"tooltip-hover spell-tooltip\" href=\"/spells/2095-feather-fall\" aria-haspopup=\"true\" data-tooltip-href=\"/spells/2095-tooltip\" data-tooltip-json-href=\"/spells/2095/tooltip-json\">Feather Fall</a>
 // <a class=\"tooltip-hover monster-tooltip\" href=\"/monsters/16781-ancient-green-dragon\" aria-haspopup=\"true\" data-tooltip-href=\"/monsters/16781-tooltip\" data-tooltip-json-href=\"/monsters/16781/tooltip-json\">ancient</a>
-function replaceHREFLookupLinks(doc, actor) {
-  const rules = actor?.system?.source?.rules ?? "2014";
+function replaceHREFLookupLinks(doc: Document, actor?: I5eActorData): Document {
+  const sourceRules = foundry.utils.getProperty(actor, "system.source.rules");
+  const flagRules = foundry.utils.getProperty(actor, "flags.ddbimporter.is2014")
+    ? "2014"
+    : foundry.utils.getProperty(actor, "flags.ddbimporter.is2024")
+      ? "2024"
+      : undefined;
+  const rules = sourceRules ?? flagRules ?? "2014";
   let npcLookup = null;
 
   if (actor) {
@@ -539,13 +570,13 @@ function replaceHREFLookupLinks(doc, actor) {
   }
 
   for (const lookupKey in COMPENDIUM_MAP) {
-    const compendiumLinks = doc.querySelectorAll(`a[href*="/${lookupKey}/"]`);
+    const compendiumLinks = doc.querySelectorAll<HTMLAnchorElement>(`a[href*="/${lookupKey}/"]`);
     const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)-(.*)`);
     compendiumLinks.forEach((node) => {
       const lookupMatch = node.href.match(lookupRegExp);
 
       const lookupValue = foundry.utils.hasProperty(CONFIG.DDBI, `compendium.index.${COMPENDIUM_MAP[lookupKey]}`)
-        ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${COMPENDIUM_MAP[lookupKey]}`)
+        ? foundry.utils.getProperty(CONFIG.DDBI, `compendium.index.${COMPENDIUM_MAP[lookupKey]}`) as TCompendiumIndex
         : undefined;
       if (!lookupValue) {
         logger.warn(`Unable to load compendium for ${lookupKey}`);
@@ -619,7 +650,7 @@ function replaceHREFRules(doc) {
     const lookupRegExp = new RegExp(`/${lookupKey}/([0-9]*)/`);
     compendiumLinks.forEach((node) => {
       const lookupMatch = node.outerHTML.match(lookupRegExp);
-      const dict = foundry.utils.getProperty(CONFIG, lookupData.path);
+      const dict = foundry.utils.getProperty(CONFIG, lookupData.path) as Record<string, any>[];
       const data = dict.find((d) => Number.parseInt(d[lookupData.id]) === Number.parseInt(lookupMatch[1]));
 
       const lookupValue = data[lookupData.foundry];
@@ -647,7 +678,7 @@ function replaceHREFRules(doc) {
 // <span data-dicenotation=\"1d8+3\" data-rolltype=\"damage\" data-rollaction=\"Wind Staff\" data-rolldamagetype=\"Bludgeoning\">(1d8 + 3)</span>
 // <span data-dicenotation=\"1d6\" data-rolltype=\"recharge\" data-rollaction=\"Poison Breath\">(Recharge 5–6)</span>
 
-function removeDDBToolTipLinks(doc) {
+function removeDDBToolTipLinks(doc: Document) {
   const compendiumLinks = doc.querySelectorAll(`a[data-tooltip-href*="/"]`);
   compendiumLinks.forEach((node) => {
     doc.body.innerHTML = doc.body.innerHTML.replace(node.outerHTML, node.innerHTML);
@@ -660,7 +691,7 @@ function removeDDBToolTipLinks(doc) {
 }
 
 
-export function replaceMonsterALinks(str, actor) {
+export function replaceMonsterALinks(str: string, actor: I5eActorData): string {
   let doc = utils.htmlToDoc(str);
   doc = replaceHREFLookupLinks(doc, actor);
   doc = replaceHREFRules(doc);
@@ -669,9 +700,15 @@ export function replaceMonsterALinks(str, actor) {
 }
 
 
-export async function replaceMonsterNameBadLinks(str, actor) {
+export async function replaceMonsterNameBadLinks(str: string, actor: I5eActorData): Promise<string> {
 
-  const rules = actor?.system?.source?.rules ?? "2014";
+  const sourceRules = foundry.utils.getProperty(actor, "system.source.rules");
+  const flagRules = foundry.utils.getProperty(actor, "flags.ddbimporter.is2014")
+    ? "2014"
+    : foundry.utils.getProperty(actor, "flags.ddbimporter.is2024")
+      ? "2024"
+      : undefined;
+  const rules = sourceRules ?? flagRules ?? "2014";
   const name = actor?.name ?? "Unknown";
 
   const pack = CompendiumHelper.getCompendiumType("monsters", false);
@@ -683,7 +720,7 @@ export async function replaceMonsterNameBadLinks(str, actor) {
 
   str = utils.nameString(str);
 
-  const functionReplaceMatch = (str, search, substitute, type) => {
+  const functionReplaceMatch = (str: string, search: string, substitute: string, type: string) => {
     const indexMatch = packs[type]?.index.find((i) =>
       i.name.toLowerCase() === search.toLowerCase()
       && i.system?.source?.rules === rules,

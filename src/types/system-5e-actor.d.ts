@@ -828,5 +828,5 @@ global {
     prototypeToken?: I5ePrototypeToken;
   }
 
-  export type I5eActorData = I5eMonsterData | I5ePCData;
+  type I5eActorData = I5eMonsterData | I5ePCData | I5eVehicleData;
 }

@@ -425,8 +425,6 @@ global {
 
     // enchantment transfer
     transferEnchantment?: IDDBImporterTransferEnchantmentFlags;
-
-    [key: string]: unknown;
   }
 
   interface I5eActorFlags {
