@@ -2,6 +2,27 @@ import logger from "./Logger";
 import utils from "./Utils";
 import DDBMacros from "./DDBMacros";
 
+interface IMacroEffectVariables {
+  actor?: any;
+  token?: any;
+  speaker?: any;
+  origin?: any;
+  effect?: any;
+  item?: any;
+  scene?: any;
+  character?: any;
+  scope?: any;
+}
+
+interface ISimpleMacroIds {
+  effect?: string;
+  actor?: string;
+  token?: string;
+  item?: string;
+  origin?: string;
+  scene?: string;
+}
+
 /**
  * This class helps execute DDB Macros and is mainl
  */
@@ -18,7 +39,7 @@ export default class DDBSimpleMacro {
 
   static getDescriptionAddition(name: string, type: string, params = null): string {
     const safeName = utils.referenceNameString(name).toLowerCase();
-    const macroDetails = foundry.utils.getProperty(DDBSimpleMacro.MACROS, `${type}.${safeName}`);
+    const macroDetails = foundry.utils.getProperty(DDBSimpleMacro.MACROS, `${type}.${safeName}`) as { name?: string; label?: string; parameters?: string } | undefined;
     if (!macroDetails) return "";
 
     const parameters = params
@@ -39,7 +60,7 @@ export default class DDBSimpleMacro {
    * @param {object} scope ANy additional information/parameters in an object to pass to the macro
    * @returns {Promise<any>} The result of the macro function.
    */
-  static async execute(type, name, context = {}, ids = {}, { ...scope } = {}) {
+  static async execute(type, name, context = {}, ids: ISimpleMacroIds = {}, { ...scope } = {}) {
     const names = DDBMacros._getMacroFileNameFromName(name);
     const script = await DDBMacros.getMacroBody(type, names.fileName);
 
@@ -51,8 +72,8 @@ export default class DDBSimpleMacro {
       ids,
       scope,
     });
-    const effect = ids.effect ? await fromUuid(ids.effect) : null;
-    const effectVariables = ids.effect
+    const effect = ids.effect ? await fromUuid(ids.effect) as ActiveEffect.Implementation : null;
+    const effectVariables: IMacroEffectVariables = ids.effect
       ? DDBMacros._getEffectVariables(effect)
       : {
         actor: null,
@@ -65,12 +86,12 @@ export default class DDBSimpleMacro {
       };
 
     const actor = ids.actor
-      ? await fromUuid(ids.actor)
+      ? await fromUuid(ids.actor) as Actor.Implementation
       : null;
     if (actor) effectVariables.actor = actor;
 
     const token = ids.token
-      ? await fromUuid(ids.token)
+      ? await fromUuid(ids.token) as TokenDocument.Implementation
       : null;
     if (token) effectVariables.token = token;
 
@@ -101,7 +122,7 @@ export default class DDBSimpleMacro {
     const variables = foundry.utils.mergeObject(effectVariables, scope);
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const AsyncFunction = (async function() {}).constructor;
+    const AsyncFunction = (async function() {}).constructor as new (...args: string[]) => (...fnArgs: any[]) => Promise<any>;
 
     const fn = new AsyncFunction(...Object.keys(variables), `{${script}\n}`);
 
