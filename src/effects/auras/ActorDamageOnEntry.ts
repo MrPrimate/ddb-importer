@@ -10,7 +10,7 @@ export default async function actorDamageOnEntry({
   speaker, actor, token, character, item, rolledItem, macroItem,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   args, scope, workflow,
-} = {}) {
+}: IDDBMacroFunctionContext = {}) {
 
   const lastArg = args[args.length - 1];
 
@@ -52,7 +52,7 @@ export default async function actorDamageOnEntry({
 
   if (args[0] === "on") {
     // console.warn("on", { args, lastArg, scope, item });
-    const turnFlag = DDBEffectHelper.getFlag(actor, flagNameTurn) ?? {};
+    const turnFlag = (DDBEffectHelper.getFlag(actor, flagNameTurn) ?? {}) as { id?: string; turn?: number; round?: number };
 
     if (turnFlag
       && turnFlag.id === game.combat?.id
@@ -73,7 +73,7 @@ export default async function actorDamageOnEntry({
       ? slotLevel - scope.effect?.flags["midi-qol"].castData?.baseLevel
       : undefined;
 
-    const activityIds = foundry.utils.getProperty(doc, "flags.ddbimporter.effect.activityIds") ?? [];
+    const activityIds = (foundry.utils.getProperty(doc, "flags.ddbimporter.effect.activityIds") ?? []) as string[];
 
     for (const activityId of activityIds) {
       const activity = doc.system.activities.get(activityId);

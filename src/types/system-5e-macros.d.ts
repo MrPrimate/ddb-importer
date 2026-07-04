@@ -11,6 +11,23 @@ global {
     "ddb-importer"?: I5eMacroDDBImporterFlags;
   }
 
+  /**
+   * The context object DDBMacros/midi-qol passes to ddb macro functions
+   * (effects/auras and effects/macros modules).
+   */
+  interface IDDBMacroFunctionContext {
+    speaker?: any;
+    actor?: any;
+    token?: any;
+    character?: any;
+    item?: any;
+    rolledItem?: any;
+    macroItem?: any;
+    args?: any[];
+    scope?: any;
+    workflow?: any;
+  }
+
   interface I5eMacroData {
     /** set only when updating an existing macro. */
     _id?: string;

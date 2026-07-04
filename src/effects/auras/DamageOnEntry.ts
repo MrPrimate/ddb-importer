@@ -11,12 +11,12 @@ export default async function damageOnEntry({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   speaker, actor, token, character, item, rolledItem, macroItem,
   args, scope, workflow,
-} = {}) {
+}: IDDBMacroFunctionContext = {}) {
 
   DDBEffectHelper.requirementsSatisfied(`${item.name} automation`, ["ActiveAuras", "ddb-importer", "midi-qol"]);
 
   const lastArg = args[args.length - 1];
-  const flags = foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {};
+  const flags = (foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {}) as IDDBImporterFlagsEffect;
 
   logger.debug("damageOnEntry ARGS", {
     args,

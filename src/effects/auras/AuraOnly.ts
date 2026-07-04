@@ -6,12 +6,12 @@ export default async function auraOnly({
   speaker, actor, token, character, item, rolledItem, macroItem,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   args, scope, workflow,
-} = {}) {
+}: IDDBMacroFunctionContext = {}) {
 
   DDBEffectHelper.requirementsSatisfied(`${item.name} automation`, ["ActiveAuras"]);
 
   const lastArg = args[args.length - 1];
-  const flags = foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {};
+  const flags = (foundry.utils.getProperty(item, "flags.ddbimporter.effect") ?? {}) as IDDBImporterFlagsEffect;
 
   logger.debug("AuraOnly ARGS", {
     args,
@@ -22,7 +22,8 @@ export default async function auraOnly({
   });
 
   if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
-    return game.modules.get("ActiveAuras").api.AAHelpers.applyTemplate(args);
+    const activeAuras = game.modules.get("ActiveAuras") as unknown as { api: { AAHelpers: { applyTemplate: (args: any[]) => unknown } } };
+    return activeAuras.api.AAHelpers.applyTemplate(args);
 
   }
 

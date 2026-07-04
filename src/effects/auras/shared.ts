@@ -40,7 +40,7 @@ function getSafeName(name) {
   return name.replace(/\s|'|\.|’/g, "_");
 }
 
-export async function setBasicCombatFlag(actor, flagName, origin) {
+export async function setBasicCombatFlag(actor, flagName, origin?: string) {
   await DDBEffectHelper.setFlag(actor, flagName, {
     id: game.combat?.id ?? null,
     round: game.combat?.round ?? null,
