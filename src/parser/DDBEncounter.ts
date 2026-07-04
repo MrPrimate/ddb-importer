@@ -577,7 +577,7 @@ export default class DDBEncounter {
 
       if (importDDBIScene) {
         worldScene = game.scenes.find(
-          (a: Scene) => a.folder == this.folders["scene"].id
+          (a: Scene) => (a.folder as unknown as string) == this.folders["scene"].id
           && a.flags?.ddbimporter?.encounterId == this.data.id,
         );
       }
