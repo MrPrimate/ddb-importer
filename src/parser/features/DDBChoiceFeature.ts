@@ -24,6 +24,16 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static FORCE_FEAT_CHOICES = DICTIONARY.parsing.choiceFeatures.FORCE_FEAT_CHOICES;
 
+  _levelScale: IDDBClassFeatureLevelScale | null;
+
+  _levelScales: IDDBClassFeatureLevelScale[] | null;
+
+  _limitedUse: IDDBClassFeatureLimitedUse[] | null;
+
+  _classOption: IDDBOptionEntry | null | undefined;
+
+  _classFeatureComponent: IDDBClassFeature | IDDBRacialTrait | undefined;
+
   _prepare() {
     this._levelScale = null;
     this._levelScales = null;
@@ -46,9 +56,10 @@ export default class DDBChoiceFeature extends DDBFeature {
     }
 
     if (this._classFeatureComponent) {
-      this._levelScale = this._classFeatureComponent.levelScale;
-      this._levelScales = this._classFeatureComponent.definition?.levelScales;
-      this._limitedUse = this._classFeatureComponent.definition?.limitedUse;
+      // levelScale/levelScales/limitedUse only exist on class feature components
+      this._levelScale = foundry.utils.getProperty(this._classFeatureComponent, "levelScale") as IDDBClassFeatureLevelScale | null;
+      this._levelScales = foundry.utils.getProperty(this._classFeatureComponent, "definition.levelScales") as IDDBClassFeatureLevelScale[] | null;
+      this._limitedUse = foundry.utils.getProperty(this._classFeatureComponent, "definition.limitedUse") as IDDBClassFeatureLimitedUse[] | null;
     }
 
     this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
@@ -58,7 +69,7 @@ export default class DDBChoiceFeature extends DDBFeature {
   _generateSystemSubType() {
     super._generateSystemSubType();
 
-    const classFeatureName = foundry.utils.getProperty(this, "_classFeatureComponent.definition.name");
+    const classFeatureName = foundry.utils.getProperty(this, "_classFeatureComponent.definition.name") as string;
     if (!classFeatureName) return;
     const subType = DDBFeatureMixin.getFeatureSubtype(classFeatureName, "class", true);
     if (subType) foundry.utils.setProperty(this.data, "system.type.subtype", subType);
@@ -257,21 +268,23 @@ export default class DDBChoiceFeature extends DDBFeature {
       ) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into parent feature ${ddbFeature.originalName}`);
         ddbFeature.data.name = choiceFeature.data.name;
-        if ((Object.keys(ddbFeature.data.system.activities).length === 0
+        const featureSystem = ddbFeature.data.system as I5eFeatSystemData;
+        const choiceSystem = choiceFeature.data.system as I5eFeatSystemData;
+        if ((Object.keys(featureSystem.activities).length === 0
           && !DDBChoiceFeature.NO_CHOICE_ACTIVITY.some((a) => ddbFeature.originalName.startsWith(a)))
           || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
         ) {
-          ddbFeature.data.system.activities = choiceFeature.data.system.activities;
+          featureSystem.activities = choiceSystem.activities;
         }
         if (ddbFeature.data.effects.length === 0
           || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
         ) {
           ddbFeature.data.effects = choiceFeature.data.effects;
         }
-        if (["", null, undefined].includes(ddbFeature.data.system.uses?.max)
+        if (["", null, undefined].includes(featureSystem.uses?.max)
           || DDBChoiceFeature.OVERRIDE_CHOICE_FEATURE.includes(ddbFeature.originalName)
         ) {
-          ddbFeature.data.system.uses = choiceFeature.data.system.uses;
+          featureSystem.uses = choiceSystem.uses;
         }
         if (foundry.utils.hasProperty(choiceFeature.data, "flags.ddbimporter.dndbeyond.choice")) {
           ddbFeature.data.flags.ddbimporter.dndbeyond.choice = choiceFeature.data.flags.ddbimporter.dndbeyond.choice;
@@ -279,10 +292,10 @@ export default class DDBChoiceFeature extends DDBFeature {
       } else if (ddbFeature.isCompanionFeatureOption || ddbFeature.isCompanionFeature) {
         logger.debug(`Merging Choice Feature ${choiceFeature.data.name} into companion parent feature ${ddbFeature.originalName}`);
 
-        for (const [_key, activity] of Object.entries(ddbFeature.data.system.activities)) {
+        for (const [_key, activity] of Object.entries((ddbFeature.data.system as I5eFeatSystemData).activities)) {
           if (activity.type !== "summon") continue;
 
-          for (const [_cKey, cActivity] of Object.entries(choiceFeature.data.system.activities)) {
+          for (const [_cKey, cActivity] of Object.entries((choiceFeature.data.system as I5eFeatSystemData).activities)) {
 
             if (cActivity.type !== "summon") continue;
             activity.bonuses = cActivity.bonuses;

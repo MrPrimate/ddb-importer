@@ -135,7 +135,6 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           entityTypeId: this.ddbDefinition.entityTypeId,
           action: this.isAction,
           componentId: this.ddbDefinition.componentId,
-          // @ts-expect-error - TODO - this is a mess, need to refactor how these are set and used
           componentTypeId: this.ddbDefinition.componentTypeId,
           originalName: this.originalName,
           type: this.tagType,
@@ -433,7 +432,6 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _getClassFeatureDescription(nameMatch = false): string {
     if (!this.ddbData) return "";
     const componentId = this.ddbDefinition.componentId;
-    // @ts-expect-error - TODO pretty sure this exists on class features, might need some refactoring
     const componentTypeId = this.ddbDefinition.componentTypeId;
 
     const findFeatureKlass = this.ddbData.character.classes.find((cls) =>
@@ -463,7 +461,6 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   _getRaceFeatureDescription(): string {
     const componentId = this.ddbDefinition.componentId;
-    // @ts-expect-error - TODO pretty sure this exists on race features, might need some refactoring
     const componentTypeId = this.ddbDefinition.componentTypeId;
 
     const feature = this.ddbData.character.race.racialTraits.find(
@@ -1215,7 +1212,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
 
-  build(): boolean | Promise<boolean | void> {
+  build(_choice?: unknown): boolean | Promise<boolean | void> {
     // override this feature
     return false;
   }

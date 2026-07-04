@@ -932,7 +932,7 @@ ${description}`;
     this._final();
   }
 
-  async build() {
+  async build(_choice?: unknown) {
     try {
       if (this.type === "background") {
         // work around till background parsing support advancements

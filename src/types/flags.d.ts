@@ -167,8 +167,17 @@ global {
     // Choice flags
     choice?: {
       componentId?: number;
+      componentTypeId?: number;
       choiceId?: string;
       optionId?: string;
+      optionComponentId?: number;
+      parentChoiceId?: string | null;
+      parentName?: string;
+      label?: string;
+      subType?: string | number | null;
+      type?: string | number | null;
+      wasOption?: boolean;
+      entityTypeId?: number | string | null;
     };
 
     // Infusion flags
