@@ -9,13 +9,36 @@ import {
 } from "../lib/_module";
 import DDBVehicleFactory from "../parser/DDBVehicleFactory";
 
+/** compendium index entry shape used by the adventure lookup maps */
+interface IAdventureIndexEntry {
+  _id: string;
+  name: string;
+  uuid: string;
+  flags?: { ddbimporter?: { id?: number; definitionId?: number; originalName?: string } };
+  system?: { source?: { rules?: string } };
+}
+
+interface IAdventureConfigResult {
+  schemaVersion: number;
+  debug: boolean;
+  observeAll: boolean;
+  version: string;
+  lookups: Record<string, any[]>;
+  fullPageMap: any[];
+  monstersToReplace: any[];
+  cobalt: string | null;
+  campaignId: string | null;
+  /** set when generating legacy config: the srd rules compendium index */
+  index?: CompendiumCollection.IndexEntry[];
+}
+
 
 async function getMonsterMap () {
   // ddb://monsters
   const monsterCompendiumLabel = CompendiumHelper.getCompendiumLabel("monster");
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
   const monsterIndices = ["name", "flags.ddbimporter.id", "flags.ddbbimporter.originalName", "system.source.rules"];
-  const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices });
+  const monsterIndex = await monsterCompendium.getIndex({ fields: monsterIndices }) as unknown as IAdventureIndexEntry[];
 
   const results = monsterIndex
     .filter((monster) => monster.flags?.ddbimporter?.id)
@@ -40,7 +63,7 @@ async function getSpellMap() {
   const spellCompendiumLabel = await utils.getSetting<string>("entity-spell-compendium");
   const spellCompendium = await game.packs.find((pack) => pack.collection === spellCompendiumLabel);
   const spellIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
-  const spellIndex = await spellCompendium.getIndex({ fields: spellIndices });
+  const spellIndex = await spellCompendium.getIndex({ fields: spellIndices }) as unknown as IAdventureIndexEntry[];
 
   const results = spellIndex
     .filter((spell) => spell.flags?.ddbimporter?.definitionId)
@@ -64,7 +87,7 @@ async function getItemMap() {
   const itemCompendiumLabel = await utils.getSetting<string>("entity-item-compendium");
   const itemCompendium = await game.packs.find((pack) => pack.collection === itemCompendiumLabel);
   const itemIndices = ["name", "flags.ddbimporter.definitionId", "flags.ddbbimporter.originalName", "system.source.rules"];
-  const itemIndex = await itemCompendium.getIndex({ fields: itemIndices });
+  const itemIndex = await itemCompendium.getIndex({ fields: itemIndices }) as unknown as IAdventureIndexEntry[];
 
   const results = itemIndex
     .filter((i) => i.flags?.ddbimporter?.definitionId)
@@ -110,11 +133,11 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
   const getVehicles = !DDBProxy.isCustom(true) && cobalt;
 
   logger.info("Generating adventure config", { full, cobalt, getVehicles, fullPageMap, legacy });
-  const result = {
+  const result: IAdventureConfigResult = {
     schemaVersion: CONFIG.DDBI.schemaVersion,
     debug: false,
     observeAll: false,
-    version: game.modules.get("ddb-importer").version,
+    version: game.modules.get("ddb-importer").version as string,
     lookups: {
       monsters: [],
       items: [],
@@ -155,6 +178,7 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
         id: v.id,
         url: v.url,
         name: v.name,
+        // @ts-expect-error - at some point this needs to be fixed, uuid wil always be undefined I think
         uuid: v.uuid,
       };
     });
@@ -166,8 +190,8 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
     if (!srdCompendium) return result;
 
     const srdIndex = await srdCompendium.getIndex();
-    const srdDocuments = await srdCompendium.getDocuments();
-    result.index = srdIndex;
+    const srdDocuments = await srdCompendium.getDocuments() as unknown as JournalEntry.Stored[];
+    result.index = srdIndex.contents;
 
     const skillEntryDocument = srdDocuments.find((d) => d.name === "Chapter 7: Using Ability Scores");
     if (skillEntryDocument) {
@@ -208,9 +232,9 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
     const conditionEntryDocument = srdDocuments.find((d) => d.name === "Appendix A: Conditions");
     if (conditionEntryDocument) {
       result.lookups.conditions = CONFIG.DDB.conditions
-        .filter((condition) => conditionEntryDocument.pages.some((p) => p.name.trim() === condition.definition.name.trim()))
+        .filter((condition) => conditionEntryDocument.pages.some((p) => (p.name as string).trim() === condition.definition.name.trim()))
         .map((condition) => {
-          const conditionEntryPage = conditionEntryDocument.pages.find((p) => p.name.trim() === condition.definition.name.trim());
+          const conditionEntryPage = conditionEntryDocument.pages.find((p) => (p.name as string).trim() === condition.definition.name.trim());
           return {
             id: condition.definition.id,
             _id: conditionEntryDocument.id,
