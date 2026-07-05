@@ -259,7 +259,7 @@ export default class DDBMapBrowser extends DDBAppV2 {
     const bundle = await this._ensureJournalsForBook(bookCode);
     if (!bundle) return;
     try {
-      const live = game.scenes?.get(scene.id) ?? scene;
+      const live = (game.scenes?.get(scene.id) ?? scene) as Scene;
       const n = await repointNotesOnLiveScene(live, bundle.lookup);
       logger.info(`DDBMapBrowser: re-pointed ${n} note pin(s) on "${live.name}" to imported journal pages`);
     } catch (error) {

@@ -154,14 +154,16 @@ export default class DDBSourcePruner extends DDBAppV2 {
       const matched: IMatchedDocument[] = [];
 
       for (const doc of index) {
-        if (DDBSources.matchesSourceFilter(doc, {
+        // index entries carry the flag/source fields the source helpers read
+        const docData = doc as unknown as TAll5eDocuments;
+        if (DDBSources.matchesSourceFilter(docData, {
           sourceIds: this.selectedBookIds.length > 0 ? this.selectedBookIds : undefined,
           categoryIds: this.selectedCategoryIds.length > 0 ? this.selectedCategoryIds : undefined,
         })) {
           matched.push({
             _id: doc._id,
             name: doc.name,
-            sourceBook: DDBSources.getDocumentSourceBookName(doc),
+            sourceBook: DDBSources.getDocumentSourceBookName(docData),
           });
         }
       }

@@ -372,6 +372,7 @@ global {
     bookCode?: string;
     sceneAdjustment?: boolean;
     edgeBackgroundColor?: string | null;
+    gridLevelId?: string | null;
   }
 
   interface I5eSceneDDBFlags {

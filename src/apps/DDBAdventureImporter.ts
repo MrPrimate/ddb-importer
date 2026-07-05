@@ -4,6 +4,12 @@ const Sheet = foundry?.appv1?.sheets?.AdventureImporter ?? AdventureImporter;
 
 export class DDBAdventureImporter extends Sheet {
 
+  importOptions: Record<string, {
+    label?: string;
+    default?: boolean;
+    handler?: (document: any, option: any, submitted: any) => Promise<unknown> | unknown;
+  }>;
+
   constructor(adventure, options) {
     super(adventure, options);
     this.options.classes.push(SETTINGS.ADVENTURE_CSS);

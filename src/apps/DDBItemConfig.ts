@@ -1,5 +1,17 @@
 import { CompendiumHelper } from "../lib/_module";
 
+type TFlags = Partial<FlagConfig> & Partial<{ ddbimporter: IDDBImporterFlags }>;
+
+/** the owned item being configured */
+interface IConfigItem {
+  _id: string;
+  id: string;
+  name: string;
+  img: string;
+  flags: TFlags;
+  actor: Actor.Implementation;
+}
+
 export class DDBItemConfig extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
@@ -11,10 +23,10 @@ export class DDBItemConfig extends FormApplication {
   }
 
   /** @override */
-  async getData() {  
+  async getData() {
     // console.warn(this);
     // console.warn(this.object);
-    const item = this.object;
+    const item = this.object as IConfigItem;
 
     const icon = item.flags.ddbimporter?.ignoreIcon;
     const itemImport = item.flags.ddbimporter?.ignoreItemImport;
@@ -62,9 +74,9 @@ export class DDBItemConfig extends FormApplication {
     const compendium = CompendiumHelper.getCompendium(label);
     const index = await compendium.getIndex();
 
-    index.forEach((item) => {
-      overrides[item._id] = {
-        label: `${item.name} (${item.type})`,
+    index.forEach((entry) => {
+      overrides[entry._id] = {
+        label: `${entry.name} (${foundry.utils.getProperty(entry, "type")})`,
         selected: false,
       };
     });
@@ -77,7 +89,7 @@ export class DDBItemConfig extends FormApplication {
     const result = {
       name: item.name,
       img: item.img,
-      character: this.object.actor.name,
+      character: item.actor.name,
       settings,
       overrides,
     };
@@ -86,19 +98,20 @@ export class DDBItemConfig extends FormApplication {
   }
 
   get id() {
-    const actor = this.object;
+    const actor = this.object as IConfigItem;
     const id = `ddb-actor-${actor.id}`;
     return id;
   }
 
   /** @override */
-   
+
   async _updateObject(event, formData) {
     event.preventDefault();
 
+    const configItem = this.object as IConfigItem;
     const item = {
-      _id: this.object._id,
-      flags: this.object.flags,
+      _id: configItem._id,
+      flags: configItem.flags,
     };
 
     if (!item.flags.ddbimporter) item.flags.ddbimporter = {};
@@ -109,7 +122,7 @@ export class DDBItemConfig extends FormApplication {
     item.flags.ddbimporter["retainResourceConsumption"] = formData["retainResourceConsumption"];
     item.flags.ddbimporter["ignoreItemUpdate"] = formData["ignoreItemUpdate"];
 
-    this.object.actor.updateEmbeddedDocuments("Item", [item]);
+    configItem.actor.updateEmbeddedDocuments("Item", [item as Item.UpdateData]);
 
   }
 }

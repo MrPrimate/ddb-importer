@@ -1,5 +1,10 @@
 const { NumberField } = foundry.data.fields;
 
+interface ICreateSpellwroughtTattooDialogOptions {
+  config?: SpellTattooConfiguration;
+  spell?: Item.Implementation;
+  classes?: string[];
+}
 
 export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.api.Dialog5e {
 
@@ -21,15 +26,15 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
 
   /**
    * Spell from which the tattoo will be created.
-   * @type {Item.Implementation|object}
+   * @type {Item.Implementation}
    */
-  #spell: Item.Implementation | object;
+  #spell: Item.Implementation;
 
   get spell() {
     return this.#spell;
   }
 
-  constructor(options = {}) {
+  constructor(options: ICreateSpellwroughtTattooDialogOptions = {}) {
     super(options);
     this.#config = options.config;
     this.#spell = options.spell;
@@ -78,15 +83,16 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @protected
    */
   async _prepareContentContext(context, _options) {
-    context.anchor = this.spell instanceof Item ? this.spell.toAnchor().outerHTML : `<span>${this.spell.name}</span>`;
+    const spell = this.spell as unknown as I5eSpellItem;
+    context.anchor = this.spell instanceof Item ? this.spell.toAnchor().outerHTML : `<span>${spell.name}</span>`;
     context.config = this.config;
     context.fields = [{
       field: new NumberField({ label: game.i18n.localize("DND5E.SpellLevel") }),
       name: "level",
       options: Object.entries(CONFIG.DND5E.spellLevels)
         .map(([level, label]) => ({ value: level, label }))
-        .filter((l) => Number(l.value) >= this.spell.system.level && Number(l.value) <= 5),
-      value: this.config.level ?? this.spell.system.level,
+        .filter((l) => Number(l.value) >= spell.system.level && Number(l.value) <= 5),
+      value: this.config.level ?? spell.system.level,
     }];
     context.values = {
       bonus: new NumberField({ label: game.i18n.localize("DND5E.BonusAttack") }),
@@ -112,10 +118,10 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @param {HTMLFormElement} _form      The submitted form.
    * @param {FormDataExtended} formData  Data from the dialog.
    */
-  static async #handleFormSubmission(_event, _form, formData) {
+  static async #handleFormSubmission(this: CreateSpellwroughtTattooDialog, _event, _form, formData) {
     foundry.utils.mergeObject(this.#config, formData.object);
     this.#config.level = Number(this.#config.level);
-    await this.close({ dnd5e: { submitted: true } });
+    await this.close({ dnd5e: { submitted: true } } as unknown as { submitted?: boolean });
   }
 
   /* -------------------------------------------- */
@@ -133,7 +139,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /* -------------------------------------------- */
 
   /** @override */
-  _onClose(options = {}) {
+  _onClose(options: Record<string, any> = {}) {
     if (!options.dnd5e?.submitted) this.#config = null;
   }
 

@@ -91,7 +91,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
       label: CONFIG.DND5E.creatureTypes[t]?.label ?? t,
     }));
 
-    const sorted = [...worldMonsters].sort((a, b) => a.name.localeCompare(b.name));
+    const sorted = [...worldMonsters].sort((a, b) => (a.name as string).localeCompare(b.name as string));
     context.monsters = sorted.map((actor) => {
       const source = foundry.utils.getProperty(actor, "system.source.book") as string ?? "";
       const type = foundry.utils.getProperty(actor, "system.details.type.value") as string ?? "";
@@ -100,7 +100,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
       return {
         id: actor.id,
         name: actor.name,
-        nameLower: actor.name.toLowerCase(),
+        nameLower: (actor.name as string).toLowerCase(),
         source,
         type,
         label: `${actor.name} (${typeLabel}${bookLabel ? `, ${bookLabel} (${source})` : ""})`,
@@ -119,9 +119,9 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     const nameFilter = this.element.querySelector(".ddb-filter-name");
 
     const applyFilters = () => {
-      this.selectedSources = sourceFilter ? Array.from(sourceFilter._value) : [];
-      this.selectedTypes = typeFilter ? Array.from(typeFilter._value) : [];
-      this.nameFilter = nameFilter?.value?.toLowerCase() ?? "";
+      this.selectedSources = sourceFilter ? Array.from((sourceFilter as Element & { _value: Set<string> })._value) : [];
+      this.selectedTypes = typeFilter ? Array.from((typeFilter as Element & { _value: Set<string> })._value) : [];
+      this.nameFilter = (nameFilter as HTMLInputElement | null)?.value?.toLowerCase() ?? "";
       this._applyFilters();
     };
 
@@ -182,7 +182,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
     for (const actor of selectedActors) {
       const compendiumMatch = index.find((entry) =>
         entry.name === actor.name
-        && entry.flags?.ddbimporter?.id == actor.flags?.ddbimporter?.id,
+        && foundry.utils.getProperty(entry, "flags.ddbimporter.id") == foundry.utils.getProperty(actor, "flags.ddbimporter.id"),
       );
 
       if (compendiumMatch) {
@@ -192,7 +192,7 @@ export default class DDBSelectiveMonsterUpdate extends DDBAppV2 {
         await DDBSelectiveMonsterUpdate._updateActorWithSource(actor, monster);
       } else {
         count++;
-        logger.warn(`No compendium match found for ${actor.name} (ddbId: ${actor.flags?.ddbimporter?.id})`);
+        logger.warn(`No compendium match found for ${actor.name} (ddbId: ${foundry.utils.getProperty(actor, "flags.ddbimporter.id")})`);
       }
     }
 

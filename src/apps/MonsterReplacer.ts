@@ -43,7 +43,8 @@ export default class MonsterReplacer {
     const options = monsterData.map((m) => {
       return {
         label: `${m.name2014} (${m.id2014}) to ${m.name2024} (${m.id2024})`,
-        value: m.id2014,
+        // numeric ids are coerced to strings by the multi-select element
+        value: m.id2014 as unknown as string,
         selected: false,
         disabled: false,
       };

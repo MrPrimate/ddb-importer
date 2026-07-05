@@ -1,6 +1,17 @@
 import { DICTIONARY } from "../config/_module";
 import { logger } from "../lib/_module";
 
+type TFlags = Partial<FlagConfig> & Partial<{ ddbimporter: IDDBImporterFlags }>;
+
+/** the document whose ddb flags are shown/edited by this application */
+interface IFlagDocument {
+  name: string;
+  type: string;
+  link?: string;
+  flags: TFlags;
+  update: (data: object) => Promise<unknown>;
+}
+
 export class DDBAdventureFlags extends FormApplication {
   static get defaultOptions() {
     const options = super.defaultOptions;
@@ -12,12 +23,12 @@ export class DDBAdventureFlags extends FormApplication {
   }
 
   /** @override */
-  async getData() {  
+  async getData() {
     // console.warn(this);
     // console.warn(this.object);
-    const item = this.object;
+    const item = this.object as TAll5eItemDocuments | I5eMonsterData | I5eVehicleData;
 
-    const flags = {};
+    const flags: TFlags = {};
 
     const flagGroups = ["ddb", "ddbimporter", "monsterMunch", "ddb-importer"];
     const ignoredSubFlagGroups = ["ddbimporter.acEffects", "ddbimporter.autoAC"];
@@ -50,7 +61,7 @@ export class DDBAdventureFlags extends FormApplication {
       name: item.name,
       flags,
       monster: {
-        isMonster: this.object.type == "npc",
+        isMonster: item.type === "npc",
         flags: [
           {
             name: "keepItems",
@@ -70,7 +81,7 @@ export class DDBAdventureFlags extends FormApplication {
         ],
       },
       item: {
-        isItem: DICTIONARY.types.monster.includes(this.object.type) || this.object.type === "spell",
+        isItem: DICTIONARY.types.monster.includes(item.type) || item.type === "spell",
         flags: [
           {
             name: "customItem",
@@ -81,8 +92,8 @@ export class DDBAdventureFlags extends FormApplication {
       },
     };
 
-    if (item.link) result["link"] = item.link;
-    if (flags.bookCode && flags.slug) result["ddbLink"] = `https://www.dndbeyond.com/${flags.bookCode}/${flags.slug}`;
+    // if (item.link) result["link"] = item.link;
+    // if (flags.bookCode && flags.slug) result["ddbLink"] = `https://www.dndbeyond.com/${flags.bookCode}/${flags.slug}`;
 
     logger.debug("flags", flags);
     return result;
@@ -99,11 +110,13 @@ export class DDBAdventureFlags extends FormApplication {
         ].join(","),
       )
       .on("change", async (event) => {
-        const selection = event.currentTarget.dataset.section;
-        const checked = event.currentTarget.checked;
-        logger.debug(`Updating flag-policy for ${this.object.name}, ${selection} to ${checked}`);
+        const target = event.currentTarget as HTMLInputElement;
+        const selection = target.dataset.section;
+        const checked = target.checked;
+        const doc = this.object as IFlagDocument;
+        logger.debug(`Updating flag-policy for ${doc.name}, ${selection} to ${checked}`);
 
-        await this.object.update({
+        await doc.update({
           flags: {
             "ddbimporter": {
               [selection]: checked,
@@ -111,5 +124,10 @@ export class DDBAdventureFlags extends FormApplication {
           },
         });
       });
+  }
+
+  /** @override - this application updates via checkbox listeners, not form submission */
+  async _updateObject(_event: Event, _formData: object): Promise<void> {
+    // no-op
   }
 }

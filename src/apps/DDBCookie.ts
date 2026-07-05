@@ -3,7 +3,20 @@ import { Secrets } from "../lib/_module";
 
 export default class DDBCookie extends FormApplication {
 
-  constructor({ actor = null, localCobalt = false, callMuncher = false, callback = null } = {}) {
+  localCobalt: boolean;
+
+  actor: Actor.Implementation | null;
+
+  callMuncher: boolean;
+
+  callback: (() => Promise<void> | void) | null;
+
+  constructor({ actor = null, localCobalt = false, callMuncher = false, callback = null }: {
+    actor?: Actor.Implementation | null;
+    localCobalt?: boolean;
+    callMuncher?: boolean;
+    callback?: (() => Promise<void> | void) | null;
+  } = {}) {
     super({});
     this.localCobalt = localCobalt;
     this.actor = actor;

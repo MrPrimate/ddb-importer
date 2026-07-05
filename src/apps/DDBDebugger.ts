@@ -4,12 +4,20 @@ import {
 } from "../lib/_module";
 import DDBAppV2 from "./DDBAppV2";
 
+interface IDDBDebuggerOptions {
+  actor?: Actor.Implementation | null;
+  extra?: Record<string, unknown>;
+}
 
 export default class DDBDebugger extends DDBAppV2 {
 
-  constructor({ actor, extra } = {}) {
+  actor: Actor.Implementation | null;
+
+  debug: DDBDebug;
+
+  constructor({ actor = null, extra }: IDDBDebuggerOptions = {}) {
     super();
-    this.actor = actor ?? null;
+    this.actor = actor;
 
     this.debug = new DDBDebug({ actor, extra });
   }
@@ -23,8 +31,8 @@ export default class DDBDebugger extends DDBAppV2 {
       downloadDebug: DDBDebugger.downloadDebug,
     },
     position: {
-      width: "900",
-      height: "auto",
+      width: 900,
+      height: "auto" as const,
     },
     window: {
       icon: "fab fa-d-and-d-beyond",
@@ -39,7 +47,6 @@ export default class DDBDebugger extends DDBAppV2 {
   }
 
   /** @override */
-   
   get title() {
     return `DDB Importer Debugger`;
   }
@@ -72,15 +79,14 @@ export default class DDBDebugger extends DDBAppV2 {
   /** @override */
   async _prepareContext(options) {
 
-    let context = this.debug.data;
+    let context = this.debug.data as DDBAppV2Context;
     const parentContext = await super._prepareContext(options);
-    context = foundry.utils.mergeObject(parentContext, context, { inplace: false });
+    context = foundry.utils.mergeObject(parentContext, context, { inplace: false }) as DDBAppV2Context;
     logger.debug("DDBDebug: _prepareContext", context);
     return context;
   }
 
   /** @override */
-   
   async _preparePartContext(partId, context) {
     switch (partId) {
       default: {
@@ -91,7 +97,7 @@ export default class DDBDebugger extends DDBAppV2 {
     return context;
   }
 
-  static async downloadDebug(_event, _target) {
+  static async downloadDebug(this: DDBDebugger, _event, _target) {
     await this.debug.fetch();
     this.debug.download();
   }

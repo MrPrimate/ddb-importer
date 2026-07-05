@@ -445,7 +445,6 @@ export default class DDBStickerBrowser extends DDBAppV2 {
       let currentWidth = tileWidth;
       let currentHeight = tileHeight;
       let currentRotation = 0;
-      // @ts-expect-error - v14 levels not in types yet
       let currentElevation = canvas?.level?.elevation?.base ?? 0;
 
       // Cursor-follow ghost. Attached to the tiles layer's preview container
@@ -646,7 +645,6 @@ export default class DDBStickerBrowser extends DDBAppV2 {
           // assignment when the scene has no levels - schema default is an
           // empty set. Elevation always carries the user's alt+wheel
           // adjustments on top of the level base.
-          // @ts-expect-error - v14 levels not in types yet
           const currentLevel = canvas.level;
           if (currentLevel) createData.levels = [currentLevel.id];
           createData.elevation = currentElevation;

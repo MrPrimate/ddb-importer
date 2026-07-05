@@ -429,6 +429,12 @@ global {
 
     // enchantment transfer
     transferEnchantment?: IDDBImporterTransferEnchantmentFlags;
+
+    // item retention
+    keepItems?: boolean;
+    keepToken?: boolean;
+    keepAvatar?: boolean;
+    customItem?: boolean;
   }
 
   interface I5eActorFlags {
