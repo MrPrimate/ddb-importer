@@ -1,5 +1,9 @@
 # Next Up
 
+- Monsters with persistent invisibility could hang during parsing with some midi-qol configurations.
+- A large number of under the hood typing improvements for Typescript.
+- Some effect expiries fixed.
+
 # 7.3.13
 
 - Eerie Token parsing improvements
