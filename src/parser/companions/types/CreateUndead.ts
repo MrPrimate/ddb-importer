@@ -66,8 +66,7 @@ export async function getCreateUndead({
     },
   ].filter((m) => m.is2014 === ddbParser.is2014);
 
-  const result = {};
-
+  const result: ICompanionResult = {};
 
   const monsterFactory = new DDBMonsterFactory();
   const ids = animated

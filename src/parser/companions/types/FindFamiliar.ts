@@ -228,7 +228,7 @@ export async function getFindFamiliarActivityData(activity: I5eActivity, options
   //   activity,
   // });
 
-  const activityData = {
+  const activityData: IFindFamiliarActivityData = {
     creatureTypes: ["celestial", "fey", "fiend"],
     profiles: profilesChoice,
     creatureSizes: [],

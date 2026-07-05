@@ -102,7 +102,7 @@ export async function getFlamingSphere({
   //   raw,
   // });
 
-  const result = {
+  const result: ICompanionResult = {
     FlamingSphere: {
       name: "Flaming Sphere",
       version: enriched ? "2" : "1",

@@ -3,11 +3,10 @@ import { SRDExtractor } from "../SRDExtractor";
 
 export async function getHoundOfIllOmen(): Promise<ICompanionResult> {
 
-  const results = {};
+  const results: ICompanionResult = {};
   const pack = game.packs.get("dnd5e.monsters");
   if (!pack) return results;
   const dddCompendium = CompendiumHelper.getCompendiumType("monster", false);
-
 
   let direWolf = await SRDExtractor.getDDBCompendiumDocument({ pack: dddCompendium, name: "Dire Wolf" });
   let direWolfVersion = 2;
@@ -36,7 +35,7 @@ export async function getHoundOfIllOmen(): Promise<ICompanionResult> {
       },
       "prototypeToken.name": "Hound of Ill Omen",
       "system.traits.size": "med",
-    }),
+    }) as I5eMonsterData,
   };
 
   return results;

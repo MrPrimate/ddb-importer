@@ -146,7 +146,7 @@ export async function getEldritchCannons2024({
     },
   }) as I5eMonsterData;
 
-  const results = {};
+  const results: ICompanionResult = {};
 
   const cannons = [
     { name: "Force Ballista", min: null, max: 9 },

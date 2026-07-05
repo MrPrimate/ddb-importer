@@ -43,7 +43,7 @@ export async function getConjureElemental({
     },
   ];
 
-  const result = {};
+  const result: ICompanionResult = {};
   for (const elemental of elementals) {
 
     let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {

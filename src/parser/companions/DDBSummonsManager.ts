@@ -10,6 +10,29 @@ const JB2A_LICENSE = `<p>The assets in this actor are kindly provided by JB2A an
 <p>Check them out at <a href="https://jb2a.com">https://jb2a.com</a> they have a free and patreon supported Foundry module providing wonderful animations and assets for a variety of situations.</p>
 <p>You can learn more about their Foundry modules <a href="https://jb2a.com/home/install-instructions/">here</a>.</p>`;
 
+const SUMMONS_INDEX_KEYS = [
+  "name",
+  "flags.ddbimporter.compendiumId",
+  "flags.ddbimporter.id",
+  "flags.ddbimporter.summons",
+];
+
+interface ISummonsIndexMock {
+  name: string;
+  uuid: string;
+  _id: string;
+  flags: {
+    ddbimporter: {
+      compendiumId: string;
+      id: string;
+      summons: {
+        summonsKey: string;
+        version: number;
+        folder: string;
+      };
+    };
+  };
+}
 
 export default class DDBSummonsManager {
 
@@ -46,12 +69,7 @@ export default class DDBSummonsManager {
     notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   } = {}) {
     this.ddbData = ddbData;
-    this.indexFilter = { fields: [
-      "name",
-      "flags.ddbimporter.compendiumId",
-      "flags.ddbimporter.id",
-      "flags.ddbimporter.summons",
-    ] };
+    this.indexFilter = { fields: SUMMONS_INDEX_KEYS };
     this.itemHandler = null;
     this.notifier = notifier;
   }
@@ -68,8 +86,8 @@ export default class DDBSummonsManager {
     await this.itemHandler.init();
   }
 
-  async addToCompendium(companion, updateExisting: boolean | null = null) {
-    const results = [];
+  async addToCompendium(companion: I5eMonsterData, updateExisting: boolean | null = null): Promise<Actor.Implementation[]> {
+    const results: Actor.Implementation[] = [];
     if (!game.user.isGM) return results;
     const compendiumCompanion = foundry.utils.deepClone(companion);
     delete compendiumCompanion.folder;
@@ -83,13 +101,13 @@ export default class DDBSummonsManager {
     return results;
   }
 
-  addProfilesToActivity(activity, summonsKeys = [], data = {}) {
+  addProfilesToActivity(activity: I5eActivity, summonsKeys = [], data = {}) {
 
     const keys = summonsKeys.map((s) => s.name);
 
     const summonActors = this.itemHandler.compendium.index.filter((i) =>
       keys.includes(foundry.utils.getProperty(i, "flags.ddbimporter.summons.summonsKey") as string),
-    );
+    ) as unknown as ISummonsIndexMock[];
     const profiles = summonActors
       .map((actor) => {
         const flag = foundry.utils.getProperty(actor, "flags.ddbimporter.summons.summonsKey") as string;
@@ -110,7 +128,7 @@ export default class DDBSummonsManager {
     return activity;
   }
 
-  static async addGeneratedSummons(generatedSummonedActors, { notifier = null }: { notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void } = {}) {
+  static async addGeneratedSummons(generatedSummonedActors: ICompanionResult, { notifier = null }: { notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void } = {}): Promise<void> {
     if (!game.user.isGM) return;
     const manager = new DDBSummonsManager({ notifier });
     await manager.init();
@@ -122,11 +140,11 @@ export default class DDBSummonsManager {
         && !game.modules.get("JB2A_DnD5e")?.active
       ) continue;
       if (value.needsJB2APatreon && !game.modules.get("jb2a_patreon")?.active) continue;
-      const existingSummons = manager.itemHandler.compendium.index.find((i) =>
+      const existingSummons = manager.itemHandler.compendium.index.find((i: ISummonsIndexMock) =>
         i.flags?.ddbimporter?.summons?.summonsKey === key,
-      );
+      ) as unknown as ISummonsIndexMock;
 
-      if (existingSummons && existingSummons.flags.ddbimporter.summons.version >= value.version) continue;
+      if (existingSummons && existingSummons.flags.ddbimporter.summons.version >= parseInt(value.version)) continue;
 
       // set summons data
       const companion = foundry.utils.deepClone(value.data);

@@ -52,7 +52,7 @@ export async function getGraspingVines({
   //   enriched,
   // });
 
-  const result = {
+  const result: ICompanionResult = {
     GraspingVine: {
       name: "Grasping Vine",
       version: enriched ? "2" : "1",

@@ -2,7 +2,7 @@ import { utils } from "../../../lib/_module";
 import { SRDExtractor } from "../SRDExtractor";
 
 export async function getArcaneSwords(): Promise<ICompanionResult> {
-  const results = {};
+  const results: ICompanionResult = {};
 
   const pack = game.packs.get("dnd5e.monsters");
   if (!pack) return results;
@@ -21,7 +21,7 @@ export async function getArcaneSwords(): Promise<ICompanionResult> {
       "name": "Arcane Sword (Spectral Green)",
       "prototypeToken.texture.src": "modules/ddb-importer/img/jb2a/SpiritualWeapon_Shortsword01_02_Spectral_Green_400x400.webm",
       "img": "modules/ddb-importer/img/jb2a/SpiritualWeapon_Shortsword01_02_Spectral_Green_Thumb.webp",
-    }),
+    }) as I5eMonsterData,
   };
 
   results["ArcaneSwordAstralBlue"] = {
@@ -36,7 +36,7 @@ export async function getArcaneSwords(): Promise<ICompanionResult> {
       "name": "Arcane Sword (Astral Blue)",
       "prototypeToken.texture.src": `${utils.getJB2APath()}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_400x400.webm`,
       "img": `${utils.getJB2APath()}/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Shortsword01_01_Astral_Blue_Thumb.webp`,
-    }),
+    }) as I5eMonsterData,
   };
 
   return results;

@@ -248,7 +248,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     }
   }
 
-  get summonsFunction(): any {
+  get summonsFunction(): ((data: ICompanionData) => Promise<ICompanionResult>) | null {
     if (this.loadedEnricher) {
       return this.loadedEnricher.summonsFunction;
     } else {

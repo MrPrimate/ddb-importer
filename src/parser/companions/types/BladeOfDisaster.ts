@@ -50,7 +50,7 @@ export async function getBladeOfDisaster({
   stub = await DDBCompanionMixin.addEnrichedImageData(stub);
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
-  const result = {
+  const result: ICompanionResult = {
     BladeOfDisaster: {
       name: "Blade of Disaster",
       version: enriched ? "2" : "1",

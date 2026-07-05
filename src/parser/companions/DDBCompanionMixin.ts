@@ -25,13 +25,15 @@ export default class DDBCompanionMixin {
   summons: I5eSummonActivity;
   name: string;
 
-  constructor(block: HTMLElement, options: IDDBCompanionMixinOptions = {}, {
+  constructor(block: HTMLElement | string, options: IDDBCompanionMixinOptions = {}, {
     addMonsterEffects = false, removeSplitCreatureActions = true, removeCreatureOnlyNames = true,
     addChrisPremades = true, useItemAC = false, legacyName = false,
   }: IDDBCompanionMixinParserOptions = {}) {
     // console.warn("DDBCompanion", { block });
     this.options = options;
-    this.block = block;
+    this.block = typeof block === "string"
+      ? new DOMParser().parseFromString(block, "text/html").body
+      : block;
     this.parsed = false;
     this.type = this.options.type;
     this.subType = this.options.subType;

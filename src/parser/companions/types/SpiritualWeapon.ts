@@ -16,7 +16,7 @@ export async function getSpiritualWeapons({
     text,
   });
 
-  const result = {};
+  const result: ICompanionResult = {};
 
 
   let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {

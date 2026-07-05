@@ -4,7 +4,7 @@ export async function getTentacleOfTheDeeps(): Promise<ICompanionResult> {
 
   if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.TentacleOfTheDeeps")) return {};
 
-  const results = {
+  const results: ICompanionResult = {
     TentacleOfTheDeeps: {
       name: "Tentacle of the Deeps",
       version: "1",

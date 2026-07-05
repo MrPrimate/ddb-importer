@@ -62,7 +62,7 @@ export async function getConjureFey({
   //   description,
   // });
 
-  const result = {
+  const result: ICompanionResult = {
     ConjureFey: {
       name: "Conjure Fey",
       version: enriched ? "2" : "1",

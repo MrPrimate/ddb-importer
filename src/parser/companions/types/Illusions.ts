@@ -4,7 +4,7 @@ export async function getIllusions(): Promise<ICompanionResult> {
 
   if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Illusions")) return {};
 
-  const results = {
+  const results: ICompanionResult = {
     IllusionObject: {
       name: "Object",
       version: "1",

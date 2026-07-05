@@ -4,7 +4,7 @@ export async function getDuplicate(): Promise<ICompanionResult> {
 
   if (foundry.utils.getProperty(CONFIG, "DDBI.parsed.Duplicate")) return {};
 
-  const results = {
+  const results: ICompanionResult = {
     IllusionaryDuplicate: {
       name: "Illusionary Duplicate",
       version: "1",

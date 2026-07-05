@@ -57,7 +57,7 @@ export async function getGuardianOfFaith({
   stub = await DDBCompanionMixin.addEnrichedImageData(stub);
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
-  const result = {
+  const result: ICompanionResult = {
     [`GuardianOfFaith${version}`]: {
       name: "Guardian of Faith",
       version: enriched ? "2" : "1",

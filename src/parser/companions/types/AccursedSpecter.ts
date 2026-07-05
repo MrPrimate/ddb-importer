@@ -30,7 +30,7 @@ export async function getAccursedSpecter({
     },
   ].filter((m) => m.is2014 === ddbParser.is2014);
 
-  const result = {};
+  const result: ICompanionResult = {};
 
   const ids = animated.map((m) => parseInt(m.ddbId));
   const monsterFactory = new DDBMonsterFactory();

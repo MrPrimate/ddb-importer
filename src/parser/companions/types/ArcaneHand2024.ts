@@ -30,7 +30,7 @@ export async function getArcaneHands2024({
     });
 
 
-  const results = {};
+  const results: ICompanionResult = {};
 
   const pack = game.packs.get("dnd5e.actors24");
   if (!pack) return results;
@@ -47,7 +47,7 @@ export async function getArcaneHands2024({
       "name": `${name} (${data.color})`,
       "prototypeToken.texture.src": data.token,
       "img": data.actor,
-    });
+    }) as I5eMonsterData;
 
     actorData.items.forEach((item) => {
       switch (item.name) {

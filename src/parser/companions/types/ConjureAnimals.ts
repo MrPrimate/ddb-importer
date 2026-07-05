@@ -55,7 +55,7 @@ export async function getConjureAnimals({
   //   enriched,
   // });
 
-  const result = {
+  const result: ICompanionResult = {
     ConjureAnimals: {
       name: "Conjure Animals",
       version: enriched ? "2" : "1",

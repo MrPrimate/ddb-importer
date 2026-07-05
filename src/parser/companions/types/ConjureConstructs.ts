@@ -16,7 +16,7 @@ export async function getConjureConstructs2024({
     text,
   });
 
-  const result = {};
+  const result: ICompanionResult = {};
 
   let stub = foundry.utils.mergeObject(foundry.utils.deepClone(SUMMONS_ACTOR_STUB()), {
     "name": `Conjured Construct`,

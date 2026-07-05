@@ -60,7 +60,7 @@ export async function getFaithfulHound({
   stub = await DDBCompanionMixin.addEnrichedImageData(stub);
   const enriched = foundry.utils.getProperty(document, "flags.monsterMunch.enrichedImages");
 
-  const result = {
+  const result: ICompanionResult = {
     [`FaithfulHound${version}`]: {
       name: "Faithful Hound",
       version: enriched ? "2" : "1",

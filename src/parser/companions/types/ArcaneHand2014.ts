@@ -31,7 +31,7 @@ export async function getArcaneHands2014({
     text,
   });
 
-  const results = {};
+  const results: ICompanionResult = {};
 
   const pack = game.packs.get("dnd5e.monsters");
   if (!pack) return results;
@@ -44,11 +44,11 @@ export async function getArcaneHands2014({
 
   EXTRA_ARCANE_HAND_INSTANCES().forEach((data) => {
 
-    const actorData = foundry.utils.mergeObject(arcaneHand.toObject(), {
+    const actorData: I5eMonsterData = foundry.utils.mergeObject(arcaneHand.toObject(), {
       "name": `${name} (${data.color})`,
       "prototypeToken.texture.src": data.token,
       "img": data.actor,
-    });
+    } as Partial<I5eMonsterData>) as I5eMonsterData;
 
     actorData.items.forEach((item) => {
       switch (item.name) {

@@ -48,7 +48,7 @@ export async function getAnimateObjects2014({
     // icons/creatures/magical/construct-gargoyle-stone-gray.webp
   ];
 
-  const result = {};
+  const result: ICompanionResult = {};
   for (const data of summonHints) {
 
     const size = CONFIG.DND5E.actorSizes[data.size];
@@ -109,7 +109,7 @@ export async function getAnimateObjects2014({
       isJB2A: false,
       needsJB2A: false,
       needsJB2APatreon: false,
-      folderName: `Animate Objectss`,
+      folderName: `Animate Objects`,
       data: stub,
     };
 
