@@ -37,6 +37,24 @@ export default class Invisibility extends DDBEnricherData {
         midiProperties: {
           concentration: true,
         },
+        midiNever: true,
+      },
+      {
+        options: {
+          transfer: permanent,
+        },
+        name: "Invisibility",
+        changes: [
+          DDBEnricherData.ChangeHelper.daeStatusEffectChange("invisibility", 1),
+        ],
+        daeStackable: "noneName",
+        daeSpecialDurations: improvedEffect
+          ? []
+          : ["1Attack" as const, "1Spell" as const, "1Action" as const],
+        midiProperties: {
+          concentration: true,
+        },
+        midiOnly: true,
       },
     ];
   }
