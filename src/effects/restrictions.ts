@@ -28,7 +28,22 @@ async function lifeStealingEffect(document) {
   return document;
 }
 
-const RESTRICTION_MAPPINGS = [
+interface IRestrictionMapping {
+  name?: string;
+  ddb: string[];
+  restriction: string;
+  effect?: boolean;
+  effectFunction?: (document: any) => Promise<any>;
+  save?: boolean;
+  macro?: boolean;
+  nameMatch?: string;
+  removeOther?: boolean;
+  replaceFlavor?: string;
+  damageParts?: any[];
+  effectRestrictionActivation?: boolean;
+}
+
+const RESTRICTION_MAPPINGS: IRestrictionMapping[] = [
   {
     // name: "Extra Critical",
     ddb: ["20 on the Attack Roll"],
@@ -162,7 +177,7 @@ const RESTRICTION_MAPPINGS = [
 
 export async function addRestrictionFlags(document, addEffects) {
 
-  const restrictions = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.restrictions");
+  const restrictions = foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.restrictions") as string[] | undefined;
   if (!restrictions || restrictions.length == 0) return document;
   const name = document.flags.ddbimporter?.originalName ?? document.name;
 

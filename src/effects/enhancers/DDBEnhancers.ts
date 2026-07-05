@@ -37,21 +37,25 @@ export default class DDBEnhancers {
     const arcaneWardHook = utils.getSetting<boolean>("allow-arcane-ward-enhancer");
     const wardingBondHook = utils.getSetting<boolean>("allow-warding-bond-enhancer");
     if (arcaneWardHook)
-      Hooks.on("preUpdateActor", async (subject, update, options, user) => {
-        if (arcaneWardHook) await ArcaneWard.preUpdateActorHook(subject, update, options, user);
-        if (wardingBondHook) await WardingBond.preUpdateActorHook(subject, update, options, user);
+      Hooks.on("preUpdateActor", (subject, update, options, user) => {
+        void (async () => {
+          if (arcaneWardHook) await ArcaneWard.preUpdateActorHook(subject, update, options, user);
+          if (wardingBondHook) await WardingBond.preUpdateActorHook(subject, update, options, user);
+        })();
       });
   }
 
   static _activityConsumptionHooks() {
     if (utils.getSetting<boolean>("allow-arcane-ward-enhancer"))
-      Hooks.on("dnd5e.activityConsumption", async (activity, usageConfig, messageConfig, updates) => {
-        await ArcaneWard.dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, updates);
+      Hooks.on("dnd5e.activityConsumption", (activity, usageConfig, messageConfig, updates) => {
+        void (async () => {
+          await ArcaneWard.dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, updates);
+        })();
       });
   }
 
   static _dispositionMatch(activity, tokenData) {
-    const dispositionFlag = foundry.utils.getProperty(activity, "item.flags.ddbimporter.disposition");
+    const dispositionFlag = foundry.utils.getProperty(activity, "item.flags.ddbimporter.disposition") as IDDBImporterFlagsDisposition | undefined;
     if (!dispositionFlag) return true;
     if (dispositionFlag.match) {
       const token = activity.actor.token ?? activity.actor.prototypeToken;

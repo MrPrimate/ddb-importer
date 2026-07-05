@@ -11,7 +11,7 @@ export function horrifyingVisageEffect(document) {
       "key": "flags.midi-qol.OverTime",
       "type": "override",
       "value": "turn=end,saveAbility=wis,saveDC=13,saveMagic=true,label=Frightened,killAnim=true",
-      "priority": "20",
+      "priority": 20,
     },
   );
   addStatusEffectChange({ effect, statusName: "Frightened" });

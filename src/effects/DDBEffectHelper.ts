@@ -1,3 +1,4 @@
+import { EmptyObject } from "fvtt-types/utils";
 import {
   utils,
   logger,
@@ -66,7 +67,7 @@ interface IConditionActorish {
   update(data: Record<string, unknown>): Promise<unknown>;
 }
 
-type TSimpleItemRef = { _id?: string; uuid?: string };
+interface TSimpleItemRef { _id?: string; uuid?: string }
 
 interface IRemovalDocument {
   name?: string;

@@ -55,7 +55,9 @@ export function forceItemEffect(document) {
 //
 
 
-export function addStatusEffectChange({ effect, statusName, priority = 20, level = null } = {}) {
+export function addStatusEffectChange({ effect, statusName, priority = 20, level = null }: {
+  effect?: any; statusName?: string; priority?: number; level?: number | null;
+} = {}) {
   return ChangeHelper.addStatusEffectChange({ effect, statusName, priority, level });
 }
 

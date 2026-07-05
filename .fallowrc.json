@@ -26,8 +26,7 @@
     "css/**",
     "src/effects/feats/**",
     "src/effects/monsterFeatures/**",
-    "src/effects/spells/**",
-    "src/effects/specialSpells.ts"
+    "src/effects/spells/**"
   ],
   "ignoreDependencies": [
     "@typescript-eslint/eslint-plugin",

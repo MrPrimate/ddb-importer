@@ -10,7 +10,7 @@ export function generateTauntEffect(document) {
       key: "flags.midi-qol.disadvantage.all",
       type: "custom",
       value: "1",
-      priority: "20",
+      priority: 20,
     },
   );
 

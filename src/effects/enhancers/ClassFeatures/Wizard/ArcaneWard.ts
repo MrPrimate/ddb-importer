@@ -1,8 +1,12 @@
 export default class ArcaneWard {
 
-  static getEnricher({ actor } = {}) {
+  actor: Actor.Implementation;
+
+  wardDocument: Item.Implementation | undefined;
+
+  static getEnricher({ actor }: { actor?: Actor.Implementation } = {}): ArcaneWard {
     const property = `DDBI.ENRICHERS.class.wizard.ArcaneWard.${actor.uuid}`;
-    const ward = foundry.utils.getProperty(CONFIG, property);
+    const ward = foundry.utils.getProperty(CONFIG, property) as ArcaneWard | undefined;
     if (ward) return ward;
 
     const enricher = new ArcaneWard({ actor });
@@ -12,19 +16,19 @@ export default class ArcaneWard {
 
   static wardDocumentName = "Arcane Ward";
 
-  get wardStrength() {
-    return this.wardDocument.system?.uses.value ?? 0;
+  get wardStrength(): number {
+    return (foundry.utils.getProperty(this.wardDocument, "system.uses.value") as number) ?? 0;
   }
 
-  get wardStrengthMax() {
-    return this.wardDocument.system?.uses.max ?? 0;
+  get wardStrengthMax(): number {
+    return (foundry.utils.getProperty(this.wardDocument, "system.uses.max") as number) ?? 0;
   }
 
-  async updateWardStrength(wardStrength) {
-    return this.wardDocument.update({ "system.uses.spent": this.wardStrengthMax - wardStrength });
+  async updateWardStrength(wardStrength: number) {
+    return this.wardDocument.update({ "system.uses.spent": this.wardStrengthMax - wardStrength } as Item.UpdateInput);
   }
 
-  constructor({ actor } = {}) {
+  constructor({ actor }: { actor?: Actor.Implementation } = {}) {
     this.actor = actor;
     this.wardDocument = actor.items.find((i) => i.name === ArcaneWard.wardDocumentName);
   }
@@ -34,7 +38,7 @@ export default class ArcaneWard {
     if (wardStrength === 0) return;
 
     const incomingHP = update.system.attributes.hp.value ?? 0;
-    const oldHP = this.actor.system.attributes.hp.value ?? 0;
+    const oldHP = (foundry.utils.getProperty(this.actor, "system.attributes.hp.value") as number) ?? 0;
     const isHealing = incomingHP >= oldHP;
     // console.warn({
     //   incomingHP,
@@ -51,30 +55,30 @@ export default class ArcaneWard {
     if (absorbed === 0) return;
     const newWardStrength = wardStrength - absorbed;
     const newHP = incomingHP + absorbed;
-    const speaker = ChatMessage.getSpeaker({ actor: this.actor });
+    const speaker = ChatMessage.getSpeaker({ actor: this.actor as any });
     const chatData = {
       content: `${ArcaneWard.wardDocumentName} absorbs ${absorbed} of ${damage} points of damage.<br> Hp -> ${newHP}<br>Ward strength -> ${newWardStrength}`,
       speaker,
     };
     // ChatMessage.applyRollMode(chatData, "gmroll");
-    ChatMessage.create(chatData);
+    ChatMessage.create(chatData as unknown as ChatMessage.CreateInput);
     update.system.attributes.hp.value = newHP;
     await this.updateWardStrength(newWardStrength);
   }
 
-  async addWard({ spellLevel } = {}) {
+  async addWard({ spellLevel }: { spellLevel?: number } = {}) {
     const wardStrength = this.wardStrength;
     const wardStrengthMax = this.wardStrengthMax;
     const newWardStrength = Math.min(wardStrength + (spellLevel * 2), wardStrengthMax);
 
     if (wardStrength === newWardStrength) return;
-    const speaker = ChatMessage.getSpeaker({ actor: this.actor });
+    const speaker = ChatMessage.getSpeaker({ actor: this.actor as any });
     const chatData = {
       content: `${ArcaneWard.wardDocumentName} gains ${spellLevel * 2} points to ${newWardStrength}/${wardStrengthMax}`,
       speaker,
     };
     // ChatMessage.applyRollMode(chatData, "gmroll");
-    ChatMessage.create(chatData);
+    ChatMessage.create(chatData as unknown as ChatMessage.CreateInput);
     await this.updateWardStrength(newWardStrength);
   }
 

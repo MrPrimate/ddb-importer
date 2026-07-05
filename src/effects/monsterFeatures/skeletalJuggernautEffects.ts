@@ -24,7 +24,7 @@ function fallingApartEffect(document) {
       "key": "flags.midi-qol.OverTime",
       "type": "override",
       "value": `turn=start, damageRoll=10, damageType=none, condition=@attributes.hp.value > 0 && @attributes.hp.value < @attributes.hp.max, label=${document.name}`,
-      "priority": "20",
+      "priority": 20,
     },
   );
   effect.transfer = true;

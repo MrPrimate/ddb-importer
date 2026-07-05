@@ -29,12 +29,12 @@ export default class MightySummoner {
           changes: [{
             key: `system.attributes.hp.${hpField}`,
             type: "add",
-            value: hpBonus.total,
+            value: hpBonus,
           }],
           disabled: false,
           icon: "icons/magic/life/heart-glowing-red.webp",
           name: game.i18n.localize("DND5E.SUMMON.FIELDS.bonuses.hp.label"),
-        })).toObject();
+        } as unknown as ActiveEffect.CreateData)).toObject();
       };
 
       if (!foundry.utils.isEmpty(tokenUpdateData.actor.classes) && !tokenUpdateData.actor._source.system.attributes.hp.max) {

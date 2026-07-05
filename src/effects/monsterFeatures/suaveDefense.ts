@@ -8,7 +8,7 @@ export function generateSuaveDefenseEffect(ddbMonster, document) {
       key: "system.attributes.ac.bonus",
       type: "add",
       value: `+ ${ddbMonster.npc.system.abilities.cha.mod}`,
-      priority: "20",
+      priority: 20,
     },
   );
 

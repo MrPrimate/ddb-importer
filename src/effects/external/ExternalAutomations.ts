@@ -25,13 +25,13 @@ export default class ExternalAutomations {
   async disableDynamicUpdates() {
     if (!this.dynamicUpdateStatus) return;
     const activeUpdateData = { flags: { ddbimporter: { activeUpdate: false } } };
-    await this.actor.update(activeUpdateData);
+    await this.actor.update(activeUpdateData as Actor.UpdateInput);
   }
 
   async enableDynamicUpdates() {
     if (!this.dynamicUpdateStatus) return;
     const activeUpdateData = { flags: { ddbimporter: { activeUpdate: true } } };
-    await this.actor.update(activeUpdateData);
+    await this.actor.update(activeUpdateData as Actor.UpdateInput);
   }
 
   static async applyChrisPremadeEffect({ document, type, monsterName = null, chrisNameOverride = null }: { document: TExternalAutomationDocuments; type: string; monsterName?: string | null; chrisNameOverride?: string | null }): Promise<TExternalAutomationDocuments> {

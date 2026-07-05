@@ -324,7 +324,8 @@ export default class ChrisPremadesHelper {
         logger.debug(`Adding new items for ${chrisName}`);
 
         for (const newItem of newItemNames) {
-          const { name: newItemName = newItem, type: typeOverride } = newItem;
+          // entries are either a plain name string or a { name, type } record
+          const { name: newItemName = newItem, type: typeOverride } = newItem as { name?: string; type?: string };
           logger.debug(`Adding new item ${newItemName}`);
           const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
             documentName: newItemName,
@@ -393,13 +394,13 @@ export default class ChrisPremadesHelper {
     for (const restrictedItem of sortedItems) {
       logger.debug(`Checking restricted Item ${restrictedItem.key}: ${restrictedItem.originalName}`);
       const doc = documents.find((d) => {
-        const ddbName = d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments);
+        const ddbName = (foundry.utils.getProperty(d, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments);
         const retainDoc = foundry.utils.getProperty(document, "flags.ddbimporter.ignoreItemForChrisPremades") === true;
         return ddbName === restrictedItem.originalName && !retainDoc;
       });
       if (!doc) continue;
       if (["class", "subclass", "background"].includes(doc.type)) continue;
-      const ddbName = doc.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(doc as unknown as TExternalAutomationDocuments);
+      const ddbName = (foundry.utils.getProperty(doc, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(doc as unknown as TExternalAutomationDocuments);
 
       const rollData = actor.getRollData();
 
@@ -410,7 +411,8 @@ export default class ChrisPremadesHelper {
         if (subClassData.parent.name.toLowerCase() !== restrictedItem.requiredSubclass.toLowerCase()) continue;
       }
       if (restrictedItem.requiredRace
-        && restrictedItem.requiredRace.toLocaleLowerCase() !== (rollData.details.race?.name ?? rollData.details?.race)?.toLocaleLowerCase()
+        && restrictedItem.requiredRace.toLocaleLowerCase()
+          !== ((foundry.utils.getProperty(rollData, "details.race.name") as string) ?? (foundry.utils.getProperty(rollData, "details.race") as string))?.toLocaleLowerCase()
       ) continue;
 
 
@@ -418,7 +420,7 @@ export default class ChrisPremadesHelper {
         const itemMatch = restrictedItem.requiredEquipment
           .every((requiredEquipment) =>
             documents.some((d) =>
-              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredEquipment
+              ((foundry.utils.getProperty(d, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredEquipment
               && DICTIONARY.types.inventory.includes(d.type),
             ));
         if (!itemMatch) continue;
@@ -428,7 +430,7 @@ export default class ChrisPremadesHelper {
         const itemMatch = restrictedItem.requiredFeatures
           .every((requiredFeature) =>
             documents.some((d) =>
-              (d.flags.ddbimporter?.chrisPreEffectName ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredFeature
+              ((foundry.utils.getProperty(d, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredFeature
               && d.type === "feat",
             ));
         if (!itemMatch) continue;

@@ -1,11 +1,23 @@
 import DDBEffectHelper from "../../DDBEffectHelper";
 
+interface IWardingBondTargetFlag {
+  targetID?: string;
+  casterUuid?: string;
+  originUuid?: string;
+}
+
+interface IWardingBondCasterFlag {
+  casterID?: string;
+  targetUuid?: string;
+  originUuid?: string;
+}
+
 export default class WardingBond {
 
   static async applyCasterAtZeroHP({
     targetUuid, actor, originUuid,
-  } = {}) {
-    const targetActor = await fromUuid(targetUuid);
+  }: { targetUuid: string; actor: Actor.Implementation; originUuid: string }) {
+    const targetActor = await fromUuid(targetUuid) as unknown as Actor.Implementation;
     const effectsToDelete = actor.effects.filter((e) => e.origin === originUuid).map((t) => t.uuid)
       .concat(targetActor.effects.filter((e) => e.origin === originUuid).map((t) => t.uuid));
 
@@ -16,16 +28,20 @@ export default class WardingBond {
 
   static async applyDamageToTarget({
     damage, actor, casterUuid,
-  } = {}) {
-    const caster = await fromUuid(casterUuid);
+  }: { damage: number; actor: Actor.Implementation; casterUuid: string }) {
+    const caster = await fromUuid(casterUuid) as unknown as Actor.Implementation;
     await caster.applyDamage(damage);
     ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: caster }),
+      speaker: ChatMessage.getSpeaker({ actor: caster as any }),
       content: `${caster.name} took ${damage} damage from Warding Bond with ${actor.name}`,
-    });
+    } as unknown as ChatMessage.CreateInput);
   }
 
-  static async checkEffects({ targetActor, casterActor, originUuid } = {}) {
+  static async checkEffects({ targetActor, casterActor, originUuid }: {
+    targetActor?: Actor.Implementation;
+    casterActor?: Actor.Implementation;
+    originUuid?: string;
+  } = {}) {
     const targetEffect = targetActor.effects.find((e) => e.origin === originUuid);
     const casterEffect = casterActor.effects.find((e) => e.origin === originUuid);
 
@@ -49,10 +65,10 @@ export default class WardingBond {
   }
 
 
-  static async preUpdateActorHook(subject, update, options, _user) {
+  static async preUpdateActorHook(subject, update, options: Record<string, any>, _user) {
     if (!(update.system?.attributes?.hp ?? false)) return true;
-    const targetFlag = DDBEffectHelper.getFlag(subject, "WardingBondIds");
-    const casterFlag = DDBEffectHelper.getFlag(subject, "WardingBondTargets");
+    const targetFlag = DDBEffectHelper.getFlag(subject, "WardingBondIds") as IWardingBondTargetFlag | null;
+    const casterFlag = DDBEffectHelper.getFlag(subject, "WardingBondTargets") as IWardingBondCasterFlag | null;
 
     if (!targetFlag && !casterFlag) return true;
     if (targetFlag && targetFlag.targetID !== subject.id) {
@@ -63,14 +79,14 @@ export default class WardingBond {
     }
 
     const oldHP = (options.dnd5e.hp.value ?? 0) + (options.dnd5e.hp.temp ?? 0);
-    const newHP = (foundry.utils.getProperty(update, "system.attributes.hp.value") ?? 0)
-      + (foundry.utils.getProperty(update, "system.attributes.hp.temp") ?? 0);
+    const newHP = ((foundry.utils.getProperty(update, "system.attributes.hp.value") as number) ?? 0)
+      + ((foundry.utils.getProperty(update, "system.attributes.hp.temp") as number) ?? 0);
     const hpChange = oldHP - newHP;
 
     // damage applied to caster, evaluate if warding bond remains in effect
     if (casterFlag && subject.id === casterFlag.casterID && newHP <= 0) {
-      const targetActor = await fromUuid(casterFlag.targetUuid);
-      const matchingEffects = this.checkEffects({ targetActor, casterActor: subject, originUuid: casterFlag.originUuid });
+      const targetActor = await fromUuid(casterFlag.targetUuid) as Actor.Implementation;
+      const matchingEffects = await this.checkEffects({ targetActor, casterActor: subject, originUuid: casterFlag.originUuid });
       if (!matchingEffects) return true;
       await WardingBond.applyCasterAtZeroHP({
         targetUuid: casterFlag.targetUuid,
@@ -83,8 +99,8 @@ export default class WardingBond {
 
     // damage applied to target, roll against caster
     if (targetFlag && Number.isInteger(hpChange) && hpChange > 0) {
-      const casterActor = await fromUuid(targetFlag.casterUuid);
-      const matchingEffects = this.checkEffects({ targetActor: subject, casterActor, originUuid: targetFlag.originUuid });
+      const casterActor = await fromUuid(targetFlag.casterUuid) as Actor.Implementation;
+      const matchingEffects = await this.checkEffects({ targetActor: subject, casterActor, originUuid: targetFlag.originUuid });
       if (!matchingEffects) return true;
       await WardingBond.applyDamageToTarget({
         damage: hpChange,
