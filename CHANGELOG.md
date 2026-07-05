@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.1.35
+
+- Monsters with persistent invisibility could hang during parsing with some midi-qol configurations.
+
 # 7.1.34
 
 - When importing adventures that have been enhanced with v14 data, they no longer fail to import. e.g. the new Ravenloft books.
