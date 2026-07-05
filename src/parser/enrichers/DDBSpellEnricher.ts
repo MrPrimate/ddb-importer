@@ -23,11 +23,11 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS_2014: Record<string, any> = {};
+  NAME_HINTS_2014: Record<string, string> = {};
 
-  NAME_HINTS: Record<string, any> = {};
+  NAME_HINTS: Record<string, string> = {};
 
-  ENRICHERS: Record<string, any> = {
+  ENRICHERS: Record<string, EnricherConstructor> = {
     "Antipathy/Sympathy": SpellEnrichers.AntipathySympathy,
     "Bigby's Hand": SpellEnrichers.ArcaneHand,
     "Blindness/Deafness": SpellEnrichers.BlindnessDeafness,
@@ -47,4 +47,6 @@ export default class DDBSpellEnricher extends DDBEnricherFactoryMixin {
     "Tasha's Hideous Laughter": SpellEnrichers.HideousLaughter,
     "Accelerate/Decelerate": SpellEnrichers.AccelerateDecelerate,
   };
+
+  FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};
 }

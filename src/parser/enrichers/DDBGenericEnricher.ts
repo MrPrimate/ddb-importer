@@ -13,13 +13,13 @@ export default class DDBGenericEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS_2014: Record<string, any> = {};
-  NAME_HINTS: Record<string, any> = {};
-  NAME_HINT_INCLUDES: Record<string, any> = {};
-  ENRICHERS: Record<string, any> = {
+  NAME_HINTS_2014: Record<string, string> = {};
+  NAME_HINTS: Record<string, string> = {};
+  NAME_HINT_INCLUDES: Record<string, string> = {};
+  ENRICHERS: Record<string, EnricherConstructor> = {
     None: GenericEnrichers.None,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
   };
 
-  FALLBACK_ENRICHERS: Record<string, any> = {};
+  FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};
 }

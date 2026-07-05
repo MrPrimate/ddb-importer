@@ -42,7 +42,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS: Record<string, any> = {
+  NAME_HINTS: Record<string, string> = {
     "Powerful Build, Hippo Build": "Hippo Build",
     "Gnomish Lineage": "Generic",
     "Gnomish Lineage: Rock Gnome": "Generic",
@@ -54,13 +54,13 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Breath Weapon (Poison)": "Breath Weapon (2024)",
   };
 
-  NAME_HINT_INCLUDES: Record<string, any> = {
+  NAME_HINT_INCLUDES: Record<string, string> = {
     " Lineage": "Lineage",
     " Legacy": "Lineage",
     "Breath Weapon (": "Breath Weapon",
   };
 
-  ENRICHERS: Record<string, any> = {
+  ENRICHERS: Record<string, EnricherConstructor> = {
     None: GenericEnrichers.None,
     Generic: SpeciesEnrichers.Generic.Generic,
     Lineage: SpeciesEnrichers.Generic.Lineage,
@@ -115,7 +115,7 @@ export default class DDBSpeciesTraitEnricher extends DDBEnricherFactoryMixin {
     "Draconic Flight": SpeciesEnrichers.Dragonborn.DraconicFlight,
   };
 
-  FALLBACK_ENRICHERS: Record<string, any> = {
+  FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {
     Generic: SpeciesEnrichers.Generic.Generic,
   };
 }
