@@ -3,7 +3,7 @@ import { GenericEnrichers, MonsterEnrichers } from "./_module";
 import { logger, utils } from "../../lib/_module";
 import DDBMonsterFeature from "../monster/features/DDBMonsterFeature";
 
-export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
+export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin<Record<string, string>> {
   monster: I5eMonsterData;
   monsterName: string;
   monsterHintName: string | null;
@@ -182,7 +182,7 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Absorption": "Absorption",
   };
 
-  GENERIC_ENRICHERS: Record<string, any> = {
+  GENERIC_ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorption": MonsterEnrichers.Generic.Absorption,
     "Invisibility": MonsterEnrichers.Generic.Invisibility,
     "Legendary Resistance": MonsterEnrichers.Generic.LegendaryResistance,
@@ -195,7 +195,9 @@ export default class DDBMonsterFeatureEnricher extends DDBEnricherFactoryMixin {
     "Illumination": MonsterEnrichers.Generic.Illumination,
   };
 
-  ENRICHERS: Record<string, any> = {
+  FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};
+
+  ENRICHERS: Record<string, Record<string, EnricherConstructor>> = {
     Generic: this.GENERIC_ENRICHERS,
     "Conjured Animals": { "Pack Damage": MonsterEnrichers.ConjuredAnimals.PackDamage },
     "Conjured Air Elemental": { "Air Element": MonsterEnrichers.ConjuredElemental.ElementDamage },

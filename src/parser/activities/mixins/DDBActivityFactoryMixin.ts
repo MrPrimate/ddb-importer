@@ -25,7 +25,7 @@ export default abstract class DDBActivityFactoryMixin<TDoc extends string = TAFM
   abstract is2024: boolean;
   abstract originalName: string;
   abstract rawCharacter: I5ePCData | I5eMonsterData | null;
-  enricher: DDBEnricherFactoryMixin;
+  enricher: DDBEnricherFactoryMixin<any>;
   activityGenerator: new (...args: any[]) => IDDBActivityTypes;
   additionalActivities: IAdditionalActivityOutline[] = [];
   documentType: TDoc | null = null;

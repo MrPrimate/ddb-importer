@@ -23,14 +23,14 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     });
   }
 
-  NAME_HINTS: Record<string, any> = {
+  NAME_HINTS: Record<string, string> = {
     "Alchemist's Fire (flask)": "Alchemist's Fire",
     "Potion of Greater Healing": "Potion of Healing (Greater)",
     "Potion of Superior Healing": "Potion of Healing (Superior)",
     "Potion of Supreme Healing": "Potion of Healing (Supreme)",
   };
 
-  NAME_HINT_INCLUDES: Record<string, any> = {
+  NAME_HINT_INCLUDES: Record<string, string> = {
     "Absorbing Tattoo": "Absorbing Tattoo",
     "Flame Tongue": "Flame Tongue",
     "Moon Sickle": "Moon Sickle",
@@ -38,7 +38,7 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wraps of Unarmed Power": "Wraps of Unarmed Power",
   };
 
-  ENRICHERS: Record<string, any> = {
+  ENRICHERS: Record<string, EnricherConstructor> = {
     "Absorbing Tattoo": ItemEnrichers.AbsorbingTattoo,
     "Acid (vial)": ItemEnrichers.AcidVial,
     "Anstruth Harp": ItemEnrichers.InstrumentOfTheBards,
@@ -65,4 +65,6 @@ export default class DDBItemEnricher extends DDBEnricherFactoryMixin {
     "Wraps of Unarmed Power": ItemEnrichers.WrapsOfUnarmedPower,
     "Unarmed Strike": GenericEnrichers.UnarmedStrike,
   };
+
+  FALLBACK_ENRICHERS: Record<string, EnricherConstructor> = {};
 }

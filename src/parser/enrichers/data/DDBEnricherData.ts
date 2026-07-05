@@ -5,7 +5,6 @@ import CharacterSpellFactory from "../../spells/CharacterSpellFactory";
 import DDBSpell from "../../spells/DDBSpell";
 import { AutoEffects, ChangeHelper } from "../effects/_module";
 
-
 export interface IDDBBasicDamage {
   number?: number | null;
   denomination?: number | null;
@@ -25,7 +24,7 @@ export default abstract class DDBEnricherData {
   static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
   static SPELL_PROPERTIES = DICTIONARY.spell.components;
 
-  ddbEnricher: any;
+  ddbEnricher: TDDBEnricher;
   ddbParser: any;
   is2014: boolean;
   is2024: boolean;
@@ -37,7 +36,7 @@ export default abstract class DDBEnricherData {
   isCustomAction: any;
   manager: any;
 
-  constructor({ ddbEnricher }: { ddbEnricher: any }) {
+  constructor({ ddbEnricher }: { ddbEnricher: TDDBEnricher }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;
     this.is2014 = ddbEnricher.is2014;
