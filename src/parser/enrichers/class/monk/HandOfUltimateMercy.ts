@@ -1,6 +1,7 @@
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type DDBClassFeatureEnricher from "../../DDBClassFeatureEnricher";
 
-export default class HandOfUltimateMercy extends DDBEnricherData {
+export default class HandOfUltimateMercy extends DDBEnricherData<DDBClassFeatureEnricher> {
 
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.HEAL;

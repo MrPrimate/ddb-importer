@@ -17,14 +17,14 @@ export interface IDDBBasicDamage {
   customFormula?: string | null;
 }
 
-export default abstract class DDBEnricherData {
+export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnricher> {
 
   static AutoEffects = AutoEffects;
   static ChangeHelper = ChangeHelper;
   static ACTIVITY_TYPES = DICTIONARY.parsing.activity.types;
   static SPELL_PROPERTIES = DICTIONARY.spell.components;
 
-  ddbEnricher: TDDBEnricher;
+  ddbEnricher: T;
   ddbParser: any;
   is2014: boolean;
   is2024: boolean;
@@ -36,7 +36,7 @@ export default abstract class DDBEnricherData {
   isCustomAction: any;
   manager: any;
 
-  constructor({ ddbEnricher }: { ddbEnricher: TDDBEnricher }) {
+  constructor({ ddbEnricher }: { ddbEnricher: T }) {
     this.ddbEnricher = ddbEnricher;
     this.ddbParser = ddbEnricher.ddbParser;
     this.is2014 = ddbEnricher.is2014;
