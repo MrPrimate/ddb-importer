@@ -58,7 +58,7 @@ global {
     /** Limited use data from an item source */
     limitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string };
     /** Limited use data from the spell itself (item spells) */
-    spellLimitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string } | null;
+    spellLimitedUse?: IDDBSpellLimitedUse | null;
     /** Whether the item granting this spell is active/equipped/attuned */
     active?: boolean;
   }

@@ -27,6 +27,7 @@ global {
     infusions: IDDBInfusions;
     classOptions: any[];
     originOptions: any[];
+    unequippedItemSpells?: IDDBSpellEntry[];
   }
 
   // ---- Decorations (top-level) ----------------------------------------------

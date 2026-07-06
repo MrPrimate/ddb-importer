@@ -4,7 +4,7 @@ import DDBSpell from "./DDBSpell";
 
 export default class GenericSpellFactory {
 
-  static async getSpells(spells, notifier = null, generateSummons = null, notifierV2 = null) {
+  static async getSpells(spells: IDDBSpellEntry[], notifier: ((message: string, options?: any) => void) | null = null, generateSummons: boolean | null = null, notifierV2: ((data: any) => void) | null = null) {
     const results = [];
 
     const filteredSpells = spells
@@ -57,14 +57,17 @@ export default class GenericSpellFactory {
     return results;
   }
 
-  static getSpellCount(dict, name) {
+  static getSpellCount(dict: Record<string, number>, name: string): number {
     if (!dict[name]) {
       dict[name] = 0;
     }
     return ++dict[name];
   }
 
-  static async getItemSpells(ddb, character, { generateSummons = null, notifier = null } = {}) {
+  static async getItemSpells(ddb: IDDBData, character: I5ePCData, { generateSummons = null, notifier = null }: {
+    generateSummons?: boolean | null;
+    notifier?: ((message: string, options?: any) => void) | null;
+  } = {}) {
 
     // console.warn("GenericSpellFactory.getItemSpells", { ddb, character });
 

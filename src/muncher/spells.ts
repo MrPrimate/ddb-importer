@@ -20,7 +20,13 @@ import { DDBReferenceLinker } from "../parser/lib/_module";
 import DDBSpellListFactory from "../parser/spells/DDBSpellListFactory";
 import DDBSpellSocket, { DDBSpellEvent } from "../lib/streaming/DDBSpellSocket";
 
-function applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilter }) {
+function applySpellFilters(raw: IDDBSpellEntry[], { sourceFilter, sources, exactMatch, searchFilter }:
+{
+  sourceFilter: boolean;
+  sources: number[];
+  exactMatch: boolean;
+  searchFilter: string;
+}): IDDBSpellEntry[] {
   let data = raw;
   if (sourceFilter) {
     data = data
@@ -56,7 +62,16 @@ function applySpellFilters(raw, { sourceFilter, sources, exactMatch, searchFilte
   return data;
 }
 
-function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifier, searchFilter, sourcesOverride = null }: any = {}) {
+interface IGetSpellDataHttpOptions {
+  className: string;
+  sourceFilter: boolean;
+  rulesVersion?: string | null;
+  notifier?: (message: string) => void;
+  searchFilter?: string;
+  sourcesOverride?: number[] | null;
+}
+
+function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifier, searchFilter, sourcesOverride = null }: IGetSpellDataHttpOptions) {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
@@ -80,7 +95,7 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
     rulesVersion, className, searchFilter,
   });
 
-  return new Promise((resolve, reject) => {
+  return new Promise<IDDBSpellEntry[]>((resolve, reject) => {
     postJson(`${parsingApi}/proxy/class/spells`, body)
       .then((data) => {
         if (debugJson) {
@@ -107,13 +122,19 @@ function getSpellDataHttp({ className, sourceFilter, rulesVersion = null, notifi
 interface ClassSpellSet {
   className: string;
   rulesVersion: string;
-  spellData: any[];
+  spellData: IDDBSpellEntry[];
+}
+
+interface IStreamAllClassSpellsOptions {
+  sourceFilter: boolean;
+  searchFilter: string;
+  sourcesOverride?: number[] | null;
 }
 
 // Stream every class' spells over a SINGLE reused socket connection: connect +
 // auth once, then issue one `class-spells` job per class on the same socket.
 // Replaces the old per-class connect/auth/start/close churn (~24 connections).
-async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverride = null }: any = {}): Promise<ClassSpellSet[]> {
+async function streamAllClassSpells({ sourceFilter, searchFilter, sourcesOverride = null }: IStreamAllClassSpellsOptions): Promise<ClassSpellSet[]> {
   const cobaltCookie = Secrets.getCobalt();
   const campaignId = DDBCampaigns.getCampaignId(utils.munchNote);
   const parsingApi = DDBProxy.getProxy();
@@ -202,7 +223,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   const sourceFilter = sources && sources.length > 0
     ? true
     : !(ids !== null && ids.length > 0);
-  const results = [];
+  const results: IDDBSpellEntry[] = [];
   const spellListFactory = new DDBSpellListFactory();
 
   // Prefer streaming all classes over one reused socket. On any streaming
