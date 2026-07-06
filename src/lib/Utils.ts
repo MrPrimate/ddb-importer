@@ -376,7 +376,7 @@ export default class Utils {
     return entityTypes;
   }
 
-  static versionCompare(v1, v2, options) {
+  static versionCompare(v1, v2, options?: { lexicographical?: boolean; zeroExtend?: boolean }) {
     const lexicographical = options && options.lexicographical,
       zeroExtend = options && options.zeroExtend;
     let v1parts = v1.split("."),

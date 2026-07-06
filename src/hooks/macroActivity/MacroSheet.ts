@@ -1,7 +1,7 @@
 /**
  * Sheet for the utility activity.
  */
-export default class MacroSheet extends dnd5e.applications.activity.ActivitySheet {
+export default class MacroSheet extends dnd5e.applications.activity.ActivitySheet<any> {
 
   /** @inheritDoc */
   static DEFAULT_OPTIONS = {

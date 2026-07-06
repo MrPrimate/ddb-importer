@@ -62,9 +62,18 @@ async function enrichFunction(config, label, options) {
   //   options,
   // });
 
-  if (!config.functionName || !config.functionType) return "";
+  // null tells the enricher pipeline to leave the text as is
+  if (!config.functionName || !config.functionType) return null;
 
-  const dataset = {
+  const dataset: {
+    type: string;
+    functionName: any;
+    functionType: any;
+    functionParams: any;
+    rollItemUuid?: string;
+    rollItemActor?: string;
+    rollItemName?: string;
+  } = {
     type: "ddbfunction",
     functionName: config.functionName,
     functionType: config.functionType,
@@ -151,7 +160,7 @@ async function runFunction(event) {
 
   target.disabled = true;
 
-  const actor = rollItemActor ? await fromUuid(rollItemActor) : null;
+  const actor = rollItemActor ? await fromUuid(rollItemActor) as Actor.Implementation : null;
 
   try {
     const ids = {

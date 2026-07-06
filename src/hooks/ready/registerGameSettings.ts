@@ -1,7 +1,7 @@
 import { DICTIONARY, SETTINGS } from "../../config/_module";
 import { FileHelper, utils } from "../../lib/_module";
 import DDBSetup from "../../apps/DDBSetup";
-import { IDDBListCampaign } from "../../lib/DDBCampaigns";
+// IDDBListCampaign is declared globally in lib/types.d.ts.
 // JournalPageLookup is declared globally in muncher/adventure/native/types.d.ts.
 
 interface IDDBIMacros {

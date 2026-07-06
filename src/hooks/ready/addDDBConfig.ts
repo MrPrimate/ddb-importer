@@ -3,8 +3,8 @@ import { DDBSources, utils } from "../../lib/_module";
 import { DDBRuleJournalFactory } from "../../parser/lib/_module";
 import SpellListFactory from "../../parser/spells/SpellListFactory";
 
-function filterLanguages(languages) {
-  const result = new Set();
+function filterLanguages(languages: IDDBConfigLanguage[]): { name: string; value: string }[] {
+  const result = new Set<{ name: string; value: string }>();
 
   const systemLanguageValues = new Set();
 
@@ -44,7 +44,7 @@ function filterLanguages(languages) {
 
 function addLanguages() {
   if (!utils.getSetting<boolean>("add-ddb-languages")) return;
-  const ddbRaw = foundry.utils.getProperty(CONFIG, "DDB.languages");
+  const ddbRaw = foundry.utils.getProperty(CONFIG, "DDB.languages") as IDDBConfigLanguage[] | undefined;
   if (!ddbRaw) return;
 
   const ddbFiltered = filterLanguages(ddbRaw);

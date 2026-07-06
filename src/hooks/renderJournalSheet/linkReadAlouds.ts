@@ -34,7 +34,7 @@ export function showReadAlouds(html, data) {
           $(toChatButton).click((event) => {
             event.preventDefault();
             event.stopPropagation();
-            ChatMessage.create({ content: element.outerHTML });
+            ChatMessage.create({ content: element.outerHTML } as unknown as ChatMessage.CreateInput);
           });
         });
       $(element)

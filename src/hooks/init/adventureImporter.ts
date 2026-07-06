@@ -2,8 +2,8 @@ import { DDBAdventureImporter } from "../../apps/DDBAdventureImporter";
 import { SETTINGS } from "../../config/_module";
 
 export default function () {
-  const registerSheet = foundry.applications?.apps?.DocumentSheetConfig ?? DocumentSheetConfig;
-  registerSheet.registerSheet(Adventure, SETTINGS.MODULE_ID, DDBAdventureImporter, {
+  const registerSheet = foundry.applications?.apps?.DocumentSheetConfig;
+  registerSheet.registerSheet(Adventure as unknown as Parameters<typeof registerSheet.registerSheet>[0], SETTINGS.MODULE_ID, DDBAdventureImporter as unknown as Parameters<typeof registerSheet.registerSheet>[2], {
     label: "DDB Adventure Importer",
   });
 

@@ -92,7 +92,6 @@ export default class DDBEffectHooks {
 
   static loadHooks() {
     // special effect functions
-    // @ts-expect-error - fine
     Hooks.on("applyActiveEffect", DDBEffectHooks.processCustomApplyEffectHooks);
     if (!game.modules.get("dae")?.active) {
       Hooks.on("applyActiveEffect", daeStubEffects);

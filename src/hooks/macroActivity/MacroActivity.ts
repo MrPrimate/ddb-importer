@@ -2,10 +2,16 @@ import { DDBSimpleMacro, logger } from "../../lib/_module";
 import MacroActivityData from "./MacroActivityData";
 import MacroSheet from "./MacroSheet";
 
+const BaseMacroActivity = dnd5e.documents.activity.ActivityMixin(MacroActivityData);
+
 /**
  * Generic activity for applying effects and rolling an arbitrary die.
  */
-export default class MacroActivity extends dnd5e.documents.activity.ActivityMixin(MacroActivityData) {
+export default class MacroActivity extends BaseMacroActivity {
+
+  /** schema field defined by MacroActivityData; declared for the type system */
+  declare macro: IDDBActivityMacro;
+
   /* -------------------------------------------- */
   /*  Model Configuration                         */
   /* -------------------------------------------- */
@@ -27,7 +33,7 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
           executeMacro: MacroActivity.#executeMacro,
         },
       },
-    }, { inplace: false }),
+    }, { inplace: false }) as unknown as typeof BaseMacroActivity.metadata,
   );
 
   /* -------------------------------------------- */
@@ -35,16 +41,18 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
   /* -------------------------------------------- */
 
   /** @override */
-  _usageChatButtons(message) {
-    if (!this.macro.function) return super._usageChatButtons(message);
-    return [{
+  async _usageChatButtons(message) {
+    const superButtons = await super._usageChatButtons(message);
+    if (!this.macro.function) return superButtons;
+    const macroButton = {
       label: this.macro.name || game.i18n.localize("ddb-importer.activities.macro.Button"),
       icon: "<i class=\"fas fa-code\" inert></i>",
       dataset: {
         action: "executeMacro",
         visibility: this.macro.visible ? "all" : undefined,
       },
-    }].concat(super._usageChatButtons(message));
+    } as unknown as (typeof superButtons)[number];
+    return [macroButton].concat(superButtons);
   }
 
   async _executeDDBMacro(targetUuids = []) {
@@ -116,7 +124,7 @@ export default class MacroActivity extends dnd5e.documents.activity.ActivityMixi
    * @param {HTMLElement} _target     The capturing HTML element which defined a [data-action].
    * @param {ChatMessage5e} _message  Message associated with the activation.
    */
-  static #executeMacro(_event: PointerEvent, _target: HTMLElement, _message: ChatMessage5e) {
+  static #executeMacro(this: MacroActivity, _event: PointerEvent, _target: HTMLElement, _message: unknown) {
     const targets = Array.from(game.user.targets);
 
     if (this.macro.function.startsWith("ddb.")) {

@@ -15,7 +15,7 @@ async function getBaseTattooData(level: number): Promise<I5eConsumableItem> {
     await CompendiumHelper.loadCompendiumIndex("items", {
       fields: ["name", "system.identifier"],
     });
-    const indexMatch = ddbCompendium.index.find((i) => i.system?.identifier?.startsWith(spellWroughtIdentity));
+    const indexMatch = ddbCompendium.index.find((i) => (foundry.utils.getProperty(i, "system.identifier") as string)?.startsWith(spellWroughtIdentity));
     if (indexMatch) tattooUuid = indexMatch.uuid;
   }
   // fallback to scroll item
@@ -53,7 +53,7 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
   if (config.dialog !== false) {
     const result = await CreateSpellwroughtTattooDialog.create(spell, config);
     if (!result) return undefined;
-    foundry.utils.mergeObject(config, result);
+    foundry.utils.mergeObject(config, result as object);
   }
 
   /**
@@ -122,7 +122,7 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
       type: { value: "tattoo" },
     },
   };
-  const spellTattooData = foundry.utils.mergeObject(tattooData, tattooOverrideData) as I5eConsumableItem;
+  const spellTattooData = foundry.utils.mergeObject(tattooData, tattooOverrideData) as unknown as I5eConsumableItem;
 
   /**
    * A hook event that fires after the item data for a tattoo is created but before the item is returned.
@@ -132,7 +132,7 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
    * @param {object} spellTattooData           The final item data used to make the tattoo.
    * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    */
-  Hooks.callAll("ddb-importer.createTattooFromSpell", spell, spellTattooData, config);
+  Hooks.callAll("ddb-importer.createTattooFromSpell", spell as unknown as Item.Implementation, spellTattooData, config);
 
   return new (Item.implementation as any)(spellTattooData);
 }

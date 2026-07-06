@@ -25,7 +25,7 @@ export async function migrateJournalsToDDBSheet(force = false) {
 
   for (const i of journalCompendium.index) {
     logger.debug("Checking compendium journal sheet", i);
-    if (!i.flags?.ddb) continue;
+    if (!foundry.utils.getProperty(i, "flags.ddb")) continue;
     const doc = await journalCompendium.getDocument(i._id);
     if (!doc) continue;
     await updateJournalSheetToDDB(doc, { force });

@@ -10,6 +10,12 @@ import { logger } from "../../lib/_module";
 
 export class DDBSocket {
 
+  functions: Map<string, (...args: any[]) => unknown>;
+
+  requests: Map<string, { resolve: (value: unknown) => void; reject: (reason?: unknown) => void; functionName?: string; recipient?: string }>;
+
+  name: string;
+
   constructor() {
     this.functions = new Map();
     this.requests = new Map();

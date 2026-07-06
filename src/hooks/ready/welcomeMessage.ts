@@ -25,7 +25,7 @@ function showMessage() {
       content,
     };
   });
-  ChatMessage.implementation.createDocuments(chatData);
+  ChatMessage.implementation.createDocuments(chatData as unknown as ChatMessage.CreateInput[]);
 
   // for now we set this to false so it doesn't show again
   game.settings.set(SETTINGS.MODULE_ID, "show-welcome-message", false);

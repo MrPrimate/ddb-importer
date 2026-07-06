@@ -3,7 +3,18 @@ import { createAndShowPlayerHandout, imageToChat } from "./shared";
 import { getPendingImages, waitForImage } from "./journalAnchorScroll";
 
 
-class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
+// the runtime targets dnd5e 5.3+ where the class is JournalEntrySheet5e (App V2);
+// the bundled type package predates the rename, so provide a minimal shape
+const JournalEntrySheet5eBase = (dnd5e.applications.journal as unknown as
+  Record<string, new (...args: any[]) => {
+    options: { classes: string[] } & Record<string, any>;
+    document: JournalEntry.Implementation & Record<string, any>;
+    element: HTMLElement;
+    pageId?: string;
+    render: (options?: unknown) => unknown;
+  } & Record<string, any>>).JournalEntrySheet5e;
+
+class DDBJournalSheet extends JournalEntrySheet5eBase {
   constructor(doc, options) {
     super(doc, options);
     this.options.classes.push("ddb-journal", "themed", "theme-light");
@@ -38,7 +49,7 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
             }
           },
           no: () => {
-            const popOut = new ImagePopout(src, { shareable: true });
+            const popOut = new ImagePopout(src, { shareable: true } as unknown as ConstructorParameters<typeof ImagePopout>[1]);
             popOut.shareImage();
           },
           defaultYes: true,
@@ -76,9 +87,14 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
     // Process each matching link
     const links = this.element.querySelectorAll("a.content-link[data-type='RollTable']");
 
-    for (const link of links) {
+    for (const link of links as NodeListOf<HTMLElement>) {
       if (!link.dataset?.uuid) continue;
-      const table = await fromUuid(link.dataset.uuid);
+      const table = await fromUuid(link.dataset.uuid) as unknown as {
+        name: string;
+        description?: string;
+        roll: () => Promise<{ results: any[]; roll: Roll }>;
+        toMessage: (results: any[], options: Record<string, any>) => Promise<unknown>;
+      } | null;
 
       if (!table) continue;
       const button = document.createElement("a");
@@ -150,7 +166,7 @@ class DDBJournalSheet extends dnd5e.applications.journal.JournalEntrySheet5e {
 }
 
 export function registerJournalSheet() {
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry, "ddb-importer", DDBJournalSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(JournalEntry as unknown as Parameters<typeof foundry.applications.apps.DocumentSheetConfig.registerSheet>[0], "ddb-importer", DDBJournalSheet as unknown as Parameters<typeof foundry.applications.apps.DocumentSheetConfig.registerSheet>[2], {
     // types: ["base"],
     label: "D&D Beyond Journal",
     makeDefault: false,

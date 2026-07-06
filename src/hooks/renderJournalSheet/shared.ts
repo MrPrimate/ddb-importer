@@ -5,10 +5,10 @@ export function imageToChat(src) {
 
   ChatMessage.create({
     content,
-  });
+  } as unknown as ChatMessage.CreateInput);
 }
 
-async function getJournal(bookCode) {
+async function getJournal(bookCode): Promise<JournalEntry.Implementation> {
   const folder = await FolderHelper.getFolder("journal", "", "Player Handouts", "#515fc8", "#515fc8", false);
   const journalName = bookCode
     ? DDBSources.getBookName(bookCode)
@@ -31,17 +31,17 @@ async function getJournal(bookCode) {
             bookCode,
           },
         },
-      },
+      } as unknown as JournalEntry.CreateInput,
       {
         displaySheet: false,
-      },
+      } as Parameters<typeof JournalEntry.create>[1],
     );
-    return journal;
+    return journal as JournalEntry.Implementation;
   }
 }
 
 async function createPage(journal, name, type, content) {
-  const page = {
+  const page: Record<string, any> = {
     _id: foundry.utils.randomID(),
     name,
     type,
@@ -65,7 +65,7 @@ async function createPage(journal, name, type, content) {
     }
   }
 
-  await JournalEntryPage.create(page, { parent: journal, keepId: true, displaySheet: false });
+  await JournalEntryPage.create(page as unknown as JournalEntryPage.CreateInput, { parent: journal, keepId: true, displaySheet: false } as Parameters<typeof JournalEntryPage.create>[1]);
   return journal.pages.find((jp) => page._id === jp._id);
 }
 

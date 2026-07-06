@@ -1,21 +1,18 @@
 
 function addAppButtonClickEvent(event) {
   const menu = game.settings.menus.get(event.currentTarget.dataset.key);
-  const app = new menu.type({
+  const MenuApplication = menu.type as new (options?: Record<string, any>) => { render: (force?: boolean) => unknown };
+  const app = new MenuApplication({
     sheetTab: "core",
   });
   return app.render(true);
 }
 
 function addChatImgButtonClickEvent(chatImg) {
-  if (foundry.applications?.apps?.ImagePopout) {
-    new foundry.applications.apps.ImagePopout({
-      src: $(chatImg).attr("src"),
-      showTitle: false,
-    }).render(true);
-  } else {
-    new ImagePopout($(chatImg).attr("src"), { shareable: true }).render(true);
-  }
+  new foundry.applications.apps.ImagePopout({
+    src: $(chatImg).attr("src"),
+    showTitle: false,
+  }).render({ force: true});
 }
 
 export function chatHooks() {

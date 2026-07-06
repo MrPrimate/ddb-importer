@@ -1,3 +1,4 @@
+import { API_BASE } from "../../api";
 import { utils, logger } from "../../lib/_module";
 
 const MODULE_TITLE = "DDB Importer";
@@ -8,7 +9,7 @@ const _GITHUB_MODULE_JSON_LATEST = `https://raw.githubusercontent.com/${MODULE_A
 const MINIMUM_5E_VERSION = "3.0.0";
 const PREVIOUS_VERSION = "3.7.17";
 
- 
+
 async function getLatestModuleVersion() {
   try {
     const { tag_name: latestVersion, prerelease } = await $.getJSON(_GITHUB_API_LATEST);
@@ -18,7 +19,7 @@ async function getLatestModuleVersion() {
   }
 }
 
- 
+
 async function getCompatibility() {
   try {
     const { compatibility, relationships } = await $.getJSON(_GITHUB_MODULE_JSON_LATEST);
@@ -68,10 +69,12 @@ export default async () => {
       const text = $(
         `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`,
       );
-      game.modules.get("ddb-importer").api?.notification.show(text, null);
+      // @ts-expect-error - we have attached an api to the module, but TS doesn't know about it
+      (game.modules.get("ddb-importer").api as typeof API_BASE)?.notification.show(text, null);
     }
   } catch (error) {
     logger.warn(error);
-    game.modules.get("ddb-importer").api?.notification.show(`Could not retrieve latest ${MODULE_NAME} version`);
+    // @ts-expect-error - we have attached an api to the module, but TS doesn't know about it
+    (game.modules.get("ddb-importer").api as typeof API_BASE)?.notification.show(`Could not retrieve latest  version`);
   }
 };

@@ -35,7 +35,7 @@ function callDDBCharacterManager(actor) {
 
 async function characterButtonClick(event, document, actor) {
   const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
-    ? document.flags.ddbimporter.dndbeyond.url
+    ? foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.url") as string
     : null;
 
   const jsonURL = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.json")
@@ -106,7 +106,7 @@ function getCharacterButton(document, actor) {
   const buttonText = "<button type=\"button\" id=\"ddbImporterButton\" class=\"inactive\"><i class=\"fab fa-d-and-d-beyond\"></button>";
 
   const url = foundry.utils.hasProperty(document, "flags.ddbimporter.dndbeyond.url")
-    ? document.flags.ddbimporter.dndbeyond.url
+    ? foundry.utils.getProperty(document, "flags.ddbimporter.dndbeyond.url") as string
     : null;
 
   const button = $(buttonText);
@@ -344,7 +344,8 @@ function tidySheets() {
 
     // Provider header controls to Tidy Character and NPC sheets in the App V2 manner
     Hooks.on("getHeaderControlsActorSheetV2", (config, buttons) => {
-      const doc = config.object ?? config.document;
+      const sheetConfig = config as { object?: { isOwner?: boolean }; document?: { isOwner?: boolean } };
+      const doc = sheetConfig.object ?? sheetConfig.document;
       if (!doc?.isOwner) return;
       if (!(doc instanceof Actor)) return;
 
@@ -361,7 +362,7 @@ function tidySheets() {
   }
 
   // onceReady timeout necessitates the two methods of getting the API.
-  const api = game.modules.get("tidy5e-sheet")?.api;
+  const api = (game.modules.get("tidy5e-sheet") as { api?: unknown } | undefined)?.api;
   if (api) {
     runTidyIntegrations(api);
   } else {
@@ -399,7 +400,7 @@ export default function () {
    * Character sheets
    */
   const pcSheetNames = Object.values(CONFIG.Actor.sheetClasses.character)
-    .map((sheetClass) => sheetClass.cls)
+    .map((sheetClass) => (sheetClass as unknown as { cls: { name: string } }).cls)
     .map((sheet) => sheet.name);
 
   const trustedUsersOnly = utils.getSetting<boolean>("restrict-to-trusted");
@@ -416,7 +417,7 @@ export default function () {
   Hooks.on("getActorSheet5eHeaderButtons", createDefault5eButtons);
   Hooks.on("getActorSheetHeaderButtons", createOldSheetHeaderButtons);
   pcSheetNames.forEach((sheetName) => {
-    Hooks.on("render" + sheetName, (app, html, data) => {
+    Hooks.on(`render${sheetName}`, (app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
       if ($(html).find("#ddbImporterButton").length > 0) return;
@@ -435,11 +436,11 @@ export default function () {
    * NPC sheets
    */
   const npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
-    .map((sheetClass) => sheetClass.cls)
+    .map((sheetClass) => (sheetClass as unknown as { cls: { name: string } }).cls)
     .map((sheet) => sheet.name);
 
   npcSheetNames.forEach((sheetName) => {
-    Hooks.on("render" + sheetName, (app, html, data) => {
+    Hooks.on(`render${sheetName}`, (app, html, data) => {
       // only for GMs or the owner of this npc
       if (!data.owner || !data.actor) return;
       if (!app.document.flags?.monsterMunch?.url) return;
@@ -456,11 +457,11 @@ export default function () {
 
 
   const groupSheetNames = Object.values(CONFIG.Actor.sheetClasses.group)
-    .map((sheetClass) => sheetClass.cls)
+    .map((sheetClass) => (sheetClass as unknown as { cls: { name: string } }).cls)
     .map((sheet) => sheet.name);
 
   groupSheetNames.forEach((sheetName) => {
-    Hooks.on("render" + sheetName, (_app, html, data) => {
+    Hooks.on(`render${sheetName}`, (_app, html, data) => {
       // only for GMs or the owner of this character
       if (!data.owner || !data.actor || (!allowAllSync && trustedUsersOnly && !game.user.isTrusted)) return;
       if ($(html).find("#ddbImporterButton").length > 0) return;
