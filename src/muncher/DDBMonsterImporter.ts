@@ -81,7 +81,7 @@ export default class DDBMonsterImporter {
       });
 
       if (existingItem) {
-        if (existingItem.flags.ddbimporter?.ignoreItemImport) {
+        if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.ignoreItemImport")) {
           fiddledItems.push(foundry.utils.duplicate(existingItem));
         } else {
           item["_id"] = existingItem.id;
@@ -91,7 +91,7 @@ export default class DDBMonsterImporter {
           }
           if (foundry.utils.getProperty(existingItem, "flags.ddbimporter.retainResourceConsumption")) {
             if ("consume" in item.system) item.system.consume = existingItem.system.consume;
-            item.system.uses.recovery = existingItem.system.uses.recovery;
+            foundry.utils.setProperty(item, "system.uses.recovery", foundry.utils.getProperty(existingItem, "system.uses.recovery"));
             foundry.utils.setProperty(item, "flags.ddbimporter.retainResourceConsumption", true);
             if (foundry.utils.hasProperty(existingItem, "flags.link-item-resource-5e")) {
               foundry.utils.setProperty(item, "flags.link-item-resource-5e", existingItem.flags["link-item-resource-5e"]);
@@ -166,7 +166,7 @@ export default class DDBMonsterImporter {
           pack: this.itemImporter.compendium.collection,
           render: false,
           // keepId: true,
-        });
+        } as unknown as Parameters<typeof this.compendiumActor.update>[1]);
         // console.warn("UpdatedNPC", { updatedNPC: updatedNPC.toObject(), items });
         await updatedNPC.createEmbeddedDocuments("Item", items as any, { keepId: true });
 
@@ -188,7 +188,7 @@ export default class DDBMonsterImporter {
       if (CONFIG.DDBI.DEV.downloadUpdateJSON) {
         FileHelper.download(JSON.stringify(this.monster), `${this.monster.name}-${this.monster.system.source.rules}.json`, "application/json");
       }
-      this.compendiumActor = await Actor.create(this.monster as any, options);
+      this.compendiumActor = await Actor.create(this.monster as any, options) as typeof this.compendiumActor;
       await this.generateCastSpells();
     }
 

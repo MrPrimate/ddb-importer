@@ -95,8 +95,8 @@ global {
     // Character stats
     totalLevels?: number;
     profBonus?: number;
-    proficiencies?: string[];
-    proficienciesIncludingEffects?: string[];
+    proficiencies?: IDDBPCDnDBeyondProficiencyFlags[];
+    proficienciesIncludingEffects?: IDDBPCDnDBeyondProficiencyFlags[];
     effectAbilities?: I5eAbilities;
     characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[];
     templateStrings?: IDDBTemplateStringResult[];

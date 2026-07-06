@@ -762,6 +762,7 @@ global {
   }
 
   interface IDDBPCImporterFlags {
+    characterId?: string;
     dndbeyond?: IDDBPCDnDBeyondFlags;
     activeUpdate?: boolean;
     compendium?: boolean;
@@ -829,4 +830,10 @@ global {
   }
 
   type I5eActorData = I5eMonsterData | I5ePCData | I5eVehicleData;
+
+  /** Implementation Actor with the ddbimporter flag shape the importer reads/writes. */
+  type TImporterActor = Actor.Implementation & {
+    flags: I5ePCActorFlags;
+  };
+
 }

@@ -6,8 +6,32 @@ import { logger, CompendiumHelper } from "../lib/_module";
 export async function calculatePrice(rarity, consumable = false) {
   if (!DICTIONARY.equipment.priceFormulas[rarity]) return null;
   const roll = new Roll(DICTIONARY.equipment.priceFormulas[rarity]);
-  await roll.evaluate({ async: true });
-  return consumable ? parseInt(roll.total / 2) : roll.total;
+  await roll.evaluate();
+  return consumable ? Math.floor(roll.total / 2) : roll.total;
+}
+
+const UPDATE_PRICE_INDEX_FIELDS = [
+  "name",
+  "type",
+  "system.rarity",
+  "system.price.value",
+  "flags.ddbimporter.price",
+];
+
+interface IUpdatePriceIndexItem {
+  _id: string;
+  uuid: string;
+  name: string;
+  type: string;
+  system: {
+    price: I5ePrice;
+    rarity: string;
+  };
+  flags: {
+    ddbimporter: {
+      price: IDDBImporterFlagsPrice;
+    };
+  };
 }
 
 // Function to update item prices
@@ -21,14 +45,9 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
   pack.configure({ locked: false });
 
   const items = (await pack.getIndex({
-    fields: [
-      "name",
-      "type",
-      "system.rarity",
-      "system.price.value",
-      "flags.ddbimporter.price",
-    ],
-  })).filter((i) => {
+    fields: UPDATE_PRICE_INDEX_FIELDS,
+  })) as unknown as IUpdatePriceIndexItem[];
+  const filteredItems = items.filter((i) => {
     const rarity = i.system.rarity;
     if (!(rarity in DICTIONARY.equipment.priceFormulas)) {
       logger.info(`No update needed for ${i.name}, item has no rarity`);
@@ -50,7 +69,7 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
 
   // const items = await pack.getDocuments();
 
-  for (const item of items) {
+  for (const item of filteredItems) {
     const rarity = item.system.rarity;
     const gpPrice = item.system.price.value;
     const isConsumable = item.type === "consumable";
@@ -74,5 +93,5 @@ export async function updateItemPrices({ keepExistingNonDDBPrices = true, keepEx
   await Item.updateDocuments(updates, { pack: packName });
 
   ui.notifications.info(`Attempted to update prices for ${updates.length} items.`);
-  return items;
+  return filteredItems;
 }

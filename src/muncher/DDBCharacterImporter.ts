@@ -26,7 +26,7 @@ interface IDDBCharacterImporter {
 
 export default class DDBCharacterImporter {
 
-  actor: Actor.Implementation;
+  actor: TImporterActor;
   actorOriginal: I5ePCData | null;
   ddbCharacter: DDBCharacter;
   notifier: (title: any, { message, isError }?: NotifierV1Props) => void;
@@ -54,7 +54,7 @@ export default class DDBCharacterImporter {
   importId: string;
 
   constructor({ actorId, ddbCharacter = null, notifier }: IDDBCharacterImporter) {
-    this.actor = game.actors.get(actorId) as Actor.Implementation;
+    this.actor = game.actors.get(actorId) as TImporterActor;
     this.migrateMetadata();
     // I5ePCData is our own type definition
     this.actorOriginal = foundry.utils.duplicate(this.actor) as unknown as I5ePCData;
@@ -881,14 +881,13 @@ ${item.system.description.chat}
   }
 
   async setAtLeastOneHP() {
-    const hp = this.actor.system.attributes.hp;
+    const hp = foundry.utils.getProperty(this.actor, "system.attributes.hp") as I5ePCHitPoints;
 
     hp.bonuses.overall = `${hp.bonuses.overall ?? 0} + 1`;
     hp.value += 1;
     await this.actor.update({
-      // @ts-expect-error - this is allowed
       "system.attributes.hp": hp,
-    });
+    } as Actor.UpdateInput);
   }
 
   async setSafeMidiQolConfig() {
@@ -1122,8 +1121,8 @@ ${item.system.description.chat}
           logger.debug("Character Load complete", { ddbCharacter: this.ddbCharacter, result: this.result, actor: this.actor, actorOriginal: this.actorOriginal });
           return true;
         }
-        // @ts-expect-error - there will be a message here if success is false, but we need to check for it first
-        this.notifier(this.ddbCharacter.source.message, { message: null, isError: true });
+        // there will be a message here if success is false
+        this.notifier(foundry.utils.getProperty(this.ddbCharacter, "source.message"), { message: null, isError: true });
         return false;
       });
       if (!runResult) return false;
@@ -1147,9 +1146,9 @@ ${item.system.description.chat}
     return true;
   }
 
-  static async importCharacter({ actor, notifier } : { actor: Actor.Implementation; notifier?: (title: any, { message, isError }?: NotifierV1Props) => void }) {
+  static async importCharacter({ actor, notifier } : { actor: TImporterActor; notifier?: (title: any, { message, isError }?: NotifierV1Props) => void }) {
     try {
-      const actorData = actor.toObject();
+      const actorData = actor.toObject() as I5ePCData;
       const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
 
       const ddbCharacterOptions = {
@@ -1183,8 +1182,8 @@ ${item.system.description.chat}
         logger.info("Loading Character data");
         return true;
       } else {
-        // @ts-expect-error - there will be a message here if success is false, but we need to check for it first
-        logger.error("Error Loading Character data", { message: ddbCharacter.source.message, ddbCharacter });
+        // there will be a message here if success is false
+        logger.error("Error Loading Character data", { message: foundry.utils.getProperty(ddbCharacter, "source.message"), ddbCharacter });
         return false;
       }
     } catch (error) {
@@ -1218,8 +1217,7 @@ ${item.system.description.chat}
         },
       },
     };
-    // @ts-expect-error - not as I5ePCData
-    const actor = await Actor.create(createData);
+    const actor = await Actor.create(createData as unknown as Actor.CreateInput) as Actor.Implementation;
 
     const result = await DDBCharacterImporter.importCharacter({ actor, notifier });
     return result;

@@ -720,7 +720,7 @@ export default class Iconizer {
     });
   }
 
-  static addActorEffectIcons(actor: TAll5eActorDocuments): TAll5eActorDocuments {
+  static addActorEffectIcons<T extends TAll5eActorDocuments>(actor: T): T {
     if (!actor.effects) return actor;
     logger.debug("Adding Icons to actor effects");
     actor.effects.forEach((effect) => {

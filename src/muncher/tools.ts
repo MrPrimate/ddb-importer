@@ -76,16 +76,16 @@ export async function updateWorldMonsters() {
     for (const [key, value] of index.entries()) {
 
       const worldMatches = game.actors.filter((actor) =>
-        actor.flags?.ddbimporter?.id
+        foundry.utils.getProperty(actor, "flags.ddbimporter.id")
         && actor.name === value.name
-        && actor.flags.ddbimporter.id == value.flags?.ddbimporter?.id,
+        && foundry.utils.getProperty(actor, "flags.ddbimporter.id") == foundry.utils.getProperty(value, "flags.ddbimporter.id"),
       );
 
       if (worldMatches.length > 0) {
         utils.munchNote(`Found ${value.name} world monster`, { nameField: true });
         logger.debug(`Matched ${value.name} (${key})`);
         const monster = await monsterCompendium.getDocument(value._id);
-        const updatedActors = await updateActorsWithActor(worldMatches, monster, count);
+        const updatedActors = await updateActorsWithActor(worldMatches, monster);
         results.push(updatedActors);
       }
     }
@@ -112,7 +112,7 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
     .map(async (i) => {
       const options = { forceUpdate: true, disableAutoTokenizeOverride: true };
       const monsterImporter = new DDBMonsterImporter({
-        monster: i,
+        monster: i as unknown as I5eMonsterData,
         type,
       });
       const update = await monsterImporter.getNPCImage(options);
@@ -120,7 +120,7 @@ export async function resetCompendiumActorImages(compendiumName = null, type = "
       return update;
     }));
 
-  const results = await Actor.updateDocuments(updates, { pack: monsterCompendiumLabel });
+  const results = await Actor.updateDocuments(updates as unknown as Actor.UpdateInput[], { pack: monsterCompendiumLabel });
   logger.debug("Reset results", results);
   return results;
 }
