@@ -21,6 +21,11 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
   declare ddbParent: DDBFeature;
   declare ddbDefinition: TDefinitions;
 
+  /** builder-shape view of the activity data while parts are being assembled */
+  get buildData(): IActivityData {
+    return this.data as IActivityData;
+  }
+
   _init() {
     logger.debug(`Generating DDBFeatureActivity ${this.name ?? this.type ?? "?"} for ${this.ddbParent.name}`);
   }
@@ -303,7 +308,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     const chooseRegex = /creature of your choice|choose (?<num>\w+) creatures within/ig;
     const chooseMatch = chooseRegex.exec(description);
     if (chooseMatch) {
-      if (this.data.damage?.parts?.length > 0 || ["save", "attack", "damage"].includes(this.type))
+      if (this.buildData.damage?.parts?.length > 0 || ["save", "attack", "damage"].includes(this.type))
         target.affects.type = "enemy";
       else if (["heal"].includes(this.type))
         target.affects.type = "ally";
@@ -398,7 +403,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     if (!damage || damage.length === 0) return;
 
-    this.data.damage = {
+    this.buildData.damage = {
       critical: {
         allow: this.type === "attack" || this.foundryFeature.type === "weapon",
       },
@@ -419,7 +424,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   _generateHealing({ part = null }: { part?: any; healingPart?: any; healingChatFlavor?: string | null } = {}) {
     if (part) {
-      this.data.healing = part;
+      this.buildData.healing = part;
       return;
     }
 
@@ -429,12 +434,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
     if (!damage) return;
 
     if (damage.types.length === 0) damage.types.push("healing");
-    this.data.healing = damage;
+    this.buildData.healing = damage;
   }
 
   _generateSave({ saveOverride = null } = {}) {
     if (saveOverride) {
-      this.data.save = saveOverride;
+      this.buildData.save = saveOverride;
       return;
     }
     const fixedDC = this.ddbDefinition.fixedSaveDc ? this.ddbDefinition.fixedSaveDc : null;
@@ -450,12 +455,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
     if (!saveAbility) {
       if (this.ddbParent._descriptionSave) {
-        this.data.save = this.ddbParent._descriptionSave;
+        this.buildData.save = this.ddbParent._descriptionSave;
         return;
       }
     }
 
-    this.data.save = {
+    this.buildData.save = {
       ability: saveAbility ? [saveAbility] : [Object.keys(CONFIG.DND5E.abilities)[0]],
       dc: {
         calculation,
@@ -466,7 +471,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
 
   _generateAttack({ attackOverride = null, unarmed = false, spell = false } = {}) {
     if (attackOverride) {
-      this.data.attack = attackOverride;
+      this.buildData.attack = attackOverride;
       return;
     }
     let type = "melee";
@@ -526,19 +531,19 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       systemData.properties = utils.addToProperties(systemData.properties, "fin");
     }
 
-    this.data.attack = attack;
-    foundry.utils.setProperty(this.data.damage, "includeBase", true);
+    this.buildData.attack = attack;
+    foundry.utils.setProperty(this.buildData.damage, "includeBase", true);
 
   }
 
   _generateRoll({ name = null, rollOverride = null, damageParts = null, includeBase = false } = {}) {
     if (rollOverride) {
-      this.data.roll = rollOverride;
+      this.buildData.roll = rollOverride;
       return;
     }
     this._generateDamage({ parts: damageParts, includeBase });
 
-    if (this.data.damage && this.data.damage.parts.length > 0) {
+    if (this.buildData.damage && this.buildData.damage.parts.length > 0) {
       // {
       //   number: null,
       //   denomination: null,
@@ -555,7 +560,7 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       //   },
       // };
       const formulaParts = [];
-      for (const part of this.data.damage.parts) {
+      for (const part of this.buildData.damage.parts) {
         if (part.custom.enabled && part.custom.formula) {
           formulaParts.push(`(${part.custom.formula})`);
         } else if (part.number && part.denomination) {
@@ -567,12 +572,12 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
         }
       }
       if (formulaParts.length === 0) return;
-      this.data.roll = {
+      this.buildData.roll = {
         name: name ?? "Roll",
         formula: formulaParts.join(" + "),
       };
     }
-    delete this.data.damage;
+    delete this.buildData.damage;
 
   }
 

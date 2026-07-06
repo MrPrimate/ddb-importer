@@ -65,7 +65,7 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
       if (enchantmentFlag.targetItemId === "self") {
         targetItem = item as Item.Implementation;
       } else if (enchantmentFlag.targetItemName) {
-        targetItem = items.find((i) => (i.flags.ddbimporter?.originalName ?? i.name) === enchantmentFlag.targetItemName) as Item.Implementation ?? null;
+        targetItem = items.find((i) => ((foundry.utils.getProperty(i, "flags.ddbimporter.originalName") as string) ?? i.name) === enchantmentFlag.targetItemName) as Item.Implementation ?? null;
       } else if (enchantmentFlag.targetItemMatches) {
         const matchedFields = enchantmentFlag.targetItemMatches;
         // @ts-expect-error - flipping fvtt types
@@ -85,7 +85,7 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
       }
     } else {
       targetItem = (items.get(enchantmentFlag.targetItemId) ?? items.find((i) =>
-        i.flags?.ddbimporter?.enchantmentLinkId === enchantmentFlag.targetItemId)) as Item.Implementation | null;
+        foundry.utils.getProperty(i, "flags.ddbimporter.enchantmentLinkId") === enchantmentFlag.targetItemId)) as Item.Implementation | null;
     }
 
     if (!targetItem) continue;

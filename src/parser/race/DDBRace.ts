@@ -28,7 +28,7 @@ export default class DDBRace {
   name: string;
   data: I5eRaceItem;
   lineageTrait: IDDBChoiceResult;
-  compendiumRacialTraits: CompendiumCollection.Any;
+  compendiumRacialTraits: TIndexEntry[];
   pendingSpeciesDocument: I5eRaceItem | null = null;
 
   static SPECIES_HANDLER_OPTIONS = {
@@ -199,7 +199,7 @@ export default class DDBRace {
 
   abilityAdvancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.AbilityScoreImprovementAdvancement);
 
-  constructor({ ddbCharacter, compendiumRacialTraits }: { ddbCharacter: DDBCharacter; compendiumRacialTraits: CompendiumCollection.Any }) {
+  constructor({ ddbCharacter, compendiumRacialTraits }: { ddbCharacter: DDBCharacter; compendiumRacialTraits: TIndexEntry[] }) {
     this.ddbCharacter = ddbCharacter;
     this.ddbData = ddbCharacter.source.ddb;
     this.isMuncher = ddbCharacter.isMuncher ?? false;

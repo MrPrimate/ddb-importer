@@ -3,11 +3,25 @@ import DDBBasicActivity from "./DDBBasicActivity";
 
 export default class DDBVehicleActivity extends DDBBasicActivity {
 
+  actionData: Record<string, any>;
+
+  /** builder-shape view of the activity data while parts are being assembled */
+  get buildData(): IActivityData {
+    return this.data as IActivityData;
+  }
+
   _init() {
     logger.debug(`Generating DDBVehicleActivity ${this.name ?? this.type ?? "?"} for ${this.actor.name}`);
   }
 
-  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null } = {}) {
+  constructor({ type, name, ddbParent, nameIdPrefix = null, nameIdPostfix = null, id = null }: {
+    type?: IDDBActivityType;
+    name?: string | null;
+    ddbParent?: any;
+    nameIdPrefix?: string | null;
+    nameIdPostfix?: string | null;
+    id?: string | null;
+  } = {}) {
     super({
       type,
       name,
@@ -25,10 +39,10 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
   _generateSave({ saveOverride = null, dc = null, ability = null } = {}) {
     if (saveOverride) {
-      this.data.save = saveOverride;
+      this.buildData.save = saveOverride;
       return;
     }
-    this.data.save = {
+    this.buildData.save = {
       ability: ability ? [ability] : [Object.keys(CONFIG.DND5E.abilities)[0]],
       dc: {
         calculation: "",
@@ -168,13 +182,18 @@ export default class DDBVehicleActivity extends DDBBasicActivity {
 
   }
 
-  static createActivity({ document, type, name, vehicle } = {}, options = {}) {
+  static async createActivity({ document, type, name, vehicle }: {
+    document?: I5eVehicleItem;
+    type?: IDDBActivityType;
+    name?: string | null;
+    vehicle?: any;
+  } = {}, options: Record<string, any> = {}): Promise<string> {
     const activity = new DDBVehicleActivity({
       name: name ?? null,
       type,
       foundryFeature: document,
       actor: vehicle,
-    });
+    } as ConstructorParameters<typeof DDBVehicleActivity>[0]);
 
     activity.build(options);
     foundry.utils.setProperty(document, `system.activities.${activity.data._id}`, activity.data);

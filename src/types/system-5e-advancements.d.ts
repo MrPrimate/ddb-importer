@@ -70,7 +70,7 @@ global {
   interface I5eAdvancementAbilityScoreImprovement extends I5eAdvancementBase {
     type?: "AbilityScoreImprovement";
     configuration?: I5eAdvASIConfig;
-    value?: { type?: "asi" | "feat"; feat?: Record<string, string> };
+    value?: { type?: "asi" | "feat"; feat?: Record<string, string>; assignments?: Record<string, number> };
   }
 
   interface I5eAdvancementHitPoints extends I5eAdvancementBase {

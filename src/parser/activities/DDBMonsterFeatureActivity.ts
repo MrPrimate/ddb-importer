@@ -27,6 +27,11 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
 
   declare ddbParent: DDBMonsterFeature;
 
+  /** builder-shape view of the activity data while parts are being assembled */
+  get buildData(): IActivityData {
+    return this.data as IActivityData;
+  }
+
   actionData: IDDBMonsterActionData;
 
   _init() {
@@ -139,7 +144,7 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       });
     }
 
-    this.data.damage = {
+    this.buildData.damage = {
       critical: {
         allow: allowCritical ?? (this.type === "attack" || this.foundryFeature.type === "weapon"),
       },
@@ -165,15 +170,15 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       : this.actionData.healingParts.length > 0
         ? this.actionData.healingParts.map((data) => data.part)[0]
         : undefined;
-    this.data.healing = healing;
+    this.buildData.healing = healing;
   }
 
   _generateSave({ saveOverride = null } = {}) {
     if (saveOverride) {
-      this.data.save = saveOverride;
+      this.buildData.save = saveOverride;
       return;
     }
-    this.data.save = this.actionData.save;
+    this.buildData.save = this.actionData.save;
   }
 
 
@@ -199,12 +204,12 @@ export default class DDBMonsterFeatureActivity extends DDBBasicActivity {
       },
     };
 
-    this.data.attack = attack;
+    this.buildData.attack = attack;
 
   }
 
   _generateCheck({ checkOverride = null }) {
-    this.data.check = checkOverride ?? {
+    this.buildData.check = checkOverride ?? {
       associated: this.actionData.associatedToolsOrAbilities,
       ability: this.actionData.ability,
       dc: {},

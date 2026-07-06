@@ -704,6 +704,8 @@ global {
     | I5eFeatItem
     | I5eWeaponItem;
 
+  type I5ePCConsumptionItems = I5eInventoryItem | I5eFeatItem | I5eWeaponItem | I5eSpellItem;
+
   export type I5eMonsterItem =
     | I5eWeaponItem
     | I5eFeatItem

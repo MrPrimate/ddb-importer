@@ -473,7 +473,9 @@ DDBCharacter.prototype._generateArmorClass = function _generateArmorClass(this: 
 
   DDBModifiers.filterModifiersOld(this.armor.miscModifiers, "bonus", "armor-class", ["", null]).forEach((bonus) => {
     const component = DDBDataUtils.findComponentByComponentId(this.source.ddb, bonus.componentId);
-    const name = component ? component.definition?.name ?? component.name : `AC: Misc (${bonus.friendlySubtypeName})`;
+    const name = component
+      ? component.definition?.name ?? (foundry.utils.getProperty(component, "name") as string)
+      : `AC: Misc (${bonus.friendlySubtypeName})`;
     const effect = ACBonusEffects.generateBonusACEffect([bonus], name, "armor-class", null);
     if (effect.system.changes.length > 0) this.armor.bonusEffects.push(effect);
   });
