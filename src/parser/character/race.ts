@@ -35,7 +35,7 @@ DDBCharacter.prototype._generateRace = async function _generateRace(this: DDBCha
           const bonus = DDBModifiers
             .filterModifiersOld(this.source.ddb.character.modifiers.race, "bonus", `${ability.long}-score`, [null, ""])
             .filter((mod) => mod.entityId === ability.id)
-            .reduce((prev, cur) => prev + cur.value, 0);
+            .reduce((prev, cur) => prev + (cur.value as number), 0);
           a.value.assignments[ability.value] = bonus;
         });
         break;
@@ -44,11 +44,12 @@ DDBCharacter.prototype._generateRace = async function _generateRace(this: DDBCha
         const modSize = DDBModifiers.filterModifiersOld(this.source.ddb.character.modifiers.race, "size");
         const size = a.configuration.sizes.length === 1
           ? a.configuration.sizes[0]
+          // modSize is an array; the length === 1 guard means the single entry is the racial size mod
           : modSize && modSize.length === 1
-            ? DICTIONARY.sizes.find((s) => modSize.subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
+            ? DICTIONARY.sizes.find((s) => modSize[0].subType === s.name.toLowerCase())?.value ?? `${this.raw.character.system.traits.size}`
             : `${this.raw.character.system.traits.size}`;
         a.value = {
-          size,
+          size: size as TActorSizes,
         };
         break;
       }
