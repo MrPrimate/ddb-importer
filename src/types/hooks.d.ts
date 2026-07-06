@@ -11,6 +11,45 @@ export {};
 declare module "fvtt-types/configuration" {
   namespace Hooks {
     interface HookConfig {
+      // ---- Foundry core hooks not in the fvtt-types registry ----
+      // client/canvas/placeables/note.mjs
+      "activateNote": (note: any, options: Record<string, any>) => boolean | void;
+      // client/hooks.mjs
+      "applyActiveEffect": (actor: Actor.Implementation, change: any, current: any, delta: any, changes: Record<string, unknown>) => void;
+
+      // ---- Dynamic per-class render hooks ----
+      // Foundry AppV1/AppV2 emit render<Class> hooks named after each sheet
+      // class. registerSheets.ts registers `render${sheetName}` where sheetName
+      // comes from CONFIG.Actor.sheetClasses at runtime, so the names cannot be
+      // statically enumerated. This template-literal index signature lets those
+      // computed hook names type check.
+      [key: `render${string}`]: (...args: any[]) => unknown;
+
+      // ---- Explicit close hooks we register ----
+      "closeDocumentSheetV2": (sheet: foundry.applications.api.DocumentSheetV2) => void;
+
+      // ---- Explicit get hooks we register ----
+      // Scene navigation / directory context menus (extendSceneNavigationContext)
+      "getSceneNavigationContext": (html: any, options: any[]) => void;
+      "getSceneContextOptions": (html: any, options: any[]) => void;
+      "getSceneDirectoryEntryContext": (html: any, options: any[]) => void;
+      "getSceneControlButtons": (controls: any) => void;
+      // Journal sheet header buttons/controls
+      "getJournalSheet5eHeaderButtons": (config: any, buttons: any[]) => void;
+      "getHeaderControlsJournalEntrySheet": (config: any, buttons: any[]) => void;
+      // Item sheet header buttons/controls
+      "getItemSheet5eHeaderButtons": (config: any, buttons: any[]) => void;
+      "getHeaderControlsDocumentSheetV2": (config: any, buttons: any[]) => void;
+      // Item / compendium context menus (tattoo compendiumContext)
+      "getItemContextOptions": (app: any, options: any[]) => void;
+      "getCompendiumEntryContext": (app: any, options: any[]) => void;
+      "getItemDirectoryEntryContext": (app: any, options: any[]) => void;
+      // Actor sheet header buttons/controls and context menus
+      "getHeaderControlsActorSheetV2": (config: any, buttons: any[]) => void;
+      "getHeaderControlsBaseActorSheet": (config: any, buttons: any[]) => void;
+      "getActorSheet5eHeaderButtons": (config: any, buttons: any[]) => void;
+      "getActorSheetHeaderButtons": (config: any, buttons: any[]) => void;
+      "getActorContextOptions": (html: any, options: any[]) => void;
       "dae.addSpecialDurations": (daeSpecialDurations: Record<string, string>) => void;
       "dae.setFieldData": (fieldData: Record<string, string[]>) => void;
       "dae.addAutoFields": (addAutoFields: Function, fields: { BooleanFormulaField?: any }) => void;
@@ -57,6 +96,8 @@ declare module "fvtt-types/configuration" {
       "dnd5e.rollDeathSave": (rolls: Roll[], data: { chatString: string; updates: Actor.UpdateData; subject: Actor.Implementation }) => boolean | void;
       "dnd5e.summonToken": (activity: Activity, profile: unknown, tokenData: object, options: unknown) => void;
       "dnd5e.transformActorV2": (host: unknown, source: unknown, data: object, settings: object, options: object) => void;
+      // dnd5e emits this for item sheets/context menus
+      "dnd5e.getItemContextOptions": (item: Item.Implementation, options: Record<string, any>[]) => void;
       "midi-qol.ConfigSettingsChanged": () => void;
       "midi-qol.RollComplete": (workflow: Workflow) => Promise<void>;
       "midi-qol.dnd5ePreCalculateDamage": (actor: Actor.Implementation, damages: DamageDescription[], options: DamageApplicationOptions) => boolean | void;

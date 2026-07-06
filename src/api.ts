@@ -107,209 +107,212 @@ async function updateDDBCharacters(debug = false) {
   }
 }
 
-export function registerApi() {
-  const API = {
-    // libWrapper,
-    migrations: {
-      migrateCompendiums,
-      migrateJournalsToDDBSheet,
-      migration,
-    },
+
+export const API_BASE = {
+  notification: lib.Notifications.NOTIFICATION_API,
+  hint: lib.Notifications.HINT_API,
+  // libWrapper,
+  migrations: {
     migrateCompendiums,
-    compendiums: {
-      migrateCompendiums,
-      DDBCompendiumFolders: lib.DDBCompendiumFolders,
-      getCompendiumLabel: lib.CompendiumHelper.getCompendiumLabel,
-      getCompendiumType: lib.CompendiumHelper.getCompendiumType,
-      getCompendiumNames: lib.CompendiumHelper.getCompendiumNames,
-      deleteDefaultCompendiums: lib.CompendiumHelper.deleteDefaultCompendiums,
-    },
-    patreon: {
-      checkPatreon: lib.PatreonHelper.checkPatreon,
-      getPatreonTier: lib.PatreonHelper.getPatreonTier,
-      getPatreonUser: lib.PatreonHelper.getPatreonUser,
-      calculateAccessMatrix: lib.PatreonHelper.calculateAccessMatrix,
-      setPatreonTier: lib.PatreonHelper.setPatreonTier,
-      fetchPatreonTier: lib.PatreonHelper.fetchPatreonTier,
-      getPatreonValidity: lib.PatreonHelper.getPatreonValidity,
-    },
-    apps: {
-      DDBDebugger,
-      DDBCharacterManager,
-      AdventureMunch: AdventureMunch,
-      DDBKeyChangeDialog: DDBKeyChangeDialog,
-      DDBDebug: lib.DDBDebug,
-      DDBPartySync,
-    },
-    lib: {
-      CPRHelper: External.ChrisPremadesHelper,
-      ChrisPremadesHelper: External.ChrisPremadesHelper,
-      CompendiumHelper: lib.CompendiumHelper,
-      DDBCampaigns: lib.DDBCampaigns,
-      DDBPartyInventory,
-      DDBCompanion2014,
-      DDBCompanionFactory,
-      DDBCharacter: DDBCharacter,
-      // Companions,
-      DDBCompendiumFolders: lib.DDBCompendiumFolders,
-      DDBSimpleMacro: lib.DDBSimpleMacro,
-      DDBEffectHelper,
-      DDBEncounterFactory,
-      DDBSources: lib.DDBSources,
-      DDBItemImporter: lib.DDBItemImporter,
-      DDBMacros: lib.DDBMacros,
-      DDBMonster,
-      DDBMonsterFactory,
-      DDBVehicle,
-      DDBVehicleFactory,
-      DDBMonsterFeature,
-      DDBMonsterDamage,
-      DDBProxy: lib.DDBProxy,
-      DDBSummonsManager,
-      DDBSummonsInterface,
-      DialogHelper: lib.DialogHelper,
-      FileHelper: lib.FileHelper,
-      MuncherSettings: lib.MuncherSettings,
-      NameMatcher: lib.NameMatcher,
-      OriginFixer: lib.OriginFixer,
-      Enrichers,
-      Activities,
-      ParserLib,
-      DDBDebug: lib.DDBDebug,
-      SpellLists: {
-        SpellListFactory,
-        DDBSpellListFactory,
-      },
-      RuleFactory: ParserLib.DDBRuleJournalFactory,
-      DDBMuleHandler,
-      DDBMaps,
-      DDBMapBrowser,
-      DDBStickers,
-      DDBStickerBrowser,
-      DDBAdventures,
-      DDBAdventure: {
-        AdventureImport: (bookId: number | string, options = {}) => new NativeAdventureMunch().importBook(bookId, options),
-        AdventureImportFile: () => NativeAdventureMunch.promptImportFromFile(),
-      },
-    },
-    settings: {
-      muncherSettings: lib.MuncherSettings.getMuncherSettings,
-      characterSettings: lib.MuncherSettings.getCharacterImportSettings,
-    },
-
-    checkCobalt: lib.Secrets.checkCobalt,
-    resetProxy: lib.DDBProxy.resetProxy,
-    getDDBUserData: lib.Secrets.getUserData,
-    resetSecrets,
-
-    generateAdventureConfig,
-    downloadAdventureConfig,
-
-    importCharacter: DDBCharacterImporter.importCharacter, // imports an actor
-    importCharacterById: DDBCharacterImporter.importCharacterById, // imports and actor by id
-    updateDDBCharacter, // updates an actor back to ddb
-
-    // bulk update
-    updateAllPCs: {
-      foundry: updateFoundryCharacters,
-      ddb: updateDDBCharacters,
-    },
-
-    parse: {
-      monsters: parseCritters,
-      vehicles: parseTransports,
-      items: DDBItemsImporter.fetchAndImportItems,
-      spells: parseSpells,
-    },
-
-    party: {
-      pullInventory: DDBPartyInventoryImporter.pull,
-      moveItemToParty: DDBPartyInventoryImporter.moveItemToParty,
-      moveItemToCharacter: DDBPartyInventoryImporter.moveItemToCharacter,
-      deleteItem: DDBPartyInventoryImporter.deleteItem,
-      findOrCreateActor: DDBPartyInventoryImporter.findOrCreatePartyActor,
-      applyToActor: DDBPartyInventoryImporter.applyToActor,
-      Importer: DDBPartyInventoryImporter,
-      openSync: DDBPartySync.open,
-      Sync: DDBPartySync,
-    },
-
-    prices: {
-      generateXgtePrices: updateItemPrices,
-      calculateXgtePrice: calculatePrice,
-    },
-
-    updateWorldMonsters,
-    DDBSelectiveMonsterUpdate,
-
-    getIconPath: lib.Iconizer.iconPath,
-    iconPath: lib.Iconizer.iconPath,
-    generateIcon: lib.Iconizer.generateIcon,
-
-    importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
-    resetCompendiumActorImages,
-    createStorage,
-
-    generateItemMacroFlag: lib.DDBMacros.generateItemMacroFlag,
-    EffectHelper: DDBEffectHelper,
+    migrateJournalsToDDBSheet,
+    migration,
+  },
+  migrateCompendiums,
+  compendiums: {
+    migrateCompendiums,
+    DDBCompendiumFolders: lib.DDBCompendiumFolders,
+    getCompendiumLabel: lib.CompendiumHelper.getCompendiumLabel,
+    getCompendiumType: lib.CompendiumHelper.getCompendiumType,
+    getCompendiumNames: lib.CompendiumHelper.getCompendiumNames,
+    deleteDefaultCompendiums: lib.CompendiumHelper.deleteDefaultCompendiums,
+  },
+  patreon: {
+    checkPatreon: lib.PatreonHelper.checkPatreon,
+    getPatreonTier: lib.PatreonHelper.getPatreonTier,
+    getPatreonUser: lib.PatreonHelper.getPatreonUser,
+    calculateAccessMatrix: lib.PatreonHelper.calculateAccessMatrix,
+    setPatreonTier: lib.PatreonHelper.setPatreonTier,
+    fetchPatreonTier: lib.PatreonHelper.fetchPatreonTier,
+    getPatreonValidity: lib.PatreonHelper.getPatreonValidity,
+  },
+  apps: {
+    DDBDebugger,
+    DDBCharacterManager,
+    AdventureMunch: AdventureMunch,
+    DDBKeyChangeDialog: DDBKeyChangeDialog,
+    DDBDebug: lib.DDBDebug,
+    DDBPartySync,
+  },
+  lib: {
+    CPRHelper: External.ChrisPremadesHelper,
+    ChrisPremadesHelper: External.ChrisPremadesHelper,
+    CompendiumHelper: lib.CompendiumHelper,
+    DDBCampaigns: lib.DDBCampaigns,
+    DDBPartyInventory,
+    DDBCompanion2014,
+    DDBCompanionFactory,
+    DDBCharacter: DDBCharacter,
+    // Companions,
+    DDBCompendiumFolders: lib.DDBCompendiumFolders,
+    DDBSimpleMacro: lib.DDBSimpleMacro,
+    DDBEffectHelper,
+    DDBEncounterFactory,
+    DDBSources: lib.DDBSources,
+    DDBItemImporter: lib.DDBItemImporter,
+    DDBMacros: lib.DDBMacros,
+    DDBMonster,
+    DDBMonsterFactory,
+    DDBVehicle,
+    DDBVehicleFactory,
+    DDBMonsterFeature,
+    DDBMonsterDamage,
+    DDBProxy: lib.DDBProxy,
+    DDBSummonsManager,
+    DDBSummonsInterface,
     DialogHelper: lib.DialogHelper,
-    effects: {
-      helpers: DDBEffectHelper,
-      // these are now in DDBEffectHelper, wrapped here for historical reasons
-      addSaveAdvantageToTarget: DDBEffectHelper.addSaveAdvantageToTarget,
-      attachSequencerFileToTemplate: DDBEffectHelper.attachSequencerFileToTemplate,
-      checkCollision: DDBEffectHelper.checkCollision,
-      checkJB2a: DDBEffectHelper.checkJB2a,
-      checkTargetInRange: DDBEffectHelper.checkTargetInRange,
-      configureCustomAAForCondition: DDBEffectHelper.configureCustomAAForCondition,
-      findContainedTokensInTemplate: DDBEffectHelper.findContainedTokensInTemplate,
-      findEffect: DDBEffectHelper.findEffect,
-      findEffects: DDBEffectHelper.findEffects,
-      getCantripDice: DDBEffectHelper.getCantripDice,
-      getHighestAbility: DDBEffectHelper.getHighestAbility,
-      getRemainingDuration: DDBEffectHelper.getRemainingDuration,
-      isRangedWeaponAttack: DDBEffectHelper.isRangedWeaponAttack,
-      requirementsSatisfied: DDBEffectHelper.requirementsSatisfied,
-      selectTargetsWithinX: DDBEffectHelper.selectTargetsWithinX,
-      wait: DDBEffectHelper.wait,
-      AuraAutomations,
+    FileHelper: lib.FileHelper,
+    MuncherSettings: lib.MuncherSettings,
+    NameMatcher: lib.NameMatcher,
+    OriginFixer: lib.OriginFixer,
+    Enrichers,
+    Activities,
+    ParserLib,
+    DDBDebug: lib.DDBDebug,
+    SpellLists: {
+      SpellListFactory,
+      DDBSpellListFactory,
     },
-    executeDDBMacro: lib.DDBMacros.executeDDBMacro,
-    // macro tools
-    macros: {
-      createMacro: lib.DDBMacros.createMacro,
-      executeMacro: lib.DDBMacros.executeDDBMacro,
-      getMacroFunction: lib.DDBMacros.getMacroFunction,
-      loadMacroFile: lib.DDBMacros.loadMacroFile,
-      getMacro: lib.DDBMacros.getMacro,
-      executeSimpleMacro: lib.DDBSimpleMacro.execute,
+    RuleFactory: ParserLib.DDBRuleJournalFactory,
+    DDBMuleHandler,
+    DDBMaps,
+    DDBMapBrowser,
+    DDBStickers,
+    DDBStickerBrowser,
+    DDBAdventures,
+    DDBAdventure: {
+      AdventureImport: (bookId: number | string, options = {}) => new NativeAdventureMunch().importBook(bookId, options),
+      AdventureImportFile: () => NativeAdventureMunch.promptImportFromFile(),
     },
-    debug: {
-      start: debugStart,
-      stop: debugStop,
-      test: testFunction,
-      simpleTest: simpleTest,
-      utils: lib.utils,
-      lib,
-      importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
-      lowdash: {
-        isEqual,
-        uniq,
-      },
-      sqliteCipherRaw,
-      // Convenience accessor for Quickplay placement data. Call from F12 with
-      // `DDBImporter.debug.dumpQuickplay(canvas.scene)`. Returns scene context plus
-      // every Quickplay-imported tile's raw DDB values, current placement, and
-      // computed-at-import diagnostics.
-      dumpQuickplay: (scene: any) => DDBQuickplay.dumpScene(scene),
-    },
-    DICTIONARY: config.DICTIONARY,
-    SETTINGS: config.SETTINGS,
-  };
+  },
+  settings: {
+    muncherSettings: lib.MuncherSettings.getMuncherSettings,
+    characterSettings: lib.MuncherSettings.getCharacterImportSettings,
+  },
 
-  globalThis["DDBImporter"] = API;
+  checkCobalt: lib.Secrets.checkCobalt,
+  resetProxy: lib.DDBProxy.resetProxy,
+  getDDBUserData: lib.Secrets.getUserData,
+  resetSecrets,
+
+  generateAdventureConfig,
+  downloadAdventureConfig,
+
+  importCharacter: DDBCharacterImporter.importCharacter, // imports an actor
+  importCharacterById: DDBCharacterImporter.importCharacterById, // imports and actor by id
+  updateDDBCharacter, // updates an actor back to ddb
+
+  // bulk update
+  updateAllPCs: {
+    foundry: updateFoundryCharacters,
+    ddb: updateDDBCharacters,
+  },
+
+  parse: {
+    monsters: parseCritters,
+    vehicles: parseTransports,
+    items: DDBItemsImporter.fetchAndImportItems,
+    spells: parseSpells,
+  },
+
+  party: {
+    pullInventory: DDBPartyInventoryImporter.pull,
+    moveItemToParty: DDBPartyInventoryImporter.moveItemToParty,
+    moveItemToCharacter: DDBPartyInventoryImporter.moveItemToCharacter,
+    deleteItem: DDBPartyInventoryImporter.deleteItem,
+    findOrCreateActor: DDBPartyInventoryImporter.findOrCreatePartyActor,
+    applyToActor: DDBPartyInventoryImporter.applyToActor,
+    Importer: DDBPartyInventoryImporter,
+    openSync: DDBPartySync.open,
+    Sync: DDBPartySync,
+  },
+
+  prices: {
+    generateXgtePrices: updateItemPrices,
+    calculateXgtePrice: calculatePrice,
+  },
+
+  updateWorldMonsters,
+  DDBSelectiveMonsterUpdate,
+
+  getIconPath: lib.Iconizer.iconPath,
+  iconPath: lib.Iconizer.iconPath,
+  generateIcon: lib.Iconizer.generateIcon,
+
+  importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
+  resetCompendiumActorImages,
+  createStorage,
+
+  generateItemMacroFlag: lib.DDBMacros.generateItemMacroFlag,
+  EffectHelper: DDBEffectHelper,
+  DialogHelper: lib.DialogHelper,
+  effects: {
+    helpers: DDBEffectHelper,
+    // these are now in DDBEffectHelper, wrapped here for historical reasons
+    addSaveAdvantageToTarget: DDBEffectHelper.addSaveAdvantageToTarget,
+    attachSequencerFileToTemplate: DDBEffectHelper.attachSequencerFileToTemplate,
+    checkCollision: DDBEffectHelper.checkCollision,
+    checkJB2a: DDBEffectHelper.checkJB2a,
+    checkTargetInRange: DDBEffectHelper.checkTargetInRange,
+    configureCustomAAForCondition: DDBEffectHelper.configureCustomAAForCondition,
+    findContainedTokensInTemplate: DDBEffectHelper.findContainedTokensInTemplate,
+    findEffect: DDBEffectHelper.findEffect,
+    findEffects: DDBEffectHelper.findEffects,
+    getCantripDice: DDBEffectHelper.getCantripDice,
+    getHighestAbility: DDBEffectHelper.getHighestAbility,
+    getRemainingDuration: DDBEffectHelper.getRemainingDuration,
+    isRangedWeaponAttack: DDBEffectHelper.isRangedWeaponAttack,
+    requirementsSatisfied: DDBEffectHelper.requirementsSatisfied,
+    selectTargetsWithinX: DDBEffectHelper.selectTargetsWithinX,
+    wait: DDBEffectHelper.wait,
+    AuraAutomations,
+  },
+  executeDDBMacro: lib.DDBMacros.executeDDBMacro,
+  // macro tools
+  macros: {
+    createMacro: lib.DDBMacros.createMacro,
+    executeMacro: lib.DDBMacros.executeDDBMacro,
+    getMacroFunction: lib.DDBMacros.getMacroFunction,
+    loadMacroFile: lib.DDBMacros.loadMacroFile,
+    getMacro: lib.DDBMacros.getMacro,
+    executeSimpleMacro: lib.DDBSimpleMacro.execute,
+  },
+  debug: {
+    start: debugStart,
+    stop: debugStop,
+    test: testFunction,
+    simpleTest: simpleTest,
+    utils: lib.utils,
+    lib,
+    importCacheLoad: ParserLib.DDBReferenceLinker.importCacheLoad,
+    lowdash: {
+      isEqual,
+      uniq,
+    },
+    sqliteCipherRaw,
+    // Convenience accessor for Quickplay placement data. Call from F12 with
+    // `DDBImporter.debug.dumpQuickplay(canvas.scene)`. Returns scene context plus
+    // every Quickplay-imported tile's raw DDB values, current placement, and
+    // computed-at-import diagnostics.
+    dumpQuickplay: (scene: any) => DDBQuickplay.dumpScene(scene),
+  },
+  DICTIONARY: config.DICTIONARY,
+  SETTINGS: config.SETTINGS,
+};
+
+export function registerApi() {
+  globalThis["DDBImporter"] = API_BASE;
   // @ts-expect-error - we are intentionally attaching to the game module
-  game.modules.get(config.SETTINGS.MODULE_ID).api = API;
+  game.modules.get(config.SETTINGS.MODULE_ID).api = API_BASE;
   // @ts-expect-error - we are intentionally attaching to the game module
   game.modules.get(config.SETTINGS.MODULE_ID).DICTIONARY = config.DICTIONARY;
 }

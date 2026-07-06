@@ -131,6 +131,8 @@ declare global {
   // via template literal types: `${infer Scope}.${string}` on keyof SettingConfig.
   // See: src/foundry/client/helpers/client-settings.d.mts in foundry-vtt-types
   interface SettingConfig {
+    // Migration tracking (registered in hooks/ready/migraton.ts)
+    "ddb-importer.data-version": string;
     // EARLY settings
     "ddb-importer.log-level": string;
     "ddb-importer.show-munch-top": boolean;
