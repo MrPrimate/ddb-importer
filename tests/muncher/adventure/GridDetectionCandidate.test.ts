@@ -111,7 +111,9 @@ describe("isGridDetectionCandidate", () => {
       width: 2000,
       height: 1500,
     };
-    const getDims = vi.fn(async () => { throw new Error("network down"); });
+    const getDims = vi.fn(async () => {
+      throw new Error("network down"); 
+    });
     const ok = await isGridDetectionCandidate(scene, getDims);
     expect(ok).toBe(false);
   });

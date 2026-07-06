@@ -1,4 +1,4 @@
-import { logger, CompendiumHelper, FolderHelper, FileHelper, Iconizer } from "../../lib/_module";
+import { logger, CompendiumHelper, FolderHelper, Iconizer } from "../../lib/_module";
 import DDBMaps from "../DDBMaps";
 import AdventureMunch, { DEFAULT_LEVEL_ID } from "./AdventureMunch";
 import AdventureMunchHelpers from "./AdventureMunchHelpers";

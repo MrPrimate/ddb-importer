@@ -403,7 +403,8 @@ global {
     // Source metadata
     sources?: { sourceId: number; pageNumber?: number; sourceType?: number }[];
     tags?: string[];
-    sourceId?: number;
+    // number for parsed documents; DDBMap stamps the string map-source id on scenes
+    sourceId?: number | string | null;
     sourceCategory?: number;
     sourceCode?: string;
     sourceName?: string;

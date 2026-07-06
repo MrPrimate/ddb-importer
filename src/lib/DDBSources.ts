@@ -385,7 +385,7 @@ export default class DDBSources {
     await game.settings.set(SETTINGS.MODULE_ID, "allowed-weapon-property-sources", Array.from(allowedSourceIds));
   }
 
-  static getDocumentSourceId(doc: any): number | null {
+  static getDocumentSourceId(doc: TAll5eDocuments): number | null {
     // items/spells path
     const dndbeyondSourceId = foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.sourceId");
     if (dndbeyondSourceId != null) return Number(dndbeyondSourceId);
@@ -403,7 +403,7 @@ export default class DDBSources {
     return null;
   }
 
-  static getDocumentSourceCategoryId(doc: any): number | null {
+  static getDocumentSourceCategoryId(doc: TAll5eDocuments): number | null {
     // items/spells path
     const dndbeyondCatId = foundry.utils.getProperty(doc, "flags.ddbimporter.dndbeyond.sourceCategoryId");
     if (dndbeyondCatId != null) return Number(dndbeyondCatId);

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { injectHeadingAnchors } from "../../../src/muncher/adventure/native/NativeHeadingAnchors";
-import { guessSlugLink, resolveNote, type JournalPageLookup } from "../../../src/muncher/adventure/native/NativeNoteResolution";
+// JournalPageLookup is declared globally in muncher/adventure/native/types.d.ts.
+import { guessSlugLink, resolveNote } from "../../../src/muncher/adventure/native/NativeNoteResolution";
 
 // Minimal fake heading/Document so injectHeadingAnchors can run without jsdom
 // (vitest runs in the node environment, no DOMParser available).

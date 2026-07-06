@@ -134,7 +134,7 @@ export async function buildTables(
               contentChunkId,
               cobaltId: row.cobaltId,
               parentId: row.parentId,
-            }),
+            }) as I5eTableDDBFlags,
           };
           return table._id;
         };

@@ -22,7 +22,7 @@ describe("AdventureMunch._migrateSceneDataToV14 - levels-present reconciliation"
       {
         _id: DEFAULT_LEVEL_ID,
         name: "Level",
-        background: { color: "#4d4d31", tint: "#ffffff", alphaThreshold: 0.75 },
+        background: { color: "#4d4d31", tint: "#ffffff", alphaThreshold: 0.75 } as { color: string; tint: string; alphaThreshold: number; src?: string },
         textures: { anchorX: 0.5, anchorY: 0.5, fit: "fill" },
       },
     ],

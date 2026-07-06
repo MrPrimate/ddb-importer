@@ -19,7 +19,7 @@ describe("NativeSessionCache", () => {
   it("returns a stable singleton (mutations persist across calls)", () => {
     const a = getNativeSessionCache();
     a.importedSpellIds.add("123");
-    a.journalBundles.set("cos", { journals: [], lookup: {} });
+    a.journalBundles.set("cos", { journals: [], lookup: {} as JournalPageLookup });
     const b = getNativeSessionCache();
     expect(b).toBe(a);
     expect(b.importedSpellIds.has("123")).toBe(true);

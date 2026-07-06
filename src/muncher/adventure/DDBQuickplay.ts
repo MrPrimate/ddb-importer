@@ -215,7 +215,7 @@ export default class DDBQuickplay {
             quickplayTokens: rawTokens,
           },
         },
-      });
+      } as unknown as Scene.UpdateInput);
     } catch (error) {
       logger.warn(`DDBQuickplay: failed to stamp quickplayContext: ${(error as Error).message}`);
     }

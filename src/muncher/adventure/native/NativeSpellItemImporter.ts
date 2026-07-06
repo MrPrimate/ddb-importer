@@ -46,7 +46,11 @@ async function compendiumHasAnySource(type: "spells" | "items", sourceIds: numbe
   const index = await pack.getIndex({
     fields: ["flags.ddbimporter.sources", "flags.ddbimporter.dndbeyond.sourceId"],
   });
-  return index.some((entry) => DDBSources.getDocumentSourceIds(entry).some((id) => sourceIds.includes(id)));
+  // we cast the entry here as we are confident that the required fields are present in the index
+  return index
+    .some((entry) =>
+      DDBSources.getDocumentSourceIds(entry as unknown as TAll5eDocuments)
+        .some((id) => sourceIds.includes(id)));
 }
 
 export async function importSpellsAndItems(rows: ContentRow[], bookCode: string): Promise<void> {

@@ -58,11 +58,11 @@ describe("repointNotesOnLiveScene", () => {
   ];
 
   function fakeNote(flags: any, text = "") {
-    return { flags, text, update: vi.fn(async () => undefined) };
+    return { flags, text, update: vi.fn(async (_update: any) => undefined) };
   }
 
-  function fakeScene(name: string, notes: any[]) {
-    return { name, notes: { contents: notes } };
+  function fakeScene(name: string, notes: any[]): Scene {
+    return { name, notes: { contents: notes } } as unknown as Scene;
   }
 
   it("re-points a meta-note (flags.ddb.slug) at the matching native journal page", async () => {

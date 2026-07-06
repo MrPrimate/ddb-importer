@@ -77,7 +77,7 @@ export async function repointNotesOnLiveScene(sceneDoc: Scene, lookup: JournalPa
       const update: any = { entryId: ref.entryId, pageId: ref.pageId };
       // Stamp the resolved anchor so the activateNote -> anchorInjection hook
       // scrolls to the heading (it reads flags.ddb.slugLink).
-      if (ref.anchor && note.flags?.ddb?.slugLink !== ref.anchor) {
+      if (ref.anchor && foundry.utils.getProperty(note, "flags.ddb.slugLink") !== ref.anchor) {
         update.flags = { ddb: { slugLink: ref.anchor } };
       }
       await note.update(update);
@@ -99,7 +99,7 @@ async function generateThumbnail(liveScene: Scene): Promise<void> {
   if (liveScene.thumb) return;
   try {
     const thumbData = await liveScene.createThumbnail();
-    if (thumbData?.thumb) await liveScene.update({ thumb: thumbData.thumb });
+    if (thumbData?.thumb) await liveScene.update({ thumb: thumbData.thumb } as Scene.UpdateInput);
   } catch (error) {
     logger.warn(`NativeSceneApplier: thumbnail generation failed for "${liveScene.name}" (${(error as Error).message ?? error})`);
   }
@@ -132,7 +132,7 @@ async function restoreEdgeBackgroundColor(liveScene: Scene): Promise<boolean> {
   try {
     await liveScene.update({
       levels: [{ _id: firstLevel._id, background: { color: edge } }],
-    });
+    } as unknown as Scene.UpdateInput);
     return true;
   } catch (error) {
     logger.warn(`NativeSceneApplier: restore edge color failed for "${liveScene.name}" (${(error as Error).message ?? error})`);
@@ -150,7 +150,7 @@ async function hideAllTokens(liveScene: Scene): Promise<number> {
     .map((t: TokenDocument.Implementation) => ({ _id: t.id, hidden: true }));
   if (updates.length === 0) return 0;
   try {
-    await liveScene.updateEmbeddedDocuments("Token", updates);
+    await liveScene.updateEmbeddedDocuments("Token", updates as unknown as TokenDocument.UpdateData[]);
     return updates.length;
   } catch (error) {
     logger.warn(`NativeSceneApplier: hide-tokens failed for "${liveScene.name}" (${(error as Error).message ?? error})`);
@@ -187,7 +187,7 @@ async function reapplyScenesSnips(liveScene: Scene, snips: PreservedSnips): Prom
   try {
     const tiles = liveScene.tiles?.contents ?? [];
     const staleIds = tiles
-      .filter((t: TileDocument.Implementation) => !!t.flags?.snipsnipsnip)
+      .filter((t: TileDocument.Implementation) => !!foundry.utils.getProperty(t, "flags.snipsnipsnip"))
       .map((t: TileDocument.Implementation) => t.id)
       .filter(Boolean) as string[];
     if (staleIds.length) await liveScene.deleteEmbeddedDocuments("Tile", staleIds);

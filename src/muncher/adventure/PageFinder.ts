@@ -2,18 +2,24 @@ import { utils } from "../../lib/_module";
 
 export class PageFinder {
 
+  journal: JournalEntry.Implementation;
+
+  contentChunkIds: Record<string, Set<string>>;
+
+  elementIds: Record<string, Set<string>>;
+
   generateContentLinks() {
     for (const page of this.journal.pages.filter((p) => p.type === "text")) {
       const dom = utils.htmlToDocumentFragment(page.text.content);
-      const chunkElements = dom.querySelectorAll("[data-content-chunk-id]");
-      const chunkIds = new Set();
+      const chunkElements = dom.querySelectorAll<HTMLElement>("[data-content-chunk-id]");
+      const chunkIds = new Set<string>();
       chunkElements.forEach((chunk) => {
         chunkIds.add(chunk.dataset["contentChunkId"]);
       });
       this.contentChunkIds[page._id] = chunkIds;
 
       const idElements = dom.querySelectorAll("[id]");
-      const elementIds = new Set();
+      const elementIds = new Set<string>();
       idElements.forEach((chunk) => {
         elementIds.add(chunk.id);
       });

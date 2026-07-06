@@ -367,8 +367,11 @@ global {
     flags?: Record<string, unknown>;
   }
 
-  /** ddb-importer's own scene flags (foundry `flags.ddbimporter`). */
-  interface I5eSceneDDBImporterFlags extends IDDBImporterFlags {
+  /**
+   * ddb-importer's own scene flags (foundry `flags.ddbimporter`).
+   * IDDBImporterSceneFlags carries the DDBMap/Quickplay stamp fields.
+   */
+  interface I5eSceneDDBImporterFlags extends IDDBImporterFlags, IDDBImporterSceneFlags {
     bookCode?: string;
     sceneAdjustment?: boolean;
     edgeBackgroundColor?: string | null;
