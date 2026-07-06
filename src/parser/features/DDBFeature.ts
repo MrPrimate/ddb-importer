@@ -12,10 +12,10 @@ export default class DDBFeature extends DDBFeatureMixin {
   declare isChoiceFeature: boolean;
   declare include: boolean;
   declare hasRequiredLevel: boolean;
-  _choices: IDDBChoiceResult[];
-  _chosen: IDDBChoiceResult[];
-  _parentOnlyChoices: IDDBChoiceResult[];
-  _parentOnlyChosen: IDDBChoiceResult[];
+  declare _choices: IDDBChoiceResult[];
+  declare _chosen: IDDBChoiceResult[];
+  declare _parentOnlyChoices: IDDBChoiceResult[];
+  declare _parentOnlyChosen: IDDBChoiceResult[];
 
   static DOC_TYPE = {
     class: "feat" as const, // class feature

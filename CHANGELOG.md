@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.3.15
+
+- Character imports broke on 7.3.15
+
 # 7.3.14
 
 - Monsters with persistent invisibility could hang during parsing with some midi-qol configurations.

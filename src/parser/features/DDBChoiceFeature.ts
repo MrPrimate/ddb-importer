@@ -24,15 +24,15 @@ export default class DDBChoiceFeature extends DDBFeature {
 
   static FORCE_FEAT_CHOICES = DICTIONARY.parsing.choiceFeatures.FORCE_FEAT_CHOICES;
 
-  _levelScale: IDDBClassFeatureLevelScale | null;
+  declare _levelScale: IDDBClassFeatureLevelScale | null;
 
-  _levelScales: IDDBClassFeatureLevelScale[] | null;
+  declare _levelScales: IDDBClassFeatureLevelScale[] | null;
 
-  _limitedUse: IDDBClassFeatureLimitedUse[] | null;
+  declare _limitedUse: IDDBClassFeatureLimitedUse[] | null;
 
-  _classOption: IDDBOptionEntry | null | undefined;
+  declare _classOption: IDDBOptionEntry | null | undefined;
 
-  _classFeatureComponent: IDDBClassFeature | IDDBRacialTrait | undefined;
+  declare _classFeatureComponent: IDDBClassFeature | IDDBRacialTrait | undefined;
 
   _prepare() {
     this._levelScale = null;
