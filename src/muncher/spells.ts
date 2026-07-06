@@ -272,7 +272,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
     && t.flags.ddbimporter.is2014 === v.flags.ddbimporter.is2014
     && t.flags.ddbimporter.is2024 === v.flags.ddbimporter.is2024) === i);
 
-  const itemHandler = new DDBItemImporter("spells", uniqueSpells, {
+  const itemHandler = new DDBItemImporter<I5eSpellItem>("spells", uniqueSpells, {
     deleteBeforeUpdate,
     matchFlags: ["is2014", "is2024"],
     notifier: resolvedNotifier,
@@ -281,9 +281,12 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   await itemHandler.init();
   await itemHandler.iconAdditions();
   const filteredSpells = (ids !== null && ids.length > 0)
-    ? itemHandler.documents.filter((s) => s.flags?.ddbimporter?.definitionId && ids.includes(String(s.flags.ddbimporter.definitionId)))
+    ? (itemHandler.documents).filter((s) => {
+      const definitionId = s.flags?.ddbimporter?.definitionId;
+      return definitionId && ids.includes(String(definitionId));
+    })
     : itemHandler.documents;
-  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredSpells, compendiumItem: true });
+  itemHandler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: filteredSpells, compendiumItem: true }) as I5eSpellItem[];
 
   const finalCount = itemHandler.documents.length;
   resolvedNotifier(`Importing ${finalCount} spells...`, { nameField: true });
@@ -293,7 +296,7 @@ export async function parseSpells({ ids = null, deleteBeforeUpdate = null, notif
   await itemHandler.compendiumFolders.createSpellFoldersForDocuments({ documents: itemHandler.documents });
 
   const updateResults = await itemHandler.updateCompendium(updateBool);
-  const updatePromiseResults = await Promise.all(updateResults);
+  const updatePromiseResults = await Promise.all(updateResults as unknown as PromiseSettledResult<Item.Implementation | RollTable.Implementation>[]);
 
   logger.debug(`Spell Import Complete`, { finalSpells: itemHandler.documents, updateResults, updatePromiseResults });
   resolvedNotifier("");

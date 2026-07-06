@@ -39,12 +39,22 @@ const TYPE_MAP = {
   vehicle: "vehicle",
   character: "character",
   npc: "npc",
+  table: "table",
+  rolltable: "table",
+  journal: "journal",
+  macro: "macro",
+  undefined: "null",
+  null: "null",
 };
 
 const FILE_MAP = {
+  null: [],
   character: [],
   npc: [],
   vehicle: [],
+  table: [],
+  macro: [],
+  journal: [],
   items: ["items.json", "class-features.json", "races.json"],
   traits: ["class-features.json", "races.json", "general.json", "items.json"],
   spells: ["spells.json"],
@@ -89,7 +99,7 @@ async function loadIconMap(type: string) {
   // console.warn(iconMap);
 }
 
-function looseMatch(item: TAll5eDocuments, typeValue: string) {
+function looseMatch(item: TDDBItemImporterDocument, typeValue: string) {
   const originalName = foundry.utils.getProperty(item, "flags.ddbimporter.originalName") as string | undefined;
   if (originalName) {
     const originalMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === sanitiseName(originalName));
@@ -110,7 +120,7 @@ function looseMatch(item: TAll5eDocuments, typeValue: string) {
   const startsMatchItem = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).split(":")[0].trim().startsWith(sanitisedName.split(":")[0].trim()));
   if (startsMatchItem) return startsMatchItem.path;
 
-  if (item.type === "subclass" && item.system.classIdentifier) {
+  if (item.type === "subclass" && "system" in item && "classIdentifier" in item.system) {
     const sanitisedClassName = sanitiseName(item.system.classIdentifier);
     const subClassMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name).startsWith(sanitisedClassName));
     if (subClassMatch) return subClassMatch.path;
@@ -119,7 +129,7 @@ function looseMatch(item: TAll5eDocuments, typeValue: string) {
   return null;
 }
 
-function getIconPath(item: TAll5eDocuments, type: string, monsterName?: string): string | null {
+function getIconPath(item: TDDBItemImporterDocument, type: string, monsterName?: string): string | null {
   // check to see if we are able to load a dic for that type
   const typeValue = TYPE_MAP[type];
   if (!typeValue || !CONFIG.DDBI.ICONS[typeValue]) return null;
@@ -160,12 +170,13 @@ function getIconPath(item: TAll5eDocuments, type: string, monsterName?: string):
 }
 
 
-async function loadIconMaps(types: (keyof typeof TYPE_MAP)[]) {
+async function loadIconMaps(types: string[]) {
   const promises = [];
 
   const mapTypes = types
-    .filter((type) => TYPE_MAP[type])
-    .map((type) => TYPE_MAP[type]).filter((type, i, ar) => ar.indexOf(type) === i);
+    .filter((type) => TYPE_MAP[type as keyof typeof TYPE_MAP])
+    .map((type) => TYPE_MAP[type as keyof typeof TYPE_MAP])
+    .filter((type, i, ar) => ar.indexOf(type) === i);
 
   mapTypes.forEach((type) => {
     // logger.debug(`Loading ${type}`);
@@ -218,15 +229,24 @@ function unPad(_match, p1) {
   }
 }
 
+interface IIconizerSettings {
+  ddbItem?: boolean;
+  inBuilt?: boolean;
+  srdIcons?: boolean;
+  ddbSpell?: boolean;
+  ddbGenericItem?: boolean;
+  excludeCheck?: boolean;
+}
+
 export default class Iconizer {
-  documents: TAll5eDocuments[];
+  documents: TDDBItemImporterDocument[];
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   isMonster: boolean;
   monsterName: string;
   srdIconUpdate: boolean;
-  settings: Record<string, any>;
+  settings: IIconizerSettings;
 
-  static SETTINGS() {
+  static SETTINGS(): IIconizerSettings {
     return {
       ddbItem: utils.getSetting<boolean>("munching-policy-use-ddb-item-icons"),
       inBuilt: utils.getSetting<boolean>("munching-policy-use-inbuilt-icons"),
@@ -240,6 +260,14 @@ export default class Iconizer {
   constructor({
     notifier = null, settings = {}, documents = [],
     srdIconUpdate = true, isMonster = false, monsterName = "",
+  }:
+  {
+    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+    settings?: IIconizerSettings;
+    documents?: TDDBItemImporterDocument[];
+    srdIconUpdate?: boolean;
+    isMonster?: boolean;
+    monsterName?: string;
   } = {}) {
     this.notifier = notifier;
     if (!notifier) {
@@ -258,7 +286,7 @@ export default class Iconizer {
     const targetDocs = this.documents.filter((item) => DICTIONARY.types.inventory.includes(item.type));
     const itemImages = await Iconizer.getDDBItemImages(targetDocs, true);
 
-    this.documents = await Promise.all(this.documents.map((item) => {
+    this.documents = await Promise.all(this.documents.map((item: I5eInventoryItem) => {
       // logger.debug(item.name);
       // logger.debug(item.flags.ddbimporter.dndbeyond);
       if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") === true) return item;
@@ -270,7 +298,7 @@ export default class Iconizer {
             foundry.utils.setProperty(item, "flags.ddbimporter.keepIcon", true);
           }
           if (imageMatch && imageMatch.large) {
-            item.flags.ddbimporter.dndbeyond["pictureUrl"] = imageMatch.large;
+            item.flags.ddbimporter.dndbeyond.pictureUrl = imageMatch.large;
           }
         }
       }
@@ -335,7 +363,7 @@ export default class Iconizer {
   }
 
   static async iconPath(item: TAll5eDocuments, monster = false, monsterName = "") {
-    const itemTypes: (keyof typeof TYPE_MAP)[] = [item.type];
+    const itemTypes: string[] = [item.type];
     if (monster) itemTypes.push("monster");
     await loadIconMaps(itemTypes);
 
@@ -354,7 +382,7 @@ export default class Iconizer {
 
   async _copyInbuiltIcons() {
     // get unique array of item types to be matching
-    const itemTypes: (keyof typeof TYPE_MAP)[] = this.documents.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
+    const itemTypes: string[] = this.documents.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
 
     if (this.isMonster) itemTypes.push("monster");
     await loadIconMaps(itemTypes);
@@ -373,7 +401,7 @@ export default class Iconizer {
       const pathMatched = getIconPath(item, item.type);
       if (pathMatched) {
         item.img = pathMatched;
-        if (item.effects) {
+        if ("effects" in item && Array.isArray(item.effects)) {
           item.effects.forEach((effect) => {
             if (!effect.img || effect.img === "") {
               effect.img = pathMatched;
@@ -445,7 +473,7 @@ export default class Iconizer {
     this.documents = await Iconizer.copySRDIcons(this.documents, srdImageLibrary, nameMatchList);
   }
 
-  static async copySRDIcons(items: TAll5eDocuments[], srdImageLibrary = null, nameMatchList = []) {
+  static async copySRDIcons(items: TDDBItemImporterDocument[], srdImageLibrary = null, nameMatchList = []) {
     let srdImageLibrary2014 = null;
     if (!srdImageLibrary) srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
     let srdImageLibrary2024 = null;
@@ -480,7 +508,7 @@ export default class Iconizer {
     });
   }
 
-  static async getDDBItemImages(items: TAll5eDocuments[], download: boolean) {
+  static async getDDBItemImages(items: TDDBItemImporterDocument[], download: boolean) {
     utils.munchNote(`Fetching DDB Item Images`, { nameField: true });
     const downloadImages = (download) ? true : utils.getSetting<boolean>("munching-policy-download-images");
     const remoteImages = utils.getSetting<boolean>("munching-policy-remote-images");
@@ -689,7 +717,7 @@ export default class Iconizer {
     this.documents = this.documents.map((item) => {
       // logger.debug(item.name);
       // logger.debug(item.flags.ddbimporter.dndbeyond);
-      if (item.type == "spell") {
+      if (item.type == "spell" && "system" in item && "school" in item.system) {
         const school = schools.find((school) => school.id === item.system.school);
         if (school && utils.isDefaultOrPlaceholderImage(item.img)) {
           item.img = school.img;
@@ -710,7 +738,7 @@ export default class Iconizer {
   _addItemEffectIcons() {
     logger.debug("Adding Icons to effects");
     this.documents.forEach((item) => {
-      if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN as string))) {
+      if ("effects" in item && Array.isArray(item.effects) && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN as string))) {
         item.effects.forEach((effect) => {
           if (utils.isDefaultOrPlaceholderImage(effect.img)) {
             effect.img = item.img;
@@ -738,7 +766,15 @@ export default class Iconizer {
   static async updateIcons({
     documents = [], srdIconUpdate = true, monster = false, monsterName = "", notifier = null, settings = {},
     preFetch = false,
-  } = {}) {
+  }: {
+    documents: TDDBItemImporterDocument[];
+    srdIconUpdate?: boolean;
+    monster?: boolean;
+    monsterName?: string;
+    notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+    settings?: IIconizerSettings;
+    preFetch?: boolean;
+  }) {
     if (preFetch) await Iconizer.preFetchDDBIconImages();
     const iconzier = new Iconizer({ notifier, documents, srdIconUpdate, isMonster: monster, monsterName, settings });
     await iconzier.processDocuments();

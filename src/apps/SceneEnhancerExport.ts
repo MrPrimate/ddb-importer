@@ -264,7 +264,7 @@ export function collectSceneData(scene, bookCode) {
   }
 
   if (!data.flags.ddbimporter) data.flags.ddbimporter = {};
-  data.flags.ddbimporter["version"] = game.modules.get("ddb-importer").version;
+  data.flags.ddbimporter.version = game.modules.get("ddb-importer").version;
 
   return data;
 }

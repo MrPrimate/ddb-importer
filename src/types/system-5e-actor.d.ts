@@ -466,11 +466,18 @@ global {
 
   // ---- Top-level NPC document -----------------------------------------------
 
+  interface I5eNPCActorFlags {
+    ddbimporter?: IDDBImporterMonsterFlags;
+    dnd5e?: I5eActorFlags;
+    "midi-qol"?: IMidiQoLActorFlags;
+    monsterMunch?: IMonsterMunchFlags;
+  }
+
   interface I5eMonsterData extends I5eSystemBaseDocumentData {
     type: "npc";
     system: I5eMonsterSystemData;
     items: I5eMonsterItem[];
-    flags?: IActorFlagConfig & { monsterMunch?: IMonsterMunchFlags };
+    flags?: I5eNPCActorFlags;
     prototypeToken?: I5ePrototypeToken;
   }
 
@@ -704,89 +711,8 @@ global {
     | I5eInventoryItem;
 
   // ---- PC DDB Importer flags ------------------------------------------------
-
-  interface IDDBPCDnDBeyondCampaignCharacterFlags {
-    userId?: number;
-    username?: string;
-    characterId?: number;
-    characterName?: string;
-    characterUrl?: string;
-    avatarUrl?: string;
-    privacyType?: number;
-    campaignId?: number | null;
-    isAssigned?: boolean;
-  }
-
-  interface IDDBPCDnDBeyondCampaignFlags {
-    id?: number;
-    name?: string;
-    description?: string;
-    link?: string;
-    publicNotes?: string;
-    dmUserId?: number;
-    dmUsername?: string;
-    characters?: IDDBPCDnDBeyondCampaignCharacterFlags[];
-  }
-
-  interface IDDBPCDnDBeyondProficiencyFlags {
-    name: string;
-    custom: boolean;
-  }
-
-  interface IDDBPCDnDBeyondWeaponMasteryFlags {
-    weapon: string;
-    mastery: string;
-    dnd5eName: string;
-  }
-
-  interface IDDBPCDnDBeyondFlags {
-    characterId?: string;
-    url?: string;
-    totalLevels?: number;
-    proficiencies?: IDDBPCDnDBeyondProficiencyFlags[];
-    proficienciesIncludingEffects?: IDDBPCDnDBeyondProficiencyFlags[];
-    roUrl?: string | null;
-    characterValues?: any;
-    templateStrings?: any;
-    campaign?: IDDBPCDnDBeyondCampaignFlags;
-    profBonus?: number;
-    weaponMasteries?: IDDBPCDnDBeyondWeaponMasteryFlags[];
-    effectAbilities?: I5eAbilities;
-    abilityOverrides?: Record<string, number>;
-  }
-
-  interface IDDBPCAutoAC {
-    flat?: number | null;
-    calc?: string;
-    formula?: string;
-  }
-
-  interface IDDBPCImporterFlags {
-    characterId?: string;
-    dndbeyond?: IDDBPCDnDBeyondFlags;
-    activeUpdate?: boolean;
-    compendium?: boolean;
-    acEffects?: I5eEffectData[];
-    baseAC?: number;
-    autoAC?: IDDBPCAutoAC;
-    overrideAC?: IDDBPCAutoAC;
-    rolledHP?: boolean;
-    baseHitPoints?: number;
-    fixedBonusHitPointValuesWithEffects?: number;
-    totalHP?: number;
-    removedHitPoints?: number;
-    resources?: {
-      ask?: boolean;
-      type?: string;
-      primary?: string;
-      secondary?: string;
-      tertiary?: string;
-    };
-    importId?: string;
-    syncItemReady?: boolean;
-    syncActionReady?: boolean;
-    activeSyncSpells?: boolean;
-  }
+  // PC ddbimporter flag interfaces (IDDBImporterPCFlags and friends) live in
+  // flags.d.ts alongside the item/monster/base flag hierarchy.
 
   /** Character-sheet feature flags stored in `flags.dnd5e` on a PC actor. */
   interface I5ePCDnd5eFlags {
@@ -811,7 +737,7 @@ global {
   }
 
   interface I5ePCActorFlags {
-    ddbimporter?: IDDBPCImporterFlags;
+    ddbimporter?: IDDBImporterPCFlags;
     dnd5e?: I5ePCDnd5eFlags;
     "midi-qol"?: { onUseMacroName?: string; [key: string]: any };
     "tidy5e-sheet"?: { maxPreparedSpells?: number; [key: string]: any };
@@ -824,7 +750,7 @@ global {
   interface I5ePCData extends I5eSystemBaseDocumentData {
     type: "character";
     system: I5ePCSystemData;
-    items: I5ePCItem[];
+    items?: I5ePCItem[];
     flags?: I5ePCActorFlags;
     prototypeToken?: I5ePrototypeToken;
   }

@@ -115,12 +115,12 @@ export class DDBItemConfig extends FormApplication {
     };
 
     if (!item.flags.ddbimporter) item.flags.ddbimporter = {};
-    item.flags.ddbimporter["overrideId"] = formData["override"];
-    item.flags.ddbimporter["ignoreIcon"] = formData["ignoreIcon"];
-    item.flags.ddbimporter["ignoreItemImport"] = formData["ignoreItemImport"];
-    item.flags.ddbimporter["ignoreItemForChrisPremades"] = formData["ignoreItemForChrisPremades"];
-    item.flags.ddbimporter["retainResourceConsumption"] = formData["retainResourceConsumption"];
-    item.flags.ddbimporter["ignoreItemUpdate"] = formData["ignoreItemUpdate"];
+    item.flags.ddbimporter.overrideId = formData["override"];
+    item.flags.ddbimporter.ignoreIcon = formData["ignoreIcon"];
+    item.flags.ddbimporter.ignoreItemImport = formData["ignoreItemImport"];
+    item.flags.ddbimporter.ignoreItemForChrisPremades = formData["ignoreItemForChrisPremades"];
+    item.flags.ddbimporter.retainResourceConsumption = formData["retainResourceConsumption"];
+    item.flags.ddbimporter.ignoreItemUpdate = formData["ignoreItemUpdate"];
 
     configItem.actor.updateEmbeddedDocuments("Item", [item as Item.UpdateData]);
 

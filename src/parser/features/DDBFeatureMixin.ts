@@ -42,7 +42,7 @@ interface IDDBFeatureMixin {
   documentType?: TDocumentType;
   rawCharacter?: I5ePCData | null;
   activityType?: IDDBActivityType | null;
-  extraFlags?: IActorFlagConfig;
+  extraFlags?: IItemFlagConfig;
   enricher?: TDDBFeatureMixinEnrichers | null;
   ddbCharacter?: DDBCharacter | null;
   fallbackEnricher?: string | null;
@@ -112,7 +112,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   _generatedUses: I5eSystemLimitedUses;
   _actionType: IDDBFeatureMixinActionType;
   _descriptionSave: I5eActivitySave;
-  extraFlags: IActorFlagConfig;
+  extraFlags: IItemFlagConfig;
   declare documentType: TDocumentType;
   companionFeatureOption: { parentFeature: string; childName: string };
   ddbCompanionFactory: DDBCompanionFactory;
@@ -165,7 +165,8 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _generateFlagHints() {
-    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags) as IItemFlagConfig;
+    // mergeObject mutates this.data.flags in place
+    foundry.utils.mergeObject(this.data.flags, this.extraFlags);
 
     if (this._actionType.class) {
       const klass = DDBDataUtils.findClassByFeatureId(this.ddbData, this._actionType.class.componentId);

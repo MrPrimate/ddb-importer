@@ -920,7 +920,7 @@ export default class CharacterFeatureFactory {
     type?: string;
     isAttack?: boolean | null;
     manager?: DDBSummonsManager | null;
-    extraFlags?: IActorFlagConfig;
+    extraFlags?: IItemFlagConfig;
     enricher?: TDDBFeatureMixinEnrichers;
     usesOnActivity?: boolean | undefined;
   }) {

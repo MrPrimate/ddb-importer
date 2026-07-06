@@ -62,7 +62,8 @@ export default class DDBChoiceFeature extends DDBFeature {
       this._limitedUse = foundry.utils.getProperty(this._classFeatureComponent, "definition.limitedUse") as IDDBClassFeatureLimitedUse[] | null;
     }
 
-    this.data.flags = foundry.utils.mergeObject(this.data.flags, this.extraFlags);
+    // mergeObject mutates this.data.flags in place
+    foundry.utils.mergeObject(this.data.flags, this.extraFlags);
 
   }
 

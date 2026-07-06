@@ -10,7 +10,9 @@ global {
 
   type TAll5eDocuments = TAll5eActorDocuments | TAll5eItemDocuments;
 
-  type T5eCompendiumDocuments = TAll5eActorDocuments | TAll5eItemDocuments | I5eMacroData | I5eTableData;
+  type TDDBItemImporterDocument = TAll5eDocuments | I5eTableData;
+
+  type T5eCompendiumDocuments = TDDBItemImporterDocument | I5eMacroData;
 
   type TDistanceUnit = "" | "ft" | "mi" | "self" | "touch" | "spec" | "any";
 

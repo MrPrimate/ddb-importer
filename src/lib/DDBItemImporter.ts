@@ -46,13 +46,13 @@ interface IDDBItemImporterBuildHandlerOptions {
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
-type TDDBImporterDocument = TAll5eItemDocuments | TAll5eActorDocuments | I5eTableData;
+type TDDBImporterDocument = TDDBItemImporterDocument;
 
 type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
 
 type TFlagType = TDDBImporterDocument | TIndexEntry;
 
-export default class DDBItemImporter {
+export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBImporterDocument> {
 
   static DEFAULT_INDEX_FILTER: Record<string, any> = {
     fields: [
@@ -79,11 +79,11 @@ export default class DDBItemImporter {
   compendiumFolders: DDBCompendiumFolders;
   srdImageLibrary2014: IIconMapEntry[] | null;
   srdImageLibrary2024: IIconMapEntry[] | null;
-  _documents: TDDBImporterDocument[];
+  _documents: TType[];
   type: string;
   recursive: boolean | null;
 
-  constructor(type: string, documents: TDDBImporterDocument[], {
+  constructor(type: string, documents: TType[], {
     matchFlags = [],
     matchFields = [],
     deleteBeforeUpdate = null,
@@ -123,11 +123,11 @@ export default class DDBItemImporter {
     this.compendiumFolders = new DDBCompendiumFolders(this.type);
   }
 
-  get documents(): TDDBImporterDocument[] {
+  get documents(): TType[] {
     return this._documents;
   }
 
-  set documents(docs: TDDBImporterDocument[]) {
+  set documents(docs: TType[]) {
     this._documents = docs;
     this.totalDocuments = this._documents?.length ?? 0;
   }
@@ -291,10 +291,10 @@ export default class DDBItemImporter {
 
   /**
    * Removes items from the documents collection that match the given criteria.
-   * @param {TDDBImporterDocument[]} itemsToRemove array of objects to remove from the documents collection
+   * @param {TType[]} itemsToRemove array of objects to remove from the documents collection
    * @param {boolean} matchDDBId if true, only remove items where the ddb id matches
    */
-  removeItems(itemsToRemove: TDDBImporterDocument[], matchDDBId = false) {
+  removeItems(itemsToRemove: TType[], matchDDBId = false) {
     this.documents = this.documents.filter((item) =>
       !itemsToRemove.some((originalItem) =>
         (item.name === originalItem.name || foundry.utils.getProperty(item, "flags.ddbimporter.originalName") as string === originalItem.name)
@@ -305,7 +305,7 @@ export default class DDBItemImporter {
   }
 
 
-  async addCompendiumFolderIds(documents: TDDBImporterDocument[]): Promise<TDDBImporterDocument[]> {
+  async addCompendiumFolderIds(documents: TType[]): Promise<TType[]> {
     if (this.useCompendiumFolders) {
       await this.compendiumFolders.loadCompendium(this.type, true);
       const results = await this.compendiumFolders.addCompendiumFolderIds(documents);
@@ -315,7 +315,7 @@ export default class DDBItemImporter {
     }
   }
 
-  async getFilteredItemIndexes(item: TDDBImporterDocument): Promise<TIndexEntry[]> {
+  async getFilteredItemIndexes(item: TType): Promise<TIndexEntry[]> {
     const indexEntries: TIndexEntry[] =
       this.compendiumIndex.filter((idx) => idx.name === item.name) as unknown as TIndexEntry[];
 
@@ -334,7 +334,7 @@ export default class DDBItemImporter {
     return fieldFiltered;
   }
 
-  async getFilteredItemDocuments(item: TDDBImporterDocument): Promise<Item.Implementation[]> {
+  async getFilteredItemDocuments(item: TType): Promise<Item.Implementation[]> {
     const indexEntries = await this.getFilteredItemIndexes(item);
     const mapped = await Promise.all(indexEntries.map((idx) => {
       const entry = this.compendium.getDocument(idx._id).then((doc) => doc) as Promise<Item.Implementation>;
@@ -345,10 +345,10 @@ export default class DDBItemImporter {
 
   /**
    * Asynchronously creates a new item to be added to a compendium based on its type.
-   * @param {TDDBImporterDocument} item the data for the new item to be created
+   * @param {TType} item the data for the new item to be created
    * @returns {Promise<Item.Implementation | RollTable.Implementation ||null>} a Promise that resolves with the imported item or null if import failed
    */
-  async createCompendiumItem(item: TDDBImporterDocument): Promise<Item.Implementation | RollTable.Implementation | null> {
+  async createCompendiumItem(item: TType): Promise<Item.Implementation | RollTable.Implementation | null> {
     let newItem;
     switch (this.type) {
       case "table":
@@ -395,7 +395,7 @@ export default class DDBItemImporter {
     return newItem.constructor.create(data, { pack: this.compendium.collection, keepId: true });
   }
 
-  async updateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation> {
+  async updateCompendiumItem(updateItem: TType, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation> {
     // purge existing active effects on this item
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.currentDocumentCount++;
@@ -437,7 +437,7 @@ export default class DDBItemImporter {
     return update;
   }
 
-  async deleteCreateCompendiumItem(updateItem: TDDBImporterDocument, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation | null> {
+  async deleteCreateCompendiumItem(updateItem: TType, existingItem: Item.Implementation): Promise<Item.Implementation | RollTable.Implementation | null> {
     if (existingItem.flags) DDBItemImporter.copySupportedItemFlags(existingItem, updateItem);
     this.notifier(`Removing and Recreating ${updateItem.name} compendium entry`);
     logger.debug(`Removing and Recreating ${updateItem.name} compendium entry`);
@@ -447,7 +447,7 @@ export default class DDBItemImporter {
   }
 
 
-  async updateCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
+  async updateCompendiumItems(inputItems: TType[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
     const results = [];
     for (const item of inputItems) {
       const existingItems: Item.Implementation[] = await this.getFilteredItemDocuments(item);
@@ -478,7 +478,7 @@ export default class DDBItemImporter {
     return Promise.all(results);
   }
 
-  async createCompendiumItems(inputItems: TDDBImporterDocument[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
+  async createCompendiumItems(inputItems: TType[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
     const results = [];
     for (const item of inputItems) {
       try {
@@ -630,12 +630,13 @@ ${item.system.description.chat}
    * @param {boolean} [options.linkItemFlags=false] whether to link item flags
    * @returns {<Document[]>} documents loaded from compendium
    */
-  static async getCompendiumItems(items: TAll5eItemDocuments[], type: string,
+  static async getCompendiumItems<TType extends TDDBImporterDocument = TDDBImporterDocument>(
+    items: TType[], type: string,
     { looseMatch = false, monsterMatch = false, keepId = false,
       deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions = {},
   ): Promise<TAll5eItemDocuments[]> {
 
-    const itemImporter = new DDBItemImporter(type, [], {
+    const itemImporter = new DDBItemImporter<TType>(type, [], {
       indexFilter: { fields: [
         "name",
         // "flags.ddbimporter.is2014",
@@ -657,26 +658,27 @@ ${item.system.description.chat}
       linkItemFlags,
       indexFilter: itemImporter.indexFilter,
     };
-    const results = await itemImporter.loadPassedItemsFromCompendium(items, loadOptions);
+    const results = await itemImporter.loadPassedItemsFromCompendium(items as TAll5eItemDocuments[], loadOptions);
 
     return results;
   }
 
   async iconAdditions() {
     this.documents = await Iconizer.updateIcons({
-      documents: this.documents,
+      documents: this.documents as TAll5eDocuments[],
       notifier: this.notifier,
-    });
+    }) as TType[];
   }
 
 
-  async useSRDMonsterImages(): Promise<TDDBImporterDocument[]> {
+  async useSRDMonsterImages(): Promise<TType[]> {
     if (!utils.getSetting<boolean>("munching-policy-use-srd-monster-images")) return this.documents;
     await this._buildSRDLibrary();
     this.notifier(`Updating SRD Monster Images`, { nameField: true });
 
 
     for (const monster of this.documents) {
+      if (monster.type !== "npc") continue;
       if (!("prototypeToken" in monster)) continue;
       logger.debug(`Checking ${monster.name} for srd images`);
       const srdImageLibrary = foundry.utils.getProperty(monster, "flags.ddbimporter.is2014") ? this.srdImageLibrary2014 : this.srdImageLibrary2024;
@@ -726,7 +728,7 @@ ${item.system.description.chat}
     return this.documents;
   }
 
-  async generateIconMap():  Promise<TDDBImporterDocument[]> {
+  async generateIconMap(): Promise<TType[]> {
     const promises = [];
 
     const srdIcons = utils.getSetting<boolean>("munching-policy-use-srd-icons");
@@ -750,15 +752,15 @@ ${item.system.description.chat}
       }
     }
 
-    return Promise.all(promises);
+    return Promise.all(promises) as unknown as TType[];
   }
 
-  static async buildHandler(type: string, documents: TDDBImporterDocument[], updateBool: boolean,
+  static async buildHandler<TType extends TDDBImporterDocument = TDDBImporterDocument>(type: string, documents: TType[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], matchFields = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,
   ): Promise<DDBItemImporter> {
-    const handler = overrideHandler ?? new DDBItemImporter(type, documents, {
+    const handler = overrideHandler ?? new DDBItemImporter<TType>(type, documents, {
       matchFlags,
       matchFields,
       deleteBeforeUpdate,

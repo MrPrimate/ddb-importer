@@ -3055,16 +3055,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #addExtraDDBFlags() {
-    this.data.flags.ddbimporter["id"] = this.ddbItem.id;
-    this.data.flags.ddbimporter["entityTypeId"] = this.ddbItem.entityTypeId;
+    this.data.flags.ddbimporter.id = this.ddbItem.id;
+    this.data.flags.ddbimporter.entityTypeId = this.ddbItem.entityTypeId;
 
     if (this.ddbDefinition.avatarUrl)
-      this.data.flags.ddbimporter.dndbeyond["avatarUrl"] = this.ddbDefinition.avatarUrl.split("?")[0];
+      this.data.flags.ddbimporter.dndbeyond.avatarUrl = this.ddbDefinition.avatarUrl.split("?")[0];
     if (this.ddbDefinition.largeAvatarUrl)
-      this.data.flags.ddbimporter.dndbeyond["largeAvatarUrl"] = this.ddbDefinition.largeAvatarUrl.split("?")[0];
+      this.data.flags.ddbimporter.dndbeyond.largeAvatarUrl = this.ddbDefinition.largeAvatarUrl.split("?")[0];
     if (this.ddbDefinition.filterType) {
       const filter = DICTIONARY.items.find((i) => i.filterType === this.ddbDefinition.filterType);
-      if (filter) this.data.flags.ddbimporter.dndbeyond["filterType"] = filter.filterType;
+      if (filter) this.data.flags.ddbimporter.dndbeyond.filterType = filter.filterType;
     }
 
     // container info
@@ -3131,19 +3131,19 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   #enrichFlags() {
     if (this.ddbDefinition?.entityTypeId)
-      this.data.flags.ddbimporter["definitionEntityTypeId"] = this.ddbDefinition.entityTypeId;
+      this.data.flags.ddbimporter.definitionEntityTypeId = this.ddbDefinition.entityTypeId;
     if (this.ddbDefinition?.id)
-      this.data.flags.ddbimporter["definitionId"] = this.ddbDefinition.id;
+      this.data.flags.ddbimporter.definitionId = this.ddbDefinition.id;
     if (this.ddbItem.entityTypeId)
-      this.data.flags.ddbimporter["entityTypeId"] = this.ddbItem.entityTypeId;
+      this.data.flags.ddbimporter.entityTypeId = this.ddbItem.entityTypeId;
     if (this.ddbItem.id)
-      this.data.flags.ddbimporter["id"] = this.ddbItem.id;
+      this.data.flags.ddbimporter.id = this.ddbItem.id;
     if (this.ddbDefinition?.tags)
-      this.data.flags.ddbimporter.dndbeyond["tags"] = this.ddbDefinition.tags;
+      this.data.flags.ddbimporter.dndbeyond.tags = this.ddbDefinition.tags;
     if (this.ddbDefinition?.sources)
-      this.data.flags.ddbimporter.dndbeyond["sources"] = this.ddbDefinition.sources;
+      this.data.flags.ddbimporter.dndbeyond.sources = this.ddbDefinition.sources;
     if (this.ddbDefinition?.stackable)
-      this.data.flags.ddbimporter.dndbeyond["stackable"] = this.ddbDefinition.stackable;
+      this.data.flags.ddbimporter.dndbeyond.stackable = this.ddbDefinition.stackable;
   }
 
 

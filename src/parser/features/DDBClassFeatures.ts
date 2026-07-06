@@ -127,7 +127,7 @@ export default class DDBClassFeatures {
     type: "class" | "race" | "background" | "feat";
     source: IDDBSourceResponse;
     filterByLevel?: boolean;
-    flags?: IActorFlagConfig;
+    flags?: IItemFlagConfig;
   }): Promise<T5eFeatureMixinDataTypes[]> {
     logger.debug(`DDBClassFeatures._getFeatures started for ${type} of ${source} for ${featureDefinition.definition?.name ?? featureDefinition.name}`);
     const enricher = new DDBClassFeatureEnricher({

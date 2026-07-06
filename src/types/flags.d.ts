@@ -4,7 +4,7 @@ global {
 
   type ParseSpellLookup = "classSpell" | "classFeature" | "race" | "feat" | "background" | "generic" | "item";
 
-  interface IParseSpellFlagDataDnDBeyond extends IDDBImporterFlagsDnDBeyond {
+  interface IParseSpellFlagDataDnDBeyond extends IDDBImporterItemDnDBeyondFlags {
     /** The type of spell lookup source */
     lookup?: ParseSpellLookup;
     /** Name of the lookup source (e.g. class feature name, feat name, item name) */
@@ -85,23 +85,82 @@ global {
     ddbId?: number;
   }
 
-  interface IDDBImporterFlagsDnDBeyond {
+  interface IDDBPCDnDBeyondCampaignCharacterFlags {
+    userId?: number;
+    username?: string;
+    characterId?: number;
+    characterName?: string;
+    characterUrl?: string;
+    avatarUrl?: string;
+    privacyType?: number;
+    campaignId?: number | null;
+    isAssigned?: boolean;
+  }
+
+  interface IDDBPCDnDBeyondCampaignFlags {
+    id?: number;
+    name?: string;
+    description?: string;
+    link?: string;
+    publicNotes?: string;
+    dmUserId?: number;
+    dmUsername?: string;
+    characters?: IDDBPCDnDBeyondCampaignCharacterFlags[];
+  }
+
+  interface IDDBPCDnDBeyondProficiencyFlags {
+    name: string;
+    custom: boolean;
+  }
+
+  interface IDDBPCDnDBeyondWeaponMasteryFlags {
+    weapon: string;
+    mastery: string;
+    dnd5eName: string;
+  }
+
+  interface IDDBPCAutoAC {
+    flat?: number | null;
+    calc?: string;
+    formula?: string;
+  }
+
+  /** dndbeyond flag fields shared by every document type. */
+  interface IDDBImporterDnDBeyondBaseFlags {
+    type?: string;
+  }
+
+  /** dndbeyond flags stamped on PC actors. Nullable fields are written as null
+   * at skeleton time (parser/character/index.ts) and nulled again post-import
+   * (DDBCharacterImporter). */
+  interface IDDBImporterPCDnDBeyondFlags extends IDDBImporterDnDBeyondBaseFlags {
     // Character identity
     characterId?: string;
-    url?: string;
+    url?: string | null;
     json?: string;
-    roUrl?: string;
+    roUrl?: string | null;
 
     // Character stats
-    totalLevels?: number;
+    totalLevels?: number | null;
     profBonus?: number;
-    proficiencies?: IDDBPCDnDBeyondProficiencyFlags[];
-    proficienciesIncludingEffects?: IDDBPCDnDBeyondProficiencyFlags[];
-    effectAbilities?: I5eAbilities;
-    characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[];
-    templateStrings?: IDDBTemplateStringResult[];
-    campaign?: { id?: number; name?: string };
+    proficiencies?: IDDBPCDnDBeyondProficiencyFlags[] | null;
+    proficienciesIncludingEffects?: IDDBPCDnDBeyondProficiencyFlags[] | null;
+    effectAbilities?: I5eAbilities | null;
+    abilityOverrides?: Record<string, number> | null;
+    characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[] | null;
+    templateStrings?: IDDBTemplateStringResult[] | null;
+    campaign?: IDDBPCDnDBeyondCampaignFlags | null;
+    weaponMasteries?: IDDBPCDnDBeyondWeaponMasteryFlags[];
+  }
 
+  /** dndbeyond flags stamped on encounter documents (tokens/actor deltas). */
+  interface IDDBImporterEncounterDnDBeyondFlags extends IDDBImporterDnDBeyondBaseFlags {
+    initiative?: number;
+    uniqueId?: string;
+  }
+
+  /** dndbeyond flags stamped on items (spells, features, gear, classes, races). */
+  interface IDDBImporterItemDnDBeyondFlags extends IDDBImporterDnDBeyondBaseFlags {
     // Spell flags
     lookup?: string;
     lookupName?: string;
@@ -129,7 +188,6 @@ global {
     homebrew?: boolean;
 
     // Item flags
-    type?: string;
     tags?: string[];
     sources?: { sourceId?: number; pageNumber?: number; sourceType?: number }[];
     restrictions?: string[];
@@ -142,6 +200,7 @@ global {
     levelInfusionGranted?: number;
     avatarUrl?: string;
     largeAvatarUrl?: string;
+    pictureUrl?: string;
     filterType?: string;
     ability2?: string;
     damage?: { parts?: string[][] };
@@ -159,10 +218,6 @@ global {
     entityId?: number;
     entityRaceId?: number;
     entityType?: string;
-
-    // Encounter flags
-    initiative?: number;
-    uniqueId?: string;
 
     // Choice flags
     choice?: {
@@ -189,6 +244,15 @@ global {
     // Limit use
     limitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string };
 
+  }
+
+  /** Kitchen-sink dndbeyond flags for code paths that handle documents of
+   * unknown type (getProperty casts, generic muncher paths). Prefer the
+   * targeted PC/Item/Encounter interfaces where the document type is known. */
+  interface IDDBImporterFlagsDnDBeyond extends
+    IDDBImporterPCDnDBeyondFlags,
+    IDDBImporterItemDnDBeyondFlags,
+    IDDBImporterEncounterDnDBeyondFlags {
   }
 
   interface IDDBImporterFlagsSummons {
@@ -237,6 +301,9 @@ global {
   interface IDDBImporterFlagsResources {
     type?: string;
     ask?: boolean;
+    primary?: string;
+    secondary?: string;
+    tertiary?: string;
   }
 
   interface IDDBImporterFlagsAdventure {
@@ -257,15 +324,91 @@ global {
     targetItemMatches?: IDDBImporterTransferEnchantmentTargetItemMatches[];
   }
 
-  interface IDDBImporterFlags {
+  /** ddbimporter flag fields shared by every document type (actors, items,
+   * scenes, tables). */
+  interface IDDBImporterFlagsBase {
     // Core identifiers
     id?: number;
-    definitionId?: number;
     entityTypeId?: number;
+    compendiumId?: string;
+
+    // Type/classification
+    type?: string;
+
+    // Version flags
+    is2014?: boolean;
+    is2024?: boolean;
+    legacy?: boolean;
+    isLegacy?: boolean;
+    version?: string;
+
+    // Compendium/import
+    compendium?: boolean;
+    pack?: string;
+    importId?: string;
+
+    // Source metadata
+    sources?: { sourceId: number; pageNumber?: number; sourceType?: number }[];
+    tags?: string[];
+    // number for parsed documents; DDBMap stamps the string map-source id on scenes
+    sourceId?: number | string | null;
+    sourceCategory?: number;
+    sourceCode?: string;
+    sourceName?: string;
+
+    // Encounter/adventure
+    encounterId?: number | string;
+    encounters?: boolean;
+    isDDBAdventure?: boolean;
+
+    // adventure muncher retention (read on any document type by DDBAdventureFlags)
+    keepItems?: boolean;
+    keepToken?: boolean;
+    keepAvatar?: boolean;
+    customItem?: boolean;
+  }
+
+  /** ddbimporter flags stamped on PC actors (absorbs the old
+   * IDDBPCImporterFlags from system-5e-actor.d.ts). */
+  interface IDDBImporterPCFlags extends IDDBImporterFlagsBase {
+    activeUpdate?: boolean;
+    activeSyncSpells?: boolean;
+    syncItemReady?: boolean;
+    syncActionReady?: boolean;
+    acEffects?: I5eEffectData[];
+    baseAC?: number;
+    autoAC?: IDDBPCAutoAC;
+    overrideAC?: IDDBPCAutoAC;
+    rolledHP?: boolean;
+    baseHitPoints?: number;
+    fixedBonusHitPointValuesWithEffects?: number;
+    totalHP?: number;
+    removedHitPoints?: number;
+    resources?: IDDBImporterFlagsResources;
+    useLocalPatreonKey?: boolean;
+    framePath?: string | null;
+    dndbeyond?: IDDBImporterPCDnDBeyondFlags;
+  }
+
+  /** ddbimporter flags stamped on NPC/monster actors. */
+  interface IDDBImporterMonsterFlags extends IDDBImporterFlagsBase {
+    creatureGroupId?: number | null;
+    creatureFlags?: any[];
+    automatedEvocationAnimation?: any;
+    flatAC?: boolean;
+    // companion/summons generation (DDBCompanionMixin)
+    summons?: IDDBImporterFlagsSummons;
+    dndbeyond?: IDDBImporterDnDBeyondBaseFlags;
+  }
+
+  /** ddbimporter flags stamped on items (spells, features, gear, classes,
+   * subclasses, races, backgrounds) and their effects. */
+  interface IDDBImporterItemFlags extends IDDBImporterFlagsBase {
+    // Core identifiers
+    definitionId?: number;
     definitionEntityTypeId?: number;
     componentId?: number;
     componentTypeId?: number;
-    compendiumId?: string;
 
     // Class spellcasting hints
     spellSlotDivisor?: number;
@@ -276,17 +419,9 @@ global {
     name?: string;
 
     // Type/classification
-    type?: string;
     subType?: string;
     action?: boolean;
     isCustomAction?: boolean;
-
-    // Version flags
-    is2014?: boolean;
-    is2024?: boolean;
-    legacy?: boolean;
-    isLegacy?: boolean;
-    version?: string;
 
     // Class/subclass
     class?: string;
@@ -312,19 +447,30 @@ global {
 
     // Race/species
     baseName?: string;
+    baseRaceId?: number;
     baseRaceName?: string;
     subRaceShortName?: string;
     isSubRace?: boolean;
+    fullName?: string;
     fullRaceName?: string;
     groupName?: string;
+    groupIds?: number[];
+    featIds?: number[];
     isLineage?: boolean;
+    lineageName?: string;
+    isHomebrew?: boolean;
     entityRaceId?: number;
+    species?: string;
+    moreDetailsUrl?: string;
 
     // Image handling
     ddbImg?: string;
     image?: string;
     keepIcon?: boolean;
     matchedImg?: string;
+    avatarUrl?: string;
+    largeAvatarUrl?: string;
+    portraitAvatarUrl?: string;
 
     // Item flags
     containerEntityId?: number;
@@ -336,14 +482,11 @@ global {
     removeSpell?: boolean;
 
     // Compendium/import
-    compendium?: boolean;
-    pack?: string;
     overrideId?: string;
     overrideItem?: IDDBImporterFlagsOverrideItem;
     replacedId?: string;
     replaced?: boolean;
     originalItemName?: string;
-    importId?: string;
     delete?: Record<string, unknown>;
 
     // Effect flags
@@ -371,15 +514,6 @@ global {
     characterEffect?: boolean;
     originName?: string;
 
-    // Character flags (on actor)
-    rolledHP?: boolean;
-    baseHitPoints?: number;
-    baseAC?: number;
-    acEffects?: string[];
-    activeUpdate?: boolean;
-    activeSyncSpells?: boolean;
-    useLocalPatreonKey?: boolean;
-
     // Activity/enricher flags
     replaceActivityUses?: boolean;
     forceSpellAdvancement?: boolean;
@@ -394,35 +528,20 @@ global {
     retainResourceConsumption?: boolean;
     parentId?: string;
 
-    // Monster feature flags
+    // Monster feature flags (stamped on monster feature items)
     spellSave?: boolean;
     spellAttack?: boolean;
     levelBonus?: boolean;
     profBonus?: boolean;
 
-    // Source metadata
-    sources?: { sourceId: number; pageNumber?: number; sourceType?: number }[];
-    tags?: string[];
-    // number for parsed documents; DDBMap stamps the string map-source id on scenes
-    sourceId?: number | string | null;
-    sourceCategory?: number;
-    sourceCode?: string;
-    sourceName?: string;
-
-    // Encounter/adventure
-    encounterId?: number | string;
-    encounters?: boolean;
-    isDDBAdventure?: boolean;
+    // Adventure
     adventure?: IDDBImporterFlagsAdventure;
 
     // Pricing
     price?: IDDBImporterFlagsPrice;
 
-    // Resources (on actor)
-    resources?: IDDBImporterFlagsResources;
-
     // Nested objects
-    dndbeyond?: IDDBImporterFlagsDnDBeyond;
+    dndbeyond?: IDDBImporterItemDnDBeyondFlags;
     summons?: IDDBImporterFlagsSummons;
     effect?: IDDBImporterFlagsEffect;
     disposition?: IDDBImporterFlagsDisposition;
@@ -430,11 +549,28 @@ global {
     // enchantment transfer
     transferEnchantment?: IDDBImporterTransferEnchantmentFlags;
 
-    // item retention
-    keepItems?: boolean;
-    keepToken?: boolean;
-    keepAvatar?: boolean;
-    customItem?: boolean;
+  }
+
+  /** ddbimporter flags that can appear on any actor (PC or NPC). Used by the
+   * generic Actor FlagConfig entry; per-document precision comes from
+   * I5ePCData / I5eMonsterData. */
+  interface IDDBImporterActorFlags extends
+    IDDBImporterFlagsBase,
+    IDDBImporterPCFlags,
+    IDDBImporterMonsterFlags {
+    dndbeyond?: IDDBImporterPCDnDBeyondFlags;
+  }
+
+  /** Kitchen-sink ddbimporter flags for code paths that handle documents of
+   * unknown type (getProperty casts, scene/table flag extension, generic
+   * muncher paths). Prefer the targeted PC/Monster/Item interfaces where the
+   * document type is known. */
+  interface IDDBImporterFlags extends
+    IDDBImporterFlagsBase,
+    IDDBImporterPCFlags,
+    IDDBImporterMonsterFlags,
+    IDDBImporterItemFlags {
+    dndbeyond?: IDDBImporterFlagsDnDBeyond;
   }
 
   interface I5eActorFlags {
@@ -695,7 +831,7 @@ global {
 
   interface IItemFlagConfig {
     infusions?: { maps?: any[]; applied?: any[]; infused: boolean };
-    ddbimporter?: IDDBImporterFlags;
+    ddbimporter?: IDDBImporterItemFlags;
     dnd5e?: I5eItemFlags;
     "midi-qol"?: {
       dependentOn?: string; // UUID of parent document for midi-qol dependent tracking
@@ -708,16 +844,10 @@ global {
       };
       reactionCondition?: string;
     };
-    dae?: {
-      macro?: Macro.CreateData;
-    };
-    itemacro?: {
-      macro?: Macro.CreateData;
-    };
   };
 
   interface IActorFlagConfig {
-    ddbimporter?: IDDBImporterFlags;
+    ddbimporter?: IDDBImporterActorFlags;
     dnd5e?: I5eActorFlags;
     "midi-qol"?: IMidiQoLActorFlags;
   };
@@ -815,7 +945,7 @@ global {
         dontApply?: boolean;
         durationExpression?: string;
         enableCondition?: string;
-        itemData?: Item.InitializedData;
+        itemData?: Record<string, any>;
         itemMacro?: string;
         itemUuid?: string;
         itemsToDelete?: string[];
@@ -852,7 +982,7 @@ global {
           id: string;
           type: string;
           uuid: string;
-          data?: Item.CreateData;
+          data?: Record<string, any>;
         };
         scaling?: number;
         "use.concentrationId"?: string;

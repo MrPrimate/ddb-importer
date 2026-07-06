@@ -162,10 +162,9 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       const customName = customValue.find((value) => value.typeId == 8);
 
       if (customName) {
-        data.name = customName.vale;
+        data.name = customName.value;
         return customName.value;
       }
-      if (customName) return customName.value;
     }
     return null;
   }

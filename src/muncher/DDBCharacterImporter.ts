@@ -75,7 +75,7 @@ export default class DDBCharacterImporter {
     if (this.actor.flags?.ddbimporter?.dndbeyond) {
       const url = this.actor.flags.ddbimporter.dndbeyond.url;
 
-      if (url && !this.actor.flags.ddbimporter.characterId) {
+      if (url && !this.actor.flags.ddbimporter.dndbeyond.characterId) {
         const characterId = DDBCharacter.getCharacterId(url);
         if (characterId) {
           this.actor.flags.ddbimporter.dndbeyond.characterId = characterId;
@@ -311,7 +311,7 @@ export default class DDBCharacterImporter {
         if (!framePath) {
           framePath = await FileHelper.uploadRemoteImage(decorations.frameAvatarUrl, uploadDirectory, `frame-${filename}`);
         }
-        this.result.character.flags.ddbimporter["framePath"] = framePath;
+        this.result.character.flags.ddbimporter.framePath = framePath;
         if (framePath) {
           // Tokenizer-2 caches its frame loaders; bust the cache so the new
           // file shows up on the next Frame Browser open.
@@ -404,8 +404,7 @@ ${item.system.description.chat}
       logger.debug(`Adding the following class items, keep Ids? ${keepIds}`, { options, items: foundry.utils.duplicate(klassItems) });
       for (const klassItem of klassItems) {
         // console.warn(`Importing ${klassItem.name}`, klassItem);
-        // @ts-expect-error er know these types are right
-        await this.actor.createEmbeddedDocuments("Item", [klassItem], options);
+        await this.actor.createEmbeddedDocuments("Item", [klassItem as any], options);
       }
     }
     if (nonKlassItems.length > 0) {
@@ -413,11 +412,9 @@ ${item.system.description.chat}
       if (CONFIG.DDBI.DEV.enabled && CONFIG.DDBI.DEV.itemImportSingle) {
         for (const nonKlassItem of nonKlassItems) {
           logger.info(`Importing ${nonKlassItem.name}`, nonKlassItem);
-          // @ts-expect-error er know these types are right
           await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
         }
       } else {
-        // @ts-expect-error er know these types are right
         await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
       }
 
@@ -987,17 +984,17 @@ ${item.system.description.chat}
       }
 
       // flag as having items ids
-      this.result.character.flags.ddbimporter["syncItemReady"] = true;
-      this.result.character.flags.ddbimporter["syncActionReady"] = true;
-      this.result.character.flags.ddbimporter["activeUpdate"] = false;
-      this.result.character.flags.ddbimporter["activeSyncSpells"] = true;
+      this.result.character.flags.ddbimporter.syncItemReady = true;
+      this.result.character.flags.ddbimporter.syncActionReady = true;
+      this.result.character.flags.ddbimporter.activeUpdate = false;
+      this.result.character.flags.ddbimporter.activeSyncSpells = true;
       // remove unneeded flags (used for character parsing)
-      this.result.character.flags.ddbimporter.dndbeyond["templateStrings"] = null;
-      this.result.character.flags.ddbimporter.dndbeyond["characterValues"] = null;
-      this.result.character.flags.ddbimporter.dndbeyond["proficiencies"] = null;
-      this.result.character.flags.ddbimporter.dndbeyond["proficienciesIncludingEffects"] = null;
-      this.result.character.flags.ddbimporter.dndbeyond["effectAbilities"] = null;
-      this.result.character.flags.ddbimporter.dndbeyond["abilityOverrides"] = null;
+      this.result.character.flags.ddbimporter.dndbeyond.templateStrings = null;
+      this.result.character.flags.ddbimporter.dndbeyond.characterValues = null;
+      this.result.character.flags.ddbimporter.dndbeyond.proficiencies = null;
+      this.result.character.flags.ddbimporter.dndbeyond.proficienciesIncludingEffects = null;
+      this.result.character.flags.ddbimporter.dndbeyond.effectAbilities = null;
+      this.result.character.flags.ddbimporter.dndbeyond.abilityOverrides = null;
       foundry.utils.setProperty(this.result.character.flags, "ddb-importer.version", CONFIG.DDBI.version);
 
       if (this.actorOriginal.flags.dnd5e?.wildMagic === true) {
@@ -1148,7 +1145,7 @@ ${item.system.description.chat}
 
   static async importCharacter({ actor, notifier } : { actor: TImporterActor; notifier?: (title: any, { message, isError }?: NotifierV1Props) => void }) {
     try {
-      const actorData = actor.toObject() as I5ePCData;
+      const actorData = actor.toObject() as unknown as I5ePCData;
       const characterId = actorData.flags.ddbimporter.dndbeyond.characterId;
 
       const ddbCharacterOptions = {

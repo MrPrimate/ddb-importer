@@ -1428,7 +1428,7 @@ ${this.data.system.description.value}
   }
 
   _generateAutoEffects({ html, addToMonster = true }: { html: string; addToMonster?: boolean }) {
-    const flags: IActorFlagConfig = {
+    const flags: IItemFlagConfig = {
       ddbimporter: {},
     };
 

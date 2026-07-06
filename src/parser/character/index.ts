@@ -27,7 +27,7 @@ DDBCharacter.prototype._newPCSkeleton = async function _newPCSkeleton(this: DDBC
         },
       },
     },
-  } as any;
+  };
 
   // generate a prototype token
   this._generateToken();
