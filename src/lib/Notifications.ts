@@ -42,7 +42,13 @@ export const HINT_API = {
       $("#ddbimporter-hints").empty();
     });
   },
-  show: (message, options = {}) => {
+  show: (message, options: {
+    width?: number;
+    align?: string;
+    element?: HTMLElement | JQuery<HTMLElement>;
+    buttons?: string[];
+    hide?: { selector: string; event: string };
+  } = {}) => {
     return new Promise((resolve) => {
       $("#ddbimporter-hints").css("width", options.width ? options.width : 300);
 

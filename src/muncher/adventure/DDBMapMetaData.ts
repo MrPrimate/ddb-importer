@@ -381,60 +381,6 @@ export default class DDBMapMetaData {
     }
   }
 
-  // Adventure-shaped stub for Iconizer.generateIcon. The Iconizer helper
-  // generates an SVG and uploads it via `adventure.importRawFile(path, content,
-  // mime, misc)`. The meta-data flow has no AdventureMunch instance, so this
-  // shim mirrors AdventureMunch.importRawFile (lines 161-185) against a fixed
-  // adventure name so every meta-data icon lands under one shared folder
-  // (`<base>/ddb-meta-data/assets/icons/`) regardless of which map triggered
-  // the import.
-  private static _adventureStub() {
-    return {
-      name: META_NOTES_ADVENTURE_NAME,
-      adventure: { name: META_NOTES_ADVENTURE_NAME },
-      getImportFilePaths(path: string, misc: boolean): any {
-        return AdventureMunchHelpers.getImportFilePaths({
-          adventureName: META_NOTES_ADVENTURE_NAME,
-          path,
-          misc,
-        });
-      },
-      async importRawFile(path: string, content: string, mimeType: string, misc: boolean): Promise<string> {
-        try {
-          if (path[0] === "*") return path.replace(/\*/g, "");
-          if (path.startsWith("icons/") || path.startsWith("systems/dnd5e/icons/") || path.startsWith("ddb://")) {
-            return path;
-          }
-          const paths: any = this.getImportFilePaths(path, misc);
-          if (paths.fullUploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.fullUploadPath)) {
-            await FileHelper.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-            await FileHelper.generateCurrentFiles(paths.fullUploadPath);
-            CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.fullUploadPath);
-          }
-          if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
-            const fileData = new File([content], paths.filename, { type: mimeType });
-            const response: FilePicker.UploadReturn = await FileHelper.uploadToPath(paths.fullUploadPath, fileData);
-            if (!response || !response.path) {
-              logger.error(`DDBMapMetaData: upload failed for ${path}: no response or path returned`, { response });
-              return path;
-            }
-            const targetPath = response?.path;
-            if (!targetPath) {
-              logger.error(`DDBMapMetaData: upload failed for ${path}: no target path returned`, { response });
-              return path;
-            }
-            CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
-            CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
-          }
-          return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey)}`;
-        } catch (error) {
-          logger.warn(`DDBMapMetaData: meta-note icon upload failed for ${path}: ${(error as Error).message ?? error}`);
-          return path;
-        }
-      },
-    };
-  }
-
   // Build the canonical D&D Beyond URL for a meta-data note.
   //   slug:     "chapter-1-death-at-sunset#DeathatSunsetsLair" - chapter path + (irrelevant) anchor
   //   slugLink: "L1GuardedTunnel"                              - the anchor we want
@@ -488,7 +434,7 @@ export default class DDBMapMetaData {
       const url = DDBMapMetaData._buildMetaNoteUrl(bookCode, slug, slugLink) ?? ddbFlags.originalLink ?? null;
       let icon = "icons/svg/book.svg";
       try {
-        icon = await Iconizer.generateIcon(DDBMapMetaData._adventureStub(), String(label));
+        icon = await Iconizer.generateIcon(META_NOTES_ADVENTURE_NAME, String(label));
       } catch (error) {
         logger.warn(`DDBMapMetaData: icon generation failed for note "${label}": ${(error as Error).message ?? error}`);
       }

@@ -2,6 +2,21 @@ import utils from "./Utils";
 
 class AdvancedDialog {
 
+  inputs: Record<string, any>[];
+
+  buttons: Record<string, any>[];
+
+  dialog: Dialog | null;
+
+  config: {
+    title: string;
+    defaultButtonLabel: string;
+    close: (resolve: (value: unknown) => void, ...args: any[]) => unknown;
+    options: Record<string, any>;
+    render: ((html: unknown) => unknown) | null;
+    classes: string[];
+  };
+
   /**
    * A class that constructs a chooser dialog with the given prompt information and buttons.
    *
@@ -301,7 +316,7 @@ export class ChooserDialog extends AdvancedDialog {
           classes: this.config.classes,
           focus: true,
           ...this.config.options,
-        },
+        } as unknown as ConstructorParameters<typeof Dialog>[1],
       );
       this.dialog.render(true);
     });

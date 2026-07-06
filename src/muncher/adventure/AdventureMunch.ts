@@ -236,42 +236,8 @@ export default class AdventureMunch {
    * @param {boolean} misc Miscellaneous import type/location?
    * @returns {Promise<string>} file path
    */
-  async importRawFile(path, content, mimeType, misc) {
-    try {
-      if (path[0] === "*") {
-        // this file was flagged as core data, just replace name.
-        return path.replace(/\*/g, "");
-      } else if (path.startsWith("icons/") || path.startsWith("systems/dnd5e/icons/") || path.startsWith("ddb://")) {
-        // these are core icons, ignore
-        // or are ddb:// paths that will be replaced by muncher
-        return path;
-      } else {
-        const paths = this.getImportFilePaths(path, misc);
-
-        if (paths.fullUploadPath && !CONFIG.DDBI.KNOWN.CHECKED_DIRS.has(paths.fullUploadPath)) {
-          logger.debug(`Checking dir path ${paths.uploadPath}`, paths);
-          await FileHelper.verifyPath(paths.parsedBaseUploadPath, `${paths.uploadPath}`);
-          await FileHelper.generateCurrentFiles(paths.fullUploadPath);
-          CONFIG.DDBI.KNOWN.CHECKED_DIRS.add(paths.fullUploadPath);
-        }
-
-        if (!CONFIG.DDBI.KNOWN.FILES.has(paths.pathKey)) {
-          logger.debug(`Importing raw file from ${path}`, paths);
-          const fileData = new File([content], paths.filename, { type: mimeType });
-          const targetPath = ((await FileHelper.uploadToPath(paths.fullUploadPath, fileData)) as unknown as { path?: string })?.path;
-          CONFIG.DDBI.KNOWN.FILES.add(paths.pathKey);
-          CONFIG.DDBI.KNOWN.LOOKUPS.set(`${paths.pathKey}`, targetPath);
-        } else {
-          logger.debug(`File already imported ${path}`);
-        }
-
-        return `${CONFIG.DDBI.KNOWN.LOOKUPS.get(paths.pathKey)}`;
-      }
-    } catch (err) {
-      logger.error(`Error importing image file ${path} : ${err.message}`, { err });
-    }
-
-    return path;
+  async importRawFile(path: string, content: Blob, mimeType: string, misc: boolean): Promise<string> {
+    return AdventureMunchHelpers.importRawFile({ adventureName: this.adventure.name, path, content, mimeType, misc });
   }
 
   /**

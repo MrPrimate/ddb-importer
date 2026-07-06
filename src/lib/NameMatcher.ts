@@ -104,7 +104,7 @@ export default class NameMatcher {
     // first pass is a strict match
     let matchingItem = items.find((matchItem) => {
       let activationMatch = false;
-      const extraNames = foundry.utils.getProperty(matchItem, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
+      const extraNames = (foundry.utils.getProperty(matchItem, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
 
       const itemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
       const matchItemActivationProperty = Object.prototype.hasOwnProperty.call(item.system, "activation");
@@ -152,7 +152,7 @@ export default class NameMatcher {
     }
 
     if (!matchingItem && loose) {
-      const extraNames = foundry.utils.getProperty(item, "flags.ddbimporter.dndbeyond.alternativeNames") ?? [];
+      const extraNames = (foundry.utils.getProperty(item, "flags.ddbimporter.dndbeyond.alternativeNames") ?? []) as string[];
       const looseNames = NameMatcher.getLooseNames(item.name, extraNames, !magicMatch);
       // console.warn("loose names", looseNames);
       for (const looseName of looseNames) {

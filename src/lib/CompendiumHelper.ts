@@ -83,7 +83,7 @@ const CompendiumHelper = {
     }
   },
 
-  getCompendiumType: (type, fail = true): CompendiumCollection.Any | undefined => {
+  getCompendiumType: (type: string, fail = true): CompendiumCollection.Any | undefined => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     logger.debug(`Getting compendium ${compendiumLabel} for update of ${type}`);
     const compendium = CompendiumHelper.getCompendium(compendiumLabel, fail);
@@ -93,7 +93,7 @@ const CompendiumHelper = {
     return compendium;
   },
 
-  loadCompendiumIndex: async (type, indexOptions = {}) => {
+  loadCompendiumIndex: async (type: string, indexOptions = {}) => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     foundry.utils.setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
     const compendium = CompendiumHelper.getCompendium(compendiumLabel);
@@ -107,7 +107,7 @@ const CompendiumHelper = {
     }
   },
 
-  copyExistingActorProperties: async (type, foundryActor) => {
+  copyExistingActorProperties: async (type: string, foundryActor: I5eActorData) => {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
     if (utils.getSetting<boolean>("munching-policy-update-existing")) {
@@ -115,19 +115,19 @@ const CompendiumHelper = {
 
       const updateImages = utils.getSetting<boolean>("munching-policy-update-images");
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "system.img"))) {
-        foundryActor.img = existingNPC.system.img;
+        foundryActor.img = foundry.utils.getProperty(existingNPC, "system.img") as string;
       }
       if (!updateImages && !utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(existingNPC, "prototypeToken.texture.src"))) {
-        const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken);
+        const oldValues = foundry.utils.duplicate(existingNPC.prototypeToken) as unknown as I5ePrototypeToken;
         delete oldValues.name;
         delete oldValues.sight;
         delete oldValues.light;
-        foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken, oldValues);
+        foundryActor.prototypeToken = foundry.utils.mergeObject(foundryActor.prototypeToken, oldValues) as I5ePrototypeToken;
       }
 
       const retainBiography = utils.getSetting<boolean>("munching-policy-monster-retain-biography");
       if (retainBiography) {
-        foundryActor.system.details.biography = existingNPC.system.details.biography;
+        foundryActor.system.details.biography = foundry.utils.getProperty(existingNPC, "system.details.biography") as I5eBiography;
       }
 
       DDBItemImporter.copySupportedItemFlags(existingNPC.toObject(), foundryActor);
@@ -141,13 +141,14 @@ const CompendiumHelper = {
     const monsterIndexFields = ["name", "flags.ddbimporter.id", "system.source.rules"];
     const legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
-    const npcMatch = index.contents.find((entity) =>
-      foundry.utils.hasProperty(entity, "flags.ddbimporter.id")
-      && entity.flags.ddbimporter.id == npc.flags.ddbimporter.id
-      && ((!legacyName && entity.name.toLowerCase() === npc.name.toLowerCase())
-        || (legacyName && npc.flags.ddbimporter.isLegacy && npc.name.toLowerCase().startsWith(entity.name.toLowerCase()))
-        || (legacyName && entity.name.toLowerCase() === npc.name.toLowerCase())),
-    );
+    const npcMatch = index.contents.find((entity) => {
+      const entityName = (foundry.utils.getProperty(entity, "name") as string).toLowerCase();
+      return foundry.utils.hasProperty(entity, "flags.ddbimporter.id")
+        && foundry.utils.getProperty(entity, "flags.ddbimporter.id") == foundry.utils.getProperty(npc, "flags.ddbimporter.id")
+        && ((!legacyName && entityName === npc.name.toLowerCase())
+          || (legacyName && foundry.utils.getProperty(npc, "flags.ddbimporter.isLegacy") && npc.name.toLowerCase().startsWith(entityName))
+          || (legacyName && entityName === npc.name.toLowerCase()));
+    });
     return npcMatch;
   },
 
@@ -215,7 +216,17 @@ const CompendiumHelper = {
     version = null,
     image = null,
     title,
-  } = {}) => {
+  }: {
+    label?: string;
+    type?: string;
+    id?: string;
+    packageType?: string;
+    folderId?: string | null;
+    dnd5eTypeTags?: string[];
+    version?: number | null;
+    image?: string | null;
+    title?: string;
+  }) => {
     if (id) logger.debug(`Checking if Compendium with id ${id} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
     else if (label) logger.debug(`Checking if Compendium with label ${label} exists for ${SETTINGS.MODULE_ID} in ${folderId}`);
     const compendium = (await game.packs.get(id)) ?? game.packs.find((p) => p.metadata.label === label);
@@ -238,7 +249,8 @@ const CompendiumHelper = {
       } else {
         // create a compendium for the user
         const banner = image ? await CompendiumHelper.getCompendiumBannerImage(image, title) : null;
-        const newCompendium = await (foundry.documents?.collections?.CompendiumCollection ?? CompendiumCollection).createCompendium({
+        const CompendiumClass = foundry.documents?.collections?.CompendiumCollection;
+        const newCompendium = await CompendiumClass.createCompendium({
           type,
           label,
           name,
@@ -252,7 +264,7 @@ const CompendiumHelper = {
               schema: version,
             },
           },
-        });
+        } as unknown as Parameters<typeof CompendiumClass.createCompendium>[0]);
         if (folderId) await newCompendium.setFolder(folderId);
         return {
           compendium: newCompendium,
@@ -462,7 +474,7 @@ const CompendiumHelper = {
     const index = await compendium.getIndex();
     const id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
     if (id && getDocument) {
-      const entity = await compendium.getEntity(id._id) as unknown as T5eCompendiumDocuments;
+      const entity = await (compendium as unknown as { getEntity: (id: string) => Promise<unknown> }).getEntity(id._id) as T5eCompendiumDocuments;
       return entity;
     }
     return id ? id : null;

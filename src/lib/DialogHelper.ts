@@ -25,7 +25,12 @@ export default class DialogHelper {
      );
      console.warn(`You selected ${selected}`);
    */
-  static async buttonDialog({ title = "", content = "", buttons, options = { height: "auto" } } = {}, direction = "row") {
+  static async buttonDialog({ title = "", content = "", buttons, options = { height: "auto" } }: {
+    title?: string;
+    content?: string;
+    buttons?: { label: string; value: unknown }[];
+    options?: Record<string, any>;
+  } = {}, direction = "row") {
 
     return new Promise((resolve) => {
       new Dialog(
@@ -41,7 +46,7 @@ export default class DialogHelper {
         {
           classes: ["dialog", `ddb-button-dialog-${direction}`],
           ...options,
-        },
+        } as unknown as ConstructorParameters<typeof Dialog>[1],
       ).render(true);
     });
   }

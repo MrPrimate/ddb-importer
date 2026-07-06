@@ -189,7 +189,6 @@ global {
     // Limit use
     limitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string };
 
-    [key: string]: unknown;
   }
 
   interface IDDBImporterFlagsSummons {

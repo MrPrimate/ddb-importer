@@ -134,7 +134,7 @@ export default class SceneSnipProcessor {
     outputCanvas.height = height;
     const ctx = outputCanvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = false;
-    const imageData = new ImageData(new Uint8ClampedArray(pixels.buffer), width, height);
+    const imageData = new ImageData(new Uint8ClampedArray(pixels.buffer as ArrayBuffer), width, height);
     ctx.putImageData(imageData, 0, 0);
 
     // Clean up PIXI resources

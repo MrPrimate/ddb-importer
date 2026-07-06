@@ -281,7 +281,7 @@ export default class ThirdPartyMunch extends FormApplication {
       }
     } catch (err) {
 
-      logger.warn(`Error during reference update for object ${item}`, err);
+      logger.warn(`Error during reference update for object on scenes update`, err);
     }
   }
 
@@ -409,7 +409,7 @@ export default class ThirdPartyMunch extends FormApplication {
         if (noteJournal) {
           logger.info(`Found note "${note.label}" matched to Journal with ID "${noteJournal.id}" (${noteJournal.name})`);
           note.flags.ddb.journalId = noteJournal.id;
-          note.icon = await Iconizer.generateIcon(this.adventureMunch, note.label);
+          note.icon = await Iconizer.generateIcon(this.adventureMunch.adventure.name, note.label);
           if (noJournalPinNotes) {
             note.flags.ddb.labelName = `${note.label}`;
             note.flags.ddb.slugLink = note.label.replace(/[^\w\d]+/g, "").replace(/^([a-zA-Z]?)0+/, "$1");

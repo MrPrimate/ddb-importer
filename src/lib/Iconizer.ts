@@ -4,6 +4,7 @@ import utils from "./Utils";
 import CompendiumHelper from "./CompendiumHelper";
 import FileHelper from "./FileHelper";
 import NameMatcher from "./NameMatcher";
+import AdventureMunchHelpers from "../muncher/adventure/AdventureMunchHelpers";
 
 // const BASE_PATH = ROUTE_PREFIX ? `/${ROUTE_PREFIX}` : "";
 
@@ -35,9 +36,15 @@ const TYPE_MAP = {
   race: "races",
   tattoo: "items",
   "dnd-tashas-cauldron.tattoo": "items",
+  vehicle: "vehicle",
+  character: "character",
+  npc: "npc",
 };
 
 const FILE_MAP = {
+  character: [],
+  npc: [],
+  vehicle: [],
   items: ["items.json", "class-features.json", "races.json"],
   traits: ["class-features.json", "races.json", "general.json", "items.json"],
   spells: ["spells.json"],
@@ -50,11 +57,11 @@ const FILE_MAP = {
 
 const ICON_MAP_INDICIES = ["name", "img", "prototypeToken.texture.src", "type", "prototypeToken.texture.scaleY", "prototypeToken.texture.scaleX"];
 
-function sanitiseName(name) {
+function sanitiseName(name: string): string {
   return utils.nameString(name).toLowerCase();
 }
 
-async function loadDataFile(fileName) {
+async function loadDataFile(fileName: string) {
   logger.debug(`Getting icon mapping for ${fileName}`);
   const fileExists = await FileHelper.fileExists("[data] modules/ddb-importer/data", fileName);
 
@@ -67,7 +74,7 @@ async function loadDataFile(fileName) {
   return data;
 }
 
-async function loadIconMap(type) {
+async function loadIconMap(type: string) {
   // check to see if dictionary is loaded
   if (CONFIG.DDBI.ICONS[type]) return;
 
@@ -82,8 +89,8 @@ async function loadIconMap(type) {
   // console.warn(iconMap);
 }
 
-function looseMatch(item, typeValue) {
-  const originalName = item.flags?.ddbimporter?.originalName;
+function looseMatch(item: TAll5eDocuments, typeValue: string) {
+  const originalName = foundry.utils.getProperty(item, "flags.ddbimporter.originalName") as string | undefined;
   if (originalName) {
     const originalMatch = CONFIG.DDBI.ICONS[typeValue].find((entry) => sanitiseName(entry.name) === sanitiseName(originalName));
     if (originalMatch) return originalMatch.path;
@@ -112,7 +119,7 @@ function looseMatch(item, typeValue) {
   return null;
 }
 
-function getIconPath(item, type, monsterName) {
+function getIconPath(item: TAll5eDocuments, type: string, monsterName?: string): string | null {
   // check to see if we are able to load a dic for that type
   const typeValue = TYPE_MAP[type];
   if (!typeValue || !CONFIG.DDBI.ICONS[typeValue]) return null;
@@ -121,7 +128,8 @@ function getIconPath(item, type, monsterName) {
     const sanitisedName = sanitiseName(entry.name);
     const sanitisedItemName = sanitiseName(item.name);
     if (type === "monster") {
-      return sanitisedName === sanitisedItemName.split("(")[0].trim() && entry.monster && sanitiseName(entry.monster) == sanitiseName(monsterName);
+      return sanitisedName === sanitisedItemName.split("(")[0].trim()
+        && entry.monster && sanitiseName(entry.monster) == sanitiseName(monsterName);
     }
     return sanitisedName === sanitisedItemName;
   });
@@ -152,7 +160,7 @@ function getIconPath(item, type, monsterName) {
 }
 
 
-async function loadIconMaps(types) {
+async function loadIconMaps(types: (keyof typeof TYPE_MAP)[]) {
   const promises = [];
 
   const mapTypes = types
@@ -211,11 +219,12 @@ function unPad(_match, p1) {
 }
 
 export default class Iconizer {
-  documents: TAll5eItemDocuments[] | TAll5eActorDocuments[];
+  documents: TAll5eDocuments[];
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   isMonster: boolean;
   monsterName: string;
   srdIconUpdate: boolean;
+  settings: Record<string, any>;
 
   static SETTINGS() {
     return {
@@ -307,7 +316,7 @@ export default class Iconizer {
     this._retainExistingIcons();
   }
 
-  static async generateIcon(adventure, title) {
+  static async generateIcon(adventureName: string, title: string) {
     // default path
     let iconPath = "icons/svg/book.svg";
     let stub = title.trim().split(".")[0].split(" ")[0];
@@ -319,14 +328,14 @@ export default class Iconizer {
       logger.info(stub);
       let content = STUBS[stub.length];
       content = content.replace("REPLACEME", stub);
-      const uploadPath = await adventure.importRawFile(iconPath, content, "text/plain", true);
+      const uploadPath = await AdventureMunchHelpers.importRawFile({ adventureName, path: iconPath, content, mimeType: "text/plain", misc: true });
       return uploadPath;
     }
     return iconPath;
   }
 
-  static async iconPath(item, monster = false, monsterName = "") {
-    const itemTypes = [item.type];
+  static async iconPath(item: TAll5eDocuments, monster = false, monsterName = "") {
+    const itemTypes: (keyof typeof TYPE_MAP)[] = [item.type];
     if (monster) itemTypes.push("monster");
     await loadIconMaps(itemTypes);
 
@@ -345,7 +354,7 @@ export default class Iconizer {
 
   async _copyInbuiltIcons() {
     // get unique array of item types to be matching
-    const itemTypes = this.documents.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
+    const itemTypes: (keyof typeof TYPE_MAP)[] = this.documents.map((item) => item.type).filter((item, i, ar) => ar.indexOf(item) === i);
 
     if (this.isMonster) itemTypes.push("monster");
     await loadIconMaps(itemTypes);
@@ -436,7 +445,7 @@ export default class Iconizer {
     this.documents = await Iconizer.copySRDIcons(this.documents, srdImageLibrary, nameMatchList);
   }
 
-  static async copySRDIcons(items, srdImageLibrary = null, nameMatchList = []) {
+  static async copySRDIcons(items: TAll5eDocuments[], srdImageLibrary = null, nameMatchList = []) {
     let srdImageLibrary2014 = null;
     if (!srdImageLibrary) srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
     let srdImageLibrary2024 = null;
@@ -448,7 +457,8 @@ export default class Iconizer {
       if (nameMatch) {
         item.img = nameMatch.img;
       } else {
-        const localLibrary = srdImageLibrary || (item.system.source?.rules === "2014" ? srdImageLibrary2014 : srdImageLibrary2024);
+        const systemSource = foundry.utils.getProperty(item, "system.source.rules") as string;
+        const localLibrary = srdImageLibrary || (systemSource === "2014" ? srdImageLibrary2014 : srdImageLibrary2024);
         const match = NameMatcher.looseItemNameMatch(item, localLibrary, true);
         if (match) {
           item.img = match.img;
@@ -461,15 +471,16 @@ export default class Iconizer {
 
   _retainExistingIcons() {
     this.documents.map((item) => {
-      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") && foundry.utils.hasProperty(item, "flags.ddbimporter.matchedImg")) {
-        logger.debug(`Retaining icon for ${item.name} to ${item.flags.ddbimporter.matchedImg}`);
-        item.img = item.flags.ddbimporter.matchedImg;
+      const matchedImg = foundry.utils.getProperty(item, "flags.ddbimporter.matchedImg") as string | undefined;
+      if (foundry.utils.getProperty(item, "flags.ddbimporter.keepIcon") && matchedImg) {
+        logger.debug(`Retaining icon for ${item.name} to ${matchedImg}`);
+        item.img = matchedImg;
       }
       return item;
     });
   }
 
-  static async getDDBItemImages(items, download) {
+  static async getDDBItemImages(items: TAll5eDocuments[], download: boolean) {
     utils.munchNote(`Fetching DDB Item Images`, { nameField: true });
     const downloadImages = (download) ? true : utils.getSetting<boolean>("munching-policy-download-images");
     const remoteImages = utils.getSetting<boolean>("munching-policy-remote-images");
@@ -484,15 +495,16 @@ export default class Iconizer {
         large: null,
       };
 
-      const rules = item.system.source?.rules ?? "2024";
-      const book = utils.normalizeString(item.system.source?.book ?? "");
+      const rules = foundry.utils.getProperty(item, "system.source.rules") as string ?? "2024";
+      const book = utils.normalizeString(foundry.utils.getProperty(item, "system.source.book") as string ?? "");
       const bookRuleStub = [rules, book].join("-");
 
       const pathPostfix = useDeepPaths ? `/item/${item.type}` : "";
 
-      if (foundry.utils.hasProperty(item, "flags.ddbimporter.dndbeyond")) {
-        if (item.flags.ddbimporter.dndbeyond.avatarUrl) {
-          const avatarUrl = item.flags.ddbimporter.dndbeyond["avatarUrl"];
+      const dndbeyondFlags = foundry.utils.getProperty(item, "flags.ddbimporter.dndbeyond") as IDDBImporterFlagsDnDBeyond | undefined;
+      if (dndbeyondFlags) {
+        if (dndbeyondFlags.avatarUrl) {
+          const avatarUrl = dndbeyondFlags["avatarUrl"];
           if (avatarUrl && avatarUrl != "") {
             utils.munchNote(`Downloading ${item.name} image`, { nameField: true });
             const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-item`;
@@ -510,8 +522,8 @@ export default class Iconizer {
             itemImage.img = smallImage;
           }
         }
-        if (item.flags.ddbimporter.dndbeyond.largeAvatarUrl) {
-          const largeAvatarUrl = item.flags.ddbimporter.dndbeyond["largeAvatarUrl"];
+        if (dndbeyondFlags.largeAvatarUrl) {
+          const largeAvatarUrl = dndbeyondFlags["largeAvatarUrl"];
           if (largeAvatarUrl && largeAvatarUrl != "") {
             const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-item`;
             const name = useDeepPaths ? `${item.name}-large` : item.name;
@@ -538,7 +550,7 @@ export default class Iconizer {
     return Promise.all(itemMap);
   }
 
-  async _addDDBHintImages(type) {
+  async _addDDBHintImages(type: string) {
     this.notifier(`Fetching DDB Hint Images for ${type}`, { nameField: true });
     const targetDirectory = utils.getSetting<string>("other-image-upload-directory").replace(/^\/|\/$/g, "");
     const useDeepPaths = utils.getSetting<boolean>("use-deep-file-paths");
@@ -546,12 +558,12 @@ export default class Iconizer {
     for (const item of this.documents) {
 
       if (item.type !== type || item.img) continue;
-      const ddbImg = foundry.utils.getProperty(item, "flags.ddbimporter.ddbImg");
+      const ddbImg = foundry.utils.getProperty(item, "flags.ddbimporter.ddbImg") as string | undefined;
 
       if (!ddbImg || ddbImg === "") continue;
       const pathPostfix = useDeepPaths ? `/${type}/${item.type}` : "";
-      const rules = item.system.source?.rules ?? "2024";
-      const book = utils.normalizeString(item.system.source?.book ?? "");
+      const rules = (foundry.utils.getProperty(item, "system.source.rules") as string) ?? "2024";
+      const book = utils.normalizeString((foundry.utils.getProperty(item, "system.source.book") as string) ?? "");
       const bookRuleStub = [rules, book].join("-");
       const imageNamePrefix = useDeepPaths ? `${bookRuleStub}` : `${bookRuleStub}-${type}`;
       const name = useDeepPaths ? `${item.name}` : item.name;
@@ -636,10 +648,12 @@ export default class Iconizer {
           && item.flags.ddbimporter
           && item.flags.ddbimporter.dndbeyond) {
         let generic = null;
-        if (item.flags.ddbimporter.dndbeyond.filterType) {
-          generic = genericItems.find((i) => i.filterType === item.flags.ddbimporter.dndbeyond.filterType);
-        } else if (item.flags.ddbimporter.dndbeyond.type) {
-          generic = genericLoots.find((i) => i.name === item.flags.ddbimporter.dndbeyond.type);
+        const filterType = foundry.utils.getProperty(item, "flags.ddbimporter.dndbeyond.filterType") as string | undefined;
+        const ddbType = foundry.utils.getProperty(item, "flags.ddbimporter.dndbeyond.type") as string | undefined;
+        if (filterType) {
+          generic = genericItems.find((i) => i.filterType === filterType);
+        } else if (ddbType) {
+          generic = genericLoots.find((i) => i.name === ddbType);
         }
         if (generic && utils.isDefaultOrPlaceholderImage(item.img)) {
           item.img = generic.img;
@@ -696,7 +710,7 @@ export default class Iconizer {
   _addItemEffectIcons() {
     logger.debug("Adding Icons to effects");
     this.documents.forEach((item) => {
-      if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN))) {
+      if (item.effects && (item.img && (item.img !== "" || item.img !== CONST.DEFAULT_TOKEN as string))) {
         item.effects.forEach((effect) => {
           if (utils.isDefaultOrPlaceholderImage(effect.img)) {
             effect.img = item.img;
@@ -706,7 +720,7 @@ export default class Iconizer {
     });
   }
 
-  static addActorEffectIcons(actor) {
+  static addActorEffectIcons(actor: TAll5eActorDocuments): TAll5eActorDocuments {
     if (!actor.effects) return actor;
     logger.debug("Adding Icons to actor effects");
     actor.effects.forEach((effect) => {
