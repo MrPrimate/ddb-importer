@@ -744,7 +744,7 @@ ${item.system.description.chat}
           : srdImageLibrary2024;
         promises.push(
           Iconizer.copySRDIcons(doc.items, srdImageLibrary, itemMap).then((items) => {
-            doc.items = items;
+            doc.items = items as I5ePCItem[] | I5eMonsterItem[] | I5eVehicleItem[];
           }),
         );
       }
