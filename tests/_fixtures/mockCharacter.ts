@@ -24,7 +24,9 @@ export interface MockCharacterOverrides {
 
 export function makeMockCharacter(overrides: MockCharacterOverrides = {}): any {
   const defaultEffectAbilities: Record<string, { value: number }> = {};
-  ABILITIES.forEach((a) => { defaultEffectAbilities[a.value] = { value: 10 }; });
+  ABILITIES.forEach((a) => {
+    defaultEffectAbilities[a.value] = { value: 10 };
+  });
 
   return {
     source: {

@@ -236,7 +236,7 @@ class DDBCharacter {
   addToCompendiums: boolean;
   collectCompendiumDocumentsOnly: boolean;
   characterId: string;
-  currentActor: Actor.Implementation | null;
+  currentActor: TImporterActor | null;
   currentActorId: string | null;
   selectResources: boolean;
   resourceChoices: ResourceChoices;

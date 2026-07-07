@@ -645,13 +645,24 @@ export default class DDBMuleHandler {
       decorations: foundry.utils.deepClone(this.source.baseCharacter.decorations),
       infusions: {
         known: [],
-        items: [],
-        infusions: [],
+        item: [],
+        infusions: {
+          definitionData: [],
+          accessTypes: {},
+        },
       },
       name: foundry.utils.deepClone(this.source.baseCharacter.name),
       originOptions: [],
       startingEquipment: {
         slots: [],
+      },
+      unfilteredModifiers: {
+        class: [],
+        race: [],
+        background: [],
+        item: [],
+        feat: [],
+        condition: [],
       },
     };
     if (this.source.infusions) {

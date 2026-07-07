@@ -412,10 +412,10 @@ ${item.system.description.chat}
       if (CONFIG.DDBI.DEV.enabled && CONFIG.DDBI.DEV.itemImportSingle) {
         for (const nonKlassItem of nonKlassItems) {
           logger.info(`Importing ${nonKlassItem.name}`, nonKlassItem);
-          await this.actor.createEmbeddedDocuments("Item", [nonKlassItem], options);
+          await this.actor.createEmbeddedDocuments("Item", [nonKlassItem as any], options);
         }
       } else {
-        await this.actor.createEmbeddedDocuments("Item", nonKlassItems, options);
+        await this.actor.createEmbeddedDocuments("Item", nonKlassItems as any, options);
       }
 
     }
@@ -453,16 +453,16 @@ ${item.system.description.chat}
     }
   }
 
-  static async getIndividualOverrideItems(overrideItems: TAll5eItemDocuments[]): Promise<TAll5eItemDocuments[]> {
+  static async getIndividualOverrideItems(overrideItems: TAll5eDocuments[]): Promise<TAll5eDocuments[]> {
     const label = CompendiumHelper.getCompendiumLabel("custom");
     const compendium = CompendiumHelper.getCompendium(label);
 
-    const compendiumItems: TAll5eItemDocuments[] = await Promise.all(overrideItems
+    const compendiumItems: TAll5eDocuments[] = await Promise.all(overrideItems
       .filter((item) => foundry.utils.hasProperty(item, "flags.ddbimporter.overrideId")
         && compendium.index.has(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string))
       .map(async (item) => {
         const doc = await compendium.getDocument(foundry.utils.getProperty(item, "flags.ddbimporter.overrideId") as string) as Item.Implementation;
-        const compendiumItem: TAll5eItemDocuments = foundry.utils.duplicate(doc) as unknown as TAll5eItemDocuments;
+        const compendiumItem: TAll5eDocuments = foundry.utils.duplicate(doc) as unknown as TAll5eDocuments;
         foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.pack", `${compendium.metadata.id}`);
         if (foundry.utils.hasProperty(item, "flags.ddbimporter.overrideItem")) {
           foundry.utils.setProperty(compendiumItem, "flags.ddbimporter.overrideItem", foundry.utils.getProperty(item, "flags.ddbimporter.overrideItem"));
@@ -485,7 +485,7 @@ ${item.system.description.chat}
       overrideId: true,
       linkItemFlags: true,
     };
-    const remappedItems: TAll5eItemDocuments[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
+    const remappedItems: TAll5eDocuments[] = await DDBItemImporter.updateMatchingItems(overrideItems, compendiumItems, matchingOptions);
 
     return remappedItems;
   }

@@ -4,6 +4,9 @@ import DDBEncounter from "./DDBEncounter";
 
 export default class DDBEncounterFactory {
 
+  notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
+  notifierV2: ((props: NotifierV2Props) => void) | null;
+
   constructor({ notifier = null } = {}) {
     this.notifier = notifier;
 

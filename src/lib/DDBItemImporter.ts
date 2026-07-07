@@ -46,13 +46,11 @@ interface IDDBItemImporterBuildHandlerOptions {
   notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
 }
 
-type TDDBImporterDocument = TDDBItemImporterDocument;
-
 type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
 
-type TFlagType = TDDBImporterDocument | TIndexEntry;
+type TFlagType = TDDBItemImporterDocument | TIndexEntry;
 
-export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBImporterDocument> {
+export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TDDBItemImporterDocument> {
 
   static DEFAULT_INDEX_FILTER: Record<string, any> = {
     fields: [
@@ -154,7 +152,7 @@ export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBIm
     if (!this.srdImageLibrary2024) this.srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
   }
 
-  #flagMatch(item1: TFlagType, item2: TDDBImporterDocument): boolean {
+  #flagMatch(item1: TFlagType, item2: TDDBItemImporterDocument): boolean {
     if (this.matchFlags.length === 0) return true;
     // let fs = {};
     const matched = this.matchFlags.every((flag) => {
@@ -178,7 +176,7 @@ export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBIm
     return matched;
   }
 
-  #fieldMatch(item1: TFlagType, item2: TDDBImporterDocument): boolean {
+  #fieldMatch(item1: TFlagType, item2: TDDBItemImporterDocument): boolean {
     if (this.matchFields.length === 0) return true;
     const matched = this.matchFields.every((field) => {
       const fieldValue1 = foundry.utils.getProperty(item1, field);
@@ -206,7 +204,7 @@ export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBIm
   }
 
 
-  static updateCharacterItemFlags(itemData: TAll5eItemDocuments, replaceData: TAll5eItemDocuments): TAll5eItemDocuments {
+  static updateCharacterItemFlags(itemData: TAll5eDocuments, replaceData: TAll5eDocuments): TAll5eDocuments {
     if (itemData.flags?.ddbimporter?.importId) foundry.utils.setProperty(replaceData, "flags.ddbimporter.importId", itemData.flags.ddbimporter.importId);
     const overrideIdMatch = foundry.utils.getProperty(itemData, "flags.ddbimporter.overrideId") === replaceData._id;
     const customAdded = foundry.utils.getProperty(itemData, "flags.ddbimporter.ddbCustomAdded");
@@ -214,7 +212,8 @@ export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBIm
       replaceData.name = itemData.name;
       foundry.utils.setProperty(replaceData, "flags.ddbimporter.replacedId", itemData._id);
     }
-    if (customAdded || (itemData.flags?.ddbimporter?.dndbeyond?.isCustomItem && itemData.type === "loot")) return replaceData;
+    const isCustomItem = foundry.utils.getProperty(itemData, "flags.ddbimporter.isCustomItem");
+    if (customAdded || (isCustomItem && itemData.type === "loot")) return replaceData;
 
     if ("quantity" in itemData.system && "quantity" in replaceData.system) replaceData.system.quantity = itemData.system.quantity;
     if ("attuned" in itemData.system && "attuned" in replaceData.system) replaceData.system.attuned = itemData.system.attuned;
@@ -230,23 +229,22 @@ export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBIm
     if (foundry.utils.hasProperty(itemData, "system.levels") && foundry.utils.hasProperty(replaceData, "system.levels")){
       replaceData.system.levels = itemData.system.levels;
     }
-    if (foundry.utils.getProperty(itemData, "flags.ddbimporter.price.xgte")) {
-      // @ts-expect-error - price is not typed on all items but we know it exists on the items we want to copy it on
+    if ("system" in itemData && "system" in replaceData && "price" in itemData.system && "price" in replaceData.system
+      && "price" in itemData.flags.ddbimporter && foundry.utils.getProperty(itemData, "flags.ddbimporter.price.xgte")) {
       replaceData.system.price.value = itemData.system.price.value;
-      // @ts-expect-error - price is not typed on all items but we know it exists on the items we want to copy it on
       replaceData.system.price.denomination = itemData.system.price.denomination;
       foundry.utils.setProperty(replaceData, "flags.ddbimporter.price", itemData.flags.ddbimporter.price);
     }
     return replaceData;
   }
 
-  static updateMatchingItems(oldItems: TAll5eItemDocuments[], newItems: TAll5eItemDocuments[],
+  static updateMatchingItems(oldItems: TAll5eDocuments[], newItems: TAll5eDocuments[],
     { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {},
-  ): TAll5eItemDocuments[] {
+  ): TAll5eDocuments[] {
     const results = [];
 
     for (const newItem of newItems) {
-      let item: TAll5eItemDocuments = foundry.utils.duplicate(newItem) as unknown as TAll5eItemDocuments;
+      let item: TAll5eDocuments = foundry.utils.duplicate(newItem) as unknown as TAll5eDocuments;
       const compendiumIdMatch = oldItems.find((oldItem) =>
         item._id
         && foundry.utils.getProperty(oldItem, "flags.ddbimporter.compendiumId") == item._id,
@@ -291,13 +289,13 @@ export default class DDBItemImporter<TType extends TDDBImporterDocument = TDDBIm
 
   /**
    * Removes items from the documents collection that match the given criteria.
-   * @param {TType[]} itemsToRemove array of objects to remove from the documents collection
+   * @param {TDDBItemImporterDocument[]} itemsToRemove array of objects to remove from the documents collection
    * @param {boolean} matchDDBId if true, only remove items where the ddb id matches
    */
-  removeItems(itemsToRemove: TType[], matchDDBId = false) {
+  removeItems(itemsToRemove: TDDBItemImporterDocument[], matchDDBId = false) {
     this.documents = this.documents.filter((item) =>
       !itemsToRemove.some((originalItem) =>
-        (item.name === originalItem.name || foundry.utils.getProperty(item, "flags.ddbimporter.originalName") as string === originalItem.name)
+        (foundry.utils.getProperty(item, "name") === originalItem.name || foundry.utils.getProperty(item, "flags.ddbimporter.originalName") as string === originalItem.name)
         && item.type === originalItem.type
         && (!matchDDBId || (matchDDBId && foundry.utils.getProperty(item, "flags.ddbimporter.id") === foundry.utils.getProperty(originalItem, "flags.ddbimporter.id"))),
       ),
@@ -552,11 +550,11 @@ ${item.system.description.chat}
     return this.results;
   }
 
-  async loadPassedItemsFromCompendium(items: TAll5eItemDocuments[],
+  async loadPassedItemsFromCompendium(items: TAll5eDocuments[],
     { looseMatch = false, monsterMatch = false, keepId = false, deleteCompendiumId = true,
       indexFilter = {}, // { fields: ["name", "flags.ddbimporter.id"] }
       keepDDBId = false, linkItemFlags = false, overrideId = false }: IDDBItemImporterLoadPassedItemsFromCompendiumOptions,
-  ): Promise<TAll5eItemDocuments[]> {
+  ): Promise<TAll5eDocuments[]> {
 
     await this.buildIndex(indexFilter);
 
@@ -588,7 +586,7 @@ ${item.system.description.chat}
     const loadedItems = [];
     for (const i of firstPassItems) {
       const item = await this.compendium.getDocument(i._id).then((doc) => {
-        const docData = doc.toObject() as TDDBImporterDocument;
+        const docData = doc.toObject() as unknown as TAll5eDocuments;
         if (deleteCompendiumId) delete docData._id;
         delete docData.folder;
         SETTINGS.COMPENDIUM_REMOVE_FLAGS.forEach((flag) => {
@@ -611,7 +609,7 @@ ${item.system.description.chat}
       overrideId,
     };
 
-    const results = await DDBItemImporter.updateMatchingItems(items, loadedItems, matchingOptions);
+    const results = await DDBItemImporter.updateMatchingItems(items as TAll5eDocuments[], loadedItems, matchingOptions);
     logger.debug(`compendium ${this.type} result items:`, results);
     return results;
   }
@@ -619,7 +617,7 @@ ${item.system.description.chat}
 
   /**
    * loads items from compendium
-   * @param {<TDDBImporterDocument[]>} items items to search for
+   * @param {<TAll5eDocuments[]>} items items to search for
    * @param {string} type type of item to search for
    * @param {object} options
    * @param {boolean} [options.looseMatch=false] whether to match item names loosely
@@ -630,11 +628,11 @@ ${item.system.description.chat}
    * @param {boolean} [options.linkItemFlags=false] whether to link item flags
    * @returns {<Document[]>} documents loaded from compendium
    */
-  static async getCompendiumItems<TType extends TDDBImporterDocument = TDDBImporterDocument>(
+  static async getCompendiumItems<TType extends TAll5eDocuments = TAll5eDocuments>(
     items: TType[], type: string,
     { looseMatch = false, monsterMatch = false, keepId = false,
       deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions = {},
-  ): Promise<TAll5eItemDocuments[]> {
+  ): Promise<TType[]> {
 
     const itemImporter = new DDBItemImporter<TType>(type, [], {
       indexFilter: { fields: [
@@ -658,14 +656,14 @@ ${item.system.description.chat}
       linkItemFlags,
       indexFilter: itemImporter.indexFilter,
     };
-    const results = await itemImporter.loadPassedItemsFromCompendium(items as TAll5eItemDocuments[], loadOptions);
+    const results = await itemImporter.loadPassedItemsFromCompendium(items as TType[], loadOptions) as TType[];
 
     return results;
   }
 
   async iconAdditions() {
     this.documents = await Iconizer.updateIcons({
-      documents: this.documents as TAll5eDocuments[],
+      documents: this.documents as TType[],
       notifier: this.notifier,
     }) as TType[];
   }
@@ -755,7 +753,7 @@ ${item.system.description.chat}
     return Promise.all(promises) as unknown as TType[];
   }
 
-  static async buildHandler<TType extends TDDBImporterDocument = TDDBImporterDocument>(type: string, documents: TType[], updateBool: boolean,
+  static async buildHandler<TType extends TDDBItemImporterDocument = TDDBItemImporterDocument>(type: string, documents: TType[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], matchFields = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,
