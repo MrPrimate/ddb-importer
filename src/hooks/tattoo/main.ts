@@ -105,7 +105,6 @@ async function createTattooFromSpellUuid(uuid: string, config: SpellTattooConfig
         override: true,
       },
       level: config.level,
-      // @ts-expect-error - this is a true item, not a data object
       uuid: spell.uuid,
       properties: ["material"],
     },
@@ -167,7 +166,6 @@ async function compendiumContext(app, options) {
     callback: async (li) => {
       const spell = getSpellDetailsFromLi(li);
       if (!spell) return;
-      // @ts-expect-error - this is a true item, not a data object
       const tattoo = await createTattooFromSpellUuid(spell.uuid);
       if (tattoo) dnd5e.documents.Item5e.create(tattoo);
     },

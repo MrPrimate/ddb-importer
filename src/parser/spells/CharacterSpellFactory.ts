@@ -234,7 +234,16 @@ export default class CharacterSpellFactory {
     abilityModifier,
     cantripBoost,
     unPreparedCantrip = null,
-  } = {}) {
+  }: {
+    classInfo: IDDBClass;
+    is2014Class: boolean;
+    playerClass: IDDBClassSpell;
+    spell: IDDBSpellEntry;
+    spellCastingAbility: string;
+    abilityModifier: number;
+    cantripBoost: boolean;
+    unPreparedCantrip?: boolean | null;
+  }) {
     // add some data for the parsing of the spells into the data structure
     const flagData: IParseSpellFlagData = {
       ddbimporter: {
@@ -377,7 +386,7 @@ export default class CharacterSpellFactory {
       if (utils.getSetting<boolean>("character-update-policy-remove-legacy"))
         removeIds.push(23, 26);
 
-      const targetSpells = removeIds.length > 0
+      const targetSpells: IDDBSpellEntry[] = removeIds.length > 0
         ? this.removeSpellsBySourceCategoryIds(rawSpells, removeIds)
         : rawSpells;
 

@@ -66,5 +66,6 @@ global {
     ownership?: { default: number };
     _stats?: Partial<RollTable["_stats"]>;
     uuid?: string;
+    flags?: I5eRollTableFlags;
   }
 }
