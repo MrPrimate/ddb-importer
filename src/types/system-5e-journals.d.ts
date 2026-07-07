@@ -23,12 +23,15 @@ global {
   }
 
   interface I5eJournalDDBFlags {
-    ddbId?: number;
+    ddbId?: string;
     bookCode?: string;
-    slug?: string | null;
-    contentChunkId?: string | null;
-    cobaltId?: number;
-    parentId?: number;
+    cobaltId?: number | string;
+    parentId?: number | string;
+    contentChunkId?: string;
+    slug?: string;
+    slugLink?: string;
+    originalLink?: string;
+    linkName?: string;
     themeCss?: string;
     linkId?: string;
   }
@@ -58,8 +61,27 @@ global {
     height?: number;
   }
 
+  interface I5eJournalDDBImporterFlags {
+    // Stamped by DDBRuleJournalFactory and SpellListFactory.
+    type?: string;
+    sourceId?: number;
+    sourceCode?: string;
+    sourceName?: string;
+
+    // Stamped by DDBMapMetaData for the placeholder journal that hosts meta-data Note documents.
+    metaDataNotesPlaceholder?: boolean;
+
+    // Stamped by DDBEncounter on the shared "DDB Encounters" world journal.
+    encounters?: boolean;
+    encounterId?: string;
+  }
+
   interface I5eJournalPageFlags {
     ddb?: I5eJournalDDBFlags;
+    ddbimporter?: I5eJournalDDBImporterFlags;
+    parentId?: number | string;
+    slug?: string;
+    contentChunkId?: string;
   }
 
   interface I5eJournalPageData {
@@ -79,6 +101,7 @@ global {
 
   interface I5eJournalEntryFlags {
     ddb?: I5eJournalDDBFlags;
+    ddbimporter?: I5eJournalDDBImporterFlags;
     core?: { sheetClass: string };
   }
 

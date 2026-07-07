@@ -27,6 +27,7 @@ export default class DDBEncounter {
   img: string;
   sceneId: string;
   journal: JournalEntry | undefined;
+  journalPage: JournalEntryPage | undefined;
   combat: Combat | undefined;
   folders: Record<string, Folder.Implementation>;
   scene: Scene | undefined;
@@ -38,6 +39,7 @@ export default class DDBEncounter {
     this.img = img;
     this.sceneId = sceneId;
     this.journal = undefined;
+    this.journalPage = undefined;
     this.combat = undefined;
     this.folders = {};
 
@@ -127,6 +129,7 @@ export default class DDBEncounter {
   resetEncounter() {
     this.data = {};
     this.journal = undefined;
+    this.journalPage = undefined;
     this.combat = undefined;
   }
 
@@ -228,77 +231,113 @@ export default class DDBEncounter {
     }
   }
 
+  #buildJournalPageContent(): string {
+    let content = "";
+    if (this.data.summary && this.data.summary != "") {
+      content += `<h2>Summary</h2>${this.data.summary}`;
+    }
+    if (this.data.monsterData && this.data.monsterData.length > 0) {
+      content += `<h2>Monsters</h2><ul>`;
+      this.data.monsterData.forEach((monster) => {
+        content += `<li><p>${monster.journalLink} x${monster.quantity}</p></li>`;
+      });
+      content += `</ul>`;
+    }
+    if (this.data.difficulty && this.data.difficulty != "") {
+      content += `<h2>Difficulty: <span style="color: ${this.data.difficulty.color}">${this.data.difficulty.name}</span></h2>`;
+    }
+    if (this.data.description && this.data.description != "") {
+      content += `<h2>Description</h2>${this.data.description}`;
+    }
+    if (this.data.rewards && this.data.rewards != "") {
+      content += `<h2>Rewards</h2>${this.data.rewards}`;
+    }
+    return content;
+  }
+
+  async #getEncountersJournal(): Promise<JournalEntry | undefined> {
+    const journalFolder = await FolderHelper.getFolder(
+      "journal",
+      "",
+      "D&D Beyond Encounters",
+      "#6f0006",
+      "#98020a",
+      false,
+    );
+
+    let worldJournal = game.journal.find(
+      (j) => j.name === "DDB Encounters" && j.flags?.ddbimporter?.encounters === true,
+    ) as JournalEntry | undefined;
+
+    if (!worldJournal) {
+      logger.info(`Creating journal DDB Encounters`);
+      try {
+        worldJournal = await JournalEntry.create({
+          name: "DDB Encounters",
+          folder: journalFolder.id,
+          flags: {
+            ddbimporter: {
+              encounters: true,
+            },
+          },
+        } as unknown as JournalEntry.CreateInput);
+      } catch (err) {
+        logger.error(err);
+        logger.warn(`Unable to create journal DDB Encounters`);
+      }
+    }
+    return worldJournal;
+  }
+
   async #createJournalEntry() {
-    logger.debug(`Creating journal entry`);
-    const journal: {
-      name: string;
-      flags: { ddbimporter: { encounterId?: string } };
-      folder?: string;
-      content?: string;
-      _id?: string;
-    } = {
-      name: this.data.name,
-      flags: {
-        ddbimporter: {
-          encounterId: this.data.id,
-        },
-      },
-    };
-
     const importJournal = utils.getSetting<boolean>("encounter-import-policy-create-journal");
-    if (importJournal) {
-      const journalFolder = await FolderHelper.getFolder(
-        "journal",
-        "",
-        "D&D Beyond Encounters",
-        "#6f0006",
-        "#98020a",
-        false,
-      );
-      journal.folder = journalFolder.id;
-      journal.content = `<h1>${this.data.name}</h1>`;
-      if (this.data.summary && this.data.summary != "") {
-        journal.content += `<h2>Summary</h2>${this.data.summary}`;
-      }
-      if (this.data.monsterData && this.data.monsterData.length > 0) {
-        journal.content += `<h2>Monsters</h2><ul>`;
-        this.data.monsterData.forEach((monster) => {
-          journal.content += `<li><p>${monster.journalLink} x${monster.quantity}</p></li>`;
-        });
-        journal.content += `</ul>`;
-      }
-      if (this.data.difficulty && this.data.difficulty != "") {
-        journal.content += `<h2>Difficulty: <span style="color: ${this.data.difficulty.color}">${this.data.difficulty.name}</span></h3>`;
-      }
-      if (this.data.description && this.data.description != "") {
-        journal.content += `<h2>Description</h2>${this.data.description}`;
-      }
-      if (this.data.rewards && this.data.rewards != "") {
-        journal.content += `<h2>Rewards</h2>${this.data.rewards}`;
-      }
+    if (!importJournal) return;
 
-      let worldJournal: any = game.journal.find(
-        (a: any) => a.folder == journalFolder.id && a.flags?.ddbimporter?.encounterId == this.data.id,
-      );
-      if (!worldJournal) {
-        logger.info(`Importing journal ${journal.name}`);
-        try {
-          worldJournal = await JournalEntry.create(journal as unknown as JournalEntry.CreateInput);
-        } catch (err) {
-          logger.error(err);
-          logger.warn(`Unable to create journal ${journal.name}`);
-        }
-      } else {
-        logger.info(`Updating journal ${journal.name}`);
-        journal._id = worldJournal.id;
-        await worldJournal.update(journal);
-      }
-      this.journal = worldJournal;
+    logger.debug(`Creating journal entry`);
+    const worldJournal = await this.#getEncountersJournal();
+    if (!worldJournal) return;
+
+    const content = this.#buildJournalPageContent();
+    const existingPage = worldJournal.pages.find(
+      (p) => p.flags?.ddbimporter?.encounterId == this.data.id,
+    );
+
+    if (existingPage) {
+      logger.info(`Updating journal page ${this.data.name}`);
+      const update = {
+        _id: existingPage.id,
+        name: this.data.name,
+        text: {
+          content,
+        },
+      };
+      await worldJournal.updateEmbeddedDocuments("JournalEntryPage", [update as unknown as JournalEntryPage.UpdateData]);
+    } else {
+      logger.info(`Creating journal page ${this.data.name}`);
+      const pageData: I5eJournalPageData = {
+        name: this.data.name,
+        type: "text",
+        title: {
+          show: true,
+          level: 1,
+        },
+        text: {
+          content,
+          format: CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML,
+        },
+        flags: {
+          ddbimporter: {
+            encounterId: this.data.id,
+          },
+        },
+      };
+      await worldJournal.createEmbeddedDocuments("JournalEntryPage", [pageData as any]);
     }
 
-    return new Promise((resolve) => {
-      resolve(journal);
-    });
+    this.journal = worldJournal;
+    this.journalPage = worldJournal.pages.find(
+      (p) => p.flags?.ddbimporter?.encounterId == this.data.id,
+    );
   }
 
 
@@ -312,7 +351,7 @@ export default class DDBEncounter {
       false,
     );
 
-    const sceneData = {
+    const sceneData: I5eSceneData = {
       name: this.data.name,
       flags: {
         ddbimporter: {
@@ -490,6 +529,7 @@ export default class DDBEncounter {
       }
 
       if (this.journal?.id) sceneData.journal = this.journal.id;
+      if (this.journalPage?.id) sceneData.journalEntryPage = this.journalPage.id;
 
       if (importDDBIScene) {
         worldScene = game.scenes.find(

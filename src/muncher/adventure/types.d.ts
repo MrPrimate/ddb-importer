@@ -64,11 +64,8 @@ global {
     flags?: {
       ddb?: {
         tokens?: any[];
-        [k: string]: any;
       };
-      [k: string]: any;
     };
-    [k: string]: any;
   }
 
   interface IDDBImporterSceneFlags {

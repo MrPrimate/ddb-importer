@@ -379,15 +379,24 @@ global {
   }
 
   interface I5eSceneDDBFlags {
-    ddbId: number;
-    cobaltId: number | null;
-    parentId: number | null;
-    contentChunkId: string;
-    slug: string | null;
-    bookCode: string;
-    source: string;
-    player: boolean;
-    imageFilename: string | null;
+    ddbId?: number;
+    cobaltId?: number | null;
+    parentId?: number | null;
+    contentChunkId?: string;
+    slug?: string | null;
+    bookCode?: string;
+    source?: string;
+    player?: boolean;
+    imageFilename?: string | null;
+    tokens?: any[];
+    notes?: any[];
+    versions?: { ddbMetaData?: { lastUpdate?: string } } & Record<string, unknown>;
+    oldVersions?: unknown;
+  }
+
+  interface I5eSceneDataFlags {
+    ddbimporter?: I5eSceneDDBImporterFlags;
+    ddb?: I5eSceneDDBFlags;
   }
 
   // replace this when a ddb tables is revised
@@ -447,9 +456,6 @@ global {
     /** carried by the importer; not a core Scene schema field. */
     type?: string;
     _stats?: Scene["_stats"];
-    flags?: {
-      ddbimporter?: I5eSceneDDBImporterFlags;
-      ddb?: I5eSceneDDBFlags;
-    };
+    flags?: I5eSceneDataFlags;
   }
 }

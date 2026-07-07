@@ -514,6 +514,413 @@ global {
     flags: IItemFlagConfig;
   }
 
+
+  // ---- Flag details -------------------------------------------------------
+
+  interface IParseSpellFlagDataDnDBeyond extends IDDBImporterItemDnDBeyondFlags {
+    /** The type of spell lookup source */
+    lookup?: ParseSpellLookup;
+    /** Name of the lookup source (e.g. class feature name, feat name, item name) */
+    lookupName?: string;
+    /** ID of the lookup source */
+    lookupId?: number;
+    /** Class name associated with the spell */
+    class?: string;
+    /** Whether the class is a 2014 version */
+    is2014Class?: boolean;
+    /** Character level or spell cast-at level */
+    level?: number;
+    /** Character class ID */
+    characterClassId?: number;
+    /** The spell's innate level */
+    spellLevel?: number;
+    /** Spellcasting ability abbreviation (e.g. "int", "wis", "cha") */
+    ability?: string;
+    /** Ability modifier for the spellcasting ability */
+    mod?: number;
+    /** Spell save DC */
+    dc?: number | null;
+    /** Whether the cantrip damage is boosted */
+    cantripBoost?: boolean;
+    /** Whether to override the default DC calculation */
+    overrideDC?: boolean;
+    /** DDB spell ID */
+    id?: number;
+    /** DDB entity type ID */
+    entityTypeId?: number;
+    /** Healing bonus modifier */
+    healingBoost?: number;
+    /** Whether the spell uses a spell slot */
+    usesSpellSlot?: boolean;
+    /** Whether material components are forced (e.g. Artificer) */
+    forceMaterial?: boolean;
+    /** Whether to force pact magic slot usage (e.g. Warlock) */
+    forcePact?: boolean;
+    /** Race full name (for race spells) */
+    race?: string;
+    /** Whether this is a granted (slot-using copy) of a limited-use spell */
+    granted?: boolean;
+    /** Override display name for the spell (e.g. item spells) */
+    nameOverride?: string;
+    /** The level the spell is cast at */
+    castAtLevel?: number;
+    /** Whether the spell is an unprepared cantrip replacement */
+    unPreparedCantrip?: string | null;
+    /** Whether the spell is homebrew */
+    homebrew?: boolean;
+    /** Limited use data from an item source */
+    limitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string };
+    /** Limited use data from the spell itself (item spells) */
+    spellLimitedUse?: IDDBSpellLimitedUse | null;
+    /** Whether the item granting this spell is active/equipped/attuned */
+    active?: boolean;
+  }
+
+  interface IParseSpellFlagData {
+    ddbimporter: {
+      /** Whether this is a generic (non-character) spell */
+      generic?: boolean;
+      dndbeyond: IParseSpellFlagDataDnDBeyond;
+    };
+    /** Integration flag for the spell-class-filter-for-5e module */
+    "spell-class-filter-for-5e"?: {
+      parentClass?: string;
+    };
+    /** Integration flag for the tidy5e-sheet module */
+    "tidy5e-sheet"?: {
+      parentClass?: string;
+    };
+  }
+
+  interface IDDBImporterFlagsOverrideItem {
+    name?: string;
+    type?: string;
+    ddbId?: number;
+  }
+
+  /** dndbeyond flags stamped on items (spells, features, gear, classes, races). */
+  interface IDDBImporterItemDnDBeyondFlags extends IDDBImporterDnDBeyondBaseFlags {
+    // Spell flags
+    lookup?: string;
+    lookupName?: string;
+    lookupId?: number;
+    level?: number;
+    characterClassId?: number;
+    spellLevel?: number;
+    ability?: string;
+    mod?: number;
+    dc?: number;
+    cantripBoost?: boolean;
+    overrideDC?: boolean;
+    id?: number;
+    entityTypeId?: number;
+    healingBoost?: number;
+    usesSpellSlot?: boolean;
+    forceMaterial?: boolean;
+    forcePact?: boolean;
+    is2014Class?: boolean;
+    race?: string;
+    granted?: boolean;
+    nameOverride?: string;
+    castAtLevel?: number;
+    unPreparedCantrip?: string | null;
+    homebrew?: boolean;
+
+    // Item flags
+    tags?: string[];
+    sources?: { sourceId?: number; pageNumber?: number; sourceType?: number }[];
+    restrictions?: string[];
+    stackable?: boolean;
+    isContainer?: boolean;
+    isConsumable?: boolean;
+    isCustomItem?: boolean;
+    isMonkWeapon?: boolean;
+    isPack?: boolean;
+    levelInfusionGranted?: number;
+    avatarUrl?: string;
+    largeAvatarUrl?: string;
+    pictureUrl?: string;
+    filterType?: string;
+    ability2?: string;
+    damage?: { parts?: string[][] };
+    classFeatures?: number[];
+    alternativeNames?: string[];
+    sourceId?: string;
+    sourceCategoryId?: number;
+
+    // Feature flags
+    requiredLevel?: number;
+    displayOrder?: number;
+    featureType?: number;
+    class?: string;
+    classId?: number;
+    entityId?: number;
+    entityRaceId?: number;
+    entityType?: string;
+
+    // Choice flags
+    choice?: {
+      componentId?: number;
+      componentTypeId?: number;
+      choiceId?: string;
+      optionId?: string;
+      optionComponentId?: number;
+      parentChoiceId?: string | null;
+      parentName?: string;
+      label?: string;
+      subType?: string | number | null;
+      type?: string | number | null;
+      wasOption?: boolean;
+      entityTypeId?: number | string | null;
+    };
+
+    // Infusion flags
+    defintionKey?: string;
+    modifierType?: string;
+    requiresAttunement?: boolean;
+    allowDuplicates?: boolean;
+
+    // Limit use
+    limitedUse?: { maxUses?: number; numberUsed?: number; resetType?: string; resetTypeDescription?: string };
+
+  }
+
+
+  interface I5eItemRiderFlags {
+    activity?: string[];
+    effect?: string[];
+    status?: string[];
+  }
+
+  interface I5eItemFlags {
+    scaling?: number;
+    spellLevel?: {
+      base?: number;
+      value?: number;
+    };
+    cachedFor?: Item;
+    riders?: I5eItemRiderFlags;
+  };
+
+  interface IDDBImporterTransferEnchantmentTargetItemMatches {
+    field: string;
+    value: string;
+  }
+
+  interface IDDBImporterTransferEnchantmentFlags {
+    effectId: string;
+    activityId: string;
+    targetItemId?: string;
+    targetItemName?: string;
+    targetItemMatches?: IDDBImporterTransferEnchantmentTargetItemMatches[];
+  }
+
+
+  interface IDDBImporterFlagsSummons {
+    summonsKey?: string;
+    version?: number;
+    folder?: string;
+    name?: string;
+    changes?: { key: string; value: string; mode?: number }[];
+  }
+
+  interface IDDBImporterFlagsEffect {
+    // Aura behavior flags
+    applyStart?: boolean;
+    applyEntry?: boolean;
+    applyImmediate?: boolean;
+    everyEntry?: boolean;
+    allowVsRemoveCondition?: boolean;
+    removalCheck?: string | boolean;
+    removalSave?: string | boolean;
+    saveRemoves?: boolean;
+    saveOnEntry?: boolean;
+    condition?: string;
+    save?: string;
+    sequencerFile?: string;
+    sequencerScale?: number;
+    activityIds?: string[];
+    isCantrip?: boolean;
+    nameSuffix?: string;
+    removeOnOff?: boolean;
+    enchantmentEffects?: string[];
+
+    // magicStone-style effect data
+    dice?: string;
+    damageType?: string;
+  }
+
+  interface IDDBImporterFlagsDisposition {
+    match?: boolean;
+  }
+
+  /** ddbimporter flags stamped on items (spells, features, gear, classes,
+   * subclasses, races, backgrounds) and their effects. */
+  interface IDDBImporterItemFlags extends IDDBImporterFlagsBase {
+    // Core identifiers
+    definitionId?: number;
+    definitionEntityTypeId?: number;
+    componentId?: number;
+    componentTypeId?: number;
+
+    // Class spellcasting hints
+    spellSlotDivisor?: number;
+    spellCastingAbility?: string;
+
+    // Naming
+    originalName?: string;
+    name?: string;
+
+    // Type/classification
+    subType?: string;
+    action?: boolean;
+    isCustomAction?: boolean;
+
+    // Class/subclass
+    class?: string;
+    classId?: number;
+    classDefinitionId?: number;
+    subclass?: string;
+    subClass?: string;
+    subClassId?: number;
+    subclassDefinitionId?: number;
+    parentClassId?: number;
+    isStartingClass?: boolean;
+
+    // Feature classification
+    isChoice?: boolean;
+    isChoiceFeature?: boolean;
+    optionalFeature?: boolean;
+    infusionFeature?: boolean;
+    infusionId?: number;
+    experimentalElixir?: boolean;
+    featureName?: string;
+    featureMeta?: Record<string, unknown>;
+    initialFeature?: boolean;
+
+    // Race/species
+    baseName?: string;
+    baseRaceId?: number;
+    baseRaceName?: string;
+    subRaceShortName?: string;
+    isSubRace?: boolean;
+    fullName?: string;
+    fullRaceName?: string;
+    groupName?: string;
+    groupIds?: number[];
+    featIds?: number[];
+    isLineage?: boolean;
+    lineageName?: string;
+    isHomebrew?: boolean;
+    entityRaceId?: number;
+    species?: string;
+    moreDetailsUrl?: string;
+
+    // Image handling
+    ddbImg?: string;
+    image?: string;
+    keepIcon?: boolean;
+    matchedImg?: string;
+    avatarUrl?: string;
+    largeAvatarUrl?: string;
+    portraitAvatarUrl?: string;
+
+    // Item flags
+    containerEntityId?: number;
+    containerEntityTypeId?: number;
+    custom?: boolean;
+    isCustom?: boolean;
+    ddbCustomAdded?: boolean;
+    isItemCharge?: boolean;
+    removeSpell?: boolean;
+
+    // Compendium/import
+    overrideId?: string;
+    overrideItem?: IDDBImporterFlagsOverrideItem;
+    replacedId?: string;
+    replaced?: boolean;
+    originalItemName?: string;
+    delete?: Record<string, unknown>;
+
+    // Effect flags
+    effectsApplied?: boolean;
+    chrisEffectsApplied?: boolean;
+    chrisPreEffectName?: string;
+    addSpellEffects?: boolean;
+    generic?: boolean;
+    effectLabelOverride?: string;
+
+    // Effect matching (on effects)
+    activityMatch?: string;
+    activitiesMatch?: string[];
+    ignoreTransfer?: boolean;
+    effectIdLevel?: { min?: number | null; max?: number | null };
+    activityRiders?: string[];
+    effectRiders?: string[];
+    itemRiders?: string[];
+    noeffect?: boolean | number[];
+    noEffectIds?: number[];
+
+    // AC effects
+    disabled?: boolean;
+    itemId?: number | null;
+    characterEffect?: boolean;
+    originName?: string;
+
+    // Activity/enricher flags
+    replaceActivityUses?: boolean;
+    forceSpellAdvancement?: boolean;
+    spellHintName?: string;
+    defaultAdditionalActivities?: { data?: Record<string, unknown> };
+
+    // Import control
+    ignoreItemImport?: boolean;
+    ignoreItemUpdate?: boolean;
+    ignoreItemForChrisPremades?: boolean;
+    ignoreIcon?: boolean;
+    retainResourceConsumption?: boolean;
+    parentId?: string;
+
+    // Monster feature flags (stamped on monster feature items)
+    spellSave?: boolean;
+    spellAttack?: boolean;
+    levelBonus?: boolean;
+    profBonus?: boolean;
+
+    // Adventure
+    adventure?: IDDBImporterFlagsAdventure;
+
+    // Pricing
+    price?: IDDBImporterFlagsPrice;
+
+    // Nested objects
+    dndbeyond?: IDDBImporterItemDnDBeyondFlags;
+    summons?: IDDBImporterFlagsSummons;
+    effect?: IDDBImporterFlagsEffect;
+    disposition?: IDDBImporterFlagsDisposition;
+
+    // enchantment transfer
+    transferEnchantment?: IDDBImporterTransferEnchantmentFlags;
+
+  }
+
+  interface IItemFlagConfig {
+    infusions?: { maps?: any[]; applied?: any[]; infused: boolean };
+    ddbimporter?: IDDBImporterItemFlags;
+    dnd5e?: I5eItemFlags;
+    "midi-qol"?: {
+      dependentOn?: string; // UUID of parent document for midi-qol dependent tracking
+      onUseMacroParts?: OnUseMacros;
+      onUseMacroName?: string;
+      noProvokeReaction?: boolean;
+      isConcentrationCheck?: boolean;
+      trapWorkflow?: {
+        ignoreSelf?: boolean;
+      };
+      reactionCondition?: string;
+    };
+  };
+
   // ---- Item union ---------------------------------------------------
 
   export type I5eInventoryItem =

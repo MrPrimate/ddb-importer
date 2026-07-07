@@ -46,6 +46,11 @@ global {
     resultCollection?: string;
   }
 
+  interface I5eRollTableFlags {
+    ddbimporter?: I5eTableDDBImporterFlags;
+    ddb?: I5eTableDDBFlags;
+  }
+
   interface I5eTableData extends RollTable.CreateData {
     _id?: string;
     name?: string;
@@ -60,9 +65,5 @@ global {
     folder?: string;
     ownership?: { default: number };
     _stats?: Partial<RollTable["_stats"]>;
-    flags?: {
-      ddbimporter?: I5eTableDDBImporterFlags;
-      ddb?: I5eTableDDBFlags;
-    };
   }
 }

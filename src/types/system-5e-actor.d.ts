@@ -738,6 +738,98 @@ global {
     // [key: string]: boolean | number | string | undefined;
   }
 
+
+  interface IDDBPCDnDBeyondCampaignCharacterFlags {
+    userId?: number;
+    username?: string;
+    characterId?: number;
+    characterName?: string;
+    characterUrl?: string;
+    avatarUrl?: string;
+    privacyType?: number;
+    campaignId?: number | null;
+    isAssigned?: boolean;
+  }
+
+  interface IDDBPCDnDBeyondCampaignFlags {
+    id?: number;
+    name?: string;
+    description?: string;
+    link?: string;
+    publicNotes?: string;
+    dmUserId?: number;
+    dmUsername?: string;
+    characters?: IDDBPCDnDBeyondCampaignCharacterFlags[];
+  }
+
+  interface IDDBPCDnDBeyondProficiencyFlags {
+    name: string;
+    custom: boolean;
+  }
+
+  interface IDDBPCDnDBeyondWeaponMasteryFlags {
+    weapon: string;
+    mastery: string;
+    dnd5eName: string;
+  }
+
+  interface IDDBPCAutoAC {
+    flat?: number | null;
+    calc?: string;
+    formula?: string;
+  }
+
+  interface IDDBImporterFlagsPrice {
+    xgte?: boolean;
+    value?: number;
+  }
+
+  interface IDDBImporterFlagsResources {
+    type?: string;
+    ask?: boolean;
+    primary?: string;
+    secondary?: string;
+    tertiary?: string;
+  }
+
+  interface IDDBImporterFlagsAdventure {
+    required?: Record<string, unknown>;
+    revisitUuids?: string[];
+  }
+
+  /** ddbimporter flags stamped on PC actors (absorbs the old
+   * IDDBPCImporterFlags from system-5e-actor.d.ts). */
+  interface IDDBImporterPCFlags extends IDDBImporterFlagsBase {
+    activeUpdate?: boolean;
+    activeSyncSpells?: boolean;
+    syncItemReady?: boolean;
+    syncActionReady?: boolean;
+    acEffects?: I5eEffectData[];
+    baseAC?: number;
+    autoAC?: IDDBPCAutoAC;
+    overrideAC?: IDDBPCAutoAC;
+    rolledHP?: boolean;
+    baseHitPoints?: number;
+    fixedBonusHitPointValuesWithEffects?: number;
+    totalHP?: number;
+    removedHitPoints?: number;
+    resources?: IDDBImporterFlagsResources;
+    useLocalPatreonKey?: boolean;
+    framePath?: string | null;
+    dndbeyond?: IDDBImporterPCDnDBeyondFlags;
+  }
+
+  /** ddbimporter flags stamped on NPC/monster actors. */
+  interface IDDBImporterMonsterFlags extends IDDBImporterFlagsBase {
+    creatureGroupId?: number | null;
+    creatureFlags?: any[];
+    automatedEvocationAnimation?: any;
+    flatAC?: boolean;
+    // companion/summons generation (DDBCompanionMixin)
+    summons?: IDDBImporterFlagsSummons;
+    dndbeyond?: IDDBImporterDnDBeyondBaseFlags;
+  }
+
   interface I5ePCActorFlags {
     ddbimporter?: IDDBImporterPCFlags;
     dnd5e?: I5ePCDnd5eFlags;
@@ -745,6 +837,283 @@ global {
     "tidy5e-sheet"?: { maxPreparedSpells?: number; [key: string]: any };
     "tidy5e-sheet-kgar"?: Record<string, any>;
     "ddb-importer"?: Record<string, any>;
+  }
+
+  interface I5eActorFlags {
+    // added by us
+    DamageBonusMacro?: string;
+    // added by us
+    spellSniper?: boolean;
+    // added by us
+    sharpShooter?: string;
+  };
+
+  interface IMidiQoLActorFlags {
+    dependentOn?: string; // UUID of parent document for midi-qol dependent tracking
+    actions?: {
+      // This really should be structured but actions.reaction is used in other modules and macros
+      reaction?: boolean;
+      reactionsUsed?: number;
+      reactionsMax?: number;
+      reactionsReset?: "eachTurn" | "onTurnStart" | "rest" | "never"; // When reactions reset default: onTurnStart
+      action?: boolean;
+      bonus?: boolean;
+      bonusActionsUsed?: number;
+      bonusActionsMax?: number;
+      bonusActionsReset?: "eachTurn" | "onTurnStart" | "rest" | "never"; // When bonus actions reset default: onTurnStart
+      reactionCombatRound?: number;
+      bonusActionCombatRound?: number;
+    };
+    acBonus?: number;
+    advantage?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      all?: string;
+      attack?: Record<string, string>;
+      concentration?: string;
+      deathSave?: string;
+      skill?: Record<string, string>;
+    };
+    canFlank: string;
+    carefulSpells?: boolean;
+    concentrationSaveBonus?: number;
+    critical?: Record<string, string>;
+    damage?: {
+      advantage?: boolean;
+      "reroll-kh"?: boolean;
+      "reroll-kl"?: boolean;
+    };
+    deathSaveBonus?: number;
+    disadvantage?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      all?: string;
+      attack?: Record<string, string>;
+      concentration?: string;
+      deathSave?: string;
+      skill?: Record<string, string>;
+    };
+    fail?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      all?: string;
+      attack?: Record<string, string>;
+      critical?: Record<string, string>;
+      deathSave?: string;
+      disadvantage?: {
+        heavy?: boolean;
+      };
+      skill?: Record<string, string>;
+      spell?: {
+        all?: string;
+        verbal?: string;
+        vocal?: string;
+        somatic?: string;
+        material?: string;
+      };
+      tool?: Record<string, string>;
+    };
+    grants?: {
+      advantage?: {
+        all?: string;
+        attack?: Record<string, string>;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+        skill?: Record<string, string>;
+      };
+      attack?: {
+        bonus?: Record<string, string>;
+        fail?: {
+          all?: string;
+        };
+        success?: Record<string, string>;
+      };
+      bonus?: {
+        damage?: Record<string, string>;
+      };
+      critical?: Record<string, string>;
+      criticalThreshold?: string;
+      disadvantage?: {
+        all?: string;
+        attack?: Record<string, string>;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+        skill?: Record<string, string>;
+      };
+      fail?: {
+        advantage?: {
+          attack?: Record<string, string>;
+        };
+        disadvantage?: {
+          attack?: Record<string, string>;
+        };
+      };
+      max?: {
+        damage?: Record<string, string>;
+      };
+      min?: {
+        damage?: Record<string, string>;
+      };
+      noAdvantage?: {
+        attack?: Record<string, string>;
+      };
+      noCritical?: Record<string, string>;
+      fumble?: Record<string, string>;
+      noFumble?: Record<string, string>;
+      noDisadvantage?: {
+        attack?: Record<string, string>;
+      };
+    };
+    ignoreCover?: boolean;
+    ignoreNearbyFoes?: boolean;
+    ignoreWalls?: boolean;
+    initiativeAdv?: string;
+    initiativeDisadv?: string;
+    inMotion?: boolean;
+    long?: Record<string, string>;
+    magicResistance?: {
+      check?: { all?: string };
+      save?: { all?: string };
+      skill?: { all?: string };
+    } & Record<string, string>;
+    magicVulnerability?: Record<string, string>;
+    max?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      damage?: Record<string, string>;
+      deathSave?: string;
+      skill?: {
+        all?: string;
+      };
+      tool?: Record<string, string>;
+    };
+    min?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      damage?: Record<string, string>;
+      deathSave?: string;
+      skill?: {
+        all?: string;
+      };
+      tool?: Record<string, string>;
+    };
+    neverTarget?: boolean;
+    noAdvantage?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      all?: string;
+      attack?: Record<string, string>;
+      concentration?: string;
+      deathSave?: string;
+      initiative?: string;
+      skill?: Record<string, string>;
+      tool?: Record<string, string>;
+    };
+    noDisadvantage?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      all?: string;
+      attack?: Record<string, string>;
+      concentration?: string;
+      deathSave?: string;
+      initiative?: string;
+      skill?: Record<string, string>;
+      tool?: Record<string, string>;
+    };
+    noCritical?: Record<string, string>;
+    noFumble?: Record<string, string>;
+    fumble?: Record<string, string>;
+    onUseMacroName?: string;
+    onUseMacroParts?: OnUseMacros;
+    optional?: Record<string, any>;
+    OverTime?: string;
+    potentCantrip?: boolean;
+    range?: Record<string, string>;
+    rangeOverride?: {
+      attack?: Record<string, string>;
+    };
+    rollModifiers?: {
+      attack?: Record<string, string>;
+      damage?: Record<string, Record<string, string>>;
+    };
+    save?: {
+      fail?: Record<string, string>;
+    };
+    sculptSpells?: boolean;
+    semiSuperSaver?: Record<string, string>;
+    sharpShooter?: string;
+    success?: {
+      ability?: {
+        all?: string;
+        check?: Record<string, string>;
+        save?: Record<string, string>;
+      };
+      all?: boolean;
+      attack?: Record<string, string>;
+      deathSave?: string;
+      skill?: Record<string, string>;
+      tool?: Record<string, string>;
+    };
+    superSaver?: Record<string, string>;
+    uncannyDodge?: boolean;
+  };
+
+  /** ddbimporter flags that can appear on any actor (PC or NPC). Used by the
+   * generic Actor FlagConfig entry; per-document precision comes from
+   * I5ePCData / I5eMonsterData. */
+  interface IDDBImporterActorFlags extends
+    IDDBImporterFlagsBase,
+    IDDBImporterPCFlags,
+    IDDBImporterMonsterFlags {
+    dndbeyond?: IDDBImporterPCDnDBeyondFlags;
+  }
+
+  interface IActorFlagConfig {
+    ddbimporter?: IDDBImporterActorFlags;
+    dnd5e?: I5eActorFlags;
+    "midi-qol"?: IMidiQoLActorFlags;
+  };
+
+  /** dndbeyond flags stamped on PC actors. */
+  interface IDDBImporterPCDnDBeyondFlags extends IDDBImporterDnDBeyondBaseFlags {
+    // Character identity
+    characterId?: string;
+    url?: string | null;
+    json?: string;
+    roUrl?: string | null;
+
+    // Character stats
+    totalLevels?: number | null;
+    profBonus?: number;
+    proficiencies?: IDDBPCDnDBeyondProficiencyFlags[] | null;
+    proficienciesIncludingEffects?: IDDBPCDnDBeyondProficiencyFlags[] | null;
+    effectAbilities?: I5eAbilities | null;
+    abilityOverrides?: Record<string, number> | null;
+    characterValues?: { valueId?: number; valueTypeId?: number; typeId?: number; value?: string }[] | null;
+    templateStrings?: IDDBTemplateStringResult[] | null;
+    campaign?: IDDBPCDnDBeyondCampaignFlags | null;
+    weaponMasteries?: IDDBPCDnDBeyondWeaponMasteryFlags[];
   }
 
   // ---- Top-level PC document ------------------------------------------------
