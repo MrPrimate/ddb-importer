@@ -716,7 +716,7 @@ export default class CharacterFeatureFactory {
             trait,
           });
         } else if (!existingFeature) {
-          foundry.utils.setProperty(item, "flags.ddbimporter.baseName", (trait.definition.fullName ?? trait.definition.name));
+          foundry.utils.setProperty(item, "flags.ddbimporter.baseName", ((foundry.utils.getProperty(trait.definition, "fullName") as string) ?? trait.definition.name));
           foundry.utils.setProperty(item, "flags.ddbimporter.fullRaceName", this.ddbCharacter._ddbRace.fullName);
           foundry.utils.setProperty(item, "flags.ddbimporter.groupName", this.ddbCharacter._ddbRace.groupName);
           foundry.utils.setProperty(item, "flags.ddbimporter.isLineage", this.ddbCharacter._ddbRace.isLineage);
@@ -779,10 +779,11 @@ export default class CharacterFeatureFactory {
       .filter((feat) => {
         if (!requireLevel || !foundry.utils.hasProperty(feat, "requiredLevel")) return true;
         const requiredLevel = foundry.utils.getProperty(feat, "requiredLevel") as number;
-        const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
-          || cls.subclassDefinition?.id === feat.classId);
+        const featClassId = foundry.utils.getProperty(feat, "classId") as number;
+        const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === featClassId
+          || cls.subclassDefinition?.id === featClassId);
         if (!klass) {
-          logger.info(`Unable to determine class for optional feature ${feat.name}, you might not have a suitable subclass`, { feat, this: this, requiredLevel });
+          logger.info(`Unable to determine class for optional feature ${foundry.utils.getProperty(feat, "name")}, you might not have a suitable subclass`, { feat, this: this, requiredLevel });
           return false;
         }
         return klass.level >= requiredLevel;
@@ -797,8 +798,9 @@ export default class CharacterFeatureFactory {
         .filter((feat) => CharacterFeatureFactory.includedFeatureNameCheck(feat.name));
       for (const feat of options) {
         logger.debug(`Parsing Optional Feature ${feat.name}`);
-        const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === feat.classId
-            || cls.subclassDefinition?.id === feat.classId);
+        const featClassId = foundry.utils.getProperty(feat, "classId") as number;
+        const klass = this.ddbData.character.classes.find((cls) => cls.definition.id === featClassId
+          || cls.subclassDefinition?.id === featClassId);
         const flags = {
           "ddbimporter": {
             class: klass.definition.name,
@@ -1226,7 +1228,7 @@ export default class CharacterFeatureFactory {
 
         action.system.source = featureMatch.system.source;
         foundry.utils.setProperty(action, "flags.ddbimporter.sourceId", featureMatch.flags.ddbimporter?.sourceId);
-        foundry.utils.setProperty(action, "flags.ddbimporter.sourceCategory", featureMatch.flags.ddbimporter?.sourceCategoryId);
+        foundry.utils.setProperty(action, "flags.ddbimporter.sourceCategory", foundry.utils.getProperty(featureMatch, "flags.ddbimporter.sourceCategoryId"));
 
         foundry.utils.setProperty(action, "flags.ddbimporter.featureMeta", featureMatch.flags.ddbimporter);
 
@@ -1290,11 +1292,12 @@ export default class CharacterFeatureFactory {
           foundry.utils.mergeObject(action.flags, newFlags, { overwrite: true, insertKeys: true, insertValues: true });
         }
 
-        if (featureMatch.system.uses.max
-          && (utils.isString(featureMatch.system.uses.max)
-          || !action.system.uses.max)
+        const featureMatchUsesMax = foundry.utils.getProperty(featureMatch, "system.uses.max") as string | number | null;
+        if (featureMatchUsesMax
+          && (utils.isString(featureMatchUsesMax)
+          || !foundry.utils.getProperty(action, "system.uses.max"))
         ) {
-          action.system.uses.max = featureMatch.system.uses.max;
+          foundry.utils.setProperty(action, "system.uses.max", featureMatchUsesMax);
         }
 
         if (foundry.utils.hasProperty(featureMatch, "system.prerequisites.level")) {

@@ -59,12 +59,17 @@ global {
       rotation?: number;
       tint?: string | null;
     };
-    walls?: any[];
-    lights?: any[];
+    walls?: I5eWallData[];
+    lights?: I5eAmbientLightData[];
+    drawings?: I5eDrawingData[];
     flags?: {
       ddb?: {
-        tokens?: any[];
+        tokens?: I5eTokenData[];
+        notes?: I5eNoteData[];
+        bookCode?: string | null;
       };
+      // legacy stairways module data; array pre-0.10.7, object after
+      stairways?: any[] | { data?: any[] };
     };
   }
 

@@ -21,6 +21,11 @@ export default class DDBRace {
   _compendiumLabel: string;
   fullName: string;
   baseRaceName: string;
+  // the DDB race base name, e.g. "Elf" for "High Elf"
+  get baseName(): string {
+    return this.race.baseName;
+  }
+
   groupName: string;
   isSubRace: boolean;
   legacy: boolean;

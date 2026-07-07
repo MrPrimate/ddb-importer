@@ -101,9 +101,9 @@ export default class DDBSpellListFactory extends SpellListFactory {
   }
 
   #generateUuidsFromDefinitionId(source, className) {
-    const spells = new Set();
+    const spells = new Set<string>();
     for (const spell of this.spellsBySourceAndClass[source.acronym][className]) {
-      const sourceMatch = this.spellCompendium.index.find((s) => s.flags?.ddbimporter?.definitionId === spell.id);
+      const sourceMatch = this.spellCompendium.index.find((s) => foundry.utils.getProperty(s, "flags.ddbimporter.definitionId") === spell.id);
       if (!sourceMatch) {
         logger.debug(`Spell not found in spell compendium: ${spell.name} (${spell.id})`, { spell });
         continue;

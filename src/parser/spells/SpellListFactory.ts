@@ -39,24 +39,30 @@ const BASE_CLASS_PAGE = {
 
 export default class SpellListFactory {
 
-  journalCompendium = null;
+  journalCompendium: CompendiumCollection.Any | null = null;
 
   spellListJournalNameBit = "Spell List";
 
   spellListJournalFlagName = "DDB Spell List";
 
-  sources = null;
+  sources: { id: number; acronym: string; label: string }[] | null = null;
+
+  filteredSources: { id: number; acronym: string; label: string }[] = [];
+
+  spellCompendium: CompendiumCollection.Any | null = null;
 
   journalFolder = null;
 
-  uuidsBySourceAndSpellListName = {};
+  uuidsBySourceAndSpellListName: Record<string, Record<string, string[]>> = {};
 
   available = false;
 
   type = "class";
 
+  ALL_SPELL_LISTS: string[] = [];
+
   #buildSources() {
-    const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources");
+    const ddbSources = foundry.utils.getProperty(CONFIG, "DDB.sources") as IDDBConfigSource[] | undefined;
     if (!ddbSources) return;
 
     const sources = ddbSources
@@ -127,11 +133,12 @@ export default class SpellListFactory {
     this._addSpellListOutline(spellListName, sourceAcronym);
 
     for (const spellName of spellNames) {
-      const spell = this.spellCompendium.index.find((s) =>
-        (s.name.toLowerCase() === spellName.toLowerCase()
-          || s.flags?.ddbimporter?.originalName.toLowerCase() === spellName.toLowerCase())
-        && trueFlags.every((flag) => s.flags?.ddbimporter?.[flag] === true),
-      );
+      const spell = this.spellCompendium.index.find((s) => {
+        const originalName = foundry.utils.getProperty(s, "flags.ddbimporter.originalName") as string | undefined;
+        return ((foundry.utils.getProperty(s, "name") as string).toLowerCase() === spellName.toLowerCase()
+          || originalName?.toLowerCase() === spellName.toLowerCase())
+          && trueFlags.every((flag) => foundry.utils.getProperty(s, `flags.ddbimporter.${flag}`) === true);
+      });
       if (!spell) {
         logger.warn(`Unable to find Spell "${spellName}" for spell list ${spellListName} in source ${sourceAcronym}`, {
           spellName,
@@ -169,20 +176,20 @@ export default class SpellListFactory {
     };
     logger.debug(`Creating Spell Journal: ${source.label}`, { journalData, source });
     const journal = await JournalEntry.create(
-      journalData,
+      journalData as unknown as JournalEntry.CreateInput,
       {
         pack: this.journalCompendium.metadata.id,
         displaySheet: false,
         keepId: true,
-      },
+      } as Parameters<typeof JournalEntry.create>[1],
     );
     return journal;
   }
 
   async _getSpellListJournal(source) {
     const journalHit = this.journalCompendium.index.find((j) =>
-      j.flags?.ddbimporter?.type === this.spellListJournalFlagName
-      && j.flags?.ddbimporter?.sourceCode === source.acronym,
+      foundry.utils.getProperty(j, "flags.ddbimporter.type") === this.spellListJournalFlagName
+      && foundry.utils.getProperty(j, "flags.ddbimporter.sourceCode") === source.acronym,
     );
     if (journalHit) {
       return this.journalCompendium.getDocument(journalHit._id);
@@ -197,7 +204,7 @@ export default class SpellListFactory {
     const page = journal.pages.find((p) => p.system.identifier === spellListIdentifier);
     if (page) return page;
 
-    const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE);
+    const pageData = foundry.utils.deepClone(BASE_CLASS_PAGE) as typeof BASE_CLASS_PAGE & { _id?: string };
     pageData.system.type = this.type;
     pageData.system.identifier = spellListIdentifier;
     pageData.name = `${spellListName} ${this.spellListJournalNameBit}`;
@@ -262,13 +269,13 @@ export default class SpellListFactory {
     await this.init();
 
     const spellListJournals = this.journalCompendium.index.filter((j) =>
-      j.flags?.ddbimporter?.type === this.spellListJournalFlagName,
+      foundry.utils.getProperty(j, "flags.ddbimporter.type") === this.spellListJournalFlagName,
     );
 
     const pages = [];
 
     for (const journal of spellListJournals) {
-      const journalEntry = await this.journalCompendium.getDocument(journal._id);
+      const journalEntry = await this.journalCompendium.getDocument(journal._id) as JournalEntry.Implementation;
       const spellListPages = journalEntry.pages.filter((p) => p.type === "spells");
       pages.push(...spellListPages.map((p) => p.uuid));
     }

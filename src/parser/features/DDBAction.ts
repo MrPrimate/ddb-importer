@@ -43,22 +43,22 @@ export default class DDBAction extends DDBFeatureMixin {
       || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
       if (!this.type) this.type = "class";
-      this.data.system.type.value = "class";
+      foundry.utils.setProperty(this.data, "system.type.value", "class");
     } else if (this.ddbData.character.actions.race.some((a) =>
       a.name === this.ddbDefinition.name
       || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
       if (!this.type) this.type = "race";
-      this.data.system.type.value = "race";
+      foundry.utils.setProperty(this.data, "system.type.value", "race");
     } else if (this.ddbData.character.actions.feat.some((a) =>
       a.name === this.ddbDefinition.name
       || (foundry.utils.hasProperty(a, "definition.name") && a.definition.name === this.ddbDefinition.name),
     )) {
       if (!this.type) this.type = "feat";
-      this.data.system.type.value = "feat";
+      foundry.utils.setProperty(this.data, "system.type.value", "feat");
     } else if (typeNudge) {
       if (!this.type) this.type = typeNudge;
-      this.data.system.type.value = typeNudge;
+      foundry.utils.setProperty(this.data, "system.type.value", typeNudge);
       foundry.utils.setProperty(this.data, "flags.ddbimporter.type", typeNudge);
     }
   }
@@ -76,7 +76,7 @@ export default class DDBAction extends DDBFeatureMixin {
       ? " + @mod"
       : "";
     const unarmedDamageBonus = DDBModifiers.filterBaseCharacterModifiers(this.ddbData, "damage", { subType: "unarmed-attacks" })
-      .reduce((prev, cur) => prev + cur.value, 0);
+      .reduce((prev, cur) => prev + (cur.value as number), 0);
 
     const damage = this.ddbDefinition.isMartialArts
       ? super.getMartialArtsDamage(bonuses.concat((unarmedDamageBonus === 0 ? [] : [`+ ${unarmedDamageBonus}`])))
@@ -115,7 +115,7 @@ export default class DDBAction extends DDBFeatureMixin {
 
   getBonusDamage() {
     if (this.ddbDefinition.isMartialArts) {
-      return DDBModifiers.filterBaseCharacterModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + cur.value, 0);
+      return DDBModifiers.filterBaseCharacterModifiers(this.ddbData, "bonus", { subType: "unarmed-attacks" }).reduce((prev, cur) => prev + (cur.value as number), 0);
     }
     return "";
   }
@@ -130,7 +130,9 @@ export default class DDBAction extends DDBFeatureMixin {
         ));
 
     if (kiEmpowered && foundry.utils.getProperty(this.data, "flags.ddbimporter.originalName") == "Unarmed Strike") {
-      utils.addToProperties(this.data.system.properties, "mgc");
+      // addToProperties returns a new array; the result must be assigned back
+      const properties = foundry.utils.getProperty(this.data, "system.properties") as string[];
+      foundry.utils.setProperty(this.data, "system.properties", utils.addToProperties(properties, "mgc"));
     }
   }
 

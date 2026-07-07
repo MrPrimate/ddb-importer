@@ -125,11 +125,11 @@ export default class DDBClassFeatures {
   async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} }:{
     featureDefinition: TDDBFeatureMixinDefinitions | TDDBFeatureMixinFeatures;
     type: "class" | "race" | "background" | "feat";
-    source: IDDBSourceResponse;
+    source: IDDBSourceResponse | string;
     filterByLevel?: boolean;
     flags?: IItemFlagConfig;
   }): Promise<T5eFeatureMixinDataTypes[]> {
-    logger.debug(`DDBClassFeatures._getFeatures started for ${type} of ${source} for ${featureDefinition.definition?.name ?? featureDefinition.name}`);
+    logger.debug(`DDBClassFeatures._getFeatures started for ${type} of ${source} for ${(foundry.utils.getProperty(featureDefinition, "definition.name") as string) ?? foundry.utils.getProperty(featureDefinition, "name")}`);
     const enricher = new DDBClassFeatureEnricher({
       activityGenerator: DDBFeatureActivity,
       fallbackEnricher: "Generic",
@@ -194,7 +194,7 @@ export default class DDBClassFeatures {
   //   return match;
   // }
 
-  async _generateClassFeatures(klass) {
+  async _generateClassFeatures(klass: IDDBClass) {
     const className = klass.definition.name;
     const classFeatures = this.klassFeatures[klass.definition.name].filtered.class;
     const parsedFeatures = [];
@@ -213,7 +213,7 @@ export default class DDBClassFeatures {
       });
       parsedFeatures.push(...features);
     }
-    this._parsed[className] = foundry.utils.duplicate(parsedFeatures) as T5eFeatureMixinDataTypes[];
+    this._parsed[className] = foundry.utils.duplicate(parsedFeatures) as unknown as T5eFeatureMixinDataTypes[];
 
     parsedFeatures
       .sort((a, b) => {
@@ -239,12 +239,12 @@ export default class DDBClassFeatures {
 
   }
 
-  async _generateSubClassFeatures(klass) {
+  async _generateSubClassFeatures(klass: IDDBClass) {
     const className = klass.definition.name;
     const subClassName = `${klass.subclassDefinition.name}`;
     const parsedFeatures: T5eFeatureMixinDataTypes[] = [];
     const subClassFeatures = this.klassFeatures[klass.definition.name].filtered.subclass;
-    const subClass = foundry.utils.getProperty(klass, "subclassDefinition");
+    const subClass = foundry.utils.getProperty(klass, "subclassDefinition") as IDDBClassDefinition;
 
     for (const feature of subClassFeatures) {
       const features = await this._getFeatures({
@@ -262,7 +262,7 @@ export default class DDBClassFeatures {
       });
       parsedFeatures.push(...features);
     }
-    this._parsed[subClassName] = foundry.utils.duplicate(parsedFeatures);
+    this._parsed[subClassName] = foundry.utils.duplicate(parsedFeatures) as unknown as T5eFeatureMixinDataTypes[];
 
     const subClassDocs = [];
 
@@ -324,7 +324,7 @@ export default class DDBClassFeatures {
       }
       logger.debug(`ddbClassFeatures for ${klass.definition.name}`, { ddbClassFeatures: this });
     }
-    this.data = foundry.utils.duplicate(this._processed);
+    this.data = foundry.utils.duplicate(this._processed) as unknown as T5eFeatureMixinDataTypes[];
     // return this.data;
   }
 

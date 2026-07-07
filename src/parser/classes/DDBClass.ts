@@ -254,7 +254,6 @@ export default class DDBClass extends DDBBaseClass {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.SubclassAdvancement);
     advancement.updateSource({
       title: subClassFeature.name,
-      // @ts-expect-error - we know
       hint: subClassFeature.snippet ?? subClassFeature.description ?? "",
       level: subClassFeature.requiredLevel,
     } as any);

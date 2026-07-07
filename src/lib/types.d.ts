@@ -120,6 +120,8 @@ global {
     };
   }
 
+  type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
+
   interface IDDBListCampaign {
     id: number;
     name: string;

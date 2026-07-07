@@ -701,9 +701,11 @@ export default abstract class DDBBaseClass {
     return null;
   }
 
-  getFeatCompendiumMatch(featName) {
+  getFeatCompendiumMatch(featName): TIndexEntry | null | undefined {
+    // return null rather than [] - an empty array is truthy, and callers
+    // treat a truthy return as a real compendium match
     if (!this._compendiums.feats) {
-      return [];
+      return null;
     }
     const smallName = featName.trim().toLowerCase();
     return this._compendiums.feats.index.find((match) =>

@@ -922,7 +922,7 @@ export default class DDBMapMetaData {
       try {
         notify(`Placing ${info.walls.length} walls from meta-data...`);
         const wallData = info.walls.map((w) => this._stripDocId(w));
-        const created = await scene.createEmbeddedDocuments("Wall", wallData);
+        const created = await scene.createEmbeddedDocuments("Wall", wallData as any);
         result.walls = Array.isArray(created) ? created.length : 0;
       } catch (error) {
         logger.warn(`DDBMapMetaData: wall placement failed for "${scene.name}": ${(error as Error).message ?? error}`);

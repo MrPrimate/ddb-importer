@@ -25,6 +25,8 @@ global {
     attackTypeRange?: number | null;
     isMartialArts?: boolean;
     rangeId?: number | null;
+    statId?: number | null;
+    isOffhand?: boolean;
   }
 
   interface IDDBDamageDice {

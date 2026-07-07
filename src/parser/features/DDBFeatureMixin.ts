@@ -38,7 +38,7 @@ interface IDDBFeatureMixin {
   ddbData: IDDBData;
   ddbDefinition: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | IDDBAction | IDDBConfigNaturalAction;
   type: string;
-  source?: IDDBSourceResponse | null;
+  source?: IDDBSourceResponse | string | null;
   documentType?: TDocumentType;
   rawCharacter?: I5ePCData | null;
   activityType?: IDDBActivityType | null;
@@ -95,7 +95,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   declare ddbDefinition: TDDBFeatureMixinDefinitions;
   declare data: T5eFeatureMixinDataTypes;
   rawCharacter: I5ePCData;
-  source: IDDBSourceResponse;
+  source: IDDBSourceResponse | string | null;
   fallbackEnricher: string | null;
   _parent: IDDBClassFeature | IDDBRacialTrait | undefined;
   _class: IDDBClass | undefined;
@@ -399,9 +399,11 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
     this._checkSummons();
 
-    const localSource = this.source && utils.isObject(this.source)
+    // source may arrive as a descriptive string (e.g. "Wizard : Evoker"); only
+    // object sources are usable as document source data
+    const localSource = (this.source && utils.isObject(this.source)
       ? this.source
-      : DDBSources.parseSource(this.ddbDefinition);
+      : DDBSources.parseSource(this.ddbDefinition)) as IDDBSourceResponse;
 
     this.data.system.source = localSource;
     this.data.system.source.rules = this.is2014 ? "2014" : "2024";

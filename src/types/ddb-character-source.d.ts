@@ -418,6 +418,8 @@ global {
     snippet?: string | null;
     /** injected by class feature merging for scale value advancements */
     levelScales?: IDDBClassFeatureLevelScale[];
+    /** present on ability score improvement features used for feat linking */
+    entityTypeId?: number;
     featuresSectionType: number | null;
   }
 

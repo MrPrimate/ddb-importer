@@ -1161,7 +1161,7 @@ export default class AdvancementHelper {
     }
     adv.updateSource(update as any);
 
-    return adv.toObject();
+    return adv.toObject() as unknown as I5eAdvancement;
   }
 
   static addSingularDie(advancement: I5eAdvancement): I5eAdvancement {

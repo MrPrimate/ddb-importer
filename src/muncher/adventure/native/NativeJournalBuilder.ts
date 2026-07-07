@@ -17,7 +17,7 @@ function makeFlags(row: ProcessedRow, bookCode: string, themeCss?: string | null
     contentChunkId: row.contentChunkId,
     cobaltId: row.cobaltId,
     parentId: row.parentId,
-  });
+  }) as I5eJournalDDBFlags;
   if (themeCss) ddb.themeCss = themeCss;
   return { ddb };
 }
