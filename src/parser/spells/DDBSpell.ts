@@ -25,7 +25,7 @@ interface IDDBSpell {
   limitedUse?: IDDBSpellLimitedUse | null;
   forceMaterial?: boolean;
   klass?: string;
-  lookup?: ParseSpellLookup;
+  lookup?: TParseSpellLookup;
   lookupName?: string;
   ability?: string;
   spellClass?: string;
@@ -102,7 +102,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
   ddbCompanionFactory: DDBCompanionFactory;
   flagData: IParseSpellFlagData;
   limitedUse: IDDBSpellLimitedUse | null;
-  lookup: ParseSpellLookup;
+  lookup: TParseSpellLookup;
   classPrepMode: ISpellPreparationMode; ;
   rawCharacter: I5ePCData;
   healingParts: SpellHealingPart[];
@@ -246,7 +246,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     this.forcePact = foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.forcePact") as boolean;
     this.spellClass = klass ?? spellClass ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.class") as string;
     this.is2014Class = is2014Class ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.is2014Class") as boolean;
-    this.lookup = lookup ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookup") as ParseSpellLookup;
+    this.lookup = lookup ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookup") as TParseSpellLookup;
     this.lookupName = lookupName ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.lookupName") as string;
     this.ability = ability ?? foundry.utils.getProperty(this.flagData, "ddbimporter.dndbeyond.ability") as string;
     this.school = DICTIONARY.spell.schools.find((s) => s.name === this.ddbDefinition.school.toLowerCase());

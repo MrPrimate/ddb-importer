@@ -6,7 +6,7 @@ export default async function auraOnly({
   speaker, actor, token, character, item, rolledItem, macroItem,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   args, scope, workflow,
-}: IDDBMacroFunctionContext = {}) {
+}: IMidiMacroFunctionContext = {}) {
 
   DDBEffectHelper.requirementsSatisfied(`${item.name} automation`, ["ActiveAuras"]);
 

@@ -15,13 +15,43 @@ const SPELLIST_ADDITION_MATCHES = [
   "using any spell slots you have",
 ];
 
+interface IGrantedSpellHolder {
+  class: I5eSpellItem[];
+  feat: I5eSpellItem[];
+  race: I5eSpellItem[];
+  background: I5eSpellItem[];
+}
+
+interface IGeneratedSpellHolder extends IGrantedSpellHolder {
+  other: I5eSpellItem[];
+}
+
+interface IHandleGrantedSpellsFlags {
+  forceCopy?: boolean;
+  flags?: {
+    lookup?: TParseSpellLookup;
+  };
+}
+
+const SPELL_COMPENDIUM_INDEX_FIELDS = ["name", "flags.ddbimporter.definitionId"] as const;
+
+interface ISpellCompendiumIndexEntry {
+  name: string;
+  uuid: string;
+  flags?: {
+    ddbimporter?: {
+      definitionId?: number;
+    };
+  };
+}
+
 export default class CharacterSpellFactory {
 
-  processed = [];
+  processed: I5eSpellItem[] = [];
 
-  spellCounts = {};
+  spellCounts: Record<string, number> = {};
 
-  _generated = {
+  _generated: IGeneratedSpellHolder = {
     class: [],
     feat: [],
     race: [],
@@ -29,7 +59,7 @@ export default class CharacterSpellFactory {
     other: [],
   };
 
-  _granted = {
+  _granted: IGrantedSpellHolder = {
     class: [],
     feat: [],
     race: [],
@@ -250,7 +280,7 @@ export default class CharacterSpellFactory {
         dndbeyond: {
           lookup: "classSpell",
           class: classInfo.definition.name,
-          is2014Class: classInfo.is2014Class ?? is2014Class,
+          is2014Class,
           level: classInfo.level,
           characterClassId: playerClass.characterClassId,
           spellLevel: spell.definition.level,
@@ -267,6 +297,7 @@ export default class CharacterSpellFactory {
           forceMaterial: classInfo.definition.name === "Artificer",
           homebrew: spell.definition.isHomebrew,
           unPreparedCantrip,
+          alwaysPrepared: spell.alwaysPrepared,
         },
       },
       "spell-class-filter-for-5e": {
@@ -306,7 +337,7 @@ export default class CharacterSpellFactory {
     if (!duplicateItem) {
       this._generated.class.push(parsedSpell);
     } else if (spell.alwaysPrepared || parsedSpell.system.method === "always"
-      || (spell.alwaysPrepared === duplicateItem.alwaysPrepared
+      || (spell.alwaysPrepared === duplicateItem.flags.ddbimporter.dndbeyond.alwaysPrepared
         && parsedSpell.system.method === duplicateItem.system.method
         && parsedSpell.system.prepared === CONFIG.DND5E.spellPreparationStates.always.value
         && duplicateItem.system.prepared === CONFIG.DND5E.spellPreparationStates.unprepared.value)) {
@@ -557,6 +588,7 @@ export default class CharacterSpellFactory {
             forceMaterial: klass?.definition?.name === "Artificer",
             homebrew: spell.definition.isHomebrew,
             forcePact: klass?.definition?.name === "Warlock",
+            alwaysPrepared: spell.alwaysPrepared,
           },
         },
         "tidy5e-sheet": {
@@ -629,7 +661,11 @@ export default class CharacterSpellFactory {
     return levelSlots;
   }
 
-  async handleGrantedSpells(spell: IDDBSpellEntry, type: string, flagData: IParseSpellFlagData, { forceCopy = false, flags = {} } = {}) {
+  async handleGrantedSpells(spell: IDDBSpellEntry,
+    type: string,
+    flagData: IParseSpellFlagData,
+    { forceCopy = false, flags = {} }: IHandleGrantedSpellsFlags = {},
+  ) {
     if (spell.definition.level === 0) return;
     if (!forceCopy && !spell.limitedUse) return;
     if (!forceCopy && !this.slots) return;
@@ -666,7 +702,8 @@ export default class CharacterSpellFactory {
     unlimitedSpell.alwaysPrepared = true;
     unlimitedFlags.ddbimporter.dndbeyond.usesSpellSlot = true;
     unlimitedFlags.ddbimporter.dndbeyond.granted = true;
-    unlimitedFlags.ddbimporter.dndbeyond.lookup = flags.lookup ?? type;
+    // not entirely true, might end up with a class here
+    unlimitedFlags.ddbimporter.dndbeyond.lookup = flags.lookup ?? type as TParseSpellLookup;
     delete unlimitedSpell.id;
     delete unlimitedFlags.ddbimporter.dndbeyond.id;
     const parsedSpell = await DDBSpell.parseSpell(unlimitedSpell, this.character, {
@@ -727,6 +764,7 @@ export default class CharacterSpellFactory {
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
             homebrew: spell.definition.isHomebrew,
+            alwaysPrepared: spell.alwaysPrepared,
           },
         },
       };
@@ -798,6 +836,7 @@ export default class CharacterSpellFactory {
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
             homebrew: spell.definition.isHomebrew,
+            alwaysPrepared: spell.alwaysPrepared,
           },
         },
       };
@@ -858,6 +897,7 @@ export default class CharacterSpellFactory {
             healingBoost: this.healingBoost,
             usesSpellSlot: spell.usesSpellSlot,
             homebrew: spell.definition.isHomebrew,
+            alwaysPrepared: spell.alwaysPrepared,
           },
         },
       };
@@ -881,13 +921,14 @@ export default class CharacterSpellFactory {
   async _setCompendiumSource() {
     const spellCompendium = CompendiumHelper.getCompendiumType("spells", false);
     await CompendiumHelper.loadCompendiumIndex("spells", {
-      fields: ["name", "flags.ddbimporter.definitionId"],
+      fields: SPELL_COMPENDIUM_INDEX_FIELDS,
     });
 
 
-    function setLink(spell) {
+    function setLink(spell: I5eSpellItem) {
       if (!spell) return;
-      const lookup = spellCompendium.index.find((s) => {
+      const lookup = spellCompendium.index.find((s1) => {
+        const s = s1 as unknown as ISpellCompendiumIndexEntry;
         if (!s.flags?.ddbimporter?.definitionId) return false;
         if (!spell.flags?.ddbimporter?.definitionId) return false;
         return s.flags.ddbimporter.definitionId === spell.flags.ddbimporter.definitionId;

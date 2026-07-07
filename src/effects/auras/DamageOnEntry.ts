@@ -11,7 +11,7 @@ export default async function damageOnEntry({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   speaker, actor, token, character, item, rolledItem, macroItem,
   args, scope, workflow,
-}: IDDBMacroFunctionContext = {}) {
+}: IMidiMacroFunctionContext = {}) {
 
   DDBEffectHelper.requirementsSatisfied(`${item.name} automation`, ["ActiveAuras", "ddb-importer", "midi-qol"]);
 

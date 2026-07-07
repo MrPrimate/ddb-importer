@@ -13,14 +13,6 @@ interface IAuraTracker {
   turn?: number;
 }
 
-interface IAuraOriginDocument {
-  name: string;
-  uuid: string;
-  parent: Actor.Implementation | null;
-  actor?: Actor.Implementation | null;
-  system: { level: number };
-}
-
 type TAdjustConditionOptions = Parameters<typeof DDBEffectHelper.adjustCondition>[0];
 type TSyntheticWorkflowOptions = Parameters<typeof DDBEffectHelper.syntheticItemWorkflowOptions>[0];
 type TFilteredActivitiesOptions = Parameters<typeof DDBEffectHelper.documentWithFilteredActivities>[0];
@@ -103,7 +95,7 @@ async function generateDataTracker({
 }: {
   targetUuids?: string[];
   spellLevel?: number;
-  originDocument?: IAuraOriginDocument;
+  originDocument?: Item.Implementation;
   wait?: boolean;
   actor?: Actor.Implementation | null;
 }) {
@@ -126,7 +118,7 @@ async function rollDocumentActivityMidiQol({
   nameSuffix = "",
 }: {
   targetToken?: Token.Implementation;
-  originDocument?: IAuraOriginDocument;
+  originDocument?: Item.Implementation;
   level?: number;
   activityIds?: string[];
   nameSuffix?: string;
@@ -157,7 +149,7 @@ async function applyConditionVsSave({
 }: {
   condition?: string | null;
   targetToken?: Token.Implementation;
-  item?: IAuraOriginDocument;
+  item?: Item.Implementation;
   itemLevel?: number;
   spellLevel?: number;
   activityIds?: string[];
@@ -206,7 +198,7 @@ export async function checkAuraAndUseActivity({
   activityIds = [],
   nameSuffix = "",
 }: {
-  originDocument?: IAuraOriginDocument;
+  originDocument?: Item.Implementation;
   tokenUuid?: string;
   activityIds?: string[];
   nameSuffix?: string;
@@ -263,7 +255,7 @@ export async function checkAuraAndApplyCondition({
   activityIds = [],
   nameSuffix = "",
 }: {
-  originDocument?: IAuraOriginDocument;
+  originDocument?: Item.Implementation;
   wait?: boolean;
   tokenUuid?: string;
   condition?: string | null;
@@ -346,7 +338,7 @@ export async function removeAuraFromToken({
   tokenUuid?: string;
   removeOnOff?: boolean;
 } = {}) {
-  const originDocument = await fromUuid(effectOrigin) as unknown as IAuraOriginDocument;
+  const originDocument = await fromUuid(effectOrigin) as Item.Implementation;
   logger.debug(`Running ${originDocument.name}, removeAuraFromToken`);
   const safeName = getSafeName(originDocument.name);
   const targetToken = await fromUuid(tokenUuid) as TokenDocument.Implementation;
@@ -394,7 +386,7 @@ export async function applyAuraToTemplate(returnArgs, {
   failedSaveTokens = [],
   isCantrip = false,
 }: {
-  originDocument?: IAuraOriginDocument;
+  originDocument?: Item.Implementation;
   condition?: string | null;
   sequencerFile?: string | null;
   sequencerScale?: number;

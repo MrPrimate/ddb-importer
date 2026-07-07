@@ -72,7 +72,9 @@ export default class DDBSimpleMacro {
       ids,
       scope,
     });
-    const effect = ids.effect ? await fromUuid(ids.effect) as ActiveEffect.Implementation : null;
+    const effect = ids.effect
+      ? await fromUuid(ids.effect) as ActiveEffect.Implementation
+      : null;
     const effectVariables: IMacroEffectVariables = ids.effect
       ? DDBMacros._getEffectVariables(effect)
       : {
@@ -96,7 +98,7 @@ export default class DDBSimpleMacro {
     if (token) effectVariables.token = token;
 
     const item = ids.item
-      ? await fromUuid(ids.item)
+      ? await fromUuid(ids.item) as Item.Implementation
       : null;
     if (item) effectVariables.item = item;
 
@@ -106,7 +108,7 @@ export default class DDBSimpleMacro {
     if (origin) effectVariables.origin = origin;
 
     if (!effectVariables.speaker && actor) {
-      const speaker = ChatMessage.implementation.getSpeaker({ actor, token });
+      const speaker = ChatMessage.implementation.getSpeaker({ actor: actor as Actor.Stored, token });
       if (speaker) effectVariables.speaker = speaker;
     }
 

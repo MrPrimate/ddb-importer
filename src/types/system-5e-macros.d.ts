@@ -15,14 +15,14 @@ global {
    * The context object DDBMacros/midi-qol passes to ddb macro functions
    * (effects/auras and effects/macros modules).
    */
-  interface IDDBMacroFunctionContext {
-    speaker?: any;
-    actor?: any;
-    token?: any;
+  interface IMidiMacroFunctionContext {
+    speaker?: ChatMessage.SpeakerData;
+    actor?: Actor.Implementation;
+    token?: Token.Implementation;
     character?: any;
-    item?: any;
+    item?: Item.Implementation;
     rolledItem?: any;
-    macroItem?: any;
+    macroItem?: Item.Implementation;
     args?: any[];
     scope?: any;
     workflow?: any;

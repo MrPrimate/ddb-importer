@@ -10,7 +10,7 @@ export default async function actorDamageOnEntry({
   speaker, actor, token, character, item, rolledItem, macroItem,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   args, scope, workflow,
-}: IDDBMacroFunctionContext = {}) {
+}: IMidiMacroFunctionContext = {}) {
 
   const lastArg = args[args.length - 1];
 

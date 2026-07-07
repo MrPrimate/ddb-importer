@@ -426,24 +426,26 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   static _getEffectVariables(effect: ActiveEffect.Implementation): {
     actor: Actor.Implementation | null;
     token: Token.Implementation | null;
-    speaker: Token.Implementation | null;
+    speaker: ChatMessage.SpeakerData | null;
     scene: Scene | null;
     origin: any;
     effect: ActiveEffect.Implementation | null;
     item: Item.Implementation | null;
   } {
-    const actor = effect.parent instanceof Actor
+    const actor: Actor.Implementation | null = effect.parent instanceof Actor
       ? effect.parent
-      : (effect.parent.parent ?? null);
+      : ((effect.parent.parent as unknown) as Actor.Implementation) ?? null;
     const token = actor?.token?.object ?? actor?.getActiveTokens()[0] ?? null;
     const scene = token?.scene ?? game.scenes.active ?? null;
-    const origin = effect.origin ? fromUuidSync(effect.origin) : null;
-    const speaker = actor ? ChatMessage.implementation.getSpeaker({ actor }) : {};
-    const item = effect.parent instanceof Item ? effect.parent : null;
+    const origin = "origin" in effect ? fromUuidSync(effect.origin) : null;
+    const speaker: ChatMessage.SpeakerData = actor
+      ? ChatMessage.implementation.getSpeaker({ actor: actor as Actor.Stored, token })
+      : null;
+    const item: Item.Implementation | null = effect.parent instanceof Item ? effect.parent : null;
     return {
       actor,
-      token: token as Token.Implementation | null,
-      speaker: speaker as Token.Implementation | null,
+      token,
+      speaker,
       scene,
       origin,
       effect,

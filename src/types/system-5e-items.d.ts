@@ -519,7 +519,7 @@ global {
 
   interface IParseSpellFlagDataDnDBeyond extends IDDBImporterItemDnDBeyondFlags {
     /** The type of spell lookup source */
-    lookup?: ParseSpellLookup;
+    lookup?: TParseSpellLookup;
     /** Name of the lookup source (e.g. class feature name, feat name, item name) */
     lookupName?: string;
     /** ID of the lookup source */
@@ -565,7 +565,7 @@ global {
     /** The level the spell is cast at */
     castAtLevel?: number;
     /** Whether the spell is an unprepared cantrip replacement */
-    unPreparedCantrip?: string | null;
+    unPreparedCantrip?: boolean | null;
     /** Whether the spell is homebrew */
     homebrew?: boolean;
     /** Limited use data from an item source */
@@ -574,6 +574,8 @@ global {
     spellLimitedUse?: IDDBSpellLimitedUse | null;
     /** Whether the item granting this spell is active/equipped/attuned */
     active?: boolean;
+    /** Marked as always prepared on ddb */
+    alwaysPrepared?: boolean;
   }
 
   interface IParseSpellFlagData {
@@ -600,31 +602,7 @@ global {
 
   /** dndbeyond flags stamped on items (spells, features, gear, classes, races). */
   interface IDDBImporterItemDnDBeyondFlags extends IDDBImporterDnDBeyondBaseFlags {
-    // Spell flags
-    lookup?: string;
-    lookupName?: string;
-    lookupId?: number;
-    level?: number;
-    characterClassId?: number;
-    spellLevel?: number;
-    ability?: string;
-    mod?: number;
-    dc?: number;
-    cantripBoost?: boolean;
-    overrideDC?: boolean;
-    id?: number;
-    entityTypeId?: number;
-    healingBoost?: number;
-    usesSpellSlot?: boolean;
-    forceMaterial?: boolean;
-    forcePact?: boolean;
-    is2014Class?: boolean;
-    race?: string;
-    granted?: boolean;
-    nameOverride?: string;
-    castAtLevel?: number;
-    unPreparedCantrip?: string | null;
-    homebrew?: boolean;
+    // Spell flags are handled in IParseSpellFlagDataDnDBeyond
 
     // Item flags
     tags?: string[];

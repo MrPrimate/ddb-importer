@@ -5,7 +5,7 @@
 export default async function test({
   speaker, actor, token, character, item, rolledItem, macroItem,
   args, scope, workflow,
-}: IDDBMacroFunctionContext = {}) {
+}: IMidiMacroFunctionContext = {}) {
 
   console.warn("TEST", {
     speaker,

@@ -2,10 +2,13 @@ export {};
 
 global {
 
-  type ParseSpellLookup = "classSpell" | "classFeature" | "race" | "feat" | "background" | "generic" | "item";
+  type TParseSpellLookup = "classSpell" | "classFeature" | "race" | "feat" | "background" | "generic" | "item";
 
   /** dndbeyond flag fields shared by every document type. */
   interface IDDBImporterDnDBeyondBaseFlags {
+    // core identifiers
+    id?: number;
+    entityTypeId?: number;
     type?: string;
   }
 
