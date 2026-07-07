@@ -1,9 +1,38 @@
-import { utils } from "../../../lib/_module";
+import { logger, utils } from "../../../lib/_module";
 import { replaceRollLinks } from "../../../parser/lib/DDBTable";
 import { addClasses, foundryCompendiumReplace, replaceImageLinks } from "./NativeLinkReplacer";
 import { injectHeadingAnchors } from "./NativeHeadingAnchors";
 
 // ImageOpts, ContentRow + ProcessedRow are declared globally in ./types.d.ts.
+
+/**
+ * Port of the muncher's "misformated db" repair (Row.js:68-114).
+ *
+ * Some books (e.g. FRHoF) ship chapter groups where every row has a `parentId`
+ * but no row carries that id as its `cobaltId`. Without repair the whole group
+ * is dropped by the journal builder (no parent chapter to attach to) and the
+ * scene/table chapter folders fall back to literal "Chapter <id>" names.
+ *
+ * Mirrors the standalone flow: seed the parent set from every row with a
+ * cobaltId, then walk rows in document order - the first orphan in a group is
+ * promoted to the chapter (`cobaltId = parentId`, `parentId = null`, trailing
+ * "#" trimmed from its slug) so subsequent rows attach beneath it.
+ */
+export function adjustParentRows(rows: ProcessedRow[]): void {
+  const parentIds = new Set<number>();
+  for (const row of rows) {
+    if (row.cobaltId !== null) parentIds.add(row.cobaltId);
+  }
+  for (const row of rows) {
+    if (row.parentId && !parentIds.has(row.parentId)) {
+      logger.warn(`Native adventure: no parent (cobaltId=${row.parentId}) for "${row.title}"; promoting row ${row.id} to chapter`);
+      row.cobaltId = row.parentId;
+      row.parentId = null;
+      if (row.slug?.endsWith("#")) row.slug = row.slug.slice(0, -1);
+      parentIds.add(row.cobaltId);
+    }
+  }
+}
 
 /**
  * Port of the journals-relevant parts of the muncher's Row.js +
