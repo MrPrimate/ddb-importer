@@ -218,6 +218,7 @@ global {
       ddbimporter?: I5eVehicleDDBImporterFlags;
     };
     prototypeToken?: I5ePrototypeToken;
+    uuid?: string;
   }
 
 }

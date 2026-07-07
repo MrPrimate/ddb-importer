@@ -215,15 +215,12 @@ global {
   /** A Note doc (foundry `BaseNote`) embedded in `Scene.notes`. */
   interface I5eNoteData {
     _id?: string;
-    /** author User id. */
     author?: string | null;
     /** linked JournalEntry id. */
     entryId?: string | null;
     /** linked JournalEntryPage id. */
     pageId?: string | null;
-    /** integer. */
     x?: number;
-    /** integer. */
     y?: number;
     elevation?: number;
     levels?: string[];
@@ -248,9 +245,7 @@ global {
   interface I5eAmbientSoundData {
     _id?: string;
     name?: string;
-    /** integer. */
     x?: number;
-    /** integer. */
     y?: number;
     elevation?: number;
     levels?: string[];
@@ -292,7 +287,6 @@ global {
       enabled?: boolean;
       /** one of CONST.EDGE_RESTRICTION_TYPES. */
       type?: string;
-      /** integer ≥0. */
       priority?: number;
     };
     attachment?: { token?: string | null };
@@ -314,13 +308,9 @@ global {
     _id?: string;
     name?: string;
     texture?: I5eTextureData;
-    /** integer ≥0. */
     width?: number;
-    /** integer ≥0. */
     height?: number;
-    /** integer. */
     x?: number;
-    /** integer. */
     y?: number;
     elevation?: number;
     levels?: string[];

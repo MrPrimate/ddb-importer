@@ -333,7 +333,7 @@ const CompendiumHelper = {
    * @param {object} options The options object.
    * @param {string} options.compendiumName The name of the compendium to query.
    * @param {string[]} options.documentNames An array of document names to query.
-   * @param {string[]} [options.matchedProperties=[]] An array of properties to match in the index.
+   * @param {Record<string, any>} [options.matchedProperties={}] An object of properties to match in the index.
    * @param {boolean} [options.useParenthesisMatch=false] If true, uses parentheses to match the document name.
    * @returns {Promise<Array<object|null>>} A promise that resolves to an array of document entries or complete documents.
    *                                        Returns null for documents that are not found.
@@ -411,7 +411,7 @@ const CompendiumHelper = {
    * @param {object} options The options object.
    * @param {string} options.compendiumName The name of the compendium to query.
    * @param {string[]} options.documentNames An array of document names to query.
-   * @param {string[]} [options.matchedProperties=[]] An array of properties to match in the index.
+   * @param {Record<string, any>} [options.matchedProperties={}] An object of properties to match in the index.
    * @param {boolean} [options.useParenthesisMatch=false] If true, uses parentheses to match the document name.
    * @returns {Promise<Array<object|null>>} A promise that resolves to an array of document entries or complete documents.
    *                                        Returns null for documents that are not found.
@@ -457,27 +457,6 @@ const CompendiumHelper = {
       }),
     );
     return entities;
-  },
-
-  /**
-   * Queries a compendium for a given document name
-   * @param {string} compendiumName the name of the compendium to query
-   * @param {string} documentName the name of the document to search for
-   * @param {boolean} getDocument if true, returns the document entity, otherwise the index entry
-   * @returns {object|null} the index entries of all matches, otherwise an empty array
-   */
-  queryCompendium: async (compendiumName: string, documentName: string, getDocument = false): Promise<T5eCompendiumDocuments | string | null> => {
-    documentName = utils.normalizeString(documentName);
-
-    const compendium = game.packs.get(compendiumName);
-    if (!compendium) return null;
-    const index = await compendium.getIndex();
-    const id = index.find((entity) => utils.normalizeString(entity.name) === documentName);
-    if (id && getDocument) {
-      const entity = await (compendium as unknown as { getEntity: (id: string) => Promise<unknown> }).getEntity(id._id) as T5eCompendiumDocuments;
-      return entity;
-    }
-    return id ? id : null;
   },
 
   /**

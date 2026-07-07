@@ -65,5 +65,6 @@ global {
     folder?: string;
     ownership?: { default: number };
     _stats?: Partial<RollTable["_stats"]>;
+    uuid?: string;
   }
 }

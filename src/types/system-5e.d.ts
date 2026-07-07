@@ -89,6 +89,7 @@ global {
     sort?: number;
     ownership?: Record<string, number>;
     _stats?: I5eDocumentStats;
+    uuid?: string;
   }
 
   interface I5eDocumentStats {

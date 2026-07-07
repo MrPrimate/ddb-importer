@@ -479,6 +479,7 @@ global {
     items: I5eMonsterItem[];
     flags?: I5eNPCActorFlags;
     prototypeToken?: I5ePrototypeToken;
+    uuid?: string;
   }
 
   // ===========================================================================
@@ -1124,6 +1125,7 @@ global {
     items?: I5ePCItem[];
     flags?: I5ePCActorFlags;
     prototypeToken?: I5ePrototypeToken;
+    uuid?: string;
   }
 
   type I5eActorData = I5eMonsterData | I5ePCData | I5eVehicleData;
