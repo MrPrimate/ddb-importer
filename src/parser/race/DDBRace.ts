@@ -690,6 +690,7 @@ export default class DDBRace {
           // classId: this.ddbParentClassDefinition.id,
         })
         ?? this.getCompendiumIxByFlags(["traits"], { // choice feature
+          // @ts-expect-error - TODO: Investigate this
           "id": option.optionComponentId,
           "isChoiceFeature": true,
           "dndbeyond.entityRaceId": this.race.entityRaceId,

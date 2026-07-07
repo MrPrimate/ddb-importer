@@ -2776,7 +2776,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       activity.description.chatFlavor = spell.system.description.value;
 
       if (!activity.img || activity.img === "") {
-        const img = await Iconizer.iconPath({ name: (spellLookupName ?? spell.name), type: "spell" });
+        const mockItem = { name: (spellLookupName ?? spell.name), type: "spell" } as I5eSpellItem;
+        const img = await Iconizer.iconPath(mockItem);
         activity.img = img;
       }
 

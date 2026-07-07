@@ -126,7 +126,7 @@ export default class DDBQuickplayTokens {
     sceneYPad: number;
     gridSize: number;
   } {
-    const f: IDDBSceneFlags = scene?.flags?.["ddbimporter"] ?? {};
+    const f: I5eSceneDDBImporterFlags = scene?.flags?.["ddbimporter"] ?? {};
     const dims = scene.dimensions ?? {
       sceneX: 0,
       sceneY: 0,

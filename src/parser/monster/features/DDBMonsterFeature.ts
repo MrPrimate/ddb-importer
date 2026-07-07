@@ -1075,7 +1075,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbMonster.npc);
 
     description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbMonster.npc });
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data, actor: this.ddbMonster.npc });
+    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data });
     description = DDBReferenceLinker.parseTags(description);
     description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbMonster.npc);
 

@@ -707,7 +707,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     description = DDBReferenceLinker.replaceMonsterALinks(description, this.ddbVehicle.data);
 
     description = DDBReferenceLinker.parseDamageRolls({ text: description, document: this.data, actor: this.ddbVehicle.data });
-    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data, actor: this.ddbVehicle.data });
+    description = DDBReferenceLinker.parseToHitRoll({ text: description, document: this.data });
     description = DDBReferenceLinker.parseTags(description);
     description = await DDBReferenceLinker.replaceMonsterNameBadLinks(description, this.ddbVehicle.data);
 
