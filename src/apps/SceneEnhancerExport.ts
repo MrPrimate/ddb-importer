@@ -37,7 +37,7 @@ function getNotes(scene, bookCode) {
       // removed un-needed userdata
       const pageFlags = page.flags.ddb;
       const noteFlags = note.flags.ddb;
-      const flags = foundry.utils.duplicate(pageFlags);
+      const flags: I5eJournalPageFlags = foundry.utils.duplicate(pageFlags);
       foundry.utils.mergeObject(flags, noteFlags, { overwrite: true, insertKeys: true, insertValues: true });
       if (flags?.userData) delete flags.userData;
       const label = flags?.labelName && flags.labelName.trim() !== ""

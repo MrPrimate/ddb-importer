@@ -1,18 +1,5 @@
 import { logger, utils } from "../../lib/_module";
 
-type TNoteDocument = foundry.documents.NoteDocument & {
-  slug?: string;
-  flags?: {
-    anchor?: {
-      slug?: string;
-    };
-    ddb?: {
-      slugLink?: string;
-      labelName?: string;
-    };
-  };
-};
-
 function getOptions(page: JournalEntryPage | undefined, current: string) {
   let options = "<option></option>";
   if (page?.toc) {
@@ -23,7 +10,7 @@ function getOptions(page: JournalEntryPage | undefined, current: string) {
   return options;
 }
 
-function addSlugField(element: HTMLElement, slug: string, document: TNoteDocument) {
+function addSlugField(element: HTMLElement, slug: string, document: NoteDocument) {
   const titleInput = element.querySelector("select[name='pageId']");
   const slugHTML = `<div class="form-group">
   <label>Jump to HTML Slug</label>
@@ -36,20 +23,20 @@ function addSlugField(element: HTMLElement, slug: string, document: TNoteDocumen
   titleInput.parentNode.parentNode.parentNode.insertBefore(div, titleInput.parentNode.parentNode.nextSibling.nextSibling);
 }
 
-function setSlugProperties(doc: Partial<TNoteDocument>, slug: string, label: string) {
+function setSlugProperties(doc: Partial<NoteDocument>, slug: string, label: string) {
   foundry.utils.setProperty(doc, "flags.anchor.slug", slug);
   foundry.utils.setProperty(doc, "flags.ddb.slugLink", slug);
   foundry.utils.setProperty(doc, "flags.ddb.labelName", label);
   return doc;
 }
 
-function getSlug(doc: TNoteDocument) {
+function getSlug(doc: NoteDocument) {
   return doc.flags.ddb?.slugLink
       ?? doc.flags.anchor?.slug
       ?? "";
 }
 
-function updateNotePage(noteConfig, slug) {
+function updateNotePage(noteConfig, slug: string) {
   const journalId = noteConfig.form.elements.entryId?.value;
   const pageId = noteConfig.form.elements.pageId?.value;
   const journal = game.journal.get(journalId);
@@ -109,11 +96,11 @@ export function anchorInjection() {
   });
 
   // handle new notes, we just inject the slug properties into the source from the sheet data
-  Hooks.on("preCreateNote", (note: TNoteDocument, data) => {
+  Hooks.on("preCreateNote", (note: NoteDocument, data) => {
     const noteData = data as { slug?: string; text?: string };
     if (noteData.slug) {
       const flagData = setSlugProperties(foundry.utils.deepClone(note), noteData.slug, noteData.text);
-      note.updateSource({ flags: flagData.flags } as any);
+      note.updateSource({ flags: flagData.flags } as NoteDocument.UpdateData);
     };
   });
 

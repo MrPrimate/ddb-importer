@@ -82,6 +82,8 @@ global {
     parentId?: number | string;
     slug?: string;
     contentChunkId?: string;
+    userData?: Record<string, unknown>; // from ddb
+    labelName?: string;
   }
 
   interface I5eJournalPageData {

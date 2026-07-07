@@ -200,6 +200,18 @@ global {
     flags?: Record<string, unknown>;
   }
 
+  interface I5eNoteDDBFlags {
+    slugLink?: string;
+    labelName?: string;
+  }
+
+  interface I5eNoteFlags {
+    anchor?: {
+      slug?: string;
+    };
+    ddb?: I5eNoteDDBFlags;
+  }
+
   /** A Note doc (foundry `BaseNote`) embedded in `Scene.notes`. */
   interface I5eNoteData {
     _id?: string;
@@ -229,7 +241,7 @@ global {
     textColor?: string;
     /** always visible on the canvas. */
     global?: boolean;
-    flags?: Record<string, unknown>;
+    flags?: I5eNoteFlags;
   }
 
   /** An AmbientSound doc (foundry `BaseAmbientSound`) embedded in `Scene.sounds`. */

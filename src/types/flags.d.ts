@@ -144,6 +144,7 @@ global {
     JournalEntry: I5eJournalEntryFlags;
     JournalEntryPage: I5eJournalPageFlags;
     RollTable: I5eRollTableFlags;
+    Note: I5eNoteFlags;
     ChatMessage: {
       dnd5e?: {
         item?: {
