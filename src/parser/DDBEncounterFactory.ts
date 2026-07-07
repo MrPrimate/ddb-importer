@@ -1,11 +1,13 @@
 
 import { logger, utils, FileHelper, Secrets, DDBCampaigns, DDBProxy, PatreonHelper, postJson } from "../lib/_module";
-import DDBEncounter from "./DDBEncounter";
+import DDBEncounter from "./encounters/DDBEncounter";
 
 export default class DDBEncounterFactory {
 
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   notifierV2: ((props: NotifierV2Props) => void) | null;
+  encountersData: IDDBEncounter[];
+  encounters: Record<string, DDBEncounter>;
 
   constructor({ notifier = null } = {}) {
     this.notifier = notifier;
@@ -19,7 +21,7 @@ export default class DDBEncounterFactory {
     this.encounters = {};
   }
 
-  static async getEncountersData(notifier = null) {
+  static async getEncountersData(notifier = null): Promise<IDDBEncounter[]> {
     const cobaltCookie = Secrets.getCobalt();
     const betaKey = PatreonHelper.getPatreonKey();
     const parsingApi = DDBProxy.getProxy();
@@ -30,7 +32,7 @@ export default class DDBEncounterFactory {
       betaKey: betaKey,
     };
 
-    const data = await postJson(`${parsingApi}/proxy/encounters`, body, { mode: "cors" });
+    const data = await postJson(`${parsingApi}/proxy/encounters`, body, { mode: "cors" }) as IDDBEncountersResponse;
     if (debugJson) {
       FileHelper.download(JSON.stringify(data), `encounters-raw.json`, "application/json");
     }
@@ -43,7 +45,7 @@ export default class DDBEncounterFactory {
     return data.data;
   }
 
-  async getEncounters() {
+  async getEncounters(): Promise<IDDBEncounter[]> {
     this.encountersData = await DDBEncounterFactory.getEncountersData(this.notifier.bind(this));
     logger.debug("Fetched encounters", this.encountersData);
     this.notifier(`Fetched Available DDB Encounters`);
@@ -51,7 +53,7 @@ export default class DDBEncounterFactory {
     return this.encountersData;
   }
 
-  async filterEncounters(campaignId = null) {
+  async filterEncounters(campaignId: string | null = null): Promise<IDDBEncounter[]> {
     const campaigns = await DDBCampaigns.getAvailableCampaigns();
     const campaignIds = campaigns.map((c) => c.id);
     const allEncounters = this.encountersData.length !== 0 ? this.encountersData : await this.getEncounters();
@@ -60,12 +62,12 @@ export default class DDBEncounterFactory {
     logger.debug("CampaignIds", campaignIds);
     if (!campaignId || campaignId === "" || !campaignIds.includes(parseInt(campaignId))) return allEncounters;
     logger.debug(`CampaignId to find ${campaignId}`, { allEncounters, campaignId });
-    const filteredEncounters = allEncounters.filter((encounter) => encounter.campaign?.id == campaignId);
+    const filteredEncounters = allEncounters.filter((encounter) => String(encounter.campaign?.id) === campaignId);
     logger.debug(`${filteredEncounters.length} filtered encounters`, filteredEncounters);
     return filteredEncounters;
   }
 
-  async parseEncounter(id, { img = "", sceneId = "" } = {}) {
+  async parseEncounter(id: string, { img = "", sceneId = "" }: { img?: string; sceneId?: string } = {}): Promise<IEncounterParsedData> {
     logger.debug(`Looking for Encounter "${id}"`);
     if (this.encountersData.length === 0) return {};
 
@@ -88,7 +90,7 @@ export default class DDBEncounterFactory {
     return foundry.utils.deepClone(encounter.data);
   }
 
-  async importEncounter(id, { img = null, sceneId = null } = {}) {
+  async importEncounter(id: string, { img = null, sceneId = null }: { img?: string | null; sceneId?: string | null } = {}) {
     const encounter = this.encounters[id];
     await encounter.importEncounter({ img, sceneId });
   }

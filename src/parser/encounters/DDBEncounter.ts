@@ -3,90 +3,18 @@ import {
   utils,
   CompendiumHelper,
   FolderHelper,
-} from "../lib/_module";
-import DDBMonsterFactory from "./DDBMonsterFactory";
-import DDBCharacterImporter from "../muncher/DDBCharacterImporter";
+} from "../../lib/_module";
+import DDBMonsterFactory from "../DDBMonsterFactory";
+import DDBCharacterImporter from "../../muncher/DDBCharacterImporter";
 
 const DEFAULT_LEVEL_ID = "defaultLevel0000";
 
-export type TEncounterNotifier = (
+type TEncounterNotifier = (
   note: string,
   options?: { nameField?: boolean; monsterNote?: boolean; message?: boolean | string; isError?: boolean },
 ) => void;
 
-export interface IDDBEncounterMonster {
-  id: number;
-  quantity: number;
-  uniqueId?: string;
-  initiative?: number | null;
-  currentHitPoints?: number;
-  maximumHitPoints?: number;
-  temporaryHitPoints?: number;
-  name?: string | null;
-}
-
-export interface IDDBEncounterPlayer {
-  id: string | number;
-  name?: string;
-  hidden?: boolean;
-  initiative?: number | null;
-}
-
-export interface IDDBEncounterData {
-  id: string;
-  name: string;
-  inProgress?: boolean;
-  turnNum?: number;
-  roundNum?: number;
-  difficulty?: number | null;
-  description?: string;
-  rewards?: string;
-  flavorText?: string;
-  campaign?: { id?: number; name?: string };
-  monsters: IDDBEncounterMonster[];
-  players: IDDBEncounterPlayer[];
-}
-
-interface IEncounterWorldMonsterData {
-  ddbId: number;
-  name: string;
-  id: string;
-  quantity: number;
-  journalLink: string;
-  uniqueId?: string;
-  initiative?: number | null;
-  currentHitPoints?: number;
-  maximumHitPoints?: number;
-  temporaryHitPoints?: number;
-  ddbName?: string | null;
-}
-
-interface IEncounterParsedData {
-  id?: string;
-  name?: string;
-  inProgress?: boolean;
-  turnNum?: number;
-  roundNum?: number;
-  // difficulty is a DIFFICULTY_LEVELS entry, but is also compared against "" at
-  // use sites, so it is left as any
-  difficulty?: any;
-  description?: string;
-  rewards?: string;
-  summary?: string;
-  campaign?: { id?: number; name?: string };
-  monsters?: IDDBEncounterMonster[];
-  characters?: IDDBEncounterPlayer[];
-  goodMonsterIds?: { ddbId: number; name: string; id: string; quantity: number }[];
-  missingMonsterIds?: { ddbId: number; quantity: number }[];
-  goodCharacterData?: { id: string; name: string; ddbId: string | number }[];
-  missingCharacterData?: { ddbId: string | number; name?: string }[];
-  missingMonsters?: boolean;
-  missingCharacters?: boolean;
-  monsterData?: IEncounterWorldMonsterData[];
-  worldMonsters?: IEncounterWorldMonsterData[];
-}
-
-export interface IDDBEncounterOptions {
+interface IDDBEncounterOptions {
   ddbEncounterData?: IDDBEncounterData;
   notifier?: TEncounterNotifier;
   img?: string;
@@ -96,23 +24,13 @@ export interface IDDBEncounterOptions {
 export default class DDBEncounter {
 
   data: IEncounterParsedData;
-
   img: string;
-
   sceneId: string;
-
   journal: JournalEntry | undefined;
-
   combat: Combat | undefined;
-
-  tokens: unknown[];
-
   folders: Record<string, Folder.Implementation>;
-
   scene: Scene | undefined;
-
   notifier: TEncounterNotifier;
-
   ddbEncounterData: IDDBEncounterData;
 
   constructor({ ddbEncounterData, notifier, img = "", sceneId = "" }: IDDBEncounterOptions = {}) {
@@ -121,7 +39,6 @@ export default class DDBEncounter {
     this.sceneId = sceneId;
     this.journal = undefined;
     this.combat = undefined;
-    this.tokens = [];
     this.folders = {};
 
     this.notifier = notifier;
@@ -211,7 +128,6 @@ export default class DDBEncounter {
     this.data = {};
     this.journal = undefined;
     this.combat = undefined;
-    this.tokens = [];
   }
 
   async #importMonsters() {
@@ -386,7 +302,7 @@ export default class DDBEncounter {
   }
 
 
-  async #createNewScene() {
+  async #buildNewScene() {
     this.folders["scene"] = await FolderHelper.getFolder(
       "scene",
       "",
@@ -474,7 +390,7 @@ export default class DDBEncounter {
 
     if (importDDBIScene) {
       logger.debug(`Creating scene for encounter "${this.data.name}""`);
-      sceneData = await this.#createNewScene();
+      sceneData = await this.#buildNewScene();
     } else if (useExistingScene) {
       worldScene = game.scenes.find((s) => s.id == this.sceneId);
       if (worldScene) {
