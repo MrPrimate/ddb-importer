@@ -42,4 +42,92 @@ global {
 
   type TSpellLinks = ISpellLink[];
 
+  type TAdvancementFeatureDefinitions = IDDBRacialTraitDefinition | IDDBClassFeatureDefinition | IDDBBackgroundDefinition | IDDBFeatDefinition;
+
+  interface ISpellAdvancementGrant {
+    level: number;
+    name: string;
+    amount?: string;
+  }
+
+  interface ISpellAdvancementChoice {
+    level: number;
+    spellList: string;
+    amount: string;
+  }
+
+  interface IParsedSpellAdvancementData {
+    spellListCantripChoice: string | null;
+    spellListCantripChoiceNum?: number | string | null;
+    spellListChoiceReplace?: boolean;
+    cantripChoices: string[];
+    cantripGrants: string[];
+    spellGrants: ISpellAdvancementGrant[];
+    spellChoices: ISpellAdvancementChoice[];
+    hint: string;
+  }
+
+  interface IAdvancementGetterOptions  {
+    mods: IModifiersMod[];
+    feature: TAdvancementFeatureDefinitions;
+    availableToMulticlass?: boolean;
+    level: number;
+  }
+
+  interface IAdvancementGetterCantripGrantAdvancement {
+    choices?: string[];
+    abilities?: string[];
+    hint?: string;
+    name: string;
+    spellLinks?: TSpellLinks;
+    is2024?: boolean;
+    spellData?: I5eSpellItem[];
+  }
+
+  interface IAdvancementGetterCantripChoiceAdvancement extends IAdvancementGetterCantripGrantAdvancement {
+    grants?: string[];
+    spellListChoice?: string | null;
+    choiceLevel?: number;
+    count?: number;
+    allowReplacements?: boolean;
+  }
+
+  type TPreparedSpellValue =
+    typeof CONFIG.DND5E.spellPreparationStates.always.value
+    | typeof CONFIG.DND5E.spellPreparationStates.prepared.value
+    | typeof CONFIG.DND5E.spellPreparationStates.unprepared.value;
+
+  interface IAdvancementGetterSpellGrantAdvancement {
+    spellGrants: ISpellAdvancementGrant[];
+    abilities?: string[];
+    hint?: string;
+    name: string;
+    spellLinks: TSpellLinks;
+    method?: "innate" | "spell" | "pact";
+    requireSlot?: boolean;
+    prepared?: TPreparedSpellValue;
+    level?: number | string;
+    is2024: boolean;
+    forceNoAmount?: boolean;
+    spellData?: I5eSpellItem[];
+  }
+
+  interface IAdvancementGetterSpellChoiceAdvancement {
+    spellChoice: ISpellAdvancementChoice;
+    abilities?: string[];
+    hint?: string;
+    name: string;
+    spellLinks: TSpellLinks;
+    method?: "innate" | "spell" | "pact";
+    requireSlot?: boolean;
+    prepared?: TPreparedSpellValue;
+    level?: number | string;
+    is2024: boolean;
+    spellData?: I5eSpellItem[];
+    choiceLevel?: number | string;
+    choices?: string[];
+    allowReplacements?: boolean;
+    count?: number;
+  }
+
 }

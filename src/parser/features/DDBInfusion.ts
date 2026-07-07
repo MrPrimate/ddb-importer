@@ -162,10 +162,12 @@ export class DDBInfusion {
       },
     ];
 
-    this.activity.data.restrictions = {
-      type: "",
-      allowMagical: false,
-    };
+    if ("restrictions" in this.activity.data) {
+      this.activity.data.restrictions = {
+        type: "",
+        allowMagical: false,
+      };
+    }
 
     if (this.activityType === "summon") {
       this.activity.data.activation.type = "action";
@@ -310,7 +312,7 @@ export class DDBInfusion {
     for (const actionItem of this.actions) {
       const ids = Object.keys(actionItem.system.activities).map((i) => i);
       if (this.activity.data.effects?.length > 0) {
-        this.activity.data.effects[0].riders.activity.push(ids);
+        this.activity.data.effects[0].riders.activity.push(...ids);
       } else {
         this.actionsToAddToCompendium.push(actionItem);
       }

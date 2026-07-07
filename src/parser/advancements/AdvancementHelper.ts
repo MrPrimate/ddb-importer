@@ -20,94 +20,6 @@ function htmlToText(html) {
     .replace(/<[A-Za-z/][^<>]*>/g, "");
 }
 
-type TFeature = IDDBRacialTraitDefinition | IDDBClassFeatureDefinition | IDDBBackgroundDefinition | IDDBFeatDefinition;
-
-interface ISpellAdvancementGrant {
-  level: number;
-  name: string;
-  amount?: string;
-}
-
-interface ISpellAdvancementChoice {
-  level: number;
-  spellList: string;
-  amount: string;
-}
-
-interface IParsedSpellAdvancementData {
-  spellListCantripChoice: string | null;
-  spellListCantripChoiceNum?: number | string | null;
-  spellListChoiceReplace?: boolean;
-  cantripChoices: string[];
-  cantripGrants: string[];
-  spellGrants: ISpellAdvancementGrant[];
-  spellChoices: ISpellAdvancementChoice[];
-  hint: string;
-}
-
-interface IAdvancementGetterOptions  {
-  mods: IModifiersMod[];
-  feature: TFeature;
-  availableToMulticlass?: boolean;
-  level: number;
-}
-
-interface IAdvancementGetterCantripGrantAdvancement {
-  choices?: string[];
-  abilities?: string[];
-  hint?: string;
-  name: string;
-  spellLinks?: TSpellLinks;
-  is2024?: boolean;
-  spellData?: I5eSpellItem[];
-}
-
-interface IAdvancementGetterCantripChoiceAdvancement extends IAdvancementGetterCantripGrantAdvancement {
-  grants?: string[];
-  spellListChoice?: string | null;
-  choiceLevel?: number;
-  count?: number;
-  allowReplacements?: boolean;
-}
-
-type TPreparedValue =
-  typeof CONFIG.DND5E.spellPreparationStates.always.value
-  | typeof CONFIG.DND5E.spellPreparationStates.prepared.value
-  | typeof CONFIG.DND5E.spellPreparationStates.unprepared.value;
-
-interface IAdvancementGetterSpellGrantAdvancement {
-  spellGrants: ISpellAdvancementGrant[];
-  abilities?: string[];
-  hint?: string;
-  name: string;
-  spellLinks: TSpellLinks;
-  method?: "innate" | "spell" | "pact";
-  requireSlot?: boolean;
-  prepared?: TPreparedValue;
-  level?: number | string;
-  is2024: boolean;
-  forceNoAmount?: boolean;
-  spellData?: I5eSpellItem[];
-}
-
-interface IAdvancementGetterSpellChoiceAdvancement {
-  spellChoice: ISpellAdvancementChoice;
-  abilities?: string[];
-  hint?: string;
-  name: string;
-  spellLinks: TSpellLinks;
-  method?: "innate" | "spell" | "pact";
-  requireSlot?: boolean;
-  prepared?: TPreparedValue;
-  level?: number | string;
-  is2024: boolean;
-  spellData?: I5eSpellItem[];
-  choiceLevel?: number | string;
-  choices?: string[];
-  allowReplacements?: boolean;
-  count?: number;
-}
-
 export default class AdvancementHelper {
   isMuncher: boolean;
   ddbData: IDDBData;
@@ -176,7 +88,7 @@ export default class AdvancementHelper {
       && "scale" in advancement.configuration;
   }
 
-  getSkillChoicesFromOptions(feature: TFeature, level: number, proficiencyFeatures: TFeature[] = []) {
+  getSkillChoicesFromOptions(feature: TAdvancementFeatureDefinitions, level: number, proficiencyFeatures: TAdvancementFeatureDefinitions[] = []) {
     const skillsChosen = new Set<string>();
     const skillChoices = new Set<string>();
 
@@ -213,7 +125,7 @@ export default class AdvancementHelper {
     };
   }
 
-  getToolChoicesFromOptions(feature: TFeature, level: number) {
+  getToolChoicesFromOptions(feature: TAdvancementFeatureDefinitions, level: number) {
     const toolsChosen = new Set<string>();
     const toolChoices = new Set<string>();
     const toolDefaults = new Set<string>();
@@ -280,7 +192,7 @@ export default class AdvancementHelper {
     };
   }
 
-  getLanguageChoicesFromOptions(feature: TFeature, level: number) {
+  getLanguageChoicesFromOptions(feature: TAdvancementFeatureDefinitions, level: number) {
     const languagesChosen = new Set<string>();
     const languageChoices = new Set<string>();
 
@@ -315,7 +227,7 @@ export default class AdvancementHelper {
     };
   }
 
-  getChoicesFromOptions(feature: TFeature, type: string, level: number, choiceType: string | null = null) {
+  getChoicesFromOptions(feature: TAdvancementFeatureDefinitions, type: string, level: number, choiceType: string | null = null) {
     const chosen = new Set<string>();
     const choices = new Set<string>();
 
@@ -360,7 +272,7 @@ export default class AdvancementHelper {
     };
   }
 
-  getExpertiseChoicesFromOptions(feature: TFeature, level: number) {
+  getExpertiseChoicesFromOptions(feature: TAdvancementFeatureDefinitions, level: number) {
     const skillsChosen = new Set<string>();
     const skillChoices = new Set<string>();
     const toolsChosen = new Set<string>();
@@ -586,7 +498,7 @@ export default class AdvancementHelper {
   }
 
 
-  getLanguageAdvancement(mods: IModifiersMod[], feature: TFeature, level: number): TraitAdvancement | null {
+  getLanguageAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, level: number): TraitAdvancement | null {
     const languagesMods = DDBModifiers.filterModifiers(mods, "language");
 
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
@@ -749,7 +661,7 @@ export default class AdvancementHelper {
   // modifiers. Most backgrounds grant a single (default) tool via the choice's selected
   // option, so grant that; only fall back to the full option pool when nothing is
   // selected (a genuine unselected choice). Returns null when there is no tool choice.
-  getEmptyToolAdvancement({ feature, level }: { feature: TFeature; level: number }): TraitAdvancement | null {
+  getEmptyToolAdvancement({ feature, level }: { feature: TAdvancementFeatureDefinitions; level: number }): TraitAdvancement | null {
     const toolChoices = this.getToolChoicesFromOptions(feature, level);
     if (toolChoices.choices.length === 0) return null;
 

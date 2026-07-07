@@ -748,13 +748,13 @@ export default class DDBSubClass extends DDBBaseClass {
 
     for (const [key, spells] of Object.entries(extractedSpells)) {
       logger.debug(`Extracted Spells for ${key}`, { spells });
-      const options = {
+      const options: IAdvancementGetterSpellGrantAdvancement = {
         name,
         spellLinks: this.spellLinks,
         spellGrants: spells.map((name) => {
           return {
             name,
-            level: key,
+            level: parseInt(key),
           };
         }),
         level: key,
