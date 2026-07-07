@@ -1,14 +1,15 @@
-import { mixins } from "../../enrichers/_module";
+// import { mixins } from "../../enrichers/_module";
+import { mixins as activityMixins } from "../../activities/mixins/_module";
 
 export {};
 
 global {
 
   interface ICompanionData {
-    ddbParser: mixins.DDBEnricherFactoryMixin;
+    ddbParser: activityMixins.DDBActivityFactoryMixin;
     document: any; // this.data,
     raw: string; // this.ddbDefinition.description,
-    text: string; // this.data.system.description,
+    text: I5eItemDescription; // this.data.system.description,
   }
 
 
