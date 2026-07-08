@@ -6,30 +6,59 @@ import { injectHeadingAnchors } from "./NativeHeadingAnchors";
 // ImageOpts, ContentRow + ProcessedRow are declared globally in ./types.d.ts.
 
 /**
- * Port of the muncher's "misformated db" repair (Row.js:68-114).
+ * Port of the muncher's row parent adjustments (Row.js:40-132), applied to the
+ * processed rows in document order. Three repairs, mirroring the standalone:
  *
- * Some books (e.g. FRHoF) ship chapter groups where every row has a `parentId`
- * but no row carries that id as its `cobaltId`. Without repair the whole group
- * is dropped by the journal builder (no parent chapter to attach to) and the
- * scene/table chapter folders fall back to literal "Chapter <id>" names.
- *
- * Mirrors the standalone flow: seed the parent set from every row with a
- * cobaltId, then walk rows in document order - the first orphan in a group is
- * promoted to the chapter (`cobaltId = parentId`, `parentId = null`, trailing
- * "#" trimmed from its slug) so subsequent rows attach beneath it.
+ * 1. Journal hints (Row.js:40-66): per-book enhancement data reparents rows
+ *    whose title is listed in a hint's `childNames` under the chapter row
+ *    titled `parentName` (e.g. PHB class/spell chapters), carrying the hint's
+ *    heading level.
+ * 2. "Misformatted db" promotion (Row.js:68-114): some books (e.g. FRHoF) ship
+ *    chapter groups where every row has a `parentId` but no row carries that
+ *    id as its `cobaltId`. Without repair the whole group is dropped by the
+ *    journal builder and the scene/table chapter folders fall back to literal
+ *    "Chapter <id>" names. The first orphan in a group is promoted to the
+ *    chapter (`cobaltId = parentId`, `parentId = null`, trailing "#" trimmed
+ *    from its slug) so subsequent rows attach beneath it.
+ * 3. Adjusted-parent fixup (Row.js:116-132): children of a hint-reparented row
+ *    (their `parentId` is the reparented row's ORIGINAL `cobaltId`, which no
+ *    longer owns a journal) follow it to the same hint chapter at level 3.
  */
-export function adjustParentRows(rows: ProcessedRow[]): void {
-  const parentIds = new Set<number>();
+export function adjustParentRows(rows: ProcessedRow[], journalHints: JournalHint[] = []): void {
+  // seed with every declared chapter (standalone Database.js pass 1)
+  const parents: { cobaltId: number; title: string }[] = [];
   for (const row of rows) {
-    if (row.cobaltId !== null) parentIds.add(row.cobaltId);
+    if (row.cobaltId !== null) parents.push({ cobaltId: row.cobaltId, title: row.title });
   }
+  const adjustedParents: { parentId: number | null; originalCobaltId: number | null }[] = [];
+
   for (const row of rows) {
-    if (row.parentId && !parentIds.has(row.parentId)) {
+    const hint = journalHints.find((h) => h.childNames.includes(row.title));
+    if (hint) {
+      row.level = hint.levelHint ?? 1;
+      const parent = parents.find((p) => p.title === hint.parentName);
+      if (parent) {
+        adjustedParents.push({ parentId: parent.cobaltId, originalCobaltId: row.cobaltId });
+        row.cobaltId = null;
+        row.parentId = parent.cobaltId;
+      }
+    }
+
+    if (!hint && row.parentId && !parents.some((p) => p.cobaltId === row.parentId)) {
       logger.warn(`Native adventure: no parent (cobaltId=${row.parentId}) for "${row.title}"; promoting row ${row.id} to chapter`);
       row.cobaltId = row.parentId;
       row.parentId = null;
       if (row.slug?.endsWith("#")) row.slug = row.slug.slice(0, -1);
-      parentIds.add(row.cobaltId);
+      parents.push({ cobaltId: row.cobaltId, title: row.title });
+    }
+
+    const parentHint = row.parentId !== null
+      ? adjustedParents.find((p) => p.originalCobaltId === row.parentId)
+      : undefined;
+    if (parentHint) {
+      row.level = 3;
+      row.parentId = parentHint.parentId;
+      row.cobaltId = null;
     }
   }
 }

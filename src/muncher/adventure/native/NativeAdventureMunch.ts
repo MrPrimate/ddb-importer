@@ -3,6 +3,7 @@ import { decryptAndQuery } from "../../../lib/SqliteCipher";
 import { generateAdventureConfig } from "../../adventure";
 import NativeIdFactory from "./NativeIdFactory";
 import { adjustParentRows, processRow } from "./ContentRowProcessor";
+import { getJournalHints } from "./NativeJournalHints";
 import { buildMasterJournalFolder } from "./NativeFolderBuilder";
 import { buildJournals } from "./NativeJournalBuilder";
 import { buildTables } from "./NativeTableBuilder";
@@ -182,7 +183,7 @@ export default class NativeAdventureMunch {
     }
 
     const processed = rows.map((row) => processRow(row, adventureConfig, imageOpts));
-    adjustParentRows(processed);
+    adjustParentRows(processed, getJournalHints(bookCode));
 
     // RollTables: parse <table> elements → world tables in nested per-chapter
     // folders (created lazily via FolderHelper  no empty folders), and append

@@ -149,4 +149,13 @@ global {
     folderName?: string;
   }
 
+  /* ---- NativeJournalHints ---- */
+
+  /** Journal reparenting hints from ddb-meta-data's `journal_info/<bookCode>.json`. */
+  interface JournalHint {
+    parentName: string;
+    childNames: string[];
+    levelHint?: number;
+  }
+
 }

@@ -18,7 +18,7 @@ export { };
 global {
 
   // Construct-signature for enricher class-maps (ENRICHERS / FALLBACK_ENRICHERS / GENERIC_ENRICHERS).
-  // DDBEnricherData is abstract, so `typeof DDBEnricherData` is not newable — use a construct signature
+  // DDBEnricherData is abstract, so `typeof DDBEnricherData` is not newable. we use a construct signature
   // matching the base constructor `{ ddbEnricher }`, which concrete subclasses are assignable to.
   export type EnricherConstructor = new (args: { ddbEnricher: TDDBEnricher }) => DDBEnricherData;
 
