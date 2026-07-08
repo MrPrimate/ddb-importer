@@ -338,15 +338,24 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
       },
     };
 
+    if (isTemp) {
+      return new Macro.implementation(data as unknown as Macro.CreateInput);
+    }
+
     const existingMacro = game.macros.find((m) => m.name == name);
     if (existingMacro) data._id = existingMacro.id;
-    const macro = existingMacro
-      ? existingMacro.update(data as any)
-      // @ts-expect-error - i think I need tore move displaySheet
-      : new Macro.implementation(data as any, { displaySheet: false, temporary: isTemp });
 
-    return macro;
-
+    if (existingMacro && existingMacro.command === content) {
+      logger.debug(`Macro ${name} already exists and is up to date, skipping creation.`);
+      return existingMacro;
+    } else if (existingMacro) {
+      logger.debug(`Macro ${name} already exists but is out of date, updating.`);
+      existingMacro.update(data as unknown as Macro.UpdateInput);
+    } else {
+      logger.debug(`Creating new macro ${name}.`);
+      const macro = await Macro.create(data as unknown as Macro.CreateInput, { render: false, temporary: isTemp });
+      return macro;
+    }
   }
 
   static async createWorldMacros() {

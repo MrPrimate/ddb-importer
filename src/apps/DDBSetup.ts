@@ -652,12 +652,10 @@ export default class DDBSetup extends DDBAppV2 {
 
     if (dialog) {
       for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS())) {
-        // @ts-expect-error -- we know this is the correct type
-        await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
+        await utils.setSetting(name, data.default);
       }
       for (const [name, data] of Object.entries(SETTINGS.GET_DEFAULT_SETTINGS(true))) {
-        // @ts-expect-error -- we know this is the correct type
-        await game.settings.set(SETTINGS.MODULE_ID, name, data.default);
+        await utils.setSetting(name, data.default);
       }
       window.location.reload();
     }

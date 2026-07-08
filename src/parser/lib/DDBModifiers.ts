@@ -435,7 +435,6 @@ export default class DDBModifiers {
     let diceString = "";
     let modBonus = 0;
     modifiers.forEach((modifier) => {
-      // @ts-expect-error - spell mods different
       const die = modifier.dice ?? modifier.die ?? undefined;
       const fixedBonus = die?.fixedValue ?? 0;
       const statBonus = (Number.isInteger(modifier.statId))
@@ -503,8 +502,6 @@ export default class DDBModifiers {
       // prof bonus
       modBonus = modBonus === "" ? `@prof` : `${modBonus} + @prof`;
     }
-
-    // @ts-expect-error - spell mods different
     const die = modifier.dice ? modifier.dice : modifier.die ? modifier.die : undefined;
 
     if (die) {

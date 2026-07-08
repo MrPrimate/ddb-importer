@@ -46,6 +46,8 @@ global {
   }
 
   export interface IDDBAtHigherLevels {
+    // was in the model at some point, i think this is now absent
+    scaleType?: string | null;
     higherLevelDefinitions: IDDBHigherLevelDefinition[];
     additionalAttacks: any[];
     additionalTargets: any[];

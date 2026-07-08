@@ -69,8 +69,7 @@ export async function setConditions(actor, ddb, keepLocal = false) {
   for (const condition of conditionStates.filter((c) => c.needsAdd)) {
     logger.debug(`adding ${condition.label}`, { condition });
     const effect = await ActiveEffect.implementation.fromStatusEffect(condition.foundry);
-    // @ts-expect-error - we know this is a valid property, but the types don't reflect it
-    effect.updateSource({ "flags.dnd5e.exhaustionLevel": condition.levelId });
+    effect.updateSource({ "flags.dnd5e.exhaustionLevel": condition.levelId } as unknown as Parameters<typeof effect.updateSource>[0]);
     const effectData = effect.toObject();
     // console.warn("effect", {effect, effectData});
     // await ActiveEffect.implementation.create(effectData, { parent: actor.document, keepId: true });

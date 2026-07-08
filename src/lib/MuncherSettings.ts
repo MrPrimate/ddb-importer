@@ -441,8 +441,8 @@ const MuncherSettings = {
   },
 
   getCompendiumFolderLookups: (type) => {
-    // @ts-expect-error - this is a dynamic setting name, so needs to be looked up like this
-    const compendiumFolderSetting = game.settings.settings.get(`ddb-importer.munching-selection-compendium-folders-${type}`);
+    // dynamic setting name, so it cannot key into the registered settings type
+    const compendiumFolderSetting = (game.settings.settings as Map<string, any>).get(`ddb-importer.munching-selection-compendium-folders-${type}`);
     const settingValue = utils.getSetting<string>(`munching-selection-compendium-folders-${type}`);
 
     const selections = [];

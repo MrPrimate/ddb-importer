@@ -68,8 +68,7 @@ export async function linkSelectedEnchantments(actor: Actor.Implementation) {
         targetItem = items.find((i) => ((foundry.utils.getProperty(i, "flags.ddbimporter.originalName") as string) ?? i.name) === enchantmentFlag.targetItemName) as Item.Implementation ?? null;
       } else if (enchantmentFlag.targetItemMatches) {
         const matchedFields = enchantmentFlag.targetItemMatches;
-        // @ts-expect-error - flipping fvtt types
-        const targetItems = items.filter((i) => matchFields(i, matchedFields));
+        const targetItems = items.filter((i) => matchFields(i as unknown as TAll5eDocuments, matchedFields));
         if (targetItems.length === 0) {
           logger.warn(`No items matched for enchantment transfer on ${item.name}. Skipping enchantment transfer.`, {
             item,

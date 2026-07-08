@@ -13,7 +13,7 @@ export default class FolderHelper {
       f.type === entityType && f.name === folderName
       // if a root folder we want to match the root id for the parent folder
       && (root ? root.id : null) === (f.folder?.id ?? null),
-    );
+    ) as Folder.Implementation | undefined;
     if (folder) {
       // Existing folder - patch its sort if the caller asked for one and the
       // current value doesn't match. Keeps Map Browser-driven folder order
@@ -37,8 +37,7 @@ export default class FolderHelper {
       // alphabetical sibling sorting.
       folderData.sorting = options.sortMode ?? "m";
     }
-    // @ts-expect-error - not sure if I'm wrong
-    folder = await Folder.create(folderData as any, { displaySheet: false });
+    folder = await Folder.create(folderData as unknown as Folder.CreateData) as Folder.Implementation;
     return folder;
   }
 

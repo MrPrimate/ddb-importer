@@ -188,8 +188,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
   static extractHigherLevelDamage(definition: IDDBHigherLevelDefinition): string | null {
     let scaleDamage: string | null = null;
-    // @ts-expect-error - this was in the model at some point, not sure if its currently used.
-    const die = definition.dice ? definition.dice : definition.die ? definition.die : undefined;
+    const die = definition.dice ? definition.dice : undefined; // some older payloads have die instead of dice
     const modScaleDamage
       = die?.diceString // if dice string
         ? die.diceString // use dice string
@@ -207,7 +206,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
     // about dice value, just number of dice
     const diceFormula = /(\d*)d\d*/;
     const existingMatch = diceFormula.exec(scaleDamage);
-    const modMatch = diceFormula.exec(modScaleDamage);
+    const modMatch = diceFormula.exec(String(modScaleDamage));
 
     const modMatchValue = modMatch
       ? modMatch.length > 1 ? modMatch[1] : modMatch[0]
@@ -215,9 +214,9 @@ export default class DDBSpellActivity extends DDBBasicActivity {
 
 
     if (!existingMatch && !modMatch) {
-      scaleDamage = modScaleDamage;
+      scaleDamage = String(modScaleDamage);
     } else if (!existingMatch || modMatchValue > existingMatch[1]) {
-      scaleDamage = modScaleDamage;
+      scaleDamage = String(modScaleDamage);
     }
     return scaleDamage;
   }
@@ -265,9 +264,7 @@ export default class DDBSpellActivity extends DDBBasicActivity {
           && mod.atHigherLevels.higherLevelDefinitions.length >= 1;
 
         // lets handle normal spell leveling first
-        // @ts-expect-error - this was in the model at some point, not sure if its currently used.
         const modScaleType = mod.atHigherLevels.scaleType
-          // @ts-expect-error - this was in the model at some point, not sure if its currently used.
           ? mod.atHigherLevels.scaleType
           : this.ddbDefinition.scaleType;
         if (isHigherLevelDefinitions && modScaleType === "spellscale") {

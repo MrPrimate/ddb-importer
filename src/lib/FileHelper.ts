@@ -86,15 +86,14 @@ export class FileHelper {
     try {
       const fileList = await FPClass.browse(parsedDir.activeSource, parsedDir.current, {
         bucket: parsedDir.bucket,
-        // @ts-expect-error no types for this option --- IGNORE ---
+        // recursive is real but not in the types
         recursive: true,
-      });
+      } as unknown as Parameters<typeof FPClass.browse>[2]);
       FileHelper.fileExistsUpdate(parsedDir, fileList.files);
       FileHelper.dirExistsUpdate(fileList.dirs);
       // lets do some forge fun because
       if (typeof ForgeVTT !== "undefined" && ForgeVTT?.usingTheForge) {
-        // @ts-expect-error bazaar is not in types --- IGNORE ---
-        if (fileList.bazaar) {
+        if (foundry.utils.getProperty(fileList, "bazaar")) {
           CONFIG.DDBI.KNOWN.FORGE.TARGETS[parsedDir.fullPath] = {};
           fileList.files.forEach((file) => {
             const fileName = file.split("/").pop();
@@ -232,18 +231,23 @@ export class FileHelper {
     return result;
   }
 
+  // FilePicker.upload returns false (server error), void (empty path or HttpError),
+  // or an empty object (other throw) instead of rejecting; only a SuccessResponse has a path.
+  static isUploadSuccess(result: FilePicker.UploadReturn): result is FilePicker.SuccessResponse {
+    return typeof result === "object" && result !== null && "path" in result && typeof result.path === "string";
+  }
+
   static async uploadImage(data, path: string, filename: string, forceWebp = false): Promise<string> {
-    return new Promise((resolve, reject) => {
-      FileHelper.uploadFile(data, path, filename, forceWebp)
-        .then((result) => {
-          // @ts-expect-error yes it does
-          resolve(result.path);
-        })
-        .catch((error) => {
-          logger.error("error uploading file: ", error);
-          reject(error);
-        });
-    });
+    try {
+      const result = await FileHelper.uploadFile(data, path, filename, forceWebp);
+      if (!FileHelper.isUploadSuccess(result)) {
+        throw new Error(`Upload of "${filename}" to "${path}" failed, no path returned`);
+      }
+      return result.path;
+    } catch (error) {
+      logger.error("error uploading file: ", error);
+      throw error;
+    }
   }
 
   static async downloadImage(url: string, attempt = 1): Promise<Blob> {
@@ -270,8 +274,7 @@ export class FileHelper {
       const filename = `${baseFilename}.${extension}`;
       const file = new File([blob], filename, { type: blob.type });
       const result = await FileHelper.uploadToPath(targetDirectory, file);
-      // @ts-expect-error result.path exists at runtime
-      const path = result?.path;
+      const path = foundry.utils.getProperty(result as object, "path") as string | undefined;
       if (path) {
         FileHelper.addFileToKnown(FileHelper.parseDirectory(targetDirectory), path);
         CONFIG.DDBI.KNOWN.LOOKUPS.set(`${targetDirectory}/${baseFilename}`, path);

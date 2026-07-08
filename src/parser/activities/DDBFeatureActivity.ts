@@ -41,8 +41,8 @@ export default class DDBFeatureActivity extends DDBBasicActivity {
       id,
     });
 
-    // @ts-expect-error - backgrounds don't build activities so we can ignore this for now
-    this.ddbDefinition = this.ddbParent.ddbDefinition;
+    // backgrounds don't build activities, so the background definition kind never reaches here
+    this.ddbDefinition = this.ddbParent.ddbDefinition as typeof this.ddbDefinition;
 
   }
 

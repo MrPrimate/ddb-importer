@@ -197,9 +197,10 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
         return resource;
       });
 
-      const dialog = new Dialog({
+      // content is an object fed to the resources.hbs template and the buttons
+      // omit icon/label, so this does not match the Dialog.Data type
+      const dialog = new Dialog(({
         title: `Choose Resources for ${this.raw.character.name}`,
-        // @ts-expect-error - we have not checked this for some time
         content: {
           "resources": resources,
           "character": this.raw.character.name,
@@ -209,7 +210,6 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
           "cssClass": "character-resource-selection sheet",
         },
         buttons: {
-          // @ts-expect-error - we have not checked this for some time
           default: {
             // icon: '<i class="fas fa-list-ol"></i>',
             // label: "Auto",
@@ -221,7 +221,6 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               resolve(this.raw.character);
             },
           },
-          // @ts-expect-error - we have not checked this for some time
           custom: {
             // icon: '<i class="fas fa-sort"></i>',
             // label: "Custom",
@@ -231,7 +230,6 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               resolve(this.raw.character);
             },
           },
-          // @ts-expect-error - we have not checked this for some time
           disable: {
             callback: async () => {
               const formData = $(".character-resource-selection").serializeArray();
@@ -240,7 +238,6 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
               resolve(this.raw.character);
             },
           },
-          // @ts-expect-error - we have not checked this for some time
           remove: {
             callback: async () => {
               const formData = $(".character-resource-selection").serializeArray();
@@ -252,7 +249,7 @@ DDBCharacter.prototype.resourceSelectionDialog = async function resourceSelectio
         },
         default: "default",
         close: () => resolve(this.raw.character),
-      },
+      }) as unknown as ConstructorParameters<typeof Dialog>[0],
       {
         width: 400,
         classes: ["dialog", "character-resource-selection"],

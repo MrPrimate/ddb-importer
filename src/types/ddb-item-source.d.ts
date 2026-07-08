@@ -89,6 +89,9 @@ global {
     // Infusion
     levelInfusionGranted: number | null;
     version: string | null;
+    // Custom items only
+    notes?: string | null;
+    quantity?: number | null;
   }
 
   export interface IDDBInventoryLimitedUse {

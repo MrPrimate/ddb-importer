@@ -27,6 +27,10 @@ global {
     rangeId?: number | null;
     statId?: number | null;
     isOffhand?: boolean;
+    damageTypeId?: number | null;
+    dice?: IDDBDamageDice | null;
+    die?: IDDBDamageDice | null;
+    isCustomAction?: boolean;
   }
 
   interface IDDBDamageDice {
@@ -73,7 +77,9 @@ global {
   export interface IDDBModifier extends IDDBBaseModifier {
     entityId: number;
     entityTypeId: number;
-    dice: any | null;
+    dice: IDDBDamageDice | null;
+    // some modifiers (spell mods in particular) carry die instead of dice
+    die?: IDDBDamageDice | null;
     availableToMulticlass: boolean;
     tagConstraints: any[];
   }

@@ -178,8 +178,8 @@ export async function generateAdventureConfig({ full = false, cobalt = true, ful
         id: v.id,
         url: v.url,
         name: v.name,
-        // @ts-expect-error - at some point this needs to be fixed, uuid wil always be undefined I think
-        uuid: v.uuid,
+        // TODO: uuid is not in the source model and is likely always undefined
+        uuid: foundry.utils.getProperty(v, "uuid"),
       };
     });
   }

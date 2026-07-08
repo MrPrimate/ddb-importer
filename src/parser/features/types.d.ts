@@ -21,6 +21,10 @@ global {
     entityTypeId?: number | null;
     grantedFeats?: IDDBClassFeatureGrantedFeat[];
     primaryAbilities?: number[] | null;
+    // injected by the infusion parser
+    infusionFlags?: Record<string, any> | null;
+    // injected by the proxy for some features
+    hintImage?: string | null;
   }
 
   // action payload data is merged onto these definitions by the parser, so

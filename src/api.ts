@@ -311,8 +311,7 @@ export const API_BASE = {
 
 export function registerApi() {
   globalThis["DDBImporter"] = API_BASE;
-  // @ts-expect-error - we are intentionally attaching to the game module
-  game.modules.get(config.SETTINGS.MODULE_ID).api = API_BASE;
-  // @ts-expect-error - we are intentionally attaching to the game module
-  game.modules.get(config.SETTINGS.MODULE_ID).DICTIONARY = config.DICTIONARY;
+  // intentionally attaching to the game module; not part of the Module type
+  foundry.utils.setProperty(game.modules.get(config.SETTINGS.MODULE_ID), "api", API_BASE);
+  foundry.utils.setProperty(game.modules.get(config.SETTINGS.MODULE_ID), "DICTIONARY", config.DICTIONARY);
 }

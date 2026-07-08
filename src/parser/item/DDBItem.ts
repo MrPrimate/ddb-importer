@@ -303,8 +303,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         this: this,
       });
       throw Error("Document type must be set", {
-        // @ts-expect-error - don't care
-        this: this,
+        cause: this,
       });
     }
 
@@ -663,12 +662,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     unfilteredDamageMods
       .filter((mod) => !mod.restriction || mod.restriction === "")
       .forEach((mod) => {
-        // @ts-expect-error - TODO sometimes it can be different, especially on spell mods. we can probably change that here
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die ? die.diceString : mod.value;
         if (damagePart) {
           const damage = SystemHelpers.buildDamagePart({
-            damageString: utils.parseDiceString(damagePart, "", "", fightingStyleDiceMod).diceString,
+            damageString: utils.parseDiceString(String(damagePart), "", "", fightingStyleDiceMod).diceString,
             stripMod: true,
             type: mod.subType ? mod.subType : "",
           });
@@ -689,7 +687,6 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     unfilteredDamageMods
       .filter((mod) => mod.restriction && mod.restriction !== "")
       .forEach((mod) => {
-        // @ts-expect-error - TODO sometimes it can be different, especially on spell mods. we can probably change that here
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         const damagePart = die
           ? die.diceString
@@ -1241,7 +1238,6 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
    */
   #getExtraDamage(restrictions: string[]): [string | number | null, string | null][] {
     return DDBModifiers.filterBaseModifiers(this.ddbData, "damage", { restriction: restrictions }).map((mod) => {
-      // @ts-expect-error - TODO sometimes it can be different, especially on spell mods. we can probably change that here
       const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
       if (die) {
         return [die.diceString, mod.subType];
@@ -1260,8 +1256,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #generateItemFlags() {
-    // @ts-expect-error grantedModifiers can be injected I think - confirm
-    const grantedModifiers = this.ddbDefinition.grantedModifiers ?? this.ddbItem.grantedModifiers ?? [];
+    const grantedModifiers = this.ddbDefinition.grantedModifiers ?? (foundry.utils.getProperty(this.ddbItem, "grantedModifiers") as IDDBModifier[]) ?? [];
     this.flags = {
       damage: {
         parts: [],
@@ -1336,9 +1331,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   #generateQuantity() {
-    // @ts-expect-error quantity can be injected I think - confirm
     this.data.system.quantity = this.ddbDefinition.quantity
-      // @ts-expect-error quantity can be injected I think - confirm
       ? this.ddbDefinition.quantity
       : this.ddbItem.quantity
         ? this.ddbItem.quantity
@@ -1405,8 +1398,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #getWeaponRange(): I5eWeaponRange {
     // sometimes reach weapons have their range set as 5. it's not clear why.
     const shortRange = this.ddbDefinition.range ? this.ddbDefinition.range : 5;
-    // @ts-expect-error properties here is greater than mgc because of interfaces
-    const reach = this.data.system.properties.includes("rch") && this.ddbDefinition.range == 5 ? 5 : 0;
+    const properties = this.data.system.properties as string[];
+    const reach = properties.includes("rch") && this.ddbDefinition.range == 5 ? 5 : 0;
     return {
       value: shortRange + reach,
       long: (this.ddbDefinition.longRange && this.ddbDefinition.longRange != this.ddbDefinition.range)
@@ -1432,8 +1425,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       .filter(
         (mod) => mod.type === "bonus" && mod.subType === "magic" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
-      // @ts-expect-error we confirm this is an integer in the filter, so value should be number here
-      .reduce((prev, cur) => prev + cur.value, 0);
+      .reduce((prev, cur) => prev + (cur.value as number), 0);
     return bonus === 0 && !returnZero ? "" : bonus;
   }
 
@@ -1451,8 +1443,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       .filter(
         (mod) => mod.type === "bonus" && mod.subType === "armor-class" && mod.value && mod.value !== 0 && Number.isInteger(mod.value),
       )
-      // @ts-expect-error we confirm this is an integer in the filter, so value should be number here
-      .reduce((prev, cur) => prev + cur.value, 0);
+      .reduce((prev, cur) => prev + (cur.value as number), 0);
     return bonus;
   }
 
@@ -1535,8 +1526,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       case "armor": {
         const magicBonus = this.#getMagicalArmorBonus();
         if (magicBonus > 0) {
-          // @ts-expect-error we know this exists for these parsing types
-          this.data.system.armor.magicalBonus = magicBonus;
+          foundry.utils.setProperty(this.data, "system.armor.magicalBonus", magicBonus);
           this.addMagical = true;
         }
         break;
@@ -1545,8 +1535,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       case "ammunition": {
         if (this.actionData.magicBonus.zero > 0) {
           this.addMagical = true;
-          // @ts-expect-error we know this exists for these parsing types
-          this.data.system.magicalBonus = this.actionData.magicBonus.zero;
+          foundry.utils.setProperty(this.data, "system.magicalBonus", this.actionData.magicBonus.zero);
         }
         break;
       }
@@ -1554,8 +1543,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         const magicalBonus = this.#getWeaponMagicalBonus(true) as number;
         this.actionData.magicBonus.zero = magicalBonus;
         if (magicalBonus > 0) {
-          // @ts-expect-error we know this exists for these parsing types
-          this.data.system.magicalBonus = magicalBonus;
+          foundry.utils.setProperty(this.data, "system.magicalBonus", magicalBonus);
           this.addMagical = true;
         }
         break;
@@ -1728,9 +1716,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         autoDestroy: true,
       };
     }
-    // @ts-expect-error this is available on consumable types when generating consumables
-    this.data.system.uses.autoDestroy = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value)
-      || this.isSpellwrought;
+    const autoDestroyValue = !["wand", "trinket", "ring", "wondrous"].includes(this.systemType.value) || this.isSpellwrought;
+    foundry.utils.setProperty(this.data, "system.uses.autoDestroy", autoDestroyValue);
   }
 
   targetsCreature(): boolean {
@@ -1895,9 +1882,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       let description = this.ddbDefinition.description && this.ddbDefinition.description !== "null"
         ? this.ddbDefinition.description
         : "";
-      // @ts-expect-error custom items will have notes
       description = this.ddbDefinition.notes
-        // @ts-expect-error custom items will have notes
         ? description + `<p><blockquote>${this.ddbDefinition.notes}</blockquote></p>`
         : description;
 
@@ -2099,21 +2084,20 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   };
 
   #getAbility(): T5eAbility | null {
+    const properties = this.data.system.properties as string[];
     // finesse weapons can choose freely, and is now automated
-    // @ts-expect-error properties here is greater than mgc because of interfaces
-    if (this.data.system.properties.includes("fin")) {
+    if (properties.includes("fin")) {
       return null;
     }
 
     // thrown, but not finesse weapon: STR
-    // @ts-expect-error properties here is greater than mgc because of interfaces
-    if (this.data.system.properties.includes("thr")) {
+    if (properties.includes("thr")) {
       return "str";
     }
 
     // if it's a ranged weapon, and mot a reach weapon (long = 10 (?))
-    // @ts-expect-error properties here is greater than mgc because of interfaces
-    if (this.data.system.range?.long > 5 && !this.data.system.properties.includes("rch")) {
+    const longRange = foundry.utils.getProperty(this.data, "system.range.long") as number | undefined;
+    if (isNumber(longRange) && longRange > 5 && !properties.includes("rch")) {
       return "dex";
     }
 
@@ -2125,8 +2109,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     let result: T5eAbility | "" = "";
     const ability = this.#getAbility();
     const mockAbility = ability === null
-      // @ts-expect-error properties here is greater than mgc because of interfaces
-      ? this.data.system.properties.includes("fin") ? "dex" : "str"
+      ? (this.data.system.properties as string[]).includes("fin") ? "dex" : "str"
       : ability;
 
     // warlocks can use cha for their Hex weapon
@@ -2225,11 +2208,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #generateArmorSpecifics() {
     if (!("armor" in this.data.system)) return;
     this.data.system.armor.value = this.ddbDefinition.armorClass;
-    // @ts-expect-error strength is there if we have armor
-    this.data.system.strength = this.ddbDefinition.strengthRequirement ?? 0;
+    foundry.utils.setProperty(this.data, "system.strength", this.ddbDefinition.strengthRequirement ?? 0);
     if (this.ddbDefinition.stealthCheck === 2)
-      // @ts-expect-error properties overlap
-      this.data.system.properties = utils.addToProperties(this.data.system.properties, "stealthDisadvantage");
+      foundry.utils.setProperty(this.data, "system.properties", utils.addToProperties(this.data.system.properties as string[], "stealthDisadvantage"));
     this.#generateArmorMaxDex();
     this.#generateProficient();
     this._generateUses();
@@ -3098,17 +3079,16 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
       // if item is loot, lets move it to equipment/trinket so effects will apply
       if (this.data.type === "loot") {
-        // @ts-expect-error - ugly ugly
-        this.data.type = "equipment";
-        // @ts-expect-error - ugly ugly
-        this.data.system.armor = {
+        const equipmentData = this.data as unknown as I5eEquipmentItem;
+        equipmentData.type = "equipment";
+        // legacy armor shape carries a type key the 5e types no longer model
+        foundry.utils.setProperty(equipmentData, "system.armor", {
           type: "trinket",
           value: 10,
           dex: null,
-        };
+        });
         // infusions will over ride the can equip status, so just check for equipped
-        // @ts-expect-error - ugly ugly
-        this.data.system.equipped = this.ddbItem.equipped;
+        equipmentData.system.equipped = this.ddbItem.equipped;
       }
 
       // check to see if we need to fiddle attack modifiers on infused weapons

@@ -106,7 +106,10 @@ global {
     flags?: {
       ddbimporter?: {
         isElixirAdditionalActivity?: boolean;
+        activityRiders?: string[];
       };
+      // some enrichers write midi properties via activity flags overrides
+      midiProperties?: IMidiActivityProperties;
     };
     range?: I5eActivityRange;
     target?: I5eActivityTarget;

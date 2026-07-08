@@ -1038,14 +1038,13 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
     return multiplier;
   }
 
-  adjustRange(multiplier, spell) {
-    // this needs to be adjusted and implemented for 2024 and 2014, not currently called
-    // @ts-expect-error - TO DO here
-    if (this.data.spell.system.actionType === "rsak" && Number.isInteger(spell.system.range?.value)) {
-      foundry.utils.setProperty(spell, "system.range.value", spell.system.range.value * multiplier);
-    }
-    return spell;
-  }
+  // adjustRange(multiplier, spell) {
+  //   // TPDO this needs to be adjusted and implemented for 2024 and 2014, not currently called
+  //   if (this.data.spell.system.actionType === "rsak" && Number.isInteger(spell.system.range?.value)) {
+  //     foundry.utils.setProperty(spell, "system.range.value", spell.system.range.value * multiplier);
+  //   }
+  //   return spell;
+  // }
 
   async parse() {
     this.data.system.level = this.ddbDefinition.level;

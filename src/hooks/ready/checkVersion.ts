@@ -69,12 +69,10 @@ export default async () => {
       const text = $(
         `<h2>${MODULE_TITLE} Update!</h2><p>A new <b>${MODULE_NAME}</b> version is available. Please update to <b>v${latestVersion}</b> if you are experiencing issues and before reporting a bug.</p>`,
       );
-      // @ts-expect-error - we have attached an api to the module, but TS doesn't know about it
-      (game.modules.get("ddb-importer").api as typeof API_BASE)?.notification.show(text, null);
+      (foundry.utils.getProperty(game.modules.get("ddb-importer"), "api") as typeof API_BASE)?.notification.show(text, null);
     }
   } catch (error) {
     logger.warn(error);
-    // @ts-expect-error - we have attached an api to the module, but TS doesn't know about it
-    (game.modules.get("ddb-importer").api as typeof API_BASE)?.notification.show(`Could not retrieve latest  version`);
+    (foundry.utils.getProperty(game.modules.get("ddb-importer"), "api") as typeof API_BASE)?.notification.show(`Could not retrieve latest  version`);
   }
 };
