@@ -130,10 +130,10 @@ declare module "fvtt-types/configuration" {
       "ddb-importer.summonsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.featsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.monstersCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
-      "ddb-importer.traitsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.traitCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.customCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
-      "ddb-importer.summonsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
-      "ddb-importer.backgroundsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.itemsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.backgroundCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.featuresCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.vehiclesCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.inventoryCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;

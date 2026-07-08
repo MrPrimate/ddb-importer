@@ -557,7 +557,7 @@ ${item.system.description.chat}
 
     this.results = createResults.concat(results);
     await Promise.all(this.results);
-    await Hooks.callAll(`ddb-importer.${this.type.toLowerCase()}CompendiumUpdateComplete`, { results: this.results });
+    Hooks.callAll(`ddb-importer.${this.type}CompendiumUpdateComplete`, { results: this.results });
     return this.results;
   }
 
