@@ -1227,7 +1227,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       || utils.getSetting<boolean>("character-update-policy-create-companions")
       || this.ddbCharacter.enableCompanions;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
-      type: "feature",
+      type: "features",
       originDocument: this.data,
       is2014: this.is2014,
       notifier: this.notifier,

@@ -853,7 +853,7 @@ export default class DDBSpell extends DDBActivityFactoryMixin<"spell"> {
       || utils.getSetting<boolean>("character-update-policy-create-companions")
       || this.generateSummons;
     this.ddbCompanionFactory = new DDBCompanionFactory(this.ddbDefinition.description, {
-      type: "spell",
+      type: "spells",
       originDocument: this.data,
       is2014: this.is2014,
       notifier: this.notifier,

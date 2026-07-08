@@ -29,7 +29,7 @@ interface DDBCompanionFactoryOptions {
   updateCompanions?: boolean;
   updateImages?: boolean;
   noCompendiums?: boolean;
-  type?: TMonsterImporterTypes;
+  type?: string;
 }
 
 export default class DDBCompanionFactory {
