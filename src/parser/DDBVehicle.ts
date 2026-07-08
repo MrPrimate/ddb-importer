@@ -551,12 +551,12 @@ export default class DDBVehicle {
     // if we are using actor level AC apply
     if (this.configurations.PCMT === "vehicle" && this.primaryComponent) {
       if (this.configurations.DT === "spelljammer") {
-        // @ts-expect-error -this gets calculated dynamically now, I might need to change somestuff
-        this.data.system.attributes.ac.motionless = this.primaryComponent.definition.armorClassDescription;
+        // this gets calculated dynamicaly now - todo - check its right
+        foundry.utils.setProperty(this.data, "system.attributes.ac.motionless", this.primaryComponent.definition.armorClassDescription);
         this.data.system.attributes.ac.flat = this.primaryComponent.definition.armorClass;
       } else {
-        // @ts-expect-error -this gets calculated dynamically now, I might need to change somestuff
-        this.data.system.attributes.ac.motionless = this.primaryComponent.definition.armorClass;
+        // this gets calculated dynamicaly now - todo - check its right
+        foundry.utils.setProperty(this.data, "system.attributes.ac.motionless", this.primaryComponent.definition.armorClass);
         this.data.system.attributes.ac.flat = this.primaryComponent.definition.armorClass + this.mods["dex"];
       }
     }

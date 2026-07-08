@@ -100,7 +100,7 @@ DDBMonster.prototype._generateAC = async function _generateAC(this: DDBMonster, 
   }
 
   logger.debug("Checking for items", itemsToCheck);
-  const rawItems: I5eMonsterItem[] = await DDBItemImporter.getCompendiumItems(itemsToCheck, "equipment", {
+  const rawItems: I5eMonsterItem[] = await DDBItemImporter.getCompendiumItems(itemsToCheck, "inventory", {
     looseMatch: true,
     monsterMatch: true,
   }) as I5eMonsterItem[];

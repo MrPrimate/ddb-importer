@@ -497,8 +497,9 @@ export default class DDBStickerBrowser extends DDBAppV2 {
         for (const t of tiles) {
           let hit: boolean;
           try {
-            // @ts-expect-error - v14 shape not in types yet
-            hit = !!t.document?.shape?.testPoint?.(lastCursor);
+            //  TODO v14 shape is not in the types yet
+            const shape = foundry.utils.getProperty(t, "document.shape") as { testPoint?: (p: PIXI.IPointData) => boolean } | undefined;
+            hit = !!shape?.testPoint?.(lastCursor);
           } catch (_e) {
             hit = false;
           }

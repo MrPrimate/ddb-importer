@@ -222,8 +222,7 @@ export default class DDBClass extends DDBBaseClass {
       await pack.getIndex();
       const klassMatch = pack.index.find((k) =>
         k.name === this.name
-        // @ts-expect-error - we know this exists
-        && k.type === "class",
+        && foundry.utils.getProperty(k, "type") === "class",
       );
       if (!klassMatch) continue;
       const foundryKlass = await pack.getDocument(klassMatch._id);
@@ -265,10 +264,9 @@ export default class DDBClass extends DDBBaseClass {
     if (this.data.name !== "Druid") return;
     for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title !== "Wild Shape CR") continue;
-      // @ts-expect-error - we know this is the right kind
-      advancement.configuration.type = "cr";
-      // @ts-expect-error - we know this is the right kind
-      advancement.configuration.scale = {
+      const configuration = (advancement as I5eAdvancementScaleValue).configuration;
+      configuration.type = "cr";
+      configuration.scale = {
         2: { value: 0.25 },
         4: { value: 0.5 },
         8: { value: 1 },
@@ -449,10 +447,9 @@ export default class DDBClass extends DDBBaseClass {
     if (this.is2014) return;
     for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title !== "Brutal Strike") continue;
-      // @ts-expect-error - we know this is the right kind
-      advancement.configuration.type = "dice";
-      // @ts-expect-error - we know this is the right kind
-      advancement.configuration.scale = {
+      const configuration = (advancement as I5eAdvancementScaleValue).configuration;
+      configuration.type = "dice";
+      configuration.scale = {
         9: { number: 1, faces: 10 },
         17: { number: 2, faces: 10 },
       };
@@ -529,8 +526,7 @@ export default class DDBClass extends DDBBaseClass {
     if (this.data.name !== "Artificer") return;
     for (const [id, advancement] of Object.entries(this.data.system.advancement)) {
       if (advancement.title === "Magic Item Plans") {
-        // @ts-expect-error - we know this is the right kind
-        advancement.configuration.scale = {
+        (advancement as I5eAdvancementScaleValue).configuration.scale = {
           2: { value: 4 },
           6: { value: 5 },
           10: { value: 6 },

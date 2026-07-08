@@ -29,7 +29,7 @@ interface DDBCompanionFactoryOptions {
   updateCompanions?: boolean;
   updateImages?: boolean;
   noCompendiums?: boolean;
-  type?: string;
+  type?: TMonsterImporterTypes;
 }
 
 export default class DDBCompanionFactory {
@@ -270,7 +270,7 @@ export default class DDBCompanionFactory {
   static async addToWorld(companion, update) {
     const results = [];
     if (!game.user.can("ITEM_CREATE")) return results;
-    const npcBuilder = new DDBMonsterImporter({ monster: companion, type: "monster" });
+    const npcBuilder = new DDBMonsterImporter({ monster: companion, type: "monsters" });
     await npcBuilder.build({
       temporary: false,
       update,

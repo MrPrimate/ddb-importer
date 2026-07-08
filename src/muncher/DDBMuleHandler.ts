@@ -200,8 +200,7 @@ export default class DDBMuleHandler {
     addFlags?: boolean;
   } = {}): Promise<Actor.Implementation> {
     const characterData = this._getNewActorData({ name, addFolder, addFlags });
-    // @ts-expect-error - 5e types error - wants more fields, but not needed
-    const actor: Actor.Implementation = await Actor.create(characterData) as Actor.Implementation;
+    const actor: Actor.Implementation = await Actor.create(characterData as unknown as Actor.CreateInput) as Actor.Implementation;
     return actor;
   }
 
@@ -211,8 +210,7 @@ export default class DDBMuleHandler {
       displaySheet: false,
     };
     const mockData = this._getNewActorData({ name, addFolder: false, addFlags: false });
-    // @ts-expect-error - 5e types error
-    const mockCharacter: Actor.Implementation = new Actor.implementation(mockData as any, options) as Actor.Implementation;
+    const mockCharacter: Actor.Implementation = new Actor.implementation(mockData as unknown as ConstructorParameters<typeof Actor.implementation>[0], options as unknown as ConstructorParameters<typeof Actor.implementation>[1]) as Actor.Implementation;
     return mockCharacter;
   }
 

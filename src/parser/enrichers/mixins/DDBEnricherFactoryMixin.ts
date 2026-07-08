@@ -902,8 +902,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
       if (effectHint.auraeffects && AutoEffects.effectModules().auraeffectsInstalled) {
         foundry.utils.mergeObject(effect.system, effectHint.auraeffects);
-        // @ts-expect-error - this is allowed
-        effect.type = "auraeffects.aura";
+        effect.type = "auraeffects.aura" as typeof effect.type;
       }
 
       if (effectHint.data) {

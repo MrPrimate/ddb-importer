@@ -125,7 +125,7 @@ export default class AdventureMunchHelpers {
     });
   }
 
-  static async getCompendiumIndex(type: string) {
+  static async getCompendiumIndex(type: TCompendiumTypes) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     const fields = (type === "monster")
       ? ["flags.ddbimporter.id"]
@@ -136,7 +136,7 @@ export default class AdventureMunchHelpers {
     return compendiumIndex;
   }
 
-  static async getMissingIds(type: string, ids: (number | string)[]) {
+  static async getMissingIds(type: TCompendiumTypes, ids: (number | string)[]) {
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     const flagPath = (type === "monster") ? "flags.ddbimporter.id" : "flags.ddbimporter.definitionId";
     return ids.filter((id) =>
@@ -147,7 +147,7 @@ export default class AdventureMunchHelpers {
     );
   }
 
-  static async checkForMissingDocuments(type, ids, notifierV2 = null) {
+  static async checkForMissingDocuments(type: TCompendiumTypes, ids: (number | string)[], notifierV2 = null) {
     const missingIds = await AdventureMunchHelpers.getMissingIds(type, ids);
     logger.debug(`${type} missing ids`, missingIds);
     const missingDocuments = AdventureMunchHelpers.loadMissingDocuments(type, missingIds, notifierV2);
@@ -163,7 +163,7 @@ export default class AdventureMunchHelpers {
    * @param {boolean} temporary create the items in the world?
    * @returns {Promise<Array>} array of world actors
    */
-  static async getDocuments(type, ids, overrides = {}, temporary = false) {
+  static async getDocuments(type: TCompendiumTypes, ids: (number | string)[], overrides = {}, temporary = false) {
     const compendium = CompendiumHelper.getCompendiumType(type);
     const index = await AdventureMunchHelpers.getCompendiumIndex(type);
     const ddbIds = ids.map((num) => {

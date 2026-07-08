@@ -98,7 +98,7 @@ export async function updateWorldMonsters() {
   return results;
 }
 
-export async function resetCompendiumActorImages(compendiumName = null, type = "monster") {
+export async function resetCompendiumActorImages(compendiumName = null, type: TMonsterImporterTypes = "monsters") {
   const monsterCompendiumLabel = compendiumName ? compendiumName : CompendiumHelper.getCompendiumLabel(type);
   const monsterCompendium = CompendiumHelper.getCompendium(monsterCompendiumLabel);
   const fields = ["name", "flags.monsterMunch", "system.details.type.value", "img", "prototypeToken.texture.src"];

@@ -138,7 +138,6 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           componentTypeId: this.ddbDefinition.componentTypeId,
           originalName: this.originalName,
           type: this.tagType,
-          // @ts-expect-error - TODO - this is a mess, need to refactor how these are set and used
           isCustomAction: this.ddbDefinition.isCustomAction,
           is2014: this.type === "class" && this._class ? this.isClass2014 : this.is2014,
           is2024: this.type === "class" && this._class ? !this.isClass2014 : !this.is2014,
@@ -245,9 +244,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   _prepare() {
-    // @ts-expect-error - TODO - I think I can remove this as I can't see where these are injected
     if (this.ddbDefinition.infusionFlags) {
-      // @ts-expect-error - ignore, see above
       foundry.utils.setProperty(this.data, "flags.infusions", this.ddbDefinition.infusionFlags);
     }
 
@@ -353,8 +350,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.ddbFeature = ddbDefinition;
     this._currentChoice = null;
     this.extraFlags = extraFlags;
-    // @ts-expect-error - TODO refactor
-    this.ddbDefinition = ddbDefinition.definition ?? ddbDefinition;
+    this.ddbDefinition = ((foundry.utils.getProperty(ddbDefinition, "definition") ?? ddbDefinition)) as TDDBFeatureMixinDefinitions;
     this.name = utils.nameString(this.ddbDefinition.name);
     this.originalName = this.ddbData
       ? DDBDataUtils.getName(this.ddbData, this.ddbDefinition, this.rawCharacter, false)
@@ -366,12 +362,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this._init();
     this.activityType = activityType;
 
-    // @ts-expect-error - TODO - tactually missing or bad type?
-    this.klass = this.extraFlags.ddbimporter?.class ?? this.extraFlags.class;
-    // @ts-expect-error - TODO - tactually missing or bad type?
-    this.subKlass = this.extraFlags.ddbimporter?.subClass ?? this.extraFlags.subClass;
-    // @ts-expect-error - TODO - tactually missing or bad type?
-    this.species = this.extraFlags.ddbimporter?.species ?? this.extraFlags.species;
+    // callers nest these under ddbimporter; the bare reads are a legacy fallback
+    this.klass = this.extraFlags.ddbimporter?.class ?? (foundry.utils.getProperty(this.extraFlags, "class") as string | undefined);
+    this.subKlass = this.extraFlags.ddbimporter?.subClass ?? (foundry.utils.getProperty(this.extraFlags, "subClass") as string | undefined);
+    this.species = this.extraFlags.ddbimporter?.species ?? (foundry.utils.getProperty(this.extraFlags, "species") as string | undefined);
 
     this.identifier = utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this._getRules();
@@ -654,8 +648,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       this.data.system.range = {
         value: actionRange.range,
         units: "ft",
-        // @ts-expect-error - TODO - unsure, this might be an error, change in ddb data, or from spells
-        long: actionRange.long || null,
+        long: actionRange.longRange ?? null,
         reach: null,
       };
     } else {
@@ -674,22 +667,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   }
 
   getDamageType() {
-    return "damageTypeId" in this.ddbDefinition && this.ddbDefinition.damageTypeId
-      // @ts-expect-error - not detecting my guard here
-      ? DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId).name
+    return this.ddbDefinition.damageTypeId
+      ? (DICTIONARY.actions.damageType.find((type) => type.id === this.ddbDefinition.damageTypeId)?.name ?? null)
       : null;
   }
 
-  getDamageDie() {
-    // @ts-expect-error - dice and die are a mess in data.
-    return this.ddbDefinition.dice
-    // @ts-expect-error - dice and die are a mess in data.
-      ? this.ddbDefinition.dice
-      // @ts-expect-error - dice and die are a mess in data.
-      : this.ddbDefinition.die
-        // @ts-expect-error - dice and die are a mess in data.
-        ? this.ddbDefinition.die
-        : undefined;
+  getDamageDie(): IDDBDamageDice | undefined {
+    return this.ddbDefinition.dice ?? this.ddbDefinition.die ?? undefined;
   }
 
   getDamage(bonuses = []): I5eDamagePart {
@@ -732,7 +716,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
         )?.bonus;
         const replaceProf
           = this.ddbDefinition.snippet?.includes("{{proficiency#signed}}")
-          && Number.parseInt(die.fixedValue) === Number.parseInt(String(profBonus));
+          && Number.parseInt(String(die.fixedValue)) === Number.parseInt(String(profBonus));
         const diceString = replaceProf ? die.diceString.replace(`+ ${profBonus}`, "") : die.diceString;
         const mods = replaceProf ? `${bonusString} + @prof` : bonusString;
         const damageString = utils.parseDiceString(diceString, mods).diceString;
@@ -762,15 +746,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
       && DDBDataUtils.hasSpeciesTrait({ ddbData: this.ddbData, traitName: "Feral Pounce" })) {
       damageTypes.push("slashing");
     }
-    // @ts-expect-error - dice and die are a mess in data.
-    const actionDie = this.ddbDefinition.dice
-      // @ts-expect-error - dice and die are a mess in data.
-      ? this.ddbDefinition.dice
-      // @ts-expect-error - dice and die are a mess in data.
-      : this.ddbDefinition.die
-        // @ts-expect-error - dice and die are a mess in data.
-        ? this.ddbDefinition.die
-        : undefined;
+    const actionDie = this.getDamageDie();
     const bonusString = bonuses.join(" ");
 
     const damage: I5eDamagePart = {
@@ -1284,9 +1260,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     this.identifier = this.enricher.identifier ?? utils.referenceNameString(`${this.originalName.toLowerCase()}`);
     this.data.system.identifier = this.identifier;
 
-    // @ts-expect-error - is this proxy injected? TODO
     if (this.ddbDefinition.hintImage) {
-      // @ts-expect-error - is this proxy injected? TODO
       foundry.utils.setProperty(this.data, "flags.ddbimporter.ddbImg", this.ddbDefinition.hintImage.split("?")[0]);
     }
   }

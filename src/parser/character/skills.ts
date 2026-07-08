@@ -116,13 +116,11 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
 
   const customSkills = await window.dnd5eCustomSkills("add", { skills: skillData });
 
-  for (const [key, value] of Object.entries(customSkills.skills.list)) {
-    // @ts-expect-error - we have not checked this for some time
+  const customSkillList = customSkills.skills.list as Record<string, { applied?: number | boolean; label?: string; ability?: string }>;
+  for (const [key, value] of Object.entries(customSkillList)) {
     if (value.applied || value.applied === 1) {
-      // @ts-expect-error - we have not checked this for some time
       const customSkillMatch = customSkillData.find((customSkill) => customSkill.label === value.label);
       if (customSkillMatch) {
-        // @ts-expect-error - we have not checked this for some time
         logger.debug(`Adding custom skill ${value.label}`, { key, value, customSkillMatch });
         const prof = DICTIONARY.actor.customSkillProficiencies.find((proficiency) =>
           proficiency.value === customSkillMatch.proficiencyLevel,
@@ -136,7 +134,6 @@ DDBCharacter.prototype._generateCustomSkills = async function _generateCustomSki
         if (customSkillMatch) {
           const checkBonus = (miscBonus + magicBonus).trim();
           this.raw.character.system.skills[key] = {
-            // @ts-expect-error - we have not checked this for some time
             ability: value.ability,
             value: prof,
             bonuses: {

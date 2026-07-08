@@ -2097,7 +2097,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     // if it's a ranged weapon, and mot a reach weapon (long = 10 (?))
     const longRange = foundry.utils.getProperty(this.data, "system.range.long") as number | undefined;
-    if (isNumber(longRange) && longRange > 5 && !properties.includes("rch")) {
+    if (Number.isInteger(longRange) && longRange > 5 && !properties.includes("rch")) {
       return "dex";
     }
 

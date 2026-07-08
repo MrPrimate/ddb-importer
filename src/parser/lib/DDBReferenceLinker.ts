@@ -28,7 +28,7 @@ type TCompendiumIndex = ICompendiumIndexEntry[] & { compendiumRef?: boolean };
 
 type TReferenceDocumentTypes = I5ePCItem | I5eFeatureItem | I5eMonsterItem | I5eVehicleItem | I5eClassItem;
 
-const INDEX_COMPENDIUMS = [
+const INDEX_COMPENDIUMS: TCompendiumTypes[] = [
   "spell",
   "spells",
   "item",
@@ -227,7 +227,7 @@ function replaceTag(match: string, tagType: string, tagName: string, _p4: number
     return match;
   }
 
-  if (INDEX_COMPENDIUMS.includes(tagType)) {
+  if (INDEX_COMPENDIUMS.includes(tagType as TCompendiumTypes)) {
     return findMatchingTagInIndex(tagType, tagName);
   }
 

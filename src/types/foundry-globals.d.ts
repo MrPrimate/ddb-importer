@@ -60,11 +60,21 @@ declare global {
   //   }
   // }
 
+  interface ITokenizer2APIResponse {
+    prototypeToken: Record<string, any>;
+    layers: Record<string, any>[];
+  }
+  interface ITokenizer2API {
+    tokenize: (actor: Actor | I5eActor, options?: object) => Promise<ITokenizer2APIResponse>;
+    tokenizeBatch: (actors: (Actor | I5eActor)[], options?: object) => Promise<ITokenizer2APIResponse[]>;
+  }
+
   // ddb-importer module global
   interface Window {
     Tokenizer: {
-      autoToken: any;
+      autoToken: (actor: Actor | I5eActor, options?: object) => Promise<string>;
     };
+    Tokenizer2: ITokenizer2API;
     DDBImporter: {
       lib: Record<string, any>;
       [key: string]: any;

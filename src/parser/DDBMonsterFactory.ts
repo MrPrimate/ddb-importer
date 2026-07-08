@@ -101,7 +101,7 @@ interface IDDBMonsterFactory {
   extra?: boolean;
   notifier?: (note: any, options?: NotifierV1Props) => void;
   notifierV2?: (props: NotifierV2Props) => void;
-  type?: string;
+  type?: TMonsterImporterTypes;
   forceUpdate?: boolean | null;
   useLocalKey?: boolean | null;
   keyPostfix?: string | null;
@@ -124,7 +124,7 @@ export default class DDBMonsterFactory {
   keys: { useLocal: boolean; keyPostfix: string };
   notifier: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
   notifierV2: ((props: NotifierV2Props) => void) | null;
-  type: string;
+  type: TMonsterImporterTypes;
   compendiumFolders: DDBCompendiumFolders;
   update: boolean;
   updateImages: boolean;
@@ -177,8 +177,14 @@ export default class DDBMonsterFactory {
   }
 
   constructor ({
-    ddbData = null, extra = false, notifier = null, notifierV2 = null, type = "monsters", forceUpdate = null,
-    useLocalKey = null, keyPostfix = null,
+    ddbData = null,
+    extra = false,
+    notifier = null,
+    notifierV2 = null,
+    type = "monsters",
+    forceUpdate = null,
+    useLocalKey = null,
+    keyPostfix = null,
   }: IDDBMonsterFactory = {}) {
     this.extra = extra;
     this.keys = {

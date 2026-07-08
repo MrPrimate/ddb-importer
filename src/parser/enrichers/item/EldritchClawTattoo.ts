@@ -17,7 +17,6 @@ export default class EldritchClawTattoo extends DDBEnricherData {
       data: {
         flags: {
           ddbimporter: {
-            // @ts-expect-error - todo
             activityRiders: ["DDBEldritchMaul1"],
           },
         },

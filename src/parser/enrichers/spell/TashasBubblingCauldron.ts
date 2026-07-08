@@ -33,7 +33,6 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
             type: "",
             size: "",
             height: "",
-            // @ts-expect-error - todo
             units: "",
           },
           affects: {},

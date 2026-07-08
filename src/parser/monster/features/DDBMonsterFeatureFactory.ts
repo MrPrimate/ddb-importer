@@ -256,8 +256,8 @@ export default class DDBMonsterFeatureFactory {
         const name = title.trim();
         if (name && name.length > 0) {
           if (DDBMonsterFeatureFactory.namePassMatch(name)) return;
-          // @ts-expect-error - TODO loop back to this, it's been here for a long time
-          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split(".")[0] : undefined;
+          const pDomOuter = foundry.utils.getProperty(pDom, "outerHTML") as string | undefined;
+          const titleHTML = pDomOuter ? pDomOuter.split(".")[0] : undefined;
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
         }
@@ -271,8 +271,8 @@ export default class DDBMonsterFeatureFactory {
         const title = pDom.textContent.split(".")[0];
         const name = title.trim();
         if (name && name.length > 0) {
-          // @ts-expect-error - TO DO: loop back to this, it's been here for a long time
-          const titleHTML = pDom.outerHTML ? pDom.outerHTML.split(".")[0] : undefined;
+          const pDomOuter = foundry.utils.getProperty(pDom, "outerHTML") as string | undefined;
+          const titleHTML = pDomOuter ? pDomOuter.split(".")[0] : undefined;
           const action = { name, options: { html: "", ddbMonster: this.ddbMonster, type, titleHTML } };
           this.featureBlocks[type].push(action);
         }

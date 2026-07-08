@@ -1,6 +1,11 @@
+import { COMPENDIUM_LOOKUP } from "./CompendiumHelper";
+
 export {};
 
 global {
+
+  type TCompendiumTypes = typeof COMPENDIUM_LOOKUP[number]["type"];
+
   interface IDDBImporterDebugLogEntry {
     level: string;
     message: string;

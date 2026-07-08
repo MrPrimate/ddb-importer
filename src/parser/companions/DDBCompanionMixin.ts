@@ -11,7 +11,7 @@ export default class DDBCompanionMixin {
   npc: I5eMonsterData;
   data: I5eMonsterData;
   parsed: boolean;
-  type: string;
+  type: TMonsterImporterTypes;
   subType: string;
   rules: string;
   options: IDDBCompanionMixinOptions;

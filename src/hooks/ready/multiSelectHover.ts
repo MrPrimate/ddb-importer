@@ -1,17 +1,17 @@
 export function multiSelectHover() {
 
-  // @ts-expect-error - I know
-  const originalRefresh = foundry.applications.elements.HTMLMultiSelectElement.prototype._refresh;
-  // @ts-expect-error - I know
-  foundry.applications.elements.HTMLMultiSelectElement.prototype._refresh = function() {
+  // _refresh is not exposed on the HTMLMultiSelectElement type
+  const proto = foundry.applications.elements.HTMLMultiSelectElement.prototype as unknown as { _refresh: () => void };
+  const originalRefresh = proto._refresh;
+  proto._refresh = function(this: HTMLElement) {
     originalRefresh.call(this);
     if (!this.classList.contains("ddb-source-select")) return;
     const select = this.querySelector("select");
-    for (const tag of this.querySelectorAll(".tags .tag")) {
+    for (const tag of this.querySelectorAll<HTMLElement>(".tags .tag")) {
       const key = tag.dataset.key;
-      const option = select?.querySelector(`option[value="${CSS.escape(key)}"]`);
+      const option = select?.querySelector<HTMLElement>(`option[value="${CSS.escape(key)}"]`);
       if (option?.dataset.tooltip) {
-        tag.querySelector("span").dataset.tooltip = option.dataset.tooltip;
+        tag.querySelector<HTMLElement>("span").dataset.tooltip = option.dataset.tooltip;
       }
     }
   };

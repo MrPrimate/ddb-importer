@@ -137,8 +137,8 @@ export default class DDBRace {
   }
 
   #getFullName(): string {
-    // @ts-expect-error - sometimes it might, leave for now
-    const baseName = this.race.fullName ?? this.race.name;
+    // name is not in the IDDBRace model but some payloads carry it
+    const baseName = this.race.fullName ?? (foundry.utils.getProperty(this.race, "name") as string);
     const lineageName = this.lineageName;
     const legacyName = this.isMuncher && this.isLegacy && this.data.system.source.book
       ? ` (${this.data.system.source.book})`
@@ -695,8 +695,8 @@ export default class DDBRace {
           // classId: this.ddbParentClassDefinition.id,
         })
         ?? this.getCompendiumIxByFlags(["traits"], { // choice feature
-          // @ts-expect-error - TODO: Investigate this
-          "id": option.optionComponentId,
+          // TODO: investigate - IDDBChoiceDefinitionOption has no optionComponentId, so this lookup key is likely always undefined
+          "id": foundry.utils.getProperty(option, "optionComponentId"),
           "isChoiceFeature": true,
           "dndbeyond.entityRaceId": this.race.entityRaceId,
           "dndbeyond.choice.optionId": option.id,
@@ -1279,14 +1279,12 @@ export default class DDBRace {
       const advancement = this.data.system.advancement[key];
       if (advancement.title !== "Celestial Revelation") continue;
       advancement.type = "ItemGrant";
-      // @ts-expect-error - we know the structure of the configuration here and need to move some things around, TODO, we should maybe revisit to force a proper advancement object for ItemGrant
-      advancement.configuration.items = foundry.utils.deepClone(advancement.configuration.pool);
-      // @ts-expect-error - see above
-      delete advancement.configuration.pool;
-      // @ts-expect-error - see above
-      delete advancement.configuration.choices;
-      // @ts-expect-error - see above
-      delete advancement.configuration.allowDrops;
+      // reshape the choice configuration into an ItemGrant configuration
+      const configuration = advancement.configuration as Record<string, any>;
+      configuration.items = foundry.utils.deepClone(configuration.pool);
+      delete configuration.pool;
+      delete configuration.choices;
+      delete configuration.allowDrops;
       this.data.system.advancement[key] = advancement;
     }
   }

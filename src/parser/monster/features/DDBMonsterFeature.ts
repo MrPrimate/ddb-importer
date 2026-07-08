@@ -28,6 +28,13 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
   declare rawCharacter: I5eMonsterData | null;
   declare data: I5eWeaponItem | I5eFeatItem;
+
+  // every use is behind a this.templateType === "weapon" guard, which cannot
+  // narrow the union on this.data, so expose the weapon view directly
+  get weaponData(): I5eWeaponItem {
+    return this.data as I5eWeaponItem;
+  }
+
   declare enricher: DDBMonsterFeatureEnricher;
   declare type: TDDBMonsterActionType;
   actionData: IDDBMonsterActionData;
@@ -116,7 +123,6 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
           fullName: this.fullName,
           actionCopy: this.actionCopy,
           type: this.type,
-          // @ts-expect-error this is removed later
           description: this.html,
         },
       },
@@ -410,8 +416,8 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
   getActionType(): TActivationCost {
     let action: TActivationCost;
-    // @ts-expect-error this complains about villain being set, but we handle that use case later
-    action = `${this.type}`;
+    // villain is not a real activation cost; the villain case is rewritten below
+    action = `${this.type}` as TActivationCost;
     const actionAction = this.strippedHtml.toLowerCase().match(/as (a|an) action/);
     const bonusAction = this.strippedHtml.toLowerCase().match(/as a bonus action/);
     const reAction = this.strippedHtml.toLowerCase().match(/as a reaction/);
@@ -1101,8 +1107,7 @@ ${this.data.system.description.value}
     }
 
     if (this.templateType === "weapon") {
-      // @ts-expect-error the template type weapon always has damage
-      this.data.system.damage = this.actionData.damage;
+      this.weaponData.system.damage = this.actionData.damage;
     }
 
     if ("proficient" in this.data.system) {
@@ -1110,8 +1115,7 @@ ${this.data.system.description.value}
     }
 
     if (this.templateType === "weapon" && (this.weaponAttack || this.spellAttack)) {
-      // @ts-expect-error the template type weapon always has equipped
-      this.data.system.equipped = true;
+      this.weaponData.system.equipped = true;
     }
 
     if (this.weaponAttack && this.templateType === "weapon") {
@@ -1129,16 +1133,13 @@ ${this.data.system.description.value}
     }
 
     if (this.templateType === "weapon") {
-      // @ts-expect-error the template type weapon always has damage
-      this.data.system.damage = this.actionData.damage;
-      // @ts-expect-error the template type weapon always has range
-      this.data.system.range = this.actionData.range;
+      this.weaponData.system.damage = this.actionData.damage;
+      this.weaponData.system.range = this.actionData.range;
     }
     this.data.system.uses = this.actionData.uses;
 
     for (const [key, value] of Object.entries(this.actionData.properties) as [(TWeaponProperties | TFeatProperties), boolean][]) {
-      // @ts-expect-error can't figure out this
-      if (value) this.data.system.properties.push(key);
+      if (value) (this.data.system.properties as (TWeaponProperties | TFeatProperties)[]).push(key);
     }
 
     if (this.name.includes("/Day") || this.name.includes("Recharges")) {
@@ -1191,10 +1192,8 @@ ${this.data.system.description.value}
     if (!this.actionCopy) {
       this.data.system.uses = this.actionData.uses;
       if (this.templateType === "weapon") {
-        // @ts-expect-error the template type weapon always has damage
-        this.data.system.damage = this.actionData.damage;
-        // @ts-expect-error the template type weapon always has range
-        this.data.system.range = this.actionData.range;
+        this.weaponData.system.damage = this.actionData.damage;
+        this.weaponData.system.range = this.actionData.range;
       }
     } else {
       for (const id of Object.keys(this.data.system.activities)) {
@@ -1215,10 +1214,8 @@ ${this.data.system.description.value}
     this.data.system.uses = this.actionData.uses;
 
     if (this.templateType === "weapon") {
-      // @ts-expect-error the template type weapon always has damage
-      this.data.system.damage = this.actionData.damage;
-      // @ts-expect-error the template type weapon always has range
-      this.data.system.range = this.actionData.range;
+      this.weaponData.system.damage = this.actionData.damage;
+      this.weaponData.system.range = this.actionData.range;
     }
 
     // legendary resistance check
@@ -1267,10 +1264,8 @@ ${this.data.system.description.value}
     }
 
     if (this.templateType === "weapon") {
-      // @ts-expect-error the template type weapon always has damage
-      this.data.system.damage = this.actionData.damage;
-      // @ts-expect-error the template type weapon always has range
-      this.data.system.range = this.actionData.range;
+      this.weaponData.system.damage = this.actionData.damage;
+      this.weaponData.system.range = this.actionData.range;
     }
 
   }
@@ -1811,7 +1806,6 @@ ${this.data.system.description.value}
 
   flagCleanup() {
     delete this.data.flags.ddbimporter?.defaultAdditionalActivities;
-    // @ts-expect-error this is a flag we set on the item for use in the enricher, but it shouldn't be kept long term
     delete this.data.flags.monsterMunch?.description;
     if (this.stripFlagData) {
       delete this.data.flags.monsterMunch?.actionData;

@@ -54,9 +54,9 @@ function validSrc(src: unknown): string | null {
   return typeof src === "string" && src.trim() !== "" ? src : null;
 }
 
-export function levelId(level: I5eSceneLevel): string | null {
-  // @ts-expect-error - because this could be an instance with derived id or just a data schema, and we don't model the type to that extent
-  return validSrc(level?.id) ?? validSrc(level?._id);
+export function levelId(level: I5eSceneLevel | Scene): string | null {
+  if ("id" in level) return validSrc(level.id) ?? validSrc(level._id);
+  return validSrc(level?._id);
 }
 
 function levelSource(level: I5eSceneLevel, source: ISceneGridImageSource["source"]): ISceneGridImageSource | null {

@@ -914,7 +914,7 @@ export default class AdventureMunch {
         const compData = SETTINGS.COMPENDIUMS.find((c) => c.title === "Journals");
         await createDDBCompendium(compData);
         for (const key of Object.keys(this.compendiums)) {
-          this.compendiums[key] = CompendiumHelper.getCompendiumType(key);
+          this.compendiums[key] = CompendiumHelper.getCompendiumType(key as TCompendiumTypes);
           await this.compendiums[key].getIndex({ fields: ["name", "flags.ddbimporter.id", "system.source.rules"] });
         }
       }

@@ -2,7 +2,7 @@ export {};
 
 global {
   interface IDDBCompanionMixinOptions {
-    type?: string;
+    type?: TMonsterImporterTypes;
     subType?: string;
     rules?: "2014" | "2024";
     name?: string;

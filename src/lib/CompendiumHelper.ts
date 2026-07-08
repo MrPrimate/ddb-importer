@@ -5,60 +5,62 @@ import FileHelper from "./FileHelper";
 import { SETTINGS } from "../config/_module";
 import { createDDBCompendium } from "../hooks/ready/checkCompendiums";
 
+// a mapping of compendiums with content type
+export const COMPENDIUM_LOOKUP = [
+  { type: "adventure", compendium: "entity-adventure-compendium" },
+  { type: "adventures", compendium: "entity-adventure-compendium" },
+  { type: "background", compendium: "entity-background-compendium" },
+  { type: "backgrounds", compendium: "entity-background-compendium" },
+  { type: "class", compendium: "entity-class-compendium" },
+  { type: "classes", compendium: "entity-class-compendium" },
+  { type: "classfeatures", compendium: "entity-class-compendium" },
+  { type: "consumable", compendium: "entity-item-compendium" },
+  { type: "container", compendium: "entity-item-compendium" },
+  { type: "custom", compendium: "entity-override-compendium" },
+  { type: "equipment", compendium: "entity-item-compendium" },
+  { type: "feat", compendium: "entity-class-compendium" },
+  { type: "feats", compendium: "entity-feat-compendium" },
+  { type: "feature", compendium: "entity-class-compendium" },
+  { type: "features", compendium: "entity-class-compendium" },
+  { type: "inventory", compendium: "entity-item-compendium" },
+  { type: "item", compendium: "entity-item-compendium" },
+  { type: "items", compendium: "entity-item-compendium" },
+  { type: "journal", compendium: "entity-journal-compendium" },
+  { type: "JournalEntry", compendium: "entity-journal-compendium" },
+  { type: "journals", compendium: "entity-journal-compendium" },
+  { type: "loot", compendium: "entity-item-compendium" },
+  { type: "magicitem", compendium: "entity-item-compendium" },
+  { type: "magicitems", compendium: "entity-item-compendium" },
+  { type: "monster", compendium: "entity-monster-compendium" },
+  { type: "monsters", compendium: "entity-monster-compendium" },
+  { type: "npc", compendium: "entity-monster-compendium" },
+  { type: "override", compendium: "entity-override-compendium" },
+  { type: "race", compendium: "entity-species-compendium" },
+  { type: "races", compendium: "entity-species-compendium" },
+  { type: "species", compendium: "entity-species-compendium" },
+  { type: "RollTable", compendium: "entity-table-compendium" },
+  { type: "spell", compendium: "entity-spell-compendium" },
+  { type: "spell", compendium: "entity-spell-compendium" },
+  { type: "spells", compendium: "entity-spell-compendium" },
+  { type: "subclass", compendium: "entity-class-compendium" },
+  { type: "subclasses", compendium: "entity-class-compendium" },
+  { type: "summon", compendium: "entity-summons-compendium" },
+  { type: "summons", compendium: "entity-summons-compendium" },
+  { type: "table", compendium: "entity-table-compendium" },
+  { type: "tables", compendium: "entity-table-compendium" },
+  { type: "tool", compendium: "entity-item-compendium" },
+  { type: "trait", compendium: "entity-species-compendium" },
+  { type: "traits", compendium: "entity-species-compendium" },
+  { type: "vehicle", compendium: "entity-vehicle-compendium" },
+  { type: "vehicles", compendium: "entity-vehicle-compendium" },
+  { type: "weapon", compendium: "entity-item-compendium" },
+] as const;
+
 const CompendiumHelper = {
 
-  // a mapping of compendiums with content type
-  LOOKUP: [
-    { type: "adventure", compendium: "entity-adventure-compendium" },
-    { type: "adventures", compendium: "entity-adventure-compendium" },
-    { type: "background", compendium: "entity-background-compendium" },
-    { type: "backgrounds", compendium: "entity-background-compendium" },
-    { type: "class", compendium: "entity-class-compendium" },
-    { type: "classes", compendium: "entity-class-compendium" },
-    { type: "classfeatures", compendium: "entity-class-compendium" },
-    { type: "consumable", compendium: "entity-item-compendium" },
-    { type: "container", compendium: "entity-item-compendium" },
-    { type: "custom", compendium: "entity-override-compendium" },
-    { type: "equipment", compendium: "entity-item-compendium" },
-    { type: "feat", compendium: "entity-class-compendium" },
-    { type: "feats", compendium: "entity-feat-compendium" },
-    { type: "feature", compendium: "entity-class-compendium" },
-    { type: "features", compendium: "entity-class-compendium" },
-    { type: "inventory", compendium: "entity-item-compendium" },
-    { type: "item", compendium: "entity-item-compendium" },
-    { type: "items", compendium: "entity-item-compendium" },
-    { type: "journal", compendium: "entity-journal-compendium" },
-    { type: "JournalEntry", compendium: "entity-journal-compendium" },
-    { type: "journals", compendium: "entity-journal-compendium" },
-    { type: "loot", compendium: "entity-item-compendium" },
-    { type: "magicitem", compendium: "entity-item-compendium" },
-    { type: "magicitems", compendium: "entity-item-compendium" },
-    { type: "monster", compendium: "entity-monster-compendium" },
-    { type: "monsters", compendium: "entity-monster-compendium" },
-    { type: "npc", compendium: "entity-monster-compendium" },
-    { type: "override", compendium: "entity-override-compendium" },
-    { type: "race", compendium: "entity-species-compendium" },
-    { type: "races", compendium: "entity-species-compendium" },
-    { type: "species", compendium: "entity-species-compendium" },
-    { type: "RollTable", compendium: "entity-table-compendium" },
-    { type: "spell", compendium: "entity-spell-compendium" },
-    { type: "spell", compendium: "entity-spell-compendium" },
-    { type: "spells", compendium: "entity-spell-compendium" },
-    { type: "subclass", compendium: "entity-class-compendium" },
-    { type: "subclasses", compendium: "entity-class-compendium" },
-    { type: "summon", compendium: "entity-summons-compendium" },
-    { type: "summons", compendium: "entity-summons-compendium" },
-    { type: "table", compendium: "entity-table-compendium" },
-    { type: "tables", compendium: "entity-table-compendium" },
-    { type: "tool", compendium: "entity-item-compendium" },
-    { type: "trait", compendium: "entity-species-compendium" },
-    { type: "traits", compendium: "entity-species-compendium" },
-    { type: "vehicle", compendium: "entity-vehicle-compendium" },
-    { type: "vehicles", compendium: "entity-vehicle-compendium" },
-    { type: "weapon", compendium: "entity-item-compendium" },
-  ],
+  LOOKUP: COMPENDIUM_LOOKUP,
 
-  getCompendiumLabel: (type): string => {
+  getCompendiumLabel: (type: TCompendiumTypes): string => {
     const lookup = CompendiumHelper.LOOKUP.find((c) => c.type === type);
     if (!lookup) {
       logger.error(`No compendium mapping exists for type "${type}"`);
@@ -67,7 +69,7 @@ const CompendiumHelper = {
     return utils.getSetting<string>(lookup.compendium);
   },
 
-  getCompendium: (label, fail = true) => {
+  getCompendium: (label: string, fail = true) => {
     const compendium = game.packs.get(label);
     if (compendium) {
       return compendium;
@@ -83,7 +85,7 @@ const CompendiumHelper = {
     }
   },
 
-  getCompendiumType: (type: string, fail = true): CompendiumCollection.Any | undefined => {
+  getCompendiumType: (type: TCompendiumTypes, fail = true): CompendiumCollection.Any | undefined => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     logger.debug(`Getting compendium ${compendiumLabel} for update of ${type}`);
     const compendium = CompendiumHelper.getCompendium(compendiumLabel, fail);
@@ -93,7 +95,7 @@ const CompendiumHelper = {
     return compendium;
   },
 
-  loadCompendiumIndex: async (type: string, indexOptions = {}) => {
+  loadCompendiumIndex: async (type: TCompendiumTypes, indexOptions = {}) => {
     const compendiumLabel = CompendiumHelper.getCompendiumLabel(type);
     foundry.utils.setProperty(CONFIG.DDBI, `compendium.label.${type}`, compendiumLabel);
     const compendium = CompendiumHelper.getCompendium(compendiumLabel);
@@ -107,7 +109,7 @@ const CompendiumHelper = {
     }
   },
 
-  copyExistingActorProperties: async (type: string, foundryActor: I5eActorData) => {
+  copyExistingActorProperties: async (type: TCompendiumTypes, foundryActor: I5eActorData) => {
     const compendium = CompendiumHelper.getCompendiumType(type);
 
     if (utils.getSetting<boolean>("munching-policy-update-existing")) {
@@ -137,7 +139,7 @@ const CompendiumHelper = {
 
   },
 
-  getActorIndexActor: async (type: string, npc: I5eMonsterData | I5ePCData | I5eVehicleData) => {
+  getActorIndexActor: async (type: TCompendiumTypes, npc: I5eMonsterData | I5ePCData | I5eVehicleData) => {
     const monsterIndexFields = ["name", "flags.ddbimporter.id", "system.source.rules"];
     const legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
     const index = await CompendiumHelper.loadCompendiumIndex(type, { fields: monsterIndexFields });
@@ -152,7 +154,7 @@ const CompendiumHelper = {
     return npcMatch;
   },
 
-  existingActorCheck: async (type: string, foundryActor: I5eMonsterData | I5ePCData | I5eVehicleData): Promise<I5eMonsterData | I5ePCData | I5eVehicleData> => {
+  existingActorCheck: async (type: TCompendiumTypes, foundryActor: I5eMonsterData | I5ePCData | I5eVehicleData): Promise<I5eMonsterData | I5ePCData | I5eVehicleData> => {
     const matchingActor = await CompendiumHelper.getActorIndexActor(type, foundryActor);
     if (matchingActor) {
       logger.debug(`Found existing ${type}, updating: ${matchingActor.name}`);
@@ -164,20 +166,20 @@ const CompendiumHelper = {
     return foundryActor as I5eMonsterData | I5ePCData | I5eVehicleData;
   },
 
-  sanitize: (text) => {
+  sanitize: (text: string) => {
     if (text && typeof text === "string") {
       return text.replace(/\s|\./g, "-").toLowerCase();
     }
     return text;
   },
 
-  getDefaultCompendiumName: (compendiumLabel) => {
+  getDefaultCompendiumName: (compendiumLabel: string) => {
     const sanitizedLabel = CompendiumHelper.sanitize(compendiumLabel);
     const name = `ddb-${game.world.id}-${sanitizedLabel}`;
     return name;
   },
 
-  async getCompendiumBannerImage(url, name) {
+  async getCompendiumBannerImage(url: string, name: string) {
     const targetDirectory = utils.getSetting<string>("persistent-storage-location").replace(/^\/|\/$/g, "");
 
     const downloadOptions = {
@@ -308,7 +310,7 @@ const CompendiumHelper = {
    * @param {boolean} getDocument If true, returns the complete document from the compendium. Defaults to false.
    * @returns {object|null} The entry from the index, or the complete document if getDocument is true. Null if no match.
    */
-  queryCompendiumEntry: async (compendiumName, documentName, getDocument = false) => {
+  queryCompendiumEntry: async (compendiumName: string, documentName: string, getDocument = false): Promise<object | null> => {
     // normalize the entity name for comparison
     documentName = utils.normalizeString(documentName);
 

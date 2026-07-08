@@ -32,6 +32,23 @@ interface IDDBItemImporterGetCompendiumItemsOptions {
   linkItemFlags?: boolean;
 }
 
+type TDDBImporterTypes = "items"
+  | "spells"
+  | "feats"
+  | "background"
+  | "race"
+  | "subclass"
+  | "class"
+  | "monsters"
+  | "vehicles"
+  | "tables"
+  | "custom"
+  | "trait"
+  | "inventory"
+  | "features"
+  | "summons";
+
+
 interface IDDBItemImporterBuildHandlerOptions {
   ids?: string[] | null;
   chrisPremades?: boolean;
@@ -78,10 +95,10 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   srdImageLibrary2014: IIconMapEntry[] | null;
   srdImageLibrary2024: IIconMapEntry[] | null;
   _documents: TType[];
-  type: string;
+  type: TDDBImporterTypes;
   recursive: boolean | null;
 
-  constructor(type: string, documents: TType[], {
+  constructor(type: TDDBImporterTypes, documents: TType[], {
     matchFlags = [],
     matchFields = [],
     deleteBeforeUpdate = null,
@@ -306,7 +323,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   async addCompendiumFolderIds(documents: TType[]): Promise<TType[]> {
     if (this.useCompendiumFolders) {
       await this.compendiumFolders.loadCompendium(this.type, true);
-      const results = await this.compendiumFolders.addCompendiumFolderIds(documents);
+      const results = await this.compendiumFolders.addCompendiumFolderIds(documents) as TType[];
       return results;
     } else {
       return documents;
@@ -349,10 +366,8 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   async createCompendiumItem(item: TType): Promise<Item.Implementation | RollTable.Implementation | null> {
     let newItem;
     switch (this.type) {
-      case "table":
       case "tables": {
-        // @ts-expect-error - we know this is the correct type for this compendium
-        newItem = new RollTable(item);
+        newItem = new RollTable(item as unknown as ConstructorParameters<typeof RollTable>[0]);
         break;
       }
       default: {
@@ -414,11 +429,9 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
       packId: this.compendium.metadata.id,
     });
 
-    // @ts-expect-error - results on this item allows for TableResult delete
-    if (existingItem.results) {
+    if (foundry.utils.getProperty(existingItem, "results")) {
       logger.debug(`Deleting existing table results on ${existingItem.name} before update`);
-      // @ts-expect-error - results on this item allows for TableResult delete
-      await existingItem.deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
+      await (existingItem as unknown as RollTable.Implementation).deleteEmbeddedDocuments("TableResult", [], { deleteAll: true });
     }
     if (existingItem.effects?.size && existingItem.effects.size > 0) {
       logger.debug(`Deleting existing active effects on ${existingItem.name} before update`);
@@ -426,11 +439,10 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     }
 
     const update = await existingItem.update(updateItem as any, {
-      // @ts-expect-error - we know this is allowed
       pack: this.compendium.metadata.id,
       render: false,
       recursive: this.recursive,
-    });
+    } as unknown as Parameters<typeof existingItem.update>[1]);
     // const update = existingItem.update(updateItem, { pack: compendium.metadata.id, recursive: false, render: false });
     return update;
   }
@@ -545,7 +557,6 @@ ${item.system.description.chat}
 
     this.results = createResults.concat(results);
     await Promise.all(this.results);
-    // @ts-expect-error - this can be corrected once type is from a known set of strings instead of dynamic
     await Hooks.callAll(`ddb-importer.${this.type.toLowerCase()}CompendiumUpdateComplete`, { results: this.results });
     return this.results;
   }
@@ -629,7 +640,7 @@ ${item.system.description.chat}
    * @returns {<Document[]>} documents loaded from compendium
    */
   static async getCompendiumItems<TType extends TAll5eDocuments = TAll5eDocuments>(
-    items: TType[], type: string,
+    items: TType[], type: TDDBImporterTypes,
     { looseMatch = false, monsterMatch = false, keepId = false,
       deleteCompendiumId = true, keepDDBId = false, linkItemFlags = false }: IDDBItemImporterGetCompendiumItemsOptions = {},
   ): Promise<TType[]> {
@@ -710,10 +721,10 @@ ${item.system.description.chat}
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
           if (foundry.utils.hasProperty(moduleArt, "token.texture.scaleY"))
             monster.prototypeToken.texture.scaleY = moduleArt.token.texture.scaleY as number;
-          // @ts-expect-error - pretty sure this is correct
-          if (moduleArt.token.texture.scaleX) monster.prototypeToken.texture.scaleX = moduleArt.token.texture.scaleX;
-          // @ts-expect-error - pretty sure this is correct
-          if (moduleArt.token.ring) monster.prototypeToken.ring = moduleArt.token.ring;
+          const moduleArtScaleX = foundry.utils.getProperty(moduleArt, "token.texture.scaleX") as number | undefined;
+          if (moduleArtScaleX) monster.prototypeToken.texture.scaleX = moduleArtScaleX;
+          const moduleArtRing = foundry.utils.getProperty(moduleArt, "token.ring");
+          if (moduleArtRing) foundry.utils.setProperty(monster, "prototypeToken.ring", moduleArtRing);
         } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(nameMatch, "prototypeToken.texture.src"))
           && foundry.utils.hasProperty(nameMatch, "prototypeToken.texture.src")
         ) {
@@ -753,7 +764,7 @@ ${item.system.description.chat}
     return Promise.all(promises) as unknown as TType[];
   }
 
-  static async buildHandler<TType extends TDDBItemImporterDocument = TDDBItemImporterDocument>(type: string, documents: TType[], updateBool: boolean,
+  static async buildHandler<TType extends TDDBItemImporterDocument = TDDBItemImporterDocument>(type: TDDBImporterTypes, documents: TType[], updateBool: boolean,
     { ids = null, chrisPremades = false, matchFlags = [], matchFields = [], indexFilter = null,
       deleteBeforeUpdate = null, filterDuplicates = true, useCompendiumFolders = null, updateIcons = true, notifier = null, recursive = null }: IDDBItemImporterBuildHandlerOptions,
     overrideHandler: DDBItemImporter | null = null,
@@ -778,8 +789,10 @@ ${item.system.description.chat}
 
     handler.documents = filteredItems;
     if (chrisPremades) {
-      // @ts-expect-error - correct, but tables never pass chris premades so this is fine
-      handler.documents = await ExternalAutomations.applyChrisPremadeEffects({ documents: handler.documents, compendiumItem: true });
+      handler.documents = await ExternalAutomations.applyChrisPremadeEffects({
+        documents: handler.documents as TExternalAutomationDocuments[],
+        compendiumItem: true,
+      });
     }
     if (notifier) notifier(`Importing ${handler.documents.length} ${type} documents!`, { nameField: true });
     logger.debug(`Importing ${handler.documents.length} ${type} documents!`, foundry.utils.deepClone(documents));

@@ -47,12 +47,11 @@ function evaluateMath(obj: string): number {
  * @param {IDDBData} ddb The DDB data object.
  * @param {I5ePCData} _character The character data object.
  * @param {string} match The match string containing template values.
- * @param {object} feature The feature object associated with the match.
+ * @param {TFeatures | TDefinitions | TActions} feature The feature object associated with the match.
  * @returns {IDDBTemplateStringDisplayString} An object containing the parsed string and link text.
  */
-function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature: object): IDDBTemplateStringDisplayString {
-  // @ts-expect-error - ignore this check for now, revisit when we refactor the template string parsing and can properly type the feature object
-  const featureDef = feature.definition ?? feature;
+function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature: TFeatures | TDefinitions | TActions): IDDBTemplateStringDisplayString {
+  const featureDef = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
   const splitMatchAt = match.split("@");
   let result = splitMatchAt[0];
   const classOption = [ddb.character.options.race, ddb.character.options.class, ddb.character.options.feat]
@@ -130,7 +129,7 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
   // classlevel*5
   // (classlevel/2)@roundup
   if (result.includes("classlevel")) {
-    const cls = featureDef.classId
+    const cls = "classId" in featureDef
       ? ddb.character.classes.find((cls) =>
         cls.definition.id == featureDef.classId
         || featureDef.classId === cls.subclassDefinition?.id,
@@ -202,8 +201,12 @@ function parseMatch(ddb: IDDBData, _character: I5ePCData, match: string, feature
 
   // limiteduse
   if (result.includes("limiteduse")) {
-    const limitedUse = featureDef.limitedUse?.maxUses || "";
-    result = result.replace("limiteduse", limitedUse);
+    const limitedUse = "limitedUse" in featureDef
+      ? "maxUses" in featureDef.limitedUse
+        ? (featureDef.limitedUse.maxUses as number || "")
+        : ""
+      : "";
+    result = result.replace("limiteduse", String(limitedUse));
     linktext = result.replace("limiteduse", ` (Has limited uses) `);
   }
 
@@ -436,16 +439,15 @@ type TActions = IDDBAction | IDDBConfigNaturalAction;
  */
 export function parse(ddb: IDDBData, character: I5ePCData, text: string, feature: TFeatures | TDefinitions | TActions): IDDBTemplateStringResult | undefined {
   if (!text) return;
-  // @ts-expect-error - ignore this check
-  const featureDefinition = feature.definition ?? feature;
+  const featureDefinition = (foundry.utils.getProperty(feature, "definition") ?? feature) as TDefinitions;
 
   text = text.replace(/\r\n•/g, "</p>\r\n<p>&bull;");
-  const result = {
+  const result: IDDBTemplateStringResult = {
     id: featureDefinition.id,
     entityTypeId: featureDefinition.entityTypeId,
     componentId: featureDefinition.componentId ? featureDefinition.componentId : null,
-    componentTypeId: featureDefinition.componentTypeId ? featureDefinition.componentTypeId : null,
-    damageTypeId: featureDefinition.damageTypeId ? featureDefinition.damageTypeId : null,
+    componentTypeId: foundry.utils.getProperty(featureDefinition, "componentTypeId") as number ?? null,
+    damageTypeId: foundry.utils.getProperty(featureDefinition, "damageTypeId") as number ?? null,
     text,
     resultStrings: [],
     displayStrings: [],

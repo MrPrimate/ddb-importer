@@ -9,7 +9,8 @@ import { DDBReferenceLinker } from "../parser/lib/_module";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 
-export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
+// tab contexts here are deep nested partials, wider than the base Tab record
+export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(ApplicationV2)<DDBAppV2Context> {
 
   static override get PARTS(): Record<string, DDBApplicationPart> {
     return super.PARTS;
@@ -113,7 +114,6 @@ export default abstract class DDBAppV2 extends HandlebarsApplicationMixin(Applic
     }
   }
 
-  // @ts-expect-error - we use deep nested tabs
   async _prepareContext(options): Promise<DDBAppV2Context> {
     const noCacheLoad = options?.noCacheLoad ?? false;
     if (!noCacheLoad) await DDBReferenceLinker.importCacheLoad();

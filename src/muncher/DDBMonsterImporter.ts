@@ -9,7 +9,7 @@ import {
 
 interface IDDBMonsterImporter {
   monster?: I5eMonsterData;
-  type?: string;
+  type?: TMonsterImporterTypes;
   updateExisting?: boolean;
   fullWipe?: boolean;
   notifier?: (title: any, { message, isError }: NotifierV1Props) => void;
@@ -18,7 +18,7 @@ interface IDDBMonsterImporter {
 export default class DDBMonsterImporter {
   compendiumActor: Actor.Implementation | null;
   itemImporter: DDBItemImporter;
-  type: string;
+  type: TMonsterImporterTypes;
   fullWipe: boolean;
   updateExisting: boolean;
   monster: I5eMonsterData;
@@ -31,7 +31,6 @@ export default class DDBMonsterImporter {
     this.updateExisting = updateExisting ?? utils.getSetting<boolean>("munching-policy-update-existing");
 
     this.compendiumActor = null;
-
 
     this.itemImporter = new DDBItemImporter(type, [], {
       notifier: notifier ?? utils.munchNote,
@@ -132,10 +131,8 @@ export default class DDBMonsterImporter {
           && foundry.utils.hasProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags")
         ) {
           const newTags = [...new Set([
-            // @ts-expect-error this is an array
-            ...this.monster.prototypeToken.flags.tagger.tags,
-            // @ts-expect-error this is an array
-            ...this.compendiumActor.prototypeToken.flags.tagger.tags,
+            ...(foundry.utils.getProperty(this.monster, "prototypeToken.flags.tagger.tags") as string[]),
+            ...(foundry.utils.getProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags") as string[]),
           ])];
           foundry.utils.setProperty(this.compendiumActor, "prototypeToken.flags.tagger.tags", newTags);
         }
@@ -386,8 +383,7 @@ export default class DDBMonsterImporter {
           portraitFit: "contain",
           wildcardMode: "keep",
         };
-        // @ts-expect-error no types for tokenizer-2 yet
-        const { prototypeToken, layers } = await game.modules.get("tokenizer-2").api.tokenize(this.monster, {
+        const { prototypeToken, layers } = await (game.modules.get("tokenizer-2") as { api?: ITokenizer2API }).api.tokenize(this.monster, {
           ...cfg, filename, updateActor: false,
         });
         foundry.utils.mergeObject(this.monster, foundry.utils.expandObject(prototypeToken));

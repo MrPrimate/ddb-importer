@@ -29,7 +29,8 @@ global {
 
   type TVolumeUnits = "cubicFoot" | "litre";
 
-  type TTemplateUnits = "ft" | "mi";
+  // empty string = unset in dnd5e data
+  type TTemplateUnits = "ft" | "mi" | "";
 
   type TEquipmentTypes = TArmorType | "clothing" | "ring" | "rod" | "trinket" | "vehicle" | "wand" | "wondrous";
 
@@ -93,7 +94,10 @@ global {
     fullName: string;
     actionCopy: boolean;
     type: TDDBMonsterActionType;
-    actionData: Record<string, any>;
+    // set after the stub is built; optionally stripped in flagCleanup
+    actionData?: Record<string, any>;
+    // transient: read by the enricher, deleted again in flagCleanup
+    description?: string;
   }
 
   interface I5eMidiItemProperties {
@@ -792,6 +796,7 @@ global {
     isHomebrew?: boolean;
     entityRaceId?: number;
     species?: string;
+    trait?: string;
     moreDetailsUrl?: string;
 
     // Image handling

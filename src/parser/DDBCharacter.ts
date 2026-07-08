@@ -342,8 +342,8 @@ class DDBCharacter {
     this.armor = {};
 
     this.matchedFeatures = [];
-    // @ts-expect-error - circular error in 5e types
-    this.possibleFeatures = this.currentActor?.getEmbeddedCollection("Item") ?? [];
+    // 5e types produce a circular error on getEmbeddedCollection here
+    this.possibleFeatures = (this.currentActor?.getEmbeddedCollection("Item") ?? []) as typeof this.possibleFeatures;
     this.proficiencyFinder = new ProficiencyFinder({ ddb: this.source?.ddb });
     this.isMuncher = isMuncher;
     this.addToCompendiums = addToCompendiums ?? utils.getSetting<boolean>("character-update-policy-add-features-to-compendiums-dev");

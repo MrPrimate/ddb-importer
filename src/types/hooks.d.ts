@@ -17,6 +17,7 @@ declare module "fvtt-types/configuration" {
       // client/hooks.mjs
       "applyActiveEffect": (actor: Actor.Implementation, change: any, current: any, delta: any, changes: Record<string, unknown>) => void;
 
+      "dropCanvasData": (canvas: Canvas, data: Record<string, unknown>, event: Event) => boolean | void;
       // ---- Dynamic per-class render hooks ----
       // Foundry AppV1/AppV2 emit render<Class> hooks named after each sheet
       // class. registerSheets.ts registers `render${sheetName}` where sheetName
@@ -124,10 +125,19 @@ declare module "fvtt-types/configuration" {
       "ddb-importer.monsterAddToCompendiumComplete": (data: { actor: Actor.Implementation | null }) => void;
       "ddb-importer.spellsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.classCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.subclassCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.raceCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.summonsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.featsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.monstersCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.traitsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.customCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.summonsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.backgroundsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.featuresCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
       "ddb-importer.vehiclesCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
-      "ddb-importer.itemsCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.inventoryCompendiumUpdateComplete": (data: { results: Item.Implementation[] | null }) => void;
+      "ddb-importer.tablesCompendiumUpdateComplete": (data: { results: Table.Implementation[] | null }) => void;
       "ddb-importer.characterProcessDataComplete": (data: { actor: Actor.Implementation; ddbCharacter: DDBCharacter }) => void;
       "ddb-importer.compendiumCreationComplete": (data: { compendiums: string[] }) => void;
       "ddb-importer.preCreateTattooFromSpell": (spell: Item.Implementation, config: SpellTattooConfiguration) => boolean | void;

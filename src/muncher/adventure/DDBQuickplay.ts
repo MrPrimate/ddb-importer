@@ -79,10 +79,8 @@ export default class DDBQuickplay {
     // V14: scene shift lives on scene.shiftX/shiftY at root - Scene#background
     // (and therefore scene.background.shiftX/Y) is deprecated and logs a
     // compatibility warning every read.
-    // @ts-expect-error - not in types yet
-    const liveOffsetX = scene.shiftX;
-    // @ts-expect-error - not in types yet
-    const liveOffsetY = scene.shiftY;
+    const liveOffsetX = foundry.utils.getProperty(scene, "shiftX");
+    const liveOffsetY = foundry.utils.getProperty(scene, "shiftY");
     const sceneOffsetX = typeof liveOffsetX === "number" ? liveOffsetX : 0;
     const sceneOffsetY = typeof liveOffsetY === "number" ? liveOffsetY : 0;
     // Foundry's actual grid size on the scene - what tiles need to align to.

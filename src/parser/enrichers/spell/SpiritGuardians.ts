@@ -94,7 +94,6 @@ export default class SpiritGuardians extends DDBEnricherData {
         overrides: {
           data: {
             flags: {
-              // @ts-expect-error - todo
               midiProperties: {
                 autoTargetAction: "none",
                 triggeredActivityId: "none",

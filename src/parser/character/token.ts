@@ -48,8 +48,8 @@ DDBCharacter.prototype._generateToken = function _generateToken(this: DDBCharact
     const devilSight = senses.special.includes("You can see normally in darkness");
     if (devilSight && game.modules.get("vision-5e")?.active) {
       foundry.utils.setProperty(tokenData, "sight.visionMode", "devilsSight");
-      // @ts-expect-error - provided by vision-5e
-      tokenData.sight = foundry.utils.mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.devilsSight.vision.defaults);
+      const devilsSightDefaults = foundry.utils.getProperty(CONFIG.Canvas.visionModes, "devilsSight.vision.defaults") as I5eTokenSight;
+      tokenData.sight = foundry.utils.mergeObject(tokenData.sight, devilsSightDefaults);
     } else if (devilSight) {
       foundry.utils.setProperty(tokenData, "sight.visionMode", "basic");
       tokenData.sight = foundry.utils.mergeObject(tokenData.sight, CONFIG.Canvas.visionModes.basic.vision.defaults);

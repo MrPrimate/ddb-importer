@@ -391,8 +391,8 @@ export class DDBInfusion {
     const mockItem = Effects.EffectGenerator.generateEffects({
       ddb: this.ddbData,
       character: this.rawCharacter,
-      // @ts-expect-error - TODO, revisit this and abstract out an effects interface across the various items
-      ddbItem: modifierItem,
+      // the mock only carries the fields the effect generator reads
+      ddbItem: modifierItem as unknown as IDDBInventoryItem,
       document: foundryItem,
       isCompendiumItem: false, // isGeneric or isMuncher
       type: "infusion",

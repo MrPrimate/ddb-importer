@@ -2,6 +2,7 @@ export {};
 
 global {
 
+  type TMonsterImporterTypes = "monsters" | "vehicles" | "summons";
 
   type DDBMapSourceType = "adventure" | "sourcebook" | "mappack" | "basic" | "subscription" | string;
 

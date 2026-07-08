@@ -782,7 +782,6 @@ export default class EffectGenerator {
 
     const allBonusMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null)
       .filter((mod) => !Object.keys(DAMAGE_SUBTYPE_MAP).includes(mod.subType))
-      // @ts-expect-error - filter for mods with damage bonus
       .filter((mod) => mod.dice || mod.die || mod.value);
     if (allBonusMods.length > 0) {
       logger.debug(`Generating all damage for ${this.document.name}`);
@@ -854,8 +853,7 @@ export default class EffectGenerator {
     //   };
     // }
     if (foundry.utils.hasProperty(this.document.system, "uses")) {
-      // @ts-expect-error - this only gets called for consumables
-      this.document.system.uses.autoDestroy = true;
+      foundry.utils.setProperty(this.document, "system.uses.autoDestroy", true);
     }
   }
 
@@ -1193,8 +1191,7 @@ export default class EffectGenerator {
 
     generator.generate();
 
-    // @ts-expect-error - for debugging purposes
-    logger.debug(`Adding effects to ${ddbItem.name ?? ddbItem.definition.name}`, {
+    logger.debug(`Adding effects to ${foundry.utils.getProperty(ddbItem, "name") ?? ddbItem.definition.name}`, {
       generator,
       ddbItem,
     });

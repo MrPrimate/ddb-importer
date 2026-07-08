@@ -834,8 +834,7 @@ export default class CharacterFeatureFactory {
         damageString: `@scale.${identifier}.${featureName}`,
       });
       if (foundry.utils.hasProperty(feature, "system.damage.base")) {
-        // @ts-expect-error - we know this fie, unsure why not recognized
-        feature.system.damage.base.custom = damage.custom;
+        foundry.utils.setProperty(feature, "system.damage.base.custom", damage.custom);
       } else if (foundry.utils.hasProperty(feature, "system.activities")) {
         for (const [key, activity] of Object.entries(feature.system.activities)) {
           if ("damage" in activity && activity.damage.parts.length === 0) {
@@ -1146,7 +1145,7 @@ export default class CharacterFeatureFactory {
       const featCompendiumFolders = new DDBCompendiumFolders("feats");
       await featCompendiumFolders.loadCompendium("feats");
       for (const feat of pending.feats) {
-        await featCompendiumFolders.createFeatFolder(feat);
+        await featCompendiumFolders.createFeatFolder(feat as unknown as I5eFeatItem);
       }
       logger.debug(`Adding feats to the feats compendium`, { featFeatures: pending.feats });
       const featHandler = await DDBItemImporter.buildHandler(
@@ -1159,7 +1158,7 @@ export default class CharacterFeatureFactory {
       const backgroundCompendiumFolders = new DDBCompendiumFolders("backgrounds");
       await backgroundCompendiumFolders.loadCompendium("backgrounds");
       for (const feature of pending.backgrounds) {
-        await backgroundCompendiumFolders.createBackgroundFolder(feature);
+        await backgroundCompendiumFolders.createBackgroundFolder(feature as unknown as I5eBackgroundItem);
       }
       logger.debug(`Adding backgrounds to the backgrounds compendium`, { backgroundFeatures: pending.backgrounds });
       const backgroundHandler = await DDBItemImporter.buildHandler(

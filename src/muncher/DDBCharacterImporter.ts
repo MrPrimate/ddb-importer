@@ -653,11 +653,11 @@ ${item.system.description.chat}
       const compendiumFeatureItems = await DDBItemImporter.getCompendiumItems(items, "features");
       const compendiumInventoryItems = await DDBItemImporter.getCompendiumItems(items, "inventory");
       const compendiumSpellItems = await DDBItemImporter.getCompendiumItems(items, "spells");
-      const compendiumClassItems = await DDBItemImporter.getCompendiumItems(items, "classes");
-      const compendiumSubClassItems = await DDBItemImporter.getCompendiumItems(items, "subclasses");
-      const compendiumRaceItems = await DDBItemImporter.getCompendiumItems(items, "races");
-      const compendiumTraitsItems = await DDBItemImporter.getCompendiumItems(items, "traits");
-      const compendiumBackgroundsItems = await DDBItemImporter.getCompendiumItems(items, "backgrounds");
+      const compendiumClassItems = await DDBItemImporter.getCompendiumItems(items, "class");
+      const compendiumSubClassItems = await DDBItemImporter.getCompendiumItems(items, "subclass");
+      const compendiumRaceItems = await DDBItemImporter.getCompendiumItems(items, "race");
+      const compendiumTraitsItems = await DDBItemImporter.getCompendiumItems(items, "trait");
+      const compendiumBackgroundsItems = await DDBItemImporter.getCompendiumItems(items, "background");
 
       compendiumItems = compendiumItems.concat(
         compendiumInventoryItems,
@@ -832,8 +832,7 @@ ${item.system.description.chat}
       deleteAll: true,
     });
     await this.actor.deleteEmbeddedDocuments("ActiveEffect", [], { deleteAll: true });
-    // @ts-expect-error - not as UpdateData
-    await this.actor.update(this.actorOriginal, { recursive: true, keepId: true });
+    await this.actor.update(this.actorOriginal as unknown as Actor.UpdateInput, { recursive: true, keepId: true } as unknown as Parameters<typeof this.actor.update>[1]);
   }
 
   getSettings() {
@@ -872,9 +871,8 @@ ${item.system.description.chat}
     }
 
     await this.actor.update({
-      // @ts-expect-error - this is allowed
       "system.attributes.hp": hp,
-    });
+    } as unknown as Actor.UpdateInput);
   }
 
   async setAtLeastOneHP() {
@@ -1014,8 +1012,7 @@ ${item.system.description.chat}
       // basic import
       this.notifier("Updating core character information");
       logger.debug("Character data importing: ", this.result.character);
-      // @ts-expect-error - not as UpdateData
-      await this.actor.update(this.result.character);
+      await this.actor.update(this.result.character as unknown as Actor.UpdateInput);
 
       // items import
       logger.debug("Processing character items");
