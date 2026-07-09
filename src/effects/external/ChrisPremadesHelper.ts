@@ -9,7 +9,7 @@ interface IChrisPremadesHelper {
   monsterName?: string | null;
   ignoreNotFound?: boolean;
   type?: string | null;
-  rules?: "2014" | "2024" | null;
+  rules?: T5eRulesVersion | null;
   documentType?: string | null;
   featType?: string | null;
 }
@@ -26,7 +26,7 @@ export default class ChrisPremadesHelper {
   ddbName: string;
   chrisName: string;
   chrisDoc: TExternalAutomationDocuments | null;
-  rules: "2014" | "2024";
+  rules: T5eRulesVersion;
   featType: string | null;
   documentType: string;
 
@@ -109,7 +109,7 @@ export default class ChrisPremadesHelper {
   static async getDocumentFromName({
     documentName, documentType,
     rules = "2014", monsterName = null, actorType = "character", featType = null,
-  }: { documentName: string; documentType: string; rules?: "2014" | "2024"; monsterName?: string | null; actorType?: string; featType?: string | null },
+  }: { documentName: string; documentType: string; rules?: T5eRulesVersion; monsterName?: string | null; actorType?: string; featType?: string | null },
   ) {
 
     const itemData = await chrisPremades.integration.ddbi(documentName, {
@@ -147,7 +147,7 @@ export default class ChrisPremadesHelper {
     this.ddbName = ChrisPremadesHelper.getOriginalName(document);
     this.chrisName = chrisNameOverride ?? CONFIG.chrisPremades?.renamedItems[this.ddbName] ?? this.ddbName;
     this.chrisDoc = null;
-    this.rules = rules ?? foundry.utils.getProperty(document, "system.source.rules") as "2014" | "2024" ?? "2014";
+    this.rules = rules ?? foundry.utils.getProperty(document, "system.source.rules") as T5eRulesVersion ?? "2014";
     this.featType = featType ?? foundry.utils.getProperty(document, "system.type.value") as string;
     this.documentType = documentType ?? this.document.type;
   }
@@ -219,13 +219,13 @@ export default class ChrisPremadesHelper {
 
   updateOriginalDocument() {
     ChrisPremadesHelper.DDB_FLAGS_TO_REMOVE.forEach((flagName) => {
-      delete this.document.flags[flagName];
+      delete (this.document.flags as Record<string, any>)[flagName];
     });
 
     this.document.effects = [];
 
     ChrisPremadesHelper.CP_FLAGS_TO_REMOVE.forEach((flagName) => {
-      delete this.chrisDoc.flags[flagName];
+      delete (this.chrisDoc.flags as Record<string, any>)[flagName];
     });
 
     this.document.flags = foundry.utils.mergeObject(this.document.flags, this.chrisDoc.flags) as unknown as typeof this.document.flags;
@@ -273,7 +273,7 @@ export default class ChrisPremadesHelper {
       chrisNameOverride,
       ignoreNotFound: true,
       monsterName,
-      rules: foundry.utils.getProperty(document, "system.source.rules") as "2014" | "2024",
+      rules: foundry.utils.getProperty(document, "system.source.rules") as T5eRulesVersion,
     });
     const chrisDoc = await chrisHelper.findReplacement();
 
@@ -294,12 +294,13 @@ export default class ChrisPremadesHelper {
   }
 
 
-  static async addAndReplaceRedundantChrisDocuments(actor, monsterName = null) {
+  static async addAndReplaceRedundantChrisDocuments(actor: Actor.Implementation, monsterName: string = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of extra effects.");
-    const documents = actor.getEmbeddedCollection("Item").toObject();
+    const itemCollection = actor.getEmbeddedCollection("Item") as unknown as { toObject: () => TExternalAutomationDocuments[] };
+    const documents = itemCollection.toObject();
     const toAdd = [];
-    const toDelete = new Set();
+    const toDelete = new Set<string>();
     const choiceRemovals = foundry.utils.getProperty(CONFIG, "chrisPremades.removeChoices") as string[] ?? [];
     const choiceAdditions = new Set();
 
@@ -330,7 +331,7 @@ export default class ChrisPremadesHelper {
           const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
             documentName: newItemName,
             documentType: typeOverride ?? doc.type,
-            rules: doc.system.source.rules,
+            rules: foundry.utils.getProperty(doc, "system.source.rules") as T5eRulesVersion,
             actorType: monsterName !== null ? "npc" : "character",
             monsterName,
           });
@@ -360,7 +361,7 @@ export default class ChrisPremadesHelper {
         logger.debug(`Removing items for ${chrisName}`);
         for (const removeItemName of itemsToRemoveNames) {
           logger.debug(`Removing item ${removeItemName}`);
-          const deleteDoc = documents.find((d) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
+          const deleteDoc = documents.find((d: any) => ChrisPremadesHelper.getOriginalName(d) === removeItemName);
           if (deleteDoc) toDelete.add(deleteDoc._id);
         }
       }
@@ -376,12 +377,12 @@ export default class ChrisPremadesHelper {
   }
 
 
-  static async restrictedItemReplacer(actor: Actor.Implementation, monsterName: string = null) {
+  static async restrictedItemReplacer(actor: Actor, monsterName: string = null) {
     if (!game.modules.get("chris-premades")?.active) return;
     logger.debug("Beginning additions and removals of restricted effects.");
 
-    const documents = actor.getEmbeddedCollection("Item").toObject();
-    const restrictedItems = foundry.utils.getProperty(CONFIG, `chrisPremades.restrictedItems`);
+    const documents = actor.getEmbeddedCollection("Item").toObject() as unknown as TExternalAutomationDocuments[];
+    const restrictedItems = foundry.utils.getProperty(CONFIG, `chrisPremades.restrictedItems`) as Record<string, any>;
 
     const sortedItems = Object.keys(restrictedItems).map((key) => {
       const data = restrictedItems[key];
@@ -404,9 +405,9 @@ export default class ChrisPremadesHelper {
 
       const rollData = actor.getRollData();
 
-      if (restrictedItem.requiredClass && !rollData.classes[restrictedItem.requiredClass.toLowerCase()]) continue;
+      if (restrictedItem.requiredClass && !(rollData.classes as Record<string, any>)[restrictedItem.requiredClass.toLowerCase()]) continue;
       if (restrictedItem.requiredSubclass) {
-        const subClassData = rollData.classes[restrictedItem.requiredClass.toLowerCase()].subclass;
+        const subClassData = (rollData.classes as Record<string, any>)[restrictedItem.requiredClass.toLowerCase()].subclass;
         if (!subClassData) continue;
         if (subClassData.parent.name.toLowerCase() !== restrictedItem.requiredSubclass.toLowerCase()) continue;
       }
@@ -418,9 +419,9 @@ export default class ChrisPremadesHelper {
 
       if (restrictedItem.requiredEquipment) {
         const itemMatch = restrictedItem.requiredEquipment
-          .every((requiredEquipment) =>
+          .every((requiredEquipment: string) =>
             documents.some((d) =>
-              ((foundry.utils.getProperty(d, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredEquipment
+              ((foundry.utils.getProperty(d, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(d)) === requiredEquipment
               && DICTIONARY.types.inventory.includes(d.type),
             ));
         if (!itemMatch) continue;
@@ -428,9 +429,9 @@ export default class ChrisPremadesHelper {
 
       if (restrictedItem.requiredFeatures) {
         const itemMatch = restrictedItem.requiredFeatures
-          .every((requiredFeature) =>
+          .every((requiredFeature: string) =>
             documents.some((d) =>
-              ((foundry.utils.getProperty(d, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(d as unknown as TExternalAutomationDocuments)) === requiredFeature
+              ((foundry.utils.getProperty(d, "flags.ddbimporter.chrisPreEffectName") as string) ?? ChrisPremadesHelper.getOriginalName(d)) === requiredFeature
               && d.type === "feat",
             ));
         if (!itemMatch) continue;
@@ -472,7 +473,7 @@ export default class ChrisPremadesHelper {
             const chrisDoc = await ChrisPremadesHelper.getDocumentFromName({
               documentName: newItemName,
               documentType: typeOverride ?? docAdd.type,
-              rules: docAdd.system.source.rules,
+              rules: foundry.utils.getProperty(docAdd, "system.source.rules") as T5eRulesVersion,
               actorType: monsterName !== null ? "npc" : "character",
               monsterName,
             });

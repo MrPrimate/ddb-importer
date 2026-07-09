@@ -40,7 +40,7 @@ export default class DDBSources {
     return Number.isFinite(id) ? id : null;
   }
 
-  static is2014Source(source) {
+  static is2014Source(source: IDDBSource) {
     const force2024 = DICTIONARY.source.is2024.includes(source.sourceId);
     if (force2024) return false;
     // if game is set to modern rules force items that have a 2024 source to be 2024
@@ -53,7 +53,7 @@ export default class DDBSources {
     return Number.isInteger(source.sourceId) && source.sourceId < 145;
   }
 
-  static is2024Source(source) {
+  static is2024Source(source: IDDBSource) {
     const force2014 = DICTIONARY.source.is2014.includes(source.sourceId);
     if (force2014) return false;
     // if game is set to modern rules force items that have a 2024 source to be 2024
@@ -65,7 +65,7 @@ export default class DDBSources {
     return Number.isInteger(source.sourceId) && source.sourceId >= 145;
   }
 
-  static getAdjustedSourceBook(sourceBook) {
+  static getAdjustedSourceBook(sourceBook: string) {
     const useBasicRules = utils.getSetting<boolean>("use-basic-rules");
     if (!useBasicRules && ["free-rules", "br-2024", "BR-2024"].includes(sourceBook)) {
       return "PHB 2024";
@@ -76,7 +76,7 @@ export default class DDBSources {
     }
   }
 
-  static getDDBSourceBook(sourceBook) {
+  static getDDBSourceBook(sourceBook: string) {
     if (["SRD 5.1"].includes(sourceBook)) {
       return "BR";
     } else {
@@ -84,7 +84,7 @@ export default class DDBSources {
     }
   }
 
-  static tweakSourceData(source) {
+  static tweakSourceData(source: IDDBSourceResponse) {
     source.book = DDBSources.getAdjustedSourceBook(source.book);
     if (source.book === "BR") {
       source.license = "CC-BY-4.0";
@@ -157,7 +157,7 @@ export default class DDBSources {
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
           categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
-          rules: "",
+          rules: null,
         };
         DDBSources.tweakSourceData(source);
         results.push(source);
@@ -173,7 +173,7 @@ export default class DDBSources {
           custom: "",
           id: ddbSource ? ddbSource.id : 9999999,
           categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
-          rules: "",
+          rules: null,
         };
 
         DDBSources.tweakSourceData(source);
@@ -188,7 +188,7 @@ export default class DDBSources {
         custom: "",
         id: ddbSource ? ddbSource.id : 9999999,
         categoryId: ddbSource ? ddbSource.sourceCategoryId : 9999999,
-        rules: "",
+        rules: null,
       };
       DDBSources.tweakSourceData(source);
       results.push(source);
@@ -200,7 +200,7 @@ export default class DDBSources {
         custom: "",
         id: 9999999,
         categoryId: 9999999,
-        rules: "",
+        rules: null,
       };
       results.push(source);
     }
@@ -225,7 +225,7 @@ export default class DDBSources {
       page: "",
       license: "",
       custom: "",
-      rules: "",
+      rules: null,
     };
     delete latestSource.id;
     return latestSource;
@@ -237,7 +237,7 @@ export default class DDBSources {
     const ddbRaw: IDDBConfigSource[] = foundry.utils.getProperty(CONFIG, "DDB.sources") as IDDBConfigSource[];
     if (!ddbRaw) return;
 
-    const sources = {};
+    const sources: Record<string, string> = {};
     const validSources = ddbRaw.filter((s) => s.isReleased
       && (utils.getSetting<boolean>("use-basic-rules")
         || !DICTIONARY.sourceCategories.basicRules.includes(s.id)),
