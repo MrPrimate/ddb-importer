@@ -45,7 +45,7 @@ export default class Invisibility extends DDBEnricherData {
         },
         name: "Invisibility",
         changes: [
-          DDBEnricherData.ChangeHelper.daeStatusEffectChange("invisibility", 1),
+          DDBEnricherData.ChangeHelper.daeStatusEffectChange("invisible", 1),
         ],
         daeStackable: "noneName",
         daeSpecialDurations: improvedEffect

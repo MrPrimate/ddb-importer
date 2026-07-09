@@ -1,5 +1,9 @@
 # Next Up
 
+# 7.0.19
+
+- Invisibility typo
+
 # 7.0.18
 
 - Monsters with persistent invisibility could hang during parsing with some midi-qol configurations.
