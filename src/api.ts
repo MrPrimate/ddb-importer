@@ -56,7 +56,7 @@ function resetSecrets() {
 }
 
 
-function migrateAllCompendiums(value, _key, _map) {
+function migrateAllCompendiums(value: CompendiumCollection.Any, _key: number, _map: CompendiumCollection.Any[]) {
   if (!value.locked) game.dnd5e.migrations.migrateCompendium(value);
 }
 
@@ -73,15 +73,15 @@ function debugStop() {
   ddbDebug().download();
 }
 
-function testFunction(testName) {
+function testFunction(testName: string) {
   lib.logger.debug(`generating test function: ${testName}`, testName);
-  const print = (...params) => {
+  const print = (...params: unknown[]) => {
     lib.logger.warn(`test function "${testName}" called with params`, { params });
   };
   return print;
 }
 
-function simpleTest(...params) {
+function simpleTest(...params: unknown[]) {
   lib.logger.warn(`running simple test with params`, { params });
 }
 

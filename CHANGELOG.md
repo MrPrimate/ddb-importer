@@ -1,5 +1,9 @@
 # Next Up
 
+- Under the hood typing improvements
+- Invisibility typo in midiqol status effect for monsters
+- Some books like Heroes of Faerun would not generate all journal pages when importing via native muncher @crimsonedge
+
 # 7.3.15
 
 - Character imports broke on 7.3.15

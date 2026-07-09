@@ -94,26 +94,25 @@ export function onReady() {
   setupSockets();
 }
 
-export function renderCompendiumTab(app, html, _data) {
-  html = html instanceof HTMLElement ? html : html[0];
+export const renderCompendiumTab: Hooks.Function<"renderCompendiumDirectory"> = (app, html) => {
   addMuncher(app, html);
-}
+};
 
-export function getSceneControlButtons(controls) {
+export const getSceneControlButtons: Hooks.Function<"getSceneControlButtons"> = (controls) => {
   addStickerBrowserControl(controls);
-}
+};
 
-export function renderJournalSheet(sheet, html, data) {
-  if (data.cssClass !== "editable") {
+export const renderJournalSheet: Hooks.Function<"renderJournalPageSheet"> = (sheet, html, data) => {
+  if (foundry.utils.getProperty(data, "cssClass") !== "editable") {
     const enableReadAloudsForAllContent = utils.getSetting<boolean>("show-read-alouds-all-content");
     if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
       showReadAlouds(html, data);
     }
   }
-  adventureFlags(sheet, html, data);
-}
+  adventureFlags(sheet, html[0], data);
+};
 
-export function renderJournalEntryPageSheet(sheet, html, data) {
+export const renderJournalEntryPageSheet: Hooks.Function<"renderJournalEntryPageSheet"> = (sheet, html, data) => {
   if (sheet.options.mode === "view") {
     const enableReadAloudsForAllContent = utils.getSetting<boolean>("show-read-alouds-all-content");
     if (sheet.document.flags?.ddb || enableReadAloudsForAllContent) {
@@ -122,5 +121,5 @@ export function renderJournalEntryPageSheet(sheet, html, data) {
 
     adventureFlags(sheet, html, data);
   }
-}
+};
 
