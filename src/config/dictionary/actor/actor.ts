@@ -1,15 +1,3 @@
-export interface IDDBDamageAdjustment {
-  id: number;
-  type: number;
-  kind: "resistance" | "immunity" | "vulnerability";
-  name: string;
-  foundryValues?: I5eDamageTraitSet;
-  foundryValue?: string;
-  value?: string;
-  values?: string;
-  midiValues?: string[];
-}
-
 export const ACTOR = {
   class: {
     "2014": [
@@ -25,7 +13,7 @@ export const ACTOR = {
       { name: "Ranger", multiclassSkill: 1, multiclassTool: 0 },
       { name: "Rogue", multiclassSkill: 1, multiclassTool: 1 },
     ],
-  },
+  } as TDDBBClassSkillVersionDictionary,
   abilities: [
     { id: 1, value: "str", long: "strength" },
     { id: 2, value: "dex", long: "dexterity" },
@@ -33,7 +21,7 @@ export const ACTOR = {
     { id: 4, value: "int", long: "intelligence" },
     { id: 5, value: "wis", long: "wisdom" },
     { id: 6, value: "cha", long: "charisma" },
-  ],
+  ] as DDBAbilityLookup[],
   skills: [
     { name: "acr", label: "Acrobatics", ability: "dex", subType: "acrobatics", valueId: 3 },
     { name: "ani", label: "Animal Handling", ability: "wis", subType: "animal-handling", valueId: 11 },
@@ -53,7 +41,7 @@ export const ACTOR = {
     { name: "slt", label: "Sleight of Hand", ability: "dex", subType: "sleight-of-hand", valueId: 4 },
     { name: "ste", label: "Stealth", ability: "dex", subType: "stealth", valueId: 5 },
     { name: "sur", label: "Survival", ability: "wis", subType: "survival", valueId: 15 },
-  ],
+  ] as IDDBSkillsLookup[],
   customSkillProficiencies: [
     // typeId:26
     // value not: 1, half 2, prof: 3, expertise 4

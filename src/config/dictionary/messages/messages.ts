@@ -1,4 +1,10 @@
-export const LOADING_MESSAGES = {
+export const LOADING_MESSAGES: {
+  class: Record<string, string[]>;
+  feat: string[];
+  background: string[];
+  species: string[];
+  default: string[];
+} = {
   class: {
     "bard": [
       "Tuning lutes and loading features...",

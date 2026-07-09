@@ -609,6 +609,9 @@ global {
     // Spell flags are handled in IParseSpellFlagDataDnDBeyond
 
     // Item flags
+    // spells synced back to DDB carry the owning class mapping
+    characterClassId?: number;
+    granted?: boolean;
     tags?: string[];
     sources?: { sourceId?: number; pageNumber?: number; sourceType?: number }[];
     restrictions?: string[];

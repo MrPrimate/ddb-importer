@@ -7,7 +7,7 @@ import type TraitAdvancement from "dnd5e/dnd5e/module/documents/advancement/trai
 import AdvancementWrapper from "./AdvancementWrapper";
 import type CharacterFeatureFactory from "../features/CharacterFeatureFactory";
 
-function htmlToText(html) {
+function htmlToText(html: string) {
   // keep html brakes and tabs
   return html.replace(/<\/td>/g, "\n")
     .replace(/<\/table>/g, "\n")
@@ -20,18 +20,29 @@ function htmlToText(html) {
     .replace(/<[A-Za-z/][^<>]*>/g, "");
 }
 
+type IActionTypes = "feat" | "class" | "race" | "background";
+
+interface IAdvancementHelper {
+  ddbData: IDDBData;
+  type: string;
+  dictionary?: IDDBClassSkillDictionary;
+  isMuncher?: boolean;
+  isSubclass?: boolean;
+}
+
 export default class AdvancementHelper {
   isMuncher: boolean;
   ddbData: IDDBData;
   type: string;
   isSubclass: boolean;
-  dictionary: { multiclassSkill: number; multiclassTool: number };
+  dictionary: IDDBClassSkillDictionary;
 
-  constructor({ ddbData, type, dictionary = null, isMuncher = false, isSubclass = false }) {
+  constructor({ ddbData, type, dictionary = null, isMuncher = false, isSubclass = false }: IAdvancementHelper) {
     this.ddbData = ddbData;
     this.type = type;
     this.isMuncher = isMuncher;
     this.dictionary = dictionary ?? {
+      name: "Generic",
       multiclassSkill: 0,
       multiclassTool: 0,
     };
@@ -62,13 +73,13 @@ export default class AdvancementHelper {
     // return utils.stripHtml(descriptionReplaced, true);
   }
 
-  static getChoiceReplacements(description, lowestLevel, choices = {}, forceReplace = false) {
+  static getChoiceReplacements(description: string, lowestLevel: number, choices: TI5eAdvItemChoiceConfigChoices = {}, forceReplace = false): TI5eAdvItemChoiceConfigChoices {
     const replaceRegex = /you can replace(?! one of your attacks)/i;
     const replace = replaceRegex.test(description);
 
     if (replace || forceReplace) {
       for (const level of utils.arrayRange(20, 1, 1)) {
-        if (parseInt(String(level)) < parseInt(lowestLevel)) continue;
+        if (parseInt(String(level)) < parseInt(String(lowestLevel))) continue;
         foundry.utils.setProperty(choices, `${level}.replacement`, true);
       }
     } else {
@@ -94,14 +105,14 @@ export default class AdvancementHelper {
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddbData.character.choices[this.type].filter((choice) =>
+    (this.ddbData.character.choices as Record<string, any>)[this.type].filter((choice: any) =>
       // check all features
       ((feature === null && proficiencyFeatures.some((f) => f.id === choice.componentId && "requiredLevel" in f && f.requiredLevel === level))
       // check specific feature
        || (feature && feature.id === choice.componentId && "requiredLevel" in feature && feature.requiredLevel === level))
       && choice.subType === 1
       && choice.type === 2,
-    ).forEach((choice) => {
+    ).forEach((choice: any) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
@@ -133,13 +144,13 @@ export default class AdvancementHelper {
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddbData.character.choices[this.type].filter((choice) =>
+    (this.ddbData.character.choices as Record<string, any>)[this.type].filter((choice: any) =>
       feature.id === choice.componentId
       // backgrounds have no requiredLevel, so match those at any level
       && (!("requiredLevel" in feature) || feature.requiredLevel === level)
       && choice.subType === 1
       && choice.type === 2,
-    ).forEach((choice) => {
+    ).forEach((choice: any) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
@@ -175,7 +186,7 @@ export default class AdvancementHelper {
       // the rules default for this choice (DDB keeps this even when the modifier is
       // dropped because the default is already owned elsewhere); skill defaults won't
       // match a tool proficiency so they are naturally excluded
-      (choice.defaultSubtypes ?? []).forEach((label) => {
+      (choice.defaultSubtypes ?? []).forEach((label: string) => {
         const prof = DICTIONARY.actor.proficiencies.find((p) =>
           p.type === "Tool" && p.name === label && p.baseTool);
         if (prof) {
@@ -198,12 +209,12 @@ export default class AdvancementHelper {
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddbData.character.choices[this.type].filter((choice) =>
+    (this.ddbData.character.choices as Record<string, any>)[this.type].filter((choice: any) =>
       feature.id === choice.componentId
       && "requiredLevel" in feature && feature.requiredLevel === level
       && choice.subType === 3
       && choice.type === 2,
-    ).forEach((choice) => {
+    ).forEach((choice: any) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
@@ -233,12 +244,12 @@ export default class AdvancementHelper {
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddbData.character.choices[choiceType ?? this.type].filter((choice) => {
+    (this.ddbData.character.choices as Record<string, any>)[choiceType ?? this.type].filter((choice: any) => {
       return feature.id === choice.componentId
         && "requiredLevel" in feature && feature.requiredLevel === level
         && choice.subType === 1
         && choice.type === 2;
-    }).forEach((choice) => {
+    }).forEach((choice: any) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
@@ -280,12 +291,12 @@ export default class AdvancementHelper {
 
     const choiceDefinitions = this.ddbData.character.choices.choiceDefinitions;
 
-    this.ddbData.character.choices[this.type].filter((choice) =>
+    (this.ddbData.character.choices as Record<string, any>)[this.type].filter((choice: any) =>
       feature.id === choice.componentId
       && "requiredLevel" in feature && feature.requiredLevel === level
       && choice.subType === 2
       && choice.type === 2,
-    ).forEach((choice) => {
+    ).forEach((choice: any) => {
       const optionChoice = choiceDefinitions.find((selection) => selection.id === `${choice.componentTypeId}-${choice.type}`);
       if (!optionChoice) return;
       const option = optionChoice.options.find((option) => option.id === choice.optionValue);
@@ -328,7 +339,7 @@ export default class AdvancementHelper {
     };
   }
 
-  static advancementUpdate(advancement: TraitAdvancement, { pool = [], chosen = [], count = 0, grants = [] } = {}) {
+  static advancementUpdate(advancement: TraitAdvancement, { pool = [] as any[], chosen = [] as any[], count = 0, grants = [] as any[] } = {}) {
     if (grants.length > 0) {
       advancement.updateSource({
         configuration: {
@@ -399,7 +410,7 @@ export default class AdvancementHelper {
 
   }
 
-  static isBaseProficiency(feature) {
+  static isBaseProficiency(feature: any) {
     return feature.name === "Proficiencies" || (feature.name.startsWith("Core") && feature.name.endsWith("Traits"));
   }
 
@@ -790,7 +801,7 @@ export default class AdvancementHelper {
   }
 
 
-  getWeaponAdvancement(mods, feature, availableToMulticlass, level) {
+  getWeaponAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, availableToMulticlass: boolean, level: number) {
     const baseProficiency = AdvancementHelper.isBaseProficiency(feature);
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "proficiency");
     const weaponMods = proficiencyMods
@@ -909,7 +920,7 @@ export default class AdvancementHelper {
   //     "tagConstraints": []
   // },
 
-  getWeaponMasteryAdvancement(mods, feature, level) {
+  getWeaponMasteryAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, level: number) {
     const proficiencyMods = DDBModifiers.filterModifiers(mods, "weapon-mastery");
     const weaponMods = proficiencyMods
       .filter((mod) =>
@@ -998,7 +1009,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  getExpertiseAdvancement(feature, level) {
+  getExpertiseAdvancement(feature: TAdvancementFeatureDefinitions, level: number) {
     const advancement = AdvancementHelper.createAdvancement(game.dnd5e.documents.advancement.TraitAdvancement);
     const expertiseOptions = this.getExpertiseChoicesFromOptions(feature, level);
 
@@ -1047,16 +1058,16 @@ export default class AdvancementHelper {
 
   }
 
-  static CONDITION_ID_MAPPING = {
+  static CONDITION_ID_MAPPING: Record<number, string> = {
     1: "dr",
     2: "di",
     3: "dv",
     4: "ci",
   };
 
-  getConditionAdvancement(mods, feature, level) {
-    const conditionsFromMods = [];
-    ["resistance", "immunity", "vulnerability", "immunity"].forEach((condition, i) => {
+  getConditionAdvancement(mods: IModifiersMod[], feature: TAdvancementFeatureDefinitions, level: number) {
+    const conditionsFromMods: string[] = [];
+    (["resistance", "immunity", "vulnerability", "immunity"] as TDDBDamageConditionType[]).forEach((condition, i) => {
       const proficiencyMods = DDBModifiers.filterModifiers(mods, condition, { restriction: null });
       const conditionId = i + 1;
       const conditionData = AutoEffects.getGenericConditionAffectData(proficiencyMods, condition, conditionId, true);
@@ -1137,7 +1148,7 @@ export default class AdvancementHelper {
     return advancement;
   }
 
-  static rename(advancement: I5eAdvancement, { newName = null, identifier = null } = {}) {
+  static rename(advancement: I5eAdvancement, { newName = null, identifier = null }: { newName?: string | null; identifier?: string | null }) {
     if (newName) advancement.title = newName;
     if (identifier && "identifier" in advancement.configuration) advancement.configuration.identifier = identifier;
     return advancement;
@@ -1173,7 +1184,8 @@ export default class AdvancementHelper {
     return scaleValue;
   }
 
-  static generateScaleValueAdvancement(feature) {
+  static generateScaleValueAdvancement(feature: TAdvancementFeatureDefinitions) {
+    if (!("levelScales" in feature)) return null;
     // distance, number, dice, anything
     let type = "string";
     const die = feature.levelScales[0]?.dice
@@ -1182,10 +1194,10 @@ export default class AdvancementHelper {
         ? feature.levelScales[0]?.die
         : undefined;
 
-    if (die?.diceString && (!die.fixedValue || die.fixedValue === "")) {
+    if (die?.diceString && (!die.fixedValue || String(die.fixedValue) === "")) {
       type = "dice";
     } else if (feature.levelScales[0].fixedValue
-      && feature.levelScales[0].fixedValue !== ""
+      && String(feature.levelScales[0].fixedValue) !== ""
       && Number.isInteger(feature.levelScales[0].fixedValue)
     ) {
       type = "number";
@@ -1195,7 +1207,7 @@ export default class AdvancementHelper {
 
     const name = utils.nameString(feature.name);
 
-    const update = {
+    const update: I5eAdvancementScaleValue = {
       configuration: {
         identifier: utils.referenceNameString(name).toLowerCase(),
         type,
@@ -1211,7 +1223,7 @@ export default class AdvancementHelper {
       if (type === "dice") {
         update.configuration.scale[level] = {
           number: die.diceCount,
-          die: die.diceValue,
+          faces: die.diceValue,
         };
       } else if (type === "number") {
         update.configuration.scale[level] = {
@@ -1221,7 +1233,7 @@ export default class AdvancementHelper {
         let value = (die.diceString && die.diceString !== "")
           ? die.diceString
           : "";
-        if (die.fixedValue && die.fixedValue !== "") {
+        if (die.fixedValue && String(die.fixedValue) !== "") {
           value += ` + ${die.fixedValue}`;
         }
         if (value === "") {
@@ -1233,12 +1245,12 @@ export default class AdvancementHelper {
       }
     });
 
-    advancement.updateSource(update);
+    advancement.updateSource(update as any);
 
     return advancement.toObject() as unknown as I5eAdvancement;
   }
 
-  static parseHTMLSaves(description) {
+  static parseHTMLSaves(description: string) {
     const results = [];
 
     const textDescription = AdvancementHelper.stripDescription(description);
@@ -1267,7 +1279,7 @@ export default class AdvancementHelper {
    * @param {string} key The th value to look up
    * @returns {string|null} The corresponding td value, or null if not found
    */
-  static getTableValue(html, key) {
+  static getTableValue(html: string, key: string) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
@@ -1285,8 +1297,8 @@ export default class AdvancementHelper {
     return null;
   }
 
-  static parseHTMLSkills(description) {
-    const parsedSkills = {
+  static parseHTMLSkills(description: string) {
+    const parsedSkills: IBasicAdvancementParseResponse = {
       choices: [],
       grants: [],
       number: 0,
@@ -1423,8 +1435,8 @@ export default class AdvancementHelper {
     return parsedSkills;
   }
 
-  static parseHTMLLanguages(description) {
-    const parsedLanguages = {
+  static parseHTMLLanguages(description: string) {
+    const parsedLanguages: IBasicAdvancementParseResponse = {
       grants: [],
       choices: [],
       number: 0,
@@ -1597,14 +1609,14 @@ export default class AdvancementHelper {
     "vehicle": "vehicle",
   };
 
-  static getToolGroup(text) {
+  static getToolGroup(text: string) {
     for (const [key, value] of Object.entries(AdvancementHelper.TOOL_GROUPS)) {
       if (utils.nameString(text).toLowerCase().includes(key)) return value;
     }
     return null;
   }
 
-  static getDictionaryTool(name) {
+  static getDictionaryTool(name: string) {
     const directMatch = DICTIONARY.actor.proficiencies.find((tool) =>
       tool.type === "Tool"
       && tool.name.toLowerCase() === utils.nameString(name).toLowerCase(),
@@ -1618,7 +1630,7 @@ export default class AdvancementHelper {
     return null;
   }
 
-  static getToolAdvancementValue(text) {
+  static getToolAdvancementValue(text: string) {
     const match = AdvancementHelper.getDictionaryTool(text);
     if (match) {
       const stub = match.toolType === ""
@@ -1630,8 +1642,8 @@ export default class AdvancementHelper {
   }
 
 
-  static parseHTMLTools(description) {
-    const parsedTools = {
+  static parseHTMLTools(description: string) {
+    const parsedTools: IBasicAdvancementParseResponse = {
       choices: [],
       grants: [],
       number: 0,
@@ -1647,7 +1659,7 @@ export default class AdvancementHelper {
         return parsedTools;
       }
 
-      const proficiencies = new Set();
+      const proficiencies = new Set<string>();
 
       const toolNames = tableAdvancements
         .split("(")[0]
@@ -1824,18 +1836,18 @@ export default class AdvancementHelper {
   static ARMOR_GROUPS = DICTIONARY.actor.proficiencies
     .filter((prof) => prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue") && prof.advancement === "")
     .reduce((acc, prof) => {
-      acc[prof.name.toLowerCase()] = prof.foundryValue;
+      (acc as Record<string, string>)[prof.name.toLowerCase()] = prof.foundryValue;
       return acc;
-    }, {});
+    }, {} as Record<string, string>);
 
-  static getArmorGroup(text) {
+  static getArmorGroup(text: string) {
     for (const [key, value] of Object.entries(AdvancementHelper.ARMOR_GROUPS)) {
       if (utils.nameString(text).toLowerCase().includes(key)) return value;
     }
     return null;
   }
 
-  static getDictionaryArmor(name) {
+  static getDictionaryArmor(name: string) {
     const directMatch = DICTIONARY.actor.proficiencies.find((prof) =>
       prof.type === "Armor" && foundry.utils.hasProperty(prof, "foundryValue")
       && prof.name.toLowerCase() === utils.nameString(name).toLowerCase(),
@@ -1851,7 +1863,7 @@ export default class AdvancementHelper {
     return null;
   }
 
-  static getArmorAdvancementValue(text) {
+  static getArmorAdvancementValue(text: string) {
     const match = AdvancementHelper.getDictionaryArmor(text);
     if (match) {
       const stub = match.advancement === ""
@@ -1862,8 +1874,8 @@ export default class AdvancementHelper {
     return null;
   }
 
-  static parseHTMLArmorProficiencies(description) {
-    const parsedArmorProficiencies = {
+  static parseHTMLArmorProficiencies(description: string) {
+    const parsedArmorProficiencies: IBasicAdvancementParseResponse = {
       choices: [],
       grants: [],
       number: 0,
@@ -1941,25 +1953,25 @@ export default class AdvancementHelper {
       && prof.advancement === "",
     )
     .reduce((acc, prof) => {
-      acc[prof.name.toLowerCase()] = prof.foundryValue;
+      (acc as Record<string, string>)[prof.name.toLowerCase()] = prof.foundryValue;
       return acc;
-    }, {});
+    }, {} as Record<string, string>);
 
-  static getWeaponGroup(text) {
+  static getWeaponGroup(text: string) {
     for (const [key, value] of Object.entries(AdvancementHelper.WEAPON_GROUPS)) {
       if (utils.nameString(text).toLowerCase().includes(key)) return value;
     }
     return null;
   }
 
-  static getStrictWeaponGroup(text) {
+  static getStrictWeaponGroup(text: string) {
     for (const [key, value] of Object.entries(AdvancementHelper.WEAPON_GROUPS)) {
       if (utils.nameString(text).toLowerCase() === utils.nameString(key).toLowerCase()) return value;
     }
     return null;
   }
 
-  static getDictionaryWeapon(name) {
+  static getDictionaryWeapon(name: string) {
     const match = DICTIONARY.actor.proficiencies.find((prof) =>
       prof.type === "Weapon"
       && foundry.utils.getProperty(prof, "foundryValue") !== ""
@@ -1971,7 +1983,7 @@ export default class AdvancementHelper {
     return null;
   }
 
-  static getWeaponAdvancementValue(text) {
+  static getWeaponAdvancementValue(text: string) {
     const match = AdvancementHelper.getDictionaryWeapon(text);
     if (match) {
       const stub = match.advancement === ""
@@ -1982,15 +1994,13 @@ export default class AdvancementHelper {
     return null;
   }
 
-  // KNOWN_ISSUE_4_0
-
   static parseHTMLWeaponMasteryProficiencies(_description: string) {
-    const parsedWeaponsProficiencies = {
+    const parsedWeaponsProficiencies: IBasicAdvancementParseResponse = {
       // choices: DICTIONARY.actor.proficiencies
       //   .filter((prof) => prof.type === "Weapon" && prof.foundryValue && prof.foundryValue !== "")
       //   .map((prof) => prof.foundryValue),
       choices: ["*"],
-      grants: [],
+      grants: [] as any[],
       number: 0,
     };
     return parsedWeaponsProficiencies;
@@ -1998,7 +2008,7 @@ export default class AdvancementHelper {
 
 
   static parseHTMLWeaponProficiencies(description: string) {
-    const parsedWeaponsProficiencies = {
+    const parsedWeaponsProficiencies: IBasicAdvancementParseResponse = {
       choices: [],
       grants: [],
       number: 0,
@@ -2013,7 +2023,7 @@ export default class AdvancementHelper {
         .split(",")
         .map((name) => name.trim());
 
-      const proficiencies = new Set();
+      const proficiencies = new Set<string>();
 
       for (const name of names) {
         const weaponGroup = AdvancementHelper.getStrictWeaponGroup(name);
@@ -2217,15 +2227,15 @@ export default class AdvancementHelper {
   // }
 
 
-  static parseHTMLSpellCastingAbilities(description) {
-    const result = {
+  static parseHTMLSpellCastingAbilities(description: string) {
+    const result: ISpellCastingAbilitiesParseResponse = {
       hint: "",
       abilities: [],
       properties: [],
       concentration: true,
     };
 
-    const properties = new Set();
+    const properties = new Set<I5eActivityCastSpellProperties>();
 
     // Wisdom is your spellcasting ability for these spells.
     // Intelligence, Wisdom, or Charisma is your spellcasting ability for it
@@ -2254,7 +2264,7 @@ export default class AdvancementHelper {
     const noComponentsRegex = /None of these spells require spell components|no component|no spell components/i;
     if (noComponentsRegex.test(description)) {
       properties.add("material");
-      properties.add("vocal");
+      properties.add("verbal");
       properties.add("somatic");
     }
 
@@ -2606,7 +2616,7 @@ export default class AdvancementHelper {
     const dom = utils.htmlToDocumentFragment(description);
 
     const rows = dom.querySelectorAll("table tbody tr");
-    const lineages = [];
+    const lineages: { name: string; one: string; three: string; five: string }[] = [];
 
     rows.forEach((row) => {
       const cells = row.querySelectorAll("td");
@@ -2723,7 +2733,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     return advancements;
   }
 
-  static CONDITION_MAPPING = {
+  static CONDITION_MAPPING: Record<string, string> = {
     "resistance": "dr",
     "immunity": "di",
     "immune": "di",
@@ -2733,9 +2743,9 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
 
   static parseHTMLConditions(description: string) {
-    const grants = new Set();
-    const choices = new Set();
-    const parsedConditions = {
+    const grants = new Set<string>();
+    const choices = new Set<string>();
+    const parsedConditions: IBasicAdvancementParseResponse = {
       choices: [],
       grants: [],
       number: 0,
@@ -2969,7 +2979,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   // }
 
-  static async getCompendiumSpellUuidsFromNames(names, { use2024Spells = false } = {}) {
+  static async getCompendiumSpellUuidsFromNames(names: string[], { use2024Spells = false } = {}): Promise<ICompendiumLookup[]> {
     const spellChoice = utils.getSetting<string>("munching-policy-force-spell-version");
     const spells = await CompendiumHelper.retrieveCompendiumSpellReferences(names, {
       use2024Spells: spellChoice === "FORCE_2024" || use2024Spells,
@@ -3025,7 +3035,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
         replacement: false,
       },
       replacement: {
-        count: null,
+        count: null as any as any,
         replacement: false,
       },
     };
@@ -3087,15 +3097,10 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       level: level ?? spellChoice.level,
     });
 
-    const levelChoices = {
+    const levelChoices: Record<string, I5eAdvItemChoiceLevelConfig> = {
       [choiceLevel]: {
         count,
         replacement: false,
-      },
-      replacement: {
-        count: null,
-        replacement: false,
-        list: spellListChoice ? [`class:${spellListChoice}`] : [],
       },
     };
 
@@ -3110,6 +3115,11 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
       title: name,
       level: level ? parseInt(String(level)) : parseInt(String(spellChoice.level)),
       configuration: {
+        replacement: {
+          count: null,
+          replacement: false,
+          list: spellListChoice ? [`class:${spellListChoice}`] : [],
+        },
         allowDrops: true,
         pool: uuids.map((s) => {
           return { uuid: s.uuid };
@@ -3247,7 +3257,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
 
   static async addSpellAdvancement({
     ddbParser, feature, type, addToAdvancements = true, advancementsOnlyForLimitedUses = false,
-  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: string; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
+  }: { ddbParser: CharacterFeatureFactory; feature: T5eFeatureMixinDataTypes; type: IActionTypes; addToAdvancements?: boolean; advancementsOnlyForLimitedUses?: boolean },
   ) {
     // console.warn(`Spell advancment check for ${feature.name}`, {
     //   feature,
@@ -3368,7 +3378,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
           foundryFeature: feature,
         });
 
-        const spellOverride = {
+        const spellOverride: I5eActivitySpell = {
           uuid,
           properties: abilityData.properties ?? [],
           spellbook: true,
@@ -3428,7 +3438,7 @@ Starting at 5th level, you can cast the ${lineageMatch.five} spell with this tra
     if (addToAdvancements) {
       advancements.forEach((advancement) => {
         const a = advancement.toObject();
-        feature.system.advancement[a._id] = a;
+        feature.system.advancement[a._id] = a as unknown as I5eAdvancement;
       });
     }
 

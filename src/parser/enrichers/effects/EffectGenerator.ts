@@ -65,6 +65,8 @@ const AC_RESTRICTIONS = BASE_RESTRICTIONS.concat([
   "while not wearing heavy armor",
 ]);
 
+type TEffectGeneratorType = "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
+
 interface IEffectGenerator {
   ddb: IDDBData;
   character: I5eActorData;
@@ -73,7 +75,7 @@ interface IEffectGenerator {
   isCompendiumItem?: boolean;
   labelOverride?: string | null;
   labelSuffix?: string;
-  type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
+  type: TEffectGeneratorType;
   description?: string;
   separateACEffects?: boolean;
 }
@@ -89,7 +91,7 @@ export default class EffectGenerator {
   labelSuffix: string;
   labelOverride: string | null;
   isCompendiumItem: boolean;
-  type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
+  type: TEffectGeneratorType;
   grantedModifiers: IDDBModifier[];
   noGenerate: boolean;
   separateACEffects: any;
@@ -151,17 +153,17 @@ export default class EffectGenerator {
     bonus: {},
   };
 
-  _addAddBonusChanges(modifiers, type, key) {
+  _addAddBonusChanges(modifiers: IDDBModifier[], type: TDDBModifierType, key: string) {
     // const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + b.value, 0);
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, type, "bonus");
     if (bonus) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`, bonus);
-      this.changeAdded.bonus[key] = true;
+      (this.changeAdded.bonus as Record<string, any>)[key] = true;
       this.effect.system.changes.push(ChangeHelper.unsignedAddChange(`+ ${bonus}`, 18, key));
     }
   }
 
-  _addCustomChange(modifiers, type, key, extra = "") {
+  _addCustomChange(modifiers: IDDBModifier[], type: TDDBModifierType, key: string, extra = "") {
     const bonus = DDBModifiers.filterModifiersOld(modifiers, "bonus", type).reduce((a, b) => a + parseInt(String(b.value)), 0);
     if (bonus !== 0) {
       logger.debug(`Generating ${type} bonus for ${this.document.name}`);
@@ -183,9 +185,9 @@ export default class EffectGenerator {
   }
 
   _addGlobalSavingBonusEffect() {
-    const type = "saving-throws";
+    const type: TDDBModifierType = "saving-throws";
     const key = "system.bonuses.abilities.save";
-    const changes = [];
+    const changes: IActiveEffectChangeData[] = [];
     const regularBonuses = this.grantedModifiers.filter((mod) => !mod.bonusTypes?.includes(2));
     const customBonuses = this.grantedModifiers.filter((mod) => mod.bonusTypes?.includes(2));
 
@@ -212,7 +214,7 @@ export default class EffectGenerator {
 
   }
 
-  _getGenericConditionAffectData(condition, typeId, forceNoMidi = false) {
+  _getGenericConditionAffectData(condition: TDDBDamageConditionType, typeId: number, forceNoMidi = false) {
     return AutoEffects.getGenericConditionAffectData(this.grantedModifiers, condition, typeId, forceNoMidi);
   }
 
@@ -304,7 +306,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addAbilityAdvantageEffect(subType, type, mode = "advantage") {
+  _addAbilityAdvantageEffect(subType: string, type: "check" | "save", mode = "advantage") {
     const bonuses = DDBModifiers.filterModifiersOld(this.grantedModifiers, mode, subType);
 
     const modifier = mode === "advantage"
@@ -322,7 +324,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addStatSetEffect(subType) {
+  _addStatSetEffect(subType: string) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
     if (bonuses.length > 0) {
@@ -338,7 +340,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addStatMaximumEffect(subType) {
+  _addStatMaximumEffect(subType: string) {
     const ability = DICTIONARY.actor.abilities.find((ability) => ability.long === subType);
     if (!ability) {
       logger.warn(`Unable to determine ability for "${subType}", skipping stat maximum effect for ${this.document.name}`);
@@ -359,7 +361,7 @@ export default class EffectGenerator {
   }
 
   _addStatChanges() {
-    const stats = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
+    const stats: T5eAbilityLongNames[] = ["strength", "dexterity", "constitution", "wisdom", "intelligence", "charisma"];
     stats.forEach((stat) => {
       const ability = DICTIONARY.actor.abilities.find((ab) => ab.long === stat);
       this._addStatSetEffect(`${stat}-score`);
@@ -373,7 +375,7 @@ export default class EffectGenerator {
     });
   }
 
-  _addStatBonusEffect(subType) {
+  _addStatBonusEffect(subType: string) {
     const bonuses = this.grantedModifiers.filter((modifier) =>
       (modifier.type === "bonus" || modifier.type === "stacking-bonus")
       && modifier.subType === subType);
@@ -444,7 +446,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addSetSpeedEffect(subType) {
+  _addSetSpeedEffect(subType: string) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "set" && modifier.subType === subType);
 
     // "Equal to Walking Speed"
@@ -487,12 +489,12 @@ export default class EffectGenerator {
     this._addAddBonusChanges(this.grantedModifiers, "melee-spell-attacks", "system.bonuses.msak.attack");
     this._addAddBonusChanges(this.grantedModifiers, "spell-attacks", "system.bonuses.rsak.attack");
     this._addAddBonusChanges(this.grantedModifiers, "ranged-spell-attacks", "system.bonuses.rsak.attack");
-    for (const type of ["wizard", "sorcerer", "warlock", "druid", "cleric", "artificer", "ranger"]) {
-      if (!this.changeAdded.bonus["system.bonuses.msak.attack"])
+    for (const type of ["wizard", "sorcerer", "warlock", "druid", "cleric", "artificer", "ranger"] as TDDBClassModifierNames[]) {
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.msak.attack"])
         this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.bonuses.msak.attack");
-      if (!this.changeAdded.bonus["system.bonuses.rsak.attack"])
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.rsak.attack"])
         this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-attacks`, "system.bonuses.rsak.attack");
-      if (!this.changeAdded.bonus["system.bonuses.spell.dc"])
+      if (!(this.changeAdded.bonus as Record<string, any>)["system.bonuses.spell.dc"])
         this._addAddBonusChanges(this.grantedModifiers, `${type}-spell-save-dc`, "system.bonuses.spell.dc");
     }
 
@@ -575,7 +577,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addSkillBonusEffect(modifiers, skill) {
+  _addSkillBonusEffect(modifiers: IDDBModifier[], skill: IDDBSkillsLookup) {
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, skill.subType, "bonus");
     if (bonus) {
       logger.debug(`Generating ${skill.subType} skill bonus for ${this.document.name}`, bonus);
@@ -583,7 +585,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addSkillModeEffect(modifiers, skill, mode = "advantage") {
+  _addSkillModeEffect(modifiers: IDDBModifier[], skill: IDDBSkillsLookup, mode = "advantage") {
     const allowedRestrictions = [
       "",
       null,
@@ -609,7 +611,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addSkillPassiveBonusEffect(modifiers, skill) {
+  _addSkillPassiveBonusEffect(modifiers: IDDBModifier[], skill: IDDBSkillsLookup) {
     const bonus = DDBModifiers.getValueFromModifiers(modifiers, this.document.name, `passive-${skill.subType}`, "bonus");
     if (bonus) {
       logger.debug(`Generating ${skill.subType} skill bonus for ${this.document.name}`, bonus);
@@ -678,7 +680,7 @@ export default class EffectGenerator {
     }
   }
 
-  _addBonusSpeedChanges(subType, speedType = null) {
+  _addBonusSpeedChanges(subType: string, speedType: string = null) {
     const bonuses = this.grantedModifiers.filter((modifier) => modifier.type === "bonus" && modifier.subType === subType);
     // "Equal to Walking Speed"
     // max(10+(ceil(((@classes.monk.levels)-5)/4))*5,10)
@@ -741,10 +743,10 @@ export default class EffectGenerator {
     );
   }
 
-  _damageBonus(type, modifiers) {
+  _damageBonus(type: I5eAttackBonusTypes, modifiers: any) {
     const bonus = modifiers
-      .filter((mod) => mod.dice || mod.die || mod.value)
-      .map((mod) => {
+      .filter((mod: any) => mod.dice || mod.die || mod.value)
+      .map((mod: any) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         if (die) {
           return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
@@ -769,7 +771,7 @@ export default class EffectGenerator {
     const rangedRestrictionMods = DDBModifiers.filterModifiersOld(this.grantedModifiers, "damage", null, rangedRestrictions);
     this._damageBonus("rwak", rangedRestrictionMods);
 
-    const DAMAGE_SUBTYPE_MAP = {
+    const DAMAGE_SUBTYPE_MAP: Record<string, I5eAttackBonusTypes[]> = {
       "one-handed-melee-attacks": ["mwak"],
     };
 
@@ -798,36 +800,6 @@ export default class EffectGenerator {
     }
   }
 
-  _generateEffectDurationFromDocument(activity: I5eActivity | null = null) {
-    const duration = {
-      seconds: null,
-      startTime: null,
-      rounds: null,
-      turns: null,
-      startRound: null,
-      startTurn: null,
-    };
-    const foundryData: I5eSystemDurationData | I5eActivityDuration | null = foundry.utils.getProperty(this, "document.system.duration") as I5eSystemDurationData ?? activity?.duration;
-    if (!foundryData) return duration;
-
-    switch (foundryData?.units) {
-      case "turn":
-        duration.turns = foundryData.value;
-        break;
-      case "round":
-        duration.rounds = foundryData.value;
-        break;
-      case "hour":
-        duration.seconds = parseInt(foundryData.value) * 60 * 60;
-        break;
-      case "minute":
-        duration.rounds = parseInt(foundryData.value) * 10;
-        break;
-      // no default
-    }
-    return duration;
-  }
-
   _processConsumableEffect() {
     const label = `${this.document.name} - Consumable Effects`;
     this.effect.name = label;
@@ -835,29 +807,12 @@ export default class EffectGenerator {
     this.effect.transfer = false;
     foundry.utils.setProperty(this.effect, "flags.ddbimporter.disabled", false);
     foundry.utils.setProperty(this.effect, "flags.dae.transfer", false);
-    // DND 4.0: needs adjusting for activities
-    // this.effect.duration = this._generateEffectDurationFromDocument(activity);
-    // if (!this.document.system.target?.value) {
-    //   this.document.system.target = {
-    //     value: 1,
-    //     width: null,
-    //     units: "",
-    //     type: "creature",
-    //   };
-    // }
-    // if (!this.document.system.range?.units) {
-    //   this.document.system.range = {
-    //     value: null,
-    //     long: null,
-    //     units: "touch",
-    //   };
-    // }
     if (foundry.utils.hasProperty(this.document.system, "uses")) {
       foundry.utils.setProperty(this.document, "system.uses.autoDestroy", true);
     }
   }
 
-  _addEffectFlags(effect) {
+  _addEffectFlags(effect: I5eEffectData) {
     // check attunement status etc
     const canEquip = ("canEquip" in this.ddbItem.definition && this.ddbItem.definition?.canEquip) ?? false;
     const canAttune = ("canAttune" in this.ddbItem.definition && this.ddbItem.definition?.canAttune) ?? false;
@@ -902,7 +857,7 @@ export default class EffectGenerator {
     }
 
     if (filterType === "Potion") {
-      effect = this._processConsumableEffect();
+      this._processConsumableEffect();
     }
 
     return effect;
@@ -963,7 +918,7 @@ export default class EffectGenerator {
   // AC GENERATION
 
 
-  _addACSetChange(subType) {
+  _addACSetChange(subType: string) {
     let bonuses: string | number;
 
     const setMods = this.grantedModifiers.filter((mod) => mod.type === "set" && mod.subType === subType);
@@ -1176,7 +1131,7 @@ export default class EffectGenerator {
     ddbItem: IDDBInventoryItem | IDDBClassFeature | IDDBBackground | IDDBRacialTrait | IDDBFeat;
     document: I5eFeatureItem | I5eInventoryItem | I5eBackgroundItem | I5eRaceItem;
     isCompendiumItem: boolean;
-    type: "item" | "feature" | "infusion" | "equipment" | "feat" | "spell";
+    type: TEffectGeneratorType;
     description: string;
   }) {
     const generator = new EffectGenerator({
@@ -1200,8 +1155,8 @@ export default class EffectGenerator {
   }
 
   static applyDaeSpecialDurations(effect: I5eEffectData, durations: TDAESpecialDuration[]) {
-    const daeActive = game.modules.get("dae")?.active;
-    const daeManagesTurnExpiry = daeActive && !foundry.utils.isNewerVersion(game.system.version, "5.99.99");
+    const daeActive: boolean = game.modules.get("dae")?.active;
+    const daeManagesTurnExpiry: boolean = daeActive && !foundry.utils.isNewerVersion(game.system.version, "5.99.99");
     const deprecatedSpecialDurMap: Record<string, TDAEEffectExpiryTypes> = daeManagesTurnExpiry ? {
       "turnStart": "targetStart",
       "turnEnd": "targetEnd",
@@ -1238,13 +1193,13 @@ export default class EffectGenerator {
 
     // these are new for v14 so more likely to be correct
     if (durations.includes("sourceStart")) {
-      effect.duration.expiry = daeManagesTurnExpiry["sourceStart"];
+      effect.duration.expiry = deprecatedSpecialDurMap["sourceStart"];
     } else if (durations.includes("sourceEnd")) {
-      effect.duration.expiry = daeManagesTurnExpiry["sourceEnd"];
+      effect.duration.expiry = deprecatedSpecialDurMap["sourceEnd"];
     } else if (durations.includes("targetStart")) {
-      effect.duration.expiry = daeManagesTurnExpiry["targetStart"];
+      effect.duration.expiry = deprecatedSpecialDurMap["targetStart"];
     } else if (durations.includes("targetEnd")) {
-      effect.duration.expiry = daeManagesTurnExpiry["targetEnd"];
+      effect.duration.expiry = deprecatedSpecialDurMap["targetEnd"];
     }
 
     const durationsToFlag: TDAESpecialDuration[] = durations.filter((d) =>

@@ -48,21 +48,6 @@ type TDDBImporterTypes = "items"
   | "features"
   | "summons";
 
-
-interface IDDBItemImporterBuildHandlerOptions {
-  ids?: string[] | null;
-  chrisPremades?: boolean;
-  matchFlags?: string[];
-  matchFields?: string[];
-  indexFilter?: CompendiumCollection.GetIndexOptions | null;
-  deleteBeforeUpdate?: boolean | null;
-  filterDuplicates?: boolean;
-  useCompendiumFolders?: boolean | null;
-  updateIcons?: boolean;
-  recursive?: boolean | null;
-  notifier?: (note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void;
-}
-
 type TIndexEntry = CompendiumCollection.IndexEntry<CompendiumCollection.DocumentName>;
 
 type TFlagType = TDDBItemImporterDocument | TIndexEntry;

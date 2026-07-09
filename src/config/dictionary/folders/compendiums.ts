@@ -1,4 +1,15 @@
-export const COMPENDIUM_FOLDERS = {
+interface ICompendiumTypeFolder {
+  folderName: string;
+  color?: string;
+  subFolders?: Record<string, ICompendiumTypeFolder>;
+}
+
+export const COMPENDIUM_FOLDERS: {
+  SPELL_LEVEL: string[];
+  RARITY: string[];
+  TYPE_FOLDERS: { subFolders: Record<string, ICompendiumTypeFolder> };
+  SOURCE_CATEGORY_FOLDERS: Record<string | number, { folderName?: string; color?: string; name?: string }>;
+} = {
   SPELL_LEVEL: [
     "0th Level (Cantrip)",
     "1st Level",

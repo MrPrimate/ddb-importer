@@ -1,4 +1,4 @@
-export const IDENTIFIER_ADJUSTMENTS = {
+export const IDENTIFIER_ADJUSTMENTS: Record<string, string> = {
   "bigbys-hand": "arcane-hand",
   "drawmijs-instant-summons": "instant-summons",
   "evards-black-tentacles": "black-tentacles",

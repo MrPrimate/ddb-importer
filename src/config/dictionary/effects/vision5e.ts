@@ -1,4 +1,10 @@
-export const VISION_5E_EFFECTS = {
+export interface IVision5eEffect {
+  effectName: string;
+  type: "spell" | "feat";
+  transfer: boolean;
+}
+
+export const VISION_5E_EFFECTS: Record<string, IVision5eEffect> = {
   "Detect Evil and Good": {
     effectName: "Detect Evil and Good",
     type: "spell",

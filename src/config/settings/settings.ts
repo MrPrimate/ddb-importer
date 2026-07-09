@@ -71,7 +71,7 @@ const URLS = {
   DYNAMIC: "https://dynamic.ddb.mrprimate.co.uk",
 };
 
-const MUNCH_DEFAULTS = [
+const MUNCH_DEFAULTS: { name: string; needed: boolean }[] = [
   { name: "munching-policy-update-existing", needed: true },
   { name: "munching-policy-use-inbuilt-icons", needed: true },
   { name: "munching-policy-use-srd-icons", needed: false },
@@ -92,7 +92,7 @@ const DISABLE_FOUNDRY_UPGRADE = {
 };
 
 // reference to the D&D Beyond popup
-const POPUPS = {
+const POPUPS: Record<string, Window | null> = {
   json: null,
   web: null,
 };
@@ -160,7 +160,7 @@ const SETTINGS = {
         scope: "world",
         config: false,
         type: String,
-        default: null,
+        default: null as string | null,
       },
       "custom-proxy": {
         name: "ddb-importer.settings.custom-proxy.name",
@@ -231,7 +231,7 @@ const SETTINGS = {
         config: false,
         scope: "world",
         type: Array,
-        default: [],
+        default: [] as number[],
       },
       "add-extra-base-weapons": {
         name: "ddb-importer.settings.add-extra-base-weapons.name",
@@ -1068,7 +1068,7 @@ const SETTINGS = {
           },
           "munching-policy-muncher-sources": {
             type: Array,
-            default: [],
+            default: [] as number[],
           },
           "munching-policy-muncher-included-source-categories": {
             type: Array,
@@ -1077,7 +1077,7 @@ const SETTINGS = {
           },
           "munching-policy-muncher-monster-types": {
             type: Array,
-            default: [],
+            default: [] as number[],
           },
           "munching-policy-maps-included-types": {
             type: Array,
@@ -1197,7 +1197,8 @@ const SETTINGS = {
           },
           "munching-policy-character-classes": {
             type: Array,
-            default: [],
+            // read as string[] in DDBMuncher and number[] in MuncherSettings
+            default: [] as (string | number)[],
           },
           "munching-policy-character-subclasses": {
             type: Object,
@@ -1331,7 +1332,7 @@ const SETTINGS = {
         },
         "patreon-user": {
           type: String,
-          default: null,
+          default: null as string | null,
         },
         "cobalt-cookie": {
           name: "ddb-importer.settings.cobalt-cookie.name",
@@ -1395,8 +1396,9 @@ const SETTINGS = {
       ? "[forgevtt]"
       : "[data]";
 
-    for (const [name, data] of Object.entries(clone.READY.DIRECTORIES)) {
-      clone.READY.DIRECTORIES[name].default = data.default.replace("[data]", defaultLocationSource);
+    for (const [_name, data] of Object.entries(clone.READY.DIRECTORIES)) {
+      // data is the live entry in the clone, so mutate it directly
+      data.default = data.default.replace("[data]", defaultLocationSource);
     }
     const defaultSettings = early
       ? clone.EARLY

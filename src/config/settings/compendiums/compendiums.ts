@@ -139,7 +139,7 @@ export const COMPENDIUMS = [
   },
 ];
 
-export const SRD_COMPENDIUM_LOOKUPS = {
+export const SRD_COMPENDIUM_LOOKUPS: Record<"2014" | "2024", { type: string; name: string }[]> = {
   "2014": [
     { type: "inventory", name: "dnd5e.items" },
     { type: "spells", name: "dnd5e.spells" },
@@ -162,7 +162,8 @@ export const SRD_COMPENDIUM_LOOKUPS = {
     { type: "monsters", name: "dnd5e.monsters" },
     { type: "monsterfeatures", name: "dnd5e.monsterfeatures" },
     { type: "backgrounds", name: "dnd5e.backgrounds" },
-  ], "2024": [
+  ],
+  "2024": [
     { type: "inventory", name: "dnd5e.equipment24" },
     { type: "spells", name: "dnd5e.spells24" },
     { type: "features", name: "dnd5e.classes24" },
@@ -187,7 +188,7 @@ export const SRD_COMPENDIUM_LOOKUPS = {
   ],
 };
 
-export const FOUNDRY_COMPENDIUM_LOOKUPS = {
+export const FOUNDRY_COMPENDIUM_LOOKUPS: Record<string, { type: string; name: string }[]> = {
   PHB2024: [
     { type: "inventory", name: "dnd-players-handbook.equipment" },
     { type: "spells", name: "dnd-players-handbook.spells" },

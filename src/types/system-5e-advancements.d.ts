@@ -107,8 +107,11 @@ global {
     list?: string[];
     level?: number | string | null;
   }
+
+  type TI5eAdvItemChoiceConfigChoices = Record<string, I5eAdvItemChoiceLevelConfig>;
+
   interface I5eAdvItemChoiceConfig {
-    choices?: Record<string, I5eAdvItemChoiceLevelConfig>;
+    choices?: TI5eAdvItemChoiceConfigChoices;
     allowDrops?: boolean;
     type?: string;
     pool?: I5eAdvancementPool[];

@@ -1,4 +1,9 @@
-export const EXCLUDED_EFFECT_MODIFIERS = {
+export interface IExcludedEffectModifier {
+  type: TDDBModifierType;
+  subType: string | null;
+}
+
+export const EXCLUDED_EFFECT_MODIFIERS: Record<string, IExcludedEffectModifier[]> = {
   common: [
     { type: "bonus", subType: "saving-throws" },
     { type: "bonus", subType: "ability-checks" },

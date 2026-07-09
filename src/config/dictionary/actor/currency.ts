@@ -1,4 +1,4 @@
-export const CURRENCY = {
+export const CURRENCY: Record<TCurrencyUnit, string> = {
   cp: "copper",
   sp: "silver",
   ep: "electrum",

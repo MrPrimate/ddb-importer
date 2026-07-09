@@ -100,7 +100,7 @@ global {
   }
 
   interface I5ePrice {
-    denomination?: string;
+    denomination?: TCurrencyUnit;
     value?: number | null;
   }
 
@@ -156,6 +156,8 @@ global {
     dc?: string;
   }
 
+  type I5eAttackBonusTypes = "msak" | "mwak" | "rsak" | "rwak";
+
   interface I5eBonuses {
     abilities?: I5eAbilityBonusGroup;
     msak?: I5eAttackBonus;
@@ -166,6 +168,8 @@ global {
   }
 
   // ---- Currency -------------------------------------------------------------
+
+  type TCurrencyUnit = "cp" | "sp" | "ep" | "gp" | "pp";
 
   interface I5eCurrency {
     cp?: number;
@@ -242,8 +246,27 @@ global {
 
   // ---- Skills ---------------------------------------------------------------
 
+  type T5eSkillKey = "acr"
+    | "ani"
+    | "arc"
+    | "ath"
+    | "dec"
+    | "his"
+    | "ins"
+    | "itm"
+    | "inv"
+    | "med"
+    | "nat"
+    | "prc"
+    | "prf"
+    | "per"
+    | "rel"
+    | "slt"
+    | "ste"
+    | "sur";
+
   interface I5eSkill {
-    ability?: string;
+    ability?: T5eAbility;
     value?: number;
     // mod?: number;
     // passive?: number | null;
@@ -255,13 +278,13 @@ global {
     roll?: I5eRollConfig;
   }
 
-  export type I5eSkills = Record<string, I5eSkill>;
+  export type I5eSkills = Record<T5eSkillKey, I5eSkill>;
 
   // ---- Tool Proficiencies ---------------------------------------------------
 
   interface I5eToolProficiency {
     value?: number;
-    ability?: string;
+    ability?: T5eAbility;
     bonuses?: {
       check?: string;
     };
@@ -1132,6 +1155,13 @@ global {
 
   /** Implementation Actor with the ddbimporter flag shape the importer reads/writes. */
   type TImporterActor = Actor.Implementation & {
+    flags: I5ePCActorFlags;
+  };
+
+  /** Live character Actor with the PC system/flag shapes; Actor.Implementation's
+   * system union does not narrow, so the updater/sync code uses this view. */
+  type TSyncCharacterActor = Actor.Implementation & {
+    system: I5ePCSystemData;
     flags: I5ePCActorFlags;
   };
 

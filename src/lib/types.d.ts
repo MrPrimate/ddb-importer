@@ -136,4 +136,18 @@ global {
     dmId: number;
     selected?: boolean;
   };
+
+  interface IDDBItemImporterBuildHandlerOptions {
+    ids?: string[] | null;
+    chrisPremades?: boolean;
+    matchFlags?: string[];
+    matchFields?: string[];
+    indexFilter?: CompendiumCollection.GetIndexOptions | null;
+    deleteBeforeUpdate?: boolean | null;
+    filterDuplicates?: boolean;
+    useCompendiumFolders?: boolean | null;
+    updateIcons?: boolean;
+    recursive?: boolean | null;
+    notifier?: null | ((note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void);
+  }
 }

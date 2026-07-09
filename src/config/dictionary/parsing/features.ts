@@ -370,7 +370,7 @@ export const PARSING_CHOICE_FEATURES = {
   ],
   USE_ALL_CHOICES: [
     // "Primal Companion",
-  ],
+  ] as string[],
   USE_CHOSEN_ONLY: [
     "Elven Lineage",
     // "Pact Boon",
@@ -602,6 +602,6 @@ export const NO_GRANTED_SPELL_LIST_FEATURE_2014_INCLUDES = [
   "Wards and Seals",
 ];
 
-export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE = [
+export const FORCE_TRAIT_SPELL_ADVANCEMENT_ON_RACE: string[] = [
 
 ];

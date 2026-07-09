@@ -13,12 +13,21 @@ import { DDBDataUtils, DDBModifiers, DDBTemplateStrings } from "../lib/_module";
 import DDBFeatureMixin from "../features/DDBFeatureMixin";
 
 
+type TBaseClassCompendiumTypes = "class" | "subclasses" | "features" | "feats";
+
+interface IIndexFilter {
+  fields: string[];
+}
+
+type TAdvancementMatchEntry = Record<TBaseClassCompendiumTypes, Record<string, Record<string, string>>>;
+
+
 export default abstract class DDBBaseClass {
 
   data: T5eClassTypes;
-  addToCompendium = null;
+  addToCompendium: boolean | null = null;
   compendiumImportTypes = ["classes", "subclasses"];
-  updateCompendiumItems = null;
+  updateCompendiumItems: boolean | null = null;
   collectOnly = false;
   pendingClassDocument: IDBClassPendingClassDocument | null = null;
   rules = "2014";
@@ -28,11 +37,11 @@ export default abstract class DDBBaseClass {
   isSubClass = false;
   choiceMap = new Map();
   featureAdvancementUuids = new Set();
-  spellLinks = [];
-  configChoices = {};
+  spellLinks: TSpellLinks = [];
+  configChoices: Record<string, TI5eAdvItemChoiceConfigChoices> = {};
   featureAdvancements: I5eAdvancement[] = [];
 
-  _indexFilter = {
+  _indexFilter: Record<TBaseClassCompendiumTypes, IIndexFilter> = {
     features: {
       fields: [
         "name",
@@ -60,12 +69,19 @@ export default abstract class DDBBaseClass {
         "system.type.subtype",
       ],
     },
-    class: {},
-    subclasses: {},
+    class: {
+      fields: ["name"],
+    },
+    subclasses: {
+      fields: ["name"],
+    },
   };
 
-  _advancementMatches = {
+  _advancementMatches: TAdvancementMatchEntry = {
     features: {},
+    feats: {},
+    class: {},
+    subclasses: {},
   };
 
   _compendiums = {
@@ -81,7 +97,7 @@ export default abstract class DDBBaseClass {
     "rage",
   ];
 
-  static NO_ADVANCEMENT_2024 = [];
+  static NO_ADVANCEMENT_2024: string[] = [];
 
   static NOT_ADVANCEMENT_FOR_FEATURE = [
     "Bardic Inspiration",
@@ -365,7 +381,7 @@ export default abstract class DDBBaseClass {
   SPECIAL_ADVANCEMENTS: TDDBClassSpecialAdvancements;
   FORCE_SPELL_LIST_ADVANCEMENTS: string[];
   NOT_SPELL_LIST_ADVANCEMENTS: string[];
-  dictionary: {name?: string; multiclassSkill: number; multiclassTool: number };
+  dictionary: IDDBClassSkillDictionary;
 
   _generateSource() {
     const classSource = DDBSources.parseSource(this.ddbClassDefinition);
@@ -448,7 +464,7 @@ export default abstract class DDBBaseClass {
       if (spellProgression) {
         this.data.system.spellcasting = {
           progression: spellProgression.value,
-          ability: spellCastingAbility,
+          ability: spellCastingAbility as T5eAbility,
         };
         let formula = "";
         const classIdentifier = DDBDataUtils.classIdentifierName(this.className);
@@ -480,7 +496,7 @@ export default abstract class DDBBaseClass {
     });
   }
 
-  async _buildCompendiumIndex(type: string, indexFilter = {}) {
+  async _buildCompendiumIndex(type: TBaseClassCompendiumTypes, indexFilter: IIndexFilter = { fields: ["name"] }) {
     if (Object.keys(indexFilter).length > 0) this._indexFilter[type] = indexFilter;
     if (!this._compendiums[type]) return;
     await this._compendiums[type].getIndex(this._indexFilter[type]);
@@ -546,6 +562,7 @@ export default abstract class DDBBaseClass {
     this._generateDataStub();
 
     this.dictionary = DICTIONARY.actor.class[this.is2014 ? "2014" : "2024"].find((c) => c.name === this.ddbClassDefinition.name) ?? {
+      name: "Generic",
       multiclassSkill: 0,
       multiclassTool: 0,
     };
@@ -611,10 +628,10 @@ export default abstract class DDBBaseClass {
   /**
    * Finds a match in the compendium features for the given feature.
    *
-   * @param {object} feature The feature to find a match for.
-   * @returns {object|undefined} - The matched feature, or undefined if no match is found.
+   * @param {IDDBClassDefinitionFeature} feature The feature to find a match for.
+   * @returns {TIndexEntry | null | undefined} - The matched feature, or undefined if no match is found.
    */
-  getFeatureCompendiumMatch(feature) {
+  getFeatureCompendiumMatch(feature: IDDBClassDefinitionFeature): TIndexEntry | null | undefined {
     if (!this._compendiums.features) {
       return null;
     }
@@ -636,7 +653,7 @@ export default abstract class DDBBaseClass {
           return false;
         }
         for (const [key, value] of Object.entries(excludeFlags)) {
-          if (matchFlags[key] === value) return false;
+          if (foundry.utils.getProperty(matchFlags, key) === value) return false;
         }
 
         const featureClassMatch = !this.isSubClass
@@ -683,14 +700,14 @@ export default abstract class DDBBaseClass {
     return null;
   }
 
-  getCompendiumIxByFlags(compendiums, flags) {
+  getCompendiumIxByFlags(compendiums: TBaseClassCompendiumTypes[], flags: Record<string, string | number | boolean>): TIndexEntry | null {
     for (const compendium of compendiums) {
       if (!this._compendiums[compendium]) {
         continue;
       }
       logger.verbose(`Searching for feature with flags in ${compendium}:`, flags);
 
-      const match = this._compendiums[compendium].index.find((i) => {
+      const match = this._compendiums[compendium].index.find((i: TIndexEntry) => {
         return Object.entries(flags).every(([key, value]) => {
           return foundry.utils.getProperty(i, `flags.ddbimporter.${key}`) === value;
         });
@@ -700,7 +717,7 @@ export default abstract class DDBBaseClass {
     return null;
   }
 
-  getFeatCompendiumMatch(featName): TIndexEntry | null | undefined {
+  getFeatCompendiumMatch(featName: string): TIndexEntry | null | undefined {
     // return null rather than [] - an empty array is truthy, and callers
     // treat a truthy return as a real compendium match
     if (!this._compendiums.feats) {
@@ -720,7 +737,7 @@ export default abstract class DDBBaseClass {
   async _buildClassFeaturesDescription() {
     logger.debug(`Parsing ${this.name} features`);
     let description = "<h1>Class Features</h1>\n\n";
-    const classFeatures = [];
+    const classFeatures: string[] = [];
 
     this.classFeatures.forEach((feature) => {
       const classFeaturesAdded = classFeatures.some((f) => f === feature.name);
@@ -744,7 +761,7 @@ export default abstract class DDBBaseClass {
   // ADVANCEMENT FUNCTIONS
 
 
-  async _generateFeatureAdvancementFromCompendiumMatch(feature) {
+  async _generateFeatureAdvancementFromCompendiumMatch(feature: IDDBClassDefinitionFeature) {
     logger.debug(`Trying to generate advancement for feature: ${feature.name}`);
     const featureMatch = this.getFeatureCompendiumMatch(feature);
     if (!featureMatch) {
@@ -784,7 +801,7 @@ export default abstract class DDBBaseClass {
   }
 
 
-  async _generateFeatureAdvancement(feature, choices) {
+  async _generateFeatureAdvancement(feature: IDDBClassDefinitionFeature, choices: IDDBChoiceEntry[]) {
     logger.debug(`Generating choice feature advancement for feature ${feature.name} with ${choices.length} choices`);
     // console.warn({
     //   this: this,
@@ -796,7 +813,7 @@ export default abstract class DDBBaseClass {
     const keys = new Set();
     const version = this.is2014 ? "2014" : "2024";
     const uuids = new Set();
-    const configChoices = {};
+    const configChoices: Record<string, I5eAdvItemChoiceLevelConfig> = {};
     let lowestLevel = 0;
 
     for (const choice of choices) {
@@ -806,7 +823,7 @@ export default abstract class DDBBaseClass {
       const level = choiceLevel && choiceLevel.length > 1
         ? parseInt(choiceLevel[1])
         : (feature.requiredLevel ?? 0);
-      const currentCount = parseInt(configChoices[level]?.count ?? 0);
+      const currentCount = parseInt(String(configChoices[level]?.count ?? 0));
 
       if (lowestLevel === 0) lowestLevel = level;
       if (level < lowestLevel) lowestLevel = level;
@@ -1076,7 +1093,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateSaveAdvancement(feature, availableToMulticlass, level) {
+  _generateSaveAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1106,7 +1123,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateSkillAdvancement(feature, availableToMulticlass, i) {
+  _generateSkillAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, i: number) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1157,7 +1174,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateLanguageAdvancement(feature, level) {
+  _generateLanguageAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1220,7 +1237,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateToolAdvancement(feature, availableToMulticlass, level) {
+  _generateToolAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1258,7 +1275,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateArmorAdvancement(feature, availableToMulticlass, level) {
+  _generateArmorAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1291,7 +1308,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateWeaponAdvancement(feature, availableToMulticlass, level) {
+  _generateWeaponAdvancement(feature: IDDBClassDefinitionFeature, availableToMulticlass: boolean, level: number) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1324,7 +1341,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateWeaponMasteryAdvancement(feature, level) {
+  _generateWeaponMasteryAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
     const modFilters = {
       type: "feat",
       includeExcludedEffects: true,
@@ -1371,7 +1388,7 @@ export default abstract class DDBBaseClass {
     this._addAdvancements(advancements);
   }
 
-  _generateConditionAdvancement(feature, level) {
+  _generateConditionAdvancement(feature: IDDBClassDefinitionFeature, level: number) {
     const modFilters = {
       includeExcludedEffects: true,
       classId: this.ddbClassDefinition.id,
@@ -1538,7 +1555,7 @@ export default abstract class DDBBaseClass {
     // TODO: come back to 2014
   }
 
-  static CLASS_HANDLER_OPTIONS = {
+  static CLASS_HANDLER_OPTIONS: IDDBItemImporterBuildHandlerOptions = {
     chrisPremades: false,
     filterDuplicates: false,
     deleteBeforeUpdate: false,

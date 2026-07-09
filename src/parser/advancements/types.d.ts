@@ -42,12 +42,27 @@ global {
 
   type TSpellLinks = ISpellLink[];
 
-  type TAdvancementFeatureDefinitions = IDDBRacialTraitDefinition | IDDBClassFeatureDefinition | IDDBBackgroundDefinition | IDDBFeatDefinition;
+  type TAdvancementFeatureDefinitions = IDDBRacialTraitDefinition | IDDBClassFeatureDefinition | IDDBClassDefinitionFeature | IDDBBackgroundDefinition | IDDBFeatDefinition;
 
   interface ISpellAdvancementGrant {
     level: number;
     name: string;
     amount?: string;
+  }
+
+  interface IBasicAdvancementParseResponse {
+    choices: string[];
+    grants: string[];
+    number: number;
+    allowReplacements?: boolean;
+    hint?: string;
+  }
+
+  interface ISpellCastingAbilitiesParseResponse {
+    hint: string;
+    abilities: string[];
+    properties: I5eActivityCastSpellProperties[];
+    concentration: boolean;
   }
 
   interface ISpellAdvancementChoice {

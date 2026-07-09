@@ -1,4 +1,9 @@
-export const SENSES = {
+export const SENSES: {
+  senseMapDefault: Record<string, string>;
+  senseMapVision5e: Record<string, string>;
+  senseMap: () => Record<string, string>;
+  detectionMap: Record<string, string>;
+} = {
   // CONFIG.Canvas.visionModes
   senseMapDefault: {
     blindsight: "basic",
