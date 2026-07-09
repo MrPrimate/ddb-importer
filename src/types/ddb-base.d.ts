@@ -133,7 +133,13 @@ global {
     | "artificer-spell-save-dc"
     | "rogue-spell-save-dc"
     | "monk-spell-save-dc"
-    | "spell-group-healing";
+    | "spell-group-healing"
+    | "replace-damage-type"
+    | "kensei"
+    | "monk-weapon"
+    | "weapon-property"
+    | "half-proficiency"
+    | "expertise";
 
   export interface IDDBBaseModifier {
     id: string;

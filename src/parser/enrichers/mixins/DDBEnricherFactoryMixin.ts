@@ -4,6 +4,14 @@ import DDBSummonsManager from "../../companions/DDBSummonsManager";
 import { resolveTransformProfileUuids } from "../../companions/types/TransformProfiles";
 import { DDBDataUtils, DDBDescriptions } from "../../lib/_module";
 import { AutoEffects, EnchantmentEffects, ChangeHelper, EffectGenerator } from "../effects/_module";
+import type DDBCharacter from "../../DDBCharacter";
+
+interface IActivityDataStructure {
+  activities: Record<string, I5eActivity>;
+  effects: I5eEffectData[];
+  advancements: I5eAdvancement[];
+  nameData?: Record<string, string[]>;
+}
 
 export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
@@ -19,11 +27,11 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
   abstract ENRICHERS: Record<string, any>;
   abstract FALLBACK_ENRICHERS: Record<string, any>;
 
-  ddbParser: any;
+  ddbParser: TDDBParsers;
   document: any;
   name: string | null;
   isCustomAction: boolean;
-  activityGenerator: any;
+  activityGenerator: TActivityGenerator;
   is2014: boolean | null;
   is2024: boolean | null;
   useLookupName: boolean;
@@ -37,11 +45,12 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
   hintName: string | null;
   defaultActionFeatures: Record<string, any>;
   customActionFeatures: Record<string, any>;
-  ddbActionType: string | null;
+  ddbActionType: IActionTypes | null;
   activityNameMatchFeature: any;
 
   _loadEnricherData(): any {
-    if (this.ddbParser.ddbDefinition?.isHomebrew) return null;
+    const isHomebrew = foundry.utils.getProperty(this.ddbParser, "ddbDefinition.isHomebrew");
+    if (isHomebrew) return null;
     if (!this.ENRICHERS?.[this.hintName!]) {
       if (utils.isFunction((this as any)._defaultNameLoader)) return (this as any)._defaultNameLoader();
       return null;
@@ -328,12 +337,12 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     activityGenerator = null, effectType = "basic", enricherType = "general", notifier = null, fallbackEnricher = null,
     ddbActionType = null,
   }: {
-    activityGenerator?: any;
+    activityGenerator?: TActivityGenerator;
     effectType?: string;
     enricherType?: string;
     notifier?: any;
     fallbackEnricher?: string | null;
-    ddbActionType?: string | null;
+    ddbActionType?: IActionTypes | null;
   } = {}) {
     this.ddbParser = null;
     this.document = null;
@@ -691,9 +700,9 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     return addAutomationEffects;
   }
 
-  async createEffects(): Promise<any[]> {
+  async createEffects(): Promise<I5eEffectData[]> {
     const effectHints = this.effects;
-    const effects: any[] = [];
+    const effects: I5eEffectData[] = [];
 
     const applyMidiOnlyEffects = this._canApplyMidiEffects;
 
@@ -1045,10 +1054,11 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     return this.data;
   }
 
-  _getActivityDataFromDDBParent(activityHint: any, i: number, ddbParent: any): any {
+  _getActivityDataFromDDBParent(activityHint: IDDBAdditionalActivity, i: number, ddbParent: TDDBParsers): any {
     const activationData = foundry.utils.mergeObject({
       nameIdPrefix: "add",
       nameIdPostfix: `${i}`,
+      ddbParent: ddbParent,
     }, activityHint.init);
     activationData.ddbParent = ddbParent;
     const activity = new this.activityGenerator(activationData);
@@ -1065,26 +1075,36 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     };
   }
 
-  async _getActivityDataFromAction({ name, type, isAttack = null, rename = null, id = null, activityKeysLimited = [] }: { name: string; type: string; isAttack?: boolean | null; rename?: string[] | null; id?: string | null; activityKeysLimited?: string[] }, y: number): Promise<any> {
-    const result: any = {
+  async _getActivityDataFromAction({
+    name,
+    type,
+    isAttack = null,
+    rename = null,
+    id = null,
+    activityKeysLimited = [],
+  }: IDDBActivityAction, y: number): Promise<IActivityDataStructure> {
+    const result: IActivityDataStructure = {
       activities: {},
       effects: [],
       advancements: [],
     };
-    if (!this.ddbParser?.ddbCharacter) return result;
-    const actions = this.ddbParser.ddbCharacter._characterFeatureFactory.getActions({ name, type });
+    const ddbCharacter = foundry.utils.getProperty(this.ddbParser, "ddbCharacter") as DDBCharacter | undefined;
+    if (!ddbCharacter) return result;
+    const actions = ddbCharacter._characterFeatureFactory.getActions({ name, type });
     if (actions.length === 0) return result;
     const actionFeatures = await Promise.all(actions.map(async (action: any) => {
-      const feature = await this.ddbParser.ddbCharacter._characterFeatureFactory.getFeatureFromAction({
+      const feature = await ddbCharacter._characterFeatureFactory.getFeatureFromAction({
         action,
         isAttack,
         manager: this.manager,
-        extraFlags: this.ddbParser.extraFlags,
+        extraFlags: foundry.utils.getProperty(this.ddbParser, "extraFlags"),
       });
       return feature;
     }));
 
-    actionFeatures.forEach((feature: any, i: number) => {
+    let i = 0;
+    for (const feature of actionFeatures) {
+      if (!("activities" in feature.system)) continue;
       for (const activityKey of (Object.keys(feature.system.activities))) {
         if (activityKeysLimited.length > 0 && !activityKeysLimited.includes(activityKey)) continue;
         let newKey = id ?? `${activityKey.slice(0, -3)}Ne${y + i}`;
@@ -1104,14 +1124,15 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       }
       result.effects.push(...(foundry.utils.deepClone(feature.effects)));
       result.advancements.push(...(foundry.utils.deepClone(Object.values(feature.system.advancement))));
-    });
+      i++;
+    };
     this.customActionFeatures[name] = actionFeatures;
     logger.debug(`Additional Activities from Action ${name}`, { result });
     return result;
 
   }
 
-  async _addActivityHintAdditionalActivities(ddbParent: any): Promise<void> {
+  async _addActivityHintAdditionalActivities(ddbParent: TDDBParsers): Promise<void> {
     const additionalActivityHints = this.additionalActivities;
 
     if (!additionalActivityHints) return;
@@ -1122,7 +1143,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
       const actionActivity = foundry.utils.getProperty(activityHint, "action") as IDDBActivityAction | undefined;
       const duplicate = foundry.utils.getProperty(activityHint, "duplicate");
       const _id = foundry.utils.getProperty(activityHint, "id");
-      const activityData: any = {
+      const activityData: IActivityDataStructure = {
         activities: {},
         effects: [],
         advancements: [],
@@ -1132,7 +1153,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
         const key = Object.keys(this.data.system.activities)[0];
         const activityClone = foundry.utils.deepClone(this.data.system.activities[key]);
         activityClone._id = _id ?? `${activityClone._id.slice(0, -3)}clo`;
-        activityData.activities = [activityClone];
+        activityData.activities[activityClone._id] = activityClone;
       } else if (actionActivity) {
         logger.debug(`Building activity from action ${actionActivity.name}`, { actionActivity, i });
         const result = await this._getActivityDataFromAction(actionActivity, i);
@@ -1159,7 +1180,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
         this.data.effects.push(...activityData.effects);
       }
       if (activityData.advancements) {
-        this.addDocumentAdvancements(...activityData.advancements);
+        this.addDocumentAdvancements(activityData.advancements);
       }
     }
   }
@@ -1173,7 +1194,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     for (const [name, features] of Object.entries(this.defaultActionFeatures) as [string, any[]][]) {
       let y = 0;
       for (const feature of features) {
-        const activityData: any = {
+        const activityData: IActivityDataStructure = {
           activities: {},
           effects: [],
           advancements: [],
@@ -1275,7 +1296,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     }
   }
 
-  async addAdditionalActivities(ddbParent: any): Promise<void> {
+  async addAdditionalActivities(ddbParent: TDDBParsers): Promise<void> {
     const useDefaultActivities = this.useDefaultAdditionalActivities;
     const addToDefaultAdditionalActivities = this.addToDefaultAdditionalActivities;
 
@@ -1306,11 +1327,10 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     if (!this.ddbParser.isAction) return null;
 
     const componentId = this.ddbParser.ddbDefinition.componentId;
-    const componentTypeId = this.ddbParser.ddbDefinition.componentTypeId;
+    const componentTypeId = foundry.utils.getProperty(this.ddbParser.ddbDefinition, "componentTypeId") as number;
+    const feats = foundry.utils.getProperty(this.ddbParser, "ddbCharacter.source.ddb.character.feats") as IDDBFeat[] ?? [];
 
-    const feats = this.ddbParser.ddbCharacter.source.ddb.character.feats;
-
-    const feat = feats.find((f: any) =>
+    const feat = feats.find((f) =>
       f.definition.id === componentId
       && f.definition.entityTypeId === componentTypeId,
     );
@@ -1325,7 +1345,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     return null;
   }
 
-  getFeatureActionsName({ type = null }: { type?: string | null } = {}): any {
+  getFeatureActionsName({ type = null }: { type?: IActionTypes | null } = {}): any {
     const results: any = {
       all: [],
       name: [],
@@ -1338,10 +1358,11 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
 
     const name = this.ddbParser.ddbDefinition.name;
     const id = this.ddbParser.ddbDefinition.id;
-    const entityTypeId = this.ddbParser.ddbDefinition.entityTypeId;
-    const derivedType = type ?? this.ddbActionType ?? this.enricherType;
+    const entityTypeId = foundry.utils.getProperty(this.ddbParser.ddbDefinition, "entityTypeId") as number;
+    const derivedType: IActionTypes = type ?? this.ddbActionType ?? this.enricherType as IActionTypes;
 
-    if (!this.ddbParser?.ddbData?.character?.actions?.[derivedType]) return results;
+    const actions: IDDBActions = foundry.utils.getProperty(this.ddbParser, "ddbData.character.actions") as IDDBActions;
+
 
     // When building a specific choice/option feature, restrict action matching to actions
     // belonging to THIS option, not sibling options sharing the parent feature id.

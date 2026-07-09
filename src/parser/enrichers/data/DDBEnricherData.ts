@@ -25,10 +25,10 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
   static SPELL_PROPERTIES = DICTIONARY.spell.components;
 
   ddbEnricher: T;
-  ddbParser: any;
+  ddbParser: TDDBParsers;
   is2014: boolean;
   is2024: boolean;
-  useLookupName: any;
+  useLookupName: boolean;
   activityGenerator: any;
   effectType: any;
   document: any;
@@ -50,7 +50,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     this.manager = ddbEnricher.manager;
   }
 
-  getFeatureActionsName({ type = null }: { type?: string | null } = {}): any {
+  getFeatureActionsName({ type = null }: { type?: IActionTypes | null } = {}): any {
     return this.ddbEnricher.getFeatureActionsName({ type });
   }
 
@@ -104,13 +104,13 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return DDBDataUtils.classIdentifierName(name);
   }
 
-  hasAction({ name, type }: { name: string; type: string }): any {
+  hasAction({ name, type }: { name: string; type: IActionTypes }): any {
     return this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       a.name === name,
     );
   }
 
-  _getSpentValue(type: string, name: string, matchSubClass: string | null = null, includesName = false): number | null {
+  _getSpentValue(type: IActionTypes, name: string, matchSubClass: string | null = null, includesName = false): number | null {
     const spent = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
@@ -119,7 +119,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return spent;
   }
 
-  _getMaxValue(type: string, name: string, matchSubClass: string | null = null, includesName = false): number | null {
+  _getMaxValue(type: IActionTypes, name: string, matchSubClass: string | null = null, includesName = false): number | null {
     const max = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
@@ -128,7 +128,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return max;
   }
 
-  _getGeneratedUses({ type, name, matchSubClass = null, scaleLink = null, includesName = false }: { type: string; name: string; matchSubClass?: string | null; scaleLink?: any; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
+  _getGeneratedUses({ type, name, matchSubClass = null, scaleLink = null, includesName = false }: { type: IActionTypes; name: string; matchSubClass?: string | null; scaleLink?: any; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
     const action = this.ddbParser?.ddbData?.character.actions[type].find((a: any) =>
       (includesName ? a.name.includes(name) : a.name === name)
     && (matchSubClass === null
@@ -146,7 +146,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return uses;
   }
 
-  _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: string; name: string; max?: string; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean } = { type: "", name: "" }): I5eSystemLimitedUses {
+  _getUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null, matchSubClass = null, includesName = false }: { type: IActionTypes; name: string; max?: string; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any; matchSubClass?: string | null; includesName?: boolean }): I5eSystemLimitedUses {
     const uses: I5eSystemLimitedUses = {
       spent: this._getSpentValue(type, name, matchSubClass, includesName) ?? defaultSpent,
       max,
@@ -169,7 +169,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return uses;
   }
 
-  _getSpellsForFeature({ type, name, onlyLimitedUse = true }: { type: string; name: string; onlyLimitedUse?: boolean } = { type: "", name: "" }): any[] {
+  _getSpellsForFeature({ type, name, onlyLimitedUse = true }: { type: IActionTypes; name: string; onlyLimitedUse?: boolean }): any[] {
     const spells = this.ddbParser.ddbData.character.spells[type].filter((s: any) => {
       if (onlyLimitedUse && !s.limitedUse) return false;
       const id = type === "class"
@@ -183,7 +183,7 @@ export default abstract class DDBEnricherData<T extends TDDBEnricher = TDDBEnric
     return spells;
   }
 
-  _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: string; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any }): I5eSystemLimitedUses {
+  _getSpellUsesWithSpent({ type, name, max = null, defaultSpent = null, period = "", formula = null, override = null }: { type: IActionTypes; name: string; max?: string | null; defaultSpent?: number | null; period?: TLimitedUsePeriod; formula?: string | null; override?: any }): I5eSystemLimitedUses {
     const spells = this._getSpellsForFeature({ type, name });
 
     if (spells.length === 0) {

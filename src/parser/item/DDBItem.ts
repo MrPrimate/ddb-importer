@@ -38,7 +38,7 @@ interface IActionDataMagicBonus {
 
 export interface IActionData {
   associatedToolsOrAbilities: string[];
-  ability: string | null;
+  ability: T5eAbility | null;
   activation: I5eActivityActivation | null;
   consumption: unknown | null;
   effects: unknown | null;
@@ -84,7 +84,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   rawCharacter: I5ePCData;
   raw: IDDBCharacterDataStub;
   declare ddbDefinition: IDDBItemDefinition;
-  isCompendiumItem: boolean;
+  isMuncher: boolean;
   isAction = false;
   legacy: boolean;
   is2014: boolean;
@@ -164,8 +164,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.data = {} as any;
     if (!this.ddbDefinition.description && !this.ddbDefinition.snippet) this.ddbDefinition.description = "";
     this.raw = ddbCharacter.raw;
-    this.isCompendiumItem = isCompendium;
+    this.isMuncher = isCompendium;
     foundry.utils.setProperty(this.ddbItem, "isCompendiumItem", isCompendium);
+    foundry.utils.setProperty(this.ddbItem, "isMuncher", isCompendium);
 
     this.legacy = this.ddbDefinition.isLegacy;
     this.is2014 = this.ddbDefinition.sources.every((s) => DDBSources.is2014Source(s));
@@ -232,11 +233,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       baseItem: null,
     };
 
-    this.addAutomationEffects = this.isCompendiumItem
+    this.addAutomationEffects = this.isMuncher
       ? utils.getSetting<boolean>("munching-policy-add-midi-effects")
       : utils.getSetting<boolean>("character-update-policy-add-midi-effects");
 
-    this.updateExisting = this.isCompendiumItem
+    this.updateExisting = this.isMuncher
       ? utils.getSetting<boolean>("munching-policy-update-existing")
       : false;
     this.spellsAsCastActivity = true;
@@ -357,7 +358,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     this.data.system.identified = true;
 
     const legacyName = utils.getSetting<boolean>("munching-policy-legacy-postfix");
-    if (this.isCompendiumItem && legacyName && this.legacy) {
+    if (this.isMuncher && legacyName && this.legacy) {
       this.data.name += " (Legacy)";
     }
 
@@ -658,7 +659,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     // })
 
     // additional damage parts with no restrictions
-    const unfilteredParts = [];
+    const unfilteredParts: I5eDamagePart[] = [];
     unfilteredDamageMods
       .filter((mod) => !mod.restriction || mod.restriction === "")
       .forEach((mod) => {
@@ -682,7 +683,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
 
 
-    const restrictions = [];
+    const restrictions: string[] = [];
     // loop over restricted damage types
     unfilteredDamageMods
       .filter((mod) => mod.restriction && mod.restriction !== "")
@@ -793,8 +794,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
     const maxDexMods = DDBModifiers.filterModifiersOld(this.ddbDefinition.grantedModifiers, "set", "ac-max-dex-modifier");
     const itemDexMaxAdjustment = DDBModifiers.getModifierSum(maxDexMods, this.raw?.character);
-    if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && itemDexMaxAdjustment > maxDexModifier) {
-      maxDexModifier = itemDexMaxAdjustment;
+    if (maxDexModifier !== null && Number.isInteger(itemDexMaxAdjustment) && Number(itemDexMaxAdjustment) > maxDexModifier) {
+      maxDexModifier = Number(itemDexMaxAdjustment);
     }
 
     this.data.system.armor.dex = maxDexModifier;
@@ -876,7 +877,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
 
-  #getLootType(typeHint) {
+  #getLootType(typeHint: string) {
     this.overrides.ddbType = typeHint ?? this.ddbDefinition.subType;
     this.parsingType = "loot";
     this.documentType = "loot";
@@ -1595,7 +1596,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.limitedUse.resetTypeDescription, this.ddbItem.limitedUse.maxUses);
       const recoveryIsMax = `${recoveryFormula}` === `${this.ddbItem.limitedUse.maxUses}`;
 
-      const recovery = [];
+      const recovery: I5eSystemLimitedUsesRecovery[] = [];
       if (!resetType.isCharges && resetType.value && ![""].includes(resetType.value)) {
         recovery.push({
           period: resetType.value,
@@ -1613,8 +1614,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     }
   }
 
-  static getMagicItemResetType(description: string): TActivationCost {
-    let resetType = null;
+  static getMagicItemResetType(description: string): TLimitedUsePeriod | null {
+    let resetType: TLimitedUsePeriod | null = null;
 
     const chargeMatchFormula = /expended charges (?:\w+|each day) at (\w+)/i;
     const usedAgainFormula = /(?:until|when) you (?:take|finish) a (short|long|short or long) rest/i;
@@ -1625,11 +1626,11 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     const dawnMatch = chargeNextDawnFormula.exec(description);
 
     if (chargeMatch && chargeMatch[1] && ["dawn", "dusk"].includes(chargeMatch[1].toLowerCase())) {
-      resetType = chargeMatch[1].toLowerCase();
+      resetType = chargeMatch[1].toLowerCase() as TLimitedUsePeriod;
     } else if (chargeMatch && chargeMatch[1] && ["sunset"].includes(chargeMatch[1].toLowerCase())) {
       resetType = "dusk";
     } else if (dawnMatch && dawnMatch[1]) {
-      resetType = utils.capitalize(dawnMatch[1].toLowerCase());
+      resetType = utils.capitalize(dawnMatch[1].toLowerCase()) as TLimitedUsePeriod;
     } else if (chargeMatch && chargeMatch[1]) {
       resetType = "day";
     } else if (untilMatch && untilMatch[1]) {
@@ -1638,7 +1639,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
           resetType = "sr";
           break;
         default:
-          resetType = utils.capitalize(`${untilMatch[1]}Rest`);
+          resetType = utils.capitalize(`${untilMatch[1]}Rest`) as TLimitedUsePeriod;
       }
     }
 
@@ -1654,7 +1655,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
   _getCompendiumUses(defaultMax: string | null = null): I5eSystemLimitedUses {
-    if (!this.isCompendiumItem) return { spent: 0, max: null, recovery: [] };
+    if (!this.isMuncher) return { spent: 0, max: null, recovery: [] };
     const maxUses = /has (\d*) charges/i;
     const maxUsesMatches = maxUses.exec(this.ddbItem.definition.description);
     const limitedUse = {
@@ -1668,7 +1669,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       const recoveryFormula = DDBItem.getRechargeFormula(this.ddbItem.definition.description, limitedUse.maxUses);
       const recoveryIsMax = `${recoveryFormula}` === `${limitedUse.maxUses}`;
 
-      const recovery = [];
+      const recovery: I5eSystemLimitedUsesRecovery[] = [];
       if (limitedUse.resetType && !["", "charges"].includes(limitedUse.resetType)) {
         recovery.push({
           period: limitedUse.resetType,
@@ -1693,7 +1694,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   // { value: "formula", label: game.i18n.localize("DND5E.USES.Recovery.Type.Formula") }
   _generateUses(defaultMax: string = null) {
     if (!("uses" in this.data.system)) return;
-    this.data.system.uses = this.isCompendiumItem
+    this.data.system.uses = this.isMuncher
       ? this._getCompendiumUses(defaultMax)
       : this._getUses();
 
@@ -2105,8 +2106,8 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return null;
   }
 
-  #getWeaponAbility(): T5eAbility | "" {
-    let result: T5eAbility | "" = "";
+  #getWeaponAbility(): T5eAbility | null {
+    let result: T5eAbility | null = null;
     const ability = this.#getAbility();
     const mockAbility = ability === null
       ? (this.data.system.properties as string[]).includes("fin") ? "dex" : "str"
@@ -2129,7 +2130,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         result = "int";
       }
     }
-    const setAbility = result !== ""
+    const setAbility = result !== null
       ? result
       : mockAbility;
     foundry.utils.setProperty(this.data, "flags.ddbimporter.dndbeyond.ability", setAbility);
@@ -2137,15 +2138,15 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     return result;
   }
 
-  #isHalfToolProficiencyRoundedUp(ab) {
+  #isHalfToolProficiencyRoundedUp(ab: T5eAbility): boolean {
     const longAbility = DICTIONARY.actor.abilities
       .filter((ability) => ab === ability.value)
       .map((ability) => ability.long)[0];
     const roundUp = DDBModifiers.filterBaseModifiers(this.ddbData, "half-proficiency-round-up", { subType: `${longAbility}-ability-checks` });
-    return Array.isArray(roundUp) && roundUp.length;
+    return Array.isArray(roundUp) && roundUp.length > 0;
   }
 
-  #getToolProficiency(toolName, ability) {
+  #getToolProficiency(toolName: string, ability: T5eAbility) {
     const mods = DDBModifiers.getAllModifiers(this.ddbData, { includeExcludedEffects: true });
     const modifiers = mods
       .filter((modifier) => modifier.friendlySubtypeName === toolName)
@@ -2294,7 +2295,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   #generateToolSpecifics() {
     this.activityOptions.generateCheck = true;
     const defaultAbility = DICTIONARY.actor.proficiencies.find((prof) => prof.name === this.ddbDefinition.name);
-    this.actionData.ability = defaultAbility?.ability ?? "dex";
+    this.actionData.ability = defaultAbility?.ability as T5eAbility ?? "dex";
     if ("proficient" in this.data.system)
       this.data.system.proficient = this.ddbData
         ? this.#getToolProficiency(this.ddbDefinition.name, this.actionData.ability)
@@ -2508,7 +2509,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
   }
 
 
-  async #addSpellAsCastActivity(spell) {
+  async #addSpellAsCastActivity(spell: I5eSpellItem) {
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
 
@@ -2537,7 +2538,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       spellbook: true,
     };
 
-    const usesOverride = {
+    const usesOverride:  I5eSystemLimitedUses = {
       spent: 0,
       recovery: [],
       max: "",
@@ -2654,7 +2655,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
   // if this.spellsAsActivities
 
-  async #addSpellAsActivity(spell) {
+  async #addSpellAsActivity(spell: I5eSpellItem) {
     if (!("activities" in this.data.system)) return;
     logger.debug(`Adding spell ${spell.name} to item as activity ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -2667,7 +2668,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
 
     const maxActivityUses = spellData.limitedUse?.maxUses && spellData.limitedUse?.maxUses > 0 ? `${spellData.limitedUse.maxUses}` : "1";
 
-    const activityUses = {
+    const activityUses: I5eSystemLimitedUses = {
       spent: 0,
       recovery: [
         {
@@ -2719,7 +2720,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       //   activity,
       // });
 
-      const spellLookupName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName");
+      const spellLookupName = foundry.utils.getProperty(spell, "flags.ddbimporter.originalName") as string;
       const currentName = activity.name ? `${activity.name}`.trim() : "";
       const adjustedName = currentName === ""
         ? utils.capitalize(activity.type)
@@ -2774,7 +2775,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     foundry.utils.setProperty(this.data, "flags.ddbimporter.isItemCharge", !this.perSpell.isPerSpell);
   }
 
-  async #spellsAsSpells(spell) {
+  async #spellsAsSpells(spell: I5eSpellItem) {
     if (!("uses" in this.data.system)) return;
     logger.debug(`Adding spell ${spell.name} to item as spell link ${this.data.name}`);
     const spellData = MagicItemMaker.buildMagicItemSpell(this.magicChargeType, spell);
@@ -2785,10 +2786,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       )?.value ?? undefined
       : undefined;
 
-    const uses = {
+    const uses: I5eSystemLimitedUses = {
       spent: 0,
-      recovery: [
-      ],
+      recovery: [],
       max: null,
     };
 
@@ -2854,7 +2854,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         spell.system.activities[id].save.dc = saveDC;
       }
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
-      spell.system.activities[id] = await this.enricher.customFunction({
+      await this.enricher.customFunction({
         name: spell.name,
         activity: spell.system.activities[id],
       });
@@ -2894,7 +2894,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       }
     }
 
-    if (this.isCompendiumItem) return;
+    if (this.isMuncher) return;
 
     this.raw.itemSpells = this.raw.itemSpells.filter((spell) => {
       const matchedSpell = foundry.utils.getProperty(spell, "flags.ddbimporter.removeSpell")
@@ -2928,7 +2928,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       character: this.raw.character,
       ddbItem: this.ddbItem,
       document: this.data,
-      isCompendiumItem: this.isCompendiumItem,
+      isCompendiumItem: this.isMuncher,
       type: "item",
       description: this.data.system.description.chat !== ""
         ? this.data.system.description.chat
