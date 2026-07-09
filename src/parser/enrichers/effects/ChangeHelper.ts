@@ -2,10 +2,11 @@ import { utils } from "../../../lib/_module";
 import AutoEffects from "./AutoEffects";
 
 interface ChangeParams {
-  value: any;
-  priority: any;
+  value: string;
+  priority: number;
   key: string;
   type: TActiveEffectChangeType;
+  phase?: TActiveEffectChangePhase;
 }
 
 interface StatusEffectChangeParams {
@@ -36,12 +37,13 @@ interface OverTimeSaveParams {
 
 export default class ChangeHelper {
 
-  static change({ value, priority, key, type }: ChangeParams): IActiveEffectChangeData {
+  static change({ value, priority, key, type, phase = null }: ChangeParams): IActiveEffectChangeData {
     return {
       key,
       value,
       type,
       priority,
+      phase,
     };
   }
 
@@ -195,7 +197,8 @@ export default class ChangeHelper {
   static daeStatusEffectChange(statusName: string, priority = 20): IActiveEffectChangeData {
     return {
       key: "macro.StatusEffect",
-      type: "add",
+      type: "custom",
+      phase: "final",
       value: statusName.toLowerCase(),
       priority: priority,
     };
