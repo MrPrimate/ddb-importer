@@ -139,7 +139,7 @@ export const COMPENDIUMS = [
   },
 ];
 
-export const SRD_COMPENDIUM_LOOKUPS: Record<"2014" | "2024", { type: string; name: string }[]> = {
+export const SRD_COMPENDIUM_LOOKUPS: Record<T5eRulesVersion, { type: string; name: string }[]> = {
   "2014": [
     { type: "inventory", name: "dnd5e.items" },
     { type: "spells", name: "dnd5e.spells" },

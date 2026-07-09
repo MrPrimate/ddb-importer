@@ -360,6 +360,8 @@ global {
     resetDice: any | null;
   }
 
+  type IActionTypes = "feat" | "class" | "race" | "background" | "item";
+
   export interface IDDBAction extends IDDBCommonDefinition {
     entityTypeId: number;
     actionType: number;
@@ -387,13 +389,15 @@ global {
     range: IDDBActionRange;
     limitedUse: IDDBActionLimitedUse | null;
     // we inject this, but isn't always present
-    actionSource?: "class" | "race" | "feat" | "background" | null;
+    actionSource?: IActionTypes | null;
   }
 
   export interface IDDBActions {
     race: IDDBAction[];
     class: IDDBAction[];
     feat: IDDBAction[];
+    item: IDDBAction[];
+    background: IDDBAction[];
   }
 
   // ---- Classes --------------------------------------------------------------

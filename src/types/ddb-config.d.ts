@@ -133,7 +133,7 @@ global {
   export interface IDDBConfigNaturalAction {
     id: number;
     // not present in config data; optional so it unions cleanly with IDDBAction
-    actionSource?: "class" | "race" | "feat" | "background" | null;
+    actionSource?: IActionTypes | null;
     entityTypeId: number;
     limitedUse: any | null;
     name: string;

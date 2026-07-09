@@ -7,7 +7,7 @@ import DDBVehicleActivity from "./DDBVehicleActivity";
 export {};
 
 global {
-  type IDDBActivityTypes = DDBFeatureActivity
+  type TDDBActivityTypes = DDBFeatureActivity
     | DDBItemActivity
     | DDBSpellActivity
     | DDBVehicleActivity

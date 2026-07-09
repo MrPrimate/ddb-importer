@@ -2,6 +2,10 @@ export {};
 
 global {
 
+  type T5eRulesVersion = "2014" | "2024";
+
+  type T5eAbilityLongNames = "strength" | "dexterity" | "constitution" | "intelligence" | "wisdom" | "charisma";
+
   type T5eAbility = "str" | "dex" | "con" | "int" | "wis" | "cha";
 
   type TAll5eActorDocuments = I5ePCData | I5eMonsterData | I5eVehicleData;
@@ -109,7 +113,7 @@ global {
     id?: number;
     license?: string;
     page?: string;
-    rules?: string;
+    rules?: T5eRulesVersion | null;
     revision?: number;
     sourceCategoryId?: number;
   }

@@ -1,6 +1,6 @@
 export interface ISpellPreparationMode {
   name: string;
-  version?: "2014" | "2024";
+  version?: T5eRulesVersion;
   method: "spell" | "pact" | "atwill";
   preparation: (prepared?: boolean) => number;
   cantripsPrepared?: () => number;

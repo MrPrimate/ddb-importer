@@ -33,6 +33,6 @@ global {
     multiclassTool: 0 | 1;
   }
 
-  type TDDBBClassSkillVersionDictionary = Record<"2014" | "2024", IDDBClassSkillDictionary[]>;
+  type TDDBBClassSkillVersionDictionary = Record<T5eRulesVersion, IDDBClassSkillDictionary[]>;
 
 }

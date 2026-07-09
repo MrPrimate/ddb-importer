@@ -37,7 +37,7 @@ type TDocumentType = Extract<TFeatureType, "background" | "feat"> | "weapon";
 interface IDDBFeatureMixin {
   ddbData: IDDBData;
   ddbDefinition: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | IDDBAction | IDDBConfigNaturalAction;
-  type: string;
+  type: IActionTypes;
   source?: IDDBSourceResponse | string | null;
   documentType?: TDocumentType;
   rawCharacter?: I5ePCData | null;
@@ -58,7 +58,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   static SPECIAL_ADVANCEMENTS = DICTIONARY.parsing.levelScale.SPECIAL_ADVANCEMENTS;
   static UTILITY_FEATURES = DICTIONARY.parsing.levelScale.UTILITY_FEATURES;
 
-  DDB_TYPE_ENRICHERS = {
+  DDB_TYPE_ENRICHERS: Record<string, new (...args: any[]) => TDDBEnricher> = {
     class: DDBClassFeatureEnricher,
     race: DDBSpeciesTraitEnricher,
     feat: DDBFeatEnricher,
@@ -91,7 +91,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
   resourceCharges: number | null;
   ddbFeature: TDDBFeatureMixinFeatures | TDDBFeatureMixinDefinitions | IDDBAction | IDDBConfigNaturalAction;
   // current choice option context, set transiently during DDBChoiceFeature.build()
-  _currentChoice: any | null;
+  _currentChoice: IDDBChoiceResult | null;
   declare ddbDefinition: TDDBFeatureMixinDefinitions;
   declare data: T5eFeatureMixinDataTypes;
   rawCharacter: I5ePCData;
@@ -676,7 +676,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return this.ddbDefinition.dice ?? this.ddbDefinition.die ?? undefined;
   }
 
-  getDamage(bonuses = []): I5eDamagePart {
+  getDamage(bonuses: string[] = []): I5eDamagePart {
     const damageType = this.getDamageType();
     const damageTypes = damageType ? [damageType] : [];
     if (this.originalName === "Unarmed Strike"
@@ -739,7 +739,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     };
   }
 
-  getMartialArtsDamage(bonuses = []): I5eDamagePart {
+  getMartialArtsDamage(bonuses: string[] = []): I5eDamagePart {
     const damageType = this.getDamageType();
     const damageTypes = damageType ? [damageType] : [];
     if (this.originalName === "Unarmed Strike"
@@ -826,10 +826,10 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     if (resourceType !== "disable" && linkItems) {
       const hasResourceLink = foundry.utils.getProperty(this.data.flags, "link-item-resource-5e.resource-link");
       Object.keys(this.rawCharacter.system.resources).forEach((resource) => {
-        const detail = this.rawCharacter.system.resources[resource];
+        const detail = foundry.utils.getProperty(this.rawCharacter.system.resources, resource) as I5ePCResource;
         if (this.ddbDefinition.name === detail.label) {
           foundry.utils.setProperty(this.data.flags, "link-item-resource-5e.resource-link", resource);
-          this.rawCharacter.system.resources[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
+          (this.rawCharacter.system.resources as Record<string, any>)[resource] = { value: 0, max: 0, sr: false, lr: false, label: "" };
         } else if (hasResourceLink === resource) {
           foundry.utils.setProperty(this.data.flags, "link-item-resource-5e.resource-link", undefined);
         }
@@ -842,7 +842,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return "";
   }
 
-  _filterModForChoice(mod: IModifiersMod, choice, type: string) {
+  _filterModForChoice(mod: IModifiersMod, choice: IDDBChoiceResult, type: IActionTypes): boolean {
     if (mod.componentId === this.ddbDefinition?.id && mod.componentTypeId === this.ddbDefinition?.entityTypeId)
       return true;
     if (choice && this.ddbData.character.options[type]?.length > 0) {
@@ -855,7 +855,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
           && (choice.componentTypeId == option.componentTypeId // either the choice componenttype and optiontype match or
             || choice.componentTypeId == option.definition.entityTypeId) // the choice componentID matches the option definition entitytypeid
           && option.definition.entityTypeId == mod.componentTypeId // mod componentId matches option entity type id
-          && choice.id == mod.componentId, // choice id and mod id match
+          && String(choice.id) == String(mod.componentId), // choice id and mod id match
       );
       // console.log(`choiceMatch ${choiceMatch}`);
       if (choiceMatch) return true;
@@ -892,7 +892,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return false;
   }
 
-  _getFeatModifierItem(choice, type: string) {
+  _getFeatModifierItem(choice: IDDBChoiceResult, type: IActionTypes) {
     if ("grantedModifiers" in this.ddbDefinition && this.ddbDefinition.grantedModifiers) return this.ddbDefinition;
     const modifierItem = foundry.utils.duplicate(this.ddbDefinition) as any;
     const modifiers = [
@@ -922,7 +922,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return modifierItem;
   }
 
-  async _addEffects(choice, type: string) {
+  async _addEffects(choice: IDDBChoiceResult, type: IActionTypes) {
     // can we apply any auto-generated effects to this feature
     const compendiumItem = this.rawCharacter.flags.ddbimporter.compendium;
     const modifierItem = this._getFeatModifierItem(choice, type);
@@ -1132,7 +1132,13 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
 
   /** @override */
   async _generateActivity(
-    { hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null, typeOverride = null } = {},
+    { hintsOnly = false, statusEffects = true, name = null, nameIdPostfix = null, typeOverride = null }: {
+      hintsOnly?: boolean;
+      statusEffects?: boolean;
+      name?: string | null;
+      nameIdPostfix?: string | null;
+      typeOverride?: IDDBActivityType | "roll" | null;
+    } = {},
     optionsOverride = {},
   ) {
     if (this.enricher.activity?.type === "none") {
@@ -1196,7 +1202,7 @@ export default class DDBFeatureMixin extends DDBActivityFactoryMixin<TDocumentTy
     return false;
   }
 
-  static async finalFixes(feature, notifier = null) {
+  static async finalFixes(feature: T5eFeatureMixinDataTypes, notifier: ((note: any, { nameField, monsterNote, isError, message }?: NotifierV1Props) => void) | null = null) {
     const tableDescription = await DDBTable.generateTable({
       parentName: feature.name,
       html: feature.system.description.value,

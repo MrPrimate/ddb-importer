@@ -188,7 +188,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     return triggerPoints.map((t) => `[${t}]${valueContent}`).join(",");
   }
 
-  static generateMidiOnUseMacroFlagValue(macroType: string, macroName: string, triggerPoints = [], macroUuid = null): string {
+  static generateMidiOnUseMacroFlagValue(macroType: string, macroName: string, triggerPoints: string[] = [], macroUuid = null as string | null): string {
     const useDDBFunctions = utils.getSetting<boolean>("no-item-macros");
     const docMacroName = (macroUuid && !useDDBFunctions) ? `.${macroUuid}` : "";
     const valueContent = (useDDBFunctions)
@@ -207,7 +207,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     foundry.utils.setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
 
-  static setMidiOnUseMacroFlag(document: TDDBImporterDocument, macroType: string, macroName: string, triggerPoints = []) {
+  static setMidiOnUseMacroFlag(document: TDDBImporterDocument, macroType: string, macroName: string, triggerPoints: string[] = []) {
     const value = DDBMacros.generateMidiOnUseMacroFlagValue(macroType, macroName, triggerPoints);
     foundry.utils.setProperty(document, "flags.midi-qol.onUseMacroName", value);
   }
@@ -316,7 +316,7 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
     };
   }
 
-  static async createMacro({ name, content, img, isGM, isTemp }): Promise<Macro.Implementation> {
+  static async createMacro({ name, content, img, isGM, isTemp }: { name: string; content: string; img?: string | null; isGM?: boolean; isTemp?: boolean }): Promise<Macro.Implementation> {
     const macroFolder = isTemp
       ? undefined
       : game.folders.find((folder) => folder.name === "DDB Macros" && folder.type === "Macro");
@@ -503,12 +503,12 @@ return game.modules.get(${SETTINGS.MODULE_ID})?.api.macros.executeMacro("${type}
   }
 
   static macroFunction = {
-    spell: (name) => DDBMacros.getMacroFunction("spell", name),
-    feat: (name) => DDBMacros.getMacroFunction("feat", name),
-    gm: (name) => DDBMacros.getMacroFunction("gm", name),
-    item: (name) => DDBMacros.getMacroFunction("item", name),
-    monsterFeature: (name) => DDBMacros.getMacroFunction("monsterFeature", name),
-    generic: (name) => DDBMacros.getMacroFunction("generic", name),
+    spell: (name: string) => DDBMacros.getMacroFunction("spell", name),
+    feat: (name: string) => DDBMacros.getMacroFunction("feat", name),
+    gm: (name: string) => DDBMacros.getMacroFunction("gm", name),
+    item: (name: string) => DDBMacros.getMacroFunction("item", name),
+    monsterFeature: (name: string) => DDBMacros.getMacroFunction("monsterFeature", name),
+    generic: (name: string) => DDBMacros.getMacroFunction("generic", name),
   };
 
 }

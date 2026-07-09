@@ -36,10 +36,10 @@ export default class DDBClassFeatures {
     "Expertise",
   ];
 
-  static EXCLUDED_FEATURES_2014 = [
+  static EXCLUDED_FEATURES_2014: string[] = [
   ];
 
-  static EXCLUDED_FEATURES_2024 = [
+  static EXCLUDED_FEATURES_2024: string[] = [
     // "Rage",
   ];
 
@@ -124,7 +124,7 @@ export default class DDBClassFeatures {
 
   async _getFeatures({ featureDefinition, type, source, filterByLevel = true, flags = {} }:{
     featureDefinition: TDDBFeatureMixinDefinitions | TDDBFeatureMixinFeatures;
-    type: "class" | "race" | "background" | "feat";
+    type: IActionTypes;
     source: IDDBSourceResponse | string;
     filterByLevel?: boolean;
     flags?: IItemFlagConfig;
@@ -264,7 +264,7 @@ export default class DDBClassFeatures {
     }
     this._parsed[subClassName] = foundry.utils.duplicate(parsedFeatures) as unknown as T5eFeatureMixinDataTypes[];
 
-    const subClassDocs = [];
+    const subClassDocs: T5eFeatureMixinDataTypes[] = [];
 
     // parse out duplicate features from class features
     parsedFeatures.forEach((item) => {

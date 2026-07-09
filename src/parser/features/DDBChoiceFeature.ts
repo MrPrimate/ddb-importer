@@ -78,7 +78,7 @@ export default class DDBChoiceFeature extends DDBFeature {
   }
 
 
-  async build(choice) {
+  async build(choice: IDDBChoiceResult) {
     try {
       this._currentChoice = choice;
       this._generateSystemType();
@@ -123,7 +123,7 @@ export default class DDBChoiceFeature extends DDBFeature {
 
       // get description for chris premades
       this.ddbDefinition.description = choice.description;
-      this.ddbDefinition.snippet = choice.snippet ? choice.snippet : "";
+      this.ddbDefinition.snippet = foundry.utils.getProperty(choice, "snippet") as string ?? "";
       this._generateDescription({ forceFull: true });
       foundry.utils.setProperty(this.data, "flags.ddbimporter.initialFeature", foundry.utils.deepClone(this.data.system.description));
       foundry.utils.setProperty(this.ddbDefinition, "flags.ddbimporter.dndbeyond.choice", choice);
@@ -149,7 +149,7 @@ export default class DDBChoiceFeature extends DDBFeature {
         wasOption: choice.wasOption,
         entityTypeId: choice.entityTypeId,
         type: choice.type,
-        optionId: choice.optionId,
+        optionId: String(choice.optionId),
         optionComponentId: choice.optionComponentId,
       };
 
@@ -200,7 +200,7 @@ export default class DDBChoiceFeature extends DDBFeature {
   ];
 
 
-  static async buildChoiceFeatures(ddbFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
+  static async buildChoiceFeatures(ddbFeature: DDBFeature, allFeatures = false): Promise<T5eFeatureMixinDataTypes[]> {
     const features: T5eFeatureMixinDataTypes[] = [];
     if (DDBChoiceFeature.NO_CHOICE_BUILD.includes(ddbFeature.originalName)) return features;
     if (ddbFeature.type === "feat" && !DDBChoiceFeature.FORCE_FEAT_CHOICES.includes(ddbFeature.ddbDefinition.name)) return features;

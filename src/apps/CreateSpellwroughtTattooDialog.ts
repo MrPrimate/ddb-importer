@@ -59,8 +59,8 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
       icon: "fa-solid fa-user-pen",
       default: true,
     }],
-    config: null,
-    spell: null,
+    config: null as SpellTattooConfiguration | null,
+    spell: null as Item.Implementation | null,
   };
 
   /** @inheritDoc */
@@ -82,7 +82,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @returns {Promise<ApplicationRenderContext>}
    * @protected
    */
-  async _prepareContentContext(context, _options) {
+  async _prepareContentContext(context: any, _options: DeepPartial<foundry.applications.api.Application.RenderOptions>) {
     const spell = this.spell as unknown as I5eSpellItem;
     context.anchor = this.spell instanceof Item ? this.spell.toAnchor().outerHTML : `<span>${spell.name}</span>`;
     context.config = this.config;
@@ -118,7 +118,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
    * @param {HTMLFormElement} _form      The submitted form.
    * @param {FormDataExtended} formData  Data from the dialog.
    */
-  static async #handleFormSubmission(this: CreateSpellwroughtTattooDialog, _event, _form, formData) {
+  static async #handleFormSubmission(this: CreateSpellwroughtTattooDialog, _event: Event, _form: any, formData: any) {
     foundry.utils.mergeObject(this.#config, formData.object);
     this.#config.level = Number(this.#config.level);
     await this.close({ dnd5e: { submitted: true } } as unknown as { submitted?: boolean });
@@ -127,7 +127,7 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  _onChangeForm(formConfig, event) {
+  _onChangeForm(formConfig: any, event: any) {
     super._onChangeForm(formConfig, event);
     const formData = new foundry.applications.ux.FormDataExtended(this.form);
     foundry.utils.mergeObject(this.#config, formData.object);
@@ -150,11 +150,11 @@ export default class CreateSpellwroughtTattooDialog extends dnd5e.applications.a
   /**
    * Display the create spell scroll dialog.
    * @param {Item.Implementation|object} spell              The spell or item data to be made into a tattoo.
-   * @param {SpellScrollConfiguration} config  Configuration options for tattoo creation.
+   * @param {SpellTattooConfiguration} config  Configuration options for tattoo creation.
    * @param {object} [options={}]              Additional options for the application.
    * @returns {Promise<object|null>}           Form data object with results of the dialog.
    */
-  static async create(spell, config, options = {}) {
+  static async create(spell: Item.Implementation, config: SpellTattooConfiguration, options = {}) {
     return new Promise((resolve) => {
       const dialog = new this({ spell, config, ...options });
       dialog.addEventListener("close", (_event) => resolve(dialog.config), { once: true });

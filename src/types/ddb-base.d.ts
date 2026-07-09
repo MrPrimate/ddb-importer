@@ -139,9 +139,9 @@ global {
     id: string;
     entityId: number | null;
     entityTypeId: number | null;
-    type: string;
+    type: TDDBModifierType;
     subType: string;
-    restriction: string;
+    restriction: string | null;
     statId: number | null;
     requiresAttunement: boolean;
     duration: any | null;

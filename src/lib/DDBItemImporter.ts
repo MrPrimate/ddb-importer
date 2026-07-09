@@ -188,18 +188,19 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
     return matched;
   }
 
-  static copyFlagGroup(flagGroup, originalItem, targetItem) {
+  static copyFlagGroup(flagGroup: string, originalItem: Item.Implementation, targetItem: TDDBItemImporterDocument) {
     if (targetItem.flags === undefined) targetItem.flags = {};
     // if we have generated effects we dont want to copy some flag groups. mostly for AE on spells
-    const effectsProperty = foundry.utils.getProperty(targetItem, "flags.ddbimporter.effectsApplied")
+    const effectsProperty = foundry.utils.getProperty(targetItem, "flags.ddbimporter.effectsApplied") as boolean
       && SETTINGS.EFFECTS_IGNORE_FLAG_GROUPS.includes(flagGroup);
-    if (originalItem.flags && !!originalItem.flags[flagGroup] && !effectsProperty) {
+    const originalFlags = foundry.utils.getProperty(originalItem, `flags.${flagGroup}`);
+    if (originalFlags && !effectsProperty) {
       // logger.debug(`Copying ${flagGroup} for ${originalItem.name}`);
-      targetItem.flags[flagGroup] = originalItem.flags[flagGroup];
+      foundry.utils.setProperty(targetItem, `flags.${flagGroup}`, originalFlags);
     }
   }
 
-  static copySupportedItemFlags(originalItem, targetItem) {
+  static copySupportedItemFlags(originalItem: Item.Implementation, targetItem: TDDBItemImporterDocument) {
     SETTINGS.SUPPORTED_FLAG_GROUPS.forEach((flagGroup) => {
       this.copyFlagGroup(flagGroup, originalItem, targetItem);
     });
@@ -243,7 +244,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
   static updateMatchingItems(oldItems: TAll5eDocuments[], newItems: TAll5eDocuments[],
     { looseMatch = false, monster = false, keepId = false, keepDDBId = false, overrideId = false, linkItemFlags = false } = {},
   ): TAll5eDocuments[] {
-    const results = [];
+    const results: TAll5eDocuments[] = [];
 
     for (const newItem of newItems) {
       let item: TAll5eDocuments = foundry.utils.duplicate(newItem) as unknown as TAll5eDocuments;
@@ -257,7 +258,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
         : NameMatcher.looseItemNameMatch(item, oldItems, looseMatch, monster));
 
       if (matched) {
-        const match = foundry.utils.duplicate(matched);
+        const match = foundry.utils.duplicate(matched) as TAll5eDocuments;
         // in some instances we want to keep the ddb id
         if (keepDDBId && foundry.utils.hasProperty(item, "flags.ddbimporter.id")) {
           foundry.utils.setProperty(match, "flags.ddbimporter.id", foundry.utils.duplicate(item.flags.ddbimporter.id));
@@ -443,7 +444,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
 
 
   async updateCompendiumItems(inputItems: TType[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
-    const results = [];
+    const results: (Item.Implementation | RollTable.Implementation)[] = [];
     for (const item of inputItems) {
       const existingItems: Item.Implementation[] = await this.getFilteredItemDocuments(item);
       // we have a match, update first match
@@ -461,20 +462,20 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
           if (item.type !== existingItem.type) {
             logger.warn(`Item type mismatch ${item.name} from ${existingItem.type} to ${item.type}. DDB Importer will delete and recreate this item from scratch. You can most likely ignore this message.`);
           }
-          const newItem = this.deleteCreateCompendiumItem(item, existingItem);
+          const newItem: Item.Implementation | RollTable.Implementation = await this.deleteCreateCompendiumItem(item, existingItem);
           results.push(newItem);
         } else {
-          const update = await this.updateCompendiumItem(item, existingItem);
+          const update: Item.Implementation | RollTable.Implementation = await this.updateCompendiumItem(item, existingItem);
           results.push(update);
         }
       }
     }
 
-    return Promise.all(results);
+    return results;
   }
 
   async createCompendiumItems(inputItems: TType[]): Promise<(Item.Implementation | RollTable.Implementation)[]> {
-    const results = [];
+    const results: (Item.Implementation | RollTable.Implementation)[] = [];
     for (const item of inputItems) {
       try {
         const existingItems = await this.getFilteredItemIndexes(item);
@@ -504,7 +505,7 @@ export default class DDBItemImporter<TType extends TDDBItemImporterDocument = TD
       ? [...new Map(this.documents.map((item) => {
         let filterItem = `${item["name"]}${item["type"]}`;
         this.matchFlags.forEach((flag) => {
-          filterItem += item.flags.ddbimporter[flag];
+          filterItem += foundry.utils.getProperty(item, `flags.ddbimporter.${flag}`);
         });
         return [filterItem, item];
       })).values()]
@@ -524,7 +525,7 @@ ${item.system.description.chat}
       return item;
     });
 
-    let results = [];
+    let results: (Item.Implementation | RollTable.Implementation)[] = [];
     // update existing items
     this.notifier(`Creating and updating ${inputItems.length} ${this.type} documents in compendium...`, { nameField: true });
 
@@ -679,7 +680,7 @@ ${item.system.description.chat}
       const nameMatch = srdImageLibrary.find((m) => m.name === monster.name && m.type === "npc");
       if (nameMatch) {
         logger.debug(`Updating monster ${monster.name} to srd images`, nameMatch);
-        const rulesVersion = foundry.utils.getProperty(monster, "system.source.rules") as string ?? "2014";
+        const rulesVersion = foundry.utils.getProperty(monster, "system.source.rules") as T5eRulesVersion ?? "2014";
         const compendiumName = SETTINGS.SRD_COMPENDIUMS[rulesVersion].find((c) => c.type == "monsters").name;
         const moduleArt = game.compendiumArt.get(nameMatch.uuid ?? `Compendium.${compendiumName}.Actor.${nameMatch._id}`);
         logger.debug(`Updating monster ${monster.name} to srd images`, { nameMatch, moduleArt });
@@ -710,7 +711,7 @@ ${item.system.description.chat}
           if (moduleArtScaleX) monster.prototypeToken.texture.scaleX = moduleArtScaleX;
           const moduleArtRing = foundry.utils.getProperty(moduleArt, "token.ring");
           if (moduleArtRing) foundry.utils.setProperty(monster, "prototypeToken.ring", moduleArtRing);
-        } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(nameMatch, "prototypeToken.texture.src"))
+        } else if (!utils.isDefaultOrPlaceholderImage(foundry.utils.getProperty(nameMatch, "prototypeToken.texture.src") as string)
           && foundry.utils.hasProperty(nameMatch, "prototypeToken.texture.src")
         ) {
           foundry.utils.setProperty(monster, "flags.monsterMunch.tokenImgSet", true);
@@ -730,7 +731,7 @@ ${item.system.description.chat}
       const srdImageLibrary2014 = await Iconizer.getSRDImageLibrary("2014");
       const srdImageLibrary2024 = await Iconizer.getSRDImageLibrary("2024");
       this.notifier(`Updating SRD Icons`, { nameField: true });
-      const itemMap = [];
+      const itemMap: IIconMapEntry[] = [];
 
       for (const doc of this.documents) {
         if (!("items" in doc)) continue;

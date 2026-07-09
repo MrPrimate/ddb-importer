@@ -358,7 +358,7 @@ declare global {
     "ddb-importer.munching-policy-character-url": string;
     "ddb-importer.munching-policy-character-classes": any[];
     "ddb-importer.munching-policy-character-subclasses": Record<string, number[]>;
-    "ddb-importer.munching-policy-character-class-rules-version": "2014" | "2024";
+    "ddb-importer.munching-policy-character-class-rules-version": T5eRulesVersion;
     "ddb-importer.munching-policy-disable-monster-art": boolean;
 
     // READY: MUNCHER MUNCH_ART
