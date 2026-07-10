@@ -20,14 +20,14 @@ export async function venomTrollEffects(npc: I5eMonsterData): Promise<I5eMonster
       effect.changes.push(
         {
           key: "flags.midi-qol.OverTime",
-          type: "custom",
+          type: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
           value: `turn=start, damageRoll=10, damageType=healing, condition=@attributes.hp.value > 0 && @attributes.hp.value < @attributes.hp.max, rollMode=gmroll, label=${item.name} (Fire or Acid prevents)`,
           priority: 20,
         },
       );
       foundry.utils.setProperty(effect, "flags.dae.transfer", true);
       effect.transfer = true;
-      item.system.damage.parts = [];
+      // item.system.damage.parts = [];
       item.effects.push(effect);
     }
     item = forceItemEffect(item);

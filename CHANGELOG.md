@@ -1,5 +1,7 @@
 # Next Up
 
+- Some features with looser 2024 wording like Aboleth 'Dominate Mind' ability would create a template when not required. @redarchongaming
+
 # 7.1.36
 
 - Invisibility typo.
