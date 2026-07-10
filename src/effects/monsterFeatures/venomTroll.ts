@@ -3,7 +3,7 @@ import { DDBMacros } from "../../lib/_module";
 import { baseMonsterFeatureEffect } from "../specialMonsters";
 
 
-export async function venomTrollEffects(npc) {
+export async function venomTrollEffects(npc: I5eMonsterData): Promise<I5eMonsterData> {
   for (let item of npc.items) {
     if (item.name === "Poison Splash") {
       const effect = baseMonsterFeatureEffect(item, item.name);
@@ -20,9 +20,9 @@ export async function venomTrollEffects(npc) {
       effect.system.changes.push(
         {
           key: "flags.midi-qol.OverTime",
-          mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+          type: "custom",
           value: `turn=start, damageRoll=10, damageType=healing, condition=@attributes.hp.value > 0 && @attributes.hp.value < @attributes.hp.max, rollMode=gmroll, label=${item.name} (Fire or Acid prevents)`,
-          priority: "20",
+          priority: 20,
         },
       );
       foundry.utils.setProperty(effect, "flags.dae.transfer", true);

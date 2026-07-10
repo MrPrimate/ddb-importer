@@ -3,7 +3,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class AbberantDragonmark extends Generic {
   get additionalActivities(): IDDBAdditionalActivity[] {
-    const hd = this.ddbParser.isMunche
+    const hd = this.ddbParser.isMuncher
       ? [4, 6, 8, 10, 12]
       : this.ddbParser.ddbCharacter.source.ddb.character.classes
         .map((klass) => klass.definition.hitDice);
