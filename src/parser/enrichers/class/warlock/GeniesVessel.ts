@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class GeniesVessel extends DDBEnricherData {
   get type() {
-    if (this.ddbParser.orginalName === "Genie's Vessel") return DDBEnricherData.ACTIVITY_TYPES.NONE;
+    if (this.ddbParser.originalName === "Genie's Vessel") return DDBEnricherData.ACTIVITY_TYPES.NONE;
     return DDBEnricherData.ACTIVITY_TYPES.DAMAGE;
   }
 
