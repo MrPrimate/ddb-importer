@@ -37,7 +37,7 @@ export default class PsionicPower extends DDBEnricherData {
   }
 
   get additionalActivities(): IDDBAdditionalActivity[] {
-    const results = [];
+    const results: IDDBAdditionalActivity[] = [];
     if (this.isSubclass("Soulknife")) {
       results.push(
         { action: { name: "Psionic Power: Psychic Whispers", type: "class" } },

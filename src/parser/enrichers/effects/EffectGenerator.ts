@@ -94,7 +94,7 @@ export default class EffectGenerator {
   type: TEffectGeneratorType;
   grantedModifiers: IDDBModifier[];
   noGenerate: boolean;
-  separateACEffects: any;
+  separateACEffects: boolean | undefined;
 
   _generateDataStub() {
     this.effect = AutoEffects.BaseEffect(this.document, `${this.label} ${this.labelSuffix}`.trim());
@@ -743,15 +743,15 @@ export default class EffectGenerator {
     );
   }
 
-  _damageBonus(type: I5eAttackBonusTypes, modifiers: any) {
+  _damageBonus(type: I5eAttackBonusTypes, modifiers: IModifiersMod[]) {
     const bonus = modifiers
-      .filter((mod: any) => mod.dice || mod.die || mod.value)
-      .map((mod: any) => {
+      .filter((mod) => mod.dice || mod.die || mod.value)
+      .map((mod) => {
         const die = mod.dice ? mod.dice : mod.die ? mod.die : undefined;
         if (die) {
           return utils.parseDiceString(die.diceString, null, mod.subType ? `[${mod.subType}]` : null).diceString;
         } else {
-          return utils.parseDiceString(mod.value, null, mod.subType ? `[${mod.subType}]` : null).diceString;
+          return utils.parseDiceString(String(mod.value), null, mod.subType ? `[${mod.subType}]` : null).diceString;
         }
       });
     if (bonus && bonus.length > 0) {

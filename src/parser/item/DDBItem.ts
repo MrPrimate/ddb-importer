@@ -38,7 +38,8 @@ interface IActionDataMagicBonus {
 
 export interface IActionData {
   associatedToolsOrAbilities: string[];
-  ability: T5eAbility | null;
+  // "none" = flat attack bonus, no ability contribution
+  ability: T5eAbility | "none" | null;
   activation: I5eActivityActivation | null;
   consumption: unknown | null;
   effects: unknown | null;
@@ -2679,7 +2680,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
       max: maxActivityUses,
     };
 
-    const activityConsumptionTarget = this.perSpell.isPerSpell
+    const activityConsumptionTarget: I5eConsumptionTarget | null = this.perSpell.isPerSpell
       ? {
         type: "activityUses",
         value: spellData.limitedUse.minNumberConsumed ?? spellData.limitedUse.maxNumberConsumed,
@@ -2698,7 +2699,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : null;
 
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
-      ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
+      ? { calculation: "", formula: String(spell.flags.ddbimporter.dndbeyond?.dc ?? "") }
       : { calculation: "spellcasting", formula: "" };
 
     const scalingAllowed = !this.perSpell.isPerSpell && this.ddbDefinition.description.match("each (?:additional )?charge you expend");
@@ -2707,7 +2708,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
     for (const id of Object.keys(spell.system.activities)) {
       const activity = foundry.utils.deepClone(spell.system.activities[id]);
 
-      const currentConsumptionValue = activity.consumption?.value;
+      const currentConsumptionValue = foundry.utils.getProperty(activity, "consumption.value") as number | undefined;
 
       if (currentConsumptionValue && activityConsumptionTarget.type === "itemUses") {
         activityConsumptionTarget.value = currentConsumptionValue;
@@ -2731,7 +2732,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         prefix: activity.type,
       });
 
-      if (!activity.activation?.override) activity.activation = spell.system.activation;
+      if (!activity.activation?.override) activity.activation = spell.system.activation as I5eActivityActivation;
       if (!activity.duration?.override) activity.duration = spell.system.duration;
       if (!activity.range?.override) activity.range = spell.system.range;
       if (!activity.target?.override) activity.target = spell.system.target;
@@ -2749,8 +2750,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         activity.uses = activityUses;
       }
 
-      if (this.actionData.save?.dc && activity.save?.dc) {
-        activity.save.dc = saveDC;
+      const activitySave = foundry.utils.getProperty(activity, "save") as I5eActivitySave | undefined;
+      if (this.actionData.save?.dc && activitySave?.dc) {
+        activitySave.dc = saveDC;
       }
 
       foundry.utils.setProperty(activity, "flags.ddbimporter.spellHintName", spellLookupName);
@@ -2826,7 +2828,7 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         : null;
 
     const saveDC = foundry.utils.getProperty(spell, "flags.ddbimporter.dndbeyond.overrideDC")
-      ? { calculation: "", formula: spell.flags.ddbimporter.dndbeyond?.dc }
+      ? { calculation: "", formula: String(spell.flags.ddbimporter.dndbeyond?.dc ?? "") }
       : { calculation: "spellcasting", formula: "" };
 
     // console.warn(`Spell update details for ${spell.name}`, {
@@ -2850,8 +2852,9 @@ export default class DDBItem extends DDBActivityFactoryMixin<T5eInventoryTypes> 
         ? scalingValue
         : "";
       spell.system.activities[id].consumption.spellSlot = false;
-      if (this.actionData.save?.dc && spell.system.activities[id].save?.dc) {
-        spell.system.activities[id].save.dc = saveDC;
+      const spellActivitySave = foundry.utils.getProperty(spell.system.activities[id], "save") as I5eActivitySave | undefined;
+      if (this.actionData.save?.dc && spellActivitySave?.dc) {
+        spellActivitySave.dc = saveDC;
       }
       spell.system.activities[id].description.chatFlavor = `Cast from ${this.data.name}`;
       await this.enricher.customFunction({

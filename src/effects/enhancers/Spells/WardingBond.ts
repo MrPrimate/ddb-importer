@@ -65,7 +65,7 @@ export default class WardingBond {
   }
 
 
-  static async preUpdateActorHook(subject, update, options: Record<string, any>, _user) {
+  static async preUpdateActorHook(subject: any, update: any, options: Record<string, any>, _user: any) {
     if (!(update.system?.attributes?.hp ?? false)) return true;
     const targetFlag = DDBEffectHelper.getFlag(subject, "WardingBondIds") as IWardingBondTargetFlag | null;
     const casterFlag = DDBEffectHelper.getFlag(subject, "WardingBondTargets") as IWardingBondCasterFlag | null;

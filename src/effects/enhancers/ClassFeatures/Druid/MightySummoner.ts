@@ -2,11 +2,11 @@ import { logger } from "../../../../lib/_module";
 
 export default class MightySummoner {
 
-  static dnd5ePreSummonTokenHook(activity, _profile, tokenUpdateData, _options) {
+  static dnd5ePreSummonTokenHook(activity: any, _profile: any, tokenUpdateData: any, _options: any) {
     if (!activity.actor.classes?.druid) return;
     if (activity.actor.classes?.druid?.subclass?.identifier !== "shepherd") return;
     if (activity.actor.classes.druid.subclass.system.source.rules !== "2014") return;
-    const hasMightySummoner = activity.actor.items.find((i) => i.name === "Mighty Summoner");
+    const hasMightySummoner = activity.actor.items.find((i: any) => i.name === "Mighty Summoner");
     if (!hasMightySummoner) return;
 
     if (!["beast", "fey"].includes(tokenUpdateData.actor.system.details.type?.value)) {
@@ -23,7 +23,7 @@ export default class MightySummoner {
     if (hpBonus && hpBonus > 0) {
 
       // Helper function for modifying max HP ('bonuses.overall' or 'max')
-      const maxHpEffect = (hpField) => {
+      const maxHpEffect = (hpField: string) => {
         return (new ActiveEffect({
           _id: dnd5e.utils.staticID("dnd5eHPBonus"),
           changes: [{

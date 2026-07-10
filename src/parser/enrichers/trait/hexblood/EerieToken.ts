@@ -5,7 +5,7 @@ import { DDBCompendiumFolders, DDBItemImporter, utils, CompendiumHelper } from "
 export default class EerieToken extends DDBEnricherData {
   handler: DDBItemImporter;
   compendiumFolders: DDBCompendiumFolders;
-  tokens: any[] = [];
+  tokens: I5eLootItem[] = [];
 
   get type(): IDDBActivityType | null {
     return DDBEnricherData.ACTIVITY_TYPES.ENCHANT;
@@ -162,11 +162,11 @@ export default class EerieToken extends DDBEnricherData {
   };
 
   async importToken() {
-    const updateFeatures = this.ddbParser.ddbCharacter.updateCompendiumItems
+    const updateFeatures = foundry.utils.getProperty(this.ddbParser.ddbCharacter, "updateCompendiumItems") as boolean | undefined
       ?? this.ddbParser.ddbCharacter.forceCompendiumUpdate
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
-    const featureHandler = await DDBItemImporter.buildHandler("features", this.tokens, updateFeatures, EerieToken.handlerOptions, this.handler);
+    const featureHandler = await DDBItemImporter.buildHandler<I5eLootItem>("features", this.tokens, updateFeatures, EerieToken.handlerOptions, this.handler);
     await featureHandler.buildIndex(EerieToken.handlerOptions.indexFilter);
 
   }

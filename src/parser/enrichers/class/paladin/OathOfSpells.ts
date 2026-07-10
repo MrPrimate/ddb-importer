@@ -2,7 +2,7 @@ import SpellListExtractorMixin from "../../data/SpellListExtractorMixin";
 
 export default class OathOfSpells extends SpellListExtractorMixin {
 
-  async customFunction(_options) {
+  async customFunction(_options: ICustomFunctionOptions) {
     if (this.is2014) return;
     await this.generateSpellList("subclass");
   }

@@ -23,6 +23,9 @@ export default class Utils {
     return true;
   }
 
+  static isStr16(s: string): s is Str16 {
+    return s.length === 16;
+  }
 
   static capitalize(s: string): string {
     if (typeof s !== "string") return "";
@@ -35,7 +38,7 @@ export default class Utils {
    * @param  {Array} array Array to loop through
    * @param  {Function} callback Function to apply to each array item loop
    */
-  static async asyncForEach(array, callback) {
+  static async asyncForEach(array: any[], callback: (item: any, index: number, array: any[]) => Promise<unknown>) {
     for (let index = 0; index < array.length; index += 1) {
 
       await callback(array[index], index, array);
@@ -51,7 +54,7 @@ export default class Utils {
   static removeCompendiumLinks(text: string): string {
     const linkRegExTag = /@\w+\[(.*)\](\{.*?\})/g;
     const linkRegExNoTag = /@\w+\[(.*)\]/g;
-    function replaceRule(_match, p1, p2) {
+    function replaceRule(_match: string, p1: string, p2: string) {
       if (p2) {
         return `${p2}`;
       } else {
@@ -83,7 +86,7 @@ export default class Utils {
     return pascal.charAt(0).toLowerCase() + pascal.slice(1);
   }
 
-  static namedIDStub(name, { prefix = "ddb", postfix = null, length = 16 } = {}) {
+  static namedIDStub(name: string, { prefix = "ddb", postfix = null as string | number | null, length = 16 } = {}) {
     const nameSplit = name.split(" ").map((n) => Utils.idString(n));
     const remainingN = length - `${prefix ?? ""}`.length - `${postfix ?? ""}`.length;
     const quotient = Math.floor(remainingN / nameSplit.length);
@@ -269,7 +272,7 @@ export default class Utils {
 
       for (const dieGroup of groupByDie.values()) {
         diceMap.push(
-          dieGroup.reduce((acc, item) => ({
+          dieGroup.reduce((acc: Record<string, any>, item: Record<string, any>) => ({
             ...acc,
             count: acc.count + item.count,
           })),
@@ -293,27 +296,27 @@ export default class Utils {
     return result;
   }
 
-  static isObject(obj) {
+  static isObject(obj: unknown) {
     return typeof obj === "object" && !Array.isArray(obj) && obj !== null;
   }
 
-  static isString(str) {
+  static isString(str: unknown) {
     return typeof str === "string" || str instanceof String;
   }
 
-  static isArray(arr) {
+  static isArray(arr: unknown) {
     return Array.isArray(arr);
   }
 
-  static isBoolean(bool) {
+  static isBoolean(bool: unknown) {
     return typeof bool === "boolean";
   }
 
-  static isFunction(func) {
+  static isFunction(func: unknown) {
     return func instanceof Function;
   }
 
-  static mergeDeep(target, source) {
+  static mergeDeep(target: Record<string, any>, source: Record<string, any>) {
     const output = Object.assign({}, target);
     if (Utils.isObject(target) && Utils.isObject(source)) {
       Object.keys(source).forEach((key) => {
@@ -328,7 +331,7 @@ export default class Utils {
     return output;
   }
 
-  static filterDeprecated(data) {
+  static filterDeprecated(data: Record<string, any>) {
     for (const prop in data) {
       if (
         data[prop]
@@ -376,17 +379,17 @@ export default class Utils {
     return entityTypes;
   }
 
-  static versionCompare(v1, v2, options?: { lexicographical?: boolean; zeroExtend?: boolean }) {
+  static versionCompare(v1: string, v2: string, options?: { lexicographical?: boolean; zeroExtend?: boolean }) {
     const lexicographical = options && options.lexicographical,
       zeroExtend = options && options.zeroExtend;
-    let v1parts = v1.split("."),
-      v2parts = v2.split(".");
+    let v1parts: (string | number)[] = v1.split("."),
+      v2parts: (string | number)[] = v2.split(".");
 
-    function isValidPart(x) {
+    function isValidPart(x: string) {
       return (lexicographical ? /^\d+[A-Za-z]*$/ : /^\d+$/).test(x);
     }
 
-    if (!v1parts.every(isValidPart) || !v2parts.every(isValidPart)) {
+    if (!v1parts.every((p) => isValidPart(String(p))) || !v2parts.every((p) => isValidPart(String(p)))) {
       return NaN;
     }
 
@@ -420,7 +423,7 @@ export default class Utils {
     return 0;
   }
 
-  static groupBy(arr, property) {
+  static groupBy(arr: any[], property: string) {
     const map = new Map();
 
     for (const item of arr) {
@@ -434,7 +437,7 @@ export default class Utils {
     return map;
   }
 
-  static async namePrompt(question) {
+  static async namePrompt(question: string) {
     const content = `
     <label class="text-label">
       <input type="text" name="name"/>
@@ -468,7 +471,7 @@ export default class Utils {
     return name;
   }
 
-  static renderPopup(type, url) {
+  static renderPopup(type: string, url: string) {
     if (CONFIG.DDBI.POPUPS[type] && !CONFIG.DDBI.POPUPS[type].closed) {
       CONFIG.DDBI.POPUPS[type].focus();
       CONFIG.DDBI.POPUPS[type].location.href = url;
@@ -559,19 +562,19 @@ export default class Utils {
   }
 
 
-  static intSigner(num) {
-    return signed.format(num);
+  static intSigner(num: number | string) {
+    return signed.format(Number(num));
   }
 
-  static async wait(ms) {
+  static async wait(ms: number) {
     return new Promise((resolve) => {
       setTimeout(resolve, ms);
     });
   }
 
-  static async waitFor(fn, maxIter = 600, iterWaitTime = 100) {
+  static async waitFor(fn: (current: number, max: number) => boolean | Promise<boolean>, maxIter = 600, iterWaitTime = 100) {
     let i = 0;
-    const continueWait = (current, max) => {
+    const continueWait = (current: number, max: number) => {
       // Negative maxIter will wait forever
       if (maxIter < 0) return true;
 
@@ -593,7 +596,7 @@ export default class Utils {
    * @param {string} note The text content to set
    * @param {{ nameField: boolean, monsterNote: boolean }} [options] Optional
    */
-  static munchNote(note, { nameField = false, monsterNote = false } = {}) {
+  static munchNote(note: string, { nameField = false, monsterNote = false } = {}) {
     if (nameField) {
       $("#munching-task-name").text(note);
       $("#ddb-importer-monsters").css("height", "auto");
@@ -606,7 +609,7 @@ export default class Utils {
     }
   }
 
-  static stringIntAdder(one, two) {
+  static stringIntAdder(one: string | number | null, two: string | number | null) {
     const oneInt = `${one}`.trim().replace(/^[+-]\s*/, "");
     const twoInt = `${two}`.trim().replace(/^[+-]\s*/, "");
     if (Number.isInteger(parseInt(oneInt)) && Number.isInteger(parseInt(twoInt))) {
@@ -630,7 +633,7 @@ export default class Utils {
     return `${path}/${jb2aMod}`;
   }
 
-  static isDefaultOrPlaceholderImage(img) {
+  static isDefaultOrPlaceholderImage(img: string | null | undefined): boolean {
     return img === null
       || img === undefined
       || img === ""

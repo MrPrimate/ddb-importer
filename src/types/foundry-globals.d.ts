@@ -13,6 +13,8 @@ export {};
 
 declare global {
 
+  type Str16 = string & { readonly __brand: "Str16" };
+
   type TCoreFoundryTypes = "Actor" | "Item" | "ActiveEffect" | "JournalEntry" | "JournalEntryPage" | "Macro" | "RollTable" | "Scene" | "Playlist" | "Compendium";
 
   type TCompendiumEntityType = Extract<

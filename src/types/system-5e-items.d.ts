@@ -820,6 +820,11 @@ global {
     isItemCharge?: boolean;
     removeSpell?: boolean;
 
+    // Custom enrichers
+    arcanePrototype?: { spellUuid: string; imbuedLevel: number; ddbSpellId: number; source: string };
+    isSpellItem?: boolean;
+    spellName?: string;
+
     // Compendium/import
     overrideId?: string;
     overrideItem?: IDDBImporterFlagsOverrideItem;

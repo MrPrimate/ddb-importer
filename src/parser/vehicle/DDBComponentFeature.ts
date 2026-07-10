@@ -1,7 +1,7 @@
 import { utils, logger } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 import { DDBMonsterFeatureEnricher, Effects } from "../enrichers/_module";
-import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers, IFeatureBasicsResult, IFeatureBasicsSave } from "../lib/_module";
+import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../lib/_module";
 import { DDBVehicleActivity } from "../activities/_module";
 import { DDBMonsterDamage } from "../monster/features/DDBMonsterDamage";
 import DDBVehicle, { IDDBVehicleFeatureComponent } from "../DDBVehicle";
@@ -103,7 +103,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   declare originalName: string;
   declare rawCharacter: null;
 
-  static TYPE_MAPPING = {
+  static TYPE_MAPPING: Record<string, "equipment" | "weapon" | "feat"> = {
     hull: "equipment",
     helm: "equipment",
     weapon: "weapon",
@@ -384,7 +384,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     };
   }
 
-  getLimitedUse() {
+  getLimitedUse(): I5eSystemLimitedUses {
     if (
       this.action.limitedUse
       && (this.action.limitedUse.maxUses)
@@ -397,11 +397,10 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
       return {
         spent: this.action.limitedUse.numberUsed ?? 0,
         max: (finalMaxUses != 0) ? `${finalMaxUses}` : null,
-        per: resetType ? resetType.value : "",
         recovery: resetType
           ? [
             // KNOWN_ISSUE_4_0: ensure charges is not returned here
-            { period: resetType.value, type: "recoverAll", formula: undefined },
+            { period: resetType.value, type: "recoverAll", formula: undefined as string | undefined },
           ]
           : [],
       };
@@ -414,7 +413,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     }
   }
 
-  damageModReplace(text) {
+  damageModReplace(text: string) {
     let result;
     const diceParse = utils.parseDiceString(text, null);
     if (this.actionData.baseAbility) {
@@ -537,13 +536,14 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
   async loadEnricher() {
     await this.enricher.init();
     await this.enricher.load({
+      // TODO: add vehicle enricher
       ddbParser: this as unknown as DDBMonsterFeature,
       monster: this.ddbVehicle.data as unknown as I5eMonsterData,
       name: this.name,
     });
   }
 
-  _generateEscapeCheck(hit) {
+  _generateEscapeCheck(hit: any) {
     const escape = hit.match(/escape DC ([0-9]+)/);
     if (escape) {
       this.additionalActivities.push({
@@ -569,7 +569,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     }
   }
 
-  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  _getSaveActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
     const saveOverride = this.actionData.saveAbility
       ? null
       : this.descriptionSave;
@@ -589,7 +589,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  _getAttackActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
 
     const itemOptions = foundry.utils.mergeObject({
       generateAttack: true,
@@ -606,7 +606,7 @@ export default class DDBComponentFeature extends DDBActivityFactoryMixin<"vehicl
     return super._getAttackActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getUtilityActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  _getUtilityActivity({ name = null, nameIdPostfix = null }: { name?: string | null; nameIdPostfix?: string | null } = {}, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: this.templateType === "weapon",

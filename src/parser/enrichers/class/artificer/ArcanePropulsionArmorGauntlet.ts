@@ -3,7 +3,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ArcanePropulsionArmorGauntlet extends DDBEnricherData {
 
-  get type() {
+  get type(): IDDBActivityType {
     return null;
   }
 

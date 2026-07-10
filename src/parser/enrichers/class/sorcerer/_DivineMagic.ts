@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class _DivineMagic extends DDBEnricherData {
 
-  get additionalAdvancements() {
+  get additionalAdvancements(): I5eAdvancement[] {
     // const spellMap = {
     //   "Good": "cure wounds",
     //   "Evil": "inflict wounds",

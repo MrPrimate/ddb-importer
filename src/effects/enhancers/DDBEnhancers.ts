@@ -9,9 +9,9 @@ import { logger, utils } from "../../lib/_module";
 
 export default class DDBEnhancers {
 
-  static addFeatureToEffects(subject, delta, featureName) {
-    const feature = subject.items.find((i) => i.name === featureName);
-    if (feature) {
+  static addFeatureToEffects(subject: Actor, delta: any, featureName: string) {
+    const feature = subject.items.find((i: any) => i.name === featureName);
+    if (feature && feature.effects) {
       logger.debug(`Adding effects from ${featureName} to delta`, {
         subject, delta, feature, featureName,
       });
@@ -54,7 +54,7 @@ export default class DDBEnhancers {
       });
   }
 
-  static _dispositionMatch(activity, tokenData) {
+  static _dispositionMatch(activity: any, tokenData: any) {
     const dispositionFlag = foundry.utils.getProperty(activity, "item.flags.ddbimporter.disposition") as IDDBImporterFlagsDisposition | undefined;
     if (!dispositionFlag) return true;
     if (dispositionFlag.match) {

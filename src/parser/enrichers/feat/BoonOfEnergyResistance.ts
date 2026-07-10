@@ -23,7 +23,7 @@ export default class BoonOfEnergyResistance extends DDBEnricherData {
       )?.label ?? "");
 
     const types = ["Acid", "Cold", "Fire", "Lightning", "Necrotic", "Poison", "Psychic", "Radiant", "Thunder"];
-    const multiple = [];
+    const multiple: IDDBEffectHint[] = [];
     types.forEach((type) => {
       multiple.push({
         name: `Boon of Energy Resistance: ${type}`,

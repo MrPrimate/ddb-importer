@@ -67,7 +67,7 @@ export default class EnsnaringStrike extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const automationEffects = this.is2014
+    const automationEffects: IDDBEffectHint[] = this.is2014
       ? [
         {
           name: `${this.data.name} (Automation)`,

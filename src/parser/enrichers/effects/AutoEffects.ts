@@ -28,6 +28,9 @@ const UNIT_MAP: Record<string, TEffectDurationUnit> = {
   inst: null,
 };
 
+// the parsed item documents that effects get attached to
+type TEffectDocument = TAll5eItemDocuments;
+
 export default class AutoEffects {
 
   static UNIT_MAP = UNIT_MAP;
@@ -69,7 +72,7 @@ export default class AutoEffects {
   }
 
   static BaseEffect(
-    document: any,
+    document: TEffectDocument,
     name: string,
     {
       transfer = true,
@@ -125,37 +128,37 @@ export default class AutoEffects {
     return effect;
   }
 
-  static SpellEffect(document: any, label: string,
+  static SpellEffect(document: TEffectDocument, label: string,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
       durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-  ): any {
+  ): I5eEffectData {
     const options = { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon };
     return AutoEffects.BaseEffect(document, label, options);
   }
 
-  static FeatEffect(document: any, label: string,
+  static FeatEffect(document: TEffectDocument, label: string,
     { transfer = false, disabled = false, description = null, durationSeconds = null,
       durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-  ): any {
+  ): I5eEffectData {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
   }
 
-  static MonsterFeatureEffect(document: any, label: string,
+  static MonsterFeatureEffect(document: TEffectDocument, label: string,
     { transfer = false, disabled = false, showIcon = null }: IDDBEffectOptions = {},
-  ): any {
+  ): I5eEffectData {
     return AutoEffects.BaseEffect(document, label, { transfer, disabled, showIcon });
   }
 
 
-  static ItemEffect(document: any, label: string,
+  static ItemEffect(document: TEffectDocument, label: string,
     { transfer = true, disabled = false, description = null, durationSeconds = null,
       durationRounds = null, durationTurns = null, showIcon = null }: IDDBEffectOptions = {},
-  ): any {
+  ): I5eEffectData {
     const effect = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns, showIcon });
     return effect;
   }
 
-  static addVision5eStub(document: any): any {
+  static addVision5eStub<T extends TEffectDocument>(document: T): T {
     if (!document.effects) document.effects = [];
 
     const name = document.flags?.ddbimporter?.originalName ?? document.name;
@@ -163,20 +166,20 @@ export default class AutoEffects {
     // if document name in Vision effects then add effect
     if (DICTIONARY.effects.vision5e[name]
       && document.type === DICTIONARY.effects.vision5e[name].type
-      && !document.effects.some((e: any) => e.name === DICTIONARY.effects.vision5e[name].effectName)
+      && !document.effects.some((e) => e.name === DICTIONARY.effects.vision5e[name].effectName)
     ) {
       const effect = AutoEffects.SpellEffect(document, DICTIONARY.effects.vision5e[name].effectName);
       effect.transfer = DICTIONARY.effects.vision5e[name].transfer;
       document.effects.push(effect);
       if (DICTIONARY.effects.vision5e[name].type === "spell") {
-        document.system.target.type = "self";
+        foundry.utils.setProperty(document, "system.target.type", "self");
       }
       foundry.utils.setProperty(document, "flags.ddbimporter.effectsApplied", true);
     }
     return document;
   }
 
-  static forceDocumentEffect(document: any): any {
+  static forceDocumentEffect<T extends TEffectDocument>(document: T): T {
     if (document.effects.length > 0
       || foundry.utils.hasProperty(document.flags, "dae")
       || foundry.utils.hasProperty(document.flags, "midi-qol.onUseMacroName")
@@ -191,7 +194,7 @@ export default class AutoEffects {
   }
 
 
-  static getGenericConditionAffectData(modifiers: IModifiersMod[], condition: string, typeId: number, forceNoMidi = false): IGenericConditionAdjustment[] {
+  static getGenericConditionAffectData(modifiers: IModifiersMod[], condition: TDDBDamageConditionType, typeId: number, forceNoMidi = false): IGenericConditionAdjustment[] {
     const restrictions = [
       "",
       null,
@@ -211,7 +214,7 @@ export default class AutoEffects {
         { id: 16, type: 4, name: "Diseased", slug: "diseased" },
         { id: 16, type: 4, name: "Diseased", slug: "disease" },
       ]
-        .concat(CONFIG.DDB.conditions.map((a: any) => {
+        .concat(CONFIG.DDB.conditions.map((a) => {
           return {
             id: a.definition.id,
             type: 4,
@@ -224,17 +227,17 @@ export default class AutoEffects {
     const result = DDBModifiers
       .filterModifiersOld(modifiers, condition, null, restrictions)
       .filter((modifier: IModifiersMod) => {
-        const ddbLookup = ddbAdjustments.find((d: any) => d.type == typeId && d.slug === modifier.subType);
+        const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
         if (!ddbLookup) return false;
-        return DICTIONARY.actor.damageAdjustments.some((adj: any) =>
+        return DICTIONARY.actor.damageAdjustments.some((adj) =>
           adj.type === typeId
           && ddbLookup.id === adj.id
           && (foundry.utils.hasProperty(adj, "foundryValues") || foundry.utils.hasProperty(adj, "foundryValue")),
         );
       })
       .map((modifier: IModifiersMod) => {
-        const ddbLookup = ddbAdjustments.find((d: any) => d.type == typeId && d.slug === modifier.subType);
-        const entry = DICTIONARY.actor.damageAdjustments.find((adj: any) =>
+        const ddbLookup = ddbAdjustments.find((d) => d.type == typeId && d.slug === modifier.subType);
+        const entry = DICTIONARY.actor.damageAdjustments.find((adj) =>
           adj.type === typeId
           && ddbLookup.id === adj.id,
         );
@@ -262,11 +265,11 @@ export default class AutoEffects {
   }
 
 
-  static getStatusConditionEffect({ text = null, status = null, nameHint = null, flags = {} }: IStatusConditionEffectOptions = {}): any | null {
-    const parsedStatus = status ?? DDBDescriptions.parseStatusCondition({ text });
+  static getStatusConditionEffect({ text = null, status = null, nameHint = null, flags = {} }: IStatusConditionEffectOptions = {}): I5eEffectData | null {
+    const parsedStatus: IParseStatusConditionResult = status ?? DDBDescriptions.parseStatusCondition({ text });
     if (!parsedStatus.success) return null;
 
-    const effect: any = {
+    const effect: I5eEffectData = {
       name: "",
       system: { changes: [] },
       flags: foundry.utils.mergeObject({
@@ -303,7 +306,7 @@ export default class AutoEffects {
     return effect;
   }
 
-  static getStatusEffect({ ddbDefinition, foundryItem, labelOverride }: IStatusEffectOptions = {}): any | null {
+  static getStatusEffect({ ddbDefinition, foundryItem, labelOverride }: IStatusEffectOptions = {}): I5eEffectData | null {
     if (!foundryItem.effects) foundryItem.effects = [];
 
     const text = ddbDefinition.description ?? ddbDefinition.snippet ?? "";
@@ -337,7 +340,7 @@ export default class AutoEffects {
     return effect;
   }
 
-  static addSimpleConditionEffect(document: any, condition: string, { disabled, transfer }: ISimpleConditionOptions = {}): any {
+  static addSimpleConditionEffect<T extends TEffectDocument>(document: T, condition: string, { disabled, transfer }: ISimpleConditionOptions = {}): T {
     document.effects = [];
     const effect = this.ItemEffect(document, `${document.name} - ${utils.capitalize(condition)}`, { disabled, transfer });
     ChangeHelper.addStatusEffectChange({ effect, statusName: condition });
@@ -345,11 +348,11 @@ export default class AutoEffects {
     return document;
   }
 
-  static generateBaseSkillEffect(id: number, label: string): any {
+  static generateBaseSkillEffect(id: number, label: string): I5eEffectData {
     const mockItem = {
       img: "icons/svg/up.svg",
     };
-    const skillEffect = this.ItemEffect(mockItem, label);
+    const skillEffect = this.ItemEffect(mockItem as TEffectDocument, label);
     skillEffect.flags.dae = {};
     skillEffect.flags.ddbimporter.characterEffect = true;
     skillEffect.origin = `Actor.${id}`;

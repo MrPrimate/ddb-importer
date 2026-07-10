@@ -39,7 +39,7 @@ export default class EldritchBlast extends DDBEnricherData {
     };
   }
 
-  eldritchBlastRangeAdjustments(initialRange) {
+  eldritchBlastRangeAdjustments(initialRange: number) {
     const eldritchBlastMods = this.ddbParser.isMuncher
       ? null
       : this.ddbParser.ddbData
@@ -47,7 +47,7 @@ export default class EldritchBlast extends DDBEnricherData {
         : null;
 
     if (eldritchBlastMods && foundry.utils.hasProperty(eldritchBlastMods, "range") && Number.isInteger(eldritchBlastMods.range)) {
-      const range = Number.parseInt(initialRange) + eldritchBlastMods.range;
+      const range = Number.parseInt(String(initialRange)) + eldritchBlastMods.range;
       return `${range}`;
     }
     return initialRange;
@@ -84,7 +84,7 @@ export default class EldritchBlast extends DDBEnricherData {
   get override(): IDDBOverrideData {
     return {
       data: {
-        "system.range.value": this.eldritchBlastRangeAdjustments(this.ddbParser.ddbDefinition?.range?.rangeValue ?? 0),
+        "system.range.value": this.eldritchBlastRangeAdjustments((foundry.utils.getProperty(this.ddbParser.ddbDefinition, "range.rangeValue") as number) ?? 0),
       },
     };
   }

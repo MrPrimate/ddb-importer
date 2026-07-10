@@ -2,9 +2,9 @@ import AutoEffects from "./AutoEffects";
 
 export default class EnchantmentEffects {
 
-  static EnchantmentEffect(document, label,
-    { transfer = false, disabled = false, origin = null, id = null, description = null, durationSeconds = null,
-      durationRounds = null, durationTurns = null } = {},
+  static EnchantmentEffect(document: TAll5eItemDocuments, label: string,
+    { transfer = false, disabled = false, origin = null as string | null, id = null as string | null, description = null as string | null, durationSeconds = null as number | null,
+      durationRounds = null as number | null, durationTurns = null as number | null } = {},
   ) {
     const effect: I5eEffectData = AutoEffects.BaseEffect(document, label, { transfer, disabled, description, durationSeconds, durationRounds, durationTurns });
     foundry.utils.setProperty(effect, "flags.dnd5e.type", "enchantment");

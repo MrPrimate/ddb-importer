@@ -2,7 +2,7 @@ import DDBEnricherData from "../../data/DDBEnricherData";
 
 export default class ClairvoyantCombatant extends DDBEnricherData {
 
-  get type() {
+  get type(): IDDBActivityType | null {
     return null;
   }
 

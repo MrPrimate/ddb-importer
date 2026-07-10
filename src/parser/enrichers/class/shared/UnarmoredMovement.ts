@@ -8,7 +8,7 @@ export default class UnarmoredMovement extends DDBEnricherData {
       ? "@scale.monk.unarmored-movement.value"
       : this.ddbParser.ddbData?.character?.modifiers && this.is2024
         ? this.ddbParser.ddbData.character.modifiers.class.filter((mod) => mod.isGranted
-          && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc, mod) => acc + mod.value, 0)
+          && mod.friendlySubtypeName === "Unarmored Movement").reduce((acc: number, mod) => acc + Number(mod.value), 0)
         : 10;
 
     return [{

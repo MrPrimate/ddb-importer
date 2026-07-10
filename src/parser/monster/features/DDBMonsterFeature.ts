@@ -3,7 +3,6 @@ import { DICTIONARY } from "../../../config/_module";
 import { DDBMonsterFeatureActivity } from "../../activities/_module";
 import { DDBMonsterFeatureEnricher, Effects } from "../../enrichers/_module";
 import { DDBTable, DDBReferenceLinker, DDBDescriptions, SystemHelpers } from "../../lib/_module";
-import type { IFeatureBasicsResult, IFeatureBasicsSave } from "../../lib/_module";
 import { DDBMonsterDamage } from "./DDBMonsterDamage";
 import DDBMonster from "../../DDBMonster";
 import { IMonsterWeaponDictionary } from "../../../config/dictionary/actor/monsters";
@@ -292,7 +291,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     };
   }
 
-  constructor(name, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } : IDDBMonsterFeature) {
+  constructor(name: string, { ddbMonster, html, type, titleHTML, fullName, actionCopy, updateExisting, hideDescription, sort } : IDDBMonsterFeature) {
 
     const enricher = new DDBMonsterFeatureEnricher({ activityGenerator: DDBMonsterFeatureActivity });
     super({
@@ -336,7 +335,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
   }
 
-  damageModReplace(text) {
+  damageModReplace(text: string) {
     let result;
     const diceParse = utils.parseDiceString(text, null);
     if (this.actionData.baseAbility) {
@@ -352,7 +351,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return result;
   }
 
-  _generateEscapeCheck(hit) {
+  _generateEscapeCheck(hit: string) {
     const escape = hit.match(/escape DC ([0-9]+)/);
     if (escape) {
       this.additionalActivities.push({
@@ -449,12 +448,12 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return matches;
   }
 
-  #getRechargeRecovery() {
+  #getRechargeRecovery(): I5eSystemLimitedUsesRecovery | undefined {
     const matches = this.isRecharge;
     if (!matches) return undefined;
     const value = matches[1].replace(/[––−-]/, "-").split("-").shift();
     return {
-      period: "recharge",
+      period: "",
       formula: value,
       type: "recoverAll",
     };
@@ -462,15 +461,13 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
 
   getUses(name = false) {
-    const uses = {
+    const uses: I5eSystemLimitedUses = {
       spent: null,
       max: null,
-      recovery: [
-        // { period: "", type: 'recoverAll', formula: undefined },
-      ],
+      recovery: [],
     };
 
-    const recovery = {
+    const recovery: I5eSystemLimitedUsesRecovery = {
       period: null,
       type: "recoverAll",
       formula: undefined,
@@ -599,11 +596,11 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return range;
   }
 
-  checkAbility(abilitiesToCheck) {
+  checkAbility(abilitiesToCheck: T5eAbility[]) {
     const result = {
       success: false,
-      ability: null,
-      proficient: null,
+      ability: null as any as any,
+      proficient: null as any as any,
     };
 
     for (const ability of abilitiesToCheck) {
@@ -623,9 +620,14 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
     return result;
   }
 
-  checkAbilities(abilitiesToCheck, negatives = false) {
+  checkAbilities(abilitiesToCheck: T5eAbility[], negatives = false) {
     const results = abilitiesToCheck.map((ability) => {
-      const result = {
+      const result: {
+        success: boolean;
+        ability: T5eAbility;
+        proficient: boolean | null;
+        bonus: number;
+      } = {
         success: false,
         ability,
         proficient: null,
@@ -652,16 +654,16 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
 
   generateWeaponAttackInfo() {
-    const abilities = ["str", "dex", "int", "wis", "cha", "con"];
-    let initialAbilities: string[];
-    let weaponAbilities = ["str", "dex"];
-    const spellAbilities = ["cha", "wis", "int"];
+    const abilities: T5eAbility[] = ["str", "dex", "int", "wis", "cha", "con"];
+    let initialAbilities: T5eAbility[];
+    let weaponAbilities: T5eAbility[] = ["str", "dex"];
+    const spellAbilities: T5eAbility[] = ["cha", "wis", "int"];
 
     // we have a weapon name match so we can infer a bit more
     if (this.weaponLookup) {
       for (const [key, value] of Object.entries(this.weaponLookup.properties)) {
         // logger.info(`${key}: ${value}`);
-        this.actionData.properties[key] = value;
+        (this.actionData.properties as Record<string, any>)[key] = value;
       }
       const versatileWeapon = this.actionData.properties.ver
         && this.ddbMonster.abilities["dex"].mod > this.ddbMonster.abilities["str"].mod;
@@ -755,7 +757,7 @@ export default class DDBMonsterFeature extends DDBActivityFactoryMixin<TDDBMonst
 
         const magicAbilities = this.checkAbilities(initialAbilities, true);
 
-        const filteredAbilities = magicAbilities.filter((ab) => ab.success == true).sort((a, b) => {
+        const filteredAbilities = magicAbilities.filter((ab: any) => ab.success == true).sort((a, b) => {
           if (a.proficient == !b.proficient) return -1;
           if (b.proficient == !a.proficient) return 1;
           if (a.proficient == b.proficient) {
@@ -1283,7 +1285,10 @@ ${this.data.system.description.value}
     this.actionData.uses = this.getUses();
   }
 
-  _getSaveActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  _getSaveActivity({ name = null, nameIdPostfix = null }: {
+    name?: string | null;
+    nameIdPostfix?: string | null;
+  }, options = {}) {
     const itemOptions = foundry.utils.mergeObject({
       generateRange: this.templateType !== "weapon",
       includeBaseDamage: false,
@@ -1294,7 +1299,10 @@ ${this.data.system.description.value}
     return super._getSaveActivity({ name, nameIdPostfix }, itemOptions);
   }
 
-  _getAttackActivity({ name = null, nameIdPostfix = null } = {}, options = {}) {
+  _getAttackActivity({ name = null, nameIdPostfix = null }: {
+    name?: string | null;
+    nameIdPostfix?: string | null;
+  }, options = {}) {
     const isFlatWeaponDamage = this.templateType === "weapon" && this.actionData.damageParts.length > 0
       ? !this.actionData.damageParts[0].includesDice
       : false;
@@ -1302,7 +1310,7 @@ ${this.data.system.description.value}
     const noDamageMods = this.actionData.damageParts.every((p) => !p.damageHasMod);
     const noModWeapon = this.templateType === "weapon" && noDamageMods;
 
-    let parts = [];
+    let parts: I5eDamagePart[] = [];
 
     if (isFlatWeaponDamage || noModWeapon) {
       // includes no dice, i.e. is flat, we want to ignore the base damage
@@ -1464,8 +1472,8 @@ ${this.data.system.description.value}
 
   #getSpellcastingData(): IMonsterSpellcastingData {
     const result = {
-      dc: null,
-      ability: null, // ability associated
+      dc: null as any as any,
+      ability: null as any, // ability associated
       material: true,
       innateMatch: false,
       concentration: true,
@@ -1508,7 +1516,7 @@ ${this.data.system.description.value}
     this.spellCastingData = this.#getSpellcastingData();
   }
 
-  async #getCastSpellActivitySpellData(spellData: IMonsterSpellcastingSpell, compendiumSpell) {
+  async #getCastSpellActivitySpellData(spellData: IMonsterSpellcastingSpell, compendiumSpell: any) {
     const spellOverride: I5eActivitySpell = {
       uuid: compendiumSpell.uuid,
       properties: [],
@@ -1521,7 +1529,7 @@ ${this.data.system.description.value}
       spellbook: true,
     };
 
-    const consumptionOverride = {
+    const consumptionOverride: I5eActivityConsumption = {
       spellSlot: false,
       targets: [],
       scaling: {
@@ -1530,7 +1538,7 @@ ${this.data.system.description.value}
       },
     };
 
-    const usesOverride = {
+    const usesOverride: I5eSystemLimitedUses = {
       spent: null,
       recovery: [],
       max: "",
@@ -1565,7 +1573,7 @@ ${this.data.system.description.value}
 
     if (spellData.period) {
       generateActivityUses = true;
-      usesOverride.spent = "0";
+      usesOverride.spent = 0;
       usesOverride.max = spellData.quantity ? `${spellData.quantity}` : "1";
       const resetType = DICTIONARY.resets.find((reset) =>
         reset.id == spellData.period,
@@ -1650,7 +1658,7 @@ ${this.data.system.description.value}
       }
     });
 
-    const spells = [];
+    const spells: IDDBParsedMonsterSpell[] = [];
 
     dom.childNodes.forEach((node) => {
       const spellText = utils.nameString(node.textContent);
@@ -1666,7 +1674,7 @@ ${this.data.system.description.value}
     return spells;
   }
 
-  async #retrieveCompendiumSpells(spellNames) {
+  async #retrieveCompendiumSpells(spellNames: string[]) {
     return CompendiumHelper.retrieveCompendiumSpellReferences(spellNames, {
       use2024Spells: this.use2024Spells,
     });

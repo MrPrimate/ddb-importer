@@ -37,12 +37,4 @@ export default class ArcaneShotOption extends DDBEnricherData {
     return [this.name];
   }
 
-  // get overrides() {
-  //   return {
-  //     data: {
-  //       name: this.name,
-  //     },
-  //   };
-  // }
-
 }

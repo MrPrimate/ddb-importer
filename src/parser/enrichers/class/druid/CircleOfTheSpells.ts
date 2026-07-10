@@ -2,7 +2,7 @@ import SpellListExtractorMixin from "../../data/SpellListExtractorMixin";
 
 export default class CircleOfTheSpells extends SpellListExtractorMixin {
 
-  async customFunction(_options) {
+  async customFunction(_options: ICustomFunctionOptions) {
     let name = null;
     if (this.name === "Circle Spells") {
       name = `${this.ddbParser.subKlass} Circle Spells`;

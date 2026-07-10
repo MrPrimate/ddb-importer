@@ -26,7 +26,7 @@ export default class StarryForm extends DDBEnricherData {
     return ["Archer", "Chalice", "Dragon"];
   }
 
-  formActivityName(formType) {
+  formActivityName(formType: string) {
     if (formType === "Archer") {
       return "Archer Attack";
     }
@@ -165,8 +165,8 @@ export default class StarryForm extends DDBEnricherData {
     ];
   }
 
-  get enchantEffects() {
-    const results = [];
+  get enchantEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
     for (const formType of this.starForms) {
       [
@@ -174,7 +174,7 @@ export default class StarryForm extends DDBEnricherData {
         { min: 10, max: 13 },
         { min: 14, max: null },
       ].forEach((data) => {
-        let activityRiders = [];
+        let activityRiders: string[] = [];
         if (formType === "Archer") {
           activityRiders = [
             utils.namedIDStub("Archer", { prefix: "form", postfix: "" }),
@@ -190,7 +190,7 @@ export default class StarryForm extends DDBEnricherData {
             utils.namedIDStub("Twinkling", { prefix: "act", postfix: "" }),
           );
         }
-        const effect = {
+        const effect: IDDBEffectHint = {
           // name: `Type: ${formType} (${data.min !== null ? data.min : "1"}-${data.max !== null ? data.max : "20"})`,
           name: formType,
           type: "enchant",
@@ -201,13 +201,8 @@ export default class StarryForm extends DDBEnricherData {
           data: {
             _id: utils.namedIDStub(formType, { prefix: "choice", postfix: `ef${data.min !== null ? data.min : "1"}` }),
             duration: {
-              "seconds": 600,
-              "startTime": null,
-              "rounds": 100,
-              "turns": null,
-              "startRound": null,
-              "startTurn": null,
-              "combat": null,
+              value: 600,
+              units: "seconds",
             },
             flags: {
               ddbimporter: {
@@ -227,8 +222,8 @@ export default class StarryForm extends DDBEnricherData {
     return results;
   }
 
-  get formEffects() {
-    const results = [];
+  get formEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
     const lightChanges = [
       DDBEnricherData.ChangeHelper.upgradeChange("20", 20, "token.light.dim"),

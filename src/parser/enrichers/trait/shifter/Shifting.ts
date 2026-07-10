@@ -31,8 +31,8 @@ export default class Shifting extends DDBEnricherData {
     };
   }
 
-  get shiftActivities() {
-    const results = [];
+  get shiftActivities(): IDDBAdditionalActivity[] {
+    const results: IDDBAdditionalActivity[] = [];
     for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
       results.push({
         init: {
@@ -40,7 +40,8 @@ export default class Shifting extends DDBEnricherData {
           type: DDBEnricherData.ACTIVITY_TYPES.HEAL,
         },
         build: {
-          generateHeal: true,
+          // was generateHeal, which nothing reads
+          generateHealing: true,
           generateConsumption: false,
           generateTarget: true,
         },
@@ -64,7 +65,7 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get additionalActivitiesLongtooth() {
+  get additionalActivitiesLongtooth(): IDDBAdditionalActivity[] {
     return [
       {
         init: {
@@ -102,7 +103,7 @@ export default class Shifting extends DDBEnricherData {
     ];
   }
 
-  get additionalActivitiesSwiftstride() {
+  get additionalActivitiesSwiftstride(): IDDBAdditionalActivity[] {
     return [
       {
         action: {
@@ -130,30 +131,25 @@ export default class Shifting extends DDBEnricherData {
     return results;
   }
 
-  get enchantEffects() {
-    const results = [];
+  get enchantEffects(): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
 
     for (const shifterType of ["Beasthide", "Longtooth", "Swiftstride", "Wildhunt"]) {
-      const effect = {
+      const effect: IDDBEffectHint = {
         name: `Type: ${shifterType}`,
         type: "enchant",
         changes: [
           DDBEnricherData.ChangeHelper.overrideChange(`Chosen: ${shifterType}`, 20, "activities[enchant].name"),
-          DDBEnricherData.ChangeHelper.overrideChange("spec", true, "activities[enchant].activation.type"),
-          DDBEnricherData.ChangeHelper.overrideChange("End", true, "activities[enchant].activation.condition"),
-          DDBEnricherData.ChangeHelper.overrideChange("[]", true, "activities[enchant].consumption.targets"),
+          DDBEnricherData.ChangeHelper.overrideChange("spec", 1, "activities[enchant].activation.type"),
+          DDBEnricherData.ChangeHelper.overrideChange("End", 1, "activities[enchant].activation.condition"),
+          DDBEnricherData.ChangeHelper.overrideChange("[]", 1, "activities[enchant].consumption.targets"),
         ],
         activityMatch: "Shifter Choice",
         data: {
           _id: utils.namedIDStub(shifterType, { prefix: "choice", postfix: "ef" }),
           duration: {
-            "seconds": null,
-            "startTime": null,
-            "rounds": null,
-            "turns": null,
-            "startRound": null,
-            "startTurn": null,
-            "combat": null,
+            value: null,
+            units: null,
           },
           flags: {
             ddbimporter: {

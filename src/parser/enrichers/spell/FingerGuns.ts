@@ -2,7 +2,7 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default class FingerGuns extends DDBEnricherData {
 
-  static RANGE_DATA = [
+  static RANGE_DATA: { level: number; range: number; rangeLong: number; min: number | null; max: number | null; number?: number; denomination?: number }[] = [
     { level: 1, range: 60, rangeLong: 240, min: null, max: 4, number: 2, denomination: 6 },
     { level: 5, range: 90, rangeLong: 360, min: 5, max: 10 },
     { level: 11, range: 120, rangeLong: 480, min: 11, max: 16 },
@@ -13,7 +13,7 @@ export default class FingerGuns extends DDBEnricherData {
   getRange(): I5eActivityRange {
     const level = this.ddbParser.isMuncher
       ? 1
-      : (this.ddbParser.rawCharacter?.flags?.ddbimporter?.dndbeyond?.totalLevels ?? 1);
+      : ((foundry.utils.getProperty(this.ddbParser, "rawCharacter.flags.ddbimporter.dndbeyond.totalLevels") as number) ?? 1);
     const rangeData = FingerGuns.RANGE_DATA.find((r) => level >= r.level && level <= (r.max ?? 20)) || FingerGuns.RANGE_DATA[0];
     return {
       value: rangeData.range,

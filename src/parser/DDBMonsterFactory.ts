@@ -95,7 +95,6 @@ async function _getSharedMonsterSocket(
   return _sharedOpening;
 }
 
-
 interface IDDBMonsterFactory {
   ddbData?: IDDBMonsterSourceData[] | null;
   extra?: boolean;
@@ -105,6 +104,21 @@ interface IDDBMonsterFactory {
   forceUpdate?: boolean | null;
   useLocalKey?: boolean | null;
   keyPostfix?: string | null;
+}
+
+interface IDDBMonsterFetchBody {
+  cobalt: string;
+  betaKey: string;
+  sources: number[];
+  search?: string;
+  searchTerm?: string;
+  homebrew?: boolean;
+  homebrewOnly?: boolean;
+  exactMatch?: boolean;
+  excludeLegacy?: boolean;
+  excludedCategories?: number[];
+  monsterTypes?: number[];
+  ids?: number[];
 }
 
 interface IDDBMonsterFactoryFetchOptions {
@@ -140,7 +154,7 @@ export default class DDBMonsterFactory {
   npcs: I5eMonsterData[];
   monstersParsed: Actor.Implementation[];
 
-  static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
+  static #noteStub(note: any, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
   }
 
@@ -239,19 +253,10 @@ export default class DDBMonsterFactory {
     const betaKey = PatreonHelper.getPatreonKey(useLocal);
     const parsingApi = DDBProxy.getProxy();
 
-    const body = {
+    const body: IDDBMonsterFetchBody = {
       cobalt: cobaltCookie,
       betaKey: betaKey,
-      sources: undefined,
-      search: undefined,
-      homebrew: undefined,
-      homebrewOnly: undefined,
-      exactMatch: undefined,
-      excludeLegacy: undefined,
-      excludedCategories: undefined,
-      monsterTypes: undefined,
-      searchTerm: undefined,
-      ids: undefined,
+      sources,
     };
 
     if (ids && !Array.isArray(ids)) {
@@ -297,7 +302,7 @@ export default class DDBMonsterFactory {
       };
     };
 
-    const applyCategoryFilter = (data) => {
+    const applyCategoryFilter = (data: IDDBMonsterSourceData[]) => {
       if (isIdLookup) return data;
       logger.debug("Processing categories");
       return data
@@ -315,7 +320,11 @@ export default class DDBMonsterFactory {
     };
 
     const fetchOverHttp = async () => {
-      const result = await postJson(url, body, { mode: "cors" });
+      const result = await postJson(url, body, { mode: "cors" }) as {
+        success: boolean;
+        message?: string;
+        data: IDDBMonsterSourceData[];
+      };
       if (!result.success) {
         this.notifier(`API Failure: ${result.message}`);
         logger.error(`API Failure:`, result.message);
@@ -337,7 +346,7 @@ export default class DDBMonsterFactory {
         const authRes = await socket.auth({ betaKey, cobalt: cobaltCookie, characterId: null });
         if (!authRes.ok) throw new Error(`Auth failed: ${authRes.message}`);
 
-        let raw: any[] = [];
+        let raw: IDDBMonsterSourceData[] = [];
         // Monster bulk fetches can be very long-running for large catalogues
         // (paginated, sometimes 1000+ monsters). Give it plenty of headroom.
         await socket.runJob(streamElement, buildStartParams(), {
@@ -372,7 +381,7 @@ export default class DDBMonsterFactory {
       if (missing.length > 0) {
         await _fetchQueue.add(async () => {
           const socket = await _getSharedMonsterSocket(parsingApi, { betaKey, cobalt: cobaltCookie, characterId: null });
-          const raw: any[] = [];
+          const raw: IDDBMonsterSourceData[] = [];
           await socket.runJob("monsters-by-id", { ids: missing, cobalt: cobaltCookie }, {
             timeoutMs: 180000,
             onEvent: (event: DDBMonsterEvent) => {
@@ -443,9 +452,9 @@ export default class DDBMonsterFactory {
    * @param {object[]} [monsters] Optional monster data to parse. If not provided, will use data from fetchDDBMonsterSourceData()
    * @returns {object} Object with two properties: actors (an array of parsed actor documents) and failedMonsterNames (an array of names of monsters that failed to parse)
    */
-  async parse(monsters = []) {
-    const foundryActors = [];
-    const failedMonsterNames = [];
+  async parse(monsters: IDDBMonsterSourceData[] = []): Promise<{ actors: I5eMonsterData[]; failedMonsterNames: string[] }> {
+    const foundryActors: I5eMonsterData[] = [];
+    const failedMonsterNames: string[] = [];
 
     const monsterSource = monsters.length > 0 ? monsters : this.source;
 
@@ -477,7 +486,7 @@ export default class DDBMonsterFactory {
           use2024Spells: this.use2024Spells,
         });
         await ddbMonster.parse();
-        foundryActors.push(foundry.utils.duplicate(ddbMonster.npc));
+        foundryActors.push(foundry.utils.duplicate(ddbMonster.npc) as unknown as I5eMonsterData);
         logger.timeEnd(`Monster Parse ${name}`);
       } catch (err) {
         logger.error(`Failed parsing ${name}`);
@@ -531,17 +540,17 @@ export default class DDBMonsterFactory {
    * Takes a list of monsters and parses them into a format suitable for importing
    * into Foundry.
    * @param {object} opts
-   * @param {Array} [opts.monsters=[]] A list of monsters to import
+   * @param {IDDBMonsterSourceData[]} [opts.monsters=[]] A list of monsters to import
    * @param {number} [opts.i=0] The number of monsters imported so far
-   * @returns {Promise<Array>} A promise that resolves with an array of parsed
+   * @returns {Promise<I5eMonsterData[]>} A promise that resolves with an array of parsed
    * monster documents
    */
-  async #createMonsterDocuments({ monsters = [], i = 0 } = {}) {
+  async #createMonsterDocuments({ monsters = [], i = 0 }: { monsters?: IDDBMonsterSourceData[]; i?: number } = {}): Promise<I5eMonsterData[]> {
     logger.time(`Monster Process Time ${i}`);
 
     const monsterResults = await this.parse(monsters);
 
-    const itemHandler = new DDBItemImporter(this.type, monsterResults.actors, {
+    const itemHandler = new DDBItemImporter<I5eMonsterData>(this.type, monsterResults.actors, {
       notifier: this.notifier,
       notifierV2: this.notifierV2,
       matchFlags: ["id"],
@@ -551,10 +560,10 @@ export default class DDBMonsterFactory {
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
       this.notifier(`Calculating which monsters to update...`, { nameField: true });
-      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents as TAll5eItemDocuments[], {
+      const existingMonsters = await itemHandler.loadPassedItemsFromCompendium(itemHandler.documents, {
         keepDDBId: true,
         indexFilter: { fields: ["name", "flags.ddbimporter.id"] },
-      });
+      }) as I5eMonsterData[];
       const existingMonstersTotal = existingMonsters.length + 1;
       if (!this.update) {
         logger.debug("Removing existing monsters from import list");
@@ -565,7 +574,7 @@ export default class DDBMonsterFactory {
       if (!this.updateImages) {
         logger.debug("Copying monster images across...");
         this.notifier(`Copying images for ${existingMonstersTotal} monsters...`);
-        itemHandler.documents = DDBMonsterFactory.copyExistingMonsterImages(itemHandler.documents, existingMonsters);
+        itemHandler.documents = DDBMonsterFactory.copyExistingMonsterImages<I5eMonsterData>(itemHandler.documents, existingMonsters);
       }
     }
     this.notifier("");
@@ -583,7 +592,7 @@ export default class DDBMonsterFactory {
 
   }
 
-  async #loadIntoCompendiums(documents) {
+  async #loadIntoCompendiums(documents: I5eMonsterData[]) {
     const startingCount = this.currentDocument;
     for (const monster of documents) {
       if (this.notifierV2) {
@@ -605,7 +614,7 @@ export default class DDBMonsterFactory {
   }
 
 
-  static copyExistingMonsterImages(monsters, existingMonsters) {
+  static copyExistingMonsterImages<T extends I5eMonsterData | I5eVehicleData>(monsters: T[], existingMonsters: T[]): T[] {
     const updated = monsters.map((monster) => {
       const existing = existingMonsters.find((m) =>
         monster.name === m.name
@@ -613,9 +622,13 @@ export default class DDBMonsterFactory {
       );
       if (existing) {
         monster.img = existing.img;
-        for (const key of Object.keys(monster.prototypeToken)) {
-          if (!["name", "sight", "detectionModes", "flags", "light", "ring", "occludable"].includes(key) && foundry.utils.hasProperty(existing.prototypeToken, key)) {
-            monster.prototypeToken[key] = foundry.utils.deepClone(existing.prototypeToken[key]);
+        const skipKeys = ["name", "sight", "detectionModes", "flags", "light", "ring", "occludable"];
+        const copyTokenKey = <K extends keyof I5ePrototypeToken>(key: K): void => {
+          monster.prototypeToken[key] = foundry.utils.deepClone(existing.prototypeToken[key]);
+        };
+        for (const key of Object.keys(monster.prototypeToken) as (keyof I5ePrototypeToken)[]) {
+          if (!skipKeys.includes(key) && foundry.utils.hasProperty(existing.prototypeToken, key)) {
+            copyTokenKey(key);
           }
         }
         return monster;

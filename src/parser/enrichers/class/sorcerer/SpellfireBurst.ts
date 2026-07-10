@@ -15,7 +15,7 @@ export default class SpellfireBurst extends DDBEnricherData {
     ];
   }
 
-  get overrides() {
+  get override(): IDDBOverrideData | null {
     return {
       data: {
         flags: {

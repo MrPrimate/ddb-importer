@@ -21,7 +21,7 @@ export default class CrownOfSpellfire extends DDBEnricherData {
     };
   }
 
-  getSkeleton(hd): IDDBAdditionalActivity {
+  getSkeleton(hd: number): IDDBAdditionalActivity {
     return {
       init: {
         name: `Burning Life Force (d${hd})`,

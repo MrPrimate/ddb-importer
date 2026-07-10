@@ -2,7 +2,10 @@ import DDBEnricherData from "../data/DDBEnricherData";
 
 export default abstract class TomeOf extends DDBEnricherData {
 
-  abstract effectData;
+  abstract effectData: {
+    name: string;
+    ability: string;
+  };
 
   get type() {
     return DDBEnricherData.ACTIVITY_TYPES.UTILITY;
@@ -29,8 +32,8 @@ export default abstract class TomeOf extends DDBEnricherData {
         name: effectData.name,
         changesOverwrite: true,
         changes: [
-          DDBEnricherData.ChangeHelper.addChange("2", "5", `system.abilities.${effectData.ability}.value`),
-          DDBEnricherData.ChangeHelper.addChange("2", "1", `system.abilities.${effectData.ability}.max`),
+          DDBEnricherData.ChangeHelper.addChange("2", 5, `system.abilities.${effectData.ability}.value`),
+          DDBEnricherData.ChangeHelper.addChange("2", 1, `system.abilities.${effectData.ability}.max`),
         ],
       },
     ];

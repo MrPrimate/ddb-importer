@@ -87,7 +87,7 @@ export default class DDBVehicleFactory {
     this.vehiclesParsed = [];
   }
 
-  static #noteStub(note, { nameField = false, monsterNote = false } = {}) {
+  static #noteStub(note: any, { nameField = false, monsterNote = false } = {}) {
     logger.info(note, { nameField, monsterNote });
   }
 
@@ -177,7 +177,11 @@ export default class DDBVehicleFactory {
       : `${parsingApi}/proxy/vehicles`;
     const url = CONFIG.DDBI.vehicleURL ?? defaultUrl;
 
-    const result = await postJson(url, body, { mode: "cors" });
+    const result: {
+      success: boolean;
+      message: string;
+      data: IDDBVehicleSourceData[];
+    } = await postJson(url, body, { mode: "cors" });
     if (debugJson) {
       FileHelper.download(JSON.stringify(result), `vehicles-raw.json`, "application/json");
     }
@@ -242,12 +246,12 @@ export default class DDBVehicleFactory {
    * @returns {Promise<Array>} A promise that resolves with an array of parsed
    * vehicle documents
    */
-  async #createVehicleDocuments({ vehicles = [], i = 0 } = {}) {
+  async #createVehicleDocuments({ vehicles = [], i = 0 } : { vehicles?: IDDBVehicleSourceData[]; i?: number } = {}): Promise<I5eVehicleData[]> {
     logger.time(`Vehicle Process Time ${i}`);
 
     const vehicleResults = await this.parse(vehicles);
 
-    const vehicleHandler = new DDBItemImporter(this.type, vehicleResults.actors, {
+    const vehicleHandler = new DDBItemImporter<I5eVehicleData>(this.type, vehicleResults.actors, {
       notifier: this.notifier,
       matchFlags: ["is2014", "is2024"],
     });
@@ -256,10 +260,10 @@ export default class DDBVehicleFactory {
     logger.debug("Item Importer Loaded");
     if (!this.update || !this.updateImages) {
       this.notifier(`Calculating which vehicles to update...`, { nameField: true });
-      const existingVehicles = await vehicleHandler.loadPassedItemsFromCompendium(vehicleHandler.documents as I5eVehicleData[], {
+      const existingVehicles = await vehicleHandler.loadPassedItemsFromCompendium(vehicleHandler.documents, {
         keepDDBId: true,
         indexFilter: { fields: ["name", "flags.ddbimporter.id"] },
-      });
+      }) as I5eVehicleData[];
       const existingVehicleTotal = existingVehicles.length + 1;
       if (!this.update) {
         logger.debug("Removing existing vehicles from import list");
@@ -288,7 +292,7 @@ export default class DDBVehicleFactory {
 
   }
 
-  async #loadIntoCompendiums(documents) {
+  async #loadIntoCompendiums(documents: I5eVehicleData[]) {
     const startingCount = this.currentDocument;
     for (const doc of documents) {
       this.notifier(`[${this.currentDocument}/${documents.length + startingCount - 1} of ${this.totalDocuments}] Importing ${doc.name} to compendium`, { monsterNote: true });
@@ -302,8 +306,8 @@ export default class DDBVehicleFactory {
   }
 
 
-  static copyExistingVehicleImages(vehicles, existingVehicles) {
-    return DDBMonsterFactory.copyExistingMonsterImages(vehicles, existingVehicles);
+  static copyExistingVehicleImages(vehicles: I5eVehicleData[], existingVehicles: I5eVehicleData[]): I5eVehicleData[] {
+    return DDBMonsterFactory.copyExistingMonsterImages<I5eVehicleData>(vehicles, existingVehicles);
   }
 
   /**
@@ -313,7 +317,7 @@ export default class DDBVehicleFactory {
    * @returns {Promise<number|Array>} If ids is null, returns the total number of vehicles processed
    * If ids is not null, returns a Promise that resolves with an array of the parsed vehicle documents
    */
-  async processIntoCompendium(ids = null, searchTerm = null) {
+  async processIntoCompendium(ids: any[] = null, searchTerm: any = null) {
 
     logger.time("Vehicle Import Time");
     await this.#prepareImporter();

@@ -1,4 +1,5 @@
 import { logger, utils } from "../../../lib/_module";
+import type SpellListFactory from "../../spells/SpellListFactory";
 
 export default class SpellListExtractor {
 
@@ -20,7 +21,7 @@ export default class SpellListExtractor {
 
   is2024: boolean;
 
-  sourceId: any;
+  sourceId: number | null;
 
   constructor({
     name,
@@ -33,7 +34,7 @@ export default class SpellListExtractor {
     description: string;
     is2014?: boolean;
     is2024?: boolean;
-    sourceId?: any;
+    sourceId?: number | null;
   } = { name: "", description: "" }) {
     this.name = name;
     this.description = description;
@@ -58,7 +59,7 @@ export default class SpellListExtractor {
     const headers = table.querySelectorAll("thead th");
     let spellColumnIndex = -1;
 
-    headers.forEach((header: any, index: number) => {
+    headers.forEach((header, index) => {
       if (this.USE_COLUMN_NUMBER && index === this.SPELL_COLUMN_NUMBER) {
         spellColumnIndex = index;
       } else if (this.USE_COLUMN_HEADER && header.textContent.trim().includes(this.SPELL_COLUMN_HEADER)) {
@@ -78,7 +79,7 @@ export default class SpellListExtractor {
     const rows = table.querySelectorAll("tbody tr");
     const spells: any = withLevel ? {} : [];
 
-    rows.forEach((row: any) => {
+    rows.forEach((row) => {
       const cells = row.querySelectorAll("td");
       if (cells.length > spellColumnIndex) {
         const spellsCell = cells[spellColumnIndex];
@@ -104,7 +105,7 @@ export default class SpellListExtractor {
 
     if (!game.user.isGM) return;
 
-    const spellListFactory = new (globalThis as any).DDBImporter.lib.SpellLists.SpellListFactory({ type });
+    const spellListFactory = new (globalThis as any).DDBImporter.lib.SpellLists.SpellListFactory({ type }) as SpellListFactory;
     await spellListFactory.init();
 
     const spells = this.extractSpells();
@@ -116,7 +117,7 @@ export default class SpellListExtractor {
 
     const name = this.name.replace(this.RENAME_REGEX, "");
 
-    const source = spellListFactory.sources.find((s: any) => s.id === this.sourceId) ?? spellListFactory.sources.find((s: any) => s.id === 9999999);
+    const source = spellListFactory.sources.find((s) => s.id === this.sourceId) ?? spellListFactory.sources.find((s) => s.id === 9999999);
 
     logger.debug(`Generating Spell List for ${type} "${name}" from source "${source.acronym}" with spells:`, { spells, this: this });
 

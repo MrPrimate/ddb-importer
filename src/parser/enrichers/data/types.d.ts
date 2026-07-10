@@ -22,6 +22,10 @@ global {
   // matching the base constructor `{ ddbEnricher }`, which concrete subclasses are assignable to.
   export type EnricherConstructor = new (args: { ddbEnricher: TDDBEnricher }) => DDBEnricherData;
 
+  // Typed view over a two-deep enricher namespace (e.g. ClassEnrichers, MonsterEnrichers)
+  // indexed by runtime strings; `| undefined` keeps missing-key guards honest.
+  export type TEnricherGroupMap = Record<string, Record<string, EnricherConstructor | undefined> | undefined>;
+
   export type IDDBActivityType = typeof ACTIVITY_TYPES[keyof typeof ACTIVITY_TYPES];
 
   // -- Summon Profile Keys ----------------------------------------------------
@@ -322,10 +326,11 @@ global {
 
   export interface IDDBActivityAction {
     name: string;
-    type: "race" | "class" | "feat" | "item" | "spell";
+    type: IActionTypes;
     isAttack?: boolean | null;
     rename?: string[] | null;
-    id?: string | null;
+    // DDB action ids are numbers; some hand-written hints use strings
+    id?: string | number | null;
     activityKeysLimited?: string[] | null;
   }
 

@@ -33,7 +33,7 @@ export default class ArcaneWard {
     this.wardDocument = actor.items.find((i) => i.name === ArcaneWard.wardDocumentName);
   }
 
-  async applyDamage(update) {
+  async applyDamage(update: any) {
     const wardStrength = this.wardStrength;
     if (wardStrength === 0) return;
 
@@ -82,13 +82,13 @@ export default class ArcaneWard {
     await this.updateWardStrength(newWardStrength);
   }
 
-  static isAbjurer(actor) {
+  static isAbjurer(actor: any) {
     return actor.classes?.wizard
       && actor.classes.wizard.subclass
       && ["Abjurer", "School of Abjuration"].includes(actor.classes.wizard.subclass.name);
   }
 
-  static async preUpdateActorHook(subject, update, _options, _user) {
+  static async preUpdateActorHook(subject: any, update: any, _options: any, _user: any) {
     if (!ArcaneWard.isAbjurer(subject)) return true;
     if (update.system?.attributes?.hp?.value !== undefined) {
       const arcaneWardEnhancer = ArcaneWard.getEnricher({ actor: subject });
@@ -97,7 +97,7 @@ export default class ArcaneWard {
     return true;
   }
 
-  static async dnd5eActivityConsumptionHook(activity, usageConfig, messageConfig, _updates) {
+  static async dnd5eActivityConsumptionHook(activity: any, usageConfig: any, messageConfig: any, _updates: any) {
     // only care about spells
     if (messageConfig.data?.flags?.dnd5e?.item?.type !== "spell") return true;
     // only spells that use spell slots

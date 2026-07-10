@@ -11,7 +11,7 @@ export default class AuraOfElementalShielding extends DDBEnricherData {
     ];
     const activeType = this.ddbParser.isMuncher
       ? null
-      : this.ddbParser?._chosen?.find((a) =>
+      : this.ddbParser._chosen?.find((a) =>
         types.includes(a.label),
       )?.label;
 

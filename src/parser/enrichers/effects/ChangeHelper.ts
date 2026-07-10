@@ -10,29 +10,29 @@ interface ChangeParams {
 }
 
 interface StatusEffectChangeParams {
-  effect: any;
+  effect: I5eEffectData;
   statusName: string;
   priority?: number;
   level?: number | null;
 }
 
 interface OverTimeDamageParams {
-  document: any;
+  document: TAll5eItemDocuments;
   turn: string;
   damage: string;
   damageType: string;
   saveAbility: string | string[];
   saveRemove: boolean;
   saveDamage: string;
-  dc: any;
+  dc: string | number | { calculation?: string; formula?: string };
 }
 
 interface OverTimeSaveParams {
-  document: any;
+  document: TAll5eItemDocuments;
   turn: string;
   saveAbility: string | string[];
   saveRemove?: boolean;
-  dc: any;
+  dc: string | number | { calculation?: string; formula?: string };
 }
 
 export default class ChangeHelper {
@@ -49,9 +49,9 @@ export default class ChangeHelper {
 
 
   // Basic Change generation helpers
-  static signedAddChange(value: any, priority: any, key: string): IActiveEffectChangeData {
-    const bonusValue = (Number.isInteger(value) && value >= 0) // if bonus is a positive integer
-      || (!Number.isInteger(value) && !value.trim().startsWith("+") && !value.trim().startsWith("-")) // not an int and does not start with + or -
+  static signedAddChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
+    const bonusValue = (Number.isInteger(value) && (value as number) >= 0) // if bonus is a positive integer
+      || (!Number.isInteger(value) && !String(value).trim().startsWith("+") && !String(value).trim().startsWith("-")) // not an int and does not start with + or -
       ? `+${value}`
       : value;
     return {
@@ -62,7 +62,7 @@ export default class ChangeHelper {
     };
   }
 
-  static unsignedAddChange(value: any, priority: any, key: string): IActiveEffectChangeData {
+  static unsignedAddChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     const bonusValue = `${value}`.trim().replace("+ +", "+").replace(/^\+\s+/, "");
     return {
       key,
@@ -72,7 +72,7 @@ export default class ChangeHelper {
     };
   }
 
-  static addChange(value: string, priority: any, key: string): IActiveEffectChangeData {
+  static addChange(value: string, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
       value: String(value).trim(),
@@ -81,7 +81,7 @@ export default class ChangeHelper {
     };
   }
 
-  static subtractChange(value: string, priority: any, key: string): IActiveEffectChangeData {
+  static subtractChange(value: string, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
       value: String(value).trim(),
@@ -90,7 +90,7 @@ export default class ChangeHelper {
     };
   }
 
-  static customChange(value: any, priority: any, key: string): IActiveEffectChangeData {
+  static customChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -99,15 +99,15 @@ export default class ChangeHelper {
     };
   }
 
-  static customBonusChange(value: any, priority: any, key: string): IActiveEffectChangeData {
-    const bonusValue = (Number.isInteger(value) && value >= 0) // if bonus is a positive integer
-      || (!Number.isInteger(value) && !value.trim().startsWith("+") && !value.trim().startsWith("-")) // not an int and does not start with + or -
+  static customBonusChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
+    const bonusValue = (Number.isInteger(value) && (value as number) >= 0) // if bonus is a positive integer
+      || (!Number.isInteger(value) && !String(value).trim().startsWith("+") && !String(value).trim().startsWith("-")) // not an int and does not start with + or -
       ? `+${value}`
       : value;
     return ChangeHelper.customChange(bonusValue, priority, key);
   }
 
-  static upgradeChange(value: any, priority: any, key: string): IActiveEffectChangeData {
+  static upgradeChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -116,7 +116,7 @@ export default class ChangeHelper {
     };
   }
 
-  static overrideChange(value: any, priority: any, key: string): IActiveEffectChangeData {
+  static overrideChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -125,7 +125,7 @@ export default class ChangeHelper {
     };
   }
 
-  static multiplyChange(value: any, priority: any, key: string): IActiveEffectChangeData {
+  static multiplyChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -134,7 +134,7 @@ export default class ChangeHelper {
     };
   }
 
-  static downgradeChange(value: any, priority: any, key: string): IActiveEffectChangeData {
+  static downgradeChange(value: string | number, priority: number, key: string): IActiveEffectChangeData {
     return {
       key,
       value,
@@ -161,7 +161,7 @@ export default class ChangeHelper {
     };
   }
 
-  static atlChange(atlKey: string, type: TActiveEffectChangeType, value: any, priority = 20): IActiveEffectChangeData {
+  static atlChange(atlKey: string, type: TActiveEffectChangeType, value: string | number, priority = 20): IActiveEffectChangeData {
     let key = atlKey;
 
     switch (atlKey) {
@@ -204,7 +204,7 @@ export default class ChangeHelper {
     };
   }
 
-  static addStatusEffectChange({ effect, statusName, priority = 20, level = null }: StatusEffectChangeParams): any {
+  static addStatusEffectChange({ effect, statusName, priority = 20, level = null }: StatusEffectChangeParams): I5eEffectData {
     if (AutoEffects.effectModules().daeInstalled && utils.getSetting<boolean>("effects-uses-macro-status-effects")) {
       const key = ChangeHelper.daeStatusEffectChange(statusName, priority);
       effect.system.changes.push(key);

@@ -66,7 +66,7 @@ export default class TashasBubblingCauldron extends DDBEnricherData {
     let descriptionSuffix = "";
     if (this.ddbParser.itemCompendium?.index) {
       const possibleItems = this.ddbParser.itemCompendium.index
-        .filter((i) => ["common", "uncommon"].includes(i.system.rarity)
+        .filter((i: Record<string, any>) => ["common", "uncommon"].includes(i.system?.rarity)
           && i.type == "consumable"
           && i.system.type.value === "potion"
           && i.name.toLowerCase().includes("potion"),

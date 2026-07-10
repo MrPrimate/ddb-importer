@@ -1,6 +1,6 @@
 import DDBEffectHelper from "../../../effects/DDBEffectHelper";
 import { logger } from "../../../lib/_module";
-import DDBDescriptions, { IFeatureBasicsResult } from "../../lib/DDBDescriptions";
+import DDBDescriptions from "../../lib/DDBDescriptions";
 import AutoEffects from "./AutoEffects";
 import ChangeHelper from "./ChangeHelper";
 
@@ -56,7 +56,11 @@ export default class MidiOverTimeEffect {
     // });
   }
 
-  static getOverTimeSaveEndChange({ document, save, text }) {
+  static getOverTimeSaveEndChange({ document = undefined, save = undefined, text = undefined  }:{
+    document: TAll5eItemDocuments;
+    text: string;
+    save: I5eActivitySave;
+  }) {
     const saveSearch = /repeat the saving throw at the (end|start) of each/;
     const match = text.match(saveSearch);
     if (match) {
@@ -201,11 +205,11 @@ export default class MidiOverTimeEffect {
     this.effect.flags = foundry.utils.mergeObject(this.effect.flags, this.conditionEffect.flags);
 
     const duration = this.conditionEffect.duration;
-    if (duration.rounds) {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.rounds);
+    if (duration.units === "rounds") {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
       foundry.utils.setProperty(this.effect, "duration.units", "rounds");
-    } else if (duration.seconds) {
-      foundry.utils.setProperty(this.effect, "duration.value", duration.seconds);
+    } else if (duration.units === "seconds") {
+      foundry.utils.setProperty(this.effect, "duration.value", duration.value);
       foundry.utils.setProperty(this.effect, "duration.units", "seconds");
     }
 

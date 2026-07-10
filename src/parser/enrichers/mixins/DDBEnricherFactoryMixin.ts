@@ -154,7 +154,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     }
   }
 
-  get additionalAdvancements(): any[] {
+  get additionalAdvancements(): I5eAdvancement[] {
     if (this.loadedEnricher) {
       return this.loadedEnricher.additionalAdvancements;
     } else {
@@ -1539,7 +1539,7 @@ export default abstract class DDBEnricherFactoryMixin<THint = string> {
     });
   }
 
-  async customFunction(options: { name: string; activity?: IDDBActivityData }): Promise<void> {
+  async customFunction(options: ICustomFunctionOptions = { name: null, activity: null }): Promise<void> {
     await this.loadedEnricher?.customFunction(options);
   }
 

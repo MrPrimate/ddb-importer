@@ -5,14 +5,14 @@ export default class SpellListExtractorMixin extends DDBEnricherData {
 
   spellListExtractor: SpellListExtractor;
 
-  constructor({ ddbEnricher }: { ddbEnricher: any }) {
+  constructor({ ddbEnricher }: { ddbEnricher: TDDBEnricher }) {
     super({ ddbEnricher });
     this.spellListExtractor = new SpellListExtractor({
       name: this.name,
       description: this.ddbParser.ddbDefinition.description,
       is2014: this.is2014,
       is2024: this.is2024,
-      sourceId: this.ddbParser.ddbDefinition.sourceId,
+      sourceId: foundry.utils.getProperty(this.ddbParser.ddbDefinition, "sourceId") as number,
     });
   }
 

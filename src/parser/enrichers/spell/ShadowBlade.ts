@@ -9,9 +9,9 @@ interface IShadowBladeVariant {
 }
 
 export default class ShadowBlade extends DDBEnricherData {
-  handler: DDBItemImporter;
+  handler: DDBItemImporter<I5eInventoryItem>;
   compendiumFolders: DDBCompendiumFolders;
-  shadowBlades: any[] = [];
+  shadowBlades: I5eWeaponItem[] = [];
 
   static VARIANTS: IShadowBladeVariant[] = [
     { tier: "2d8", minSlot: 2, maxSlot: 2, number: 2 },
@@ -82,9 +82,9 @@ export default class ShadowBlade extends DDBEnricherData {
     });
   }
 
-  getShadowBladeWeapon(variant: IShadowBladeVariant) {
+  getShadowBladeWeapon(variant: IShadowBladeVariant): I5eWeaponItem {
     const itemName = `Shadow Blade (${variant.tier})`;
-    return {
+    const data: DeepPartial<I5eWeaponItem> = {
       "_id": utils.namedIDStub(itemName, {
         prefix: "sb",
         postfix: variant.tier,
@@ -105,7 +105,7 @@ export default class ShadowBlade extends DDBEnricherData {
         "identified": true,
         "quantity": 1,
         "equipped": true,
-        "proficient": 1,
+        "proficient": true,
         "properties": ["fin", "lgt", "thr", "mgc"],
         "type": {
           "value": "simpleM",
@@ -124,9 +124,9 @@ export default class ShadowBlade extends DDBEnricherData {
             "bonus": "",
           },
         },
-        "attack": {
-          "ability": "",
-        },
+        // "attack": {
+        //   "ability": "",
+        // },
       },
       "effects": [],
       "flags": {
@@ -140,10 +140,11 @@ export default class ShadowBlade extends DDBEnricherData {
         },
       },
     };
+    return data as unknown as I5eWeaponItem;
   }
 
   async importShadowBlades() {
-    const updateBool = this.ddbParser?.ddbCharacter?.updateCompendiumItems
+    const updateBool = foundry.utils.getProperty(this.ddbParser?.ddbCharacter ?? {}, "updateCompendiumItems") as boolean | undefined
       ?? this.ddbParser?.ddbCharacter?.forceCompendiumUpdate
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
@@ -173,8 +174,8 @@ export default class ShadowBlade extends DDBEnricherData {
   linkUpItemUUIDs() {
     const links: string[] = [];
     for (const blade of this.shadowBlades) {
-      const uuid = this.handler.compendiumIndex.find((e: any) => e._id === blade._id)?.uuid
-        ?? this.handler.compendiumIndex.find((e: any) =>
+      const uuid = this.handler.compendiumIndex.find((e: TIndexEntry) => e._id === blade._id)?.uuid
+        ?? this.handler.compendiumIndex.find((e: TIndexEntry) =>
           foundry.utils.getProperty(e, "name") === blade.name
           && foundry.utils.getProperty(e, "flags.ddbimporter.is2014") === blade.flags?.ddbimporter?.is2014,
         )?.uuid;
@@ -203,7 +204,7 @@ export default class ShadowBlade extends DDBEnricherData {
   }
 
   async cleanup() {
-    this.handler = new DDBItemImporter("items", [], ShadowBlade.handlerOptions);
+    this.handler = new DDBItemImporter<I5eInventoryItem>("items", [], ShadowBlade.handlerOptions);
     if (game.user.isGM) await this.generateShadowBlades();
     this.linkUpItemUUIDs();
   }

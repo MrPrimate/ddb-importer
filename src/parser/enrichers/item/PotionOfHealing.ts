@@ -21,7 +21,7 @@ export default class PotionOfHealing extends DDBEnricherData {
 
 
   get override(): IDDBOverrideData {
-    if (this.ddbParser.ddbDefinition.sources.some((s) => s.sourceId === 1)) {
+    if ((foundry.utils.getProperty(this.ddbParser.ddbDefinition, "sources") as IDDBSource[] | undefined)?.some((s) => s.sourceId === 1)) {
       return {
         data: {
           "flags.ddbimporter": {

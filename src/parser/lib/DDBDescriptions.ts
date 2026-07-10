@@ -2,71 +2,11 @@ import { logger, utils } from "../../lib/_module";
 import { DICTIONARY } from "../../config/_module";
 import AutoEffects from "../enrichers/effects/AutoEffects";
 
-export interface IFeatureBasicsSave {
-  ability: string[];
-  dc: {
-    calculation: string;
-    formula: string;
-  };
-  half: boolean;
-}
-
-export interface IFeatureBasicsResult {
-  matches: {
-    attackMatches: RegExpExecArray | null;
-    summonAttackMatches: RegExpExecArray | null;
-    healingMatch: boolean;
-    spellSave: RegExpMatchArray | null;
-    saveSearchMatch: RegExpMatchArray | null;
-    saveSearchNewMatch: RegExpMatchArray | null;
-    halfMatch: boolean;
-  };
-  save: IFeatureBasicsSave;
-  midiProperties: { otherSaveDamage: string } | { saveDamage: string };
-  properties: {
-    isAttack: boolean;
-    isSummonAttack: boolean;
-    spellSaveRegExpMatchArray: RegExpMatchArray | null;
-    isSpellSave: boolean;
-    savingThrowRegExpMatchArray: RegExpMatchArray | null;
-    isSavingThrow: boolean;
-    summonSaveRegExpMatchArray: RegExpMatchArray | null;
-    isSummonSave: boolean;
-    isSave: boolean;
-    halfDamage: boolean;
-    pbToAttack: boolean;
-    weaponAttack: boolean;
-    spellAttack: boolean;
-    meleeAttack: boolean;
-    rangedAttack: boolean;
-    healingAction: boolean;
-    toHit: number;
-    yourSpellAttackModToHit: boolean;
-  };
-}
-
-export interface IDCParserResult {
-  save: I5eActivitySave;
-  match: RegExpExecArray | null;
-  damageAndSave: boolean;
-  check?: boolean;
-  duration: {
-    type: string | null;
-    value: string | null;
-    units?: string;
-  };
-  damage: {
-    type: string | null;
-    value: string | null;
-  };
-  riderStatuses: string[];
-}
-
 export default class DDBDescriptions {
 
   static DEFAULT_DURATION_SECONDS = 60;
 
-  static startOrEnd(text) {
+  static startOrEnd(text: string) {
     const re = /at the (start|end) of each/i;
     const match = text.match(re);
     if (match) {
@@ -78,7 +18,21 @@ export default class DDBDescriptions {
 
   static getDuration(text: string, returnDefault = true, generateSpecial = true) {
     const defaultDurationSeconds = 60;
-    const result = {
+    const result: {
+      type: string | null;
+      seconds: number | null;
+      rounds: number | null;
+      minutes: number | null;
+      days: number | null;
+      years: number | null;
+      months: number | null;
+      turns: number | null;
+      hours: number | null;
+      special: string;
+      value: string | null;
+      units: string;
+      dae: string[];
+    } = {
       type: returnDefault ? "second" : null,
       seconds: returnDefault ? defaultDurationSeconds : null,
       rounds: returnDefault ? (defaultDurationSeconds / 6) : null,
@@ -171,7 +125,7 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static addSpecialDurationFlagsToEffect(effect: I5eEffectData, match) {
+  static addSpecialDurationFlagsToEffect(effect: I5eEffectData, match: any) {
     const durations = [];
     // minutes
     if (match[7]
@@ -376,9 +330,9 @@ export default class DDBDescriptions {
   static getConditionInfo(condition: string, hint?: string) {
     const result = {
       success: true,
-      condition: null,
-      group4: null,
-      group4Condition: null,
+      condition: null as any as any,
+      group4: null as any as any,
+      group4Condition: null as any as any,
       conditionName: utils.capitalize(condition),
     };
     result.condition = condition.toLowerCase();
@@ -407,7 +361,7 @@ export default class DDBDescriptions {
   }
 
   static parseStatusCondition({ text } : { text: string }): IParseStatusConditionResult {
-    const result = {
+    const result: IParseStatusConditionResult = {
       success: false,
       check: false,
       save: {
@@ -422,11 +376,8 @@ export default class DDBDescriptions {
       group4Condition: null,
       conditionName: null,
       duration: {
-        seconds: null,
-        rounds: null,
-        turns: null,
-        startRound: null,
-        startTurn: null,
+        value: null,
+        units: null,
       } as IEffectDuration,
       specialDurations: [],
       match: null,
@@ -471,7 +422,7 @@ export default class DDBDescriptions {
       const duration = DDBDescriptions.getDuration(parserText);
 
       if (duration.type) {
-        result.duration.value = duration.value;
+        result.duration.value = parseInt(duration.value);
         result.duration.units = AutoEffects.adjustDurationUnits(duration.units);
       }
       result.specialDurations = duration.dae ?? [];
@@ -519,7 +470,7 @@ export default class DDBDescriptions {
         ? standardAttackMatches.groups.range !== undefined
         : false;
 
-    const save = {
+    const save: IFeatureBasicsSave = {
       ability: [],
       dc: {
         calculation: "",
@@ -597,17 +548,17 @@ export default class DDBDescriptions {
     return result;
   }
 
-  static splitStringByComma(str) {
+  static splitStringByComma(str: string): string[] {
     // Regular expression to match commas not inside brackets
     const regex = /,(?![^(]*\))/g;
     const result = str.split(regex);
     return result.map((item) => item.replaceAll("*", "").trim().replace(/\.$/, ""));
   }
 
-  static parseOutMonsterSpells(text) {
-    const results = [];
+  static parseOutMonsterSpells(text: string): IDDBParsedMonsterSpell[] {
+    const results: IDDBParsedMonsterSpell[] = [];
 
-    const processSpell = (spellName) => {
+    const processSpell = (spellName: string) => {
       const extraCheckRegex = /(.*)\((.*)\)/i;
       const extraMatch = extraCheckRegex.exec(spellName.trim());
 
@@ -653,7 +604,7 @@ export default class DDBDescriptions {
 
     // console.warn(innateMatch);
     if (innateMatch) {
-      DDBDescriptions.splitStringByComma(innateMatch[3]).forEach((spell) => {
+      DDBDescriptions.splitStringByComma(innateMatch[3]).forEach((spell: string) => {
         const data = processSpell(spell);
         results.push(foundry.utils.mergeObject(data, {
           period: innateMatch[2],
@@ -667,7 +618,7 @@ export default class DDBDescriptions {
     const atWillMatch = text.match(atWillSearch);
     // console.warn(atWillMatch);
     if (atWillMatch) {
-      DDBDescriptions.splitStringByComma(atWillMatch[1]).forEach((spell) => {
+      DDBDescriptions.splitStringByComma(atWillMatch[1]).forEach((spell: string) => {
         results.push(processSpell(spell));
       });
     }

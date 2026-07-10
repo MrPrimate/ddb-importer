@@ -1,6 +1,10 @@
 import DDBEnricherFactoryMixin from "./mixins/DDBEnricherFactoryMixin";
 import { ClassEnrichers, GenericEnrichers, ItemEnrichers } from "./_module";
 import { DDBSources, utils } from "../../lib/_module";
+import type DDBEnricherData from "./data/DDBEnricherData";
+
+// ClassEnrichers mixes per-class namespaces with the bare top-level Generic constructor.
+type TClassEnricherLookup = Record<string, Record<string, EnricherConstructor | undefined> | EnricherConstructor | undefined>;
 
 export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   constructor({ activityGenerator, notifier = null, fallbackEnricher = null }: { activityGenerator: any; notifier?: any; fallbackEnricher?: any } = {} as any) {
@@ -15,46 +19,51 @@ export default class DDBClassFeatureEnricher extends DDBEnricherFactoryMixin {
   }
 
   get isParentClass2014(): boolean {
+    const parentDefinition = this.ddbParser._parent?.definition as (IDDBClassFeatureDefinition & IDDBFeatureDefinitionKindFields) | undefined;
     const klass = this.ddbParser.ddbData.character.classes.find((klass) =>
-      (this.ddbParser._parent?.definition && this.ddbParser._parent.definition.classId
-        && (klass.definition.id === this.ddbParser._parent.definition.classId || klass.subclassDefinition?.id === this.ddbParser._parent.definition.classId))
-      || (this.ddbParser._parent?.definition && this.ddbParser._parent.definition.className && klass.definition.name === this.ddbParser._parent.definition.className
-        && ((!this.ddbParser._parent.definition.subclassName || this.ddbParser._parent.definition.subclassName === "")
-          || (this.ddbParser._parent.definition.subclassName && klass.subclassDefinition?.name === this.ddbParser._parent.definition.subclassName))
+      (parentDefinition && parentDefinition.classId
+        && (klass.definition.id === parentDefinition.classId || klass.subclassDefinition?.id === parentDefinition.classId))
+      || (parentDefinition && parentDefinition.className && klass.definition.name === parentDefinition.className
+        && ((!parentDefinition.subclassName || parentDefinition.subclassName === "")
+          || (parentDefinition.subclassName && klass.subclassDefinition?.name === parentDefinition.subclassName))
       ),
     );
     return klass?.definition?.sources.every((s) => DDBSources.is2014Source(s));
   }
 
-  get className(): any {
+  get className(): string | undefined {
     return this.ddbParser.klass;
   }
 
-  get subclassName(): any {
+  get subclassName(): string | undefined {
     return this.ddbParser.subKlass;
   }
 
-  _defaultClassLoader(): any {
-    if (this.className) {
-      const classHintName = utils.pascalCase(this.className);
-      const featName = utils.pascalCase(this.hintName);
-      if (!ClassEnrichers[classHintName]?.[featName]) {
-        return null;
-      }
-      return new ClassEnrichers[classHintName][featName]({
-        ddbEnricher: this,
-      });
-    } else {
+  _defaultClassLoader(): DDBEnricherData<any> | null {
+    if (!this.className) {
       return null;
     }
+    const classHintName = utils.pascalCase(this.className);
+    const featName = utils.pascalCase(this.hintName);
+    const group = (ClassEnrichers as TClassEnricherLookup)[classHintName];
+    const Enricher = typeof group === "function" ? undefined : group?.[featName];
+    if (!Enricher) {
+      return null;
+    }
+    return new Enricher({
+      ddbEnricher: this,
+    });
   }
 
-  _defaultNameLoader(): any {
+  _defaultNameLoader(): DDBEnricherData<any> | null {
     const classHintName = utils.pascalCase(this.className ?? "Unknown Class");
-    if (!this.ENRICHERS?.[classHintName]?.[this.hintName]) {
+    // mixed one- and two-deep registry; the guard keeps the two-deep access safe
+    const enricherGroups = this.ENRICHERS as Record<string, Record<string, EnricherConstructor>>;
+    const hintName = this.hintName;
+    if (!hintName || !enricherGroups?.[classHintName]?.[hintName]) {
       return this._defaultClassLoader();
     }
-    return new this.ENRICHERS[classHintName][this.hintName]({
+    return new enricherGroups[classHintName][hintName]({
       ddbEnricher: this,
     });
   }

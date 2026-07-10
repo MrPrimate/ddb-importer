@@ -1,6 +1,29 @@
 import { DDBCompendiumFolders, DDBItemImporter, utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
 
+interface IElixirDetail {
+  roll: string;
+  name: string;
+  description: string;
+}
+
+interface IElixirActivityMapEntry {
+  number?: number;
+  denomination?: number;
+  bonus?: string;
+  duration?: string;
+  minutes?: string;
+  min: number | null;
+  max: number | null;
+}
+
+type IElixirItemStub = DeepPartial<I5eConsumableItem>;
+
+interface IElixirUuidUpdate {
+  name: string;
+  uuid: string;
+}
+
 export default class ExperimentalElixir extends DDBEnricherData {
   handler: DDBItemImporter;
   compendiumFolders: DDBCompendiumFolders;
@@ -36,9 +59,9 @@ export default class ExperimentalElixir extends DDBEnricherData {
     };
   }
 
-  _experimentalElixirDetails = null;
+  _experimentalElixirDetails: IElixirDetail[] | null = null;
 
-  get experimentalElixirDetails() {
+  get experimentalElixirDetails(): IElixirDetail[] {
     if (this._experimentalElixirDetails) return this._experimentalElixirDetails;
 
     const dom = utils.htmlToDocumentFragment(this.ddbParser?.ddbDefinition?.description ?? "");
@@ -46,7 +69,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     // Find all rows in the tbody
     const rows = dom.querySelectorAll("tbody tr");
 
-    const details = [];
+    const details: IElixirDetail[] = [];
 
     rows.forEach((row) => {
       const cells = row.querySelectorAll("td");
@@ -76,7 +99,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return details;
   }
 
-  getSkeletonItem(row) {
+  getSkeletonItem(row: IElixirDetail): IElixirItemStub {
     const itemName = `Experimental Elixir: ${row.name}`;
     return {
       "_id": utils.namedIDStub(itemName, {
@@ -97,6 +120,10 @@ export default class ExperimentalElixir extends DDBEnricherData {
           "revision": 1,
           "rules": this.is2014 ? "2014" : "2024",
         },
+        uses: {
+          "autoDestroy": true,
+          "max": "1",
+        },
         "identified": true,
         "quantity": 1,
         "attuned": false,
@@ -109,7 +136,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
           "subtype": "",
         },
       },
-      "effects": [],
+      "effects": [] as I5eEffectData[],
       "flags": {
         "ddbimporter": {
           "is2014": this.is2014,
@@ -122,7 +149,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     };
   }
 
-  get activityMap() {
+  get activityMap(): Record<string, IElixirActivityMapEntry[]> {
     return this.is2014
       ? {
         "Healing": [
@@ -173,7 +200,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
       };
   }
 
-  enchantChangeMap(name) {
+  enchantChangeMap(name: string) {
     const data = this.experimentalElixirDetails.find((e) => e.name === name);
     const result = [
       DDBEnricherData.ChangeHelper.overrideChange(`${name} Elixir`, 20, "name"),
@@ -247,7 +274,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return result;
   }
 
-  generateElixirAdditionalActivity(name): IDDBAdditionalActivity[] {
+  generateElixirAdditionalActivity(name: string): IDDBAdditionalActivity[] {
     const results = this.activityMap[name].map((a, i) => {
       const result: IDDBAdditionalActivity = {
         init: {
@@ -325,7 +352,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
         result.build.generateDuration = true;
         result.build.durationOverride = {
           units: "minute",
-          value: a.minutes ?? 1,
+          value: a.minutes ?? "1",
         };
       } else if (name === "Flight") {
         result.build.generateDuration = true;
@@ -355,7 +382,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return results;
   }
 
-  generateElixirEffect(name) {
+  generateElixirEffect(name: string) {
     const effects = [];
     if (name === "Swiftness") {
       const results = this.activityMap[name].map((data, i) => {
@@ -481,9 +508,9 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return effects;
   }
 
-  _elixirEffects = null;
+  _elixirEffects: IDDBEffectHint[] | null = null;
 
-  get getElixirEffects() {
+  get getElixirEffects(): IDDBEffectHint[] {
     if (this._elixirEffects) return this._elixirEffects;
 
     const results = [];
@@ -496,8 +523,8 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
   }
 
-  getElixirAdditionalEnchantActivityEffects(name) {
-    const results = [];
+  getElixirAdditionalEnchantActivityEffects(name: string): IDDBEffectHint[] {
+    const results: IDDBEffectHint[] = [];
     this.activityMap[name].forEach((m, i) => {
       results.push({
         name,
@@ -611,7 +638,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return baseEffects;
   }
 
-  async buildItem(row) {
+  async buildItem(row: IElixirDetail): Promise<IElixirItemStub> {
     const itemData = this.getSkeletonItem(row);
     for (const [key, value] of Object.entries(this.data.system.activities as Record<string, I5eActivity>)) {
       if (!foundry.utils.getProperty(value, "flags.ddbimporter.isElixirAdditionalActivity")) continue;
@@ -628,7 +655,7 @@ export default class ExperimentalElixir extends DDBEnricherData {
     return itemData;
   }
 
-  elixirs = [];
+  elixirs: I5eInventoryItem[] = [];
 
   static featureHandlerOptions = {
     chrisPremades: true,
@@ -647,11 +674,11 @@ export default class ExperimentalElixir extends DDBEnricherData {
   };
 
   async importElixirs() {
-    const updateFeatures = this.ddbParser.ddbCharacter.updateCompendiumItems
+    const updateFeatures = foundry.utils.getProperty(this.ddbParser.ddbCharacter, "updateCompendiumItems") as boolean | undefined
       ?? this.ddbParser.ddbCharacter.forceCompendiumUpdate
       ?? utils.getSetting<boolean>("character-update-policy-update-add-features-to-compendiums");
 
-    const featureHandler = await DDBItemImporter.buildHandler("features", this.elixirs, updateFeatures, ExperimentalElixir.featureHandlerOptions, this.handler);
+    const featureHandler = await DDBItemImporter.buildHandler<I5eInventoryItem>("features", this.elixirs, updateFeatures, ExperimentalElixir.featureHandlerOptions, this.handler);
     await featureHandler.buildIndex(ExperimentalElixir.featureHandlerOptions.indexFilter);
 
   }
@@ -668,14 +695,14 @@ export default class ExperimentalElixir extends DDBEnricherData {
 
     for (const row of this.experimentalElixirDetails) {
       const item = await this.buildItem(row);
-      this.elixirs.push(item);
+      this.elixirs.push(item as unknown as I5eConsumableItem);
     }
 
-    await this.compendiumFolders.addCompendiumFolderIds(this.elixirs);
+    await this.compendiumFolders.addCompendiumFolderIds(this.elixirs as I5eInventoryItem[]);
     await this.importElixirs();
   }
 
-  updateDescriptionTable(updates = []) {
+  updateDescriptionTable(updates: IElixirUuidUpdate[] = []) {
     const doc = utils.htmlToDoc(this.data.system.description.value ?? "");
 
     const rows = doc.body.querySelectorAll("tbody tr");

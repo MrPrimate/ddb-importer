@@ -1,5 +1,6 @@
 import { utils } from "../../../../lib/_module";
 import DDBEnricherData from "../../data/DDBEnricherData";
+import type { DDBMonsterDamage } from "../../../monster/features/DDBMonsterDamage";
 
 export default class EyeRays extends DDBEnricherData {
 
@@ -36,7 +37,7 @@ export default class EyeRays extends DDBEnricherData {
       return text.replaceAll("<br> <strong>", "</p><p><strong>");
   }
 
-  get rayChoices() {
+  get rayChoices(): { number: number; title: string; content: string; full: string }[] {
     const rayText = this.rayText;
     if (rayText.includes("<ol>") && rayText.includes("<li>")) {
       const titleType = rayText.includes("<li><strong>") ? "strong" : "em";
@@ -47,13 +48,13 @@ export default class EyeRays extends DDBEnricherData {
     }
   }
 
-  static getId(name) {
+  static getId(name: string) {
     return utils.namedIDStub(name, {
       prefix: "EyeRay",
     });
   }
 
-  static rayName(ray) {
+  static rayName(ray: { number: number; title: string }) {
     if (ray.title.startsWith(`${ray.number}`))
       return ray.title;
     else
@@ -70,9 +71,9 @@ export default class EyeRays extends DDBEnricherData {
     // })
     const results = rayChoices.map((ray) => {
       const strippedHtml = utils.stripHtml(`${ray.full}`).trim();
-      const descriptionParse = DDBImporter.lib.ParserLib.DDBDescriptions.featureBasics({ text: strippedHtml });
+      const descriptionParse = DDBImporter.lib.ParserLib.DDBDescriptions.featureBasics({ text: strippedHtml }) as IFeatureBasicsResult;
 
-      const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature: this.ddbParser });
+      const ddbMonsterDamage = new DDBImporter.lib.DDBMonsterDamage(ray.full, { ddbMonsterFeature: this.ddbParser }) as DDBMonsterDamage;
       ddbMonsterDamage.generateDamage();
       ddbMonsterDamage.generateRegain();
 
@@ -111,7 +112,7 @@ export default class EyeRays extends DDBEnricherData {
     return true;
   }
 
-  effectExtras(name) {
+  effectExtras(name: string) {
     if (name.includes("Slowing")) {
       return [
         {
@@ -139,7 +140,7 @@ export default class EyeRays extends DDBEnricherData {
   }
 
   get effects(): IDDBEffectHint[] {
-    const results = [];
+    const results: IDDBEffectHint[] = [];
 
     this.rayChoices.forEach((ray) => {
       const name = EyeRays.rayName(ray);

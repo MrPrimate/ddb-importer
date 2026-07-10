@@ -36,7 +36,7 @@ export default class RitualCaster extends DDBEnricherData {
 
       const name = utils.nameString(spell.label);
 
-      const activity = {
+      const activity: IDDBAdditionalActivity = {
         init: {
           name,
           type: DDBEnricherData.ACTIVITY_TYPES.CAST,
