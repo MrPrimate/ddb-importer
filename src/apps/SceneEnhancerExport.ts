@@ -17,7 +17,7 @@ import { logger, FileHelper, MuncherSettings } from "../lib/_module";
  *  - textColor: The color of the text
  *  - textAnchor: The anchor of the text
  */
-function getNotes(scene, bookCode) {
+function getNotes(scene: Scene, bookCode: string) {
   // get all notes in the Journal related to this scene
   const relatedJournalEntries = game.journal.filter((journal) =>
     journal.flags.ddb?.bookCode && journal.flags.ddb.bookCode === bookCode,
@@ -67,7 +67,6 @@ function getNotes(scene, bookCode) {
         },
         levels: Array.from(note.levels ?? []),
         iconSize: note.iconSize,
-        iconTint: note.iconTint,
         textColor: note.textColor,
         textAnchor: note.textAnchor,
         x: note.x,
@@ -75,7 +74,7 @@ function getNotes(scene, bookCode) {
       };
     })
     .reduce((notes, note) => {
-      const idx = notes.find((n) => n.index === note.index && n.pageId === note.pageId && note.label === n.label);
+      const idx = notes.find((n: any) => n.index === note.index && n.pageId === note.pageId && note.label === n.label);
       if (idx) {
         idx.positions.push({ x: note.x, y: note.y });
       } else {
@@ -86,7 +85,6 @@ function getNotes(scene, bookCode) {
           levels: note.levels,
           index: note.index,
           iconSize: note.iconSize,
-          iconTint: note.iconTint,
           textColor: note.textColor,
           textAnchor: note.textAnchor,
           positions: [{ x: note.x, y: note.y }],
@@ -109,7 +107,6 @@ function getNotes(scene, bookCode) {
       } },
       levels: Array.from(note.levels ?? []),
       iconSize: note.iconSize,
-      iconTint: note.iconTint,
       textColor: note.textColor,
       textAnchor: note.textAnchor,
       positions: [{ x: note.x, y: note.y }],
@@ -123,7 +120,6 @@ function getNotes(scene, bookCode) {
       texture: note.texture,
       positions: note.positions,
       iconSize: note.iconSize,
-      iconTint: note.iconTint,
       textColor: note.textColor,
       textAnchor: note.textAnchor,
     }));
@@ -132,7 +128,7 @@ function getNotes(scene, bookCode) {
 }
 
 // Prepares the scene data for download
-export function collectSceneData(scene, bookCode) {
+export function collectSceneData(scene: Scene, bookCode: string) {
   const notes = getNotes(scene, bookCode);
 
   // Export levels from scene, stripping background.src from each
@@ -155,8 +151,11 @@ export function collectSceneData(scene, bookCode) {
   });
 
   const data = {
-    flags: scene._source.flags,
-    name: scene._source.name,
+    // flags carry arbitrary module keys (stripped against allow-lists on export),
+    // so widen beyond the declared scene flag interfaces to allow string indexing
+    flags: scene._source.flags as I5eSceneDataFlags & Record<string, unknown>,
+    // fvtt-types collapses the schema-derived name to never at this instantiation depth
+    name: scene._source.name as string,
     navName: scene._source.navName,
     navOrder: scene._source.navOrder,
     // dimensions
@@ -185,7 +184,6 @@ export function collectSceneData(scene, bookCode) {
       colors: scene._source.fog.colors,
     },
     transition: scene._source.transition,
-    dimensions: scene._source.dimensions,
   };
 
   if (!data.flags.ddb) data.flags.ddb = {};
@@ -193,8 +191,8 @@ export function collectSceneData(scene, bookCode) {
 
   if (data.flags.ddb.tokens) delete data.flags.ddb.tokens;
   data.flags.ddb.tokens = scene.tokens
-    .filter((token) => !token.actorLink)
-    .map((token) => {
+    .filter((token: any) => !token.actorLink)
+    .map((token: any) => {
       const result = {
         _id: token._id,
         name: token.name,
@@ -207,7 +205,7 @@ export function collectSceneData(scene, bookCode) {
         flags: token.flags,
         actorLink: false,
         bar1: { attribute: "attributes.hp" },
-        effects: [],
+        effects: [] as any[],
         elevation: token.elevation,
         level: token.level,
         depth: token.depth,
@@ -259,7 +257,7 @@ export function collectSceneData(scene, bookCode) {
   data.flags.ddb.levelImages = {};
   for (const level of scene.levels) {
     if (level.background?.src) {
-      data.flags.ddb.levelImages[level.id] = `assets/${level.background.src.split("assets/").pop()}`;
+      data.flags.ddb.levelImages[level._id] = `assets/${level.background.src.split("assets/").pop()}`;
     }
   }
 
@@ -269,8 +267,8 @@ export function collectSceneData(scene, bookCode) {
   return data;
 }
 
-function getCompendiumScenes(compendiumCollection, selectedId = null, selectedName = null) {
-  const scenes = [];
+function getCompendiumScenes(compendiumCollection: string, selectedId: string = null, selectedName: string = null) {
+  const scenes: any[] = [];
   const compendium = game.packs.find((pack) => pack.collection === compendiumCollection);
   if (compendium) {
     compendium.index.forEach((scene) => {
@@ -308,7 +306,7 @@ export class SceneEnhancerExport extends Application {
   compendiumDisabled: boolean;
   downloadDisabled: boolean;
 
-  constructor(scene) {
+  constructor(scene: any) {
     super();
     this.sceneSet = false;
     this.compendiumBookSet = false;
@@ -422,17 +420,17 @@ export class SceneEnhancerExport extends Application {
     }
   }
 
-  activateListeners(html) {
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
     $("#ddb-importer-scene-enhancer").css("height", "auto");
 
-    html.find("#compendium-form").submit(async (event) => {
+    html.find("#compendium-form").submit(async (event: any) => {
       const form = document.querySelector<HTMLFormElement>("#compendium-form");
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
     });
 
-    html.find("#download-form").submit(async (event) => {
+    html.find("#download-form").submit(async (event: any) => {
       const form = document.querySelector<HTMLFormElement>("#download-form");
       const data = Object.fromEntries(new FormData(form).entries());
       this.buttonClick(event, data);
@@ -442,8 +440,8 @@ export class SceneEnhancerExport extends Application {
       const compendiumSelection = html.find("#select-compendium");
 
       // get selected campaign from html selection
-      const compendiumCollection = compendiumSelection[0].selectedOptions[0]
-        ? compendiumSelection[0].selectedOptions[0].value
+      const compendiumCollection = (compendiumSelection[0] as HTMLSelectElement).selectedOptions[0]
+        ? (compendiumSelection[0] as HTMLSelectElement).selectedOptions[0].value
         : undefined;
 
       let sceneList = "";
@@ -462,8 +460,8 @@ export class SceneEnhancerExport extends Application {
 
     html.find("#select-scene").on("change", async () => {
       const sceneSelection = html.find("#select-scene");
-      const scene = sceneSelection[0].selectedOptions[0]
-        ? sceneSelection[0].selectedOptions[0].value
+      const scene = (sceneSelection[0] as HTMLSelectElement).selectedOptions[0]
+        ? (sceneSelection[0] as HTMLSelectElement).selectedOptions[0].value
         : undefined;
       this.sceneSet = scene && scene !== "";
       this.checkState();
@@ -471,8 +469,8 @@ export class SceneEnhancerExport extends Application {
 
     html.find("#select-book-compendium").on("change", async () => {
       const bookSelection = html.find("#select-book-compendium");
-      const book = bookSelection[0].selectedOptions[0]
-        ? bookSelection[0].selectedOptions[0].value
+      const book = (bookSelection[0] as HTMLSelectElement).selectedOptions[0]
+        ? (bookSelection[0] as HTMLSelectElement).selectedOptions[0].value
         : undefined;
       this.compendiumBookSet = book && book !== "";
       this.checkState();
@@ -480,8 +478,8 @@ export class SceneEnhancerExport extends Application {
 
     html.find("#select-book-download").on("change", async () => {
       const bookSelection = html.find("#select-book-download");
-      const book = bookSelection[0].selectedOptions[0]
-        ? bookSelection[0].selectedOptions[0].value
+      const book = (bookSelection[0] as HTMLSelectElement).selectedOptions[0]
+        ? (bookSelection[0] as HTMLSelectElement).selectedOptions[0].value
         : undefined;
       this.downloadBookSet = book && book !== "";
       this.checkState();
@@ -489,7 +487,7 @@ export class SceneEnhancerExport extends Application {
 
     html.find("#download-url").on("change", async () => {
       const bookSelection = html.find("#download-url");
-      const url = bookSelection[0].value;
+      const url = (bookSelection[0] as HTMLInputElement).value;
       if (url && url !== "" && url.startsWith("http")) {
         this.url = url;
       }
@@ -499,7 +497,7 @@ export class SceneEnhancerExport extends Application {
   }
 
 
-  async buttonClick(event, formData) {
+  async buttonClick(event: any, formData: any) {
     event.preventDefault();
 
     const sceneFlags = foundry.utils.duplicate(this.scene.flags);

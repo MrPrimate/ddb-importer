@@ -86,7 +86,7 @@ export default class SystemHelpers {
   }
 
 
-  static getTemplate(type) {
+  static getTemplate(type: string) {
     switch (type.toLowerCase()) {
       case "character":
         return game.dnd5e.dataModels.actor.CharacterData.schema.getInitialValue();

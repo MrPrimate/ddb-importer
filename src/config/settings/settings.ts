@@ -1198,7 +1198,7 @@ const SETTINGS = {
           "munching-policy-character-classes": {
             type: Array,
             // read as string[] in DDBMuncher and number[] in MuncherSettings
-            default: [] as (string | number)[],
+            default: [] as number[],
           },
           "munching-policy-character-subclasses": {
             type: Object,

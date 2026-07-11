@@ -356,7 +356,7 @@ declare global {
     "ddb-importer.munching-policy-character-fetch-homebrew": boolean;
     "ddb-importer.munching-policy-character-only-homebrew": boolean;
     "ddb-importer.munching-policy-character-url": string;
-    "ddb-importer.munching-policy-character-classes": any[];
+    "ddb-importer.munching-policy-character-classes": number[];
     "ddb-importer.munching-policy-character-subclasses": Record<string, number[]>;
     "ddb-importer.munching-policy-character-class-rules-version": T5eRulesVersion;
     "ddb-importer.munching-policy-disable-monster-art": boolean;
