@@ -28,11 +28,11 @@ interface IActiveAurasModule {
   };
 }
 
-function getSafeName(name) {
+function getSafeName(name: string) {
   return name.replace(/\s|'|\.|’/g, "_");
 }
 
-export async function setBasicCombatFlag(actor, flagName, origin?: string) {
+export async function setBasicCombatFlag(actor: Actor, flagName: string, origin?: string) {
   await DDBEffectHelper.setFlag(actor, flagName, {
     id: game.combat?.id ?? null,
     round: game.combat?.round ?? null,
@@ -97,7 +97,7 @@ async function generateDataTracker({
   spellLevel?: number;
   originDocument?: Item.Implementation;
   wait?: boolean;
-  actor?: Actor.Implementation | null;
+  actor?: Actor | null;
 }) {
   const dataTracker = createDataTracker({ targetUuids, spellLevel });
   if (wait) await DDBEffectHelper.wait(500);
@@ -178,8 +178,8 @@ async function applyConditionVsSave({
   // console.warn("APPLY CONDITION VS SAVE RESULT", {result, workflowItemData});
   (game.user as TTokenTargetUser).updateTokenTargets(saveTargets);
   const failedSaves = Array.from<Token.Implementation>(result.failedSaves);
-  const statusOnWorkflow = workflowItemData.effects.some((e) =>
-    e.statuses.some((s) => s.name.toLowerCase() === condition),
+  const statusOnWorkflow = workflowItemData.effects.some((e: any) =>
+    e.statuses.some((s: any) => s.name.toLowerCase() === condition),
   );
   if (failedSaves.length > 0 && !statusOnWorkflow) {
     await DDBEffectHelper.adjustCondition({
@@ -242,7 +242,7 @@ export async function checkAuraAndUseActivity({
       nameSuffix,
     });
   }
-  await DDBEffectHelper.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(target.actor as unknown as Actor, `${safeName}Tracker`, targetTokenTracker);
 }
 
 export async function checkAuraAndApplyCondition({
@@ -316,7 +316,7 @@ export async function checkAuraAndApplyCondition({
       nameSuffix,
     });
   }
-  await DDBEffectHelper.setFlag(target.actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(target.actor as unknown as Actor, `${safeName}Tracker`, targetTokenTracker);
   const effectApplied = DDBEffectHelper.isConditionEffectAppliedAndActive(targetTokenTracker.condition, target.actor);
   const currentTokenCombatTurn = game.combat.current.tokenId === tokenId;
   if (currentTokenCombatTurn && allowVsRemoveCondition && effectApplied) {
@@ -370,11 +370,11 @@ export async function removeAuraFromToken({
   targetTokenTracker.hasLeft = true;
   targetTokenTracker.turn = game.combat?.turn ?? 0;
   targetTokenTracker.round = game.combat?.round ?? 0;
-  await DDBEffectHelper.setFlag(targetToken.actor, `${safeName}Tracker`, targetTokenTracker);
+  await DDBEffectHelper.setFlag(targetToken.actor as unknown as Actor, `${safeName}Tracker`, targetTokenTracker);
 }
 
 
-export async function applyAuraToTemplate(returnArgs, {
+export async function applyAuraToTemplate(returnArgs: any, {
   originDocument,
   condition = null,
   sequencerFile = null,
@@ -402,7 +402,7 @@ export async function applyAuraToTemplate(returnArgs, {
     originDocument,
     targetUuids,
     spellLevel,
-    actor: originDocument.actor,
+    actor: originDocument.actor as unknown as Actor,
   });
 
   if (sequencerFile) {
@@ -413,8 +413,8 @@ export async function applyAuraToTemplate(returnArgs, {
   if (isCantrip) {
     const cantripDice = DDBEffectHelper.getCantripDice(originDocument.actor);
     returnArgs[0].spellLevel = cantripDice;
-    const newEffects = returnArgs[0].item.effects.map((effect) => {
-      effect.system.changes = effect.system.changes.map((change) => {
+    const newEffects = returnArgs[0].item.effects.map((effect: any) => {
+      effect.system.changes = effect.system.changes.map((change: any) => {
         change.value = change.value.replaceAll("@cantripDice", cantripDice);
         return change;
       });

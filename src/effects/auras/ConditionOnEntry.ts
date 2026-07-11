@@ -30,7 +30,7 @@ export default async function conditionOnEntry({
     const templateApplication = await applyAuraToTemplate(args, {
       originDocument: item,
       condition: flags.condition,
-      targetUuids: Array.from(workflow.targets.map((t) => t.document.uuid)),
+      targetUuids: Array.from(workflow.targets.map((t: any) => t.document.uuid)),
       sequencerFile: flags.sequencerFile,
       sequencerScale: flags.sequencerScale,
       applyImmediate: flags.applyImmediate,

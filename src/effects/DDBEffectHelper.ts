@@ -1810,14 +1810,14 @@ export default class DDBEffectHelper {
     return actor.update({ [key]: null });
   }
 
-  static async setFlag(targetActor, flagId, value) {
+  static async setFlag(targetActor: Actor | foundry.canvas.placeables.Token | string, flagId: string, value: string | number | boolean) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("setFlag", { actorUuid: targetActor, flagId, value });
     } else if (typeof targetActor === "string") {
       return globalThis.DDBImporter.socket.executeAsGM("setFlag", { actorId: targetActor, flagId, value });
     }
     let actor = null;
-    if (targetActor instanceof Token) actor = targetActor.actor;
+    if (targetActor instanceof foundry.canvas.placeables.Token) actor = targetActor.actor;
     if (targetActor instanceof Actor) actor = targetActor;
     if (!actor) return logger.error(`setFlag: actor not defined`);
     return globalThis.DDBImporter.socket.executeAsGM("setFlag", {
@@ -1828,14 +1828,14 @@ export default class DDBEffectHelper {
     });
   }
 
-  static async unsetFlag(targetActor, flagId) {
+  static async unsetFlag(targetActor: Actor | foundry.canvas.placeables.Token | string, flagId: string) {
     if (typeof targetActor === "string" && (targetActor.startsWith("Scene") || targetActor.startsWith("Actor"))) {
       return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", { actorUuid: targetActor, flagId });
     } else if (typeof targetActor === "string") {
       return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", { actorId: targetActor, flagId });
     }
     let actor = null;
-    if (targetActor instanceof Token) actor = targetActor.actor;
+    if (targetActor instanceof foundry.canvas.placeables.Token) actor = targetActor.actor;
     if (targetActor instanceof Actor) actor = targetActor;
     if (!actor) return logger.error(`dae.setFlag: actor not defined`);
     return globalThis.DDBImporter.socket.executeAsGM("unsetFlag", {
