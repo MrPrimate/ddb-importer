@@ -1,3 +1,61 @@
+/**
+ * DDBMuleHandler - bulk compendium munching via the "mule" proxy endpoint.
+ *
+ * The mule is a proxy-side process that drives a real (donor/"mule") D&D Beyond
+ * character: the proxy repeatedly mutates that character (adding a class, a
+ * subclass, each subclass choice combination, feats, a background, or a species)
+ * and streams the resulting character JSON back to us over a socket
+ * (DDBMuleSocket). Each streamed variant is then run through the normal
+ * DDBCharacter parser against a temporary mock actor, and the parsed documents
+ * are collected (not imported per-character) and finally written to compendiums
+ * in one deduplicated pass.
+ *
+ * Entry points are the static munchClass/munchClasses/munchFeats/
+ * munchBackgrounds/munchSpecies helpers, which construct a handler with a
+ * `type` and call process().
+ *
+ * process() steps through:
+ *
+ * 1. _init() -> _fetchMuleData() -> #fetchMuleDataStreaming(): authenticates
+ *    and starts a mule job on the proxy, then consumes events as they arrive.
+ *    Every event is buffered into `this.source` (_ingestIterationItem) so the
+ *    full payload is available later, and "actionable" events (subClassChoices,
+ *    featOptions, backgroundOptions, speciesOptions) are queued for progressive
+ *    processing via _scheduleStreamTask. Tasks run in arrival order at
+ *    concurrency 1 (a Semaphore) so parsing keeps pace with the stream without
+ *    interleaving. If the proxy has a cached result it sends a single cacheHit
+ *    event instead; the buffered source is then replayed through the same
+ *    per-item processors (_replayBufferedSourceThroughStreamProcessors).
+ *
+ * 2. Per-item processing (_processStream*): build a minimal DDB character stub
+ *    from the streamed base character (_buildDDBStub), merge the variant's
+ *    character data over it, then run a full DDBCharacter.process() with
+ *    collectCompendiumDocumentsOnly against a mock (temporary) actor. The
+ *    resulting pending documents are merged into the `pendingDocs` maps, keyed
+ *    (#docKey) so the same feature arriving from multiple variants is only
+ *    kept once.
+ *
+ * 3. After the stream drains, _flushCompendiumDocuments() writes the
+ *    deduplicated features/traits/feats/backgrounds/species to compendiums.
+ *
+ * Classes and subclasses (type "class") get an extra sequence. The proxy
+ * iterates every subclass of the requested classId; for each it sends
+ * subClassData (the mule character with that subclass applied) followed by one
+ * or more subClassChoices passes (each pass a different combination of choice
+ * options, e.g. warlock invocations or fighting styles). Each choices payload
+ * is merged over the matching subClassData and parsed as above; all variants
+ * of one subclass share a single mock actor (_streamMockActors) so their
+ * parsed DDBCharacters agree, and each parsed character is retained in
+ * cachedClassCharacters. Class/subclass items cannot be written until their
+ * features exist in the compendium, so after the generic flush in step 3,
+ * _finalizeClassCompendiumLinks() revisits every cached character to resolve
+ * feature links (advancement, spell lists) and collect the pending class and
+ * subclass documents, and _flushClassCompendiumDocuments() writes those last.
+ *
+ * Progress reporting: the primary bar tracks stream events (subclass N of M,
+ * feat chunk N of M); the secondary bar tracks completed import UNITS deduped
+ * by id, so multi-pass subclasses count once.
+ */
 import DDBMuncher from "../apps/DDBMuncher";
 import { DICTIONARY } from "../config/_module";
 import { DDBCampaigns, DDBProxy, FileHelper, FolderHelper, logger, PatreonHelper, postJson, Secrets, utils } from "../lib/_module";
@@ -1200,7 +1258,7 @@ export default class DDBMuleHandler {
     return data;
   }
 
-  static async getSlimCharacters(ids = []) {
+  static async getSlimCharacters(ids: string[] = []) {
     const cobaltCookie = Secrets.getCobalt();
     const parsingApi = DDBProxy.getProxy();
     const betaKey = PatreonHelper.getPatreonKey();
