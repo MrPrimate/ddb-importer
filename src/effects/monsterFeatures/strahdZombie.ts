@@ -3,7 +3,7 @@ import { DDBMacros } from "../../lib/_module";
 import { baseMonsterFeatureEffect } from "../specialMonsters";
 
 
-export async function strahdZombieEffects(npc) {
+export async function strahdZombieEffects(npc: I5eMonsterData): Promise<I5eMonsterData> {
   for (let item of npc.items) {
     if (item.name.startsWith("Loathsome Limbs")) {
       const effect = baseMonsterFeatureEffect(item, item.name);

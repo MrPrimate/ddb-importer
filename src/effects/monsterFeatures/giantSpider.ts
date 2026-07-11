@@ -2,7 +2,7 @@ import { forceItemEffect, addStatusEffectChange } from "../effects";
 import { baseMonsterFeatureEffect } from "../specialMonsters";
 
 
-export function giantSpiderEffects(npc) {
+export function giantSpiderEffects(npc: I5eMonsterData): I5eMonsterData {
   for (let item of npc.items) {
     if (item.name.startsWith("Web")) {
       const effect = baseMonsterFeatureEffect(item, item.name);
@@ -12,13 +12,13 @@ export function giantSpiderEffects(npc) {
           key: "flags.midi-qol.OverTime",
           type: "custom",
           value: "turn=start,name=You can take an action to break free of the web by rolling a Strength Ability Check",
-          priority: "20",
+          priority: 20,
         },
         {
           key: "flags.midi-qol.OverTime",
           type: "custom",
           value: "turn=end, rollType=check, actionSave=true, saveAbility=str, saveDC=@abilities.str.dc, label=Restrained by Web",
-          priority: "20",
+          priority: 20,
         },
       );
 

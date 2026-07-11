@@ -2,7 +2,7 @@ import { forceItemEffect, addStatusEffectChange } from "../effects";
 import { baseMonsterFeatureEffect } from "../specialMonsters";
 
 
-export function quasitEffects(npc) {
+export function quasitEffects(npc: I5eMonsterData): I5eMonsterData {
   for (let item of npc.items) {
     if (item.name.startsWith("Claws")) {
       const effect = baseMonsterFeatureEffect(item, item.name);
@@ -11,7 +11,7 @@ export function quasitEffects(npc) {
           key: "flags.midi-qol.OverTime",
           type: "custom",
           value: "turn=end, saveAbility=con, saveDC=@abilities.con.dc, label=Poisoned by Quasit Claws",
-          priority: "20",
+          priority: 20,
         },
       );
       addStatusEffectChange({ effect, statusName: "Poisoned" });

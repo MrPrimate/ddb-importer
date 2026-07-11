@@ -1,7 +1,7 @@
 import { DDBMacros } from "../../lib/_module";
 import { baseEffect } from "../effects";
 
-export async function spellReflectionEffect(document) {
+export async function spellReflectionEffect(document: I5eMonsterItem) {
 
   foundry.utils.setProperty(document, "system.activation.type", "special");
   foundry.utils.setProperty(document, "system.actionType", "other");

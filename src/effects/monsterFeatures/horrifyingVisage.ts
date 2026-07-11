@@ -1,6 +1,6 @@
 import { addStatusEffectChange, baseFeatEffect } from "../effects";
 
-export function horrifyingVisageEffect(document) {
+export function horrifyingVisageEffect(document: I5eMonsterItem): I5eMonsterItem {
   foundry.utils.setProperty(document, "system.duration", { value: 1, units: "minute" });
   foundry.utils.setProperty(document, "system.target", { value: 60, width: null, units: "ft", type: "enemy" });
   foundry.utils.setProperty(document, "system.range", { value: 60, long: null, units: "spec" });

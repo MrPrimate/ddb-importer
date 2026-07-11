@@ -1,7 +1,7 @@
 import { forceItemEffect, addStatusEffectChange, baseFeatEffect } from "../effects";
 import { DDBMacros } from "../../lib/_module";
 
-function avalancheOfBonesEffect(document) {
+function avalancheOfBonesEffect(document: I5eMonsterItem): I5eMonsterItem {
   foundry.utils.setProperty(document, "system.duration", { value: null, units: "special" });
   foundry.utils.setProperty(document, "system.target", { value: 10, width: null, units: "ft", type: "creature" });
   foundry.utils.setProperty(document, "system.range", { value: null, long: null, units: "self" });
@@ -17,7 +17,7 @@ function avalancheOfBonesEffect(document) {
   return document;
 }
 
-function fallingApartEffect(document) {
+function fallingApartEffect(document: I5eMonsterItem): I5eMonsterItem {
   const effect = baseFeatEffect(document, document.name);
   effect.system.changes.push(
     {
@@ -33,7 +33,7 @@ function fallingApartEffect(document) {
   return document;
 }
 
-async function disassembleEffect(document) {
+async function disassembleEffect(document: I5eMonsterItem): Promise<I5eMonsterItem> {
   const effect = baseFeatEffect(document, document.name);
 
   await DDBMacros.setItemMacroFlag(document, "monsterFeature", "disassemble.js");
@@ -45,7 +45,7 @@ async function disassembleEffect(document) {
   return document;
 }
 
-export async function skeletalJuggernautEffects(npc) {
+export async function skeletalJuggernautEffects(npc: I5eMonsterData): Promise<I5eMonsterData> {
   for (let item of npc.items) {
     if (item.name.startsWith("Avalanche of Bones")) {
       item = avalancheOfBonesEffect(item);

@@ -1,6 +1,6 @@
 import { DDBMacros } from "../../lib/_module";
 
-export async function deathlyChoirEffect(document) {
+export async function deathlyChoirEffect(document: I5eMonsterItem): Promise<I5eMonsterItem> {
   await DDBMacros.setItemMacroFlag(document, "monsterFeature", "deathlyChoir.js");
   DDBMacros.setMidiOnUseMacroFlag(document, "monsterFeature", "deathlyChoir.js", ["prePreambleComplete"]);
 
